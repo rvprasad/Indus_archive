@@ -27,6 +27,9 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,6 +57,11 @@ import java.util.Map;
  */
 public class DivergenceDA
   extends DependencyAnalysis {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(DivergenceDA.class);
+
 	/*
 	 * The dependence information is stored as follows: For each method, a sequence of collection of statements is maintained.
 	 * The length of the sequence is equal to the number of statements in the method.  The statement collection at a location
@@ -380,10 +388,18 @@ public class DivergenceDA
 
 		// Pass 1: Calculate pre-divergence points
 		// Pass 1.1: Calculate intraprocedural pre-divergence points
-		for (Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = getMethods().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			final SootMethod METHOD = (SootMethod) entry.getKey();
 			final BasicBlockGraph BBGRAPH = getBasicBlockGraph(METHOD);
+
+			if (BBGRAPH == null) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Method " + METHOD.getSignature() + " did not have a basic block graph.");
+				}
+				continue;
+			}
+
 			final Collection BACKEDGES = BBGRAPH.getBackEdges();
 			final Collection HANDLERBLOCKS = BBGRAPH.getHandlerBlocks();
 
@@ -549,6 +565,9 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/12 22:33:08  venku
+   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
+   - Ripple effect of the above changes.
    Revision 1.11  2003/09/12 08:09:14  venku
    - Well, well, well.  Things work in the presence of exceptions too.
    - However, statements in a cycle are indicated as being dependent

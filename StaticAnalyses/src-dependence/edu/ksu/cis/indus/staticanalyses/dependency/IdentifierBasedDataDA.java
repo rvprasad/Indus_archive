@@ -120,10 +120,9 @@ public class IdentifierBasedDataDA
 	public void analyze() {
 		stable = false;
 
-		for (Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			SootMethod currMethod = (SootMethod) entry.getKey();
-			CompleteUnitGraph stmtGraph = (CompleteUnitGraph) entry.getValue();
+		for (Iterator i = getMethods().iterator(); i.hasNext();) {
+			SootMethod currMethod = (SootMethod) i.next();
+			CompleteUnitGraph stmtGraph = (CompleteUnitGraph) getUnitGraph(currMethod);
 			SimpleLocalDefs defs = new SimpleLocalDefs(stmtGraph);
 			SimpleLocalUses uses = new SimpleLocalUses(stmtGraph, defs);
 			Collection t = getStmtList(currMethod);
@@ -214,6 +213,10 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/12 22:33:08  venku
+   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
+   - Ripple effect of the above changes.
+
    Revision 1.6  2003/09/02 12:21:03  venku
    - Tested and it works.  A small bug was fixed.
    Revision 1.5  2003/08/25 09:30:41  venku

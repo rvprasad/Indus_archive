@@ -25,6 +25,8 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,14 +39,8 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractAnalysis implements IStatus {
-	/**
-	 * This maps the methods being analyzed to their control graphs.
-	 *
-	 * @invariant method2stmtGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
-	 */
-	protected final Map method2stmtGraph = new HashMap();
-
+public abstract class AbstractAnalysis
+  implements IStatus {
 	/**
 	 * The pre-processor for this analysis, if one exists.
 	 */
@@ -57,6 +53,13 @@ public abstract class AbstractAnalysis implements IStatus {
 	 * @invariant info.oclIsKindOf(Map(String, Object))
 	 */
 	protected Map info = new HashMap();
+
+	/**
+	 * This maps the methods being analyzed to their control graphs.
+	 *
+	 * @invariant method2stmtGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
+	 */
+	private final Map method2unitGraph = new HashMap();
 
 	/**
 	 * This manages the basic block graphs of methods.
@@ -114,7 +117,7 @@ public abstract class AbstractAnalysis implements IStatus {
 	public final void initialize(final Map method2stmtGraphParam, final Map infoParam)
 	  throws InitializationException {
 		this.info.putAll(infoParam);
-		this.method2stmtGraph.putAll(method2stmtGraphParam);
+		this.method2unitGraph.putAll(method2stmtGraphParam);
 		setup();
 	}
 
@@ -135,37 +138,38 @@ public abstract class AbstractAnalysis implements IStatus {
 	 * @post info.size() == 0 and method2stmtGraph.size() == 0
 	 */
 	public void reset() {
-		method2stmtGraph.clear();
+		method2unitGraph.clear();
 		info.clear();
 	}
 
 	/**
-	 * Returns the basic block graph constructed from the given control flow graph.  This will also remember the association
-	 * between the given method and graph.
-	 *
-	 * @param stmtGraph is a control flow graph.
-	 *
-	 * @return the basic block graph corresponding to <code>stmtGraph</code>.
-	 *
-	 * @pre stmtGraph != null
-	 * @post result != null
-	 */
-	protected BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
-		method2stmtGraph.put(stmtGraph.getBody().getMethod(), stmtGraph);
-		return graphManager.getBasicBlockGraph(stmtGraph);
-	}
-
-	/**
-	 * Returns the basic block graph for the given method, if one exists.
+	 * Returns the basic block graph for the given method, if available.  If not it will try to acquire the unit graph from
+	 * the application. From that unit graph  t will construct a basic block graph and return it.
 	 *
 	 * @param method for which the basic block graph is requested.
 	 *
-	 * @return the basic block graph corresponding to <code>method</code>, if one exists.
+	 * @return the basic block graph corresponding to <code>method</code>.
 	 *
 	 * @pre method != null
 	 */
 	protected BasicBlockGraph getBasicBlockGraph(final SootMethod method) {
-		return graphManager.getBasicBlockGraph(method);
+		BasicBlockGraph result = graphManager.getBasicBlockGraph(method);
+
+		if (result == null) {
+			result = graphManager.getBasicBlockGraph(getUnitGraph(method));
+		}
+		return result;
+	}
+
+	/**
+	 * Returns a collection of methods for which unit graphs are available.
+	 *
+	 * @return a colletion of methods
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 */
+	protected Collection getMethods() {
+		return Collections.unmodifiableCollection(method2unitGraph.keySet());
 	}
 
 	/**
@@ -180,12 +184,25 @@ public abstract class AbstractAnalysis implements IStatus {
 	 */
 	protected List getStmtList(final SootMethod method) {
 		List result = null;
-		UnitGraph stmtGraph = (UnitGraph) method2stmtGraph.get(method);
+		UnitGraph stmtGraph = (UnitGraph) method2unitGraph.get(method);
 
 		if (stmtGraph != null) {
 			result = new ArrayList(stmtGraph.getBody().getUnits());
 		}
 		return result;
+	}
+
+	/**
+	 * Returns the unit graph for the method.
+	 *
+	 * @param method for which the unit graph is requested.
+	 *
+	 * @return the unit graph.
+	 *
+	 * @post result != null
+	 */
+	protected UnitGraph getUnitGraph(final SootMethod method) {
+		return (UnitGraph) method2unitGraph.get(method);
 	}
 
 	/**
@@ -202,6 +219,9 @@ public abstract class AbstractAnalysis implements IStatus {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/12 22:33:09  venku
+   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
+   - Ripple effect of the above changes.
    Revision 1.9  2003/09/12 01:21:30  venku
    - documentation changes.
    Revision 1.8  2003/09/10 10:52:44  venku
