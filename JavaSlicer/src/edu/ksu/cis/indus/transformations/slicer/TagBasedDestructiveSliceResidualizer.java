@@ -74,6 +74,8 @@ import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
 
+import soot.jimple.toolkits.scalar.NopEliminator;
+
 import soot.tagkit.Host;
 
 import soot.util.Chain;
@@ -539,6 +541,8 @@ public final class TagBasedDestructiveSliceResidualizer
 
 		if (!(_returnType instanceof VoidType)) {
 			_jimpleBody.getUnits().add(_jimple.newReturnStmt(getDefaultValueFor(_returnType)));
+		} else {
+			_jimpleBody.getUnits().add(_jimple.newReturnVoidStmt());
 		}
 		method.setActiveBody(_jimpleBody);
 	}
@@ -599,6 +603,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			_body.validateTraps();
 			_body.validateUnitBoxes();
 			_body.validateUses();
+			NopEliminator.v().transform(_body);
 		}
 	}
 }
@@ -606,6 +611,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/14 16:40:30  venku
+   - added residualization logic.
+   - incorporate the residualizer in the tool.
    Revision 1.1  2003/12/09 11:02:38  venku
    - synchronization forced commit.
  */
