@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -149,7 +149,14 @@ public class DependencyAnalysisTestSetup
 			  _i.hasNext();) {
 			final IDependencyAnalysisTest _test = (IDependencyAnalysisTest) _i.next();
 			_test.setEnvironment(valueAnalyzer.getEnvironment());
-			das.add(_test.getDA());
+
+			final IDependencyAnalysis _da = _test.getDA();
+			das.add(_da);
+
+			if (_da.getId().equals(IDependencyAnalysis.CONTROL_DA)
+				  && _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+				info.put(IDependencyAnalysis.CONTROL_DA, _da);
+			}
 		}
 
 		for (final Iterator _i =
@@ -208,92 +215,4 @@ public class DependencyAnalysisTestSetup
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.25  2004/08/11 08:52:04  venku
-   - massive changes.
-     - Changed the way threads were represented in ThreadGraph.
-     - Changed the interface in IThreadGraph.
-     - ripple effect in other classes.
-
-   Revision 1.24  2004/08/02 07:33:45  venku
-   - small but significant change to the pair manager.
-   - ripple effect.
-
-   Revision 1.23  2004/08/01 21:30:15  venku
-   - ECBA was made independent of ThreadGraph Analysis.
-   Revision 1.22  2004/07/28 09:09:27  venku
-   - changed aliased use def analysis to consider thread.
-   - also fixed a bug in the same analysis.
-   - ripple effect.
-   - deleted entry control dependence and renamed direct entry control da as
-     entry control da.
-   Revision 1.21  2004/07/23 13:09:45  venku
-   - Refactoring in progress.
-     - Extended IMonitorInfo interface.
-     - Teased apart the logic to calculate monitor info from SynchronizationDA
-       into MonitorAnalysis.
-     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
-     - ripple effect.
-     - Implemented safelock analysis to handle intraprocedural processing.
-   Revision 1.20  2004/07/21 11:36:26  venku
-   - Extended IUseDefInfo interface to provide both local and non-local use def info.
-   - ripple effect.
-   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
-     ECBA and AliasedUseDefInfo analysis.
-   - Added new faster implementation of LocalUseDefAnalysisv2
-   - Used LocalUseDefAnalysisv2
-   Revision 1.19  2004/07/17 23:32:18  venku
-   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
-   - ripple effect.
-   Revision 1.18  2004/07/16 06:38:47  venku
-   - added  a more precise implementation of aliased use-def information.
-   - ripple effect.
-   Revision 1.17  2004/07/11 14:17:39  venku
-   - added a new interface for identification purposes (IIdentification)
-   - all classes that have an id implement this interface.
-   Revision 1.16  2004/05/31 21:38:07  venku
-   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
-   - ripple effect.
-   Revision 1.15  2004/05/21 22:11:47  venku
-   - renamed CollectionsModifier as CollectionUtilities.
-   - added new specialized methods along with a method to extract
-     filtered maps.
-   - ripple effect.
-   Revision 1.14  2004/05/14 11:25:48  venku
-   - aliasUD was not reset. FIXED.
-   Revision 1.13  2004/05/14 06:27:25  venku
-   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-   Revision 1.12  2004/04/21 04:13:20  venku
-   - jimple dumping takes time.  Instead, the user can control this
-     per configuration.
-   Revision 1.11  2004/04/21 02:24:01  venku
-   - test clean up code was added.
-   Revision 1.10  2004/04/20 06:53:17  venku
-   - documentation.
-   Revision 1.9  2004/04/19 05:10:26  venku
-   - NPE's in test setup caused by unchecked reseting.
-   Revision 1.8  2004/04/18 02:05:18  venku
-   - memory leak fixes.
-   Revision 1.7  2004/04/18 00:42:56  venku
-   - references to objects had leaked after test. FIXED.
-   Revision 1.6  2004/04/18 00:17:20  venku
-   - added support to dump jimple.xml while testing. (bug fix)
-   Revision 1.5  2004/04/01 19:18:29  venku
-   - stmtGraphFactory was not set.
-   Revision 1.4  2004/03/29 09:44:41  venku
-   - finished the xml-based testing framework for dependence.
-   Revision 1.3  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.2  2004/03/26 00:26:40  venku
-   - ripple effect of refactoring soot package in Indus.
-   Revision 1.1  2004/03/09 19:10:40  venku
-   - preliminary commit of test setup for dependency analyses.
- */
+// End of File
