@@ -203,7 +203,7 @@
     <sect2 id="birds-eye-view">
       <title>Bird's eye view</title>
       <para>
-        <code>tools.slicer.SliceXMLizer</code> is a class that uses the <code>tools.slicer.SlicerTool</code>
+        <code>tools.slicer.SliceXMLizerCLI</code> is a class that uses the <code>tools.slicer.SlicerTool</code>
         <footnote>From here on, we shall refer to <emphasis>tools.slicer.SlicerTool</emphasis> as just
         <emphasis>SlicerTool</emphasis>.</footnote> to generate the slice and it residualizes the slice as an XML
         document and each class in the slice as a Jimple file and a class file. Following is a snippet of the main code
