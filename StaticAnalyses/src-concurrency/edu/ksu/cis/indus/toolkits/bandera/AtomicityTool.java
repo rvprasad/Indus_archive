@@ -68,9 +68,7 @@ public final class AtomicityTool
 	public static final String CALL_GRAPH_INPUT_KEY = "callGraph";
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This key denotes the basic block graph manager.
 	 */
 	public static final String BASIC_BLOCK_GRAPH_MGR_INPUT_KEY = "basicBlockGraphMgr";
 
