@@ -241,9 +241,7 @@ public final class SlicerConfiguration
 	static final Object NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE = "Non termination sensitive";
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This identifies the property that determines if call site sensitive ready dependence is used.
 	 */
 	static final Object CALL_SITE_SENSITIVE_READY_DA = "call site sensitive ready dependence";
 
