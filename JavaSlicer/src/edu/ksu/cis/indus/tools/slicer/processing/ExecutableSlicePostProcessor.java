@@ -133,6 +133,7 @@ public final class ExecutableSlicePostProcessor
 		while (methodWorkBag.hasWork()) {
 			final SootMethod _method = (SootMethod) methodWorkBag.getWork();
 			processedMethodCache.add(_method);
+			processMethods(_method);
 
 			if (_method.isConcrete()) {
 				if (LOGGER.isDebugEnabled()) {
@@ -289,35 +290,19 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
-	 * For the method invoked at <code>stmt</code>, this method includes the declarations/definitions of methods with
-	 * identical signature in the super classes to make the executable.
+	 * For the given method, this method includes the declarations/definitions of methods with identical signature in the
+	 * super classes to make the slice executable.
 	 *
 	 * @param method in which <code>stmt</code> occurs.
-	 * @param stmt containing the invoke expr.
 	 *
-	 * @pre method != null and stmt != null and stmt.containsInvokeExpr()
+	 * @pre method != null
 	 */
-	private void processInvokeExpr(final SootMethod method, final Stmt stmt) {
-		/*
-		 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
-		 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
-		 * This can be fixed by sucking all the method definitions that need to make the system verifiable
-		 * and empty bodies will be substituted for such methods.
-		 */
-		final InvokeExpr _expr = stmt.getInvokeExpr();
-
-		if (!(_expr instanceof StaticInvokeExpr)) {
-			final SootMethod _t = _expr.getMethod();
-
-			for (final Iterator _i = Util.findMethodInSuperClasses(_t).iterator(); _i.hasNext();) {
-				final SootMethod _sm = (SootMethod) _i.next();
-				collector.includeInSlice(_sm);
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Included method invoked at " + stmt + " in " + method);
-				}
-				addToMethodWorkBag(_sm);
-			}
+	private void processMethods(final SootMethod method) {
+		for (final Iterator _i = Util.findMethodInSuperClassesAndInterfaces(method).iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			collector.includeInSlice(_sm.getDeclaringClass());
+			collector.includeInSlice(_sm);
+			addToMethodWorkBag(_sm);
 		}
 	}
 
@@ -348,7 +333,21 @@ public final class ExecutableSlicePostProcessor
 				}
 
 				if (_stmt.containsInvokeExpr() && collector.hasBeenCollected(_stmt)) {
-					processInvokeExpr(method, _stmt);
+					/*
+					 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
+					 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
+					 * This can be fixed by sucking all the method definitions that need to make the system verifiable
+					 * and empty bodies will be substituted for such methods.
+					 */
+					final InvokeExpr _expr = _stmt.getInvokeExpr();
+
+					if (!(_expr instanceof StaticInvokeExpr)) {
+						processMethods(_expr.getMethod());
+
+						if (LOGGER.isDebugEnabled()) {
+							LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
+						}
+					}
 				}
 				processHandlers(method, _stmt);
 			}
@@ -404,9 +403,10 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/19 13:03:53  venku
+   - coding convention.
    Revision 1.5  2004/01/19 11:38:06  venku
    - moved findMethodInSuperClasses into Util.
-
    Revision 1.4  2004/01/17 00:35:35  venku
    - post process of statements was optimized.
    - handler processing was fixed.

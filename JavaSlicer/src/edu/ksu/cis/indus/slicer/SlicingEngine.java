@@ -71,6 +71,7 @@ import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
+import soot.tagkit.Host;
 import soot.toolkits.graph.CompleteUnitGraph;
 
 import soot.toolkits.scalar.SimpleLocalDefs;
@@ -774,7 +775,7 @@ public final class SlicingEngine {
 	 *
 	 * @pre callee != null
 	 */
-	private void generateNewCriteriaForTheCallToEnclosingMethod(final SootMethod callee) {
+	private void generateNewCriteriaForTheCallToMethod(final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller) " + callee);
 		}
@@ -888,45 +889,46 @@ public final class SlicingEngine {
 	 * @pre clazz != null
 	 */
 	private void includeClassHierarchyInSlice(final SootClass clazz) {
-		final Collection _processed = new HashSet();
-		final IWorkBag _wb = new FIFOWorkBag();
-		_wb.addWork(clazz);
-
-		while (_wb.hasWork()) {
-			final SootClass _sc = (SootClass) _wb.getWork();
-			_processed.add(_sc);
-
-			if (_sc.declaresMethodByName("<clinit>")) {
-				final SootMethod _clinit = _sc.getMethodByName("<clinit>");
-
-				if (considerMethodExitForCriteriaGeneration(_clinit) && !collector.hasBeenCollected(_clinit)) {
-					markAsInvoked(_clinit);
-
-					for (final Iterator _j = getSlicedBasicBlockGraphMgr().getBasicBlockGraph(_clinit).getTails().iterator();
-						  _j.hasNext();) {
-						final BasicBlock _bb = (BasicBlock) _j.next();
-						final Stmt _trailer = _bb.getTrailerStmt();
-
-						// TODO: we are considering both throws and returns as return points. This should change when we consider 
-						// ip control-flow based on exceptions.
-						generateSliceStmtCriterion(_trailer, _clinit, true);
-					}
-				}
-			}
-
-			if (_sc.hasSuperclass()) {
-				final SootClass _temp = _sc.getSuperclass();
-
-				if (!_processed.contains(_temp) && !collector.hasBeenCollected(_temp)) {
-					_wb.addWorkNoDuplicates(_temp);
-				}
-			}
-
-			final Collection _temp = CollectionUtils.subtract(_sc.getInterfaces(), _processed);
-			CollectionUtils.filter(_temp, collector.filterOutTaggedHostPredicate);
-			_wb.addAllWorkNoDuplicates(_temp);
-		}
-		collector.includeInSlice(_processed);
+        collector.includeInSlice(clazz);
+//		final Collection _processed = new HashSet();
+//		final IWorkBag _wb = new FIFOWorkBag();
+//		_wb.addWork(clazz);
+//
+//		while (_wb.hasWork()) {
+//			final SootClass _sc = (SootClass) _wb.getWork();
+//			_processed.add(_sc);
+//
+//			if (_sc.declaresMethodByName("<clinit>")) {
+//				final SootMethod _clinit = _sc.getMethodByName("<clinit>");
+//
+//				if (considerMethodExitForCriteriaGeneration(_clinit) && !collector.hasBeenCollected(_clinit)) {
+//					markAsInvoked(_clinit);
+//
+//					for (final Iterator _j = getSlicedBasicBlockGraphMgr().getBasicBlockGraph(_clinit).getTails().iterator();
+//						  _j.hasNext();) {
+//						final BasicBlock _bb = (BasicBlock) _j.next();
+//						final Stmt _trailer = _bb.getTrailerStmt();
+//
+//						// TODO: we are considering both throws and returns as return points. This should change when we consider 
+//						// ip control-flow based on exceptions.
+//						generateSliceStmtCriterion(_trailer, _clinit, true);
+//					}
+//				}
+//			}
+//
+//			if (_sc.hasSuperclass()) {
+//				final SootClass _temp = _sc.getSuperclass();
+//
+//				if (!_processed.contains(_temp) && !collector.hasBeenCollected(_temp)) {
+//					_wb.addWorkNoDuplicates(_temp);
+//				}
+//			}
+//
+//			final Collection _temp = CollectionUtils.subtract(_sc.getInterfaces(), _processed);
+//			CollectionUtils.filter(_temp, collector.filterOutTaggedHostPredicate);
+//			_wb.addAllWorkNoDuplicates(_temp);
+//		}
+//		collector.includeInSlice(_processed);
 	}
 
 	/**
@@ -938,6 +940,7 @@ public final class SlicingEngine {
 	 * @pre method != null
 	 */
 	private void includeMethodAndClassHierarchyInSlice(final SootMethod method) {
+        collector.includeInSlice(method);
 		final SootClass _sc = method.getDeclaringClass();
 		includeClassHierarchyInSlice(_sc);
 
@@ -946,9 +949,9 @@ public final class SlicingEngine {
 		includeTypesInSlice(_types);
 		collector.includeInSlice(method);
 
-		if (!method.isPrivate()) {
-			collector.includeInSlice(Util.findMethodInSuperClasses(method));
-		}
+//		if (!method.isPrivate()) {
+//			collector.includeInSlice(Util.findMethodInSuperClasses(method));
+//		}
 	}
 
 	/**
@@ -1114,7 +1117,7 @@ public final class SlicingEngine {
 
 				if (_value instanceof ParameterRef) {
 					generateNewCriteriaForParam(_vBox, method);
-					generateNewCriteriaForTheCallToEnclosingMethod(method);
+					generateNewCriteriaForTheCallToMethod(method);
 				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
 					_das.addAll(controller.getAnalyses(DependencyAnalysis.REFERENCE_BASED_DATA_DA));
 					_das.addAll(controller.getAnalyses(DependencyAnalysis.INTERFERENCE_DA));
@@ -1218,7 +1221,7 @@ public final class SlicingEngine {
 		}
 
 		// generate new slice criteria
-		generateNewCriteriaForTheCallToEnclosingMethod(method);
+		generateNewCriteriaForTheCallToMethod(method);
 		generateNewCriteria(stmt, method, controlflowBasedDAs);
 
 		collector.includeInSlice(method);
@@ -1233,6 +1236,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.51  2004/01/19 12:23:09  venku
+   - optimized includeClassHierarchy() and includeMethodAndClassHierarchy() methods.
+
    Revision 1.50  2004/01/14 12:04:14  venku
    - we check if the statement is collected to optimized.  However,
      a statement may be collected but not all parts of it and a later
