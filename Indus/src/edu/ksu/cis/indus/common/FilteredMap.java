@@ -40,12 +40,12 @@ import org.apache.commons.collections.map.AbstractMapDecorator;
  */
 final class FilteredMap
   extends AbstractMapDecorator {
-	/**
+	/** 
 	 * The predicate to filter keys.
 	 */
 	private final Predicate keyPred;
 
-	/**
+	/** 
 	 * The predicate to filter values.
 	 */
 	private final Predicate valuePred;
@@ -298,6 +298,7 @@ final class FilteredMap
 	 * @param key to be validated.
 	 *
 	 * @return <code>true</code> if the key is valid by predicate rule; <code>false</code>, otherwise.
+	 *
 	 * @pre key != null
 	 */
 	boolean validateKey(final Object key) {
@@ -305,13 +306,13 @@ final class FilteredMap
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Validates the given value by the predicate.
 	 *
-	 * @param value DOCUMENT ME!
+	 * @param value to be validated.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the value is valid by predicate rule; <code>false</code>, otherwise.
+	 *
+	 * @pre value != null
 	 */
 	boolean validateValue(final Object value) {
 		return ((valuePred != null && valuePred.evaluate(value)) || valuePred == null);
@@ -321,12 +322,12 @@ final class FilteredMap
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/07/17 23:24:16  venku
+   - documentation.
    Revision 1.5  2004/06/28 16:33:28  venku
    - coding convention.
-
    Revision 1.4  2004/06/28 15:53:30  venku
    - documentation.
-
    Revision 1.3  2004/06/28 08:08:27  venku
    - new collections classes for filtered access and update.
    Revision 1.2  2004/06/27 05:02:30  venku
