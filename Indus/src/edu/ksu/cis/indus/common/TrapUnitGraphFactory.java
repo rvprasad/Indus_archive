@@ -37,7 +37,7 @@ public class TrapUnitGraphFactory
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @post method.isConcret() implies result != null and result.oclIsKindOf(TrapUnitGraph)
+	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(TrapUnitGraph)
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getUnitGraph(soot.SootMethod)
 	 */
@@ -60,6 +60,9 @@ public class TrapUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/28 23:14:03  venku
+   - documentation
+
    Revision 1.1  2003/09/28 11:36:27  venku
    - Added a TrapUnitGraph factory.
  */

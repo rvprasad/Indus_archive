@@ -1062,12 +1062,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Checks if the given value in the given method is global.
 	 *
-	 * @param v DOCUMENT ME!
-	 * @param sm DOCUMENT ME!
+	 * @param v is the value to be checked for globalness.
+	 * @param sm is the method in which <code>v</code> occurs.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if <code>v</code> is marked as global; <code>false</code>, otherwise.
+     * @pre v != null and sm != null
 	 */
 	boolean isGlobal(final Value v, final SootMethod sm) {
 		boolean result = true;
@@ -1119,6 +1120,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/10/31 01:02:04  venku
+   - added code for extracting data for CC04 paper.
+
    Revision 1.19  2003/10/21 04:29:23  venku
    - subtle bug emanated from the order in which the
      statements were processed.  As a fix, all start call-sites

@@ -131,7 +131,7 @@ public abstract class AbstractAnalysis
 
 	/**
 	 * Returns the basic block graph for the given method, if available.  If not it will try to acquire the unit graph from
-	 * the application. From that unit graph  t will construct a basic block graph and return it.
+	 * the application. From that unit graph it will construct a basic block graph and return it.
 	 *
 	 * @param method for which the basic block graph is requested.
 	 *
@@ -190,6 +190,11 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
+
    Revision 1.12  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
