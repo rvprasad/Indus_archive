@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class AllocationSiteSensitiveIndexManager
   extends AbstractIndexManager {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AllocationSiteSensitiveIndexManager.class);
@@ -65,15 +65,17 @@ public class AllocationSiteSensitiveIndexManager
 			LOGGER.debug("Getting index for " + o + " in " + c);
 		}
 
-		AllocationContext ctxt = (AllocationContext) c;
-
-		return new OneContextInfoIndex(o, ctxt.getAllocationSite());
+		final AllocationContext _ctxt = (AllocationContext) c;
+		return new OneContextInfoIndex(o, _ctxt.getAllocationSite());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

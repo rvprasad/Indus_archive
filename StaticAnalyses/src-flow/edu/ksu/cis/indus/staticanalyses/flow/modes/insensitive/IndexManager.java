@@ -38,7 +38,7 @@ public class IndexManager
 	/**
 	 * This class represents an index that identifies an entity independent of any context information..
 	 */
-	class DummyIndex
+	private static class DummyIndex
 	  implements IIndex {
 		/**
 		 * The entity that this index identifies.
@@ -62,18 +62,18 @@ public class IndexManager
 		 * @return <code>true</code> if <code>object</code> is the same as this object; <code>false</code> otherwise.
 		 */
 		public boolean equals(final Object o) {
-			boolean result = false;
+			boolean _result = false;
 
 			if (o != null && o instanceof DummyIndex) {
-				DummyIndex di = (DummyIndex) o;
+				final DummyIndex _di = (DummyIndex) o;
 
 				if (object != null) {
-					result = object.equals(di.object);
+					_result = object.equals(_di.object);
 				} else {
-					result = object == di.object;
+					_result = object == _di.object;
 				}
 			}
-			return result;
+			return _result;
 		}
 
 		/**
@@ -82,12 +82,12 @@ public class IndexManager
 		 * @return returns the hash code for this object.
 		 */
 		public int hashCode() {
-			int result = 17;
+			int _result = 17;
 
 			if (object != null) {
-				result = 37 * result * object.hashCode();
+				_result = 37 * _result * object.hashCode();
 			}
-			return result;
+			return _result;
 		}
 
 		/**
@@ -138,6 +138,10 @@ public class IndexManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.5  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

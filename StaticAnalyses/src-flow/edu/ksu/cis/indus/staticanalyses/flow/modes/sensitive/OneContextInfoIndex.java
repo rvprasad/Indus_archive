@@ -64,26 +64,26 @@ public class OneContextInfoIndex
 	 * @return <code>true</code> if this index is equal to <code>index</code>; <code>false</code> otherwise.
 	 */
 	public boolean equals(final Object index) {
-		boolean result = false;
+		boolean _result = false;
 
 		if (index != null && index instanceof OneContextInfoIndex) {
-			OneContextInfoIndex d = (OneContextInfoIndex) index;
+			final OneContextInfoIndex _d = (OneContextInfoIndex) index;
 
 			if (value != null) {
-				result = value.equals(d.value);
+				_result = value.equals(_d.value);
 			} else {
-				result = value == d.value;
+				_result = value == _d.value;
 			}
 
-			if (result) {
+			if (_result) {
 				if (contextInfo != null) {
-					result = contextInfo.equals(d.contextInfo);
+					_result = contextInfo.equals(_d.contextInfo);
 				} else {
-					result = contextInfo == d.contextInfo;
+					_result = contextInfo == _d.contextInfo;
 				}
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -92,16 +92,16 @@ public class OneContextInfoIndex
 	 * @return the hash code for this object.
 	 */
 	public int hashCode() {
-		int result = 17;
+		int _result = 17;
 
 		if (value != null) {
-			result = 37 * result + value.hashCode();
+			_result = 37 * _result + value.hashCode();
 		}
 
 		if (contextInfo != null) {
-			result = 37 * result + contextInfo.hashCode();
+			_result = 37 * _result + contextInfo.hashCode();
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -117,6 +117,10 @@ public class OneContextInfoIndex
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.5  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
