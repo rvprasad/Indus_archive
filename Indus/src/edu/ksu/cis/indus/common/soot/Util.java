@@ -29,7 +29,6 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
-import soot.VoidType;
 
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
@@ -82,23 +81,6 @@ public final class Util {
 		}
 
 		return _contains;
-	}
-
-	/**
-	 * Provides the class which injects the given method into the specific branch of the inheritence hierarchy which contains
-	 * the given class.  This is a shorthand version of <code>Util.getDeclaringClass()</code> where the
-	 * <code>parameterTypes</code> is empty and the returnType is <code>VoidType</code>.
-	 *
-	 * @param sc is the class in or above which the method may be defined.
-	 * @param method is the name of the method (not the fully classified name).
-	 *
-	 * @return if such a method exists, the class that injects the method is returned. <code>null</code> is returned,
-	 * 		   otherwise.
-	 *
-	 * @pre sc != null and method != null
-	 */
-	public static SootClass getDeclaringClassFromName(final SootClass sc, final String method) {
-		return getDeclaringClass(sc, method, Collections.EMPTY_LIST, VoidType.v());
 	}
 
 	/**
@@ -281,6 +263,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/31 09:34:22  venku
+   - formatting and clover directives.
+
    Revision 1.3  2003/12/31 09:30:18  venku
    - removed unused code.
    Revision 1.2  2003/12/13 02:28:53  venku
