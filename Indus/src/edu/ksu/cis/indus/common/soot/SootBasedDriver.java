@@ -319,6 +319,13 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * Initialize the driver with the soot options available from <code>Util.getSootOptions</code> method.
+	 */
+	public final void initialize() {
+		initialize(Util.getSootOptions());
+	}
+
+	/**
 	 * Prints the timing statistics into the given stream.
 	 *
 	 * @pre stream != null
@@ -411,6 +418,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/04/16 17:42:04  venku
+   - coding convention
+   - enabled the user to pass soot options while initializing the driver.
    Revision 1.17  2004/04/04 11:12:29  venku
    - STR_ARRAY_TYPE was non-static-ized.
    Revision 1.16  2004/03/29 01:55:16  venku
