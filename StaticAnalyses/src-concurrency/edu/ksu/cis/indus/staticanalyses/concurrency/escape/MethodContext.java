@@ -129,7 +129,7 @@ class MethodContext
 		if (paramCount > 0) {
 			argAliasSets = new ArrayList(paramCount);
 
-			for (int i = 0; i < paramCount; i++) {
+			for (int i = paramCount - 1; i >= 0; i--) {
 				argAliasSets.add(AliasSet.getASForType(sm.getParameterType(i)));
 			}
 		} else {
@@ -358,7 +358,7 @@ class MethodContext
 						LOGGER.warn("Incompatible method contexts being unified - argument[" + i + "] - " + mAS + " " + nAS
 							+ " " + method.getSignature());
 					}
-				} else {
+				} else if (mAS != null) {
 					mAS.unify(nAS, unifyAll);
 				}
 			}
@@ -464,6 +464,9 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/29 11:29:08  venku
+   - added more log information.
+
    Revision 1.3  2003/09/01 12:01:30  venku
    Major:
    - Ready dependence info in ECBA was flaky as it did not consider
