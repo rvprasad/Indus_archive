@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -15,14 +15,16 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import gnu.trove.TObjectIntHashMap;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.set.ListOrderedSet;
-
+import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+
 /**
  * This is an abstract implementation of <code>IWorkBag</code>.
  *
@@ -32,10 +34,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public abstract class AbstractWorkBag
   implements IWorkBag {
-	/**
+	/** 
 	 * This contains the work pieces put into the work bag.
 	 */
-	protected final ListOrderedSet container = new ListOrderedSet();
+	protected final List container = new ArrayList();
+
+	/** 
+	 * This is a backing structure to maintain element containment information.
+	 */
+	private final TObjectIntHashMap countingStructure = new TObjectIntHashMap();
 
 	/**
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#getWork()
@@ -44,7 +51,14 @@ public abstract class AbstractWorkBag
 		if (container.isEmpty()) {
 			throw new IllegalStateException("The workbag is empty.");
 		}
-		return container.remove(0);
+
+		final Object _result = container.remove(0);
+		countingStructure.adjustValue(_result, -1);
+
+		if (countingStructure.get(_result) == 0) {
+			countingStructure.remove(_result);
+		}
+		return _result;
 	}
 
 	/**
@@ -60,8 +74,19 @@ public abstract class AbstractWorkBag
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
 	public final Collection addAllWorkNoDuplicates(final Collection c) {
-		final Collection _result = CollectionUtils.intersection(c, container);
-		addAllWork(CollectionUtils.subtract(c, _result));
+		final Collection _result = new ArrayList();
+		final Iterator _i = c.iterator();
+		final int _iEnd = c.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Object _element = _i.next();
+
+			if (!countingStructure.containsKey(_element)) {
+				addWork(_element);
+			} else {
+				_result.add(_element);
+			}
+		}
 		return _result;
 	}
 
@@ -69,7 +94,7 @@ public abstract class AbstractWorkBag
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
 	public final boolean addWorkNoDuplicates(final Object o) {
-		final boolean _result = !container.contains(o);
+		final boolean _result = !countingStructure.containsKey(o);
 
 		if (_result) {
 			addWork(o);
@@ -82,6 +107,7 @@ public abstract class AbstractWorkBag
 	 */
 	public final void clear() {
 		container.clear();
+		countingStructure.clear();
 	}
 
 	/**
@@ -90,24 +116,38 @@ public abstract class AbstractWorkBag
 	public final boolean hasWork() {
 		return !container.isEmpty();
 	}
-    
+
 	/**
-     * @see java.lang.Object#toString()
-     */
-    public String toString() {
-        return new ToStringBuilder(this).append("work pieces", container).toString();
-    }
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).append("work pieces", container).toString();
+	}
+
+	/**
+	 * Updates any internal data structure.  All subclass implementation of <code>addWork</code> should call this with the
+	 * object that was added to the container.
+	 *
+	 * @param o is the element that was added.
+	 */
+	protected final void updateInternal(final Object o) {
+		if (countingStructure.contains(o)) {
+			countingStructure.increment(o);
+		} else {
+			countingStructure.put(o, 1);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/08/09 01:47:55  venku
+   - optimization.
    Revision 1.5  2004/08/09 01:33:33  venku
    - optimization.
-
    Revision 1.4  2004/06/06 02:27:27  venku
    - added toString().
-
    Revision 1.3  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -116,7 +156,6 @@ public abstract class AbstractWorkBag
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.2  2004/01/28 00:16:55  venku
    - getWork() throws exception if the work bag is empty.
    Revision 1.1  2004/01/06 00:17:10  venku

@@ -42,12 +42,18 @@ public final class HistoryAwareFIFOWorkBag
 	 */
 	protected void subAddWork(final Object o) {
 		container.add(o);
+		updateInternal(o);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/05 22:30:45  venku
+   - renamed HistoryAwareAbstractWorkBag to AbstractHistoryAwareWorkBag.
+   - ripple effect on test cases.
+   - Now PoolAwareWorkBag does not assume all work is poolable.
+
    Revision 1.1  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
