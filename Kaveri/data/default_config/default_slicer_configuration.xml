@@ -1,93 +1,146 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<indus:compositeConfiguration xmlns:indus="http://indus.projects.cis.ksu.edu/indus" xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer" indus:activeConfiguration="backward-executable-deadlock-ctxtEscaping-propertyAware">
-    <indus:configurationInfo slicer:slicetype="BACKWARD_SLICE" slicer:executableSlice="true" slicer:propertyAware="true" indus:name="backward-executable-deadlock-ctxtEscaping-propertyAware">
-        <slicer:criteria>
-            <slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-            <slicer:assertion/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
-        <slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="BACKWARD_SLICE" slicer:executableSlice="true" slicer:propertyAware="false" indus:name="backward-executable-deadlock-ctxtEscaping">
-        <slicer:criteria>
-            <slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-            <slicer:assertion/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
-        <slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="BACKWARD_SLICE" slicer:executableSlice="true" slicer:propertyAware="true" indus:name="backward-executable-assertion-ctxtEscaping-propertyAware">
-        <slicer:criteria>
-            <slicer:deadlock slicer:sliceForDeadlock="false" slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-            <slicer:assertion slicer:sliceToPreserveAssertions="true"/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
-        <slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="BACKWARD_SLICE" slicer:executableSlice="true" slicer:propertyAware="false" indus:name="backward-executable-assertion-ctxtEscaping">
-        <slicer:criteria>
-            <slicer:deadlock slicer:sliceForDeadlock="false" slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-            <slicer:assertion slicer:sliceToPreserveAssertions="true"/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
-        <slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="BACKWARD_SLICE" slicer:executableSlice="true" slicer:propertyAware="true" indus:name="backward-executable-assertion-propertyAware">
-        <slicer:criteria>
-            <slicer:deadlock slicer:sliceForDeadlock="false" slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"/>
-            <slicer:assertion slicer:sliceToPreserveAssertions="true"/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
-        <slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="BACKWARD_SLICE" slicer:executableSlice="true" slicer:propertyAware="false" indus:name="backward-executable-assertion">
-        <slicer:criteria>
-            <slicer:deadlock slicer:sliceForDeadlock="false" slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"/>
-            <slicer:assertion slicer:sliceToPreserveAssertions="true"/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
-        <slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="BACKWARD_SLICE" slicer:executableSlice="true" slicer:propertyAware="false" indus:name="backward-executable-assertion-sequential">
-        <slicer:criteria>
-            <slicer:deadlock slicer:sliceForDeadlock="false" slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"/>
-            <slicer:assertion slicer:sliceToPreserveAssertions="true"/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
-        <slicer:ready slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="COMPLETE_SLICE" slicer:executableSlice="true" slicer:propertyAware="false" indus:name="complete-executable-assertion-sequential">
-        <slicer:criteria>
-            <slicer:deadlock slicer:sliceForDeadlock="false" slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"/>
-            <slicer:assertion slicer:sliceToPreserveAssertions="true"/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
-        <slicer:ready slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="BACKWARD_SLICE" slicer:executableSlice="true" slicer:propertyAware="false" indus:name="backward-executable-deadlock">
-        <slicer:criteria>
-            <slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-            <slicer:assertion/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="false"/>
-        <slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
-    <indus:configurationInfo slicer:slicetype="FORWARD_SLICE" slicer:executableSlice="false" slicer:propertyAware="false" indus:name="forward-deadlock">
-        <slicer:criteria>
-            <slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-            <slicer:assertion/>
-        </slicer:criteria>
-        <slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:useOFA="true"/>
-        <slicer:divergence slicer:active="true" slicer:interprocedural="false"/>
-        <slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" slicer:useSafeLockAnalysis="true"/>
-    </indus:configurationInfo>
+<indus:compositeConfiguration indus:activeConfiguration="backward-executable-contextSensitiveEscapingAssertingDeadlock"
+	xmlns:indus="http://indus.projects.cis.ksu.edu/indus" 
+	xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	
+	<indus:configurationInfo indus:name="backward-executable-deadlock-ctxtEscaping-propertyAware"
+		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
+		slicer:propertyAware="true">
+		<slicer:criteria>
+			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
+				slicer:sliceForDeadlock="true"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="false"/>
+		</slicer:criteria>
+		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:useOFA="true"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true"
+			slicer:useSafeLockAnalysis="true"/>
+		<slicer:synchronization slicer:active="true"/>
+	</indus:configurationInfo>
+	
+	<indus:configurationInfo indus:name="backward-executable-deadlock-ctxtEscaping"
+		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
+		slicer:propertyAware="false">
+		<slicer:criteria>
+			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
+				slicer:sliceForDeadlock="true"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="false"/>
+		</slicer:criteria>
+		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:useOFA="true"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true"
+			slicer:useSafeLockAnalysis="true"/>
+		<slicer:synchronization slicer:active="true"/>
+	</indus:configurationInfo>
+	
+	<indus:configurationInfo indus:name="backward-executable-assertion-ctxtEscaping-propertyAware"
+		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
+		slicer:propertyAware="true">
+		<slicer:criteria>
+			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
+				slicer:sliceForDeadlock="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+		</slicer:criteria>
+		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:useOFA="true"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true"
+			slicer:useSafeLockAnalysis="true"/>
+		<slicer:synchronization slicer:active="true"/>
+	</indus:configurationInfo>
+	
+	<indus:configurationInfo indus:name="backward-executable-assertion-ctxtEscaping"
+		slicer:executableSlice="true" slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration"
+		slicer:propertyAware="false">
+		<slicer:criteria>
+			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
+				slicer:sliceForDeadlock="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+		</slicer:criteria>
+		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:useOFA="true"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true"
+			slicer:useSafeLockAnalysis="true"/>
+		<slicer:synchronization slicer:active="true"/>
+	</indus:configurationInfo>
+	
+	<indus:configurationInfo indus:name="backward-executable-assertion-propertyAware" slicer:executableSlice="true"
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="true">
+		<slicer:criteria>
+			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
+				slicer:sliceForDeadlock="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+		</slicer:criteria>
+		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:useOFA="true"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true"
+			slicer:useSafeLockAnalysis="true"/>
+		<slicer:synchronization slicer:active="true"/>
+	</indus:configurationInfo>
+	
+	<indus:configurationInfo indus:name="backward-executable-assertion" slicer:executableSlice="true"
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
+		<slicer:criteria>
+			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
+				slicer:sliceForDeadlock="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+		</slicer:criteria>
+		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:useOFA="true"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true"
+			slicer:useSafeLockAnalysis="true"/>
+		<slicer:synchronization slicer:active="true"/>
+	</indus:configurationInfo>
+	
+	<indus:configurationInfo indus:name="backward-executable-assertion-sequential" slicer:executableSlice="true"
+		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
+		<slicer:criteria>
+			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
+				slicer:sliceForDeadlock="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+		</slicer:criteria>
+		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:useOFA="true"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:ready slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true"
+			slicer:useSafeLockAnalysis="true"/>
+		<slicer:synchronization slicer:active="true"/>
+	</indus:configurationInfo>
+	
+	<indus:configurationInfo indus:name="complete-executable-assertion-sequential" slicer:executableSlice="true"
+		slicer:slicetype="COMPLETE_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
+		<slicer:criteria>
+			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
+				slicer:sliceForDeadlock="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+		</slicer:criteria>
+		<slicer:control slicer:nonTerminationSensitive="true"/>
+		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:useOFA="true"/>
+		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL"/>
+		<slicer:ready slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
+			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true"
+			slicer:useSafeLockAnalysis="true"/>
+		<slicer:synchronization slicer:active="true"/>
+	</indus:configurationInfo>	
+
 </indus:compositeConfiguration>

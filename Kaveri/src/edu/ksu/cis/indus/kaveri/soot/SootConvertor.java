@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
 
 import soot.Body;
+import soot.G;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -49,6 +50,7 @@ import soot.tagkit.SourceLnPosTag;
 import soot.util.Chain;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.Messages;
 
@@ -421,7 +423,7 @@ public final class SootConvertor {
             final IJavaProject _jproject = JavaCore.create(_project);
 
             final Set _set = SECommons.getClassPathForProject(_jproject,
-                    new HashSet(), false);
+                    new HashSet(), true);
             for (Iterator iter = _set.iterator(); iter.hasNext();) {
                 _sootClassPath += (String) iter.next();
             }
@@ -453,6 +455,9 @@ public final class SootConvertor {
             } catch (RuntimeException _rme) {
                 KaveriErrorLog.logException("Unable to load soot class", _rme);
                 SECommons.handleException(_rme);
+                // Take care.
+                G.reset();
+                KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().update();
             }
         }
 

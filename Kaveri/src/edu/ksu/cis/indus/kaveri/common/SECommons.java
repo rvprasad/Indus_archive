@@ -142,11 +142,11 @@ public final class SECommons {
      * @author Daniel Berg jdt-dev@eclipse.org.
      * @param jproject The java project.
      * @param visitedProjects The set of visited projets.
-     * @param exported Whether the entry is exported.
+     * @param isFirst Whether the entry is exported.
      * @return Set The set of all the classpaths.
      */
     public static Set getClassPathForProject(final IJavaProject jproject,
-            final Set visitedProjects, final boolean exported) {
+            final Set visitedProjects, final boolean isFirst) {
         final Set _retSet = new HashSet();
         final String _pathseparator = System.getProperty(Messages
                 .getString("SootConvertor.3")); //$NON-NLS-1$		
@@ -157,9 +157,6 @@ public final class SECommons {
         try {
             final IClasspathEntry[] _entries = jproject.getResolvedClasspath(true);
             for (int _i = 0; _i < _entries.length; _i++) {
-                if (!exported
-                        || _entries[_i].isExported()
-                        || _entries[_i].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
                     switch (_entries[_i].getEntryKind()) {
                     case IClasspathEntry.CPE_SOURCE:
                         IPath _opLoc = _entries[_i].getOutputLocation();
@@ -200,18 +197,19 @@ public final class SECommons {
                         _retSet.add(_libPath.toOSString() + _pathseparator);
                         break;
                     case IClasspathEntry.CPE_PROJECT:
+                        if (isFirst || _entries[_i].isExported()) {
                         final IProject _dProject = ResourcesPlugin
                                 .getWorkspace().getRoot().getProject(
                                         _entries[_i].getPath().segment(0));
                         final IJavaProject _jdproject = JavaCore
                                 .create(_dProject);
                         _retSet.addAll(getClassPathForProject(_jdproject,
-                                visitedProjects, true));
+                                visitedProjects, false));
+                        }
                         break;
                      default: break;   
 
-                    }
-                }
+                    }                
             }
         } catch (JavaModelException _jme) {
             SECommons.handleException(_jme);

@@ -33,6 +33,8 @@ import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+import edu.ksu.cis.indus.tools.slicer.contextualizers.StaticSliceCriteriaCallStackContextualizer;
+import edu.ksu.cis.indus.tools.slicer.criteria.generators.StaticSliceCriteriaGenerator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,6 +43,7 @@ import java.io.InputStreamReader;
 
 import java.net.URL;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -129,7 +132,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
      */
     public EclipseIndusDriver() {
         factory = SliceCriteriaFactory.getFactory();
-
+        contextCollection = new ArrayList();
     }
 
     /**
@@ -464,14 +467,19 @@ public class EclipseIndusDriver extends SootBasedDriver {
                     "Error while deserializing scope specification", _jbe);
         }
 
-        /*
-         * if (contextCollection.size() > 0) { StaticSliceCriteriaContextualizer
-         * _sscc = new StaticSliceCriteriaContextualizer(contextCollection);
-         * _sscc.processCriteriaBasedOnProgramPoint(null, criteria); }
-         */
+        StaticSliceCriteriaGenerator _sscg = null;
+         if (contextCollection.size() > 0) { 
+             _sscg = new StaticSliceCriteriaGenerator(criteria);
+             _sscg.setCriteriaContextualizer(new StaticSliceCriteriaCallStackContextualizer(contextCollection));    
+             slicer.addCriteriaGenerator(_sscg); 
+          }
+                  
 
         slicer.setCriteria(criteria);
         slicer.run(Phase.STARTING_PHASE, true); // changed from true
+        if (_sscg != null) {
+            slicer.removeCriteriaGenerator(_sscg);
+        }
     }
 
     /**

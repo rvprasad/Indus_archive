@@ -144,7 +144,7 @@
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.scopePopupObject.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.scopePopupObjectAction"/>
             </objectContribution>
-            <!--
+            <!-- The slice context menu -->
             <viewerContribution
                   targetID="org.eclipse.jdt.callhierarchy.view"
                   id="edu.ksu.cis.indus.kaveri.callgraph">
@@ -161,7 +161,7 @@
                      menubarPath="edu.ksu.cis.indus.kaveri.callgraph.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.callgraph.addContext"/>
             </viewerContribution>      
-            -->
+            
    </extension>
 <!-- This extension shows additional information about the slice part chosen -->
 <!-- This extension enables highlighting of the slice elements -->
