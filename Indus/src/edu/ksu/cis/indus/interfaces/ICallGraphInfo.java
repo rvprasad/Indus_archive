@@ -170,11 +170,13 @@ public interface ICallGraphInfo
 	/**
 	 * Retrieves the methods in the call graph in topological order.
 	 *
+	 * @param topdown <code>true</code> indicates in top-down order; <code>false</code> indicates bottom-up order.
+	 *
 	 * @return the methods in the call graph.
 	 *
 	 * @post result != null and result.oclIsKindOf(Sequence(SootMethod))
 	 */
-	List getMethodsInTopologicalOrder();
+	List getMethodsInTopologicalOrder(boolean topdown);
 
 	/**
 	 * Returns the methods that are reachable from the given invocation point via a call chain.
@@ -240,6 +242,9 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/07/23 09:53:22  venku
+   - extended call graph interface to extract methods in topologically sorted order.
+
    Revision 1.9  2004/07/11 14:17:41  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.

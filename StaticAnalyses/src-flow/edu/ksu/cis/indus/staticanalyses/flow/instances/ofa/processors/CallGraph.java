@@ -271,10 +271,10 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsInTopologicalOrder()
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsInTopologicalOrder(boolean)
 	 */
-	public List getMethodsInTopologicalOrder() {
-		final List _topologicalSorted = graphCache.performTopologicalSort(true);
+	public List getMethodsInTopologicalOrder(final boolean topdown) {
+		final List _topologicalSorted = graphCache.performTopologicalSort(topdown);
 		CollectionUtils.transform(_topologicalSorted, SimpleNodeGraph.OBJECT_EXTRACTOR);
 		return _topologicalSorted;
 	}
@@ -676,6 +676,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.59  2004/07/23 09:53:21  venku
+   - extended call graph interface to extract methods in topologically sorted order.
+
    Revision 1.58  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
