@@ -38,10 +38,8 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -81,18 +79,6 @@ public class TaggingBasedSliceResidualizer
 	protected Scene system;
 
 	/**
-	 * This maps transformed methods to their transformed locals.
-	 */
-	private final Map method2locals = new HashMap();
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private Object sliceType;
-
-	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
@@ -108,13 +94,6 @@ public class TaggingBasedSliceResidualizer
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
 	private String tagName = SLICING_TAG;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private boolean executable;
 
 	/**
 	 * DOCUMENT ME!
@@ -376,9 +355,7 @@ public class TaggingBasedSliceResidualizer
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#completeTransformation()
 	 */
 	public void completeTransformation() {
-		if (executable && sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			makeExecutable();
-		}
+		// TODO: Auto-generated method stub
 	}
 
 	/**
@@ -386,9 +363,7 @@ public class TaggingBasedSliceResidualizer
 	 * or non-executable.
 	 */
 	public boolean handleSliceType(final Object theSliceType, final boolean executableSlice) {
-		sliceType = theSliceType;
-		executable = executableSlice;
-		return true;
+		return SlicingEngine.SLICE_TYPES.contains(theSliceType);
 	}
 
 	/**
@@ -414,10 +389,15 @@ public class TaggingBasedSliceResidualizer
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer#makeExecutable()
+	 */
+	public void makeExecutable() {
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
 	 */
 	public void reset() {
-		method2locals.clear();
 		tagName = SLICING_TAG;
 	}
 
@@ -552,6 +532,14 @@ public class TaggingBasedSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
    Revision 1.17  2003/11/17 01:39:42  venku
    - added slice XMLization support.
    Revision 1.16  2003/11/16 23:12:17  venku
