@@ -23,11 +23,12 @@ import soot.SootClass;
 /**
  * This is the interface to class hierarchy information.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface IClassHierarchy {
+public interface IClassHierarchy
+  extends IIdentification {
 	/** 
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */

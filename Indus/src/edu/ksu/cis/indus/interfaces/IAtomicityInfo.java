@@ -25,7 +25,8 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  */
-public interface IAtomicityInfo {
+public interface IAtomicityInfo
+  extends IIdentification {
 	/** 
 	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
