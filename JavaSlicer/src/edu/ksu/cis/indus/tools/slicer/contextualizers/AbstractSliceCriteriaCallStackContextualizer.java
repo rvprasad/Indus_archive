@@ -153,11 +153,11 @@ public abstract class AbstractSliceCriteriaCallStackContextualizer
 				final Stack _callStack = (Stack) _i.next();
 				final ISliceCriterion _temp = _criteriaFactory.clone(_criterion);
 
-				if (_callStack != null && _cgi.getCallers(_temp.getOccurringMethod()).contains(_callStack.peek())) {
-					addCriteriaWithGivenCallStackToResult(_temp, (Stack) _callStack.clone(), _result);
-				} else if (_callStack == null) {
+				if (_callStack == null) {
 					addCriteriaWithGivenCallStackToResult(_temp, null, _result);
-				}
+				} else if (_cgi.getCallers(_temp.getOccurringMethod()).contains(_callStack.peek())) {
+                    addCriteriaWithGivenCallStackToResult(_temp, (Stack) _callStack.clone(), _result);
+                }
 			}
 			_criterion.returnToPool();
 			_j.remove();
