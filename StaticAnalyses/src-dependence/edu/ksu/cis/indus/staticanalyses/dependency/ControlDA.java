@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
@@ -56,17 +36,17 @@ import java.util.Map;
 
 /**
  * This class provides intraprocedural control dependency information. This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
- * JVM Concurrency Primitives"</a>.
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
+ * with JVM Concurrency Primitives"</a>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  *
  * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Stmt)))
- * @invariant dependeeMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getBody(Jimple.v()).getStmtList(). size())
- * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Sequence(Bag(Stmt))))
- * @invariant dependentMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getBody(Jimple.v()).getStmtList().size())
+ * @invariant dependeeMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
+ * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Sequence(Set(Stmt))))
+ * @invariant dependentMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
  */
 public class ControlDA
   extends DependencyAnalysis {
@@ -94,7 +74,7 @@ public class ControlDA
 		Collection result = Collections.EMPTY_LIST;
 		List list = (List) dependeeMap.get(method);
 
-		if (list != null) {
+		if (!list.equals(Collections.EMPTY_LIST)) {
 			int index = getStmtList((SootMethod) method).indexOf(dependentStmt);
 
 			if (list.get(index) != null) {
@@ -122,10 +102,10 @@ public class ControlDA
 		Collection result = Collections.EMPTY_LIST;
 		List list = (List) dependeeMap.get(method);
 
-		if (list != null) {
+		if (!list.equals(Collections.EMPTY_LIST)) {
 			int index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
 
-			if (list.get(index) != null) {
+			if (!list.get(index).equals(Collections.EMPTY_LIST)) {
 				result = Collections.unmodifiableCollection((Collection) list.get(index));
 			}
 		}
@@ -135,11 +115,10 @@ public class ControlDA
 	/**
 	 * Calculates the control dependency information for the methods provided during initialization.
 	 *
-	 * @return <code>true</code> as analysis happens in a single run.
-	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
-	public boolean analyze() {
+	public void analyze() {
+        stable = false;
 		for (Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			SootMethod currMethod = (SootMethod) entry.getKey();
@@ -147,7 +126,7 @@ public class ControlDA
 			BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
 			fixupMaps(bbGraph, bbCDBitSets, currMethod);
 		}
-		return true;
+		stable = true;
 	}
 
 	/**
@@ -157,33 +136,37 @@ public class ControlDA
 	 */
 	public String toString() {
 		StringBuffer result =
-			new StringBuffer("Statistics for Control dependence as calculated by " + getClass().getName() + "\n");
+			new StringBuffer("Statistics for control dependence as calculated by " + getClass().getName() + "\n");
 		int localEdgeCount = 0;
 		int edgeCount = 0;
 
 		StringBuffer temp = new StringBuffer();
 
-		for (Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
+			SootMethod method = (SootMethod) entry.getKey();
 			localEdgeCount = 0;
 
-			List stmts = getStmtList((SootMethod) entry.getKey());
+			List stmts = getStmtList(method);
+			List cd = (List) entry.getValue();
 
-			for (Iterator j = ((List) entry.getValue()).iterator(); j.hasNext();) {
-				Collection c = (Collection) j.next();
-				int count = 0;
+			for (int j = 0; j < stmts.size(); j++) {
+				Stmt de = (Stmt) cd.get(j);
 
-				for (Iterator k = c.iterator(); k.hasNext();) {
-					temp.append("\t\t" + stmts.get(count++) + " --> " + k.next() + "\n");
+				if (de != null) {
+					temp.append("\t\t" + stmts.get(j) + " --> " + de + "\n");
+					localEdgeCount++;
+				} else {
+					temp.append("\t\t" + stmts.get(j) + " --> METHOD_ENTRY\n");
 				}
-				localEdgeCount += c.size();
 			}
-			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount + " Control dependence edges.\n");
+
+			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount + " control dependence edges.\n");
 			result.append(temp);
 			temp.delete(0, temp.length());
 			edgeCount += localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " Control dependence edges exist.");
+		result.append("A total of " + edgeCount + " control dependence edges exist.");
 		return result.toString();
 	}
 
@@ -208,14 +191,17 @@ public class ControlDA
 		BitSet[] cds = new BitSet[size];
 
 		for (int i = cds.length - 1; i >= 0; i--) {
-			cds[i] = new BitSet();
+			cds[i] = new BitSet(size);
 		}
 
 		List nodes = graph.getNodes();
-		WorkBag workbag = new WorkBag(WorkBag.FIFO);
+		WorkBag workbag = new WorkBag(WorkBag.LIFO);
 		workbag.addAllWork(graph.getHeads());
 
 		BitSet testSet = new BitSet(size);
+
+		System.out.println("HEADS:" + graph.getHeads());
+		System.out.println("NODES:" + graph.getNodes());
 
 		while (true) {
 			while (workbag.hasWork()) {
@@ -223,11 +209,42 @@ public class ControlDA
 				int currIndex = nodes.indexOf(node);
 				BitSet currSuccs = succs[currIndex];
 				int noOfSuccs = currSuccs.cardinality();
+				BitSet currPreds = preds[currIndex];
+				int noOfPreds = currPreds.cardinality();
+				System.out.println("CURRSUCCS: " + currIndex + " " + ((BasicBlock) node).getStmtsOf() + "  " + currSuccs);
+
+				if (noOfPreds > 1) {
+					BitSet posCD = new BitSet(size);
+
+					for (int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
+						System.out.println(i + " " + succs[i]);
+
+						if (succs[i].cardinality() > 1) {
+							posCD.set(i);
+						}
+					}
+
+					BitSet j = new BitSet();
+					System.out.println("noOFPREDS>1: " + posCD);
+
+					for (int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
+						if (succs[i].cardinality() == 1) {
+							j.clear();
+							j.or(cds[i]);
+							j.and(posCD);
+
+							if (j.cardinality() > 0) {
+								cds[currIndex].clear(i);
+							}
+							System.out.println("J: " + j + " " + cds[currIndex]);
+						}
+					}
+				}
 
 				if (noOfSuccs > 1) {
 					/*
-					 * If there is more than on successor then it is possible that the successors are control dependent on the
-					 * current statement.  Hence, capture this in cds and host the successor for processing.
+					 * If there is more than one successor then it is possible that the successors are control dependent on
+					 * the current statement.  Hence, capture this in cds and hoist the successor for processing.
 					 */
 					for (int i = currSuccs.nextSetBit(0); i >= 0; i = currSuccs.nextSetBit(i + 1)) {
 						cds[i].set(currIndex);
@@ -235,48 +252,50 @@ public class ControlDA
 					}
 				} else if (noOfSuccs == 1) {
 					/*
-					 * If there is just one successor then the successor is control dependent on the same node as the current
-					 * node.  Record this info and host the successor for processing.
+					 * If there is just one successor then the successor may be control dependent on the same node as the
+					 * current node.  Record this info and hoist the successor for processing.
 					 */
 					int succIndex = currSuccs.nextSetBit(0);
 					workbag.addWork(nodes.get(succIndex));
 
-					BitSet currPreds = preds[currIndex];
-
 					/*
-					 * For the sake of termination, severe the successor relation of the current node with it's predecessor
+					 * For the sake of termination, sever the successor relation of the current node with it's predecessor
 					 * nodes.
-					 */
-					for (int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
-						succs[i].clear(currIndex);
-					}
-
-					// copy the current control dependency info for the succssor. 
+					 *
+					     for (int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
+					         succs[i].clear(currIndex);
+					     }*/
+					// copy the control dependency info from the current node to the successor. 
 					cds[succIndex].or(cds[currIndex]);
-
-					/*
-					 * For the sake of termination, severe the predecessor relation of the successor node with the current
-					 * node.
-					 */
-					preds[succIndex].clear(currIndex);
 				}
-				currSuccs.clear();
+
+				for (int i = 0; i < size; i++) {
+					System.out.println(i + " " + cds[i] + " " + succs[i] + " " + preds[i]);
+				}
 			}
-			testSet.clear();
+
+			boolean flag = false;
 
 			for (int i = 0; i < size; i++) {
-				testSet.or(succs[i]);
+				if (cds[i].cardinality() > 1) {
+					flag = true;
+				}
 			}
+			System.out.println("TESTSET: " + testSet);
 
-			if (testSet.nextSetBit(0) == -1) {
-				break;
-			} else {
+			if (flag) {
 				for (int i = 0; i < size; i++) {
 					if (preds[i].nextSetBit(0) >= 0) {
 						workbag.addWork(nodes.get(i));
 					}
 				}
+			} else {
+				break;
 			}
+		}
+
+		for (int i = size - 1; i >= 0; i--) {
+			System.out.println(i + ") " + cds[i] + " " + ((BasicBlock) nodes.get(i)).getStmtsOf());
 		}
 		return cds;
 	}
@@ -301,8 +320,13 @@ public class ControlDA
 		List sl = getStmtList(method);
 		List mDependee = new ArrayList();
 		List mDependent = new ArrayList();
-		Collections.fill(mDependee, Collections.EMPTY_LIST);
-		Collections.fill(mDependent, Collections.EMPTY_LIST);
+
+		for (int i = sl.size(); i > 0; i--) {
+			mDependee.add(null);
+			mDependent.add(Collections.EMPTY_LIST);
+		}
+
+		boolean flag = false;
 
 		for (Iterator i = sl.iterator(); i.hasNext();) {
 			Stmt j = (Stmt) i.next();
@@ -310,10 +334,12 @@ public class ControlDA
 			int l = bbCDBitSets[nodes.indexOf(bb)].nextSetBit(0);
 
 			if (l != -1) {
-				BasicBlock bb2 = graph.getEnclosingBlock((Stmt) sl.get(l));
-				mDependee.set(sl.indexOf(j), Collections.singletonList(sl.get(bb2._trailer)));
+				flag = true;
 
-				ArrayList dependents = (ArrayList) mDependent.get(bb2._trailer);
+				BasicBlock bb2 = graph.getEnclosingBlock((Stmt) sl.get(l));
+				mDependee.set(sl.indexOf(j), sl.get(bb2._trailer));
+
+				List dependents = (List) mDependent.get(bb2._trailer);
 
 				if (dependents.equals(Collections.EMPTY_LIST)) {
 					dependents = new ArrayList();
@@ -322,14 +348,22 @@ public class ControlDA
 				dependents.add(j);
 			}
 		}
-		dependentMap.put(method, mDependent);
-		dependeeMap.put(method, mDependee);
+
+		if (flag) {
+			dependentMap.put(method, new ArrayList(mDependent));
+			dependeeMap.put(method, new ArrayList(mDependee));
+		} else {
+			dependentMap.put(method, Collections.EMPTY_LIST);
+			dependeeMap.put(method, Collections.EMPTY_LIST);
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
    Revision 1.4  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 04:20:19  venku
