@@ -423,8 +423,8 @@ public class DirectedAndSimpleNodeGraphTest
 	 * @pre sccs != null
 	 */
 	private void checkSCCReachability(final Collection sccs) {
-		final Collection _nodes = new ArrayList();
-		final Collection _rest = new ArrayList();
+		final Collection _nodes = new HashSet();
+		final Collection _rest = new HashSet();
 
 		for (final Iterator _i = sccs.iterator(); _i.hasNext();) {
 			final Collection _scc = (Collection) _i.next();
@@ -433,6 +433,7 @@ public class DirectedAndSimpleNodeGraphTest
 			if (_scc.size() > 1) {
 				for (final Iterator _j = _scc.iterator(); _j.hasNext();) {
 					final INode _srcNode = (INode) _j.next();
+                    _rest.clear();
 					_rest.addAll(_scc);
 					_rest.remove(_srcNode);
 
@@ -450,6 +451,10 @@ public class DirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
