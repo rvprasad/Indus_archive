@@ -24,6 +24,8 @@ import java.util.Map;
 
 import soot.SootMethod;
 
+import soot.jimple.Jimple;
+
 import soot.toolkits.graph.UnitGraph;
 
 
@@ -35,6 +37,15 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public final class BasicBlockGraphMgr {
+	/** 
+	 * Represents an empty unit graph that can be used as a placeholder for non-concrete methods or methods with no body. 
+	 */
+	private static final UnitGraph EMPTY_GRAPH;
+
+	static {
+		EMPTY_GRAPH = new UnitGraph(Jimple.v().newBody(), false);
+	}
+
 	/**
 	 * This maps methods to basic block graphs.
 	 *
@@ -48,8 +59,8 @@ public final class BasicBlockGraphMgr {
 	private AbstractUnitGraphFactory unitGraphProvider;
 
 	/**
-	 * Retrieves the basic block graph corresponding to the given method.  This returns <code>null</code> if the method is
-	 * not concrete.
+	 * Retrieves the basic block graph corresponding to the given method.  Returns an empty basic block graph if the method
+	 * is abstract or has no available implementation.
 	 *
 	 * @param sm is the method for which the graph is requested.
 	 *
@@ -78,7 +89,11 @@ public final class BasicBlockGraphMgr {
 		}
 
 		if (flag) {
-			final UnitGraph _graph = unitGraphProvider.getUnitGraph(sm);
+			UnitGraph _graph = unitGraphProvider.getUnitGraph(sm);
+
+			if (_graph == null) {
+				_graph = EMPTY_GRAPH;
+			}
 			result = new BasicBlockGraph(_graph);
 			method2graph.put(sm, new WeakReference(result));
 		}
@@ -115,49 +130,19 @@ public final class BasicBlockGraphMgr {
 	public void reset() {
 		method2graph.clear();
 	}
-
-	/**
-	 * Provides the basic block graph corresponding to the given control flow graph.  It creates one if none exists.
-	 *
-	 * @param stmtGraph is the control flow graph of interest.
-	 *
-	 * @return the basic block graph corresonding to <code>stmtGraph</code>.
-	 *
-	 * @pre stmtGraph != null
-	 * @post result != null
-	 */
-	private BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
-		final SootMethod _method = stmtGraph.getBody().getMethod();
-		final WeakReference _ref = (WeakReference) method2graph.get(_method);
-		BasicBlockGraph result = null;
-		boolean flag = false;
-
-		if (_ref == null) {
-			flag = true;
-		} else {
-			result = (BasicBlockGraph) _ref.get();
-
-			if (result == null) {
-				flag = true;
-			}
-		}
-
-		if (flag) {
-			result = new BasicBlockGraph(stmtGraph);
-			method2graph.put(_method, new WeakReference(result));
-		}
-		return result;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
    Revision 1.12  2003/12/08 10:26:30  venku
    - ensured bbg's are returned when the method has concrete implementation.
    - removed a method whose logic is now dependent on the factory.
    - ripple effect.
-
    Revision 1.11  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.10  2003/09/28 07:31:28  venku
