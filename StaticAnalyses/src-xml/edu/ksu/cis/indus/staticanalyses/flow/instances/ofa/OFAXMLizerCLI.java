@@ -32,6 +32,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXML
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
@@ -216,8 +217,8 @@ public final class OFAXMLizerCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
-
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, 
+                TokenUtil.getTokenManager(new SootValueTypeManager()));
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final ICallGraphInfo _cgi = new CallGraph(new PairManager(false, true));

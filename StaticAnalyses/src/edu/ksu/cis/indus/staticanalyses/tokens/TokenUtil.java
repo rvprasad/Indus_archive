@@ -59,26 +59,29 @@ public final class TokenUtil {
 	 * By default, an instance of <code>edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager</code> is returned.
 	 * </p>
 	 *
+     * @param typeManager being used by the user.
+     * 
 	 * @return a token manager.
 	 *
+     * @pre typeManager != null
 	 * @post result != null
 	 * @post result.oclIsKindOf(BitSetTokenManager) or result.oclIsKindOf(CollectionTokenManager) or
 	 * 		 result.oclIsKindOf(IntegerTokenManager)
 	 */
-	public static ITokenManager getTokenManager() {
+	public static ITokenManager getTokenManager(final ITypeManager typeManager) {
 		ITokenManager _tokenMgr = null;
 		final String _tmType = System.getProperty(INDUS_STATICANALYSES_TOKENMANAGERTYPE);
 
 		if (_tmType != null) {
 			if (_tmType.equals(CollectionTokenManager.class.getName())) {
-				_tokenMgr = new CollectionTokenManager(new SootValueTypeManager());
+				_tokenMgr = new CollectionTokenManager(typeManager);
 			} else if (_tmType.equals(IntegerTokenManager.class.getName())) {
-				_tokenMgr = new IntegerTokenManager(new SootValueTypeManager());
+				_tokenMgr = new IntegerTokenManager(typeManager);
 			}
 		}
 
 		if (_tokenMgr == null) {
-			_tokenMgr = new BitSetTokenManager(new SootValueTypeManager());
+			_tokenMgr = new BitSetTokenManager(typeManager);
 		}
 		return _tokenMgr;
 	}

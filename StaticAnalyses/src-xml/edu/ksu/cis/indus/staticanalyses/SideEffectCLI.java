@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import java.util.ArrayList;
@@ -130,7 +131,8 @@ public class SideEffectCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "SideEffect:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
+		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, 
+                TokenUtil.getTokenManager(new SootValueTypeManager()));
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
