@@ -30,6 +30,7 @@ Required software:
 Version 0.2
 -------------
 	- All xmlizers use classes from xmlenc library to generate xml documents.
+	- Catered to feature requests 384, 385, and 386 to enable extension of SliceXMLizerCLI.
 
 
 Version 0.1
