@@ -16,9 +16,10 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-import edu.ksu.cis.indus.staticanalyses.dependency.ControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
@@ -343,7 +344,7 @@ public class SlicerConfiguration
 				} else {
 					c.clear();
 				}
-				c.add(new ControlDA(ControlDA.FORWARD));
+				c.add(new EntryControlDA());
 			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
 				Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
 
@@ -353,7 +354,7 @@ public class SlicerConfiguration
 				} else {
 					c.clear();
 				}
-				c.add(new ControlDA(ControlDA.BACKWARD));
+				c.add(new ExitControlDA());
 			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
 				Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
 
@@ -363,8 +364,8 @@ public class SlicerConfiguration
 				} else {
 					c.clear();
 				}
-				c.add(new ControlDA(ControlDA.BACKWARD));
-				c.add(new ControlDA(ControlDA.FORWARD));
+				c.add(new EntryControlDA());
+				c.add(new ExitControlDA());
 			}
 		}
 	}
@@ -652,6 +653,9 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/16 18:33:01  venku
+   - fixed an error while returning the DAs.
+
    Revision 1.18  2003/11/16 18:24:08  venku
    - added methods to retrive active dependencies.
    - documentation and formatting.

@@ -15,7 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.ControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 
 import java.util.ArrayList;
 
@@ -53,27 +54,26 @@ public class CDADriver
 	 */
 	protected void initialize() {
 		das = new ArrayList();
-		das.add(new ControlDA(ControlDA.FORWARD));
-        das.add(new ControlDA(ControlDA.BACKWARD));
+		das.add(new EntryControlDA());
+		das.add(new ExitControlDA());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/05 04:17:28  venku
+   - subtle bug caused when enabled bi-directional support. FIXED.
    Revision 1.4  2003/11/03 07:50:06  venku
    - coding convention.
-
    Revision 1.3  2003/10/31 01:00:58  venku
    - added support to switch direction.  However, forward
      slicing can be viewed in two interesting ways and
      our implementation handles the most interesting
      direction.
-
    Revision 1.2  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.1  2003/09/02 12:28:41  venku
    - Installing drivers for all dependence analyses.
  */

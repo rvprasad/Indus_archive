@@ -52,7 +52,7 @@ import java.util.Map;
  * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Sequence(Set(Stmt))))
  * @invariant dependentMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
  */
-public class ControlDA
+public class EntryControlDA
   extends DependencyAnalysis {
 	/*
 	 * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in
@@ -63,49 +63,12 @@ public class ControlDA
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ControlDA.class);
-
-	/**
-	 * This indicates the dependence information is required in the forward direction assuming all heads to the CFG as entry
-	 * points.
-	 */
-	public static final Object FORWARD = "starting from the heads";
-
-	/**
-	 * This indicates the dependence information is required in the backward direction, i.e. forward direction on the
-	 * reversed form of the CFG.
-	 */
-	public static final Object BACKWARD = "starting from the tails";
-
-	/**
-	 * This captures the direction of the information calculated by this object.  <code>true</code> indicates that the head
-	 * into the graph is considered as entry points into the CFG.  <code>false</code>  indicates that the tails of the graph
-	 * should be considered as entry points into the CFG.
-	 */
-	private final boolean forward;
+	private static final Log LOGGER = LogFactory.getLog(EntryControlDA.class);
 
 	/**
 	 * This provides the call graph information.
 	 */
 	private ICallGraphInfo callgraph;
-
-	/**
-	 * Creates a new ControlDA object.
-	 *
-	 * @param direction of the information.
-	 *
-	 * @throws IllegalArgumentException when the direction is not one of <code>BACKWARD</code> or <code>FORWARD</code>.
-	 */
-	public ControlDA(final Object direction) {
-		if (direction.equals(BACKWARD)) {
-			forward = false;
-		} else if (direction.equals(FORWARD)) {
-			forward = true;
-		} else {
-			throw new IllegalArgumentException(
-				"theDirection argument should be DependencyAnalysis.FORWARD or DependencyAnalysis.BACKWARD.");
-		}
-	}
 
 	/**
 	 * Returns the statements on which <code>dependentStmt</code> depends on in the given <code>method</code>.
@@ -179,25 +142,10 @@ public class ControlDA
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Control Dependence processing - forward:" + forward);
+			LOGGER.info("BEGIN: Control Dependence processing");
 		}
 
-		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
-			SootMethod currMethod = (SootMethod) i.next();
-			BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
-
-			if (bbGraph == null) {
-				LOGGER.error("Method " + currMethod.getSignature() + " did not have a basic block graph.");
-				continue;
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing method: " + currMethod.getSignature());
-			}
-
-			BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
-			fixupMaps(bbGraph, bbCDBitSets, currMethod);
-		}
+		localAnalyze();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Control Dependence processing");
@@ -205,7 +153,33 @@ public class ControlDA
 		stable = true;
 	}
 
+    
+    
 	/**
+     * DOCUMENT ME!
+     * 
+     * 
+     */
+    protected void localAnalyze() {
+        for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
+            SootMethod currMethod = (SootMethod) i.next();
+            BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
+
+            if (bbGraph == null) {
+                LOGGER.error("Method " + currMethod.getSignature() + " did not have a basic block graph.");
+                continue;
+            }
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Processing method: " + currMethod.getSignature());
+            }            
+            
+            BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
+            fixupMaps(bbGraph, bbCDBitSets, currMethod);
+        }        
+    }
+
+    /**
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
 	 * @return a stringized representation of this object.
@@ -283,7 +257,7 @@ public class ControlDA
 	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
 	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
-	private BitSet[] computeControlDependency(final DirectedGraph graph) {
+	protected BitSet[] computeControlDependency(final DirectedGraph graph) {
 		Map dag = graph.getDAG();
 		final List NODES = graph.getNodes();
 		final int NUM_OF_NODES = NODES.size();
@@ -296,11 +270,7 @@ public class ControlDA
 		IWorkBag wb = new FIFOWorkBag();
 		Collection roots;
 
-		if (forward) {
-			roots = graph.getHeads();
-		} else {
-			roots = graph.getTails();
-		}
+		roots = graph.getHeads();
 		wb.addAllWorkNoDuplicates(roots);
 
 		while (wb.hasWork()) {
@@ -308,11 +278,7 @@ public class ControlDA
 			Pair dagBlock = (Pair) dag.get(bb);
 			Collection preds;
 
-			if (forward) {
-				preds = (Collection) dagBlock.getFirst();
-			} else {
-				preds = (Collection) dagBlock.getSecond();
-			}
+			preds = (Collection) dagBlock.getFirst();
 
 			if (!processed.containsAll(preds)) {
 				wb.addWorkNoDuplicates(bb);
@@ -323,11 +289,7 @@ public class ControlDA
 			int currIndex = NODES.indexOf(bb);
 			Collection succs;
 
-			if (forward) {
-				succs = (Collection) dagBlock.getSecond();
-			} else {
-				succs = (Collection) dagBlock.getFirst();
-			}
+			succs = (Collection) dagBlock.getSecond();
 
 			BitSet[] currCD = cd[currIndex];
 			succsSize[currIndex] = succs.size();
@@ -400,11 +362,7 @@ public class ControlDA
 			} else {
 				// add dependence to the reachable roots
 				for (Iterator i = roots.iterator(); i.hasNext();) {
-					BasicBlock root = (BasicBlock) i.next();
-
-					if (graph.isReachable(bb, root, !forward)) {
-						currResult.set(NODES.indexOf(root));
-					}
+					currResult.set(NODES.indexOf(i.next()));
 				}
 			}
 			result[currIndex] = currResult;
@@ -461,12 +419,7 @@ public class ControlDA
 				BasicBlock cdbb = (BasicBlock) nodes.get(j);
 				Object cdStmt;
 
-				if (forward) {
-					cdStmt = cdbb.getLeaderStmt();
-				} else {
-					cdStmt = cdbb.getTrailerStmt();
-				}
-
+				cdStmt = cdbb.getLeaderStmt();
 				cdp.add(cdStmt);
 
 				int deIndex = sl.indexOf(cdStmt);
@@ -493,6 +446,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/11/25 17:17:27  venku
+   - logging.
+
    Revision 1.25  2003/11/25 17:08:50  venku
    - added logging statement.
 
