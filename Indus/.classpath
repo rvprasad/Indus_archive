@@ -14,5 +14,6 @@
 	<classpathentry sourcepath="JAVACLASSES/src/junit.jar" kind="var" path="ECLIPSE_HOME/plugins/org.junit_3.8.1/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
