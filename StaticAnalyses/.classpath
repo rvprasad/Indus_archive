@@ -6,6 +6,7 @@
 	<classpathentry excluding=".cono" kind="src" path="src-dependence"/>
 	<classpathentry excluding=".cono" kind="src" path="src-concurrency"/>
 	<classpathentry kind="src" path="src-test"/>
+	<classpathentry kind="src" path="src-xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
@@ -14,5 +15,6 @@
 	<classpathentry kind="var" path="LOGGING_COMMONS_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
