@@ -42,6 +42,11 @@ public interface IValueAnalyzer
 	Object ID = "value flow analyzer";
 
 	/**
+	 * The id of the tag used by the underlying flow analysis.
+	 */
+	Object TAG_ID = "id of tag used by flow analysis";
+
+	/**
 	 * Retrieves the enviroment in which the analysis operates.
 	 *
 	 * @return the enviroment.
@@ -106,6 +111,8 @@ public interface IValueAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/02/08 19:07:59  venku
+   - documentation
    Revision 1.10  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
