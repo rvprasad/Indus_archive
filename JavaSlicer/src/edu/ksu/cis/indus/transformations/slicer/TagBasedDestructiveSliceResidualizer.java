@@ -50,6 +50,7 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
+import soot.VoidType;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
@@ -395,7 +396,9 @@ public final class TagBasedDestructiveSliceResidualizer
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Residualized method " + method);
 				}
-			}
+			} else {
+       if (LOGGER.isDebugEnabled()) LOGGER.debug("Deleting method " + method);         
+            }
 		}
 	}
 
@@ -491,9 +494,20 @@ public final class TagBasedDestructiveSliceResidualizer
 				_body.validateUnitBoxes();
 				_body.validateUses();
 				NopEliminator.v().transform(_body);
-				currMethod.setActiveBody(_body);
+                /*
+                 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
+                 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to executable.
+                 */                
+				if (_body.getUnits().isEmpty()) {
+                    final Chain _temp = _body.getUnits();
+                    final Type _retType = currMethod.getReturnType();
+                    if (_retType.equals(VoidType.v()))
+                            _temp.add(_jimple.newReturnVoidStmt());
+                    else {
+                        _temp.add(_jimple.newReturnStmt(getDefaultValueFor(_retType)));
+                    }
+                }
 			}
-
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("END: Finishing method " + currMethod);
 			}
@@ -533,7 +547,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		theScene = scene;
 
 		final ProcessingController _pc = new ProcessingController();
-		_pc.setProcessingFilter(new TagBasedProcessingFilter(systemTagName));
+		_pc.setProcessingFilter(new TagBasedProcessingFilter(tagToResidualize));
 		_pc.setEnvironment(new Environment(scene));
 		hookup(_pc);
 		_pc.process();
@@ -640,6 +654,13 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/09 23:15:37  venku
+   - chnaged the method,field, and class kill logic.
+   - changed method and class finishing logic.
+   - removed unnecessary residualization when some
+     properties about statements such as enter monitor
+     and invoke expr are known.
+
    Revision 1.6  2004/01/09 07:03:07  venku
    - added annotations for code to be removed.
    Revision 1.5  2003/12/16 12:43:33  venku
