@@ -47,26 +47,26 @@ import soot.toolkits.graph.UnitGraph;
  */
 public final class BasicBlockGraph
   extends AbstractMutableDirectedGraph {
-	/**
+	/** 
 	 * The list of statements in the method being represented by this graph.
 	 *
 	 * @invariant stmtList.oclIsKindOf(Sequence(Stmt))
 	 */
 	final List stmtList;
 
-	/**
+	/** 
 	 * The collection of basic block nodes in this graph.
 	 *
 	 * @invariant blocks.oclIsKindOf(Sequence(BasicBlock))
 	 */
 	private final List blocks;
 
-	/**
+	/** 
 	 * An array of <code>BasicBlock</code> objects.
 	 */
 	private final Map stmt2BlockMap;
 
-	/**
+	/** 
 	 * The control flow graph of the method represented by this graph.
 	 */
 	private final UnitGraph stmtGraph;
@@ -90,8 +90,6 @@ public final class BasicBlockGraph
 			return;
 		}
 
-		int _leader;
-		int _trailer;
 		final List _stmts = new ArrayList();
 		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
 		_wb.addWork(stmtList.get(0));
@@ -101,10 +99,9 @@ public final class BasicBlockGraph
 		while (_wb.hasWork()) {
 			final Stmt _stmt = (Stmt) _wb.getWork();
 			_stmts.clear();
-			_leader = stmtList.indexOf(_stmt);
-			_trailer = getTrailer(_stmt, _wb, _stmts);
+			getBasicBlockStmtsInto(_stmt, _wb, _stmts);
 
-			final BasicBlock _bblock = new BasicBlock(_leader, _trailer, _stmts);
+			final BasicBlock _bblock = new BasicBlock(_stmts);
 
 			for (final Iterator _i = _stmts.iterator(); _i.hasNext();) {
 				stmt2BlockMap.put(_i.next(), _bblock);
@@ -123,37 +120,36 @@ public final class BasicBlockGraph
 	 */
 	public final class BasicBlock
 	  extends AbstractMutableDirectedGraph.AbstractMutableNode {
-		/**
+		/** 
 		 * The list of statements represented by this block.
 		 *
 		 * @invariant stmts.oclIsKindOf(Sequence(Stmt))
 		 */
 		private final List stmts;
 
-		/**
-		 * An index into the statement list of the method.  It is the index of the leader statement of this block.
+		/** 
+		 * This is the leader statement in the block.
 		 */
-		private final int leader;
+		private final Stmt leaderStmt;
 
-		/**
-		 * An index into the statement list of the method.  It is the index of the trailer statement of this block.
+		/** 
+		 * This is the trailer statement in the block.
 		 */
-		private final int trailer;
+		private final Stmt trailerStmt;
 
 		/**
 		 * Creates a new BasicBlock object.
 		 *
-		 * @param theLeader is the index of the leader statement of this block in the statement list of the method.
-		 * @param theTrailer is the index of the trailer statement of this block in the statement list of the method.
 		 * @param stmtsParam is the list of statements being represented by this block.
 		 *
-		 * @pre leader >= 0 && leader &lt; stmtList.size() && trailer >= leader && trailer &lt; stmtList.size();
+		 * @pre stmtsParam != null and stmsParam.oclIsKindOf(Sequence(Stmt))
+		 * @pre getStmtGraph().getBody().getUnits().containsAll(stmtsParam)
 		 */
-		BasicBlock(final int theLeader, final int theTrailer, final List stmtsParam) {
+		BasicBlock(final List stmtsParam) {
 			super(new HashSet(), new HashSet());
-			this.leader = theLeader;
-			this.trailer = theTrailer;
-			this.stmts = new ArrayList(stmtsParam);
+			stmts = new ArrayList(stmtsParam);
+			leaderStmt = (Stmt) stmts.get(0);
+			trailerStmt = (Stmt) stmts.get(stmts.size() - 1);
 		}
 
 		/**
@@ -162,7 +158,7 @@ public final class BasicBlockGraph
 		 * @return the leader statement.  <code>null</code> if no leader statement exists.
 		 */
 		public Stmt getLeaderStmt() {
-			return getStmtAt(leader);
+			return leaderStmt;
 		}
 
 		/**
@@ -174,14 +170,21 @@ public final class BasicBlockGraph
 		 *
 		 * @return a modifiable list of <code>Stmt</code>s.
 		 *
-		 * @post result != null
-		 * @post ((start &lt; leader or end > trailer or start >= end)) implies (result.size() = 0)
+		 * @post result != null and result.oclIsKindOf(Sequence(Stmt))
+		 * @post (getStmtGraph().getBody().getUnits().indexOf(start) &lt; leader or
+		 * 		 getStmtGraph().getBody().getUnits().indexOf(end) > trailer or
+		 * 		 getStmtGraph().getBody().getUnits().indexOf(start) > sgetStmtGraph().getBody().getUnits().indexOf(end))
+		 * 		 implies (result.size() = 0)
 		 */
-		public List getStmtFromTo(final int start, final int end) {
+		public List getStmtFromTo(final Stmt start, final Stmt end) {
 			final List _result;
+			final int _startIndex = stmtList.indexOf(start);
+			final int _endIndex = stmtList.indexOf(end);
+			final int _leaderIndex = stmtList.indexOf(leaderStmt);
+			final int _trailerIndex = stmtList.indexOf(trailerStmt);
 
-			if (start >= leader && end <= trailer && start <= end) {
-				_result = new ArrayList(stmtList.subList(start, end + 1));
+			if (_startIndex >= _leaderIndex && _endIndex <= _trailerIndex && _startIndex <= _endIndex) {
+				_result = new ArrayList(stmtList.subList(_startIndex, _endIndex + 1));
 				_result.retainAll(stmts);
 			} else {
 				_result = Collections.EMPTY_LIST;
@@ -197,10 +200,11 @@ public final class BasicBlockGraph
 		 * @return a modifiable list of <code>Stmt</code>s.
 		 *
 		 * @post result != null
-		 * @post (start &lt; leader or start > trailer) implies (result.size() = 0)
+		 * @post (getStmtGraph().getBody().getUnits().indexOf(start) &lt; leader or
+		 * 		 getStmtGraph().getBody().getUnits().indexOf(start) > trailer) implies (result.size() = 0)
 		 */
 		public List getStmtsFrom(final Stmt start) {
-			return getStmtFromTo(stmtList.indexOf(start), trailer);
+			return getStmtFromTo(start, trailerStmt);
 		}
 
 		/**
@@ -220,15 +224,14 @@ public final class BasicBlockGraph
 		 * @return the trailer statement. <code>null</code> if no leader statement exists.
 		 */
 		public Stmt getTrailerStmt() {
-			return getStmtAt(trailer);
+			return trailerStmt;
 		}
 
 		/**
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
-			return new ToStringBuilder(this).append("stmts", this.stmts).append("leader", this.leader)
-											  .append("trailer", this.trailer).toString();
+			return new ToStringBuilder(this).append("stmts", this.stmts).toString();
 		}
 	}
 
@@ -348,34 +351,19 @@ public final class BasicBlockGraph
 	}
 
 	/**
-	 * Retrieves the statement occurring at the given index in the body associated with this basic block graph.
-	 *
-	 * @param index at which the requested statement occurs.
-	 *
-	 * @return the statement occurring at the given index.
-	 */
-	Stmt getStmtAt(final int index) {
-		return (Stmt) stmtList.get(index);
-	}
-
-	/**
-	 * Retrieves the position of the trailer statement of the basic block being processed. <code>stmts</code> is filled with
-	 * the statements that form the current basic block graph.
+	 * Retrieves the statements of the basic block being processed. <code>stmts</code> is filled with the statements that
+	 * form the current basic block graph.
 	 *
 	 * @param leaderStmt from which the rest of the basic block body should be discovered.
 	 * @param wb is the workbag into which new leader statement is added.
 	 * @param stmts will contain the statements that make up the current basic block graph.
 	 *
-	 * @return the position of the trailer statement of the current basic block graph.
-	 *
 	 * @pre leaderStmt != null and wb != null and stmts != null
 	 * @pre stmts.oclIsKindOf(Collection(Stmt))
-	 * @post stmts.oclIsKindOf(Collection(Stmt))
 	 */
-	private int getTrailer(final Stmt leaderStmt, final IWorkBag wb, final List stmts) {
+	private void getBasicBlockStmtsInto(final Stmt leaderStmt, final IWorkBag wb, final List stmts) {
 		Stmt _stmt = leaderStmt;
 		Stmt _pred = leaderStmt;
-		int _trailer = 0;
 
 		while (true) {
 			final Collection _preds = stmtGraph.getPredsOf(_stmt);
@@ -383,15 +371,12 @@ public final class BasicBlockGraph
 			final int _succsSize = _succs.size();
 
 			if (_preds.size() > 1 && _pred != _stmt) {
-				_trailer = stmtList.indexOf(_pred);
 				wb.addWorkNoDuplicates(_stmt);
 				break;
 			}
 			stmts.add(_stmt);
 
 			if (_succsSize > 1 || _succsSize == 0) {
-				_trailer = stmtList.indexOf(_stmt);
-
 				if (_succsSize > 1) {
 					wb.addAllWorkNoDuplicates(_succs);
 				}
@@ -400,7 +385,6 @@ public final class BasicBlockGraph
 			_pred = _stmt;
 			_stmt = (Stmt) stmtGraph.getSuccsOf(_pred).get(0);
 		}
-		return _trailer;
 	}
 
 	/**
@@ -447,6 +431,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/07 06:25:08  venku
+   - the way statement sub list was constructed in the basic block was incorrect.  FIXED.
+   - ripple effect.
    Revision 1.3  2004/07/04 11:52:42  venku
    - renamed getStmtFrom() to getStmtsFrom().
    Revision 1.2  2004/07/04 11:09:01  venku
