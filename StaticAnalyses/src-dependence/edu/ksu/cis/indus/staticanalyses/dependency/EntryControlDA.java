@@ -424,7 +424,7 @@ public class EntryControlDA
 						dees = new ArrayList();
 						mDependent.set(deIndex, dees);
 					}
-					dees.add(bb.getStmtsOf());
+					dees.addAll(bb.getStmtsOf());
 				}
 			}
 		}
@@ -442,6 +442,10 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.6  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
