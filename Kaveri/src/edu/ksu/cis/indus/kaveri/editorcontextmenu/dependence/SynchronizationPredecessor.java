@@ -51,4 +51,12 @@ public class SynchronizationPredecessor extends DependenceBaseClass
 	protected String getDependenceInfo() {
 		return "Synchronization Dependee";
 	}
+
+	/* (non-Javadoc)
+	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceAnnotationKey()
+	 */
+	protected String getDependenceAnnotationKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

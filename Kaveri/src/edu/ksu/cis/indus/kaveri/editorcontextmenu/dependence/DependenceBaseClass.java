@@ -83,7 +83,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 	 */
 	public void run(IAction action) {
 		if(tSelection != null) {
-			removeDependenceAnnotation(editor);
+			//removeDependenceAnnotation(editor);
 			final String _text = tSelection.getText();
             final int _nSelLine = tSelection.getEndLine() + 1;
             final IFile _inpfile = ((IFileEditorInput) editor.getEditorInput()).getFile();           
@@ -173,6 +173,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 	 */
 	protected abstract List handleDependence(SootMethod method, Stmt stmt);
 	
+	protected abstract String getDependenceAnnotationKey();
 	/**
 	 * Returns the type of the dependence.
 	 * 
@@ -297,7 +298,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 										editor.getDocumentProvider().getDocument(editor.getEditorInput()).
 										getLineInformation(_nLine - 1);
 									_dset.add(new Integer(_nLine));
-									final Annotation _annot = new Annotation(annotationKey, false, null);
+									final Annotation _annot = new Annotation(getDependenceAnnotationKey(), false, null);
 									final Position _pos = new Position(_region.getOffset(), _region.getLength());
 									annotSet.add(_annot);
 									_model.addAnnotation(_annot, _pos);
