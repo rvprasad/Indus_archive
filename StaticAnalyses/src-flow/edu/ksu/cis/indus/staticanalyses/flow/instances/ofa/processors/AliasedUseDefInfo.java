@@ -310,11 +310,11 @@ public class AliasedUseDefInfo
 				int _localEdgeCount = 0;
 
 				if (_defs != null) {
-					for (final Iterator _j = (_defs).iterator(); _j.hasNext();) {
+					for (final Iterator _j = _defs.iterator(); _j.hasNext();) {
 						final Object _def = _j.next();
 						_temp.append("\t\t" + _use + " <== " + _def + "\n");
 					}
-					_localEdgeCount += (_defs).size();
+					_localEdgeCount += _defs.size();
 				}
 
 				final Object _key = _entry1.getKey();
