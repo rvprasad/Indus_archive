@@ -58,7 +58,7 @@ import java.util.Map;
 /**
  * This class provides divergence dependency information.  This implementation refers to the technical report <a
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
- * JVM Concurrency Primitives"</a>.
+ * JVM Concurrency Primitives"</a>.  This implementation by default does not consider call-sites for dependency calculation.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -88,16 +88,16 @@ public class DivergenceDA
 	 * This indicates if call-sites that invoke methods containing pre-divergence points should be considered as
 	 * pre-divergence points.
 	 */
-	private boolean interProcedural;
+	private boolean considerCallSites = false;
 
 	/**
 	 * Sets if the analyses should consider the effects of method calls.
 	 *
-	 * @param acrossMethodCalls <code>true</code> indicates call-sites that invoke methods containing pre-divergence points
+	 * @param consider <code>true</code> indicates call-sites that invoke methods containing pre-divergence points
 	 * 		  should be considered as pre-divergence points; <code>false</code>, otherwise.
 	 */
-	public void setInterProcedural(final boolean acrossMethodCalls) {
-		interProcedural = acrossMethodCalls;
+	public void setConsiderCallSites(final boolean consider) {
+		considerCallSites = consider;
 	}
 
 	/**
@@ -310,7 +310,7 @@ public class DivergenceDA
 	  throws InitializationException {
 		super.setup();
 
-		if (interProcedural) {
+		if (considerCallSites) {
 			callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
 			if (callgraph == null) {
@@ -365,7 +365,7 @@ public class DivergenceDA
 	private boolean callsDivergentMethod(final Stmt stmt, final SootMethod caller, final Map preDivPointsMap) {
 		boolean result = false;
 
-		if (interProcedural && stmt.containsInvokeExpr()) {
+		if (considerCallSites && stmt.containsInvokeExpr()) {
 			Collection callees = callgraph.getMethodsReachableFrom(stmt, caller);
 
 			for (Iterator i = callees.iterator(); i.hasNext();) {
@@ -382,6 +382,10 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/08/25 09:58:57  venku
+   Initialization of interProcedural behavior happened during construction.
+   This was too rigid and has now been relaxed via setInterProcedural() method.
+
    Revision 1.6  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
 

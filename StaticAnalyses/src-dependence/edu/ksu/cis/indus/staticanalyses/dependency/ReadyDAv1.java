@@ -76,7 +76,7 @@ import java.util.Map;
 /**
  * This class provides ready dependency information.  This implementation refers to the technical report <a
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
- * JVM Concurrency Primitives"</a>.
+ * JVM Concurrency Primitives"</a>. This implementation by default does not consider call-sites for dependency calculation.
  * 
  * <p>
  * <i>Ready Dependence</i>: In a thread, all statements reachable from an enter-monitor statement or a <code>wait()</code>
@@ -203,13 +203,14 @@ public class ReadyDAv1
 	 * ignore ready dependence across call-sites and rely on other dependence analysis to include the call-site.  This only
 	 * affects how rule 1 and 3 are interpreted.
 	 */
-	private boolean interProcedural = false;
+	private boolean considerCallSites;
 
 	/**
 	 * Creates a new ReadyDAv1 object.
 	 */
 	public ReadyDAv1() {
 		preprocessor = new PreProcessor();
+        considerCallSites = false;
 	}
 
 	/**
@@ -377,12 +378,12 @@ public class ReadyDAv1
 	/**
 	 * Records if ready dependency should be interprocedural or otherwise. 
 	 *
-	 * @param acrossMethodCalls <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor
+	 * @param consider <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor
 	 * 		  statement should be considered as a ready dependeee; <code>false</code>, otherwise. This only affects how rule
 	 * 		  1 and 3 are interpreted
 	 */
-	public void setInterProcedural(final boolean acrossMethodCalls) {
-		interProcedural = acrossMethodCalls;
+	public void setConsiderCallSites(final boolean consider) {
+		considerCallSites = consider;
 	}
 
 	/**
@@ -590,7 +591,7 @@ public class ReadyDAv1
 	private boolean callsReadyMethod(final Stmt stmt, final SootMethod caller) {
 		boolean result = false;
 
-		if (interProcedural && stmt.containsInvokeExpr()) {
+		if (considerCallSites && stmt.containsInvokeExpr()) {
 			if (!CollectionUtils.intersection(readyMethods, callgraph.getMethodsReachableFrom(stmt, caller)).isEmpty()) {
 				result = true;
 			}
@@ -909,6 +910,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/08/25 09:15:51  venku
+   Initialization of interProcedural was missing in ReadyDAv1.
+   Ripple effect of this and previous change in ReadyDAv1/2 in RDADriver.
+
    Revision 1.7  2003/08/25 09:04:31  venku
    It was not a good decision to decide interproceduralness of the
    analyses at construction.  Hence, it now can be controlled via public
