@@ -91,7 +91,7 @@ public class SootBasedDriver {
 		final String _rmtClassName = Constants.getRootMethodTrapperClassName();
 
 		try {
-			final Object _o = ClassLoader.getSystemClassLoader().loadClass(_rmtClassName).newInstance();
+			final Object _o = SootBasedDriver.class.getClassLoader().loadClass(_rmtClassName).newInstance();
 
 			if (_o instanceof RootMethodTrapper) {
 				DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER = (RootMethodTrapper) _o;
@@ -112,7 +112,7 @@ public class SootBasedDriver {
 		final String _nameOfStmtGraphFactoryClass = Constants.getStmtGraphFactoryClassName();
 
 		try {
-			final Object _o = ClassLoader.getSystemClassLoader().loadClass(_nameOfStmtGraphFactoryClass).newInstance();
+			final Object _o = SootBasedDriver.class.getClassLoader().loadClass(_nameOfStmtGraphFactoryClass).newInstance();
 
 			if (_o instanceof IStmtGraphFactory) {
 				DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY = (IStmtGraphFactory) _o;

@@ -65,7 +65,7 @@ public final class TokenUtil {
 		final String _tmType = Constants.getTokenManagerType();
 
 		try {
-			final Class _class = ClassLoader.getSystemClassLoader().loadClass(_tmType);
+			final Class _class = TokenUtil.class.getClassLoader().loadClass(_tmType);
 			final Constructor _ctstr = _class.getConstructor(new Class[] { ITypeManager.class });
 
 			if (_ctstr != null) {
