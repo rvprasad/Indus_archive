@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.bandera;
+package edu.ksu.cis.indus.toolkits.bandera;
 
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
@@ -154,6 +154,9 @@ public class SlicerConfigurationView
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/16 07:52:25  venku
+   - coding convention.
+
    Revision 1.1  2003/09/15 08:55:23  venku
    - Well, the SlicerTool is still a mess in my opinion as it needs
      to be implemented as required by Bandera.  It needs to be

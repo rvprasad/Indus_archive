@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.bandera;
+package edu.ksu.cis.indus.toolkits.bandera;
 
 import soot.Scene;
 import soot.SootMethod;
@@ -425,4 +425,11 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/15 08:55:23  venku
+   - Well, the SlicerTool is still a mess in my opinion as it needs
+     to be implemented as required by Bandera.  It needs to be
+     much richer than it is to drive the slicer.
+   - SlicerConfigurationView is supposed to bridge the above gap.
+     I doubt it.
+
  */
