@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,11 +81,11 @@ public class ForwardSlicingPart
 	 */
 	public Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final Object context) {
 		final Collection _result = new HashSet();
-		final Object _direction = analysis.getDirection();
+		final Object _dir = analysis.getDirection();
 
-		if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION) || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
+		if (_dir.equals(IDependencyAnalysis.FORWARD_DIRECTION) || _dir.equals(IDependencyAnalysis.DIRECTIONLESS)) {
 			_result.addAll(analysis.getDependees(entity, context));
-		} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
+		} else if (_dir.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependents(entity, context));
 		} else if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("Trying to retrieve FORWARD dependence from a dependence analysis that is BACKWARD direction.");
@@ -133,10 +132,7 @@ public class ForwardSlicingPart
 			final Iterator _i = callees.iterator();
 			final int _iEnd = callees.size();
 
-			if (engine.getCallStackCache() == null) {
-				engine.setCallStackCache(new Stack());
-			}
-			engine.getCallStackCache().push(new CallTriple(caller, stmt, _expr));
+			engine.enterMethod(new CallTriple(caller, stmt, _expr));
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final SootMethod _callee = (SootMethod) _i.next();
@@ -156,11 +152,7 @@ public class ForwardSlicingPart
 					}
 				}
 			}
-			engine.getCallStackCache().pop();
-
-			if (engine.getCallStackCache().isEmpty()) {
-				engine.setCallStackCache(null);
-			}
+			engine.returnFromMethod();
 		}
 	}
 
@@ -220,17 +212,9 @@ public class ForwardSlicingPart
 
 				final Collection _callees = engine.getCgi().getCallees(_invokeExpr, _ctxt);
 
-				if (engine.getCallStackCache() == null) {
-					engine.setCallStackCache(new Stack());
-				}
-				engine.getCallStackCache().push(new CallTriple(method, stmt, stmt.getInvokeExpr()));
-
+				engine.enterMethod(new CallTriple(method, stmt, stmt.getInvokeExpr()));
 				generateCriteriaToIncludeArgumentReadStmts(_argIndex, _callees);
-				engine.getCallStackCache().pop();
-
-				if (engine.getCallStackCache().isEmpty()) {
-					engine.setCallStackCache(null);
-				}
+				engine.returnFromMethod();
 			}
 		}
 	}
@@ -247,6 +231,13 @@ public class ForwardSlicingPart
 	 */
 	public void processParameterRef(final ValueBox box, final SootMethod method) {
 		// DOES NOTHING
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
+	 */
+	public void reset() {
+		// DOES NOTHING.
 	}
 
 	/**
@@ -322,13 +313,6 @@ public class ForwardSlicingPart
 			}
 		}
 	}
-
-    /** 
-     * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
-     */
-    public void reset() {
-        // DOES NOTHING.
-    }
 }
 
 // End of File

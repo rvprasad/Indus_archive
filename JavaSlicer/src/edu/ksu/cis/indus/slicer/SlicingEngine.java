@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -190,7 +190,9 @@ public final class SlicingEngine {
 	private Predicate nonStartMethodPredicate = new NonStartMethodPredicate();
 
 	/** 
-	 * This caches the call stack of the criteria currently being processed.
+	 * This caches the call stack of the criteria currently being processed.  It will hold the call-site of the current
+	 * method in which the processing is occurring.  This will NOT include the current method being processed at TOS unless
+	 * there is recursion.
 	 */
 	private Stack callStackCache;
 
@@ -382,6 +384,32 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Places the given call site on top of the call stack to simulate a call.  The callsite comprises of the caller and the
+	 * invocation statement in the caller.
+	 *
+	 * @param callsite is the call site.
+	 *
+	 * @pre callsite != null
+	 */
+	public void enterMethod(final CallTriple callsite) {
+		if (callsite != null) {
+			if (callStackCache == null) {
+				callStackCache = new Stack();
+			}
+			callStackCache.push(callsite);
+		}
+	}
+
+	/**
+	 * Checks if the processing is embedded in a calling context.
+	 *
+	 * @return <code>true</code> if the processing is embedded in a calling context; <code>false</code>, otherwise.
+	 */
+	public boolean ifInsideContext() {
+		return callStackCache != null && !callStackCache.isEmpty();
+	}
+
+	/**
 	 * Initializes the slicing engine.
 	 *
 	 * @throws IllegalStateException when the tag name is not set.
@@ -415,6 +443,27 @@ public final class SlicingEngine {
 			final Object _work = workbag.getWork();
 			((IPoolable) _work).returnToPool();
 		}
+	}
+
+	/**
+	 * Pops the TOS of the call stack.
+	 *
+	 * @return the callsite from which the processing returned.
+	 */
+	public CallTriple returnFromMethod() {
+		CallTriple _result = null;
+
+		if (callStackCache != null) {
+			if (ifInsideContext()) {
+				_result = (CallTriple) callStackCache.pop();
+			}
+
+			if (callStackCache.isEmpty()) {
+				callStackCache = null;
+			}
+		}
+
+		return _result;
 	}
 
 	/**
@@ -460,21 +509,19 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Sets the value of <code>callStackCache</code>.
-	 *
-	 * @param callStack the new value of <code>callStackCache</code>.
-	 */
-	void setCallStackCache(final Stack callStack) {
-		callStackCache = callStack;
-	}
-
-	/**
 	 * Retrieves the value in <code>callStackCache</code>.
 	 *
 	 * @return the value in <code>callStackCache</code>.
 	 */
-	Stack getCallStackCache() {
-		return callStackCache;
+	Stack getCallStackCacheCopy() {
+		final Stack _result;
+
+		if (callStackCache != null) {
+			_result = (Stack) callStackCache.clone();
+		} else {
+			_result = null;
+		}
+		return _result;
 	}
 
 	/**
@@ -498,40 +545,64 @@ public final class SlicingEngine {
 	/**
 	 * Generates new slice criterion that captures the sites that invoke the given method.
 	 *
-	 * @param callee is the method whose calling sites needs to be included in the slice.
+	 * @param method is the method whose calling sites needs to be included in the slice.
 	 *
-	 * @pre callee != null
+	 * @pre method != null
 	 */
-	void generateCriteriaForTheCallToMethod(final SootMethod callee) {
+	void generateCriteriaForTheCallToMethod(final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller) " + callee);
+			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller) " + method);
 		}
 
-		// generate criteria to include invocation sites only if the method has not been collected.
-		if (!collector.hasBeenCollected(callee)) {
-			includeMethodAndDeclaringClassInSlice(callee);
+		if (!collector.hasBeenCollected(method)) {
+			includeMethodAndDeclaringClassInSlice(method);
 		}
 
-		if (callStackCache != null && !callStackCache.isEmpty()) {
-			final CallTriple _temp = (CallTriple) callStackCache.pop();
-			final SootMethod _caller = _temp.getMethod();
-			final Stmt _stmt = _temp.getStmt();
-			directionSensitiveInfo.generateCriteriaForTheCallToMethod(callee, _caller, _stmt);
-			callStackCache.push(_temp);
-		} else if (!collectedAllInvocationSites.contains(callee)) {
-			collectedAllInvocationSites.add(callee);
+		if (!collectedAllInvocationSites.contains(method)) {
+			final Stack _stack = callStackCache;
 
-			for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
-				final CallTriple _ctrp = (CallTriple) _i.next();
-				final SootMethod _caller = _ctrp.getMethod();
-				final Stmt _stmt = _ctrp.getStmt();
-				directionSensitiveInfo.generateCriteriaForTheCallToMethod(callee, _caller, _stmt);
+			if (_stack != null && !_stack.isEmpty()) {
+				final CallTriple _top = (CallTriple) _stack.pop();
+				final SootMethod _caller = _top.getMethod();
+				final Stmt _stmt = _top.getStmt();
+				directionSensitiveInfo.generateCriteriaForTheCallToMethod(method, _caller, _stmt);
+				_stack.push(_top);
+			} else {
+				collectedAllInvocationSites.add(method);
+
+				for (final Iterator _i = cgi.getCallers(method).iterator(); _i.hasNext();) {
+					final CallTriple _ctrp = (CallTriple) _i.next();
+					final SootMethod _caller = _ctrp.getMethod();
+					final Stmt _stmt = _ctrp.getStmt();
+					directionSensitiveInfo.generateCriteriaForTheCallToMethod(method, _caller, _stmt);
+				}
 			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for call-sites (callee-caller)");
 		}
+	}
+
+	/**
+	 * Specialized form of <code>generateSliceExprCriterion</code> that generates the criterion against the given call stack
+	 * instead of the current call stack.
+	 *
+	 * @param valueBox is the program point for which slice criterion should be generated.
+	 * @param stmt is the statement containing <code>valueBox</code>.
+	 * @param method is the method containing <code>stmt</code>.
+	 * @param considerExecution indicates if the execution of the program point should be considered or just the control
+	 * 		  reaching it.
+	 * @param callStack to use instead of the current call stack.
+	 *
+	 * @pre valueBox != null and stmt != null and method != null and callstack != null
+	 */
+	void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
+		final boolean considerExecution, final Stack callStack) {
+		final Stack _stack = callStackCache;
+		callStackCache = callStack;
+		generateSliceExprCriterion(valueBox, stmt, method, considerExecution);
+		callStackCache = _stack;
 	}
 
 	/**
@@ -555,7 +626,7 @@ public final class SlicingEngine {
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding expr [" + considerExecution + "] " + valueBox.getValue() + " at " + stmt + " in "
-					+ method.getSignature() + " to workbag.");
+					+ method.getSignature() + " @ " + callStackCache + " to workbag.");
 			}
 		} else {
 			if (valueBox.getValue() instanceof InvokeExpr) {
@@ -586,7 +657,8 @@ public final class SlicingEngine {
 			workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " to workbag.");
+				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " @ "
+					+ callStackCache + " to workbag.");
 			}
 		} else {
 			if (sliceType.equals(COMPLETE_SLICE)
@@ -642,6 +714,15 @@ public final class SlicingEngine {
 			final SootClass _exception = (SootClass) _i.next();
 			includeClassInSlice(_exception);
 		}
+	}
+
+	/**
+	 * Sets the value of <code>callStackCache</code>.
+	 *
+	 * @param callStack the new value of <code>callStackCache</code>.
+	 */
+	private void setCallStackCache(final Stack callStack) {
+		callStackCache = callStack;
 	}
 
 	/**
@@ -711,6 +792,11 @@ public final class SlicingEngine {
 	 * @pre stmt != null and method != null
 	 */
 	private void generateCriteriaForLocals(final Collection locals, final Stmt stmt, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaForLocals(Collection locals = " + locals + ", Stmt stmt = " + stmt
+				+ ", SootMethod method = " + method + ", stack =" + callStackCache + ") - BEGIN");
+		}
+
 		final Collection _analyses = controller.getAnalyses(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 
 		if (_analyses.size() > 0) {
@@ -740,6 +826,10 @@ public final class SlicingEngine {
 					}
 				}
 			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaForLocals() " + ", stack =" + callStackCache + "- END");
 		}
 	}
 
@@ -785,9 +875,9 @@ public final class SlicingEngine {
 					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
 				} else {
 					final Stack _temp = callStackCache;
-					callStackCache = null;
+					setCallStackCache(null);
 					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
-					callStackCache = _temp;
+					setCallStackCache(_temp);
 				}
 			}
 		}
@@ -903,9 +993,9 @@ public final class SlicingEngine {
 
 		// capture control flow based dependences.
 		if (!collector.hasBeenCollected(stmt)) {
-		    generateStmtMethodCriteria(stmt, method, controlflowBasedDAs);
+			generateStmtMethodCriteria(stmt, method, controlflowBasedDAs);
 		}
-		
+
 		// generate new slice criteria
 		generateCriteriaForTheCallToMethod(method);
 
@@ -976,7 +1066,7 @@ public final class SlicingEngine {
 
 		// create new slice criteria based on statement level dependence.
 		if (!_das.isEmpty()) {
-		    generateStmtMethodCriteria(stmt, method, _das);
+			generateStmtMethodCriteria(stmt, method, _das);
 		}
 
 		// create new criteria based on program point level dependence (identifier based dependence).

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -200,12 +200,12 @@ public class BackwardSlicingPart
 	 * 		soot.jimple.Stmt)
 	 */
 	public void generateCriteriaForTheCallToMethod(final SootMethod callee, final SootMethod caller, final Stmt callStmt) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("generateCriteriaForTheCallToMethod(SootMethod callee = " + callee + ", SootMethod caller = "
-                    + caller + ", Stmt callStmt = " + callStmt + ", stack = " + engine.getCallStackCache()+ ") - BEGIN");
-        }
-        
-        /*
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaForTheCallToMethod(Stmt callStmt = " + callStmt + "SootMethod callee = " + callee
+				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+		}
+
+		/*
 		 * _stmt may be an assignment statement.  Hence, we want the control to reach the statement but not leave
 		 * it.  However, the execution of the invoke expression should be considered as it is requied to reach the
 		 * callee.  Likewise, we want to include the expression but not all arguments.  We rely on the reachable
@@ -215,12 +215,12 @@ public class BackwardSlicingPart
 		 */
 		engine.generateSliceStmtCriterion(callStmt, caller, false);
 		engine.getCollector().includeInSlice(callStmt.getInvokeExprBox());
-		generateCriteriaForReceiver(callStmt, caller, callee);
-		recordCallInfoForParameterProcessing(callStmt, caller, callee);
+		generateCriteriaForReceiverOfAt(callee, callStmt, caller);
+		recordCallInfoForProcessingArgsTo(callStmt, caller, callee);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("generateCriteriaForTheCallToMethod() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaForTheCallToMethod() - END");
+		}
 	}
 
 	/**
@@ -228,32 +228,24 @@ public class BackwardSlicingPart
 	 * 		soot.SootMethod, java.util.Collection)
 	 */
 	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection callees) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("generateCriteriaToIncludeCallees(Stmt stmt = " + stmt + ", SootMethod caller = " + caller
-                    + ", Collection callees = " + callees + ", stack = " + engine.getCallStackCache()+ ") - BEGIN");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaToIncludeCallees(Stmt stmt = " + stmt + ", Collection callees = " + callees
+				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+		}
 
 		processTailsOf(callees, stmt, caller, tailStmtInclusionClosure);
-		
-		final Stack _callStack = engine.getCallStackCache();
-		if (_callStack != null) {
-		    final CallTriple _callTriple = new CallTriple(caller, stmt, stmt.getInvokeExpr());
-		    _callStack.push(_callTriple);
-		}
-		
-		final Iterator _i = callees.iterator();
-        final int _iEnd = callees.size();
-        for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-            final SootMethod _callee = (SootMethod) _i.next();
-    		recordCallInfoForParameterProcessing(stmt, caller, _callee);   
-        }
-        if (_callStack != null) {
-            _callStack.pop();
-        }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("generateCriteriaToIncludeCallees() - END");
-        }
+		final Iterator _i = callees.iterator();
+		final int _iEnd = callees.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootMethod _callee = (SootMethod) _i.next();
+			recordCallInfoForProcessingArgsTo(stmt, caller, _callee);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaToIncludeCallees() - END");
+		}
 	}
 
 	/**
@@ -263,7 +255,7 @@ public class BackwardSlicingPart
 	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processLocalAt(Local local = " + local + ", Stmt stmt = " + stmt + ", SootMethod method = "
-				+ method + ", stack = " + engine.getCallStackCache() + ") - BEGIN");
+				+ method + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
 		}
 
 		engine.generateSliceStmtCriterion(stmt, method, true);
@@ -288,7 +280,7 @@ public class BackwardSlicingPart
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("processLocalAt() - END");
+			LOGGER.debug("processLocalAt() , stack = " + engine.getCallStackCacheCopy() + "- END");
 		}
 	}
 
@@ -301,10 +293,10 @@ public class BackwardSlicingPart
 	 * @pre stmt != null and method != null
 	 */
 	public void processNewExpr(final Stmt stmt, final SootMethod method) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("processNewExpr(Stmt stmt = " + stmt + ", SootMethod method = " + method + ", stack = " + engine.getCallStackCache()+ ") - BEGIN");
-        }
-		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processNewExpr(Stmt stmt = " + stmt + ", SootMethod method = " + method + ", stack = "
+				+ engine.getCallStackCacheCopy() + ") - BEGIN");
+		}
 
 		/*
 		 * Here we make some assumptions.  new expressions will always be assigned to a variable in order to call the
@@ -327,14 +319,17 @@ public class BackwardSlicingPart
 			}
 		}
 
-		
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("processNewExpr() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processNewExpr() - END");
+		}
 	}
 
 	/**
 	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
+	 * 
+	 * <p>
+	 * This should be called from within the callee's context (callStack containing the call to the callee).
+	 * </p>
 	 *
 	 * @param pBox is the parameter reference to be sliced on.
 	 * @param callee in which<code>pBox</code> occurs.
@@ -342,10 +337,11 @@ public class BackwardSlicingPart
 	 * @pre pBox != null and method != null
 	 */
 	public void processParameterRef(final ValueBox pBox, final SootMethod callee) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("processParameterRef(ValueBox pBox = " + pBox + ", SootMethod callee = " + callee + ", stack = " + engine.getCallStackCache()+ ") - BEGIN");
-        }
-		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processParameterRef(ValueBox pBox = " + pBox + ", SootMethod callee = " + callee + ", stack = "
+				+ engine.getCallStackCacheCopy() + ") - BEGIN");
+		}
+
 		final ParameterRef _param = (ParameterRef) pBox.getValue();
 		final int _index = _param.getIndex();
 
@@ -363,17 +359,15 @@ public class BackwardSlicingPart
 			LOGGER.debug("Parameters required for " + callee + " are " + _params);
 		}
 
-		final Stack _callStackCache = engine.getCallStackCache();
-
-		if (_callStackCache != null && !_callStackCache.isEmpty()) {
-			final CallTriple _temp = (CallTriple) _callStackCache.pop();
+		if (engine.ifInsideContext()) {
+			final CallTriple _temp = engine.returnFromMethod();
 			final SootMethod _caller = _temp.getMethod();
 			final Stmt _stmt = _temp.getStmt();
 			final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
 			engine.generateSliceExprCriterion(_argBox, _stmt, _caller, true);
-			generateCriteriaForReceiver(_stmt, _caller, callee);
+			engine.enterMethod(_temp);
+			generateCriteriaForReceiverOfAt(callee, _stmt, _caller);
 			generateCriteriaForMissedParameters(callee, _index);
-			_callStackCache.push(_temp);
 		} else {
 			for (final Iterator _i = engine.getCgi().getCallers(callee).iterator(); _i.hasNext();) {
 				final CallTriple _ctrp = (CallTriple) _i.next();
@@ -381,14 +375,13 @@ public class BackwardSlicingPart
 				final Stmt _stmt = _ctrp.getStmt();
 				final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
 				engine.generateSliceExprCriterion(_argBox, _stmt, _caller, true);
-				generateCriteriaForReceiver(_stmt, _caller, callee);
+				generateCriteriaForReceiverOfAt(callee, _stmt, _caller);
 			}
 		}
 
-		
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("processParameterRef() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processParameterRef() - END");
+		}
 	}
 
 	/**
@@ -493,6 +486,10 @@ public class BackwardSlicingPart
 	/**
 	 * Generates criteria for the argument positions at call-sites that could have been missed due to criteria processing
 	 * order.
+	 * 
+	 * <p>
+	 * This should be called from within the callee's context (callStack containing the call to the callee).
+	 * </p>
 	 *
 	 * @param callee of interest.
 	 * @param argIndex at the call site.
@@ -500,12 +497,11 @@ public class BackwardSlicingPart
 	 * @pre callee != null
 	 */
 	private void generateCriteriaForMissedParameters(final SootMethod callee, final int argIndex) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("generateCriteriaForMissedParameters(SootMethod callee = " + callee + ", int argIndex = " + argIndex
-                    + ", stack = " + engine.getCallStackCache()+ ") - BEGIN");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaForMissedParameters(SootMethod callee = " + callee + ", int argIndex = " + argIndex
+				+ ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+		}
 
-		final Stack _oldCallStack = engine.getCallStackCache();
 		final Collection _temp = (Collection) MapUtils.getObject(callee2callsites, callee, Collections.EMPTY_SET);
 		final Iterator _i = _temp.iterator();
 		final int _iEnd = _temp.size();
@@ -516,39 +512,41 @@ public class BackwardSlicingPart
 			final SootMethod _caller = (SootMethod) _triple.getSecond();
 			final Stack _stack = (Stack) _triple.getThird();
 			final InvokeExpr _expr = _stmt.getInvokeExpr();
-			engine.setCallStackCache(_stack);
-			engine.generateSliceExprCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true);
+			engine.generateSliceExprCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true, _stack);
 		}
-		engine.setCallStackCache(_oldCallStack);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("generateCriteriaForMissedParameters() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaForMissedParameters() - END");
+		}
 	}
 
 	/**
 	 * Generates criteria to include the receiver of the callee at the given invocation statement.
+	 * 
+	 * <p>
+	 * This should be called from within the callee's context (callStack containing the call to the callee).
+	 * </p>
 	 *
-	 * @param invocationStmt at which the invocation occurs.
-	 * @param caller in which the invocation occurs.
 	 * @param callee is the method that is invoked.
+	 * @param callStmt at which the invocation occurs.
+	 * @param caller in which the invocation occurs.
 	 *
-	 * @pre invocationStmt != null and caller != null and callee != null
+	 * @pre callStmt != null and caller != null and callee != null
 	 */
-	private void generateCriteriaForReceiver(final Stmt invocationStmt, final SootMethod caller, final SootMethod callee) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("generateCriteriaForReceiver(Stmt invocationStmt = " + invocationStmt + ", SootMethod caller = "
-                    + caller + ", SootMethod callee = " + callee + ", stack = " + engine.getCallStackCache()+ ") - BEGIN");
-        }
-
-		if (!callee.isStatic()) {
-			final ValueBox _vBox = ((InstanceInvokeExpr) invocationStmt.getInvokeExpr()).getBaseBox();
-			engine.generateSliceExprCriterion(_vBox, invocationStmt, caller, true);
+	private void generateCriteriaForReceiverOfAt(final SootMethod callee, final Stmt callStmt, final SootMethod caller) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaForReceiver(Stmt invocationStmt = " + callStmt + ", SootMethod callee = " + callee
+				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
 		}
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("generateCriteriaForReceiver() - END");
-        }
+		if (!callee.isStatic()) {
+			final ValueBox _vBox = ((InstanceInvokeExpr) callStmt.getInvokeExpr()).getBaseBox();
+			engine.generateSliceExprCriterion(_vBox, callStmt, caller, true);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateCriteriaForReceiver(), stack = " + engine.getCallStackCacheCopy() + " - END");
+		}
 	}
 
 	/**
@@ -560,10 +558,10 @@ public class BackwardSlicingPart
 	 * @pre initMethod != null and bbg != null and engine.getCallStackCache() != null
 	 */
 	private void processSuperInitInInit(final SootMethod initMethod, final BasicBlockGraph bbg) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("processSuperInitInInit(SootMethod initMethod = " + initMethod + ", BasicBlockGraph bbg = " + bbg
-                    + ", stack = " + engine.getCallStackCache()+ ") - BEGIN");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processSuperInitInInit(SootMethod initMethod = " + initMethod + ", BasicBlockGraph bbg = " + bbg
+				+ ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+		}
 
 		/*
 		 * if we are sucking in an init we better suck in the super <init> invoke expression as well. By JLS, this has to
@@ -594,14 +592,18 @@ public class BackwardSlicingPart
 			}
 		}
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("processSuperInitInInit() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processSuperInitInInit() - END");
+		}
 	}
 
 	/**
 	 * Processes the callees called at the given statements in the caller with the given closure to include tails of the
 	 * callees along with any arguments at the call-site.
+	 * 
+	 * <p>
+	 * This should be called from the caller's context (callStack containing the call to the caller).
+	 * </p>
 	 *
 	 * @param callees are the methods called at the statement.
 	 * @param stmt is the statment containing the invocation.
@@ -611,10 +613,11 @@ public class BackwardSlicingPart
 	 * @pre stmt !=  null and caller != null and callees != null and callees.oclIsKindOf(Collection(SootMethod))
 	 */
 	private void processTailsOf(final Collection callees, final Stmt stmt, final SootMethod caller, final Closure closure) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("processTailsOf(Collection callees = " + callees + ", Stmt stmt = " + stmt
-                    + ", SootMethod caller = " + caller + ", Closure closure = " + closure + ", stack = " + engine.getCallStackCache() + ") - BEGIN");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processTailsOf(Collection callees = " + callees + ", Stmt stmt = " + stmt
+				+ ", SootMethod caller = " + caller + ", Closure closure = " + closure + ", stack = "
+				+ engine.getCallStackCacheCopy() + ") - BEGIN");
+		}
 
 		final BasicBlockGraphMgr _bbgMgr = engine.getBasicBlockGraphManager();
 
@@ -623,14 +626,9 @@ public class BackwardSlicingPart
 
 			if (considerMethodExitForCriteriaGeneration(_callee, closure == returnValueInclClosure)) {
 				if (_callee.isConcrete()) {
-					if (engine.getCallStackCache() == null) {
-						engine.setCallStackCache(new Stack());
-					}
-
-					final Stack _callStackCache = engine.getCallStackCache();
 					final BasicBlockGraph _calleeBasicBlockGraph = _bbgMgr.getBasicBlockGraph(_callee);
 					final CallTriple _callTriple = new CallTriple(caller, stmt, stmt.getInvokeExpr());
-                    _callStackCache.push(_callTriple);
+					engine.enterMethod(_callTriple);
 					processSuperInitInInit(_callee, _calleeBasicBlockGraph);
 
 					final Collection _temp = new HashSet();
@@ -642,11 +640,7 @@ public class BackwardSlicingPart
 						_temp.add(_trailer);
 					}
 					exitTransformedMethods.put(_callee, _temp);
-					_callStackCache.pop();
-
-					if (_callStackCache.isEmpty()) {
-						engine.setCallStackCache(null);
-					}
+					engine.returnFromMethod();
 				} else {
 					final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
 
@@ -672,44 +666,41 @@ public class BackwardSlicingPart
 				}
 			}
 
-			generateCriteriaForReceiver(stmt, caller, _callee);
+			generateCriteriaForReceiverOfAt(_callee, stmt, caller);
 		}
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("processTailsOf() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processTailsOf() , stack = " + engine.getCallStackCacheCopy() + "- END");
+		}
 	}
 
 	/**
 	 * Records the given callee was called from the given call-site in the current context.
+	 * 
+	 * <p>
+	 * The context should be for the caller and not the callee. That is, the TOS should have the callsite for the caller
+	 * method and not the callsite for the callee in the caller method.
+	 * </p>
 	 *
 	 * @param stmt containing the call site.
 	 * @param caller containing <code>stmt</code>
 	 * @param callee being called.
 	 *
-	 * @pre stmt != null and caller != null and callee != null 
+	 * @pre stmt != null and caller != null and callee != null
 	 */
-	private void recordCallInfoForParameterProcessing(final Stmt stmt, final SootMethod caller, final SootMethod callee) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("recordCallInfoForParameterProcessing(Stmt stmt = " + stmt + ", SootMethod caller = " + caller
-                    + ", SootMethod callee = " + callee + ", stack = " + engine.getCallStackCache() + ") - BEGIN");
-        }
-
-		final Stack _oldStack = engine.getCallStackCache();
-		final Stack _stackClone;
-
-		if (_oldStack != null) {
-			_stackClone = (Stack) _oldStack.clone();
-		} else {
-			_stackClone = null;
+	private void recordCallInfoForProcessingArgsTo(final Stmt stmt, final SootMethod caller, final SootMethod callee) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("recordCallInfoForParameterProcessing(Stmt stmt = " + stmt + ", SootMethod caller = " + caller
+				+ ", SootMethod callee = " + callee + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
 		}
 
+		final Stack _stackClone = engine.getCallStackCacheCopy();
 		final Triple _triple = new Triple(stmt, caller, _stackClone);
 		CollectionsUtilities.putIntoSetInMap(callee2callsites, callee, _triple);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("recordCallInfoForParameterProcessing() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("recordCallInfoForParameterProcessing() - END");
+		}
 	}
 }
 

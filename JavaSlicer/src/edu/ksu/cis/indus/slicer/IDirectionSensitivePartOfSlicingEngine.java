@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -35,6 +35,10 @@ interface IDirectionSensitivePartOfSlicingEngine
   extends DependenceExtractor.IDependenceRetriver {
 	/**
 	 * Generates new criteria to capture the call to the given method <code>callee</code>.
+	 * 
+	 * <p>
+	 * This should be called from within the caller's context (callStack containing the call to the caller as TOS).
+	 * </p>
 	 *
 	 * @param callee obviously.
 	 * @param caller obviously.
@@ -47,6 +51,10 @@ interface IDirectionSensitivePartOfSlicingEngine
 
 	/**
 	 * Generate new criteria to include the given called methods at given statement in the caller.
+	 * 
+	 * <p>
+	 * This should be called from within the caller's context (callStack does not contain the call to the callee  as TOS).
+	 * </p>
 	 *
 	 * @param callStmt at which the invocation occurs.
 	 * @param caller in which the invocation occurs.
@@ -71,6 +79,10 @@ interface IDirectionSensitivePartOfSlicingEngine
 
 	/**
 	 * Process the new expression that occurs in the given statement and method for inclusion in the slice.
+	 * 
+	 * <p>
+	 * This should be called from within the callee's context (callStack containing the call to the callee as TOS).
+	 * </p>
 	 *
 	 * @param stmt containing the new expression.
 	 * @param method containing <code>stamt</code>.
@@ -82,6 +94,10 @@ interface IDirectionSensitivePartOfSlicingEngine
 
 	/**
 	 * Process the parameter reference in <code>paramRef</code> for inclusion in the slice.
+	 * 
+	 * <p>
+	 * This should be called from within the method's context (callStack containing the call to method as TOS).
+	 * </p>
 	 *
 	 * @param paramRef is the program point that contains the parameter ref to be processed.
 	 * @param method containting <code>paramRef</code>.
@@ -90,6 +106,11 @@ interface IDirectionSensitivePartOfSlicingEngine
 	 * @pre paramRef.getValue().oclIsKindOf(ParameterRef))
 	 */
 	void processParameterRef(ValueBox paramRef, SootMethod method);
+
+	/**
+	 * Reset the part.
+	 */
+	void reset();
 
 	/**
 	 * Retrieves the value boxes at the given given program point that should be considered while transforming the given
@@ -117,11 +138,6 @@ interface IDirectionSensitivePartOfSlicingEngine
 	 * @post result != null and result.oclIsKindOf(Collection(ValueBox))
 	 */
 	Collection retrieveValueBoxesToTransformStmt(Stmt stmt);
-
-    /**
-     * Reset the part.
-     */
-    void reset();
 }
 
 // End of File
