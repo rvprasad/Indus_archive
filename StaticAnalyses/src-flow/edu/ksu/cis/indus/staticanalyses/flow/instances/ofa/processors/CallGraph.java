@@ -91,25 +91,11 @@ public class CallGraph
 	private final Collection heads = new HashSet();
 
 	/**
-	 * The collection of list of methods that form cycles.
-	 *
-	 * @invariant cycles.oclIsKindOf(Collection(List(SootMethod)))
-	 */
-	private Collection cycles = new HashSet();
-
-	/**
 	 * The collection of methods that are reachble in the system.
 	 *
 	 * @invariant reachables.oclIsKindOf(Set(SootMethod))
 	 */
 	private Collection reachables = new HashSet();
-
-	/**
-	 * The collection of methods which are the head of a recursion cycle.
-	 *
-	 * @invariant recursionRoots.oclIsKindOf(Set(SootMethod))
-	 */
-	private Collection recursionRoots = new HashSet();
 
 	/**
 	 * The collection of SCCs in this call graphCache.
@@ -164,9 +150,7 @@ public class CallGraph
 	public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
 		this.analyzer = (OFAnalyzer) objFlowAnalyzer;
 		heads.clear();
-		recursionRoots.clear();
 		reachables.clear();
-		cycles.clear();
 		graphCache = null;
 	}
 
@@ -254,19 +238,6 @@ public class CallGraph
 
 		if (callers != null) {
 			result = Collections.unmodifiableCollection(callers);
-		}
-		return result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCycles()
-	 */
-	public Collection getCycles() {
-		Collection result = new HashSet();
-
-		for (Iterator i = cycles.iterator(); i.hasNext();) {
-			java.util.List cycle = (java.util.List) i.next();
-			result.add(Collections.unmodifiableList(cycle));
 		}
 		return result;
 	}
@@ -463,7 +434,7 @@ public class CallGraph
 	}
 
 	/**
-	 * This calculates information such as heads, tails, recursion roots, and such.
+	 * This calculates information such as heads, tails, and such.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
 	 */
@@ -547,7 +518,7 @@ public class CallGraph
 			}
 		}
 
-		// calculate recursion roots and cycle information.
+		// construct call graph 
 		graphCache = new SimpleNodeGraph();
 
 		if (LOGGER.isDebugEnabled()) {
@@ -593,15 +564,6 @@ public class CallGraph
 				l.add(((SimpleNode) j.next())._object);
 			}
 			sccs.add(l);
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Fixing the recursion roots...");
-		}
-
-		for (Iterator i = cycles.iterator(); i.hasNext();) {
-			java.util.List cycle = (java.util.List) i.next();
-			recursionRoots.add(cycle.get(0));
 		}
 
 		long stop = System.currentTimeMillis();
@@ -682,8 +644,6 @@ public class CallGraph
 		analyzer = null;
 		graphCache = null;
 		sccs.clear();
-		recursionRoots.clear();
-		cycles.clear();
 		reachables.clear();
 		heads.clear();
 		caller2clinitClasses.clear();
@@ -775,6 +735,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2003/11/29 09:30:37  venku
+   - removed getRecursionRoots() method as it was not being used.
+   - modified pruning algorithmm.
+   - modified getCallees(InvokeExpr,Context) method.
    Revision 1.30  2003/11/28 22:10:34  venku
    - formatting.
    - simple and faster pruning algorithm.

@@ -161,15 +161,6 @@ public interface ICallGraphInfo
 	Collection getCallers(SootMethod callee);
 
 	/**
-	 * Returns a collection of method lists.  The methods in the list form cycles.
-	 *
-	 * @return a collection of method lists.
-	 *
-	 * @post result.oclIsKindOf(Collection(Sequence(SootMethod)))
-	 */
-	Collection getCycles();
-
-	/**
 	 * Returns the methods from which the system starts.
 	 *
 	 * @return a colleciton of <code>SootMethod</code>s.
@@ -225,6 +216,11 @@ public interface ICallGraphInfo
    ChangeLog:
 
    $Log$
+   Revision 1.9  2003/11/29 09:30:37  venku
+   - removed getRecursionRoots() method as it was not being used.
+   - modified pruning algorithmm.
+   - modified getCallees(InvokeExpr,Context) method.
+
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
