@@ -434,41 +434,46 @@ public final class BasicBlockGraph
 		stmts.add(leaderStmt);
 
 		final Collection _t = stmtGraph.getSuccsOf(leaderStmt);
+		final int _size = _t.size();
 
-		if (!_t.isEmpty()) {
+		if (_size == 1) {
 			Stmt _pred = leaderStmt;
 			Stmt _stmt = (Stmt) _t.iterator().next();
 
 			while (true) {
 				final Collection _preds = stmtGraph.getPredsOf(_stmt);
 
-                // if this statement has multiple predecessor then it marks the boundary of a basic block.
+				// if this statement has multiple predecessor then it marks the boundary of a basic block.
 				if (_preds.size() > 1) {
 					wb.addWorkNoDuplicates(_stmt);
 					break;
 				}
 
-                final Collection _succs = stmtGraph.getSuccsOf(_stmt);
-                final int _succsSize = _succs.size();
-                if (_succsSize == 1) {
-                    // check if we did not come around basic block involved in a self-loop (a->a)
-                    if (!stmts.contains(_stmt)) {
-                        stmts.add(_stmt);
-                        _pred = _stmt;
-                        _stmt = (Stmt) stmtGraph.getSuccsOf(_pred).get(0);                                            
-                    } else {
-                        // if we did come around a self-loop then the basic block cannot be extended further
-                        break;
-                    }
-                } else {
-                    stmts.add(_stmt);
-                    // if there are multiple successors then it marks the boundary of a basic block.
+				final Collection _succs = stmtGraph.getSuccsOf(_stmt);
+				final int _succsSize = _succs.size();
+
+				if (_succsSize == 1) {
+					// check if we did not come around basic block involved in a self-loop (a->a)
+					if (!stmts.contains(_stmt)) {
+						stmts.add(_stmt);
+						_pred = _stmt;
+						_stmt = (Stmt) stmtGraph.getSuccsOf(_pred).get(0);
+					} else {
+						// if we did come around a self-loop then the basic block cannot be extended further
+						break;
+					}
+				} else {
+					stmts.add(_stmt);
+
+					// if there are multiple successors then it marks the boundary of a basic block.
 					if (_succsSize > 1) {
 						wb.addAllWorkNoDuplicates(_succs);
 					}
 					break;
 				}
 			}
+		} else if (_size > 1) {
+			wb.addAllWorkNoDuplicates(_t);
 		}
 	}
 
