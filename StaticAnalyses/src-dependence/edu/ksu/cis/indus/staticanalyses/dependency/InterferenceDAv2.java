@@ -78,26 +78,11 @@ public class InterferenceDAv2
 	 * @pre dependent.getFirst().oclIsTypeOf(AssignStmt) and dependent.getSecond().oclIsTypeOf(SootMethod)
 	 */
 	protected boolean ifDependentOn(final Pair dependent, final Pair dependee) {
-		boolean result;
-		Stmt dependeeStmt = (Stmt) dependee.getFirst();
-		Stmt dependentStmt = (Stmt) dependent.getFirst();
 		SootMethod deMethod = (SootMethod) dependee.getSecond();
 		SootMethod dtMethod = (SootMethod) dependent.getSecond();
-
-		/*
-		 * TODO: If a read site that precedes a write site in a sequential path are given and if the primaries
-		 * of the access expressions are shared, then these sites are declared as dependent.  However, this is untrue in the
-		 * case when the thread allocation site associated with the thread in which the enclosing method executes will not be
-		 * executed multiple times.  The first branch of the if statement SHOULD address this issue.
-		 */
-		if (false) {
-			result = true;
-		} else {
-			Value de = ((AssignStmt) dependeeStmt).getLeftOp();
-			Value dt = ((AssignStmt) dependentStmt).getRightOp();
-			result = ecba.isShared(de, deMethod) && ecba.isShared(dt, dtMethod);
-		}
-		return result;
+		Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+		Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+		return ecba.isShared(de, deMethod) && ecba.isShared(dt, dtMethod);
 	}
 
 	/**
@@ -125,11 +110,5 @@ public class InterferenceDAv2
  ChangeLog:
 
 $Log$
-Revision 1.1  2003/08/07 06:38:05  venku
-Major:
- - Moved the packages under indus umbrella.
- - Renamed MethodLocalDataDA to IntraProceduralDataDA.
- - Added class for InterProceduralDataDA.
- - Documented and specified the classes.
 
 *****/
