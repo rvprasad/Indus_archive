@@ -524,6 +524,13 @@ public class CallGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
+	 */
+	public void callback(final SootMethod method) {
+		processForClassInitializer(method.getDeclaringClass(), method);
+	}
+
+	/**
 	 * This calculates information such as heads, tails, recursion roots, and such.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
@@ -728,7 +735,7 @@ public class CallGraph
 		ppc.register(StaticInvokeExpr.class, this);
 		ppc.register(SpecialInvokeExpr.class, this);
 		ppc.register(AssignStmt.class, this);
-        ppc.register(this);
+		ppc.register(this);
 	}
 
 	/**
@@ -756,7 +763,7 @@ public class CallGraph
 		ppc.unregister(StaticInvokeExpr.class, this);
 		ppc.unregister(SpecialInvokeExpr.class, this);
 		ppc.unregister(AssignStmt.class, this);
-        ppc.unregister(this);
+		ppc.unregister(this);
 		stable = true;
 	}
 
@@ -828,17 +835,13 @@ public class CallGraph
 			clinitClasses.add(clazz);
 		}
 	}
-    /**
-     * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
-     */
-    public void callback(SootMethod method) {
-processForClassInitializer(method.getDeclaringClass(), method);
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/11/26 02:55:45  venku
+   - now handles clinit in a more robust way.
    Revision 1.27  2003/11/25 23:48:23  venku
    - added support to consider <clinit> methods as well.
    Revision 1.26  2003/11/17 15:42:46  venku
