@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer;
+package edu.ksu.cis.indus.tools.slicer.contextualizers;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 

@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
-import edu.ksu.cis.indus.tools.slicer.ISliceCriteriaContextualizer;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+import edu.ksu.cis.indus.tools.slicer.contextualizers.ISliceCriteriaContextualizer;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 
 import java.util.Collection;

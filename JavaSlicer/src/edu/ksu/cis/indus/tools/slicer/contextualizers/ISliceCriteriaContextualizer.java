@@ -13,9 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer;
+package edu.ksu.cis.indus.tools.slicer.contextualizers;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import java.util.Collection;
 

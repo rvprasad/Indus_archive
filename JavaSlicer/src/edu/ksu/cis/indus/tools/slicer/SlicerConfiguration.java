@@ -36,6 +36,8 @@ import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
+import edu.ksu.cis.indus.tools.slicer.contextualizers.DeadlockPreservingCriteriaContextualizer;
+import edu.ksu.cis.indus.tools.slicer.contextualizers.ISliceCriteriaContextualizer;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.DeadlockPreservingCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCriteriaGenerator;

@@ -13,12 +13,16 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer;
+package edu.ksu.cis.indus.tools.slicer.contextualizers;
+
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
+
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -54,8 +58,8 @@ public abstract class AbstractSliceCriteriaContextualizer
 	/**
 	 * @see ISliceCriteriaContextualizer#processCriteriaBasedOnProgramPoint(Context, Collection)
 	 */
-	public final void processCriteriaBasedOnProgramPoint(final Context context, final Collection baseCriteria) {
-		final Collection _contexts = getCallingContextsForProgramPoint(context);
+	public final void processCriteriaBasedOnProgramPoint(final Context programPoint, final Collection baseCriteria) {
+		final Collection _contexts = getCallingContextsForProgramPoint(programPoint);
 		contextualize(baseCriteria, _contexts);
 	}
 
@@ -79,21 +83,23 @@ public abstract class AbstractSliceCriteriaContextualizer
 	/**
 	 * Retrieves the calling contexts based on given program point.
 	 *
-	 * @param context is the program point.
+	 * @param programPoint obviously.
 	 *
-	 * @return a collection of calling contexts.
+	 * @return a collection of calling contexts.  The call triples in the calling contexts correspond to the caller side,
+	 * 		   i.e, they contain caller and call-site information.
 	 *
-	 * @pre context != null
+	 * @pre programPoint != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple))
 	 */
-	protected abstract Collection getCallingContextsForProgramPoint(final Context context);
+	protected abstract Collection getCallingContextsForProgramPoint(final Context programPoint);
 
 	/**
 	 * Retrieves the calling contexts based on "this" variable of the given method.
 	 *
 	 * @param method in which "this" occurs.
 	 *
-	 * @return a collection of calling contexts.
+	 * @return a collection of calling contexts. The call triples in the calling contexts correspond to the caller side, i.e,
+	 * 		   they contain caller and call-site information.
 	 *
 	 * @pre method != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple))
@@ -101,18 +107,42 @@ public abstract class AbstractSliceCriteriaContextualizer
 	protected abstract Collection getCallingContextsForThis(final SootMethod method);
 
 	/**
-	 * Contextualizes the given criteria with given contexts.
+	 * Injects the given criterion with the given call stack and adds it to result.
+	 *
+	 * @param criterion to be modified.
+	 * @param stack to be injected.
+	 * @param result into which <code>criterion</code> needs to be added.
+	 *
+	 * @pre criterion != null and stack != null and result != null
+	 * @invariant contexts.oclIsKindOf(Collection(Stack(CallTriple)))
+	 * @post result.containsAll(result$pre)
+	 * @post stack.equals(stack$pre)
+	 */
+	private void addCriteriaWithGivenCallStackToResult(final ISliceCriterion criterion, final Stack stack,
+		final Collection result) {
+		criterion.setCallStack(stack);
+		result.add(criterion);
+	}
+
+	/**
+	 * Contextualizes the given criteria with given contexts.  It will inject the contexts only if it
 	 *
 	 * @param baseCriteria is the collection of criteria to be contextualized.
-	 * @param contexts to be injected into the criteria.
+	 * @param contexts to be injected into the criteria.  <code>null</code> context indicates an open context.
 	 *
-	 * @pre
+	 * @invariant baseCriteria.oclIsKindOf(Collection(ISliceCriterion))
+	 * @invariant contexts.oclIsKindOf(Collection(Stack(CallTriple)))
+	 * @pre contexts->forall(o | not o.isEmpty())
+	 * @post baseCriteria->forall(o | not baseCriteria$pre.contains(o))
+	 * @post baseCriteria$pre->forall(o | contexts->exists(p | p.peek().equals(o.getOccurringMethod()) and
+	 * 		 baseCriteria.contains(o.setCallStack(p))) or baseCriteria->forall(t | not t.setCallStack(null).equals(o)))
 	 */
 	private void contextualize(final Collection baseCriteria, final Collection contexts) {
 		final Collection _result = new HashSet();
 		final SliceCriteriaFactory _criteriaFactory = SliceCriteriaFactory.getFactory();
 		final Iterator _j = baseCriteria.iterator();
 		final int _jEnd = baseCriteria.size();
+		final ICallGraphInfo _cgi = getSlicerTool().getCallGraph();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 			final ISliceCriterion _criterion = (ISliceCriterion) _j.next();
@@ -123,12 +153,11 @@ public abstract class AbstractSliceCriteriaContextualizer
 				final Stack _callStack = (Stack) _i.next();
 				final ISliceCriterion _temp = _criteriaFactory.clone(_criterion);
 
-				if (_callStack != null) {
-					_temp.setCallStack((Stack) _callStack.clone());
-				} else {
-					_temp.setCallStack(null);
+				if (_callStack != null && _cgi.getCallers(_temp.getOccurringMethod()).contains(_callStack.peek())) {
+					addCriteriaWithGivenCallStackToResult(_temp, (Stack) _callStack.clone(), _result);
+				} else if (_callStack == null) {
+					addCriteriaWithGivenCallStackToResult(_temp, null, _result);
 				}
-				_result.add(_temp);
 			}
 			_criterion.returnToPool();
 			_j.remove();
