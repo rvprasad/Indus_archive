@@ -562,7 +562,6 @@ public class ThreadGraph
 
 			if (_o instanceof SootMethod) {
 				_ctxt.setRootMethod((SootMethod) _o);
-				System.out.println(_pair.getFirst().getClass());
 				_multiExecMethods.addAll(getExecutedMethods((InvokeStmt) _pair.getFirst(), _ctxt));
 			}
 		}
@@ -761,6 +760,12 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/08/11 08:52:04  venku
+   - massive changes.
+     - Changed the way threads were represented in ThreadGraph.
+     - Changed the interface in IThreadGraph.
+     - ripple effect in other classes.
+
    Revision 1.37  2004/08/08 10:11:35  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.
