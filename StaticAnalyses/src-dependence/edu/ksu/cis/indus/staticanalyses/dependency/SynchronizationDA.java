@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -169,10 +170,10 @@ public final class SynchronizationDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Object getId() {
-		return IDependencyAnalysis.SYNCHRONIZATION_DA;
+	public Collection getIds() {
+		return Collections.singleton(IDependencyAnalysis.SYNCHRONIZATION_DA);
 	}
 
 	/**

@@ -26,7 +26,8 @@ Required software:
 
 Version 0.5
 ------------
-	- Support detecting atomic regions.
+	- Enabled side-effect analysis. 
+	- Support for detecting atomic regions.
 	- Support for tracking thread "escape" information across method boundaries.
 	- Fixed bugs in Reference-based DA and OFAXMLizer.
 	- Added analysis to calculate static field based use-def info.

@@ -275,10 +275,10 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Object getId() {
-		return IDependencyAnalysis.INTERFERENCE_DA;
+	public Collection getIds() {
+		return Collections.singleton(IDependencyAnalysis.INTERFERENCE_DA);
 	}
 
 	/**

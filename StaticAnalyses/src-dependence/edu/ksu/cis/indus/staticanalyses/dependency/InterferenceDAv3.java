@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -44,7 +45,7 @@ public class InterferenceDAv3
 	/** 
 	 * This provide information shared access in the analyzed system.  This is required by the analysis.
 	 */
-	private EquivalenceClassBasedEscapeAnalysis ecba;
+	private IEscapeInfo ecba;
 
 	/**
 	 * @see InterferenceDAv1#isArrayDependentOn(Pair, Pair, ArrayRef, ArrayRef)
@@ -86,7 +87,7 @@ public class InterferenceDAv3
 	 *
 	 * @throws InitializationException when and instance of equivalence class based escape analysis is not provided.
 	 *
-	 * @pre info.get(EquivalenceClassBasedEscapeAnalysis.ID) != null
+	 * @pre info.get(IEscapeInfo.ID) != null
 	 *
 	 * @see InterferenceDAv1#setup()
 	 */
@@ -94,10 +95,10 @@ public class InterferenceDAv3
 	  throws InitializationException {
 		super.setup();
 
-		ecba = (EquivalenceClassBasedEscapeAnalysis) info.get(EquivalenceClassBasedEscapeAnalysis.ID);
+		ecba = (IEscapeInfo) info.get(IEscapeInfo.ID);
 
 		if (pairMgr == null) {
-			throw new InitializationException(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
+			throw new InitializationException(IEscapeInfo.ID + " was not provided in info.");
 		}
 	}
 }

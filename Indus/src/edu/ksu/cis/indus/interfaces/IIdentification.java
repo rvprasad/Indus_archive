@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import java.util.Collection;
+
 /**
  * This interface is used identify entities in Indus.
  *
@@ -24,15 +26,14 @@ package edu.ksu.cis.indus.interfaces;
  */
 public interface IIdentification {
 	/**
-	 * Returns the ID of the implementation.  Note that it is possible that an implementation can cater many interfaces,
-	 * hence, have many ids.  It is advisable that such implementations be teased apart.  If not possible, then the id
-	 * should be that of the purpose that the implementation serves.
+	 * Returns the IDs of the implementation.  Note that it is possible that an implementation can cater many interfaces,
+	 * hence, have many ids.
 	 *
-	 * @return the id of the implementation.
+	 * @return the ids of the implementation.
 	 *
 	 * @post result != null
 	 */
-	Object getId();
+	Collection getIds();
 }
 
 // End of File

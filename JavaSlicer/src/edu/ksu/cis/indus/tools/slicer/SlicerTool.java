@@ -24,6 +24,7 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
@@ -359,7 +360,7 @@ public final class SlicerTool
 		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, staticFieldUD);
 		info.put(PairManager.ID, pairMgr);
 		info.put(IValueAnalyzer.ID, ofa);
-		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
+		info.put(IEscapeInfo.ID, ecba);
 		info.put(IMonitorInfo.ID, monitorInfo);
 		info.put(SafeLockAnalysis.ID, safelockAnalysis);
 
@@ -774,7 +775,7 @@ public final class SlicerTool
 			daController.addAnalyses(_id, _c);
 		}
 		daController.addAnalyses(IMonitorInfo.ID, Collections.singleton(monitorInfo));
-		daController.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(ecba));
+		daController.addAnalyses(IEscapeInfo.ID, Collections.singleton(ecba));
 
 		if (slicerConfig.isSafeLockAnalysisUsedForReady()) {
 			daController.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(safelockAnalysis));

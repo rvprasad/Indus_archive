@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -56,7 +57,7 @@ public class ReadyDAv2
 	/** 
 	 * This provides information to prune ready dependence edges.
 	 */
-	protected EquivalenceClassBasedEscapeAnalysis ecba;
+	protected IEscapeInfo ecba;
 
 	/**
 	 * Creates an instance of this class.
@@ -188,11 +189,11 @@ public class ReadyDAv2
 	  throws InitializationException {
 		super.setup();
 
-		ecba = (EquivalenceClassBasedEscapeAnalysis) info.get(EquivalenceClassBasedEscapeAnalysis.ID);
+		ecba = (IEscapeInfo) info.get(IEscapeInfo.ID);
 
 		if (ecba == null) {
-			LOGGER.error(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
-			throw new InitializationException(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
+			LOGGER.error(IEscapeInfo.ID + " was not provided in info.");
+			throw new InitializationException(IEscapeInfo.ID + " was not provided in info.");
 		}
 	}
 }

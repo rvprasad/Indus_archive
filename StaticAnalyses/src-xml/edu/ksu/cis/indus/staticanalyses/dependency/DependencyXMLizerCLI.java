@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
@@ -242,8 +243,12 @@ public class DependencyXMLizerCLI
 
 			if (_cl.hasOption(_dasOptions[5][0].toString())) {
 				_xmlizerCLI.das.add(_ncda);
-				CollectionsUtilities.putIntoCollectionInMap(_xmlizerCLI.info, _ncda.getId(), _ncda,
-					CollectionsUtilities.HASH_SET_FACTORY);
+				for (final Iterator _i = _ncda.getIds().iterator(); _i.hasNext();) {
+                    final Object _id = _i.next();
+                    CollectionsUtilities.putIntoCollectionInMap(_xmlizerCLI.info, _id, _ncda,
+        					CollectionsUtilities.HASH_SET_FACTORY);    
+                }
+				
 			}
 
 			boolean _flag = true;
@@ -336,7 +341,7 @@ public class DependencyXMLizerCLI
 		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, _staticFieldUD);
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, getBbm());
-		info.put(EquivalenceClassBasedEscapeAnalysis.ID, _ecba);
+		info.put(IEscapeInfo.ID, _ecba);
 
 		final IMonitorInfo _monitorInfo = new MonitorAnalysis();
 		info.put(IMonitorInfo.ID, _monitorInfo);
@@ -382,7 +387,7 @@ public class DependencyXMLizerCLI
 
 		final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());
 		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(_monitorInfo));
-		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
+		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
 
 		if (useSafeLockAnalysis) {
 			_ac.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(_sla));
@@ -390,7 +395,10 @@ public class DependencyXMLizerCLI
 
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
-			_ac.addAnalyses(_da1.getId(), Collections.singleton(_da1));
+			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
+                final Object _id = _i2.next();
+                _ac.addAnalyses(_id, Collections.singleton(_da1));
+			}
 		}
 
 		_ac.initialize();
@@ -399,7 +407,10 @@ public class DependencyXMLizerCLI
 		// write xml
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
-			CollectionsUtilities.putIntoListInMap(info, _da1.getId(), _da1);
+			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
+                final Object _id = _i2.next();
+                CollectionsUtilities.putIntoListInMap(info, _id, _da1);
+			}
 		}
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 		xmlizer.writeXML(info);

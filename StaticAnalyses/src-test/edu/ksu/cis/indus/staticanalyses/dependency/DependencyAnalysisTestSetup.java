@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
@@ -139,7 +140,7 @@ public class DependencyAnalysisTestSetup
 		info.put(IEnvironment.ID, valueAnalyzer.getEnvironment());
 		info.put(IValueAnalyzer.ID, valueAnalyzer);
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, aliasUD);
-		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
+		info.put(IEscapeInfo.ID, ecba);
 		info.put(IMonitorInfo.ID, monitorInfo);
 
 		// retrieve dependence analysis
@@ -154,7 +155,7 @@ public class DependencyAnalysisTestSetup
 			final IDependencyAnalysis _da = _test.getDA();
 			das.add(_da);
 
-			if (_da.getId().equals(IDependencyAnalysis.CONTROL_DA)
+			if (_da.getIds().contains(IDependencyAnalysis.CONTROL_DA)
 				  && _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
 				CollectionsUtilities.putIntoSetInMap(info, IDependencyAnalysis.CONTROL_DA, _da);
 			}
@@ -176,12 +177,15 @@ public class DependencyAnalysisTestSetup
 		// drive dependency analyses
 		final AnalysesController _ac = new AnalysesController(info, _pc, bbgMgr);
 		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(monitorInfo));
-		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(ecba));
+		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(ecba));
 
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
 			_da1.reset();
-			_ac.addAnalyses(_da1.getId(), Collections.singleton(_da1));
+			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
+                final Object _id =  _i2.next();
+                _ac.addAnalyses(_id, Collections.singleton(_da1));    
+            }			
 		}
 		_ac.initialize();
 		_ac.execute();

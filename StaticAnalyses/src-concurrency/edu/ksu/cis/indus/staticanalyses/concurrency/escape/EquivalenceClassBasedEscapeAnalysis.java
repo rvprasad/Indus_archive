@@ -25,6 +25,8 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
+import edu.ksu.cis.indus.interfaces.ISideEffectInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -34,6 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -104,16 +107,13 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$
  */
 public final class EquivalenceClassBasedEscapeAnalysis
-  extends AbstractAnalysis {
+  extends AbstractAnalysis
+  implements ISideEffectInfo,
+	  IEscapeInfo {
 	/*
 	 * xxxCache variables do not capture state of the object.  Rather they are used cache values across method calls.  Hence,
 	 * any subclasses of this class should  not reply on these variables as they may be removed in the future.
 	 */
-
-	/** 
-	 * This is the unique string identifier that can be used to identify an instance of this class.
-	 */
-	public static final String ID = "Shared Access Information";
 
 	/** 
 	 * The logger used by instances of <code>ValueProcessor</code> class to log messages.
@@ -129,6 +129,20 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private static final Collection IDENTIFIERS;
+
+	static {
+		final Collection _temp = new ArrayList();
+		_temp.add(IEscapeInfo.ID);
+		_temp.add(ISideEffectInfo.ID);
+		IDENTIFIERS = Collections.unmodifiableCollection(_temp);
+	}
 
 	/** 
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.
@@ -373,13 +387,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			read = _temp;
 
 			final AliasSet _base = (AliasSet) getResult();
-			AliasSet _elt = _base.getASForField(AliasSet.ARRAY_FIELD);
+			AliasSet _elt = _base.getASForField(IEscapeInfo.ARRAY_FIELD);
 
 			if (_elt == null) {
 				_elt = AliasSet.getASForType(v.getType());
 
 				if (_elt != null) {
-					_base.putASForField(AliasSet.ARRAY_FIELD, _elt);
+					_base.putASForField(IEscapeInfo.ARRAY_FIELD, _elt);
 				}
 			}
 
@@ -770,6 +784,287 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	public Collection getIds() {
+		return IDENTIFIERS;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param method DOCUMENT ME!
+	 * @param argPos DOCUMENT ME!
+	 * @param accesspath DOCUMENT ME!
+	 * @param recurse DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 */
+	public boolean isParameterBasedAccessPathSideAffected(final SootMethod method, final int argPos,
+		final Object[] accesspath, final boolean recurse) {
+		if (argPos >= method.getParameterCount()) {
+			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but " + argPos
+				+ " was provided.");
+		}
+
+		final Triple _triple = (Triple) method2Triple.get(method);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			final AliasSet _endPoint = _ctxt.getParamAS(argPos).getAccessPathEndPoint(accesspath);
+
+			if (_endPoint == null) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("isParameterBasedAccessPathSideAffected(method = " + method + ", argPos = " + argPos
+						+ ", accesspath = " + Arrays.asList(accesspath) + ") - The given access path could not be "
+						+ "discovered.  Hence, returning optimistic (false) info.");
+				}
+				_result = false;
+			} else {
+				_result = AliasSet.isSideAffected(_endPoint, recurse);
+			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see ISideEffectInfo#isParameterBasedAccessPathSideAffected(ICallGraphInfo.CallTriple,     int, java.lang.Object[],
+	 * 		boolean)
+	 */
+	public boolean isParameterBasedAccessPathSideAffected(final CallTriple callerTriple, final int argPos,
+		Object[] accesspath, final boolean recurse) {
+		final SootMethod _callee = callerTriple.getExpr().getMethod();
+
+		if (argPos >= _callee.getParameterCount()) {
+			throw new IllegalArgumentException(_callee + " has " + _callee.getParameterCount() + " arguments, but " + argPos
+				+ " was provided.");
+		}
+
+		final SootMethod _caller = callerTriple.getMethod();
+		final Triple _triple = (Triple) method2Triple.get(_caller);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			final AliasSet _endPoint = _ctxt.getParamAS(argPos).getAccessPathEndPoint(accesspath);
+
+			if (_endPoint == null) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("isParameterBasedAccessPathSideAffected(callerTriple = " + callerTriple + ", argPos = "
+						+ argPos + ", accesspath = " + Arrays.asList(accesspath) + ") - The given access path could not be "
+						+ "discovered.  Hence, returning optimistic (false) info.");
+				}
+				_result = false;
+			} else {
+				_result = AliasSet.isSideAffected(_endPoint, recurse);
+			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param method DOCUMENT ME!
+	 * @param argPos DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 */
+	public boolean isParameterSideAffected(final SootMethod method, final int argPos) {
+		if (argPos >= method.getParameterCount()) {
+			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but " + argPos
+				+ " was provided.");
+		}
+
+		final Triple _triple = (Triple) method2Triple.get(method);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			_result = AliasSet.isSideAffected(_ctxt.getParamAS(argPos), true);
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see ISideEffectInfo#isParameterSideAffected(ICallGraphInfo.CallTriple,     int)
+	 */
+	public boolean isParameterSideAffected(final CallTriple callerTriple, final int argPos) {
+		final SootMethod _callee = callerTriple.getExpr().getMethod();
+
+		if (argPos >= _callee.getParameterCount()) {
+			throw new IllegalArgumentException(_callee + " has " + _callee.getParameterCount() + " arguments, but " + argPos
+				+ " was provided.");
+		}
+
+		final SootMethod _caller = callerTriple.getMethod();
+		final Triple _triple = (Triple) method2Triple.get(_caller);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) ((Map) _triple.getThird()).get(callerTriple);
+			_result = AliasSet.isSideAffected(_ctxt.getParamAS(argPos), true);
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param method DOCUMENT ME!
+	 * @param accesspath DOCUMENT ME!
+	 * @param recurse DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 */
+	public boolean isThisBasedAccessPathSideAffected(final SootMethod method, final Object[] accesspath, final boolean recurse) {
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The provided method should be non-static.");
+		}
+
+		final Triple _triple = (Triple) method2Triple.get(method);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			final AliasSet _endPoint = _ctxt.thisAS.getAccessPathEndPoint(accesspath);
+
+			if (_endPoint == null) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("isParameterBasedAccessPathSideAffected(method = " + method + ", accesspath = "
+						+ Arrays.asList(accesspath) + ") - The given access path could not be  "
+						+ "discovered.  Hence, returning optimistic (false) info.");
+				}
+				_result = false;
+			} else {
+				_result = AliasSet.isSideAffected(_endPoint, recurse);
+			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see ISideEffectInfo#isThisBasedAccessPathSideAffected(CallTriple,     java.lang.Object[], boolean)
+	 */
+	public boolean isThisBasedAccessPathSideAffected(final CallTriple callerTriple, final Object[] accesspath,
+		final boolean recurse) {
+		if (callerTriple.getExpr().getMethod().isStatic()) {
+			throw new IllegalArgumentException("The invoked method should be non-static.");
+		}
+
+		final SootMethod _caller = callerTriple.getMethod();
+		final Triple _triple = (Triple) method2Triple.get(_caller);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) ((Map) _triple.getThird()).get(callerTriple);
+			final AliasSet _endPoint = _ctxt.thisAS.getAccessPathEndPoint(accesspath);
+
+			if (_endPoint == null) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("isParameterBasedAccessPathSideAffected(calltripel = " + callerTriple + ", accesspath = "
+						+ Arrays.asList(accesspath) + ") - The given access path could not be  "
+						+ "discovered.  Hence, returning optimistic (false) info.");
+				}
+				_result = false;
+			} else {
+				_result = AliasSet.isSideAffected(_endPoint, recurse);
+			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param method DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 */
+	public boolean isThisSideAffected(final SootMethod method) {
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The provided method should be non-static.");
+		}
+
+		final Triple _triple = (Triple) method2Triple.get(method);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			_result = AliasSet.isSideAffected(_ctxt.thisAS, true);
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see ISideEffectInfo#isThisSideAffected(ICallGraphInfo.CallTriple)
+	 */
+	public boolean isThisSideAffected(final CallTriple callerTriple) {
+		if (callerTriple.getExpr().getMethod().isStatic()) {
+			throw new IllegalArgumentException("The invoked method should be non-static.");
+		}
+
+		final SootMethod _caller = callerTriple.getMethod();
+		final Triple _triple = (Triple) method2Triple.get(_caller);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _siteCtxt = (MethodContext) ((Map) _triple.getThird()).get(callerTriple);
+			_result = AliasSet.isSideAffected(_siteCtxt.thisAS, true);
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Executes phase 2 and 3 as mentioned in the technical report.  It processed each methods in the call-graph bottom-up
 	 * propogating the  alias set information in a collective fashion. It then propogates the information top-down in the
 	 * call-graph.
@@ -1050,7 +1345,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			} else if (v instanceof ArrayRef) {
 				final ArrayRef _a = (ArrayRef) v;
 				final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
-				_result = _temp.getASForField(AliasSet.ARRAY_FIELD);
+				_result = _temp.getASForField(IEscapeInfo.ARRAY_FIELD);
 			} else if (v instanceof Local) {
 				_result = (AliasSet) _local2AS.get(v);
 			} else if (v instanceof ThisRef) {

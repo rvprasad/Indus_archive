@@ -25,8 +25,11 @@ import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -239,7 +242,9 @@ final class StmtAndMethodBasedDependencyXMLizer
 		try {
 			writer.declaration();
 			writer.startTag("dependency");
-			writer.attribute("id", String.valueOf(analysis.getId()));
+			final List _t = new ArrayList(analysis.getIds());
+			Collections.sort(_t);
+			writer.attribute("id", _t.toString());
 			writer.attribute("class", analysis.getClass().getName());
 		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {

@@ -137,10 +137,10 @@ public class ReferenceBasedDataDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Object getId() {
-		return IDependencyAnalysis.REFERENCE_BASED_DATA_DA;
+	public Collection getIds() {
+		return Collections.singleton(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 	}
 
 	/**

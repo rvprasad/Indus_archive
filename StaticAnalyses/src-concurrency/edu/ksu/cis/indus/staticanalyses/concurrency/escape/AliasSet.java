@@ -46,10 +46,6 @@ import soot.Type;
 final class AliasSet
   extends FastUnionFindElement
   implements Cloneable {
-	/** 
-	 * This constant identifies the cells of an array in the field map of it's alias set.
-	 */
-	static final String ARRAY_FIELD = "$ELT";
 
 	/** 
 	 * This is used to generate unique ready entities.
@@ -703,6 +699,71 @@ final class AliasSet
 			}
 		}
 	}
-}
+	
+	/**
+     * DOCUMENT ME!
+	 * @param visitedASs
+     * 
+     * @return
+     */
+    private boolean isSideAffected(final Collection visitedASs, final boolean recurse) {
+        boolean _result = false;
+        final AliasSet _rep = (AliasSet) find();
+        
+        if (!visitedASs.contains(_rep)) {
+	        final Collection _fieldASs = _rep.getFieldMap().values();
+	        final Iterator _i = _fieldASs.iterator();
+	        final int _iEnd = _fieldASs.size();
+	        
+	        for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+	            final AliasSet _fieldAS = (AliasSet) _i.next();
+	            _result |= _fieldAS.written;
+	            visitedASs.add(_fieldAS);
+	        }
+	        
+	        if (!_result && recurse) {
+	            for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+		            final AliasSet _fieldAS = (AliasSet) _i.next();
+		            _result |= _fieldAS.isSideAffected(visitedASs, recurse);
+		        }		            
+	        }
+        }
+        return _result;
+    }
 
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param paramAS
+     * @return
+     */
+    static boolean isSideAffected(final AliasSet paramAS, final boolean recurse) {
+        boolean _result = paramAS == null;
+        if (!_result) {
+            _result = paramAS.isSideAffected(new HashSet(), recurse);
+        }
+        return _result;
+    }
+
+     /**
+     * DOCUMENT ME!
+     * 
+     * @param accesspath
+     * @return
+     */
+    public AliasSet getAccessPathEndPoint(final Object[] accesspath) {
+        AliasSet _result = this;
+        final int _length = accesspath.length;
+        for (int _i = 0; _i < _length; _i++) {
+            final AliasSet _as = (AliasSet) _result.getFieldMap().get(accesspath[_i].toString());
+            if (_as != null) {
+                _result = (AliasSet) _as.find();
+            } else {
+                _result = null;
+                break;
+            }
+        }
+        return _result;
+    }
+}
 // End of File

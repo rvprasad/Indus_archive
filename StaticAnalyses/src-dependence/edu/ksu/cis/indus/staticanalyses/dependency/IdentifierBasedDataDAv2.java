@@ -146,10 +146,10 @@ public class IdentifierBasedDataDAv2
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public final Object getId() {
-		return IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
+	public Collection getIds() {
+		return Collections.singleton(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 	}
 
 	/**

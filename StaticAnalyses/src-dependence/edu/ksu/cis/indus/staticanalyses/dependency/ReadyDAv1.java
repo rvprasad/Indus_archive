@@ -428,10 +428,10 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Object getId() {
-		return IDependencyAnalysis.READY_DA;
+	public Collection getIds() {
+		return Collections.singleton(IDependencyAnalysis.READY_DA);
 	}
 
 	/**

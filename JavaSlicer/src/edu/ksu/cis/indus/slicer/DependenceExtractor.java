@@ -25,14 +25,17 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -185,14 +188,14 @@ public final class DependenceExtractor
 		final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
 		final Collection _dependences = retriever.getDependences(_da, entity, context);
 
-		if (_da.getId().equals(IDependencyAnalysis.READY_DA)) {
+		if (_da.getIds().contains(IDependencyAnalysis.READY_DA)) {
 			final Collection _specials = ((ReadyDAv1) _da).getSynchronizedMethodEntryExitPoints(_dependences);
 			falseCriteria.addAll(_specials);
 			_dependences.removeAll(_specials);
 		}
 		trueCriteria.addAll(_dependences);
 
-		if (depID2ctxtRetriever.keySet().contains(_da.getId())) {
+		if (CollectionUtils.containsAny(depID2ctxtRetriever.keySet(), _da.getIds())) {
 			populateCriteriaBaseToContextsMap(_da);
 		}
 
@@ -254,58 +257,68 @@ public final class DependenceExtractor
 	 * @post criteriabase2contexts.oclIsKindOf(Map(Object, Collection(Stack(CallTriple))))
 	 */
 	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis da) {
-		final ICallingContextRetriever _ctxtRetriever = (ICallingContextRetriever) depID2ctxtRetriever.get(da.getId());
+		final Iterator _ids = da.getIds().iterator();
+		final int _idsEnd = da.getIds().size();
 
-		if (_ctxtRetriever != null) {
-			_ctxtRetriever.setInfoFor(ICallingContextRetriever.ENTITY, entity);
-			_ctxtRetriever.setInfoFor(ICallingContextRetriever.CONTEXT, context);
+		for (int _idsIndex = 0; _idsIndex < _idsEnd; _idsIndex++) {
+			final Object _id = _ids.next();
 
-			final Iterator _i = falseCriteria.iterator();
-			final int _iEnd = falseCriteria.size();
+			final ICallingContextRetriever _ctxtRetriever = (ICallingContextRetriever) depID2ctxtRetriever.get(_id);
 
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Object _t = _i.next();
+			if (_ctxtRetriever != null) {
+				_ctxtRetriever.setInfoFor(ICallingContextRetriever.ENTITY, entity);
+				_ctxtRetriever.setInfoFor(ICallingContextRetriever.CONTEXT, context);
 
-				if (_t instanceof Pair) {
-					final Collection _ctxts = _ctxtRetriever.getCallingContextsForThis((SootMethod) ((Pair) _t).getSecond());
-					CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
-						CollectionsUtilities.HASH_SET_FACTORY);
-				}
-			}
+				final Iterator _i = falseCriteria.iterator();
+				final int _iEnd = falseCriteria.size();
 
-			final Context _context = new Context();
-			final Iterator _j = trueCriteria.iterator();
-			final int _jEnd = trueCriteria.size();
+				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+					final Object _t = _i.next();
 
-			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Object _t = _j.next();
-				final boolean _containsKey = criteriabase2contexts.containsKey(_t);
-
-				if (_t instanceof Pair
-					  && (!_containsKey || (_containsKey && !((Collection) criteriabase2contexts.get(_t)).contains(null)))) {
-					final Pair _pair = (Pair) _t;
-					final Stmt _stmt = (Stmt) _pair.getFirst();
-					_context.setStmt(_stmt);
-					_context.setRootMethod((SootMethod) _pair.getSecond());
-
-					final Collection _programPoints = _stmt.getUseAndDefBoxes();
-					final Iterator _k = _programPoints.iterator();
-					final int _kEnd = _programPoints.size();
-
-					for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-						_context.setProgramPoint((ValueBox) _k.next());
-
-						final Collection _ctxts = _ctxtRetriever.getCallingContextsForProgramPoint(_context);
+					if (_t instanceof Pair) {
+						final Collection _ctxts =
+							_ctxtRetriever.getCallingContextsForThis((SootMethod) ((Pair) _t).getSecond());
 						CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
 							CollectionsUtilities.HASH_SET_FACTORY);
 					}
 				}
-			}
-		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("populateDependenceToContextsMap(da = " + da.getId() + ") : - dependence2contexts - "
-				+ criteriabase2contexts);
+				final Context _context = new Context();
+				final Iterator _j = trueCriteria.iterator();
+				final int _jEnd = trueCriteria.size();
+
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final Object _t = _j.next();
+					final boolean _containsKey = criteriabase2contexts.containsKey(_t);
+
+					if (_t instanceof Pair
+						  && (!_containsKey || (_containsKey && !((Collection) criteriabase2contexts.get(_t)).contains(null)))) {
+						final Pair _pair = (Pair) _t;
+						final Stmt _stmt = (Stmt) _pair.getFirst();
+						_context.setStmt(_stmt);
+						_context.setRootMethod((SootMethod) _pair.getSecond());
+
+						final Collection _programPoints = _stmt.getUseAndDefBoxes();
+						final Iterator _k = _programPoints.iterator();
+						final int _kEnd = _programPoints.size();
+
+						for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+							_context.setProgramPoint((ValueBox) _k.next());
+
+							final Collection _ctxts = _ctxtRetriever.getCallingContextsForProgramPoint(_context);
+							CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
+								CollectionsUtilities.HASH_SET_FACTORY);
+						}
+					}
+				}
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				final List _t = new ArrayList(da.getIds());
+				Collections.sort(_t);
+				LOGGER.debug("populateDependenceToContextsMap(da = " + _t.toString() + ") : - dependence2contexts - "
+					+ criteriabase2contexts);
+			}
 		}
 	}
 }

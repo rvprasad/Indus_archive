@@ -225,10 +225,10 @@ public final class DivergenceDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public Object getId() {
-		return IDependencyAnalysis.DIVERGENCE_DA;
+	public Collection getIds() {
+		return Collections.singleton(IDependencyAnalysis.DIVERGENCE_DA);
 	}
 
 	/**

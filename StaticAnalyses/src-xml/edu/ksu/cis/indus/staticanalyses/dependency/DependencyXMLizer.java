@@ -37,8 +37,10 @@ import java.io.Writer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -151,7 +153,9 @@ public final class DependencyXMLizer
 	 * @post result != null
 	 */
 	String getDAPartOfFileName(final IDependencyAnalysis da) {
-		return da.getId() + ":" + da.getDirection() + ":" + da.getClass().getName();
+	    final List _t = new ArrayList(da.getIds());
+	    Collections.sort(_t);
+		return _t + ":" + da.getDirection() + ":" + da.getClass().getName();
 	}
 
 	/**
@@ -167,7 +171,9 @@ public final class DependencyXMLizer
 	 */
 	private StmtAndMethodBasedDependencyXMLizer getXMLizerFor(final Writer writer, final IDependencyAnalysis da) {
 		StmtAndMethodBasedDependencyXMLizer _result = null;
-		final String _xmlizerId = da.getId().toString();
+		final List _t = new ArrayList(da.getIds());
+		Collections.sort(_t);
+		final String _xmlizerId = _t.toString();
 
 		final String _temp = PROPERTIES.getProperty(_xmlizerId);
 

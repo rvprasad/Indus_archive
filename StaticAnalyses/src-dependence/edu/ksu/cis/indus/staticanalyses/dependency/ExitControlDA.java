@@ -149,7 +149,7 @@ public class ExitControlDA
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
 
-			if (_da.getId().equals(IDependencyAnalysis.CONTROL_DA)
+			if (_da.getIds().contains(IDependencyAnalysis.CONTROL_DA)
 				  && _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
 				entryControlDA = _da;
 			}

@@ -24,6 +24,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
 import java.util.Collections;
+import java.util.Iterator;
 
 
 /**
@@ -108,7 +109,10 @@ public class XMLBasedDependencyAnalysisTest
 	protected void localSetup()
 	  throws Exception {
 		super.localSetup();
-		info.put(da.getId(), Collections.singleton(da));
+		for (final Iterator _i = da.getIds().iterator(); _i.hasNext();) {
+            final Object _id = _i.next();
+            info.put(_id, Collections.singleton(da));
+        }
 		info.put(IEnvironment.ID, env);
 		info.put(ICallGraphInfo.ID, cgi);
 	}

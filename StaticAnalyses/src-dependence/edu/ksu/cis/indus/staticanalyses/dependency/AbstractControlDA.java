@@ -101,10 +101,10 @@ public abstract class AbstractControlDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
 	 */
-	public final Object getId() {
-		return IDependencyAnalysis.CONTROL_DA;
+	public final Collection getIds() {
+		return Collections.singleton(IDependencyAnalysis.CONTROL_DA);
 	}
 
 	///CLOVER:OFF

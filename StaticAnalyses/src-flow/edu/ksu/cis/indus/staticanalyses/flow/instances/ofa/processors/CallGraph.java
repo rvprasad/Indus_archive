@@ -306,10 +306,10 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Object getId() {
-		return ICallGraphInfo.ID;
+	public Collection getIds() {
+		return Collections.singleton(ICallGraphInfo.ID);
 	}
 
 	/**

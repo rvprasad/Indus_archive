@@ -155,10 +155,10 @@ public final class LocalUseDefAnalysisv2
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Object getId() {
-		return IUseDefInfo.LOCAL_USE_DEF_ID;
+	public Collection getIds() {
+		return Collections.singleton(IUseDefInfo.LOCAL_USE_DEF_ID);
 	}
 
 	/**

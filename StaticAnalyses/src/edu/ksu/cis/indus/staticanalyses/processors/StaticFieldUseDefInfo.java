@@ -118,10 +118,10 @@ public class StaticFieldUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
-	public Object getId() {
-		return GLOBAL_USE_DEF_ID;
+	public Collection getIds() {
+		return Collections.singleton(GLOBAL_USE_DEF_ID);
 	}
 
 	/**
