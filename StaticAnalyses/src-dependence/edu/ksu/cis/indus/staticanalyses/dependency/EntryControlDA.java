@@ -180,7 +180,7 @@ public class EntryControlDA
 		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Control Dependence processing");
+			LOGGER.info("BEGIN: Entry Control Dependence processing");
 		}
 
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
@@ -205,7 +205,7 @@ public class EntryControlDA
 		}
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: Control Dependence processing");
+			LOGGER.info("END: Entry Control Dependence processing");
 		}
 		stable();
 	}
@@ -221,7 +221,7 @@ public class EntryControlDA
 	 */
 	public final String toString() {
 		final StringBuffer _result =
-			new StringBuffer("Statistics for control dependence as calculated by " + getClass().getName() + "\n");
+			new StringBuffer("Statistics for entry control dependence as calculated by " + getClass().getName() + "\n");
 		int _localEdgeCount;
 		int _localEntryPointDep;
 		int _edgeCount = 0;
@@ -584,6 +584,11 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
+
    Revision 1.27  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
    Revision 1.26  2004/07/08 10:28:48  venku
