@@ -1,0 +1,18 @@
+<body>
+This package contains the classes that implement the Java program slicer.  The slicer is implemented in two parts.  The first 
+part is the detection of the slice.  The second part is the construction of the slice.  The first part depends on dependence 
+analyses that are implemented in <i>StaticAnalyses</i> subproject.  The rest of the logic pertaining to these two parts are 
+realized by classes in this package.
+
+<p>The above view differs from the classical slicing definition.  The reason for this divergence is that we have 2 
+	representations of the slice.  One being an annotation/tag based slice in which the untransformed system is 
+	annotated/tagged to indicate the slice. The other being that a new system representing the slice is created from scratch.  
+	Given these representations of the slice, slicing is an analysis (detection of the slice) that provides information for a 
+	transformation (creation of the slice).
+</p>
+<p>
+	<i>SlicingEngine</i> is the analysis part of the slicer.  <i>CloningBasedSlicingTransformer</i> and 
+		<i>TagBasedSlicingTransformer</i> are the transformations that lead to the 2 representation of the slices.  The slicing
+		criteria are created via <i>SliceCriteriaFactory</i> and the engine will only accept criteria created via this factory.
+</p>
+</body>
