@@ -4,7 +4,7 @@
 
 <!--#include virtual="/header.shtml" -->
 
-<p>Following are the projects whose libraries we use in Indus and it's subprojects during execution.<br/>
+<p>Libraries from the following projects are used in Indus and it's subprojects during execution.<br/>
   <ul>
     <li><a href="http://jakarta.apache.org/commons/cli/">Jakarta Commons CLI</a></li>
     <li><a href="http://jakarta.apache.org/commons/collections/">Jakarta Commons Collection </a></li>
@@ -24,7 +24,7 @@
     <li><a href="http://junit.org">JUnit</a></li>
   </ul>
   </p>
-  <p>Following are the projects we use in Indus and it's subprojects in the course of development.<br/>
+  <p>Artifacts from following projects are used while developing Indus and it's subprojects.<br/>
   <ul>
       <li><a href="http://www.thecortex.net/clover/index.html">Clover</a></li>
       <li><a href="http://jalopy.sourceforge.net/">Jalopy</a></li>
