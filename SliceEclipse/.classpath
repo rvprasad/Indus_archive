@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/polyglot-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/slicer.jar"/>
 	<classpathentry kind="lib" path="lib/staticanalyses.jar"/>
-	<classpathentry kind="lib" path="lib/xmlenc-0.42.jar"/>
 	<classpathentry kind="lib" path="lib/xmlunit1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
@@ -22,5 +21,6 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/jasminclasses-sable-1.2.jar"/>
 	<classpathentry sourcepath="/home/ganeshan/Desktop/Downloads/soot-2.1.0-barebones.jar" kind="lib" path="lib/sootclasses-new.jar"/>
+	<classpathentry kind="lib" path="lib/xmlenc-0.44.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

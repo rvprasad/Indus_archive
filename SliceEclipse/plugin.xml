@@ -23,7 +23,6 @@
       <library name="lib/polyglot-1.1.0.jar"/>
       <library name="lib/slicer.jar"/>
       <library name="lib/staticanalyses.jar"/>
-      <library name="lib/xmlenc-0.42.jar"/>
       <library name="lib/xmlunit1.0.jar"/>
       <library name="lib/xpp3.jar"/>
       <library name="lib/xstream.jar">
@@ -39,6 +38,9 @@
          <export name="*"/>
       </library>
       <library name="lib/log4j-1.2.8.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/xmlenc-0.44.jar">
          <export name="*"/>
       </library>
    </runtime>
@@ -169,14 +171,6 @@
             </viewerContribution>      
    </extension>
 <!-- This extension shows additional information about the slice part chosen -->
-   <extension
-         point="org.eclipse.jdt.ui.javaEditorTextHovers">
-      <hover
-            label="Slice"
-            class="edu.ksu.cis.indus.toolkits.sliceeclipse.hover.SliceHover"
-            id="edu.ksu.cis.indus.toolkits.sliceeclipse.SliceHover">
-      </hover>
-   </extension>
 <!-- This extension enables highlighting of the slice elements -->
    <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">

@@ -34,7 +34,7 @@
    	    <pathelement location="${home}/lib/slicer.jar"/>   	    
    	    <pathelement location="${home}/lib/sootclasses-new.jar"/>   	    
    	    <pathelement location="${home}/lib/staticanalyses.jar"/>   	    
-   	    <pathelement location="${home}/lib/xmlenc-0.42.jar"/>   	    
+   	    <pathelement location="${home}/lib/xmlenc-0.44.jar"/>   	    
    	    <pathelement location="${home}/lib/xmlunit1.0.jar"/>   	    
    	    <pathelement location="${home}/lib/xpp3.jar"/>   
    	    <pathelement location="${home}/lib/xstream.jar"/>
