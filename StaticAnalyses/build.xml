@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd" 
+<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
 [<!ENTITY include SYSTEM "message.xml">]>
+<!-- $Revision$ -->
 <project name="bfa" default="build" basedir=".">
 
 <taskdef name="doxygen" classname="net.drishti.util.ant.doxygen"/>
@@ -29,28 +30,36 @@
 </target>
 
 <target name="docs">
-    <mkdir dir="${docs}/javadocs"/>
-    <javadoc sourcepath="${basedir}" packagenames="${package}.*" 
-             destdir="${docs}/javadocs" access="package" use="true" 
-             author="true">
-             <link href="${sootlink}"/>
-             <link href="${jdklink}"/>
-    </javadoc>
+	<antcall target="javadocs"/>
+    <antcall target="doxydocs"/>
+</target>
+
+<target name="doxydocs">
     <mkdir dir="${docs}/doxydocs"/>
     <doxygen configfile="${basedir}/Doxyfile"/>
 </target>
 
+<target name="javadocs">
+    <mkdir dir="${docs}/javadocs"/>
+    <javadoc sourcepath="${basedir}" packagenames="${package}.*"
+             destdir="${docs}/javadocs" access="package" use="true"
+             author="true">
+             <link href="${sootlink}"/>
+             <link href="${jdklink}"/>
+    </javadoc>
+</target>
+
 
 <target name="dist" depends="build, docs">
-   <antcall target="backup"/> 
+   <antcall target="backup"/>
 </target>
 
 <target name="backup" depends="init">
     <mkdir dir="${dist}"/>
     <property name="filename" value="${dist}/${ant.project.name}-${DSTAMP}"/>
     <jar jarfile="${filename}.jar" basedir="${build}"/>
-    <tar tarfile="${filename}.tar" basedir="${basedir}" 
-         excludes="**/\..*"
+    <tar tarfile="${filename}.tar" basedir="${basedir}"
+         excludes="**/\..*, **/rational/html/**"
          includes="${demo}/, edu/, ${filename}.jar, ${design}/, ${docs}/, ${docs}/README.TXT, ${bin}/, build.xml"/>
     <gzip src="${filename}.tar" zipfile="${filename}.tgz"/>
 </target>
