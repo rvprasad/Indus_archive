@@ -94,8 +94,10 @@
     <delete file="${filename}.tar"/>
 </target>
 
-<target name="clean">
-    <delete dir="${build}"/>
+<target name="clean" depends="init">
+    <delete includeEmptyDirs="true">
+	    <fileset dir="${build}" includes="**/*.class"/>
+    </delete>
     <delete dir="${docs}"/>
 </target>
 
@@ -105,6 +107,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.16  2003/11/13 13:31:25  venku
+- added support jarring classes.
+
 Revision 1.15  2003/11/10 07:28:28  venku
 - externalized ant properties into antbuild.properties.
 
