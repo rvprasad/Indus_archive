@@ -158,12 +158,14 @@ public final class CompositeToolConfigurator
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
-	 * @param composite DOCUMENT ME!
+	 * @param theComposite DOCUMENT ME!
 	 */
-	protected void initialize(final Composite composite) {
-        // does nothing
+	protected void initialize(final Composite theComposite) {
+		// does nothing
 	}
 
 	/**
@@ -202,4 +204,8 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/26 13:58:43  venku
+   - checkpoint commit.
+   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
+   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
  */

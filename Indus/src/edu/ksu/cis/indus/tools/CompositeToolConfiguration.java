@@ -163,21 +163,15 @@ public class CompositeToolConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param configs DOCUMENT ME!
 	 */
 	protected void setConfigurations(List configs) {
 		configurations.clear();
 		configurations.addAll(configs);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#processProperty(edu.ksu.cis.indus.tools.ToolConfiguration.PropertyIdentifier,
-	 * 		java.lang.Object)
-	 */
-	protected boolean processProperty(PropertyIdentifier propertyID, Object value) {
-		return getActiveToolConfiguration().processProperty(propertyID, value);
 	}
 
 	/**
@@ -189,7 +183,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	final ToolConfiguration getToolConfiguration(String name) {
+	protected final ToolConfiguration getToolConfiguration(String name) {
 		ToolConfiguration result = null;
 
 		for (Iterator i = configurations.iterator(); i.hasNext();) {
@@ -202,11 +196,23 @@ public class CompositeToolConfiguration
 		}
 		return result;
 	}
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#processProperty(edu.ksu.cis.indus.tools.ToolConfiguration.PropertyIdentifier,
+	 * 		java.lang.Object)
+	 */
+	protected boolean processProperty(PropertyIdentifier propertyID, Object value) {
+		return getActiveToolConfiguration().processProperty(propertyID, value);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/26 13:58:43  venku
+   - checkpoint commit.
+   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
+   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
    Revision 1.1  2003/09/26 05:56:10  venku
    - a checkpoint commit.
  */

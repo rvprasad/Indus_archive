@@ -40,7 +40,8 @@ public abstract class Tool {
 	protected final Object control = new Object();
 
 	/**
-	 * This is the configuration information associated with this tool instance.  Subclasses should provide a valid reference.
+	 * This is the configuration information associated with this tool instance.  Subclasses should provide a valid
+	 * reference.
 	 *
 	 * @invariant configurationInfo != null
 	 */
@@ -84,12 +85,14 @@ public abstract class Tool {
 	 * @post result != null
 	 */
 	public final ToolConfiguration getActiveConfiguration() {
-        ToolConfiguration result;
-        if (configurationInfo instanceof CompositeToolConfiguration)
-		result = ((CompositeToolConfiguration)configurationInfo).getActiveToolConfiguration();
-        else 
-            result = configurationInfo;
-        return result;
+		ToolConfiguration result;
+
+		if (configurationInfo instanceof CompositeToolConfiguration) {
+			result = ((CompositeToolConfiguration) configurationInfo).getActiveToolConfiguration();
+		} else {
+			result = configurationInfo;
+		}
+		return result;
 	}
 
 	/**
@@ -158,7 +161,9 @@ public abstract class Tool {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	public abstract void initialize();
 
@@ -188,6 +193,10 @@ public abstract class Tool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/26 13:58:43  venku
+   - checkpoint commit.
+   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
+   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
    Revision 1.3  2003/09/26 05:56:10  venku
    - a checkpoint commit.
    Revision 1.2  2003/09/24 07:03:02  venku

@@ -76,7 +76,9 @@ public abstract class ToolConfigurator {
 	public abstract void hide();
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -85,7 +87,9 @@ public abstract class ToolConfigurator {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -94,19 +98,25 @@ public abstract class ToolConfigurator {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param configuration DOCUMENT ME!
 	 */
 	protected abstract void displayTemplateMethod(final ToolConfiguration configuration);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	protected abstract void disposeTemplateMethod();
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param composite DOCUMENT ME!
 	 */
@@ -116,6 +126,10 @@ public abstract class ToolConfigurator {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/26 13:58:43  venku
+   - checkpoint commit.
+   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
+   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
    Revision 1.2  2003/09/26 05:56:10  venku
    - a checkpoint commit.
    Revision 1.1  2003/09/24 07:03:02  venku

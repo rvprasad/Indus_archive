@@ -125,7 +125,9 @@ public abstract class ToolConfiguration {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	public abstract void initialize();
 
@@ -157,6 +159,10 @@ public abstract class ToolConfiguration {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/26 13:58:43  venku
+   - checkpoint commit.
+   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
+   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
    Revision 1.3  2003/09/26 05:56:10  venku
    - a checkpoint commit.
    Revision 1.2  2003/09/24 07:03:02  venku
