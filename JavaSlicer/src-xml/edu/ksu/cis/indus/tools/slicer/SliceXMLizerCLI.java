@@ -404,6 +404,7 @@ public class SliceXMLizerCLI
 		_o.setArgs(1);
 		_o.setArgName("crit-spec-file");
 		_o.setOptionalArg(false);
+		_options.addOption(_o);
 		_o = new Option("r", "residualize", false,
 				"Residualize after slicing. This will also dump the class files for the residualized classes.");
 		_o.setOptionalArg(false);
@@ -745,6 +746,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/07/10 00:49:40  venku
+   - In pre-residualizaion jimple/xml dump, only the classes who are in the slice are dumped.
+
    Revision 1.46  2004/07/07 00:43:54  venku
    - class files are dumped only if residualization is requested.
    Revision 1.45  2004/07/04 12:17:58  venku
