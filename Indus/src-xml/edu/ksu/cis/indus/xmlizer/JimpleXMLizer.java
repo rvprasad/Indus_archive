@@ -128,30 +128,40 @@ public class JimpleXMLizer
 	 * @pre s != null
 	 */
 	public static void main(final String[] s) {
+		final Scene _scene = Scene.v();
+
+		for (int _i = 0; _i < s.length; _i++) {
+			_scene.loadClassAndSupport(s[_i]);
+		}
+
+		writeJimpleAsXML(_scene, new BufferedWriter(new OutputStreamWriter(System.out)));
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param scene
+	 * @param writer DOCUMENT ME!
+	 */
+	public static void writeJimpleAsXML(final Scene scene, final Writer writer) {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
 		final ProcessingController _pc = new ProcessingController();
 		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(
 				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
 				true));
 
-		final Scene _scene = Scene.v();
-		final Environment _env = new Environment(_scene);
+		final Environment _env = new Environment(scene);
 		_pc.setEnvironment(_env);
 		_pc.setProcessingFilter(new XMLizingProcessingFilter());
 
-		for (int _i = 0; _i < s.length; _i++) {
-			_scene.loadClassAndSupport(s[_i]);
-		}
-
-		final Writer _writer = new BufferedWriter(new OutputStreamWriter(System.out));
-		_xmlizer.setWriter(_writer);
+		_xmlizer.setWriter(writer);
 		_xmlizer.hookup(_pc);
 		_pc.process();
 		_xmlizer.unhook(_pc);
 
 		try {
-			_writer.flush();
-			_writer.close();
+			writer.flush();
+			writer.close();
 		} catch (IOException _e) {
 			_e.printStackTrace();
 		}
@@ -390,6 +400,14 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.27  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -25,6 +25,11 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
+import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
+
+import java.io.File;
+import java.io.FileWriter;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -65,6 +70,13 @@ public class FATestSetup
 	private final String sootClassPath;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private String dumpLocation;
+
+	/**
 	 * Creates a new FATestSetup object.
 	 *
 	 * @param test is the test to run in this setup.
@@ -101,6 +113,22 @@ public class FATestSetup
 			_test.setAnalyzer(valueAnalyzer);
 			_test.setFATagName(TAG_NAME);
 		}
+
+		if (dumpLocation != null) {
+			JimpleXMLizer.writeJimpleAsXML(_driver.getScene(),
+				new FileWriter(new File(dumpLocation + File.separatorChar + "jimple.xml")));
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param location DOCUMENT ME!
+	 */
+	protected final void dumpJimpleXML(final String location) {
+		dumpLocation = location;
 	}
 
 	/**
@@ -117,6 +145,11 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.11  2004/04/02 09:58:28  venku
    - refactoring.
      - collapsed flow insensitive and sensitive parts into common classes.

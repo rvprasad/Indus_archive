@@ -48,10 +48,15 @@ public class ValueAnalysisTestSetup
 	protected CallGraph cgiImpl;
 
 	/**
-	 * @see FATestSetup#FATestSetup(TestSuite,String,String)
+	 * {@inheritDoc}
+	 *
+	 * @param jimpleDumpLocation is the directory where "jimple.xml" should be dumped.  If <code>null</code>, xmlized jimple
+	 * 		  is not dumped.
 	 */
-	public ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
+	public ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath,
+		final String jimpleDumpLocation) {
 		super(test, theNameOfClasses, classpath);
+		dumpJimpleXML(jimpleDumpLocation);
 	}
 
 	/**
@@ -95,6 +100,8 @@ public class ValueAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/29 04:54:21  venku
+   - coding convention.
    Revision 1.3  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -103,7 +110,6 @@ public class ValueAnalysisTestSetup
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.2  2004/03/09 18:40:03  venku
    - refactoring.
    - moved methods common to XMLBased Test into AbstractXMLBasedTest.
