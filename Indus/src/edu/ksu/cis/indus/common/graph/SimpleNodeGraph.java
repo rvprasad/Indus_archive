@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$
  */
-public final class SimpleNodeGraph
+public class SimpleNodeGraph
   extends AbstractMutableDirectedGraph
   implements IObjectDirectedGraph {
 	/** 
@@ -161,6 +161,10 @@ public final class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/08/08 11:34:24  venku
+   - moved object extracting tranformer into IObjectDirectedGraph.
+   - ripple effect.
+
    Revision 1.9  2004/07/25 10:26:06  venku
    - added a new interface to query values attached to nodes.
    Revision 1.8  2004/07/24 09:57:05  venku
