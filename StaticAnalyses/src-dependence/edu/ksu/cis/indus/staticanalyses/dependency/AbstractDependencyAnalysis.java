@@ -55,6 +55,7 @@ public abstract class AbstractDependencyAnalysis
 
 	static {
 		IDENTIFIERS = new HashSet();
+		IDENTIFIERS.add(CONTROL_DA);
 		IDENTIFIERS.add(IDENTIFIER_BASED_DATA_DA);
 		IDENTIFIERS.add(REFERENCE_BASED_DATA_DA);
 		IDENTIFIERS.add(SYNCHRONIZATION_DA);
@@ -159,6 +160,11 @@ public abstract class AbstractDependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/08/15 08:37:26  venku
+   - REFACTORING pertaining to feature request #426
+     - refactored dependence retriever interface.
+     - refactored direction sensitive dependence information creation.
+
    Revision 1.6  2004/08/08 10:11:35  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.
