@@ -552,11 +552,11 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Retrieves the value in <code>callStackCache</code>.
+	 * Retrieves a copy of <code>callStackCache</code>.
 	 *
-	 * @return the value in <code>callStackCache</code>.
+	 * @return a copy of <code>callStackCache</code>.
 	 */
-	Stack getCallStackCacheCopy() {
+	Stack getCopyOfCallStackCache() {
 		final Stack _result;
 
 		if (callStackCache != null) {

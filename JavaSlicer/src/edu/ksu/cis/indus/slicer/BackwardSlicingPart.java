@@ -202,7 +202,7 @@ public class BackwardSlicingPart
 	public void generateCriteriaForTheCallToMethod(final SootMethod callee, final SootMethod caller, final Stmt callStmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaForTheCallToMethod(Stmt callStmt = " + callStmt + "SootMethod callee = " + callee
-				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		/*
@@ -230,7 +230,7 @@ public class BackwardSlicingPart
 	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection callees) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaToIncludeCallees(Stmt stmt = " + stmt + ", Collection callees = " + callees
-				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		processTailsOf(callees, stmt, caller, tailStmtInclusionClosure);
@@ -255,7 +255,7 @@ public class BackwardSlicingPart
 	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processLocalAt(Local local = " + local + ", Stmt stmt = " + stmt + ", SootMethod method = "
-				+ method + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ method + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		engine.generateSliceStmtCriterion(stmt, method, true);
@@ -280,7 +280,7 @@ public class BackwardSlicingPart
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("processLocalAt() , stack = " + engine.getCallStackCacheCopy() + "- END");
+			LOGGER.debug("processLocalAt() , stack = " + engine.getCopyOfCallStackCache() + "- END");
 		}
 	}
 
@@ -295,7 +295,7 @@ public class BackwardSlicingPart
 	public void processNewExpr(final Stmt stmt, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processNewExpr(Stmt stmt = " + stmt + ", SootMethod method = " + method + ", stack = "
-				+ engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		/*
@@ -339,7 +339,7 @@ public class BackwardSlicingPart
 	public void processParameterRef(final ValueBox pBox, final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processParameterRef(ValueBox pBox = " + pBox + ", SootMethod callee = " + callee + ", stack = "
-				+ engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		final ParameterRef _param = (ParameterRef) pBox.getValue();
@@ -499,7 +499,7 @@ public class BackwardSlicingPart
 	private void generateCriteriaForMissedParameters(final SootMethod callee, final int argIndex) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaForMissedParameters(SootMethod callee = " + callee + ", int argIndex = " + argIndex
-				+ ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		final Collection _temp = (Collection) MapUtils.getObject(callee2callsites, callee, Collections.EMPTY_SET);
@@ -536,7 +536,7 @@ public class BackwardSlicingPart
 	private void generateCriteriaForReceiverOfAt(final SootMethod callee, final Stmt callStmt, final SootMethod caller) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateCriteriaForReceiver(Stmt invocationStmt = " + callStmt + ", SootMethod callee = " + callee
-				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ ", SootMethod caller = " + caller + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		if (!callee.isStatic()) {
@@ -545,7 +545,7 @@ public class BackwardSlicingPart
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("generateCriteriaForReceiver(), stack = " + engine.getCallStackCacheCopy() + " - END");
+			LOGGER.debug("generateCriteriaForReceiver(), stack = " + engine.getCopyOfCallStackCache() + " - END");
 		}
 	}
 
@@ -560,7 +560,7 @@ public class BackwardSlicingPart
 	private void processSuperInitInInit(final SootMethod initMethod, final BasicBlockGraph bbg) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processSuperInitInInit(SootMethod initMethod = " + initMethod + ", BasicBlockGraph bbg = " + bbg
-				+ ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		/*
@@ -616,7 +616,7 @@ public class BackwardSlicingPart
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("processTailsOf(Collection callees = " + callees + ", Stmt stmt = " + stmt
 				+ ", SootMethod caller = " + caller + ", Closure closure = " + closure + ", stack = "
-				+ engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
 		final BasicBlockGraphMgr _bbgMgr = engine.getBasicBlockGraphManager();
@@ -671,7 +671,7 @@ public class BackwardSlicingPart
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("processTailsOf() , stack = " + engine.getCallStackCacheCopy() + "- END");
+			LOGGER.debug("processTailsOf() , stack = " + engine.getCopyOfCallStackCache() + "- END");
 		}
 	}
 
@@ -692,10 +692,10 @@ public class BackwardSlicingPart
 	private void recordCallInfoForProcessingArgsTo(final Stmt stmt, final SootMethod caller, final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("recordCallInfoForParameterProcessing(Stmt stmt = " + stmt + ", SootMethod caller = " + caller
-				+ ", SootMethod callee = " + callee + ", stack = " + engine.getCallStackCacheCopy() + ") - BEGIN");
+				+ ", SootMethod callee = " + callee + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
-		final Stack _stackClone = engine.getCallStackCacheCopy();
+		final Stack _stackClone = engine.getCopyOfCallStackCache();
 		final Triple _triple = new Triple(stmt, caller, _stackClone);
 		CollectionsUtilities.putIntoSetInMap(callee2callsites, callee, _triple);
 
