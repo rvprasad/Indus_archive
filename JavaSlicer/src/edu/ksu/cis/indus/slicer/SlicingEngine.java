@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -60,7 +61,6 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
-import soot.VoidType;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
@@ -356,12 +356,17 @@ public final class SlicingEngine {
 		 */
 		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
 			final Collection _result = new HashSet();
+			final Object _direction = da.getDirection();
 
-			if (da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+			if (_direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)
+				  || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
 				_result.addAll(da.getDependees(stmt, method));
-			} else if (da.getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTION)) {
+			} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
 				_result.addAll(da.getDependents(stmt, method));
+			} else if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction.");
 			}
+
 			return _result;
 		}
 	}
@@ -381,8 +386,17 @@ public final class SlicingEngine {
 		 */
 		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
 			final Collection _result = new HashSet();
-			_result.addAll(da.getDependees(stmt, method));
-			_result.addAll(da.getDependents(stmt, method));
+			final Object _direction = da.getDirection();
+
+			if (_direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
+				_result.addAll(da.getDependees(stmt, method));
+			} else if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)
+				  || _direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+				_result.addAll(da.getDependees(stmt, method));
+			} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
+				_result.addAll(da.getDependees(stmt, method));
+				_result.addAll(da.getDependents(stmt, method));
+			}
 			return _result;
 		}
 	}
@@ -402,12 +416,17 @@ public final class SlicingEngine {
 		 */
 		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
 			final Collection _result = new HashSet();
+			final Object _direction = da.getDirection();
 
-			if (da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
-				_result.addAll(da.getDependents(stmt, method));
-			} else if (da.getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTION)) {
+			if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)
+				  || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
 				_result.addAll(da.getDependees(stmt, method));
+			} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
+				_result.addAll(da.getDependents(stmt, method));
+			} else if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Trying to retrieve FORWARD dependence from a dependence analysis that is BACKWARD direction.");
 			}
+
 			return _result;
 		}
 	}
@@ -645,6 +664,41 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Retrieves the method(s) to be used to retrieve dependence information from the given analysis.
+	 *
+	 * @param analysis of interest.
+	 *
+	 * @return 0 indicates use <code>getDependees()</code>.  1 indicates use <code>getDependents()</code>. 2 indicates
+	 * 		   <code>getDependees()</code> and <code>getDependents()</code>. -1 indicates illegal state.
+	 *
+	 * @pre analysis != null and analysis.getId().equals(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA)
+	 */
+	private int getRetrievalMethodForIdentifierBasedDataDA(final IDependencyAnalysis analysis) {
+		int _combo = -1;
+		final Object _direction = analysis.getDirection();
+
+		if (_direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
+			_combo = 0;
+		} else {
+			if (sliceType.equals(BACKWARD_SLICE)) {
+				if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)
+					  || _direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+					_combo = 0;
+				}
+			} else if (sliceType.equals(FORWARD_SLICE)) {
+				if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
+					_combo = 1;
+				} else if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)) {
+					_combo = 0;
+				}
+			} else if (sliceType.equals(COMPLETE_SLICE)) {
+				_combo = 2;
+			}
+		}
+		return _combo;
+	}
+
+	/**
 	 * Checks if the given called method's return points should be considered to generate new slice criterion. The callee
 	 * should be marked as invoked or required before calling this method.
 	 *
@@ -798,16 +852,32 @@ public final class SlicingEngine {
 
 		final InvokeExpr _expr = stmt.getInvokeExpr();
 		final SootMethod _sm = _expr.getMethod();
+		final Collection _callees = new HashSet();
 
 		if (_sm.isStatic()) {
-			generateNewCriteriaForReturnPointOfMethods(Collections.singleton(_sm), stmt, method, considerReturnValue);
+			_callees.add(_sm);
 		} else {
 			final Context _context = new Context();
 			_context.setRootMethod(method);
 			_context.setStmt(stmt);
+			_callees.addAll(cgi.getCallees(_expr, _context));
+		}
 
-			final Collection _callees = cgi.getCallees(_expr, _context);
-			generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method, considerReturnValue);
+		// add exit points of callees as the slice criteria
+		for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
+			final SootMethod _callee = (SootMethod) _i.next();
+			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_callee);
+
+			/*
+			 * we do not want to include a dependence on return statement in java.lang.Thread.start() method
+			 * as it will occur in a different thread and cannot affect the sequential flow of control in the current thread.
+			 */
+			if (!Util.isStartMethod(_callee) && _bbg != null) {
+				generateNewCriteriaBasedOnMethodExit(stmt, method, considerReturnValue, _callee, _bbg);
+			} else if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Did not process " + _callee.getSignature() + " as it may be the start() method or it has no"
+					+ " basic block graph.");
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -822,6 +892,8 @@ public final class SlicingEngine {
 	 * @param stmt in which <code>locals</code> occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 *
+	 * @throws IllegalStateException DOCUMENT ME!
+	 *
 	 * @pre locals != null and locals.oclIsKindOf(Collection(Local))
 	 * @pre stmt != null and method != null
 	 */
@@ -830,30 +902,46 @@ public final class SlicingEngine {
 
 		if (_analyses.size() > 0) {
 			final Collection _temp = new HashSet();
-			final IDependencyAnalysis _analysis = (IDependencyAnalysis) _analyses.iterator().next();
-			final Iterator _k = locals.iterator();
-			final int _kEnd = locals.size();
+			final Iterator _i = _analyses.iterator();
+			final int _iEnd = _analyses.size();
 
-			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-				final Local _local = (Local) _k.next();
-				final Pair _pair = new Pair(stmt, _local);
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final IDependencyAnalysis _analysis = (IDependencyAnalysis) _i.next();
+				final int _combo = getRetrievalMethodForIdentifierBasedDataDA(_analysis);
 
-				if (sliceType.equals(BACKWARD_SLICE)) {
-					_temp.addAll(_analysis.getDependees(_pair, method));
-				} else if (sliceType.equals(FORWARD_SLICE)) {
-					_temp.addAll(_analysis.getDependents(_pair, method));
-				} else if (sliceType.equals(COMPLETE_SLICE)) {
-					_temp.addAll(_analysis.getDependees(_pair, method));
-					_temp.addAll(_analysis.getDependents(_pair, method));
+				final Iterator _k = locals.iterator();
+				final int _kEnd = locals.size();
+
+				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+					final Local _local = (Local) _k.next();
+					final Pair _pair = new Pair(stmt, _local);
+
+					switch (_combo) {
+						case 0 :
+							_temp.addAll(_analysis.getDependees(_pair, method));
+							break;
+
+						case 1 :
+							_temp.addAll(_analysis.getDependents(_pair, method));
+							break;
+
+						case 2 :
+							_temp.addAll(_analysis.getDependees(_pair, method));
+							_temp.addAll(_analysis.getDependents(_pair, method));
+							break;
+
+						default :
+							throw new IllegalStateException("_combo cannot be " + _combo);
+					}
 				}
-			}
 
-			final Iterator _j = _temp.iterator();
-			final int _jEnd = _temp.size();
+				final Iterator _j = _temp.iterator();
+				final int _jEnd = _temp.size();
 
-			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Stmt _stmt = (Stmt) _j.next();
-				generateSliceStmtCriterion(_stmt, method, true);
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final Stmt _stmt = (Stmt) _j.next();
+					generateSliceStmtCriterion(_stmt, method, true);
+				}
 			}
 		}
 	}
@@ -900,55 +988,10 @@ public final class SlicingEngine {
 			generateSliceExprCriterion(_argBox, _stmt, _caller, true);
 		}
 
+		generateNewCriteriaForTheCallToMethod(callee);
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for parameters");
-		}
-	}
-
-	/**
-	 * Generates new slice criterion for the return points of methods.
-	 *
-	 * @param callees are the set of methods being called at <code>invocationStmt</code>.
-	 * @param invocationStmt contains the invocation site.
-	 * @param caller contains <code>invocationStmt</code>.
-	 * @param considerReturnValue indicates if the return value expression should be considered for the slice.
-	 *
-	 * @pre callees != null and invocationStmt != null and caller != null
-	 */
-	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees, final Stmt invocationStmt,
-		final SootMethod caller, final boolean considerReturnValue) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for return points " + considerReturnValue);
-		}
-
-		// add exit points of callees as the slice criteria
-		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
-			final SootMethod _callee = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_callee);
-
-			/*
-			 * we do not want to include a dependence on return statement in java.lang.Thread.start() method
-			 * as it will occur in a different thread and cannot affect the sequential flow of control in the current thread.
-			 */
-			if (_callee.getName().equals("start")
-				  && _callee.getDeclaringClass().getName().equals("java.lang.Thread")
-				  && _callee.getReturnType().equals(VoidType.v())
-				  && _callee.getParameterCount() == 0) {
-				continue;
-			}
-
-			if (_bbg == null) {
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("No basic block graph available for " + _callee.getSignature() + ". Moving on.");
-				}
-				continue;
-			}
-
-			generateNewCriteriaBasedOnMethodExit(invocationStmt, caller, considerReturnValue, _callee, _bbg);
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating criteria for return points");
 		}
 	}
 
@@ -989,6 +1032,11 @@ public final class SlicingEngine {
 				if (_notStatic) {
 					final ValueBox _vBox = ((InstanceInvokeExpr) _stmt.getInvokeExpr()).getBaseBox();
 					generateSliceExprCriterion(_vBox, _stmt, _caller, true);
+				}
+
+				if ((sliceType.equals(FORWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)) && _stmt instanceof AssignStmt) {
+					final AssignStmt _defStmt = (AssignStmt) _stmt;
+					generateSliceExprCriterion(_defStmt.getLeftOpBox(), _stmt, _caller, true);
 				}
 			}
 		}
@@ -1342,7 +1390,6 @@ public final class SlicingEngine {
 
 				if (_value instanceof ParameterRef) {
 					generateNewCriteriaForParam(_vBox, method);
-					generateNewCriteriaForTheCallToMethod(method);
 				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
 					_das.addAll(controller.getAnalyses(IDependencyAnalysis.REFERENCE_BASED_DATA_DA));
 					_das.addAll(controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
@@ -1375,6 +1422,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.88  2004/07/28 09:05:31  venku
+   - changed the way arguments to native methods were handled.
    Revision 1.87  2004/07/25 01:36:44  venku
    - changed the way invoke expression arguments are handled when transforming
      statements and expressions while considering execution.
