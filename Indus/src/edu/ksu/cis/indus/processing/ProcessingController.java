@@ -243,8 +243,6 @@ public class ProcessingController {
 	 */
 	private IProcessingFilter processingFilter;
     
-    private IProcessingFilter methodFilter;
-
 	/**
 	 * This defines the environment in which the processing runs.
 	 */
@@ -975,36 +973,6 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Filter out classes from the given collection of classes.
-	 *
-	 * @param classes is the classes to be filtered.
-	 *
-	 * @return a collection containing the classes which were not filtered out.
-	 *
-	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
-	 * @post result != null
-	 */
-	protected final Collection filterClasses(final Collection classes) {
-		// TODO: delete
-		return classes;
-	}
-
-	/**
-	 * Filter out methods from the given collection of methods.
-	 *
-	 * @param methods is the methods to be filtered.
-	 *
-	 * @return a collection containing the methods which were not filtered out.
-	 *
-	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod))
-	 * @post result != null
-	 */
-	protected final Collection filterMethods(final Collection methods) {
-		// TODO: delete
-		return methods;
-	}
-
-	/**
 	 * Initializes the processors before processing the system.
 	 *
 	 * @param processors to be initialized.
@@ -1026,7 +994,7 @@ public class ProcessingController {
 
 		if (processingFilter == null) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Performance may be hit as classFilter is not set.");
+				LOGGER.warn("Performance may be hit as processing filter is not set.");
 			}
 			classes = theClasses;
 		} else {
@@ -1067,13 +1035,10 @@ public class ProcessingController {
 	protected void processMethods(final Collection theMethods) {
 		Collection methods;
 
-		if (methodFilter == null) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Performance may be hit as methodFilter is not set.");
-			}
+		if (processingFilter == null) {
 			methods = theMethods;
 		} else {
-			methods = methodFilter.filterClasses(theMethods);
+			methods = processingFilter.filterMethods(theMethods);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -1131,6 +1096,13 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/30 00:10:17  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.13  2003/11/17 15:58:58  venku
    - coding conventions.
    Revision 1.12  2003/11/17 15:42:49  venku
