@@ -21,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -201,6 +200,9 @@ public final class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/10/19 19:11:57  venku
+   *** empty log message ***
+
    Revision 1.8  2003/10/14 05:39:25  venku
    - well, jibx doesnot support abstract types for fields even with
      factories or I do not know how to tell it to use the factory.
