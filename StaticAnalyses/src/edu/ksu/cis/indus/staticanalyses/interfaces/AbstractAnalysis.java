@@ -80,7 +80,7 @@ public abstract class AbstractAnalysis {
 	/**
 	 * This manages the basic block graphs of methods.
 	 */
-	private final BasicBlockGraphMgr graphManager = new BasicBlockGraphMgr();
+	private BasicBlockGraphMgr graphManager;
 
 	/**
 	 * Analyzes the given methods and classes for "some" information.
@@ -138,6 +138,17 @@ public abstract class AbstractAnalysis {
 		this.info.putAll(infoParam);
 		this.method2stmtGraph.putAll(method2stmtGraphParam);
 		setup();
+	}
+
+	/**
+	 * Sets the basic block graph manager to use.
+	 *
+	 * @param bbm is the basic block graph manager.
+	 *
+	 * @pre bbm != null
+	 */
+	public void setBasicBlockGraphManager(final BasicBlockGraphMgr bbm) {
+		graphManager = bbm;
 	}
 
 	/**
@@ -212,22 +223,21 @@ public abstract class AbstractAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/21 01:35:05  venku
+   Documentation changes.
+   reset() is not called in initialize.  The user needs to do this.
    Revision 1.5  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
-
    Revision 1.4  2003/08/17 10:37:08  venku
    Fixed holes in documentation.
    Removed addRooMethods in FA and added the equivalent logic into analyze() methods.
-
    Revision 1.3  2003/08/16 02:41:37  venku
    Renamed AController to AbstractController.
    Renamed AAnalysis to AbstractAnalysis.
-
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
-
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

@@ -53,8 +53,8 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
@@ -116,7 +116,7 @@ public abstract class DADriver
 	 */
 	protected Scene scm;
 
-	/** 
+	/**
 	 * This indicates if EquivalenceClassBasedAnalysis should be executed.  Subclasses should set this appropriately.
 	 */
 	protected boolean ecbaRequired;
@@ -148,7 +148,7 @@ public abstract class DADriver
 			System.exit(-1);
 		}
 		this.args = argsParam;
-        this.bbm = new BasicBlockGraphMgr();
+		this.bbm = new BasicBlockGraphMgr();
 	}
 
 	/**
@@ -204,6 +204,8 @@ public abstract class DADriver
 		process(pc, processors);
 		System.out.println("THREAD GRAPH:\n" + ((ThreadGraph) tgi).dumpGraph());
 
+		bbm = new BasicBlockGraphMgr();
+
 		for (Iterator i = cgi.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 
@@ -211,6 +213,7 @@ public abstract class DADriver
 				try {
 					UnitGraph sg = new CompleteUnitGraph(method.retrieveActiveBody());
 					method2cmpltStmtGraph.put(method, sg);
+					bbm.getBasicBlockGraph(sg);
 				} catch (RuntimeException e) {
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn("Method " + method.getSignature() + " may not have body.", e);
@@ -229,7 +232,7 @@ public abstract class DADriver
 
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
-        info.put(IValueAnalyzer.ID, aa);
+		info.put(IValueAnalyzer.ID, aa);
 
 		setupDependencyAnalyses();
 
@@ -334,6 +337,7 @@ public abstract class DADriver
 
 		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
+			da.setBasicBlockGraphManager(bbm);
 
 			if (da.doesPreProcessing()) {
 				da.getPreProcessor().hookup(ppc);
@@ -386,19 +390,18 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/09/09 00:45:53  venku
+   - minor refactoring.
    Revision 1.10  2003/09/08 02:23:13  venku
    - Ripple effect of bbm support in Driver and change of constructor
      in ThreadGraph.
-
    Revision 1.9  2003/09/07 09:02:13  venku
    - Synchronization dependence now handles exception based
      sync dep edges.  This requires a Value Flow analysis which can
      provides value binding information for a local at a program point.
    - Ripple effect of the above change.
-
    Revision 1.8  2003/09/02 11:30:56  venku
    - Enabled toggling ECBA instance.
-
    Revision 1.7  2003/08/25 11:47:37  venku
    Fixed minor glitches.
    Revision 1.6  2003/08/21 01:25:21  venku
