@@ -98,7 +98,8 @@ public class RunIndus extends BasicSliceFunctions implements
      */
     private void performJ2BSlice(Shell parentShell, List fileList) {
         final SliceProgressBar _dialog = new SliceProgressBar(parentShell);
-        final J2BIndusRunner _runner = new J2BIndusRunner(fileList, _dialog);
+        
+        final J2BIndusRunner _runner = new J2BIndusRunner(fileList, _dialog, cpSet);
 
         if (!_runner.doWork()) {
             return;
@@ -132,7 +133,7 @@ public class RunIndus extends BasicSliceFunctions implements
      */
         private void performNormalSlice(final Shell parentShell, final List fileList) {
             final SliceProgressBar _dialog = new SliceProgressBar(parentShell);
-            final KaveriIndusRunner _runner = new KaveriIndusRunner(fileList, _dialog);
+            final KaveriIndusRunner _runner = new KaveriIndusRunner(fileList, _dialog, cpSet);
 
             if (!_runner.doWork()) {
                 return;

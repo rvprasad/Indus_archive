@@ -21,9 +21,11 @@ package edu.ksu.cis.indus.kaveri.sliceactions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -71,6 +73,11 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
  */
 abstract public class BasicSliceFunctions {
 
+    /**
+     * The set of classpath entries.
+     * 
+     */
+    protected Set cpSet; 
     /**
      * Returns the set of files chosen for slicing. If a file is chosen only it
      * is returned. If a project has been chosen, it returns all the files
@@ -126,6 +133,7 @@ abstract public class BasicSliceFunctions {
                 KaveriPlugin.getDefault().getIndusConfiguration().getCriteria()
                         .clear();                
                 KaveriPlugin.getDefault().getIndusConfiguration().getChosenContext().clear();
+                cpSet = _indusDialog.getClassPathSet();
                 if (_indusDialog.open() == IDialogConstants.OK_ID) {
                     if (_structuredSelection.getFirstElement() instanceof IJavaProject
                             || _structuredSelection.getFirstElement() instanceof IProject) {
@@ -227,7 +235,7 @@ abstract public class BasicSliceFunctions {
                   
                     final SliceProgressBar _dialog = new SliceProgressBar(
                             parentShell);
-                    final KaveriIndusRunner _runner = new KaveriIndusRunner(_lst, _dialog);
+                    final KaveriIndusRunner _runner = new KaveriIndusRunner(_lst, _dialog, Collections.EMPTY_SET);
                     _runner.setEditor(editor);
 
                     if (!_runner.doWork()) {

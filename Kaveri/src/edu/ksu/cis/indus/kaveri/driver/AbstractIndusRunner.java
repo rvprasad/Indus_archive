@@ -47,9 +47,11 @@ import org.eclipse.jdt.internal.corext.callhierarchy.CallLocation;
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodWrapper;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -92,6 +94,11 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
 
     protected boolean opCancelled;
 
+    /**
+     * The user modified classpathset.
+     */
+    private Set classpathSet;
+    
     /**
      * <p>
      * The eclipse indus driver.
@@ -137,7 +144,8 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * @param bar
      *            The slice progress bar to which to report the messages.
      */
-    public AbstractIndusRunner(final List filesList, SliceProgressBar bar) {
+    public AbstractIndusRunner(final List filesList, SliceProgressBar bar
+            , final Set classPathSet) {
         this.fileList = filesList;
         driver = KaveriPlugin.getDefault().getIndusConfiguration()
                 .getEclipseIndusDriver();
@@ -145,6 +153,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
         completeFileList = null;
         opCancelled = false;
         this.bar = bar;
+        this.classpathSet = classPathSet;
     }
 
     /**
@@ -278,6 +287,8 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
         boolean _indusRun = true;
 
         try {
+            
+            
             String _sootClassPath = ""; //$NON-NLS-1$
             IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
                     .getString("AbstractIndusRunner.5")); //$NON-NLS-1$
@@ -290,20 +301,31 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
                     .getString("AbstractIndusRunner.8")); //$NON-NLS-1$
 
             if (_jreclasspath != null) {
-                _sootClassPath = _jreclasspath.toOSString();
-                _sootClassPath += _pathseparator;
+                
+                
+                if (classpathSet.size() == 0) {
+                    final Set _classPathCollection = new HashSet();
+                    _classPathCollection.add(_jreclasspath.toOSString() + _pathseparator);
+               
 
-                if (fileList.size() > 0) {
-                    final IFile _file = (IFile) fileList.get(0);
-                    final IJavaProject _jproject = JavaCore.create(_file
+                    if (fileList.size() > 0) {
+                        final IFile _file = (IFile) fileList.get(0);
+                        final IJavaProject _jproject = JavaCore.create(_file
                             .getProject());
-                    final Set _set = SECommons.getClassPathForProject(
-                            _jproject, new HashSet(), false);
-                    for (Iterator iter = _set.iterator(); iter.hasNext();) {
+                        final Set _set = SECommons.getClassPathForProject(
+                            _jproject, new HashSet(), false, true);
+                        _classPathCollection.addAll(_set);
+                        for (Iterator iter = _set.iterator(); iter.hasNext();) {
+                            _sootClassPath += (String) iter.next();
+                        }
+                    }
+                } else {
+                    for (Iterator iter = classpathSet.iterator(); iter.hasNext();) {
                         _sootClassPath += (String) iter.next();
+                        
                     }
                 }
-
+               
                 driver.addToPath(_sootClassPath);
 
                 final Set _classNamesList = new HashSet();

@@ -506,7 +506,7 @@ public class PartialSliceView extends ViewPart {
 
         };
 
-        _actionAddCriteriaTop.setToolTipText("Add as criteria (Control)");
+        _actionAddCriteriaTop.setToolTipText("Add as criteria (Pre execution)");
         final ImageDescriptor _descCrt = AbstractUIPlugin
                 .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
                         "data/icons/addCriteriaTop.gif");
@@ -539,7 +539,7 @@ public class PartialSliceView extends ViewPart {
 
         };
 
-        _actionAddCriteriaBottom.setToolTipText("Add as criteria (Value)");
+        _actionAddCriteriaBottom.setToolTipText("Add as criteria (Post execution)");
         final ImageDescriptor _descCrtBot = AbstractUIPlugin
                 .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
                         "data/icons/addCriteriaBot.gif");
@@ -574,7 +574,94 @@ public class PartialSliceView extends ViewPart {
                         "data/icons/remCriteria.gif");
         _actionRemoveCriteria.setImageDescriptor(_descCrtRem);
         manager.add(_actionRemoveCriteria);
+        
+        Action _actionJavaAddCrtTop = new Action() {
+            public void run() {
+                if (partialData != null
+                        && partialData.getClassName() != null) {                    
+                    final List _stmtList = partialData.getStmtList().subList(2,
+                            partialData.getStmtList().size());
+                    if (_stmtList.size() == 0) return;
+                    for (int _i=0; _i < _stmtList.size(); _i++) {
+                        final Stmt _stmt = (Stmt) _stmtList.get(_i);
+                        if (crtList.containsKey(_stmt)) {
+                            MessageDialog.openError(null, "Error",
+                                    "Can't add " + _stmt + " as a criteria.");
+                            return;
+                        } else {
+                            addToCriteria(_i, false);
+                            crtList.put(_stmt, new Boolean(false));                            
+                        }
 
+                    }
+                    viewer.refresh();
+                }
+            }
+        };
+        final ImageDescriptor _descJCrtTop = AbstractUIPlugin
+        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/jCriteriaTop.gif");
+        _actionJavaAddCrtTop.setImageDescriptor(_descJCrtTop);
+        _actionJavaAddCrtTop.setToolTipText("Add as criteria (Pre execution)");
+        manager.add(_actionJavaAddCrtTop);
+        
+        Action _actionJavaAddCrtBot = new Action() {
+            public void run() {
+                if (partialData != null
+                        && partialData.getClassName() != null) {                    
+                    final List _stmtList = partialData.getStmtList().subList(2,
+                            partialData.getStmtList().size());
+                    if (_stmtList.size() == 0) return;
+                    for (int _i=0; _i < _stmtList.size(); _i++) {
+                        final Stmt _stmt = (Stmt) _stmtList.get(_i);
+                        if (crtList.containsKey(_stmt)) {
+                            MessageDialog.openError(null, "Error",
+                                    "Can't add " + _stmt + " as a criteria.");
+                            return;
+                        } else {
+                            addToCriteria(_i, true);
+                            crtList.put(_stmt, new Boolean(true));                            
+                        }
+
+                    }
+                    viewer.refresh();
+                }                
+            }
+        };
+        _actionJavaAddCrtBot.setToolTipText("Add as criteria (Post execution)");
+        
+        final ImageDescriptor _descJCrtBot = AbstractUIPlugin
+        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/jCriteriaBot.gif");
+        _actionJavaAddCrtBot.setImageDescriptor(_descJCrtBot);
+        manager.add(_actionJavaAddCrtBot);
+
+        
+        Action _actionJavaremCrt = new Action() {
+            public void run() {
+                if (partialData != null && partialData.getStmtList() != null && partialData.getStmtList().size() > 0
+                        && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2,
+                            partialData.getStmtList().size());
+                 for (int _i = 0 ; _i < _stmtList.size(); _i++) {   
+                    final Stmt _stmt = (Stmt) _stmtList.get(_i);
+                    if (crtList.containsKey(_stmt)) {
+                        removeCriteria(_i);
+                        crtList.remove(_stmt);
+                    }
+                }
+                        viewer.refresh();
+                }
+            }
+        };
+        _actionJavaremCrt.setToolTipText("Remove all criteria");
+        
+        final ImageDescriptor _descJRemCrt = AbstractUIPlugin
+        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/jremCriteria.gif");
+        _actionJavaremCrt.setImageDescriptor(_descJRemCrt);
+        manager.add(_actionJavaremCrt);
+        
     }
 
     /**

@@ -22,9 +22,11 @@ package edu.ksu.cis.indus.kaveri.dialogs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -54,17 +56,28 @@ import edu.ksu.cis.indus.kaveri.scoping.ScopeViewLabelProvider;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
+import org.eclipse.core.internal.resources.File;
+import org.eclipse.core.internal.resources.Resource;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.QualifiedName;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.jdt.internal.ui.dialogs.StatusUtil;
+import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
+import org.eclipse.jdt.internal.ui.wizards.buildpaths.BuildPathsBlock;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
@@ -91,6 +104,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -107,12 +121,16 @@ import org.jibx.runtime.JiBXException;
  * 
  * @author Ganeshan
  */
-public class IndusConfigurationDialog2 extends Dialog {
+public class IndusConfigurationDialog2 extends Dialog implements IStatusChangeListener {
     /**
      * Checkbox for additive or normal slicing.
      */
     private Button additive;
 
+    /**
+     * The collection of possibly modified classpath entries.
+     */
+    private Set classPathSet;
     /**
      * Configuration combo box.
      */
@@ -159,6 +177,11 @@ public class IndusConfigurationDialog2 extends Dialog {
     protected Collection deleteCollection;
 
     protected RootMethodCollection rmColl;
+    
+    /**
+     * The list of the classpaths 
+     */
+    private org.eclipse.swt.widgets.List cpList;
 
     class ViewContentProvider implements IStructuredContentProvider {
         public void inputChanged(Viewer v, Object oldInput, Object newInput) {
@@ -227,6 +250,7 @@ public class IndusConfigurationDialog2 extends Dialog {
         setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MAX);
         this.project = javaProject;
         deleteCollection = new ArrayList();
+        classPathSet = new HashSet();
     }
 
     /**
@@ -325,6 +349,10 @@ public class IndusConfigurationDialog2 extends Dialog {
          _itemRootMethods.setText("Root Methods");
          _itemRootMethods.setControl(createRootMethodControl(_folder));
 
+         final TabItem _itemClassPath = new TabItem(_folder, SWT.NONE);
+         _itemClassPath.setText("Slice Class Path");
+         _itemClassPath.setControl(createJavaBuildPathControl(_folder));
+         
          
         // Add griddata
         GridData _data = new GridData();
@@ -343,6 +371,122 @@ public class IndusConfigurationDialog2 extends Dialog {
          * KaveriPlugin.getDefault().getIndusConfiguration().resetChosenContext();
          */
         return _composite;
+    }
+
+    /**
+     * Create the classpath control.
+     * @param folder The parent folder.
+     * @return Control
+     */
+    private Control createJavaBuildPathControl(TabFolder folder) {
+        final Composite _comp = new Composite(folder, SWT.NONE); 
+        _comp.setLayout(new GridLayout(1, false));
+        GridData _gd = new GridData(GridData.FILL_BOTH);        
+        _gd.horizontalSpan = 1;
+        _comp.setLayoutData(_gd);
+       
+        final Composite _barComp = new Composite(_comp, SWT.NONE);
+        _gd = new GridData(GridData.FILL_BOTH);
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.grabExcessVerticalSpace = true;
+        _gd.horizontalSpan = 1;
+        _barComp.setLayoutData(_gd);
+        _barComp.setLayout(new GridLayout(2, false));
+        
+        cpList = new org.eclipse.swt.widgets.List(_barComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL
+                | SWT.H_SCROLL);
+        _gd = new GridData(GridData.FILL_BOTH);        
+        _gd.horizontalSpan = 1;
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.grabExcessVerticalSpace = true;
+        cpList.setLayoutData(_gd);
+        
+        initializeClassPathList();
+        
+        final Composite _rightComp = new Composite(_barComp, SWT.NONE);
+        _gd = new GridData(GridData.FILL_VERTICAL);        
+        _gd.horizontalSpan = 1;        
+        _gd.grabExcessVerticalSpace = true;
+        _rightComp.setLayoutData(_gd);
+        
+        final RowLayout _rl = new RowLayout(SWT.VERTICAL);
+        _rl.fill = true;
+        _rl.marginHeight = 5;
+        _rl.marginWidth = 2;
+        _rightComp.setLayout(_rl);
+        
+        final Dialog _parent = this;
+        
+        final Button  _btnEdit = new Button(_rightComp, SWT.PUSH);
+        _btnEdit.setText("Edit");
+        _btnEdit.addSelectionListener(
+                new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {
+                        if (cpList.getSelectionIndex() != -1) {
+                            final String _chosenString = cpList.getSelection()[0];
+                            final InputDialog _id = new InputDialog(_parent.getShell(), "Classpath Entry", 
+                                    "Change the classpath entry", _chosenString,  null);
+                            if (_id.open() == IDialogConstants.OK_ID) {
+                                cpList.setItem(cpList.getSelectionIndex(), _id.getValue());
+                            }
+                        }
+                    }
+                }
+                );
+        final Button _btnDelete = new Button(_rightComp, SWT.PUSH);
+        _btnDelete.setText("Delete");
+        _btnDelete.addSelectionListener(
+                new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {
+                        if (cpList.getSelectionIndex() != -1) {
+                            cpList.remove(cpList.getSelectionIndex());
+                        }
+                    }
+                }
+                );
+        final Button _btnAdd = new Button(_rightComp, SWT.PUSH);
+        _btnAdd.setText("Add jar");
+        _btnAdd.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                final Shell _shell = _parent.getShell();
+                final FileDialog _fd = new FileDialog(_shell);
+                _fd.setFilterExtensions(new String[]{"*.jar"});
+                _fd.setText("Pick a library file");
+                final String _lib = _fd.open();
+                if (_lib != null ) {           
+                    java.io.File _fl = new java.io.File(_lib);
+                    final String _fileName = _fl.getName();
+                    final int _extIndex = _fileName.lastIndexOf(".");
+                    if (_extIndex != -1) {
+                        final String _ext = _fileName.substring(_extIndex + 1);
+                        if (_ext != null && _ext.equals("jar")) {
+                            cpList.add(_lib);    
+                        } else {
+                            MessageDialog.openError(null, "Invalid library", "This is not a java library");
+                        }
+                    }  else {
+                        MessageDialog.openError(null, "Invalid library", "This is not a java library");
+                    }                                                           
+                    
+                }
+            }
+            });
+        
+        
+        return _comp;
+    }
+    
+
+    /**
+     * Fill the classpath list.
+     */
+    private void initializeClassPathList() {
+        final Set _cpSet = SECommons.getClassPathForProject(project, new HashSet(), false, false);
+        for (Iterator iter = _cpSet.iterator(); iter.hasNext();) {
+            String _cpEntry = iter.next().toString();            
+            cpList.add(_cpEntry);            
+        }
+        
     }
 
     /**
@@ -727,6 +871,10 @@ public class IndusConfigurationDialog2 extends Dialog {
         processContext();
         processScope();
         processRootMethods();
+        final String _cpSeparator = System.getProperty("path.separator");
+        for (int _i = 0; _i < cpList.getItemCount(); _i++) {
+            classPathSet.add(cpList.getItem(_i) + _cpSeparator);
+        }
         super.okPressed();
     }
 
@@ -1095,6 +1243,21 @@ public class IndusConfigurationDialog2 extends Dialog {
             KaveriPlugin.getDefault().getIndusConfiguration().setDoResidualize(true);
             okPressed();
         }
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener#statusChanged(org.eclipse.core.runtime.IStatus)
+     */
+    public void statusChanged(IStatus status) {
+               
+    }
+    
+    /**
+     * Returns the classpath set.
+     * @return
+     */
+    public Set getClassPathSet() {
+        return classPathSet;
     }
 }
 

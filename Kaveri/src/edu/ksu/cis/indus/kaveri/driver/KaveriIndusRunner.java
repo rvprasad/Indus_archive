@@ -23,6 +23,7 @@ package edu.ksu.cis.indus.kaveri.driver;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -55,9 +56,10 @@ public class KaveriIndusRunner extends AbstractIndusRunner implements IRunnableW
      *            The file pointing to the java file being sliced
      * @param bar
      *            The slice progress bar to which to report the messages.
+     * @param cpSet The collection of classpath entries.
      */
-    public KaveriIndusRunner(final List filesList, SliceProgressBar bar) {
-        super(filesList, bar);
+    public KaveriIndusRunner(final List filesList, SliceProgressBar bar, final Set cpSet) {
+        super(filesList, bar, cpSet);
     }
 
     /**

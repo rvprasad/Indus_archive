@@ -146,10 +146,11 @@ public final class SECommons {
      * @param jproject The java project.
      * @param visitedProjects The set of visited projets.
      * @param isFirst Whether the entry is exported.
+     * @param addTrailingSep Indicates if the trailing path separator is to be added
      * @return Set The set of all the classpaths.
      */
     public static Set getClassPathForProject(final IJavaProject jproject,
-            final Set visitedProjects, final boolean isFirst) {
+            final Set visitedProjects, final boolean isFirst, boolean addTrailingSep) {
         final Set _retSet = new HashSet();
         final String _pathseparator = System.getProperty(Messages
                 .getString("SootConvertor.3")); //$NON-NLS-1$		
@@ -173,10 +174,13 @@ public final class SECommons {
                                 _opLoc = jproject.getProject().getParent()
                                         .getFile(_opLoc).getLocation();
                             }
-
-                            _retSet.add(_opLoc.addTrailingSeparator()
-                                    .toOSString()
-                                    + _pathseparator);
+                            
+                            String _entry = _opLoc.addTrailingSeparator()
+                            .toOSString();
+                            if (addTrailingSep) {
+                                _entry += _pathseparator;
+                            }
+                            _retSet.add(_entry);
                         }
                         IPath _srcpath = _entries[_i].getPath();
                         if (_srcpath.segmentCount() == 1) {
@@ -185,9 +189,12 @@ public final class SECommons {
                             _srcpath = jproject.getProject().getParent()
                                     .getFile(_srcpath).getLocation();
                         }
-                        _retSet.add(_srcpath.addTrailingSeparator()
-                                .toOSString()
-                                + _pathseparator);
+                        String _entry = _srcpath.addTrailingSeparator()
+                        .toOSString();
+                        if (addTrailingSep) {
+                            _entry += _pathseparator;
+                        }
+                        _retSet.add(_entry);
                         break;
                     case IClasspathEntry.CPE_LIBRARY:
                         final IContainer parent = jproject.getProject()
@@ -197,7 +204,11 @@ public final class SECommons {
                         if (_libPath == null) {
                             _libPath = _entries[_i].getPath();
                         }
-                        _retSet.add(_libPath.toOSString() + _pathseparator);
+                        String _centry = _libPath.toOSString();
+                        if (addTrailingSep) {
+                            _centry += _pathseparator;
+                        }
+                        _retSet.add(_centry);
                         break;
                     case IClasspathEntry.CPE_PROJECT:
                         if (isFirst || _entries[_i].isExported()) {
@@ -207,7 +218,7 @@ public final class SECommons {
                         final IJavaProject _jdproject = JavaCore
                                 .create(_dProject);
                         _retSet.addAll(getClassPathForProject(_jdproject,
-                                visitedProjects, false));
+                                visitedProjects, false, addTrailingSep));
                         }
                         break;
                      default: break;   
@@ -478,7 +489,7 @@ public final class SECommons {
             final IProject _project = jfile.getProject();
             final IJavaProject _jproject = JavaCore.create(_project);
             final Set _set = SECommons.getClassPathForProject(_jproject,
-                    new HashSet(), false);
+                    new HashSet(), false, true);
             for (Iterator iter = _set.iterator(); iter.hasNext();) {
                 _sootClassPath += (String) iter.next();
             }

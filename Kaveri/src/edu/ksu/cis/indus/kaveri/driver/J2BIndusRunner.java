@@ -86,9 +86,10 @@ public class J2BIndusRunner
 	 *
 	 * @param filesList The file pointing to the java file being sliced
 	 * @param bar The slice progress bar to which to report the messages.
+	 * @param cpSet The collection of classpaths. An empty set indicates recalcuate the class paths.
 	 */
-	public J2BIndusRunner(final List filesList, SliceProgressBar bar) {
-		super(filesList, bar);
+	public J2BIndusRunner(final List filesList, SliceProgressBar bar, final Set cpSet) {
+		super(filesList, bar, cpSet);
 	}
 
 	/**
@@ -214,94 +215,7 @@ public class J2BIndusRunner
 		resetSoot();
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.ksu.cis.indus.kaveri.driver.AbstractIndusRunner#setUp()
-	 */
-	protected boolean setUp() {
-		final String _currConfig = KaveriPlugin.getDefault().getIndusConfiguration().getCurrentConfiguration();
-		driver.setSlicer(KaveriPlugin.getDefault().getSlicerTool());
-		driver.reset();
-
-		setupRootMethodCollection();
-
-		driver.getSlicer().setActiveConfiguration(_currConfig);
-		removeAnnotations();
-
-		boolean _indusRun = true;
-
-		try {
-			String _sootClassPath = "";  //$NON-NLS-1$
-			IPath _jreclasspath = JavaCore.getClasspathVariable(Messages.getString("AbstractIndusRunner.5"));  //$NON-NLS-1$
-			_jreclasspath = JavaCore.getClasspathVariable(Messages.getString("AbstractIndusRunner.6"));  //$NON-NLS-1$		
-
-			final String _pathseparator = System.getProperty(Messages.getString("AbstractIndusRunner.7"));  //$NON-NLS-1$
-			final String _fileseparator = System.getProperty(Messages.getString("AbstractIndusRunner.8"));  //$NON-NLS-1$
-
-			if (_jreclasspath != null) {
-				_sootClassPath = _jreclasspath.toOSString();
-				_sootClassPath += _pathseparator;
-
-				if (fileList.size() > 0) {
-					final IFile _file = (IFile) fileList.get(0);
-					final IJavaProject _jproject = JavaCore.create(_file.getProject());
-					final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet(), false);
-
-					for (Iterator iter = _set.iterator(); iter.hasNext();) {
-						_sootClassPath += (String) iter.next();
-					}
-				}
-
-				final IWorkbenchWindow _iww = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				Shell _shell = null;
-
-				if (_iww != null) {
-					_shell = _iww.getShell();
-				} else {
-					_shell = Display.getDefault().getActiveShell();
-				}
-
-				final SootClassPathDialog _scpd = new SootClassPathDialog(_shell, _sootClassPath);
-
-				if (!(_scpd.open() == IDialogConstants.OK_ID)) {
-					return false;
-				}
-
-				driver.addToPath(_scpd.getModifiedClassPath());
-
-				final Set _classNamesList = new HashSet();
-
-				for (int _i = 0; _i < fileList.size(); _i++) {
-					final IFile _javaFile = (IFile) fileList.get(_i);
-					final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(_javaFile);
-
-					if (_icunit != null) {
-						IType[] _types = null;
-
-						_types = _icunit.getAllTypes();
-
-						for (int _nrun = 0; _nrun < _types.length; _nrun++) {
-							final String _elemName = _types[_nrun].getFullyQualifiedName();
-							_classNamesList.add(_elemName);
-						}
-					}
-				}
-
-				driver.setClassNames(_classNamesList);
-				driver.initializeSlicer();
-				setApplicationClasses();
-				setupCriteria();
-			} else {
-				_indusRun = false;
-				MessageDialog.openError(null, Messages.getString("AbstractIndusRunner.9"),
-					Messages.getString("AbstractIndusRunner.12"));
-			}
-		} catch (JavaModelException _jme) {
-			SECommons.handleException(_jme);
-			KaveriErrorLog.logException("Java Model Exception", _jme);
-			_indusRun = false;
-		}
-		return _indusRun;
-	}
+	
 
 	/**
 	 * Logs the given message and throws a runtime exception.
