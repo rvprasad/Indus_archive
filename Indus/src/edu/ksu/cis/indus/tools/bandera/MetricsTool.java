@@ -47,15 +47,15 @@ import soot.Scene;
 public class MetricsTool
   extends BaseObservable
   implements Tool {
+    /** 
+     * This identifies the scene in the input arguments.
+     */
+    public static final Object SCENE = "scene";
+
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(MetricsTool.class);
-
-	/** 
-	 * This identifies the scene in the input arguments.
-	 */
-	public static final Object SCENE = "scene";
 
 	/** 
 	 * The map containing the statistics that is provided as the output.

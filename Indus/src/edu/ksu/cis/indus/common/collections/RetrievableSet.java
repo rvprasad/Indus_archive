@@ -101,7 +101,7 @@ public final class RetrievableSet
 	 * @see java.util.Collection#remove(java.lang.Object)
 	 */
 	public boolean remove(final Object o) {
-		boolean _result = map.containsKey(o);
+		final boolean _result = map.containsKey(o);
 
 		if (_result) {
 			map.remove(o);

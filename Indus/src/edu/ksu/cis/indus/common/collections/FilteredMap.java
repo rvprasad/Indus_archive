@@ -134,7 +134,7 @@ final class FilteredMap
 							boolean _r = false;
 
 							if (object instanceof Map.Entry) {
-								final Entry _entry = ((Map.Entry) object);
+								final Entry _entry = (Map.Entry) object;
 
 								if (validateKey(_entry.getKey()) && validateValue(_entry.getValue())) {
 									_r = true;
@@ -315,7 +315,7 @@ final class FilteredMap
 	 * @pre value != null
 	 */
 	boolean validateValue(final Object value) {
-		return ((valuePred != null && valuePred.evaluate(value)) || valuePred == null);
+		return (valuePred != null && valuePred.evaluate(value)) || valuePred == null;
 	}
 }
 

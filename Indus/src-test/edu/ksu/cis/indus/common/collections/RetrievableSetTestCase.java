@@ -100,7 +100,7 @@ public class RetrievableSetTestCase
             set.get(_hiString);
             fail("Element was not removed.");
         } catch (final NoSuchElementException _e) {
-            
+            ;
         }
 	}
 
