@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.tools;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -28,7 +30,8 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractTool {
+public abstract class AbstractTool
+  implements IStatus {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -58,6 +61,13 @@ public abstract class AbstractTool {
 	 * This indicates if the tool should pause execution.
 	 */
 	boolean pause = false;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Thread thread;
 
 	/**
 	 * Populate this object with the information in given in string form.
@@ -117,21 +127,21 @@ public abstract class AbstractTool {
 	 * @throws RuntimeException when this method called on a paused tool.
 	 */
 	public final void run(final Object phase) {
-		if (!pause) {
-			Thread i =
+		if (!pause || isStable()) {
+			thread =
 				new Thread() {
-					public void run() {
-						try {
-							execute(phase);
-						} catch (InterruptedException e) {
-							LOGGER.error("InterruptedException occurred.  Resetting the execution pipeline.", e);
-							pause = false;
+						public void run() {
+							try {
+								execute(phase);
+							} catch (InterruptedException e) {
+								LOGGER.error("InterruptedException occurred.  Resetting the execution pipeline.", e);
+								pause = false;
+							}
 						}
-					}
-				};
-			i.start();
+					};
+			thread.start();
 		} else {
-			throw new RuntimeException("run() should be called when the tool is paused.");
+			throw new RuntimeException("run() should be called when the tool is paused or running.");
 		}
 	}
 
@@ -170,6 +180,15 @@ public abstract class AbstractTool {
 	public abstract void reset();
 
 	/**
+	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running. {@inheritDoc}
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public boolean isStable() {
+		return thread == null || !thread.isAlive();
+	}
+
+	/**
 	 * This is the template method in which the actual processing of the tool happens.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
@@ -195,6 +214,8 @@ public abstract class AbstractTool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/15 21:26:08  venku
+   - removed initialize() method as it was not used.
    Revision 1.3  2003/11/09 05:18:16  venku
    - changed destringizeConfiguraiton() method to inform
      the caller if the given information was used to construct the
