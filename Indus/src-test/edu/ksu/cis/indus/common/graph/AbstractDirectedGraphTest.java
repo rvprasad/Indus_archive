@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.IndusTestCase;
+
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import org.apache.commons.collections.CollectionUtils;
  * @author $Author$
  * @version $Revision$ $Date$
  *
- * @see edu.ksu.cis.indus.common.graph.DirectedGraph
+ * @see edu.ksu.cis.indus.common.graph.IDirectedGraph
  */
 public abstract class AbstractDirectedGraphTest
   extends IndusTestCase {
@@ -75,13 +76,18 @@ public abstract class AbstractDirectedGraphTest
 
 		for (final Iterator _i = _backedges.iterator(); _i.hasNext();) {
 			final Pair _edge = (Pair) _i.next();
+			final INode _src = (INode)_edge.getFirst();
+			final INode _dest = (INode)_edge.getSecond();
+			assertTrue(_src.getSuccsOf().contains(_dest));
+			assertTrue(dg.isReachable(_dest, _src, true));
+
 			boolean _flag = false;
 
 			// ensure that the edge belongs to atleast one cycle.
 			for (final Iterator _j = _cycles.iterator(); _j.hasNext();) {
 				final Collection _cycle = (Collection) _j.next();
-				_flag |= _cycle.contains(_edge.getFirst());
-				_flag |= _cycle.contains(_edge.getSecond());
+				_flag |= _cycle.contains(_src);
+				_flag |= _cycle.contains(_dest);
 			}
 			assertTrue(_flag);
 		}
@@ -348,9 +354,15 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
    Revision 1.9  2004/02/08 19:32:13  venku
    - test refactoring for regression testing.
-
    Revision 1.8  2004/02/08 01:04:12  venku
    - renamed TestSuite classes to NoArgTestSuite classes.
    Revision 1.7  2004/01/22 08:18:55  venku
