@@ -500,14 +500,6 @@ public final class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.AbstractTool#initialize()
-	 */
-	public void initialize() {
-		SlicerConfiguration config = new SlicerConfiguration();
-		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(config);
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public void reset() {
@@ -530,6 +522,17 @@ public final class SlicerTool
 			throw new RuntimeException(e);
 		}
 		return result.toString();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	ICallGraphInfo getCallGraph() {
+		return callGraph;
 	}
 
 	/**
@@ -586,6 +589,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/09 08:00:39  venku
+   - if criteria is empty, slicer will not be run.
+   - destringizeConfiguration() now creates a new configuration
+     via the factory if the given configuration string is empty or null.
    Revision 1.20  2003/11/07 12:25:48  venku
    - equivalence class-based analysis was preprocessed but
      not executed. FIXED.
