@@ -17,18 +17,20 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
 import edu.ksu.cis.indus.common.structures.Pair;
 import edu.ksu.cis.indus.common.structures.Quadraple;
 import edu.ksu.cis.indus.common.structures.Triple;
+
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.common.graph.IWorkBag;
-import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +68,7 @@ import soot.jimple.Stmt;
  * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Map(ExitMonitorStmt, Collection(EnterMonitorStmt))))
  * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Map(EnterMonitortmt, Collection(ExitMonitorStmt))))
  */
-public class SynchronizationDA
+public final class SynchronizationDA
   extends DependencyAnalysis
   implements IMonitorInfo {
 	/**
@@ -117,7 +119,7 @@ public class SynchronizationDA
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	private class PreProcessor
+	private final class PreProcessor
 	  extends AbstractValueAnalyzerBasedProcessor {
 		/**
 		 * Preprocesses the given method.  It records if the method is synchronized.
@@ -241,13 +243,12 @@ public class SynchronizationDA
 			LOGGER.info("BEGIN: Synchronization Dependence processing");
 		}
 
-		IWorkBag workbag = new LIFOWorkBag();
-		Collection temp = new HashSet();
-		Collection col;
-		Stack stack = new Stack();
-		Collection processedStmts = new HashSet();
-		Collection processedMonitors = new HashSet();
-		Collection coupled = new HashSet();
+		final IWorkBag _workbag = new LIFOWorkBag();
+		final Collection _temp = new HashSet();
+		final Stack _stack = new Stack();
+		final Collection _processedStmts = new HashSet();
+		final Collection _processedMonitors = new HashSet();
+		final Collection _coupled = new HashSet();
 
 		/*
 		 * Calculating Sync DA is not as simple as it looks in the presence of exceptions.The exit monitors are the tricky
@@ -256,64 +257,64 @@ public class SynchronizationDA
 		 * dependence edges over a complete unit graph and use object flow information to arbitrate suspicious enter-exit
 		 * matches.
 		 */
-		for (Iterator i = enterMonitors.iterator(); i.hasNext();) {
-			Pair pair = (Pair) i.next();
-			Stmt enterMonitor = (Stmt) pair.getFirst();
-			SootMethod method = (SootMethod) pair.getSecond();
-			Map stmt2ddents = (Map) dependentMap.get(method);
-			Map stmt2ddees;
-			Context context = new Context();
+		for (final Iterator _i = enterMonitors.iterator(); _i.hasNext();) {
+			Pair _pair = (Pair) _i.next();
+			final Stmt _enterMonitor = (Stmt) _pair.getFirst();
+			final SootMethod _method = (SootMethod) _pair.getSecond();
+			Map _stmt2ddents = (Map) dependentMap.get(_method);
+			Map _stmt2ddees;
+			final Context _context = new Context();
 
-			if (stmt2ddents == null) {
-				stmt2ddents = new HashMap();
-				stmt2ddees = new HashMap();
-				dependentMap.put(method, stmt2ddents);
-				dependeeMap.put(method, stmt2ddees);
-			} else if (stmt2ddents.get(enterMonitor) != null) {
+			if (_stmt2ddents == null) {
+				_stmt2ddents = new HashMap();
+				_stmt2ddees = new HashMap();
+				dependentMap.put(_method, _stmt2ddents);
+				dependeeMap.put(_method, _stmt2ddees);
+			} else if (_stmt2ddents.get(_enterMonitor) != null) {
 				continue;
 			} else {
-				stmt2ddees = (Map) dependeeMap.get(method);
+				_stmt2ddees = (Map) dependeeMap.get(_method);
 			}
 
-			BasicBlockGraph bbGraph = getBasicBlockGraph(method);
-			workbag.clear();
-			stack.clear();
-			temp.clear();
-			workbag.addWork(new Quadraple(bbGraph.getEnclosingBlock(enterMonitor), enterMonitor, stack, temp, false));
+			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
+            final List _stmtList = getStmtList(_method);
+            _processedStmts.clear();
+            _workbag.clear();
+			_stack.clear();
+			_temp.clear();
+			_workbag.addWork(new Quadraple(_bbGraph.getEnclosingBlock(_enterMonitor), _enterMonitor, _stack, _temp, false));
 
-			List stmtList = getStmtList(method);
-			processedStmts.clear();
 nextBasicBlock: 
 			do {
-				Quadraple work = (Quadraple) workbag.getWork();
-				BasicBlock bb = (BasicBlock) work.getFirst();
-				Stmt leadStmt = (Stmt) work.getSecond();
-				Stack enterStack = (Stack) work.getThird();
-				HashSet currStmts = (HashSet) work.getFourth();
+				final Quadraple _work = (Quadraple) _workbag.getWork();
+				final BasicBlock _bb = (BasicBlock) _work.getFirst();
+				final Stmt _leadStmt = (Stmt) _work.getSecond();
+				final Stack _enterStack = (Stack) _work.getThird();
+				Collection _currStmts = (HashSet) _work.getFourth();
 
-				for (Iterator j = bb.getStmtFrom(stmtList.indexOf(leadStmt)).iterator(); j.hasNext();) {
-					Stmt stmt = (Stmt) j.next();
+				for (final Iterator _j = _bb.getStmtFrom(_stmtList.indexOf(_leadStmt)).iterator(); _j.hasNext();) {
+					final Stmt _stmt = (Stmt) _j.next();
 
 					// This is to avoid processing induced by back-edgesr.
-					if (processedStmts.contains(stmt)) {
+					if (_processedStmts.contains(_stmt)) {
 						continue nextBasicBlock;
 					}
-					processedStmts.add(stmt);
+					_processedStmts.add(_stmt);
 
-					if (stmt instanceof EnterMonitorStmt) {
-						currStmts.add(stmt);
-						enterStack.push(new Pair(stmt, currStmts));
-						currStmts = new HashSet();
-					} else if (stmt instanceof ExitMonitorStmt) {
-						pair = (Pair) enterStack.pop();
+					if (_stmt instanceof EnterMonitorStmt) {
+						_currStmts.add(_stmt);
+						_enterStack.push(new Pair(_stmt, _currStmts));
+						_currStmts = new HashSet();
+					} else if (_stmt instanceof ExitMonitorStmt) {
+						_pair = (Pair) _enterStack.pop();
 
-						EnterMonitorStmt enter = (EnterMonitorStmt) pair.getFirst();
-						ExitMonitorStmt exit = (ExitMonitorStmt) stmt;
+						final EnterMonitorStmt _enter = (EnterMonitorStmt) _pair.getFirst();
+						final ExitMonitorStmt _exit = (ExitMonitorStmt) _stmt;
 
 						// If the current monitor was processed, we cannot add any more information to it. So, chug along.
-						if (processedMonitors.contains(enter)) {
-							currStmts = (HashSet) pair.getSecond();
-							currStmts.add(stmt);
+						if (_processedMonitors.contains(_enter)) {
+							_currStmts = (HashSet) _pair.getSecond();
+							_currStmts.add(_stmt);
 							continue;
 						} else {
 							/*
@@ -322,71 +323,72 @@ nextBasicBlock:
 							 * monitor object before the enter monitor to be used in exit monitor.  Hence, a flow
 							 * sensitive analysis should be able to provide identical value sets.
 							 */
-							context.setRootMethod(method);
-							context.setProgramPoint(enter.getOpBox());
-							context.setStmt(enter);
+							_context.setRootMethod(_method);
+							_context.setProgramPoint(_enter.getOpBox());
+							_context.setStmt(_enter);
 
-							Collection nValues = ofa.getValues(enter.getOp(), context);
-							context.setProgramPoint(exit.getOpBox());
-							context.setStmt(exit);
+							final Collection _nValues = ofa.getValues(_enter.getOp(), _context);
+							_context.setProgramPoint(_exit.getOpBox());
+							_context.setStmt(_exit);
 
-							Collection xValues = ofa.getValues(exit.getOp(), context);
+							final Collection _xValues = ofa.getValues(_exit.getOp(), _context);
 
-							if (nValues.size() != xValues.size() || !nValues.containsAll(xValues)) {
+							if (_nValues.size() != _xValues.size() || !_nValues.containsAll(_xValues)) {
 								continue;
 							}
 						}
 
-						col = new HashSet();
-						col.add(enter);
-						col.add(stmt);
+						Collection _col = new HashSet();
+						_col.add(_enter);
+						_col.add(_stmt);
 
-						for (Iterator k = currStmts.iterator(); k.hasNext();) {
-							Stmt curr = (Stmt) k.next();
-							stmt2ddees.put(curr, col);
+						for (final Iterator _k = _currStmts.iterator(); _k.hasNext();) {
+							final Stmt _curr = (Stmt) _k.next();
+							_stmt2ddees.put(_curr, _col);
 						}
-						stmt2ddents.put(stmt, new HashSet(currStmts));
-						col = (Collection) stmt2ddents.get(enter);
+						_stmt2ddents.put(_stmt, new HashSet(_currStmts));
+						_col = (Collection) _stmt2ddents.get(_enter);
 
-						if (col == null) {
-							col = new HashSet();
-							stmt2ddents.put(enter, col);
+						if (_col == null) {
+							_col = new HashSet();
+							_stmt2ddents.put(_enter, _col);
 						}
-						col.addAll(currStmts);
-						currStmts = (HashSet) pair.getSecond();
-						currStmts.add(stmt);
-						monitorTriples.add(new Triple(enter, stmt, method));
-						coupled.add(stmt);
+						_col.addAll(_currStmts);
+                        monitorTriples.add(new Triple(_enter, _stmt, _method));
+                        _currStmts = (HashSet) _pair.getSecond();
+						_currStmts.add(_stmt);
+						_coupled.add(_stmt);
 
-						if (enterStack.isEmpty()) {
+						if (_enterStack.isEmpty()) {
 							break;
 						}
 					} else {
-						currStmts.add(stmt);
+						_currStmts.add(_stmt);
 					}
 				}
 
-				if (!enterStack.isEmpty()) {
-					Collection succs = bb.getSuccsOf();
+				if (!_enterStack.isEmpty()) {
+					final Collection _succs = _bb.getSuccsOf();
 
-					if (succs.size() == 1) {
-						BasicBlock succ = (BasicBlock) succs.iterator().next();
-						workbag.addWork(new Quadraple(succ, succ.getLeaderStmt(), enterStack, currStmts, false));
+					if (_succs.size() == 1) {
+						final BasicBlock _succ = (BasicBlock) _succs.iterator().next();
+						_workbag.addWork(new Quadraple(_succ, _succ.getLeaderStmt(), _enterStack, _currStmts, false));
 					} else {
-						for (Iterator j = succs.iterator(); j.hasNext();) {
-							BasicBlock succ = (BasicBlock) j.next();
-							Stack clone = new Stack();
+						for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
+							final BasicBlock _succ = (BasicBlock) _j.next();
+							final Stack _clone = new Stack();
 
-							for (Iterator iter = enterStack.iterator(); iter.hasNext();) {
-								Pair p = (Pair) iter.next();
-								clone.add(new Pair(p.getFirst(), ((HashSet) p.getSecond()).clone()));
+							for (final Iterator _iter = _enterStack.iterator(); _iter.hasNext();) {
+								final Pair _p = (Pair) _iter.next();
+								_clone.add(new Pair(_p.getFirst(), ((HashSet) _p.getSecond()).clone()));
 							}
-							workbag.addWork(new Quadraple(succ, succ.getLeaderStmt(), clone, currStmts.clone(), false));
+							_workbag.addWork(new Quadraple(_succ, _succ.getLeaderStmt(), _clone,
+									((HashSet) _currStmts).clone(), false));
 						}
 					}
 				}
-			} while (workbag.hasWork());
-			processedMonitors.add(enterMonitor);
+			} while (_workbag.hasWork());
+			_processedMonitors.add(_enterMonitor);
 		}
 
 		stable = true;
@@ -412,48 +414,49 @@ nextBasicBlock:
 	 * @return a stringized representation of this object.
 	 */
 	public String toString() {
-		StringBuffer result =
+		final StringBuffer _result =
 			new StringBuffer("Statistics for Synchronization dependence as calculated by " + getClass().getName() + "\n");
-		int localEdgeCount = 0;
-		int edgeCount = 0;
+		int _localEdgeCount = 0;
+		int _edgeCount = 0;
 
-		StringBuffer temp = new StringBuffer();
+		final StringBuffer _temp = new StringBuffer();
 
-		for (Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			localEdgeCount = 0;
+		for (final Iterator _i = dependentMap.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			_localEdgeCount = 0;
 
-			SootMethod method = (SootMethod) entry.getKey();
+			final SootMethod _method = (SootMethod) _entry.getKey();
 
-			for (Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
-				Map.Entry entry2 = (Map.Entry) j.next();
-				Stmt dependee = (Stmt) entry2.getKey();
+			for (final Iterator _j = ((Map) _entry.getValue()).entrySet().iterator(); _j.hasNext();) {
+				final Map.Entry _entry2 = (Map.Entry) _j.next();
+				final Stmt _dependee = (Stmt) _entry2.getKey();
 
-				for (Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
-					Stmt obj = (Stmt) k.next();
-					temp.append("\t\t" + dependee + "[" + dependee.hashCode() + "] <- " + obj + "[" + obj.hashCode() + "]\n");
+				for (final Iterator _k = ((Collection) _entry2.getValue()).iterator(); _k.hasNext();) {
+					final Stmt _obj = (Stmt) _k.next();
+					_temp.append("\t\t" + _dependee + "[" + _dependee.hashCode() + "] <- " + _obj + "[" + _obj.hashCode()
+						+ "]\n");
 				}
-				localEdgeCount += ((Collection) entry2.getValue()).size();
+				_localEdgeCount += ((Collection) _entry2.getValue()).size();
 			}
-			result.append("\tFor " + method + " there are " + localEdgeCount + " sync dependence edges.\n");
-			result.append(temp);
-			temp.delete(0, temp.length());
-			edgeCount += localEdgeCount;
+			_result.append("\tFor " + _method + " there are " + _localEdgeCount + " sync dependence edges.\n");
+			_result.append(_temp);
+			_temp.delete(0, _temp.length());
+			_edgeCount += _localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " synchronization dependence edges exist.\n");
-		result.append("MonitorInfo follows:\n");
+		_result.append("A total of " + _edgeCount + " synchronization dependence edges exist.\n");
+		_result.append("MonitorInfo follows:\n");
 
-		for (Iterator i = monitorTriples.iterator(); i.hasNext();) {
-			Triple trip = (Triple) i.next();
+		for (final Iterator _i = monitorTriples.iterator(); _i.hasNext();) {
+			final Triple _trip = (Triple) _i.next();
 
-			if (trip.getFirst() != null) {
-				result.append("[" + trip.getFirst() + " " + trip.getFirst().hashCode() + ", " + trip.getSecond() + " "
-					+ trip.getSecond().hashCode() + "] occurs in " + trip.getThird() + "\n");
+			if (_trip.getFirst() != null) {
+				_result.append("[" + _trip.getFirst() + " " + _trip.getFirst().hashCode() + ", " + _trip.getSecond() + " "
+					+ _trip.getSecond().hashCode() + "] occurs in " + _trip.getThird() + "\n");
 			} else {
-				result.append(trip.getThird() + " is synchronized.\n");
+				_result.append(_trip.getThird() + " is synchronized.\n");
 			}
 		}
-		return result.toString();
+		return _result.toString();
 	}
 
 	/**
@@ -471,17 +474,17 @@ nextBasicBlock:
 	 * @post result != null
 	 */
 	protected static Collection getHelper(final Map map, final Object stmt, final Object method) {
-		Collection result = Collections.EMPTY_LIST;
-		Map stmt2ddeXXs = (Map) map.get(method);
+		Collection _result = Collections.EMPTY_LIST;
+		final Map _stmt2ddeXXs = (Map) map.get(method);
 
-		if (stmt2ddeXXs != null) {
-			Collection temp = (Collection) stmt2ddeXXs.get(stmt);
+		if (_stmt2ddeXXs != null) {
+			final Collection _temp = (Collection) _stmt2ddeXXs.get(stmt);
 
-			if (temp != null) {
-				result = Collections.unmodifiableCollection(temp);
+			if (_temp != null) {
+				_result = Collections.unmodifiableCollection(_temp);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -508,19 +511,19 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/12/09 04:22:09  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.23  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.22  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.21  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.20  2003/11/17 01:40:40  venku
    - documentation.
    Revision 1.19  2003/11/12 01:04:54  venku
