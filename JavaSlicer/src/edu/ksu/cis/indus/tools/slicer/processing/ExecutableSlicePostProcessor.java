@@ -248,6 +248,8 @@ public final class ExecutableSlicePostProcessor
 		 */
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final Trap _trap = (Trap) _i.next();
+			collector.includeInSlice(Util.getAncestors(_trap.getException()));
+
 			final IdentityStmt _handlerUnit = (IdentityStmt) _trap.getHandlerUnit();
 			collector.includeInSlice(_handlerUnit);
 			collector.includeInSlice(_handlerUnit.getLeftOpBox());
@@ -403,6 +405,17 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/19 22:52:49  venku
+   - inclusion of method declaration with identical signature in the
+     super classes/interfaces is a matter of executability.  Hence,
+     this is now deferred to ExecutableSlicePostProcessor.  The
+     ramifications are each method is processed in
+     ExecutablePostProcessor to include methods in super classes;
+     only the called methods, it's declaring class
+     are included in the slice in SlicingEngine.
+   - renamed generateNewCriteriaForCallToEnclosingMethod() to
+     generateNewCriteriaForCallToMethod()
+   -
    Revision 1.6  2004/01/19 13:03:53  venku
    - coding convention.
    Revision 1.5  2004/01/19 11:38:06  venku
