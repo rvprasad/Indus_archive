@@ -66,13 +66,18 @@ public class CGBasedXMLizingController
 	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
 	 */
 	protected Collection filterMethods(final Collection methods) {
-		return xmlizingController.filterClasses(super.filterMethods(methods));
+		return xmlizingController.filterMethods(super.filterMethods(methods));
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/17 02:23:56  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
+
    Revision 1.1  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
    Revision 1.1  2003/11/12 05:05:45  venku

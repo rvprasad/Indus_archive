@@ -131,7 +131,7 @@ public class SlicerDriver
 		 * 
 		 * <p></p>
 		 */
-		protected void populateDAs() {
+		public void populateDAs() {
 			das.addAll(slicer.getDAs());
 		}
 	}
@@ -359,6 +359,7 @@ public class SlicerDriver
 		CustomDependencyXMLizer dep = new CustomDependencyXMLizer();
 		dep.setClassNames(rootMethods);
 		dep.setGenerator(idGenerator);
+        dep.populateDAs();
 		sliceIP.hookup(ctrl);
 
 		Map xmlizers = dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, ctrl);
@@ -373,6 +374,12 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/17 15:25:17  venku
+   - added new method to AbstractSliceXMLizer to flush writer.
+   - called flush on xmlizer from the driver.
+   - erroneous file name was being constructed. FIXED.
+   - added tabbing and new line to output in TagBasedSliceXMLizer.
+
    Revision 1.3  2003/11/17 03:22:55  venku
    - added junit test support for Slicing.
    - refactored code in test for dependency to make it more

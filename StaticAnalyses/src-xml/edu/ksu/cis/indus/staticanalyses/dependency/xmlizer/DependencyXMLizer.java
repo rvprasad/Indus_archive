@@ -192,7 +192,6 @@ public class DependencyXMLizer
 		setLogger(LogFactory.getLog(DependencyXMLizer.class));
 		setProperties(PROPERTIES);
 		ecbaRequired = useECBA;
-		populateDAs();
 	}
 
 	/**
@@ -243,6 +242,7 @@ public class DependencyXMLizer
 			xmlizer.setXMLOutputDir(outputDir);
 			xmlizer.setClassNames(cl.getOptionValues('c'));
 			xmlizer.setGenerator(new UniqueJimpleIDGenerator());
+			xmlizer.populateDAs();
 			xmlizer.initialize();
 			xmlizer.execute();
 			xmlizer.printTimingStats();
@@ -476,6 +476,27 @@ public class DependencyXMLizer
 	 * 
 	 * <p></p>
 	 */
+	public void populateDAs() {
+		// The order is important for the purpose of Testing as it influences the output file name
+		das.add(new ControlDA(ControlDA.BACKWARD));
+		das.add(new ControlDA(ControlDA.FORWARD));
+		das.add(new DivergenceDA());
+		das.add(new IdentifierBasedDataDA());
+		das.add(new InterferenceDAv1());
+		das.add(new InterferenceDAv2());
+		das.add(new InterferenceDAv3());
+		das.add(new ReadyDAv1());
+		das.add(new ReadyDAv2());
+		das.add(new ReadyDAv3());
+		das.add(new ReferenceBasedDataDA());
+		das.add(new SynchronizationDA());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
 	public void reset() {
 		das.clear();
 		aa = null;
@@ -493,27 +514,6 @@ public class DependencyXMLizer
 	 */
 	protected void setProperties(final Properties props) {
 		properties = props;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	protected void populateDAs() {
-		// The order is important for the purpose of Testing as it influences the output file name
-		das.add(new ControlDA(ControlDA.BACKWARD));
-		das.add(new ControlDA(ControlDA.FORWARD));
-		das.add(new DivergenceDA());
-		das.add(new IdentifierBasedDataDA());
-		das.add(new InterferenceDAv1());
-		das.add(new InterferenceDAv2());
-		das.add(new InterferenceDAv3());
-		das.add(new ReadyDAv1());
-		das.add(new ReadyDAv2());
-		das.add(new ReadyDAv3());
-		das.add(new ReferenceBasedDataDA());
-		das.add(new SynchronizationDA());
 	}
 
 	/**
@@ -645,6 +645,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/17 15:42:46  venku
+   - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.5  2003/11/17 03:22:59  venku
    - added junit test support for Slicing.
    - refactored code in test for dependency to make it more

@@ -94,7 +94,7 @@ public class XMLizingController
 	 *
 	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
 	 */
-	protected Collection filterMethods(Collection methods) {
+	public Collection filterMethods(Collection methods) {
 		List result = new ArrayList(methods);
 		Collections.sort(result, new LexographicalMethodComparator());
 		return result;
@@ -104,6 +104,11 @@ public class XMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/17 02:24:00  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
+
    Revision 1.3  2003/11/12 03:59:41  venku
    - exposed inner classes as static classes.
    Revision 1.2  2003/11/07 11:13:06  venku

@@ -202,6 +202,7 @@ public final class DependencyTest
 					test.xmlizer.setClassNames(temp);
 					test.xmlizer.setXMLOutputDir(xmlOutputDir);
 					test.xmlizer.setGenerator(generator);
+                    test.xmlizer.populateDAs();
 
 					if (classpath != null) {
 						test.xmlizer.addToSootClassPath(classpath);
@@ -223,6 +224,11 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/17 03:22:59  venku
+   - added junit test support for Slicing.
+   - refactored code in test for dependency to make it more
+     simple.
+
    Revision 1.6  2003/11/16 19:01:33  venku
    - documentation.
    Revision 1.5  2003/11/16 18:41:18  venku
