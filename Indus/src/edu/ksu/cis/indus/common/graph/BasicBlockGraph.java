@@ -65,11 +65,6 @@ public final class BasicBlockGraph
 	private final UnitGraph stmtGraph;
 
 	/**
-	 * The set of basic blocks at which exception handlers begin.
-	 */
-	private Collection handlerBlocks;
-
-	/**
 	 * Creates a new BasicBlockGraph object.
 	 *
 	 * @param stmtGraphParam is the control flow graph being represented by this graph.
@@ -290,22 +285,21 @@ public final class BasicBlockGraph
 	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
 	 */
 	public Collection getHandlerBlocks() {
-		if (handlerBlocks == null) {
-			handlerBlocks = Collections.EMPTY_LIST;
+		Collection _handlerBlocks;
 
-			final Collection _traps = stmtGraph.getBody().getTraps();
+		final Collection _traps = stmtGraph.getBody().getTraps();
 
-			if (!_traps.isEmpty()) {
-				handlerBlocks = new HashSet();
+		if (!_traps.isEmpty()) {
+			_handlerBlocks = new HashSet();
 
-				for (final Iterator _i = _traps.iterator(); _i.hasNext();) {
-					handlerBlocks.add(getEnclosingBlock((Stmt) ((Trap) _i.next()).getHandlerUnit()));
-				}
+			for (final Iterator _i = _traps.iterator(); _i.hasNext();) {
+				_handlerBlocks.add(getEnclosingBlock((Stmt) ((Trap) _i.next()).getHandlerUnit()));
 			}
-			handlerBlocks = Collections.unmodifiableCollection(handlerBlocks);
+		} else {
+			_handlerBlocks = Collections.EMPTY_LIST;
 		}
 
-		return handlerBlocks;
+		return _handlerBlocks;
 	}
 
 	/**
@@ -445,6 +439,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/15 06:55:06  venku
+   - formatting
+   - error while building basic block graph.  FIXED.
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
