@@ -32,6 +32,12 @@
       <library name="lib/sootclasses-new.jar">
          <export name="*"/>
       </library>
+      <library name="lib/log4jconfig.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/log4j-1.2.8.jar">
+         <export name="*"/>
+      </library>
    </runtime>
    <requires>
       <import plugin="org.eclipse.ui"/>
