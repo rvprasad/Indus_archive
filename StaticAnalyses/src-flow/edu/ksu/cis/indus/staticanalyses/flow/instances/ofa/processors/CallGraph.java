@@ -479,38 +479,42 @@ public class CallGraph
 		} else if (value instanceof InterfaceInvokeExpr || value instanceof VirtualInvokeExpr) {
 			InstanceInvokeExpr invokeExpr = (InstanceInvokeExpr) value;
 			SootMethod calleeMethod = invokeExpr.getMethod();
-
-			if (caller2callees.containsKey(caller)) {
-				callees = (Set) caller2callees.get(caller);
-			} else {
-				callees = new HashSet();
-				caller2callees.put(caller, callees);
-			}
-
 			context.setProgramPoint(invokeExpr.getBaseBox());
 
-			for (Iterator i = analyzer.getValues(invokeExpr.getBase(), context).iterator(); i.hasNext();) {
-				Object t = i.next();
+			Collection values = analyzer.getValues(invokeExpr.getBase(), context);
 
-				if (!(t instanceof NewExpr)) {
-					continue;
-				}
-
-				NewExpr newExpr = (NewExpr) t;
-				SootClass accessClass = analyzer.getEnvironment().getClass(newExpr.getBaseType().getClassName());
-				callee = findMethodImplementation(accessClass, calleeMethod);
-
-				triple = new CallTriple(callee, stmt, invokeExpr);
-				callees.add(triple);
-
-				if (callee2callers.containsKey(callee)) {
-					callers = (Set) callee2callers.get(callee);
+			if (!values.isEmpty()) {
+				if (caller2callees.containsKey(caller)) {
+					callees = (Set) caller2callees.get(caller);
 				} else {
-					callers = new HashSet();
-					callee2callers.put(callee, callers);
+					callees = new HashSet();
+					caller2callees.put(caller, callees);
 				}
-				triple = new CallTriple(caller, stmt, invokeExpr);
-				callers.add(triple);
+
+				CallTriple ctrp = new CallTriple(caller, stmt, invokeExpr);
+
+				for (Iterator i = values.iterator(); i.hasNext();) {
+					Object t = i.next();
+
+					if (!(t instanceof NewExpr)) {
+						continue;
+					}
+
+					NewExpr newExpr = (NewExpr) t;
+					SootClass accessClass = analyzer.getEnvironment().getClass(newExpr.getBaseType().getClassName());
+					callee = findMethodImplementation(accessClass, calleeMethod);
+
+					triple = new CallTriple(callee, stmt, invokeExpr);
+					callees.add(triple);
+
+					if (callee2callers.containsKey(callee)) {
+						callers = (Set) callee2callers.get(callee);
+					} else {
+						callers = new HashSet();
+						callee2callers.put(callee, callers);
+					}
+					callers.add(ctrp);
+				}
 			}
 		}
 	}
@@ -544,11 +548,44 @@ public class CallGraph
 				CallTriple ctrp = (CallTriple) i.next();
 				SootMethod callee = ctrp.getMethod();
 
-				if (reachables.contains(callee)) {
-					continue;
+				if (!reachables.contains(callee)) {
+					wb.addWork(callee);
+					reachables.add(callee);
 				}
-				wb.addWork(callee);
-				reachables.add(callee);
+			}
+		}
+
+		// Now prune the caller-callee relationship
+		Collection temp = new ArrayList();
+		Collection callers = new ArrayList(caller2callees.keySet());
+
+		for (Iterator i = callers.iterator(); i.hasNext();) {
+			SootMethod caller = (SootMethod) i.next();
+
+			if (!reachables.contains(caller)) {
+				for (Iterator j = ((Collection) caller2callees.get(caller)).iterator(); j.hasNext();) {
+					CallTriple ctrp = (CallTriple) j.next();
+					SootMethod callee = ctrp.getMethod();
+					Collection c = (Collection) callee2callers.get(callee);
+
+					if (c != null) {
+						for (Iterator k = c.iterator(); k.hasNext();) {
+							ctrp = (CallTriple) k.next();
+
+							if (ctrp.getMethod() == caller) {
+								temp.add(ctrp);
+							}
+						}
+						c.removeAll(temp);
+
+						if (c.isEmpty()) {
+							callee2callers.remove(callee);
+						}
+						temp.clear();
+					}
+				}
+				caller2callees.remove(caller);
+				callee2callers.remove(caller);
 			}
 		}
 
@@ -556,12 +593,12 @@ public class CallGraph
 		graphCache = new SimpleNodeGraph();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Starting construction of call graphCache...");
+			LOGGER.debug("Starting construction of call graph...");
 		}
 
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
-			Collection temp = (Collection) caller2callees.get(sm);
+			temp = (Collection) caller2callees.get(sm);
 
 			if (temp != null) {
 				MutableNode callerNode = graphCache.getNode(sm);
@@ -580,7 +617,7 @@ public class CallGraph
 			LOGGER.debug("Starting strongly connected component calculation...");
 		}
 
-		Collection temp = graphCache.getSCCs(true);
+		temp = graphCache.getSCCs(true);
 
 		for (Iterator i = temp.iterator(); i.hasNext();) {
 			Collection scc = (Collection) i.next();
@@ -740,9 +777,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/09/08 02:07:44  venku
+   - debug stmt error. FIXED.
    Revision 1.13  2003/08/25 09:31:39  venku
    Enabled reset() support for these classes.
-
    Revision 1.12  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.
