@@ -27,17 +27,35 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.BooleanType;
+import soot.ByteType;
+import soot.CharType;
+import soot.DoubleType;
+import soot.FloatType;
+import soot.IntType;
 import soot.Local;
+import soot.LongType;
 import soot.Modifier;
 import soot.PatchingChain;
+import soot.RefLikeType;
 import soot.RefType;
 import soot.Scene;
+import soot.ShortType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
+import soot.Value;
 
+import soot.jimple.DoubleConstant;
+import soot.jimple.FloatConstant;
+import soot.jimple.IntConstant;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
+import soot.jimple.LongConstant;
+import soot.jimple.NullConstant;
 import soot.jimple.VirtualInvokeExpr;
 
 
@@ -48,6 +66,11 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$
  */
 public final class Util {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(Util.class);
+
 	///CLOVER:OFF
 
 	/**
@@ -124,6 +147,47 @@ public final class Util {
 		}
 
 		return _contains;
+	}
+
+	/**
+	 * Retrieves the default value for the given type.
+	 *
+	 * @param type for which the default value is requested.
+	 *
+	 * @return the default value
+	 *
+	 * @throws IllegalArgumentException when an invalid type is provided.
+	 *
+	 * @pre type != null
+	 * @post result != null
+	 */
+	public static Value getDefaultValueFor(final Type type) {
+		Value _result = null;
+
+		if (type instanceof RefLikeType) {
+			_result = NullConstant.v();
+		} else if (type instanceof IntType) {
+			_result = IntConstant.v(0);
+		} else if (type instanceof CharType) {
+			_result = IntConstant.v(0);
+		} else if (type instanceof ByteType) {
+			_result = IntConstant.v(0);
+		} else if (type instanceof BooleanType) {
+			_result = IntConstant.v(0);
+		} else if (type instanceof DoubleType) {
+			_result = DoubleConstant.v(0);
+		} else if (type instanceof FloatType) {
+			_result = FloatConstant.v(0);
+		} else if (type instanceof LongType) {
+			_result = LongConstant.v(0);
+		} else if (type instanceof ShortType) {
+			_result = IntConstant.v(0);
+		} else {
+			LOGGER.error("Illegal type specified.");
+			throw new IllegalArgumentException("Illegal type specified.");
+		}
+
+		return _result;
 	}
 
 	/**
@@ -337,6 +401,52 @@ public final class Util {
 	}
 
 	/**
+     * Removes methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
+     * This is the counterpart of <code>retainMethodsWithSignature</code>.
+     *
+     * @param methods is the collection of methods to be modified.
+     * @param methodsToRemove is the collection of methods to match signatures with those in <code>methods</code>.
+     *
+     * @pre methods != null and methodsToRemove != null
+     * @pre methods.oclIsKindOf(Collection(SootMethod))
+     * @pre methodsToRemove.oclIsKindOf(Collection(SootMethod))
+     */
+	public static void removeMethodsWithSameSignature(final Collection methods, final Collection methodsToRemove) {
+		final Collection _removeSet = new HashSet();
+		_removeSet.addAll(methods);
+		retainMethodsWithSameSignature(_removeSet, methodsToRemove);
+		methods.removeAll(_removeSet);
+	}
+
+	/**
+	 * Retains methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
+	 * This is the counterpart of <code>removeMethodsWithSignature</code>.
+     * 
+	 * @param methods is the collection of methods to be modified.
+	 * @param methodsToRetain is the collection of methods to match signatures with those in <code>methods</code>.
+	 *
+	 * @pre methods != null and methodsToRetain!= null
+	 * @pre methods.oclIsKindOf(Collection(SootMethod))
+	 * @pre methodsToRetain.oclIsKindOf(Collection(SootMethod))
+	 */
+	public static void retainMethodsWithSameSignature(final Collection methods, final Collection methodsToRetain) {
+		final Collection _retainSet = new HashSet();
+
+		for (final Iterator _j = methods.iterator(); _j.hasNext();) {
+			SootMethod _abstractMethod = (SootMethod) _j.next();
+
+			for (final Iterator _k = methodsToRetain.iterator(); _k.hasNext();) {
+				final SootMethod _method = (SootMethod) _k.next();
+
+				if (_abstractMethod.getBytecodeSignature().equals(_method.getBytecodeSignature())) {
+					_retainSet.add(_method);
+				}
+			}
+		}
+		methods.retainAll(_retainSet);
+	}
+
+	/**
 	 * Checks if the given class has a super class.  <code>java.lang.Object</code> will not have a super class, but others
 	 * will.
 	 *
@@ -361,6 +471,8 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/01/20 17:10:44  venku
+   - added a new method to collect ancestors of a given class.
    Revision 1.11  2004/01/19 22:44:04  venku
    - added method declarations in interfaces to be found by
      findMethodsInClassesAndInterfaces().
