@@ -76,7 +76,14 @@ public class SootClassPathDialog extends Dialog {
     }
     
     protected String getModifiedClassPath() {
-        return txtArea.getText();
+        return classPath;
     }
     
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.dialogs.Dialog#okPressed()
+     */
+    protected void okPressed() {
+        classPath = txtArea.getText();
+        super.okPressed();
+    }
 }
