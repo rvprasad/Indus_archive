@@ -13,6 +13,9 @@
 	<property name="javacTarget" value="1.2"/>
 	<property name="compilerArg" value=""/>
 
+    <property file="build.properties"/>
+    <property file="antbuild.properties"/>
+
 	<target name="init" depends="properties">
 		<condition property="pluginTemp" value="${buildTempFolder}/plugins">
 			<isset property="buildTempFolder"/>
@@ -48,28 +51,28 @@
 		<javac destdir="${temp.folder}/Indus_Plugin.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="../../plugins/org.eclipse.ui_3.0.0/ui.jar"/>
-				<pathelement path="../../plugins/org.eclipse.core.runtime_3.0.0/runtime.jar"/>
-				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/core.jar"/>
-				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/console.jar"/>
-				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/osgi.jar"/>
-				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/resolver.jar"/>
-				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/defaultAdaptor.jar"/>
-				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/eclipseAdaptor.jar"/>
-				<pathelement path="../../plugins/org.eclipse.help_3.0.0/help.jar"/>
-				<pathelement path="../../plugins/org.eclipse.swt_3.0.0/ws/${basews}/swt.jar"/>
-				<pathelement path="../../plugins/org.eclipse.swt.gtk_3.0.0/ws/${basews}/swt.jar"/>
-				<pathelement path="../../plugins/org.eclipse.swt.gtk_3.0.0/ws/gtk/swt-mozilla.jar"/>
-				<pathelement path="../../plugins/org.eclipse.swt.gtk_3.0.0/ws/gtk/swt-pi.jar"/>
-				<pathelement path="../../plugins/org.eclipse.jface_3.0.0/jface.jar"/>
-				<pathelement path="../../plugins/org.eclipse.ui.workbench_3.0.0/compatibility.jar"/>
-				<pathelement path="../../plugins/org.eclipse.ui.workbench_3.0.0/workbench.jar"/>
-				<pathelement path="../../plugins/org.eclipse.ui.workbench.compatibility_3.0.0/compatibility.jar"/>
-				<pathelement path="../../plugins/org.eclipse.ui.workbench.compatibility_3.0.0/workbench.jar"/>
-				<pathelement path="../../plugins/org.eclipse.core.expressions_3.0.0/expressions.jar"/>
-				<pathelement path="../../plugins/org.junit_3.8.1/junit.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui_3.0.1/ui.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.core.runtime_3.0.1/runtime.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/core.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/console.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/osgi.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/resolver.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/defaultAdaptor.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/eclipseAdaptor.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.help_3.0.1/help.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.swt_3.0.1/ws/${basews}/swt.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.swt.gtk_3.0.1/ws/${basews}/swt.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.swt.gtk_3.0.1/ws/gtk/swt-mozilla.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.swt.gtk_3.0.1/ws/gtk/swt-pi.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.jface_3.0.1/jface.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui.workbench_3.0.0/compatibility.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui.workbench_3.0.1/workbench.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui.workbench.compatibility_3.0.0/compatibility.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui.workbench.compatibility_3.0.0/workbench.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.eclipse.core.expressions_3.0.1/expressions.jar"/>
+				<pathelement path="${eclipse.home}/plugins/org.junit_3.8.1/junit.jar"/>
 				<pathelement path="lib/commons-cli-1.0.jar"/>
-				<pathelement path="lib/commons-collections-3.0.jar"/>
+				<pathelement path="lib/commons-collections-3.1.jar"/>
 				<pathelement path="lib/commons-lang-2.0.jar"/>
 				<pathelement path="lib/commons-logging.jar"/>
 				<pathelement path="lib/commons-logging-api.jar"/>
@@ -122,7 +125,10 @@
 			<fileset dir="${build.result.folder}" includes="Indus_Plugin.jar"			/>
 		</copy>
 		<copy todir="${destination.temp.folder}/edu.ksu.cis.indus_0.2.0" failonerror="true">
-			<fileset dir="${basedir}" includes="plugin.xml,Indus_Plugin.jar,lib/,license/,licenses/"			/>
+			<fileset dir="${basedir}" includes="plugin.xml,Indus_Plugin.jar">
+                <include name="lib/*jar"/>
+                <include name="licences/*"/>
+            </fileset>
 		</copy>
 	</target>
 

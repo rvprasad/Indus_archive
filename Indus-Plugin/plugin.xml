@@ -8,64 +8,46 @@
    class="edu.ksu.cis.projects.indus.IndusPlugin">
 
    <runtime>
-      <library name="Indus_Plugin.jar">
-         <export name="*"/>
+      <library name="lib/commons-cli-1.0.jar"/>
+      <library name="lib/commons-collections-3.1.jar"/>
+      <library name="lib/commons-lang-2.0.jar"/>
+      <library name="lib/commons-pool-1.1.jar"/>
+      <library name="lib/jibx-run.jar"/>
+      <library name="lib/xmlenc-0.44.jar"/>
+      <library name="lib/xmlunit1.0.jar"/>
+      <library name="lib/xpp3.jar"/>
+      <library name="lib/commons-io-1.0.jar"/>
+      <library name="lib/log4j-1.2.8.jar">
+        <export name="*"/>
       </library>
-      <library name="lib/commons-cli-1.0.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/commons-collections-3.0.jar">
-         <export name="*"/>s
-      </library>
-      <library name="lib/commons-lang-2.0.jar">
-         <export name="*"/>
+      <library name="lib/log4jconfig.jar">
+        <export name="*"/>
       </library>
       <library name="lib/commons-logging.jar">
-         <export name="*"/>
+        <export name="*"/>
       </library>
       <library name="lib/commons-logging-api.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/commons-pool-1.1.jar">
-         <export name="*"/>
+        <export name="*"/>
       </library>
       <library name="lib/jasminclasses-sable-1.2.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/jibx-run.jar">
          <export name="*"/>
       </library>
       <library name="lib/polyglot-1.1.0.jar">
          <export name="*"/>
       </library>
-      <library name="lib/xmlenc-0.44.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/xmlunit1.0.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/xpp3.jar">
-         <export name="*"/>
-      </library>
       <library name="lib/soot-2.1.0-modified.jar">
          <export name="*"/>
       </library>
-      <library name="lib/log4j-1.2.8.jar">
+      <library name="lib/indus.jar">
          <export name="*"/>
       </library>
-      <library name="lib/log4jconfig.jar">
+      <library name="lib/slicer.jar">
          <export name="*"/>
       </library>
-      <library name="lib/commons-io-1.0.jar">
+      <library name="lib/staticanalyses.jar">
          <export name="*"/>
       </library>
-      <library name="lib/indus-20040717.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/slicer-20040717.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/staticanalyses-20040717.jar">
+      <library name="Indus_Plugin.jar">
          <export name="*"/>
       </library>
    </runtime>
