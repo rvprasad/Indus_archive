@@ -61,7 +61,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class OFAXMLizer
+public final class OFAXMLizer
   extends AbstractXMLizer {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -287,6 +287,9 @@ final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/05 11:59:45  venku
+   - documentation.
+
    Revision 1.4  2004/02/11 10:00:16  venku
    - added a new custom xml outputter class.
    Revision 1.3  2004/02/11 09:37:18  venku
