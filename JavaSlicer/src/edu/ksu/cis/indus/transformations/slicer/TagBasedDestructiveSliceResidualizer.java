@@ -152,11 +152,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	private SootMethod currMethod;
 
 	/**
-	 * The name of the tag that identifies the relevant part of the system.
-	 */
-	private String systemTagName;
-
-	/**
 	 * This class residualizes statements.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -344,17 +339,6 @@ public final class TagBasedDestructiveSliceResidualizer
 				_value.apply(this);
 			}
 		}
-	}
-
-	/**
-	 * Set the tag that identifies the relevant part of the given system.
-	 *
-	 * @param nameOfSystemTag of the tag.
-	 *
-	 * @pre nameOfSystemTag != null
-	 */
-	public void setSystemTag(final String nameOfSystemTag) {
-		systemTagName = nameOfSystemTag;
 	}
 
 	/**
@@ -654,6 +638,13 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/01/11 03:38:03  venku
+   - entire method bodies may be deleted or not included in the
+     first place (due to inheritance).  If so, a suitable return
+     statement is injected.
+   - We now only process methods which are tagged with
+     tagToResidualize rather than systemTagName.
+
    Revision 1.7  2004/01/09 23:15:37  venku
    - chnaged the method,field, and class kill logic.
    - changed method and class finishing logic.

@@ -461,7 +461,6 @@ public class SliceXMLizer
 		if (destructiveJimpleUpdate) {
 			final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 			_residualizer.setTagToResidualize(nameOfSliceTag);
-			_residualizer.setSystemTag(SlicerTool.FLOW_ANALYSIS_TAG_NAME);
 			_residualizer.residualizeSystem(scene);
 
 			final Printer _printer = Printer.v();
@@ -555,6 +554,11 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/09 23:13:42  venku
+   - formatting
+   - coding convention
+   - logging
+
    Revision 1.1  2004/01/09 07:02:11  venku
    - Made -o mandatory in SliceDriver.
    - all information is dumped into directory specified via -o.
