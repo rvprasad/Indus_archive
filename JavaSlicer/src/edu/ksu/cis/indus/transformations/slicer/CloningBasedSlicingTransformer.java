@@ -64,7 +64,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class SliceMapImpl
+public class SlicingTransformer
   extends AbstractTransformer {
 	/**
 	 * The cloner from which the map is extracted.
@@ -282,6 +282,20 @@ public class SliceMapImpl
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/08/19 11:37:41  venku
+   Major changes:
+    - Changed ITransformMap extensively such that it now provides
+      interface to perform the actual transformation.
+    - Extended ITransformMap as AbstractTransformer to provide common
+      functionalities.
+    - Ripple effect of the above change in SlicerMapImpl.
+    - Ripple effect of the above changes in Slicer.
+    - The slicer now actually detects what needs to be included in the slice.
+      Hence, it is more of an analysis/driver/engine that drives the transformation
+      and SliceMapImpl is the engine that does or captures the transformation.
+   The immediate following change will be to rename ITransformMap to ITransformer,
+    SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
+
    Revision 1.10  2003/08/18 12:14:13  venku
    Well, to start with the slicer implementation is complete.
    Although not necessarily bug free, hoping to stabilize it quickly.

@@ -77,7 +77,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
-import edu.ksu.cis.indus.transformations.common.ITransformMap;
+import edu.ksu.cis.indus.transformations.common.ITransformer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -119,11 +119,11 @@ import java.util.Set;
  * @author $Author$
  * @version $Revision$
  */
-public class Slicer {
+public class SlicingEngine {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(Slicer.class);
+	private static final Log LOGGER = LogFactory.getLog(SlicingEngine.class);
 
 	/**
 	 * Backward slice request.
@@ -198,9 +198,9 @@ public class Slicer {
 	private ICallGraphInfo cgi;
 
 	/**
-	 * This maps unsliced entities to sliced entities and vice versa.
+	 * This transforms the system based on the slicing decision of this object.
 	 */
-	private ITransformMap slicemap;
+	private ITransformer transformer;
 
 	/**
 	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
@@ -215,21 +215,19 @@ public class Slicer {
 	 * @param sliceCriteria are ofcourse the slicing criteria
 	 * @param dependenceInfoController provides dependency information required for slicing.
 	 * @param callgraph provides call graph information about the system being sliced.
-	 * @param theSlicemap maps the sliced statements to the unsliced statement and vice versa. This is used by the
-	 * 		  transformation may to record this mapping.  The application that uses the slicer should provide an
-	 * 		  implementation of this interface to record this mapping in a sound manner as the slicer uses these mappings
-	 * 		  too.
+	 * @param sliceTransformer transforms the system based on the slicing decisions of this object.  The provided
+	 * 		  implementation should provide sound and complete information as the engine will use this information to while
+	 * 		  slicing.
 	 * @param dependenciesToUse is the ids of the dependecies to be considered for slicing.
 	 *
 	 * @throws IllegalStateException when the given criterion are not of type<code>AbstractSliceCriterion</code>.
 	 *
-	 * @pre theSystem != null and callgraph != null and dependenceInfoController != null and sliceCriteria != null and
-	 * 		slicedSystem != null and theSlicemap != null and dependenciesToUse != null
+	 * @pre callgraph != null and dependenceInfoController != null and sliceCriteria != null and
+	 * 		sliceTransformer != null and dependenciesToUse != null
 	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
 	 */
-	public void setSliceCriteria(final Collection sliceCriteria, 
-		final AbstractController dependenceInfoController, final ICallGraphInfo callgraph, final ITransformMap theSlicemap,
-		final Collection dependenciesToUse) {
+	public void setSliceCriteria(final Collection sliceCriteria, final AbstractController dependenceInfoController,
+		final ICallGraphInfo callgraph, final ITransformer sliceTransformer, final Collection dependenciesToUse) {
 		for (Iterator i = sliceCriteria.iterator(); i.hasNext();) {
 			Object o = i.next();
 
@@ -242,7 +240,7 @@ public class Slicer {
 
 		controller = dependenceInfoController;
 		cgi = callgraph;
-		slicemap = theSlicemap;
+		transformer = sliceTransformer;
 		dependencies.addAll(dependenciesToUse);
 		intraProceduralDependencies.clear();
 
@@ -263,11 +261,8 @@ public class Slicer {
 	 * calling any other methods.
 	 */
 	public void reset() {
-		//clazzManager = null;
-		//slicedClazzManager = null;
 		cgi = null;
-		slicemap = null;
-		//cloner.reset();
+		transformer = null;
 		criteria.clear();
 
 		// clear the work bag of slice criterion
@@ -292,7 +287,8 @@ public class Slicer {
 		if (criteria == null || criteria.size() == 0) {
 			LOGGER.warn("Slice criteria is unspecified.");
 			throw new IllegalStateException("Slice criteria is unspecified.");
-		} else if (/*clazzManager == null ||*/ controller == null) {
+		} else if (  /*clazzManager == null ||*/
+		  controller == null) {
 			LOGGER.warn("Class Manager and/or Controller is unspecified.");
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
@@ -321,7 +317,7 @@ public class Slicer {
 			work.sliced();
 		}
 		fixupMethods();
-		slicemap.completeTransformation();
+		transformer.completeTransformation();
 	}
 
 	/**
@@ -337,7 +333,7 @@ public class Slicer {
 	 */
 	private Stmt getSlicedStmt(final Stmt unslicedStmt, final SootMethod unslicedMethod) {
 		Stmt result = null;
-		SootMethod slicedMethod = slicemap.getTransformed(unslicedMethod);
+		SootMethod slicedMethod = transformer.getTransformed(unslicedMethod);
 		Iterator j = slicedMethod.getActiveBody().getUnits().iterator();
 
 		for (Iterator i = unslicedMethod.getActiveBody().getUnits().iterator(); i.hasNext();) {
@@ -408,9 +404,9 @@ public class Slicer {
 	private void fixupMethods() {
 		NopEliminator nopTranformation = NopEliminator.v();
 
-		for (Iterator i = slicemap.getTransformedClasses().iterator(); i.hasNext();) {
+		for (Iterator i = transformer.getTransformedClasses().iterator(); i.hasNext();) {
 			SootClass slicedClass = (SootClass) i.next();
-			SootClass unslicedClass = slicemap.getUntransformed(slicedClass);
+			SootClass unslicedClass = transformer.getUntransformed(slicedClass);
 
 			for (Iterator j = slicedClass.getMethods().iterator(); j.hasNext();) {
 				SootMethod slicedMethod = (SootMethod) j.next();
@@ -426,12 +422,12 @@ public class Slicer {
 				for (Iterator k = unslicedBody.getTraps().iterator(); k.hasNext();) {
 					Trap unslicedTrap = (Trap) k.next();
 					Unit unslicedBeginTrap = unslicedTrap.getBeginUnit();
-					Unit slicedBeginTrap = (Unit) slicemap.getTransformed((Stmt) unslicedBeginTrap, unslicedMethod);
+					Unit slicedBeginTrap = (Unit) transformer.getTransformed((Stmt) unslicedBeginTrap, unslicedMethod);
 					Unit unslicedEndTrap = unslicedTrap.getEndUnit();
-					Unit slicedEndTrap = (Unit) slicemap.getTransformed((Stmt) unslicedEndTrap, unslicedMethod);
+					Unit slicedEndTrap = (Unit) transformer.getTransformed((Stmt) unslicedEndTrap, unslicedMethod);
 					Unit unslicedHandler = unslicedTrap.getHandlerUnit();
-					Unit slicedHandler = (Unit) slicemap.getTransformed((Stmt) unslicedHandler, unslicedMethod);
-					slicedTraps.add(jimple.newTrap(slicemap.getTransformed(unslicedTrap.getException()), slicedBeginTrap,
+					Unit slicedHandler = (Unit) transformer.getTransformed((Stmt) unslicedHandler, unslicedMethod);
+					slicedTraps.add(jimple.newTrap(transformer.getTransformed(unslicedTrap.getException()), slicedBeginTrap,
 							slicedEndTrap, slicedHandler));
 				}
 
@@ -444,14 +440,14 @@ public class Slicer {
 
 					if (unslicedStmt.branches()) {
 						if (unslicedStmt instanceof GotoStmt) {
-							GotoStmt slicedStmt = (GotoStmt) slicemap.getTransformed(unslicedStmt, unslicedMethod);
+							GotoStmt slicedStmt = (GotoStmt) transformer.getTransformed(unslicedStmt, unslicedMethod);
 							slicedStmt.setTarget(getSlicedStmt((Stmt) slicedStmt.getTarget(), unslicedMethod));
 						} else if (unslicedStmt instanceof IfStmt) {
-							IfStmt slicedStmt = (IfStmt) slicemap.getTransformed(unslicedStmt, unslicedMethod);
+							IfStmt slicedStmt = (IfStmt) transformer.getTransformed(unslicedStmt, unslicedMethod);
 							slicedStmt.setTarget(getSlicedStmt(slicedStmt.getTarget(), unslicedMethod));
 						} else if (unslicedStmt instanceof LookupSwitchStmt) {
 							LookupSwitchStmt slicedStmt =
-								(LookupSwitchStmt) slicemap.getTransformed(unslicedStmt, unslicedMethod);
+								(LookupSwitchStmt) transformer.getTransformed(unslicedStmt, unslicedMethod);
 
 							for (int index = 0; index < slicedStmt.getTargetCount(); index++) {
 								Stmt target = (Stmt) slicedStmt.getTarget(index);
@@ -462,7 +458,7 @@ public class Slicer {
 							slicedStmt.setDefaultTarget(getSlicedStmt(target, unslicedMethod));
 						} else if (unslicedStmt instanceof TableSwitchStmt) {
 							TableSwitchStmt slicedStmt =
-								(TableSwitchStmt) slicemap.getTransformed(unslicedStmt, unslicedMethod);
+								(TableSwitchStmt) transformer.getTransformed(unslicedStmt, unslicedMethod);
 
 							for (int index = 0; index < slicedStmt.getHighIndex() - slicedStmt.getLowIndex(); index++) {
 								Stmt target = (Stmt) slicedStmt.getTarget(index);
@@ -498,8 +494,9 @@ public class Slicer {
 			Stmt unslicedStmt = (Stmt) pair.getFirst();
 			SootMethod unslicedMethod = (SootMethod) pair.getSecond();
 
-			if (slicemap.getTransformed(unslicedStmt, unslicedMethod) == null) {
-				slicemap.transform(unslicedStmt, unslicedMethod);
+			if (transformer.getTransformed(unslicedStmt, unslicedMethod) == null) {
+				transformer.transform(unslicedStmt, unslicedMethod);
+
 				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
 				sliceCriterion.initialize(unslicedMethod, unslicedStmt, true);
 				workbag.addWorkNoDuplicates(sliceCriterion);
@@ -524,7 +521,7 @@ public class Slicer {
 			Stmt stmt = (Stmt) i.next();
 
 			if (stmt instanceof ThrowStmt) {
-				thrownInBody.add(slicemap.getTransformedSootClass(
+				thrownInBody.add(transformer.getTransformedSootClass(
 						((RefType) ((ThrowStmt) stmt).getOp().getType()).getClassName()));
 			} else {
 				if (stmt instanceof InvokeStmt) {
@@ -687,12 +684,12 @@ public class Slicer {
 		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.METHOD_LOCAL_DATA_DA);
 
 		// add the new local
-		SootMethod transformedMethod = slicemap.getTransformed(method);
+		SootMethod transformedMethod = transformer.getTransformed(method);
 		Body body = transformedMethod.getActiveBody();
 		Local local = (Local) vBox.getValue();
 		String lName = local.getName();
 
-		if (slicemap.getTransformedLocal(lName, transformedMethod) == null) {
+		if (transformer.getTransformedLocal(lName, transformedMethod) == null) {
 			body.getLocals().add(jimple.newLocal(lName, local.getType()));
 		}
 
@@ -724,7 +721,7 @@ public class Slicer {
 	 * 		  <code>false</code>, otherwise.
 	 */
 	private void sliceStmt(final Stmt stmt, final SootMethod method, final boolean inclusive) {
-				if (inclusive) {
+		if (inclusive) {
 			if (stmt.containsInvokeExpr()) {
 				sliceInvokeExpr(stmt, method);
 			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
@@ -745,7 +742,7 @@ public class Slicer {
 			//Stmt slice = cloner.cloneASTFragment(stmt, method);
 			//writeIntoAt(slice, slicedSL, stmt, unslicedSL);
 			//slicemap.addMapping(slice, stmt, method);
-            slicemap.transform(stmt, method);
+			transformer.transform(stmt, method);
 		}
 
 		Collection slices = new HashSet();
@@ -767,11 +764,11 @@ public class Slicer {
 		for (Iterator i = slices.iterator(); i.hasNext();) {
 			Stmt unsliced = (Stmt) i.next();
 
-			if (slicemap.getTransformed(unsliced, method) == null) {
+			if (transformer.getTransformed(unsliced, method) == null) {
 				//Stmt sliced = cloner.cloneASTFragment(unsliced, method);
 				//writeIntoAt(sliced, slicedSL, unsliced, unslicedSL);
 				//slicemap.addMapping(sliced, unsliced, method);
-                slicemap.transform(stmt, method);
+				transformer.transform(stmt, method);
 
 				SliceStmt sliceStmt = SliceStmt.getSliceStmt();
 				sliceStmt.initialize(method, unsliced, true);
@@ -784,18 +781,27 @@ public class Slicer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/08/19 11:37:41  venku
+   Major changes:
+    - Changed ITransformMap extensively such that it now provides
+      interface to perform the actual transformation.
+    - Extended ITransformMap as AbstractTransformer to provide common
+      functionalities.
+    - Ripple effect of the above change in SlicerMapImpl.
+    - Ripple effect of the above changes in Slicer.
+    - The slicer now actually detects what needs to be included in the slice.
+      Hence, it is more of an analysis/driver/engine that drives the transformation
+      and SliceMapImpl is the engine that does or captures the transformation.
+   The immediate following change will be to rename ITransformMap to ITransformer,
+    SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
    Revision 1.9  2003/08/18 12:14:13  venku
    Well, to start with the slicer implementation is complete.
    Although not necessarily bug free, hoping to stabilize it quickly.
-
-
    Revision 1.8  2003/08/18 05:01:45  venku
    Committing package name change in source after they were moved.
-
    Revision 1.7  2003/08/18 04:56:47  venku
    Spruced up Documentation and specification.
    But committing before moving slicer under transformation umbrella of Indus.
-
    Revision 1.6  2003/05/22 22:23:49  venku
    Changed interface names to start with a "I".
    Formatting.

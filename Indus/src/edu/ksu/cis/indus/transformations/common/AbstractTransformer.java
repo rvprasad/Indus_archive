@@ -49,7 +49,7 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractTransformer
-  implements ITransformMap {
+  implements ITransformer {
 	/**
 	 * The system resulting from the transformation.
 	 */
@@ -81,4 +81,18 @@ public abstract class AbstractTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/19 11:37:41  venku
+   Major changes:
+    - Changed ITransformMap extensively such that it now provides
+      interface to perform the actual transformation.
+    - Extended ITransformMap as AbstractTransformer to provide common
+      functionalities.
+    - Ripple effect of the above change in SlicerMapImpl.
+    - Ripple effect of the above changes in Slicer.
+    - The slicer now actually detects what needs to be included in the slice.
+      Hence, it is more of an analysis/driver/engine that drives the transformation
+      and SliceMapImpl is the engine that does or captures the transformation.
+   The immediate following change will be to rename ITransformMap to ITransformer,
+    SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
+
  */
