@@ -24,7 +24,7 @@ import soot.jimple.ExitMonitorStmt;
 
 
 /**
- * A class that provides helper methods related to concurrency. 
+ * A class that provides helper methods related to concurrency.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -32,12 +32,18 @@ import soot.jimple.ExitMonitorStmt;
  */
 public final class ConcurrencyHelper {
 	/**
+	 * Creates a new ConcurrencyHelper object.
+	 */
+	private ConcurrencyHelper() {
+	}
+
+	/**
 	 * Checks if the given entity is a monitor triple.
 	 *
 	 * @param entity to be checked.
 	 *
-	 * @return <code>true</code> if <code>entity</code> is a monitor triple (it contains enter/exit monitor statement and
-	 * 		   the method or just a synchronized statement); <code>false</code>, otherwise.
+	 * @return <code>true</code> if <code>entity</code> is a monitor triple (it contains enter/exit monitor statement and the
+	 * 		   method or just a synchronized statement); <code>false</code>, otherwise.
 	 *
 	 * @pre entity != null
 	 */
