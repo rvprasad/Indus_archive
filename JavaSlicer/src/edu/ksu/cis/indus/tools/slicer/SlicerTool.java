@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
@@ -40,16 +41,19 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.Phase;
+import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,11 +109,16 @@ public final class SlicerTool
 	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
 
 	/**
+	 * This provides <code>UnitGraph</code>s for the analyses.
+	 */
+	private final AbstractUnitGraphFactory unitGraphProvider;
+
+	/**
 	 * This controls dependency analysis.
 	 *
 	 * @invariant daController != null
 	 */
-	private AnalysesController daController;
+	private final AnalysesController daController;
 
 	/**
 	 * This manages the basic block graphs for the methods being transformed.
@@ -150,24 +159,14 @@ public final class SlicerTool
 	private final Phase phase;
 
 	/**
+	 * This is a call-graph based pre processing controller.
+	 */
+	private final ProcessingController cgBasedPreProcessCtrl;
+
+	/**
 	 * This controls the processing of callgraph.
 	 */
 	private final ProcessingController cgPreProcessCtrl;
-
-	/**
-	 * This provides thread graph.
-	 */
-	private final ThreadGraph threadGraph;
-
-	/**
-	 * This is a call-graph based pre processing controller.
-	 */
-	private ProcessingController cgBasedPreProcessCtrl;
-
-	/**
-	 * The system to be sliced.
-	 */
-	private Scene system;
 
 	/**
 	 * This is the slicing engine that identifies the slice.
@@ -175,9 +174,9 @@ public final class SlicerTool
 	private final SlicingEngine engine;
 
 	/**
-	 * This provides <code>UnitGraph</code>s for the analyses.
+	 * This provides thread graph.
 	 */
-	private AbstractUnitGraphFactory unitGraphProvider;
+	private final ThreadGraph threadGraph;
 
 	/**
 	 * This is the slice transformer.
@@ -185,9 +184,14 @@ public final class SlicerTool
 	private ISlicingBasedTransformer transformer;
 
 	/**
+	 * The system to be sliced.
+	 */
+	private Scene system;
+
+	/**
 	 * This is the slice criterion factory that will be used.
 	 */
-	private SliceCriteriaFactory criteriaFactory = new SliceCriteriaFactory();
+	private final SliceCriteriaFactory criteriaFactory;
 
 	/**
 	 * Creates a new SlicerTool object.
@@ -210,10 +214,10 @@ public final class SlicerTool
 
 		// create the pre processor for thread graph construction.
 		cgBasedPreProcessCtrl = new CGBasedProcessingController(callGraph);
-        cgBasedPreProcessCtrl.setAnalyzer(ofa);
+		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 
 		bbgMgr = new BasicBlockGraphMgr();
-        bbgMgr.setUnitGraphProvider(new TrapUnitGraphFactory());
+		bbgMgr.setUnitGraphProvider(new TrapUnitGraphFactory());
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
 
@@ -224,13 +228,21 @@ public final class SlicerTool
 		info.put(IEnvironment.ID, ofa.getEnvironment());
 		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(ofa));
 		info.put(Pair.PairManager.ID, new Pair.PairManager());
+		info.put(IValueAnalyzer.ID, ofa);
+		info.put(EquivalenceClassBasedEscapeAnalysis.ID,
+			new EquivalenceClassBasedEscapeAnalysis(callGraph, threadGraph, bbgMgr));
 		unitGraphProvider = new CompleteUnitGraphFactory();
 
 		// create dependency analyses controller 
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, unitGraphProvider);
 
-		// create the slicing objects.
+		// create the slicing engine.
 		engine = new SlicingEngine();
+
+		// create the slicing transformer.
+		transformer = new TagBasedSlicingTransformer();
+
+		criteriaFactory = new SliceCriteriaFactory();
 	}
 
 	/**
@@ -344,7 +356,7 @@ public final class SlicerTool
 			configurationInfo = (AbstractToolConfiguration) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
 			configurator =
 				new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(),
-					new SlicerConfiguration());
+					SlicerConfiguration.getFactory());
 		} catch (JiBXException e) {
 			LOGGER.error("Error while unmarshalling Slicer configurationCollection.", e);
 			throw new RuntimeException(e);
@@ -359,11 +371,12 @@ public final class SlicerTool
 		Phase ph = (Phase) phaseParam;
 
 		if (ph.equalsMajor(Phase.STARTING_PHASE)) {
-            phase.reset();
+			phase.reset();
 			// do the flow analyses
-			bbgMgr.reset();
 			ofa.reset();
+			bbgMgr.reset();
 			unitGraphProvider.reset();
+			Util.fixupThreadStartBody(system);
 			ofa.analyze(system, rootMethods);
 			phase.nextMinorPhase();
 
@@ -384,7 +397,7 @@ public final class SlicerTool
 			cgBasedPreProcessCtrl.process();
 			threadGraph.unhook(cgBasedPreProcessCtrl);
 			phase.nextMajorPhase();
-            ph = phase;
+			ph = phase;
 		}
 
 		movingToNextPhase();
@@ -397,12 +410,18 @@ public final class SlicerTool
 
 			for (Iterator i = slicerConfig.getNamesOfDAsToUse().iterator(); i.hasNext();) {
 				Object id = i.next();
-				daController.setAnalysis(id, slicerConfig.getDependenceAnalysis(id));
+				Collection c = slicerConfig.getDependenceAnalysis(id);
+				daController.setAnalyses(id, c);
+
+				for (Iterator iter = c.iterator(); iter.hasNext();) {
+					DependencyAnalysis da = (DependencyAnalysis) iter.next();
+					da.setBasicBlockGraphManager(bbgMgr);
+				}
 			}
 			daController.initialize();
 			daController.execute();
 			phase.nextMajorPhase();
-            ph = phase;
+			ph = phase;
 		}
 
 		movingToNextPhase();
@@ -416,8 +435,10 @@ public final class SlicerTool
 				populateDeadlockCriteria();
 			}
 			transformer.initialize(system);
-			engine.setSliceCriteria(criteria, daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse());
-			engine.slice(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE), slicerConfig.executableSlice);
+			engine.initialize(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE), slicerConfig.executableSlice,
+				daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse(), bbgMgr);
+			engine.setSliceCriteria(criteria);
+			engine.slice();
 		}
 		phase.finished();
 	}
@@ -427,7 +448,6 @@ public final class SlicerTool
 	 */
 	public void initialize() {
 		SlicerConfiguration config = new SlicerConfiguration();
-		config.initialize();
 		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(config);
 	}
 
@@ -458,10 +478,28 @@ public final class SlicerTool
 
 	/**
 	 * Creates criterion based on synchronization constructs and populates <code>criteria</code>.
+	 *
+	 * @throws IllegalStateException DOCUMENT ME!
 	 */
 	private void populateDeadlockCriteria() {
 		SlicerConfiguration slicerConfig = (SlicerConfiguration) getActiveConfiguration();
-		IMonitorInfo im = (IMonitorInfo) slicerConfig.getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
+		Collection das = slicerConfig.getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
+		IMonitorInfo im = null;
+
+		for (Iterator i = das.iterator(); i.hasNext();) {
+			Object o = i.next();
+
+			if (o instanceof IMonitorInfo) {
+				im = (IMonitorInfo) o;
+				break;
+			}
+		}
+
+		if (im == null) {
+			throw new IllegalStateException(
+				"This implementation requires atleast one Synchronization dependence analysis to "
+				+ "implement IMonitorInfo interface.");
+		}
 
 		for (Iterator i = im.getMonitorTriples().iterator(); i.hasNext();) {
 			Triple mTriple = (Triple) i.next();
@@ -471,13 +509,19 @@ public final class SlicerTool
 				// add all return points (including throws) of the method as the criteria
 				UnitGraph graph = unitGraphProvider.getUnitGraph(method);
 
-				for (Iterator j = graph.getTails().iterator(); j.hasNext();) {
-					Stmt stmt = (Stmt) j.next();
-					criteria.add(criteriaFactory.getCriterion(method, stmt, true, true));
+				if (graph == null) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("Could not retrieve the unit graph for " + method.getSignature() + ".  Moving on.");
+					}
+				} else {
+					for (Iterator j = graph.getTails().iterator(); j.hasNext();) {
+						Stmt stmt = (Stmt) j.next();
+						criteria.addAll(criteriaFactory.getCriterion(method, stmt, true, true));
+					}
 				}
 			} else {
-				criteria.add(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst(), true, true));
-				criteria.add(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond(), true, true));
+				criteria.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst(), true, true));
+				criteria.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond(), true, true));
 			}
 		}
 	}
@@ -486,6 +530,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/10/21 08:41:49  venku
+   - fixed minor errors regarding missing mandatory
+     method calls on the analyses.
    Revision 1.14  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete
@@ -494,14 +541,12 @@ public final class SlicerTool
      classification.
    - Added a new class to house the logic for fixing
      return statements in case of backward executable slice.
-
    Revision 1.13  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.
    - The driver manages the shell.
    - Got all the gui parts running EXCEPT for changing
      the name of the configuration.
-
    Revision 1.12  2003/10/19 20:04:42  venku
    - configuration should be (un)marshalled not the tool. FIXED.
    Revision 1.11  2003/10/13 01:01:45  venku

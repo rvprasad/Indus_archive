@@ -16,12 +16,16 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+import edu.ksu.cis.indus.staticanalyses.dependency.ControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
+import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
 
@@ -30,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -129,6 +134,11 @@ public class SlicerConfiguration
 	 */
 	private static boolean uninitialized = true;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -152,14 +162,14 @@ public class SlicerConfiguration
 	/**
 	 * This maps IDs to dependency analyses.
 	 *
-	 * @invariant id2dependencyAnalysis.oclIsKindOf(Map(Object, DependencyAnalysis))
+	 * @invariant id2dependencyAnalyses.oclIsKindOf(Map(Object, Collection(DependencyAnalysis)))
 	 */
-	private Map id2dependencyAnalysis = new HashMap();
+	private Map id2dependencyAnalyses = new HashMap();
 
 	/**
 	 * Creates a new SlicerConfiguration object.
 	 */
-	public SlicerConfiguration() {
+	protected SlicerConfiguration() {
 		if (uninitialized) {
 			PROPERTY_IDS_CACHE.add(USE_DIVERGENCEDA);
 			PROPERTY_IDS_CACHE.add(INTERPROCEDURAL_DIVERGENCEDA);
@@ -182,20 +192,31 @@ public class SlicerConfiguration
 	 * @see edu.ksu.cis.indus.tools.IToolConfigurationFactory#createToolConfiguration()
 	 */
 	public AbstractToolConfiguration createToolConfiguration() {
-		SlicerConfiguration result = new SlicerConfiguration();
-		result.initialize();
-		return result;
+		return makeToolConfiguration();
 	}
 
 	/**
+	 * {@inheritDoc}  This implementation by default uses interference dependency analysis based on equivalence class-based
+	 * escape analysis.  It does not use ready or divergence dependences.  It defaults to calculating backward slices.
+	 *
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
 		setProperty(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, Boolean.TRUE);
-		setProperty(EQUIVALENCE_CLASS_BASED_READYDA, Boolean.FALSE);
 		setProperty(USE_READYDA, Boolean.FALSE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
+
+		// default required fixed dependency analyses
+		dependencesToUse.add(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
+		id2dependencyAnalyses.put(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
+			Collections.singleton(new IdentifierBasedDataDA()));
+		dependencesToUse.add(DependencyAnalysis.REFERENCE_BASED_DATA_DA);
+		id2dependencyAnalyses.put(DependencyAnalysis.REFERENCE_BASED_DATA_DA,
+			Collections.singleton(new ReferenceBasedDataDA()));
+		dependencesToUse.add(DependencyAnalysis.SYNCHRONIZATION_DA);
+		id2dependencyAnalyses.put(DependencyAnalysis.SYNCHRONIZATION_DA, Collections.singleton(new SynchronizationDA()));
+		dependencesToUse.add(DependencyAnalysis.INTERFERENCE_DA);
 	}
 
 	/**
@@ -222,7 +243,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isECBasedReadyDepAnalysisUsed() {
-		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(EQUIVALENCE_CLASS_BASED_READYDA)).booleanValue();
+		return ((Boolean) properties.get(EQUIVALENCE_CLASS_BASED_READYDA)).booleanValue();
 	}
 
 	/**
@@ -231,7 +252,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isInterproceduralDivergenceDepAnalysisUsed() {
-		return isDivergenceDepAnalysisUsed() && ((Boolean) properties.get(INTERPROCEDURAL_DIVERGENCEDA)).booleanValue();
+		return ((Boolean) properties.get(INTERPROCEDURAL_DIVERGENCEDA)).booleanValue();
 	}
 
 	/**
@@ -249,7 +270,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule1Used() {
-		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(USE_RULE1_IN_READYDA)).booleanValue();
+		return ((Boolean) properties.get(USE_RULE1_IN_READYDA)).booleanValue();
 	}
 
 	/**
@@ -258,7 +279,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule2Used() {
-		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(USE_RULE2_IN_READYDA)).booleanValue();
+		return ((Boolean) properties.get(USE_RULE2_IN_READYDA)).booleanValue();
 	}
 
 	/**
@@ -267,7 +288,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule3Used() {
-		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(USE_RULE3_IN_READYDA)).booleanValue();
+		return ((Boolean) properties.get(USE_RULE3_IN_READYDA)).booleanValue();
 	}
 
 	/**
@@ -276,7 +297,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule4Used() {
-		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(USE_RULE4_IN_READYDA)).booleanValue();
+		return ((Boolean) properties.get(USE_RULE4_IN_READYDA)).booleanValue();
 	}
 
 	/**
@@ -285,8 +306,41 @@ public class SlicerConfiguration
 	 * @param type Should not be used!
 	 */
 	protected void setSliceType(final String type) {
-		if (type.equals(SlicingEngine.BACKWARD_SLICE) || type.equals(SlicingEngine.COMPLETE_SLICE)) {
+		if (SlicingEngine.SLICE_TYPES.contains(type)) {
 			properties.put(SLICE_TYPE, type);
+
+			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
+				Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
+
+				if (c == null) {
+					c = new HashSet();
+					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, c);
+				} else {
+					c.clear();
+				}
+				c.add(new ControlDA(ControlDA.BACKWARD));
+			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
+				Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
+
+				if (c == null) {
+					c = new HashSet();
+					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, c);
+				} else {
+					c.clear();
+				}
+				c.add(new ControlDA(ControlDA.FORWARD));
+			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
+				Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
+
+				if (c == null) {
+					c = new HashSet();
+					id2dependencyAnalyses.put(DependencyAnalysis.CONTROL_DA, c);
+				} else {
+					c.clear();
+				}
+				c.add(new ControlDA(ControlDA.BACKWARD));
+				c.add(new ControlDA(ControlDA.FORWARD));
+			}
 		}
 	}
 
@@ -312,42 +366,46 @@ public class SlicerConfiguration
 
 			if (propertyID.equals(EQUIVALENCE_CLASS_BASED_READYDA)) {
 				if (val.booleanValue()) {
-					id2dependencyAnalysis.put(DependencyAnalysis.READY_DA, new ReadyDAv2());
+					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv2()));
 				} else {
-					id2dependencyAnalysis.put(DependencyAnalysis.READY_DA, new ReadyDAv1());
+					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv1()));
 				}
 			} else if (propertyID.equals(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA)) {
 				if (val.booleanValue()) {
-					id2dependencyAnalysis.put(DependencyAnalysis.READY_DA, new InterferenceDAv2());
+					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new InterferenceDAv2()));
 				} else {
-					id2dependencyAnalysis.put(DependencyAnalysis.READY_DA, new InterferenceDAv1());
+					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new InterferenceDAv1()));
 				}
 			} else if (propertyID.equals(USE_READYDA)) {
 				if (val.booleanValue()) {
 					dependencesToUse.add(DependencyAnalysis.READY_DA);
-					id2dependencyAnalysis.put(DependencyAnalysis.READY_DA, new ReadyDAv1());
+					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv1()));
 				} else {
 					dependencesToUse.remove(DependencyAnalysis.READY_DA);
-					id2dependencyAnalysis.remove(DependencyAnalysis.READY_DA);
+					id2dependencyAnalyses.remove(DependencyAnalysis.READY_DA);
 				}
 			} else if (propertyID.equals(USE_DIVERGENCEDA)) {
 				if (val.booleanValue()) {
 					dependencesToUse.add(DependencyAnalysis.DIVERGENCE_DA);
-					id2dependencyAnalysis.put(DependencyAnalysis.DIVERGENCE_DA, new DivergenceDA());
+					id2dependencyAnalyses.put(DependencyAnalysis.DIVERGENCE_DA, Collections.singleton(new DivergenceDA()));
 				} else {
 					dependencesToUse.remove(DependencyAnalysis.DIVERGENCE_DA);
-					id2dependencyAnalysis.remove(DependencyAnalysis.DIVERGENCE_DA);
+					id2dependencyAnalyses.remove(DependencyAnalysis.DIVERGENCE_DA);
 				}
 			} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
 				Boolean bool = (Boolean) properties.get(USE_DIVERGENCEDA);
 
 				if (bool != null && bool.booleanValue()) {
-					DivergenceDA dda = (DivergenceDA) id2dependencyAnalysis.get(DependencyAnalysis.DIVERGENCE_DA);
+					Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.DIVERGENCE_DA);
 
-					if (val.booleanValue()) {
-						dda.setConsiderCallSites(true);
-					} else {
-						dda.setConsiderCallSites(false);
+					for (Iterator iter = c.iterator(); iter.hasNext();) {
+						DivergenceDA dda = (DivergenceDA) iter.next();
+
+						if (val.booleanValue()) {
+							dda.setConsiderCallSites(true);
+						} else {
+							dda.setConsiderCallSites(false);
+						}
 					}
 				}
 			} else if (propertyID.equals(SLICE_FOR_DEADLOCK)) {
@@ -358,40 +416,54 @@ public class SlicerConfiguration
 				Boolean bool = (Boolean) properties.get(USE_READYDA);
 
 				if (bool != null && bool.booleanValue()) {
-					ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
-					int rules = rd.getRules();
-					rd.setRules(rules | ReadyDAv1.RULE_1);
+					Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.READY_DA);
+
+					for (Iterator iter = c.iterator(); iter.hasNext();) {
+						ReadyDAv1 rd = (ReadyDAv1) iter.next();
+						int rules = rd.getRules();
+						rd.setRules(rules | ReadyDAv1.RULE_1);
+					}
 				}
 			} else if (propertyID.equals(USE_RULE2_IN_READYDA)) {
 				Boolean bool = (Boolean) properties.get(USE_READYDA);
 
 				if (bool != null && bool.booleanValue()) {
-					ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
-					int rules = rd.getRules();
-					rd.setRules(rules | ReadyDAv1.RULE_2);
+					Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.READY_DA);
+
+					for (Iterator iter = c.iterator(); iter.hasNext();) {
+						ReadyDAv1 rd = (ReadyDAv1) iter.next();
+						int rules = rd.getRules();
+						rd.setRules(rules | ReadyDAv1.RULE_2);
+					}
 				}
 			} else if (propertyID.equals(USE_RULE3_IN_READYDA)) {
 				Boolean bool = (Boolean) properties.get(USE_READYDA);
 
 				if (bool != null && bool.booleanValue()) {
-					ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
-					int rules = rd.getRules();
-					rd.setRules(rules | ReadyDAv1.RULE_3);
+					Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.READY_DA);
+
+					for (Iterator iter = c.iterator(); iter.hasNext();) {
+						ReadyDAv1 rd = (ReadyDAv1) iter.next();
+						int rules = rd.getRules();
+						rd.setRules(rules | ReadyDAv1.RULE_3);
+					}
 				}
 			} else if (propertyID.equals(USE_RULE4_IN_READYDA)) {
 				Boolean bool = (Boolean) properties.get(USE_READYDA);
 
 				if (bool != null && bool.booleanValue()) {
-					ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
-					int rules = rd.getRules();
-					rd.setRules(rules | ReadyDAv1.RULE_4);
+					Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.READY_DA);
+
+					for (Iterator iter = c.iterator(); iter.hasNext();) {
+						ReadyDAv1 rd = (ReadyDAv1) iter.next();
+						int rules = rd.getRules();
+						rd.setRules(rules | ReadyDAv1.RULE_4);
+					}
 				}
 			}
-		} else {
-			if (propertyID.equals(SLICE_TYPE)) {
-				if (!value.equals(SlicingEngine.BACKWARD_SLICE) && !value.equals(SlicingEngine.COMPLETE_SLICE)) {
-					result = false;
-				}
+		} else if (propertyID.equals(SLICE_TYPE)) {
+			if (!SlicingEngine.SLICE_TYPES.contains(value)) {
+				result = false;
 			}
 		}
 		return result;
@@ -479,15 +551,41 @@ public class SlicerConfiguration
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	static final IToolConfigurationFactory getFactory() {
+		return factorySingleton;
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	static final SlicerConfiguration makeToolConfiguration() {
+		SlicerConfiguration result = new SlicerConfiguration();
+		result.initialize();
+		return result;
+	}
+
+	/**
 	 * Provides the dependency analysis corresponding to the given id.
 	 *
-	 * @param id of the requested dependence analysis.
+	 * @param id of the requested dependence analyses.
 	 *
-	 * @return the dependency analysis identified by <code>id</code>.  <code>null</code> if there is no corresponding
-	 * 		   analysis.
+	 * @return the dependency analyses identified by <code>id</code>.
+	 *
+	 * @post result != null
 	 */
-	DependencyAnalysis getDependenceAnalysis(final Object id) {
-		return (DependencyAnalysis) id2dependencyAnalysis.get(id);
+	Collection getDependenceAnalysis(final Object id) {
+		Collection result = (Collection) id2dependencyAnalyses.get(id);
+
+		if (result == null) {
+			result = Collections.EMPTY_LIST;
+		}
+		return result;
 	}
 
 	/**
@@ -502,23 +600,21 @@ public class SlicerConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the given property and it's value.
 	 *
-	 * @param propertyID DOCUMENT ME!
-	 * @param use DOCUMENT ME!
+	 * @param id of the property to be processed.
+	 * @param value of the property.
 	 */
-	private void processPropertyHelper(final Object propertyID, final boolean use) {
-		Boolean value = Boolean.valueOf(use);
-		properties.put(propertyID, value);
-		processProperty(propertyID, value);
+	private void processPropertyHelper(final Object id, final boolean value) {
+		super.setProperty(id, Boolean.valueOf(value));
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/10/21 06:07:01  venku
+   - added support for executable slice.
    Revision 1.12  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete

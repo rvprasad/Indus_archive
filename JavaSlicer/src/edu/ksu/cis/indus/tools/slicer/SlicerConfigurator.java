@@ -68,7 +68,7 @@ public final class SlicerConfigurator
 		gridLayout.numColumns = 2;
 		parent.setLayout(gridLayout);
 
-		final SlicerConfiguration SLICER_CONFIG = (SlicerConfiguration) configuration;
+		final SlicerConfiguration CONFIG = (SlicerConfiguration) configuration;
 
 		// Slice-for-deadlock button
 		GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
@@ -77,19 +77,18 @@ public final class SlicerConfigurator
 		Button button = new Button(parent, SWT.CHECK);
 		button.setText("Slice for Deadlock");
 		button.setLayoutData(gridData);
-		button.setSelection(SLICER_CONFIG.sliceForDeadlock);
+		button.setSelection(CONFIG.sliceForDeadlock);
 		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, button,
-				SLICER_CONFIG));
+				CONFIG));
 
-         gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-        gridData.horizontalSpan = 1;
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		gridData.horizontalSpan = 1;
 
-        button = new Button(parent, SWT.CHECK);
-        button.setText("Executable slice");
-        button.setLayoutData(gridData);
-        button.setSelection(SLICER_CONFIG.sliceForDeadlock);
-        button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, button,
-                        SLICER_CONFIG));
+		button = new Button(parent, SWT.CHECK);
+		button.setText("Executable slice");
+		button.setLayoutData(gridData);
+		button.setSelection(CONFIG.sliceForDeadlock);
+		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, button, CONFIG));
 
 		// Interference dependence related group
 		gridData = new GridData(GridData.FILL_HORIZONTAL);
@@ -105,12 +104,12 @@ public final class SlicerConfigurator
 
 		button = new Button(group, SWT.CHECK);
 		button.setText("use equivalence class-based analysis");
-		button.setSelection(((Boolean) SLICER_CONFIG.getProperty(SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INTERFERENCEDA))
+		button.setSelection(((Boolean) CONFIG.getProperty(SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INTERFERENCEDA))
 			  .booleanValue());
 		button.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.EQUIVALENCE_CLASS_BASED_INTERFERENCEDA,
 				button,
-				SLICER_CONFIG));
+				CONFIG));
 
 		// Slice type related group
 		gridData = new GridData(GridData.FILL_HORIZONTAL);
@@ -123,10 +122,10 @@ public final class SlicerConfigurator
 		final Button BW_SLICE = new Button(group, SWT.RADIO);
 		BW_SLICE.setText("Backward slice");
 
-        final Button FW_SLICE = new Button(group, SWT.RADIO);
-        FW_SLICE.setText("Forward slice");
-        
-        final Button CMPLT_SLICE = new Button(group, SWT.RADIO);
+		final Button FW_SLICE = new Button(group, SWT.RADIO);
+		FW_SLICE.setText("Forward slice");
+
+		final Button CMPLT_SLICE = new Button(group, SWT.RADIO);
 		CMPLT_SLICE.setText("Complete slice");
 
 		SelectionListener sl =
@@ -138,12 +137,12 @@ public final class SlicerConfigurator
 						value = SlicingEngine.BACKWARD_SLICE;
 					} else if (evt.widget == CMPLT_SLICE) {
 						value = SlicingEngine.COMPLETE_SLICE;
-					}else if (evt.widget == FW_SLICE) {
-                        value = SlicingEngine.FORWARD_SLICE;
-                    }                    
+					} else if (evt.widget == FW_SLICE) {
+						value = SlicingEngine.FORWARD_SLICE;
+					}
 
 					if (value != null) {
-						SLICER_CONFIG.setProperty(SlicerConfiguration.SLICE_TYPE, value);
+						CONFIG.setProperty(SlicerConfiguration.SLICE_TYPE, value);
 					}
 				}
 
@@ -154,9 +153,9 @@ public final class SlicerConfigurator
 		BW_SLICE.addSelectionListener(sl);
 		CMPLT_SLICE.addSelectionListener(sl);
 
-		if (SLICER_CONFIG.getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
+		if (CONFIG.getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
 			BW_SLICE.setSelection(true);
-		} else if (SLICER_CONFIG.getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
+		} else if (CONFIG.getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
 			CMPLT_SLICE.setSelection(true);
 		}
 
@@ -170,23 +169,23 @@ public final class SlicerConfigurator
 
 		final Button USE_DDA_BUTTON = new Button(group, SWT.CHECK);
 		USE_DDA_BUTTON.setText("use divergence dependence");
-		USE_DDA_BUTTON.setSelection(((Boolean) SLICER_CONFIG.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
+		USE_DDA_BUTTON.setSelection(((Boolean) CONFIG.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
 		USE_DDA_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
-				USE_DDA_BUTTON, SLICER_CONFIG));
+				USE_DDA_BUTTON, CONFIG));
 
 		final Button DIVDA_IP_BUTTON = new Button(group, SWT.CHECK);
 		DIVDA_IP_BUTTON.setText("use interprocedural variant");
 
 		if (USE_DDA_BUTTON.getSelection()) {
-			DIVDA_IP_BUTTON.setSelection(((Boolean) SLICER_CONFIG.getProperty(
-					SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA)).booleanValue());
+			DIVDA_IP_BUTTON.setSelection(((Boolean) CONFIG.getProperty(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA))
+				  .booleanValue());
 		} else {
 			DIVDA_IP_BUTTON.setEnabled(false);
 		}
 		DIVDA_IP_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA,
 				DIVDA_IP_BUTTON,
-				SLICER_CONFIG));
+				CONFIG));
 		USE_DDA_BUTTON.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					if (USE_DDA_BUTTON.getSelection()) {
@@ -218,36 +217,36 @@ public final class SlicerConfigurator
 
 		final Button USE_RDA_BUTTON = new Button(group, SWT.CHECK);
 		USE_RDA_BUTTON.setText("use ready dependence");
-		USE_RDA_BUTTON.setSelection(((Boolean) SLICER_CONFIG.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
+		USE_RDA_BUTTON.setSelection(((Boolean) CONFIG.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
 		USE_RDA_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA,
-				USE_RDA_BUTTON, SLICER_CONFIG));
+				USE_RDA_BUTTON, CONFIG));
 
 		final Button RDA_USE_ECBA_BUTTON = new Button(group, SWT.CHECK);
 		RDA_USE_ECBA_BUTTON.setText("use equivalence class-based analysis");
 		RDA_USE_ECBA_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.EQUIVALENCE_CLASS_BASED_READYDA,
 				RDA_USE_ECBA_BUTTON,
-				SLICER_CONFIG));
+				CONFIG));
 
 		final Button RDA_R1_BUTTON = new Button(group, SWT.CHECK);
 		RDA_R1_BUTTON.setText("use rule 1 of ready dependence");
 		RDA_R1_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
-				RDA_R1_BUTTON, SLICER_CONFIG));
+				RDA_R1_BUTTON, CONFIG));
 
 		final Button RDA_R2_BUTTON = new Button(group, SWT.CHECK);
 		RDA_R2_BUTTON.setText("use rule 2 of ready dependence");
 		RDA_R2_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
-				RDA_R2_BUTTON, SLICER_CONFIG));
+				RDA_R2_BUTTON, CONFIG));
 
 		final Button RDA_R3_BUTTON = new Button(group, SWT.CHECK);
 		RDA_R3_BUTTON.setText("use rule 3 of ready dependence");
 		RDA_R3_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
-				RDA_R3_BUTTON, SLICER_CONFIG));
+				RDA_R3_BUTTON, CONFIG));
 
 		final Button RDA_R4_BUTTON = new Button(group, SWT.CHECK);
 		RDA_R4_BUTTON.setText("use rule 4 of ready dependence");
 		RDA_R4_BUTTON.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
-				RDA_R4_BUTTON, SLICER_CONFIG));
+				RDA_R4_BUTTON, CONFIG));
 		USE_RDA_BUTTON.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					boolean val = false;
@@ -268,16 +267,12 @@ public final class SlicerConfigurator
 			});
 
 		if (USE_RDA_BUTTON.getSelection()) {
-			RDA_USE_ECBA_BUTTON.setSelection(((Boolean) SLICER_CONFIG.getProperty(
+			RDA_USE_ECBA_BUTTON.setSelection(((Boolean) CONFIG.getProperty(
 					SlicerConfiguration.EQUIVALENCE_CLASS_BASED_READYDA)).booleanValue());
-			RDA_R1_BUTTON.setSelection(((Boolean) SLICER_CONFIG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA))
-				  .booleanValue());
-			RDA_R2_BUTTON.setSelection(((Boolean) SLICER_CONFIG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA))
-				  .booleanValue());
-			RDA_R3_BUTTON.setSelection(((Boolean) SLICER_CONFIG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA))
-				  .booleanValue());
-			RDA_R4_BUTTON.setSelection(((Boolean) SLICER_CONFIG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA))
-				  .booleanValue());
+			RDA_R1_BUTTON.setSelection(((Boolean) CONFIG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
+			RDA_R2_BUTTON.setSelection(((Boolean) CONFIG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
+			RDA_R3_BUTTON.setSelection(((Boolean) CONFIG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
+			RDA_R4_BUTTON.setSelection(((Boolean) CONFIG.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA)).booleanValue());
 		} else {
 			RDA_USE_ECBA_BUTTON.setEnabled(false);
 			RDA_R1_BUTTON.setEnabled(false);
@@ -291,6 +286,8 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/10/21 06:07:01  venku
+   - added support for executable slice.
    Revision 1.13  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete
@@ -299,14 +296,12 @@ public final class SlicerConfigurator
      classification.
    - Added a new class to house the logic for fixing
      return statements in case of backward executable slice.
-
    Revision 1.12  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.
    - The driver manages the shell.
    - Got all the gui parts running EXCEPT for changing
      the name of the configuration.
-
    Revision 1.11  2003/10/14 05:36:12  venku
    - implemented checkConfiguration().
    Revision 1.10  2003/10/14 02:58:21  venku

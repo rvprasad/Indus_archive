@@ -54,7 +54,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class SlicerDriver {
+public final class SlicerDriver {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -67,8 +67,9 @@ public class SlicerDriver {
 		"<slicerConfiguration " + "xmlns:slicer=\"http://indus.projects.cis.ksu.edu/slicer\""
 		+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
 		+ "xsi:schemaLocation=\"http://indus.projects.cis.ksu.edu/slicer slicerConfig.xsd\" activeConfiguration=\"base\">"
-		+ "<configurationInfo executableSlice=\"true\" slicetype=\"BACKWARD_SLICE\" analysis=\"base\" name=\"first\" sliceForDeadlock=\"true\">"
-		+ "<divergence active=\"true\" interprocedural=\"true\"/>" + "<interference equivalenceClassBased=\"true\"/>"
+		+ "<configurationInfo executableSlice=\"true\" slicetype=\"BACKWARD_SLICE\" analysis=\"base\" name=\"first\" "
+		+ "sliceForDeadlock=\"true\">" + "<divergence active=\"true\" interprocedural=\"true\"/>"
+		+ "<interference equivalenceClassBased=\"true\"/>"
 		+ "<ready active=\"true\" rule1=\"true\" rule2=\"true\" rule3=\"true\" rule4=\"true\" "
 		+ "equivalenceClassBased=\"true\"/>" + "</configurationInfo>" + "</slicerConfiguration>";
 
@@ -81,6 +82,12 @@ public class SlicerDriver {
 	 * This is the name of the configuration file to use.
 	 */
 	private static String configFileName;
+
+	/**
+	 * Creates a new SlicerDriver object.
+	 */
+	private SlicerDriver() {
+	}
 
 	/**
 	 * The entry point to the driver.
@@ -144,14 +151,15 @@ public class SlicerDriver {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Loads the given list of classes into the given scene.
 	 *
-	 * @param scene DOCUMENT ME!
-	 * @param classList DOCUMENT ME!
+	 * @param scene that needs to be populated with the given classes.
+	 * @param classList is the list of classes to populate with.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the collection of classes that implement "public static void main(String[])" method.
+	 *
+	 * @pre scene != null and classList != null and classList.oclIsKindOf(Collection(String))
+	 * @post result != null and result.oclIsKindOf(Collection(SootClasses)) and result.forall(o | result->count(o) == 1)
 	 */
 	private static Collection loadScene(final Scene scene, final List classList) {
 		Collection result = new HashSet();
@@ -182,7 +190,7 @@ public class SlicerDriver {
 	 *
 	 * @param args contains the command line arguments.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the list of unparse arguments in the command line.
 	 */
 	private static List parseCommandLine(final String[] args) {
 		// create options
@@ -240,6 +248,13 @@ public class SlicerDriver {
 			LOGGER.fatal("Incorrect command line", e);
 			System.exit(1);
 		}
+
+		List result = cl.getArgList();
+
+		if (result.isEmpty()) {
+			LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
+			System.exit(1);
+		}
 		return cl.getArgList();
 	}
 }
@@ -247,6 +262,10 @@ public class SlicerDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/10/21 08:42:44  venku
+   - added code to actually drive the slicer by considering
+     main() methods as root methods.  This is temporary.
+     Eventually, there will be an analysis tool configurator.
    Revision 1.3  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.
