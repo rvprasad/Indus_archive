@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses;
+package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -58,27 +58,31 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Body;
+import soot.Local;
 import soot.SootMethod;
 
 
 /**
- * This is a command line interface to exercise side effect information analysis.
+ * This is a command line interface to exercise side effect and escape information analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class SideEffectCLI
+public class EscapeAndSideEffectCLI
   extends SootBasedDriver {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SideEffectCLI.class);
+	private static final Log LOGGER = LogFactory.getLog(EscapeAndSideEffectCLI.class);
 
 	/**
 	 * The entry point to this class.
 	 *
 	 * @param args command line arguments.
+	 *
+	 * @throws RuntimeException DOCUMENT ME!
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
@@ -97,7 +101,7 @@ public class SideEffectCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				final String _cmdLineSyn = "java " + SideEffectCLI.class.getName() + " <options> <classnames>";
+				final String _cmdLineSyn = "java " + EscapeAndSideEffectCLI.class.getName() + " <options> <classnames>";
 				(new HelpFormatter()).printHelp(_cmdLineSyn, _options);
 				System.exit(1);
 			}
@@ -106,7 +110,7 @@ public class SideEffectCLI
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
 
-			final SideEffectCLI _cli = new SideEffectCLI();
+			final EscapeAndSideEffectCLI _cli = new EscapeAndSideEffectCLI();
 
 			if (_cl.hasOption('p')) {
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
@@ -117,7 +121,7 @@ public class SideEffectCLI
 		} catch (final ParseException _e) {
 			LOGGER.fatal("Error while parsing command line.", _e);
 
-			final String _cmdLineSyn = "java " + SideEffectCLI.class.getName() + " <options> <classnames>";
+			final String _cmdLineSyn = "java " + EscapeAndSideEffectCLI.class.getName() + " <options> <classnames>";
 			(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are:", _options, "");
 		} catch (final Throwable _e) {
 			LOGGER.fatal("Beyond our control. May day! May day!", _e);
@@ -132,8 +136,8 @@ public class SideEffectCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "SideEffect:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, 
-                TokenUtil.getTokenManager(new SootValueTypeManager()));
+		final IValueAnalyzer _aa =
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
@@ -155,9 +159,6 @@ public class SideEffectCLI
 		_info.put(IEnvironment.ID, _aa.getEnvironment());
 		_info.put(IValueAnalyzer.ID, _aa);
 
-		final ISideEffectInfo _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, getBbm());
-		_info.put(IEscapeInfo.ID, _ecba);
-
 		initialize();
 		_aa.analyze(new Environment(getScene()), getRootMethods());
 
@@ -175,25 +176,38 @@ public class SideEffectCLI
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
 
+		final ISideEffectInfo _sideeffectInfo = new EquivalenceClassBasedEscapeAnalysis(_cgi, getBbm());
+		final IEscapeInfo _escapeInfo = (IEscapeInfo) _sideeffectInfo;
 		final AnalysesController _ac = new AnalysesController(_info, _cgipc, getBbm());
-		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
+		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_sideeffectInfo));
 		_ac.initialize();
 		_ac.execute();
 		writeInfo("END: Escape analysis");
 
-		System.out.println("Side-Effect Information:");
+		System.out.println("Side-Effect and Escape Information:");
 
 		for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
 			System.out.println("Method: " + _sm.getSignature());
 
 			if (!_sm.isStatic()) {
-				System.out.println("\tthis:" + _ecba.isThisSideAffected(_sm));
+				System.out.println("\tthis:");
+				System.out.println("\t\tside-affected =  " + _sideeffectInfo.isThisSideAffected(_sm));
+				System.out.println("\t\tescapes = " + _escapeInfo.thisEscapes(_sm));
 			}
 
 			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
-				System.out.println("\tParam" + (_j + 1) + "[" + _sm.getParameterType(_j) + "]:" + 
-				        _ecba.isParameterSideAffected(_sm, _j));
+				System.out.println("\tParam" + (_j + 1) + "[" + _sm.getParameterType(_j) + "]: side-affected = "
+					+ _sideeffectInfo.isParameterSideAffected(_sm, _j));
+			}
+
+			if (_sm.hasActiveBody()) {
+				final Body _body = _sm.getActiveBody();
+
+				for (final Iterator _j = _body.getLocals().iterator(); _j.hasNext();) {
+					final Local _local = (Local) _j.next();
+					System.out.println("\tLocal " + _local.getName() + " : escapes = " + _escapeInfo.escapes(_local, _sm));
+				}
 			}
 		}
 	}
