@@ -55,7 +55,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -126,6 +128,13 @@ public class SlicingEngine {
 	}
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private static final int CAPACITY = 30;
+
+	/**
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
 	 */
 	BasicBlockGraphMgr slicedBBGMgr;
@@ -183,6 +192,18 @@ public class SlicingEngine {
 	 * </p>
 	 */
 	private Init2NewExprMapper initMapper;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Map method2body =
+		new LinkedHashMap(CAPACITY, 0.7f, true) {
+			protected boolean removeEldestEntry(final Map.Entry eldest) {
+				return size() > CAPACITY;
+			}
+		};
 
 	/**
 	 * This transforms the system based on the slicing decision of this object.
@@ -331,7 +352,7 @@ public class SlicingEngine {
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param tagName
+	 * @param tagName DOCUMENT ME!
 	 */
 	public void setTagName(final String tagName) {
 		transformer.setTagName(tagName);
@@ -393,6 +414,36 @@ public class SlicingEngine {
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	BasicBlockGraphMgr getSlicedBasicBlockGraphMgr() {
+		return slicedBBGMgr;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private Body getStmtListFor(final SootMethod method) {
+		Body result;
+		result = (Body) method2body.get(method);
+
+		if (result == null) {
+			result = method.getActiveBody();
+
+			if (result != null) {
+				method2body.put(method, result);
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
 	 * the given dependency analyses.
 	 *
@@ -444,6 +495,10 @@ public class SlicingEngine {
 				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
 				sliceCriterion.initialize(unslicedMethod, unslicedStmt, true);
 				workbag.addWorkNoDuplicates(sliceCriterion);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Adding " + unslicedStmt + " in " + unslicedMethod.getSignature() + " to workbag.");
+				}
 			}
 		}
 	}
@@ -508,6 +563,10 @@ public class SlicingEngine {
 					SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
 					sliceCriterion.initialize(callee, trailer, true);
 					workbag.addWorkNoDuplicates(sliceCriterion);
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Adding " + trailer + " in " + callee.getSignature() + " to workbag.");
+					}
 				}
 			}
 		}
@@ -543,6 +602,11 @@ public class SlicingEngine {
 				SliceExpr critExpr = SliceExpr.getSliceExpr();
 				critExpr.initialize(caller, stmt, argBox, true);
 				workbag.addWorkNoDuplicates(critExpr);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Adding expr " + argBox.getValue() + " at " + stmt + " in " + caller.getSignature()
+						+ " to workbag.");
+				}
 			}
 		}
 	}
@@ -572,6 +636,11 @@ public class SlicingEngine {
 						SliceExpr critExpr = SliceExpr.getSliceExpr();
 						critExpr.initialize(caller, stmt, baseBox, true);
 						workbag.addWorkNoDuplicates(critExpr);
+
+						if (LOGGER.isDebugEnabled()) {
+							LOGGER.debug("Adding expr " + baseBox.getValue() + " at " + stmt + " in " + caller.getSignature()
+								+ " to workbag.");
+						}
 					}
 				}
 			}
@@ -579,33 +648,34 @@ public class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param stmt DOCUMENT ME!
 	 * @param method DOCUMENT ME!
 	 */
 	private void generateNewCriteriaToConsiderException(final Stmt stmt, final SootMethod method) {
 		/*
-		 *  TODO: check if the stmt is enclosed in a try-catch block.  If so,
-		 *   - stmt throws an checked exception?
-		 *     generate a criteria for the first statment of catch clause for that exception during backward slicing when
-		 *     execution should be considered.
-		 *   - stmt throws an unchecked exception?
-		 *     generate a criteria for the first statment of catch clauses declared for all unchecked exception during
-		 *     backward slicing when execution should be considered.
-		 *   - stmt is enclosed in a Throwable catch clause
-		 *     generate a criteria for the first statment of catch clause declared for Throwable type during backward slicing
-		 *     when execution should be considered.
+		 * check if the stmt is enclosed in a try-catch block.  If so, generate a criteria for the first statment of catch
+		 * clause for that exception
 		 */
-		Body body = method.retrieveActiveBody();
-		List sl = body.getAllUnitBoxes();
-		int index = sl.indexOf(stmt);
+		Body body = getStmtListFor(method);
 
-		for (Iterator i = body.getTraps().iterator(); i.hasNext();) {
-			Trap trap = (Trap) i.next();
+		if (body != null) {
+			List sl = body.getAllUnitBoxes();
+			int index = sl.indexOf(stmt);
 
-			if (sl.indexOf(trap.getBeginUnit()) <= index && index < sl.indexOf(trap.getEndUnit())) {
-				;
+			for (Iterator i = body.getTraps().iterator(); i.hasNext();) {
+				Trap trap = (Trap) i.next();
+
+				if (sl.indexOf(trap.getBeginUnit()) <= index && index < sl.indexOf(trap.getEndUnit())) {
+					transformer.transform((Stmt) trap.getHandlerUnit(), method);
+				}
+			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Could not get body for method " + method.getSignature());
 			}
 		}
 	}
@@ -740,6 +810,8 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/24 18:20:25  venku
+   - added partial support to handle exceptions during slicing.
    Revision 1.16  2003/11/24 16:46:15  venku
    - exposed certain variables which are part of the package
      rather than the class.

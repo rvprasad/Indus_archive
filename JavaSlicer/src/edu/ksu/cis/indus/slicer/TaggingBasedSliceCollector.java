@@ -28,6 +28,7 @@ import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 
 import org.apache.commons.logging.Log;
@@ -68,15 +69,12 @@ public class TaggingBasedSliceCollector {
 	 */
 	private static final Log LOGGER = LogFactory.getLog(TaggingBasedSliceCollector.class);
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	Collection taggedMethods = new HashSet();
-
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	private BasicBlockGraphMgr bbgMgr;
+	private Collection taggedMethods = new HashSet();
 
 	/**
 	 * <p>
@@ -198,7 +196,10 @@ public class TaggingBasedSliceCollector {
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#completeTransformation()
 	 */
 	public void completeTransformation() {
-        // TODO: fixup goto statements and branches such that their targets are the statements in the slice.        
+		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE) && engine.executableSlice) {
+			makeBackwardSliceExecutable();
+		}
+		processGotos();
 	}
 
 	/**
@@ -220,15 +221,6 @@ public class TaggingBasedSliceCollector {
 	 */
 	public boolean handlesPartialInclusions() {
 		return true;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceCollector#makeExecutable()
-	 */
-	public void makeExecutable() {
-		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			makeBackwardSliceExecutable();
-		}
 	}
 
 	/**
@@ -294,12 +286,71 @@ public class TaggingBasedSliceCollector {
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	String getTagName() {
+		return tagName;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	private void makeBackwardSliceExecutable() {
-		// TODO: pick minimum number of return statements such that all sliced methods return correctly.  
+		BasicBlockGraphMgr bbgMgr = engine.getSlicedBasicBlockGraphMgr();
+
+		// pick all return/throw points in the methods.
+		for (Iterator i = taggedMethods.iterator(); i.hasNext();) {
+			SootMethod method = (SootMethod) i.next();
+			BasicBlockGraph bbg = bbgMgr.getBasicBlockGraph(method);
+			Collection tails = bbg.getTails();
+
+			for (Iterator j = tails.iterator(); j.hasNext();) {
+				BasicBlock bb = (BasicBlock) j.next();
+				Stmt stmt = bb.getTrailerStmt();
+
+				if (stmt.getTag(tagName) == null) {
+					transform(stmt, method);
+				}
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	private void processGotos() {
+		IGotoProcessor gotoProcessor = null;
+
+		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+			gotoProcessor = new SliceGotoProcessor(this, true);
+		} else if (engine.sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+			gotoProcessor = new SliceGotoProcessor(this, false);
+		} else if (engine.sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+			gotoProcessor = new CompleteSliceGotoProcessor(this);
+		}
+
+		BasicBlockGraphMgr bbgMgr = engine.getSlicedBasicBlockGraphMgr();
+
+		// include all gotos required to recreate the control flow of the system.
 		for (Iterator i = taggedMethods.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
 			BasicBlockGraph bbg = bbgMgr.getBasicBlockGraph(sm);
+
+			if (bbg == null) {
+				continue;
+			}
+			gotoProcessor.preprocess(sm);
+
+			for (Iterator j = bbg.getNodes().iterator(); j.hasNext();) {
+				BasicBlock bb = (BasicBlock) j.next();
+				gotoProcessor.process(bb);
+			}
+			gotoProcessor.postprocess();
 		}
 	}
 
@@ -315,19 +366,20 @@ public class TaggingBasedSliceCollector {
 		if (method.getTag(tagName) == null) {
 			method.addTag(theTag);
 			taggedMethods.add(method);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Tagged: " + method.getSignature());
-            }
-            
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Tagged: " + method.getSignature());
+			}
 		}
 
 		SootClass sc = method.getDeclaringClass();
 
 		if (sc.getTag(tagName) == null) {
 			sc.addTag(theTag);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Tagged: " + sc.getName());
-            }
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Tagged: " + sc.getName());
+			}
 		}
 
 		if (sc.hasSuperclass()) {
@@ -413,12 +465,13 @@ public class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/24 18:21:30  venku
+   - logging.
    Revision 1.2  2003/11/24 16:47:31  venku
    - moved inner classes as external class.
    - made TaggingBasedSliceCollector package private.
    - removed inheritance based dependence on ITransformer
      for TaggingBasedSliceCollector.
-
    Revision 1.1  2003/11/24 10:11:32  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.
