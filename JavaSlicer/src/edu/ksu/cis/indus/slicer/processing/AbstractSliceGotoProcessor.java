@@ -13,13 +13,14 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.slicer.processing;
 
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -46,7 +47,7 @@ abstract class AbstractSliceGotoProcessor {
 	/**
 	 * The slice collector.
 	 */
-	private final TaggingBasedSliceCollector sliceCollector;
+	private final SliceCollector sliceCollector;
 
 	/**
 	 * The collection of basic blocks that contained atleast one statement that is tagged.
@@ -70,7 +71,7 @@ abstract class AbstractSliceGotoProcessor {
 	 *
 	 * @pre collector != null
 	 */
-	protected AbstractSliceGotoProcessor(final TaggingBasedSliceCollector collector) {
+	protected AbstractSliceGotoProcessor(final SliceCollector collector) {
 		sliceCollector = collector;
 	}
 
@@ -187,6 +188,12 @@ abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/11 03:44:25  venku
+   - Deleted IGotoProcessor and SliceGotoProcessor.
+   - Moved the logic of SliceGotoProcessor into
+     AbstractSliceGotoProcessor.
+   - Different slices are handled by different processor classes.
+
    Revision 1.11  2004/01/11 00:01:23  venku
    - formatting and coding convention.
    Revision 1.10  2004/01/06 00:17:05  venku
@@ -194,7 +201,7 @@ abstract class AbstractSliceGotoProcessor {
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
    Revision 1.9  2003/12/13 19:46:33  venku
-   - documentation of TaggingBasedSliceCollector.
+   - documentation of SliceCollector.
    - renamed collect() to includeInSlice().
    Revision 1.8  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and

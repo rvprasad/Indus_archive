@@ -13,10 +13,11 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.slicer.processing;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,12 +40,12 @@ final class CompleteSliceGotoProcessor
 	 *
 	 * @pre collector != null
 	 */
-	protected CompleteSliceGotoProcessor(TaggingBasedSliceCollector collector) {
+	protected CompleteSliceGotoProcessor(SliceCollector collector) {
 		super(collector);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
+	 * @see edu.ksu.cis.indus.slicer.processing.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
 	 */
 	protected Collection getLastStmtAndSuccsOfBasicBlock(final BasicBlock bb) {
 		final Collection _stmts = bb.getStmtsOf();
@@ -58,17 +59,22 @@ final class CompleteSliceGotoProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
+	 * @see edu.ksu.cis.indus.slicer.processing.AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
 	 */
 	protected List getStmtsOfForProcessing(BasicBlock bb) {
-		List _result = new ArrayList(bb.getStmtsOf());
-		return _result;
+		return bb.getStmtsOf();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/11 03:44:25  venku
+   - Deleted IGotoProcessor and SliceGotoProcessor.
+   - Moved the logic of SliceGotoProcessor into
+     AbstractSliceGotoProcessor.
+   - Different slices are handled by different processor classes.
+
    Revision 1.6  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.

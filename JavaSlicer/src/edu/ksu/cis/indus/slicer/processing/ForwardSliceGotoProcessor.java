@@ -13,55 +13,59 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.slicer.processing;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.slicer.SliceCollector;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 
 /**
- * This implementation handles statements of the basic block as required for goto processing of backward slices.
+ * This implementation handles statements of the basic block as required for goto processing of forward slices.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class BackwardSliceGotoProcessor
+class ForwardSliceGotoProcessor
   extends AbstractSliceGotoProcessor {
 	/**
-	 * Creates a new BackwardSliceGotoProcessor object.
+	 * Creates a new ForwardSliceGotoProcessor object.
 	 *
 	 * @param collector collects the slice.
 	 *
 	 * @pre collector != null
 	 */
-	protected BackwardSliceGotoProcessor(TaggingBasedSliceCollector collector) {
+	protected ForwardSliceGotoProcessor(SliceCollector collector) {
 		super(collector);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
+	 * @see edu.ksu.cis.indus.slicer.processing.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
 	 */
 	protected Collection getLastStmtAndSuccsOfBasicBlock(final BasicBlock bb) {
-		return Collections.singleton(new Pair(bb.getTrailerStmt(), bb.getSuccsOf()));
+		return Collections.singleton(new Pair(bb.getLeaderStmt(), bb.getPredsOf()));
 	}
 
 	/**
-	 * @see AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
+	 * @see edu.ksu.cis.indus.slicer.processing.AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
 	 */
 	protected List getStmtsOfForProcessing(BasicBlock bb) {
-		List _result = new ArrayList(bb.getStmtsOf());
-		Collections.reverse(_result);
-		return _result;
+		return bb.getStmtsOf();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/11 03:44:25  venku
+   - Deleted IGotoProcessor and SliceGotoProcessor.
+   - Moved the logic of SliceGotoProcessor into
+     AbstractSliceGotoProcessor.
+   - Different slices are handled by different processor classes.
+
  */
