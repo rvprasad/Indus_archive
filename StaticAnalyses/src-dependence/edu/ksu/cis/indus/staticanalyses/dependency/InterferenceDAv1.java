@@ -172,56 +172,78 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * Returns the statements on which the given field/array reference at the given statement and method depends on.
+	 * Returns the statements on which the field/array reference at the given statement and method depends on.
 	 *
-	 * @param dependent of interest.
-	 * @param stmtMethodPair is the pair of statement and method in which <code>field</code> occurs.
+	 * @param stmt is the statement in which the array/field reference occurs.
+	 * @param method in which <code>stmt</code> occurs.
 	 *
 	 * @return a colleciton of pairs comprising of a statement and a method.
 	 *
-	 * @pre dependent.oclIsTypeOf(SootField) or dependent.oclIsTypeOf(ArrayType)
-	 * @pre stmtMethodPair.oclIsKindOf(Pair(Stmt, SootMethod))
+	 * @pre stmt.oclIsTypeOf(Stmt) or method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
-	public Collection getDependees(final Object dependent, final Object stmtMethodPair) {
+	public Collection getDependees(final Object stmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
-		Map pair2set = getDependeeMapFor(dependent);
+		Stmt temp = (Stmt) stmt;
+		Map pair2set = null;
+		Object dependent = null;
 
-		if (pair2set != null) {
-			Collection set = (Set) pair2set.get(stmtMethodPair);
+		if (temp.containsArrayRef()) {
+			dependent = temp.getArrayRef().getBase().getType();
+		} else if (temp.containsFieldRef()) {
+			dependent = temp.getFieldRef().getField();
+		}
 
-			if (set != null) {
-				result = Collections.unmodifiableCollection(set);
+		if (dependent != null) {
+			pair2set = getDependeeMapFor(dependent);
+
+			if (pair2set != null) {
+				Collection set = (Set) pair2set.get(method);
+
+				if (set != null) {
+					result = Collections.unmodifiableCollection(set);
+				}
 			}
 		}
 		return result;
 	}
 
 	/**
-	 * Returns the statements which depend on the given field/array reference at the given statement and method.
+	 * Returns the statements which depend on the field/array reference at the given statement and method.
 	 *
-	 * @param dependee of interest.
-	 * @param stmtMethodPair is the pair of statement and method in which <code>field</code> occurs.
+	 * @param stmt is the statement in which the array/field reference occurs.
+	 * @param method in which <code>stmt</code> occurs.
 	 *
 	 * @return a colleciton of pairs comprising of a statement and a method.
 	 *
-	 * @pre dependee.oclIsTypeOf(SootField) or dependee.oclIsTypeOf(ArrayType)
-	 * @pre stmtMethodPair.oclIsKindOf(Pair(Stmt, SootMethod))
+	 * @pre stmt.oclIsTypeOf(Stmt) or method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
-	public Collection getDependents(final Object dependee, final Object stmtMethodPair) {
+	public Collection getDependents(final Object stmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
-		Map pair2set = getDependentMapFor(dependee);
+		Stmt temp = (Stmt) stmt;
+		Map pair2set = null;
+		Object dependee = null;
 
-		if (pair2set != null) {
-			Collection set = (Set) pair2set.get(stmtMethodPair);
+		if (temp.containsArrayRef()) {
+			dependee = temp.getArrayRef().getBase().getType();
+		} else if (temp.containsFieldRef()) {
+			dependee = temp.getFieldRef().getField();
+		}
 
-			if (set != null) {
-				result = Collections.unmodifiableCollection(set);
+		if (dependee != null) {
+			pair2set = getDependentMapFor(dependee);
+
+			if (pair2set != null) {
+				Collection set = (Set) pair2set.get(method);
+
+				if (set != null) {
+					result = Collections.unmodifiableCollection(set);
+				}
 			}
 		}
 		return result;
@@ -413,15 +435,15 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/10 08:06:01  venku
+   - documentation.
    Revision 1.18  2003/11/10 03:17:18  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    - ripple effect.
-
    Revision 1.17  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
    - fixed documentation errors.
-
    Revision 1.16  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
