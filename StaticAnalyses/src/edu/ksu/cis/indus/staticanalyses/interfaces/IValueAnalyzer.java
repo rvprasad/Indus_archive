@@ -71,7 +71,7 @@ public interface IValueAnalyzer {
 	 * @pre entity != null
 	 * @post result != null
 	 */
-	Collection getValues(final Object entity, final Context context);
+	Collection getValues(Object entity, Context context);
 
 	/**
 	 * Retrieves the values associated with <code>this</code> variable in the given context.
@@ -84,7 +84,7 @@ public interface IValueAnalyzer {
 	 * @pre context.getCurrentMethod() != null
 	 * @post result != null
 	 */
-	Collection getValuesForThis(final Context context);
+	Collection getValuesForThis(Context context);
 
 	/**
 	 * Analyzes the system represented by the given classes and and scene.
@@ -96,7 +96,7 @@ public interface IValueAnalyzer {
 	 *
 	 * @pre scm != null and classes != null and classes.size() != 0
 	 */
-	void analyze(final Scene scm, final Collection classes);
+	void analyze(Scene scm, Collection classes);
 
 	/**
 	 * Analyzes the system represented by the given classes starting at the given entry point.
@@ -106,7 +106,7 @@ public interface IValueAnalyzer {
 	 *
 	 * @pre scm != null and entry != null
 	 */
-	void analyze(final Scene scm, final SootMethod entry);
+	void analyze(Scene scm, SootMethod entry);
 
 	/**
 	 * Resets the analyzer.
@@ -117,6 +117,13 @@ public interface IValueAnalyzer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 07:11:47  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+   Moved getRoots() into the environment.
+   Added support to inject new roots in BFA.
+
    Revision 1.2  2003/08/09 23:26:20  venku
    - Added an interface to provide use-def information.
    - Added an implementation to the above interface.

@@ -132,7 +132,7 @@ public interface IThreadGraphInfo {
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
-	Collection getExecutedMethods(final NewExpr ne, final Context ctxt);
+	Collection getExecutedMethods(NewExpr ne, Context ctxt);
 
 	/**
 	 * Returns the threads in which the given method is executed.
@@ -143,7 +143,7 @@ public interface IThreadGraphInfo {
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(NewExprTriple))
 	 */
-	Collection getExecutionThreads(final SootMethod sm);
+	Collection getExecutionThreads(SootMethod sm);
 
 	/**
 	 * Returns the sites which start new threads, i.e., <code>java.lang.Thread.start()</code> call-sites.
@@ -159,6 +159,10 @@ public interface IThreadGraphInfo {
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/11 07:46:09  venku
+   Finalized the parameters.
+   Spruced up Documentation and Specification.
+
    
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:

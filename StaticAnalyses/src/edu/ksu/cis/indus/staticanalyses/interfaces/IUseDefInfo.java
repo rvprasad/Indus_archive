@@ -63,7 +63,7 @@ public interface IUseDefInfo {
 	 *
 	 * @return a collection of def sites.
 	 */
-	Collection getDefs(final AssignStmt useStmt, final Context context);
+	Collection getDefs(AssignStmt useStmt, Context context);
 
 	/**
 	 * Retrieves the use sites that reach the given def site in the given context.
@@ -73,13 +73,17 @@ public interface IUseDefInfo {
 	 *
 	 * @return a collection of use sites.
 	 */
-	Collection getUses(final AssignStmt defStmt, final Context context);
+	Collection getUses(AssignStmt defStmt, Context context);
 }
 
 /*
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/11 07:46:09  venku
+   Finalized the parameters.
+   Spruced up Documentation and Specification.
+
    
    Revision 1.1  2003/08/09 23:26:20  venku
    - Added an interface to provide use-def information.
