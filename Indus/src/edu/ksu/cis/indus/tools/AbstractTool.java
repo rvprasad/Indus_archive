@@ -292,7 +292,7 @@ public abstract class AbstractTool
 	protected void fireToolProgressEvent(final String message, final Object info) {
 		synchronized (listeners) {
 			final ToolProgressEvent _evt = new ToolProgressEvent(this, message, info);
-			final Collection _listenersList = (Collection) ((HashSet) listeners).clone();
+			final Collection _listenersList = new HashSet(listeners);
 			final Thread _t =
 				new Thread() {
 					private final int msgId = messageId++;
