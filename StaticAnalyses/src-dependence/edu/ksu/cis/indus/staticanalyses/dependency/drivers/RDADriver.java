@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
+import java.util.HashSet;
+
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
@@ -50,6 +52,7 @@ public final class RDADriver
 		DADriver da = new RDADriver(args);
 
 		ReadyDAv1 rd = new ReadyDAv1();
+        da.das = new HashSet();
 		da.das.add(rd);
 		rd = new ReadyDAv2();
 		da.das.add(rd);
@@ -62,6 +65,9 @@ public final class RDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/13 19:38:58  venku
+   - removed unnecessary imports.
+
    Revision 1.12  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
