@@ -139,14 +139,14 @@ public class ReadyDAv1
 	 *
 	 * @invariant notifyMethods->forall(o | o.oclIsTypeOf(SootMethod))
 	 */
-	static Collection notifyMethods;
+	Collection notifyMethods;
 
 	/**
 	 * This is the <code>java.lang.Object.wait()</code> method.
 	 *
 	 * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
 	 */
-	static Collection waitMethods;
+	Collection waitMethods;
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -737,7 +737,6 @@ public class ReadyDAv1
 			throw new InitializationException(IEnvironment.ID + " was not provided in info.");
 		}
 
-		if (waitMethods == null) {
 			for (final Iterator _i = env.getClasses().iterator(); _i.hasNext();) {
 				final SootClass _sc = (SootClass) _i.next();
 
@@ -754,7 +753,7 @@ public class ReadyDAv1
 					notifyMethods = Collections.unmodifiableCollection(notifyMethods);
 				}
 			}
-		}
+
 		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
 		if (callgraph == null) {
@@ -1246,6 +1245,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.48  2004/03/04 11:52:21  venku
+   - modified ReadyDA to use CollectionsModifiers.
+   - fixed some subtle bugs in SyncDA.
+
    Revision 1.47  2004/03/03 10:11:40  venku
    - formatting.
    Revision 1.46  2004/03/03 10:07:24  venku
