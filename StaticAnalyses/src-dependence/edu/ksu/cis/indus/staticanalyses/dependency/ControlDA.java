@@ -230,18 +230,21 @@ public class ControlDA
 		Map dag = graph.getDAG();
 		final List NODES = graph.getNodes();
 		final int NUM_OF_NODES = NODES.size();
+		int[] succsSize = new int[NUM_OF_NODES];
 		BitSet[][] cd = new BitSet[NUM_OF_NODES][NUM_OF_NODES];
 		BitSet[] result = new BitSet[NUM_OF_NODES];
-		BitSet temp1 = new BitSet();
 		Collection processed = new ArrayList();
+		BitSet currResult = new BitSet();
+		BitSet temp1 = new BitSet();
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
 		wb.addAllWorkNoDuplicates(graph.getHeads());
 
 		while (wb.hasWork()) {
 			BasicBlock bb = (BasicBlock) wb.getWork();
 			Pair dagBlock = (Pair) dag.get(bb);
+			Collection preds = (Collection) dagBlock.getFirst();
 
-			if (!processed.containsAll((Collection) dagBlock.getFirst())) {
+			if (!processed.containsAll(preds)) {
 				wb.addWorkNoDuplicates(bb);
 				continue;
 			}
@@ -250,20 +253,16 @@ public class ControlDA
 			int currIndex = NODES.indexOf(bb);
 			Collection succs = (Collection) dagBlock.getSecond();
 			BitSet[] currCD = cd[currIndex];
-			BitSet currResult = new BitSet();
+			succsSize[currIndex] = succs.size();
 
 			for (Iterator j = processed.iterator(); j.hasNext();) {
-				Object o = j.next();
-				int pIndex = NODES.indexOf(o);
-				int pSuccs = ((Collection) ((Pair) dag.get(o)).getSecond()).size();
+				int pIndex = NODES.indexOf(j.next());
 				BitSet pCD = currCD[pIndex];
 
 				if (pCD != null) {
-					boolean assignFlag = pCD.cardinality() == pSuccs;
+					boolean assignFlag = pCD.cardinality() == succsSize[pIndex];
 
-					if (assignFlag) {
-						currCD[pIndex] = null;
-					} else {
+					if (!assignFlag) {
 						currResult.set(pIndex);
 					}
 
@@ -286,7 +285,7 @@ public class ControlDA
 				}
 			}
 
-			if (succs.size() > 1) {
+			if (succsSize[currIndex] > 1) {
 				int count = 0;
 
 				for (Iterator i = succs.iterator(); i.hasNext();) {
@@ -302,21 +301,28 @@ public class ControlDA
 				}
 			}
 
-			// prune the dom set to a mere idom set.
 			if (!currResult.isEmpty()) {
-				for (Iterator i = ((Collection) dagBlock.getFirst()).iterator(); i.hasNext();) {
-					int pIndex = NODES.indexOf(i.next());
+				if (currResult.length() > 1) {
+					// prune the dom set to a mere control-dom set.
+					temp1.clear();
 
-					if (currResult.get(pIndex)) {
-						temp1.set(pIndex);
-					} else {
-						temp1.or(result[pIndex]);
+					for (Iterator i = preds.iterator(); i.hasNext();) {
+						BitSet t = result[NODES.indexOf(i.next())];
+
+						if (t != null) {
+							temp1.and(t);
+						}
+					}
+
+					for (int j = currResult.nextSetBit(0); j >= 0; j = currResult.nextSetBit(j + 1)) {
+						if (!preds.contains(NODES.get(j)) && (preds.size() == 1 || !temp1.get(j))) {
+							currResult.clear(j);
+						}
 					}
 				}
+
 				result[currIndex] = currResult;
-				currResult.clear();
-				currResult.or(temp1);
-				temp1.clear();
+				currResult = new BitSet();
 			}
 
 			// Add the successors of the node 
@@ -400,6 +406,10 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
    Revision 1.13  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
