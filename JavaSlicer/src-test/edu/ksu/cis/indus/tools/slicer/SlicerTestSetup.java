@@ -122,15 +122,6 @@ public class SlicerTestSetup
 
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 
-		// write XMLized Jimple data
-		if (dumpLocation != null) {
-			driver.jimpleXMLDumpDir = dumpLocation;
-			driver.dumpJimpleAsXML("");
-		}
-		
-		// We do not destructively update Jimple as this would invalidate any information 
-		// based on old jimple representation.
-		
 		// We do not generate xmlized slice as it is responsibility of the XMLBasedTest to 
 		// generate the test data before testing.
 	}
@@ -142,6 +133,15 @@ public class SlicerTestSetup
 	 */
 	protected void tearDown()
 	  throws Exception {
+		// residualize the system
+		driver.destructivelyUpdateJimple();
+
+		// write XMLized Jimple data
+		if (dumpLocation != null) {
+			driver.jimpleXMLDumpDir = dumpLocation;
+			driver.dumpJimpleAsXML("");
+		}
+		
 		G.reset();
 		driver.slicer.reset();
 
@@ -194,6 +194,10 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/11 22:17:16  venku
+   - privatized some methods.
+   - enabled dumping of pre-residulization and post-residualization jimple.
+
    Revision 1.11  2004/05/11 11:52:48  venku
    - We do not destructively updated Jimple as Jimple is xmlized based on tag.
      Also, such update may invalidate previously calculated information.

@@ -260,7 +260,7 @@ public class SliceXMLizerCLI
 	/**
 	 * Updates jimple destructively.
 	 */
-	private void destructivelyUpdateJimple() {
+	void destructivelyUpdateJimple() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Residualizing");
 		}
@@ -574,6 +574,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/05/11 22:21:44  venku
+   - added options to control pre/post residualization jimple dumps.
+
    Revision 1.32  2004/05/11 22:17:16  venku
    - privatized some methods.
    - enabled dumping of pre-residulization and post-residualization jimple.
