@@ -27,6 +27,7 @@
 		<pathelement location="${jars.dir}/commons-cli.jar"/>
         <pathelement location="${jars.dir}/xmlenc.jar"/>
         <pathelement location="${jars.dir}/junit.jar"/>        
+        <pathelement location="${jars.dir}/trove.jar"/>
         <pathelement location="${jars.dir}/xmlunit.jar"/>
         <pathelement location="${jars.dir}/swt/swt.jar"/>    
     </path>
