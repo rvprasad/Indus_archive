@@ -33,7 +33,7 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
  * @author $Author$
  * @version $Revision$
  */
-class SliceStmt
+public class SliceStmt
   extends AbstractSliceCriterion {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -160,6 +160,10 @@ class SliceStmt
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/05 08:28:49  venku
+   - used more intuitive field names.
+   - changed hashcode calculation.
+
    Revision 1.2  2003/11/03 08:03:25  venku
    - changed the way 2 instances are compared for equality.
    Revision 1.1  2003/10/13 00:58:03  venku

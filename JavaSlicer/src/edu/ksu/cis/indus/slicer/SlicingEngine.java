@@ -41,6 +41,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
+import edu.ksu.cis.indus.transformations.slicer.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -162,7 +163,7 @@ public class SlicingEngine {
 	/**
 	 * This transforms the system based on the slicing decision of this object.
 	 */
-	private ISlicingBasedTransformer transformer;
+	private ISliceResidualizer transformer;
 
 	/**
 	 * <p>
@@ -242,7 +243,9 @@ public class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param mapper DOCUMENT ME!
 	 */
@@ -261,10 +264,14 @@ public class SlicingEngine {
 	 */
 	public void setSliceCriteria(final Collection sliceCriteria) {
 		if (sliceCriteria == null || sliceCriteria.size() == 0) {
-			LOGGER.warn("Slice criteria is unspecified.");
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Slice criteria is unspecified.");
+			}
 			throw new IllegalStateException("Slice criteria is unspecified.");
 		} else if (controller == null) {
-			LOGGER.warn("Class Manager and/or Controller is unspecified.");
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Class Manager and/or Controller is unspecified.");
+			}
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
 
@@ -318,7 +325,7 @@ public class SlicingEngine {
 	 *
 	 * @pre theTransformer != null
 	 */
-	public void setTransformer(final ISlicingBasedTransformer theTransformer) {
+	public void setTransformer(final ISliceResidualizer theTransformer) {
 		transformer = theTransformer;
 	}
 
@@ -654,8 +661,8 @@ public class SlicingEngine {
 			}
 		}
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Sliced : " + stmt + " [" + considerExecution + "] | " + method);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Sliced : " + stmt + " [" + considerExecution + "] | " + method);
 		}
 
 		// create new slice criteria
@@ -666,6 +673,10 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/22 00:43:34  venku
+   - split initialize() into many setter methods.
+   - initialize() now just does sanity check on the runtime configuration
+     of the engine.
    Revision 1.10  2003/11/20 08:22:37  venku
    - added support to include calls to <init> based on new expressions.
    - need to implement the class that provides this information.
@@ -678,7 +689,7 @@ public class SlicingEngine {
    Revision 1.7  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISlicingBasedTransformer interface.
+     into ISliceResidualizer interface.
    - ripple effect.
    Revision 1.6  2003/11/06 05:15:05  venku
    - Refactoring, Refactoring, Refactoring.

@@ -40,7 +40,6 @@ import soot.jimple.toolkits.scalar.NopEliminator;
 
 import soot.util.Chain;
 
-import edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.transformations.common.Cloner;
@@ -66,8 +65,8 @@ import java.util.Set;
  * @author $Author$
  * @version $Revision$
  */
-public class CloningBasedSlicingTransformer
-  extends AbstractSlicingBasedTransformer {
+public class CloningBasedSliceResidualizer
+  extends AbstractSliceResidualizer {
 	/**
 	 * The system resulting from the transformation.
 	 */
@@ -348,7 +347,7 @@ public class CloningBasedSlicingTransformer
 	 *
 	 * @return false;
 	 *
-	 * @see edu.ksu.cis.indus.slicer.ISlicingBasedTransformer#handlesPartialInclusions()
+	 * @see edu.ksu.cis.indus.slicer.ISliceResidualizer#handlesPartialInclusions()
 	 */
 	public boolean handlesPartialInclusions() {
 		return false;
@@ -385,14 +384,14 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.jimple.Stmt, soot.SootMethod)
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceResidualizer#transformSeed(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	protected void transformSeed(final Stmt stmt, final SootMethod method) {
 		// TODO: Auto-generated method stub
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.ValueBox, soot.jimple.Stmt,
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceResidualizer#transformSeed(soot.ValueBox, soot.jimple.Stmt,
 	 * 		soot.SootMethod)
 	 */
 	protected void transformSeed(final ValueBox vb, final Stmt stmt, final SootMethod method) {
@@ -525,6 +524,11 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2003/11/17 02:23:52  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
+
    Revision 1.30  2003/11/16 23:12:17  venku
    - coding convention.
    Revision 1.29  2003/11/16 22:55:31  venku
@@ -534,7 +538,7 @@ public class CloningBasedSlicingTransformer
    Revision 1.28  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISlicingBasedTransformer interface.
+     into ISliceResidualizer interface.
    - ripple effect.
    Revision 1.27  2003/11/03 08:02:03  venku
    - ripple effect of changes to ITransformer.
@@ -569,7 +573,7 @@ public class CloningBasedSlicingTransformer
    Removed SlicingTag class and used StringTag instead.
    Revision 1.18  2003/08/21 09:30:31  venku
     - added a new transform() method which can transform at the level of ValueBox.
-    - CloningBasedSlicingTransformer does not do anything in this new method.
+    - CloningBasedSliceResidualizer does not do anything in this new method.
    Revision 1.17  2003/08/21 07:34:41  venku
    Documentation.
    Revision 1.16  2003/08/20 18:31:22  venku

@@ -27,7 +27,7 @@ import org.apache.commons.pool.ObjectPool;
  * @author $Author$
  * @version $Revision$
  */
-abstract class AbstractSliceCriterion {
+public abstract class AbstractSliceCriterion {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -106,7 +106,7 @@ abstract class AbstractSliceCriterion {
 	 *
 	 * @throws RuntimeException if the returning of the object to it's pool failed.
 	 */
-	void sliced() {
+	public void sliced() {
 		if (pool != null) {
 			try {
 				pool.returnObject(this);
@@ -123,6 +123,10 @@ abstract class AbstractSliceCriterion {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/05 08:28:49  venku
+   - used more intuitive field names.
+   - changed hashcode calculation.
+
    Revision 1.1  2003/10/13 00:58:04  venku
    - empty log message
    Revision 1.4  2003/09/27 22:38:30  venku

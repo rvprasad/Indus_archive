@@ -30,7 +30,6 @@ import soot.jimple.TableSwitchStmt;
 
 import soot.tagkit.Tag;
 
-import edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import org.apache.commons.logging.Log;
@@ -46,11 +45,11 @@ import java.util.Map;
 
 
 /**
- * This transforms the given system based on the decisions of a slicing engine.  The results of the transformation are
- * captured as tags attached to the given system.
+ * This residualizes the given system based on the decisions of a slicing engine.  The system is residualized by tagging
+ * parts of the original system which occur in the slice.
  * 
  * <p>
- * After transformation, the application can query the system for tags of kind <code>SlicingTag</code> and retrieve slicing
+ * After residualization, the application can query the system for tags of kind <code>SlicingTag</code> and retrieve slicing
  * information of the system.  However, as locals cannot be tagged, the application will have to obtain that information
  * from this class.
  * </p>
@@ -59,8 +58,8 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class TagBasedSlicingTransformer
-  extends AbstractSlicingBasedTransformer {
+public class TaggingBasedSliceResidualizer
+  extends AbstractSliceResidualizer {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
@@ -74,7 +73,7 @@ public class TagBasedSlicingTransformer
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(TagBasedSlicingTransformer.class);
+	private static final Log LOGGER = LogFactory.getLog(TaggingBasedSliceResidualizer.class);
 
 	/**
 	 * The system to be transformed.
@@ -397,7 +396,7 @@ public class TagBasedSlicingTransformer
 	 *
 	 * @return <code>true</code>
 	 *
-	 * @see edu.ksu.cis.indus.slicer.ISlicingBasedTransformer#handlesPartialInclusions()
+	 * @see edu.ksu.cis.indus.slicer.ISliceResidualizer#handlesPartialInclusions()
 	 */
 	public boolean handlesPartialInclusions() {
 		return true;
@@ -437,14 +436,14 @@ public class TagBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.jimple.Stmt, soot.SootMethod)
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceResidualizer#transformSeed(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	protected void transformSeed(final Stmt stmt, final SootMethod method) {
 		tagStmt(stmt, method, seedTag, true);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.ValueBox, soot.jimple.Stmt,
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceResidualizer#transformSeed(soot.ValueBox, soot.jimple.Stmt,
 	 * 		soot.SootMethod)
 	 */
 	protected void transformSeed(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
@@ -511,8 +510,8 @@ public class TagBasedSlicingTransformer
 			}
 			tagMethod(method, theTag);
 
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("Tagged statement: " + stmt + "[" + stmt.hashCode() + "] | " + method.getSignature());
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Tagged statement: " + stmt + "[" + stmt.hashCode() + "] | " + method.getSignature());
 			}
 		}
 	}
@@ -542,8 +541,8 @@ public class TagBasedSlicingTransformer
 				tagMethod(method, theTag);
 			}
 
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("Tagged value: " + vBox.getValue() + " | " + stmt + "[" + stmt.hashCode() + "] | "
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Tagged value: " + vBox.getValue() + " | " + stmt + "[" + stmt.hashCode() + "] | "
 					+ method.getSignature());
 			}
 		}
@@ -553,6 +552,8 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/17 01:39:42  venku
+   - added slice XMLization support.
    Revision 1.16  2003/11/16 23:12:17  venku
    - coding convention.
    Revision 1.15  2003/11/16 22:55:31  venku
@@ -562,7 +563,7 @@ public class TagBasedSlicingTransformer
    Revision 1.14  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISlicingBasedTransformer interface.
+     into ISliceResidualizer interface.
    - ripple effect.
    Revision 1.13  2003/11/05 09:05:28  venku
    - For strange reasons the StringTag does not fulfill our needs.
@@ -604,7 +605,7 @@ public class TagBasedSlicingTransformer
    Removed SlicingTag class and used StringTag instead.
    Revision 1.3  2003/08/21 09:30:31  venku
     - added a new transform() method which can transform at the level of ValueBox.
-    - CloningBasedSlicingTransformer does not do anything in this new method.
+    - CloningBasedSliceResidualizer does not do anything in this new method.
    Revision 1.2  2003/08/20 18:31:22  venku
    Documentation errors fixed.
    Revision 1.1  2003/08/19 12:55:50  venku

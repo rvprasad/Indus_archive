@@ -23,7 +23,7 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
+import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -107,7 +107,7 @@ public class SlicerTool
 	public SlicerTool() {
 		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool();
 
-		TagBasedSlicingTransformer tgsbt = new TagBasedSlicingTransformer();
+		TaggingBasedSliceResidualizer tgsbt = new TaggingBasedSliceResidualizer();
 		tgsbt.setTagName(TAG_NAME);
 		tool.setTransformer(tgsbt);
 
@@ -232,6 +232,11 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/18 21:43:54  venku
+   - fixed code in bandera version of the tool to work with new assumptions.
+   - removed TAG_NAME input parameter to make the transition to clone-based transformer
+     transparent to bandera.
+
    Revision 1.14  2003/11/14 21:09:37  venku
    - formatting.
    Revision 1.13  2003/11/14 21:08:17  venku

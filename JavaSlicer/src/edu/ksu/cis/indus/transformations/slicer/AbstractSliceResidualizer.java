@@ -13,13 +13,16 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.transformations.slicer;
 
 import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
+import edu.ksu.cis.indus.slicer.AbstractSliceCriterion;
+import edu.ksu.cis.indus.slicer.SliceExpr;
+import edu.ksu.cis.indus.slicer.SliceStmt;
 import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 
 import java.util.Collection;
@@ -33,9 +36,9 @@ import java.util.Iterator;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractSlicingBasedTransformer
+public abstract class AbstractSliceResidualizer
   extends AbstractTransformer
-  implements ISlicingBasedTransformer {
+  implements ISliceResidualizer {
 	/**
 	 * DOCUMENT ME!
 	 * 
@@ -50,7 +53,7 @@ public abstract class AbstractSlicingBasedTransformer
 	 *
 	 * @param seedcriteria DOCUMENT ME!
 	 *
-	 * @see edu.ksu.cis.indus.slicer.ISlicingBasedTransformer#processSeedCriteria(java.util.Collection)
+	 * @see edu.ksu.cis.indus.slicer.ISliceResidualizer#processSeedCriteria(java.util.Collection)
 	 */
 	public final void processSeedCriteria(final Collection seedcriteria) {
 		for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
@@ -99,6 +102,9 @@ public abstract class AbstractSlicingBasedTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/19 23:56:23  venku
+   - documentation.
+
    Revision 1.3  2003/11/16 22:55:31  venku
    - added new methods to support processing of seed criteria.
      This is not same as slicing seed criteria of which we do not
@@ -106,7 +112,7 @@ public abstract class AbstractSlicingBasedTransformer
    Revision 1.2  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISlicingBasedTransformer interface.
+     into ISliceResidualizer interface.
    - ripple effect.
    Revision 1.1  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:

@@ -34,7 +34,7 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
  * @author $Author$
  * @version $Revision$
  */
-class SliceExpr
+public class SliceExpr
   extends SliceStmt {
 	/**
 	 * A pool of <code>SliceExpr</code> criterion objects.
@@ -156,6 +156,10 @@ class SliceExpr
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/05 08:28:49  venku
+   - used more intuitive field names.
+   - changed hashcode calculation.
+
    Revision 1.2  2003/11/03 08:03:25  venku
    - changed the way 2 instances are compared for equality.
    Revision 1.1  2003/10/13 00:58:04  venku

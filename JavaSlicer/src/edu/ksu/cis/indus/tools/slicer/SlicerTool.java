@@ -26,7 +26,6 @@ import edu.ksu.cis.indus.common.CompleteUnitGraphFactory;
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
@@ -54,7 +53,8 @@ import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
+import edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer;
+import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -185,7 +185,7 @@ public final class SlicerTool
 	/**
 	 * This is the slice transformer.
 	 */
-	private ISlicingBasedTransformer transformer;
+	private ISliceResidualizer transformer;
 
 	/**
 	 * The system to be sliced.
@@ -257,7 +257,7 @@ public final class SlicerTool
 		engine = new SlicingEngine();
 
 		// create the slicing transformer.
-		transformer = new TagBasedSlicingTransformer();
+		transformer = new TaggingBasedSliceResidualizer();
 
 		// create the <init> call to new expr mapper
 		initMapper = new Init2NewExprMapper();
@@ -370,7 +370,7 @@ public final class SlicerTool
 	 *
 	 * @pre theTransformer != null
 	 */
-	public void setTransformer(final ISlicingBasedTransformer theTransformer) {
+	public void setTransformer(final ISliceResidualizer theTransformer) {
 		transformer = theTransformer;
 	}
 
@@ -381,7 +381,7 @@ public final class SlicerTool
 	 *
 	 * @post result != null
 	 */
-	public ISlicingBasedTransformer getTransformer() {
+	public ISliceResidualizer getTransformer() {
 		return this.transformer;
 	}
 
@@ -656,6 +656,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/11/23 19:54:32  venku
+   - used LinkedHashSet instead of HashSet while retrieving DAs
+     for the purpose of testing.
+
    Revision 1.29  2003/11/22 00:44:23  venku
    - ripple effect of splitting initialize() in SliceEngine into many methods.
    Revision 1.28  2003/11/18 21:42:03  venku

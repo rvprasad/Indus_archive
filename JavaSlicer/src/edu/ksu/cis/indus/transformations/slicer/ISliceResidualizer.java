@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.transformations.slicer;
 
 import edu.ksu.cis.indus.transformations.common.ITransformer;
 
@@ -21,13 +21,13 @@ import java.util.Collection;
 
 
 /**
- * This interface should be implemented by slicing-based transformers.
+ * This interface should be implemented by slice residualizer or slicing-based transformers.
  *
  * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface ISlicingBasedTransformer
+public interface ISliceResidualizer
   extends ITransformer {
 	/**
 	 * DOCUMENT ME!
@@ -70,10 +70,15 @@ public interface ISlicingBasedTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/16 22:55:31  venku
+   - added new methods to support processing of seed criteria.
+     This is not same as slicing seed criteria of which we do not
+     make any distinction.
+
    Revision 1.3  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISlicingBasedTransformer interface.
+     into ISliceResidualizer interface.
    - ripple effect.
    Revision 1.2  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
