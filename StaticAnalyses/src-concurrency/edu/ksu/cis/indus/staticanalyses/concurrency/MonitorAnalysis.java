@@ -237,10 +237,9 @@ public final class MonitorAnalysis
 
 
 	/**
-	 * DOCUMENT ME!
+	 * This represents monitor enclosure as a graph with each monitor represented as a node and an edge representing that 
+	 * the monitor of the source node encloses the monitor of the destination node.
 	 * 
-	 * <p></p>
-	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -1228,6 +1227,9 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/08/09 10:14:41  venku
+   - refactoring to represent monitor graphs.
+
    Revision 1.7  2004/08/08 10:11:35  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.
