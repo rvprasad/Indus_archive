@@ -44,7 +44,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.znerd.xmlenc.LineBreak;
 import org.znerd.xmlenc.XMLOutputter;
 
 import soot.SootClass;
@@ -97,7 +96,7 @@ final class OFAXMLizer
 		 * DOCUMENT ME!
 		 * </p>
 		 */
-		private XMLOutputter writer;
+		private XMLOutputter xmlWriter;
 
 		/**
 		 * <p>
@@ -124,11 +123,8 @@ final class OFAXMLizer
 			ofa = analyzer;
 
 			try {
-				writer = new XMLOutputter(filewriter, "UTF-8");
-                writer.setEscaping(true);
-                writer.setIndentation("  ");
-                writer.setLineBreak(LineBreak.UNIX);
-            } catch (final UnsupportedEncodingException _e) {
+				xmlWriter = new CustomXMLOutputter(filewriter, "UTF-8");
+			} catch (final UnsupportedEncodingException _e) {
 				LOGGER.error("This is not supposed to happen", _e);
 			}
 		}
@@ -148,9 +144,11 @@ final class OFAXMLizer
 
 			try {
 				for (final Iterator _i = (new HashSet(_temp)).iterator(); _i.hasNext();) {
-					writer.startTag("instance");
-					writer.attribute("expr", xmlizeString((String) _i.next()));
-                    writer.endTag();
+					xmlWriter.startTag("instance");
+					xmlWriter.attribute("id",
+						idGenerator.getIdForValueBox(vBox, context.getStmt(), context.getCurrentMethod()));
+					xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
+					xmlWriter.endTag();
 				}
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
@@ -169,12 +167,12 @@ final class OFAXMLizer
 		public void callback(final SootMethod method) {
 			try {
 				if (processingMethod) {
-					writer.endTag();
+					xmlWriter.endTag();
 				} else {
 					processingMethod = true;
 				}
-				writer.startTag("method");
-				writer.attribute("id", idGenerator.getIdForMethod(method));
+				xmlWriter.startTag("method");
+				xmlWriter.attribute("id", idGenerator.getIdForMethod(method));
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
@@ -186,16 +184,16 @@ final class OFAXMLizer
 		public void callback(final SootClass clazz) {
 			try {
 				if (processingMethod) {
-					writer.endTag();
+					xmlWriter.endTag();
 				}
 
 				if (processingClass) {
-					writer.endTag();
+					xmlWriter.endTag();
 				} else {
 					processingClass = true;
 				}
-				writer.startTag("class");
-				writer.attribute("id", idGenerator.getIdForClass(clazz));
+				xmlWriter.startTag("class");
+				xmlWriter.attribute("id", idGenerator.getIdForClass(clazz));
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
@@ -214,8 +212,8 @@ final class OFAXMLizer
 		 */
 		public void consolidate() {
 			try {
-                writer.close();
-				writer.endDocument();
+				xmlWriter.close();
+				xmlWriter.endDocument();
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
@@ -226,7 +224,7 @@ final class OFAXMLizer
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.registerForAllValues(this);
-            ppc.register(this);
+			ppc.register(this);
 		}
 
 		/**
@@ -237,7 +235,7 @@ final class OFAXMLizer
 			processingMethod = false;
 
 			try {
-				writer.startTag("ofa");
+				xmlWriter.startTag("ofa");
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
@@ -248,7 +246,7 @@ final class OFAXMLizer
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregisterForAllValues(this);
-            ppc.unregister(this);
+			ppc.unregister(this);
 		}
 	}
 
@@ -272,8 +270,8 @@ final class OFAXMLizer
 		final ProcessingController _ctrl = new ProcessingController();
 		final OFAnalyzer _ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
 		final IEnvironment _env = _ofa.getEnvironment();
-        final IProcessingFilter _processingFilter = new TagBasedProcessingFilter((String) info.get(IValueAnalyzer.TAG_ID));
-        _processingFilter.chain(new XMLizingProcessingFilter());
+		final IProcessingFilter _processingFilter = new TagBasedProcessingFilter((String) info.get(IValueAnalyzer.TAG_ID));
+		_processingFilter.chain(new XMLizingProcessingFilter());
 		_ctrl.setProcessingFilter(_processingFilter);
 		_ctrl.setEnvironment(_env);
 
@@ -297,6 +295,11 @@ final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.2  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.

@@ -35,6 +35,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.znerd.xmlenc.XMLOutputter;
+
 import soot.SootMethod;
 
 
@@ -81,9 +83,10 @@ final class CallGraphXMLizer
 		try {
 			_writer = new FileWriter(_f);
 
+			final XMLOutputter _xmlWriter = new CustomXMLOutputter(_writer, "UTF-8");
 			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
-			_writer.write("<callgraph>\n");
+			_xmlWriter.startTag("callgraph");
 
 			// Control the order in which methods are processed. 
 			final IProcessingFilter _filter = new XMLizingProcessingFilter();
@@ -91,7 +94,8 @@ final class CallGraphXMLizer
 
 			for (final Iterator _i = _filter.filterMethods(_cgi.getReachableMethods()).iterator(); _i.hasNext();) {
 				final SootMethod _method = (SootMethod) _i.next();
-				_writer.write("\t<method id=\"" + getIdGenerator().getIdForMethod(_method) + "\">\n");
+				_xmlWriter.startTag("method");
+				_xmlWriter.attribute("id", getIdGenerator().getIdForMethod(_method));
 				_temp.clear();
 
 				for (final Iterator _j = _cgi.getCallees(_method).iterator(); _j.hasNext();) {
@@ -101,7 +105,8 @@ final class CallGraphXMLizer
 
 				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
 					final SootMethod _callee = (SootMethod) _j.next();
-					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\"/>\n");
+					_xmlWriter.startTag("callee");
+					_xmlWriter.attribute("id", getIdGenerator().getIdForMethod(_callee));
 				}
 
 				_temp.clear();
@@ -113,12 +118,14 @@ final class CallGraphXMLizer
 
 				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
 					final SootMethod _caller = (SootMethod) _j.next();
-					_writer.write("\t\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\"/>\n");
+					_xmlWriter.startTag("caller");
+					_xmlWriter.attribute("id", getIdGenerator().getIdForMethod(_caller));
 				}
 
-				_writer.write("\t</method>\n");
+				_xmlWriter.endTag();
 			}
-			_writer.write("</callgraph>\n");
+			_xmlWriter.close();
+			_xmlWriter.endDocument();
 			_writer.flush();
 			_writer.close();
 		} catch (final IOException _e) {
@@ -130,6 +137,11 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.8  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.

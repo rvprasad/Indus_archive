@@ -20,12 +20,16 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.znerd.xmlenc.LineBreak;
+import org.znerd.xmlenc.XMLOutputter;
 
 
 /**
@@ -56,6 +60,27 @@ public abstract class AbstractXMLizer
 	 * This is the directory in which the file containing the xmlized data will be placed.
 	 */
 	private String xmlOutDir;
+
+	/**
+	 * This is a custom xml outputter class with preconfigured formatting infor.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	protected final class CustomXMLOutputter
+	  extends XMLOutputter {
+		/**
+		 * @see org.znerd.xmlenc.XMLOutputter#XMLOutputter(Writer,String)
+		 */
+		public CustomXMLOutputter(final Writer writer, final String encoding)
+		  throws IllegalStateException, IllegalArgumentException, UnsupportedEncodingException {
+			super(writer, encoding);
+			setEscaping(true);
+			setIndentation("  ");
+			setLineBreak(LineBreak.UNIX);
+		}
+	}
 
 	/**
 	 * Set the xml id generator to be used in xml data generation.
@@ -168,13 +193,17 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/02/11 09:37:21  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.10  2004/02/09 17:40:57  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.
      - Each information type has a xmlizer (XMLizer)
      - Each information type has a xmlizer driver (XMLizerCLI)
      - Tests use the XMLizer.
-
    Revision 1.9  2004/02/09 06:49:05  venku
    - deleted dependency xmlization and test classes.
    Revision 1.8  2004/02/09 04:39:40  venku
