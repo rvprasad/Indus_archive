@@ -225,6 +225,17 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * Retrieves the root methods in the system.
+	 *
+	 * @return the collection of root methods.
+	 *
+	 * @post result != null
+	 */
+	public final Collection getRootMethods() {
+		return Collections.unmodifiableCollection(rootMethods);
+	}
+
+	/**
 	 * Records the given classpath in intention of using it while loading classes into the scene.
 	 *
 	 * @param classpath to be considered.
@@ -379,6 +390,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/28 22:42:05  venku
+   - check the entry class names if the class does not
+     match the root soot classes.
    Revision 1.9  2004/01/16 21:18:57  venku
    - renamed setUnitGraphProvider() to setUnitGraphFactory()
      in BasicBlockGraphMgr.
