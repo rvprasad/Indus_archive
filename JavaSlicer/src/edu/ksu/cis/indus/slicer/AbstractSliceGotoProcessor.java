@@ -29,11 +29,7 @@ import java.util.List;
 
 import soot.SootMethod;
 
-import soot.jimple.GotoStmt;
-import soot.jimple.ReturnStmt;
-import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
-import soot.jimple.ThrowStmt;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -145,6 +141,9 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/26 23:54:13  venku
+   - coding convention.
+
    Revision 1.6  2004/01/22 01:01:40  venku
    - coding convention.
 
