@@ -229,7 +229,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
 			final ValueBox _vBox = stmt.getKeyBox();
 
-			if (!((Host) _vBox.getValue()).hasTag(tagToResidualize)) {
+			if (!((Host) _vBox).hasTag(tagToResidualize)) {
 				stmt.setKey(getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
@@ -641,6 +641,10 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/14 12:01:02  venku
+   - documentation.
+   - error was not flagged when incorrect slice is detected. FIXED.
+
    Revision 1.9  2004/01/13 10:59:42  venku
    - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
      It was deleted.
