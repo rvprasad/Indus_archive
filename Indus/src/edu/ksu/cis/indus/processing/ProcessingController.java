@@ -1058,7 +1058,8 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Registers the processor for class, fields, and method interface processing only.
+	 * Registers the processor for class, fields, and method interface processing only.  The processors are invoked in the
+	 * order that they register.
 	 *
 	 * @param processor the instance of processor.
 	 */
@@ -1070,7 +1071,8 @@ public class ProcessingController {
 
 	/**
 	 * Registers the processor.  It indicates that the processor is interested in processing AST chunk of statement type.
-	 * Please refer to <code>STMT_CLASSES</code> for the actual types.
+	 * Please refer to <code>STMT_CLASSES</code> for the actual types. The processors are invoked in the order that they
+	 * register.
 	 *
 	 * @param processor the instance of processor.
 	 */
@@ -1082,7 +1084,7 @@ public class ProcessingController {
 
 	/**
 	 * Registers the processor.  It indicates that the processor is interested in processing AST chunk of value type. Please
-	 * refer to <code>VALUE_CLASSES</code> for the actual types.
+	 * refer to <code>VALUE_CLASSES</code> for the actual types. The processors are invoked in the order that they register.
 	 *
 	 * @param processor the instance of processor.
 	 */
