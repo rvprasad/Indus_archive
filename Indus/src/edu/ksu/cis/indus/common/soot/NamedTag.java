@@ -40,7 +40,7 @@ public class NamedTag
 	 * @pre theName != null
 	 */
 	public NamedTag(final String theName) {
-		name = theName;
+		name = theName.intern();
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class NamedTag
 
 		if (o instanceof NamedTag) {
 			final NamedTag _t = (NamedTag) o;
-			_result = name == _t.name || _t.name.equals(name);
+			_result = name == _t.name;
 		}
 		return _result;
 	}
@@ -87,6 +87,10 @@ public class NamedTag
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
