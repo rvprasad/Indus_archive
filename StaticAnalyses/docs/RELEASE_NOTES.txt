@@ -21,17 +21,16 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
-Current Version
-----------------
-	- Memory/Performance optimizations in EquivalenceClassBasedEscapeAnalysis.
+Version 0.2
+------------
+	- Memory/Performance optimizations and bug fixes in EquivalenceClassBasedEscapeAnalysis.
 	- All xmlizers use classes from xmlenc library to generate xml documents.
 	- Implemented Indirect and Direct Entry Control dependence.
 	- Added new options to OFA and CallGraph CLI classes.
 	- Added a new implementation of Use-Def Analysis for method locals.
-    - Implemented Divergence dependence (edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA)
-    - Implemented Exit Control dependence (edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA)
-
-
+	- Implemented Divergence dependence (edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA)
+	- Implemented Exit Control dependence (edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA)
+	
 
 Version 0.1
 ------------

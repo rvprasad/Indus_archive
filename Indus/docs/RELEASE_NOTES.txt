@@ -27,9 +27,12 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
-Current Version
-----------------
+Version 0.2
+------------
 	- All xmlizers use classes from xmlenc library to generate xml documents.
+	- Lots of refactoring.
+	- Reachability optimization in graphs.
+	- A slew of classes for filtered viewing of java collections framework class instances.
 
 
 Version 0.1

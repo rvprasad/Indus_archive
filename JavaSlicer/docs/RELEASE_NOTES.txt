@@ -29,17 +29,19 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
-Current Version
-----------------
+Version 0.2
+------------
 	- All xmlizers use classes from xmlenc library to generate xml documents.
 	- Catered to feature requests 370, 371, 373, 376, 378, 379, 384, 385, 386, and 391.
 	- Jakarta Commons IO v1.0 is used for common file and i/o operations.
 	- Added support to specify slice criteria via command line through a criteria specification file.
 	- Added support to serialize/deserialize slice criteria.
+	- Forward slicing and Complete slicing is available as we introduced exit control dependence in Indus StaticAnalyses
+	  module
 
 
 Version 0.1
------------
+------------
 This is (hopefully) a stable release of version 0.1a.  One notable change is that we have decided to use Soot 2.1.0 for
 Indus.  This is because there were some changes in Soot pertaining to control flow graphs which were not decided at the time
 of this release.  As we do not know when these changes in Soot will stabilize we advice the users to use Soot 2.1.0 only.
