@@ -60,6 +60,7 @@ import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
+import soot.jimple.CastExpr;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
@@ -742,6 +743,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 			return _delayUnification;
 		}
+        /**
+         * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
+         */
+        public void caseCastExpr(final CastExpr v) {
+            process(v.getOp());
+        }
 	}
 
 	/**
@@ -1246,6 +1253,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/02/27 23:04:10  venku
+   - wait/notify trapping was incorrect. FIXED.
+
    Revision 1.44  2004/02/25 00:04:02  venku
    - documenation.
    Revision 1.43  2004/01/21 13:35:26  venku
