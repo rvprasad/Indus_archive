@@ -115,7 +115,7 @@ public class InterferenceDAv1
 			Map temp = null;
 
 			if (as.containsFieldRef()) {
-				if (as.getLeftOp() instanceof FieldRef) {
+			    if (as.getLeftOp() instanceof FieldRef) {
 					SootField sf = ((FieldRef) as.getLeftOp()).getField();
 					temp = getDependeXXMapHelper(dependentMap, sf);
 				} else {
@@ -145,14 +145,20 @@ public class InterferenceDAv1
 		 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
-			ppc.register(AssignStmt.class, this);
+            // we do not hookup if there are no threads in the system.
+            if (tgi != null && tgi.getStartSites().size() != 0) {
+                ppc.register(AssignStmt.class, this);
+            }
 		}
 
 		/**
 		 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
-			ppc.unregister(AssignStmt.class, this);
+		    // we do not unhook if there are no threads in the system.
+            if (tgi.getStartSites().size() != 0) {
+                ppc.unregister(AssignStmt.class, this);
+            }
 		}
 
 		/**
@@ -272,6 +278,7 @@ public class InterferenceDAv1
 		// we return immediately if there are no start sites in the system.
 		if (tgi.getStartSites().size() == 0) {
 			stable = true;
+            return;
 		}
 
 		for (Iterator i = dependeeMap.keySet().iterator(); i.hasNext();) {
@@ -494,6 +501,10 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/12/09 04:22:09  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.27  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
