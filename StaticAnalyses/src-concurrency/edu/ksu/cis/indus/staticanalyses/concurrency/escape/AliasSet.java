@@ -224,22 +224,6 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if the given alias set was accessed.
-	 *
-	 * @return <code>true</code> if it was accessed; <code>false</code>, otherwise.
-	 */
-	boolean isAccessed() {
-		return ((AliasSet) find()).accessed;
-	}
-
-	/**
-	 * Marks the alias set as shared.
-	 */
-	void setEscapes() {
-		((AliasSet) find()).shared = true;
-	}
-
-	/**
 	 * Retrieves an unmodifiable copy of the field map of this alias set.
 	 *
 	 * @return the field map.
@@ -284,15 +268,6 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if this object is notified.
-	 *
-	 * @return <code>true</code> if this object is notified; <code>false</code>, otherwise.
-	 */
-	boolean isNotified() {
-		return ((AliasSet) find()).notifies;
-	}
-
-	/**
 	 * Marks the object associated with this alias set as appearing in a <code>notify()/notifyAll()</code> call.
 	 *
 	 * @post find().notifies == true
@@ -302,35 +277,12 @@ final class AliasSet
 	}
 
 	/**
-	 * Sets the ready entity attribute of this object, if not set.
-	 *
-	 * @post self.readyEntity != null
-	 */
-	void setReadyEntity() {
-		final AliasSet _a = ((AliasSet) find());
-
-		if (_a.readyEntities == null) {
-			_a.readyEntities = new HashSet();
-			_a.readyEntities.add(getNewReadyEntity());
-		}
-	}
-
-	/**
 	 * Retrieves the shared entities of this object.
 	 *
 	 * @return a collection of objects.
 	 */
 	Collection getShareEntities() {
 		return ((AliasSet) find()).shareEntities;
-	}
-
-	/**
-	 * Checks if this object is waited on.
-	 *
-	 * @return <code>true</code> if this object is waited on; <code>false</code>, otherwise.
-	 */
-	boolean isWaitedOn() {
-		return ((AliasSet) find()).waits;
 	}
 
 	/**
@@ -347,26 +299,6 @@ final class AliasSet
 	 */
 	void setWritten() {
 		((AliasSet) find()).written = true;
-	}
-
-	/**
-	 * Adds all the alias sets reachable from this object, including this object.
-	 *
-	 * @param col is an out parameter into which the alias sets will be added.
-	 *
-	 * @pre col != null
-	 * @post col.containsAll(col$pre)
-	 */
-	void addReachableAliasSetsTo(final Collection col) {
-		col.add(this);
-
-		for (final Iterator _i = fieldMap.values().iterator(); _i.hasNext();) {
-			final AliasSet _as = (AliasSet) ((AliasSet) _i.next()).find();
-
-			if (!col.contains(_as)) {
-				_as.addReachableAliasSetsTo(col);
-			}
-		}
 	}
 
 	/**
@@ -682,6 +614,9 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.12  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

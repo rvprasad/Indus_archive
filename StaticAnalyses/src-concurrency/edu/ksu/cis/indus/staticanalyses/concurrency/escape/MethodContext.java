@@ -235,53 +235,6 @@ final class MethodContext
 	}
 
 	/**
-	 * Adds all alias sets reachable from this context to col.
-	 *
-	 * @param col is an out parameter to which the alias sets will be added.
-	 *
-	 * @pre col != null
-	 * @post col.contains(col$pre)
-	 */
-	void addReachableAliasSetsTo(final Collection col) {
-		AliasSet _temp;
-
-		if (thisAS != null) {
-			_temp = (AliasSet) thisAS.find();
-
-			if (!col.contains(_temp)) {
-				_temp.addReachableAliasSetsTo(col);
-			}
-		}
-
-		if (ret != null) {
-			_temp = (AliasSet) ret.find();
-
-			if (!col.contains(_temp)) {
-				_temp.addReachableAliasSetsTo(col);
-			}
-		}
-		_temp = (AliasSet) thrown.find();
-
-		if (!col.contains(_temp)) {
-			_temp.addReachableAliasSetsTo(col);
-		}
-
-		final int _paramCount = method.getParameterCount();
-
-		for (int _i = 0; _i < _paramCount; _i++) {
-			_temp = (AliasSet) argAliasSets.get(_i);
-
-			if (_temp != null) {
-				_temp = (AliasSet) _temp.find();
-
-				if (!col.contains(_temp)) {
-					_temp.addReachableAliasSetsTo(col);
-				}
-			}
-		}
-	}
-
-	/**
 	 * Propogates the information from this context to the given context.  Please refer to the {@link
 	 * unify(MethodContext,boolean) #unify} for important information.
 	 *
@@ -517,6 +470,10 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.11  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
