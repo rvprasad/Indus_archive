@@ -80,42 +80,20 @@ public class SliceCriteriaFactory {
 	 * @param method in which the criterion occurs.
 	 * @param stmt in which the criterion occurs.
 	 * @param expression is the criterion.
-	 * @param considerExecution <code>true</code> indicates that the effect of executing this criterion should be considered
-	 * 		  while slicing.  This means all the subexpressions of the associated expression are also considered as slice
-	 * 		  criteria. <code>false</code> indicates that just the mere effect of the control reaching this criterion should
-	 * 		  be considered while slicing.  This means none of the subexpressions of the associated expression are
-	 * 		  considered as slice criteria.
 	 *
 	 * @return a collection of slice criterion objects corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null and expression != null
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expression,
-		final boolean considerExecution) {
+	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expression) {
 		Collection result = new HashSet();
-
-		/*        Value value = expression.getValue();
-		   boolean include = includeInSlice;
-		   // add the use boxes as a slice criteria if the given expression is being defined.
-		   if (considerExecution) {
-		       include = true;
-		       Collection temp = value.getUseBoxes();
-		       if (temp.size() > 0) {
-		           for (Iterator i = temp.iterator(); i.hasNext();) {
-		               SliceExpr exprCriterion = SliceExpr.getSliceExpr();
-		               exprCriterion.initialize(method, stmt, expression, include);
-		               result.add(exprCriterion);
-		           }
-		       }
-		   }
-		 */
 		SliceExpr exprCriterion = SliceExpr.getSliceExpr();
-		exprCriterion.initialize(method, stmt, expression, considerExecution);
+		exprCriterion.initialize(method, stmt, expression);
 		result.add(exprCriterion);
 
 		SliceStmt stmtCriterion = SliceStmt.getSliceStmt();
-		stmtCriterion.initialize(method, stmt, considerExecution);
+		stmtCriterion.initialize(method, stmt);
 		result.add(stmtCriterion);
 
 		return result;
@@ -128,37 +106,17 @@ public class SliceCriteriaFactory {
 	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt is the criterion.
-	 * @param considerExecution <code>true</code> indicates that the effect of executing this criterion should be considered
-	 * 		  while slicing.  This means all the expressions of the associated statement are also considered as slice
-	 * 		  criteria. <code>false</code> indicates that just the mere effect of the control reaching this criterion should
-	 * 		  be considered while slicing.  This means none of the expressions of the associated statement are considered as
-	 * 		  slice criteria.
 	 *
 	 * @return a collection of slice criterion corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
+	public Collection getCriterion(final SootMethod method, final Stmt stmt) {
 		Collection result = new HashSet();
 
-		/*        boolean include = includeInSlice;
-		   if (considerExecution) {
-		       include = true;
-		
-		       Collection temp = stmt.getUseAndDefBoxes();
-		       if (temp.size() > 0) {
-		           for (Iterator i = temp.iterator(); i.hasNext();) {
-		               SliceExpr exprCriterion = SliceExpr.getSliceExpr();
-		               exprCriterion.initialize(method, stmt, (ValueBox) i.next(), include);
-		               result.add(exprCriterion);
-		           }
-		       }
-		
-		   }
-		 */
 		SliceStmt stmtCriterion = SliceStmt.getSliceStmt();
-		stmtCriterion.initialize(method, stmt, considerExecution);
+		stmtCriterion.initialize(method, stmt);
 		result.add(stmtCriterion);
 		return result;
 	}
@@ -168,17 +126,12 @@ public class SliceCriteriaFactory {
 	 *
 	 * @param method in which the <code>local</code> occurs.
 	 * @param local is the local variable whose all occurrences in <code>method</code> should be captured as slice criterion
-	 * @param considerExecution <code>true</code> indicates that the effect of executing this criterion should be considered
-	 * 		  while slicing.  This means all the expressions of the associated statement are also considered as slice
-	 * 		  criteria. <code>false</code> indicates that just the mere effect of the control reaching this criterion should
-	 * 		  be considered while slicing.  This means none of the expressions of the associated statement are considered as
-	 * 		  slice criteria.
 	 *
 	 * @return a collection of slice criteria.
 	 *
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Local local, final boolean considerExecution) {
+	public Collection getCriterion(final SootMethod method, final Local local) {
 		Collection result = Collections.EMPTY_LIST;
 
 		Body body = method.getActiveBody();
@@ -194,7 +147,7 @@ public class SliceCriteriaFactory {
 
 					if (vBox.getValue().equals(local)) {
 						SliceExpr exprCriterion = SliceExpr.getSliceExpr();
-						exprCriterion.initialize(method, stmt, vBox, considerExecution);
+						exprCriterion.initialize(method, stmt, vBox);
 						result.add(exprCriterion);
 					}
 				}
@@ -226,29 +179,36 @@ public class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/05 08:31:33  venku
+   - we only support before and after type of criteria.  This
+     includes the cases of inclusion in slice.
+   - the factory only creates criteria at a coarse level as
+     specified by the expression/statement.  It relies on
+     the slicing algorithm to drill down into the expr/stmt
+     for more criteria.
    Revision 1.1  2003/10/13 00:58:04  venku
  *** empty log message ***
-         Revision 1.11  2003/09/27 22:38:30  venku
-         - package documentation.
-         - formatting.
-         Revision 1.10  2003/09/15 08:09:17  venku
-         - fixed param dependency.  However, this needs to be addressed
-           in a generic setting.  Also, the theoretics concerned to inclusion
-           should be dealt appropriately.
-         Revision 1.9  2003/08/21 09:31:52  venku
-         If the SliceExpr was created based on a Def Box, it would not have
-         included the statement.  This was fixed.
-         Revision 1.8  2003/08/20 18:31:22  venku
-         Documentation errors fixed.
-         Revision 1.7  2003/08/18 12:14:13  venku
-         Well, to start with the slicer implementation is complete.
-         Although not necessarily bug free, hoping to stabilize it quickly.
-         Revision 1.6  2003/08/18 05:01:45  venku
-         Committing package name change in source after they were moved.
-         Revision 1.5  2003/08/18 04:56:47  venku
-         Spruced up Documentation and specification.
-         But committing before moving slicer under transformation umbrella of Indus.
-         Revision 1.4  2003/05/22 22:23:49  venku
-         Changed interface names to start with a "I".
-         Formatting.
+             Revision 1.11  2003/09/27 22:38:30  venku
+             - package documentation.
+             - formatting.
+             Revision 1.10  2003/09/15 08:09:17  venku
+             - fixed param dependency.  However, this needs to be addressed
+               in a generic setting.  Also, the theoretics concerned to inclusion
+               should be dealt appropriately.
+             Revision 1.9  2003/08/21 09:31:52  venku
+             If the SliceExpr was created based on a Def Box, it would not have
+             included the statement.  This was fixed.
+             Revision 1.8  2003/08/20 18:31:22  venku
+             Documentation errors fixed.
+             Revision 1.7  2003/08/18 12:14:13  venku
+             Well, to start with the slicer implementation is complete.
+             Although not necessarily bug free, hoping to stabilize it quickly.
+             Revision 1.6  2003/08/18 05:01:45  venku
+             Committing package name change in source after they were moved.
+             Revision 1.5  2003/08/18 04:56:47  venku
+             Spruced up Documentation and specification.
+             But committing before moving slicer under transformation umbrella of Indus.
+             Revision 1.4  2003/05/22 22:23:49  venku
+             Changed interface names to start with a "I".
+             Formatting.
  */
