@@ -24,11 +24,12 @@ import soot.Scene;
 
 /**
  * DOCUMENT ME!
- * <p></p>
  * 
- * @version $Revision$ 
- * @author <a href="$user_web$">$user_name$</a>
+ * <p></p>
+ *
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$ $Date$
  */
 public interface IFAProcessorTest {
 	/**
@@ -56,4 +57,7 @@ public interface IFAProcessorTest {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 01:10:33  venku
+   - renamed TestSuite classes to ArgTestSuite classes.
+   - added DependencyArgTestSuite.
  */

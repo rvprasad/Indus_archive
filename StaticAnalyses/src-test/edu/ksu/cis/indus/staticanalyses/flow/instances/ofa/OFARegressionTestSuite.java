@@ -46,31 +46,21 @@ public final class OFARegressionTestSuite
 	/**
 	 * This is the property via which the ofa test accepts input.  Refer to OFATest.properties for format.
 	 */
-	public static final String OFA_TEST_PROPERTIES_FILE = "indus.staticanalyses.ofa.OFATest.properties.file";
+	public static final String OFA_TEST_PROPERTIES_FILE = "indus.staticanalyses.flow.instances.ofa.OFATest.properties.file";
 
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(OFARegressionTestSuite.class);
 
-	//  /CLOVER:OFF
+	///CLOVER:OFF
 
 	/**
 	 * This is the entry point via command-line.
 	 *
-	 * @param args are a list of space separated names of classes to be analyzed.
-	 *
-	 * @pre args != null
+	 * @param args are ignored.
 	 */
 	public static void main(final String[] args) {
-		final StringBuffer _sb = new StringBuffer();
-
-		for (int _i = args.length - 1; _i >= 0; _i--) {
-			_sb.append(args[_i] + " ");
-		}
-
-		System.setProperty(OFA_TEST_PROPERTIES_FILE, _sb.toString());
-
 		final TestRunner _runner = new TestRunner();
 		_runner.setLoading(false);
 		_runner.startTest(suite());
@@ -81,19 +71,19 @@ public final class OFARegressionTestSuite
 
 	/**
 	 * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
-	 * <code>indus.staticanalyses.dependency.DependencyTest.properties.file</code> system property.  Refer to
-	 * <code>edu.ksu.cis.indus.staticanalyses.dependency.DependencyTest.properties</code> for the format of the file.
+	 * <code>OFA_TEST_PROPERTIES_FILE</code> system property.  Refer to
+	 * <code>edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFATest.properties</code> for the format of the file.
 	 *
 	 * @return the suite of tests.
 	 *
-	 * @throws RuntimeException when <code>indus.dependencytest.properties.file</code> property is unspecified.
+	 * @throws RuntimeException when <code>OFA_TEST_PROPERTIES_FILE</code> property is unspecified.
 	 */
 	public static Test suite() {
 		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.ofa");
 		final String _propFileName = System.getProperty(OFA_TEST_PROPERTIES_FILE);
 
 		if (_propFileName == null) {
-			throw new RuntimeException("Please provide a property file like OFATest.properties via"
+			throw new RuntimeException("Please provide a property file like OFATest.properties via "
 				+ "-D" + OFA_TEST_PROPERTIES_FILE);
 		}
 		setupTests(_propFileName, _suite);
@@ -164,6 +154,14 @@ public final class OFARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 04:53:10  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
+
    Revision 1.2  2004/02/08 01:48:54  venku
    - documentation and coding convention.
    Revision 1.1  2004/02/08 01:14:33  venku

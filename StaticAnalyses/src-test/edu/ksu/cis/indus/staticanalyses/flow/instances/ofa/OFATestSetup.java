@@ -48,12 +48,10 @@ public final class OFATestSetup
 	protected CallGraph cgiImpl;
 
 	/**
-	 * Creates a new OFATestSetup object.
-	 *
-	 * @param test to be run in this set up.
+	 * @see FATestSetup#FATestSetup(TestSuite,String,String)
 	 */
-	OFATestSetup(final TestSuite test) {
-		super(test);
+	OFATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
+		super(test, theNameOfClasses, classpath);
 		cgiImpl = new CallGraph();
 	}
 
@@ -89,24 +87,23 @@ public final class OFATestSetup
 	  throws Exception {
 		G.reset();
 	}
-    /**
-     * @see FATestSetup#FATestSetup(TestSuite,String,String)
-     */
-    OFATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
-        super(test, theNameOfClasses, classpath);
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 04:53:10  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
    Revision 1.1  2004/02/08 02:21:21  venku
    - renamed package instances.ofa.processors to instances.ofa.
    - renamed OFAProcessorArgTestSuite to OFAProcessorTestSuite.
-
    Revision 1.2  2004/02/08 02:08:25  venku
    - coding conventions.
-
    Revision 1.1  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

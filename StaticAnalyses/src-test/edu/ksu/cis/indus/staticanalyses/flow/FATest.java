@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -51,23 +48,17 @@ public final class FATest
 	/**
 	 * The flow analysis framework instance to test.
 	 */
-	FA fa;
+	private FA fa;
 
 	/**
 	 * The name of that tag used to identify parts of the system that was touched by the analysis.
 	 */
 	private String faTagName;
 
-	/**
-	 * @see IFATester#setFA(edu.ksu.cis.indus.staticanalyses.flow.FA)
-	 */
 	public void setFA(final FA theFA) {
 		fa = theFA;
 	}
 
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.FATestSetup.IFATester#setFATagName(java.lang.String)
-	 */
 	public void setFATagName(final String tagName) {
 		faTagName = tagName;
 	}
@@ -78,39 +69,6 @@ public final class FATest
 	public void testContainment() {
 		checkContainmentOnTaggedEntity();
 		checkContainmentOnUnTaggedEntity();
-	}
-
-	/**
-	 * Tests the tagging based on inheritance.
-	 */
-	public void testInheritance() {
-		final IWorkBag _wb = new FIFOWorkBag();
-
-		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			if (_sc.hasTag(faTagName)) {
-				if (_sc.hasSuperclass()) {
-					_wb.addWorkNoDuplicates(_sc.getSuperclass());
-				}
-				_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
-			}
-		}
-
-		final Collection _processedClasses = fa.getClasses();
-
-		while (_wb.hasWork()) {
-			final SootClass _sc = (SootClass) _wb.getWork();
-			assertTrue(_sc.hasTag(faTagName));
-			assertTrue(_processedClasses.contains(_sc));
-
-			if (_sc.hasTag(faTagName)) {
-				if (_sc.hasSuperclass()) {
-					_wb.addWorkNoDuplicates(_sc.getSuperclass());
-				}
-				_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
-			}
-		}
 	}
 
 	/**
@@ -217,6 +175,14 @@ public final class FATest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/08 04:53:10  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
+
    Revision 1.3  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

@@ -39,8 +39,8 @@ import soot.VoidType;
 
 /**
  * This is the setup in which various tests of flow analyses are run.  The classes to be processed during the test can be
- * configured via the command line or via specifying <code>CLASSES_PROPERTY</code>. The syntax for both these options is a
- * space separated list of class names.
+ * configured via the command line or via specifying <code>FARegressionTestSuite.FA_TEST_PROPERTIES_FILE</code> system
+ * property. The syntax for both these options is a space separated list of class names.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -48,11 +48,6 @@ import soot.VoidType;
  */
 public class FATestSetup
   extends AbstractXMLBasedTestSetup {
-	/**
-	 * The name of the property via which the names of the classes to be used to drive the test is specified.
-	 */
-	public static final String CLASSES_PROPERTY = "indus.staticanalyses.flow.FATest.classes";
-
 	/**
 	 * The tag used by the flow analysis instance.
 	 */
@@ -72,20 +67,6 @@ public class FATestSetup
 	 * The names of the class to analyze.
 	 */
 	protected final String classNames;
-
-	/**
-	 * Creates a new FATestSetup object.
-	 *
-	 * @param test is the test to run in this setup.
-	 *
-	 * @pre test != null
-	 */
-	protected FATestSetup(final TestSuite test) {
-		super(test);
-		valueAnalyzer = OFAnalyzer.getFSOSAnalyzer(FATestSetup.TAG_NAME);
-		scene = Scene.v();
-		classNames = null;
-	}
 
 	/**
 	 * Creates a new FATestSetup object.
@@ -111,18 +92,7 @@ public class FATestSetup
 	  throws Exception {
 		super.setUp();
 
-		String _classes = classNames;
-
-		if (_classes == null) {
-			_classes = System.getProperty(CLASSES_PROPERTY);
-
-			if (_classes == null || _classes.length() == 0) {
-				throw new RuntimeException(CLASSES_PROPERTY + " property is invalid.  Aborting.");
-			}
-		}
-
-		final StringBuffer _sb = new StringBuffer(_classes);
-		final String[] _j = _sb.toString().split(" ");
+		final String[] _j = classNames.toString().split(" ");
 		final Collection _rootMethods = new ArrayList();
 
 		for (int _i = _j.length - 1; _i >= 0; _i--) {
@@ -165,6 +135,8 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/08 05:28:49  venku
+   - class names was not initialized properly.
    Revision 1.5  2004/02/08 04:53:10  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.
