@@ -23,6 +23,7 @@ package edu.ksu.cis.indus.kaveri.sliceactions;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
 import edu.ksu.cis.indus.kaveri.driver.IndusRunner;
 
 import java.lang.reflect.InvocationTargetException;
@@ -78,17 +79,17 @@ public class RunIndus
 		if (_fileList != null && _fileList.size() > 0) {
 			KaveriPlugin.getDefault().getIndusConfiguration().reset();
 
-			final IndusRunner _runner = new IndusRunner(_fileList);
+			final Display _display = Display.getCurrent();
+			final Shell _shell = new Shell();
+			final SliceProgressBar _dialog = new SliceProgressBar(_shell);
+			final IndusRunner _runner = new IndusRunner(_fileList, _dialog);
 
 			if (!_runner.doWork()) {
 				return;
 			}
 
-			final Display _display = Display.getCurrent();
-			final Shell _shell = new Shell();
 
 			try {
-				final ProgressMonitorDialog _dialog = new ProgressMonitorDialog(_shell);
 				_dialog.run(true, true, _runner);
 			} catch (InvocationTargetException _ie) {
 				SECommons.handleException(_ie);

@@ -53,6 +53,7 @@ import org.eclipse.ui.IFileEditorInput;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dialogs.IndusConfigurationDialog;
+import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
 import edu.ksu.cis.indus.kaveri.driver.IndusRunner;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
@@ -166,18 +167,20 @@ abstract public class BasicSliceFunctions {
 
 					final List _lst = SECommons.checkForRootMethods(_file);
 
-					final IndusRunner _runner = new IndusRunner(_lst);
+//					 Changed to my progress monitor dialog.
+
+					final Display _display = Display.getCurrent();
+					final Shell _shell = new Shell();
+
+					final SliceProgressBar _dialog = new SliceProgressBar(_shell);
+					final IndusRunner _runner = new IndusRunner(_lst, _dialog);
 					_runner.setEditor(editor);
 
 					if (!_runner.doWork()) {
 						return;
 					}
 
-					final Display _display = Display.getCurrent();
-					final Shell _shell = new Shell();
-
-					try {
-						final ProgressMonitorDialog _dialog = new ProgressMonitorDialog(_shell);
+					try {						
 						_dialog.run(true, true, _runner);
 					} catch (InvocationTargetException _ie) {
 						SECommons.handleException(_ie);

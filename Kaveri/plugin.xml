@@ -565,6 +565,9 @@
       <super type="org.eclipse.core.resources.textmarker"/>
       <persistent value="false"/>
    </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.annotationModelCreation">
+   </extension>
    <!--
    <extension
          point="org.eclipse.ui.propertyPages">

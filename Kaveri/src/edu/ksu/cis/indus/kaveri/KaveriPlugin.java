@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.kaveri;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
+import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import java.io.BufferedReader;
@@ -141,7 +142,7 @@ public class KaveriPlugin
 		} catch (MissingResourceException _x) {
 			resourceBundle = null;
 		}
-		slicerTool = new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
+		slicerTool = new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new ExceptionFlowSensitiveStmtGraphFactory());
 		cacheMap = new HashMap();
 		/*final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
 		listener =  new JavaClassChangeListener();
@@ -251,7 +252,7 @@ public class KaveriPlugin
 	 * 
 	 */
 	public void createNewSlicer() {
-		slicerTool = new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
+		slicerTool = new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new ExceptionFlowSensitiveStmtGraphFactory());
 		loadConfigurations();
 	}
 	

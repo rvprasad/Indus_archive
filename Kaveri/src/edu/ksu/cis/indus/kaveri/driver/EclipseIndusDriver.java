@@ -472,7 +472,7 @@ public class EclipseIndusDriver
 			SECommons.handleException(_jbe);
 		}
 		slicer.setCriteria(criteria);
-		slicer.run(Phase.STARTING_PHASE, true);
+		slicer.run(Phase.STARTING_PHASE, true); // changed from true
 	}
 
 	/**
@@ -482,7 +482,8 @@ public class EclipseIndusDriver
 	 */
 	public void initializeSlicer() {
 		Options.v().set_keep_line_number(true);
-		Options.v().set_src_prec(Options.src_prec_java);
+		// Fix for soot.CompilationDeathException.
+		//Options.v().set_src_prec(Options.src_prec_java);
 		super.initialize();
 	}
 

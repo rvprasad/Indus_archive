@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -55,6 +56,7 @@ import soot.jimple.Stmt;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
+import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
 import edu.ksu.cis.indus.kaveri.sliceactions.Messages;
@@ -85,6 +87,12 @@ public class IndusRunner
 	 */
 	EclipseIndusDriver driver;
 
+	
+	/**
+	 * The slice progress bar.
+	 */
+	SliceProgressBar bar;
+	
 	/** 
 	 * <p>
 	 * List of java files to be sliced.
@@ -101,13 +109,15 @@ public class IndusRunner
 	 * Creates a new IndusRunner object.
 	 *
 	 * @param filesList The file pointing to the java file being sliced
+	 * @param bar The slice progress bar to which to report the messages.
 	 */
-	public IndusRunner(final List filesList) {
+	public IndusRunner(final List filesList, SliceProgressBar bar) {
 		this.fileList = filesList;
 		driver = KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver();
 		editor = null;
 		completeFileList = null;
 		opCancelled = false;
+		this.bar = bar;
 	}
 
 	/**
@@ -140,23 +150,34 @@ public class IndusRunner
 		driver.setNameOfSliceTag(_stag);
 		driver.getSlicer().addToolProgressListener(
 				new IToolProgressListener() {
-					int _ctr = 1;
-					public void toolProgess(ToolProgressEvent arg0) {
-						_ctr++;
+					int _ctr = 1; long _currTime = System.currentTimeMillis();
+					public void toolProgess(final ToolProgressEvent arg0) {						
+						_ctr++;						
 						if (!monitor.isCanceled()) {
+							final long _newTime = (System.currentTimeMillis() - _currTime);
+							_currTime = System.currentTimeMillis();
 							monitor.worked(_ctr);
+							
+							Display.getDefault().asyncExec(
+									new Runnable() {
+										public void run() {
+											bar.addSliceMessage(arg0.getMsg() + " Time: " + _newTime + " ms");				
+										}
+									}
+									);
+							
 							//System.out.println(arg0.getMsg());
 						}						
 						else {
 							opCancelled = true;
-							driver.getSlicer().abort();
+							driver.getSlicer().abort();							
 						}
 					}
 					
 				}
 				);
 		
-		driver.execute();
+		driver.execute();		
 		if (opCancelled) {
 			throw new InterruptedException("Slice was stopped");
 		}
@@ -183,7 +204,7 @@ public class IndusRunner
 		if (editor != null) {
 			highlightEditor();
 		}
-		returnCriteriaToPool();
+		returnCriteriaToPool();		
 		monitor.done();
 	}
 

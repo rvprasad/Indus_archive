@@ -121,6 +121,7 @@ public final class SootConvertor {
 			//G.reset();
 			final Scene _scene = Scene.v();
 			Options.v().parse(Util.getSootOptions());
+			// Fix for the soot.CompilationDeathError.
 			Options.v().set_src_prec(Options.src_prec_java);
 			Options.v().set_keep_line_number(true);
 
