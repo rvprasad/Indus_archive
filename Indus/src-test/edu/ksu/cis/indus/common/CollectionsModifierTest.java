@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.common;
 
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import junit.framework.TestCase;
 
 
 /**
@@ -85,4 +85,6 @@ public class CollectionsModifierTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/28 22:55:23  venku
+   - added test suites for classes in common package.
  */

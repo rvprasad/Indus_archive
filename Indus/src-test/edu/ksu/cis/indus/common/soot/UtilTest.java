@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import junit.framework.TestCase;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Environment;
@@ -26,6 +24,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 import soot.ArrayType;
 import soot.BooleanType;
@@ -239,4 +239,6 @@ public class UtilTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/28 22:45:07  venku
+   - added new test cases for testing classes in soot package.
  */

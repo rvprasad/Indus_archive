@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.Collection;
+
+import junit.framework.TestCase;
 
 
 /**
@@ -161,7 +161,8 @@ public class TripleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/28 22:42:27  venku
+ *** empty log message ***
    Revision 1.1  2004/01/28 00:18:45  venku
    - added unit tests for classes in data structures package.
-
  */
