@@ -233,6 +233,8 @@ public class IdentifierBasedDataDAv2
 		return _result.toString();
 	}
 
+	///CLOVER:ON
+
 	/**
 	 * Retrieves the local use def analysis for the given method.
 	 *
@@ -245,8 +247,6 @@ public class IdentifierBasedDataDAv2
 	protected IUseDefInfo getLocalUseDefAnalysis(final SootMethod method) {
 		return new LocalUseDefAnalysis(getUnitGraph(method));
 	}
-
-	///CLOVER:ON
 
 	/**
 	 * Sets up internal data structures.
@@ -300,6 +300,9 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/07/21 11:40:22  venku
+   - documentation.
+
    Revision 1.6  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
