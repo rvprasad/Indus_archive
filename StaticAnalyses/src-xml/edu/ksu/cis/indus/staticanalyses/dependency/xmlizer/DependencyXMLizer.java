@@ -464,7 +464,7 @@ public class DependencyXMLizer
 	 *
 	 * @return a map of xmlizers and the associated writers.
 	 *
-	 * @throws IllegalStateException DOCUMENT ME!
+	 * @throws IllegalStateException when output directory is unspecified.
 	 *
 	 * @pre rootname != null and ctrl != null
 	 * @post result != null and result.oclIsKindOf(Map(StmtLevelDependencyXMLizer, Writer))
@@ -661,6 +661,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/01/21 01:41:43  venku
+   - Thread mapping is printed by ThreadGraph.dumpGraph().
+      So, deleted duplicate code.
+
    Revision 1.39  2004/01/20 15:52:12  venku
    - enabled soot class path setting option.
    Revision 1.38  2004/01/09 07:27:34  venku

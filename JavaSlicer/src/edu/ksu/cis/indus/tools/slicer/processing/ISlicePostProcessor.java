@@ -23,9 +23,7 @@ import java.util.Collection;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a generic interface that can be used to provide slice processing service.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -33,13 +31,13 @@ import java.util.Collection;
  */
 public interface ISlicePostProcessor {
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the slice.
 	 *
-	 * @param methods DOCUMENT ME!
-	 * @param basicBlockMgr DOCUMENT ME!
-	 * @param theCollector DOCUMENT ME!
+	 * @param methods are the methods in the slice.
+	 * @param basicBlockMgr provides the basic block graph for the methods in the slice.
+	 * @param theCollector to be used to extend the slice.
+	 *
+	 * @pre methods != null and basicBlockMgr != null and theCollector != null
 	 */
 	void process(final Collection methods, final BasicBlockGraphMgr basicBlockMgr, final SliceCollector theCollector);
 }
@@ -47,6 +45,13 @@ public interface ISlicePostProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/13 07:53:51  venku
+   - as post processing beyond retention of semantics of slice is
+     particular to the application or the tool.  Hence, moved the
+     post processors into processing package under slicer tool.
+   - added a new method to AbstractSliceGotoProcessor to
+     process a collection of methods given a basic block graph
+     manager.
    Revision 1.1  2004/01/13 04:35:08  venku
    - added a new package called "processing" and it will house
      all processing done on the slice to ensure the slice satisfies

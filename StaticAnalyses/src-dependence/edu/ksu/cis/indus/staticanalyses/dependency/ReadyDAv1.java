@@ -128,9 +128,7 @@ public class ReadyDAv1
 	private static final Log LOGGER = LogFactory.getLog(ReadyDAv1.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * A token used to represent the nonexistent monitor entry/exit statements in synchronized methods.
 	 */
 	protected static final Object SYNC_METHOD_PROXY_STMT = "SYNC_METHOD_PROXY_STMT";
 
@@ -928,6 +926,14 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/01/21 13:44:09  venku
+   - made ready dependence to consider synchronized methods as well.
+   - ReadyDAv2 uses escape information for both sorts of inter-thread
+     ready DA.
+   - ReadyDAv3 uses escape and object flow information for
+     monitor based inter-thread ready DA while using symbol-based
+     escape information for wait/notify based inter-thread ready DA.
+
    Revision 1.37  2004/01/20 16:50:16  venku
    - inadvertently, the dependency between waits and notify was
      recorded in the reverse direction. FIXED.

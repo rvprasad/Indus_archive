@@ -103,11 +103,12 @@ public final class SynchronizationDA
 	final Collection monitorTriples = new HashSet();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps synchronized methods to monitor triples.
+	 *
+	 * @invariant syncmethod2MonitorTriple.oclIsKindOf(Map(SootMethod, Triple))
+	 * @invariant syncmethod2MonitorTriple.keySet()->forall(o | o.isSynchronized())
 	 */
-	private final Map monitorsInSyncMethods = new HashMap();
+	private final Map syncmethod2MonitorTriple = new HashMap();
 
 	/**
 	 * This provides object flow information.
@@ -514,24 +515,24 @@ nextBasicBlock:
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Records the monitor triples occurring in synchronized methods.
 	 *
-	 * @param method DOCUMENT ME!
-	 * @param enter DOCUMENT ME!
-	 * @param exit DOCUMENT ME!
+	 * @param method is the synchronized method containing the monitor.
+	 * @param enter is the monitor entry.
+	 * @param exit is the monitor exit.
+	 *
+	 * @pre method != null and enter != null and exit != null
 	 */
 	private void recordMonitorTriple(final SootMethod method, final EnterMonitorStmt enter, final ExitMonitorStmt exit) {
 		final Triple _triple = new Triple(enter, exit, method);
 		monitorTriples.add(_triple);
 
 		if (method.isSynchronized()) {
-			Collection _temp = (Collection) monitorsInSyncMethods.get(method);
+			Collection _temp = (Collection) syncmethod2MonitorTriple.get(method);
 
 			if (_temp == null) {
 				_temp = new HashSet();
-				monitorsInSyncMethods.put(method, _temp);
+				syncmethod2MonitorTriple.put(method, _temp);
 			}
 			_temp.add(enter);
 		}
@@ -541,6 +542,8 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/01/19 08:57:29  venku
+   - documentation and formatting.
    Revision 1.28  2004/01/19 08:26:59  venku
    - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.27  2004/01/06 00:17:00  venku
