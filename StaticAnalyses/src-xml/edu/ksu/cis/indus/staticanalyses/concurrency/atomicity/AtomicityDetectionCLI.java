@@ -77,7 +77,7 @@ public final class AtomicityDetectionCLI
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	public static final Log LOGGER = LogFactory.getLog(AtomicityDetectionCLI.class);
+	private static final Log LOGGER = LogFactory.getLog(AtomicityDetectionCLI.class);
 
 	/** 
 	 * The detector to be used.
