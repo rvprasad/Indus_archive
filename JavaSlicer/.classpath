@@ -6,12 +6,12 @@
 	<classpathentry sourcepath="JRE_SRC" kind="var" path="JRE_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/bandera/banderaTools.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/swt/swt.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/sootclasses-2.1.0-custom.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
