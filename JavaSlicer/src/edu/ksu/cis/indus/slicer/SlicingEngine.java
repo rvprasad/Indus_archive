@@ -65,8 +65,6 @@ import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
-import soot.tagkit.Host;
-
 import soot.toolkits.graph.CompleteUnitGraph;
 
 import soot.toolkits.scalar.SimpleLocalDefs;
@@ -673,17 +671,7 @@ public final class SlicingEngine {
 		_context.setStmt(stmt);
 
 		final Collection _callees = cgi.getCallees(_expr, _context);
-		final Collection _temp = new HashSet(_callees);
-
-		for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-			final SootClass _sc = _sm.getDeclaringClass();
-
-			if (_sc.declaresMethodByName("<clinit>") && !collector.hasBeenCollected(_sc.getMethodByName("<clinit>"))) {
-				_temp.add(_sc.getMethodByName("<clinit>"));
-			}
-		}
-
+		System.out.println(_expr + " @ " + _context + "\n" + _callees);
 		generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method);
 
 		if (useReady) {
@@ -806,7 +794,8 @@ public final class SlicingEngine {
 
 		// generate criteria to include invocation sites only if the method has not been collected.
 		if (!collector.hasBeenCollected(callee)) {
-			includeInSlice(callee, callee.getDeclaringClass());
+			collector.includeInSlice(callee);
+			includeClassHierarchyInSlice(callee.getDeclaringClass());
 
 			final boolean _notStatic = !callee.isStatic();
 
@@ -890,23 +879,41 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Includes the given elements into the slice.
+	 * DOCUMENT ME!
 	 *
-	 * @param host1 is one of the element to be included in the slice.
-	 * @param host2 is the other element to be included in the slice.
-	 *
-	 * @pre host1 != null and host2 != null
+	 * @param clazz DOCUMENT ME!
 	 */
-	private void includeInSlice(final Host host1, final Host host2) {
-		collector.includeInSlice(host1);
+	private void includeClassHierarchyInSlice(final SootClass clazz) {
+		SootClass _temp = clazz;
+		collector.includeInSlice(_temp);
 
-		if (host1 instanceof SootMethod && !marked((SootMethod) host1)) {
-			markAsInvoked((SootMethod) host1);
+		final Collection _called = new HashSet();
+
+		while (_temp.hasSuperclass()) {
+			_temp = _temp.getSuperclass();
+			collector.includeInSlice(_temp);
+
+			if (_temp.declaresMethodByName("<clinit>") && !collector.hasBeenCollected(_temp.getMethodByName("<clinit>"))) {
+				_called.add(_temp.getMethodByName("<clinit>"));
+			}
 		}
-		collector.includeInSlice(host2);
 
-		if (host2 instanceof SootMethod && !marked((SootMethod) host2)) {
-			markAsInvoked((SootMethod) host2);
+		for (final Iterator _i = _called.iterator(); _i.hasNext();) {
+			final SootMethod _clinit = (SootMethod) _i.next();
+
+			if (considerMethodExitForCriteriaGeneration(_clinit)) {
+				markAsInvoked(_clinit);
+
+				for (final Iterator _j = getSlicedBasicBlockGraphMgr().getBasicBlockGraph(_clinit).getTails().iterator();
+					  _j.hasNext();) {
+					final BasicBlock _bb = (BasicBlock) _j.next();
+					final Stmt _trailer = _bb.getTrailerStmt();
+
+					// TODO: we are considering both throws and returns as return points. This should change when we consider 
+					// ip control-flow based on exceptions.
+					generateSliceStmtCriterion(_trailer, _clinit, true);
+				}
+			}
 		}
 	}
 
@@ -1060,7 +1067,8 @@ public final class SlicingEngine {
 
 					if (_value instanceof FieldRef) {
 						final SootField _field = ((FieldRef) _vBox.getValue()).getField();
-						includeInSlice(_field, _field.getDeclaringClass());
+						collector.includeInSlice(_field);
+						includeClassHierarchyInSlice(_field.getDeclaringClass());
 					}
 				}
 			}
@@ -1158,6 +1166,7 @@ public final class SlicingEngine {
 		generateNewCriteria(stmt, method, controlDAs);
 
 		collector.includeInSlice(method);
+		includeClassHierarchyInSlice(method.getDeclaringClass());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
@@ -1168,11 +1177,12 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2003/12/15 08:09:53  venku
+   - safety check.
    Revision 1.38  2003/12/15 08:09:09  venku
    - incorrect way to detect super calls in init. FIXED.
    - incorrect approximation when generating criteria
      based on return points of method.  FIXED.
-
    Revision 1.37  2003/12/13 20:54:27  venku
    - it is possible that none of the parameters are used.
      In such cases, _params will be null in generateNewCriteriaForMethodExit()
