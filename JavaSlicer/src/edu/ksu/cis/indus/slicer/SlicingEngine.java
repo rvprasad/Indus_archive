@@ -167,23 +167,6 @@ public final class SlicingEngine {
 	private Collection controlflowBasedDAs = new ArrayList();
 
 	/**
-	 * This is the set of methods that were included in the slice due to invocation.  Refer to <code>required</code> for more
-	 * information.
-	 *
-	 * @invariant invoked->forall(o | o.oclIsKindOf(SootMethod))
-	 */
-	private Collection invoked = new HashSet();
-
-	/**
-	 * This is the set of methods that were required to be included in the slice.  For example, all methods in a  path in the
-	 * call graph from the entry point of the system to the method containing the slice criterion will occur in this set.
-	 * All methods that are entered and exited on these paths occur in <code>invoked</code>.
-	 *
-	 * @invariant required->forall(o | o.oclIsKindOf(SootMethod))
-	 */
-	private Collection required = new HashSet();
-
-	/**
 	 * This provides the call graph information in the system being sliced.
 	 */
 	private ICallGraphInfo cgi;
@@ -584,8 +567,6 @@ public final class SlicingEngine {
 		collector.reset();
 		criteria.clear();
 		method2params.clear();
-		required.clear();
-		invoked.clear();
 		exitTransformedMethods.clear();
 
 		// clear the work bag of slice criterion
@@ -601,7 +582,6 @@ public final class SlicingEngine {
 	public void slice() {
 		for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
 			final Object _crit = _i.next();
-			markAsRequired(((AbstractSliceCriterion) _crit).getOccurringMethod());
 			workbag.addWorkNoDuplicates(_crit);
 		}
 
@@ -621,11 +601,6 @@ public final class SlicingEngine {
 		}
 
 		collector.completeSlicing();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Required methods: " + required);
-			LOGGER.debug("Invoked methods: " + invoked);
-		}
 	}
 
 	/**
@@ -637,38 +612,6 @@ public final class SlicingEngine {
 	 */
 	BasicBlockGraphMgr getBasicBlockGraphManager() {
 		return bbgMgr;
-	}
-
-	/**
-	 * Checks if the given called method's interface (entrance) should be considered to generate new slice criterion. The
-	 * callee should be marked as invoked or required before calling this method.
-	 *
-	 * @param callee is the method in question.
-	 * @param caller calls callee.
-	 * @param stmt is the statement in which <code>caller</code> calls <code>callee</code>.
-	 *
-	 * @return <code>true</code> if method's interface of callee should be considered to generate new slice criterion;
-	 * 		   <code>false</code>, otherwise.
-	 *
-	 * @throws IllegalStateException when the called method does not occur in invoked or required.
-	 *
-	 * @pre callee != null and caller != null and stmt != null
-	 */
-	private boolean considerMethodEntranceForCriteriaGeneration(final SootMethod callee, final SootMethod caller,
-		final Stmt stmt) {
-		boolean _result = false;
-
-		if (isMarkedAsRequired(callee)) {
-			markAsRequired(caller);
-			_result = true;
-		} else 
-			if (isMarkedAsInvoked(callee)) {
-				_result = isMarked(caller) && collector.hasBeenCollected(stmt.getInvokeExprBox());
-			} else {
-				throw new IllegalStateException("How can this happen?" + callee + " was unmarked but was being processed.");
-			}
-		
-		return _result;
 	}
 
 	/**
@@ -787,8 +730,6 @@ public final class SlicingEngine {
 
 		// check if a criteria to consider the exit points of the method should be generated.
 		if (considerMethodExitForCriteriaGeneration(callee)) {
-			markAsInvoked(callee);
-
 			if (callee.isConcrete()) {
 				processSuperInitInInit(callee, calleeBasicBlockGraph);
 
@@ -896,11 +837,9 @@ public final class SlicingEngine {
 			final SootMethod _caller = _ctrp.getMethod();
 			final Stmt _stmt = _ctrp.getStmt();
 
-			if (considerMethodEntranceForCriteriaGeneration(callee, _caller, _stmt)) {
-				final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
+			final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
 
-				generateSliceExprCriterion(_argBox, _stmt, _caller, true);
-			}
+			generateSliceExprCriterion(_argBox, _stmt, _caller, true);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -978,20 +917,18 @@ public final class SlicingEngine {
 				final SootMethod _caller = _ctrp.getMethod();
 				final Stmt _stmt = _ctrp.getStmt();
 
-				if (considerMethodEntranceForCriteriaGeneration(callee, _caller, _stmt)) {
-					/*
-					 * _stmt may be an assignment statement.  Hence, we want the control to reach the statement but not leave
-					 * it.  However, the execution of the invoke expression should be considered as it is requied to reach the
-					 * callee.  Likewise, we want to include the expression but not all arguments.  We rely on the reachable
-					 * parameters to suck in the arguments.
-					 */
-					generateSliceStmtCriterion(_stmt, _caller, false);
-					generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, false);
+				/*
+				 * _stmt may be an assignment statement.  Hence, we want the control to reach the statement but not leave
+				 * it.  However, the execution of the invoke expression should be considered as it is requied to reach the
+				 * callee.  Likewise, we want to include the expression but not all arguments.  We rely on the reachable
+				 * parameters to suck in the arguments.
+				 */
+				generateSliceStmtCriterion(_stmt, _caller, false);
+				generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, false);
 
-					if (_notStatic) {
-						final ValueBox _vBox = ((InstanceInvokeExpr) _stmt.getInvokeExpr()).getBaseBox();
-						generateSliceExprCriterion(_vBox, _stmt, _caller, true);
-					}
+				if (_notStatic) {
+					final ValueBox _vBox = ((InstanceInvokeExpr) _stmt.getInvokeExpr()).getBaseBox();
+					generateSliceExprCriterion(_vBox, _stmt, _caller, true);
 				}
 			}
 		}
@@ -1014,10 +951,6 @@ public final class SlicingEngine {
 	 */
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
-		if (!isMarked(method)) {
-			markAsInvoked(method);
-		}
-
 		if (!collector.hasBeenCollected(valueBox)) {
 			final SliceExpr _sliceCriterion = SliceExpr.getSliceExpr();
 			_sliceCriterion.initialize(method, stmt, valueBox);
@@ -1050,10 +983,6 @@ public final class SlicingEngine {
 	 * @pre stmt != null and method != null
 	 */
 	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
-		if (!isMarked(method)) {
-			markAsInvoked(method);
-		}
-
 		if (!collector.hasBeenCollected(stmt)) {
 			final SliceStmt _sliceCriterion = SliceStmt.getSliceStmt();
 			_sliceCriterion.initialize(method, stmt);
@@ -1124,69 +1053,6 @@ public final class SlicingEngine {
 				includeClassInSlice(((RefType) ((ArrayType) _type).baseType).getSootClass());
 			}
 		}
-	}
-
-	/**
-	 * Mark the given method as invoked.
-	 *
-	 * @param method to be marked.
-	 *
-	 * @pre method != null
-	 */
-	private void markAsInvoked(final SootMethod method) {
-		invoked.add(method);
-	}
-
-    /**
-     * Mark the given method as required.  If it was previously marked as invoked, then the invoked mark is erased.
-     *
-     * @param method to be marked.
-     *
-     * @pre method != null
-     */
-    private void markAsRequired(final SootMethod method) {
-        invoked.remove(method);
-        required.add(method);
-    }
-
-    
-	/**
-	 * Check if the method is marked as required or invoked.
-	 *
-	 * @param method to be checked for marking.
-	 *
-	 * @return <code>true</code> if <code>method</code> is marked; <code>false</code>,  otherwise.
-	 *
-	 * @pre method != null
-	 */
-	private boolean isMarked(final SootMethod method) {
-		return isMarkedAsInvoked(method) || isMarkedAsRequired(method);
-	}
-
-    /**
-     * Check if the method is marked as invoked.
-     *
-     * @param method to be checked for marking.
-     *
-     * @return <code>true</code> if <code>method</code> is marked as invoked; <code>false</code>,  otherwise.
-     *
-     * @pre method != null
-     */
-    private boolean isMarkedAsInvoked(final SootMethod method) {
-        return invoked.contains(method);
-    }
-    
-	/**
-	 * Check if the method is marked as required.
-	 *
-	 * @param method to be checked for marking.
-	 *
-	 * @return <code>true</code> if <code>method</code> is marked as required; <code>false</code>,  otherwise.
-	 *
-	 * @pre method != null
-	 */
-	private boolean isMarkedAsRequired(final SootMethod method) {
-		return required.contains(method);
 	}
 
 	/**
@@ -1426,9 +1292,11 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.71  2004/02/13 08:39:38  venku
+   - reafactored code related to marking to facilitate
+     ease of tracking updates to required and invoked.
    Revision 1.70  2004/02/06 00:10:11  venku
    - optimization and logging.
-
    Revision 1.69  2004/02/04 02:02:35  venku
    - coding convention and formatting.
    - the logic to include the return values in return statement was
