@@ -38,6 +38,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.Writer;
 
 import java.net.URL;
@@ -342,7 +344,7 @@ public class SlicerDriver
 			System.exit(0);
 		} else {
 			String config = cl.getOptionValue("c");
-			FileReader reader = null;
+			Reader reader = null;
 
 			if (config != null) {
 				try {
@@ -364,9 +366,12 @@ public class SlicerDriver
 					ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
 
 				try {
-					reader = new FileReader(defaultConfigFileName.getFile());
-				} catch (FileNotFoundException e) {
-					LOGGER.fatal("Even default configuration file could not be found.  Aborting", e);
+					reader = new InputStreamReader(defaultConfigFileName.openStream());
+				} catch (FileNotFoundException e1) {
+					LOGGER.fatal("Even default configuration file could not be found.  Aborting", e1);
+					System.exit(2);
+				} catch (IOException e2) {
+					LOGGER.fatal("Could not retrieve a handle to default configuration file.  Aborting.", e2);
 					System.exit(2);
 				}
 			}
@@ -468,6 +473,10 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/09 09:50:54  venku
+   - amended output of string output to be XML compliant.
+     This means some characters that are unrepresentable in
+     XML are omitted.
    Revision 1.21  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
