@@ -62,6 +62,8 @@ import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,6 +129,88 @@ public class ReadyDAv1
 	public static final int RULE_4 = 8;
 
 	/**
+	 * This is the <code>java.lang.Object.wait()</code> method.
+	 *
+	 * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
+	 */
+	static Collection waitMethods;
+
+	/**
+	 * Fixes inter-method ready dependencies.  All statements in a caller which are pre-dominated by a call site which leads
+	 * to a <code>Object.wait</code> call or a synchronized block are recorded as ready dependent on the call site.
+	 */
+
+	/*
+	   private void fixupInterMethodReadyDA() {
+	       Collection methodsToProcess = new HashSet();
+	       if ((rules & (RULE_3 | RULE_4)) != 0) {
+	           methodsToProcess.addAll(waits.keySet());
+	       }
+	       if ((rules & (RULE_1 | RULE_2)) != 0) {
+	           for (Iterator i = monitorMethods.iterator(); i.hasNext();) {
+	               methodsToProcess.add(i.next());
+	           }
+	       }
+	       WorkBag progPoints = new WorkBag(WorkBag.FIFO);
+	       for (Iterator i = methodsToProcess.iterator(); i.hasNext();) {
+	           SootMethod method = (SootMethod) i.next();
+	           progPoints.addAllWork(callgraph.getCallers(method));
+	       }
+	       WorkBag workbag = new WorkBag(WorkBag.LIFO);
+	       Collection temp = new HashSet();
+	       Collection processed = new HashSet();
+	       Collection col = new ArrayList();
+	       while (progPoints.hasWork()) {
+	           CallTriple progPoint = (CallTriple) progPoints.getWork();
+	           processed.add(progPoint);
+	           SootMethod caller = progPoint.getMethod();
+	           Stmt dependee = progPoint.getStmt();
+	           BasicBlockGraph bbGraph = getBasicBlockGraph(caller);
+	           BasicBlock bb = bbGraph.getEnclosingBlock(dependee);
+	           col.clear();
+	           col.addAll(bb.getStmtFrom(getStmtList(caller).indexOf(dependee)));
+	           col.remove(dependee);
+	           for (Iterator i = col.iterator(); i.hasNext();) {
+	               dependeeMap.put(i.next(), dependee);
+	           }
+	           Collection dependents = (Collection) dependentMap.get(dependee);
+	           if (dependents == null) {
+	               dependents = new ArrayList();
+	           }
+	           dependents.addAll(col);
+	           workbag.addAllWork(bb.getSuccsOf());
+	           temp.clear();
+	           while (workbag.hasWork()) {
+	               bb = (BasicBlock) workbag.getWork();
+	               Collection stmts = bb.getStmtsOf();
+	               for (Iterator i = stmts.iterator(); i.hasNext();) {
+	                   dependeeMap.put(i.next(), dependee);
+	               }
+	               col.addAll(stmts);
+	               temp.add(bb);
+	               for (Iterator i = bb.getSuccsOf().iterator(); i.hasNext();) {
+	                   BasicBlock block = (BasicBlock) i.next();
+	                   if (!temp.contains(block)) {
+	                       workbag.addWork(block);
+	                   }
+	               }
+	           }
+	           for (Iterator i = callgraph.getCallers(caller).iterator(); i.hasNext();) {
+	               Object pp = i.next();
+	               if (!processed.contains(pp)) {
+	                   progPoints.addWork(pp);
+	               }
+	           }
+	       }
+	   }
+	 */
+
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ReadyDAv1.class);
+
+	/**
 	 * This is the logical OR of the <code>RULE_XX</code> as provided by the user.  This indicates the rules which need to be
 	 * considered while calculating ready dependency.
 	 */
@@ -174,12 +258,6 @@ public class ReadyDAv1
 	final Map waits = new HashMap();
 
 	/**
-	 * This is the <code>java.lang.Object.wait()</code> method.
-     * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
-	 */
-	static Collection waitMethods;
-
-	/**
 	 * This provides call graph of the system being analyzed.
 	 */
 	private ICallGraphInfo callgraph;
@@ -211,7 +289,7 @@ public class ReadyDAv1
 	 */
 	public ReadyDAv1() {
 		preprocessor = new PreProcessor();
-        considerCallSites = false;
+		considerCallSites = false;
 	}
 
 	/**
@@ -328,6 +406,17 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * Records if ready dependency should be interprocedural or otherwise.
+	 *
+	 * @param consider <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor statement
+	 * 		  should be considered as a ready dependeee; <code>false</code>, otherwise. This only affects how rule 1 and 3
+	 * 		  are interpreted
+	 */
+	public void setConsiderCallSites(final boolean consider) {
+		considerCallSites = consider;
+	}
+
+	/**
 	 * Returns the statements on which the <code>dependentStmt</code> depends on.
 	 *
 	 * @param dependentStmt is the statement for which the dependee info is requested.
@@ -377,17 +466,6 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * Records if ready dependency should be interprocedural or otherwise. 
-	 *
-	 * @param consider <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor
-	 * 		  statement should be considered as a ready dependeee; <code>false</code>, otherwise. This only affects how rule
-	 * 		  1 and 3 are interpreted
-	 */
-	public void setConsiderCallSites(final boolean consider) {
-		considerCallSites = consider;
-	}
-
-	/**
 	 * Sets the rules to be processed.
 	 *
 	 * @param rulesParam is the logical OR of <i>RULE_XX</i> constants defined in this class.
@@ -415,15 +493,15 @@ public class ReadyDAv1
 				processRule1And3();
 			}
 
-			if (!waits.isEmpty() && !notifies.isEmpty() && (rules & RULE_2) != 0) {
-				processRule2();
-			}
+			if (!waits.isEmpty() && !notifies.isEmpty()) {
+				if ((rules & RULE_2) != 0) {
+					processRule2();
+				}
 
-			if (!waits.isEmpty() && !notifies.isEmpty() && (rules & RULE_4) != 0) {
-				processRule4();
+				if ((rules & RULE_4) != 0) {
+					processRule4();
+				}
 			}
-
-			//fixupInterMethodReadyDA();
 		}
 		return true;
 	}
@@ -450,24 +528,22 @@ public class ReadyDAv1
 	public String toString() {
 		StringBuffer result =
 			new StringBuffer("Statistics for Ready dependence as calculated by " + getClass().getName() + "\n");
-		int localEdgeCount = 0;
 		int edgeCount = 0;
 
 		StringBuffer temp = new StringBuffer();
 
 		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
-			localEdgeCount = 0;
+			Object dependent = entry.getKey();
 
-			for (Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
-				Map.Entry entry2 = (Map.Entry) j.next();
-
-				for (Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
-					temp.append("\t\t" + entry2.getKey() + " --> " + k.next() + "\n");
-				}
-				localEdgeCount += ((Collection) entry2.getValue()).size();
+			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
+				Object dependee = j.next();
+				temp.append("\t\t" + dependent + " --> " + dependee + "\n");
 			}
-			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount + " Ready dependence edges.\n");
+
+			int localEdgeCount = ((Collection) entry.getValue()).size();
+			result.append("\tFor " + entry.getKey() + "[" + entry.getKey().hashCode() + "] there are " + localEdgeCount
+				+ " Ready dependence edges.\n");
 			result.append(temp);
 			temp.delete(0, temp.length());
 			edgeCount += localEdgeCount;
@@ -536,26 +612,25 @@ public class ReadyDAv1
 		if (env == null) {
 			throw new InitializationException(IEnvironment.ID + " was not provided in info.");
 		}
-        
-        if (waitMethods == null) {
-            for (Iterator i = env.getClasses().iterator(); i.hasNext();) {
-                SootClass sc = (SootClass) i.next();
 
-                if (sc.getName().equals("java.lang.Object")) {
-                    waitMethods = new ArrayList();
-                    waitMethods.add(sc.getMethod("void wait()"));
-                    waitMethods.add(sc.getMethod("void wait(long)"));
-                    waitMethods.add(sc.getMethod("void wait(long,int)"));
+		if (waitMethods == null) {
+			for (Iterator i = env.getClasses().iterator(); i.hasNext();) {
+				SootClass sc = (SootClass) i.next();
 
-                    notifyMethods = new ArrayList();
-                    System.out.println(sc.getMethods());
-                    notifyMethods.add(sc.getMethodByName("notify"));
-                    notifyMethods.add(sc.getMethodByName("notifyAll"));
-                    notifyMethods = Collections.unmodifiableCollection(notifyMethods);
-                }
-            }
-        }
-        
+				if (sc.getName().equals("java.lang.Object")) {
+					waitMethods = new ArrayList();
+					waitMethods.add(sc.getMethod("void wait()"));
+					waitMethods.add(sc.getMethod("void wait(long)"));
+					waitMethods.add(sc.getMethod("void wait(long,int)"));
+
+					notifyMethods = new ArrayList();
+					notifyMethods.add(sc.getMethodByName("notify"));
+					notifyMethods.add(sc.getMethodByName("notifyAll"));
+					notifyMethods = Collections.unmodifiableCollection(notifyMethods);
+				}
+			}
+		}
+
 		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
 		if (callgraph == null) {
@@ -598,76 +673,6 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * Fixes inter-method ready dependencies.  All statements in a caller which are pre-dominated by a call site which leads
-	 * to a <code>Object.wait</code> call or a synchronized block are recorded as ready dependent on the call site.
-	 */
-
-	/*
-	   private void fixupInterMethodReadyDA() {
-	       Collection methodsToProcess = new HashSet();
-	       if ((rules & (RULE_3 | RULE_4)) != 0) {
-	           methodsToProcess.addAll(waits.keySet());
-	       }
-	       if ((rules & (RULE_1 | RULE_2)) != 0) {
-	           for (Iterator i = monitorMethods.iterator(); i.hasNext();) {
-	               methodsToProcess.add(i.next());
-	           }
-	       }
-	       WorkBag progPoints = new WorkBag(WorkBag.FIFO);
-	       for (Iterator i = methodsToProcess.iterator(); i.hasNext();) {
-	           SootMethod method = (SootMethod) i.next();
-	           progPoints.addAllWork(callgraph.getCallers(method));
-	       }
-	       WorkBag workbag = new WorkBag(WorkBag.LIFO);
-	       Collection temp = new HashSet();
-	       Collection processed = new HashSet();
-	       Collection col = new ArrayList();
-	       while (progPoints.hasWork()) {
-	           CallTriple progPoint = (CallTriple) progPoints.getWork();
-	           processed.add(progPoint);
-	           SootMethod caller = progPoint.getMethod();
-	           Stmt dependee = progPoint.getStmt();
-	           BasicBlockGraph bbGraph = getBasicBlockGraph(caller);
-	           BasicBlock bb = bbGraph.getEnclosingBlock(dependee);
-	           col.clear();
-	           col.addAll(bb.getStmtFrom(getStmtList(caller).indexOf(dependee)));
-	           col.remove(dependee);
-	           for (Iterator i = col.iterator(); i.hasNext();) {
-	               dependeeMap.put(i.next(), dependee);
-	           }
-	           Collection dependents = (Collection) dependentMap.get(dependee);
-	           if (dependents == null) {
-	               dependents = new ArrayList();
-	           }
-	           dependents.addAll(col);
-	           workbag.addAllWork(bb.getSuccsOf());
-	           temp.clear();
-	           while (workbag.hasWork()) {
-	               bb = (BasicBlock) workbag.getWork();
-	               Collection stmts = bb.getStmtsOf();
-	               for (Iterator i = stmts.iterator(); i.hasNext();) {
-	                   dependeeMap.put(i.next(), dependee);
-	               }
-	               col.addAll(stmts);
-	               temp.add(bb);
-	               for (Iterator i = bb.getSuccsOf().iterator(); i.hasNext();) {
-	                   BasicBlock block = (BasicBlock) i.next();
-	                   if (!temp.contains(block)) {
-	                       workbag.addWork(block);
-	                   }
-	               }
-	           }
-	           for (Iterator i = callgraph.getCallers(caller).iterator(); i.hasNext();) {
-	               Object pp = i.next();
-	               if (!processed.contains(pp)) {
-	                   progPoints.addWork(pp);
-	               }
-	           }
-	       }
-	   }
-	 */
-
-	/**
 	 * Processes the system as per to rule 1 and rule 3 as discussed in the report.  For each <code>Object.wait</code> call
 	 * site or synchronized block in a method, the dependency is calculated for all dominated statements in the same method.
 	 */
@@ -680,7 +685,7 @@ public class ReadyDAv1
 		if ((rules & RULE_1) != 0) {
 			for (Iterator i = enterMonitors.keySet().iterator(); i.hasNext();) {
 				SootMethod method = (SootMethod) i.next();
-				map.put(method, new ArrayList((Collection) enterMonitors.get(method)));
+				map.put(method, new HashSet((Collection) enterMonitors.get(method)));
 			}
 		}
 
@@ -691,9 +696,16 @@ public class ReadyDAv1
 				if (map.get(method) != null) {
 					((Collection) map.get(method)).addAll((Collection) waits.get(method));
 				} else {
-					Collection tmp = new ArrayList((Collection) waits.get(method));
+					Collection tmp = new HashSet((Collection) waits.get(method));
 					map.put(method, tmp);
 				}
+			}
+		}
+
+		if (waits.size() == 0 ^ notifies.size() == 0) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
+					+ "wait()s that occur in different threads.");
 			}
 		}
 
@@ -719,7 +731,7 @@ public class ReadyDAv1
 					Collection t = (Collection) dependeeMap.get(stmt);
 
 					if (t == null) {
-						t = new ArrayList();
+						t = new HashSet();
 						dependeeMap.put(stmt, t);
 					}
 					t.add(pair);
@@ -753,7 +765,7 @@ public class ReadyDAv1
 							Collection t = (Collection) dependeeMap.get(stmt);
 
 							if (t == null) {
-								t = new ArrayList();
+								t = new HashSet();
 								dependeeMap.put(stmt, t);
 							}
 							t.add(pair);
@@ -908,22 +920,21 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/08/26 16:54:33  venku
+   exit sets are initialized to EMPTY_LIST rather than null.  This
+   was overlooked when they were set for the first time.  FIXED.
    Revision 1.10  2003/08/25 11:47:37  venku
    Fixed minor glitches.
-
    Revision 1.9  2003/08/25 10:04:04  venku
    Renamed setInterProcedural() to setConsiderCallSites().
-
    Revision 1.8  2003/08/25 09:15:51  venku
    Initialization of interProcedural was missing in ReadyDAv1.
    Ripple effect of this and previous change in ReadyDAv1/2 in RDADriver.
-
    Revision 1.7  2003/08/25 09:04:31  venku
    It was not a good decision to decide interproceduralness of the
    analyses at construction.  Hence, it now can be controlled via public
    method setInterprocedural().
    Ripple effect.
-
    Revision 1.6  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.
