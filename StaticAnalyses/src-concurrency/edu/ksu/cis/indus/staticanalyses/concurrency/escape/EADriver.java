@@ -70,7 +70,6 @@ public final class EADriver
 	 */
 	private EADriver(final String[] argsParam) {
 		this.args = argsParam;
-		this.bbm = new BasicBlockGraphMgr();
 	}
 
 	/**
@@ -202,6 +201,11 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/28 06:20:39  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
+
    Revision 1.3  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
