@@ -88,10 +88,11 @@ public class PoolAwareWorkBagTest
 	 */
 	private List getPoolables() {
 		final List _result = new ArrayList();
-        final int _ten = 10;
-        for (int _i = 0; _i <= _ten; _i++) {
-            _result.add(new Poolable());
-        }
+		final int _ten = 10;
+
+		for (int _i = 0; _i <= _ten; _i++) {
+			_result.add(new Poolable());
+		}
 		return _result;
 	}
 }
@@ -99,4 +100,6 @@ public class PoolAwareWorkBagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/28 00:18:45  venku
+   - added unit tests for classes in data structures package.
  */

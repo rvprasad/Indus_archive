@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -72,6 +74,11 @@ public abstract class AbstractXMLBasedTest
 	 */
 	protected String xmlSecondInputDir;
 
+	/** 
+	 * The statement graph (CFG) factory used during testing. 
+	 */
+	private IStmtGraphFactory stmtGraphFactory;
+
 	/**
 	 * The name of the method being run.
 	 */
@@ -115,6 +122,15 @@ public abstract class AbstractXMLBasedTest
 	 */
 	public void setSecondXmlInputDir(final String xmlInDir) {
 		xmlSecondInputDir = xmlInDir;
+	}
+
+	/**
+	 * Sets the CFG factory to be used during testing.
+	 *
+	 * @param cfgFactory is the factory to be used.
+	 */
+	public void setStmtGraphFactory(final IStmtGraphFactory cfgFactory) {
+		stmtGraphFactory = cfgFactory;
 	}
 
 	/**
@@ -203,13 +219,15 @@ public abstract class AbstractXMLBasedTest
 
 	/**
 	 * Local test setup to be provided by subclasses.  Default implementation will add the name obtained via
-	 * <code>getName()</code> into the map against the key <i>FILE_NAME_ID</i>.
+	 * <code>getName()</code> into the <code>info</code> map against the key <code>AbstractXMLizer.FILE_NAME_ID</code>
+	 * along with a <code>IStmtGraphFactory.ID</code> to <code>stmtGraphFactory</code> mapping.
 	 *
-	 * @throws Exception DOCUMENT ME!
+	 * @throws Exception <i>not thrown by this implementation.</i>
 	 */
 	protected void localSetup()
 	  throws Exception {
 		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
+		info.put(IStmtGraphFactory.ID, stmtGraphFactory);
 	}
 
 	/**
@@ -226,6 +244,9 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/03/09 18:40:06  venku
+   - refactoring.
+   - moved methods common to XMLBased Test into AbstractXMLBasedTest.
    Revision 1.8  2004/03/07 20:29:53  venku
    - refactoring.  Moved xmlizing support into this class.
    Revision 1.7  2004/03/05 11:59:40  venku

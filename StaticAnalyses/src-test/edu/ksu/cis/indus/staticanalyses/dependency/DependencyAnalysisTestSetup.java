@@ -105,6 +105,9 @@ public class DependencyAnalysisTestSetup
 	 */
 	protected DependencyAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test, theNameOfClasses, classpath);
+		setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(
+				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
+				true));
 	}
 
 	/**
@@ -114,7 +117,7 @@ public class DependencyAnalysisTestSetup
 	  throws Exception {
 		super.setUp();
 		bbgMgr = new BasicBlockGraphMgr();
-		bbgMgr.setUnitGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true));
+		bbgMgr.setUnitGraphFactory(getStmtGraphFactory());
 
 		// setup level 1 analysis here.
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
@@ -225,7 +228,8 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/26 00:26:40  venku
+   - ripple effect of refactoring soot package in Indus.
    Revision 1.1  2004/03/09 19:10:40  venku
    - preliminary commit of test setup for dependency analyses.
-
  */

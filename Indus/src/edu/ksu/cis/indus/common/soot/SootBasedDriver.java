@@ -115,7 +115,7 @@ public class SootBasedDriver {
 	 * graph provider.
 	 */
 	public SootBasedDriver() {
-		cfgProvider = getUnitGraphFactory();
+		cfgProvider = getStmtGraphFactory();
 		bbm = new BasicBlockGraphMgr();
 		bbm.setUnitGraphFactory(cfgProvider);
 	}
@@ -272,7 +272,7 @@ public class SootBasedDriver {
 	 *
 	 * @post return != null
 	 */
-	public IStmtGraphFactory getUnitGraphFactory() {
+	public IStmtGraphFactory getStmtGraphFactory() {
 		return new TrapStmtGraphFactory();
 	}
 
@@ -405,6 +405,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/03/26 00:07:26  venku
+   - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
+   - ripple effect in classes and method names.
    Revision 1.14  2004/03/07 00:42:49  venku
    - added a new method to extract the options to be used by
      soot to use Indus.

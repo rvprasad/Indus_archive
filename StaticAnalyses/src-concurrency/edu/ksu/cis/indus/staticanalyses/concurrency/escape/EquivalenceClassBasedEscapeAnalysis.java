@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
@@ -415,6 +415,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
+		 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
+		 */
+		public void caseCastExpr(final CastExpr v) {
+			process(v.getOp());
+		}
+
+		/**
 		 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 		 */
 		public void caseInstanceFieldRef(final InstanceFieldRef v) {
@@ -743,12 +750,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 			return _delayUnification;
 		}
-        /**
-         * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
-         */
-        public void caseCastExpr(final CastExpr v) {
-            process(v.getOp());
-        }
 	}
 
 	/**
@@ -1108,8 +1109,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * Performs phase 2 processing as described in the paper described in the documentation of this class.
 	 */
 	private void performPhase2() {
-		final IWorkBag _wb = new FIFOWorkBag();
 		final Collection _processed = new HashSet();
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_processed);
 		final Collection _sccs = cgi.getSCCs(false);
 
 		// Phase 2: The SCCs are ordered bottom up. 
@@ -1157,7 +1158,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				while (_wb.hasWork()) {
 					final BasicBlock _bb = (BasicBlock) _wb.getWork();
-					_processed.add(_bb);
 
 					for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
 						final Stmt _stmt = (Stmt) _k.next();
@@ -1168,9 +1168,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					for (final Iterator _k = _bb.getSuccsOf().iterator(); _k.hasNext();) {
 						final Object _o = _k.next();
 
-						if (!_processed.contains(_o)) {
-							_wb.addWork(_o);
-						}
+						_wb.addWorkNoDuplicates(_o);
 					}
 				}
 
@@ -1189,8 +1187,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	private void performPhase3() {
 		// Phase 3
-		final IWorkBag _wb = new FIFOWorkBag();
 		final Collection _processed = new HashSet();
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_processed);
 		_wb.addAllWork(cgi.getHeads());
 
 		while (_wb.hasWork()) {
@@ -1239,12 +1237,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					  && cfgAnalysis.executedMultipleTimes(_ctrp.getStmt(), _caller)) {
 					_sc.selfUnify(true);
 				}
-				_sc.propogateInfoFromTo(_mc);
 
-				if (!_processed.contains(_callee)) {
-					_processed.add(_callee);
-					_wb.addWork(_callee);
+				try {
+					_sc.propogateInfoFromTo(_mc);
+				} catch (NullPointerException _e) {
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug(_ctrp2sc + "\n\n-=====\n" + _callerTrp);
+					}
+					throw _e;
 				}
+
+				_wb.addWorkNoDuplicates(_callee);
 			}
 		}
 	}
@@ -1253,9 +1256,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/02/28 22:06:06  venku
+   - variables in cast expressions were ignored. FIXED.
    Revision 1.45  2004/02/27 23:04:10  venku
    - wait/notify trapping was incorrect. FIXED.
-
    Revision 1.44  2004/02/25 00:04:02  venku
    - documenation.
    Revision 1.43  2004/01/21 13:35:26  venku

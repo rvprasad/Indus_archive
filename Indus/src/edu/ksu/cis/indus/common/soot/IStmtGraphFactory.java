@@ -30,6 +30,11 @@ import soot.toolkits.graph.UnitGraph;
  */
 public interface IStmtGraphFactory {
 	/**
+	 * The id of this interface.
+	 */
+	Object ID = "Statement Graph Factory";
+
+	/**
 	 * Retrieves the unit graph of the given method.
 	 *
 	 * @param method for which the unit graph is requested.
@@ -50,6 +55,10 @@ public interface IStmtGraphFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/26 00:22:31  venku
+   - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
+   - ripple effect.
+   - changed logic in ExceptionFlowSensitiveStmtGraph.
    Revision 1.1  2004/03/26 00:07:26  venku
    - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
    - ripple effect in classes and method names.

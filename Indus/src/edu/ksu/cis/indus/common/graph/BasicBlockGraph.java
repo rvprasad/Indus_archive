@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,9 +88,8 @@ public final class BasicBlockGraph
 
 		int _leader;
 		int _trailer;
-		final Collection _processed = new HashSet();
 		final List _stmts = new ArrayList();
-		final IWorkBag _wb = new LIFOWorkBag();
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
 		_wb.addWork(stmtList.get(0));
 		blocks = new ArrayList();
 		stmt2BlockMap = new HashMap(_numOfStmt);
@@ -99,11 +98,6 @@ public final class BasicBlockGraph
 			_stmts.clear();
 
 			final Stmt _stmt = (Stmt) _wb.getWork();
-
-			if (_processed.contains(_stmt)) {
-				continue;
-			}
-			_processed.add(_stmt);
 			_leader = stmtList.indexOf(_stmt);
 			_trailer = getTrailer(_stmt, _wb, _stmts);
 
@@ -417,10 +411,11 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/02/24 22:25:56  venku
+   - documentation
    Revision 1.14  2004/02/23 09:09:02  venku
    - the unit graph may not connect all units occurring in the graph.
      Hence, care is taken while constructing the graph structure.
-
    Revision 1.13  2004/01/25 09:00:58  venku
    - coding convention.
    Revision 1.12  2004/01/25 03:20:52  venku

@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
@@ -100,7 +100,7 @@ public final class Util {
 	public static Collection getAncestors(final SootClass sootClass) {
 		final Collection _result = new HashSet();
 		final Collection _temp = new HashSet();
-		final IWorkBag _wb = new LIFOWorkBag();
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(_result);
 		_wb.addWork(sootClass);
 
 		while (_wb.hasWork()) {
@@ -115,12 +115,10 @@ public final class Util {
 			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 				final SootClass _sc = (SootClass) _i.next();
 
-				if (!_result.contains(_sc)) {
-					_result.add(_sc);
-					_wb.addWork(_sc);
-				}
+				_wb.addWorkNoDuplicates(_sc);
 			}
 		}
+		_result.remove(sootClass);
 		return _result;
 	}
 
@@ -141,36 +139,26 @@ public final class Util {
 	 */
 	public static List getClassesInTopologicallySortedOrder(final Collection classes, final boolean topDown) {
 		final SimpleNodeGraph _sng = new SimpleNodeGraph();
-		final IWorkBag _wb = new LIFOWorkBag();
-		final Collection _processed = new HashSet();
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
 		_wb.addAllWork(classes);
 
 		while (_wb.hasWork()) {
 			final SootClass _sc = (SootClass) _wb.getWork();
 
-			if (!_processed.contains(_sc)) {
-				_processed.add(_sc);
+			final INode _sn = _sng.getNode(_sc);
+			final Collection _temp = CollectionUtils.intersection(_sc.getInterfaces(), classes);
 
-				final INode _sn = _sng.getNode(_sc);
-				final Collection _temp = CollectionUtils.intersection(_sc.getInterfaces(), classes);
+			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+				final SootClass _interface = (SootClass) _i.next();
+				_sng.addEdgeFromTo(_sng.getNode(_interface), _sn);
 
-				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-					final SootClass _interface = (SootClass) _i.next();
-					_sng.addEdgeFromTo(_sng.getNode(_interface), _sn);
+				_wb.addWorkNoDuplicates(_interface);
+			}
 
-					if (!_processed.contains(_interface)) {
-						_wb.addWorkNoDuplicates(_interface);
-					}
-				}
-
-				if (_sc.hasSuperclass()) {
-					final SootClass _superClass = _sc.getSuperclass();
-					_sng.addEdgeFromTo(_sng.getNode(_superClass), _sn);
-
-					if (!_processed.contains(_superClass)) {
-						_wb.addWorkNoDuplicates(_superClass);
-					}
-				}
+			if (_sc.hasSuperclass()) {
+				final SootClass _superClass = _sc.getSuperclass();
+				_sng.addEdgeFromTo(_sng.getNode(_superClass), _sn);
+				_wb.addWorkNoDuplicates(_superClass);
 			}
 		}
 
@@ -385,8 +373,7 @@ public final class Util {
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
 	public static Collection findMethodInSuperClassesAndInterfaces(final SootMethod method) {
-		final IWorkBag _toProcess = new FIFOWorkBag();
-		final Collection _processed = new HashSet();
+		final IWorkBag _toProcess = new HistoryAwareFIFOWorkBag(new HashSet());
 		Collection _result = new HashSet();
 		_toProcess.addWork(method.getDeclaringClass());
 
@@ -396,7 +383,6 @@ public final class Util {
 
 		while (_toProcess.hasWork()) {
 			final SootClass _sc = (SootClass) _toProcess.getWork();
-			_processed.add(_sc);
 
 			if (_sc.declaresMethod(_methodName, _parameterTypes, _retType)) {
 				_result.add(_sc.getMethod(_methodName, _parameterTypes, _retType));
@@ -405,17 +391,13 @@ public final class Util {
 			if (_sc.hasSuperclass()) {
 				final SootClass _superClass = _sc.getSuperclass();
 
-				if (!_processed.contains(_superClass)) {
-					_toProcess.addWorkNoDuplicates(_superClass);
-				}
+				_toProcess.addWorkNoDuplicates(_superClass);
 			}
 
 			for (final Iterator _i = _sc.getInterfaces().iterator(); _i.hasNext();) {
 				final SootClass _interface = (SootClass) _i.next();
 
-				if (!_processed.contains(_interface)) {
-					_toProcess.addWorkNoDuplicates(_interface);
-				}
+				_toProcess.addWorkNoDuplicates(_interface);
 			}
 		}
 
@@ -566,6 +548,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/03/21 02:54:28  venku
+   - unit graph cannot be modified outside it's constructor or subclasses.
+     Moved the method to prune exception based edges to ExceptionFlowSensitiveUnitGraph.
    Revision 1.19  2004/03/08 02:10:14  venku
    - enabled preliminary support to prune exception based intraprocedural
      control flow edges.

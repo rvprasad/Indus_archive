@@ -15,6 +15,10 @@
 
 package edu.ksu.cis.indus.processing;
 
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.ArrayList;
@@ -102,6 +106,8 @@ import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
 
+import soot.toolkits.graph.UnitGraph;
+
 
 /**
  * This class controls the post processing for an analysis.  The analyses such as FA are very low-level.  The information is
@@ -109,6 +115,11 @@ import soot.jimple.XorExpr;
  * AST chunks.  The controller will walk over the analyzed system and call the registered post processors. The post
  * processors then collect information from the analysis in form which is more accessible to the other applications. This
  * visitor will notify the interested post processors with the given AST node and then visit it's children.
+ * 
+ * <p>
+ * This class will control the processing of statements in methods based on their local reachability. For this purpose, the
+ * clients should call <code>setStmtGraphFactory()</code> before using an instance of this class for processing.
+ * </p>
  * 
  * <p>
  * Please note that the processor should be registered/unregistered separately for interface-level (class/method)  processing
@@ -249,6 +260,11 @@ public class ProcessingController {
 	 * The filter used to filter the classes that select the classes and methods to be processed.
 	 */
 	private IProcessingFilter processingFilter;
+
+	/**
+	 * The factory that provides statement graphs (CFGs).  This should be set before process is called.
+	 */
+	private IStmtGraphFactory stmtGraphFactory;
 
 	/**
 	 * This class visits the statements of the methods and calls the call-back methods of the registered processors.
@@ -931,6 +947,15 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Sets the factory object that provides statement graphs (CFGs).
+	 *
+	 * @param cfgFactory is the factory object.
+	 */
+	public void setStmtGraphFactory(final IStmtGraphFactory cfgFactory) {
+		stmtGraphFactory = cfgFactory;
+	}
+
+	/**
 	 * Drive the given processors by the given controller.  This is helpful to batch pre/post-processors.
 	 *
 	 * @param processors is the collection of processors.
@@ -954,7 +979,8 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Controls the processing activity.
+	 * Controls the processing activity.  If the statements in the system will be processed then
+	 * <code>setStmtGraphFactory()</code> should be called providing a valid factory object before calling this method.
 	 */
 	public final void process() {
 		if (LOGGER.isInfoEnabled()) {
@@ -1216,10 +1242,21 @@ public class ProcessingController {
 		}
 
 		try {
-			for (final Iterator _k = method.retrieveActiveBody().getUnits().iterator(); _k.hasNext();) {
-				final Stmt _stmt = (Stmt) _k.next();
+			final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
+
+			if (stmtGraphFactory == null) {
+				throw new IllegalStateException("Please call setStmtGraphFactory() with a valid graph factory before "
+					+ "using the controller.");
+			}
+
+			final UnitGraph _stmtGraph = stmtGraphFactory.getStmtGraph(method);
+			_wb.addAllWork(_stmtGraph.getHeads());
+
+			while (_wb.hasWork()) {
+				final Stmt _stmt = (Stmt) _wb.getWork();
 				context.setStmt(_stmt);
 				_stmt.apply(stmtSwitcher);
+				_wb.addAllWorkNoDuplicates(_stmtGraph.getSuccsOf(_stmt));
 			}
 		} catch (RuntimeException _e) {
 			LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
@@ -1232,6 +1269,12 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/02/09 04:39:40  venku
+   - refactoring test classes still..
+   - need to make xmlizer classes independent of their purpose.
+     Hence, they need to be highly configurable.
+   - For each concept, test setup should be in TestSetup
+     rather than in the XMLizer.
    Revision 1.30  2003/12/28 00:40:37  venku
    - coding convention.
    Revision 1.29  2003/12/16 09:57:25  venku

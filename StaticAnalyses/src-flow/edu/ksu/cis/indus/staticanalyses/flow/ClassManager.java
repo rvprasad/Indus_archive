@@ -15,17 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,60 +128,33 @@ public class ClassManager
 				LOGGER.debug("considered " + sc.getName());
 			}
 
-			if (sc.declaresMethodByName("<clinit>")) {
-				SootMethod method = sc.getMethodByName("<clinit>");
+			includeClassInitializer(sc);
 
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("considered " + method);
-				}
-
-				fa.getMethodVariant(method, context);
-			}
-
-			IWorkBag wb = new FIFOWorkBag();
-			Collection temp = new ArrayList();
+			IWorkBag wb = new HistoryAwareFIFOWorkBag(classes);
+			Collection temp = new HashSet();
 
 			if (sc.hasSuperclass()) {
-				wb.addWork(sc.getSuperclass());
+				temp.add(sc.getSuperclass());
 			}
-			wb.addAllWorkNoDuplicates(sc.getInterfaces());
+			temp.addAll(sc.getInterfaces());
+			wb.addAllWorkNoDuplicates(temp);
 
 			while (wb.hasWork()) {
 				final SootClass _sc = (SootClass) wb.getWork();
-
-				if (classes.contains(_sc)) {
-					continue;
-				}
-				classes.add(_sc);
 				_sc.addTag(theTag);
-				temp.clear();
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("considered " + _sc.getName());
 				}
-
-				if (_sc.declaresMethodByName("<clinit>")) {
-					final SootMethod _method = _sc.getMethodByName("<clinit>");
-
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("considered " + _method);
-					}
-
-					fa.getMethodVariant(_method, context);
-				}
+				includeClassInitializer(_sc);
+				temp.clear();
 
 				if (_sc.hasSuperclass()) {
 					temp.add(_sc.getSuperclass());
 				}
 				temp.addAll(_sc.getInterfaces());
 
-				for (final Iterator _i = temp.iterator(); _i.hasNext();) {
-					SootClass t = (SootClass) _i.next();
-
-					if (!classes.contains(t)) {
-						wb.addWorkNoDuplicates(t);
-					}
-				}
+				wb.addAllWorkNoDuplicates(temp);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
@@ -199,11 +169,32 @@ public class ClassManager
 	protected void reset() {
 		classes.clear();
 	}
+
+	/**
+	 * Includes the class initializer into the flow graph.
+	 *
+	 * @param sc is the class of which the initializer is included.
+	 *
+	 * @pre sc != null
+	 */
+	private void includeClassInitializer(final SootClass sc) {
+		if (sc.declaresMethodByName("<clinit>")) {
+			SootMethod method = sc.getMethodByName("<clinit>");
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("considered " + method);
+			}
+
+			fa.getMethodVariant(method, context);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/01/09 21:13:22  venku
+   - formatting and documentation.
    Revision 1.20  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

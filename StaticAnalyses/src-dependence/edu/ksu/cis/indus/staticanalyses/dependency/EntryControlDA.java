@@ -261,9 +261,7 @@ public class EntryControlDA
 		while (wb.hasWork()) {
 			BasicBlock bb = (BasicBlock) wb.getWork();
 			Pair dagBlock = (Pair) dag.get(bb);
-			Collection preds;
-
-			preds = (Collection) dagBlock.getFirst();
+			final Collection preds = (Collection) dagBlock.getFirst();
 
 			if (!processed.containsAll(preds)) {
 				wb.addWorkNoDuplicates(bb);
@@ -448,9 +446,11 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/03/03 10:07:24  venku
+   - renamed dependeeMap as dependent2dependee
+   - renamed dependentmap as dependee2dependent
    Revision 1.13  2004/02/25 00:04:02  venku
    - documenation.
-
    Revision 1.12  2004/02/23 08:25:58  venku
    - logging.
    Revision 1.11  2004/02/06 00:19:12  venku

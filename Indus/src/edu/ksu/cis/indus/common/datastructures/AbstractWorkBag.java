@@ -95,6 +95,8 @@ public abstract class AbstractWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/28 00:16:55  venku
+   - getWork() throws exception if the work bag is empty.
    Revision 1.1  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
 import edu.ksu.cis.indus.TestHelper;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
@@ -65,7 +67,8 @@ public class ValueAnalysisTestSetup
 		_pc.setAnalyzer(valueAnalyzer);
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
-        cgiImpl = new CallGraph();
+		_pc.setStmtGraphFactory(getStmtGraphFactory());
+		cgiImpl = new CallGraph();
 		cgiImpl.hookup(_pc);
 		_pc.process();
 		cgiImpl.unhook(_pc);
@@ -86,7 +89,7 @@ public class ValueAnalysisTestSetup
 	protected void tearDown()
 	  throws Exception {
 		cgiImpl.reset();
-        cgiImpl = null;
+		cgiImpl = null;
 		super.tearDown();
 	}
 }
@@ -94,17 +97,18 @@ public class ValueAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/09 18:40:03  venku
+   - refactoring.
+   - moved methods common to XMLBased Test into AbstractXMLBasedTest.
    Revision 1.1  2004/03/07 20:27:54  venku
    - refactoring! refactoring!
    - generalized OFA Test base to be applicable to any value flow
      analysis built on top of FA.
-
    Revision 1.6  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.
    - ofa xmlizer was implemented.
    - xml-based ofa tester was implemented.
-
    Revision 1.5  2004/02/09 01:20:10  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Marker;
@@ -279,8 +280,7 @@ public abstract class AbstractDirectedGraph
 	 */
 	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
 		boolean _result = false;
-		final Collection _processed = new HashSet();
-		final IWorkBag _workbag = new LIFOWorkBag();
+		final IWorkBag _workbag = new HistoryAwareLIFOWorkBag(new HashSet());
 		_workbag.addAllWorkNoDuplicates(src.getSuccsNodesInDirection(forward));
 
 		while (_workbag.hasWork()) {
@@ -290,11 +290,7 @@ public abstract class AbstractDirectedGraph
 				_result = true;
 				break;
 			}
-
-			if (!_processed.contains(_node)) {
-				_processed.add(_node);
-				_workbag.addAllWorkNoDuplicates(_node.getSuccsNodesInDirection(forward));
-			}
+			_workbag.addAllWorkNoDuplicates(_node.getSuccsNodesInDirection(forward));
 		}
 		return _result;
 	}
@@ -679,10 +675,11 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/02/24 22:25:56  venku
+   - documentation
    Revision 1.13  2004/02/05 18:17:29  venku
    - getPseudoTails() is incorrect when the pseudo tails are mutually
      reachable.  FIXED.
-
    Revision 1.12  2004/01/28 00:23:21  venku
    - dtails are only those that aren't tails.  FIXED.
    Revision 1.11  2004/01/25 08:58:43  venku

@@ -101,7 +101,8 @@ public class UnitGraphFactoryTest
 		assertNotNull(_cmpltg2);
 		assertTrue(_cmpltg2 instanceof TrapUnitGraph);
 
-		final IStmtGraphFactory _ugf3 = new ExceptionFlowSensitiveStmtGraphFactory();
+		final IStmtGraphFactory _ugf3 =
+			new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
 		final UnitGraph _cmpltg3 = _ugf3.getStmtGraph(method);
 		assertNotNull(_cmpltg3);
 		assertTrue(_cmpltg3 instanceof ExceptionFlowSensitiveStmtGraph);
@@ -111,13 +112,13 @@ public class UnitGraphFactoryTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/26 00:24:07  venku
+   - ripple effect of refactoring soot package in Indus.
    Revision 1.4  2004/02/17 05:59:15  venku
    - renamed ExceptionFlowSensitiveStmtGraphXXXX to
      ExceptionFlowSensitiveUnitGraph.
-
    Revision 1.3  2004/02/17 05:48:45  venku
    - added test for ExceptionFlowSensitiveUnitGraph.
-
    Revision 1.2  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the

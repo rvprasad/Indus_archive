@@ -17,6 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
 import edu.ksu.cis.indus.TestHelper;
 
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
@@ -104,6 +107,9 @@ public final class ValueAnalysisRegressionTestSuite
 			_props.load(new FileInputStream(new File(propFileName)));
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
+			final IStmtGraphFactory stmtGraphFactory =
+				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
+					true);
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
@@ -133,6 +139,7 @@ public final class ValueAnalysisRegressionTestSuite
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 					final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
+					_test.setStmtGraphFactory(stmtGraphFactory);
 					_test.setSecondXmlInputDir(_xmlSecondInputDir);
 					_test.setFirstXmlInputDir(_xmlFirstInputDir);
 					suite.addTest(_test);
@@ -149,11 +156,12 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/08 03:09:09  venku
+   - documentation.
    Revision 1.1  2004/03/07 20:27:54  venku
    - refactoring! refactoring!
    - generalized OFA Test base to be applicable to any value flow
      analysis built on top of FA.
-
    Revision 1.8  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.7  2004/02/11 09:37:18  venku

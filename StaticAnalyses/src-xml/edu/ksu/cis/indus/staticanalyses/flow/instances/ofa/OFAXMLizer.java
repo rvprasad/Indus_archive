@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -263,9 +265,10 @@ public final class OFAXMLizer
 		final OFAnalyzer _ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
 		final IEnvironment _env = _ofa.getEnvironment();
 		final IProcessingFilter _processingFilter = new TagBasedProcessingFilter((String) info.get(IValueAnalyzer.TAG_ID));
-		_processingFilter.chain(new XMLizingProcessingFilter());
+		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
 		_ctrl.setProcessingFilter(_processingFilter);
 		_ctrl.setEnvironment(_env);
+		_processingFilter.chain(new XMLizingProcessingFilter());
 
 		final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
 		FileWriter _writer;
@@ -287,9 +290,10 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/07 20:28:55  venku
+   - made the class public due to other refactoring.
    Revision 1.5  2004/03/05 11:59:45  venku
    - documentation.
-
    Revision 1.4  2004/02/11 10:00:16  venku
    - added a new custom xml outputter class.
    Revision 1.3  2004/02/11 09:37:18  venku

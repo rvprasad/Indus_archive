@@ -15,47 +15,31 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import java.util.List;
+
+
 /**
- * This class tests <code>LIFOWorkBag</code> class.
+ * This class tests <code>HistoryAwareAbstractWorkBag</code> class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class LIFOWorkBagTest
+public class HistoryAwareAbstractWorkBagTest
   extends AbstractWorkBagTest {
 	/**
-	 * Tests <code>addWork</code> method.
+	 * Tests <code>addAllWork</code>.
 	 */
-	public void testAddWork() {
-		final Object _o1 = new Object();
-		final Object _o2 = new Object();
-		wb.addWork(_o1);
-		wb.addWork(_o2);
-		assertTrue(wb.getWork() == _o2);
-		assertTrue(wb.getWork() == _o1);
-	}
+	public void testAddAllWork() {
+		super.testAddAllWork();
 
-	/**
-	 * @see TestCase#setUp()
-	 */
-	protected void setUp()
-	  throws Exception {
-		wb = new LIFOWorkBag();
-	}
-
-	/**
-	 * @see TestCase#tearDown()
-	 */
-	protected void tearDown()
-	  throws Exception {
-		wb = null;
+		final List _workPieces = getWorkPieces();
+		wb.addAllWork(_workPieces);
+		assertFalse(wb.hasWork());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
-   Revision 1.1  2004/01/28 00:18:45  venku
-   - added unit tests for classes in data structures package.
  */

@@ -38,17 +38,16 @@ import soot.toolkits.graph.UnitGraph;
  */
 public class ExceptionFlowSensitiveStmtGraphFactory
   extends AbstractStmtGraphFactory {
-    /**
-     * The collection of exception names that are relevant while dealing with synchronization constructs.
-     */
-    public static final Collection SYNC_RELATED_EXCEPTIONS = Collections.singleton("java.lang.Throwable");
+	/**
+	 * The collection of exception names that are relevant while dealing with synchronization constructs.
+	 */
+	public static final Collection SYNC_RELATED_EXCEPTIONS = Collections.singleton("java.lang.Throwable");
 
-    /**
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ExceptionFlowSensitiveStmtGraphFactory.class);
 
-	
 	/**
 	 * The names of the exceptions via which the control flow should be ignored.
 	 *
@@ -79,14 +78,6 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	}
 
 	/**
-	 * Creates a new ExceptionFlowSensitiveStmtGraphFactory object.
-	 */
-	public ExceptionFlowSensitiveStmtGraphFactory() {
-		flag = true;
-		exceptionsToIgnore.add("java.lang.Throwable");
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForBody(soot.jimple.JimpleBody)
 	 */
 	protected UnitGraph getUnitGraphForBody(final JimpleBody body) {
@@ -111,6 +102,9 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/26 00:07:26  venku
+   - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
+   - ripple effect in classes and method names.
    Revision 1.5  2004/03/07 20:30:23  venku
    - documentation.
    Revision 1.4  2004/03/05 11:59:40  venku

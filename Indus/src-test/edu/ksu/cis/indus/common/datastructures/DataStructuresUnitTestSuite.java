@@ -71,6 +71,8 @@ public final class DataStructuresUnitTestSuite {
 		_suite.addTestSuite(TripleTest.class);
 		_suite.addTestSuite(QuadrapleTest.class);
 		_suite.addTestSuite(MarkerTest.class);
+		_suite.addTestSuite(HistoryAwareFIFOWorkBagTest.class);
+		_suite.addTestSuite(HistoryAwareLIFOWorkBagTest.class);
 		//$JUnit-END$
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		_suite.setName(DataStructuresUnitTestSuite.class.getName());
@@ -81,6 +83,8 @@ public final class DataStructuresUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 01:39:50  venku
+   - changed test naming for report purposes.
    Revision 1.4  2004/02/09 00:39:50  venku
    - output formatting.
    - UnitTestSuites alter the name of the test instances

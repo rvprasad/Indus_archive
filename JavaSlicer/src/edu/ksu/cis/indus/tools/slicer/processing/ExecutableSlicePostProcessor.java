@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer.processing;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
@@ -39,7 +39,6 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
 import soot.Body;
-import soot.Local;
 import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
@@ -47,7 +46,6 @@ import soot.Trap;
 import soot.TrapManager;
 import soot.Type;
 import soot.Value;
-import soot.ValueBox;
 
 import soot.jimple.IdentityStmt;
 import soot.jimple.ParameterRef;
@@ -96,14 +94,14 @@ public final class ExecutableSlicePostProcessor
 	 *
 	 * @invariant methodWorkBag != null and methodWorkBag.getWork().oclIsKindOf(SootMethod)
 	 */
-	private final IWorkBag methodWorkBag = new FIFOWorkBag();
+	private final IWorkBag methodWorkBag = new HistoryAwareFIFOWorkBag(processedMethodCache);
 
 	/**
 	 * This is the workbag of statements to process.
 	 *
 	 * @invariant stmtWorkBag != null and stmtWorkBag.getWork().oclIsKindOf(Stmt)
 	 */
-	private final IWorkBag stmtWorkBag = new FIFOWorkBag();
+	private final IWorkBag stmtWorkBag = new HistoryAwareFIFOWorkBag(processedStmtCache);
 
 	/**
 	 * This provides entry-based control dependency information required to include exit points.
@@ -145,7 +143,8 @@ public final class ExecutableSlicePostProcessor
 		// process the methods and gather the collected classes
 		while (methodWorkBag.hasWork()) {
 			final SootMethod _method = (SootMethod) methodWorkBag.getWork();
-			processedMethodCache.add(_method);
+
+			//processedMethodCache.add(_method);
 			processMethods(_method);
 
 			if (_method.isConcrete()) {
@@ -180,33 +179,35 @@ public final class ExecutableSlicePostProcessor
 		processedMethodCache.clear();
 	}
 
-	/**
+	/*
 	 * Adds the given method to <code>methodWorkBag</code> if it was not processed earlier.
 	 *
 	 * @param method to be added.
 	 *
 	 * @pre method != null
+	 *
+	   private void addToMethodWorkBag(final SootMethod method) {
+	       if (!processedMethodCache.contains(method)) {
+	           methodWorkBag.addWorkNoDuplicates(method);
+	       }
+	   }
 	 */
-	private void addToMethodWorkBag(final SootMethod method) {
-		if (!processedMethodCache.contains(method)) {
-			methodWorkBag.addWorkNoDuplicates(method);
-		}
-	}
-
-	/**
+	/*
 	 * Adds the given statement to <code>stmtWorkBag</code>.
 	 *
 	 * @param stmt to be added.
 	 *
 	 * @pre stmt != null
-	 */
-	private void addToStmtWorkBag(final Stmt stmt) {
-		if (!processedStmtCache.contains(stmt)) {
-			stmtWorkBag.addWorkNoDuplicates(stmt);
-		}
-	}
-
-	/**
+	 *
+	   private void addToStmtWorkBag(final Stmt stmt) {
+	       if (!processedStmtCache.contains(stmt)) {
+	           stmtWorkBag.addWorkNoDuplicates(stmt);
+	       }
+	   }       
+       */
+    
+    
+	   /**
 	 * Fix up class hierarchy such that all abstract methods have an implemented counterpart in the slice.
 	 */
 	private void fixupClassHierarchy() {
@@ -396,7 +397,8 @@ public final class ExecutableSlicePostProcessor
 			collector.includeInSlice(_handlerUnit.getLeftOpBox());
 			collector.includeInSlice(_handlerUnit.getRightOpBox());
 			collector.includeInSlice(_trap.getException());
-			addToStmtWorkBag(_handlerUnit);
+			//addToStmtWorkBag(_handlerUnit);
+			stmtWorkBag.addWorkNoDuplicates(_handlerUnit);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -467,7 +469,9 @@ public final class ExecutableSlicePostProcessor
 					}
 				}
 			}
-			addToMethodWorkBag(_sm);
+
+			//addToMethodWorkBag(_sm);
+			methodWorkBag.addWorkNoDuplicates(_sm);
 		}
 	}
 
@@ -490,8 +494,8 @@ public final class ExecutableSlicePostProcessor
 
 		while (stmtWorkBag.hasWork()) {
 			final Stmt _stmt = (Stmt) stmtWorkBag.getWork();
-			processedStmtCache.add(_stmt);
 
+			//processedStmtCache.add(_stmt);
 			if (collector.hasBeenCollected(_stmt)) {
 				if (_stmt instanceof IdentityStmt) {
 					processIdentityStmt(method, (IdentityStmt) _stmt);
@@ -520,6 +524,8 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/03/03 10:09:42  venku
+   - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
    Revision 1.18  2004/02/06 07:09:02  venku
    - refactoring.
    - types of methods signatures were not sucked in. FIXED.

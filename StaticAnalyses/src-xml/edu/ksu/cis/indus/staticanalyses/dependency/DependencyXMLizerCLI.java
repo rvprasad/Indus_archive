@@ -241,10 +241,13 @@ public class DependencyXMLizerCLI
 
 		_pc.setAnalyzer(aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
+		_pc.setStmtGraphFactory(getStmtGraphFactory());
 		cgipc.setAnalyzer(aa);
 		cgipc.setProcessingFilter(new CGBasedProcessingFilter(_cgi));
+		cgipc.setStmtGraphFactory(getStmtGraphFactory());
 		_xmlcgipc.setEnvironment(aa.getEnvironment());
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
+		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
 		aliasUD = new AliasedUseDefInfo(aa, _cgi, bbm);
 		info.put(ICallGraphInfo.ID, _cgi);
@@ -351,6 +354,8 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/05 11:59:45  venku
+   - documentation.
    Revision 1.4  2004/03/03 05:59:33  venku
    - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.3  2004/03/03 02:17:46  venku
@@ -514,6 +519,8 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/05 11:59:45  venku
+   - documentation.
    Revision 1.4  2004/03/03 05:59:33  venku
    - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.3  2004/03/03 02:17:46  venku

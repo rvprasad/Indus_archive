@@ -198,6 +198,11 @@ public final class FATest
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.7  2004/02/09 00:32:16  venku
    - all test cases in indus extends IndusTestCase.
    - RegressionTestSuites alter the name of the test instances

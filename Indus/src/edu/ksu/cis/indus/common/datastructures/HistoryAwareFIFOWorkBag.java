@@ -15,47 +15,37 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import java.util.Collection;
+
+
 /**
- * This class tests <code>LIFOWorkBag</code> class.
+ * This is a First-in-First-out implementation of the workbag that can remember previous work pieces put into it.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class LIFOWorkBagTest
-  extends AbstractWorkBagTest {
+public final class HistoryAwareFIFOWorkBag
+  extends HistoryAwareAbstractWorkBag {
 	/**
-	 * Tests <code>addWork</code> method.
+	 * Creates a new FIFOWorkBag object.
+	 *
+	 * @param processed is the collection to be used to remember work pieces put into the bag.  Refer to
+	 * 		  <code>HistoryAwareAbstractWorkBag#HistoryAwareAbstractWorkBag(Collection)</code>.
 	 */
-	public void testAddWork() {
-		final Object _o1 = new Object();
-		final Object _o2 = new Object();
-		wb.addWork(_o1);
-		wb.addWork(_o2);
-		assertTrue(wb.getWork() == _o2);
-		assertTrue(wb.getWork() == _o1);
+	public HistoryAwareFIFOWorkBag(final Collection processed) {
+		super(processed);
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see edu.ksu.cis.indus.common.datastructures.HistoryAwareAbstractWorkBag#subAddWork(java.lang.Object)
 	 */
-	protected void setUp()
-	  throws Exception {
-		wb = new LIFOWorkBag();
-	}
-
-	/**
-	 * @see TestCase#tearDown()
-	 */
-	protected void tearDown()
-	  throws Exception {
-		wb = null;
+	protected void subAddWork(Object o) {
+		container.add(o);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
-   Revision 1.1  2004/01/28 00:18:45  venku
-   - added unit tests for classes in data structures package.
  */

@@ -133,6 +133,7 @@ public class SliceXMLizerCLI
 	 */
 	protected SliceXMLizerCLI(final IJimpleIDGenerator generator) {
 		slicer = new SlicerTool();
+		cfgProvider = slicer.getStmtGraphFactory();
 		idGenerator = generator;
 	}
 
@@ -233,6 +234,7 @@ public class SliceXMLizerCLI
 	final void writeXML() {
 		final ICallGraphInfo _cgi = slicer.getCallGraph();
 		final ProcessingController _ctrl = new ProcessingController();
+		_ctrl.setStmtGraphFactory(getStmtGraphFactory());
 		_ctrl.setEnvironment(slicer.getEnvironment());
 		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
@@ -476,7 +478,7 @@ public class SliceXMLizerCLI
 		if (destructiveJimpleUpdate) {
 			final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 			_residualizer.setTagToResidualize(nameOfSliceTag);
-			_residualizer.residualizeSystem(scene);
+			_residualizer.residualizeSystem(scene, slicer.getStmtGraphFactory());
 		}
 
 		final Printer _printer = Printer.v();
@@ -563,6 +565,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/03/26 00:25:35  venku
+   - added new options to specify an active configuration from the command line.
    Revision 1.6  2004/03/21 20:13:17  venku
    - many file handles are left open. FIXED.
    Revision 1.5  2004/03/04 14:02:09  venku

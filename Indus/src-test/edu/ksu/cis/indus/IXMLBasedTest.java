@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import junit.framework.Test;
 
 
@@ -44,11 +46,20 @@ public interface IXMLBasedTest
 	 * @pre xmlInDir != null
 	 */
 	void setSecondXmlInputDir(String xmlInputDir);
+
+	/**
+	 * Sets the factory to be used to obtain statement graphs (CFGs) during testing.
+	 * 
+	 * @param cfgFactory is the factory to be used.
+	 */
+	void setStmtGraphFactory(IStmtGraphFactory cfgFactory);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/05 11:59:40  venku
+   - documentation.
    Revision 1.3  2004/02/09 01:20:06  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based

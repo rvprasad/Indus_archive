@@ -95,19 +95,20 @@ public class WorkList {
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/01/06 00:17:01  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.14  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.13  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.12  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.11  2003/12/02 01:30:54  venku
    - coding conventions and formatting.
    Revision 1.10  2003/12/01 13:49:38  venku

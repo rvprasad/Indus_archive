@@ -16,7 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.CollectionsModifier;
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -654,7 +654,7 @@ public class ThreadGraph
 	 */
 	private Collection transitiveThreadCallClosure(final SootMethod starterMethod) {
 		final Collection _result = new HashSet();
-		final IWorkBag _wb = new FIFOWorkBag();
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_result);
 		_wb.addWork(starterMethod);
 		_result.add(starterMethod);
 
@@ -674,10 +674,7 @@ public class ThreadGraph
 				final CallTriple _ctrp = (CallTriple) _i.next();
 				final SootMethod _temp = _ctrp.getMethod();
 
-				if (!_result.contains(_temp)) {
-					_result.add(_temp);
-					_wb.addWorkNoDuplicates(_temp);
-				}
+				_wb.addWorkNoDuplicates(_temp);
 			}
 		}
 		return _result;
@@ -687,6 +684,8 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/03/04 14:06:40  venku
+   - nulls should not be considered as new expressions. FIXED.
    Revision 1.27  2004/02/25 00:04:02  venku
    - documenation.
    Revision 1.26  2004/01/25 15:12:03  venku

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -33,6 +35,11 @@ import junit.framework.TestSuite;
 public class AbstractXMLBasedTestSetup
   extends TestSetup
   implements IXMLBasedTest {
+	/** 
+	 * The statement graph (CFG) factory used during testing.
+	 */
+	private IStmtGraphFactory stmtGraphFactory;
+
 	/**
 	 * The directory in which one of the xml-based testing input is read from.
 	 */
@@ -83,6 +90,24 @@ public class AbstractXMLBasedTestSetup
 	}
 
 	/**
+     * Sets the CFG factory to be used during testing.
+     *
+     * @param cfgFactory is the factory to be used.
+     */
+	public void setStmtGraphFactory(final IStmtGraphFactory cfgFactory) {
+		stmtGraphFactory = cfgFactory;
+	}
+
+	/**
+	 * Retrieves the CFG factory used during testing.
+     *
+     * @param cfgFactory is the factory being used.
+	 */
+	public IStmtGraphFactory getStmtGraphFactory() {
+		return stmtGraphFactory;
+	}
+
+	/**
 	 * @see junit.extensions.TestSetup#setUp()
 	 */
 	protected void setUp()
@@ -93,6 +118,7 @@ public class AbstractXMLBasedTestSetup
 			final IXMLBasedTest _tester = (IXMLBasedTest) _i.next();
 			_tester.setSecondXmlInputDir(xmlSecondInputDir);
 			_tester.setFirstXmlInputDir(xmlFirstInputDir);
+			_tester.setStmtGraphFactory(stmtGraphFactory);
 		}
 	}
 }
@@ -100,6 +126,8 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/05 11:59:40  venku
+   - documentation.
    Revision 1.4  2004/02/14 23:16:49  venku
    - coding convention.
    Revision 1.3  2004/02/09 04:39:40  venku

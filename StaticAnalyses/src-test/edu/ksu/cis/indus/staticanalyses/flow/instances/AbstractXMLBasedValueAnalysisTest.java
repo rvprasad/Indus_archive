@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 
+
 /**
  * This is a XML based test for value flow analysis.
  *
@@ -56,6 +57,7 @@ public abstract class AbstractXMLBasedValueAnalysisTest
 	 */
 	protected final void localSetup()
 	  throws Exception {
+		super.localSetup();
 		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
 		info.put(IValueAnalyzer.TAG_ID, nameOfTheTag);
 	}
@@ -64,11 +66,13 @@ public abstract class AbstractXMLBasedValueAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/09 18:40:03  venku
+   - refactoring.
+   - moved methods common to XMLBased Test into AbstractXMLBasedTest.
    Revision 1.1  2004/03/07 20:27:54  venku
    - refactoring! refactoring!
    - generalized OFA Test base to be applicable to any value flow
      analysis built on top of FA.
-
    Revision 1.2  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.1  2004/02/11 09:37:18  venku

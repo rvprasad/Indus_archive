@@ -520,6 +520,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/03/04 11:52:21  venku
+   - modified ReadyDA to use CollectionsModifiers.
+   - fixed some subtle bugs in SyncDA.
    Revision 1.34  2004/03/03 10:11:40  venku
    - formatting.
    Revision 1.33  2004/03/03 10:07:24  venku

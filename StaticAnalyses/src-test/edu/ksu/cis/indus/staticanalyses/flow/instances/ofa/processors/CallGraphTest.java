@@ -64,12 +64,6 @@ public final class CallGraphTest
 	private OFAnalyzer ofa;
 
 	/**
-	 * The system that provides the call graph.
-	 */
-
-	//private Scene scene;
-
-	/**
 	 * The call graph.
 	 */
 	private SimpleNodeGraph cg;
@@ -366,6 +360,11 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.8  2004/02/09 07:35:04  venku
    - coding conventions.
    Revision 1.7  2004/02/08 21:31:41  venku

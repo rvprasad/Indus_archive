@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
@@ -41,6 +43,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 
 /**
  * This class provides the logic to xmlize dependence information.
@@ -135,6 +138,7 @@ final class DependencyXMLizer
 	public final void writeXML(final Map info) {
 		final ProcessingController _ctrl = new ProcessingController();
 		_ctrl.setEnvironment((IEnvironment) info.get(IEnvironment.ID));
+		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
 		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter((ICallGraphInfo) info.get(ICallGraphInfo.ID)));
 
 		final Map _xmlizers = initXMLizers(info, _ctrl);
@@ -235,6 +239,9 @@ final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/03/09 18:40:03  venku
+   - refactoring.
+   - moved methods common to XMLBased Test into AbstractXMLBasedTest.
    Revision 1.9  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.8  2004/02/25 23:34:29  venku

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.IndusTestCase;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Environment;
@@ -67,7 +68,7 @@ public class UtilTest
 	 */
 	private static SootClass sc;
 
-	/** 
+	/**
 	 * The number of tests in this suite.
 	 */
 	private static final int NUMBER_OF_TESTS = 12;
@@ -116,7 +117,7 @@ public class UtilTest
 		_ancestors.add("java.io.Serializable");
 		_ancestors.add("java.util.AbstractSet");
 		_ancestors.add("java.util.AbstractCollection");
-		assertTrue(_ancestors.size() == _classes.size());
+		assertEquals(_ancestors.size(), _classes.size());
 
 		for (final Iterator _i = _classes.iterator(); _i.hasNext();) {
 			final SootClass _class = (SootClass) _i.next();
@@ -254,9 +255,15 @@ public class UtilTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
    Revision 1.4  2004/02/08 01:53:20  venku
    - documentation and coding convention.
-
    Revision 1.3  2004/02/08 01:46:44  venku
    - <init>, <clinit>, and clone were unaccounted for while
      removing and retaining methods.

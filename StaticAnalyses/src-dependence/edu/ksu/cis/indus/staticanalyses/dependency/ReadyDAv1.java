@@ -135,20 +135,6 @@ public class ReadyDAv1
 	protected static final Object SYNC_METHOD_PROXY_STMT = "SYNC_METHOD_PROXY_STMT";
 
 	/**
-	 * The  collection of <code>notifyXX</code> methods as available in the <code>Object</code> class.
-	 *
-	 * @invariant notifyMethods->forall(o | o.oclIsTypeOf(SootMethod))
-	 */
-	Collection notifyMethods;
-
-	/**
-	 * This is the <code>java.lang.Object.wait()</code> method.
-	 *
-	 * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
-	 */
-	Collection waitMethods;
-
-	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ReadyDAv1.class);
@@ -167,10 +153,24 @@ public class ReadyDAv1
 	final Collection monitorMethods = new HashSet();
 
 	/**
+	 * The  collection of <code>notifyXX</code> methods as available in the <code>Object</code> class.
+	 *
+	 * @invariant notifyMethods->forall(o | o.oclIsTypeOf(SootMethod))
+	 */
+	Collection notifyMethods;
+
+	/**
 	 * The collection of methods (readyMethods) which contain at least an enter-monitor statement or a <code>wait()</code>
 	 * call-site.
 	 */
 	final Collection readyMethods = new HashSet();
+
+	/**
+	 * This is the <code>java.lang.Object.wait()</code> method.
+	 *
+	 * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
+	 */
+	Collection waitMethods;
 
 	/**
 	 * This maps a method to a collection of enter monitor statements in that method.
@@ -737,22 +737,22 @@ public class ReadyDAv1
 			throw new InitializationException(IEnvironment.ID + " was not provided in info.");
 		}
 
-			for (final Iterator _i = env.getClasses().iterator(); _i.hasNext();) {
-				final SootClass _sc = (SootClass) _i.next();
+		for (final Iterator _i = env.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
 
-				if (_sc.getName().equals("java.lang.Object")) {
-					waitMethods = new ArrayList();
-					waitMethods.add(_sc.getMethod("void wait()"));
-					waitMethods.add(_sc.getMethod("void wait(long)"));
-					waitMethods.add(_sc.getMethod("void wait(long,int)"));
-					waitMethods = Collections.unmodifiableCollection(waitMethods);
+			if (_sc.getName().equals("java.lang.Object")) {
+				waitMethods = new ArrayList();
+				waitMethods.add(_sc.getMethod("void wait()"));
+				waitMethods.add(_sc.getMethod("void wait(long)"));
+				waitMethods.add(_sc.getMethod("void wait(long,int)"));
+				waitMethods = Collections.unmodifiableCollection(waitMethods);
 
-					notifyMethods = new ArrayList();
-					notifyMethods.add(_sc.getMethodByName("notify"));
-					notifyMethods.add(_sc.getMethodByName("notifyAll"));
-					notifyMethods = Collections.unmodifiableCollection(notifyMethods);
-				}
+				notifyMethods = new ArrayList();
+				notifyMethods.add(_sc.getMethodByName("notify"));
+				notifyMethods.add(_sc.getMethodByName("notifyAll"));
+				notifyMethods = Collections.unmodifiableCollection(notifyMethods);
 			}
+		}
 
 		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
@@ -1245,10 +1245,11 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.49  2004/03/04 14:03:26  venku
+   - wait() and notify() should be retrieved each time the analyses is setup. FIXED.
    Revision 1.48  2004/03/04 11:52:21  venku
    - modified ReadyDA to use CollectionsModifiers.
    - fixed some subtle bugs in SyncDA.
-
    Revision 1.47  2004/03/03 10:11:40  venku
    - formatting.
    Revision 1.46  2004/03/03 10:07:24  venku

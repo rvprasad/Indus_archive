@@ -15,26 +15,24 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.Triple;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo.NewExprTriple;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,9 +86,6 @@ import soot.jimple.StringConstant;
 import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
-
-import soot.toolkits.graph.CompleteUnitGraph;
-
 
 /**
  * This is an implementation of Ruf's escape analysis.
@@ -1527,7 +1522,6 @@ public class RufsEscapeAnalysis
 	 * <p></p>
 	 */
 	public void execute() {
-
 		// phase 2 of Ruf's algorithm
 		Collection sccs = cgi.getSCCs(false);
 
@@ -1566,8 +1560,7 @@ public class RufsEscapeAnalysis
 			}
 		}
 
-		IWorkBag wb = new LIFOWorkBag();
-		Collection processed = new HashSet();
+		IWorkBag wb = new HistoryAwareLIFOWorkBag(new HashSet());
 		wb.addAllWork(cgi.getHeads());
 
 		while (wb.hasWork()) {
@@ -1586,10 +1579,7 @@ public class RufsEscapeAnalysis
 				MethodContext sc = (MethodContext) ctrp2sc.get(callerTrp);
 				sc.propogateSyncInfoFromTo(mc);
 
-				if (!processed.contains(callee)) {
-					processed.add(callee);
-					wb.addWork(callee);
-				}
+				wb.addWorkNoDuplicates(callee);
 			}
 		}
 	}
@@ -1881,33 +1871,31 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/01/06 00:17:01  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.16  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.15  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.14  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.13  2003/12/08 10:26:30  venku
    - ensured bbg's are returned when the method has concrete implementation.
    - removed a method whose logic is now dependent on the factory.
    - ripple effect.
-
    Revision 1.12  2003/12/07 08:41:32  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.
    - ripple effect.
-
    Revision 1.11  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.10  2003/11/17 15:42:46  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.9  2003/11/10 03:17:19  venku
@@ -1929,32 +1917,32 @@ main_control:
      but yet says it is out of sync.
    Revision 1.4  2003/09/08 02:23:24  venku
  *** empty log message ***
-             Revision 1.3  2003/09/01 11:57:30  venku
-             - Ripple effect of changes in CFGAnalysis.
-             Revision 1.2  2003/08/24 12:42:33  venku
-             Removed occursInCycle() method from DirectedGraph.
-             Installed occursInCycle() method in CFGAnalysis.
-             Converted performTopologicalsort() and getFinishTimes() into instance methods.
-             Ripple effect of the above changes.
-             Revision 1.1  2003/08/21 01:24:25  venku
-              - Renamed src-escape to src-concurrency to as to group all concurrency
-                issue related analyses into a package.
-              - Renamed escape package to concurrency.escape.
-              - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-             Revision 1.2  2003/08/11 06:29:07  venku
-             Changed format of change log accumulation at the end of the file
-             Revision 1.1  2003/08/07 06:39:07  venku
-             Major:
-              - Moved the package under indus umbrella.
-             Minor:
-              - changes to accomodate ripple effect from support package.
-             Revision 1.3  2003/07/30 08:30:31  venku
-             Refactoring ripple.
-             Also fixed a subtle bug in isShared() which caused wrong results.
-             Revision 1.2  2003/07/27 21:22:14  venku
-             Minor:
-              - removed unnecessary casts.
-             Revision 1.1  2003/07/27 20:52:39  venku
-             First of the many refactoring while building towards slicer release.
-             This is the escape analysis refactored and implemented as per to tech report.
+                   Revision 1.3  2003/09/01 11:57:30  venku
+                   - Ripple effect of changes in CFGAnalysis.
+                   Revision 1.2  2003/08/24 12:42:33  venku
+                   Removed occursInCycle() method from DirectedGraph.
+                   Installed occursInCycle() method in CFGAnalysis.
+                   Converted performTopologicalsort() and getFinishTimes() into instance methods.
+                   Ripple effect of the above changes.
+                   Revision 1.1  2003/08/21 01:24:25  venku
+                    - Renamed src-escape to src-concurrency to as to group all concurrency
+                      issue related analyses into a package.
+                    - Renamed escape package to concurrency.escape.
+                    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+                   Revision 1.2  2003/08/11 06:29:07  venku
+                   Changed format of change log accumulation at the end of the file
+                   Revision 1.1  2003/08/07 06:39:07  venku
+                   Major:
+                    - Moved the package under indus umbrella.
+                   Minor:
+                    - changes to accomodate ripple effect from support package.
+                   Revision 1.3  2003/07/30 08:30:31  venku
+                   Refactoring ripple.
+                   Also fixed a subtle bug in isShared() which caused wrong results.
+                   Revision 1.2  2003/07/27 21:22:14  venku
+                   Minor:
+                    - removed unnecessary casts.
+                   Revision 1.1  2003/07/27 20:52:39  venku
+                   First of the many refactoring while building towards slicer release.
+                   This is the escape analysis refactored and implemented as per to tech report.
  */

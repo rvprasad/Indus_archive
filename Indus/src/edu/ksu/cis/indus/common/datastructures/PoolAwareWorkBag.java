@@ -40,6 +40,8 @@ public final class PoolAwareWorkBag
 	 * Creates a new PoolAwareWorkBag object.
 	 *
 	 * @param theContainer is the container that actually contains the work peices.
+	 *
+	 * @pre theContainer != null
 	 */
 	public PoolAwareWorkBag(final IWorkBag theContainer) {
 		container = theContainer;
@@ -125,6 +127,8 @@ public final class PoolAwareWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/27 21:07:34  venku
+   - documentation.
    Revision 1.3  2004/01/25 08:57:51  venku
    - coding convention.
    Revision 1.2  2004/01/22 11:45:43  venku

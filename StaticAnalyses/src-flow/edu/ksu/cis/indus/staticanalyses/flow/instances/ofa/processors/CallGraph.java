@@ -498,15 +498,18 @@ public class CallGraph
 		long start = System.currentTimeMillis();
 		heads.addAll(analyzer.getEnvironment().getRoots());
 
+		// construct call graph 
+		graphCache = new SimpleNodeGraph();
+
 		// populate the caller2callees with head information in cases there are no calls in the system.
 		if (caller2callees.isEmpty()) {
 			for (Iterator i = heads.iterator(); i.hasNext();) {
-				caller2callees.put(i.next(), Collections.EMPTY_LIST);
+				final Object _head = i.next();
+				caller2callees.put(_head, Collections.EMPTY_LIST);
+				// insert head nodes into the graph.
+				graphCache.getNode(_head);
 			}
 		}
-
-		// construct call graph 
-		graphCache = new SimpleNodeGraph();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Starting construction of call graph...");
@@ -516,9 +519,9 @@ public class CallGraph
 			SootMethod sm = (SootMethod) i.next();
 			Collection temp = (Collection) caller2callees.get(sm);
 
-			INode callerNode = graphCache.getNode(sm);
-
 			if (temp != null) {
+				INode callerNode = graphCache.getNode(sm);
+
 				for (Iterator j = temp.iterator(); j.hasNext();) {
 					CallTriple ctrp = (CallTriple) j.next();
 					SootMethod method = ctrp.getMethod();
@@ -692,6 +695,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.52  2004/03/03 02:17:46  venku
+   - added a new method to ICallGraphInfo interface.
+   - implemented the above method in CallGraph.
+   - made aliased use-def call-graph sensitive.
    Revision 1.51  2004/02/25 00:04:02  venku
    - documenation.
    Revision 1.50  2004/01/23 20:13:23  venku

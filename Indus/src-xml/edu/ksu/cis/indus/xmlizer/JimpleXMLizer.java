@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.Environment;
@@ -128,6 +130,10 @@ public class JimpleXMLizer
 	public static void main(final String[] s) {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
 		final ProcessingController _pc = new ProcessingController();
+		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(
+				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
+				true));
+
 		final Scene _scene = Scene.v();
 		final Environment _env = new Environment(_scene);
 		_pc.setEnvironment(_env);
@@ -384,6 +390,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.26  2003/12/09 09:50:46  venku
    - amended output of string output to be XML compliant.
      This means some characters that are unrepresentable in

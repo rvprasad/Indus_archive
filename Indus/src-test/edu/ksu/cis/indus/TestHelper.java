@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.Collection;
@@ -59,17 +59,11 @@ public final class TestHelper {
 	 */
 	public static Collection getTestCasesReachableFromSuite(final TestSuite suite, final Class type) {
 		final Collection _result = new HashSet();
-		final Collection _processed = new HashSet();
-		final IWorkBag _workList = new FIFOWorkBag();
+		final IWorkBag _workList = new HistoryAwareFIFOWorkBag(new HashSet());
 		_workList.addAllWorkNoDuplicates(Collections.list(suite.tests()));
 
 		while (_workList.hasWork()) {
 			final Test _o = (Test) _workList.getWork();
-
-			if (_processed.contains(_o)) {
-				continue;
-			}
-			_processed.add(_o);
 
 			if (type.isInstance(_o)) {
 				_result.add(_o);
@@ -124,6 +118,8 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/17 05:46:20  venku
+   - coding convention.
    Revision 1.8  2004/02/14 23:16:49  venku
    - coding convention.
    Revision 1.7  2004/02/09 07:32:41  venku

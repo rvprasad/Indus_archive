@@ -199,7 +199,7 @@ public final class SlicerTool
 	/**
 	 * This provides <code>UnitGraph</code>s for the analyses.
 	 */
-	private final IStmtGraphFactory unitGraphProvider;
+	private final IStmtGraphFactory stmtGraphFactory;
 
 	/**
 	 * This provides object flow anlaysis.
@@ -268,10 +268,14 @@ public final class SlicerTool
 		// create the flow analysis.
 		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME);
 
+        stmtGraphFactory =
+            new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
+        
 		// create the pre processor for call graph construction.
 		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgPreProcessCtrl.setAnalyzer(ofa);
 		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(FLOW_ANALYSIS_TAG_NAME));
+        cgPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
 
 		// create the call graph.
 		callGraph = new CallGraph();
@@ -280,11 +284,10 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
+        cgBasedPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
 
-		unitGraphProvider =
-			new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
 		bbgMgr = new BasicBlockGraphMgr();
-		bbgMgr.setUnitGraphFactory(unitGraphProvider);
+		bbgMgr.setUnitGraphFactory(getStmtGraphFactory());
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
 		// create equivalence class-based escape analysis.
@@ -403,6 +406,15 @@ public final class SlicerTool
 	}
 
 	/**
+	 * Retrieves the statement graph (CFG) provider/factory used by the tool. 
+	 *
+	 * @return the factory object.
+	 */
+	public IStmtGraphFactory getStmtGraphFactory() {
+		return stmtGraphFactory;
+	}
+
+	/**
 	 * Set the system to be sliced.
 	 *
 	 * @param theSystem contains the class of the system to be sliced.
@@ -510,7 +522,7 @@ public final class SlicerTool
 			// do the flow analyses
 			ofa.reset();
 			bbgMgr.reset();
-			unitGraphProvider.reset();
+			stmtGraphFactory.reset();
 			ofa.analyze(system, rootMethods);
 			phase.nextMinorPhase();
 
@@ -836,6 +848,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.79  2004/03/26 00:25:07  venku
+   - added a method to programmatically change the active configuration.
+   - ripple effect of refactoring indus soot package.
    Revision 1.78  2004/03/03 10:09:42  venku
    - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
    Revision 1.77  2004/03/03 05:59:37  venku

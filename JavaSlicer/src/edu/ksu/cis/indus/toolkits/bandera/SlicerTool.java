@@ -233,7 +233,7 @@ public final class SlicerTool
 
 		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(TAG_NAME);
-		_residualizer.residualizeSystem(tool.getSystem());
+		_residualizer.residualizeSystem(tool.getSystem(), tool.getStmtGraphFactory());
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: bandera slicer tool");
@@ -244,6 +244,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/03/03 08:04:11  venku
+   - formatting.
+
    Revision 1.26  2004/02/25 23:33:41  venku
    - well package naming convention was inconsistent. FIXED.
    Revision 1.25  2004/02/06 00:33:26  venku

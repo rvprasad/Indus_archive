@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -138,8 +139,10 @@ public final class OFAXMLizerCLI
 
 		_pc.setAnalyzer(_aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
+		_pc.setStmtGraphFactory(getStmtGraphFactory());
 		_xmlcgipc.setEnvironment(_aa.getEnvironment());
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
+		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
 		final Map _info = new HashMap();
 		_info.put(IValueAnalyzer.ID, _cgi);
@@ -172,6 +175,7 @@ public final class OFAXMLizerCLI
 			_processors.clear();
 			xmlizer.dumpJimple(_rootname, _xmlcgipc);
 			_info.put(AbstractXMLizer.FILE_NAME_ID, _rootname);
+			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			xmlizer.writeXML(_info);
 
 			if (dumpJimple) {
@@ -184,6 +188,8 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/05 11:59:45  venku
+   - documentation.
    Revision 1.1  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.
