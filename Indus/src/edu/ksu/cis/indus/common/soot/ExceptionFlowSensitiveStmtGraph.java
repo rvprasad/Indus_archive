@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import soot.PatchingChain;
 import soot.SootClass;
 import soot.Trap;
 import soot.TrapManager;
@@ -165,27 +166,22 @@ final class ExceptionFlowSensitiveStmtGraph
 	private void fixupMapsAndIterator() {
 		final List _temp = new ArrayList();
 		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
+		final PatchingChain _units = getBody().getUnits();
 
-		for (final Iterator _i = getHeads().iterator(); _i.hasNext();) {
-			final Stmt _head = (Stmt) _i.next();
-
-			if (_head == body.getUnits().getFirst()) {
-				_wb.addWork(_head);
-				break;
-			}
-		}
+		// find reachable units.
+		_wb.addWork(_units.getFirst());
 
 		while (_wb.hasWork()) {
 			final Stmt _unit = (Stmt) _wb.getWork();
 			_wb.addAllWork(getSuccsOf(_unit));
 		}
 
-		nodes = new ArrayList(getBody().getUnits());
+		nodes = new ArrayList(_units);
 		nodes.retainAll(_temp);
 		nodes = Collections.unmodifiableList(nodes);
 
 		// fix the maps such that there is no info pertaining to unreachable statements 
-		final Collection _stmts = new ArrayList(getBody().getUnits());
+		final Collection _stmts = new ArrayList(_units);
 		_stmts.removeAll(_temp);
 
 		for (final Iterator _i = _stmts.iterator(); _i.hasNext();) {
@@ -257,10 +253,11 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/06/15 10:18:32  venku
+   - coding conventions.
    Revision 1.13  2004/06/15 10:18:17  venku
    - pruning control flow edges based on exception was incorrect. FIXED.
    - info pertaining to units represented was incorrect. FIXED.
-
    Revision 1.12  2004/06/14 04:55:04  venku
    - documentation.
    - coding conventions.

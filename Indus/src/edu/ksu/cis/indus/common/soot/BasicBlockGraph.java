@@ -275,8 +275,16 @@ public final class BasicBlockGraph
 	}
 
 	/**
-	 * Return the head node of this graph.  Basic Block graphs for procedures in languages without unconditional gotos can
-	 * have only one entry point, hence, this method.  If the method is native, <code>null</code> is returned.
+	 * Return the head node of this graph.  Basic Block graphs in general have a single head and this contains the first
+	 * statement reachable in the CFG of the method.  Hence, this method returns the basic block enclosing the first
+	 * statement of the method if the underlying CFG contain the first statement. Otherwise, it returns <code>null</code>.
+	 * If the method is native, <code>null</code> is returned.
+	 * 
+	 * <p>
+	 * Note that the head returned by this method may not be the head of the graph. An example is  a method that starts with
+	 * a <code>while</code> loop whose index variable is a field of the enclosing class. In this case, the first statement
+	 * in the method body does have a predecessor, hence, there can be no "head" as defined for graphs.
+	 * </p>
 	 *
 	 * @return the head node
 	 */
@@ -284,8 +292,19 @@ public final class BasicBlockGraph
 		final Collection _heads = getHeads();
 		BasicBlock _result = null;
 
-		if (!_heads.isEmpty()) {
+		if (_heads.size() == 1) {
 			_result = (BasicBlock) _heads.iterator().next();
+		} else {
+			final Stmt _stmt = (Stmt) stmtGraph.getBody().getUnits().getFirst();
+
+			for (final Iterator _i = stmtGraph.iterator(); _i.hasNext();) {
+				final Stmt _t = (Stmt) _i.next();
+
+				if (_stmt.equals(_t)) {
+					_result = getEnclosingBlock(_stmt);
+					break;
+				}
+			}
 		}
 		return _result;
 	}
@@ -397,7 +416,15 @@ public final class BasicBlockGraph
 		}
 
 		// Setup the head of the graph.
-		heads.add(getEnclosingBlock((Stmt) stmtGraph.getHeads().get(0)));
+		final List _hds = stmtGraph.getHeads();
+
+		if (!_hds.isEmpty()) {
+			final BasicBlock _enclosingBlock = getEnclosingBlock((Stmt) _hds.get(0));
+
+			if (_enclosingBlock != null) {
+				heads.add(_enclosingBlock);
+			}
+		}
 
 		// Setup the tails of the graph.
 		for (final Iterator _i = stmtGraph.getTails().iterator(); _i.hasNext();) {
@@ -413,6 +440,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/31 21:38:12  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.16  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

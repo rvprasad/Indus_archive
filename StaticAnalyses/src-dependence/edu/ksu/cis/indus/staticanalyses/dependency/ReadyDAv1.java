@@ -1189,9 +1189,14 @@ public class ReadyDAv1
 						}
 					}
 
+					if (_key != null) {
+					    
 					final Map dents2dees =
 						CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
 					CollectionsUtilities.putAllIntoSetInMap(dents2dees, _key, _deSet);
+					} else {
+					    LOGGER.error("How can we record ready dependence for a synchronized method with no head?");
+					}
 				}
 			}
 		}
@@ -1249,6 +1254,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.55  2004/06/16 14:30:12  venku
+   - logging.
+
    Revision 1.54  2004/06/01 06:29:57  venku
    - added new methods to CollectionUtilities.
    - ripple effect.

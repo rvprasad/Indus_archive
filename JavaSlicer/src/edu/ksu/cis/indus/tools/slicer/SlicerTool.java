@@ -690,6 +690,8 @@ public final class SlicerTool
 						final Stmt _stmt = _bb.getTrailerStmt();
 						_temp.addAll(criteriaFactory.getCriterion(_method, _stmt));
 					}
+				} else {
+					LOGGER.error("Skipping slicing criteria generation for " + _method + " as it has 0 or more than 1 head.");
 				}
 			} else {
 				Collection _criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst(), true);
@@ -800,7 +802,7 @@ public final class SlicerTool
 		}
 
 		generateDeadlockCriteria(_im);
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Populating deadlock criteria. - " + criteria);
 		}
@@ -880,9 +882,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.91  2004/06/26 10:15:13  venku
+   - documentation.
    Revision 1.90  2004/06/26 06:52:49  venku
    - logging.
-
    Revision 1.89  2004/06/24 06:53:53  venku
    - refactored SliceConfiguration
      - added processBooleanProperty()
@@ -890,7 +893,6 @@ public final class SlicerTool
    - ripple effect
    - made AbstractSliceCriterion package private
    - made ISliceCriterion public
-
    Revision 1.88  2004/06/12 06:47:27  venku
    - documentation.
    - refactoring.
