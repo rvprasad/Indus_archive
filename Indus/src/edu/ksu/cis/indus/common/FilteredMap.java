@@ -55,6 +55,8 @@ class FilteredMap
 	 * @param map to be filtered.
 	 * @param keyPredicate to filter the keys in <code>map</code>.
 	 * @param valuePredicate to filter the values in <code>map</code>.
+	 *
+	 * @pre map != null
 	 */
 	FilteredMap(final Map map, final Predicate keyPredicate, final Predicate valuePredicate) {
 		origMap = map;
@@ -90,4 +92,9 @@ class FilteredMap
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/21 22:11:49  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
  */
