@@ -51,6 +51,10 @@ public abstract class AbstractTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/26 15:06:05  venku
+   - Formatting.
+   - ITransformer has a new method initialize() via which the system
+     being transformed can be specified.
    Revision 1.4  2003/08/19 12:44:39  venku
    Changed the signature of ITransformer.getLocal()
    Introduced reset() in ITransformer.

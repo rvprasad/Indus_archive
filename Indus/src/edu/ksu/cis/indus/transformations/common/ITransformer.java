@@ -196,6 +196,8 @@ public interface ITransformer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/27 01:10:25  venku
+   - documentation.
    Revision 1.8  2003/09/26 15:06:05  venku
    - Formatting.
    - ITransformer has a new method initialize() via which the system

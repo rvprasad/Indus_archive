@@ -291,17 +291,19 @@ public class Cloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/26 15:06:05  venku
+   - Formatting.
+   - ITransformer has a new method initialize() via which the system
+     being transformed can be specified.
    Revision 1.4  2003/08/19 12:44:39  venku
    Changed the signature of ITransformer.getLocal()
    Introduced reset() in ITransformer.
    Ripple effect of the above changes.
    Revision 1.3  2003/08/19 11:58:53  venku
    Remove any reference to slicing from the documentation.
-
    Revision 1.2  2003/08/18 04:45:31  venku
    Moved the code such that code common to transformations are in one location
    and independent of any specific transformation.
-
    Revision 1.1  2003/08/18 04:01:52  venku
    Major changes:
     - Teased apart cloning logic in the slicer.  Made it transformation independent.

@@ -87,6 +87,7 @@
 			 header="&lt;b> &lt;a href='http://indus.projects.cis.ksu.edu'>Indus &lt;/a>, a &lt;a
              href='http://www.cis.ksu.edu/santos'>SaNToS Lab &lt;/a> project.&lt;/b>"
 			 doctitle="&lt;b>Indus, a toolkit to customize and adapt Java programs.&lt;/b>"
+             overview="src/overview.html"
 			 >
              <classpath refid="classpath"/>
              <sourcepath refid="srcpath"/>
@@ -126,6 +127,12 @@
 ChangeLog:
 
 $Log$
+Revision 1.6  2003/09/27 23:22:39  venku
+*** empty log message ***
+
+Revision 1.5  2003/09/13 05:59:38  venku
+*** empty log message ***
+
 Revision 1.4  2003/09/12 08:11:20  venku
 - javadoc target spruced.
 
