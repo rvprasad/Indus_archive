@@ -161,11 +161,6 @@ public final class SlicingEngine {
 	Object sliceType = BACKWARD_SLICE;
 
 	/**
-	 * This indicates if executable slices should be generated.
-	 */
-	boolean executableSlice;
-
-	/**
 	 * The controller used to access the dependency analysis info during slicing.
 	 */
 	private AnalysesController controller;
@@ -243,7 +238,7 @@ public final class SlicingEngine {
 	/**
 	 * This collects the parts of the system that make up the slice.
 	 */
-	private TaggingBasedSliceCollector collector;
+	private SliceCollector collector;
 
 	/**
 	 * This indicates if ready dependence should be used.
@@ -254,7 +249,7 @@ public final class SlicingEngine {
 	 * Creates a new SlicingEngine object.
 	 */
 	public SlicingEngine() {
-		collector = new TaggingBasedSliceCollector(this);
+		collector = new SliceCollector(this);
 	}
 
 	/**
@@ -301,12 +296,12 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Indicates to the slicer if executable slice should be generated.
+	 * DOCUMENT ME!
 	 *
-	 * @param executable is <code>true</code> if executable slice is requested; <code>false</code>, otherwise.
+	 * @return DOCUMENT ME!
 	 */
-	public void setExecutableSlice(final boolean executable) {
-		executableSlice = executable;
+	public SliceCollector getCollector() {
+		return collector;
 	}
 
 	/**
@@ -682,10 +677,6 @@ public final class SlicingEngine {
 		if (_sm.isStatic()) {
 			generateNewCriteriaForReturnPointOfMethods(Collections.singleton(_sm), stmt, method);
 		} else {
-			if (executableSlice) {
-				collector.includeInSlice(_sm);
-			}
-
 			final Context _context = new Context();
 			_context.setRootMethod(method);
 			_context.setStmt(stmt);
@@ -1272,6 +1263,14 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/01/11 03:42:22  venku
+   - synchronization, control, and divergence are now considered as
+     control based DAs and are used instead of just control.
+   - renamed controlDAs to controlBasedDAs.
+   - while considering invocations,
+     - static invocations do not use call graph.
+     - for executable slices, we tag methods in declaring
+       class to keep the type hierarchy correct.
    Revision 1.45  2004/01/06 00:17:05  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
@@ -1311,7 +1310,7 @@ public final class SlicingEngine {
    - renamed Init2NewExprMapper to NewExpr2InitMapper.
    - ripple effect.
    Revision 1.34  2003/12/13 19:46:33  venku
-   - documentation of TaggingBasedSliceCollector.
+   - documentation of SliceCollector.
    - renamed collect() to includeInSlice().
    Revision 1.33  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
@@ -1327,7 +1326,7 @@ public final class SlicingEngine {
    - ripple effect.
    - Enabled call graph xmlization.
    Revision 1.29  2003/12/07 22:13:12  venku
-   - renamed methods in TaggingBasedSliceCollector.
+   - renamed methods in SliceCollector.
    Revision 1.28  2003/12/07 15:16:01  venku
    - the order of collecting the slice had an impact on the
      generation of the slice (due to optimization).  For this
@@ -1374,7 +1373,7 @@ public final class SlicingEngine {
    - architectural change. The slicer is hard-wired wrt to
      slice collection.  Residualization is outside the slicer.
    Revision 1.14  2003/11/24 09:46:49  venku
-   - moved ISliceCollector and TaggingBasedSliceCollector
+   - moved ISliceCollector and SliceCollector
      into slicer package.
    - The idea is to collect the slice based on annotation which
      can be as precise as we require and then layer on

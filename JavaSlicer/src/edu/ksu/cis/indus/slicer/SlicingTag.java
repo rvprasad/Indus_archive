@@ -41,6 +41,10 @@ public class SlicingTag
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.5  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
@@ -57,7 +61,7 @@ public class SlicingTag
    - ripple effect.
    Revision 1.1  2003/11/24 16:47:31  venku
    - moved inner classes as external class.
-   - made TaggingBasedSliceCollector package private.
+   - made SliceCollector package private.
    - removed inheritance based dependence on ITransformer
-     for TaggingBasedSliceCollector.
+     for SliceCollector.
  */

@@ -16,8 +16,8 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.slicer.processing.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,34 +26,22 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.Body;
 import soot.SootMethod;
-import soot.Trap;
-import soot.TrapManager;
 import soot.ValueBox;
-
-import soot.jimple.Stmt;
 
 import soot.tagkit.Host;
 
-import soot.util.Chain;
-
 
 /**
- * This collects the parts of the system that form the slice by tagging the AST of the system.  The residualization should be
- * drivern by the tags in the AST.
- * 
- * <p>
- * After residualization, the application can query the system for tags of kind <code>SlicingTag</code> and retrieve slicing
- * information of the system.  However, as locals cannot be tagged, the application should use the references to locals in
- * the slice to include them.  Similar technique should be used for catch table.
- * </p>
+ * This collects the parts of the system that form the slice by tagging the AST of the system.  This just tags the parts of
+ * the system that form the slice.  It is primarily intended to be driven by the slicing engine.  However, the application
+ * may do some post processing and may use this to extend the slice in ways appropriate for the application.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class TaggingBasedSliceCollector {
+public final class SliceCollector {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
@@ -62,7 +50,7 @@ final class TaggingBasedSliceCollector {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(TaggingBasedSliceCollector.class);
+	private static final Log LOGGER = LogFactory.getLog(SliceCollector.class);
 
 	/**
 	 * The collection of methods that were tagged.
@@ -85,47 +73,12 @@ final class TaggingBasedSliceCollector {
 	private String tagName;
 
 	/**
-	 * Creates a new TaggingBasedSliceCollector object.
+	 * Creates a new SliceCollector object.
 	 *
 	 * @param theEngine is the slicing tool/engine that calculates the slice.
 	 */
-	TaggingBasedSliceCollector(final SlicingEngine theEngine) {
+	SliceCollector(final SlicingEngine theEngine) {
 		engine = theEngine;
-	}
-
-	/**
-	 * Perform post processing on the slice once it is completed.
-	 */
-	protected void completeSlicing() {
-		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE) && engine.executableSlice) {
-			makeBackwardSliceExecutable();
-		}
-		processGotos();
-	}
-
-	/**
-	 * Checks if the given host has been collected/tagged.
-	 *
-	 * @param host to be checked.
-	 *
-	 * @return <code>true</code>
-	 */
-	protected boolean hasBeenCollected(final Host host) {
-		final SlicingTag _temp = (SlicingTag) host.getTag(tagName);
-		return _temp != null;
-	}
-
-	/**
-	 * Set the tag name to be used.
-	 *
-	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
-	 * 		  used.
-	 */
-	void setTagName(final String theTagName) {
-		if (theTagName != null) {
-			tag = new SlicingTag(theTagName);
-			tagName = theTagName;
-		}
 	}
 
 	/**
@@ -135,8 +88,20 @@ final class TaggingBasedSliceCollector {
 	 *
 	 * @post result != null
 	 */
-	String getTagName() {
+	public String getTagName() {
 		return tagName;
+	}
+
+	/**
+	 * Checks if the given host has been collected/tagged.
+	 *
+	 * @param host to be checked.
+	 *
+	 * @return <code>true</code>
+	 */
+	public boolean hasBeenCollected(final Host host) {
+		final SlicingTag _temp = (SlicingTag) host.getTag(tagName);
+		return _temp != null;
 	}
 
 	/**
@@ -147,7 +112,7 @@ final class TaggingBasedSliceCollector {
 	 *
 	 * @pre host != null
 	 */
-	void includeInSlice(final Host host) {
+	public void includeInSlice(final Host host) {
 		final SlicingTag _hostTag = (SlicingTag) host.getTag(tagName);
 
 		if (_hostTag == null) {
@@ -192,70 +157,15 @@ final class TaggingBasedSliceCollector {
 	}
 
 	/**
-	 * Resets internal data structure.  Tag related information is not reset.
-	 */
-	void reset() {
-		taggedMethods.clear();
-	}
-
-	/**
-	 * Processes the slice to make it executable.  This ensures that all methods have sufficient and necessary return points,
-	 * be it returns or throws.
-	 */
-	private void makeBackwardSliceExecutable() {
-		final BasicBlockGraphMgr _bbgMgr = engine.getSlicedBasicBlockGraphMgr();
-
-		// pick all return/throw points in the methods.
-		for (final Iterator _i = taggedMethods.iterator(); _i.hasNext();) {
-			final SootMethod _method = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_method);
-			final Collection _tails = _bbg.getTails();
-
-			for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
-				final BasicBlock _bb = (BasicBlock) _j.next();
-				final Stmt _stmt = _bb.getTrailerStmt();
-
-				if (_stmt.getTag(tagName) == null) {
-					includeInSlice(_stmt);
-					includeInSlice(_method);
-				}
-			}
-
-			/*
-			 * Include the first statement of the handler for all traps which cover atleast one statement included in the
-			 * slice
-			 */
-			if (_method.isConcrete()) {
-				final Body _body = _method.getActiveBody();
-				final Chain _sl = _body.getUnits();
-
-				for (final Iterator _j = _sl.iterator(); _j.hasNext();) {
-					final Stmt _stmt = (Stmt) _j.next();
-
-					if (hasBeenCollected(_stmt)) {
-						for (final Iterator _k = TrapManager.getTrapsAt(_stmt, _body).iterator(); _k.hasNext();) {
-							includeInSlice(((Trap) _k.next()).getHandlerUnit());
-						}
-					}
-				}
-			} else {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Could not get body for method " + _method.getSignature());
-				}
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("END: Generating criteria for exception");
-			}
-		}
-	}
-
-	/**
 	 * Processes the goto statements in the system to ensure that appropriate gotos are included to ensure the control flow
 	 * is not broken.  This is possible when parts of 2 basic blocks are interspersed with gotos stringing these parts
 	 * together into a basic block.
 	 */
-	private void processGotos() {
+	public void processGotos() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing Gotos");
+		}
+
 		AbstractSliceGotoProcessor _gotoProcessor = null;
 
 		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
@@ -279,11 +189,42 @@ final class TaggingBasedSliceCollector {
 			_gotoProcessor.process(_sm, _bbg);
 		}
 	}
+
+	/**
+	 * Set the tag name to be used.
+	 *
+	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
+	 * 		  used.
+	 */
+	void setTagName(final String theTagName) {
+		if (theTagName != null) {
+			tag = new SlicingTag(theTagName);
+			tagName = theTagName;
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	void completeSlicing() {
+		processGotos();
+	}
+
+	/**
+	 * Resets internal data structure.  Tag related information is not reset.
+	 */
+	void reset() {
+		taggedMethods.clear();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/01/11 03:44:50  venku
+   - ripple effect of changes to GotoProcessors.
    Revision 1.17  2003/12/16 12:44:49  venku
    - safety check.
    Revision 1.16  2003/12/16 00:13:12  venku
@@ -291,7 +232,7 @@ final class TaggingBasedSliceCollector {
    Revision 1.15  2003/12/15 16:31:46  venku
    - deleted tagHost and inlined it in includeInSlice.
    Revision 1.14  2003/12/13 19:46:33  venku
-   - documentation of TaggingBasedSliceCollector.
+   - documentation of SliceCollector.
    - renamed collect() to includeInSlice().
    Revision 1.13  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
@@ -304,7 +245,7 @@ final class TaggingBasedSliceCollector {
    - ripple effect.
    - Enabled call graph xmlization.
    Revision 1.10  2003/12/07 22:13:12  venku
-   - renamed methods in TaggingBasedSliceCollector.
+   - renamed methods in SliceCollector.
    Revision 1.9  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
    Revision 1.8  2003/12/02 09:42:17  venku
@@ -327,16 +268,16 @@ final class TaggingBasedSliceCollector {
    - logging.
    Revision 1.2  2003/11/24 16:47:31  venku
    - moved inner classes as external class.
-   - made TaggingBasedSliceCollector package private.
+   - made SliceCollector package private.
    - removed inheritance based dependence on ITransformer
-     for TaggingBasedSliceCollector.
+     for SliceCollector.
    Revision 1.1  2003/11/24 10:11:32  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.
    - architectural change. The slicer is hard-wired wrt to
      slice collection.  Residualization is outside the slicer.
    Revision 1.1  2003/11/24 09:46:49  venku
-   - moved ISliceCollector and TaggingBasedSliceCollector
+   - moved ISliceCollector and SliceCollector
      into slicer package.
    - The idea is to collect the slice based on annotation which
      can be as precise as we require and then layer on
