@@ -41,7 +41,7 @@ public final class CompleteStmtGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(CompleteStmtGraphFactory.class);
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForBody(soot.Body)
+	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForBody(soot.jimple.JimpleBody)
 	 */
 	protected UnitGraph getUnitGraphForBody(final JimpleBody body) {
 		return new CompleteUnitGraph(body);
@@ -65,6 +65,10 @@ public final class CompleteStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/26 00:07:26  venku
+   - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
+   - ripple effect in classes and method names.
+
    Revision 1.7  2004/03/04 11:56:48  venku
    - renamed a method.
    - added a valid empty body into native methods.

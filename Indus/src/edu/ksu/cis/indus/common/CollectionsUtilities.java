@@ -98,7 +98,7 @@ public final class CollectionsUtilities {
 	 * @post map.get(key) != null
 	 * @post result != null
 	 *
-	 * @see #getFromMap(Map,Object,Object);
+	 * @see #getFromMap(Map,Object,Object)
 	 */
 	public static List getListFromMap(final Map map, final Object key) {
 		return (List) getFromMap(map, key, new ArrayList());
@@ -116,7 +116,7 @@ public final class CollectionsUtilities {
 	 * @post map.get(key) != null
 	 * @post result != null
 	 *
-	 * @see #getFromMap(Map,Object,Object);
+	 * @see #getFromMap(Map,Object,Object)
 	 */
 	public static Set getSetFromMap(final Map map, final Object key) {
 		return (Set) getFromMap(map, key, new HashSet());
@@ -157,7 +157,7 @@ public final class CollectionsUtilities {
 	 * @pre map != null and key != null and values != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 *
-	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Collection);
+	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Collection)
 	 */
 	public static void putAllIntoListInMap(final Map map, final Object key, final Collection values) {
 		putAllIntoCollectionInMap(map, key, values, new ArrayList());
@@ -174,7 +174,7 @@ public final class CollectionsUtilities {
 	 * @pre map != null and key != null and values != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 *
-	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Collection);
+	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Collection)
 	 */
 	public static void putAllIntoSetInMap(final Map map, final Object key, final Collection values) {
 		putAllIntoCollectionInMap(map, key, values, new HashSet());
@@ -236,6 +236,12 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/21 22:11:49  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
    Revision 1.5  2004/03/04 11:56:07  venku
    - added a new method to do safe and destructive queries on map.
    Revision 1.4  2004/01/28 22:45:42  venku

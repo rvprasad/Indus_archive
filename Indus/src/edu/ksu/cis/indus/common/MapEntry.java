@@ -33,14 +33,9 @@ final class MapEntry
 	private final Object key;
 
 	/**
-	 * The value;
+	 * The value.
 	 */
 	private final Object value;
-
-	/**
-	 * The hash code.
-	 */
-	private int hashcode;
 
 	/**
 	 * Creates an instance of this class.
@@ -51,7 +46,6 @@ final class MapEntry
 	public MapEntry(final Object theKey, final Object theValue) {
 		key = theKey;
 		value = theValue;
-		hashcode = 0;
 	}
 
 	/**
@@ -105,22 +99,25 @@ final class MapEntry
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		if (hashcode == 0) {
-			int hashCode = 17;
+		int _hashCode = 17;
 
-			if (key != null) {
-				hashCode += 37 * hashCode + key.hashCode();
-			}
-
-			if (value != null) {
-				hashCode += 37 * hashCode + value.hashCode();
-			}
+		if (key != null) {
+			_hashCode += 37 * _hashCode + key.hashCode();
 		}
-		return hashcode;
+
+		if (value != null) {
+			_hashCode += 37 * _hashCode + value.hashCode();
+		}
+		return _hashCode;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/21 22:11:48  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
  */
