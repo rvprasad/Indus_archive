@@ -122,7 +122,8 @@ public class TypeBasedFilter
 	}
 
 	/**
-	 * Checks if value should be filtered.  It is filtered if it is of the type being monitored by this object.
+	 * Checks if value should be let through the fitler.  It is let through if it is of the type being monitored by this
+	 * object.
 	 *
 	 * @param value to be filtered.
 	 *
@@ -139,13 +140,18 @@ public class TypeBasedFilter
 
 /*
    ChangeLog:
-   
+
    $Log$
-   
+   Revision 1.2  2003/08/15 04:07:56  venku
+   Spruced up documentation and specification.
+   - Important change is that previously all types of retype and nullconstant were let through.
+     This is incorrect as there is not type filtering happening.  This has been fixed.  We now
+     only let those that are not of the monitored type.
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 1.2  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
