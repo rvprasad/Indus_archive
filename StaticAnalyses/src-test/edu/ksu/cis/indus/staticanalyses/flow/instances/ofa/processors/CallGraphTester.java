@@ -275,7 +275,7 @@ public class CallGraphTester
 				Collection scc2 = (Collection) j.next();
 
 				if (scc1 != scc2) {
-					assertTrue(CollectionUtils.subtract(scc1, scc2).isEmpty());
+					assertTrue(CollectionUtils.intersection(scc1, scc2).isEmpty());
 				}
 			}
 		}
@@ -390,6 +390,9 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/29 09:44:20  venku
+   - changed the check for getCallees(InvokeExpr,..).
+
    Revision 1.1  2003/11/29 09:35:44  venku
    - added test support for processors.  CallGraph, in particular.
  */
