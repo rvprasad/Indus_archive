@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.INode;
 
 import java.util.BitSet;
@@ -34,6 +36,8 @@ import java.util.Iterator;
  */
 public class DirectEntryControlDA
   extends EntryControlDA {
+	// TODO: Link to documentation describing direct entry-based intraprocedural control dependence needs to be added.
+
 	/*
 	 * In this class, instead of propagating all tokens (as done in EntryControlDA), only tokens corresponding to nodes with
 	 * multiple children are propagated to their children.  Only when a node accumulates all tokens of a control point node,
@@ -87,17 +91,19 @@ public class DirectEntryControlDA
 	 */
 	private boolean accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
 		final int _nodeIndex = nodesCache.indexOf(node);
-		final Iterator _i = nodesWithChildrenCache.iterator();
-		final int _iEnd = nodesWithChildrenCache.size();
 		boolean _result = false;
+		final IWorkBag _wb = new LIFOWorkBag();
+		_wb.addAllWork(nodesWithChildrenCache);
 
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final INode _cpNode = (INode) _i.next();
+		while (_wb.hasWork()) {
+			final INode _cpNode = (INode) _wb.getWork();
 			final int _cpNodeIndex = nodesCache.indexOf(_cpNode);
 			final BitSet _nodeAndCPBitSet = tokenSets[_nodeIndex][_cpNodeIndex];
 
 			if (_nodeAndCPBitSet != null && _nodeAndCPBitSet.cardinality() == _cpNode.getSuccsOf().size()) {
-				_result = _result || copyAncestorBitSetsFromTo(_cpNodeIndex, _nodeIndex, tokenSets);
+				final Collection _t = copyAncestorBitSetsFromTo(_cpNodeIndex, _nodeIndex, tokenSets);
+				_wb.addAllWorkNoDuplicates(_t);
+				_result = _result || !_t.isEmpty();
 			}
 		}
 		return _result;
@@ -118,11 +124,11 @@ public class DirectEntryControlDA
 	 * @pre 0 &lt;= src &lt; tokensSets.length
 	 * @pre 0 &lt;= dest &lt; tokensSets.length
 	 */
-	private boolean copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
+	private Collection copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
 		final BitSet[] _srcBitSets = tokenSets[src];
 		final BitSet[] _destBitSets = tokenSets[dest];
 		final BitSet _temp = new BitSet(1);
-		boolean _result = false;
+		final Collection _result = new HashSet();
 		final Iterator _i = nodesWithChildrenCache.iterator();
 		final int _iEnd = nodesWithChildrenCache.size();
 
@@ -136,8 +142,11 @@ public class DirectEntryControlDA
 				_temp.clear();
 				_temp.or(_srcAndAncestorBitSet);
 				_temp.andNot(_destAndAncestorBitSet);
-				_result = _result || _temp.cardinality() > 0;
-				_destAndAncestorBitSet.or(_srcAndAncestorBitSet);
+
+				if (_temp.cardinality() > 0) {
+					_result.add(_ancestor);
+					_destAndAncestorBitSet.or(_srcAndAncestorBitSet);
+				}
 			}
 		}
 		return _result;
@@ -147,6 +156,8 @@ public class DirectEntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/06 02:28:50  venku
+   - INTERIM : still implementating direct control dependence calculation.
    Revision 1.1  2004/06/05 09:52:24  venku
    - INTERIM COMMIT
      - Reimplemented EntryControlDA.  It provides indirect control dependence info.
