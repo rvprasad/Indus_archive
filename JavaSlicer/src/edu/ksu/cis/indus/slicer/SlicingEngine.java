@@ -609,7 +609,7 @@ public final class SlicingEngine {
 		final BitSet _params = (BitSet) method2params.get(callee);
 		final InvokeExpr _invokeExpr = invocationStmt.getInvokeExpr();
 
-		if (considerMethodExitForCriteriaGeneration(callee) || _params == null) {
+		if (considerMethodExitForCriteriaGeneration(callee)) {
 			processSuperInitInInit(callee, calleeBasicBlockGraph);
 
 			for (final Iterator _j = calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
@@ -1130,6 +1130,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2003/12/13 20:52:33  venku
+   - documentation.
+
    Revision 1.35  2003/12/13 19:52:41  venku
    - renamed Init2NewExprMapper to NewExpr2InitMapper.
    - ripple effect.
