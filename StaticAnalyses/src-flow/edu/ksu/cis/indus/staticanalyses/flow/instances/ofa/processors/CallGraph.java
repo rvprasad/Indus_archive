@@ -512,7 +512,7 @@ public class CallGraph
 		}
 
 		long start = System.currentTimeMillis();
-		heads.addAll(analyzer.getRoots());
+		heads.addAll(analyzer.getEnvironment().getRoots());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Starting the calculation of reachables...");
@@ -720,6 +720,11 @@ public class CallGraph
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/08/11 04:27:34  venku
+- Ripple effect of changes to Pair
+- Ripple effect of changes to _content in Marker
+- Changes of how thread start sites are tracked in ThreadGraphInfo
+
 Revision 1.2  2003/08/09 21:54:00  venku
 Leveraging getInvokeExpr() in Stmt class in getMethodsReachableFrom()
 
