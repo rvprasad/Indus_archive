@@ -121,18 +121,22 @@ public class InterferenceDAv1
 			AssignStmt as = (AssignStmt) stmt;
 			Map temp = null;
 
-			if (as.getLeftOp() instanceof FieldRef) {
-				SootField sf = ((FieldRef) as.getLeftOp()).getField();
-				temp = getDependeXXMapHelper(dependentMap, sf);
-			} else if (as.getLeftOp() instanceof ArrayRef) {
-				ArrayType at = (ArrayType) ((ArrayRef) as.getLeftOp()).getBase().getType();
-				temp = getDependeXXMapHelper(dependentMap, at);
-			} else if (as.getRightOp() instanceof FieldRef) {
-				SootField sf = ((FieldRef) as.getRightOp()).getField();
-				temp = getDependeXXMapHelper(dependeeMap, sf);
-			} else if (as.getRightOp() instanceof ArrayRef) {
-				ArrayType at = (ArrayType) ((ArrayRef) as.getRightOp()).getBase().getType();
-				temp = getDependeXXMapHelper(dependeeMap, at);
+			if (as.containsFieldRef()) {
+				if (as.getLeftOp() instanceof FieldRef) {
+					SootField sf = ((FieldRef) as.getLeftOp()).getField();
+					temp = getDependeXXMapHelper(dependentMap, sf);
+				} else {
+					SootField sf = ((FieldRef) as.getRightOp()).getField();
+					temp = getDependeXXMapHelper(dependeeMap, sf);
+				}
+			} else if (as.containsArrayRef()) {
+				if (as.getLeftOp() instanceof ArrayRef) {
+					ArrayType at = (ArrayType) ((ArrayRef) as.getLeftOp()).getBase().getType();
+					temp = getDependeXXMapHelper(dependentMap, at);
+				} else {
+					ArrayType at = (ArrayType) ((ArrayRef) as.getRightOp()).getBase().getType();
+					temp = getDependeXXMapHelper(dependeeMap, at);
+				}
 			}
 
 			if (temp != null) {
@@ -374,6 +378,7 @@ public class InterferenceDAv1
 	 */
 	protected void setup()
 	  throws InitializationException {
+		super.setup();
 		pairMgr = (PairManager) info.get(PairManager.ID);
 
 		if (pairMgr == null) {
