@@ -332,7 +332,7 @@ public class ThreadGraph
 	public boolean mustOccurInDifferentThread(final SootMethod methodOne, final SootMethod methodTwo) {
 		final Collection _t1 = getExecutionThreads(methodOne);
 		final Collection _t2 = getExecutionThreads(methodTwo);
-		return !CollectionUtils.containsAny(_t1, _t2);
+		return _t1.isEmpty() || _t2.isEmpty() || !CollectionUtils.containsAny(_t1, _t2);
 	}
 
 	/**
@@ -341,7 +341,8 @@ public class ThreadGraph
 	public boolean mustOccurInSameThread(final SootMethod methodOne, final SootMethod methodTwo) {
 		final Collection _t1 = getExecutionThreads(methodOne);
 		final Collection _t2 = getExecutionThreads(methodTwo);
-		return _t1.size() == 1 && _t1.size() == _t2.size() && threadCreationSitesSingle.containsAll(_t1);
+		return _t1.size() == 1 && _t1.size() == _t2.size() && _t1.containsAll(_t2)
+		  && threadCreationSitesSingle.containsAll(_t1);
 	}
 
 	/**
@@ -751,18 +752,17 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/08/16 14:35:13  venku
+   - logging.
    Revision 1.40  2004/08/16 14:24:26  venku
    - logging.
-
    Revision 1.39  2004/08/14 01:24:23  venku
    - removed a stray println.
-
    Revision 1.38  2004/08/11 08:52:04  venku
    - massive changes.
      - Changed the way threads were represented in ThreadGraph.
      - Changed the interface in IThreadGraph.
      - ripple effect in other classes.
-
    Revision 1.37  2004/08/08 10:11:35  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.
