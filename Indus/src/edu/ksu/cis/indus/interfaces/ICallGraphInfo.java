@@ -189,6 +189,27 @@ public interface ICallGraphInfo
 	Collection getCallers(SootMethod callee);
 
 	/**
+	 * Returns the intersection of the methods reachable from the given methods in the given direction.  This is equivalent
+	 * to <code>CollectionUtils.intersection(getMethodsReachableFrom(method1, forward1), getMethodsReachableFrom(method2,
+	 * forward2))</code>.
+	 *
+	 * @param method1 of interest.
+	 * @param forward1 direction of reachability from <code>method1</code>.
+	 * @param method2 of interest.
+	 * @param forward2 direction of reachability from <code>method2</code>.
+	 *
+	 * @return a collection of methods.
+	 *
+	 * @pre method1 != null and method2 != null
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 * @post getReachableFrom(method2, forward2)->forall(o | getReachableFrom(method1, forward2).contains(o)  implies
+	 * 		 result.contains(o))
+	 * @post result->forall(o | getReachableFrom(method2, forward2).contains(o) and  getReachableFrom(method1,
+	 * 		 forward1).contains(o))
+	 */
+	Collection getCommonMethodsReachableFrom(SootMethod method1, boolean forward1, SootMethod method2, boolean forward2);
+
+	/**
 	 * Returns the methods from which the system starts.
 	 *
 	 * @return a colleciton of <code>SootMethod</code>s.
@@ -267,6 +288,35 @@ public interface ICallGraphInfo
 	 * @post result != null and result.oclIsKindOf(Sequence(Sequence(soot.SootMethod)))
 	 */
 	List getSCCs(boolean topDown);
+
+	/**
+	 * Checks if any of the given methods are reachable from the given call-site.
+	 *
+	 * @param methods that should be reached.
+	 * @param stmt containing the call-site.
+	 * @param caller containing the call-site.
+	 *
+	 * @return <code>true</code> if any of the <code>methods</code> are reachable from call-site at <code>stmt</code> in
+	 * 		   <code>caller</code>; <code>false</code>, otherwise.
+	 *
+	 * @pre mehtod != null and stmt != null and caller != null
+	 * @pre stmt.containsInvokeExpr()
+	 */
+	boolean areAnyMethodsReachableFrom(Collection methods, Stmt stmt, SootMethod caller);
+
+	/**
+	 * Checks if any of the given methods are reachable from the given caller.
+	 *
+	 * @param methods that should be reached.
+	 * @param caller containing the call-site.
+	 *
+	 * @return <code>true</code> if any of the <code>methods</code> are reachable from <code>caller</code>;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre mehtod != null and caller != null
+	 * @pre stmt.containsInvokeExpr()
+	 */
+	boolean areAnyMethodsReachableFrom(Collection methods, SootMethod caller);
 }
 
 // End of File

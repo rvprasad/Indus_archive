@@ -94,6 +94,32 @@ public abstract class AbstractDirectedGraphTest
 	}
 
 	/**
+	 * Tests <code>getCommonReachablesFrom</code> method.
+	 */
+	public final void testGetCommonsReachablesFrom() {
+		final boolean[] _flags = { false, true };
+
+		for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
+			final INode _n1 = (INode) _i.next();
+
+			for (final Iterator _j = dg.getNodes().iterator(); _j.hasNext();) {
+				final INode _n2 = (INode) _j.next();
+
+				for (int _k = 0; _k <= 1; _k++) {
+					final Collection _c1 = dg.getReachablesFrom(_n1, _flags[_k]);
+
+					for (int _l = 0; _l <= 1; _l++) {
+						final Collection _c2 = dg.getReachablesFrom(_n2, _flags[_l]);
+						final Collection _c3 = dg.getCommonReachablesFrom(_n1, _flags[_k], _n2, _flags[_l]);
+						assertTrue(_c3.containsAll(CollectionUtils.intersection(_c2, _c1)));
+						assertTrue(CollectionUtils.intersection(_c2, _c1).containsAll(_c3));
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Tests <code>getCycles()</code> method.
 	 */
 	public final void testGetCycles() {

@@ -31,6 +31,26 @@ import java.util.Map;
  */
 public interface IDirectedGraph {
 	/**
+	 * Returns the intersection of the nodes reachable from the given nodes in the given direction.  This is equivalent to
+	 * <code>CollectionUtils.intersection(getReachablesFrom(node1, forward1), getReachablesFrom(node2, forward2))</code>.
+	 *
+	 * @param node1 of interest.
+	 * @param forward1 direction of reachability from <code>node1</code>.
+	 * @param node2 of interest.
+	 * @param forward2 direction of reachability from <code>node2</code>.
+	 *
+	 * @return a collection of nodes.
+	 *
+	 * @pre node1 != null and node2 != null
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post getReachablesFrom(node2, forward2)->forall(o | getReachablesFrom(node1, forward2).contains(o)  implies
+	 * 		 result.contains(o))
+	 * @post result->forall(o | getReachablesFrom(node2, forward2).contains(o) and  getReachableFrom(node1,
+	 * 		 forward1).contains(o))
+	 */
+	public Collection getCommonReachablesFrom(final INode node1, boolean forward1, INode node2, boolean forward2);
+
+	/**
 	 * Checks if the given nodes have ancestral relationship.  A node is considered as an ancestor of itself.
 	 *
 	 * @param ancestor in the relationship.

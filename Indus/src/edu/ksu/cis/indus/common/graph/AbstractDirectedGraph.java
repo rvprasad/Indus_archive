@@ -104,12 +104,12 @@ public abstract class AbstractDirectedGraph
 	/*
 	 * This comparator sorts nodes based on their discovery time.
 	 *
-	     private final Comparator discoverTimeBasedNodeComparator =
-	         new Comparator() {
-	             public int compare(final Object o1, final Object o2) {
-	                 return discoverTimes[getIndexOfNode(o1)] - discoverTimes[getIndexOfNode(o2)];
-	             }
-	         };
+	       private final Comparator discoverTimeBasedNodeComparator =
+	           new Comparator() {
+	               public int compare(final Object o1, final Object o2) {
+	                   return discoverTimes[getIndexOfNode(o1)] - discoverTimes[getIndexOfNode(o2)];
+	               }
+	           };
 	 */
 
 	/** 
@@ -180,6 +180,42 @@ public abstract class AbstractDirectedGraph
 		} else {
 			_result = Collections.unmodifiableCollection(backedges);
 		}
+		return _result;
+	}
+
+	/**
+	 * @see IDirectedGraph#getCommonReachablesFrom(INode, boolean, INode, boolean)
+	 */
+	public Collection getCommonReachablesFrom(final INode node1, final boolean forward1, final INode node2,
+		final boolean forward2) {
+		if (!reachability) {
+			calculateReachabilityInfo();
+		}
+
+		final Collection _result = new ArrayList();
+		final boolean[] _n1;
+		final boolean[] _n2;
+
+		if (forward1) {
+			_n1 = forwardReachabilityMatrix[getIndexOfNode(node1)];
+		} else {
+			_n1 = backwardReachabilityMatrix[getIndexOfNode(node1)];
+		}
+
+		if (forward2) {
+			_n2 = forwardReachabilityMatrix[getIndexOfNode(node2)];
+		} else {
+			_n2 = backwardReachabilityMatrix[getIndexOfNode(node2)];
+		}
+
+		final List _nodes = getNodes();
+
+		for (int _i = _nodes.size() - 1; _i >= 0; _i--) {
+			if (_n1[_i] && _n2[_i]) {
+				_result.add(_nodes.get(_i));
+			}
+		}
+
 		return _result;
 	}
 
@@ -937,13 +973,13 @@ public abstract class AbstractDirectedGraph
 	 * @param indexOfNode obviously.
 	 * @pre node != null
 	 *
-	     private void processNodeForHighValues(final INode node, final int indexOfNode) {
-	         final Collection _succsOf = node.getSuccsOf();
-	         if (!_succsOf.isEmpty()) {
-	             highnums[indexOfNode] =
-	                 discoverTimes[getIndexOfNode(Collections.max(_succsOf, discoverTimeBasedNodeComparator))];
-	         }
-	     }
+	       private void processNodeForHighValues(final INode node, final int indexOfNode) {
+	           final Collection _succsOf = node.getSuccsOf();
+	           if (!_succsOf.isEmpty()) {
+	               highnums[indexOfNode] =
+	                   discoverTimes[getIndexOfNode(Collections.max(_succsOf, discoverTimeBasedNodeComparator))];
+	           }
+	       }
 	 */
 
 	/**
