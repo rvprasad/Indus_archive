@@ -40,8 +40,8 @@ import soot.SootMethod;
 
 
 /**
- * This class provides direct intraprocedural backward control dependence information.  For more information about the 
- * dependence calculated in this implementation, please refer to 
+ * This class provides direct intraprocedural non-termination sensitive backward control dependence information.  For more 
+ * information about the dependence calculated in this implementation, please refer to 
  * <a href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
