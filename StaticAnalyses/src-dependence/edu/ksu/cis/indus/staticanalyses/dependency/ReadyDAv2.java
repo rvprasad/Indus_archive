@@ -113,106 +113,14 @@ public class ReadyDAv2
 			throw new InitializationException(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
 		}
 	}
-
-	/**
-	 * Processes the system as per to rule 2 in the report.  This uses escape analysis results from
-	 * <code>EquivalenceClassBasedEscapeAnalysis</code> to prune ready dependency edges.
-	 */
-
-	/*
-	   private void processRule2() {
-	       Collection temp = new HashSet();
-	       for (Iterator i = exitMonitors.entrySet().iterator(); i.hasNext();) {
-	           Map.Entry entry = (Map.Entry) i.next();
-	           Object method = entry.getKey();
-	           for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-	               Object o = j.next();
-	               dependeeMap.put(o, Collections.EMPTY_LIST);
-	               temp.add(pairMgr.getPair(method, o));
-	           }
-	       }
-	       Collection nSet = new ArrayList();
-	       Collection xSet = new ArrayList();
-	       for (Iterator i = enterMonitors.entrySet().iterator(); i.hasNext();) {
-	           Map.Entry entry = (Map.Entry) i.next();
-	           SootMethod enterMethod = (SootMethod) entry.getKey();
-	           for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-	               EnterMonitorStmt enter = (EnterMonitorStmt) j.next();
-	               Pair enterPair = pairMgr.getPair(enter, enterMethod);
-	               // This iteration adds dependency between enter-exit pair of a monitor block which may be false.
-	               for (Iterator k = temp.iterator(); k.hasNext();) {
-	                   Pair exitPair = (Pair) k.next();
-	                   SootMethod exitMethod = (SootMethod) exitPair.getSecond();
-	                   ExitMonitorStmt exit = (ExitMonitorStmt) exitPair.getFirst();
-	                   xSet.clear();
-	                   if () {
-	                       xSet.add(enterPair);
-	                       nSet.add(exitPair);
-	                   }
-	                   if (!xSet.isEmpty()) {
-	                       Collection exitSet = (Collection) dependeeMap.get(exit);
-	                       if (exitSet == null) {
-	                           exitSet = new ArrayList();
-	                           dependeeMap.put(exit, exitSet);
-	                       }
-	                       exitSet.addAll(xSet);
-	                   }
-	               }
-	               if (nSet.isEmpty()) {
-	                   dependentMap.put(enter, Collections.EMPTY_LIST);
-	               } else {
-	                   dependentMap.put(enter, nSet);
-	                   nSet = new ArrayList();
-	               }
-	           }
-	       }
-	   }
-	 */
-
-	/**
-	 * Processes the system as per to rule 4 in the report.  This uses results from
-	 * <code>EquivalenceClassBasedEscapeAnalysis</code> to calculate ready dependency.
-	 */
-
-	/*
-	   private void processRule4() {
-	       Collection dependents = new HashSet();
-	       for (Iterator i = waits.entrySet().iterator(); i.hasNext();) {
-	           Map.Entry entry = (Map.Entry) i.next();
-	           SootMethod wMethod = (SootMethod) entry.getKey();
-	           for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-	               InvokeStmt wait = (InvokeStmt) j.next();
-	               for (Iterator k = notifies.keySet().iterator(); k.hasNext();) {
-	                   entry = (Map.Entry) k.next();
-	                   SootMethod nMethod = (SootMethod) entry.getKey();
-	                   for (Iterator l = ((Collection) entry.getValue()).iterator(); l.hasNext();) {
-	                       InvokeStmt notify = (InvokeStmt) l.next();
-	                       if (ecba.isReadyDependent(wait, wMethod, notify, nMethod)) {
-	                           Collection temp = (Collection) dependeeMap.get(notify);
-	                           if (temp == null) {
-	                               temp = new HashSet();
-	                               dependeeMap.put(notify, temp);
-	                           }
-	                           temp.add(pairMgr.getPair(wait, wMethod));
-	                           dependents.add(pairMgr.getPair(notify, nMethod));
-	                       }
-	                   }
-	               }
-	               if (dependents.size() == 0) {
-	                   dependentMap.put(wait, Collections.EMPTY_LIST);
-	               } else {
-	                   dependentMap.put(wait, dependents);
-	                   dependents = new HashSet();
-	               }
-	           }
-	       }
-	   }
-	 */
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.9  2003/08/26 16:53:57  venku
    logging added.
    Revision 1.8  2003/08/25 09:04:31  venku
