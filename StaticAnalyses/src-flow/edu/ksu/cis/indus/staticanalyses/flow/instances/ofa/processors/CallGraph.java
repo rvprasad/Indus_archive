@@ -16,12 +16,14 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
+
 import edu.ksu.cis.indus.support.DirectedGraph;
 import edu.ksu.cis.indus.support.FIFOWorkBag;
 import edu.ksu.cis.indus.support.IWorkBag;
@@ -57,6 +59,7 @@ import soot.jimple.NewExpr;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 import soot.jimple.VirtualInvokeExpr;
 
 
@@ -133,7 +136,7 @@ public class CallGraph
 	 *
 	 * @invariant caller2callees.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
-	private Map caller2callees = new HashMap();	
+	private Map caller2callees = new HashMap();
 
 	/**
 	 * This caches a traversable graphCache representation of the call graphCache.
@@ -421,12 +424,18 @@ public class CallGraph
 				for (Iterator i = values.iterator(); i.hasNext();) {
 					Object t = i.next();
 
-					if (!(t instanceof NewExpr)) {
+					if (!(t instanceof NewExpr || t instanceof StringConstant)) {
 						continue;
 					}
 
-					NewExpr newExpr = (NewExpr) t;
-					SootClass accessClass = analyzer.getEnvironment().getClass(newExpr.getBaseType().getClassName());
+					SootClass accessClass = null;
+
+					if (t instanceof NewExpr) {
+						NewExpr newExpr = (NewExpr) t;
+						accessClass = analyzer.getEnvironment().getClass(newExpr.getBaseType().getClassName());
+					} else if (t instanceof StringConstant) {
+						accessClass = analyzer.getEnvironment().getClass("java.lang.String");
+					}
 					callee = findMethodImplementation(accessClass, calleeMethod);
 
 					triple = new CallTriple(callee, stmt, invokeExpr);
@@ -661,11 +670,13 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
    Revision 1.37  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.36  2003/12/07 14:02:45  venku
    MAJOR CHANGE:
     - We previously assumed that there may be parts of the
@@ -676,7 +687,6 @@ public class CallGraph
       when marking concrete method implementations, then we will
       need to inject back the pruning logic.  As I don't need it
       now I am getting rid of it.
-
    Revision 1.35  2003/12/07 08:41:32  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.
