@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.slicer.transformations;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -147,6 +148,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	private final Collection fieldsToKill = new HashSet();
 
 	/**
+	 * This tracks the locals of the current method that should be deleted.
+	 */
+	private final Collection localsToKeep = new HashSet();
+
+	/**
 	 * This tracks the methods of the current class that should be deleted.
 	 *
 	 * @invariant methodsToKill.oclIsKindOf(Collection(SootMethod))
@@ -164,6 +170,13 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @invariant stmtsToBeNOPed.oclIsKindOf(Collection(Stmt))
 	 */
 	private List stmtsToBeNOPed = new ArrayList();
+
+	/**
+	 * This is a mapping from classes to it's members that should be removed.
+	 *
+	 * @invariant class2membersToKill.oclIsKindOf(Map(SootClass, Pair(Collection(SootMethod), Collection(SootField))))
+	 */
+	private final Map class2members = new HashMap();
 
 	/**
 	 * The class being processed up until now.
@@ -492,7 +505,9 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	public void callback(final Stmt stmt, final Context ctxt) {
 		if (currMethod != null) {
-			boolean _flag = stmtProcessor.residualize(stmt);
+			pruneLocals(stmt);
+
+			final boolean _flag = stmtProcessor.residualize(stmt);
 
 			if (!_flag) {
 				stmtsToBeNOPed.add(stmt);
@@ -512,7 +527,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			if (method.hasTag(tagToResidualize)) {
 				currMethod = method;
 				methodsToKill.remove(method);
-				pruneLocals(method);
+				localsToKeep.clear();
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Residualized method " + method);
@@ -534,7 +549,9 @@ public final class TagBasedDestructiveSliceResidualizer
 		if (clazz.hasTag(tagToResidualize)) {
 			currClass = clazz;
 			classesToKill.remove(clazz);
+			methodsToKill.clear();
 			methodsToKill.addAll(clazz.getMethods());
+			fieldsToKill.clear();
 			fieldsToKill.addAll(clazz.getFields());
 
 			if (LOGGER.isDebugEnabled()) {
@@ -561,6 +578,42 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	public void consolidate() {
 		consolidateClass();
+
+		for (final Iterator _i = class2members.keySet().iterator(); _i.hasNext();) {
+			final SootClass _class = (SootClass) _i.next();
+			final Pair _members = (Pair) class2members.get(_class);
+			final Collection _methods = (Collection) _members.getFirst();
+			final Collection _fields = (Collection) _members.getSecond();
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("BEGIN: Finishing class " + _class);
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Erasing methods: " + _methods);
+			}
+
+			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
+				_class.removeMethod((SootMethod) _j.next());
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Erasing fields: " + _fields);
+			}
+
+			for (final Iterator _j = _fields.iterator(); _j.hasNext();) {
+				_class.removeField((SootField) _j.next());
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("END: Finishing class " + _class);
+			}
+		}
+		class2members.clear();
+		currClass = null;
+		currMethod = null;
+		methodsToKill.clear();
+		fieldsToKill.clear();
 	}
 
 	/**
@@ -629,34 +682,9 @@ public final class TagBasedDestructiveSliceResidualizer
 	private void consolidateClass() {
 		if (currClass != null) {
 			consolidateMethod();
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("BEGIN: Finishing class " + currClass);
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Erasing methods: " + methodsToKill);
-			}
-
-			for (final Iterator _i = methodsToKill.iterator(); _i.hasNext();) {
-				currClass.removeMethod((SootMethod) _i.next());
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Erasing fields: " + fieldsToKill);
-			}
-
-			for (final Iterator _i = fieldsToKill.iterator(); _i.hasNext();) {
-				currClass.removeField((SootField) _i.next());
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("END: Finishing class " + currClass);
-			}
+			class2members.put(currClass, new Pair(new ArrayList(methodsToKill), new ArrayList(fieldsToKill)));
 			currClass = null;
 		}
-		methodsToKill.clear();
-		fieldsToKill.clear();
 	}
 
 	/**
@@ -678,6 +706,13 @@ public final class TagBasedDestructiveSliceResidualizer
 			final JimpleBody _body = (JimpleBody) currMethod.getActiveBody();
 			final Chain _ch = _body.getUnits();
 			final Jimple _jimple = Jimple.v();
+
+			// prune locals
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Locals " + _body.getLocals());
+				LOGGER.debug("Retaining:" + localsToKeep);
+			}
+			_body.getLocals().retainAll(localsToKeep);
 
 			for (final Iterator _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
 				final Stmt _stmt = (Stmt) _i.next();
@@ -722,7 +757,6 @@ public final class TagBasedDestructiveSliceResidualizer
 			_body.validateTraps();
 			_body.validateUnitBoxes();
 			_body.validateUses();
-
 			trapsToRetain.clear();
 
 			/*
@@ -761,7 +795,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	private void processHandlers(final Stmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Collectin handlers " + stmt + "@" + currMethod);
+			LOGGER.debug("BEGIN: Collecting handlers " + stmt + "@" + currMethod);
 		}
 
 		final Body _body = currMethod.retrieveActiveBody();
@@ -777,41 +811,26 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
-	 * Prunes the locals in the given method's slice body.
+	 * Prunes the locals in the given stmt.
 	 *
-	 * @param method in which to process the locals.
+	 * @param stmt in which to process the locals.
 	 *
-	 * @pre method != null and method.isConcrete() and method.hasActiveBody()
+	 * @pre stmt != null
 	 */
-	private void pruneLocals(final SootMethod method) {
+	private void pruneLocals(final Stmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Pruning locals in " + method);
+			LOGGER.debug("Pruning locals in " + stmt);
 		}
 
-		if (method.hasActiveBody()) {
-			final Body _body = method.getActiveBody();
-			final Collection _localsToKeep = new ArrayList();
+		if (stmt.hasTag(tagToResidualize)) {
+			for (final Iterator _k = stmt.getUseAndDefBoxes().iterator(); _k.hasNext();) {
+				final ValueBox _vBox = (ValueBox) _k.next();
+				final Value _value = _vBox.getValue();
 
-			for (final Iterator _j = _body.getUnits().iterator(); _j.hasNext();) {
-				final Stmt _stmt = (Stmt) _j.next();
-
-				if (_stmt.hasTag(tagToResidualize)) {
-					for (final Iterator _k = _stmt.getUseAndDefBoxes().iterator(); _k.hasNext();) {
-						final ValueBox _vBox = (ValueBox) _k.next();
-						final Value _value = _vBox.getValue();
-
-						if (_vBox.hasTag(tagToResidualize) && _value instanceof Local) {
-							_localsToKeep.add(_value);
-						}
-					}
+				if (_vBox.hasTag(tagToResidualize) && _value instanceof Local) {
+					localsToKeep.add(_value);
 				}
 			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Locals " + _body.getLocals());
-				LOGGER.debug("Retaining:" + _localsToKeep);
-			}
-			_body.getLocals().retainAll(_localsToKeep);
 		}
 	}
 }
@@ -819,77 +838,85 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/29 01:55:08  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.5  2004/03/04 14:02:44  venku
    - locals should be processed for methods with body. FIXED.
    Revision 1.4  2004/03/03 10:09:42  venku
    - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
    Revision 1.3  2004/02/28 22:45:27  venku
  *** empty log message ***
-               Revision 1.2  2004/02/27 09:41:29  venku
-               - added logic to massage the slice while residualizing to avoid
-                 idioms such as throw null.
-               Revision 1.1  2004/02/25 23:33:40  venku
-               - well package naming convention was inconsistent. FIXED.
-               Revision 1.20  2004/02/23 09:10:54  venku
-               - depending on the unit graph used the body may be inconsistent in
-                 terms of control/data flow paths as the data analyses are based
-                 on the unit graph.  Hence, soot transformers are used to bring the
-                 body into a consistent state and then the validity tests are performed.
-               Revision 1.19  2004/02/23 04:43:39  venku
-               - jumps were not fixed properly when old statements were
-                 replaced with new statements.
-               Revision 1.18  2004/02/04 04:33:41  venku
-               - locals in empty methods need to be removed as well. FIXED.
-               Revision 1.17  2004/01/31 01:48:18  venku
-               - for odd reasons, various transformers provided in SOOT fail,
-                 hence, they are not used anymore.
-               Revision 1.16  2004/01/30 23:57:11  venku
-               - uses various body transformers to optimize the body.
-               - uses entry control DA to pick only the required exit
-                 points while making the slice executable.
-               Revision 1.15  2004/01/25 07:50:20  venku
-               - changes to accomodate class hierarchy fixup and handling of
-                 statements which are marked as true but in which none of the
-                 expressions are marked as true.
-               Revision 1.14  2004/01/24 01:43:40  venku
-               - moved getDefaultValueFor() to Util.
-               Revision 1.13  2004/01/22 01:07:00  venku
-               - coding convention.
-               Revision 1.12  2004/01/22 01:06:13  venku
-               - coding convention.
-               Revision 1.11  2004/01/17 23:25:20  venku
-               - value was being cast into a Host.  FIXED.
-               Revision 1.10  2004/01/14 12:01:02  venku
-               - documentation.
-               - error was not flagged when incorrect slice is detected. FIXED.
-               Revision 1.9  2004/01/13 10:59:42  venku
-               - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
-                 It was deleted.
-               - ripple effect.
-               Revision 1.8  2004/01/11 03:38:03  venku
-               - entire method bodies may be deleted or not included in the
-                 first place (due to inheritance).  If so, a suitable return
-                 statement is injected.
-               - We now only process methods which are tagged with
-                 tagToResidualize rather than systemTagName.
-               Revision 1.7  2004/01/09 23:15:37  venku
-               - chnaged the method,field, and class kill logic.
-               - changed method and class finishing logic.
-               - removed unnecessary residualization when some
-                 properties about statements such as enter monitor
-                 and invoke expr are known.
-               Revision 1.6  2004/01/09 07:03:07  venku
-               - added annotations for code to be removed.
-               Revision 1.5  2003/12/16 12:43:33  venku
-               - fixed many errors during destruction of the system.
-               Revision 1.4  2003/12/15 16:30:57  venku
-               - safety checks and formatting.
-               Revision 1.3  2003/12/14 17:00:51  venku
-               - enabled nop elimination
-               - fixed return statement in methods.
-               Revision 1.2  2003/12/14 16:40:30  venku
-               - added residualization logic.
-               - incorporate the residualizer in the tool.
-               Revision 1.1  2003/12/09 11:02:38  venku
-               - synchronization forced commit.
+                         Revision 1.2  2004/02/27 09:41:29  venku
+                         - added logic to massage the slice while residualizing to avoid
+                           idioms such as throw null.
+                         Revision 1.1  2004/02/25 23:33:40  venku
+                         - well package naming convention was inconsistent. FIXED.
+                         Revision 1.20  2004/02/23 09:10:54  venku
+                         - depending on the unit graph used the body may be inconsistent in
+                           terms of control/data flow paths as the data analyses are based
+                           on the unit graph.  Hence, soot transformers are used to bring the
+                           body into a consistent state and then the validity tests are performed.
+                         Revision 1.19  2004/02/23 04:43:39  venku
+                         - jumps were not fixed properly when old statements were
+                           replaced with new statements.
+                         Revision 1.18  2004/02/04 04:33:41  venku
+                         - locals in empty methods need to be removed as well. FIXED.
+                         Revision 1.17  2004/01/31 01:48:18  venku
+                         - for odd reasons, various transformers provided in SOOT fail,
+                           hence, they are not used anymore.
+                         Revision 1.16  2004/01/30 23:57:11  venku
+                         - uses various body transformers to optimize the body.
+                         - uses entry control DA to pick only the required exit
+                           points while making the slice executable.
+                         Revision 1.15  2004/01/25 07:50:20  venku
+                         - changes to accomodate class hierarchy fixup and handling of
+                           statements which are marked as true but in which none of the
+                           expressions are marked as true.
+                         Revision 1.14  2004/01/24 01:43:40  venku
+                         - moved getDefaultValueFor() to Util.
+                         Revision 1.13  2004/01/22 01:07:00  venku
+                         - coding convention.
+                         Revision 1.12  2004/01/22 01:06:13  venku
+                         - coding convention.
+                         Revision 1.11  2004/01/17 23:25:20  venku
+                         - value was being cast into a Host.  FIXED.
+                         Revision 1.10  2004/01/14 12:01:02  venku
+                         - documentation.
+                         - error was not flagged when incorrect slice is detected. FIXED.
+                         Revision 1.9  2004/01/13 10:59:42  venku
+                         - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
+                           It was deleted.
+                         - ripple effect.
+                         Revision 1.8  2004/01/11 03:38:03  venku
+                         - entire method bodies may be deleted or not included in the
+                           first place (due to inheritance).  If so, a suitable return
+                           statement is injected.
+                         - We now only process methods which are tagged with
+                           tagToResidualize rather than systemTagName.
+                         Revision 1.7  2004/01/09 23:15:37  venku
+                         - chnaged the method,field, and class kill logic.
+                         - changed method and class finishing logic.
+                         - removed unnecessary residualization when some
+                           properties about statements such as enter monitor
+                           and invoke expr are known.
+                         Revision 1.6  2004/01/09 07:03:07  venku
+                         - added annotations for code to be removed.
+                         Revision 1.5  2003/12/16 12:43:33  venku
+                         - fixed many errors during destruction of the system.
+                         Revision 1.4  2003/12/15 16:30:57  venku
+                         - safety checks and formatting.
+                         Revision 1.3  2003/12/14 17:00:51  venku
+                         - enabled nop elimination
+                         - fixed return statement in methods.
+                         Revision 1.2  2003/12/14 16:40:30  venku
+                         - added residualization logic.
+                         - incorporate the residualizer in the tool.
+                         Revision 1.1  2003/12/09 11:02:38  venku
+                         - synchronization forced commit.
  */
