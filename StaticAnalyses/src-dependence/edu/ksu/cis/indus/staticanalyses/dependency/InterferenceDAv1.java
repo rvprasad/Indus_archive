@@ -60,12 +60,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
  * This class provides interference dependency information.  This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program with
- * JVM Concurrency Primitives"</a>.  The calculated information is very pessimistic.  For fields, it assumes any assignment
- * to a field can affect any reference to the same field.  This is imprecise in the light of thread local objects and
- * unrelated primaries.
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
+ * with JVM Concurrency Primitives"</a>.  The calculated information is very pessimistic.  For fields, it assumes any
+ * assignment to a field can affect any reference to the same field.  This is imprecise in the light of thread local objects
+ * and unrelated primaries.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -223,15 +224,15 @@ public class InterferenceDAv1
 	 */
 	public Collection getDependents(final Object dependee, final Object stmtMethodPair) {
 		Collection result = Collections.EMPTY_LIST;
-        Map pair2set = getDependentMapFor(dependee);
+		Map pair2set = getDependentMapFor(dependee);
 
-        if (pair2set != null) {
-            Collection set = (Set) pair2set.get(stmtMethodPair);
+		if (pair2set != null) {
+			Collection set = (Set) pair2set.get(stmtMethodPair);
 
-            if (set != null) {
-                result = Collections.unmodifiableCollection(set);
-            }
-        }
+			if (set != null) {
+				result = Collections.unmodifiableCollection(set);
+			}
+		}
 		return result;
 	}
 
@@ -246,6 +247,7 @@ public class InterferenceDAv1
 
 		for (Iterator i = dependeeMap.keySet().iterator(); i.hasNext();) {
 			Object o = i.next();
+
 			if (dependentMap.get(o) == null) {
 				continue;
 			}
@@ -358,7 +360,7 @@ public class InterferenceDAv1
 	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
 		return true;
 	}
-    
+
 	/**
 	 * Extracts information as provided by environment at initialization time.
 	 *
@@ -387,18 +389,17 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/10 11:49:31  venku
+   - documentation change.
    Revision 1.7  2003/09/08 02:19:38  venku
    - it now only requires call graph info and basic block graph manager
    - checkForLoopEnclosedNewExpr() is now applicable to any allocation sites
    - added a new method to extract basic block graph
-
    Revision 1.6  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.
-
    Revision 1.5  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.4  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 04:20:19  venku
