@@ -192,7 +192,13 @@ public class KaveriPlugin
 			loadDefaultConfigurations();
 		}
 		else {
-			slicerTool.destringizeConfiguration(_config);
+		    
+			final boolean _result = slicerTool.destringizeConfiguration(_config);
+			if (!_result) {
+			    loadDefaultConfigurations();
+			    storeConfiguration();
+			}
+		    
 		}
 		
 	}
