@@ -957,15 +957,18 @@ public final class SlicingEngine {
 
 		final SootClass _sc = method.getDeclaringClass();
 		final Collection _superClasses = includeClassHierarchyInSlice(_sc);
-		final String _name = method.getName();
-		final List _paramTypes = method.getParameterTypes();
-		final Type _retType = method.getReturnType();
 
-		for (final Iterator _i = _superClasses.iterator(); _i.hasNext();) {
-			final SootClass _superClass = (SootClass) _i.next();
+		if (!method.isPrivate()) {
+			final String _name = method.getName();
+			final List _paramTypes = method.getParameterTypes();
+			final Type _retType = method.getReturnType();
 
-			if (_superClass.declaresMethod(_name, _paramTypes, _retType)) {
-				collector.includeInSlice(_superClass.getMethod(_name, _paramTypes, _retType));
+			for (final Iterator _i = _superClasses.iterator(); _i.hasNext();) {
+				final SootClass _superClass = (SootClass) _i.next();
+
+				if (_superClass.declaresMethod(_name, _paramTypes, _retType)) {
+					collector.includeInSlice(_superClass.getMethod(_name, _paramTypes, _retType));
+				}
 			}
 		}
 	}
@@ -1230,6 +1233,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2003/12/16 00:46:23  venku
+   - included super classes/interfaces and methods in them
+     when a method with the same signature in the subclass
+     is included.
    Revision 1.41  2003/12/16 00:22:53  venku
    - when we include invoke expressions leading to the
      enclosed method (callee-caller), we need to consider
