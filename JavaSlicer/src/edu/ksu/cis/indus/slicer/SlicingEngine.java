@@ -247,12 +247,12 @@ public class SlicingEngine {
 				  || id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
 				intraProceduralDependencies.addAll(controller.getAnalyses(id));
 			}
+		}
 
-			if (id.equals(DependencyAnalysis.READY_DA)) {
-				useReady = true;
-			} else {
-				useReady = false;
-			}
+		if (dependenciesToUse.contains(DependencyAnalysis.READY_DA)) {
+			useReady = true;
+		} else {
+			useReady = false;
 		}
 	}
 
@@ -725,7 +725,11 @@ public class SlicingEngine {
 
 			if (as.getRightOp() instanceof NewExpr) {
 				Stmt def = initMapper.getInitCallStmtForNewExprStmt(stmt, method);
-				transformAndGenerateNewCriteriaForStmt(def, method, true);
+
+				// HACK: 
+				if (def != null) {
+					transformAndGenerateNewCriteriaForStmt(def, method, true);
+				}
 			}
 		}
 	}
@@ -835,6 +839,9 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/26 10:14:56  venku
+   - refactored method to suck in <clinit> method dependence.
+   - included logic to suck in <clinit> dependences.
    Revision 1.18  2003/11/25 00:00:45  venku
    - added support to include gotos in the slice.
    - added logic to include all tail points in the slice after slicing
