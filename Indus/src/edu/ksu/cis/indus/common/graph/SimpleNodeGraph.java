@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import gnu.trove.TObjectIntHashMap;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,6 +56,13 @@ public class SimpleNodeGraph
 	 * @invariant object2nodes.oclIsTypeOf(Map(Object, SimpleNode))
 	 */
 	private Map object2nodes = new HashMap();
+
+	/** 
+	 * This maps nodes to their indices in the node list of this graph.
+	 *
+	 * @invariant node2indices.oclIsTypeOf(Map(INode, int))
+	 */
+	private TObjectIntHashMap node2index = new TObjectIntHashMap();
 
 	/**
 	 * This class builds a <code>SimpleNodeGraph</code>.
@@ -154,6 +163,7 @@ public class SimpleNodeGraph
 		if (_result == null) {
 			_result = new SimpleNode(o);
 			object2nodes.put(o, _result);
+			node2index.put(_result, nodes.size());
 			nodes.add(_result);
 			heads.add(_result);
 			tails.add(_result);
@@ -182,6 +192,14 @@ public class SimpleNodeGraph
 
 		final IObjectNode _result = (IObjectNode) object2nodes.get(o);
 		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraph#getIndexOfNode(edu.ksu.cis.indus.common.graph.INode)
+	 */
+	protected int getIndexOfNode(final INode node) {
+		return node2index.containsKey(node) ? node2index.get(node)
+											: -1;
 	}
 
 	/**

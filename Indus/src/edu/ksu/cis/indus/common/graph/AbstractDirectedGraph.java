@@ -36,6 +36,9 @@ import java.util.Stack;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
+
+import org.apache.commons.collections.map.LazyMap;
 
 
 /**
@@ -74,14 +77,40 @@ public abstract class AbstractDirectedGraph
 	protected boolean hasSpanningForest;
 
 	/** 
-	 * This is the collection of back edges in this graph.
+	 * This is the node indexed discover time of the nodes in this graph.
+	 *
+	 * @invariant discoverTimes.size = getNodes().size()
+	 * @invariant discoverTimes->forall(o | o > 0)
+	 */
+	int[] discoverTimes;
+
+	/** 
+	 * This is the collection of back edges in this graph corresponding to the minimum spanning calculated for this instance
+	 * of the graph.
 	 */
 	private Collection backedges = new ArrayList();
+
+	/** 
+	 * This is the collection of cross edges in this graph corresponding to the minimum spanning calculated for this instance
+	 * of the graph.
+	 */
+	private Collection crossedges = new ArrayList();
 
 	/** 
 	 * The collection of pseudo tails in the given graph.  Refer to <code>getPseudoTails()</code> for details.
 	 */
 	private final Collection pseudoTails = new HashSet();
+
+	/*
+	 * This comparator sorts nodes based on their discovery time.
+	 *
+	     private final Comparator discoverTimeBasedNodeComparator =
+	         new Comparator() {
+	             public int compare(final Object o1, final Object o2) {
+	                 return discoverTimes[getIndexOfNode(o1)] - discoverTimes[getIndexOfNode(o2)];
+	             }
+	         };
+	 */
 
 	/** 
 	 * This maps a node to it's spanning successor nodes.
@@ -99,25 +128,27 @@ public abstract class AbstractDirectedGraph
 	private boolean[][] backwardReachabilityMatrix;
 
 	/** 
+	 * This is the node indexed finish time of the nodes in this graph.
+	 *
+	 * @invariant finishTimes.size = getNodes().size()
+	 * @invariant finishTimes->forall(o | o > 0)
+	 */
+	private int[] finishTimes;
+
+	/** 
 	 * This captures backward reachability information.
 	 */
 	private boolean[][] forwardReachabilityMatrix;
 
-	/** 
-	 * This is the node indexed prenum of the nodes in this graph.
+	/*
+	 * This is the node indexed high num of the nodes in this graph.  A high number indicates the number of the highest node
+	 * that is reachable in various trees by following forward and backwards edges.
 	 *
-	 * @invariant postnums.size = getNodes().size()
-	 * @invariant postnums->forall(o | o > 0)
-	 */
-	private int[] postnums;
-
-	/** 
-	 * This is the node indexed prenum of the nodes in this graph.
+	 * @invariant highnums.size = getNodes().size()
+	 * @invariant highnums->forall(o | o >= 0)
 	 *
-	 * @invariant prenums.size = getNodes().size()
-	 * @invariant prenums->forall(o | o > 0)
+	 * private int[] highnums;
 	 */
-	private int[] prenums;
 
 	/** 
 	 * This indicates if dag has been calculated for this graph.
@@ -141,20 +172,6 @@ public abstract class AbstractDirectedGraph
 		if (!hasSpanningForest) {
 			createSpanningForest();
 		}
-
-		final List _nodes = getNodes();
-		final Collection _temp = new ArrayList();
-
-		for (final Iterator _i = backedges.iterator(); _i.hasNext();) {
-			final Pair _edge = (Pair) _i.next();
-			final int _descendent = _nodes.indexOf(_edge.getFirst());
-			final int _ancestor = _nodes.indexOf(_edge.getSecond());
-
-			if (prenums[_ancestor] > prenums[_descendent] || postnums[_ancestor] < postnums[_descendent]) {
-				_temp.add(_edge);
-			}
-		}
-		backedges.removeAll(_temp);
 
 		final Collection _result;
 
@@ -214,6 +231,14 @@ public abstract class AbstractDirectedGraph
 	 */
 	public Collection getNodesOnPathBetween(final Collection nodes) {
 		final Collection _result = new HashSet();
+		final Map _node2ancestorsMap =
+			LazyMap.decorate(new HashMap(),
+				new Transformer() {
+					public Object transform(final Object key) {
+						return getReachablesFrom((INode) key, false);
+					}
+				});
+
 		final Iterator _i = nodes.iterator();
 		final int _iEnd = nodes.size();
 
@@ -226,7 +251,7 @@ public abstract class AbstractDirectedGraph
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final INode _node2 = (INode) _j.next();
-				final Collection _ancestors = getReachablesFrom(_node2, false);
+				final Collection _ancestors = (Collection) _node2ancestorsMap.get(_node2);
 				_result.addAll(CollectionUtils.intersection(_ancestors, _descendants));
 				_result.add(_node2);
 			}
@@ -286,9 +311,9 @@ public abstract class AbstractDirectedGraph
 			createSpanningForest();
 		}
 
-		final int _anc = getNodes().indexOf(ancestor);
-		final int _desc = getNodes().indexOf(descendent);
-		return prenums[_anc] <= prenums[_desc] && postnums[_anc] >= postnums[_desc];
+		final int _anc = getIndexOfNode(ancestor);
+		final int _desc = getIndexOfNode(descendent);
+		return discoverTimes[_anc] <= discoverTimes[_desc] && finishTimes[_anc] >= finishTimes[_desc];
 	}
 
 	/**
@@ -300,14 +325,13 @@ public abstract class AbstractDirectedGraph
 		}
 
 		final boolean[][] _matrix;
-		final List _nodes = getNodes();
 
 		if (forward) {
 			_matrix = forwardReachabilityMatrix;
 		} else {
 			_matrix = backwardReachabilityMatrix;
 		}
-		return _matrix[_nodes.indexOf(src)][_nodes.indexOf(dest)];
+		return _matrix[getIndexOfNode(src)][getIndexOfNode(dest)];
 	}
 
 	/**
@@ -319,15 +343,15 @@ public abstract class AbstractDirectedGraph
 		}
 
 		final boolean[] _matrix;
-		final List _nodes = getNodes();
 
 		if (forward) {
-			_matrix = forwardReachabilityMatrix[_nodes.indexOf(root)];
+			_matrix = forwardReachabilityMatrix[getIndexOfNode(root)];
 		} else {
-			_matrix = backwardReachabilityMatrix[_nodes.indexOf(root)];
+			_matrix = backwardReachabilityMatrix[getIndexOfNode(root)];
 		}
 
 		final Collection _result = new ArrayList();
+		final List _nodes = getNodes();
 
 		for (int _i = _nodes.size() - 1; _i >= 0; _i--) {
 			if (_matrix[_i]) {
@@ -336,7 +360,7 @@ public abstract class AbstractDirectedGraph
 		}
 		return _result;
 	}
-	
+
 	/**
 	 * @see IDirectedGraph#getSCCs(boolean)
 	 */
@@ -437,8 +461,8 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Finds cycles in the given set of nodes.  This implementation is <i>exponential</i> in the number of cycles in the
-	 * the nodes. 
+	 * Finds cycles in the given set of nodes.  This implementation is <i>exponential</i> in the number of cycles in the the
+	 * nodes.
 	 *
 	 * @param nodes in which to search for cycles.
 	 * @param backedges is the back edges between the given set of nodes (and may be other nodes).
@@ -490,14 +514,28 @@ public abstract class AbstractDirectedGraph
 
 		for (final Iterator _i = _nodes.iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
-			final int _nodePos = _nodes.indexOf(_node);
+			final int _nodePos = getIndexOfNode(_node);
 
 			for (final Iterator _j = _node.getSuccsOf().iterator(); _j.hasNext();) {
 				final Object _succ = _j.next();
-				_sb.append(_nodePos).append(" -> ").append(_nodes.indexOf(_succ)).append("\n");
+				_sb.append(_nodePos).append(" -> ").append(getIndexOfNode((INode) _succ)).append("\n");
 			}
 		}
 		return _sb.toString();
+	}
+
+	/**
+	 * Retrieves the index of the given node in the list of nodes of this graph.  This implementation will return the value
+	 * of <code>getNodes().indexOf(node)</code>.  However, subclasses are free to implement this in an optimal manner.
+	 *
+	 * @param node for which the index is requested.
+	 *
+	 * @return the index of the node in the list of nodes.
+	 *
+	 * @post result = getNodes().indexOf(node)
+	 */
+	protected int getIndexOfNode(final INode node) {
+		return getNodes().indexOf(node);
 	}
 
 	/**
@@ -525,7 +563,8 @@ public abstract class AbstractDirectedGraph
 	 * Gets immediate successors that occur in nodes and are not reachable via the given edges.
 	 *
 	 * @param node whose successors are required.
-	 * @param edgesNotToUse are the edges whose destination nodes should not be included in the result.
+	 * @param edgesNotToUse are the edges whose destination nodes should not be included in the result when the source node
+	 * 		  is same as <code>node</code>.
 	 * @param nodes is a collection of nodes of which the result nodes should be a members of.
 	 *
 	 * @return a collection of nodes.
@@ -535,18 +574,20 @@ public abstract class AbstractDirectedGraph
 	 * @pre edgesNotToUse.oclIsKindOf(Collection(Pair(INode, INode)))
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
 	 * @post nodes.containsAll(result)
-	 * @post edgesNotToUse->forall(o | !result.contains(o.getSecond()))
+	 * @post edgesNotToUse->forall(o | o.getFirst().equals(node) implies !result.contains(o.getSecond()))
 	 */
 	private static Collection getLimitedSuccsOf(final INode node, final Collection edgesNotToUse, final Collection nodes) {
 		final Collection _result = new HashSet(node.getSuccsOf());
 
-		for (final Iterator _i = _result.iterator(); _i.hasNext();) {
-			final INode _succ = (INode) _i.next();
+		for (final Iterator _i = edgesNotToUse.iterator(); _i.hasNext();) {
+			final Pair _edge = (Pair) _i.next();
 
-			if (!nodes.contains(_succ) || edgesNotToUse.contains(new Pair(node, _succ))) {
-				_i.remove();
+			if (_edge.getFirst().equals(node)) {
+				_result.remove(_edge.getSecond());
 			}
 		}
+		_result.retainAll(nodes);
+
 		return _result;
 	}
 
@@ -761,17 +802,20 @@ public abstract class AbstractDirectedGraph
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final INode _succ = (INode) _j.next();
-				forwardReachabilityMatrix[_iIndex][_nodes.indexOf(_succ)] = true;
-				backwardReachabilityMatrix[_nodes.indexOf(_succ)][_iIndex] = true;
+				final int _indexOfSucc = getIndexOfNode(_succ);
+				forwardReachabilityMatrix[_iIndex][_indexOfSucc] = true;
+				backwardReachabilityMatrix[_indexOfSucc][_iIndex] = true;
 			}
 		}
 
 		for (int _j = 0; _j < _noOfNodes; _j++) {
 			for (int _k = 0; _k < _noOfNodes; _k++) {
-				for (int _l = 0; _l < _noOfNodes; _l++) {
-					if (forwardReachabilityMatrix[_k][_j] && forwardReachabilityMatrix[_j][_l]) {
-						forwardReachabilityMatrix[_k][_l] = true;
-						backwardReachabilityMatrix[_l][_k] = true;
+				if (forwardReachabilityMatrix[_k][_j]) {
+					for (int _l = 0; _l < _noOfNodes; _l++) {
+						if (forwardReachabilityMatrix[_j][_l]) {
+							forwardReachabilityMatrix[_k][_l] = true;
+							backwardReachabilityMatrix[_l][_k] = true;
+						}
 					}
 				}
 			}
@@ -839,8 +883,6 @@ public abstract class AbstractDirectedGraph
 	 * @post hasSpanningForest = true
 	 */
 	private void createSpanningForest() {
-		final Collection _reached = new HashSet();
-
 		if (spanningSuccs == null) {
 			spanningSuccs = new HashMap();
 		} else {
@@ -857,77 +899,87 @@ public abstract class AbstractDirectedGraph
 			_order.addAllWork(getHeads());
 		}
 
-		final Collection _processed = new ArrayList();
-		int _prenum = 0;
-		int _postnum = 0;
-		prenums = new int[_nodes.size()];
-		postnums = new int[_nodes.size()];
+		final Collection _blackNodes = new ArrayList();
+		final Collection _grayNodes = new ArrayList();
+		int _discoverTime = 0;
+		discoverTimes = new int[_nodes.size()];
+		finishTimes = new int[_nodes.size()];
+		//highnums = new int[_nodes.size()];
 		backedges.clear();
+		crossedges.clear();
 
 		while (_order.hasWork()) {
 			final Object _work = _order.getWork();
 
 			if (_work instanceof Marker) {
 				final INode _node = (INode) ((Marker) _work).getContent();
-				postnums[_nodes.indexOf(_node)] = ++_postnum;
-			} else if (!_processed.contains(_work)) {
+				final int _indexOfNode = getIndexOfNode(_node);
+				finishTimes[_indexOfNode] = ++_discoverTime;
+				//processNodeForHighValues(_node, _indexOfNode);
+			} else if (!_blackNodes.contains(_work)) {
 				// we do not want to process nodes that are already processed.
 				final INode _node = (INode) _work;
-				prenums[_nodes.indexOf(_node)] = ++_prenum;
-				_processed.add(_node);
-
-				_postnum = processNodeForSpanningTree(_reached, _order, _processed, _postnum, _node);
+				discoverTimes[getIndexOfNode(_node)] = ++_discoverTime;
+				_grayNodes.add(_node);
+				_order.addWork(new Marker(_node));
+				processNodeForSpanningTree(_grayNodes, _order, _node);
+				_blackNodes.add(_node);
 			}
 		}
 
 		hasSpanningForest = true;
 	}
 
+	/*
+	 * Calculates high numbers for the given node.
+	 *
+	 * @param node to be processed.
+	 * @param indexOfNode obviously.
+	 * @pre node != null
+	 *
+	     private void processNodeForHighValues(final INode node, final int indexOfNode) {
+	         final Collection _succsOf = node.getSuccsOf();
+	         if (!_succsOf.isEmpty()) {
+	             highnums[indexOfNode] =
+	                 discoverTimes[getIndexOfNode(Collections.max(_succsOf, discoverTimeBasedNodeComparator))];
+	         }
+	     }
+	 */
+
 	/**
 	 * Processes the given node while creating a spanning tree.
 	 *
-	 * @param reachedNodes is the collection of nodes already visited or reached.
+	 * @param grayNodes is the collection of nodes already visited or reached but not processed.
 	 * @param workBag is the work bag that needs to be updates during processing.
-	 * @param processedNodes is the collection of nodes already processed while creating the spanning tree.
-	 * @param currPostNumber is the post number is the seeding post number for processing.
 	 * @param nodeToProcess is the node to be processed.
 	 *
-	 * @return the post number of the last node visited during processing.
-	 *
-	 * @pre reachedNodes != null and workBag != null and processedNodes != null and currPostNumber != null and nodeToProcess
-	 * 		!= null
+	 * @pre grayNodes != null and workBag != null and nodeToProcess != null
 	 * @post processedNodes.containsAll(processedNodes$pre)
 	 * @post reachedNodes.containsAll(reachedNodes$pre)
 	 * @post processedNodes.containsAll(processedNodes$pre)
 	 */
-	private int processNodeForSpanningTree(final Collection reachedNodes, final IWorkBag workBag,
-		final Collection processedNodes, final int currPostNumber, final INode nodeToProcess) {
+	private void processNodeForSpanningTree(final Collection grayNodes, final IWorkBag workBag, final INode nodeToProcess) {
 		final Collection _temp = new HashSet();
-		int _postnum = currPostNumber;
-		boolean _flag = true;
-
 		spanningSuccs.put(nodeToProcess, _temp);
-		workBag.addWork(new Marker(nodeToProcess));
 
 		for (final Iterator _j = nodeToProcess.getSuccsOf().iterator(); _j.hasNext();) {
 			final INode _succ = (INode) _j.next();
 
-			// record only those successors which have not been visited via other nodes. 
-			if (!reachedNodes.contains(_succ) && !processedNodes.contains(_succ)) {
-				_temp.add(_succ);
-				reachedNodes.add(_succ);
-				workBag.addWork(_succ);
-				_flag = false;
+			// edges to visited nodes can only be backedges or crossedges.
+			if (grayNodes.contains(_succ)) {
+				final int _destIndex = getIndexOfNode(_succ);
+				final Pair _edge = new Pair(nodeToProcess, _succ);
+
+				if (finishTimes[_destIndex] > 0) {
+					crossedges.add(_edge);
+				} else {
+					backedges.add(_edge);
+				}
 			} else {
-				backedges.add(new Pair(nodeToProcess, _succ));
+				_temp.add(_succ);
+				workBag.addWork(_succ);
 			}
 		}
-
-		if (_flag) {
-			postnums[getNodes().indexOf(nodeToProcess)] = ++_postnum;
-			workBag.getWork();
-		}
-		return _postnum;
 	}
 }
 

@@ -16,6 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
+
 import edu.ksu.cis.indus.interfaces.IAtomicityInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
@@ -29,24 +31,16 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.collections.Predicate;
 
-import soot.Local;
 import soot.SootMethod;
-import soot.Value;
 import soot.ValueBox;
 
-import soot.jimple.ArrayRef;
 import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
-import soot.jimple.InstanceFieldRef;
-import soot.jimple.ParameterRef;
 import soot.jimple.RetStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
-import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
-import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
 
 
@@ -59,19 +53,8 @@ import soot.jimple.ThrowStmt;
  * @version $Revision$ $Date$
  */
 public class AtomicStmtDetector
-  extends AbstractProcessor implements IAtomicityInfo {
-	/** 
-	 * This filter is used to identify AST chunks that may represent references that can escape.
-	 */
-	private static final Predicate FILTER =
-		new Predicate() {
-			public boolean evaluate(final Object object) {
-				final Value _v = ((ValueBox) object).getValue();
-				return _v instanceof StaticFieldRef || _v instanceof InstanceFieldRef || _v instanceof ArrayRef
-				  || _v instanceof Local || _v instanceof ThisRef || _v instanceof ParameterRef;
-			}
-		};
-
+  extends AbstractProcessor
+  implements IAtomicityInfo {
 	/** 
 	 * The collection of atomic statements.
 	 *
@@ -122,8 +105,9 @@ public class AtomicStmtDetector
 			  || stmt instanceof IdentityStmt)) {
 			final SootMethod _currentMethod = context.getCurrentMethod();
 
-			for (final Iterator _i = IteratorUtils.filteredIterator(stmt.getUseAndDefBoxes().iterator(), FILTER);
-				  _i.hasNext() && !_escapes;) {
+			for (final Iterator _i =
+					IteratorUtils.filteredIterator(stmt.getUseAndDefBoxes().iterator(),
+						SootPredicatesAndTransformers.ESCAPABLE_EXPR_FILTER); _i.hasNext() && !_escapes;) {
 				final ValueBox _vb = (ValueBox) _i.next();
 				_escapes = ecba.escapes(_vb.getValue(), _currentMethod);
 			}

@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.graph.GraphReachabilityPredicate;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
@@ -46,6 +47,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
+
+import org.apache.commons.collections.collection.CompositeCollection;
 
 import org.apache.commons.collections.map.LRUMap;
 
@@ -87,7 +91,7 @@ public class CallGraph
 	/** 
 	 * The collection of methods from which the system can be started. Although an instance of a class can be created and a
 	 * method can be invoked on it from the environment, this method will not be considered as a <i>head method </i>.
-	 * However, our definition of head methods are those methods(excluding those in invoked via <code>invokespecial</code>
+	 * However, our definition of head methods are those methods (excluding those invoked via <code>invokespecial</code>
 	 * bytecode) with no caller method that belongs to the system.
 	 *
 	 * @invariant head != null and heads.oclIsKindOf(Set(SootMethod))
@@ -167,6 +171,11 @@ public class CallGraph
 	 */
 	private SimpleNodeGraph graphCache;
 
+	/** 
+	 * This is used to retrieve nodes from the graph cache.
+	 */
+	private Transformer nodeRetrievingTransformer;
+
 	/**
 	 * Creates a new CallGraph object.
 	 *
@@ -209,6 +218,37 @@ public class CallGraph
 		heads.clear();
 		reachables.clear();
 		graphCache = null;
+		nodeRetrievingTransformer = null;
+	}
+
+	/**
+	 * @see ICallGraphInfo#isCalleeReachableFromCallSite(soot.SootMethod, Stmt, soot.SootMethod)
+	 */
+	public boolean isCalleeReachableFromCallSite(final SootMethod callee, final Stmt stmt, final SootMethod caller) {
+		final boolean _result;
+		final GraphReachabilityPredicate _rp = new GraphReachabilityPredicate(callee, true, graphCache);
+
+		if (_rp.evaluate(caller)) {
+			final InvokeExpr _ie = stmt.getInvokeExpr();
+			final Context _context = new Context();
+			_context.setStmt(stmt);
+			_context.setRootMethod(caller);
+
+			final Collection _callees = getCallees(_ie, _context);
+			_result = CollectionUtils.exists(CollectionUtils.collect(_callees, nodeRetrievingTransformer), _rp);
+		} else {
+			_result = false;
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#isCalleeReachableFromCaller(soot.SootMethod, soot.SootMethod)
+	 */
+	public boolean isCalleeReachableFromCaller(final SootMethod callee, final SootMethod caller) {
+		final INode _calleeNode = graphCache.queryNode(callee);
+		final INode _callerNode = graphCache.queryNode(caller);
+		return _calleeNode != null && _callerNode != null && graphCache.isReachable(_callerNode, _calleeNode, true);
 	}
 
 	/**
@@ -334,12 +374,14 @@ public class CallGraph
 			_context.setRootMethod(root);
 
 			final Collection _callees = getCallees(_ie, _context);
-			_result = new HashSet(_callees);
+			final CompositeCollection _methods = new CompositeCollection();
+			_methods.addComposited(_callees);
 
 			for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
-				_result.addAll(getMethodsReachableFrom((SootMethod) _i.next(), true));
+				_methods.addComposited(getMethodsReachableFromHelper((SootMethod) _i.next(), true));
 			}
-			invocationsite2reachableMethods.put(_pair, _result);
+			invocationsite2reachableMethods.put(_pair, _methods);
+			_result = _methods;
 		}
 		return Collections.unmodifiableCollection(_result);
 	}
@@ -348,22 +390,7 @@ public class CallGraph
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.SootMethod,boolean)
 	 */
 	public Collection getMethodsReachableFrom(final SootMethod root, final boolean forward) {
-		final Map _map;
-
-		if (forward) {
-			_map = method2forwardReachableMethods;
-		} else {
-			_map = method2backwardReachableMethods;
-		}
-
-		Collection _result = (Collection) _map.get(root);
-
-		if (_result == null) {
-			_result = graphCache.getReachablesFrom(graphCache.getNode(root), forward);
-			CollectionUtils.transform(_result, IObjectDirectedGraph.OBJECT_EXTRACTOR);
-			_map.put(root, _result);
-		}
-		return Collections.unmodifiableCollection(_result);
+		return Collections.unmodifiableCollection(getMethodsReachableFromHelper(root, forward));
 	}
 
 	/**
@@ -521,6 +548,7 @@ public class CallGraph
 				}
 			}
 		}
+		nodeRetrievingTransformer = new IObjectDirectedGraph.NodeRetrievingTransformer(graphCache);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: call graph consolidation");
@@ -548,6 +576,7 @@ public class CallGraph
 		callee2callers.clear();
 		analyzer = null;
 		graphCache = null;
+		nodeRetrievingTransformer = null;
 		topDownSCC = null;
 		bottomUpSCC = null;
 		reachables.clear();
@@ -631,6 +660,38 @@ public class CallGraph
 	 */
 	final IDirectedGraph getCallGraph() {
 		return graphCache;
+	}
+
+	/**
+	 * Retrieves the reachables in the given direction.  The returned value exposes private data. Hence, callers should
+	 * address the issue of keeping this data private.
+	 *
+	 * @param root see IDirectedGraph.getReachableFrom(INode, boolean)
+	 * @param forward see IDirectedGraph.getReachableFrom(INode, boolean)
+	 *
+	 * @return see IDirectedGraph.getReachableFrom(INode, boolean)
+	 *
+	 * @pre root != null
+	 *
+	 * @see IDirectedGraph#getReachablesFrom(INode, boolean)
+	 */
+	private Collection getMethodsReachableFromHelper(final SootMethod root, final boolean forward) {
+		final Map _map;
+
+		if (forward) {
+			_map = method2forwardReachableMethods;
+		} else {
+			_map = method2backwardReachableMethods;
+		}
+
+		Collection _result = (Collection) _map.get(root);
+
+		if (_result == null) {
+			_result = graphCache.getReachablesFrom(graphCache.queryNode(root), forward);
+			CollectionUtils.transform(_result, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+			_map.put(root, _result);
+		}
+		return _result;
 	}
 
 	/**

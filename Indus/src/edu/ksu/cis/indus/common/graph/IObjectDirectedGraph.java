@@ -64,6 +64,41 @@ public interface IObjectDirectedGraph
 	}
 
 	/**
+	 * This transformer can be used to retrieve nodes of a graph that represent objects in a collection.  This implementation
+	 * will not create new nodes in the graph.  It will only return existing nodes.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	public final class NodeRetrievingTransformer
+	  implements Transformer {
+		/** 
+		 * The graph on which this transformer operates.
+		 */
+		private final IObjectDirectedGraph graph;
+
+		/**
+		 * Creates an instance of this class that operates on the given graph.
+		 *
+		 * @param theGraph from which nodes for the given objects shall be retrieved.
+		 *
+		 * @pre theGraph != null
+		 */
+		public NodeRetrievingTransformer(final IObjectDirectedGraph theGraph) {
+			super();
+			graph = theGraph;
+		}
+
+		/**
+		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
+		 */
+		public Object transform(final Object input) {
+			return graph.queryNode(input);
+		}
+	}
+
+	/**
 	 * Returns a node that represents <code>o</code> in this graph.
 	 *
 	 * @param o is the object being represented by a node in this graph.

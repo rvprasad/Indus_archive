@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -58,7 +59,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.PredicateUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,22 +82,6 @@ import soot.jimple.Stmt;
 public final class MonitorAnalysis
   extends AbstractAnalysis
   implements IMonitorInfo {
-	/** 
-	 * A predicate used to filter <code>EnterMonitorStmt</code>.
-	 */
-	public static final Predicate ENTER_MONITOR_STMT_PREDICATE = PredicateUtils.instanceofPredicate(EnterMonitorStmt.class);
-
-	/** 
-	 * A predicate used to filter statements with invoke expressions. Filter expression is
-	 * <code>((Stmt)o).containsInvokeExpr()</code>.
-	 */
-	public static final Predicate INVOKE_EXPR_PREDICATE =
-		new Predicate() {
-			public boolean evaluate(final Object object) {
-				return ((Stmt) object).containsInvokeExpr();
-			}
-		};
-
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -233,8 +217,8 @@ public final class MonitorAnalysis
 
 
 	/**
-	 * This represents monitor enclosure as a graph with each monitor represented as a node and an edge representing that
-	 * the monitor of the source node encloses the monitor of the destination node.
+	 * This represents monitor enclosure as a graph with each monitor represented as a node and an edge representing that the
+	 * monitor of the source node encloses the monitor of the destination node.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -278,8 +262,8 @@ public final class MonitorAnalysis
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo.IMonitorGraph#getInterProcedurallyEnclosingMonitorTriples(Stmt, 
-		 * SootMethod, boolean)
+		 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo.IMonitorGraph#getInterProcedurallyEnclosingMonitorTriples(Stmt,
+		 * 		SootMethod, boolean)
 		 */
 		public Map getInterProcedurallyEnclosingMonitorTriples(final Stmt stmt, final SootMethod method,
 			final boolean transitive) {
@@ -328,7 +312,7 @@ public final class MonitorAnalysis
 			_method2stmts.put(method, _intraStmts);
 
 			final Iterator _stmtsWithInvokeExpr =
-				IteratorUtils.filteredIterator(_intraStmts.iterator(), INVOKE_EXPR_PREDICATE);
+				IteratorUtils.filteredIterator(_intraStmts.iterator(), SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
 			calculateInterprocedurallyEnclosedStmts(method, transitive, _method2stmts, _stmtsWithInvokeExpr);
 			return _method2stmts;
 		}
@@ -363,7 +347,7 @@ public final class MonitorAnalysis
 			_method2stmts.put(method, _intraStmts);
 
 			final Iterator _stmtsWithInvokeExpr =
-				IteratorUtils.filteredIterator(_intraStmts.iterator(), INVOKE_EXPR_PREDICATE);
+				IteratorUtils.filteredIterator(_intraStmts.iterator(), SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
 			calculateInterprocedurallyEnclosedStmts(method, transitive, _method2stmts, _stmtsWithInvokeExpr);
 			return _method2stmts;
 		}
@@ -409,8 +393,9 @@ public final class MonitorAnalysis
 						final Collection _stmts = getUnenclosedStmtsOf(_callee);
 						CollectionsUtilities.putAllIntoSetInMap(method2stmts, _callee, _stmts);
 
-						for (final Iterator _j = IteratorUtils.filteredIterator(_stmts.iterator(), INVOKE_EXPR_PREDICATE);
-							  _j.hasNext();) {
+						for (final Iterator _j =
+								IteratorUtils.filteredIterator(_stmts.iterator(),
+									SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE); _j.hasNext();) {
 							final Stmt _s = (Stmt) _j.next();
 							_wb.addWork(pairMgr.getPair(_s, _callee));
 						}
@@ -440,7 +425,7 @@ public final class MonitorAnalysis
 				final Map _monitor2enclosedStmts = (Map) method2monitor2enclosedStmts.get(_sm);
 				final Collection _temp = new HashSet();
 				_temp.addAll(_result);
-				CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
+				CollectionUtils.filter(_temp, SootPredicatesAndTransformers.ENTER_MONITOR_STMT_PREDICATE);
 
 				final Iterator _i = _temp.iterator();
 				final int _iEnd = _temp.size();
@@ -909,7 +894,7 @@ public final class MonitorAnalysis
 			_temp.addAll((Collection) CollectionsUtilities.getFromMap(monitor2stmts, _monitor,
 					CollectionsUtilities.EMPTY_LIST_FACTORY));
 			_result.addAll(_temp);
-			CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
+			CollectionUtils.filter(_temp, SootPredicatesAndTransformers.ENTER_MONITOR_STMT_PREDICATE);
 
 			final Iterator _i = _temp.iterator();
 			final int _iEnd = _temp.size();

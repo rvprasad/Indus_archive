@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens.soot;
 
+import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.IDynamicTokenTypeRelationDetector;
@@ -27,13 +28,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 
 import soot.ArrayType;
 import soot.RefType;
 import soot.Value;
 
-import soot.jimple.NullConstant;
 
 
 /**
@@ -55,16 +54,6 @@ import soot.jimple.NullConstant;
  */
 final class SootDynamicTokenTypeRelationDetector
   implements IDynamicTokenTypeRelationDetector {
-	/** 
-	 * This predicate filters out <code>NullConstant</code> values.
-	 */
-	public static final Predicate NULL_PREDICATE =
-		new Predicate() {
-			public boolean evaluate(final Object object) {
-				return object instanceof NullConstant;
-			}
-		};
-
 	/** 
 	 * This is the collection of types that have already been marked as compatible with <code>null</code>.
 	 */
@@ -147,12 +136,12 @@ final class SootDynamicTokenTypeRelationDetector
 	 * @post result.containsAll(result$pre)
 	 */
 	private void processForNullConstAndRefTypeRelation(final Collection values, final IType type, final Collection result) {
-		nullConstSeen = nullConstSeen || CollectionUtils.exists(values, NULL_PREDICATE);
+		nullConstSeen = nullConstSeen || CollectionUtils.exists(values, SootPredicatesAndTransformers.NULL_PREDICATE);
 
 		if (nullConstSeen) {
 			if (Util.isReferenceType(((DummyType) type).sootType) && !typesForNullConst.contains(type)) {
 				typesForNullConst.add(type);
-				result.add(CollectionUtils.find(values, NULL_PREDICATE));
+				result.add(CollectionUtils.find(values, SootPredicatesAndTransformers.NULL_PREDICATE));
 			}
 		}
 	}

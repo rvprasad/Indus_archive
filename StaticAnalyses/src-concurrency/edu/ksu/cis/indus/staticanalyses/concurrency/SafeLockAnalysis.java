@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.common.graph.AbstractDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -346,7 +347,8 @@ public class SafeLockAnalysis
 			boolean _cycleIsUnsafe = true;
 			final Collection _invocationStmts = bbg.getEnclosedStmts(_cycle);
 			final Iterator _filteredIterator =
-				IteratorUtils.filteredIterator(_invocationStmts.iterator(), MonitorAnalysis.INVOKE_EXPR_PREDICATE);
+				IteratorUtils.filteredIterator(_invocationStmts.iterator(),
+					SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
 
 			for (final Iterator _k = _filteredIterator; _k.hasNext() && _cycleIsUnsafe;) {
 				final Stmt _stmt = (Stmt) _k.next();

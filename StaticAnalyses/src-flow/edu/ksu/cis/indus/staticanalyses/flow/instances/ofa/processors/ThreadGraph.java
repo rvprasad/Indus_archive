@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -49,8 +50,6 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.PredicateUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -218,7 +217,6 @@ public class ThreadGraph
 		threadCreationSitesMulti = new HashSet();
 		cfgAnalysis = cfa;
 	}
-
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getAllocationSites()
@@ -439,9 +437,9 @@ public class ThreadGraph
 			LOGGER.debug("New thread expressions are: " + _values);
 		}
 
-		final Predicate _pred = PredicateUtils.instanceofPredicate(NewExpr.class);
-
-		for (final Iterator _i = IteratorUtils.filteredIterator(_values.iterator(), _pred); _i.hasNext();) {
+		for (final Iterator _i =
+				IteratorUtils.filteredIterator(_values.iterator(), SootPredicatesAndTransformers.NEW_EXPR_PREDICATE);
+			  _i.hasNext();) {
 			final NewExpr _value = (NewExpr) _i.next();
 			final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 			Collection _methods;
@@ -469,7 +467,9 @@ public class ThreadGraph
 					// object 
 					final Iterator _iterator = analyzer.getValues(_threadClass.getFieldByName("target"), _t).iterator();
 
-					for (final Iterator _j = IteratorUtils.filteredIterator(_iterator, _pred); _j.hasNext();) {
+					for (final Iterator _j =
+							IteratorUtils.filteredIterator(_iterator, SootPredicatesAndTransformers.NEW_EXPR_PREDICATE);
+						  _j.hasNext();) {
 						final NewExpr _temp = (NewExpr) _j.next();
 						_scTemp = _env.getClass((_temp.getBaseType()).getClassName());
 						_methods.addAll(transitiveThreadCallClosure(_scTemp.getMethod("run", Collections.EMPTY_LIST,
@@ -500,7 +500,9 @@ public class ThreadGraph
 
 			final Collection _baseValues = analyzer.getValues(_virtualInvokeExpr.getBase(), _ctxt);
 
-			for (final Iterator _j = IteratorUtils.filteredIterator(_baseValues.iterator(), _pred); _j.hasNext();) {
+			for (final Iterator _j =
+					IteratorUtils.filteredIterator(_baseValues.iterator(), SootPredicatesAndTransformers.NEW_EXPR_PREDICATE);
+				  _j.hasNext();) {
 				final NewExpr _value = (NewExpr) _j.next();
 				final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 

@@ -19,11 +19,11 @@ import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.SootPredicatesAndTransformers;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
-import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.Collection;
@@ -121,7 +121,7 @@ public final class AliasedUseDefInfov2
 			 * Check if the use method is reachable from the def method. If so, check the use method is reachable via
 			 * any of the invocation statement that succeed defStmt in defMethod.
 			 */
-			if (cgi.getMethodsReachableFrom(defMethod, true).contains(useMethod)) {
+			if (cgi.isCalleeReachableFromCaller(useMethod, defMethod)) {
 				_result = doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true);
 			}
 
@@ -129,7 +129,7 @@ public final class AliasedUseDefInfov2
 			 * Check if the def method is reachable from the use method. If so, check the def method is reachable via
 			 * any of the invocation statements that precede useStmt in useMethod.
 			 */
-			if (!_result && cgi.getMethodsReachableFrom(useMethod, true).contains(defMethod)) {
+			if (!_result && cgi.isCalleeReachableFromCaller(defMethod, useMethod)) {
 				_result = doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false);
 			}
 
@@ -165,7 +165,7 @@ public final class AliasedUseDefInfov2
 
 		if (_temp == null) {
 			final Iterator _stmts = bbgMgr.getBasicBlockGraph(method).getStmtGraph().iterator();
-			_result = IteratorUtils.filteredIterator(_stmts, MonitorAnalysis.INVOKE_EXPR_PREDICATE);
+			_result = IteratorUtils.filteredIterator(_stmts, SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
 			method2EnclosingInvokingStmtsCache.put(method, IteratorUtils.toList(_result));
 		} else {
 			_result = _temp.iterator();
@@ -175,7 +175,7 @@ public final class AliasedUseDefInfov2
 
 	/**
 	 * Checks if there is path for control between <code>targetmethod</code> and <code>stmt</code> in <code>method</code> via
-	 * intra-procedural control flow and call chains after executing.
+	 * intra-procedural control flow and call chains.
 	 *
 	 * @param method in which control starts.
 	 * @param stmt at which control starts.
@@ -201,20 +201,20 @@ public final class AliasedUseDefInfov2
 		}
 
 		for (final Iterator _j =
-				IteratorUtils.filteredIterator(_bbDefStmts.iterator(), MonitorAnalysis.INVOKE_EXPR_PREDICATE);
+				IteratorUtils.filteredIterator(_bbDefStmts.iterator(), SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
 			  _j.hasNext() && !_result;) {
 			final Stmt _stmt = (Stmt) _j.next();
-			_result = cgi.getMethodsReachableFrom(_stmt, method).contains(targetMethod);
+			_result = cgi.isCalleeReachableFromCallSite(targetMethod, _stmt, method);
 		}
 
 		for (final Iterator _i = _reachableBBs.iterator(); _i.hasNext() && !_result;) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
 
 			for (final Iterator _j =
-					IteratorUtils.filteredIterator(_bb.getStmtsOf().iterator(), MonitorAnalysis.INVOKE_EXPR_PREDICATE);
-				  _j.hasNext() && !_result;) {
+					IteratorUtils.filteredIterator(_bb.getStmtsOf().iterator(),
+						SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE); _j.hasNext() && !_result;) {
 				final Stmt _stmt = (Stmt) _j.next();
-				_result = cgi.getMethodsReachableFrom(_stmt, method).contains(targetMethod);
+				_result = cgi.isCalleeReachableFromCallSite(targetMethod, _stmt, method);
 			}
 		}
 		return _result;
@@ -235,7 +235,7 @@ public final class AliasedUseDefInfov2
 		final Collection _commonAncestors =
 			CollectionUtils.intersection(cgi.getMethodsReachableFrom(defMethod, false),
 				cgi.getMethodsReachableFrom(useMethod, false));
-		final boolean _flag = cgi.getMethodsReachableFrom(defMethod, true).contains(useMethod);
+		final boolean _flag = cgi.isCalleeReachableFromCaller(useMethod, defMethod);
 
 		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext() && !_result;) {
 			final SootMethod _sm = (SootMethod) _i.next();

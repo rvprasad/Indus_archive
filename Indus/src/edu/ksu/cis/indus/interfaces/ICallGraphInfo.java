@@ -121,6 +121,36 @@ public interface ICallGraphInfo
 	}
 
 	/**
+	 * Checks if the <code>callee</code> is reachable <code>caller</code>.
+	 *
+	 * @param callee is the method that needs to be reached.
+	 * @param stmt in the <code>caller</code> at which invocation occurs.
+	 * @param caller is the method to start the search from.
+	 *
+	 * @return <code>true</code> if <code>callee</code> can be reached from <code>caller</code> via the call at
+	 * 		   <code>stmt</code>; <code>false</code>, otherwise.
+	 *
+	 * @pre callee != null and caller != null and stmt != null
+	 * @post not (isReachable(callee) and isReachable(caller)) implies result == false
+	 * @post result implies isCalleeReachableFromCaller(callee, caller)
+	 */
+	boolean isCalleeReachableFromCallSite(SootMethod callee, Stmt stmt, SootMethod caller);
+
+	/**
+	 * Checks if the <code>callee</code> is reachable <code>caller</code>.
+	 *
+	 * @param callee is the method that needs to be reached.
+	 * @param caller is the method to start the search from.
+	 *
+	 * @return <code>true</code> if <code>callee</code> can be reached from <code>caller</code>; <code>false</code>,
+	 * 		   otherwise.
+	 *
+	 * @pre callee != null and caller != null
+	 * @post not (isReachable(callee) and isReachable(caller)) implies result == false
+	 */
+	boolean isCalleeReachableFromCaller(SootMethod callee, SootMethod caller);
+
+	/**
 	 * Returns the set of methods called in <code>caller</code>.
 	 *
 	 * @param caller of interest.
