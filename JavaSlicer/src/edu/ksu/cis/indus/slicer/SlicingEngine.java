@@ -50,6 +50,8 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.omg.CORBA.INTERNAL;
+
 import soot.ArrayType;
 import soot.Local;
 import soot.RefType;
@@ -207,6 +209,11 @@ public final class SlicingEngine {
 	 * there is recursion.
 	 */
 	private Stack callStackCache;
+
+	/** 
+	 * This caches the informaiton - is interference dependence being used in this execution?
+	 */
+	private boolean useInterferenceDACache;
 
 	/**
 	 * Creates a new SlicingEngine object.
@@ -471,6 +478,8 @@ public final class SlicingEngine {
 			LOGGER.fatal(_temp);
 			throw new IllegalStateException(_temp);
 		}
+
+		useInterferenceDACache = controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA) != null;
 	}
 
 	/**
@@ -1136,7 +1145,10 @@ public final class SlicingEngine {
 					directionSensitiveInfo.processParameterRef(_vBox, method);
 				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
 					_das.addAll(controller.getAnalyses(IDependencyAnalysis.REFERENCE_BASED_DATA_DA));
-					_das.addAll(controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
+
+					if (useInterferenceDACache) {
+						_das.addAll(controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
+					}
 
 					if (_value instanceof FieldRef) {
 						final SootField _field = ((FieldRef) _vBox.getValue()).getField();
