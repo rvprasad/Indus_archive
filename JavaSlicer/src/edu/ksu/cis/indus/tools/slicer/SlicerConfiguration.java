@@ -139,7 +139,7 @@ public final class SlicerConfiguration
 	/** 
 	 * This indicates all-synchronization-constructs-should-be-considered deadlock criteria selection strategy.
 	 */
-	static final Object ALL_SYCN_CONSTRUCTS = "ALL_SYCN_CONSTRUCTS";
+	static final Object ALL_SYNC_CONSTRUCTS = "ALL_SYNC_CONSTRUCTS";
 
 	/** 
 	 * This indicates all-synchronization-constructs-with-escaping-monitors-should-be-considered deadlock criteria selection
@@ -678,7 +678,7 @@ public final class SlicerConfiguration
 		} else if (propertyID.equals(NATURE_OF_READY_DA)) {
 			_result = processRDANatureProperty(value);
 		} else if (propertyID.equals(DEADLOCK_CRITERIA_SELECTION_STRATEGY)) {
-			processNatureOfDeadlock(value);
+			processDeadlockCriteriaSelectionStrategy(value);
 		}
 		return _result;
 	}
@@ -846,13 +846,13 @@ public final class SlicerConfiguration
 	 *
 	 * @pre property != null
 	 */
-	private boolean processNatureOfDeadlock(final Object property) {
+	private boolean processDeadlockCriteriaSelectionStrategy(final Object property) {
 		boolean _result = false;
 
 		if (getSliceForDeadlock()) {
 			_result = true;
 
-			if (property.equals(ALL_SYCN_CONSTRUCTS)) {
+			if (property.equals(ALL_SYNC_CONSTRUCTS)) {
 				criteriaGenerator = new DeadlockPreservingCriteriaGenerator();
 			} else if (property.equals(ESCAPING_SYNC_CONSTRUCTS)) {
 				criteriaGenerator = new DeadlockPreservingCriteriaGeneratorv2();

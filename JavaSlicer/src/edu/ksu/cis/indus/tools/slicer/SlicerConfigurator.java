@@ -154,7 +154,7 @@ public final class SlicerConfigurator
 					if (evt.widget == _escapingSyncStrategy) {
 						_value = SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS;
 					} else if (evt.widget == _allSycnStrategy) {
-						_value = SlicerConfiguration.ALL_SYCN_CONSTRUCTS;
+						_value = SlicerConfiguration.ALL_SYNC_CONSTRUCTS;
 
 						/*} else if (evt.widget == _completeSlice) {
 						   _value = SlicingEngine.COMPLETE_SLICE;*/
@@ -175,7 +175,7 @@ public final class SlicerConfigurator
 
 		Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
 
-		if (_temp.equals(SlicerConfiguration.ALL_SYCN_CONSTRUCTS)) {
+		if (_temp.equals(SlicerConfiguration.ALL_SYNC_CONSTRUCTS)) {
 			_allSycnStrategy.setSelection(true);
 
 			/*} else if (_temp.equals(SlicingEngine.COMPLETE_SLICE)) {
