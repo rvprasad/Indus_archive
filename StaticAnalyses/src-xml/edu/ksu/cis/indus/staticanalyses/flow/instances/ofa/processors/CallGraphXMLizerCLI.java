@@ -27,6 +27,7 @@ import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -78,6 +79,11 @@ public final class CallGraphXMLizerCLI
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizerCLI.class);
 
 	/** 
+	 * The xmlizer to be used.
+	 */
+	private final CallGraphXMLizer xmlizer = new CallGraphXMLizer();
+
+	/** 
 	 * This indicates if cumulative or separate call graphs should be generated when there are more than one root methods.
 	 */
 	private boolean cumulative;
@@ -115,12 +121,10 @@ public final class CallGraphXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption('h')) {
-				final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
-				(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+				printUsage(_options);
 				System.exit(1);
 			}
 
-			final CallGraphXMLizer _xmlizer = new CallGraphXMLizer();
 			String _outputDir = _cl.getOptionValue('o');
 
 			if (_outputDir == null) {
@@ -129,25 +133,36 @@ public final class CallGraphXMLizerCLI
 				}
 				_outputDir = ".";
 			}
-			_xmlizer.setXmlOutputDir(_outputDir);
-			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
-
-			final CallGraphXMLizerCLI _cli = new CallGraphXMLizerCLI();
 
 			if (_cl.getArgList().isEmpty()) {
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
+
+			final CallGraphXMLizerCLI _cli = new CallGraphXMLizerCLI();
+
+			_cli.xmlizer.setXmlOutputDir(_outputDir);
+			_cli.xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 			_cli.setCumulative(_cl.hasOption('c'));
 			_cli.setClassNames(_cl.getArgList());
 			_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			_cli.initialize();
-			_cli.execute(_xmlizer, _cl.hasOption('j'));
+			_cli.execute(_cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-
-			final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
-			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
+			printUsage(_options);
 		}
+	}
+
+	/**
+	 * Prints the help/usage info for this class.
+	 *
+	 * @param options is the command line option.
+	 *
+	 * @pre options != null
+	 */
+	private static void printUsage(final Options options) {
+		final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName() + " <options> <classnames>";
+		(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are: ", options, "");
 	}
 
 	/**
@@ -163,12 +178,9 @@ public final class CallGraphXMLizerCLI
 	/**
 	 * Xmlize the given system.
 	 *
-	 * @param xmlizer to be used for xmlizing the call graph.
 	 * @param dumpJimple <code>true</code> indicates xmlized jimple should be dumped; <code>false</code>, otherwise.
-	 *
-	 * @pre xmlizer != null
 	 */
-	private void execute(final IXMLizer xmlizer, final boolean dumpJimple) {
+	private void execute(final boolean dumpJimple) {
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";

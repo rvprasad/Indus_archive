@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -84,6 +85,11 @@ public final class OFAXMLizerCLI
 	 * This indicates if analysis should be run for all root methods or separated for each root method.
 	 */
 	private boolean cumulative;
+	
+	/** 
+	 * The xmlizer used to xmlize information.
+	 */
+	private final OFAXMLizer xmlizer = new OFAXMLizer();
 
 	/**
 	 * Retrieves the name that serves as the base for the file names into which info will be dumped along with the root
@@ -137,12 +143,10 @@ public final class OFAXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
-				(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+				printUsage(_options);
 				System.exit(1);
 			}
 
-			final OFAXMLizer _xmlizer = new OFAXMLizer();
 			String _outputDir = _cl.getOptionValue('o');
 
 			if (_outputDir == null) {
@@ -151,24 +155,33 @@ public final class OFAXMLizerCLI
 				}
 				_outputDir = ".";
 			}
-			_xmlizer.setXmlOutputDir(_outputDir);
-			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
-
 			if (_cl.getArgList().isEmpty()) {
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
 
 			final OFAXMLizerCLI _cli = new OFAXMLizerCLI();
+			_cli.xmlizer.setXmlOutputDir(_outputDir);
+			_cli.xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 			_cli.setCumulative(_cl.hasOption('c'));
 			_cli.setClassNames(_cl.getArgList());
 			_cli.initialize();
-			_cli.execute(_xmlizer, _cl.hasOption('j'));
+			_cli.execute(_cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-
-			final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
-			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
+			printUsage(_options);
 		}
+	}
+
+	/**
+	 * Prints the help/usage info for this class.
+	 *
+	 * @param options is the command line option.
+	 *
+	 * @pre options != null
+	 */
+	private static void printUsage(final Options options) {
+		final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName() + " <options> <classnames>";
+		(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are: ", options, "");
 	}
 
 	/**
@@ -184,13 +197,10 @@ public final class OFAXMLizerCLI
 	/**
 	 * Xmlize the given system.
 	 *
-	 * @param xmlizer to be used to xmlize the information.
 	 * @param dumpJimple <code>true</code> indicates that the jimple should be xmlized as well; <code>false</code>,
 	 * 		  otherwise.
-	 *
-	 * @pre xmlizer != nul
 	 */
-	private void execute(final IXMLizer xmlizer, final boolean dumpJimple) {
+	private void execute(final boolean dumpJimple) {
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
@@ -216,7 +226,7 @@ public final class OFAXMLizerCLI
 		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
 		final Map _info = new HashMap();
-		_info.put(IValueAnalyzer.ID, _cgi);
+		_info.put(IValueAnalyzer.ID, _aa);
 		_info.put(IValueAnalyzer.TAG_ID, _tagName);
 
 		final List _roots = new ArrayList();
@@ -263,7 +273,7 @@ public final class OFAXMLizerCLI
 			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			xmlizer.writeXML(_info);
 
-			if (dumpJimple && xmlizer instanceof AbstractXMLizer) {
+			if (dumpJimple) {
 				((AbstractXMLizer) xmlizer).dumpJimple(_fileBaseName, xmlizer.getXmlOutputDir(), _xmlcgipc);
 			}
 		}
