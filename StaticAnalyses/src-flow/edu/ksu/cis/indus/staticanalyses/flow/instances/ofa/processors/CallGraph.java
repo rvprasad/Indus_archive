@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.Constants;
+
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
@@ -47,6 +48,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 
 import org.apache.commons.collections.collection.CompositeCollection;
@@ -333,6 +335,18 @@ public class CallGraph
 	}
 
 	/**
+	 * @see ICallGraphInfo#getCommonMethodsReachableFrom(soot.SootMethod, boolean, soot.SootMethod, boolean)
+	 */
+	public Collection getCommonMethodsReachableFrom(final SootMethod method1, final boolean forward1, 
+            final SootMethod method2, final boolean forward2) {
+		final Collection _result =
+			graphCache.getCommonReachablesFrom(graphCache.queryNode(method1), forward1, graphCache.queryNode(method2),
+				forward2);
+		CollectionUtils.transform(_result, IObjectDirectedGraph.OBJECT_EXTRACTOR);
+		return _result;
+	}
+
+	/**
 	 * Returns the methods that are the entry point for the analyzed system.
 	 *
 	 * @return a collection of methods.
@@ -446,6 +460,32 @@ public class CallGraph
 		}
 		return topDown ? topDownSCC
 					   : bottomUpSCC;
+	}
+
+	/**
+	 * @see ICallGraphInfo#areAnyMethodsReachableFrom(java.util.Collection, soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public boolean areAnyMethodsReachableFrom(final Collection methods, final Stmt stmt, final SootMethod caller) {
+		final Predicate _pred =
+			new Predicate() {
+				public boolean evaluate(final Object object) {
+					return isCalleeReachableFromCallSite((SootMethod) object, stmt, caller);
+				}
+			};
+		return CollectionUtils.exists(methods, _pred);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#areAnyMethodsReachableFrom(java.util.Collection, soot.SootMethod)
+	 */
+	public boolean areAnyMethodsReachableFrom(final Collection methods, final SootMethod caller) {
+        final Predicate _pred =
+            new Predicate() {
+                public boolean evaluate(final Object object) {
+                    return isCalleeReachableFromCaller((SootMethod) object, caller);
+                }
+            };
+        return CollectionUtils.exists(methods, _pred);
 	}
 
 	/**
