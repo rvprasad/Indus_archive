@@ -16,10 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.Local;
-import soot.Modifier;
-import soot.Scene;
 import soot.SootClass;
-import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
@@ -31,9 +28,7 @@ import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
 
-import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
@@ -41,8 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTripl
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.Driver;
+import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -67,7 +61,7 @@ import java.util.Map;
  * 			   which will not be supported.
  */
 public final class RufEATester
-  extends Driver {
+  extends SootBasedDriver {
 	/**
 	 * <p>
 	 * The logger used by instances of this class to log messages.
@@ -109,96 +103,22 @@ public final class RufEATester
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
+	 *
+	 * @param o DOCUMENT ME!
+	 */
+	public void writeInfo(final Object o) {
+		System.out.println(o.toString());
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	protected void execute() {
-		/*
-		   Scene scm = loadupClassesAndCollectMains(args);
-		   AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
-		   Collection rm = new ArrayList();
-		   for (Iterator l = rootMethods.iterator(); l.hasNext();) {
-		       rm.clear();
-		       rm.add(l.next());
-		       if (LOGGER.isInfoEnabled()) {
-		           LOGGER.info("BEGIN: FA analysis");
-		       }
-		       long start = System.currentTimeMillis();
-		       aa.reset();
-		       aa.analyze(scm, rm);
-		       long stop = System.currentTimeMillis();
-		       if (LOGGER.isInfoEnabled()) {
-		           LOGGER.info("END: FA analysis");
-		       }
-		       addTimeLog("FA analysis", stop - start);
-		       ValueAnalyzerBasedProcessingController ppc = new ValueAnalyzerBasedProcessingController();
-		       ppc.setAnalyzer(aa);
-		       CallGraph cg = new CallGraph();
-		       cg.hookup(ppc);
-		       BasicBlockGraphMgr bbgMgr = new BasicBlockGraphMgr();
-		       bbgMgr.setUnitGraphProvider(new TrapUnitGraphFactory());
-		       ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, bbgMgr));
-		       tg.hookup(ppc);
-		       RufsEscapeAnalysis ea1 = new RufsEscapeAnalysis(scm, cg, tg);
-		       ea1.hookup(ppc);
-		       if (LOGGER.isInfoEnabled()) {
-		           LOGGER.info("BEGIN: FA postprocessing");
-		       }
-		       start = System.currentTimeMillis();
-		       ppc.process();
-		       stop = System.currentTimeMillis();
-		       addTimeLog(", FA postprocessing took ", stop - start);
-		       if (LOGGER.isInfoEnabled()) {
-		           LOGGER.info("END: FA postprocessing");
-		       }
-		       ea1.unhook(ppc);
-		       tg.unhook(ppc);
-		       cg.unhook(ppc);
-		       System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
-		       System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
-		       if (LOGGER.isInfoEnabled()) {
-		           LOGGER.info("BEGIN: " + ea1.getClass().getName() + " processing");
-		       }
-		       start = System.currentTimeMillis();
-		       ea1.execute();
-		       stop = System.currentTimeMillis();
-		       if (LOGGER.isInfoEnabled()) {
-		           LOGGER.info("END: " + ea1.getClass().getName() + " processing");
-		       }
-		       addTimeLog(ea1.getClass().getName(), stop - start);
-		       int count = 1;
-		       Map threadMap = new HashMap();
-		       System.out.println("\nThread mapping:");
-		       for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
-		           NewExprTriple element = (NewExprTriple) j.next();
-		           String tid = "T" + count++;
-		           threadMap.put(element, tid);
-		           if (element.getMethod() == null) {
-		               System.out.println(tid + " -> " + element.getExpr().getType());
-		           } else {
-		               System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
-		           }
-		       }
-		       for (int i = 0; i < args.length; i++) {
-		           SootClass sc = scm.getSootClass(args[i]);
-		           System.out.println("Info for class " + sc.getName() + "\n");
-		           for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
-		                 j.hasNext();) {
-		               SootMethod sm = (SootMethod) j.next();
-		               System.out.println("Info for Method " + sm.getSignature());  // + "\n" + ea1.tpgetInfo(sm, threadMap));
-		               if (sm.isConcrete()) {
-		                   JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
-		                   for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
-		                       Local local = (Local) k.next();
-		                       System.out.println("Local " + local + ":" + local.getType()
-		                           + "\n"  //+ ea1.tpgetInfo(sm, local, threadMap) + "\n");
-		                           + " escapes -> " + ea1.escapes(sm, local) + "\n" + " global -> " + ea1.isGlobal(sm, local));
-		                   }
-		               }
-		           }
-		       }
-		       printTimingStats(System.out);
-		   }
-		 */
-		Scene scm = loadupClassesAndCollectMains(args);
+		setClassNames(args);
+		initialize();
+
 		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
 		Collection rm = new ArrayList();
 
@@ -212,7 +132,7 @@ public final class RufEATester
 
 			long start = System.currentTimeMillis();
 			aa.reset();
-			aa.analyze(scm, rm);
+			aa.analyze(scene, rm);
 
 			long stop = System.currentTimeMillis();
 
@@ -245,7 +165,7 @@ public final class RufEATester
 			tg.unhook(ppc);
 
 			// Perform equivalence-class-based escape analysis
-			RufsEscapeAnalysis analysis = new RufsEscapeAnalysis(scm, cg, tg);
+			RufsEscapeAnalysis analysis = new RufsEscapeAnalysis(scene, cg, tg);
 			analysis.hookup(ppc);
 			ppc.process();
 			stop = System.currentTimeMillis();
@@ -291,7 +211,7 @@ public final class RufEATester
 			int allocationSites = 0;
 
 			for (int i = 0; i < args.length; i++) {
-				SootClass sc = scm.getSootClass(args[i]);
+				SootClass sc = scene.getSootClass(args[i]);
 				System.out.println("Info for class " + sc.getName() + "\n");
 
 				for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
@@ -340,8 +260,8 @@ public final class RufEATester
 			System.out.println("Total number of abstract objects is " + abstractObjects.size());
 			System.out.println("Total number of allocation sites is " + allocationSites);
 			System.out.println("Total number of shared accesses based on escape information is " + accessSites);
-			System.out.println("Total classes loaded: " + scm.getClasses().size());
-			printTimingStats(System.out);
+			System.out.println("Total classes loaded: " + scene.getClasses().size());
+			printTimingStats();
 		}
 	}
 }
@@ -349,39 +269,44 @@ public final class RufEATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.4  2003/10/31 01:02:04  venku
    - added code for extracting data for CC04 paper.
-
    Revision 1.3  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
    Revision 1.2  2003/09/08 02:23:24  venku
  *** empty log message ***
-           Revision 1.1  2003/08/21 01:24:25  venku
-            - Renamed src-escape to src-concurrency to as to group all concurrency
-              issue related analyses into a package.
-            - Renamed escape package to concurrency.escape.
-            - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-           Revision 1.4  2003/08/17 10:48:34  venku
-           Renamed BFA to FA.  Also renamed bfa variables to fa.
-           Ripple effect was huge.
-           Revision 1.3  2003/08/11 06:29:07  venku
-           Changed format of change log accumulation at the end of the file
-           Revision 1.2  2003/08/10 03:43:26  venku
-           Renamed Tester to Driver.
-           Refactored logic to pick entry points.
-           Provided for logging timing stats into any specified stream.
-           Ripple effect in others.
-           Revision 1.1  2003/08/07 06:39:07  venku
-           Major:
-            - Moved the package under indus umbrella.
-           Minor:
-            - changes to accomodate ripple effect from support package.
-           Revision 1.3  2003/07/30 08:30:31  venku
-           Refactoring ripple.
-           Also fixed a subtle bug in isShared() which caused wrong results.
-           Revision 1.2  2003/07/27 21:15:22  venku
-           Minor:
-            - arg name changes.
-            - comment changes.
+               Revision 1.1  2003/08/21 01:24:25  venku
+                - Renamed src-escape to src-concurrency to as to group all concurrency
+                  issue related analyses into a package.
+                - Renamed escape package to concurrency.escape.
+                - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+               Revision 1.4  2003/08/17 10:48:34  venku
+               Renamed BFA to FA.  Also renamed bfa variables to fa.
+               Ripple effect was huge.
+               Revision 1.3  2003/08/11 06:29:07  venku
+               Changed format of change log accumulation at the end of the file
+               Revision 1.2  2003/08/10 03:43:26  venku
+               Renamed Tester to Driver.
+               Refactored logic to pick entry points.
+               Provided for logging timing stats into any specified stream.
+               Ripple effect in others.
+               Revision 1.1  2003/08/07 06:39:07  venku
+               Major:
+                - Moved the package under indus umbrella.
+               Minor:
+                - changes to accomodate ripple effect from support package.
+               Revision 1.3  2003/07/30 08:30:31  venku
+               Refactoring ripple.
+               Also fixed a subtle bug in isShared() which caused wrong results.
+               Revision 1.2  2003/07/27 21:15:22  venku
+               Minor:
+                - arg name changes.
+                - comment changes.
  */

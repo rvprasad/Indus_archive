@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.Local;
-import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Value;
@@ -37,7 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTripl
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.Driver;
+import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -59,7 +58,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public final class EADriver
-  extends Driver {
+  extends SootBasedDriver {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -97,7 +96,9 @@ public final class EADriver
 	 * Drives escape analysis. It executes FA first, followed by any post process analysis, followed by the escape analysis.
 	 */
 	protected void execute() {
-		Scene scm = loadupClassesAndCollectMains(args);
+		setClassNames(args);
+		initialize();
+
 		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
 		Collection rm = new ArrayList();
 
@@ -111,7 +112,7 @@ public final class EADriver
 
 			long start = System.currentTimeMillis();
 			aa.reset();
-			aa.analyze(scm, rm);
+			aa.analyze(scene, rm);
 
 			long stop = System.currentTimeMillis();
 
@@ -190,7 +191,7 @@ public final class EADriver
 			int allocationSites = 0;
 
 			for (int i = 0; i < args.length; i++) {
-				SootClass sc = scm.getSootClass(args[i]);
+				SootClass sc = scene.getSootClass(args[i]);
 				System.out.println("Info for class " + sc.getName() + "\n");
 
 				for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
@@ -239,22 +240,35 @@ public final class EADriver
 			System.out.println("Total number of abstract objects is " + abstractObjects.size());
 			System.out.println("Total numbef of allocation sites is " + allocationSites);
 			System.out.println("Total number of shared accesses based on escape information is " + accessSites);
-			System.out.println("Total classes loaded: " + scm.getClasses().size());
-			printTimingStats(System.out);
+			System.out.println("Total classes loaded: " + scene.getClasses().size());
+			printTimingStats();
 		}
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param o DOCUMENT ME!
+	 */
+	protected void writeInfo(final Object o) {
+		System.out.println(o.toString());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.14  2003/11/02 22:09:57  venku
    - changed the signature of the constructor of
      EquivalenceClassBasedEscapeAnalysis.
-
    Revision 1.13  2003/10/31 01:02:04  venku
    - added code for extracting data for CC04 paper.
-
    Revision 1.12  2003/10/09 00:17:39  venku
    - changes to instrumetn statistics numbers.
    Revision 1.11  2003/10/05 06:31:35  venku
