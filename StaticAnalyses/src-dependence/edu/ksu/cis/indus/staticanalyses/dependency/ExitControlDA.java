@@ -86,31 +86,35 @@ public class ExitControlDA
 	public final void analyze(final Collection methods) {
 		unstable();
 
-		if (!entryControlDA.isStable()) {
+		if (entryControlDA.isStable()) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: Exit Control Dependence processing");
+			}
+
+			for (final Iterator _i = methods.iterator(); _i.hasNext();) {
+				final SootMethod _sm = (SootMethod) _i.next();
+				final BasicBlockGraph _bbg = getBasicBlockGraph(_sm);
+				final Collection _dependeeBBs = calculateDependeesOfSinksIn(_bbg, _sm);
+
+				if (!_dependeeBBs.isEmpty()) {
+					calculateDependenceForStmts(calculateDependenceForBBs(_bbg, _dependeeBBs), _sm);
+				}
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(toString());
+			}
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: Exit Control Dependence processing");
+			}
+
+			stable();
+		} else {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("END: Exit Control Dependence processing due to unstable entry control dependence info.");
 			}
-			return;
 		}
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Exit Control Dependence processing");
-		}
-
-		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = getBasicBlockGraph(_sm);
-			final Collection _dependeeBBs = calculateDependeesOfSinksIn(_bbg, _sm);
-			if (!_dependeeBBs.isEmpty()) {
-				calculateDependenceForStmts(calculateDependenceForBBs(_bbg, _dependeeBBs), _sm);
-			}
-		}
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: Exit Control Dependence processing");
-		}
-
-		stable();
 	}
 
 	/**
@@ -248,9 +252,11 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/07/11 14:17:39  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.15  2004/07/11 11:54:40  venku
    - optimization.
-
    Revision 1.14  2004/07/11 11:20:50  venku
    - refactored code to simplify control dependence implementation.
    Revision 1.13  2004/07/11 11:06:54  venku
