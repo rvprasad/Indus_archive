@@ -9,7 +9,7 @@
 	<mapping name="configurationInfo" class="edu.ksu.cis.indus.tools.slicer.SlicerConfiguration">
 		<value style="attribute" name="slicetype" set-method="setSliceType" type="java.lang.String" 
 			get-method="getSliceType"/>
-		<value style="attribute" name="sliceForDeadLock" type="boolean" field="sliceForDeadlock"/>
+		<value style="attribute" name="sliceForDeadlock" type="boolean" field="sliceForDeadlock"/>
 		<value style="attribute" name="name" type="java.lang.String" field="NAME"/>
 		<structure name="divergence">
 			<value style="attribute" name="active" type="boolean" set-method="useDivergenceDepAnalysis" 
