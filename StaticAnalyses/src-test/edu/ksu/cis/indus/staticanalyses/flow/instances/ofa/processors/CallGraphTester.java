@@ -15,14 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import junit.extensions.TestSetup;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.swingui.TestRunner;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -31,12 +23,23 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest;
+import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
+import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+
+import junit.extensions.TestSetup;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.swingui.TestRunner;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -66,7 +69,7 @@ public class CallGraphTester
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	static ICallGraphInfo cgi;
+	static CallGraph cgi;
 
 	/**
 	 * <p>
@@ -95,6 +98,110 @@ public class CallGraphTester
 	 * </p>
 	 */
 	static final String tagName = "CallGraphTester:FA";
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public static final class GraphTest
+	  extends DirectedAndSimpleNodeGraphTest {
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 */
+		public void testGetNodes() {
+			Collection reachables = cgi.getReachableMethods();
+			Collection d = new HashSet();
+
+			for (final Iterator _i = dg.getNodes().iterator(); _i.hasNext();) {
+				SimpleNode node = (SimpleNode) _i.next();
+				d.add(node._object);
+			}
+			assertTrue(d.containsAll(reachables));
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 */
+		public void testSize() {
+			assertTrue(cgi.getReachableMethods().size() == dg.getNodes().size());
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 */
+		protected void setUp() {
+			dg = (SimpleNodeGraph) cgi.getCallGraph();
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 */
+		protected void localtestAddEdgeFromTo() {
+			// we do nothing as we are dealing with an immutable graph
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 */
+		protected void localtestGetHeads() {
+			assertTrue(dg.getHeads().containsAll(cgi.getHeads()));
+			assertTrue(cgi.getHeads().containsAll(dg.getHeads()));
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 */
+		protected void localtestGraphGetTails() {
+			for (final Iterator _i = dg.getTails().iterator(); _i.hasNext();) {
+				SimpleNode node = (SimpleNode) _i.next();
+				assertTrue(cgi.getCallees((SootMethod) node._object).isEmpty());
+			}
+
+			for (final Iterator _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
+				SootMethod sm = (SootMethod) _i.next();
+
+				if (cgi.getCallees(sm).isEmpty()) {
+					assertTrue(dg.getNode(sm).getSuccsOf().isEmpty());
+				}
+			}
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 */
+		protected void localtestIsAncestorOf() {
+			// we cannot know in advance what is the ancestor relationship in a graph.  Do nothing.
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 */
+		protected void localtestIsReachable() {
+			// we cannot know in advance what is the calle relationship in a graph.  Do nothing.
+		}
+	}
+
 
 	/**
 	 * DOCUMENT ME!
@@ -213,6 +320,7 @@ public class CallGraphTester
 
 		//$JUnit-BEGIN$
 		suite.addTestSuite(CallGraphTester.class);
+		suite.addTestSuite(GraphTest.class);
 		//$JUnit-END$
 		return new CallGraphTestSetup(suite);
 	}
@@ -227,14 +335,6 @@ public class CallGraphTester
 	public final void testGetCallGraph()
 	  throws Throwable {
 		assertTrue(cgi.getCallGraph() != null);
-
-		DirectedAndSimpleNodeGraphTest graphTest =
-			new DirectedAndSimpleNodeGraphTest() {
-				protected void setUp() {
-					dg = cgi.getCallGraph();
-				}
-			};
-		graphTest.run();
 	}
 
 	/**
@@ -356,7 +456,7 @@ public class CallGraphTester
 	 * <p></p>
 	 */
 	public final void testGetSCCs() {
-		Collection sccs = cgi.getSCCs();
+		Collection sccs = cgi.getSCCs(true);
 		Collection reachables = cgi.getReachableMethods();
 		assertTrue(sccs != null);
 
@@ -383,7 +483,7 @@ public class CallGraphTester
 	public final void testIsReachable() {
 		Collection reachables = cgi.getReachableMethods();
 		Collection heads = cgi.getHeads();
-		SimpleNodeGraph cg = cgi.getCallGraph();
+		SimpleNodeGraph cg = (SimpleNodeGraph) cgi.getCallGraph();
 
 		for (Iterator i = scene.getClasses().iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
@@ -410,45 +510,32 @@ public class CallGraphTester
 	 * <p></p>
 	 */
 	public final void testTagsOnReachableMethods() {
+		Context ctxt = new Context();
 		Collection reachables = cgi.getReachableMethods();
 		assertTrue(reachables != null);
 
-		Context ctxt = new Context();
-
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod o = (SootMethod) i.next();
-			System.out.println(o);
+			assertTrue(o.hasTag(tagName));
+			assertTrue(o.getDeclaringClass().hasTag(tagName));
 
 			if (!o.isStatic()) {
 				ctxt.setRootMethod(o);
 				assertTrue(ofa.getValuesForThis(ctxt) != null);
 			}
-			assertTrue(o.hasTag(tagName));
-			assertTrue(o.getDeclaringClass().hasTag(tagName));
 		}
 
+		Collection methods = new HashSet();
+
 		for (final Iterator _i = ofa.getEnvironment().getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-			boolean shouldNotBeTagged = true;
+			methods.addAll(((SootClass) _i.next()).getMethods());
+		}
+		methods = CollectionUtils.subtract(methods, reachables);
 
-			for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
-				final SootField _sf = (SootField) _j.next();
-				shouldNotBeTagged &= !_sf.hasTag(tagName);
-			}
-
-			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
-
-				if (!reachables.contains(_sm)) {
-					assertFalse(_sm.hasTag(tagName));
-				} else {
-					shouldNotBeTagged = false;
-				}
-			}
-
-			if (shouldNotBeTagged) {
-				assertFalse(_sc.hasTag(tagName));
-			}
+		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			System.out.println(_sm);
+			assertFalse(_sm.hasTag(tagName));
 		}
 	}
 }
@@ -456,6 +543,9 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/05 21:34:01  venku
+   - formatting.
+   - more tests.
    Revision 1.9  2003/12/05 15:28:12  venku
    - added test case for trivial tagging test in FA.
    Revision 1.8  2003/12/05 11:48:19  venku

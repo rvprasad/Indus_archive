@@ -24,10 +24,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import junit.extensions.TestSetup;
+
+import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import junit.swingui.TestRunner;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
 import soot.RefType;
@@ -61,14 +67,81 @@ public class FATester
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	String classes;
+	static String classes;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private FA fa;
+	static FA fa;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(FATester.class);
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private static final class FATestSetup
+	  extends TestSetup {
+		/**
+		 * Creates a new FATestSetup object.
+		 *
+		 * @param test DOCUMENT ME!
+		 */
+		FATestSetup(final Test test) {
+			super(test);
+		}
+
+		/*
+		 * @see TestCase#setUp()
+		 */
+		protected void setUp()
+		  throws Exception {
+			AbstractAnalyzer ofa = OFAnalyzer.getFSOSAnalyzer(TAG_NAME);
+			Scene scene = Scene.v();
+
+			if (classes == null) {
+				classes = System.getProperty("fatester.classes");
+			}
+
+			if (classes == null || classes.length() == 0) {
+				throw new RuntimeException("fatester.classes property was empty.  Aborting.");
+			}
+
+			StringBuffer sb = new StringBuffer(classes);
+			String[] j = sb.toString().split(" ");
+			Collection rootMethods = new ArrayList();
+
+			for (int i = j.length - 1; i >= 0; i--) {
+				SootClass sc = scene.loadClassAndSupport(j[i]);
+
+				if (sc.declaresMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
+						  VoidType.v())) {
+					SootMethod sm =
+						sc.getMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
+							VoidType.v());
+
+					if (sm.isPublic() && sm.isConcrete()) {
+						rootMethods.add(sm);
+					}
+				}
+			}
+
+			ofa.analyze(scene, rootMethods);
+			fa = ofa.fa;
+		}
+	}
 
 	/**
 	 * DOCUMENT ME!
@@ -84,13 +157,12 @@ public class FATester
 			sb.append(args[i] + " ");
 		}
 
-		FATester tester = new FATester();
-		tester.classes = sb.toString();
+		classes = sb.toString();
 
 		TestRunner runner = new TestRunner();
 		runner.setLoading(false);
 		runner.start(new String[0]);
-		runner.startTest(tester);
+		runner.startTest(suite());
 		runner.runSuite();
 	}
 
@@ -101,13 +173,13 @@ public class FATester
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public static TestSuite suite() {
+	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.FA");
 
 		//$JUnit-BEGIN$
 		suite.addTestSuite(FATester.class);
 		//$JUnit-END$
-		return suite;
+		return new FATestSetup(suite);
 	}
 
 	/**
@@ -120,11 +192,19 @@ public class FATester
 			final SootClass _sc = (SootClass) _i.next();
 			boolean flag = false;
 
+			if (LOGGER.isDebugEnabled() && _sc.hasTag(TAG_NAME)) {
+				LOGGER.debug("TAGGED Class: " + _sc);
+			}
+
 			for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
 				final SootField _sf = (SootField) _j.next();
 
 				if (_sf.hasTag(TAG_NAME)) {
 					flag = true;
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("TAGGED Field: " + _sf);
+					}
 				}
 			}
 
@@ -134,6 +214,10 @@ public class FATester
 				if (_sm.hasTag(TAG_NAME)) {
 					assertTrue(fa.queryMethodVariant(_sm) != null);
 					flag = true;
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("TAGGED Method: " + _sm);
+					}
 				} else {
 					assertFalse(fa.queryMethodVariant(_sm) != null);
 				}
@@ -212,50 +296,13 @@ public class FATester
 			}
 		}
 	}
-
-	/*
-	 * @see TestCase#setUp()
-	 */
-	protected void setUp()
-	  throws Exception {
-		AbstractAnalyzer ofa = OFAnalyzer.getFSOSAnalyzer(TAG_NAME);
-		Scene scene = Scene.v();
-
-		if (classes == null) {
-			classes = System.getProperty("fatester.classes");
-		}
-
-		if (classes == null || classes.length() == 0) {
-			throw new RuntimeException("fatester.classes property was empty.  Aborting.");
-		}
-
-		StringBuffer sb = new StringBuffer(classes);
-		String[] j = sb.toString().split(" ");
-		Collection rootMethods = new ArrayList();
-
-		for (int i = j.length - 1; i >= 0; i--) {
-			SootClass sc = scene.loadClassAndSupport(j[i]);
-
-			if (sc.declaresMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
-					  VoidType.v())) {
-				SootMethod sm =
-					sc.getMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
-						VoidType.v());
-
-				if (sm.isPublic() && sm.isConcrete()) {
-					rootMethods.add(sm);
-				}
-			}
-		}
-
-		ofa.analyze(scene, rootMethods);
-		fa = ofa.fa;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/07 08:39:23  venku
+   - added more tests.
    Revision 1.3  2003/12/07 03:32:21  venku
    - added new tests.
    - formatting.
