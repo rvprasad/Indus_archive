@@ -206,6 +206,8 @@ public class DependencyXMLizer
 	 *
 	 * @param args is the command line arguments.
 	 *
+	 * @throws RuntimeException DOCUMENT ME!
+	 *
 	 * @pre args != null
 	 */
 	public static void main(final String[] args) {
@@ -279,6 +281,9 @@ public class DependencyXMLizer
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", _options);
+		} catch (Throwable _e) {
+			LOGGER.error("Beyond our control. May day! May day!", _e);
+			throw new RuntimeException(_e);
 		}
 	}
 
@@ -649,6 +654,9 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.28  2003/12/09 09:50:50  venku
    - amended output of string output to be XML compliant.
      This means some characters that are unrepresentable in

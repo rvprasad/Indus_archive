@@ -153,17 +153,24 @@ public class SlicerDriver
 	 * The entry point to the driver.
 	 *
 	 * @param args contains the command line arguments.
+	 *
+	 * @throws RuntimeException DOCUMENT ME!
 	 */
 	public static void main(final String[] args) {
-		final SlicerDriver _driver = new SlicerDriver(new UniqueJimpleIDGenerator());
+		try {
+			final SlicerDriver _driver = new SlicerDriver(new UniqueJimpleIDGenerator());
 
-		// parse command line arguments
-		parseCommandLine(args, _driver);
+			// parse command line arguments
+			parseCommandLine(args, _driver);
 
-		_driver.initialize();
-		_driver.execute();
-		// serialize the output of the slicer
-		_driver.writeXML();
+			_driver.initialize();
+			_driver.execute();
+			// serialize the output of the slicer
+			_driver.writeXML();
+		} catch (Throwable _e) {
+			LOGGER.error("Beyond our control. May day! May day!", _e);
+			throw new RuntimeException(_e);
+		}
 	}
 
 	/**
@@ -471,6 +478,8 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/13 19:46:45  venku
+   - documentation.
    Revision 1.25  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
