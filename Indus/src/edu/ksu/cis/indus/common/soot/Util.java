@@ -244,8 +244,8 @@ public final class Util {
 		} else if (type instanceof ShortType) {
 			_result = IntConstant.v(0);
 		} else {
-			LOGGER.error("Illegal type specified.");
-			throw new IllegalArgumentException("Illegal type specified.");
+			LOGGER.error("Illegal type specified." + type);
+			throw new IllegalArgumentException("Illegal type specified." + type);
 		}
 
 		return _result;
@@ -547,6 +547,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/02/26 08:31:26  venku
+   - refactoring - moved OFAnalyzer.isReferenceType() to Util.
+
    Revision 1.15  2004/02/05 18:21:02  venku
    - moved getClassesInTopologicalSortedOrder() into Util.
    - logging.
