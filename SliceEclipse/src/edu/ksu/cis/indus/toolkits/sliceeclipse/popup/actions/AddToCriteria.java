@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
@@ -193,12 +194,16 @@ public class AddToCriteria implements IEditorActionDelegate {
             final String _propVal = _resource.getPersistentProperty(_name);
             if (_propVal == null) {
                 _data = new CriteriaData();
-                _data.setCriterias(new ArrayList());
-                _data.getCriterias().add(_criteria);
+                _data.setCriterias(new ArrayList());                
             } else {
-                _data = (CriteriaData) _xstream.fromXML(_propVal);
-                _data.getCriterias().add(_criteria);
+                _data = (CriteriaData) _xstream.fromXML(_propVal);                
             }
+            if (isOkToAdd(_data, _criteria)) {
+				_data.getCriterias().add(_criteria);
+			} else {
+				MessageDialog.openError(null, "Duplicate",
+						"Duplicate criteria are not allowed");
+			}
             final String _xml = _xstream.toXML(_data);
             _resource.setPersistentProperty(_name, _xml);
         } catch (CoreException _e) {
@@ -207,6 +212,30 @@ public class AddToCriteria implements IEditorActionDelegate {
     }
 
     /**
+     * Checks for duplicate criterias.
+	 * @param data The array of criterias
+	 * @param criteria The new criteria
+	 * @return boolean True if the criteria can be added.
+	 */
+	private boolean isOkToAdd(final CriteriaData data, final Criteria criteria) {
+		boolean _isOk = true;
+		final ArrayList _lst = data.getCriterias();
+		final ArrayList _clist = criteria.getCriteria();
+		for (int _i = 0; _i < _lst.size(); _i++) {
+			final Criteria _tcriteria = (Criteria) _lst.get(_i);
+			final ArrayList _tlist = _tcriteria.getCriteria();
+			if (_tlist.get(0).equals(_clist.get(0))
+					&& _tlist.get(1).equals(_clist.get(1))
+					&& _tlist.get(2).equals(_clist.get(2))
+					&& _tlist.get(3).equals(_clist.get(3))) {
+				_isOk = false;
+				break;
+			}
+		}
+		return _isOk;
+	}
+
+	/**
      * (non-Javadoc).
      * 
      * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction,
