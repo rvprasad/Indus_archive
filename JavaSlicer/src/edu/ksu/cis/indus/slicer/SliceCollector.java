@@ -312,12 +312,16 @@ public final class SliceCollector {
 	 */
 	void reset() {
 		taggedMethods.clear();
+		taggedClasses.clear();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/08/16 13:23:28  venku
+   - used equals() instead of == when comparing tags on host.
+
    Revision 1.14  2004/08/02 04:53:45  venku
    - simplified goto processing logic and collapsed 5 classes into 1 class, SliceGotoProcessor.
    - ripple effect.
