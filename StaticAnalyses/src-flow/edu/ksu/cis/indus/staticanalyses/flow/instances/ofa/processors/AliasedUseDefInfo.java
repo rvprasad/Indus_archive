@@ -135,7 +135,7 @@ public final class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getDefs(Stmt, Context)
 	 */
 	public Collection getDefs(final Stmt useStmt, final Context context) {
-		Collection _result = null;
+		Collection _result = Collections.EMPTY_LIST;
 
 		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
 			final Map _stmt2defs = (Map) use2defsMap.get(context.getCurrentMethod());
@@ -158,7 +158,7 @@ public final class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
 	 */
 	public Collection getUses(final DefinitionStmt defStmt, final Context context) {
-		Collection _result = null;
+		Collection _result = Collections.EMPTY_LIST;
 
 		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
 			final Map _stmt2uses = (Map) def2usesMap.get(context.getCurrentMethod());
@@ -406,6 +406,10 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/06/28 08:07:19  venku
+   - documentation.
+   - refactoring.
+
    Revision 1.31  2004/05/31 21:38:09  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
