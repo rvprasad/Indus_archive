@@ -22,11 +22,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 
@@ -41,6 +44,14 @@ import soot.options.Options;
 
 /**
  * This is generic driver that provides basic support to process a system represented in Jimple.
+ * 
+ * <p>
+ * The classes in which to search for root methods can be configured via setting 1 system property named
+ * "edu.ksu.cis.indus.common.soot.rootClasses".  The syntax of this property is a comma separated list of fully qualified
+ * names of that class in which the methods should occur.  This can be a regular expression which will be matched against
+ * the name of the class in which the method is declared.  So, "edu.ksu.cis.indus.processing" will find root methods
+ * occurring in classes defined in edu.ksu.cis.indus and having names starting with "processing".
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -94,14 +105,14 @@ public class SootBasedDriver {
 	private final Map times = new LinkedHashMap();
 
 	/**
+	 * This traps the root methods.
+	 */
+	private RootMethodTrapper rootMethodTrapper;
+
+	/**
 	 * The class path that should be added.
 	 */
 	private String classpathToAdd;
-
-	/**
-	 * This counts the number of time logs.
-	 */
-	private int count;
 
 	/**
 	 * Creates a new Test object.  This also initializes <code>cfgProvider</code> to <code>CompleteUnitGraphFactory</code>
@@ -115,6 +126,79 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * This class provides the service of trapping the root methods.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public static class RootMethodTrapper {
+		/**
+		 * The names of the classes which can contribute entry points.
+		 */
+		protected Collection theClassNames;
+
+		/**
+		 * The regular expression that is used to match classes which may contain root methods.
+		 */
+		Pattern rootClasses;
+
+		/**
+		 * Creates a new RootMethodTrapper object.
+		 */
+		protected RootMethodTrapper() {
+			final String _theRootClasses = System.getProperty("edu.ksu.cis.indus.common.SootBasedDriver.rootClasses");
+
+			if (_theRootClasses != null) {
+				rootClasses = Pattern.compile(_theRootClasses);
+			} else {
+				rootClasses = Pattern.compile(".*");
+			}
+		}
+
+		/**
+		 * Checks if the given class can contribute root methods.
+		 *
+		 * @param sc is the class to check.
+		 *
+		 * @return <code>true</code> if <code>sc</code> should be examined for possible root method contribution;
+		 * 		   <code>false</code>, otherwise.
+		 *
+		 * @pre sc != null
+		 */
+		protected final boolean considerClassForEntryPoint(final SootClass sc) {
+			boolean _result = rootClasses.matcher(sc.getName()).matches();
+
+			if (!_result && theClassNames != null) {
+				_result = theClassNames.contains(sc);
+			}
+			return _result;
+		}
+
+		/**
+		 * Checks if the given method qualifies as a root/entry method in the given system.
+		 *
+		 * @param sm is the method that may be an entry point into the system.
+		 *
+		 * @return <code>true</code> if <code>_sm</code> should be considered as a root method; <code>false</code>,
+		 * 		   otherwise.
+		 *
+		 * @pre sm != null
+		 */
+		protected final boolean trapRootMethods(final SootMethod sm) {
+			boolean _result = false;
+
+			if (sm.getName().equals("main")
+				  && sm.isStatic()
+				  && sm.getParameterCount() == 1
+				  && sm.getParameterType(0).equals(STR_ARRAY_TYPE)) {
+				_result = true;
+			}
+			return _result;
+		}
+	}
+
+	/**
 	 * Set the names of the classes to be loaded.
 	 *
 	 * @param s contains the class names.
@@ -122,7 +206,7 @@ public class SootBasedDriver {
 	 * @pre s != null
 	 */
 	public final void setClassNames(final String[] s) {
-		classNames = Arrays.asList(s);
+		setClassNames(Arrays.asList(s));
 	}
 
 	/**
@@ -134,6 +218,10 @@ public class SootBasedDriver {
 	 */
 	public final void setClassNames(final Collection s) {
 		classNames = new ArrayList(s);
+
+		if (rootMethodTrapper != null) {
+			rootMethodTrapper.theClassNames = Collections.unmodifiableCollection(classNames);
+		}
 	}
 
 	/**
@@ -144,9 +232,7 @@ public class SootBasedDriver {
 	 * @pre classpath != null
 	 */
 	public final void addToSootClassPath(final String classpath) {
-		classpathToAdd =
-			classpath + File.pathSeparator + System.getProperty("java.home") + File.separator + "lib" + File.separator
-			+ "rt.jar";
+		classpathToAdd = classpath;
 	}
 
 	/**
@@ -194,20 +280,7 @@ public class SootBasedDriver {
 	 * @pre name != null
 	 */
 	protected final void addTimeLog(final String name, final long milliseconds) {
-		times.put("[" + count++ + "]" + name, new Long(milliseconds));
-	}
-
-	/**
-	 * Checks if the methods of the given class should be explored for entry points.
-	 *
-	 * @param sc is the class that may provide entry points.
-	 *
-	 * @return <code>true</code> if <code>sc</code> should be explored; <code>false</code>, otherwise.
-	 *
-	 * @pre sc != null and classNames != null
-	 */
-	protected boolean considerClassForEntryPoint(final SootClass sc) {
-		return classNames.contains(sc.getName()) && sc.isPublic();
+		times.put("[" + times.size() + "]" + name, new Long(milliseconds));
 	}
 
 	/**
@@ -221,23 +294,6 @@ public class SootBasedDriver {
 		for (final Iterator _i = times.keySet().iterator(); _i.hasNext();) {
 			final Object _e = _i.next();
 			writeInfo(_e + " => " + times.get(_e) + "ms");
-		}
-	}
-
-	/**
-	 * Records methods that should be considered as entry points into the system being analyzed.
-	 *
-	 * @param sm is the method that may be an entry point into the system.
-	 *
-	 * @post rootMethods->includes(sm) or not rootMethods->includes(sm)
-	 * @pre sm != null
-	 */
-	protected final void trapRootMethods(final SootMethod sm) {
-		if (sm.getName().equals("main")
-			  && sm.isStatic()
-			  && sm.getParameterCount() == 1
-			  && sm.getParameterType(0).equals(STR_ARRAY_TYPE)) {
-			rootMethods.add(sm);
 		}
 	}
 
@@ -279,7 +335,7 @@ public class SootBasedDriver {
 		Options.v().parse(_options);
 
 		if (_temp != null) {
-			_temp += File.pathSeparator + classpathToAdd;
+			_temp += File.pathSeparator + classpathToAdd + File.pathSeparator + System.getProperty("java.class.path");
 		} else {
 			_temp = classpathToAdd;
 		}
@@ -293,15 +349,24 @@ public class SootBasedDriver {
 		final Collection _mc = new HashSet();
 		_mc.addAll(_result.getClasses());
 
+		RootMethodTrapper _rmt = rootMethodTrapper;
+
+		if (_rmt == null) {
+			_rmt = new RootMethodTrapper();
+		}
+
 		for (final Iterator _i = _mc.iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
-			if (considerClassForEntryPoint(_sc)) {
+			if (_rmt.considerClassForEntryPoint(_sc)) {
 				final Collection _methods = _sc.getMethods();
 
 				for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 					final SootMethod _sm = (SootMethod) _j.next();
-					trapRootMethods(_sm);
+
+					if (_rmt.trapRootMethods(_sm)) {
+						rootMethods.add(_sm);
+					}
 				}
 			}
 		}
@@ -313,6 +378,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/14 16:49:15  venku
+   - marks given classes as application classes after they
+     are loaded.
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
