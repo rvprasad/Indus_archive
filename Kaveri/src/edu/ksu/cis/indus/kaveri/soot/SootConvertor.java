@@ -27,16 +27,22 @@ import edu.ksu.cis.indus.kaveri.driver.Messages;
 import java.io.File;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 
 import org.eclipse.core.runtime.IPath;
 
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
 
@@ -105,10 +111,49 @@ public final class SootConvertor {
 		if (_jreclasspath != null) {
 			_sootClassPath = _jreclasspath.toOSString();
 			_sootClassPath += _pathseparator;
-
-			final IPath _path = thefile.getProject().getLocation();
-			_sootClassPath += _path.toOSString();
-			_sootClassPath += _fileseparator + _pathseparator;
+			
+			final IProject _project = thefile.getProject();			
+			final IJavaProject _jproject = JavaCore.create(_project);
+			
+			 try {
+				final IClasspathEntry _entry[] = _jproject.getResolvedClasspath(true);
+				
+				for (int i = 0; i < _entry.length; i++) {
+					switch(_entry[i].getEntryKind()) {
+						case IClasspathEntry.CPE_PROJECT:
+							if (_entry[i].getContentKind() == IPackageFragmentRoot.K_SOURCE) {
+								final IPath _prjsrcpath = _entry[i].getPath();
+								// Have to fix this soon.																
+							}							
+							break;
+						case IClasspathEntry.CPE_SOURCE:
+							final IPath _srcpath = _entry[i].getPath();
+							if (_srcpath.segmentCount() > 1) {
+								_sootClassPath +=  _project.getLocation().toOSString() + _fileseparator + 
+								_entry[i].getPath().lastSegment();
+							} else {
+								_sootClassPath +=  _project.getLocation().toOSString();
+							}						
+							_sootClassPath += _fileseparator + _pathseparator;
+							final IPath _oppath =  _entry[i].getOutputLocation();
+							if (_oppath != null) {
+								_sootClassPath += _oppath.toOSString();
+								_sootClassPath += _fileseparator + _pathseparator;
+							}
+							break;
+						case IClasspathEntry.CPE_LIBRARY:
+							_sootClassPath += _entry[i].getPath().toOSString();
+							_sootClassPath += _pathseparator;
+							break;
+					}
+					
+						 						
+					
+				}
+			} catch (JavaModelException _jme) {
+				SECommons.handleException(_jme);				
+			}
+			
 
 			//G.reset();
 			final Scene _scene = Scene.v();
