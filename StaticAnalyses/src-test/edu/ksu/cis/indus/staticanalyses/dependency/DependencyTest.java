@@ -25,7 +25,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
-import edu.ksu.cis.indus.xmlizer.UniqueIDGenerator;
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -193,7 +193,7 @@ public final class DependencyTest
 	 */
 	private static final void setupTests(final String propFileName, final TestSuite suite) {
 		Properties props = new Properties();
-		IJimpleIDGenerator generator = new UniqueIDGenerator();
+		IJimpleIDGenerator generator = new UniqueJimpleIDGenerator();
 
 		try {
 			props.load(new FileInputStream(new File(propFileName)));
@@ -250,6 +250,10 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/12 10:45:36  venku
+   - soot class path can be set in SootBasedDriver.
+   - dependency tests are xmlunit based.
+
    Revision 1.3  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
    Revision 1.2  2003/11/12 05:05:45  venku

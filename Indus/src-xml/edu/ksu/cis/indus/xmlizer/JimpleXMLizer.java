@@ -120,7 +120,7 @@ public class JimpleXMLizer
 	 * @param s DOCUMENT ME!
 	 */
 	public static void main(String[] s) {
-		JimpleXMLizer xmlizer = new JimpleXMLizer(new UniqueIDGenerator());
+		JimpleXMLizer xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
 		ProcessingController pc = new XMLizingController();
 		Scene scene = Scene.v();
 		Environment env = new Environment(scene);
@@ -291,6 +291,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/12 04:47:12  venku
+   - < needed to be escaped. FIXED.
+
    Revision 1.9  2003/11/12 04:40:06  venku
    - emitted wrong tag for method and classes. FIXED.
    Revision 1.8  2003/11/10 07:52:58  venku
