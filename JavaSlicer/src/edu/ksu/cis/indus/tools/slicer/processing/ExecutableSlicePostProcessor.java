@@ -34,6 +34,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.collections.IteratorUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -49,9 +51,12 @@ import soot.Value;
 
 import soot.jimple.IdentityStmt;
 import soot.jimple.ParameterRef;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ReturnVoidStmt;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.ThisRef;
+import soot.jimple.ThrowStmt;
 
 
 /**
@@ -133,7 +138,7 @@ public final class ExecutableSlicePostProcessor
 		final SliceCollector theCollector) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Post Processing.");
-			LOGGER.debug("SLICE BEFORE: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
+			LOGGER.debug("BEFORE SLICE: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
 		}
 
 		collector = theCollector;
@@ -145,7 +150,7 @@ public final class ExecutableSlicePostProcessor
 		while (methodWorkBag.hasWork()) {
 			final SootMethod _method = (SootMethod) methodWorkBag.getWork();
 
-			processMethods(_method);
+			processMethod(_method);
 
 			if (_method.isConcrete()) {
 				if (LOGGER.isDebugEnabled()) {
@@ -167,8 +172,7 @@ public final class ExecutableSlicePostProcessor
 		fixupClassHierarchy();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("SLICE AFTER: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
-
+			LOGGER.debug("AFTER SLICE: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
 			LOGGER.debug("END: Post Processing.");
 		}
 	}
@@ -203,39 +207,53 @@ public final class ExecutableSlicePostProcessor
 			LOGGER.debug("Topological Sort: " + _topologicallyOrderedClasses);
 		}
 
+		final Collection _concreteUncollectedMethods = new HashSet();
+
 		// fixup methods with respect the class hierarchy  
 		for (final Iterator _i = _topologicallyOrderedClasses.iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			final Collection _methods = gatherCollectedAbstractMethodsInSuperClasses(_class2abstractMethods, _sc);
+			final SootClass _currClass = (SootClass) _i.next();
+			final Collection _abstractMethodsAtCurrClass =
+				gatherCollectedAbstractMethodsInSuperClasses(_class2abstractMethods, _currClass);
 
 			// remove all abstract methods which are overridden by collected methods of this class.
-			Util.removeMethodsWithSameSignature(_methods, collector.getCollected(_sc.getMethods()));
+			Util.removeMethodsWithSameSignature(_abstractMethodsAtCurrClass, collector.getCollected(_currClass.getMethods()));
 			// gather uncollected methods of this class which have the same signature as any gathered "super" abstract 
-			// methods and include them in the slice.
-			_temp.clear();
-			_temp.addAll(_sc.getMethods());
-			Util.retainMethodsWithSameSignature(_temp, _methods);
-			collector.includeInSlice(_temp);
+			// methods.
+			_concreteUncollectedMethods.clear();
+			_concreteUncollectedMethods.addAll(_currClass.getMethods());
+			Util.retainMethodsWithSameSignature(_concreteUncollectedMethods, _abstractMethodsAtCurrClass);
+
 			// remove abstract counterparts of all methods that were included in the slice in the previous step.
-			Util.removeMethodsWithSameSignature(_methods, _temp);
+			Util.removeMethodsWithSameSignature(_abstractMethodsAtCurrClass, _concreteUncollectedMethods);
+			// include the uncollected concrete methods into the slice and process them
+			collector.includeInSlice(_concreteUncollectedMethods);
+
+			for (final Iterator _j = _concreteUncollectedMethods.iterator(); _j.hasNext();) {
+				final SootMethod _method = (SootMethod) _j.next();
+				stmtCollected = false;
+				processStmts(_method);
+
+				if (stmtCollected) {
+					pickReturnPoints(_method);
+				}
+			}
 
 			// gather collected abstract methods in this class/interface
-			if (_sc.isInterface()) {
-				_methods.addAll(collector.getCollected(_sc.getMethods()));
-			} else if (_sc.isAbstract()) {
-				for (final Iterator _j = collector.getCollected(_sc.getMethods()).iterator(); _j.hasNext();) {
+			if (_currClass.isInterface()) {
+				_abstractMethodsAtCurrClass.addAll(collector.getCollected(_currClass.getMethods()));
+			} else if (_currClass.isAbstract()) {
+				for (final Iterator _j = collector.getCollected(_currClass.getMethods()).iterator(); _j.hasNext();) {
 					final SootMethod _sm = (SootMethod) _j.next();
 
 					if (_sm.isAbstract()) {
-						_methods.add(_sm);
+						_abstractMethodsAtCurrClass.add(_sm);
 					}
 				}
 			}
 
 			// record the abstract methods
-			if (!_methods.isEmpty()) {
-				_class2abstractMethods.put(_sc, new ArrayList(_methods));
+			if (!_abstractMethodsAtCurrClass.isEmpty()) {
+				_class2abstractMethods.put(_currClass, new ArrayList(_abstractMethodsAtCurrClass));
 			}
 		}
 
@@ -289,6 +307,36 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
+	 * Picks a return point from the given set of return points.  All other options should be tried and it should be certain
+	 * that a  random choice is safe.
+	 *
+	 * @param returnPoints from which to pick a random one.
+	 *
+	 * @pre returnPoints != null and returnPoints.oclIsKindOf(Collection(Stmt))
+	 */
+	private void pickARandomReturnPoint(final Collection returnPoints) {
+		Stmt _exitStmt = null;
+
+		for (final Iterator _i = returnPoints.iterator(); _i.hasNext();) {
+			final BasicBlock _bb = (BasicBlock) _i.next();
+			final Stmt _stmt = _bb.getTrailerStmt();
+
+			if (_stmt instanceof ReturnStmt || _stmt instanceof ReturnVoidStmt) {
+				// if there exists a return statement grab it.
+				_exitStmt = _stmt;
+				break;
+			} else if (_stmt instanceof ThrowStmt && !(_exitStmt instanceof ReturnStmt || _stmt instanceof ReturnVoidStmt)) {
+				// if there have been no return statements, then grab a throw statement and continue to look.
+				_exitStmt = _stmt;
+			} else if (_exitStmt != null) {
+				// if there have been no exit points, then grab the psedu exit and continue to look.
+				_exitStmt = _stmt;
+			}
+		}
+		collector.includeInSlice(_exitStmt);
+	}
+
+	/**
 	 * Picks the return points of the method required to make it's slice executable.
 	 *
 	 * @param method to be processed.
@@ -313,6 +361,8 @@ public final class ExecutableSlicePostProcessor
 			final BasicBlock _bb = (BasicBlock) _tails.iterator().next();
 			collector.includeInSlice(_bb.getTrailerStmt());
 		} else {
+			boolean _tailWasNotPicked = true;
+
 			// if there are more than one tail then pick only the ones that are reachable via collected statements
 			for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
 				final BasicBlock _bb = (BasicBlock) _j.next();
@@ -322,11 +372,21 @@ public final class ExecutableSlicePostProcessor
 
 				if (!_stmt.hasTag(_tagName) && _flag) {
 					collector.includeInSlice(_stmt);
+					_tailWasNotPicked = false;
 
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("Picked " + _stmt + " in " + method);
 					}
 				}
+			}
+
+			/*
+			 * It might be the case that all tails are control dependent on some dependee and none of these dependees are
+			 * in the slice.  In this case, _flag will always be false in the above scenario.  In such cases, we pick the
+			 * first return statement.  If none found, then first throw statetement. If none found, some arbitrary tail node.
+			 */
+			if (_tailWasNotPicked) {
+				pickARandomReturnPoint(_tails);
 			}
 		}
 
@@ -378,37 +438,6 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
-	 * Includes statement and it's parts that access this variable and parameters (statements that pop them of the stack) in
-	 * the slice.
-	 *
-	 * @param method to process.
-	 * @param stmt to be processed.
-	 *
-	 * @pre method != null and stmt != null
-	 */
-	private void processIdentityStmt(final SootMethod method, final IdentityStmt stmt) {
-		/*
-		 * Pick all identity statements in the program that retrieve parameters and this reference upon
-		 * entrance into the method. Note that it is required that all elements pushed to the stack should be
-		 * popped before returning with only the return value on the stack (if it exists).  This does not
-		 * mean that all parameters need to be popped off the stack upon entry.  Hence, we should scan the
-		 * entire body for Identity statements with ParameterRef or ThisRef on RHS.
-		 */
-		final IdentityStmt _id = stmt;
-		final Value _rhs = _id.getRightOp();
-
-		if (_rhs instanceof ThisRef || _rhs instanceof ParameterRef) {
-			collector.includeInSlice(_id.getLeftOpBox());
-			collector.includeInSlice(_id.getRightOpBox());
-			collector.includeInSlice(_id);
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Picked " + stmt + " in " + method);
-			}
-		}
-	}
-
-	/**
 	 * For the given method, this method includes the declarations/definitions of methods with identical signature in the
 	 * super classes to make the slice executable.
 	 *
@@ -416,7 +445,7 @@ public final class ExecutableSlicePostProcessor
 	 *
 	 * @pre method != null
 	 */
-	private void processMethods(final SootMethod method) {
+	private void processMethod(final SootMethod method) {
 		final Collection _temp = new HashSet();
 
 		for (final Iterator _i = Util.findMethodInSuperClassesAndInterfaces(method).iterator(); _i.hasNext();) {
@@ -456,33 +485,57 @@ public final class ExecutableSlicePostProcessor
 			LOGGER.debug("Picking up identity statements and methods required in" + method);
 		}
 
-		final Body _body = method.retrieveActiveBody();
 		stmtWorkBag.clear();
-		stmtWorkBag.addAllWork(_body.getUnits());
+		stmtWorkBag.addAllWork(IteratorUtils.toList(bbgMgr.getBasicBlockGraph(method).getStmtGraph().iterator()));
 		processedStmtCache.clear();
 
 		while (stmtWorkBag.hasWork()) {
 			final Stmt _stmt = (Stmt) stmtWorkBag.getWork();
 
 			if (_stmt instanceof IdentityStmt) {
-				processIdentityStmt(method, (IdentityStmt) _stmt);
-			} else if (collector.hasBeenCollected(_stmt)
-				  && _stmt.containsInvokeExpr()
-				  && !(_stmt.getInvokeExpr() instanceof StaticInvokeExpr)) {
-				/*
-				 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
-				 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
-				 * This can be fixed by sucking all the method definitions that need to make the system verifiable
-				 * and empty bodies will be substituted for such methods.
-				 */
-				processMethods(_stmt.getInvokeExpr().getMethod());
+				final IdentityStmt _identityStmt = (IdentityStmt) _stmt;
+				final Value _rhs = _identityStmt.getRightOp();
 
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
+				if (_rhs instanceof ThisRef || _rhs instanceof ParameterRef) {
+					collector.includeInSlice(_identityStmt.getLeftOpBox());
+					collector.includeInSlice(_identityStmt.getRightOpBox());
+					collector.includeInSlice(_identityStmt);
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Picked " + _identityStmt + " in " + method);
+					}
+					processHandlers(method, _stmt);
+					stmtCollected = true;
 				}
+			} else if (collector.hasBeenCollected(_stmt)) {
+				if (_stmt.containsInvokeExpr() && !(_stmt.getInvokeExpr() instanceof StaticInvokeExpr)) {
+					/*
+					 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
+					 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
+					 * This can be fixed by sucking all the method definitions that need to make the system verifiable
+					 * and empty bodies will be substituted for such methods.
+					 */
+					processMethod(_stmt.getInvokeExpr().getMethod());
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
+					}
+				} else if (_stmt instanceof ThrowStmt) {
+					final ThrowStmt _throwStmt = (ThrowStmt) _stmt;
+
+					if (!collector.hasBeenCollected(_throwStmt.getOpBox())) {
+						final SootClass _exceptionClass = ((RefType) _throwStmt.getOp().getType()).getSootClass();
+						collector.includeInSlice(_exceptionClass);
+
+						// the ancestors will be added when we fix up the class hierarchy.
+						if (LOGGER.isDebugEnabled()) {
+							LOGGER.debug("Included classes of exception thrown at " + _stmt + " in " + method);
+						}
+					}
+				}
+				processHandlers(method, _stmt);
+				stmtCollected = true;
 			}
-			processHandlers(method, _stmt);
-			stmtCollected = true;
 		}
 	}
 }
@@ -490,6 +543,10 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/06/16 06:24:31  venku
+   - coding conventions.
+   - identity statements were included only if they were in the slice.
+     But we want include them here if they were not included.  FIXED.
    Revision 1.24  2004/06/14 04:31:17  venku
    - added method to check tags on a collection of hosts in Util.
    - ripple effect.
