@@ -73,12 +73,12 @@ import soot.jimple.VirtualInvokeExpr;
 public class CallGraph
   extends AbstractValueAnalyzerBasedProcessor
   implements ICallGraphInfo {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(CallGraph.class);
 
-	/**
+	/** 
 	 * The collection of methods from which the system can be started.  Although an instance of a class can be created and a
 	 * method can be invoked on it from the environment, this method will not be considered as a <i>head method</i>.
 	 * However, our definition of head methods are those methods(excluding those in invoked via <code>invokespecial</code>
@@ -88,14 +88,14 @@ public class CallGraph
 	 */
 	private final Collection heads = new HashSet();
 
-	/**
+	/** 
 	 * The collection of methods that are reachble in the system.
 	 *
 	 * @invariant reachables.oclIsKindOf(Set(SootMethod))
 	 */
 	private Collection reachables = new HashSet();
 
-	/**
+	/** 
 	 * The FA instance which implements object flow analysis.  This instance is used to calculate call graphCache
 	 * information.
 	 *
@@ -103,35 +103,35 @@ public class CallGraph
 	 */
 	private IValueAnalyzer analyzer;
 
-	/**
+	/** 
 	 * The collection of SCCs in this call graph in bottom-up direction.
 	 *
 	 * @invariant bottomUpSCC.oclIsKindOf(Sequence(Collection(SootMethod)))
 	 */
 	private List bottomUpSCC;
 
-	/**
+	/** 
 	 * The collection of SCCs in this call graph in top-down direction.
 	 *
 	 * @invariant topDownSCC.oclIsKindOf(Sequence(Collection(SootMethod)))
 	 */
 	private List topDownSCC;
 
-	/**
+	/** 
 	 * This maps callees to callers.
 	 *
 	 * @invariant callee2callers.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
 	private Map callee2callers = new HashMap();
 
-	/**
+	/** 
 	 * This maps callers to callees.
 	 *
 	 * @invariant caller2callees.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
 	private Map caller2callees = new HashMap();
 
-	/**
+	/** 
 	 * This caches a traversable graphCache representation of the call graphCache.
 	 */
 	private SimpleNodeGraph graphCache;
@@ -261,6 +261,22 @@ public class CallGraph
 	 */
 	public Collection getHeads() {
 		return Collections.unmodifiableCollection(heads);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
+	 */
+	public Object getId() {
+		return ICallGraphInfo.ID;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsInTopologicalOrder()
+	 */
+	public List getMethodsInTopologicalOrder() {
+		final List _topologicalSorted = graphCache.performTopologicalSort(true);
+		CollectionUtils.transform(_topologicalSorted, SimpleNodeGraph.OBJECT_EXTRACTOR);
+		return _topologicalSorted;
 	}
 
 	/**
@@ -526,7 +542,7 @@ public class CallGraph
 	 * Resets all internal data structure and forgets all info from the previous run.
 	 */
 	public void reset() {
-	    unstable();
+		unstable();
 		caller2callees.clear();
 		callee2callers.clear();
 		analyzer = null;
@@ -655,31 +671,24 @@ public class CallGraph
 		}
 		return _result;
 	}
-
-    /** 
-     * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
-     */
-    public Object getId() {
-        return ICallGraphInfo.ID;
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.58  2004/07/11 14:17:39  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.57  2004/07/11 09:42:14  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
        the implementations just announce their status.
-
    Revision 1.56  2004/07/08 09:46:02  venku
    - logging.
-
    Revision 1.55  2004/07/07 10:08:26  venku
    - altered the method to calculate reachability.
    - documented CallGraph
    - altered CallGraph to adhere to coding conventions.
-
    Revision 1.54  2004/03/29 08:48:58  venku
    - all nodes reachable should be represented in the embedded graph in
      the call graph.  FIXED.

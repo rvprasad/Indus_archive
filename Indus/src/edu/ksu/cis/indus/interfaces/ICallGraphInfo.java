@@ -44,7 +44,7 @@ import soot.jimple.Stmt;
 public interface ICallGraphInfo
   extends IStatus,
 	  IIdentification {
-	/**
+	/** 
 	 * The id of this interface.
 	 */
 	String ID = "Callgraph Information";
@@ -168,6 +168,15 @@ public interface ICallGraphInfo
 	Collection getHeads();
 
 	/**
+	 * Retrieves the methods in the call graph in topological order.
+	 *
+	 * @return the methods in the call graph.
+	 *
+	 * @post result != null and result.oclIsKindOf(Sequence(SootMethod))
+	 */
+	List getMethodsInTopologicalOrder();
+
+	/**
 	 * Returns the methods that are reachable from the given invocation point via a call chain.
 	 *
 	 * @param stmt in which the method invocation occurs.
@@ -231,6 +240,9 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/07/11 14:17:41  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.8  2004/07/07 10:08:27  venku
    - altered the method to calculate reachability.
    - documented CallGraph
