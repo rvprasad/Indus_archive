@@ -23,7 +23,7 @@ import soot.ValueBox;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer.SlicingTag;
+import edu.ksu.cis.indus.slicer.TaggingBasedSliceCollector.SlicingTag;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
 import org.apache.commons.logging.Log;
@@ -238,6 +238,15 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/24 00:11:42  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
+
    Revision 1.6  2003/11/23 19:41:04  venku
    - incorrect tags were being emitted.  FIXED.
 

@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.slicer.TaggingBasedSliceCollector;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.CGBasedXMLizingController;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -156,7 +156,6 @@ public class SlicerDriver
 		parseCommandLine(args, driver);
 
 		driver.initialize();
-		driver.setUpTransformer();
 		driver.execute();
 		// serialize the output of the slicer
 		driver.writeXML();
@@ -182,13 +181,6 @@ public class SlicerDriver
 
 	/**
 	 * DOCUMENT ME!
-	 */
-	protected void setUpTransformer() {
-		slicer.setTransformer(new TaggingBasedSliceResidualizer());
-	}
-
-	/**
-	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
 	 *
@@ -201,7 +193,7 @@ public class SlicerDriver
 
 		try {
 			Writer out = new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
-			result = new TagBasedSliceXMLizer(out, TaggingBasedSliceResidualizer.SLICING_TAG, idGenerator);
+			result = new TagBasedSliceXMLizer(out, TaggingBasedSliceCollector.SLICING_TAG, idGenerator);
 		} catch (IOException e) {
 			LOGGER.error("Exception while opening file to write xml information.", e);
 			throw new RuntimeException(e);
@@ -441,6 +433,9 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/24 09:01:07  venku
+   - closed the jimple output stream.
+
    Revision 1.9  2003/11/24 01:21:57  venku
    - added command line option for jiimple output.
 

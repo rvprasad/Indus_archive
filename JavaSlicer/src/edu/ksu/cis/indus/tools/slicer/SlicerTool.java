@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+import edu.ksu.cis.indus.slicer.TaggingBasedSliceCollector;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -53,8 +54,6 @@ import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer;
-import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -185,7 +184,7 @@ public final class SlicerTool
 	/**
 	 * This is the slice transformer.
 	 */
-	private ISliceResidualizer transformer;
+	private TaggingBasedSliceCollector transformer;
 
 	/**
 	 * The system to be sliced.
@@ -255,9 +254,6 @@ public final class SlicerTool
 
 		// create the slicing engine.
 		engine = new SlicingEngine();
-
-		// create the slicing transformer.
-		transformer = new TaggingBasedSliceResidualizer();
 
 		// create the <init> call to new expr mapper
 		initMapper = new Init2NewExprMapper();
@@ -363,26 +359,9 @@ public final class SlicerTool
 		return this.system;
 	}
 
-	/**
-	 * Set the transformer to be used during slicing.
-	 *
-	 * @param theTransformer is the transformer driven by slicing.
-	 *
-	 * @pre theTransformer != null
-	 */
-	public void setTransformer(final ISliceResidualizer theTransformer) {
-		transformer = theTransformer;
-	}
-
-	/**
-	 * Retrieves the transformer.
-	 *
-	 * @return the transformer driven by slicing.
-	 *
-	 * @post result != null
-	 */
-	public ISliceResidualizer getTransformer() {
-		return this.transformer;
+	
+	public void setTagName(final String tagName) {
+		engine.setTagName(tagName);
 	}
 
 	/**
@@ -522,13 +501,11 @@ public final class SlicerTool
 			}
 
 			if (!criteria.isEmpty()) {
-				transformer.initialize(system);
 				engine.setCgi(callGraph);
 				engine.setExecutableSlice(slicerConfig.executableSlice);
 				engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 				engine.setInitMapper(initMapper);
 				engine.setSlicedBBGMgr(bbgMgr);
-				engine.setTransformer(transformer);
 				engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
 				engine.initialize();
 				engine.setSliceCriteria(criteria);
@@ -656,10 +633,17 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
    Revision 1.30  2003/11/23 19:54:32  venku
    - used LinkedHashSet instead of HashSet while retrieving DAs
      for the purpose of testing.
-
    Revision 1.29  2003/11/22 00:44:23  venku
    - ripple effect of splitting initialize() in SliceEngine into many methods.
    Revision 1.28  2003/11/18 21:42:03  venku

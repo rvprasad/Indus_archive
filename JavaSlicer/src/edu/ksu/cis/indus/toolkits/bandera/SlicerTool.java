@@ -23,7 +23,6 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -106,11 +105,7 @@ public class SlicerTool
 	 */
 	public SlicerTool() {
 		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool();
-
-		TaggingBasedSliceResidualizer tgsbt = new TaggingBasedSliceResidualizer();
-		tgsbt.setTagName(TAG_NAME);
-		tool.setTransformer(tgsbt);
-
+        tool.setTagName(TAG_NAME);
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
 	}
 
@@ -232,6 +227,15 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
+
    Revision 1.15  2003/11/18 21:43:54  venku
    - fixed code in bandera version of the tool to work with new assumptions.
    - removed TAG_NAME input parameter to make the transition to clone-based transformer

@@ -158,7 +158,6 @@ public final class SlicerTest
 	protected void setUp()
 	  throws Exception {
 		driver.initialize();
-		driver.setUpTransformer();
 		driver.execute();
 	}
 
@@ -219,7 +218,6 @@ public final class SlicerTest
 					test.driver.setClassNames(temp);
 					test.driver.setOutputDirectory(xmlOutputDir);
 					test.setProperties(props);
-					test.driver.setUpTransformer();
 
 					if (classpath != null) {
 						test.driver.addToSootClassPath(classpath);
@@ -252,6 +250,11 @@ public final class SlicerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/17 03:22:55  venku
+   - added junit test support for Slicing.
+   - refactored code in test for dependency to make it more
+     simple.
+
    Revision 1.6  2003/11/16 19:01:33  venku
    - documentation.
    Revision 1.5  2003/11/16 18:41:18  venku

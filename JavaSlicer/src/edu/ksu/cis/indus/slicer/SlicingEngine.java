@@ -165,7 +165,7 @@ public class SlicingEngine {
 	/**
 	 * This transforms the system based on the slicing decision of this object.
 	 */
-	private ISliceResidualizer transformer;
+	private TaggingBasedSliceCollector transformer;
 
 	/**
 	 * <p>
@@ -190,6 +190,13 @@ public class SlicingEngine {
 	 * This indicates if ready dependence should be used.
 	 */
 	private boolean useReady;
+
+	/**
+	 * Creates a new SlicingEngine object.
+	 */
+	public SlicingEngine() {
+		transformer = new TaggingBasedSliceCollector();
+	}
 
 	/**
 	 * Sets the the id's of the dependence analyses to be used for slicing.  The analyses are provided by the given
@@ -319,19 +326,6 @@ public class SlicingEngine {
 	}
 
 	/**
-	 * Sets the transformer that will residulized the slice.
-	 *
-	 * @param theTransformer transforms the system based on the slicing decisions of this object.  The provided
-	 * 		  implementation should provide sound and complete information as the engine will use this information to while
-	 * 		  slicing.
-	 *
-	 * @pre theTransformer != null
-	 */
-	public void setTransformer(final ISliceResidualizer theTransformer) {
-		transformer = theTransformer;
-	}
-
-	/**
 	 * Initializes the slicer by checking compatibility of the configured components.
 	 *
 	 * @throws IllegalStateException when the given slice type cannot be handled by the configured transformer.
@@ -351,7 +345,7 @@ public class SlicingEngine {
 	 */
 	public void reset() {
 		cgi = null;
-		transformer = null;
+		transformer.reset();
 		criteria.clear();
 
 		// clear the work bag of slice criterion
@@ -383,9 +377,6 @@ public class SlicingEngine {
 			work.sliced();
 		}
 
-		if (executableSlice) {
-			transformer.makeExecutable();
-		}
 		transformer.completeTransformation();
 	}
 
@@ -527,33 +518,19 @@ public class SlicingEngine {
 		 * Note that this will cause us to include all caller sites as slicing criteria which may not be what the user
 		 * intended.
 		 */
-		if (transformer.handlesPartialInclusions()) {
-			ParameterRef param = (ParameterRef) pBox.getValue();
-			int index = param.getIndex();
+		ParameterRef param = (ParameterRef) pBox.getValue();
+		int index = param.getIndex();
 
-			for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
-				CallTriple ctrp = (CallTriple) i.next();
-				SootMethod caller = ctrp.getMethod();
-				Stmt stmt = ctrp.getStmt();
-				ValueBox argBox = ctrp.getStmt().getInvokeExpr().getArgBox(index);
+		for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
+			CallTriple ctrp = (CallTriple) i.next();
+			SootMethod caller = ctrp.getMethod();
+			Stmt stmt = ctrp.getStmt();
+			ValueBox argBox = ctrp.getStmt().getInvokeExpr().getArgBox(index);
 
-				if (transformer.getTransformed(argBox, stmt, method) == null) {
-					SliceExpr critExpr = SliceExpr.getSliceExpr();
-					critExpr.initialize(caller, stmt, argBox, true);
-					workbag.addWorkNoDuplicates(critExpr);
-				}
-			}
-		} else {
-			for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
-				CallTriple ctrp = (CallTriple) i.next();
-				SootMethod caller = ctrp.getMethod();
-				Stmt stmt = ctrp.getStmt();
-
-				if (transformer.getTransformed(stmt, caller) == null) {
-					SliceStmt critStmt = SliceStmt.getSliceStmt();
-					critStmt.initialize(ctrp.getMethod(), ctrp.getStmt(), true);
-					workbag.addWorkNoDuplicates(critStmt);
-				}
+			if (transformer.getTransformed(argBox, stmt, method) == null) {
+				SliceExpr critExpr = SliceExpr.getSliceExpr();
+				critExpr.initialize(caller, stmt, argBox, true);
+				workbag.addWorkNoDuplicates(critExpr);
 			}
 		}
 	}
@@ -664,20 +641,16 @@ public class SlicingEngine {
 		SootMethod method = sExpr.getOccurringMethod();
 		ValueBox expr = (ValueBox) sExpr.getCriterion();
 
-		if (!transformer.handlesPartialInclusions()) {
-			transformAndGenerateNewCriteriaForStmt(stmt, method, true);
-		} else {
-			Value value = expr.getValue();
-			transformAndGenerateCriteriaForVBoxes(value.getUseBoxes(), stmt, method);
-			// include the statement to capture control dependency
-			transformAndGenerateNewCriteriaForStmt(stmt, method, false);
+		Value value = expr.getValue();
+		transformAndGenerateCriteriaForVBoxes(value.getUseBoxes(), stmt, method);
+		// include the statement to capture control dependency
+		transformAndGenerateNewCriteriaForStmt(stmt, method, false);
 
-			if (value instanceof InvokeExpr) {
-				generateNewCriteriaForInvocation(stmt, method);
-			} else if (value instanceof FieldRef || value instanceof ArrayRef) {
-				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
-				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
-			}
+		if (value instanceof InvokeExpr) {
+			generateNewCriteriaForInvocation(stmt, method);
+		} else if (value instanceof FieldRef || value instanceof ArrayRef) {
+			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
+			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
 		}
 	}
 
@@ -717,11 +690,25 @@ public class SlicingEngine {
 		// create new slice criteria
 		generateNewCriteria(stmt, method, intraProceduralDependencies);
 	}
+
+    /**
+     * @param tagName
+     * @return
+     */
+    public void setTagName(String tagName) {
+        transformer.setTagName(tagName);
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/24 09:46:49  venku
+   - moved ISliceCollector and TaggingBasedSliceCollector
+     into slicer package.
+   - The idea is to collect the slice based on annotation which
+     can be as precise as we require and then layer on
+     top of that the slicer residualization logic, either constructive or destructive.
    Revision 1.13  2003/11/24 01:21:00  venku
    - coding convention.
    Revision 1.12  2003/11/24 00:01:14  venku
@@ -748,7 +735,7 @@ public class SlicingEngine {
    Revision 1.7  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISliceResidualizer interface.
+     into ISliceCollector interface.
    - ripple effect.
    Revision 1.6  2003/11/06 05:15:05  venku
    - Refactoring, Refactoring, Refactoring.

@@ -32,6 +32,7 @@ import soot.tagkit.Tag;
 
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.transformations.common.ITransformer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,8 +59,8 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class TaggingBasedSliceResidualizer
-  implements ISliceResidualizer {
+public class TaggingBasedSliceCollector
+  implements ITransformer  {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
@@ -73,7 +74,7 @@ public class TaggingBasedSliceResidualizer
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(TaggingBasedSliceResidualizer.class);
+	private static final Log LOGGER = LogFactory.getLog(TaggingBasedSliceCollector.class);
 
 	/**
 	 * The system to be transformed.
@@ -382,7 +383,7 @@ public class TaggingBasedSliceResidualizer
 	 *
 	 * @return <code>true</code>
 	 *
-	 * @see edu.ksu.cis.indus.slicer.ISliceResidualizer#handlesPartialInclusions()
+	 * @see edu.ksu.cis.indus.slicer.ISliceCollector#handlesPartialInclusions()
 	 */
 	public boolean handlesPartialInclusions() {
 		return true;
@@ -400,7 +401,7 @@ public class TaggingBasedSliceResidualizer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer#makeExecutable()
+	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceCollector#makeExecutable()
 	 */
 	public void makeExecutable() {
         if (sliceType.equals(SlicingEngine.BACKWARD_SLICE))
@@ -488,7 +489,7 @@ public class TaggingBasedSliceResidualizer
      *
      * @param seedcriteria DOCUMENT ME!
      *
-     * @see edu.ksu.cis.indus.slicer.ISliceResidualizer#processSeedCriteria(java.util.Collection)
+     * @see edu.ksu.cis.indus.slicer.ISliceCollector#processSeedCriteria(java.util.Collection)
      */
     public void processSeedCriteria(final Collection seedcriteria) {
         for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
@@ -580,6 +581,13 @@ public class TaggingBasedSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/24 09:46:49  venku
+   - moved ISliceCollector and TaggingBasedSliceCollector
+     into slicer package.
+   - The idea is to collect the slice based on annotation which
+     can be as precise as we require and then layer on
+     top of that the slicer residualization logic, either constructive or destructive.
+
    Revision 1.2  2003/11/24 07:31:03  venku
    - deleted method2locals, executable, and sliceType as they were not used.
 
@@ -602,7 +610,7 @@ public class TaggingBasedSliceResidualizer
    Revision 1.14  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISliceResidualizer interface.
+     into ISliceCollector interface.
    - ripple effect.
    Revision 1.13  2003/11/05 09:05:28  venku
    - For strange reasons the StringTag does not fulfill our needs.
