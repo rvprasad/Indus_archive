@@ -139,7 +139,8 @@ public final class EADriver
 			start = System.currentTimeMillis();
 			ppc.process();
 			cg.unhook(ppc);
-
+            
+            ppc.reset();
 			ppc.setProcessingFilter(new CGBasedProcessingFilter(cg));
 			ppc.setAnalyzer(aa);
 
@@ -267,6 +268,10 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.21  2003/11/30 01:38:52  venku
    - incorporated tag based filtering during CG construction.
    Revision 1.20  2003/11/30 01:07:58  venku
