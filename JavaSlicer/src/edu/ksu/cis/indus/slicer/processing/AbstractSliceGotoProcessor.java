@@ -43,7 +43,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-abstract class AbstractSliceGotoProcessor {
+public abstract class AbstractSliceGotoProcessor {
 	/**
 	 * The slice collector.
 	 */
@@ -110,7 +110,7 @@ abstract class AbstractSliceGotoProcessor {
 	 *
 	 * @pre theMethod != null
 	 */
-	final void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
+	public final void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
 		method = theMethod;
 		taggedBB.clear();
 
@@ -188,6 +188,12 @@ abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/13 04:35:08  venku
+   - added a new package called "processing" and it will house
+     all processing done on the slice to ensure the slice satisfies
+     certain properties such as executability.
+   - Moved GotoProcessors into processing package.
+
    Revision 1.1  2004/01/11 03:44:25  venku
    - Deleted IGotoProcessor and SliceGotoProcessor.
    - Moved the logic of SliceGotoProcessor into

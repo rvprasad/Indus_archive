@@ -31,7 +31,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class CompleteSliceGotoProcessor
+public final class CompleteSliceGotoProcessor
   extends AbstractSliceGotoProcessor {
 	/**
 	 * Creates a new CompleteSliceGotoProcessor object.
@@ -40,7 +40,7 @@ final class CompleteSliceGotoProcessor
 	 *
 	 * @pre collector != null
 	 */
-	protected CompleteSliceGotoProcessor(SliceCollector collector) {
+	public CompleteSliceGotoProcessor(SliceCollector collector) {
 		super(collector);
 	}
 
@@ -69,6 +69,12 @@ final class CompleteSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/13 04:35:08  venku
+   - added a new package called "processing" and it will house
+     all processing done on the slice to ensure the slice satisfies
+     certain properties such as executability.
+   - Moved GotoProcessors into processing package.
+
    Revision 1.7  2004/01/11 03:44:25  venku
    - Deleted IGotoProcessor and SliceGotoProcessor.
    - Moved the logic of SliceGotoProcessor into

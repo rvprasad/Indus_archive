@@ -54,7 +54,7 @@ import soot.util.Chain;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class BackwardSlicePostProcessor
+public final class BackwardSlicePostProcessor
   implements ISlicePostProcessor {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -249,4 +249,10 @@ class BackwardSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/13 04:35:08  venku
+   - added a new package called "processing" and it will house
+     all processing done on the slice to ensure the slice satisfies
+     certain properties such as executability.
+   - Moved GotoProcessors into processing package.
+
  */

@@ -32,7 +32,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class BackwardSliceGotoProcessor
+public final class BackwardSliceGotoProcessor
   extends AbstractSliceGotoProcessor {
 	/**
 	 * Creates a new BackwardSliceGotoProcessor object.
@@ -41,7 +41,7 @@ final class BackwardSliceGotoProcessor
 	 *
 	 * @pre collector != null
 	 */
-	protected BackwardSliceGotoProcessor(SliceCollector collector) {
+	public BackwardSliceGotoProcessor(SliceCollector collector) {
 		super(collector);
 	}
 
@@ -65,6 +65,12 @@ final class BackwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/13 04:35:08  venku
+   - added a new package called "processing" and it will house
+     all processing done on the slice to ensure the slice satisfies
+     certain properties such as executability.
+   - Moved GotoProcessors into processing package.
+
    Revision 1.1  2004/01/11 03:44:25  venku
    - Deleted IGotoProcessor and SliceGotoProcessor.
    - Moved the logic of SliceGotoProcessor into
