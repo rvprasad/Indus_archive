@@ -19,6 +19,11 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootField;
 
 
@@ -31,6 +36,11 @@ import soot.SootField;
  */
 final class FieldSpecification
   extends AbstractSpecification {
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(FieldSpecification.class);
+
 	/** 
 	 * The pattern of the field's name.
 	 */
@@ -59,10 +69,28 @@ final class FieldSpecification
 	 */
 	public boolean isInScope(final SootField field, final IEnvironment system) {
 		boolean _result = accessConformant(new AccessSpecifierWrapper(field));
-		_result &= fieldTypeSpec.conformant(field.getType(), system);
-		_result &= declaringClassSpec.conformant(field.getDeclaringClass().getType(), system);
-		_result &= namePattern.matcher(field.getName()).matches();
+		_result = _result && fieldTypeSpec.conformant(field.getType(), system);
+		_result = _result && declaringClassSpec.conformant(field.getDeclaringClass().getType(), system);
+		_result = _result && namePattern.matcher(field.getName()).matches();
+
+		if (!isInclusion()) {
+			_result = !_result;
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(this + " " + field + " " + _result);
+		}
+
 		return _result;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
+										  .append("fieldTypeSpec", this.fieldTypeSpec)
+										  .append("declaringClassSpec", this.declaringClassSpec).toString();
 	}
 
 	/**

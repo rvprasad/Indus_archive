@@ -23,6 +23,11 @@ import java.util.List;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootMethod;
 import soot.Type;
 
@@ -36,6 +41,11 @@ import soot.Type;
  */
 final class MethodSpecification
   extends AbstractSpecification {
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(MethodSpecification.class);
+
 	/** 
 	 * This is the specifications of the types of the parameters.
 	 *
@@ -71,23 +81,44 @@ final class MethodSpecification
 	 */
 	public boolean isInScope(final SootMethod method, final IEnvironment system) {
 		boolean _result = namePattern.matcher(method.getName()).matches();
-		_result |= !_result && declaringClassSpec.conformant(method.getDeclaringClass().getType(), system);
-		_result |= !_result && returnTypeSpec.conformant(method.getReturnType(), system);
-		_result |= !_result && accessConformant(new AccessSpecifierWrapper(method));
+		_result = _result && declaringClassSpec.conformant(method.getDeclaringClass().getType(), system);
+		_result = _result && returnTypeSpec.conformant(method.getReturnType(), system);
+		_result = _result && accessConformant(new AccessSpecifierWrapper(method));
 
-		final List _parameterTypes = method.getParameterTypes();
-		final Iterator _i = _parameterTypes.iterator();
-		final int _iEnd = _parameterTypes.size();
+		if (_result) {
+			final List _parameterTypes = method.getParameterTypes();
+			final Iterator _i = _parameterTypes.iterator();
+			final int _iEnd = _parameterTypes.size();
 
-		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-			final Type _type = (Type) _i.next();
-			final TypeSpecification _pTypeSpec = (TypeSpecification) parameterTypeSpecs.get(_iIndex);
+			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+				final Type _type = (Type) _i.next();
+				final TypeSpecification _pTypeSpec = (TypeSpecification) parameterTypeSpecs.get(_iIndex);
 
-			if (_pTypeSpec != null) {
-				_result |= _pTypeSpec.conformant(_type, system);
+				if (_pTypeSpec != null) {
+					_result |= _pTypeSpec.conformant(_type, system);
+				}
 			}
 		}
+
+		if (!isInclusion()) {
+			_result = !_result;
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(this + " " + method + " " + _result);
+		}
+
 		return _result;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
+										  .append("returnTypeSpec", this.returnTypeSpec)
+										  .append("parameterTypeSpecs", this.parameterTypeSpecs)
+										  .append("declaringClassSpec", this.declaringClassSpec).toString();
 	}
 
 	/**

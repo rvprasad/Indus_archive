@@ -13,16 +13,20 @@
 		<collection field="fieldSpecs" item-type="edu.ksu.cis.indus.common.scoping.FieldSpecification"
 			factory="edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition.createSpecContainer"
         	set-method="setFieldSpecs" get-method="getFieldSpecs"/>
-    </mapping>
-    
+    </mapping>    
 
 	<mapping class="edu.ksu.cis.indus.common.scoping.AbstractSpecification" abstract="true">
         <value style="attribute" name="specName" type="java.lang.String" set-method="setName" get-method="getName" />
+    	<value style="attribute" name="inclusion" usage="optional" type="boolean" set-method="setInclusion" get-method="isInclusion" default="true"/>        
 		<structure field="accessSpec" value-style="attribute" label="accessSpecStructure">
-        	<value name="publicAccess" type="boolean" set-method="setPublicAccess" get-method="isPublicAccess" usage="optional" />
-        	<value name="protectedAccess" type="boolean" set-method="setProtectedAccess" get-method="isProtectedAccess" usage="optional" />
-        	<value name="defaultAccess" type="boolean" set-method="setDefaultAccess" get-method="isDefaultAccess" usage="optional" />
-        	<value name="privateAccess" type="boolean" set-method="setPrivateAccess" get-method="isPrivateAccess" usage="optional" />	
+        	<value style="attribute" name="publicAccess" type="boolean" set-method="setPublicAccess" get-method="isPublicAccess" 
+        		usage="optional" default="true" />
+        	<value style="attribute" name="protectedAccess" type="boolean" set-method="setProtectedAccess" get-method="isProtectedAccess" 
+        		usage="optional"default="true"/>
+        	<value style="attribute" name="defaultAccess" type="boolean" set-method="setDefaultAccess" get-method="isDefaultAccess" 
+        		usage="optional" default="false"/>
+        	<value style="attribute" name="privateAccess" type="boolean" set-method="setPrivateAccess" get-method="isPrivateAccess" 
+        		usage="optional" default="false"/>	
 		</structure>
 	</mapping>
 
@@ -32,8 +36,7 @@
 		<structure name="typeSpec" field="typeSpec" type="edu.ksu.cis.indus.common.scoping.TypeSpecification" label="typeSpecStructure">
 			<value style="attribute" name="scopeExtension" type="java.lang.String" set-method="setScopeExtension" 
 	    		get-method="getScopeExtension"/>
-    		<value style="attribute" name="inclusion" usage="optional" type="boolean" set-method="setInclusion" get-method="isInclusion" default="true"/>
-    		<value style="cdata" type="java.lang.String" set-method="setNamePattern" get-method="getNamePattern"/>
+    		<value style="attribute" name="nameSpec" type="java.lang.String" set-method="setNamePattern" get-method="getNamePattern"/>
 		</structure>
     </mapping>
     
@@ -65,7 +68,6 @@
 	<mapping name="typeSpec" class="edu.ksu.cis.indus.common.scoping.TypeSpecification" label="typeSpecMapping">
     	<value style="attribute" name="scopeExtension" type="java.lang.String" set-method="setScopeExtension" 
     		get-method="getScopeExtension"/>
-    	<value style="attribute" name="inclusion" usage="optional" type="boolean" set-method="setInclusion" get-method="isInclusion" default="true"/>
-    	<value style="cdata" type="java.lang.String" set-method="setNamePattern" get-method="getNamePattern"/>
+    	<value style="attribute" name="nameSpec" type="java.lang.String" set-method="setNamePattern" get-method="getNamePattern"/>
     </mapping>
 </binding>

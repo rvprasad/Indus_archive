@@ -2,22 +2,14 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:indus="http://indus.projects.cis.ksu.edu/indus"
     indus:specName="scope_spec">
-    <indus:classSpec indus:specName="scope1">
-        <indus:typeSpec indus:scopeExtension="IDENTITY" indus:inclusion="true">
-            Home
-        </indus:typeSpec>
+    <indus:classSpec indus:specName="scope1" indus:inclusion="true">
+        <indus:typeSpec indus:scopeExtension="IDENTITY" indus:nameSpec="(Home|Man|Wife|Acct)"
+            indus:publicAccess="true" indus:protectedAccess="true" indus:defaultAccess="true"/>
     </indus:classSpec>
-    <indus:methodSpec indus:specName="scope2" indus:methodNameSpec="main">
-        <indus:declaringClassSpec indus:scopeExtension="IDENTITY">
-            Home
-        </indus:declaringClassSpec>
-        <indus:returnTypeSpec indus:scopeExtension="IDENTITY" indus:inclusion="true">
-            void
-        </indus:returnTypeSpec>
-        <indus:parameterSpecs>
-            <indus:typeSpec indus:scopeExtension="PRIMITIVE">
-                java.lang.String[
-            </indus:typeSpec>
-        </indus:parameterSpecs>
+    <indus:methodSpec indus:specName="scope2" indus:methodNameSpec="run">
+        <indus:declaringClassSpec indus:scopeExtension="IDENTITY" 
+            indus:nameSpec="Man|Wife" />
+        <indus:returnTypeSpec indus:scopeExtension="PRIMITIVE" indus:nameSpec="void" />
+        <indus:parameterSpecs/>
     </indus:methodSpec>
 </indus:scopeSpec>

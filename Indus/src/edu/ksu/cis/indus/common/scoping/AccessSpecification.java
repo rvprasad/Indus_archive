@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+
 /**
  * This class represents access control specification for the purpose of serialization and deserialization in the realm of
  * scope definition.
@@ -50,6 +53,30 @@ final class AccessSpecification {
 	public boolean conformant(final IAccessSpecifiers specifier) {
 		return isDefaultAccess() == specifier.isDefaultAccess() || isProtectedAccess() == specifier.isProtectedAccess()
 		  || isPublicAccess() == specifier.isPublicAccess() || isPrivateAccess() == specifier.isPrivateAccess();
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		final StringBuffer _access = new StringBuffer(access + " ");
+
+		if (isPrivateAccess()) {
+			_access.append("Private | ");
+		}
+
+		if (isDefaultAccess()) {
+			_access.append("Package Private | ");
+		}
+
+		if (isProtectedAccess()) {
+			_access.append("Protected | ");
+		}
+
+		if (isPublicAccess()) {
+			_access.append("Public | ");
+		}
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("access", _access).toString();
 	}
 
 	/**

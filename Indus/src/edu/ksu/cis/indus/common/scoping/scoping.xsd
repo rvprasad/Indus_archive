@@ -11,12 +11,11 @@
 	<xsd:simpleType id="scopeExtensionType" name="scopeExtensionType">
       <xsd:annotation>
         <xsd:documentation>
-          This represents the scope around the specified type.  EXCLUSIVE_ values indicate the all relatives of the type except the current type.
-          INCLUSIVE_ values indicate the relatives including the current type.  IDENTITY indicates that only the current type is considered.
-          PRIMITIVE should only be used for java primitive types, void, and array types, and in these cases the name specification should be 
-          one of the primitive types, void, or the array type such as java.lang.String[. Note that for all constants except IDENTITY, the name 
-          specification will be treated as a string, hence, it should be the FQN of the classes specified as types or the names of java primitive types.  
-          In case of IDENTITY, the name specification is treated as a regex pattern.
+          This represents the scope around the specified type.  
+          EXCLUSIVE_ values indicate the all relatives of the specified type except the specified type. 
+          INCLUSIVE_ values indicate the all relatives of the specified type including the specified type.  
+          IDENTITY indicates that only the specified type is considered. 
+          PRIMITIVE should only be used for java primitive types, void, and array types.
         </xsd:documentation>
       </xsd:annotation>
       <xsd:restriction base="xsd:token">
@@ -32,18 +31,21 @@
 	<xsd:complexType id="typeSpecType" name="typeSpecType">
 		<xsd:annotation>
     	    <xsd:documentation>
-    	    This contains the the name specification of the type along with it's inclusion requirement and hierarchical application requirement.
-    	    The content will be treated as a regex pattern.
-    	    That is, if "inclusion" is true, then the types matching this name are considered; not otherwise.  Depending on the value of 
-    	    "scopeExtension" either the type or it's relatives are considered.
+    	    This represents the the name specification of the type along with the scope rooted at the matching types.
+			Depending on the value of "scopeExtension" either the type or it's relatives are considered.
+			"nameSpec" is a regex pattern that specifies the type name.
+			If "scopeExtension" is PRIMITIVE then "nameSpec" should be one of the primitive types, void, or the array 
+			type such as java.lang.String[. 
+			For all values of "scopeExtension" other than IDENTITY, "nameSpec" will be treated as a string. Hence, in 
+			these cases, "nameSpec" value should be the FQN of the classes specified as types or the names of java 
+			primitive types.  
+			"nameSpec" can be treated as regex in case of EXCLUSIVE_ and INCLUSIVE_ scope, however, it would 
+			costly to evaluate the scope.
+			In the case where "scopeExtension" is IDENTITY, "nameSpec" is treated as a regex pattern.
     	    </xsd:documentation>
     	</xsd:annotation>
-		<xsd:simpleContent>
-			<xsd:extension base="xsd:normalizedString">
-				<xsd:attribute name="scopeExtension" type="indus:scopeExtensionType" use="required" />
-				<xsd:attribute name="inclusion" type="xsd:boolean" use="optional" default="true" />
-			</xsd:extension>
-		</xsd:simpleContent>
+		<xsd:attribute name="scopeExtension" type="indus:scopeExtensionType" use="required" />
+		<xsd:attribute name="nameSpec" type="xsd:string" use="required" />
 	</xsd:complexType>
 
 	<xsd:element name="typeSpec" id="typeSpec" type="indus:typeSpecType" minOccurs="0" maxOccurs="unbounded"/>	
@@ -75,6 +77,7 @@
     		</xsd:documentation>
 	    </xsd:annotation>
 		<xsd:attribute ref="indus:specName" use="required"/>
+		<xsd:attribute name="inclusion" type="xsd:boolean" use="optional" default="true" />
 	    <xsd:attributeGroup ref="indus:accessSpecGroup"/>
 	</xsd:complexType>
 

@@ -17,6 +17,11 @@ package edu.ksu.cis.indus.common.scoping;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootClass;
 
 
@@ -29,6 +34,11 @@ import soot.SootClass;
  */
 final class ClassSpecification
   extends AbstractSpecification {
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ClassSpecification.class);
+
 	/** 
 	 * This is the type specification.
 	 */
@@ -46,7 +56,25 @@ final class ClassSpecification
 	 * @pre clazz != null and system != null
 	 */
 	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
-		return accessConformant(new AccessSpecifierWrapper(clazz)) && typeSpec.conformant(clazz.getType(), system);
+		boolean _result = accessConformant(new AccessSpecifierWrapper(clazz));
+		_result = _result && typeSpec.conformant(clazz.getType(), system);
+
+		if (!isInclusion()) {
+			_result = !_result;
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(this + " " + clazz + " " + _result);
+		}
+
+		return _result;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("typeSpec", this.typeSpec).toString();
 	}
 
 	/**

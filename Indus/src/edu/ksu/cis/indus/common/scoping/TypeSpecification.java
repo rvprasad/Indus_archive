@@ -21,6 +21,8 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -88,11 +90,6 @@ final class TypeSpecification {
 	 */
 	private String scopeExtension;
 
-	/** 
-	 * This indicates if the specification should be interpreted as inclusive or exclusive.
-	 */
-	private boolean inclusion = true;
-
 	/**
 	 * Creates a new TypeSpecification object. This is used by xml-java binding.
 	 */
@@ -126,7 +123,11 @@ final class TypeSpecification {
 		final String _name = type.toString();
 		boolean _result;
 
-		if (Util.isReferenceType(type) && !scopeExtension.equals(IDENTITY)) {
+		if (scopeExtension.equals(IDENTITY)) {
+			_result = nameRegex.matcher(_name).matches();
+		} else if (scopeExtension.equals(PRIMITIVE)) {
+			_result = namePattern.equals(_name);
+		} else {
 			final SootClass _sc = ((RefType) type).getSootClass();
 			final SootClass _basisClass = system.getClass(namePattern);
 
@@ -138,39 +139,23 @@ final class TypeSpecification {
 				_result = Util.isDescendentOf(_basisClass, _sc);
 			} else if (scopeExtension.equals(INCLUSIVE_DESCENDANTS)) {
 				_result = Util.isDescendentOf(_sc, _basisClass);
-			} else if (scopeExtension.equals(PRIMITIVE)) {
-				_result = namePattern.equals(_name);
 			} else {
 				final String _msg = "Invalid scope extension [" + scopeExtension + "] for reference type " + _name;
 				LOGGER.error(_msg);
 				throw new IllegalStateException(_msg);
 			}
-		} else {
-			_result = nameRegex.matcher(_name).matches();
 		}
 
-		if (!inclusion) {
-			_result = !_result;
-		}
-		return false;
+		return _result;
 	}
 
 	/**
-	 * Sets the value of <code>inclusion</code>.
-	 *
-	 * @param value the new value of <code>inclusion</code>.
+	 * @see java.lang.Object#toString()
 	 */
-	void setInclusion(final boolean value) {
-		this.inclusion = value;
-	}
-
-	/**
-	 * Retrieves the value in <code>inclusion</code>.
-	 *
-	 * @return the value in <code>inclusion</code>.
-	 */
-	boolean isInclusion() {
-		return inclusion;
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern)
+										  .append("nameRegex", this.nameRegex).append("scopeExtension", this.scopeExtension)
+										  .toString();
 	}
 
 	/**

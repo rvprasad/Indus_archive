@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.common.scoping;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+
 /**
  * This class captures attributes common all specifications.
  *
@@ -33,6 +36,19 @@ abstract class AbstractSpecification {
 	 */
 	private String name;
 
+	/** 
+	 * This indicates if the specification should be interpreted as inclusive or exclusive.
+	 */
+	private boolean inclusion = true;
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).append("inclusion", this.inclusion).append("accessSpec", this.accessSpec)
+										  .append("name", this.name).toString();
+	}
+
 	/**
 	 * Checks if the given access specifier conformant.
 	 *
@@ -42,6 +58,24 @@ abstract class AbstractSpecification {
 	 */
 	protected final boolean accessConformant(final AccessSpecifierWrapper accessSpecifier) {
 		return accessSpec.conformant(accessSpecifier);
+	}
+
+	/**
+	 * Sets the value of <code>inclusion</code>.
+	 *
+	 * @param value the new value of <code>inclusion</code>.
+	 */
+	void setInclusion(final boolean value) {
+		this.inclusion = value;
+	}
+
+	/**
+	 * Retrieves the value in <code>inclusion</code>.
+	 *
+	 * @return the value in <code>inclusion</code>.
+	 */
+	boolean isInclusion() {
+		return inclusion;
 	}
 
 	/**
