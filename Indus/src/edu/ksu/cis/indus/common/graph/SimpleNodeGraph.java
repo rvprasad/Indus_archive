@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.Transformer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,6 +41,12 @@ public final class SimpleNodeGraph
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SimpleNodeGraph.class);
+
+	/**
+	 * This transformer can be used with Collection Utils to extract the objects from a collection of SimpleNodes.  If the
+	 * collection has objects of other type then the transformation will insert null into the collection being operated.
+	 */
+	public static final Transformer OBJECT_EXTRACTOR = new ObjectExtractor();
 
 	/**
 	 * The sequence of nodes in this graph.  They are stored in the order that the nodes are created.
@@ -99,6 +107,25 @@ public final class SimpleNodeGraph
 		}
 	}
 
+
+	/**
+	 * This class can be used to extract objects associated with a collection of simple nodes.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private static final class ObjectExtractor
+	  implements Transformer {
+		/**
+		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
+		 */
+		public Object transform(final Object input) {
+			return input instanceof SimpleNode ? ((SimpleNode) input).getObject()
+											   : null;
+		}
+	}
+
 	/**
 	 * Returns a node that represents <code>o</code> in this graph.  If no such node exists, then a new node is created.
 	 *
@@ -153,15 +180,15 @@ public final class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/31 10:01:36  venku
+   - clover directives.
    Revision 1.3  2003/12/30 09:12:50  venku
    - added clover source directives.
    - size() was concretized in AbstractDirectedGraph.  So,
      got deleted here.
-
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
