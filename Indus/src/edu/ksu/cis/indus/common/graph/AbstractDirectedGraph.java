@@ -336,7 +336,7 @@ public abstract class AbstractDirectedGraph
 		}
 		return _result;
 	}
-
+	
 	/**
 	 * @see IDirectedGraph#getSCCs(boolean)
 	 */
@@ -437,7 +437,8 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Finds cycles in the given set of nodes.
+	 * Finds cycles in the given set of nodes.  This implementation is <i>exponential</i> in the number of cycles in the
+	 * the nodes. 
 	 *
 	 * @param nodes in which to search for cycles.
 	 * @param backedges is the back edges between the given set of nodes (and may be other nodes).
