@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -215,6 +216,11 @@ public class DependencyXMLizerCLI
 			}
 			_cli.setClassNames(_classNames);
 
+			if (_cl.hasOption(_dasOptions[3][0].toString())) {
+				_cli.das.add(_incda);
+				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _incda.getId(), _incda, new HashSet());
+			}
+
 			boolean _flag = true;
 
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
@@ -222,11 +228,6 @@ public class DependencyXMLizerCLI
 					_cli.das.add(_dasOptions[_i][3]);
 					_flag = false;
 				}
-			}
-
-			if (_cl.hasOption(_dasOptions[3][0].toString())) {
-				_cli.das.add(_incda);
-				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _incda.getId(), _incda, new ArrayList());
 			}
 
 			if (_flag) {
@@ -284,36 +285,50 @@ public class DependencyXMLizerCLI
 
 		writeInfo("BEGIN: FA");
 
-		long _start = System.currentTimeMillis();
+		final long _start = System.currentTimeMillis();
 		initialize();
 		aa.analyze(getScene(), getRootMethods());
 
-		long _stop = System.currentTimeMillis();
+		final long _stop = System.currentTimeMillis();
 		addTimeLog("FA", _stop - _start);
 		writeInfo("END: FA");
+
 		((CallGraph) _cgi).reset();
 		_processors.clear();
 		_processors.add(_cgi);
 		_pc.reset();
 		_pc.driveProcessors(_processors);
 		writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).dumpGraph());
+
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
 		_processors.add(_tgi);
 		cgipc.reset();
 		cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).dumpGraph());
-		setupDependencyAnalyses();
+
+		aliasUD.hookup(cgipc);
+		ecba.hookup(cgipc);
+		cgipc.process();
+		aliasUD.hookup(cgipc);
+		ecba.hookup(cgipc);
+		ecba.analyze();
+
 		writeInfo("BEGIN: dependency analyses");
 
-		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
-			_start = System.currentTimeMillis();
-			_da.analyze();
-			CollectionsUtilities.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
-			_stop = System.currentTimeMillis();
-			addTimeLog(_da.getClass().getName() + "[" + _da.hashCode() + "] analysis", _stop - _start);
+		final AnalysesController _ac = new AnalysesController(info, cgipc, getBbm());
+
+		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
+			final AbstractDependencyAnalysis _da1 = (AbstractDependencyAnalysis) _i1.next();
+			_ac.addAnalyses(_da1.getId(), Collections.singleton(_da1));
 		}
+
+		final long _start1 = System.currentTimeMillis();
+		_ac.initialize();
+		_ac.execute();
+
+		final long _stop1 = System.currentTimeMillis();
+		addTimeLog("Dependency preprocessing", _stop1 - _start1);
 		writeInfo("END: dependency analyses");
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 		xmlizer.writeXML(info);
@@ -324,38 +339,14 @@ public class DependencyXMLizerCLI
 		writeInfo("Total classes loaded: " + getScene().getClasses().size());
 		printTimingStats();
 	}
-
-	/**
-	 * Sets up the dependence analyses to be driven.
-	 */
-	private void setupDependencyAnalyses() {
-		final AnalysesController _ac = new AnalysesController(info, cgipc, getBbm());
-
-		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
-			_ac.addAnalyses(_da.getId(), Collections.singleton(_da));
-		}
-		aliasUD.hookup(cgipc);
-		ecba.hookup(cgipc);
-		writeInfo("BEGIN: preprocessing for dependency analyses");
-
-		final long _start = System.currentTimeMillis();
-		_ac.initialize();
-		_ac.execute();
-
-		final long _stop = System.currentTimeMillis();
-		addTimeLog("Dependency preprocessing", _stop - _start);
-		writeInfo("END: preprocessing for dependency analyses");
-		ecba.analyze();
-
-		aliasUD.hookup(cgipc);
-		ecba.hookup(cgipc);
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/07/11 14:17:40  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.21  2004/07/11 11:21:29  venku
    - incorporated changes to drive forward control dependence analysis.
    Revision 1.20  2004/07/04 11:00:50  venku
@@ -575,6 +566,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/07/11 14:17:40  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.21  2004/07/11 11:21:29  venku
    - incorporated changes to drive forward control dependence analysis.
    Revision 1.20  2004/07/04 11:00:50  venku
