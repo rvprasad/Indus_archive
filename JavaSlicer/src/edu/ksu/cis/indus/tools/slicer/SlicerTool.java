@@ -156,7 +156,7 @@ public final class SlicerTool
 	/**
 	 * The phase in which the tool's execution is in.
 	 */
-	private final Phase phase;
+	private Phase phase;
 
 	/**
 	 * This is the slicing engine that identifies the slice.
@@ -413,10 +413,22 @@ public final class SlicerTool
 
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * This implementation of the tool remembers the last phase in which it was stopped.  This saved phase is used when the
+	 * tool is executed again with a <code>null</code> valued <code>phaseParam</code>.  If a non-null
+	 * <code>phaseParam</code>  is provided, the tool starts executing from the earliest of the saved phase or the given
+	 * phase.
+	 * </p>
 	 */
 	public void execute(final Object phaseParam)
 	  throws InterruptedException {
-		Phase ph = (Phase) phaseParam;
+		Phase ph = phase;
+
+		if (phaseParam != null && ((Phase) phaseParam).isEarlierThan(phase)) {
+			phase = (Phase) ((Phase) phaseParam).clone();
+			ph = phase;
+		}
 
 		if (ph.equalsMajor(Phase.STARTING_PHASE)) {
 			phase.reset();
@@ -454,7 +466,6 @@ public final class SlicerTool
 			ecba.unhook(cgBasedPreProcessCtrl);
 			ecba.execute();
 			phase.nextMajorPhase();
-			ph = phase;
 		}
 
 		movingToNextPhase();
@@ -478,7 +489,6 @@ public final class SlicerTool
 			daController.initialize();
 			daController.execute();
 			phase.nextMajorPhase();
-			ph = phase;
 		}
 
 		movingToNextPhase();
@@ -621,6 +631,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/11/17 17:56:21  venku
+   - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
+     way to intialize the tool independent of how it's dependent
+     parts (such as configuration) were instantiated and intialized.
    Revision 1.26  2003/11/17 02:23:52  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them
