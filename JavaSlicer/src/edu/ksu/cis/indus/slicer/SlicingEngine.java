@@ -881,7 +881,7 @@ public final class SlicingEngine {
 				final ValueBox _vBox = (ValueBox) _k.next();
 				final Local _local = (Local) _vBox.getValue();
 				final Pair _pair = new Pair(stmt, _local);
-				dependenceExtractor.setTrigger(_pair, method, getCopyOfCallStackCache());
+				dependenceExtractor.setTrigger(_pair, method);
 				CollectionUtils.forAllDo(_analyses, dependenceExtractor);
 
 				final Collection _valuesSet = dependenceExtractor.getDependenceMap().values();
@@ -961,7 +961,7 @@ public final class SlicingEngine {
 			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
 		}
 
-		dependenceExtractor.setTrigger(stmt, method, getCopyOfCallStackCache());
+		dependenceExtractor.setTrigger(stmt, method);
 		CollectionUtils.forAllDo(das, dependenceExtractor);
 
 		for (final Iterator _i = dependenceExtractor.getDependenceMap().entrySet().iterator(); _i.hasNext();) {

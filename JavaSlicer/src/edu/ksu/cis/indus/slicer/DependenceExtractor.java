@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.MembershipPredicate;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
@@ -34,7 +33,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
@@ -107,13 +105,6 @@ public final class DependenceExtractor
 	 */
 	private IDependenceRetriver retriever;
 
-	/** 
-	 * The calling context leading to the set triggers (entity + occurringMethod).
-	 *
-	 * @invariant callingContext.oclIsKindOf(Stack(CallTriple))
-	 */
-	private Stack callingContext;
-
 	/**
 	 * Creates a new CriteriaClosure object.
 	 */
@@ -159,11 +150,7 @@ public final class DependenceExtractor
 	 * @post result != null and result.oclIsKindOf(Collection(Stack(CallTriple)))
 	 */
 	public Collection getContextsFor(final Object criteriaBase) {
-		Collection _result = (Collection) criteriabase2contexts.get(criteriaBase);
-
-		if (_result == null) {
-			_result = ICallingContextRetriever.NULL_CONTEXTS;
-		}
+		final Collection _result = (Collection) criteriabase2contexts.get(criteriaBase);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getContextsFor(criteriaBase = " + criteriaBase + ") -  : _result = " + _result);
@@ -245,15 +232,12 @@ public final class DependenceExtractor
 	 *
 	 * @param theEntity is the dependent/dependee.
 	 * @param method in which the entity occurs.
-	 * @param callStack obviously.
 	 *
 	 * @pre theEntity != null and method != null
-	 * @pre callingStack.oclIsKindOf(Stack(CallTriple))
 	 */
-	void setTrigger(final Object theEntity, final SootMethod method, final Stack callStack) {
+	void setTrigger(final Object theEntity, final SootMethod method) {
 		entity = theEntity;
 		occurringMethod = method;
-		callingContext = callStack;
 		trueCriteria.clear();
 		falseCriteria.clear();
 		criteriabase2contexts.clear();
@@ -269,55 +253,60 @@ public final class DependenceExtractor
 	 */
 	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis da) {
 		final Collection _ids = da.getIds();
-		final Object _id = CollectionUtils.find(depID2ctxtRetriever.keySet(), new MembershipPredicate(true, _ids));
-		final ICallingContextRetriever _ctxtRetriever;
+		final Collection _retrievers = new HashSet();
 
-		if (_id != null) {
-			_ctxtRetriever = (ICallingContextRetriever) depID2ctxtRetriever.get(_id);
-		} else {
-			_ctxtRetriever = ICallingContextRetriever.NULL_CONTEXT_RETRIEVER;
-		}
-		_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_ENTITY, entity);
-		_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_METHOD, occurringMethod);
-		_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_CALLING_CONTEXT, callingContext);
-
-		final Iterator _i = falseCriteria.iterator();
-		final int _iEnd = falseCriteria.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Object _t = _i.next();
-
-			if (_t instanceof Pair) {
-				final Collection _ctxts = _ctxtRetriever.getCallingContextsForThis((SootMethod) ((Pair) _t).getSecond());
-				CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
-					CollectionsUtilities.HASH_SET_FACTORY);
+		if (CollectionUtils.containsAny(_ids, depID2ctxtRetriever.keySet())) {
+			for (final Iterator _i = CollectionUtils.intersection(_ids, depID2ctxtRetriever.keySet()).iterator();
+				  _i.hasNext();) {
+				_retrievers.add(depID2ctxtRetriever.get(_i.next()));
 			}
+		} else {
+			_retrievers.add(ICallingContextRetriever.NULL_CONTEXT_RETRIEVER);
 		}
 
-		final Context _context = new Context();
-		final Iterator _j = trueCriteria.iterator();
-		final int _jEnd = trueCriteria.size();
+		for (final Iterator _l = _retrievers.iterator(); _l.hasNext();) {
+			final ICallingContextRetriever _ctxtRetriever = (ICallingContextRetriever) _l.next();
+			_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_ENTITY, entity);
+			_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_METHOD, occurringMethod);
 
-		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final Object _t = _j.next();
-			final boolean _containsKey = criteriabase2contexts.containsKey(_t);
+			final Iterator _i = falseCriteria.iterator();
+			final int _iEnd = falseCriteria.size();
 
-			if (_t instanceof Pair && !(_containsKey && ((Collection) criteriabase2contexts.get(_t)).contains(null))) {
-				final Pair _pair = (Pair) _t;
-				final Stmt _stmt = (Stmt) _pair.getFirst();
-				_context.setStmt(_stmt);
-				_context.setRootMethod((SootMethod) _pair.getSecond());
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Object _t = _i.next();
 
-				final Collection _programPoints = _stmt.getUseAndDefBoxes();
-				final Iterator _k = _programPoints.iterator();
-				final int _kEnd = _programPoints.size();
-
-				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					_context.setProgramPoint((ValueBox) _k.next());
-
-					final Collection _ctxts = _ctxtRetriever.getCallingContextsForProgramPoint(_context);
+				if (_t instanceof Pair) {
+					final Collection _ctxts = _ctxtRetriever.getCallingContextsForThis((SootMethod) ((Pair) _t).getSecond());
 					CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
 						CollectionsUtilities.HASH_SET_FACTORY);
+				}
+			}
+
+			final Context _context = new Context();
+			final Iterator _j = trueCriteria.iterator();
+			final int _jEnd = trueCriteria.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final Object _t = _j.next();
+				final boolean _containsKey = criteriabase2contexts.containsKey(_t);
+
+				if (_t instanceof Pair && !(_containsKey && ((Collection) criteriabase2contexts.get(_t)).contains(null))) {
+					final Pair _pair = (Pair) _t;
+					final Stmt _stmt = (Stmt) _pair.getFirst();
+					_context.setStmt(_stmt);
+					_context.setRootMethod((SootMethod) _pair.getSecond());
+
+					final Collection _programPoints = _stmt.getUseAndDefBoxes();
+					final Iterator _k = _programPoints.iterator();
+					final int _kEnd = _programPoints.size();
+
+					for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+						_context.setProgramPoint((ValueBox) _k.next());
+
+						final Collection _ctxts = _ctxtRetriever.getCallingContextsForProgramPoint(_context);
+						CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
+							CollectionsUtilities.HASH_SET_FACTORY);
+					}
 				}
 			}
 		}
