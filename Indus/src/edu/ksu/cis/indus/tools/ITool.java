@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.tools;
 
+import java.util.Collection;
+
+
 /**
  * This is the facade interface exposed by a tool in Indus.  The tool will expose the configurationCollection via
  * <code>IToolConfiguration</code>, hence, this api forces the tool implementation to handle the interaction with the
@@ -33,6 +36,17 @@ public interface ITool {
 	 * @post result != null
 	 */
 	IToolConfiguration getActiveConfiguration();
+
+	/**
+	 * Retrieves the configurations available in the tool.  The implementations decide if composite configurations are
+	 * included in the returned collection or if the non-composite configurations that make up the composite configuration
+	 * will be included in the returned collection instead of composite configuration.
+	 *
+	 * @return the configurations in the tool.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(IToolConfiguration))
+	 */
+	Collection getConfigurations();
 
 	/**
 	 * Retrieves an editor which enables the user to edit the configuration of the tool.  This can return <code>null</code>,
@@ -55,7 +69,7 @@ public interface ITool {
 	void abort();
 
 	/**
-	 * Adds the given listener from the listener list. 
+	 * Adds the given listener from the listener list.
 	 *
 	 * @param listener to be added.
 	 */
@@ -85,7 +99,7 @@ public interface ITool {
 	void pause();
 
 	/**
-	 * Removes the given listener from the listener list. 
+	 * Removes the given listener from the listener list.
 	 *
 	 * @param listener to be removed.
 	 */
@@ -124,6 +138,8 @@ public interface ITool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/08/12 02:48:58  venku
+   - catered feature request #411.
    Revision 1.3  2004/07/20 00:30:30  venku
    - added a new exception to be thrown when configuration fails.
    Revision 1.2  2003/12/09 12:23:52  venku

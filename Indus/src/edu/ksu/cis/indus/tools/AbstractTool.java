@@ -112,6 +112,20 @@ public abstract class AbstractTool
 	}
 
 	/**
+	 * @see ITool#getConfigurations()
+	 */
+	public Collection getConfigurations() {
+		final Collection _result = new HashSet();
+
+		if (configurationInfo instanceof CompositeToolConfiguration) {
+			_result.addAll(((CompositeToolConfiguration) configurationInfo).configurations);
+		} else {
+			_result.add(configurationInfo);
+		}
+		return _result;
+	}
+
+	/**
 	 * Retrieves an editor which enables the user to edit the configuration of the tool. This can return <code>null</code>,
 	 * if the tool does not have a configurationCollection to edit which is seldom the case.
 	 *
@@ -264,7 +278,7 @@ public abstract class AbstractTool
 	 * @param message about the progress of the tool.
 	 * @param info anything the tool may want to convey to the listener.
 	 *
-	 * @throws RuntimeException is thrown by the message delivery thread when it is interrupted. 
+	 * @throws RuntimeException is thrown by the message delivery thread when it is interrupted.
 	 *
 	 * @pre message != null and info != null
 	 */
@@ -329,7 +343,10 @@ public abstract class AbstractTool
 }
 
 /*
- * ChangeLog: $Log$ Revision 1.27 2004/08/12 03:34:56 venku - notification was missing for the waits()
+ * ChangeLog: $Log$
+ * ChangeLog: Revision 1.28  2004/08/13 01:24:51  venku
+ * ChangeLog: - coding conventions and documentation.
+ * ChangeLog: Revision 1.27 2004/08/12 03:34:56 venku - notification was missing for the waits()
  * in progress event indicator. FIXED.
  *
  * Revision 1.26 2004/08/12 02:48:58 venku - catered feature request #411.
