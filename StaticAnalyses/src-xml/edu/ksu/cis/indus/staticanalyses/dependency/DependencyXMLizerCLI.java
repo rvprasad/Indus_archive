@@ -306,7 +306,7 @@ public class DependencyXMLizerCLI
 		info.put(IValueAnalyzer.ID, aa);
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, _aliasUD);
 
-		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
+		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, getBbm());
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, _ecba);
 
 		final IMonitorInfo _monitorInfo = new MonitorAnalysis();
@@ -391,6 +391,10 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/08/01 21:07:16  venku
+   - renamed dumpGraph() as toString()
+   - refactored ThreadGraph.
+
    Revision 1.39  2004/07/30 07:05:18  venku
    - documentation.
 
@@ -674,6 +678,10 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/08/01 21:07:16  venku
+   - renamed dumpGraph() as toString()
+   - refactored ThreadGraph.
+
    Revision 1.39  2004/07/30 07:05:18  venku
    - documentation.
 

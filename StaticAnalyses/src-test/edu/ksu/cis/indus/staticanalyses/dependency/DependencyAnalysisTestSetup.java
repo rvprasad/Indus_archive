@@ -125,7 +125,7 @@ public class DependencyAnalysisTestSetup
 		_pc.process();
 		tgiImpl.unhook(_pc);
 		aliasUD = new AliasedUseDefInfov2(valueAnalyzer, cgiImpl, tgiImpl, bbgMgr);
-		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, tgiImpl, bbgMgr);
+		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, bbgMgr);
 		monitorInfo = new MonitorAnalysis();
 
 		//setup info        
@@ -209,6 +209,13 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/07/28 09:09:27  venku
+   - changed aliased use def analysis to consider thread.
+   - also fixed a bug in the same analysis.
+   - ripple effect.
+   - deleted entry control dependence and renamed direct entry control da as
+     entry control da.
+
    Revision 1.21  2004/07/23 13:09:45  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.

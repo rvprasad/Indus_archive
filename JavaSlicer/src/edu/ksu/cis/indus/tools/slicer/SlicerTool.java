@@ -319,7 +319,7 @@ public final class SlicerTool
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
 		// create equivalence class-based escape analysis.
-		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, threadGraph, bbgMgr);
+		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, bbgMgr);
 		// create monitor analysis
 		monitorInfo = new MonitorAnalysis();
 		// create safe lock analysis
@@ -911,6 +911,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.107  2004/08/01 21:07:16  venku
+   - renamed dumpGraph() as toString()
+   - refactored ThreadGraph.
+
    Revision 1.106  2004/07/28 16:52:06  venku
    - documentation.
 
