@@ -266,6 +266,9 @@ public class SlicerDriver
 		o = new Option("g", false, "Display gui for configuration.");
 		o.setOptionalArg(false);
 		options.addOption(o);
+		o = new Option("p", false, "Prepend this to soot class path.");
+		o.setArgs(1);
+		options.addOption(o);
 
 		CommandLine cl = null;
 
@@ -309,6 +312,12 @@ public class SlicerDriver
 				outputDir = ".";
 			}
 			xmlizer.setOutputDirectory(outputDir);
+
+			String classpath = cl.getOptionValue("p");
+
+			if (classpath != null) {
+				xmlizer.addToSootClassPath(classpath);
+			}
 		} catch (ParseException e) {
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
 				options, true);
@@ -374,6 +383,10 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/17 17:56:21  venku
+   - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
+     way to intialize the tool independent of how it's dependent
+     parts (such as configuration) were instantiated and intialized.
    Revision 1.5  2003/11/17 16:58:12  venku
    - populateDAs() needs to be called from outside the constructor.
    - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
