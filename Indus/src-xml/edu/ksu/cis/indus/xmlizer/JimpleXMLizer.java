@@ -29,6 +29,9 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -47,6 +50,11 @@ import java.util.Iterator;
  */
 public class JimpleXMLizer
   extends AbstractProcessor {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(JimpleXMLizer.class);
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -182,7 +190,9 @@ public class JimpleXMLizer
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", e);
+			}
 		}
 	}
 
@@ -206,7 +216,9 @@ public class JimpleXMLizer
 				+ "\"/>");
 			processingMethod = false;
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", e);
+			}
 		}
 	}
 
@@ -218,7 +230,9 @@ public class JimpleXMLizer
 			xmlizedSystem.write("<field signature=\"" + field.getSubSignature() + "\" id=\""
 				+ idGenerator.getIdForField(field) + "\"/>");
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", e);
+			}
 		}
 	}
 
@@ -237,7 +251,9 @@ public class JimpleXMLizer
 				xmlizedSystem.write("</class>");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", e);
+			}
 		}
 	}
 
@@ -263,6 +279,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/10 03:13:04  venku
+   - uses abstract implementation of IProcessor.
    Revision 1.4  2003/11/10 03:04:17  venku
    - method and class elements were closed incorrectly. FIXED.
    Revision 1.3  2003/11/10 02:42:00  venku
