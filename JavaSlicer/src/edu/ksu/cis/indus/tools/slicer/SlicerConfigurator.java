@@ -84,8 +84,7 @@ public final class SlicerConfigurator
 		_button.setLayoutData(_gridData);
 		_button.setSelection(_cfg.sliceForDeadlock);
 
-		SelectionListener _sl =
-			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg);
+		SelectionListener _sl = new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg);
 		_button.addSelectionListener(_sl);
 
 		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
@@ -95,7 +94,7 @@ public final class SlicerConfigurator
 		_button.setText("Executable slice");
 		_button.setLayoutData(_gridData);
 		_button.setSelection(_cfg.sliceForDeadlock);
-        _sl = new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, _button, _cfg);
+		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, _button, _cfg);
 		_button.addSelectionListener(_sl);
 
 		setupRow2();
@@ -186,6 +185,11 @@ public final class SlicerConfigurator
 		final Button _symbolBasedEscapeAnalysisBasedIDA = new Button(_group, SWT.RADIO);
 		_symbolBasedEscapeAnalysisBasedIDA.setText("use sybmol and equivalence class-based analysis");
 
+		final Button _useOFAForInterference = new Button(_group, SWT.CHECK);
+		_useOFAForInterference.setText("use object flow analysis information");
+		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _useOFAForInterference, _cfg);
+		_useOFAForInterference.addSelectionListener(_sl);
+
 		_sl = new SelectionListener() {
 					public void widgetSelected(final SelectionEvent evt) {
 						Object _value = null;
@@ -220,6 +224,9 @@ public final class SlicerConfigurator
 		} else if (_temp.equals(SlicerConfiguration.TYPE_BASED_INFO)) {
 			_typedIDA.setSelection(true);
 		}
+
+		final Boolean _bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE4_IN_READYDA);
+		_useOFAForInterference.setSelection(_bool.booleanValue());
 	}
 
 	/**
@@ -347,6 +354,11 @@ public final class SlicerConfigurator
 			_typedRDA.setSelection(true);
 		}
 
+		final Button _useOFAForReady = new Button(_natureOfRDAGroup, SWT.CHECK);
+		_useOFAForReady.setText("use object flow analysis information");
+		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _useOFAForReady, _cfg);
+		_useOFAForReady.addSelectionListener(_sl);
+
 		final Composite _readyComposite = new Composite(_group, SWT.NONE);
 		_twoSpanHorzFill = new GridData(GridData.FILL_HORIZONTAL);
 		_twoSpanHorzFill.horizontalSpan = 2;
@@ -419,6 +431,8 @@ public final class SlicerConfigurator
 			_rule3RDAButton.setSelection(_bool.booleanValue());
 			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE4_IN_READYDA);
 			_rule4RDAButton.setSelection(_bool.booleanValue());
+			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA);
+			_useOFAForReady.setSelection(_bool.booleanValue());
 		} else {
 			_natureOfRDAGroup.setEnabled(false);
 			_typedRDA.setEnabled(false);
@@ -428,6 +442,7 @@ public final class SlicerConfigurator
 			_rule2RDAButton.setEnabled(false);
 			_rule3RDAButton.setEnabled(false);
 			_rule4RDAButton.setEnabled(false);
+			_useOFAForReady.setEnabled(false);
 		}
 	}
 }
@@ -435,6 +450,9 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.19  2003/12/02 11:32:01  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.

@@ -80,6 +80,7 @@
        </xsd:documentation>
      </xsd:annotation>
      <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
+     <xsd:attribute name="useOFA" use="required" type="xsd:boolean"/>
     </xsd:complexType>
 
     <xsd:complexType id="ready" name="ready">
@@ -94,6 +95,7 @@
      <xsd:attribute id="rule4" name="rule4" use="required" type="xsd:boolean"/>
      <xsd:attribute ref="slicer:active" use="required"/>
      <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
+     <xsd:attribute name="useOFA" use="required" type="xsd:boolean"/>
     </xsd:complexType>
 
 </xsd:schema>

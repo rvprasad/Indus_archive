@@ -142,6 +142,18 @@ public final class SlicerConfiguration
 	static final Object SLICE_TYPE = "slice type";
 
 	/**
+	 * This identifies the property that indicates if object flow information should be used in the context of interference
+	 * dependence.
+	 */
+	static final Object USE_OFA_FOR_INTERFERENCE_DA = "use ofa for interference";
+
+	/**
+	 * This identifies the property that indicates if object flow information should be used in the context of ready
+	 * dependence.
+	 */
+	static final Object USE_OFA_FOR_READY_DA = "use ofa for ready";
+
+	/**
 	 * This is the factory object to create configurations.
 	 */
 	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
@@ -178,8 +190,10 @@ public final class SlicerConfiguration
 		propertyIds.add(USE_DIVERGENCEDA);
 		propertyIds.add(INTERPROCEDURAL_DIVERGENCEDA);
 		propertyIds.add(NATURE_OF_INTERFERENCE_DA);
+		propertyIds.add(USE_OFA_FOR_INTERFERENCE_DA);
 		propertyIds.add(USE_READYDA);
 		propertyIds.add(NATURE_OF_READY_DA);
+		propertyIds.add(USE_OFA_FOR_READY_DA);
 		propertyIds.add(USE_RULE1_IN_READYDA);
 		propertyIds.add(USE_RULE2_IN_READYDA);
 		propertyIds.add(USE_RULE3_IN_READYDA);
@@ -223,8 +237,10 @@ public final class SlicerConfiguration
 
 		// set default values for certain properties
 		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
-		setProperty(NATURE_OF_READY_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
+		setProperty(USE_OFA_FOR_INTERFERENCE_DA, Boolean.TRUE);
 		setProperty(USE_READYDA, Boolean.TRUE);
+		setProperty(NATURE_OF_READY_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
+		setProperty(USE_OFA_FOR_READY_DA, Boolean.TRUE);
 		setProperty(USE_RULE1_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_RULE2_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_RULE3_IN_READYDA, Boolean.TRUE);
@@ -393,6 +409,42 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 *
+	 * @param use Should not be used!
+	 */
+	protected void setUseOFAForInterference(final boolean use) {
+		processPropertyHelper(USE_OFA_FOR_INTERFERENCE_DA, use);
+	}
+
+	/**
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 *
+	 * @return Should not be used!
+	 */
+	protected boolean getUseOFAForInterference() {
+		return ((Boolean) properties.get(USE_OFA_FOR_INTERFERENCE_DA)).booleanValue();
+	}
+
+	/**
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 *
+	 * @param use Should not be used!
+	 */
+	protected void setUseOFAForReady(final boolean use) {
+		processPropertyHelper(USE_OFA_FOR_READY_DA, use);
+	}
+
+	/**
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
+	 *
+	 * @return Should not be used!
+	 */
+	protected boolean getUseOFAForReady() {
+		return ((Boolean) properties.get(USE_OFA_FOR_READY_DA)).booleanValue();
+	}
+
+	/**
 	 * {@inheritDoc}
 	 *
 	 * @pre value != null
@@ -404,7 +456,7 @@ public final class SlicerConfiguration
 			final Boolean _val = (Boolean) value;
 
 			if (propertyID.equals(USE_READYDA)) {
-				processUseProperty(_val, DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv1()));
+				processUseProperty(_val, DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv3()));
 			} else if (propertyID.equals(USE_DIVERGENCEDA)) {
 				processUseProperty(_val, DependencyAnalysis.DIVERGENCE_DA, Collections.singleton(new DivergenceDA()));
 			} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
@@ -700,6 +752,9 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/01/20 02:18:42  venku
+   - modified initialize() to consider ready dependence with all forms of
+     ready dependences.
    Revision 1.26  2004/01/17 23:51:28  venku
    - formatting.
    Revision 1.25  2003/12/13 02:29:16  venku

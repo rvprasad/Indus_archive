@@ -22,6 +22,8 @@
 			<value style="attribute" name="natureOfInterThreadAnalysis" type="java.lang.String" 
 				set-method="setNatureOfInterferenceDepAnalysis" 
                 get-method="getNatureOfInterferenceDepAnalysis"/>
+            <value style="attribute" name="useOFA" type="boolean" set-method="setUseOFAForInterference"
+                get-method="getUseOFAForInterference"/>    
 		</structure>
 		<structure name="divergence">
 			<value style="attribute" name="active" type="boolean" set-method="useDivergenceDepAnalysis" 
@@ -42,7 +44,9 @@
 			<value style="attribute" name="rule3" type="boolean" 
 				set-method="useReadyRule3" get-method="isReadyRule3Used" />
 			<value style="attribute" name="rule4" type="boolean" 
-				set-method="useReadyRule4" get-method="isReadyRule4Used"/>		
+				set-method="useReadyRule4" get-method="isReadyRule4Used"/>	
+			<value style="attribute" name="useOFA" type="boolean" set-method="setUseOFAForReady"
+                get-method="getUseOFAForReady"/> 	
 		</structure>		
 	</mapping>
 </binding>
