@@ -137,9 +137,14 @@ class TagBasedSliceXMLizer
 	 */
 	public void callback(final SootMethod method) {
 		try {
+			if (processingStmt) {
+				writer.write("\t\t\t</stmt>\n");
+				processingStmt = false;
+			}
+
 			if (processingMethod) {
 				writer.write("\t\t</method>\n");
-				processingStmt = false;
+				processingMethod = false;
 			}
 
 			SlicingTag tag = (SlicingTag) method.getTag(tagName);
@@ -158,6 +163,11 @@ class TagBasedSliceXMLizer
 	 */
 	public void callback(final SootClass clazz) {
 		try {
+			if (processingStmt) {
+				writer.write("\t\t\t</stmt>\n");
+				processingStmt = false;
+			}
+
 			if (processingMethod) {
 				writer.write("\t\t</method>\n");
 				processingMethod = false;
@@ -228,9 +238,11 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/17 15:56:56  venku
+   - removed support to retrieve new statement ids.
+   - added support to retrieve id for value boxes.
    Revision 1.4  2003/11/17 15:42:42  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
-
    Revision 1.3  2003/11/17 15:25:17  venku
    - added new method to AbstractSliceXMLizer to flush writer.
    - called flush on xmlizer from the driver.
