@@ -217,17 +217,9 @@ public final class BasicBlockGraph
 
 			if (stmts.contains(_begStmt) && stmts.contains(_endStmt)) {
 				_result = new ArrayList();
-
-				for (final Iterator _i = stmts.iterator(); _i.hasNext();) {
-					if (_i.next().equals(_begStmt)) {
-						break;
-					}
-				}
 				_result.add(_begStmt);
 
-				Stmt _stmt = _begStmt;
-
-				final List _succs = getStmtGraph().getSuccsOf(_stmt);
+				List _succs = getStmtGraph().getSuccsOf(_begStmt);
 
 				while (_succs.size() == 1) {
 					final Object _o = _succs.get(0);
@@ -237,7 +229,7 @@ public final class BasicBlockGraph
 						break;
 					}
 					_result.add(_o);
-					_stmt = (Stmt) _o;
+					_succs = getStmtGraph().getSuccsOf(_o);
 				}
 			}
 			return _result;
@@ -390,8 +382,8 @@ public final class BasicBlockGraph
 	 * @return the position of the trailer statement of the current basic block graph.
 	 *
 	 * @pre leaderStmt != null and wb != null and stmts != null
-     * @pre stmts.oclIsKindOf(Collection(Stmt))
-     * @post stmts.oclIsKindOf(Collection(Stmt))
+	 * @pre stmts.oclIsKindOf(Collection(Stmt))
+	 * @post stmts.oclIsKindOf(Collection(Stmt))
 	 */
 	private int getTrailer(final Stmt leaderStmt, final IWorkBag wb, final List stmts) {
 		Stmt _stmt = leaderStmt;
@@ -453,6 +445,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
