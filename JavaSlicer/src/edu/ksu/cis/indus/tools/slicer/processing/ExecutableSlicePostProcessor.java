@@ -116,7 +116,7 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private final IWorkBag stmtWorkBag = new FIFOWorkBag();
 
-	/** 
+	/**
 	 * This provides entry-based control dependency information required to include exit points.
 	 */
 	private EntryControlDA cd = new EntryControlDA();
@@ -126,9 +126,9 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private SliceCollector collector;
 
-	/** 
-	 * This indicates if any statements of the method were included during post processing.  If so, other statement based 
-     * post processings are triggered.
+	/**
+	 * This indicates if any statements of the method were included during post processing.  If so, other statement based
+	 * post processings are triggered.
 	 */
 	private boolean stmtCollected;
 
@@ -150,7 +150,7 @@ public final class ExecutableSlicePostProcessor
 
 		collector = theCollector;
 		bbgMgr = basicBlockMgr;
-        cd.setBasicBlockGraphManager(basicBlockMgr);
+		cd.setBasicBlockGraphManager(basicBlockMgr);
 		methodWorkBag.addAllWorkNoDuplicates(taggedMethods);
 
 		// process the methods and gather the collected classes
@@ -163,7 +163,7 @@ public final class ExecutableSlicePostProcessor
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Post Processing method " + _method);
 				}
-                stmtCollected = false;
+				stmtCollected = false;
 				processStmts(_method);
 
 				if (stmtCollected) {
@@ -356,16 +356,18 @@ public final class ExecutableSlicePostProcessor
 		final Collection _tails = new HashSet();
 		_tails.addAll(_bbg.getTails());
 		_tails.addAll(_bbg.getPseudoTails());
-        cd.analyze(Collections.singleton(method));
+		cd.analyze(Collections.singleton(method));
 
 		for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
 			final Stmt _stmt = _bb.getTrailerStmt();
+			final Collection _dependees = cd.getDependees(_stmt, method);
+			boolean _flag = _dependees.isEmpty();
 
-			boolean _flag = false;
-
-			for (final Iterator _i = cd.getDependees(_stmt, method).iterator(); _i.hasNext() && !_flag;) {
-				_flag = ((Stmt) _i.next()).hasTag(_tagName);
+			if (!_flag) {
+				for (final Iterator _i = _dependees.iterator(); _i.hasNext() && !_flag;) {
+					_flag = ((Stmt) _i.next()).hasTag(_tagName);
+				}
 			}
 
 			if (!_stmt.hasTag(_tagName) && _flag) {
@@ -560,6 +562,9 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/01/30 23:59:00  venku
+   - uses entry control DA to pick only the required exit
+     points while making the slice executable.
    Revision 1.12  2004/01/25 09:06:23  venku
    - coding convention.
    Revision 1.11  2004/01/25 07:50:20  venku
