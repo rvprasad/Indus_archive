@@ -29,6 +29,9 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootMethod;
 
 import soot.jimple.GotoStmt;
@@ -53,6 +56,12 @@ public final class SliceGotoProcessor {
 				return object instanceof GotoStmt;
 			}
 		};
+
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(SliceGotoProcessor.class);
+
 
 	/** 
 	 * The slice collector.
@@ -106,6 +115,10 @@ public final class SliceGotoProcessor {
 	 * @pre bbg != null
 	 */
 	private void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("process(SootMethod theMethod = " + theMethod + ") - BEGIN");
+		}
+
 		method = theMethod;
 
 		// process basic blocks to include all gotos in basic blocks with slice statements.
@@ -146,6 +159,10 @@ public final class SliceGotoProcessor {
 			final List _stmtsOf = new ArrayList(_bb.getStmtsOf());
 			CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
 			sliceCollector.includeInSlice(_stmtsOf);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("process() - END");
 		}
 	}
 
