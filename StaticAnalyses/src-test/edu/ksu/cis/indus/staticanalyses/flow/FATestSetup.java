@@ -26,7 +26,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
-import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizerCLI;
 

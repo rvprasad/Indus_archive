@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
+
 /**
  * This class tests <code>BitSetTokenManager</code> class.
  *

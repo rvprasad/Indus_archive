@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import soot.jimple.StringConstant;
 
 

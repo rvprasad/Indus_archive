@@ -35,8 +35,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
+import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -191,11 +191,7 @@ public final class OFATool
 		final Scene _tempScene = (Scene) _sceneObject;
 		final Chain _c = _tempScene.getClasses();
 
-		if (_c == null) {
-			throw new IllegalArgumentException("Cannot use an empty scene.");
-		}
-
-		if (_c.size() < 1) {
+		if (_c == null || _c.size() < 1) {
 			throw new IllegalArgumentException("Cannot use an empty scene.");
 		}
 
@@ -319,8 +315,8 @@ public final class OFATool
 		}
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, 
-                TokenUtil.getTokenManager(new SootValueTypeManager()));
+		final IValueAnalyzer _aa =
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final ExceptionFlowSensitiveStmtGraphFactory _factory = new ExceptionFlowSensitiveStmtGraphFactory();
