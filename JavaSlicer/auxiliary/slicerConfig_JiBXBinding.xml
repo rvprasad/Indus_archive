@@ -26,6 +26,8 @@
 		</structure>		    
 
 		<structure name="interference">
+			<value style="attribute" name="active" type="boolean" set-method="useInterferenceDepAnalysis" 
+				get-method="isInterferenceDepAnalysisUsed"/>
 			<value style="attribute" name="natureOfInterThreadAnalysis" type="java.lang.String" 
 				set-method="setNatureOfInterferenceDepAnalysis" 
                 get-method="getNatureOfInterferenceDepAnalysis"/>

@@ -36,10 +36,10 @@ import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
-import edu.ksu.cis.indus.tools.slicer.criteria.filters.EscapingSliceCriteriaFilter;
-import edu.ksu.cis.indus.tools.slicer.criteria.filters.ISliceCriteriaFilter;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.DeadlockPreservingCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator;
+import edu.ksu.cis.indus.tools.slicer.criteria.predicates.EscapingSliceCriteriaPredicate;
+import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -98,6 +98,11 @@ public final class SlicerConfiguration
 	 * intraprocedural divergent dependence.
 	 */
 	static final Object INTERPROCEDURAL_DIVERGENCEDA = "interprocedural divergence dependence";
+
+	/** 
+	 * This identifies the property that indicates if interference dependence should be considered for slicing.
+	 */
+	static final Object USE_INTERFERENCEDA = "use interference dependence";
 
 	/** 
 	 * This identifies the property that indicates if ready dependence should be considered for slicing.
@@ -193,7 +198,7 @@ public final class SlicerConfiguration
 	/** 
 	 * This is the factory object to create configurations.
 	 */
-	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
+	private static final IToolConfigurationFactory FACTORY_SINGLETON = new SlicerConfiguration();
 
 	/** 
 	 * The collection of ids of the dependences to be considered for slicing.
@@ -218,10 +223,11 @@ public final class SlicerConfiguration
 	 * Creates a new SlicerConfiguration object.
 	 */
 	protected SlicerConfiguration() {
-		propertyIds.add(USE_DIVERGENCEDA);
 		propertyIds.add(INTERPROCEDURAL_DIVERGENCEDA);
 		propertyIds.add(NATURE_OF_INTERFERENCE_DA);
 		propertyIds.add(USE_OFA_FOR_INTERFERENCE_DA);
+		propertyIds.add(USE_DIVERGENCEDA);
+		propertyIds.add(USE_INTERFERENCEDA);
 		propertyIds.add(USE_READYDA);
 		propertyIds.add(NATURE_OF_READY_DA);
 		propertyIds.add(USE_OFA_FOR_READY_DA);
@@ -318,6 +324,15 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Checks if interference dependence analysis is enabled in this configuration.
+	 *
+	 * @return <code>true</code> if the use of interference dependence analysis is enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isInterferenceDepAnalysisUsed() {
+		return ((Boolean) properties.get(USE_INTERFERENCEDA)).booleanValue();
+	}
+
+	/**
 	 * Checks if interprocedural divergence dependence analysis is enabled in this configuration.
 	 *
 	 * @return <code>true</code> if the use of interprocedural divergence dependence analysis is enabled; <code>false</code>,
@@ -401,7 +416,7 @@ public final class SlicerConfiguration
 	/**
 	 * Checks if ready dependence analysis is enabled in this configuration.
 	 *
-	 * @return <code>true</code> if the use of ready dependence analysis enabled; <code>false</code>, otherwise.
+	 * @return <code>true</code> if the use of ready dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
 	public boolean isReadyDepAnalysisUsed() {
 		return ((Boolean) properties.get(USE_READYDA)).booleanValue();
@@ -593,6 +608,7 @@ public final class SlicerConfiguration
 		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
 		setProperty(USE_OFA_FOR_INTERFERENCE_DA, Boolean.TRUE);
 		setProperty(USE_READYDA, Boolean.TRUE);
+		setProperty(USE_INTERFERENCEDA, Boolean.TRUE);
 		setProperty(NATURE_OF_READY_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
 		setProperty(USE_OFA_FOR_READY_DA, Boolean.TRUE);
 		setProperty(USE_RULE1_IN_READYDA, Boolean.TRUE);
@@ -626,6 +642,15 @@ public final class SlicerConfiguration
 	 */
 	public void useDivergenceDepAnalysis(final boolean use) {
 		processPropertyHelper(USE_DIVERGENCEDA, use);
+	}
+
+	/**
+	 * Configures if interference dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useInterferenceDepAnalysis(final boolean use) {
+		processPropertyHelper(USE_INTERFERENCEDA, use);
 	}
 
 	/**
@@ -715,7 +740,7 @@ public final class SlicerConfiguration
 	 * @post result != null
 	 */
 	static IToolConfigurationFactory getFactory() {
-		return factorySingleton;
+		return FACTORY_SINGLETON;
 	}
 
 	/**
@@ -780,40 +805,13 @@ public final class SlicerConfiguration
 	 * @pre propertyID != null and booleanValue != null
 	 */
 	private void processBooleanProperty(final Object propertyID, final Boolean booleanValue) {
-		if (propertyID.equals(USE_READYDA)) {
-			final Object _id = IDependencyAnalysis.READY_DA;
-
-			if (booleanValue.booleanValue()) {
-				dependencesToUse.add(_id);
-				processRDANatureProperty(SYMBOL_AND_EQUIVCLS_BASED_INFO);
-			} else {
-				dependencesToUse.remove(_id);
-				id2dependencyAnalyses.remove(_id);
+		if (!processInterferenceIDARelatedProperties(propertyID, booleanValue)
+			  && !processReadyDARelatedProperties(propertyID, booleanValue)) {
+			if (propertyID.equals(USE_DIVERGENCEDA)) {
+				processUseDivergenceProperty(booleanValue);
+			} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
+				processInterProceduralDivergenceDAProperty();
 			}
-		} else if (propertyID.equals(USE_DIVERGENCEDA)) {
-			processUseDivergenceProperty(booleanValue);
-		} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
-			processInterProceduralDivergenceDAProperty();
-		} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
-			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
-				  _i.hasNext();) {
-				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
-				_ida.setUseOFA(booleanValue.booleanValue());
-			}
-		} else if (propertyID.equals(USE_OFA_FOR_READY_DA)) {
-			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA)).iterator();
-				  _i.hasNext();) {
-				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
-				_rda.setUseOFA(booleanValue.booleanValue());
-			}
-		} else if (propertyID.equals(USE_SLA_FOR_READY_DA)) {
-			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA)).iterator();
-				  _i.hasNext();) {
-				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
-				_rda.setUseSafeLockAnalysis(booleanValue.booleanValue());
-			}
-		} else {
-			processRDARuleProperties(propertyID);
 		}
 	}
 
@@ -833,13 +831,13 @@ public final class SlicerConfiguration
 			_result = true;
 
 			if (property.equals(ALL_SYNC_CONSTRUCTS)) {
-				criteriaGenerator.setCriteriaFilter(ISliceCriteriaFilter.DUMMY_FILTER);
+				criteriaGenerator.setCriteriaFilter(ISliceCriteriaPredicate.DUMMY_FILTER);
 				criteriaGenerator.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (property.equals(ESCAPING_SYNC_CONSTRUCTS)) {
-				criteriaGenerator.setCriteriaFilter(new EscapingSliceCriteriaFilter());
+				criteriaGenerator.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
 				criteriaGenerator.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (property.equals(CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
-				criteriaGenerator.setCriteriaFilter(new EscapingSliceCriteriaFilter());
+				criteriaGenerator.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
 				criteriaGenerator.setCriteriaContextualizer(new DeadlockPreservingCriteriaContextualizer());
 			} else {
 				_result = false;
@@ -888,6 +886,39 @@ public final class SlicerConfiguration
 				_dda.setConsiderCallSites(_temp);
 			}
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param propertyID
+	 * @param booleanValue
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private boolean processInterferenceIDARelatedProperties(final Object propertyID, final Boolean booleanValue) {
+		boolean _result = true;
+
+		if (propertyID.equals(USE_INTERFERENCEDA)) {
+			final Object _id = IDependencyAnalysis.INTERFERENCE_DA;
+
+			if (booleanValue.booleanValue()) {
+				dependencesToUse.add(_id);
+				processIDANatureProperty(SYMBOL_AND_EQUIVCLS_BASED_INFO);
+			} else {
+				dependencesToUse.remove(_id);
+				id2dependencyAnalyses.remove(_id);
+			}
+		} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
+			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
+				  _i.hasNext();) {
+				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
+				_ida.setUseOFA(booleanValue.booleanValue());
+			}
+		} else {
+			_result = false;
+		}
+		return _result;
 	}
 
 	/**
@@ -961,9 +992,12 @@ public final class SlicerConfiguration
 	 * @param propertyID is one of <code>USE_RULE1_IN_READYDA</code>, <code>USE_RULE2_IN_READYDA</code>,
 	 * 		  <code>USE_RULE3_IN_READYDA</code>, and <code>USE_RULE4_IN_READYDA</code>.
 	 *
+	 * @return DOCUMENT ME!
+	 *
 	 * @pre propertyID != null
 	 */
-	private void processRDARuleProperties(final Object propertyID) {
+	private boolean processRDARuleProperties(final Object propertyID) {
+		boolean _result = false;
 		final Boolean _bool = (Boolean) properties.get(USE_READYDA);
 
 		if (_bool != null && _bool.booleanValue()) {
@@ -986,7 +1020,49 @@ public final class SlicerConfiguration
 				final int _rules = _rd.getRules();
 				_rd.setRules(_rules | _rule);
 			}
+
+			_result |= _rule != 0;
 		}
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param propertyID
+	 * @param booleanValue
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private boolean processReadyDARelatedProperties(final Object propertyID, final Boolean booleanValue) {
+		boolean _result = true;
+
+		if (propertyID.equals(USE_READYDA)) {
+			final Object _id = IDependencyAnalysis.READY_DA;
+
+			if (booleanValue.booleanValue()) {
+				dependencesToUse.add(_id);
+				processRDANatureProperty(SYMBOL_AND_EQUIVCLS_BASED_INFO);
+			} else {
+				dependencesToUse.remove(_id);
+				id2dependencyAnalyses.remove(_id);
+			}
+		} else if (propertyID.equals(USE_OFA_FOR_READY_DA)) {
+			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA)).iterator();
+				  _i.hasNext();) {
+				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
+				_rda.setUseOFA(booleanValue.booleanValue());
+			}
+		} else if (propertyID.equals(USE_SLA_FOR_READY_DA)) {
+			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA)).iterator();
+				  _i.hasNext();) {
+				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
+				_rda.setUseSafeLockAnalysis(booleanValue.booleanValue());
+			}
+		} else {
+			_result = processRDARuleProperties(propertyID);
+		}
+		return _result;
 	}
 
 	/**

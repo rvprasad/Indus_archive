@@ -2,12 +2,12 @@
     xmlns:indus="http://indus.projects.cis.ksu.edu/indus"
     xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    indus:activeConfiguration="backward-executable-escapingDeadlock-ctxtsens">
+    indus:activeConfiguration="backward-executable-contextSensitiveEscapingDeadlock">
     <indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="true" 
 		slicer:slicetype="BACKWARD_SLICE" indus:name="backward-executable-contextSensitiveEscapingDeadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" 
 			slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -17,7 +17,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="true" 
 		slicer:slicetype="BACKWARD_SLICE" indus:name="backward-executable-escapingDeadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -27,7 +27,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="true" 
 		slicer:slicetype="BACKWARD_SLICE" indus:name="backward-executable-deadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -39,7 +39,7 @@
 		slicer:slicetype="BACKWARD_SLICE" indus:name="backward-contextSensitiveEscapingDeadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" 
 			slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -49,7 +49,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="false" 
 		slicer:slicetype="BACKWARD_SLICE" indus:name="backward-escapingDeadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -59,7 +59,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="false" 
 		slicer:slicetype="BACKWARD_SLICE" indus:name="backward-deadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -70,7 +70,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="false" 
 		slicer:slicetype="FORWARD_SLICE" indus:name="forward-escapingDeadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -80,7 +80,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="false" 
 		slicer:slicetype="FORWARD_SLICE" indus:name="forward-deadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -93,7 +93,7 @@
 		slicer:slicetype="COMPLETE_SLICE" indus:name="complete-contextSensitiveEscapingDeadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" 
 			slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -103,7 +103,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="true" 
 		slicer:slicetype="COMPLETE_SLICE" indus:name="complete-escapingDeadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"/>
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
@@ -113,7 +113,7 @@
 	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="true" 
 		slicer:slicetype="COMPLETE_SLICE" indus:name="complete-deadlock"> 
 		<slicer:deadlock slicer:sliceForDeadlock="true" slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"/>		
-	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
+	   	<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO" 
 			slicer:useOFA="true"/>
 	    <slicer:divergence slicer:active="true" slicer:interprocedural="true"/>
 	    <slicer:ready slicer:active="true" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 

@@ -98,6 +98,7 @@
          This captures interference dependence information.
        </xsd:documentation>
      </xsd:annotation>
+     <xsd:attribute ref="slicer:active" use="required"/>
      <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
      <xsd:attribute name="useOFA" use="required" type="xsd:boolean"/>
     </xsd:complexType>
