@@ -2,3 +2,16 @@ build
 .clover
 staticanalyses.jar
 staticanalyses-src.jar
+tgz
+tgz*
+dist
+dist*
+build
+test.jpage
+docs
+saps.jar
+temp
+analyses.jar
+staticanalyses.jar
+staticanalyses-src.jar
+.clover
