@@ -204,7 +204,6 @@ public class AliasedUseDefInfo
 			}
 
 			final Value _ref = _as.getRightOp();
-
 			final Map _key2info;
 
 			if (_ref instanceof ArrayRef || _ref instanceof FieldRef) {
