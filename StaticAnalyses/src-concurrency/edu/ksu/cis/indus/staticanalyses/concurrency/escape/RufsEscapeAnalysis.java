@@ -68,6 +68,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
+import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
@@ -1548,7 +1549,7 @@ public class RufsEscapeAnalysis
 			}
 		}
 
-		WorkBag wb = new WorkBag(WorkBag.LIFO);
+		WorkBag wb = new LIFOWorkBag();
 		Collection processed = new HashSet();
 		wb.addAllWork(cgi.getHeads());
 
@@ -1857,6 +1858,9 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/10/31 01:02:04  venku
+   - added code for extracting data for CC04 paper.
+
    Revision 1.5  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

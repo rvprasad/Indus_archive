@@ -33,305 +33,7 @@ import java.util.Stack;
  *
  * @since Created: Thu Jul 25 18:37:24 2002.
  */
-public class WorkBag {
-	/**
-	 * This is used to indicate Last-In-First-Out ordering on the work pieces stored in this container.
-	 */
-	public static final int LIFO = 1;
-
-	/**
-	 * This is sed to indicate First-In-First-Out ordering on the work pieces stored in this container.
-	 */
-	public static final int FIFO = 2;
-
-	/**
-	 * This will store work pieces.
-	 *
-	 * @invariant container.oclIsKindOf(Bag(Object))
-	 */
-	private ICollectionWrapper container;
-
-	/**
-	 * Creates an instance of this class.
-	 *
-	 * @param order is the requested ordering on the work pieces that will stored in this bag.
-	 *
-	 * @throws IllegalArgumentException when any order other than<code>LIFO</code> or <code>FIFO</code> is specified.
-	 *
-	 * @pre order == FIFO or order == LIFO
-	 */
-	public WorkBag(final int order) {
-		if (order == LIFO) {
-			container = new CWStack();
-		} else if (order == FIFO) {
-			container = new CWQueue();
-		} else {
-			throw new IllegalArgumentException("Invalid order specified.");
-		}
-	}
-
-	/**
-	 * A generic interface to be implemented by container classes.  This interface will be used by the bag to operate the
-	 * container objects.
-	 */
-	protected interface ICollectionWrapper {
-		/**
-		 * Returns the filled status of this collection.
-		 *
-		 * @return <code>true</code> if the collection is empty; <code>false</code>, otherwise.
-		 *
-		 * @post result == (self->size() == 0)
-		 */
-		boolean isEmpty();
-
-		/**
-		 * Stores an object.
-		 *
-		 * @param o the object to be stored.
-		 *
-		 * @post self->includes(o)
-		 * @invariant self->includesAll(self$pre)
-		 */
-		void add(Object o);
-
-		/**
-		 * Stores all the objects in the given collection.
-		 *
-		 * @param c the collection containing the objects to be stored.
-		 *
-		 * @invariant c.oclIsTypeOf(Bag(Object))
-		 * @post self->includesAll(c)
-		 * @invariant self->includesAll(self$pre)
-		 */
-		void addAll(Collection c);
-
-		/**
-		 * Stores all the objects in the given collection and ensures that duplicates do not exist.
-		 *
-		 * @param c the collection containing the objects to be stored.
-		 *
-		 * @invariant c.oclIsTypeOf(Bag(Object))
-		 * @invariant self->includesAll(self$pre)
-		 * @post self->includesAll(c) and self->forall( o | self->count(o) = 1)
-		 */
-		void addAllNoDuplicates(Collection c);
-
-		/**
-		 * Removes all objects from this collection.
-		 *
-		 * @post self->isEmpty() == true
-		 */
-		void clear();
-
-		/**
-		 * Checks if the given object is stored in this collection.
-		 *
-		 * @param o the object to be checked for containment.
-		 *
-		 * @return <code>true</code> if this collection contains <code>o</code>; <code>false</code>, otherwise.
-		 *
-		 * @post result == self->includes(o)
-		 */
-		boolean contains(Object o);
-
-		/**
-		 * Returns a stored object.
-		 *
-		 * @return a stored object.
-		 *
-		 * @post self$pre->exists(o | result == o)
-		 */
-		Object get();
-	}
-
-	/**
-	 * An abstract implementation of the <code>ICollectionWrapper</code> interface.  <code>add(Object)</code> needs to be
-	 * implemented by the extending class.  Also, the container needs to be initialized in the constructor of the extending
-	 * class.
-	 *
-	 * @invariant self.oclIsTypeOf(Collection(Object))
-	 *
-	 * @see WorkBag.ICollectionWrapper
-	 */
-	protected abstract class AbstractCollectionWrapper
-	  implements ICollectionWrapper {
-		/**
-		 * The container that will store the objects.
-		 *
-		 * @invariant container.isOclKindOf(Bag(Object))
-		 */
-		protected Collection containerImpl;
-
-		/**
-		 * Returns the filled status of this collection.
-		 *
-		 * @return <code>true</code> if the collection is empty; <code>false</code>, otherwise.
-		 *
-		 * @post result == (self->size() == 0)
-		 */
-		public boolean isEmpty() {
-			return containerImpl.isEmpty();
-		}
-
-		/**
-		 * Add all elements in <code>c</code> to the wrapped container.  This does not ensure that there are no duplicates in
-		 * the container.
-		 *
-		 * @param c is the collection of the elements to be added.
-		 *
-		 * @invariant c.oclIsKindOf(Bag(Object))
-		 * @invariant self->includesAll(self$pre)
-		 * @post self->includesAll(c)
-		 */
-		public void addAll(final Collection c) {
-			containerImpl.addAll(c);
-		}
-
-		/**
-		 * Add all elements in <code>c</code> to the wrapped container, but ensures that there are no duplicates in the
-		 * container.
-		 *
-		 * @param c is the collection of the elements to be added.
-		 *
-		 * @invariant c.oclIsKindOf(Bag(Object))
-		 * @invariant self->includesAll(self$pre)
-		 * @post self->includesAll(c)
-		 * @post c->forall(o | self->count(o) = 1)
-		 */
-		public void addAllNoDuplicates(final Collection c) {
-			for (Iterator i = c.iterator(); i.hasNext();) {
-				Object element = i.next();
-
-				if (containerImpl.contains(element)) {
-					continue;
-				}
-				add(element);
-			}
-		}
-
-		/**
-		 * Removes all objects from <code>container</code>.
-		 *
-		 * @post self->size() == 0
-		 */
-		public void clear() {
-			containerImpl.clear();
-		}
-
-		/**
-		 * Checks if the given object is stored in this collection.
-		 *
-		 * @param o the object to be checked for containment.
-		 *
-		 * @return <code>true</code> if this collection contains <code>o</code>; <code>false</code>, otherwise.
-		 *
-		 * @post result == self->includes(o)
-		 */
-		public boolean contains(final Object o) {
-			return containerImpl.contains(o);
-		}
-	}
-
-
-	/**
-	 * This class imposes FIFO ordering on the stored objects.
-	 *
-	 * @invariant self.oclIsTypeOf(Sequence(Object))
-	 *
-	 * @see WorkBag.AbstractCollectionWrapper
-	 */
-	private class CWQueue
-	  extends AbstractCollectionWrapper {
-		/**
-		 * The container that will store the objects.
-		 *
-		 * @invariant queue.oclIsKindOf(Sequence(Object))
-		 */
-		List queue = new ArrayList();
-
-		/**
-		 * Creates a new <code>CWQueue</code> instance.
-		 *
-		 * @post self.AbstractCollecitonwrapper::container == queue.asBag()
-		 */
-		CWQueue() {
-			super.containerImpl = queue;
-		}
-
-		/**
-		 * Adds the object to the end of the sequence.
-		 *
-		 * @param o the object to be stored.
-		 *
-		 * @invariant self->includesAll(self$pre)
-		 * @post self->includes(o) and self->last == o
-		 */
-		public void add(final Object o) {
-			queue.add(o);
-		}
-
-		/**
-		 * Returns the first object in the sequence.
-		 *
-		 * @return the first object.
-		 *
-		 * @post result == self->first
-		 */
-		public Object get() {
-			return queue.remove(0);
-		}
-	}
-
-
-	/**
-	 * This class imposes LIFO ordering on the stored objects.
-	 *
-	 * @invariant self.oclIsTypeOf(Sequence(Object))
-	 *
-	 * @see WorkBag.AbstractCollectionWrapper
-	 */
-	private class CWStack
-	  extends AbstractCollectionWrapper {
-		/**
-		 * The container that will store the objects.
-		 *
-		 * @invariant stack.oclIsKindOf(Bag(Object))
-		 */
-		private Stack stack = new Stack();
-
-		/**
-		 * Creates a new <code>CWStack</code> instance.
-		 *
-		 * @post self::AbstractCollectionWrapper.container == stack->asBag(Object)
-		 */
-		CWStack() {
-			super.containerImpl = stack;
-		}
-
-		/**
-		 * Adds the object to the beginning of the sequence.
-		 *
-		 * @param o the object to be stored.
-		 *
-		 * @invariant self->includesAll(self$pre)
-		 * @post self->includes(o) and self->first == o
-		 */
-		public void add(final Object o) {
-			stack.push(o);
-		}
-
-		/**
-		 * Returns the first object in the sequence.
-		 *
-		 * @return the first object.
-		 *
-		 * @post result == self->first
-		 */
-		public Object get() {
-			return stack.pop();
-		}
-	}
-
+public interface WorkBag {
 	/**
 	 * Returns a work pieces.
 	 *
@@ -339,9 +41,7 @@ public class WorkBag {
 	 *
 	 * @post self$pre->exists(o | result == o)
 	 */
-	public Object getWork() {
-		return container.get();
-	}
+	Object getWork();
 
 	/**
 	 * Adds all the work pieces in <code>c</code> to the bag.  This will not check if the work piece exists in the bag.
@@ -350,10 +50,8 @@ public class WorkBag {
 	 *
 	 * @invariant self->includesAll(self$pre)
 	 * @post self->includesAll(c)
-	 */
-	public void addAllWork(final Object[] o) {
-		container.addAll(Arrays.asList(o));
-	}
+	 *
+	void addAllWork(final Object[] o);
 
 	/**
 	 * Adds all the work pieces in <code>c</code> to the bag.  This will not check if the work piece exists in the bag.
@@ -363,18 +61,14 @@ public class WorkBag {
 	 * @invariant self->includesAll(self$pre)
 	 * @post self->includesAll(c)
 	 */
-	public void addAllWork(final Collection c) {
-		container.addAll(c);
-	}
+	void addAllWork(final Collection c);
 
 	/**
 	 * Adds all the work pieces in <code>c</code> to the bag, if they do not exist in the bag.
 	 *
 	 * @param o the work pieces to the added.
-	 */
-	public void addAllWorkNoDuplicates(final Object[] o) {
-		container.addAllNoDuplicates(Arrays.asList(o));
-	}
+	 *
+	void addAllWorkNoDuplicates(final Object[] o);
 
 	/**
 	 * Adds all the work pieces in <code>c</code> to the bag, if they do not exist in the bag.
@@ -386,9 +80,7 @@ public class WorkBag {
 	 * @post self->includesAll(c)
 	 * @post self->forall( o | self->count() = 1)
 	 */
-	public void addAllWorkNoDuplicates(final Collection c) {
-		container.addAllNoDuplicates(c);
-	}
+	void addAllWorkNoDuplicates(final Collection c);
 
 	/**
 	 * Adds a new work to the bag.  This will not check if the work exists in the bag.
@@ -398,9 +90,7 @@ public class WorkBag {
 	 * @invariant self->includesAll(self$pre)
 	 * @post self->includes(o)
 	 */
-	public void addWork(final Object o) {
-		container.add(o);
-	}
+	void addWork(final Object o);
 
 	/**
 	 * Adds a new work to the bag, if it does not exist in the bag.
@@ -411,20 +101,14 @@ public class WorkBag {
 	 * @post self->includes(o)
 	 * @post self->forall( o | self->count() = 1)
 	 */
-	public void addWorkNoDuplicates(final Object o) {
-		if (!container.contains(o)) {
-			container.add(o);
-		}
-	}
+	void addWorkNoDuplicates(final Object o);
 
 	/**
 	 * Removes all work pieces in this bag.
 	 *
 	 * @post hasWork() == true
 	 */
-	public void clear() {
-		container.clear();
-	}
+	void clear();
 
 	/**
 	 * Checks if there is any work in this bag.
@@ -433,14 +117,15 @@ public class WorkBag {
 	 *
 	 * @post result == (self->size() != 0)
 	 */
-	public boolean hasWork() {
-		return !container.isEmpty();
-	}
+	boolean hasWork();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/05 08:46:13  venku
+   - coding convention.
+
    Revision 1.6  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
