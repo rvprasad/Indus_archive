@@ -125,11 +125,11 @@ public class SlicerTestSetup
 		// write XMLized Jimple data
 		if (dumpLocation != null) {
 			driver.jimpleXMLDumpDir = dumpLocation;
-			driver.dumpJimple();
+			driver.dumpJimpleAsXML();
 		}
 		
-		// destructively update Jimple
-		driver.destructivelyUpdateJimple();
+		// We do not destructively update Jimple as this would invalidate any information 
+		// based on old jimple representation.
 		
 		// We do not generate xmlized slice as it is responsibility of the XMLBasedTest to 
 		// generate the test data before testing.
@@ -194,6 +194,9 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/05/10 09:40:16  venku
+   - changed the way jimple is dumped.
+
    Revision 1.9  2004/05/04 09:58:22  venku
    - the test will also drive tagbased slice residualizer via the new
      method added to SliceXMLizerCLI.
