@@ -129,11 +129,6 @@ public class SootBasedDriver {
 	 */
 	public static class RootMethodTrapper {
 		/**
-		 * This is the type of <code>String[]</code> in Soot type system.
-		 */
-		private final ArrayType strArrayType = ArrayType.v(RefType.v("java.lang.String"), 1);
-
-		/**
 		 * The names of the classes which can contribute entry points.
 		 */
 		protected Collection theClassNames;
@@ -142,6 +137,11 @@ public class SootBasedDriver {
 		 * The regular expression that is used to match classes which may contain root methods.
 		 */
 		Pattern rootClasses;
+
+		/**
+		 * This is the type of <code>String[]</code> in Soot type system.
+		 */
+		private final ArrayType strArrayType = ArrayType.v(RefType.v("java.lang.String"), 1);
 
 		/**
 		 * Creates a new RootMethodTrapper object.
@@ -304,14 +304,18 @@ public class SootBasedDriver {
 	 * Initialize the driver.  Loads up the classes and sets up the scene.  The given classes are loaded up as application
 	 * classes.
 	 *
+	 * @param options to be used while setting up Soot infrastructure.
+	 *
 	 * @throws RuntimeException when <code>setClassNames()</code> was not called before using this object.
+	 *
+	 * @pre options != null
 	 */
-	public final void initialize() {
+	public final void initialize(final String[] options) {
 		if (classNames == null) {
 			throw new RuntimeException("Please call setClassNames() before using this object.");
 		}
 		writeInfo("Loading classes....");
-		scene = loadupClassesAndCollectMains();
+		scene = loadupClassesAndCollectMains(options);
 	}
 
 	/**
@@ -351,14 +355,16 @@ public class SootBasedDriver {
 	 * <code>addToSootClassPath</code>. It uses <code>use-original-names:false</code>, <code>jb.ls enabled:false</code>, and
 	 * <code>jb.ulp enabled:false unsplit-original-locals:false</code> options for Soot class loading.
 	 *
+	 * @param options to be used while setting up Soot infrastructure.
+	 *
 	 * @return a soot scene that provides the classes to be analyzed.
 	 *
-	 * @pre args != null and classNames != null
+	 * @pre args != null and classNames != null and options != null
 	 */
-	private Scene loadupClassesAndCollectMains() {
+	private Scene loadupClassesAndCollectMains(final String[] options) {
 		final Scene _result = Scene.v();
 		String _temp = _result.getSootClassPath();
-		Options.v().parse(Util.getSootOptions());
+		Options.v().parse(options);
 
 		if (_temp != null) {
 			_temp += File.pathSeparator + classpathToAdd + File.pathSeparator + System.getProperty("java.class.path");
@@ -405,6 +411,8 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/04/04 11:12:29  venku
+   - STR_ARRAY_TYPE was non-static-ized.
    Revision 1.16  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -413,7 +421,6 @@ public class SootBasedDriver {
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.15  2004/03/26 00:07:26  venku
    - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
    - ripple effect in classes and method names.
