@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -38,7 +38,7 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 public class SendTokensWork
   extends AbstractTokenProcessingWork
   implements IPoolable {
-	/**
+	/** 
 	 * This is the work pool of work peices that will be reused upon request.
 	 *
 	 * @invariant POOL.borrowObject().oclIsKindOf(SendTokensWork)
@@ -53,12 +53,12 @@ public class SendTokensWork
 				}
 			});
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SendTokensWork.class);
 
-	/**
+	/** 
 	 * The flow graph node associated with this work.
 	 */
 	private IFGNode node;
@@ -103,6 +103,10 @@ public class SendTokensWork
 	 * Injects the tokens into the associated node.
 	 */
 	public final void execute() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("execute() - Propagating tokens - " + tokens.getValues() + " into node " + node);
+		}
+
 		node.injectTokens(tokens);
 	}
 
@@ -137,6 +141,9 @@ public class SendTokensWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/19 05:15:11  venku
+   - changed the interface of FGNode to enable piggy-backing more work
+     on the current unprocessed work piece.
    Revision 1.1  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
