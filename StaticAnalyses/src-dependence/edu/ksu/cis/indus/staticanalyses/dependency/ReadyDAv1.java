@@ -198,9 +198,7 @@ public class ReadyDAv1
 	private IEnvironment env;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides monitor information in the system.
 	 */
 	private IMonitorInfo monitorInfo;
 
@@ -220,9 +218,7 @@ public class ReadyDAv1
 	private PairManager pairMgr;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides safe lock information.
 	 */
 	private SafeLockAnalysis safelockAnalysis;
 
@@ -239,7 +235,7 @@ public class ReadyDAv1
 	private boolean useOFA;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This indicates if safe lock analysis should be used.
 	 */
 	private boolean useSafeLockAnalysis;
 
@@ -440,9 +436,9 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Controls if safe lock analysis should be used.
 	 *
-	 * @param b
+	 * @param b <code>true</code> indicates the analysis should be used; <code>false</code>, otherwise.
 	 */
 	public void setUseSafeLockAnalysis(final boolean b) {
 		useSafeLockAnalysis = b;
@@ -457,7 +453,7 @@ public class ReadyDAv1
 	public void analyze() {
 		unstable();
 
-		if (monitorInfo.isStable() && callgraph.isStable() && threadgraph.isStable() && safelockAnalysis.isStable()) {
+		if (monitorInfo.isStable() && callgraph.isStable() && threadgraph.isStable() && (!useSafeLockAnalysis || safelockAnalysis.isStable())) {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + " processing");
 			}
@@ -775,12 +771,13 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * This checks if the lock associated the given monitor is unsafe.
 	 *
-	 * @param monitorStmt
-	 * @param method DOCUMENT ME!
+	 * @param monitorStmt obviously.
+	 * @param method in which <code>monitorStmt</code> occurs.
 	 *
-	 * @return
+	 * @return <code>true</code> if the lock is unsafe; <code>false</code>, otherwise.
+	 * @pre monitorStmt != null and method != null
 	 */
 	private boolean isLockUnsafe(final Object monitorStmt, final SootMethod method) {
 		boolean _result = true;
@@ -1043,9 +1040,9 @@ public class ReadyDAv1
 
 					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 						final Object _enter = _j.next();
-						final boolean _safe = isLockUnsafe(_enter, _method);
+						final boolean _unsafe = isLockUnsafe(_enter, _method);
 
-						if (!_safe) {
+						if (_unsafe) {
 							if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
 								_col.remove(SYNC_METHOD_PROXY_STMT);
 								_temp.clear();
@@ -1313,6 +1310,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.64  2004/07/27 11:07:20  venku
+   - updated project to use safe lock analysis.
+
    Revision 1.63  2004/07/24 10:02:46  venku
    - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
      preprocessor hierarchy tree.
