@@ -131,15 +131,29 @@ public abstract class AbstractStmtSwitch
 	 * @pre stmtToProcess != null
 	 */
 	protected void process(final Stmt stmtToProcess) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing " + stmtToProcess);
+		}
+
 		Stmt temp = context.setStmt(stmtToProcess);
 		stmtToProcess.apply(this);
 		context.setStmt(temp);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: processed " + stmtToProcess);
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
    Revision 1.8  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
