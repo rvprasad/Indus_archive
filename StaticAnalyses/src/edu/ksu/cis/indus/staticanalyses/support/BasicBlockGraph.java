@@ -236,7 +236,7 @@ public class BasicBlockGraph
 		 * @param start is the index starting from which the statements are requested.  The index is relative to the
 		 * 		  statement list of the method and not the statement list of this block.
 		 *
-		 * @return a list of <code>Stmt</code>s.
+		 * @return a modifiable list of <code>Stmt</code>s.
 		 *
 		 * @post result != null
 		 * @post (start &lt; leader or start >= trailer) implies (result.size() = 0)
@@ -252,7 +252,7 @@ public class BasicBlockGraph
 		 * @param start is the starting index of the requested statement list.
 		 * @param end is the ending index of the requested statement list.
 		 *
-		 * @return a list of <code>Stmt</code>s.
+		 * @return a modifiable list of <code>Stmt</code>s.
 		 *
 		 * @post result != null
 		 * @post ((start &lt; leader or end > trailer or start >= end)) implies (result.size() = 0)
@@ -293,7 +293,7 @@ public class BasicBlockGraph
 		/**
 		 * Retrieves the statements in this block .
 		 *
-		 * @return a list of statements.
+		 * @return an unmodifiable list of statements.
 		 *
 		 * @post result.oclIsKindOf(Sequence(Stmt))
 		 */
@@ -329,7 +329,7 @@ public class BasicBlockGraph
 	/**
 	 * Returns the nodes in the graph.
 	 *
-	 * @return the list of <code>BasicBlocks</code> that make up the nodes in the graph.
+	 * @return an unmodifiable list of <code>BasicBlocks</code> that make up the nodes in the graph.
 	 *
 	 * @post result != null
 	 *
@@ -370,6 +370,10 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/02 11:50:54  venku
+   - start==end in getStmtFromTo() returned a list with 2 instances of the
+    statement. FIXED.
+
    Revision 1.6  2003/09/02 07:39:54  venku
    - getStmtFromTo() was off by one at the end.  Also, it relied on Stmt list to calculate this info.
      Now it uses the unit graph to calculate this info.

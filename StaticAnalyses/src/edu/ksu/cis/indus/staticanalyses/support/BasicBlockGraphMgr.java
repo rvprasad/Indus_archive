@@ -37,8 +37,6 @@ package edu.ksu.cis.indus.staticanalyses.support;
 
 import soot.SootMethod;
 
-import soot.jimple.JimpleBody;
-
 import soot.toolkits.graph.UnitGraph;
 
 import java.lang.ref.WeakReference;
@@ -72,7 +70,7 @@ public class BasicBlockGraphMgr {
 	 * @post result != null
 	 */
 	public BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
-		SootMethod method = ((JimpleBody) stmtGraph.getBody()).getMethod();
+		SootMethod method = stmtGraph.getBody().getMethod();
 		WeakReference ref = (WeakReference) method2graph.get(method);
 
 		if (ref == null || ref.get() == null) {
@@ -105,6 +103,11 @@ public class BasicBlockGraphMgr {
    ChangeLog:
 
    $Log$
+   Revision 1.3  2003/08/11 06:40:54  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.
