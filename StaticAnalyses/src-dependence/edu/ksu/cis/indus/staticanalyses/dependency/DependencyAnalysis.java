@@ -79,7 +79,7 @@ public abstract class DependencyAnalysis
 	 */
 	public static final Object SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
 
-	/** 
+	/**
 	 * This is the collection of dependency ids.
 	 */
 	public static final Collection ids;
@@ -174,6 +174,8 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/02/09 16:50:36  venku
+   - added a cache of collection of dependence ids.
    Revision 1.13  2003/12/16 06:53:04  venku
    - documentation.
    Revision 1.12  2003/12/02 09:42:37  venku
