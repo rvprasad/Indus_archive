@@ -51,6 +51,7 @@ import soot.TrapManager;
 import soot.Type;
 import soot.Value;
 
+import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
@@ -311,6 +312,10 @@ public final class ExecutableSlicePostProcessor
 	private void pickARandomReturnPoint(final Collection returnPoints) {
 		Stmt _exitStmt = null;
 
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("pickARandomReturnPoint(returnPoints = " + returnPoints + ")");
+        }
+
 		for (final Iterator _i = returnPoints.iterator(); _i.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
 			final Stmt _stmt = _bb.getTrailerStmt();
@@ -319,15 +324,15 @@ public final class ExecutableSlicePostProcessor
 				// if there exists a return statement grab it.
 				_exitStmt = _stmt;
 				break;
-			} else if (_stmt instanceof ThrowStmt && !(_exitStmt instanceof ReturnStmt || _stmt instanceof ReturnVoidStmt)) {
+			} else if (_stmt instanceof ThrowStmt) {
 				// if there have been no return statements, then grab a throw statement and continue to look.
 				_exitStmt = _stmt;
-			} else if (_exitStmt != null) {
+			} else if (_exitStmt == null) {
 				// if there have been no exit points, then grab the psedu exit and continue to look.
-				_exitStmt = _stmt;
+			    _exitStmt = _stmt;
 			}
 		}
-		processAndIncludeExitStmt(_exitStmt);
+	    processAndIncludeExitStmt(_exitStmt);
 	}
 
 	/**
@@ -493,9 +498,8 @@ public final class ExecutableSlicePostProcessor
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Picking up identity statements and methods required in" + method);
 		}
-
 		stmtWorkBag.clear();
-		stmtWorkBag.addAllWork(IteratorUtils.toList(bbgMgr.getBasicBlockGraph(method).getStmtGraph().iterator()));
+		stmtWorkBag.addAllWork(IteratorUtils.toList(bbgMgr.getUnitGraph(method).iterator()));
 		processedStmtCache.clear();
 
 		while (stmtWorkBag.hasWork()) {
@@ -561,6 +565,9 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/07/10 00:52:20  venku
+   - throw statements need to suck in the class of the exception that is thrown. FIXED.
+
    Revision 1.26  2004/07/09 09:15:02  venku
    - corner case while picking return points was addressed.
    - refactoring.
