@@ -177,7 +177,6 @@ final class TagBasedSliceXMLizer
 				if (_tag != null) {
 					writer.startTag("stmt");
 					writer.attribute("id", idGenerator.getIdForStmt(stmt, _method));
-					writer.endTag();
 					processingStmt = true;
 				}
 			} catch (IOException _e) {
@@ -206,7 +205,6 @@ final class TagBasedSliceXMLizer
 				if (_tag != null) {
 					writer.startTag("method");
 					writer.attribute("id", idGenerator.getIdForMethod(method));
-					writer.endTag();
 					processingMethod = true;
 				}
 			} catch (IOException _e) {
@@ -239,7 +237,6 @@ final class TagBasedSliceXMLizer
 				if (_tag != null) {
 					writer.startTag("class");
 					writer.attribute("id", idGenerator.getIdForClass(clazz));
-					writer.endTag();
 					processingClass = true;
 				}
 			} catch (IOException _e) {
@@ -358,6 +355,10 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/05/09 08:24:38  venku
+   - all xmlizers use xmlenc to write xml data.
+   - Hence, new library dependence on xmlenc.jar.
+
    Revision 1.19  2004/04/23 00:42:37  venku
    - trying to get canonical xmlized Jimple representation.
    Revision 1.18  2004/04/22 23:32:32  venku
