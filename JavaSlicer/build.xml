@@ -4,8 +4,6 @@
 
 	<import file="prelocalbuild.xml" />
 
-	<property name="docbook.base" value="../../../" />
-
 	<target name="init">
 		<tstamp />
 	</target>
