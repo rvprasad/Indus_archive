@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common;
+package edu.ksu.cis.indus.common.collections;
 
 import java.util.ListIterator;
 
