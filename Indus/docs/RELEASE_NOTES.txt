@@ -29,7 +29,7 @@ Required software:
 
 Version 0.4
 ------------
-	- Feature requests 426.
+	- Feature requests 426, 435.
 	- added support in basic block graph manager to cache statement list of methods.
 	- Class file and Sources are now v1.4 compatible.
 	
