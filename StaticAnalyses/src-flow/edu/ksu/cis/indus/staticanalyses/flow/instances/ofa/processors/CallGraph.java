@@ -46,7 +46,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
@@ -673,6 +672,11 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/01/06 00:17:01  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.44  2003/12/31 06:09:34  venku
    - <clinit>s are ignored as heads when the did not
      call any methods.  FIXED.
