@@ -162,9 +162,10 @@ public class CFGAnalysis {
 	}
 
 	/**
-	 * Checks if the given soot method
+	 * Checks if the given soot method is executed multiple times in the system.  It may be due to loop enclosed call-sites, 
+     * multiple call sites, or call-sites in call graph SCCs (with more than one element).  
 	 *
-	 * @param caller is the method which leads to a thread allocation site.
+	 * @param caller is the method.
 	 *
 	 * @return <code>true</code> if the given method or any of it's ancestors in the call tree have multiple or
 	 * 		   multiply-executed call sites; <code>false</code>, otherwise.
@@ -234,6 +235,10 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/01 11:56:20  venku
+   - instantiated occursInCycle()
+   - added executedMultipleTimes() for Stmt and SootMethod.
+
    Revision 1.4  2003/08/24 12:04:32  venku
    Removed occursInCycle() method from DirectedGraph.
    Installed occursInCycle() method in CFGAnalysis.
