@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,18 +30,18 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses;
 
 import soot.SootMethod;
-
-import soot.jimple.Stmt;
 import soot.ValueBox;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import soot.jimple.Stmt;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.EmptyStackException;
 import java.util.Stack;
@@ -57,9 +57,9 @@ import java.util.Stack;
 public class Context
   implements Cloneable {
 	/**
-	 * An instance of <code>Logger</code> used for logging purposes.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(Context.class.getName());
+	private static final Log LOGGER = LogFactory.getLog(Context.class);
 
 	/**
 	 * The call-stack sensitive component of the context.  This is relevant in call-site sensitive mode of analysis.
@@ -121,7 +121,7 @@ public class Context
 	 *
 	 * @return the program point previously represented by this context.
 	 */
-	public ValueBox setProgramPoint(ValueBox pp) {
+	public ValueBox setProgramPoint(final ValueBox pp) {
 		ValueBox temp = progPoint;
 		progPoint = pp;
 
@@ -141,10 +141,9 @@ public class Context
 	 * Updates the call stack to reflect that the given method is the first method call in this context.  It empties the call
 	 * stack and installs the given method as the current method.
 	 *
-	 * @param sm the method to be installed as the current method and the only method on the call stack in this context. This
-	 *           cannot be <code>null</code>.
+	 * @param sm the method to be installed as the current method and the only method on the call stack in this context.
 	 */
-	public void setRootMethod(SootMethod sm) {
+	public void setRootMethod(final SootMethod sm) {
 		callString.removeAllElements();
 		callString.push(sm);
 	}
@@ -152,13 +151,13 @@ public class Context
 	/**
 	 * Sets the given statement as the statement in this context.
 	 *
-	 * @param stmt to be set as the statement in this context.
+	 * @param stmtParam to be set as the statement in this context.
 	 *
 	 * @return the previous statement in this context.
 	 */
-	public Stmt setStmt(Stmt stmt) {
+	public Stmt setStmt(final Stmt stmtParam) {
 		Stmt result = this.stmt;
-		this.stmt = stmt;
+		this.stmt = stmtParam;
 		return result;
 	}
 
@@ -176,7 +175,7 @@ public class Context
 	 *
 	 * @param sm the method being called in the current context.  This cannot be <code>null</code>.
 	 */
-	public void callNewMethod(SootMethod sm) {
+	public void callNewMethod(final SootMethod sm) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Adding method " + sm);
 		}
@@ -196,7 +195,9 @@ public class Context
 			temp = (Context) super.clone();
 			temp.callString = (Stack) callString.clone();
 		} catch (CloneNotSupportedException e) {
-			LOGGER.error("This should not happen.", e);
+			if (LOGGER.isErrorEnabled()) {
+				LOGGER.error("This should not happen.", e);
+			}
 		} finally {
 			return temp;
 		}
@@ -205,27 +206,37 @@ public class Context
 	/**
 	 * Checks if the given context and this context represent the same context.
 	 *
-	 * @param c the context to be compared for equality with this context.  This cannot be <code>null</code>.
+	 * @param o the context to be compared for equality with this context.
 	 *
 	 * @return <code>true</code> if <code>c</code> and this context represent the same context; <code>false</code> otherwise.
 	 */
-	public boolean equals(Context c) {
-		boolean ret = true;
+	public boolean equals(final Object o) {
+		boolean ret = false;
 
-		if (progPoint == null && c.progPoint == null) {
-			ret &= true;
-		} else if (progPoint != null) {
-			ret &= progPoint.equals(c.progPoint);
-		} else {
-			ret &= c.progPoint.equals(progPoint);
-		}
+		if (o != null && o instanceof Context) {
+			Context c = (Context) o;
 
-		if (callString == null && c.callString == null) {
-			ret &= true;
-		} else if (callString != null) {
-			ret &= callString.equals(c.callString);
-		} else {
-			ret &= c.callString.equals(callString);
+			if (progPoint != null) {
+				ret = progPoint.equals(c.progPoint);
+			} else {
+				ret = progPoint == c.progPoint;
+			}
+
+			if (ret) {
+				if (stmt != null) {
+					ret = stmt.equals(c.stmt);
+				} else {
+					ret = stmt == c.stmt;
+				}
+
+				if (ret) {
+					if (callString != null) {
+						ret &= callString.equals(c.callString);
+					} else {
+						ret &= callString == c.callString;
+					}
+				}
+			}
 		}
 		return ret;
 	}
@@ -236,7 +247,18 @@ public class Context
 	 * @return the hash code of this object.
 	 */
 	public int hashCode() {
-		return progPoint.hashCode() + callString.hashCode();
+		int result = 17;
+
+		if (progPoint != null) {
+			result = 37 * result + progPoint.hashCode();
+		}
+
+		if (stmt != null) {
+			result = 37 * result + stmt.hashCode();
+		}
+
+		result = 37 * result + callString.hashCode();
+		return result;
 	}
 
 	/**
@@ -254,17 +276,18 @@ public class Context
 	 * @return the stringized representation of this context.
 	 */
 	public String toString() {
-		return "Context:\n\tProgram Point: " + progPoint + "\n\tAllocation Site: " + "\n\tCallStack: " + callString + "\n";
+		return "Context:\n\tProgram Point: " + progPoint + "\n\tStmt: " + stmt + "\n\tCallStack: " + callString + "\n";
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 0.10  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+   Revision 0.10  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

@@ -270,7 +270,7 @@ public class Triple
 	public final boolean equals(final Object o) {
 		boolean result = false;
 
-		if (o instanceof Triple) {
+		if (o != null && o instanceof Triple) {
 			Triple temp = (Triple) o;
 
 			if (first != null) {
@@ -279,16 +279,20 @@ public class Triple
 				result = first == temp.first;
 			}
 
-			if (second != null) {
-				result = result && second.equals(temp.second);
-			} else {
-				result = result && second == temp.second;
-			}
+			if (result) {
+				if (second != null) {
+					result = result && second.equals(temp.second);
+				} else {
+					result = result && second == temp.second;
+				}
 
-			if (third != null) {
-				result = result && third.equals(temp.third);
-			} else {
-				result = result && third == temp.third;
+				if (result) {
+					if (third != null) {
+						result = result && third.equals(temp.third);
+					} else {
+						result = result && third == temp.third;
+					}
+				}
 			}
 		}
 		return result;
@@ -356,9 +360,18 @@ public class Triple
 	 */
 	protected int hash() {
 		int result = 17;
-		result = 37 * result + first.hashCode();
-		result = 37 * result + second.hashCode();
-		result = 37 * result + third.hashCode();
+
+		if (first != null) {
+			result = 37 * result + first.hashCode();
+		}
+
+		if (second != null) {
+			result = 37 * result + second.hashCode();
+		}
+
+		if (third != null) {
+			result = 37 * result + third.hashCode();
+		}
 		return result;
 	}
 
@@ -375,12 +388,14 @@ public class Triple
 /*
    ChangeLog:
    $Log$
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+   Revision 1.3  2003/08/11 07:13:58  venku
+ *** empty log message ***
+     Revision 1.2  2003/08/11 04:20:19  venku
+     - Pair and Triple were changed to work in optimized and unoptimized mode.
+     - Ripple effect of the previous change.
+     - Documentation and specification of other classes.
+     Revision 1.1  2003/08/07 06:42:16  venku
+     Major:
+      - Moved the package under indus umbrella.
+      - Renamed isEmpty() to hasWork() in WorkBag.
  */

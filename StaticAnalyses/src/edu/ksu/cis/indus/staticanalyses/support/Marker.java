@@ -79,7 +79,7 @@ public class Marker {
 	public boolean equals(final Object o) {
 		boolean result = false;
 
-		if (o instanceof Marker) {
+		if (o != null && o instanceof Marker) {
 			Object temp = ((Marker) o)._content;
 
 			if (temp == null && _content == null) {
@@ -111,6 +111,9 @@ public class Marker {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 07:13:58  venku
+   *** empty log message ***
+
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.
