@@ -7,9 +7,9 @@
          <container path="/StaticAnalyses/src"/>
          <container path="/StaticAnalyses/src-dependence"/>
          <container path="/StaticAnalyses/src-flow"/>
-         <container path="/StaticAnalyses/src-interference"/>
          <container path="/StaticAnalyses/temp"/>
          <container path="/StaticAnalyses"/>
+         <container path="/StaticAnalyses/src-escape"/>
       </source>
    </target>
 </zip-info>
