@@ -586,10 +586,42 @@ public final class Util {
 	}
 
 	/**
-	 * Collects all the method with signature identical to <code>method</code> in the superclasses/interfaces of
-	 * <code>method</code>'s declaring class.
+	 * Finds the implementation of the given method defined in <code>accessClass</code> or its superclasses.
 	 *
-	 * @param method that needs to be included in the heirarchy to make the slice executable.
+	 * @param accessClass is the class via which the method is invoked.
+	 * @param methodName is the name of the method.
+	 * @param parameterTypes is the list of parameter types of the method.
+	 * @param returnType is the return type of the method.
+	 *
+	 * @return the implementation of the requested method if present in the class hierarchy; <code>null</code>, otherwise.
+	 *
+	 * @pre accessClass != null and methodName != null and parameterTypes != null and returnType != null
+	 */
+	public static SootMethod findMethodImplementation(final SootClass accessClass, final String methodName,
+		final List parameterTypes, final Type returnType) {
+		SootMethod _result = null;
+
+		if (accessClass.declaresMethod(methodName, parameterTypes, returnType)) {
+			_result = accessClass.getMethod(methodName, parameterTypes, returnType);
+		} else {
+			if (accessClass.hasSuperclass()) {
+				final SootClass _superClass = accessClass.getSuperclass();
+				_result = findMethodImplementation(_superClass, methodName, parameterTypes, returnType);
+			} else {
+				if (LOGGER.isErrorEnabled()) {
+					LOGGER.error(methodName + "(" + parameterTypes + "):" + returnType + " is not accessible from "
+						+ accessClass);
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Finds the method declarations that match the given method in its declaring class and the super interface/classes of
+	 * the declaring class.
+	 *
+	 * @param method of interest.
 	 *
 	 * @return a collection of methods.
 	 *
