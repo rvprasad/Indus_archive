@@ -13,5 +13,6 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/junit.jar" kind="var" path="ECLIPSE_HOME/plugins/org.junit_3.8.1/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-lang.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
