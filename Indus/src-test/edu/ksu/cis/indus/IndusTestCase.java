@@ -42,7 +42,7 @@ public class IndusTestCase
 	/**
 	 * @see junit.framework.TestCase#setName(java.lang.String)
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		testMethodName = name;
 	}
 
@@ -76,7 +76,7 @@ public class IndusTestCase
 	 *
 	 * @pre name != null
 	 */
-	public void setTestName(String name) {
+	public void setTestName(final String name) {
 		testName = name;
 		super.setName(name);
 	}
@@ -95,6 +95,9 @@ public class IndusTestCase
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 01:39:50  venku
+   - changed test naming for report purposes.
+
    Revision 1.1  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the

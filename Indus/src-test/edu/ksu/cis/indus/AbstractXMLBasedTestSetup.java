@@ -48,23 +48,23 @@ public class AbstractXMLBasedTestSetup
 	/**
 	 * @see TestSetup#TestSetup(TestSuite)
 	 */
-	public AbstractXMLBasedTestSetup(TestSuite test) {
+	public AbstractXMLBasedTestSetup(final TestSuite test) {
 		super(test);
 	}
 
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param xmlInDir
+	 * @param xmlInDir DOCUMENT ME!
 	 */
-	public void setXmlInputDir(String xmlInDir) {
+	public void setXmlInputDir(final String xmlInDir) {
 		xmlInputDir = xmlInDir;
 	}
 
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @return
+	 * @return DOCUMENT ME!
 	 */
 	public String getXmlInputDir() {
 		return xmlInputDir;
@@ -73,16 +73,16 @@ public class AbstractXMLBasedTestSetup
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param xmlOutDir
+	 * @param xmlOutDir DOCUMENT ME!
 	 */
-	public void setXmlOutputDir(String xmlOutDir) {
+	public void setXmlOutputDir(final String xmlOutDir) {
 		xmlOutputDir = xmlOutDir;
 	}
 
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @return
+	 * @return DOCUMENT ME!
 	 */
 	public String getXmlOutputDir() {
 		return xmlOutputDir;
@@ -106,6 +106,13 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 04:39:40  venku
+   - refactoring test classes still..
+   - need to make xmlizer classes independent of their purpose.
+     Hence, they need to be highly configurable.
+   - For each concept, test setup should be in TestSetup
+     rather than in the XMLizer.
+
    Revision 1.2  2004/02/09 01:20:06  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based

@@ -181,9 +181,9 @@ public abstract class AbstractXMLizer
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param name
+	 * @param name DOCUMENT ME!
 	 *
-	 * @return
+	 * @return DOCUMENT ME!
 	 */
 	public final String xmlizeString(final String name) {
 		return name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "");
@@ -193,6 +193,9 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/02/11 10:00:20  venku
+   - added a new custom xml outputter class.
+
    Revision 1.11  2004/02/11 09:37:21  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.

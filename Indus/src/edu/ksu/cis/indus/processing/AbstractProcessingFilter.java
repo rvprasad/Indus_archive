@@ -102,7 +102,7 @@ public abstract class AbstractProcessingFilter
 	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 * @post fields.containsAll(result)
 	 */
-	protected Collection localFilterFields(Collection fields) {
+	protected Collection localFilterFields(final Collection fields) {
 		return fields;
 	}
 
@@ -117,7 +117,7 @@ public abstract class AbstractProcessingFilter
 	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 * @post methods.containsAll(result)
 	 */
-	protected Collection localFilterMethods(Collection methods) {
+	protected Collection localFilterMethods(final Collection methods) {
 		return methods;
 	}
 }
@@ -125,6 +125,12 @@ public abstract class AbstractProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/11 09:37:21  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
+
    Revision 1.7  2003/12/14 16:44:11  venku
    - coding convention.
    Revision 1.6  2003/12/14 16:43:44  venku

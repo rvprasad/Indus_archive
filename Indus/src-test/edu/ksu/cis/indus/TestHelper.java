@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 
@@ -90,7 +89,7 @@ public final class TestHelper {
 	 * @pre suite != null
 	 */
 	public static void appendSuiteNameToTestsIn(final TestSuite suite, final boolean recursive) {
-		String _suiteName = suite.getName();
+		final String _suiteName = suite.getName();
 
 		for (final Enumeration _e = suite.tests(); _e.hasMoreElements();) {
 			final Test _test = (Test) _e.nextElement();
@@ -125,6 +124,10 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/09 07:32:41  venku
+   - added support to differentiate test method name and test name.
+   - added logic to change name of AbstractXMLBasedTest tests as well.
+
    Revision 1.6  2004/02/09 01:39:50  venku
    - changed test naming for report purposes.
    Revision 1.5  2004/02/09 00:42:29  venku

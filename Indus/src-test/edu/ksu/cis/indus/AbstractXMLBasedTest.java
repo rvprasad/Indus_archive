@@ -72,7 +72,7 @@ public abstract class AbstractXMLBasedTest
 	/**
 	 * @see junit.framework.TestCase#setName(java.lang.String)
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		testMethodName = name;
 	}
 
@@ -106,7 +106,7 @@ public abstract class AbstractXMLBasedTest
 	 *
 	 * @pre name != null
 	 */
-	public void setTestName(String name) {
+	public void setTestName(final String name) {
 		testName = name;
 		super.setName(name);
 	}
@@ -123,9 +123,9 @@ public abstract class AbstractXMLBasedTest
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param xmlOutDir
+	 * @param xmlOutDir DOCUMENT ME!
 	 */
-	public void setXmlOutputDir(String xmlOutDir) {
+	public void setXmlOutputDir(final String xmlOutDir) {
 		xmlOutputDir = xmlOutDir;
 	}
 
@@ -174,6 +174,10 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 07:32:41  venku
+   - added support to differentiate test method name and test name.
+   - added logic to change name of AbstractXMLBasedTest tests as well.
+
    Revision 1.4  2004/02/09 06:49:05  venku
    - deleted dependency xmlization and test classes.
    Revision 1.3  2004/02/09 04:39:40  venku
