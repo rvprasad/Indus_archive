@@ -60,6 +60,8 @@
                 <exclude name="**/*TestSetup.class"/>
                 <exclude name="**/*TestSuite.class"/>
                 <exclude name="**/*TestCase.class"/>
+                <exclude name="**/*Test$*.class"/>            	
+            	<exclude name="**/*Test?.class"/>
             </fileset>
         </jar>
 	</target>
@@ -162,6 +164,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.35  2004/08/06 14:46:15  venku
+- changed the way jars were created.
+
 Revision 1.34  2004/07/09 10:05:03  venku
 - changed the way clean happens.
 - also enabled the copying of xml and xsd files into build directory.
