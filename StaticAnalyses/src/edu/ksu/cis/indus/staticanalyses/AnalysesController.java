@@ -21,7 +21,6 @@ import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis;
 
 import java.util.ArrayList;
@@ -143,7 +142,7 @@ public class AnalysesController
 				final Collection _c = (Collection) participatingAnalyses.get(_daName);
 
 				for (final Iterator _j = _c.iterator(); _j.hasNext();) {
-					final AbstractAnalysis _analysis = (AbstractAnalysis) _j.next();
+					final IAnalysis _analysis = (IAnalysis) _j.next();
 
 					if (_analysis != null && !_done.contains(_analysis)) {
 						_analysis.analyze();
@@ -231,6 +230,9 @@ public class AnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/08/07 11:13:37  venku
+   - deleted performance logging statements.
+
    Revision 1.39  2004/07/24 09:57:49  venku
    - extracted interface from AbstractAnalysis.
    - ripple effect.
