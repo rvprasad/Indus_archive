@@ -61,6 +61,9 @@
                enablesFor="1"
                id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceNavigatorAction">
          </action>
+         <filter
+               value="org.eclipse.jdt.core.javanature"
+               name="projectNature"/>
       </objectContribution>
       <objectContribution            
             objectClass="org.eclipse.core.resources.IFile"
@@ -98,6 +101,10 @@
                   name="group1">
             </separator>
          </menu>
+                  <filter
+               value="org.eclipse.jdt.core.javanature"
+               name="projectNature"/>
+         
          <action
                label="Slice Project"
                class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndusProject"
@@ -110,6 +117,10 @@
                   adaptable="false"
                   objectClass="org.eclipse.core.resources.IProject"
                   id="edu.ksu.cis.indus.kaveri.popup.mainResourceProjectPopupObject">
+                           <filter
+               value="org.eclipse.jdt.core.javanature"
+               name="projectNature"/>
+                  
          <menu
                label="Indus"
                path="additions"
@@ -128,7 +139,7 @@
       </objectContribution>
             <viewerContribution
                   targetID="#CompilationUnitEditorContext"
-                  id="edu.ksu.cis.indus.kaveri.popup.editorPopup">
+                  id="edu.ksu.cis.indus.kaveri.popup.editorPopup">                  
                <menu
                      label="Indus"
                      path="additons"
