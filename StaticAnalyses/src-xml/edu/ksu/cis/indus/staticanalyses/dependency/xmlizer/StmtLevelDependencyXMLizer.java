@@ -54,9 +54,9 @@ public class StmtLevelDependencyXMLizer
 	/**
 	 * @see AbstractDependencyXMLizer#AbstractDependencyXMLizer(Writer, IJimpleIDGenerator, DependencyAnalysis)
 	 */
-	public StmtLevelDependencyXMLizer(final Writer writer, final IJimpleIDGenerator generator,
+	public StmtLevelDependencyXMLizer(final Writer out, final IJimpleIDGenerator generator,
 		final DependencyAnalysis depAnalysis) {
-		super(writer, generator, depAnalysis);
+		super(out, generator, depAnalysis);
 	}
 
 	/**
@@ -68,20 +68,20 @@ public class StmtLevelDependencyXMLizer
 
 		try {
 			if (!dependencies.isEmpty()) {
-				out.write("<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, method) + "\">");
+				writer.write("<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, method) + "\">");
 
 				for (Iterator i = dependencies.iterator(); i.hasNext();) {
 					Object o = i.next();
 
 					if (o instanceof Pair) {
 						Pair pair = (Pair) i.next();
-						out.write("<dependent id=\""
+						writer.write("<dependent id=\""
 							+ idGenerator.getIdForStmt((Stmt) pair.getFirst(), (SootMethod) pair.getSecond()) + "\"/>");
 					} else if (o instanceof Stmt) {
-						out.write("<dependent id=\"" + idGenerator.getIdForStmt((Stmt) o, method) + "\"/>");
+						writer.write("<dependent id=\"" + idGenerator.getIdForStmt((Stmt) o, method) + "\"/>");
 					}
 				}
-				out.write("</dependency_info>\n");
+				writer.write("</dependency_info>\n");
 			}
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -105,11 +105,38 @@ public class StmtLevelDependencyXMLizer
 		ppc.unregisterForAllStmts(this);
 		ppc.unregister(this);
 	}
+    
+    /**
+     * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
+     */
+    public void consolidate() {
+        try {
+            writer.write("</system>");
+        } catch (IOException e) {
+            LOGGER.error("Exception while finishing up writing xml information.", e);
+        }
+    }
+    /** (non-Javadoc)
+     * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
+     */
+    public void processingBegins() {
+        try {
+            writer.write("<system>");
+        } catch (IOException e) {
+            LOGGER.error("Exception while starting up writing xml information.", e);
+        }
+        
+    }
+    
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/12 10:45:36  venku
+   - soot class path can be set in SootBasedDriver.
+   - dependency tests are xmlunit based.
+
    Revision 1.1  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
 

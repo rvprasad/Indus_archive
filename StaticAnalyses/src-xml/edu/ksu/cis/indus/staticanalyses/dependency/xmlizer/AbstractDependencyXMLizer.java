@@ -64,7 +64,7 @@ public abstract class AbstractDependencyXMLizer
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	protected Writer out;
+	protected Writer writer;
 
 	/**
 	 * <p>
@@ -83,13 +83,13 @@ public abstract class AbstractDependencyXMLizer
 	/**
 	 * Creates a new AbstractDependencyXMLizer object.
 	 *
-	 * @param writer DOCUMENT ME!
+	 * @param out DOCUMENT ME!
 	 * @param generator DOCUMENT ME!
 	 * @param depAnalysis DOCUMENT ME!
 	 */
-	public AbstractDependencyXMLizer(final Writer writer, final IJimpleIDGenerator generator,
+	public AbstractDependencyXMLizer(final Writer out, final IJimpleIDGenerator generator,
 		final DependencyAnalysis depAnalysis) {
-		out = writer;
+		writer = out;
 		idGenerator = generator;
 		analysis = depAnalysis;
 	}
@@ -100,15 +100,15 @@ public abstract class AbstractDependencyXMLizer
 	public void callback(final SootClass clazz) {
 		try {
 			if (processingMethod) {
-				out.write("</method>\n");
+				writer.write("</method>\n");
 			}
 
 			if (processingClass) {
-				out.write("</class>\n");
+				writer.write("</class>\n");
 			} else {
 				processingClass = true;
 			}
-			out.write("<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz) + "\">");
+			writer.write("<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz) + "\">");
 			processingMethod = false;
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -123,11 +123,11 @@ public abstract class AbstractDependencyXMLizer
 	public void callback(final SootMethod method) {
 		try {
 			if (processingMethod) {
-				out.write("</method>\n");
+				writer.write("</method>\n");
 			} else {
 				processingMethod = true;
 			}
-			out.write("<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
+			writer.write("<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
 				+ idGenerator.getIdForMethod(method) + "\">");
 			idGenerator.resetStmtCounter();
 		} catch (IOException e) {
@@ -143,13 +143,13 @@ public abstract class AbstractDependencyXMLizer
 	public void consolidate() {
 		try {
 			if (processingMethod) {
-				out.write("</method>\n");
+				writer.write("</method>\n");
 			}
 
 			if (processingClass) {
-				out.write("</class>\n");
+				writer.write("</class>\n");
 			}
-			out.write("</dependency>");
+			writer.write("</dependency>");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", e);
@@ -162,7 +162,7 @@ public abstract class AbstractDependencyXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			out.write("<dependency>\n");
+			writer.write("<dependency>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", e);
@@ -174,6 +174,10 @@ public abstract class AbstractDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/12 10:45:36  venku
+   - soot class path can be set in SootBasedDriver.
+   - dependency tests are xmlunit based.
+
    Revision 1.1  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
 
