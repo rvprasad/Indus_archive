@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.Constants;
+
 import java.lang.ref.SoftReference;
 
 import java.util.HashMap;
@@ -38,7 +40,7 @@ public final class BasicBlockGraphMgr {
 	 *
 	 * @invariant method2graph.oclIsKindOf(Map(SootMethod, BasicBlockGraph))
 	 */
-	private final Map method2graph = new HashMap();
+	private final Map method2graph = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/**
 	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
@@ -118,6 +120,10 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/31 21:38:12  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
+
    Revision 1.9  2004/03/26 00:22:31  venku
    - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
    - ripple effect.

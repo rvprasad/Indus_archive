@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -136,7 +137,7 @@ public class ThreadGraph
 	 *
 	 * @invariant method2threads != null and method2threads.oclIsKindOf(Map(SootMethod, Collection(NewExprTriple)))
 	 */
-	private final Map method2threads = new HashMap();
+	private final Map method2threads = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/** 
 	 * This maps threads allocation sites to the methods which are executed in the created threads.
@@ -727,6 +728,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/08/01 21:25:29  venku
+   - a subtle error when considering thread allocation sites was FIXED.
+
    Revision 1.35  2004/08/01 21:07:16  venku
    - renamed dumpGraph() as toString()
    - refactored ThreadGraph.

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.Constants;
 
 import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
 
@@ -69,7 +70,7 @@ public class NewExpr2InitMapper
 	 * @invariant method2map.keySet()->forall(o | method2map.get(o)->forall(p | (p.getValue().containsInvokeExpr() &&
 	 * 			  p.getValue().getInvokeExpr().oclIsKindOf(SpecialInvokeExpr))))
 	 */
-	private final Map method2map = new HashMap();
+	private final Map method2map = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/**
 	 * @see AbstractValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
@@ -163,6 +164,9 @@ public class NewExpr2InitMapper
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/07 10:23:09  venku
+   - formatting and coding convention.
+
    Revision 1.4  2004/05/14 04:39:22  venku
    - added reset method.
    Revision 1.3  2004/02/25 00:04:02  venku

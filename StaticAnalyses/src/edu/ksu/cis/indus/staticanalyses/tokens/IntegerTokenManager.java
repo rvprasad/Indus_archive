@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.Constants;
 
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
@@ -58,7 +59,7 @@ public class IntegerTokenManager
 	 *
 	 * @invariant type2tokens.oclIsKindOf(Map(IType, MutableInteger))
 	 */
-	final Map type2tokens = new HashMap();
+	final Map type2tokens = new HashMap(Constants.getNumOfClassesInApplication());
 
 	/**
 	 * Creates an instacne of this class.
@@ -329,6 +330,10 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
+
    Revision 1.7  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
@@ -92,16 +93,16 @@ public class AliasedUseDefInfo
 	/** 
 	 * This is a map from def-sites to their corresponding to use-sites.
 	 *
-	 * @invariant usesMap != null
+	 * @invariant def2usesMap.oclIsKindOf(SootField, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
 	 */
-	private final Map def2usesMap;
+	private final Map def2usesMap = new HashMap(Constants.getNumOfFieldsInApplication());
 
 	/** 
 	 * This is a map from use-sites to their corresponding to def-sites.
 	 *
-	 * @invariant defsMap != null
+	 * @invariant use2defsMap.oclIsKindOf(SootField, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
 	 */
-	private final Map use2defsMap;
+	private final Map use2defsMap = new HashMap(Constants.getNumOfFieldsInApplication());
 
 	/** 
 	 * This manages <code>Pair</code> objects.
@@ -118,8 +119,6 @@ public class AliasedUseDefInfo
 	 * @pre analyzer != null and cg != null and bbgMgr != null and pairManager != null
 	 */
 	public AliasedUseDefInfo(final IValueAnalyzer iva, final BasicBlockGraphMgr bbgManager, final PairManager pairManager) {
-		use2defsMap = new HashMap();
-		def2usesMap = new HashMap();
 		analyzer = iva;
 		bbgMgr = bbgManager;
 		pairMgr = pairManager;
@@ -465,6 +464,12 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/08/08 08:50:03  venku
+   - aspectized profiling/statistics logic.
+   - used a cache in CallGraph for reachable methods.
+   - required a pair manager in Call graph. Ripple effect.
+   - used a first-element based lookup followed by pair search algorithm in PairManager.
+
    Revision 1.44  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.

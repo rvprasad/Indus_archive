@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.slicer.transformations;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.NamedTag;
@@ -144,7 +145,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	 *
 	 * @invariant class2membersToKill.oclIsKindOf(Map(SootClass, Pair(Collection(SootMethod), Collection(SootField))))
 	 */
-	final Map class2members = new HashMap();
+	final Map class2members = new HashMap(Constants.getNumOfClassesInApplication());
 
 	/** 
 	 * This maps statements in the system to new statements that should be included in the slice.
@@ -1061,6 +1062,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/08/06 14:43:35  venku
+   - a hack to fix dangling nop statement block was added.
+
    Revision 1.20  2004/08/02 07:33:46  venku
    - small but significant change to the pair manager.
    - ripple effect.

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
@@ -83,16 +84,6 @@ public class CallGraph
 	private static final Log LOGGER = LogFactory.getLog(CallGraph.class);
 
 	/** 
-	 * The size of the cache based on the number of methods in the system.
-	 */
-	private static final int NUM_METHODS_CACHE_SIZE = 1000;
-
-	/** 
-	 * The load factor for the cache based on the number of methods in the system.
-	 */
-	private static final float LOAD_FACTOR = 0.999f;
-
-	/** 
 	 * The collection of methods from which the system can be started. Although an instance of a class can be created and a
 	 * method can be invoked on it from the environment, this method will not be considered as a <i>head method </i>.
 	 * However, our definition of head methods are those methods(excluding those in invoked via <code>invokespecial</code>
@@ -107,21 +98,21 @@ public class CallGraph
 	 *
 	 * @invariant invocationsite2reachableMethods.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(SootMethod)))
 	 */
-	private final Map invocationsite2reachableMethods = new LRUMap(NUM_METHODS_CACHE_SIZE, LOAD_FACTOR, true);
+	private final Map invocationsite2reachableMethods = new LRUMap(Constants.getNumOfMethodsInApplication(), true);
 
 	/** 
 	 * A cache of mappings from a method to methods that can via a call chain reach the key of the mapping.
 	 *
 	 * @invariant method2reachableMethods.oclIsKindOf(Map(SootMethod, Collection(SootMethod)))
 	 */
-	private final Map method2backwardReachableMethods = new LRUMap(NUM_METHODS_CACHE_SIZE, LOAD_FACTOR, true);
+	private final Map method2backwardReachableMethods = new LRUMap(Constants.getNumOfMethodsInApplication(), true);
 
 	/** 
 	 * A cache of mappings from a method to methods reachable from that site via call chain.
 	 *
 	 * @invariant method2reachableMethods.oclIsKindOf(Map(SootMethod, Collection(SootMethod)))
 	 */
-	private final Map method2forwardReachableMethods = new LRUMap(NUM_METHODS_CACHE_SIZE, LOAD_FACTOR, true);
+	private final Map method2forwardReachableMethods = new LRUMap(Constants.getNumOfMethodsInApplication(), true);
 
 	/** 
 	 * The collection of methods that are reachble in the system.
@@ -741,7 +732,13 @@ public class CallGraph
 }
 
 /*
- * ChangeLog: $Log$ Revision 1.61 2004/08/06 07:37:57 venku -
+ * ChangeLog: $Log$
+ * ChangeLog: Revision 1.62  2004/08/08 08:50:03  venku
+ * ChangeLog: - aspectized profiling/statistics logic.
+ * ChangeLog: - used a cache in CallGraph for reachable methods.
+ * ChangeLog: - required a pair manager in Call graph. Ripple effect.
+ * ChangeLog: - used a first-element based lookup followed by pair search algorithm in PairManager.
+ * ChangeLog: Revision 1.61 2004/08/06 07:37:57 venku -
  * getMethodsReachableFrom(Stmt, SootMethod) did not include the immediate
  * callees. FIXED. Revision 1.60 2004/07/23 10:00:26 venku - enabled toggling
  * the topological sort direction. Revision 1.59 2004/07/23 09:53:21 venku -

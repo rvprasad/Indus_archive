@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
 import java.util.Collection;
@@ -49,7 +50,7 @@ public abstract class AbstractDependencyAnalysis
 	 *
 	 * @invariant dependee2dependent != null
 	 */
-	protected final Map dependee2dependent = new HashMap();
+	protected final Map dependee2dependent = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/**
 	 * This can used to store dependent->dependee direction of dependence information.  Hence, it is recommended that the
@@ -57,7 +58,7 @@ public abstract class AbstractDependencyAnalysis
 	 *
 	 * @invariant dependent2dependee != null
 	 */
-	protected final Map dependent2dependee = new HashMap();
+	protected final Map dependent2dependee = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/**
 	 * Return the entities on which the <code>dependent</code> depends on in the given <code>context</code>.
@@ -107,6 +108,10 @@ public abstract class AbstractDependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/20 06:36:12  venku
+   - documentation.
+   - deleted BI_DIRECTIONAL as it is rarely true that a dependence is bi-directional.
+
    Revision 1.4  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.

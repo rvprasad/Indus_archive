@@ -16,13 +16,13 @@
 package edu.ksu.cis.indus.common.datastructures;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.Constants;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 
@@ -52,12 +52,12 @@ public final class Pair {
 	/** 
 	 * The first element of this pair.
 	 */
-	protected Object first;
+	protected final Object first;
 
 	/** 
 	 * The second element of this pair.
 	 */
-	protected Object second;
+	protected final Object second;
 
 	/** 
 	 * A cached copy of the stringized representation of this object.
@@ -130,15 +130,11 @@ public final class Pair {
 		/** 
 		 * The collection of managed pairs.
 		 *
-		 * @invariant pairs.oclIsKindOf(Object, Sequence(Pair))
-		 * @invariant pairs.entrySet()->forall(o | o.getValue()->forall(p | p.getFirst() == o))
+		 * @invariant pairs.oclIsKindOf(Object, Map(Object, Pair))
+		 * @invariant pairs.entrySet()->forall(o | o.getValue()->forall(p | p.entrySet()->forall(q | q.getFirst() == 0 and 
+		 * q.getSecond() == p)))
 		 */
-		private final Map pairs = new HashMap();
-
-		/** 
-		 * The scratch pad pair object to be used for does-it-manage check.
-		 */
-		private final Pair pairCache = new Pair(null, null);
+		private final Map pairs = new HashMap(Constants.getNumOfMethodsInApplication());
 
 		/** 
 		 * This indicates if the generated pairs should be optimized for hash code.
@@ -174,19 +170,13 @@ public final class Pair {
 		 * @post result != null
 		 */
 		public Pair getPair(final Object firstParam, final Object secondParam) {
-			final List _values = CollectionsUtilities.getListFromMap(pairs, firstParam);
+		    final Map _values = CollectionsUtilities.getMapFromMap(pairs, secondParam);
 
-			pairCache.first = firstParam;
-			pairCache.second = secondParam;
+			Pair _result = (Pair) _values.get(firstParam);
 
-			final int _index = _values.indexOf(pairCache);
-			final Pair _result;
-
-			if (_index != -1) {
-				_result = (Pair) _values.get(_index);
-			} else {
+			if (_result == null) {
 				_result = new Pair(firstParam, secondParam, hashcodeOptimized, stringOptimized);
-				_values.add(_result);
+				_values.put(firstParam, _result);
 			}
 			return _result;
 		}
@@ -398,6 +388,12 @@ public final class Pair {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/08/08 08:50:04  venku
+   - aspectized profiling/statistics logic.
+   - used a cache in CallGraph for reachable methods.
+   - required a pair manager in Call graph. Ripple effect.
+   - used a first-element based lookup followed by pair search algorithm in PairManager.
+
    Revision 1.3  2004/08/02 07:33:47  venku
    - small but significant change to the pair manager.
    - ripple effect.

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.Constants;
+
 import java.lang.ref.WeakReference;
 
 import java.util.Collection;
@@ -47,7 +49,7 @@ public abstract class AbstractStmtGraphFactory
 	 *
 	 * @invariant method2UnitGraph != null and method2UnitGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
 	 */
-	private final Map method2UnitGraph = new HashMap();
+	private final Map method2UnitGraph = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/**
 	 * Retrieves the unit graph of the given method.
@@ -132,6 +134,9 @@ public abstract class AbstractStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/06/12 20:42:21  venku
+   - renaming of methods.
+
    Revision 1.2  2004/03/26 00:22:31  venku
    - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
    - ripple effect.

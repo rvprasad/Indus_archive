@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
+import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class SootValueTypeManager
 	/**
 	 * This maps soot types to user's type.
 	 */
-	private final Map sootType2Type = new HashMap();
+	private final Map sootType2Type = new HashMap(Constants.getNumOfClassesInApplication());
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getAllTypes(java.lang.Object)
@@ -98,6 +99,9 @@ public class SootValueTypeManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/20 06:53:17  venku
+   - documentation.
+
    Revision 1.1  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.

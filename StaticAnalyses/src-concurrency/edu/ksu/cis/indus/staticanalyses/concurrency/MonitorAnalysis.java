@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -125,21 +126,21 @@ public final class MonitorAnalysis
 	 *
 	 * @invariant method2enclosedStmts2monitors.oclIsKindOf(Map(SootMethod(Map(Stmt, Collection(Stmt)))))
 	 */
-	final Map method2enclosedStmts2monitors = new HashMap();
+	final Map method2enclosedStmts2monitors = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/** 
 	 * This collects the enter-monitor statements in each method during preprocessing.  This is used during analysis only.
 	 *
 	 * @invariant method2enterMonitors.oclIsKindOf(Map(SootMethod, Collection(EnterMonitorStmt)))
 	 */
-	final Map method2enterMonitors = new HashMap();
+	final Map method2enterMonitors = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/** 
 	 * This maps methods to a map from monitor statements to the immediately enclosed statements.
 	 *
 	 * @invariant method2enclosedStmts2monitors.oclIsKindOf(Map(SootMethod(Map(Stmt, Collection(Stmt)))))
 	 */
-	final Map method2monitor2enclosedStmts = new HashMap();
+	final Map method2monitor2enclosedStmts = new HashMap(Constants.getNumOfMethodsInApplication());
 
 	/** 
 	 * This provides object flow information.
@@ -1158,6 +1159,9 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/08/06 14:53:12  venku
+   - a subtle error while adding elements to collection. FIXED.
+
    Revision 1.5  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.

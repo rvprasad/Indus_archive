@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.Constants;
 
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
@@ -61,7 +62,7 @@ public final class BitSetTokenManager
 	 * @invariant type2tokens.oclIsKindOf(Map(IType, BitSet))
 	 * @invariant type2tokens.values()->forall( o | o.size() &lt;= valueList.size())
 	 */
-	private final Map type2tokens = new HashMap();
+	private final Map type2tokens = new HashMap(Constants.getNumOfClassesInApplication());
 
 	/**
 	 * Creates an instacne of this class.
@@ -268,6 +269,10 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
+
    Revision 1.6  2004/06/22 01:01:37  venku
    - BitSet(1) creates an empty bitset.  Instead we use BitSet() to create a
      bit set that contains a long array of length 1.
