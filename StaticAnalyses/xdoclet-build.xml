@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="_generation_" name="XDoclet Generator">
+<path id="xdoclet.classpath"><pathelement location="/home/venku/workspace/eclipse/StaticAnalyses/build"/>
+<pathelement location="/home/venku/projects/Indus/eclipse/plugins/org.apache.logging/log4j-logging-logkit.jar"/>
+<pathelement location="/home/venku/projects/Indus/eclipse/plugins/com.bonevich.eclipse.logging_1.0.1/logginglibs/commons-logging.jar"/>
+<pathelement location="/home/venku/workspace/eclipse/Indus/build"/>
+<pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
+<pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
+<pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
+
+<fileset dir="/home/venku/projects/Indus/eclipse/plugins/org.jboss.ide.eclipse.xdoclet.core_1.1.0/">
+<include name="*.jar"/>
+</fileset>
+</path>
+<target name="_generation_" depends=""/>
+</project>
