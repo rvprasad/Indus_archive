@@ -914,6 +914,18 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Registers the processor.  It indicates that the processor is interested in processing AST chunk of value type. Please
+	 * refer to <code>VALUE_CLASSES</code> for the actual types.
+	 *
+	 * @param processor the instance of processor.
+	 */
+	public void registerForAllValues(IProcessor processor) {
+		for (Iterator i = ProcessingController.VALUE_CLASSES.iterator(); i.hasNext();) {
+			register((Class) i.next(), processor);
+		}
+	}
+
+	/**
 	 * Unregisters the processor.  It indicates that the processor is no longer interested in processing AST chunk of type
 	 * <code>interest</code>.
 	 *
@@ -948,6 +960,18 @@ public class ProcessingController {
 	 */
 	public void unregisterForAllStmts(IProcessor processor) {
 		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
+			unregister((Class) i.next(), processor);
+		}
+	}
+
+	/**
+	 * Unregisters the processor. It indicates that the processor is not interested in processing the value types. Please
+	 * refer to <code>VALUE_CLASSES</code> for the actual types.
+	 *
+	 * @param processor the instance of processor.
+	 */
+	public void unregisterForAllValues(IProcessor processor) {
+		for (Iterator i = ProcessingController.VALUE_CLASSES.iterator(); i.hasNext();) {
 			unregister((Class) i.next(), processor);
 		}
 	}
@@ -1081,9 +1105,10 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/10 08:09:02  venku
+   - documentation.
    Revision 1.8  2003/11/10 07:56:20  venku
    - calls processingBegins() on processors.
-
    Revision 1.7  2003/11/10 02:41:30  venku
    - added a utility method to register for all statements.
    Revision 1.6  2003/11/07 09:24:42  venku
