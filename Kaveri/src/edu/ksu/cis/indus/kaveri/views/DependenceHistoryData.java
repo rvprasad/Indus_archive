@@ -41,6 +41,12 @@ public class DependenceHistoryData {
 	private Stack dependenceHistory;
 	
 	/**
+	 * The link between stack history elements.
+	 */
+	private String elemHistoryLink;
+	
+	
+	/**
 	 * The viewers listening to this model.
 	 */
 	private List listeners;
@@ -52,6 +58,7 @@ public class DependenceHistoryData {
 	public DependenceHistoryData() {
 		listeners = new ArrayList();
 		dependenceHistory =  new Stack();
+		elemHistoryLink = "";
 	}
 	/**
 	 * @return Returns the stmtList.
@@ -90,6 +97,20 @@ public class DependenceHistoryData {
 		((IDeltaListener) listeners.get(_i)).propertyChanged();
 	 }	
 	}
+	
+	/** Pop a history item
+	 * 	 
+	 */
+	public void pop()
+	{
+		if (dependenceHistory.size() > 0) {
+			dependenceHistory.pop();
+			for (int _i = 0; _i < listeners.size(); _i++) {
+				((IDeltaListener) listeners.get(_i)).propertyChanged();
+			 }	
+		}		
+	}
+	
 	/**
 	 * Removes the listener.
 	 * @param listener The listener to remove. 
@@ -97,5 +118,17 @@ public class DependenceHistoryData {
 	 */
 	public void removeListener(final IDeltaListener listener) {
 		listeners.remove(listener);
+	}
+	/**
+	 * @return Returns the elemHistoryLink.
+	 */
+	public String getElemHistoryLink() {
+		return elemHistoryLink;
+	}
+	/**
+	 * @param elemHistoryLink The elemHistoryLink to set.
+	 */
+	public void setElemHistoryLink(String elemHistoryLink) {
+		this.elemHistoryLink = elemHistoryLink;
 	}
 }

@@ -68,7 +68,7 @@ public class ForwardSlice
 	public void run(final IAction action) {
 		Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					runSlice("forward", editor, textSelection);
+					runSlice("forward-deadlock", editor, textSelection);
 				}
 			});
 	}

@@ -57,6 +57,6 @@ public class ReadyPredecessor extends DependenceBaseClass
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Ready Dependees";
+		return "Ready Dependee";
 	}
 }

@@ -47,6 +47,6 @@ public class SynchronizationSuccessor extends DependenceBaseClass
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Synchronization Dependents";
+		return "Synchronization Dependent";
 	}
 }

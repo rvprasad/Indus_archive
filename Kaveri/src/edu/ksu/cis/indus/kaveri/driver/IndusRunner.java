@@ -218,15 +218,15 @@ public class IndusRunner
 					_sootClassPath += _path.toOSString();
 					_sootClassPath += _fileseparator + _pathseparator;
 					final IClasspathEntry entries[] = _jproject.getRawClasspath();
-					/*for (int _i = 0; _i < entries.length; _i++) {
+					for (int _i = 0; _i < entries.length; _i++) {
 						final IClasspathEntry _entry = entries[_i];
 					
 						if (_entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {							
-							final IPath _path = _entry.getPath();
-							_sootClassPath += _path.toOSString();
+							final IPath _path1 = _entry.getPath();
+							_sootClassPath += _path1.toOSString();
 							_sootClassPath += _fileseparator + _pathseparator;
 						}
-					}	*/				
+					}					
 				}
 
 				driver.addToPath(_sootClassPath);

@@ -55,6 +55,6 @@ public class ReadySuccessor extends DependenceBaseClass
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Ready Dependents";
+		return "Ready Dependent";
 	}
 }

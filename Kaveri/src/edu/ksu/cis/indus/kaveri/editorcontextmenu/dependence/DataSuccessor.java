@@ -47,6 +47,6 @@ public class DataSuccessor extends DependenceBaseClass
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Control Dependents";
+		return "Control Dependent";
 	}
 }

@@ -37,6 +37,7 @@ import org.eclipse.ui.IFileEditorInput;
 import soot.SootMethod;
 import soot.jimple.Stmt;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
@@ -110,8 +111,10 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
     					}					
     				}				
     			}
+    			final Triple _triple = new Triple(_inpfile.getName(), _text, new Integer(_nSelLine));
+    			
     			if(decorateMap != null && decorateMap.size() > 0) {
-                	processDependency(_nSelLine, _text + " Line: " + _nSelLine);
+                	processDependency(_triple);
                 }
     		}
                         
@@ -236,10 +239,13 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 	/**
 	 * Processes the dependency.
 	 *
-	 * @param nLine The selected line number.
-	 * @param selectedText The selected text.
+	 * @param triple The triple of filename, selected text and line number.
+	 * Precondition: 
+	 *  triple.getFirst().oclIsType(String) :  Filename
+	 *  triple.getMiddle().oclIsType(String) : Selected text
+	 *  triple.getFirst().oclIsType(Integer) : Line number
 	 */
-	protected void processDependency(int nLine, String selectedText) {
+	protected void processDependency(final Triple triple) {
         try {
             final IType _type = SelectionConverter.getTypeAtOffset(editor);
             final IJavaElement _element = SelectionConverter
@@ -250,6 +256,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                 SootConvertor _sc;
                 IFile _file = ((IFileEditorInput) editor
                         .getEditorInput()).getFile();
+                final int nLine = ((Integer) triple.getThird()).intValue();
                 List _stmtlist = SootConvertor.getStmtForLine(_file,
                         _type, (IMethod) _element, nLine);
                 if (_stmtlist != null && _stmtlist.size() >= 3) {
@@ -263,11 +270,16 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                 	}
                 	final Integer _nItg = new Integer(nLine);
                 	final HashSet _dset = KaveriPlugin.getDefault().getIndusConfiguration().getDepLinkSet();
-                	if (! _dset.contains(_nItg)) {
-                		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().reset();                		
+                	if (! _dset.contains(_nItg) || 
+                			KaveriPlugin.getDefault().getIndusConfiguration().
+								getDepHistory().getHistory().size() == 0) {
+                		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().reset();
+                		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().setElemHistoryLink("");
                 	}                	
                 	_dset.clear();
-                	Pair _pair = new Pair(selectedText, getDependenceInfo(), false, true);
+                	final String _link = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().getElemHistoryLink();
+                	Pair _pair = new Pair(triple, _link, false, true);
+                	KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().setElemHistoryLink(getDependenceInfo());
                 	KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(_pair);
                 	
                 	final IAnnotationModel _model =

@@ -47,6 +47,6 @@ public class DivergenceSuccessor extends DependenceBaseClass
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Divergence Dependents";
+		return "Divergence Dependent";
 	}
 }

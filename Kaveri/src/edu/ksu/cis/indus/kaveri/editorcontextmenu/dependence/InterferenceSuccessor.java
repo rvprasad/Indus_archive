@@ -55,6 +55,6 @@ public class InterferenceSuccessor extends DependenceBaseClass
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceInfo()
 	 */
 	protected String getDependenceInfo() {
-		return "Interference Dependents";
+		return "Interference Dependent";
 	}
 }

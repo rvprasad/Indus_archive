@@ -15,8 +15,13 @@
 
 package edu.ksu.cis.indus.kaveri.views;
 
+import java.util.Arrays;
 import java.util.Stack;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -32,8 +37,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 
 
@@ -83,6 +90,13 @@ public class DependenceHistoryView
 			final Object[] _retObj;
 			if (! _stk.isEmpty()) {
 				_retObj =  _stk.toArray();
+				final int _limit = (int) Math.floor(_retObj.length / 2);
+				 
+				for (int _i = 0; _i < _limit; _i++) {
+					final Object temp = _retObj[_i];
+					_retObj[_i] = _retObj[_retObj.length - _i -1];
+					_retObj[_retObj.length - _i -1] = temp;
+				}
 			} else {
 				_retObj = new String[] { " ", " ", " ", " ", " ", " ", " ", " ", " " }; 
 			}
@@ -162,15 +176,23 @@ public class DependenceHistoryView
 		public String getColumnText(final Object obj, final int index) {
 			String _retString = "";
 
-			if (index == 0) {
-				if (obj instanceof Pair) {
-				_retString = ((Pair) obj).getFirst().toString();
-				}
-			} else {
-				if (obj instanceof Pair) {
-				_retString = ((Pair) obj).getSecond().toString();
-				}
-			}			
+			if (obj instanceof Pair) {
+				switch (index) {
+				case 0:
+					_retString = ((Triple) (((Pair) obj).getFirst())).getFirst().toString();
+					break;
+				case 1:
+					_retString = ((Triple) (((Pair) obj).getFirst())).getSecond().toString();
+					break;
+				case 2:
+					_retString = ((Triple) (((Pair) obj).getFirst())).getThird().toString();
+					break;
+				case 3:
+					_retString = ((Pair) obj).getSecond().toString();
+					break;
+				}	
+			}
+									
 			return _retString;
 		}
 
@@ -221,9 +243,13 @@ public class DependenceHistoryView
 					public void controlResized(ControlEvent e)
 					{
 						TableColumn _col1 = _table.getColumn(0);
-						_col1.setWidth(_comp.getSize().x / 2 );
+						_col1.setWidth(_comp.getSize().x / 4 );
 						_col1 = _table.getColumn(1);
-						_col1.setWidth(_comp.getSize().x / 2);						
+						_col1.setWidth(_comp.getSize().x / 4);
+						_col1 = _table.getColumn(2);
+						_col1.setWidth(_comp.getSize().x / 6);
+						_col1 = _table.getColumn(3);
+						_col1.setWidth(_comp.getSize().x / 3);
 					}
 				}
 				);
@@ -234,6 +260,8 @@ public class DependenceHistoryView
 		//viewer = new CheckboxTableViewer(_table);
 		viewer.setContentProvider(new DependenceHistoryViewContentProvider());
 		viewer.setLabelProvider(new DependenceHistoryViewLabelProvider());
+		final IToolBarManager _manager =  getViewSite().getActionBars().getToolBarManager();
+		fillToolBar(_manager);
 		viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory());
 		 
 	}
@@ -256,6 +284,28 @@ public class DependenceHistoryView
 	}*/
 
 	/**
+	 * Fills the toolbar.
+	 * @param manager
+	 */
+	private void fillToolBar(IToolBarManager manager) {
+		Action _actionPop = new Action() {
+			public void run() {
+				if (KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().getHistory().size() > 0) {
+					// TODO Remove annotations when reverting.
+					KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().pop();
+				}				
+			}
+		};
+		//_actionPop.setText("Revert to previous");
+		_actionPop.setToolTipText("Revert to previous");
+		final ImageDescriptor _desc = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+		"data/icons/viewBack.gif");
+		_actionPop.setImageDescriptor(_desc);
+		manager.add(_actionPop);
+		
+	}
+
+	/**
 	 * Creates the table.
 	 *
 	 * @param parent The parent composite
@@ -269,11 +319,16 @@ public class DependenceHistoryView
 		_table.setHeaderVisible(true);				
 		
 		final TableColumn _col1 = new TableColumn(_table, SWT.NONE);
-		_col1.setText("Statement");
-		
+		_col1.setText("Filename");
 		
 		final TableColumn _col2 = new TableColumn(_table, SWT.NONE);
-		_col2.setText("Dependence Tracked");		
+		_col2.setText("Statement");
+		
+		final TableColumn _col3 = new TableColumn(_table, SWT.NONE);
+		_col3.setText("Line number");
+		
+		final TableColumn _col4 = new TableColumn(_table, SWT.NONE);
+		_col4.setText("Relation with previous item");		
 		
 		return _table;
 	}
