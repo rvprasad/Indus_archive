@@ -22,7 +22,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerDriver;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
@@ -50,7 +49,6 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -138,30 +136,6 @@ public class SliceXMLizer
 	protected SliceXMLizer(final IJimpleIDGenerator generator) {
 		slicer = new SlicerTool();
 		idGenerator = generator;
-	}
-
-	/**
-	 * This class extends dependency xmlizer by populating it with dependency analyses from the slicer.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	private class CustomDependencyXMLizer
-	  extends DependencyXMLizerDriver {
-		/**
-		 * Creates a new CustomDependencyXMLizer object.
-		 */
-		CustomDependencyXMLizer() {
-			super(false);
-		}
-
-		/**
-		 * Populates the xmlizer with the analyses used in the slicer.
-		 */
-		public final void populateDAs() {
-			das.addAll(slicer.getDAs());
-		}
 	}
 
 	/**
@@ -256,10 +230,10 @@ public class SliceXMLizer
 		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
 		final TagBasedSliceXMLizer _sliceIP = getXMLizer();
-		final CustomDependencyXMLizer _dep = new CustomDependencyXMLizer();
-		_dep.setXmlOutputDir(outputDirectory);
-		_dep.setGenerator(idGenerator);
-		_dep.populateDAs();
+		//final CustomDependencyXMLizer _dep = new CustomDependencyXMLizer();
+		//_dep.setXmlOutputDir(outputDirectory);
+		//_dep.setGenerator(idGenerator);
+		//_dep.populateDAs();
 
 		JimpleXMLizer _jimpler = null;
 
@@ -562,6 +536,9 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/02/09 06:49:27  venku
+   *** empty log message ***
+
    Revision 1.9  2004/02/09 04:39:57  venku
    -
 
