@@ -23,6 +23,8 @@ Required software:
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     MXP1: Xml Pull Parser 3rd Edition (XPP3) (1.1.2)
         (xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]
+    JUnit (3.8.1)
+    	(junit.jar) [http://junit.org]
 
 
 Version 0.1a
