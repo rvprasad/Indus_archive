@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.CGBasedXMLizingController;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
@@ -45,6 +44,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 import java.net.URL;
 
@@ -77,7 +77,7 @@ public class SlicerDriver
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	public static final String ROOT_FOR_XMLIZATION_PURPOSES = "slicer";
+	public static final String SUFFIX_FOR_XMLIZATION_PURPOSES = "slicer";
 
 	/**
 	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
@@ -192,7 +192,7 @@ public class SlicerDriver
 		AbstractSliceXMLizer result;
 
 		try {
-			FileWriter out = new FileWriter(new File(outputDirectory));
+			Writer out = new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
 			result = new TagBasedSliceXMLizer(out, TagBasedSlicingTransformer.SLICING_TAG, idGenerator);
 		} catch (IOException e) {
 			LOGGER.error("Exception while opening file to write xml information.", e);
@@ -355,22 +355,29 @@ public class SlicerDriver
 		CGBasedXMLizingController ctrl = new CGBasedXMLizingController(cgi);
 		ctrl.setEnvironment(slicer.getEnvironment());
 
-		IProcessor sliceIP = getXMLizer();
+		AbstractSliceXMLizer sliceIP = getXMLizer();
 		CustomDependencyXMLizer dep = new CustomDependencyXMLizer();
 		dep.setClassNames(rootMethods);
 		dep.setGenerator(idGenerator);
 		sliceIP.hookup(ctrl);
 
-		Map xmlizers = dep.initXMLizers(ROOT_FOR_XMLIZATION_PURPOSES, ctrl);
+		Map xmlizers = dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, ctrl);
 		ctrl.process();
 		dep.flushXMLizers(xmlizers, ctrl);
 		sliceIP.unhook(ctrl);
+        sliceIP.flush();
+        
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 03:22:55  venku
+   - added junit test support for Slicing.
+   - refactored code in test for dependency to make it more
+     simple.
+
    Revision 1.2  2003/11/17 02:23:52  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them

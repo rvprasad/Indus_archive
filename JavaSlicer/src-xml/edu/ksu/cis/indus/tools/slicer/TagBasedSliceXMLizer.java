@@ -85,6 +85,9 @@ class TagBasedSliceXMLizer
 		super(out);
 		tagName = theTagName;
 		idGenerator = generator;
+		processingStmt = false;
+		processingMethod = false;
+		processingClass = false;
 	}
 
 	/**
@@ -98,7 +101,7 @@ class TagBasedSliceXMLizer
 			SlicingTag tag = (SlicingTag) stmt.getTag(tagName);
 
 			if (tag != null) {
-				writer.write("<value id=\"" + idGenerator.getIdForStmt(stmt, method) + "\"/>");
+				writer.write("\t\t\t\t<value id=\"" + idGenerator.getIdForStmt(stmt, method) + "\"/>\n");
 			}
 		} catch (IOException e) {
 			LOGGER.error("Exception while writing information about " + value + " occurring in " + stmt + " and "
@@ -114,16 +117,15 @@ class TagBasedSliceXMLizer
 
 		try {
 			if (processingStmt) {
-				writer.write("</stmt>");
+				writer.write("\t\t\t</stmt>\n");
 			}
 
 			SlicingTag tag = (SlicingTag) stmt.getTag(tagName);
 
 			if (tag != null) {
-				writer.write("<stmt id=\"" + idGenerator.getIdForStmt(stmt, method) + "\">");
+				writer.write("\t\t\t<stmt id=\"" + idGenerator.getIdForStmt(stmt, method) + "\">\n");
+				processingStmt = true;
 			}
-
-			processingStmt = true;
 		} catch (IOException e) {
 			LOGGER.error("Exception while writing information about " + stmt + " occurring in " + method.getSignature(), e);
 		}
@@ -135,17 +137,16 @@ class TagBasedSliceXMLizer
 	public void callback(final SootMethod method) {
 		try {
 			if (processingMethod) {
-				writer.write("</method>");
+				writer.write("\t\t</method>\n");
 				processingStmt = false;
 			}
 
 			SlicingTag tag = (SlicingTag) method.getTag(tagName);
 
 			if (tag != null) {
-				writer.write("<method id=\"" + idGenerator.getIdForMethod(method) + "\">");
+				writer.write("\t\t<method id=\"" + idGenerator.getIdForMethod(method) + "\">\n");
+				processingMethod = true;
 			}
-
-			processingMethod = true;
 		} catch (IOException e) {
 			LOGGER.error("Exception while writing xml information about " + method.getSignature(), e);
 		}
@@ -157,20 +158,20 @@ class TagBasedSliceXMLizer
 	public void callback(final SootClass clazz) {
 		try {
 			if (processingMethod) {
-				writer.write("</method>");
+				writer.write("\t\t</method>\n");
 				processingMethod = false;
 			}
 
 			if (processingClass) {
-				writer.write("</class>");
+				writer.write("\t</class>\n");
 			}
 
 			SlicingTag tag = (SlicingTag) clazz.getTag(tagName);
 
 			if (tag != null) {
-				writer.write("<class id=\"" + idGenerator.getIdForClass(clazz) + "\">");
+				writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
+				processingClass = true;
 			}
-			processingClass = true;
 		} catch (IOException e) {
 			LOGGER.error("Exception while writing xml information about " + clazz.getName(), e);
 		}
@@ -184,7 +185,7 @@ class TagBasedSliceXMLizer
 
 		if (tag != null) {
 			try {
-				writer.write("<field id=\"" + idGenerator.getIdForField(field) + "\"/>");
+				writer.write("\t\t<field id=\"" + idGenerator.getIdForField(field) + "\"/>\n");
 			} catch (IOException e) {
 				LOGGER.error("Exception while writing xml information about " + field.getSignature(), e);
 			}
@@ -217,6 +218,10 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/17 02:23:52  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
    Revision 1.1  2003/11/17 01:39:42  venku
    - added slice XMLization support.
  */

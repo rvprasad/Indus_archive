@@ -18,6 +18,10 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
 import java.io.Writer;
 
 
@@ -31,6 +35,13 @@ import java.io.Writer;
 abstract class AbstractSliceXMLizer
   extends AbstractProcessor {
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AbstractSliceXMLizer.class);
+
+	/**
 	 * This is the file/stream into which the xml output will be written into.
 	 */
 	protected final Writer writer;
@@ -42,6 +53,18 @@ abstract class AbstractSliceXMLizer
 	 */
 	protected AbstractSliceXMLizer(final Writer out) {
 		writer = out;
+	}
+
+	/**
+	 * Flushes and closes the associated stream.
+	 */
+	public void flush() {
+		try {
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception while closing slice xmlization stream.", e);
+		}
 	}
 
 	/**
@@ -70,6 +93,10 @@ abstract class AbstractSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/17 02:23:52  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
    Revision 1.1  2003/11/17 01:39:42  venku
    - added slice XMLization support.
  */
