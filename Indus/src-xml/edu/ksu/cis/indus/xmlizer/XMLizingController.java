@@ -101,7 +101,7 @@ public class XMLizingController
 	 */
 	protected Collection filterMethods(Collection methods) {
 		List result = new ArrayList(methods);
-		Collections.sort(result, new LexographicalClassComparator());
+		Collections.sort(result, new LexographicalMethodComparator());
 		return result;
 	}
 }
@@ -109,4 +109,6 @@ public class XMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 10:01:25  venku
+   - created support for xmlizing Jimple in a customizable manner.
  */
