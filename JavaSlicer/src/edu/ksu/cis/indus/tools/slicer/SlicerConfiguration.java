@@ -202,8 +202,13 @@ public class SlicerConfiguration
 	}
 
 	/**
-	 * {@inheritDoc}  This implementation by default uses interference dependency analysis based on equivalence class-based
-	 * escape analysis.  It does not use ready or divergence dependences.  It defaults to calculating backward slices.
+	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * This implementation by default uses interference dependency analysis based on equivalence class-based escape analysis.
+	 * It does not use ready and divergence dependences.  It defaults to calculating executable backward slices based on
+	 * slicing for deadlock.
+	 * </p>
 	 *
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
@@ -212,6 +217,8 @@ public class SlicerConfiguration
 		setProperty(USE_READYDA, Boolean.FALSE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
+		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
+		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
 
 		// default required fixed dependency analyses
 		dependencesToUse.add(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
@@ -241,7 +248,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isInterproceduralDivergenceDepAnalysisUsed() {
-		return ((Boolean) properties.get(INTERPROCEDURAL_DIVERGENCEDA)).booleanValue();
+		return getBooleanProperty(INTERPROCEDURAL_DIVERGENCEDA);
 	}
 
 	/**
@@ -277,7 +284,12 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected String getNatureOfReadyDepAnalysis() {
-		return (String) properties.get(NATURE_OF_READY_DA);
+		String result = (String) properties.get(NATURE_OF_READY_DA);
+
+		if (result == null) {
+			result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
+		}
+		return result;
 	}
 
 	/**
@@ -295,7 +307,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule1Used() {
-		return ((Boolean) properties.get(USE_RULE1_IN_READYDA)).booleanValue();
+		return getBooleanProperty(USE_RULE1_IN_READYDA);
 	}
 
 	/**
@@ -304,7 +316,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule2Used() {
-		return ((Boolean) properties.get(USE_RULE2_IN_READYDA)).booleanValue();
+		return getBooleanProperty(USE_RULE2_IN_READYDA);
 	}
 
 	/**
@@ -313,7 +325,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule3Used() {
-		return ((Boolean) properties.get(USE_RULE3_IN_READYDA)).booleanValue();
+		return getBooleanProperty(USE_RULE3_IN_READYDA);
 	}
 
 	/**
@@ -322,7 +334,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule4Used() {
-		return ((Boolean) properties.get(USE_RULE4_IN_READYDA)).booleanValue();
+		return getBooleanProperty(USE_RULE4_IN_READYDA);
 	}
 
 	/**
@@ -585,6 +597,7 @@ public class SlicerConfiguration
 	 */
 	static final SlicerConfiguration makeToolConfiguration() {
 		SlicerConfiguration result = new SlicerConfiguration();
+		result.NAME = "configuration" + System.currentTimeMillis();
 		result.initialize();
 		return result;
 	}
@@ -619,6 +632,26 @@ public class SlicerConfiguration
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param propertyId DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private boolean getBooleanProperty(final Object propertyId) {
+		Boolean value = (Boolean) properties.get(propertyId);
+		boolean result = false;
+
+		if (value != null) {
+			result = value.booleanValue();
+		}
+
+		return result;
+	}
+
+	/**
 	 * Processes the given property and it's value.
 	 *
 	 * @param id of the property to be processed.
@@ -632,6 +665,10 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/05 08:26:42  venku
+   - changed the xml schema for the slicer configuration.
+   - The configruator, driver, and the configuration handle
+     these changes.
    Revision 1.15  2003/11/05 02:46:54  venku
    - added control dependence into the list of dependences to use.
    Revision 1.14  2003/11/03 08:05:34  venku
