@@ -198,11 +198,12 @@ public abstract class AbstractFGNode
 	 */
 	public final Collection diffValues(final IFGNode src) {
 		Set temp = new HashSet();
+		Collection srcValues = src.getValues();
 
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			Object t = i.next();
 
-			if (!src.getValues().contains(t)) {
+			if (!srcValues.contains(t)) {
 				temp.add(t);
 			}
 		}
@@ -306,17 +307,16 @@ public abstract class AbstractFGNode
 
 /*
    ChangeLog:
-
    $Log$
-
+   Revision 1.3  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
    Revision 1.2  2003/08/16 02:50:22  venku
    Spruced up documentation and specification.
    Moved onNewXXX() methods from IFGNode to AbstractFGNode.
-
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-
    Revision 0.10  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
