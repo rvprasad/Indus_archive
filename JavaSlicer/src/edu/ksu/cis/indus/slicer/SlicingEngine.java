@@ -601,7 +601,7 @@ public final class SlicingEngine {
 	public void slice() {
 		for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
 			final Object _crit = _i.next();
-			required.add(((AbstractSliceCriterion) _crit).getOccurringMethod());
+			markAsRequired(((AbstractSliceCriterion) _crit).getOccurringMethod());
 			workbag.addWorkNoDuplicates(_crit);
 		}
 
@@ -658,17 +658,16 @@ public final class SlicingEngine {
 		final Stmt stmt) {
 		boolean _result = false;
 
-		if (markedAsRequired(callee)) {
-			invoked.remove(caller);
-			required.add(caller);
+		if (isMarkedAsRequired(callee)) {
+			markAsRequired(caller);
 			_result = true;
-		} else {
-			if (invoked.contains(callee)) {
-				_result = marked(caller) && collector.hasBeenCollected(stmt.getInvokeExprBox());
+		} else 
+			if (isMarkedAsInvoked(callee)) {
+				_result = isMarked(caller) && collector.hasBeenCollected(stmt.getInvokeExprBox());
 			} else {
 				throw new IllegalStateException("How can this happen?" + callee + " was unmarked but was being processed.");
 			}
-		}
+		
 		return _result;
 	}
 
@@ -1015,7 +1014,7 @@ public final class SlicingEngine {
 	 */
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
-		if (!marked(method)) {
+		if (!isMarked(method)) {
 			markAsInvoked(method);
 		}
 
@@ -1051,7 +1050,7 @@ public final class SlicingEngine {
 	 * @pre stmt != null and method != null
 	 */
 	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
-		if (!marked(method)) {
+		if (!isMarked(method)) {
 			markAsInvoked(method);
 		}
 
@@ -1138,6 +1137,19 @@ public final class SlicingEngine {
 		invoked.add(method);
 	}
 
+    /**
+     * Mark the given method as required.  If it was previously marked as invoked, then the invoked mark is erased.
+     *
+     * @param method to be marked.
+     *
+     * @pre method != null
+     */
+    private void markAsRequired(final SootMethod method) {
+        invoked.remove(method);
+        required.add(method);
+    }
+
+    
 	/**
 	 * Check if the method is marked as required or invoked.
 	 *
@@ -1147,10 +1159,23 @@ public final class SlicingEngine {
 	 *
 	 * @pre method != null
 	 */
-	private boolean marked(final SootMethod method) {
-		return required.contains(method) || invoked.contains(method);
+	private boolean isMarked(final SootMethod method) {
+		return isMarkedAsInvoked(method) || isMarkedAsRequired(method);
 	}
 
+    /**
+     * Check if the method is marked as invoked.
+     *
+     * @param method to be checked for marking.
+     *
+     * @return <code>true</code> if <code>method</code> is marked as invoked; <code>false</code>,  otherwise.
+     *
+     * @pre method != null
+     */
+    private boolean isMarkedAsInvoked(final SootMethod method) {
+        return invoked.contains(method);
+    }
+    
 	/**
 	 * Check if the method is marked as required.
 	 *
@@ -1160,7 +1185,7 @@ public final class SlicingEngine {
 	 *
 	 * @pre method != null
 	 */
-	private boolean markedAsRequired(final SootMethod method) {
+	private boolean isMarkedAsRequired(final SootMethod method) {
 		return required.contains(method);
 	}
 
@@ -1401,6 +1426,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.70  2004/02/06 00:10:11  venku
+   - optimization and logging.
+
    Revision 1.69  2004/02/04 02:02:35  venku
    - coding convention and formatting.
    - the logic to include the return values in return statement was
