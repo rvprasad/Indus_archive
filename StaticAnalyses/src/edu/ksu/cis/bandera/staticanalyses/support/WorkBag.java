@@ -1,4 +1,4 @@
-package edu.ksu.cis.bandera.bfa;
+package edu.ksu.cis.bandera.staticanalyses.support;
 
 
 import java.util.Collection;
@@ -208,7 +208,7 @@ public class WorkBag {
 		 *
 		 */
 		CWStack() {
-			container = stack;
+			super.container = stack;
 		}
 
 		/**
@@ -247,7 +247,7 @@ public class WorkBag {
 		 *
 		 */
 		CWQueue() {
-			container = queue;
+			super.container = queue;
 		}
 
 		/**

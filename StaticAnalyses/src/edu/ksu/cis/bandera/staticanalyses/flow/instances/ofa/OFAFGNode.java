@@ -1,10 +1,10 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
 
-import edu.ksu.cis.bandera.bfa.AbstractFGNode;
-import edu.ksu.cis.bandera.bfa.AbstractWork;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.WorkList;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractFGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.WorkList;
 
 import java.util.Collection;
 import java.util.HashSet;

@@ -1,7 +1,7 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
-import edu.ksu.cis.bandera.bfa.AbstractWork;
-import edu.ksu.cis.bandera.bfa.WorkList;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
+import edu.ksu.cis.bandera.staticanalyses.flow.WorkList;
 
 import ca.mcgill.sable.soot.jimple.Value;
 

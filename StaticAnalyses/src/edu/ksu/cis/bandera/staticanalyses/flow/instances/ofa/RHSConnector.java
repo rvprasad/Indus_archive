@@ -1,8 +1,8 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
 
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;

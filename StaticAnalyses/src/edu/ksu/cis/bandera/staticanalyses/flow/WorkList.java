@@ -1,4 +1,6 @@
-package edu.ksu.cis.bandera.bfa;
+package edu.ksu.cis.bandera.staticanalyses.flow;
+
+import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,7 @@ public class WorkList extends WorkBag {
 	 *
 	 */
 	WorkList() {
-		super(WorkBag.DFS);
+		super(LIFO);
 	}
 
 	/**

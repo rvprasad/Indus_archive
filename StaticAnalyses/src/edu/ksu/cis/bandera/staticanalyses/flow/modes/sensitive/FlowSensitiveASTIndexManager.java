@@ -1,9 +1,9 @@
-package edu.ksu.cis.bandera.bfa.modes.sensitive;
+package edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive;
 
 
-import edu.ksu.cis.bandera.bfa.AbstractIndexManager;
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.Index;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.Index;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;

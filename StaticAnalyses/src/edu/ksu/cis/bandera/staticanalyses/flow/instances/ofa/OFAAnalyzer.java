@@ -1,16 +1,16 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
 
-import edu.ksu.cis.bandera.bfa.AbstractAnalyzer;
-import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.AbstractIndexManager;
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.ClassManager;
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.ModeFactory;
-import edu.ksu.cis.bandera.bfa.modes.insensitive.IndexManager;
-import edu.ksu.cis.bandera.bfa.modes.sensitive.AllocationSiteSensitiveIndexManager;
-import edu.ksu.cis.bandera.bfa.modes.sensitive.FlowSensitiveASTIndexManager;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractExprSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.ClassManager;
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.ModeFactory;
+import edu.ksu.cis.bandera.staticanalyses.flow.modes.insensitive.IndexManager;
+import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.AllocationSiteSensitiveIndexManager;
+import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.FlowSensitiveASTIndexManager;
 
 import ca.mcgill.sable.soot.Modifier;
 import ca.mcgill.sable.soot.SootClass;
@@ -32,7 +32,7 @@ import java.util.Set;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-// Analyzer.java
+// OFAAnalyzer.java
 /**
  * <p>This class serves as the interface to the external world for Object flow analysis information.</p>
  *
@@ -42,16 +42,16 @@ import org.apache.log4j.Logger;
  * @version $Revision$ 
  */
 
-public class Analyzer extends AbstractAnalyzer {
+public class OFAAnalyzer extends AbstractAnalyzer {
 
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
 	 */
-	private static final Logger logger = LogManager.getLogger(Analyzer.class);
+	private static final Logger logger = LogManager.getLogger(OFAAnalyzer.class);
 
 	/**
-	 * <p>Creates a new <code>Analyzer</code> instance.</p>
+	 * <p>Creates a new <code>OFAAnalyzer</code> instance.</p>
 	 *
 	 * @param name the name of the analysis instance.
 	 * @param astim the prototype of the index manager to be used in conjunction with AST nodes.
@@ -60,7 +60,7 @@ public class Analyzer extends AbstractAnalyzer {
 	 * @param rexpr the RHS expression visitor prototype.
 	 * @param stmt the statement visitor prototype.
 	 */
-	private Analyzer (String name, AbstractIndexManager astim, AbstractIndexManager allocationim,
+	private OFAAnalyzer (String name, AbstractIndexManager astim, AbstractIndexManager allocationim,
 					  AbstractExprSwitch lexpr, AbstractExprSwitch rexpr, AbstractStmtSwitch stmt) {
 		super(name, new ModeFactory(astim,
 									allocationim,
@@ -80,14 +80,14 @@ public class Analyzer extends AbstractAnalyzer {
 	 * @param name the name of the analysis instance.
 	 * @return the instance of analyzer correponding to the given name.
 	 */
-	public static Analyzer getFIOIAnalyzer(String name) {
+	public static OFAAnalyzer getFIOIAnalyzer(String name) {
 		AbstractIndexManager temp = new IndexManager();
-		return new Analyzer(name,
+		return new OFAAnalyzer(name,
 							temp,
 							temp,
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwitch(null, new LHSConnector()),
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwitch(null, new RHSConnector()),
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
+							new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
+							new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
+							new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
 	}
 
 
@@ -97,13 +97,13 @@ public class Analyzer extends AbstractAnalyzer {
 	 * @param name the name of the analysis instance.
 	 * @return the instance of analyzer correponding to the given name.
 	 */
-	public static Analyzer getFSOIAnalyzer(String name) {
-		return new Analyzer(name,
+	public static OFAAnalyzer getFSOIAnalyzer(String name) {
+		return new OFAAnalyzer(name,
 							new FlowSensitiveASTIndexManager(),
 							new IndexManager(),
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.ExprSwitch(null, new LHSConnector()),
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
-							new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
+							new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fs.ExprSwitch(null, new LHSConnector()),
+							new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
+							new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
 	}
 
 	/**
@@ -112,13 +112,13 @@ public class Analyzer extends AbstractAnalyzer {
 	 * @param name the name of the analysis instance.
 	 * @return the instance of analyzer correponding to the given name.
 	 */
-	public static Analyzer getFIOSAnalyzer(String name) {
-		Analyzer temp = new Analyzer(name,
+	public static OFAAnalyzer getFIOSAnalyzer(String name) {
+		OFAAnalyzer temp = new OFAAnalyzer(name,
 									 new IndexManager(),
 									 new AllocationSiteSensitiveIndexManager(),
-									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwitch(null, new LHSConnector()),
-									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwitch(null, new RHSConnector()),
-									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
+									 new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
+									 new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
+									 new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
 		temp.context.setAllocationSite(new HashSet());
 		return temp;
 	}
@@ -130,13 +130,13 @@ public class Analyzer extends AbstractAnalyzer {
 	 * @param name the name of the analysis instance.
 	 * @return the instance of analyzer correponding to the given name.
 	 */
-	public static Analyzer getFSOSAnalyzer(String name) {
-		Analyzer temp = new Analyzer(name,
+	public static OFAAnalyzer getFSOSAnalyzer(String name) {
+		OFAAnalyzer temp = new OFAAnalyzer(name,
 									 new FlowSensitiveASTIndexManager(),
 									 new AllocationSiteSensitiveIndexManager(),
-									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.ExprSwitch(null, new LHSConnector()),
-									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
-									 new edu.ksu.cis.bandera.bfa.analysis.ofa.fi.StmtSwitch(null));
+									 new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fs.ExprSwitch(null, new LHSConnector()),
+									 new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
+									 new edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
 		temp.context.setAllocationSite(new HashSet());
 		return temp;
 	}
@@ -187,4 +187,4 @@ public class Analyzer extends AbstractAnalyzer {
 		return ret;
 	}
 
-}// Analyzer
+}// OFAAnalyzer

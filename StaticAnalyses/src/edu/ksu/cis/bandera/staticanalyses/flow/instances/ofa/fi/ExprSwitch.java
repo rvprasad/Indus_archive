@@ -1,20 +1,20 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa.fi;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi;
 
 
-import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.AbstractValuedVariant;
-import edu.ksu.cis.bandera.bfa.AbstractWork;
-import edu.ksu.cis.bandera.bfa.ArrayVariant;
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.FGNodeConnector;
-import edu.ksu.cis.bandera.bfa.FieldVariant;
-import edu.ksu.cis.bandera.bfa.MethodVariant;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.ArrayAccessExprWork;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.FGAccessNode;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.FieldAccessExprWork;
-import edu.ksu.cis.bandera.bfa.analysis.ofa.InvokeExprWork;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractExprSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractValuedVariant;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
+import edu.ksu.cis.bandera.staticanalyses.flow.ArrayVariant;
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.FieldVariant;
+import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.ArrayAccessExprWork;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.FGAccessNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.FieldAccessExprWork;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.InvokeExprWork;
 import edu.ksu.cis.bandera.jext.ChooseExpr;
 import edu.ksu.cis.bandera.jext.ComplementExpr;
 import edu.ksu.cis.bandera.jext.InExpr;

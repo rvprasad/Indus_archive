@@ -1,4 +1,4 @@
-package edu.ksu.cis.bandera.bfa;
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.ArrayType;
 import ca.mcgill.sable.soot.SootClassManager;

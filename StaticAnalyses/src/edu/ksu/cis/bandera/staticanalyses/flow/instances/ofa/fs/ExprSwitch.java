@@ -1,9 +1,9 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa.fs;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fs;
 
 
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
 
 import ca.mcgill.sable.soot.jimple.ArrayRef;
 import ca.mcgill.sable.soot.jimple.DefinitionStmt;
@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
  * @version $Revision$
  */
 
-public class ExprSwitch extends edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwitch {
+public class ExprSwitch extends edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.ExprSwitch {
 
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>

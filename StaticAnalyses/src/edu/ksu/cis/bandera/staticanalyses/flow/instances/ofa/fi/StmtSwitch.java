@@ -1,9 +1,9 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa.fi;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi;
 
 
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.MethodVariant;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 
 import ca.mcgill.sable.soot.jimple.AssignStmt;
 import ca.mcgill.sable.soot.jimple.EnterMonitorStmt;

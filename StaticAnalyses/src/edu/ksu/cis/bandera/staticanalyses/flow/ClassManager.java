@@ -1,7 +1,7 @@
-package edu.ksu.cis.bandera.bfa;
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
 
-import edu.ksu.cis.bandera.bfa.Prototype;
+import edu.ksu.cis.bandera.staticanalyses.flow.Prototype;
 
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootMethod;

@@ -1,4 +1,4 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa.fs;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fs;
 
 
 
@@ -8,9 +8,9 @@ import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 import ca.mcgill.sable.util.Iterator;
 import ca.mcgill.sable.util.List;
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 

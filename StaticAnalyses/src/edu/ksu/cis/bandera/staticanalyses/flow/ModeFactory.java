@@ -1,4 +1,4 @@
-package edu.ksu.cis.bandera.bfa;
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;

@@ -1,4 +1,4 @@
-package edu.ksu.cis.bandera.bfa;
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
 
 import java.util.Collection;
@@ -123,7 +123,7 @@ public abstract class AbstractFGNode implements FGNode {
 	 * @return a <code>Collection</code> containing the values resulting from the set difference between the set of values
 	 * associated with this node and <code>src</code>.
 	 */
-	public final Collection diffValues(edu.ksu.cis.bandera.bfa.FGNode src) {
+	public final Collection diffValues(edu.ksu.cis.bandera.staticanalyses.flow.FGNode src) {
 		Set temp = new HashSet();
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			Object t = i.next();

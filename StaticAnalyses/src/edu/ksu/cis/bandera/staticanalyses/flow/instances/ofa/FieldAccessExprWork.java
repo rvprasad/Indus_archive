@@ -1,11 +1,11 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
 
-import edu.ksu.cis.bandera.bfa.BFA;
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.FGNodeConnector;
-import edu.ksu.cis.bandera.bfa.MethodVariant;
+import edu.ksu.cis.bandera.staticanalyses.flow.BFA;
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 
 import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.jimple.FieldRef;

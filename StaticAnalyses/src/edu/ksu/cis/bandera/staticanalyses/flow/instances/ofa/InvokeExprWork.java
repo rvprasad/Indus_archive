@@ -1,4 +1,4 @@
-package edu.ksu.cis.bandera.bfa.analysis.ofa;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
 
 import ca.mcgill.sable.soot.Modifier;
@@ -19,13 +19,13 @@ import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 import ca.mcgill.sable.util.List;
 import ca.mcgill.sable.util.VectorList;
 
-import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.BFA;
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.MethodVariant;
-import edu.ksu.cis.bandera.bfa.MethodVariantManager;
-import edu.ksu.cis.bandera.bfa.Util;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractExprSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.BFA;
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariantManager;
+import edu.ksu.cis.bandera.staticanalyses.flow.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
