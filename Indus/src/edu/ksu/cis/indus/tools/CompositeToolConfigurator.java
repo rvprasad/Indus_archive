@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 
 import java.util.Iterator;
 
@@ -56,11 +55,6 @@ public final class CompositeToolConfigurator
 	Composite composite;
 
 	/**
-	 * The shell on which the provided interface will be displayed.
-	 */
-	Composite parent;
-
-	/**
 	 * This is the composite configuration being configured.
 	 */
 	CompositeToolConfiguration configurationCollection;
@@ -89,16 +83,12 @@ public final class CompositeToolConfigurator
 		childConfigurator.dispose();
 		childConfigurator = null;
 
-		if (!parent.isDisposed()) {
-			parent.dispose();
-			parent = null;
-		}
 	}
 
 	/**
-	 * {@inheritDoc}<code>configuration</code> is <i>ignored</i>.
+	 * {@inheritDoc}
 	 */
-	protected void displayTemplateMethod(final AbstractToolConfiguration configuration) {
+	protected void displayTemplateMethod() {
 		configCombo.removeAll();
 
 		for (Iterator i = configurationCollection.configurations.iterator(); i.hasNext();) {
@@ -107,18 +97,13 @@ public final class CompositeToolConfigurator
 		}
 		configCombo.select(configurationCollection.configurations.indexOf(
 				configurationCollection.getActiveToolConfiguration()));
+        parent.setVisible(true);
 	}
 
 	/**
-	 * {@inheritDoc}<i>Does nothing.</i>
+	 * {@inheritDoc}
 	 */
-	protected void initialize(final Composite theComposite) {
-		if (theComposite == null) {
-			parent = new Shell(SWT.SHELL_TRIM | SWT.APPLICATION_MODAL);
-		} else {
-			parent = theComposite;
-		}
-
+	protected void initialize() {
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		parent.setLayout(gridLayout);
@@ -133,7 +118,8 @@ public final class CompositeToolConfigurator
 					AbstractToolConfiguration tc =
 						(AbstractToolConfiguration) configurationCollection.configurations.get(index);
 					configurationCollection.setActiveToolConfiguration(tc);
-					childConfigurator.display(composite, tc);
+					childConfigurator.setConfiguration(tc);
+					childConfigurator.display(composite);
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
@@ -152,12 +138,15 @@ public final class CompositeToolConfigurator
 					widgetSelected(evt);
 				}
 			});
+        childConfigurator.parent = composite;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/27 01:27:47  venku
+   - documentation.
    Revision 1.4  2003/09/27 01:09:36  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.

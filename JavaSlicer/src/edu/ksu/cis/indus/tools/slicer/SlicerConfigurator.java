@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.AbstractToolConfigurator;
-import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -25,7 +25,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
 
@@ -51,29 +50,20 @@ public final class SlicerConfigurator
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#dispose()
 	 */
 	public void disposeTemplateMethod() {
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#displayTemplateMethod(AbstractToolConfiguration)
-	 */
-	protected void displayTemplateMethod(final AbstractToolConfiguration config) {
-		configuration = (SlicerConfiguration) config;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
-	protected void initialize(final Composite composite) {
+	protected void initialize() {
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
-		composite.setLayout(gridLayout);
+		parent.setLayout(gridLayout);
 
 		// Slice-for-deadlock button
-		Button button = new Button(composite, SWT.CHECK);
+		Button button = new Button(parent, SWT.CHECK);
 		button.setText("Slice for Deadlock");
 
 		GridData oneSpanHorzBegin = new GridData();
@@ -85,7 +75,7 @@ public final class SlicerConfigurator
 				configuration));
 
 		// Slice type related group
-		Group group = new Group(composite, SWT.NONE);
+		Group group = new Group(parent, SWT.NONE);
 		group.setText("Slice Type");
 
 		GridData oneSpanHorzFill = new GridData();
@@ -126,7 +116,7 @@ public final class SlicerConfigurator
 		CMPLT_SLICE.addSelectionListener(sl);
 
 		// Interference dependence related group
-		group = new Group(composite, SWT.NONE);
+		group = new Group(parent, SWT.NONE);
 		group.setText("Interference dependence");
 		group.setLayoutData(oneSpanHorzFill);
 
@@ -141,7 +131,7 @@ public final class SlicerConfigurator
 				configuration));
 
 		// Divergence dependence related group
-		group = new Group(composite, SWT.NONE);
+		group = new Group(parent, SWT.NONE);
 		group.setText("Divergence dependence");
 		group.setLayoutData(oneSpanHorzFill);
 
@@ -161,7 +151,7 @@ public final class SlicerConfigurator
 				button, configuration));
 
 		// Ready dependence related group
-		group = new Group(composite, SWT.NONE);
+		group = new Group(parent, SWT.NONE);
 		group.setText("Ready dependence");
 		group.setLayoutData(oneSpanHorzFill);
 		gridLayout = new GridLayout();
@@ -213,18 +203,37 @@ public final class SlicerConfigurator
 		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button,
 				configuration));
 	}
+
+	/**
+	 * Checks if <code>toolConfiguration</code> can be handled by this configurator.
+	 *
+	 * @param toolConfiguration is the configuration to be check.
+	 *
+	 * @throws RuntimeException when <code>toolConfiguration</code> is an unhandled type of exception.
+	 *
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#validateConfiguration(AbstractToolConfiguration)
+	 */
+	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {
+		if (!(toolConfiguration instanceof SlicerConfiguration)) {
+			throw new RuntimeException(
+				"The toolConfiguration has to be of type edu.ksu.cis.indus.tools.slicer.SlicerConfiguration.");
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/10/13 01:01:45  venku
+   - Split transformations.slicer into 2 packages
+      - transformations.slicer
+      - slicer
+   - Ripple effect of the above changes.
    Revision 1.8  2003/09/29 04:20:30  venku
    - coding convention.
-
    Revision 1.7  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.6  2003/09/27 01:09:35  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.
