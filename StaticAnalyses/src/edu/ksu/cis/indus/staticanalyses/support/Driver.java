@@ -21,7 +21,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 
-import edu.ksu.cis.indus.common.CompleteUnitGraphFactory;
+import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
 import java.io.PrintStream;
@@ -49,7 +49,7 @@ public abstract class Driver {
 
 	/**
 	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
-	 * <code>CompleteUnitGraphFactory</code>.
+	 * <code>TrapUnitGraphFactory</code>.
 	 */
 	protected AbstractUnitGraphFactory cfgProvider;
 
@@ -74,11 +74,12 @@ public abstract class Driver {
 	private final Map times = new LinkedHashMap();
 
 	/**
-	 * Creates a new Driver object.  This also initializes <code>cfgProvider</code> to <code>CompleteUnitGraphFactory</code> and
-     * <code>bbm</code> to an instance of <code>BasicBlockGraphMgr</code> with <code>cfgProvider</code> as the unit graph provider.
+	 * Creates a new Driver object.  This also initializes <code>cfgProvider</code> to <code>CompleteUnitGraphFactory</code>
+	 * and <code>bbm</code> to an instance of <code>BasicBlockGraphMgr</code> with <code>cfgProvider</code> as the unit
+	 * graph provider.
 	 */
 	protected Driver() {
-		cfgProvider = new CompleteUnitGraphFactory();
+		cfgProvider = new TrapUnitGraphFactory();
 		bbm = new BasicBlockGraphMgr();
 		bbm.setUnitGraphProvider(cfgProvider);
 	}
@@ -200,11 +201,12 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 06:46:49  venku
+   - Some more changes to extract unit graphs from the enviroment.
    Revision 1.6  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
      these unit graphs.
-
    Revision 1.5  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
@@ -212,17 +214,17 @@ public abstract class Driver {
    - basic block graph manager can be cached via bbm.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-         Revision 1.2  2003/08/11 04:20:19  venku
-         - Pair and Triple were changed to work in optimized and unoptimized mode.
-         - Ripple effect of the previous change.
-         - Documentation and specification of other classes.
-         Revision 1.1  2003/08/10 03:43:26  venku
-         Renamed Tester to Driver.
-         Refactored logic to pick entry points.
-         Provided for logging timing stats into any specified stream.
-         Ripple effect in others.
-         Revision 1.1  2003/08/07 06:42:16  venku
-         Major:
-          - Moved the package under indus umbrella.
-          - Renamed isEmpty() to hasWork() in WorkBag.
+           Revision 1.2  2003/08/11 04:20:19  venku
+           - Pair and Triple were changed to work in optimized and unoptimized mode.
+           - Ripple effect of the previous change.
+           - Documentation and specification of other classes.
+           Revision 1.1  2003/08/10 03:43:26  venku
+           Renamed Tester to Driver.
+           Refactored logic to pick entry points.
+           Provided for logging timing stats into any specified stream.
+           Ripple effect in others.
+           Revision 1.1  2003/08/07 06:42:16  venku
+           Major:
+            - Moved the package under indus umbrella.
+            - Renamed isEmpty() to hasWork() in WorkBag.
  */
