@@ -123,7 +123,7 @@ public interface ITool {
 	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
 	 * 		  it's run.
 	 */
-	void run(final Object phase, final boolean synchronous);
+	void run(final Phase phase, final boolean synchronous);
 
 	/**
 	 * Returns a stringized from of the information in the object suitable for serialization.

@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.tools.IToolProgressListener.ToolProgressEvent;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -43,11 +44,6 @@ public abstract class AbstractTool
 	static final Log LOGGER = LogFactory.getLog(AbstractTool.class);
 
 	/** 
-	 * This an object used to control the execution of the tool.
-	 */
-	protected final Object control = new Object();
-
-	/** 
 	 * This is the configuration information associated with this tool instance. Subclasses should provide a valid reference.
 	 *
 	 * @invariant configurationInfo != null
@@ -66,7 +62,7 @@ public abstract class AbstractTool
 	 *
 	 * @invariant listeners.oclIsKindOf(Collection(IToolProgressListener))
 	 */
-	final Collection listeners = new HashSet();
+	final Collection listeners = Collections.synchronizedCollection(new HashSet());
 
 	/** 
 	 * This variable is used by the child thread to communicate exception state to the parent thread.
@@ -149,15 +145,13 @@ public abstract class AbstractTool
 	 * @see edu.ksu.cis.indus.tools.ITool#addToolProgressListener(edu.ksu.cis.indus.tools.IToolProgressListener)
 	 */
 	public void addToolProgressListener(final IToolProgressListener listener) {
-		synchronized (listener) {
-			listeners.add(listener);
-		}
+		listeners.add(listener);
 	}
 
 	/**
 	 * Pauses the execution of the tool.
 	 */
-	public final void pause() {
+	public final synchronized void pause() {
 		pause = true;
 	}
 
@@ -165,23 +159,21 @@ public abstract class AbstractTool
 	 * @see edu.ksu.cis.indus.tools.ITool#removeToolProgressListener(edu.ksu.cis.indus.tools.IToolProgressListener)
 	 */
 	public void removeToolProgressListener(final IToolProgressListener listener) {
-		synchronized (listener) {
-			listeners.remove(listener);
-		}
+		listeners.remove(listener);
 	}
 
 	/**
 	 * Resumes the execution of the tool.
 	 */
-	public final void resume() {
+	public final synchronized void resume() {
 		pause = false;
-		control.notify();
+		notify();
 	}
 
 	/**
-	 * Executes the tool. The tool is multithreaded. However, the user can run it in asynchronous mode. In asynchronous mode,
-	 * if tool fails, any subsequent calls to <code>isStable()</code> until a following call to <code>run()</code> will
-	 * return <code>false</code>.
+	 * Executes the tool. The tool is multithreaded. However, the user can run it in synchronous mode and  if tool fails in
+	 * this mode, any subsequent calls to <code>isStable()</code> until a following call to <code>run()</code> will return
+	 * <code>false</code>.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
 	 * @param synchronous <code>true</code> indicates that this method should behave synchronously and return only after the
@@ -191,7 +183,7 @@ public abstract class AbstractTool
 	 * @throws RuntimeException when the tool fails.
 	 * @throws IllegalStateException when this method is called on a paused tool.
 	 */
-	public final synchronized void run(final Object phase, final boolean synchronous) {
+	public final synchronized void run(final Phase phase, final boolean synchronous) {
 		if (!pause || isNotAlive()) {
 			checkConfiguration();
 			childException = null;
@@ -202,6 +194,9 @@ public abstract class AbstractTool
 							Exception _temp = null;
 
 							try {
+                                // we do this to respect any pre-run pause calls. 
+                                movingToNextPhase();
+                                
 								execute(phase);
 							} catch (InterruptedException _e) {
 								LOGGER.fatal("Interrupted while executing the tool.", _e);
@@ -271,7 +266,7 @@ public abstract class AbstractTool
 	 *
 	 * @throws InterruptedException when the execution of the tool is interrupted.
 	 */
-	protected abstract void execute(final Object phase)
+	protected abstract void execute(final Phase phase)
 	  throws InterruptedException;
 
 	/**
@@ -325,15 +320,15 @@ public abstract class AbstractTool
 	 *
 	 * @throws InterruptedException when the thread in which the tool has paused is interrupted.
 	 */
-	protected final void movingToNextPhase()
+	protected final synchronized void movingToNextPhase()
 	  throws InterruptedException {
 		if (pause) {
-			control.wait();
+			wait();
 		}
 	}
 
 	/**
-	 * Checks if the tool's thread is not alive. {@inheritDoc}
+	 * Checks if the tool's thread is not alive.
 	 *
 	 * @return <code>true</code> if the tool is not alive; <code>false</code>, otherwise.
 	 */
