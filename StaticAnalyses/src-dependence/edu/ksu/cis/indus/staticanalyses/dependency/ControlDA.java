@@ -65,19 +65,21 @@ public class ControlDA
 	private static final Log LOGGER = LogFactory.getLog(ControlDA.class);
 
 	/**
-	 * This indicates the dependence information is required in the forward direction assuming all heads to the CFG as entry points.
+	 * This indicates the dependence information is required in the forward direction assuming all heads to the CFG as entry
+	 * points.
 	 */
 	public static final Object FORWARD = "starting from the heads";
 
 	/**
-	 * This indicates the dependence information is required in the backward direction, i.e. forward direction on the reversed form of the CFG. 
+	 * This indicates the dependence information is required in the backward direction, i.e. forward direction on the
+	 * reversed form of the CFG.
 	 */
 	public static final Object BACKWARD = "starting from the tails";
 
 	/**
 	 * This captures the direction of the information calculated by this object.  <code>true</code> indicates that the head
-     * into the graph is considered as entry points into the CFG.  <code>false</code>  indicates that the tails of the graph 
-     * should be considered as entry points into the CFG.
+	 * into the graph is considered as entry points into the CFG.  <code>false</code>  indicates that the tails of the graph
+	 * should be considered as entry points into the CFG.
 	 */
 	private final boolean forward;
 
@@ -479,12 +481,12 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/05 04:17:28  venku
+   - subtle bug caused when enabled bi-directional support. FIXED.
    Revision 1.18  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
-
    Revision 1.17  2003/11/03 07:56:04  venku
    - added logging.
-
    Revision 1.16  2003/10/31 01:00:58  venku
    - added support to switch direction.  However, forward
      slicing can be viewed in two interesting ways and
