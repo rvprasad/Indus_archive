@@ -26,7 +26,6 @@ import soot.SootMethod;
 import soot.VoidType;
 
 import soot.jimple.Jimple;
-import soot.jimple.JimpleBody;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -80,7 +79,7 @@ public abstract class AbstractUnitGraphFactory
 			_result = getUnitGraphForMethod(method);
 
 			if (_result == null) {
-                // stub in an empty graph.
+				// stub in an empty graph.
 				final Jimple _jimple = Jimple.v();
 				final Body _body = _jimple.newBody();
 				_body.setMethod(method);
@@ -93,15 +92,7 @@ public abstract class AbstractUnitGraphFactory
 					_units.add(_jimple.newReturnStmt(Util.getDefaultValueFor(method.getReturnType())));
 				}
 				_result = getUnitGraphForBody(_body);
-			} else {
-                // prune exception based control flow edges.
-				final Body _body = _result.getBody();
-
-				if (_body instanceof JimpleBody) {
-					Util.pruneExceptionBasedControlFlow((JimpleBody) _body, _result);
-				}
 			}
-
 			method2UnitGraph.put(method, new WeakReference(_result));
 		}
 		return _result;
@@ -141,10 +132,11 @@ public abstract class AbstractUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/03/21 01:47:48  venku
+   - documentation.
    Revision 1.7  2004/03/08 02:10:14  venku
    - enabled preliminary support to prune exception based intraprocedural
      control flow edges.
-
    Revision 1.6  2004/03/04 11:56:48  venku
    - renamed a method.
    - added a valid empty body into native methods.
