@@ -67,7 +67,7 @@ public class DependencyAnalysisRegressionTestSuite
 	 *
 	 * @param args are ignored.
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		final String[] _suiteName = { DependencyAnalysisRegressionTestSuite.class.getName() };
 		TestRunner.main(_suiteName);
 	}
@@ -191,6 +191,10 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/18 00:22:37  venku
+   - DependencyAnalysisRegresssionTestSuite was renamed to
+     DependenceAnalysisRegressionTestSuite.  One missing "s".
+
    Revision 1.9  2004/04/18 00:17:20  venku
    - added support to dump jimple.xml while testing. (bug fix)
 
