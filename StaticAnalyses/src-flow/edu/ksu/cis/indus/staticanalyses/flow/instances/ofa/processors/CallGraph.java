@@ -499,7 +499,7 @@ public class CallGraph
 
 			for (final Iterator _j = _temp2.iterator(); _j.hasNext();) {
 				final CallTriple _ctrp = (CallTriple) _j.next();
-				_result.append("\t" + _ctrp.getMethod().getSignature() + "\n");
+				_result.append("\t" + _ctrp + "\n");
 			}
 		}
 
@@ -673,6 +673,11 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.55  2004/07/07 10:08:26  venku
+   - altered the method to calculate reachability.
+   - documented CallGraph
+   - altered CallGraph to adhere to coding conventions.
+
    Revision 1.54  2004/03/29 08:48:58  venku
    - all nodes reachable should be represented in the embedded graph in
      the call graph.  FIXED.
