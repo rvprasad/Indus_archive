@@ -73,7 +73,7 @@ public abstract class AbstractWorkBagTest
 		final List _workPieces = getWorkPieces();
 		wb.addAllWork(_workPieces);
 		assertFalse(wb.addWorkNoDuplicates(_workPieces.get(0)));
-        assertTrue(wb.addWorkNoDuplicates(new Object()));
+		assertTrue(wb.addWorkNoDuplicates(new Object()));
 	}
 
 	/**
@@ -125,4 +125,6 @@ public abstract class AbstractWorkBagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/28 00:18:45  venku
+   - added unit tests for classes in data structures package.
  */

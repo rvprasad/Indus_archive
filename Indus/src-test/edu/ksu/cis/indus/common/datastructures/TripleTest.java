@@ -31,12 +31,12 @@ import java.util.Collection;
 public class TripleTest
   extends TestCase {
 	/**
-	 * A triple
+	 * A triple.
 	 */
 	private Triple triple1;
 
 	/**
-	 * A triple
+	 * A triple.
 	 */
 	private Triple triple2;
 
@@ -161,4 +161,7 @@ public class TripleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/28 00:18:45  venku
+   - added unit tests for classes in data structures package.
+
  */
