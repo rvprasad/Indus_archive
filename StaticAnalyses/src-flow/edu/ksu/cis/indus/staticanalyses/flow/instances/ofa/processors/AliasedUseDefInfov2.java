@@ -142,6 +142,8 @@ public final class AliasedUseDefInfov2
 			if (!_result) {
 				_result = doesControlPathExistsFromTo(defMethod, useMethod);
 			}
+		} else {
+			_result = tgi.containsClassInitThread(tgi.getExecutionThreads(defMethod));
 		}
 		return _result;
 	}

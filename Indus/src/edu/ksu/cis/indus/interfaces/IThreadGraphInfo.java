@@ -96,6 +96,18 @@ public interface IThreadGraphInfo
 	Collection getExecutionThreads(SootMethod sm);
 
 	/**
+	 * Checks if there is a class initializing thread in the given collection of threads.
+	 *
+	 * @param executionThreads to be tested.
+	 *
+	 * @return <code>true</code> if one of the threads in <code>executionThreads</code> did initialize a class;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre executionThreads != null and executionThreads.oclIsKindOf(Collection(Triple))
+	 */
+	boolean containsClassInitThread(Collection executionThreads);
+
+	/**
 	 * Checks if the methods will always occur in the different threads.
 	 *
 	 * @param methodOne obviously contains the definition.
@@ -105,7 +117,7 @@ public interface IThreadGraphInfo
 	 *
 	 * @pre methodOne != null and methodTwo != null
 	 */
-	boolean mustOccurInDifferentThread(final SootMethod methodOne, final SootMethod methodTwo);
+	boolean mustOccurInDifferentThread(SootMethod methodOne, SootMethod methodTwo);
 
 	/**
 	 * Checks if the methods will only occur in the same thread.
@@ -117,7 +129,7 @@ public interface IThreadGraphInfo
 	 *
 	 * @pre methodOne != null and methodTwo != null
 	 */
-	boolean mustOccurInSameThread(final SootMethod methodOne, final SootMethod methodTwo);
+	boolean mustOccurInSameThread(SootMethod methodOne, SootMethod methodTwo);
 }
 
 // End of File

@@ -124,7 +124,7 @@ public class ThreadGraph
 	public static final Object SYSTEM_CREATOR_METHOD = "SYSTEM_CREATOR_METHOD";
 
 	/** 
-	 * This represents the thread "class initializing" thread.
+	 * This represents the "class initializing" thread.
 	 */
 	public static final Triple CLASS_INIT_THREAD =
 		new Triple("CLASS_INIT_THREAD_CREATION_STMT", "CLASS_INIT_THREAD_CREATTION_METHOD", "CLASS_INIT_THREAD_CLASS");
@@ -331,6 +331,13 @@ public class ThreadGraph
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: thread graph consolidation");
 		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#containsClassInitThread(java.util.Collection)
+	 */
+	public boolean containsClassInitThread(final Collection executionThreads) {
+		return executionThreads.contains(CLASS_INIT_THREAD);
 	}
 
 	/**
