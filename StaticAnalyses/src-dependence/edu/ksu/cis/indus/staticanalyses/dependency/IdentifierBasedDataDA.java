@@ -25,7 +25,6 @@ import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
-import soot.toolkits.scalar.LocalUnitPair;
 import soot.toolkits.scalar.SimpleLocalDefs;
 import soot.toolkits.scalar.SimpleLocalUses;
 import soot.toolkits.scalar.UnitValueBoxPair;
@@ -57,9 +56,9 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependentMap.oclIsKindOf(Map(SootMethod,Sequence(Set(Stmt))))
+ * @invariant dependentMap.oclIsKindOf(Map(SootMethod,Sequence(Set(UnitValueBoxPair))))
  * @invariant dependentMap.values()->forall(o | o.getValue().size = o.getKey().getBody(Jimple.v()).getStmtList().size())
- * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Map(ValueBox, Set(ca.mcgill. sable.soot.jimple.Stmt)))))
+ * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Map(Local, Set(Stmt)))))
  * @invariant dependeeMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getBody(Jimple.v()).getStmtList().size())
  */
 public class IdentifierBasedDataDA
@@ -198,7 +197,7 @@ public class IdentifierBasedDataDA
 
 						for (Iterator k = temp.iterator(); k.hasNext();) {
 							UnitValueBoxPair p = (UnitValueBoxPair) k.next();
-							currUses.add(new LocalUnitPair((Local) p.getValueBox().getValue(), p.getUnit()));
+							currUses.add(new UnitValueBoxPair(p.getUnit(), p.getValueBox()));
 						}
 					}
 				}
@@ -293,6 +292,10 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/03 07:54:01  venku
+   - extended the input type handled by getDependees().
+   - Uses stores LocalUnitPair instances.
+
    Revision 1.16  2003/11/02 22:10:30  venku
    - uses unitgraphs instead of complete unit graphs.
    Revision 1.15  2003/11/02 00:37:59  venku
