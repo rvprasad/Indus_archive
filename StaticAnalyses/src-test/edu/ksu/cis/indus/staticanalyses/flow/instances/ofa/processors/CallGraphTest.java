@@ -235,7 +235,7 @@ public final class CallGraphTest
 			_d.add(_node.getObject());
 		}
 		assertTrue(_d.containsAll(_reachables));
-        assertTrue(_reachables.containsAll(_d));
+		assertTrue(_reachables.containsAll(_d));
 	}
 
 	/**
@@ -356,15 +356,27 @@ public final class CallGraphTest
 			}
 		}
 	}
+
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown()
+	  throws Exception {
+		cg = null;
+		cgi = null;
+		ofa = null;
+		super.tearDown();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/17 09:16:34  venku
+   - coding convention.
    Revision 1.11  2004/03/29 08:48:58  venku
    - all nodes reachable should be represented in the embedded graph in
      the call graph.  FIXED.
-
    Revision 1.10  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -373,7 +385,6 @@ public final class CallGraphTest
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.9  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.

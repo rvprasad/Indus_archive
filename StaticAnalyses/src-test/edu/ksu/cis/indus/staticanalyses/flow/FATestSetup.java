@@ -139,13 +139,6 @@ public class FATestSetup
 		G.reset();
 		valueAnalyzer.reset();
 		valueAnalyzer = null;
-
-		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IFATest.class);
-
-		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			final IFATest _test = (IFATest) _i.next();
-			_test.setAnalyzer(null);
-		}
 		super.tearDown();
 	}
 }
@@ -153,6 +146,9 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/04/18 00:42:56  venku
+   - references to objects had leaked after test. FIXED.
+
    Revision 1.13  2004/04/18 00:02:19  venku
    - added support to dump jimple.xml while testing.
    Revision 1.12  2004/04/16 20:10:39  venku

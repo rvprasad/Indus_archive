@@ -93,16 +93,6 @@ public class ValueAnalysisTestSetup
 	  throws Exception {
 		cgiImpl.reset();
 		cgiImpl = null;
-
-		final Collection _temp =
-			new ArrayList(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class));
-		_temp.addAll(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedCallGraphTest.class));
-
-		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			final IFAProcessorTest _test = (IFAProcessorTest) _i.next();
-			_test.setProcessor(null);
-		}
-		getStmtGraphFactory().reset();
 		super.tearDown();
 	}
 }
@@ -110,6 +100,9 @@ public class ValueAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/18 00:42:56  venku
+   - references to objects had leaked after test. FIXED.
+
    Revision 1.5  2004/04/18 00:02:19  venku
    - added support to dump jimple.xml while testing.
    Revision 1.4  2004/03/29 04:54:21  venku

@@ -38,7 +38,7 @@ public class XMLBasedDependencyAnalysisTest
 	/**
 	 * The instance of the analysis being tested.
 	 */
-	private final DependencyAnalysis da;
+	private DependencyAnalysis da;
 
 	/**
 	 * The instance of the xmlizer used to generate the test data.
@@ -110,11 +110,25 @@ public class XMLBasedDependencyAnalysisTest
 		info.put(IEnvironment.ID, env);
 		info.put(ICallGraphInfo.ID, cgi);
 	}
+
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown()
+	  throws Exception {
+		cgi = null;
+		da = null;
+		env = null;
+		xmlizer = null;
+		super.tearDown();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/29 09:44:41  venku
+   - finished the xml-based testing framework for dependence.
    Revision 1.1  2004/03/09 19:10:40  venku
    - preliminary commit of test setup for dependency analyses.
  */

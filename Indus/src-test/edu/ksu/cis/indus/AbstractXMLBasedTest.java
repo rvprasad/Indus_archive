@@ -92,13 +92,6 @@ public abstract class AbstractXMLBasedTest
 	private String testName = "";
 
 	/**
-	 * @see IXMLBasedTest#setXMLControlDir(String)
-	 */
-	public void setXMLControlDir(final String xmlInDir) {
-		xmlControlDir = xmlInDir;
-	}
-
-	/**
 	 * @see junit.framework.TestCase#setName(java.lang.String)
 	 */
 	public void setName(final String name) {
@@ -110,13 +103,6 @@ public abstract class AbstractXMLBasedTest
 	 */
 	public String getName() {
 		return testName;
-	}
-
-	/**
-	 * @see IXMLBasedTest#setXMLTestDir(String)
-	 */
-	public void setXMLTestDir(final String xmlInDir) {
-		xmlTestDir = xmlInDir;
 	}
 
 	/**
@@ -138,6 +124,20 @@ public abstract class AbstractXMLBasedTest
 	public void setTestName(final String name) {
 		testName = name;
 		super.setName(name);
+	}
+
+	/**
+	 * @see IXMLBasedTest#setXMLControlDir(String)
+	 */
+	public void setXMLControlDir(final String xmlInDir) {
+		xmlControlDir = xmlInDir;
+	}
+
+	/**
+	 * @see IXMLBasedTest#setXMLTestDir(String)
+	 */
+	public void setXMLTestDir(final String xmlInDir) {
+		xmlTestDir = xmlInDir;
 	}
 
 	/**
@@ -227,15 +227,29 @@ public abstract class AbstractXMLBasedTest
 		super.runTest();
 		super.setName(testName);
 	}
+
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown()
+	  throws Exception {
+		info.clear();
+		stmtGraphFactory.reset();
+		stmtGraphFactory = null;
+		xmlizer = null;
+		super.tearDown();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/17 22:07:37  venku
+   - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
+   - ripple effect in interfaces, classes, and property files.
    Revision 1.11  2004/03/29 09:29:41  venku
    - uses name/attribute based selection scheme to pick elements for
      comparison.
-
    Revision 1.10  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

@@ -178,14 +178,6 @@ public class DependencyAnalysisTestSetup
 			final IDependencyAnalysisTest _test = (IDependencyAnalysisTest) _i.next();
 			_test.getDA().reset();
 		}
-
-		for (final Iterator _i =
-				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedDependencyAnalysisTest.class)
-							.iterator(); _i.hasNext();) {
-			final XMLBasedDependencyAnalysisTest _test = (XMLBasedDependencyAnalysisTest) _i.next();
-			_test.setCallGraph(null);
-		}
-
 		super.tearDown();
 	}
 
@@ -238,6 +230,9 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/18 00:42:56  venku
+   - references to objects had leaked after test. FIXED.
+
    Revision 1.6  2004/04/18 00:17:20  venku
    - added support to dump jimple.xml while testing. (bug fix)
    Revision 1.5  2004/04/01 19:18:29  venku

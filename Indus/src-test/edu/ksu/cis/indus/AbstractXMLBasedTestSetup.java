@@ -127,6 +127,8 @@ public class AbstractXMLBasedTestSetup
 	 */
 	protected void tearDown()
 	  throws Exception {
+		stmtGraphFactory.reset();
+		stmtGraphFactory = null;
 		System.gc();
 	}
 }
@@ -134,6 +136,8 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/18 00:42:55  venku
+   - references to objects had leaked after test. FIXED.
    Revision 1.7  2004/04/17 22:07:37  venku
    - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
    - ripple effect in interfaces, classes, and property files.
