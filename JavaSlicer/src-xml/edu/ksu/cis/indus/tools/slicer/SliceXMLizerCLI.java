@@ -586,7 +586,7 @@ public class SliceXMLizerCLI
 	 *
 	 * @param configID is the id of the active configuration.
 	 *
-	 * @pre configName != null
+	 * @pre configID != null
 	 */
 	private void setConfigName(final String configID) {
 		slicer.setActiveConfiguration(configID);
@@ -747,6 +747,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.49  2004/07/25 01:35:37  venku
+   - ripple effect of the change to TagBasedSliceResidualizer.
+
    Revision 1.48  2004/07/20 05:36:05  venku
    - slicer criteria specifying options was missing.  How? FIXED.
 
