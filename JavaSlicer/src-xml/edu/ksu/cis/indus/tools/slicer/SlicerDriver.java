@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.slicer.TaggingBasedSliceCollector;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.CGBasedXMLizingController;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 import edu.ksu.cis.indus.tools.Phase;
@@ -229,6 +230,7 @@ public class SlicerDriver
 	 */
 	void writeXML() {
 		ICallGraphInfo cgi = slicer.getCallGraph();
+        System.out.println(((CallGraph)cgi).dumpGraph());
 		CGBasedXMLizingController ctrl = new CGBasedXMLizingController(cgi);
 		ctrl.setEnvironment(slicer.getEnvironment());
 
@@ -368,7 +370,7 @@ public class SlicerDriver
 			String outputDir = cl.getOptionValue("o");
 
 			if (outputDir == null) {
-				LOGGER.error("Using the currennt directory to dump slicing artifacts.");
+				LOGGER.warn("Using the currennt directory to dump slicing artifacts.");
 				outputDir = ".";
 			}
 			xmlizer.setOutputDirectory(outputDir);
@@ -449,6 +451,11 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/28 16:37:42  venku
+   - slicer tool was initialized after setup and this erased previous
+     configuration info. FIXED.
+   - config file opening and defaulting logic was broken. FIXED.
+
    Revision 1.11  2003/11/24 10:12:03  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.
