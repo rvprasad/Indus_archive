@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import soot.jimple.StringConstant;
 
 
@@ -42,14 +39,13 @@ public final class IntegerTokenManagerTest
 	 */
 	public void testGetTokens() {
 		super.testGetTokens();
-        final Collection _temp = new ArrayList();
 
-        for (int _i = 0; _i <= IntegerTokenManager.NO_OF_BITS_IN_AN_INTEGER; _i++) {
-            _temp.add(StringConstant.v(String.valueOf(_i)));
-        }
+		for (int _i = 0; _i <= IntegerTokenManager.NO_OF_BITS_IN_AN_INTEGER; _i++) {
+			values.add(StringConstant.v(String.valueOf(_i)));
+		}
 
 		try {
-			tokenManager.getTokens(_temp);
+			tokenManager.getTokens(values);
 			fail("IntegerTokenManager should have failed.");
 		} catch (final RuntimeException _e) {
 			;
