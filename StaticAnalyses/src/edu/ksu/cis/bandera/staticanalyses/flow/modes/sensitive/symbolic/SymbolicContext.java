@@ -40,8 +40,8 @@ import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 
 /**
  * This class adds support symbol sensitive information to be captured in a context.  It is a matter of software
- * implementation that both this class and <code>AllocationContext</code> exist when a single class in which one piece of data
- * could have represented both a symbol and an allocation site.  It only makes it clear to implement it this way.
+ * implementation that both this class and <code>AllocationContext</code> exist when a single class in which one piece of
+ * data could have represented both a symbol and an allocation site.  It only makes it clear to implement it this way.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$

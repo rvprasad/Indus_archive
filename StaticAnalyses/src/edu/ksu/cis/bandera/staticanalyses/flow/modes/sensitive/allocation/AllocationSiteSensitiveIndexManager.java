@@ -44,6 +44,7 @@ import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 /**
  * This class manages indices associated with fields and array components  in allocation-site sensitive mode.  In reality, it
  * provides the implementation to create new indices.  Created: Tue Mar  5 14:08:18 2002.

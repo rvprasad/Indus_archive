@@ -35,13 +35,14 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.symbolic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 import edu.ksu.cis.bandera.staticanalyses.flow.Index;
 import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * This class manages indices associated with fields and array components  in allocation-site sensitive mode.  In reality, it
@@ -54,7 +55,6 @@ public class SymbolSensitiveIndexManager
   extends AbstractIndexManager {
 	/**
 	 * The logger used by instances of this class to log messages.
-	 * 
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SymbolSensitiveIndexManager.class);
 

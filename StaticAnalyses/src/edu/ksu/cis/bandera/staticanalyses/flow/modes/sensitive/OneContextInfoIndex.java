@@ -108,13 +108,15 @@ public class OneContextInfoIndex
 		logger.debug(index + "\n" + this);
 
 		if(index instanceof OneContextInfoIndex) {
-			OneContextInfoIndex d = (OneContextInfoIndex)index;
+			OneContextInfoIndex d = (OneContextInfoIndex) index;
 			temp = d.value.equals(value);
-			if (contextInfo != null) 
-				temp = temp && contextInfo.equals(d.contextInfo);
-		}
-		 // end of if (o instanceof DummyIndex)
 
+			if(contextInfo != null) {
+				temp = temp && contextInfo.equals(d.contextInfo);
+			}
+		}
+
+		// end of if (o instanceof DummyIndex)
 		return temp;
 	}
 
