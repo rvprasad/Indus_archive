@@ -3,7 +3,7 @@
 	<name>JavaSlicer</name>
 	<comment></comment>
 	<projects>
-		<project>Indus-old</project>
+		<project>Indus</project>
 		<project>StaticAnalyses</project>
 	</projects>
 	<buildSpec>

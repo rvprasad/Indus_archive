@@ -3,7 +3,7 @@
 	<name>StaticAnalyses</name>
 	<comment></comment>
 	<projects>
-		<project>Indus-old</project>
+		<project>Indus</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

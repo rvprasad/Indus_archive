@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="var" path="CLOVER_RUNTIME"/>
-	<classpathentry kind="src" path="/Indus-old"/>
 	<classpathentry excluding=".cono" kind="src" path="src"/>
 	<classpathentry excluding=".cono" kind="src" path="src-flow"/>
 	<classpathentry excluding=".cono" kind="src" path="src-dependence"/>
@@ -19,5 +18,6 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
+	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
