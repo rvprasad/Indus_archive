@@ -16,12 +16,6 @@
    	    <pathelement location="src-test"/>
     </path>
 
-    <path id="srcpath">
-        <path refid="${ant.project.name}.srcpath"/>
-	    <path refid="indus.staticanalyses.srcpath"/>
-   	    <path refid="indus.javaslicer.srcpath"/>
-    </path>
-
     <path id="indus.indus.classpath">
         <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
@@ -35,9 +29,16 @@
         <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>    
     </path>
 
-    <path id="classpath">
-        <path refid="${ant.project.name}.classpath"/>
+    <path id="universal.classpath">
+        <path refid="indus.indus.classpath"/>
         <path refid="indus.javaslicer.classpath"/>
         <path refid="indus.staticanalyses.classpath"/>
     </path>
+
+    <path id="universal.srcpath">
+        <path refid="${ant.project.name}.srcpath"/>
+	    <path refid="indus.staticanalyses.srcpath"/>
+   	    <path refid="indus.javaslicer.srcpath"/>
+    </path>
+
 </project>
