@@ -233,7 +233,7 @@ public final class SlicingEngine {
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	protected abstract static class AbstractCriteriaClosure
+	private abstract static class AbstractCriteriaClosure
 	  implements Closure {
 		/**
 		 * The logger used by instances of this class to log messages.
@@ -1395,6 +1395,14 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.63  2004/01/25 08:53:37  venku
+   - changed generateNewCritieria to be more modularized.
+   - method only trigger the inclusion of the base
+     and the invoke expressions at the call site and rely on the
+     parameter ref handling to suck in the arguments.
+   - optimized criteria generation by not including values of
+     exit points of in synchronized methods.
+
    Revision 1.62  2004/01/22 12:42:21  venku
    - logging.
    Revision 1.61  2004/01/22 01:01:40  venku
