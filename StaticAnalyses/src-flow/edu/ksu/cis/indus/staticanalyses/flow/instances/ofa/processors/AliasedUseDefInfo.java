@@ -293,7 +293,7 @@ public class AliasedUseDefInfo
 	 */
 	public String toString() {
 		final StringBuffer _result =
-			new StringBuffer("Statistics for Alised Use Def analysis as calculated by " + getClass().getName() + "\n");
+			new StringBuffer("Statistics for Aliased Use Def analysis as calculated by " + getClass().getName() + "\n");
 		int _edgeCount = 0;
 
 		final StringBuffer _temp = new StringBuffer();
