@@ -59,8 +59,6 @@ import soot.VoidType;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
-import soot.jimple.EnterMonitorStmt;
-import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -615,7 +613,7 @@ public final class SlicingEngine {
 					generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
 				}
 			} else {
-				includeMethodAndClassHierarchyInSlice(callee);
+				includeMethodAndDeclaringClassInSlice(callee);
 			}
 		} else {
 			/*
@@ -781,7 +779,7 @@ public final class SlicingEngine {
 
 		// generate criteria to include invocation sites only if the method has not been collected.
 		if (!collector.hasBeenCollected(callee)) {
-			includeMethodAndClassHierarchyInSlice(callee);
+			includeMethodAndDeclaringClassInSlice(callee);
 
 			final boolean _notStatic = !callee.isStatic();
 
@@ -881,29 +879,28 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Includes the given class and it's ancestors into the slice.
+	 * Includes the given class in the slice.
 	 *
 	 * @param clazz to be included in the slice.
 	 *
 	 * @pre clazz != null
 	 */
-	private void includeClassHierarchyInSlice(final SootClass clazz) {
+	private void includeClassInSlice(final SootClass clazz) {
 		collector.includeInSlice(clazz);
 	}
 
 	/**
-	 * Includes the given method, it's classes and it's super classes/interfaces in the slice.  It also includes the method
-	 * declaration/definition of same signature defined in super classes/interfaces.
+	 * Includes the given method and it's declaring class in the slice.  
 	 *
 	 * @param method to be included in the slice.
 	 *
 	 * @pre method != null
 	 */
-	private void includeMethodAndClassHierarchyInSlice(final SootMethod method) {
+	private void includeMethodAndDeclaringClassInSlice(final SootMethod method) {
 		collector.includeInSlice(method);
 
 		final SootClass _sc = method.getDeclaringClass();
-		includeClassHierarchyInSlice(_sc);
+		includeClassInSlice(_sc);
 
 		final Collection _types = new HashSet(method.getParameterTypes());
 		_types.add(method.getReturnType());
@@ -923,9 +920,9 @@ public final class SlicingEngine {
 			final Type _type = (Type) _i.next();
 
 			if (_type instanceof RefType) {
-				includeClassHierarchyInSlice(((RefType) _type).getSootClass());
+				includeClassInSlice(((RefType) _type).getSootClass());
 			} else if (_type instanceof ArrayType && ((ArrayType) _type).baseType instanceof RefType) {
-				includeClassHierarchyInSlice(((RefType) ((ArrayType) _type).baseType).getSootClass());
+				includeClassInSlice(((RefType) ((ArrayType) _type).baseType).getSootClass());
 			}
 		}
 	}
@@ -1064,7 +1061,7 @@ public final class SlicingEngine {
 				ValueBox _vBox = (ValueBox) _i.next();
 				_sb.append(_vBox.getValue());
 				_sb.append("[" + _vBox + "]");
-                _sb.append(", ");
+				_sb.append(", ");
 			}
 			_sb.append("]");
 			LOGGER.debug(_sb.toString());
@@ -1092,7 +1089,7 @@ public final class SlicingEngine {
 					if (_value instanceof FieldRef) {
 						final SootField _field = ((FieldRef) _vBox.getValue()).getField();
 						collector.includeInSlice(_field);
-						includeClassHierarchyInSlice(_field.getDeclaringClass());
+						includeClassInSlice(_field.getDeclaringClass());
 					}
 				}
 				_types.add(_value.getType());
@@ -1190,7 +1187,7 @@ public final class SlicingEngine {
 		generateNewCriteria(stmt, method, controlflowBasedDAs);
 
 		collector.includeInSlice(method);
-		includeMethodAndClassHierarchyInSlice(method);
+		includeMethodAndDeclaringClassInSlice(method);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
@@ -1201,6 +1198,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.57  2004/01/20 16:49:39  venku
+   - ready dependence was added to controlbased da's and useReady
+     was deleted.
    Revision 1.56  2004/01/20 00:46:36  venku
    - criteria are sorted in SlicingEngine instead of SlicerTool.
    - formatting and logging.
