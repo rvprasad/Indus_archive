@@ -126,18 +126,24 @@ public class MethodVariantManager
 	 * @post result != null
 	 */
 	protected IVariant getNewVariant(final Object o) {
-		return new MethodVariant((SootMethod) o,
-			new ASTVariantManager(fa, (AbstractIndexManager) astIMPrototype.getClone()), fa);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("STATS: Processing method number: " + auxGetVariantCount() + 1);
+		}
+
+		return new MethodVariant((SootMethod) o, new ASTVariantManager(fa, (AbstractIndexManager) astIMPrototype.getClone()),
+			fa);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/17 10:48:33  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
    Revision 1.2  2003/08/16 02:50:22  venku
    Spruced up documentation and specification.
    Moved onNewXXX() methods from IFGNode to AbstractFGNode.
-
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

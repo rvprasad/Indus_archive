@@ -40,6 +40,9 @@ import soot.SootClass;
 import edu.ksu.cis.indus.interfaces.IPrototype;
 import edu.ksu.cis.indus.staticanalyses.Context;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -58,11 +61,10 @@ import java.util.HashSet;
 public class ClassManager
   implements IPrototype {
 	/**
-	 * The instance of the framework in which this object is used.
-	 *
-	 * @invariant fa != null
-	 */
-	protected final FA fa;
+     * The logger used by instances of this class to log messages.
+     * 
+     */
+    private static final Log LOGGER = LogFactory.getLog(ClassManager.class);
 
 	/**
 	 * The collection of classes for which the information has been processed.
@@ -75,6 +77,18 @@ public class ClassManager
 	 * @invariant context != null
 	 */
 	protected final Context context;
+
+	/**
+	 * The instance of the framework in which this object is used.
+	 *
+	 * @invariant fa != null
+	 */
+	protected final FA fa;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private int auxClassCount = 0;
 
 	/**
 	 * Creates a new <code>ClassManager</code> instance.
@@ -133,6 +147,7 @@ public class ClassManager
 			}
 
 			SootClass temp = sc;
+
 			while (temp.hasSuperclass()) {
 				temp = temp.getSuperclass();
 
@@ -141,6 +156,10 @@ public class ClassManager
 					fa.getMethodVariant(temp.getMethod("<clinit>"), context);
 				}
 			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("STATS: # of classes processed is " + classes.size());
 		}
 	}
 
@@ -154,26 +173,25 @@ public class ClassManager
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.6  2003/08/21 10:53:38  venku
+   There was recursion bug - FIXED.
    Revision 1.5  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
-
    Revision 1.4  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
-
    Revision 1.3  2003/08/16 03:02:42  venku
    Spruced up documentation and specification.
 
-   
    Revision 1.2  2003/08/12 18:39:56  venku
    Ripple effect of moving IPrototype to Indus.
-   
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 1.8  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

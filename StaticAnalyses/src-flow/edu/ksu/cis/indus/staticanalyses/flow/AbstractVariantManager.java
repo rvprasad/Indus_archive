@@ -159,6 +159,15 @@ public abstract class AbstractVariantManager {
 	protected abstract IVariant getNewVariant(final Object o);
 
 	/**
+	 * Returns the total variants managed by this manager. 
+	 *
+	 * @return number of variants managed.
+	 */
+	protected int auxGetVariantCount() {
+		return index2variant.values().size();
+	}
+
+	/**
 	 * Resets the manager.  All internal data structures are reset to enable a new session of usage.
 	 */
 	void reset() {
@@ -172,21 +181,22 @@ public abstract class AbstractVariantManager {
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.4  2003/08/21 03:47:11  venku
+   Ripple effect of adding IStatus.
+   Documentation.
    Revision 1.3  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
-
    Revision 1.2  2003/08/17 09:59:03  venku
    Spruced up documentation and specification.
    Documentation changes to FieldVariant.
 
-   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 0.13  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
