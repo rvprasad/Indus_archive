@@ -35,7 +35,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class XMLizingController
+public class XMLizingProcessingFilter
   implements IProcessingFilter {
 	/**
 	 * This compares <code>SootClass</code> objects lexographically based on their fully qualified java names.
@@ -112,6 +112,13 @@ public class XMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/30 00:10:17  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.5  2003/11/17 16:58:19  venku
    - populateDAs() needs to be called from outside the constructor.
    - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.

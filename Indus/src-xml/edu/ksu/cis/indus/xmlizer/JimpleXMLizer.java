@@ -136,7 +136,7 @@ public class JimpleXMLizer
 		Scene scene = Scene.v();
 		Environment env = new Environment(scene);
 		pc.setEnvironment(env);
-		pc.setProcessingFilter(new XMLizingController());
+		pc.setProcessingFilter(new XMLizingProcessingFilter());
 
 		for (int i = 0; i < s.length; i++) {
 			scene.loadClassAndSupport(s[i]);
@@ -393,6 +393,13 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/30 00:10:17  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.19  2003/11/28 09:40:38  venku
    - the way information is captured is changed.
       Revision 1.18  2003/11/26 18:26:08  venku

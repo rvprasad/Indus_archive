@@ -51,7 +51,7 @@ import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
-import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingFilter;
+import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
@@ -536,7 +536,7 @@ public class DependencyXMLizer
 	protected void writeXML(final String root, final ICallGraphInfo cgi) {
 		ProcessingController ctrl = new ProcessingController();
 		ctrl.setEnvironment(aa.getEnvironment());
-		ctrl.setProcessingFilter(new CGBasedXMLizingFilter(cgi));
+		ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
 
 		Map xmlizers = initXMLizers(root, ctrl);
 		ctrl.process();
@@ -657,6 +657,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/30 01:07:58  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
+
    Revision 1.11  2003/11/30 00:10:24  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.

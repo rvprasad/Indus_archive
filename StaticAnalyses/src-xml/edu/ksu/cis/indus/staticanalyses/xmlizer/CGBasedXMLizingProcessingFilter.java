@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.xmlizer;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
-import edu.ksu.cis.indus.xmlizer.XMLizingController;
+import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.util.Collection;
 
@@ -29,14 +29,14 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CGBasedXMLizingFilter
+public class CGBasedXMLizingProcessingFilter
   extends CGBasedProcessingFilter {
 	/**
 	 * The instance of xmlizing controller that is wrapped.
 	 *
 	 * @invariant xmlizingController != null
 	 */
-	private XMLizingController xmlizingController;
+	private XMLizingProcessingFilter xmlizingController;
 
 	/**
 	 * Creates an instance of this class.
@@ -46,13 +46,13 @@ public class CGBasedXMLizingFilter
 	 * @pre cgiPrm != null
 	 * @post xmlizingController != null
 	 */
-	public CGBasedXMLizingFilter(final ICallGraphInfo cgiPrm) {
+	public CGBasedXMLizingProcessingFilter(final ICallGraphInfo cgiPrm) {
 		super(cgiPrm);
-		xmlizingController = new XMLizingController();
+		xmlizingController = new XMLizingProcessingFilter();
 	}
 
 	/**
-	 * {@inheritDoc} This implementation uses an XMLizingController to filter the classes after the classes  have been
+	 * {@inheritDoc} This implementation uses an XMLizingProcessingFilter to filter the classes after the classes  have been
 	 * filtered based on call graph.
 	 */
 	public Collection filterClasses(final Collection classes) {
@@ -60,7 +60,7 @@ public class CGBasedXMLizingFilter
 	}
 
 	/**
-	 * This implementation uses an XMLizingController to filter the methods after the methods  have been filtered based on
+	 * This implementation uses an XMLizingProcessingFilter to filter the methods after the methods  have been filtered based on
 	 * call graph.
 	 *
 	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
@@ -73,6 +73,13 @@ public class CGBasedXMLizingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/30 00:10:24  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.3  2003/11/17 16:58:15  venku
    - populateDAs() needs to be called from outside the constructor.
    - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
