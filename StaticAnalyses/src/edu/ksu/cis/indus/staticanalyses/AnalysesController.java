@@ -16,8 +16,6 @@ package edu.ksu.cis.indus.staticanalyses;
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
-import edu.ksu.cis.indus.interfaces.AbstractStatus;
-
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -43,8 +41,7 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$
  */
-public class AnalysesController
-  extends AbstractStatus {
+public class AnalysesController {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -121,7 +118,7 @@ public class AnalysesController
 	 * @param id of the analysis.
 	 * @param analyses are the implementations of the named analysis.
 	 *
-	 * @pre id != null and analyses != null and analysis->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
+	 * @pre id != null and analyses != null and analysis->forall(o | o != null and o.oclIsKindOf(IAnalysis))
 	 */
 	public final void addAnalyses(final Object id, final Collection analyses) {
 		CollectionsUtilities.putAllIntoListInMap(participatingAnalyses, id, analyses);
@@ -230,6 +227,9 @@ public class AnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/08/07 11:33:01  venku
+   - coding convention.
+
    Revision 1.40  2004/08/07 11:13:37  venku
    - deleted performance logging statements.
 

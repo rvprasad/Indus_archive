@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -12,7 +11,6 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
-
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -31,7 +29,8 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public interface IAnalysis {
+public interface IAnalysis
+  extends IStatus {
 	/**
 	 * Sets the basic block graph manager to use.
 	 *
@@ -83,4 +82,7 @@ public interface IAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/24 09:57:49  venku
+   - extracted interface from AbstractAnalysis.
+   - ripple effect.
  */
