@@ -357,9 +357,7 @@ public class SliceXMLizerCLI
 			_processor.unhook(_pc);
 
 			final ByteArrayOutputStream _stream1 = new ByteArrayOutputStream();
-			final Map _temp1 = new TreeMap(String.CASE_INSENSITIVE_ORDER); 
-			_temp1.putAll(_processor.getStatistics());
-			MapUtils.verbosePrint(new PrintStream(_stream1), "PRE SLICING STATISTICS:", _temp1);
+			MapUtils.verbosePrint(new PrintStream(_stream1), "PRE SLICING STATISTICS:", _processor.getStatistics());
 			LOGGER.info(_stream1.toString());
 
 			_pc.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
@@ -369,9 +367,7 @@ public class SliceXMLizerCLI
 			_processor.unhook(_pc);
 
 			final ByteArrayOutputStream _stream2 = new ByteArrayOutputStream();
-			_temp1.clear(); 
-			_temp1.putAll(_processor.getStatistics());
-			MapUtils.verbosePrint(new PrintStream(_stream2), "POST SLICING STATISTICS:", _temp1);
+			MapUtils.verbosePrint(new PrintStream(_stream2), "POST SLICING STATISTICS:", _processor.getStatistics());
 			LOGGER.info(_stream2.toString());
 		}
 	}
