@@ -131,20 +131,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private static final Collection IDENTIFIERS;
-
-	static {
-		final Collection _temp = new ArrayList();
-		_temp.add(IEscapeInfo.ID);
-		_temp.add(ISideEffectInfo.ID);
-		IDENTIFIERS = Collections.unmodifiableCollection(_temp);
-	}
-
-	/** 
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.
 	 */
 	final BasicBlockGraphMgr bbm;
@@ -387,13 +373,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			read = _temp;
 
 			final AliasSet _base = (AliasSet) getResult();
-			AliasSet _elt = _base.getASForField(IEscapeInfo.ARRAY_FIELD);
+			AliasSet _elt = _base.getASForField(ARRAY_FIELD);
 
 			if (_elt == null) {
 				_elt = AliasSet.getASForType(v.getType());
 
 				if (_elt != null) {
-					_base.putASForField(IEscapeInfo.ARRAY_FIELD, _elt);
+					_base.putASForField(ARRAY_FIELD, _elt);
 				}
 			}
 
@@ -787,25 +773,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
 	public Collection getIds() {
-		return IDENTIFIERS;
+		final Collection _temp = new ArrayList();
+		_temp.add(IEscapeInfo.ID);
+		_temp.add(ISideEffectInfo.ID);
+		return _temp;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param method DOCUMENT ME!
-	 * @param argPos DOCUMENT ME!
-	 * @param accesspath DOCUMENT ME!
-	 * @param recurse DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @see ISideEffectInfo#isParameterBasedAccessPathSideAffected(SootMethod, int, String[], boolean)
 	 */
 	public boolean isParameterBasedAccessPathSideAffected(final SootMethod method, final int argPos,
-		final Object[] accesspath, final boolean recurse) {
+		final String[] accesspath, final boolean recurse) {
 		if (argPos >= method.getParameterCount()) {
 			throw new IllegalArgumentException(method + " has " + method.getParameterCount() + " arguments, but " + argPos
 				+ " was provided.");
@@ -837,11 +815,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see ISideEffectInfo#isParameterBasedAccessPathSideAffected(ICallGraphInfo.CallTriple,     int, java.lang.Object[],
+	 * @see ISideEffectInfo#isArgumentBasedAccessPathSideAffected(ICallGraphInfo.CallTriple, int, String[],
 	 * 		boolean)
 	 */
-	public boolean isParameterBasedAccessPathSideAffected(final CallTriple callerTriple, final int argPos,
-		Object[] accesspath, final boolean recurse) {
+	public boolean isArgumentBasedAccessPathSideAffected(final CallTriple callerTriple, final int argPos,
+		final String[] accesspath, final boolean recurse) {
 		final SootMethod _callee = callerTriple.getExpr().getMethod();
 
 		if (argPos >= _callee.getParameterCount()) {
@@ -876,16 +854,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param method DOCUMENT ME!
-	 * @param argPos DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @see ISideEffectInfo#isParameterSideAffected(SootMethod, int)
 	 */
 	public boolean isParameterSideAffected(final SootMethod method, final int argPos) {
 		if (argPos >= method.getParameterCount()) {
@@ -908,9 +877,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see ISideEffectInfo#isParameterSideAffected(ICallGraphInfo.CallTriple,     int)
+	 * @see ISideEffectInfo#isArgumentSideAffected(ICallGraphInfo.CallTriple, int)
 	 */
-	public boolean isParameterSideAffected(final CallTriple callerTriple, final int argPos) {
+	public boolean isArgumentSideAffected(final CallTriple callerTriple, final int argPos) {
 		final SootMethod _callee = callerTriple.getExpr().getMethod();
 
 		if (argPos >= _callee.getParameterCount()) {
@@ -934,19 +903,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param method DOCUMENT ME!
-	 * @param accesspath DOCUMENT ME!
-	 * @param recurse DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @see ISideEffectInfo#isThisBasedAccessPathSideAffected(SootMethod, String[], boolean)
 	 */
-	public boolean isThisBasedAccessPathSideAffected(final SootMethod method, final Object[] accesspath, final boolean recurse) {
+	public boolean isThisBasedAccessPathSideAffected(final SootMethod method, final String[] accesspath, final boolean recurse) {
 		if (method.isStatic()) {
 			throw new IllegalArgumentException("The provided method should be non-static.");
 		}
@@ -977,9 +936,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see ISideEffectInfo#isThisBasedAccessPathSideAffected(CallTriple,     java.lang.Object[], boolean)
+	 * @see ISideEffectInfo#isReceiverBasedAccessPathSideAffected(CallTriple, String[], boolean)
 	 */
-	public boolean isThisBasedAccessPathSideAffected(final CallTriple callerTriple, final Object[] accesspath,
+	public boolean isReceiverBasedAccessPathSideAffected(final CallTriple callerTriple, final String[] accesspath,
 		final boolean recurse) {
 		if (callerTriple.getExpr().getMethod().isStatic()) {
 			throw new IllegalArgumentException("The invoked method should be non-static.");
@@ -1012,15 +971,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param method DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @see ISideEffectInfo#isThisSideAffected(SootMethod)
 	 */
 	public boolean isThisSideAffected(final SootMethod method) {
 		if (method.isStatic()) {
@@ -1042,9 +993,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see ISideEffectInfo#isThisSideAffected(ICallGraphInfo.CallTriple)
+	 * @see ISideEffectInfo#isReceiverSideAffected(ICallGraphInfo.CallTriple)
 	 */
-	public boolean isThisSideAffected(final CallTriple callerTriple) {
+	public boolean isReceiverSideAffected(final CallTriple callerTriple) {
 		if (callerTriple.getExpr().getMethod().isStatic()) {
 			throw new IllegalArgumentException("The invoked method should be non-static.");
 		}
@@ -1345,7 +1296,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			} else if (v instanceof ArrayRef) {
 				final ArrayRef _a = (ArrayRef) v;
 				final AliasSet _temp = (AliasSet) _local2AS.get(_a.getBase());
-				_result = _temp.getASForField(IEscapeInfo.ARRAY_FIELD);
+				_result = _temp.getASForField(ARRAY_FIELD);
 			} else if (v instanceof Local) {
 				_result = (AliasSet) _local2AS.get(v);
 			} else if (v instanceof ThisRef) {

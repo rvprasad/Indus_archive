@@ -21,11 +21,9 @@ import soot.SootMethod;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * The interface to access side-effect information.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
@@ -33,113 +31,153 @@ public interface ISideEffectInfo
   extends IIdentification,
 	  IStatus {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indentifies the interface.
 	 */
 	Object ID = "Side Effect Information";
 
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param method DOCUMENT ME!
-	 * @param argPos DOCUMENT ME!
-	 * @param accesspath DOCUMENT ME!
-	 * @param recurse DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	/** 
+	 * This constant identifies the cells of an array in the field map of it's alias set.
 	 */
-	boolean isParameterBasedAccessPathSideAffected(final SootMethod method, final int argPos, final Object[] accesspath,
-		final boolean recurse);
+	String ARRAY_FIELD = "$ELT";
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the end point of the access path starting at an argument at a call-site is side-affected.
 	 *
-	 * @param callerTriple DOCUMENT ME!
-	 * @param argPos DOCUMENT ME!
-	 * @param accesspath DOCUMENT ME!
-	 * @param recurse DOCUMENT ME!
+	 * @param callerTriple is the call-site.
+	 * @param argPos is the position of the argument.
+	 * @param accesspath is the access path from the given parameter to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
+	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
+	 * 		  point .
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the end point is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException if the provided argument position is invalid.
+	 *
+	 * @pre callerTriple != null and argPos >= 0 and accesspath != null and accesspath->forall(o | o != null)
 	 */
-	boolean isParameterBasedAccessPathSideAffected(final CallTriple callerTriple, final int argPos,
-		final Object[] accesspath, final boolean recurse);
+	boolean isArgumentBasedAccessPathSideAffected(final CallTriple callerTriple, final int argPos, final String[] accesspath,
+		final boolean recurse)
+	  throws IllegalArgumentException;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the argument of a call-site is side-affected. This considers side-effect via access paths of length greater
+	 * than 1.
 	 *
-	 * @param method DOCUMENT ME!
-	 * @param argPos DOCUMENT ME!
+	 * @param callerTriple is the call-site.
+	 * @param argPos is the position of the argument.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the argument is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException if the provided argument position is invalid.
+	 *
+	 * @pre method != null and argPos >= 0
 	 */
-	boolean isParameterSideAffected(final SootMethod method, final int argPos);
+	boolean isArgumentSideAffected(final CallTriple callerTriple, final int argPos)
+	  throws IllegalArgumentException;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the end point of the access path starting at a parameter of a method is side-affected.
 	 *
-	 * @param callerTriple DOCUMENT ME!
-	 * @param argPos DOCUMENT ME!
+	 * @param method of reference.
+	 * @param paramPos is the position of the parameter.
+	 * @param accesspath is the access path from the given parameter to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
+	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
+	 * 		  point .
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the end point is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException if the provided parameter position is invalid.
+	 *
+	 * @pre method != null and paramPos >= 0 and accesspath != null and accesspath->forall(o | o != null)
 	 */
-	boolean isParameterSideAffected(final CallTriple callerTriple, final int argPos);
+	boolean isParameterBasedAccessPathSideAffected(final SootMethod method, final int paramPos, final String[] accesspath,
+		final boolean recurse)
+	  throws IllegalArgumentException;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the parameter of a method is side-affected. This considers side-effect via access paths of length greater
+	 * than 1.
 	 *
-	 * @param method DOCUMENT ME!
-	 * @param accesspath DOCUMENT ME!
-	 * @param recurse DOCUMENT ME!
+	 * @param method of reference.
+	 * @param paramPos is the position of the parameter.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the parameter is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException if the provided parameter position is invalid.
+	 *
+	 * @pre method != null and paramPos >= 0
 	 */
-	boolean isThisBasedAccessPathSideAffected(final SootMethod method, final Object[] accesspath, final boolean recurse);
+	boolean isParameterSideAffected(final SootMethod method, final int paramPos)
+	  throws IllegalArgumentException;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the end point of the access path starting at the receiver at the call-site is side-affected.
 	 *
-	 * @param callerTriple DOCUMENT ME!
-	 * @param accesspath DOCUMENT ME!
-	 * @param recurse DOCUMENT ME!
+	 * @param callerTriple is the call-site.
+	 * @param accesspath is the access path from the given parameter to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
+	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
+	 * 		  point .
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the end point is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException if the provided method is static.
+	 *
+	 * @pre method != null and accesspath != null and accesspath->forall(o | o != null)
 	 */
-	boolean isThisBasedAccessPathSideAffected(final CallTriple callerTriple, final Object[] accesspath, final boolean recurse);
+	boolean isReceiverBasedAccessPathSideAffected(final CallTriple callerTriple, final String[] accesspath,
+		final boolean recurse)
+	  throws IllegalArgumentException;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if receiver variable at the call-site is side-affected. This considers side-effect via access paths of length
+	 * greater  than 1.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param callerTriple is the call-site.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the receiver is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException if the invoked method is static.
+	 *
+	 * @pre method != null
 	 */
-	boolean isThisSideAffected(final SootMethod method);
+	boolean isReceiverSideAffected(final CallTriple callerTriple)
+	  throws IllegalArgumentException;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the end point of the access path starting at "this" variable of a method is side-affected.
 	 *
-	 * @param callerTriple DOCUMENT ME!
+	 * @param method of reference.
+	 * @param accesspath is the access path from the given parameter to an end point.
+	 * @param recurse <code>true</code> indicates that the check should consider access paths of length  greater than 1 from
+	 * 		  the end point. <code>false</code> indicates the check should consider access paths of length 1 from the end
+	 * 		  point .
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the end point is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException if the provided method is static.
+	 *
+	 * @pre method != null and accesspath != null and accesspath->forall(o | o != null)
 	 */
-	boolean isThisSideAffected(final CallTriple callerTriple);
+	boolean isThisBasedAccessPathSideAffected(final SootMethod method, final String[] accesspath, final boolean recurse)
+	  throws IllegalArgumentException;
+
+	/**
+	 * Checks if "this" variable of the method is side-affected. This considers side-effect via access paths of length
+	 * greater  than 1.
+	 *
+	 * @param method of reference.
+	 *
+	 * @return <code>true</code> if "this" is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException if the provided method is static.
+	 *
+	 * @pre method != null
+	 */
+	boolean isThisSideAffected(final SootMethod method)
+	  throws IllegalArgumentException;
 }
 
 // End of File

@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-
 import soot.SootMethod;
 import soot.Value;
 
@@ -23,24 +22,19 @@ import soot.jimple.InvokeStmt;
 
 
 /**
- * DOCUMENT ME!
- * <p></p>
+ * The interface to access escape analysis information. 
  * 
  * @version $Revision$ 
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  */
 public interface IEscapeInfo
-  extends IIdentification, IStatus {
+  extends IIdentification,
+	  IStatus {
 	/** 
 	 * This is the unique string identifier that can be used to identify an instance of this class.
 	 */
 	Object ID = "Escape Information";
-	
-    /** 
-     * This constant identifies the cells of an array in the field map of it's alias set.
-     */
-    String ARRAY_FIELD = "$ELT";
 
 	/**
 	 * Checks if the given statement containing a <code>wait</code> invocation is coupled to the given statement containing

@@ -46,7 +46,6 @@ import soot.Type;
 final class AliasSet
   extends FastUnionFindElement
   implements Cloneable {
-
 	/** 
 	 * This is used to generate unique ready entities.
 	 */
@@ -226,6 +225,27 @@ final class AliasSet
 	}
 
 	/**
+	 * Checks if the given alias set is side-affected. Basically, it checks if the variables associated with this alias set
+	 * were written to.
+	 *
+	 * @param paramAS is the alias set to be checked.
+	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @return <code>true</code> if this alias set is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @pre paramAS != null
+	 */
+	static boolean isSideAffected(final AliasSet paramAS, final boolean recurse) {
+		boolean _result = paramAS == null;
+
+		if (!_result) {
+			_result = paramAS.isSideAffected(new HashSet(), recurse);
+		}
+		return _result;
+	}
+
+	/**
 	 * Creates a new alias set.
 	 *
 	 * @return a new alias set.
@@ -247,6 +267,32 @@ final class AliasSet
 	 */
 	AliasSet getASForField(final String field) {
 		return (AliasSet) ((AliasSet) find()).fieldMap.get(field);
+	}
+
+	/**
+	 * Retrieves the end point of the specified access path.
+	 *
+	 * @param accesspath is a sequence of primaries in the access path.  This should not include the  primary for this alias
+	 * 		  set. It should contain the stringized form of the field signature or <code>IEscapeInfo.ARRAY_FIELD</code>.
+	 *
+	 * @return the alias set that corresponds to the end point of the access path.  <code>null</code> is returned if no such
+	 * 		   path exists.
+	 */
+	AliasSet getAccessPathEndPoint(final String[] accesspath) {
+		AliasSet _result = this;
+		final int _length = accesspath.length;
+
+		for (int _i = 0; _i < _length; _i++) {
+			final AliasSet _as = (AliasSet) _result.getFieldMap().get(accesspath[_i]);
+
+			if (_as != null) {
+				_result = (AliasSet) _as.find();
+			} else {
+				_result = null;
+				break;
+			}
+		}
+		return _result;
 	}
 
 	/**
@@ -646,6 +692,43 @@ final class AliasSet
 	}
 
 	/**
+	 * Checks if this alias set is side-affected.  Basically, it checks if the variables associated with this alias set were
+	 * written to.
+	 *
+	 * @param visitedASs is a collection of alias sets that are traversed while checking for side-effect.
+	 * @param recurse <code>true</code> indicates if alias sets reachable from this alias set should be considered;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @return <code>true</code> if this alias set is side-affected; <code>false</code>, otherwise.
+	 *
+	 * @pre visitedASs != null and visitedASs.oclIsKindOf(Collection(AliasSet))
+	 */
+	private boolean isSideAffected(final Collection visitedASs, final boolean recurse) {
+		boolean _result = false;
+		final AliasSet _rep = (AliasSet) find();
+
+		if (!visitedASs.contains(_rep)) {
+			final Collection _fieldASs = _rep.getFieldMap().values();
+			final Iterator _i = _fieldASs.iterator();
+			final int _iEnd = _fieldASs.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+				final AliasSet _fieldAS = (AliasSet) _i.next();
+				_result |= _fieldAS.written;
+				visitedASs.add(_fieldAS);
+			}
+
+			if (!_result && recurse) {
+				for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+					final AliasSet _fieldAS = (AliasSet) _i.next();
+					_result |= _fieldAS.isSideAffected(visitedASs, recurse);
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Unify the fields of the given alias sets with that of this alias set.
 	 *
 	 * @param aliasSet is the other alias set involved in the unification.
@@ -699,71 +782,6 @@ final class AliasSet
 			}
 		}
 	}
-	
-	/**
-     * DOCUMENT ME!
-	 * @param visitedASs
-     * 
-     * @return
-     */
-    private boolean isSideAffected(final Collection visitedASs, final boolean recurse) {
-        boolean _result = false;
-        final AliasSet _rep = (AliasSet) find();
-        
-        if (!visitedASs.contains(_rep)) {
-	        final Collection _fieldASs = _rep.getFieldMap().values();
-	        final Iterator _i = _fieldASs.iterator();
-	        final int _iEnd = _fieldASs.size();
-	        
-	        for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-	            final AliasSet _fieldAS = (AliasSet) _i.next();
-	            _result |= _fieldAS.written;
-	            visitedASs.add(_fieldAS);
-	        }
-	        
-	        if (!_result && recurse) {
-	            for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-		            final AliasSet _fieldAS = (AliasSet) _i.next();
-		            _result |= _fieldAS.isSideAffected(visitedASs, recurse);
-		        }		            
-	        }
-        }
-        return _result;
-    }
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param paramAS
-     * @return
-     */
-    static boolean isSideAffected(final AliasSet paramAS, final boolean recurse) {
-        boolean _result = paramAS == null;
-        if (!_result) {
-            _result = paramAS.isSideAffected(new HashSet(), recurse);
-        }
-        return _result;
-    }
-
-     /**
-     * DOCUMENT ME!
-     * 
-     * @param accesspath
-     * @return
-     */
-    public AliasSet getAccessPathEndPoint(final Object[] accesspath) {
-        AliasSet _result = this;
-        final int _length = accesspath.length;
-        for (int _i = 0; _i < _length; _i++) {
-            final AliasSet _as = (AliasSet) _result.getFieldMap().get(accesspath[_i].toString());
-            if (_as != null) {
-                _result = (AliasSet) _as.find();
-            } else {
-                _result = null;
-                break;
-            }
-        }
-        return _result;
-    }
 }
+
 // End of File
