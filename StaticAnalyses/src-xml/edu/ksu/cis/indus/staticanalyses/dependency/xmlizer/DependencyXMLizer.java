@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 import soot.SootMethod;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -170,6 +169,11 @@ public class DependencyXMLizer
 	 */
 	ValueAnalyzerBasedProcessingController cgipc;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private AliasedUseDefInfo aliasUD;
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -311,13 +315,13 @@ public class DependencyXMLizer
 
 		pc.setAnalyzer(aa);
 		cgipc.setAnalyzer(aa);
-
+		aliasUD = new AliasedUseDefInfo(aa);
 		info.put(ICallGraphInfo.ID, cgi);
 		info.put(IThreadGraphInfo.ID, tgi);
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
-		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(aa));
+		info.put(IUseDefInfo.ID, aliasUD);
 
 		if (ecbaRequired) {
 			ecba = new EquivalenceClassBasedEscapeAnalysis(cgi, tgi, bbm);
@@ -527,7 +531,7 @@ public class DependencyXMLizer
 	 */
 	protected void writeXML(final String root, final ICallGraphInfo cgi) {
 		ProcessingController ctrl = new CGBasedXMLizingController(cgi);
-		ctrl.setEnvironment(new Environment(scene));
+		ctrl.setEnvironment(aa.getEnvironment());
 
 		Map xmlizers = initXMLizers(root, ctrl);
 		ctrl.process();
@@ -614,6 +618,7 @@ public class DependencyXMLizer
 			}
 		}
 		das.removeAll(failed);
+		aliasUD.hookup(cgipc);
 
 		if (ecbaRequired) {
 			ecba.hookup(cgipc);
@@ -632,6 +637,7 @@ public class DependencyXMLizer
 			ecba.unhook(cgipc);
 			ecba.execute();
 		}
+		aliasUD.unhook(cgipc);
 
 		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
@@ -646,6 +652,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/25 17:51:23  venku
+   - split control dependence into 2 classes.
+     EntryControlDA handled control DA as required for backward slicing.
+     ExitControlDA handles control DA as required for forward slicing.
+   - ripple effect.
    Revision 1.8  2003/11/25 17:24:23  venku
    - changed the order of dependence for convenience.
    Revision 1.7  2003/11/17 16:58:15  venku
