@@ -17,10 +17,12 @@ package edu.ksu.cis.indus.processing;
 
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
+import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -251,6 +253,11 @@ public class ProcessingController {
 	 * This indicates if values are being processed.
 	 */
 	boolean processValues;
+
+	/** 
+	 * The object used to realize the "active" part of this object.
+	 */
+	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
 
 	/** 
 	 * This defines the environment in which the processing runs.
@@ -1097,6 +1104,7 @@ public class ProcessingController {
 		context.setProgramPoint(null);
 		context.setRootMethod(null);
 		context.returnFromCurrentMethod();
+		activePart.reset();
 	}
 
 	/**
@@ -1151,6 +1159,15 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Returns the active part of this object.
+	 *
+	 * @return the active part.
+	 */
+	public IActivePart getActivePart() {
+		return activePart;
+	}
+
+	/**
 	 * Initializes the processors before processing the system.
 	 */
 	protected void initializeProcessors() {
@@ -1172,9 +1189,9 @@ public class ProcessingController {
 			}
 			_classes = theClasses;
 		} else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Processing filter class: " + processingFilter);
-            }
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing filter class: " + processingFilter);
+			}
 			_classes = processingFilter.filterClasses(theClasses);
 		}
 
@@ -1182,7 +1199,7 @@ public class ProcessingController {
 			LOGGER.debug("Classes to be processed:\n" + _classes);
 		}
 
-		for (final Iterator _i = _classes.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _classes.iterator(); _i.hasNext() && activePart.canProceed();) {
 			final SootClass _sc = (SootClass) _i.next();
 
 			if (LOGGER.isDebugEnabled()) {
@@ -1231,7 +1248,7 @@ public class ProcessingController {
 
 		final boolean _processBody = processStmts || processValues;
 
-		for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
+		for (final Iterator _j = _methods.iterator(); _j.hasNext() && activePart.canProceed();) {
 			final SootMethod _sm = (SootMethod) _j.next();
 			context.setRootMethod(_sm);
 
@@ -1262,26 +1279,27 @@ public class ProcessingController {
 		try {
 			if (stmtGraphFactory == null) {
 				if (method.hasActiveBody()) {
-					for (final Iterator _i = method.getActiveBody().getUnits().iterator(); _i.hasNext();) {
+					for (final Iterator _i = method.getActiveBody().getUnits().iterator();
+						  _i.hasNext() && activePart.canProceed();) {
 						final Stmt _stmt = (Stmt) _i.next();
 						context.setStmt(_stmt);
 						_stmt.apply(stmtSwitcher);
 					}
 				} else {
-				    final StringWriter _sw = new StringWriter();
-				    (new Throwable()).printStackTrace(new PrintWriter(_sw));
+					final StringWriter _sw = new StringWriter();
+					(new Throwable()).printStackTrace(new PrintWriter(_sw));
 					LOGGER.error("Active body was not available for " + method.getSignature() + _sw.toString());
 				}
 			} else {
 				final UnitGraph _stmtGraph = stmtGraphFactory.getStmtGraph(method);
 
-				for (final Iterator _i = _stmtGraph.iterator(); _i.hasNext();) {
+				for (final Iterator _i = _stmtGraph.iterator(); _i.hasNext() && activePart.canProceed();) {
 					final Stmt _stmt = (Stmt) _i.next();
 					context.setStmt(_stmt);
 					_stmt.apply(stmtSwitcher);
 				}
 			}
-		} catch (RuntimeException _e) {
+		} catch (final RuntimeException _e) {
 			LOGGER.error("Well, exception while processing statements of a method may mean the processor does not"
 				+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
 				+ method.getSignature(), _e);

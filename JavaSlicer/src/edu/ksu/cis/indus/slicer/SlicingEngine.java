@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
 
+import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -120,6 +121,11 @@ public final class SlicingEngine {
 	 * This collects the parts of the system that make up the slice.
 	 */
 	SliceCollector collector;
+
+	/** 
+	 * The object used to realize the "active" part of this object.
+	 */
+	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
 
 	/** 
 	 * The controller used to access the dependency analysis info during slicing.
@@ -244,6 +250,15 @@ public final class SlicingEngine {
 		public boolean evaluate(final Object object) {
 			return !Util.isStartMethod((SootMethod) object);
 		}
+	}
+
+	/**
+	 * Returns the active part of this object.
+	 *
+	 * @return the active part.
+	 */
+	public IActivePart getActivePart() {
+		return activePart;
 	}
 
 	/**
@@ -501,6 +516,7 @@ public final class SlicingEngine {
 		criteria.clear();
 		collectedAllInvocationSites.clear();
 		method2callStacks.clear();
+		activePart.reset();
 
 		if (directionSensitiveInfo != null) {
 			directionSensitiveInfo.reset();
@@ -540,7 +556,7 @@ public final class SlicingEngine {
 	public void slice() {
 		workbag.addAllWorkNoDuplicates(criteria);
 
-		while (workbag.hasWork()) {
+		while (workbag.hasWork() && activePart.canProceed()) {
 			final Object _work = workbag.getWork();
 
 			if (_work instanceof ExprLevelSliceCriterion) {
@@ -571,7 +587,9 @@ public final class SlicingEngine {
 			((IPoolable) _work).returnToPool();
 		}
 
-		collector.completeSlicing();
+		if (activePart.canProceed()) {
+			collector.completeSlicing();
+		}
 	}
 
 	/**
@@ -1065,18 +1083,16 @@ public final class SlicingEngine {
 	 * @param method of interest.
 	 *
 	 * @return <code>true</code> if criteria should be generated; <code>false</code>, otherwise.
-     * 
-     * @pre method != null
+	 *
+	 * @pre method != null
 	 */
 	private boolean shouldMethodLevelCriteriaBeGenerated(final SootMethod method) {
 		boolean _result = isNotIncludedInSlice(method);
 
 		if (!_result) {
-
-            //TODO: check if the method is in collectedAllInvocationSites collection . If so, delete the method from the map and 
-            // return false.  Check if callStackCache is null, if so, delete the map from the method, add it to 
-            // collectedAllInvocationSites, and return true.  If not, then proceed with the following code. 
-            
+			//TODO: check if the method is in collectedAllInvocationSites collection . If so, delete the method from the map and 
+			// return false.  Check if callStackCache is null, if so, delete the map from the method, add it to 
+			// collectedAllInvocationSites, and return true.  If not, then proceed with the following code. 
 			_result = true;
 
 			final Collection _col = CollectionsUtilities.getSetFromMap(method2callStacks, method);
@@ -1119,8 +1135,8 @@ public final class SlicingEngine {
 					/*
 					 *  if the call stacks match then
 					 *    if they are not of equal size and the shorter one does not belong to the collection of
-					 *      call stacks for the method then we need to add remove the call stack from the collection 
-                     *      and replace it with the given call stack.
+					 *      call stacks for the method then we need to add remove the call stack from the collection
+					 *      and replace it with the given call stack.
 					 *    else
 					 *      we don't need to consider the current call stack.
 					 */

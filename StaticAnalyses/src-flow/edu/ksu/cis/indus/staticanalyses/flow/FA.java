@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
 import edu.ksu.cis.indus.common.datastructures.WorkList;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 
+import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -76,6 +77,11 @@ public class FA
 	 * @invariant rootMethods != null
 	 */
 	protected final Collection rootMethods = new HashSet();
+
+	/** 
+	 * The object used to realize the "active" part of this object.
+	 */
+	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
 
 	/** 
 	 * The analyzer associated with this instance of the framework.
@@ -415,6 +421,15 @@ public class FA
 	}
 
 	/**
+	 * Returns the active part of this object.
+	 *
+	 * @return the active part.
+	 */
+	public IActivePart getActivePart() {
+		return activePart;
+	}
+
+	/**
 	 * Performs type-based processing of the given class.
 	 *
 	 * @param clazz is the class to be processed.
@@ -446,6 +461,7 @@ public class FA
 		classManager.reset();
 		sccBasedOptimizer.reset();
 		environment = null;
+		activePart.reset();
 		currWorkBag = workBags[0];
 	}
 
@@ -600,7 +616,7 @@ public class FA
 		_workLists[0] = new WorkList(workBags[0]);
 		_workLists[1] = new WorkList(workBags[1]);
 
-		while (workBags[0].hasWork() || workBags[1].hasWork()) {
+		while ((workBags[0].hasWork() || workBags[1].hasWork()) && activePart.canProceed()) {
 			final int _bagToProcess = _bagToggleCounter % 2;
 			_bagToggleCounter++;
 

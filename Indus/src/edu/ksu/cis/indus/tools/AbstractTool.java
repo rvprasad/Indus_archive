@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.tools;
 
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
+import edu.ksu.cis.indus.interfaces.IActivePart;
 
 import edu.ksu.cis.indus.tools.IToolProgressListener.ToolProgressEvent;
 
@@ -43,11 +44,11 @@ public abstract class AbstractTool
 	 */
 	static final Log LOGGER = LogFactory.getLog(AbstractTool.class);
 
-    /** 
-     * This an object used to control the execution of the tool.
-     */
-    protected final Object control = new Object();
-    
+	/** 
+	 * This an object used to control the execution of the tool.
+	 */
+	protected final Object control = new Object();
+
 	/** 
 	 * This is the configuration information associated with this tool instance. Subclasses should provide a valid reference.
 	 *
@@ -93,6 +94,25 @@ public abstract class AbstractTool
 	 * This is the number of the message to be delivered next.
 	 */
 	int token;
+
+	/** 
+	 * The object used to realize the "active" part of this object.
+	 */
+	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
+
+	/** 
+	 * This is the collection of active parts.
+	 *
+	 * @invariant activeParts.oclIsKindOf(Collection(IActivePart))
+	 */
+	private Collection activeParts = new HashSet();
+
+	/**
+	 * Creates a new AbstractTool object.
+	 */
+	public AbstractTool() {
+		activeParts.add(activePart);
+	}
 
 	/**
 	 * Retrieves an object that represents the active configuration of the tool.
@@ -143,7 +163,16 @@ public abstract class AbstractTool
 	 * Aborts the execution of the tool.
 	 */
 	public final void abort() {
-		// TODO: this needs more support from the underlying framework.
+		final Iterator _i = activeParts.iterator();
+		final int _iEnd = activeParts.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final IActivePart _executor = (IActivePart) _i.next();
+			fireToolProgressEvent("Aborting " + _executor, null);
+			_executor.abort();
+		}
+        
+        thread.interrupt();
 	}
 
 	/**
@@ -157,9 +186,9 @@ public abstract class AbstractTool
 	 * Pauses the execution of the tool.
 	 */
 	public final void pause() {
-        synchronized (control) {
-            pause = true;
-        }
+		synchronized (control) {
+			pause = true;
+		}
 	}
 
 	/**
@@ -173,10 +202,10 @@ public abstract class AbstractTool
 	 * Resumes the execution of the tool.
 	 */
 	public final void resume() {
-        synchronized (control) {
-            pause = false;
-            control.notify();
-        }
+		synchronized (control) {
+			pause = false;
+			control.notify();
+		}
 	}
 
 	/**
@@ -203,11 +232,11 @@ public abstract class AbstractTool
 							Exception _temp = null;
 
 							try {
-                                // we do this to respect any pre-run pause calls. 
-                                movingToNextPhase();
-                                
+								// we do this to respect any pre-run pause calls. 
+								movingToNextPhase();
+
 								execute(phase);
-							} catch (InterruptedException _e) {
+							} catch (final InterruptedException _e) {
 								LOGGER.fatal("Interrupted while executing the tool.", _e);
 								_temp = _e;
 							} catch (final Exception _e) {
@@ -256,6 +285,26 @@ public abstract class AbstractTool
 		} else {
 			throw new IllegalStateException("run() should be called when the tool is paused or running.");
 		}
+	}
+
+	/**
+	 * Adds the given object to the collection of active part.
+	 *
+	 * @param part of in interest
+	 */
+	protected final void addActivePart(final IActivePart part) {
+		activeParts.add(part);
+	}
+
+	/**
+	 * Removes the given object from the collection of active part.
+	 *
+	 * @param part of interest.
+	 *
+	 * @return <code>true</code> if <code>part</code> was removed; <code>false</code>, otherwise.
+	 */
+	protected final boolean removeActivePart(final IActivePart part) {
+		return activeParts.remove(part);
 	}
 
 	/**
@@ -331,11 +380,15 @@ public abstract class AbstractTool
 	 */
 	protected final void movingToNextPhase()
 	  throws InterruptedException {
-        synchronized (control) {
-    		if (pause) {
-    			control.wait();
-    		}
-        }
+		synchronized (control) {
+			if (pause) {
+				control.wait();
+			} else if (!activePart.canProceed()) {
+				final String _string = "Tool was interrupted.";
+				fireToolProgressEvent(_string, null);
+				throw new InterruptedException(_string);
+			}
+		}
 	}
 
 	/**

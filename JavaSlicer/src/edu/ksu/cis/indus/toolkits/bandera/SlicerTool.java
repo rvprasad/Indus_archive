@@ -274,6 +274,7 @@ public final class SlicerTool
 	 */
 	public void quit()
 	  throws Exception {
+        tool.abort();
 	}
 
 	/**

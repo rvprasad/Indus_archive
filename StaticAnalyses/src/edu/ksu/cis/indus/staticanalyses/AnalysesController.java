@@ -18,6 +18,8 @@ package edu.ksu.cis.indus.staticanalyses;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
+import edu.ksu.cis.indus.interfaces.IActivePart;
+
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -39,8 +41,10 @@ import org.apache.commons.logging.LogFactory;
  * application require a particular sequence in which each analysis should progress. Hence, the applications provide an
  * implementation of controller interface to drive the analyses in a particular sequence of phases.
  * 
- * <p>This implementation will drive the given analyses such that each analysei is executed only when the anlaysis indicates
- * that all it's prerequesites have been fulfilled.</p> 
+ * <p>
+ * This implementation will drive the given analyses such that each analysei is executed only when the anlaysis indicates
+ * that all it's prerequesites have been fulfilled.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -66,6 +70,11 @@ public class AnalysesController {
 	 * @invariant preprocessController != null;
 	 */
 	protected final ProcessingController preprocessController;
+
+	/** 
+	 * The object used to realize the "active" part of this object.
+	 */
+	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
 
 	/** 
 	 * This provides basic block graphs for the analyses.
@@ -130,6 +139,15 @@ public class AnalysesController {
 	}
 
 	/**
+	 * Returns the active part of this object.
+	 *
+	 * @return the active part.
+	 */
+	public IActivePart getActivePart() {
+		return activePart;
+	}
+
+	/**
 	 * Executes the analyses in the registered order.
 	 */
 	public void execute() {
@@ -139,7 +157,7 @@ public class AnalysesController {
 		do {
 			_analyzing = false;
 
-			for (final Iterator _i = participatingAnalyses.keySet().iterator(); _i.hasNext();) {
+			for (final Iterator _i = participatingAnalyses.keySet().iterator(); _i.hasNext() && activePart.canProceed();) {
 				final String _daName = (String) _i.next();
 				final Collection _c = (Collection) participatingAnalyses.get(_daName);
 
@@ -168,11 +186,11 @@ public class AnalysesController {
 		final Collection _failed = new ArrayList();
 		final Collection _preprocessors = new HashSet();
 
-		for (final Iterator _k = participatingAnalyses.keySet().iterator(); _k.hasNext();) {
+		for (final Iterator _k = participatingAnalyses.keySet().iterator(); _k.hasNext() && activePart.canProceed();) {
 			final Object _key = _k.next();
 			final Collection _c = (Collection) participatingAnalyses.get(_key);
 
-			for (final Iterator _j = _c.iterator(); _j.hasNext();) {
+			for (final Iterator _j = _c.iterator(); _j.hasNext() && activePart.canProceed();) {
 				final IAnalysis _analysis = (IAnalysis) _j.next();
 
 				try {
@@ -203,7 +221,10 @@ public class AnalysesController {
 				_c.remove(_i.next());
 			}
 		}
-		preprocessController.process();
+
+		if (activePart.canProceed()) {
+			preprocessController.process();
+		}
 
 		for (final Iterator _i = _preprocessors.iterator(); _i.hasNext();) {
 			((IProcessor) _i.next()).unhook(preprocessController);
@@ -224,6 +245,7 @@ public class AnalysesController {
 			}
 		}
 		participatingAnalyses.clear();
+		activePart.reset();
 	}
 }
 
