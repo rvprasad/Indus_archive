@@ -35,8 +35,7 @@ import soot.SootMethod;
  */
 abstract class AbstractSliceCriterion
   extends AbstractPoolable
-  implements Cloneable,
-	  ISliceCriterion {
+  implements ISliceCriterion {
 	/** 
 	 * The method in which <code>stmt</code> occurs.
 	 */
@@ -139,7 +138,7 @@ abstract class AbstractSliceCriterion
 	/**
 	 * @see java.lang.Object#clone()
 	 */
-	protected final Object clone()
+	public final Object clone()
 	  throws CloneNotSupportedException {
 		return super.clone();
 	}
