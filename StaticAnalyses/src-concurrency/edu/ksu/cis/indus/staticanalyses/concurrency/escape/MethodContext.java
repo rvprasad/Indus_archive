@@ -342,7 +342,7 @@ final class MethodContext
 		unifyParameters(unifyAll, _m, _n);
 
 		unifyAliasSets(unifyAll, _m.ret, _n.ret);
-		_m.thrown.unify(_n.thrown, unifyAll);
+		unifyAliasSets(unifyAll, _m.thrown, _n.thrown);
 		unifyAliasSets(unifyAll, _m.thisAS, _n.thisAS);
 	}
 
@@ -470,6 +470,11 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.13  2004/01/03 21:20:06  venku
    - deleted unused methods.
 
