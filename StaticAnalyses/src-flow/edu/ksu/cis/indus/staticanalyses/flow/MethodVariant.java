@@ -150,14 +150,13 @@ public class MethodVariant
 	 * @pre sm != null and astvm != null and fa != null
 	 */
 	protected MethodVariant(final SootMethod sm, final AbstractVariantManager astVariantManager, final FA fa) {
-		_method = sm;
-		_fa = fa;
-		_context = (Context) fa._analyzer.context.clone();
-		fa._analyzer.context.callNewMethod(sm);
-
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: preprocessing of " + sm);
 		}
+		_method = sm;
+		_fa = fa;
+		_context = (Context) fa._analyzer.context.clone();
+		_fa._analyzer.context.callNewMethod(sm);
 
 		int pCount = sm.getParameterCount();
 
@@ -166,8 +165,8 @@ public class MethodVariant
 
 			for (int i = 0; i < pCount; i++) {
 				if (sm.getParameterType(i) instanceof RefLikeType) {
-					parameters[i] = fa.getNewFGNode();
-					fa.processType(sm.getParameterType(i));
+					parameters[i] = _fa.getNewFGNode();
+					_fa.processType(sm.getParameterType(i));
 				}
 			}
 		} else {
@@ -177,7 +176,7 @@ public class MethodVariant
 		if (sm.isStatic()) {
 			thisVar = null;
 		} else {
-			thisVar = fa.getNewFGNode();
+			thisVar = _fa.getNewFGNode();
 
 			/*
 			 * NOTE: This is required to filter out values which are descendents of a higher common type but which are
@@ -187,17 +186,17 @@ public class MethodVariant
 			 */
 			thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), fa));
 		}
-		fa.processClass(sm.getDeclaringClass());
+		_fa.processClass(sm.getDeclaringClass());
 
 		if (sm.getReturnType() instanceof RefLikeType) {
-			returnVar = fa.getNewFGNode();
-			fa.processType(sm.getReturnType());
+			returnVar = _fa.getNewFGNode();
+			_fa.processType(sm.getReturnType());
 		} else {
 			returnVar = null;
 		}
 
-		this.astvm = astVariantManager;
-		fa._analyzer.context.returnFromCurrentMethod();
+		astvm = astVariantManager;
+		_fa._analyzer.context.returnFromCurrentMethod();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
@@ -233,21 +232,6 @@ public class MethodVariant
 	}
 
 	/**
-	 * Returns the variant associated with the given AST node in the context defined by <code>this.context</code>.  Creates a
-	 * new one if none exists.
-	 *
-	 * @param v the AST node whose associted variant is to be returned.
-	 *
-	 * @return the variant associated with <code>v</code> in the context <code>this.context</code>.
-	 *
-	 * @pre v != null
-	 */
-	public final ValuedVariant getASTVariant(final Value v) {
-		_fa.processType(v.getType());
-		return (ValuedVariant) astvm.select(v, _context);
-	}
-
-	/**
 	 * Returns the variant associated with the given AST node in the given context.  Creates a new one if none exists.
 	 *
 	 * @param v the AST node whose associated variant is to be returned.
@@ -257,7 +241,8 @@ public class MethodVariant
 	 *
 	 * @pre v != null and context != null
 	 */
-	public final ValuedVariant getASTVariant(final Value v, final Context context) {
+	final ValuedVariant getASTVariant(final Value v, final Context context) {
+		_fa.processType(v.getType());
 		return (ValuedVariant) astvm.select(v, context);
 	}
 
@@ -491,10 +476,15 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.6  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.5  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
    Revision 1.4  2003/08/17 10:48:33  venku
