@@ -23,7 +23,6 @@ import soot.ValueBox;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
-import soot.toolkits.graph.CompleteUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
 import soot.toolkits.scalar.SimpleLocalDefs;
@@ -136,25 +135,21 @@ public class IdentifierBasedDataDA
 	public void analyze() {
 		stable = false;
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: processing");
+		}
+
 		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod currMethod = (SootMethod) i.next();
-			UnitGraph graph = getUnitGraph(currMethod);
+			UnitGraph unitGraph = getUnitGraph(currMethod);
 
-			if (graph == null) {
+			if (unitGraph == null) {
 				LOGGER.error("Method " + currMethod.getSignature() + " does not have a unit graph.");
-				continue;
-			} else if (!(graph instanceof CompleteUnitGraph)) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Could not retrieve a UnitGraph for " + currMethod.getSignature() + ".  Please "
-						+ "initialize the analyses with a AbstractUnitGraphFactory.");
-				}
 				continue;
 			}
 
-			CompleteUnitGraph stmtGraph = (CompleteUnitGraph) graph;
-
-			SimpleLocalDefs defs = new SimpleLocalDefs(stmtGraph);
-			SimpleLocalUses uses = new SimpleLocalUses(stmtGraph, defs);
+			SimpleLocalDefs defs = new SimpleLocalDefs(unitGraph);
+			SimpleLocalUses uses = new SimpleLocalUses(unitGraph, defs);
 			Collection t = getStmtList(currMethod);
 			List dependees = new ArrayList(t.size());
 			List dependents = new ArrayList(t.size());
@@ -197,6 +192,10 @@ public class IdentifierBasedDataDA
 			dependeeMap.put(currMethod, dependees);
 		}
 		stable = true;
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: processing");
+		}
 	}
 
 	/**
@@ -262,6 +261,8 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/02 00:37:59  venku
+   - logging changes.
    Revision 1.14  2003/11/02 00:34:01  venku
    - formatting.
    Revision 1.13  2003/09/28 06:46:49  venku
