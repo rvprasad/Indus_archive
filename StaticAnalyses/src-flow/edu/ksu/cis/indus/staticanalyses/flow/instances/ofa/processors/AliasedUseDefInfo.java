@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -57,9 +58,11 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class provides aliased use-def inforamtion which is based on types, points-to information, and call graph. If the use
- * is reachable from the def via the control flow graph or via the CFG and the call graph,  then def and use site are
- * related by use-def relation.
+ * This class provides intra-thread aliased use-def information which is based on types, points-to information, and call
+ * graph. If the use is reachable from the def via the control flow graph or via the CFG and the call graph of a thread,
+ * then def and use site are related by use-def relation.  The only exception for this case is when the def occurs in the
+ * class initializer.   In this case, the defs can reach almost all methods even if they are executed in a different thread
+ * from the use site.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -68,6 +71,9 @@ import soot.jimple.Stmt;
 public final class AliasedUseDefInfo
   extends AbstractValueAnalyzerBasedProcessor
   implements IUseDefInfo {
+    
+    // TODO: The info needs to be INTRA-THREAD and INTER-PROCEDURAL.  This is not the case at this time.
+    
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -208,25 +214,26 @@ public final class AliasedUseDefInfo
 		for (final Iterator _i = def2usesMap.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _method2defuses = (Map.Entry) _i.next();
 			final SootMethod _defMethod = (SootMethod) _method2defuses.getKey();
-			final Collection _reachables = cgi.getMethodsReachableFrom(_defMethod);
-			_reachables.add(_defMethod);
+
+			//final Collection _reachables = cgi.getMethodsReachableFrom(_defMethod);
+			//_reachables.add(_defMethod);
 			_contextDef.setRootMethod(_defMethod);
 
 			// extract a map that contains information only for use sites in reachable methods.
-			final Map _temp =
-				CollectionsUtilities.getFilteredMap(use2defsMap,
-					new Predicate() {
-						public boolean evaluate(final Object o) {
-							return _reachables.contains(o);
-						}
-					}, null);
 
+			/*            final Map _temp =
+			   CollectionsUtilities.getFilteredMap(use2defsMap,
+			       new Predicate() {
+			           public boolean evaluate(final Object o) {
+			               return _reachables.contains(o);
+			           }
+			       }, null);*/
 			for (final Iterator _j = ((Map) _method2defuses.getValue()).entrySet().iterator(); _j.hasNext();) {
 				final Map.Entry _defStmt2useStmts = (Map.Entry) _j.next();
 				final Stmt _defStmt = (Stmt) _defStmt2useStmts.getKey();
 
 				// in each reachable method, determine if the definition affects a use site.
-				for (final Iterator _k = _temp.entrySet().iterator(); _k.hasNext();) {
+				for (final Iterator _k = use2defsMap.entrySet().iterator(); _k.hasNext();) {
 					final Map.Entry _entry = (Map.Entry) _k.next();
 					final SootMethod _useMethod = (SootMethod) _entry.getKey();
 					_contextUse.setRootMethod(_useMethod);
@@ -292,6 +299,53 @@ public final class AliasedUseDefInfo
 	}
 
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		final StringBuffer _result =
+			new StringBuffer("Statistics for Alised Use Def analysis as calculated by " + getClass().getName() + "\n");
+		int _edgeCount = 0;
+
+		final StringBuffer _temp = new StringBuffer();
+
+		for (final Iterator _i = use2defsMap.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final Object _method = _entry.getKey();
+			_result.append("In method " + _method + "\n ");
+
+			for (final Iterator _k = ((Map) _entry.getValue()).entrySet().iterator(); _k.hasNext();) {
+				final Map.Entry _entry1 = (Map.Entry) _k.next();
+				final Object _use = _entry1.getKey();
+				final Collection _defs = (Collection) _entry1.getValue();
+				int _localEdgeCount = 0;
+
+				if (_defs != null) {
+					for (final Iterator _j = (_defs).iterator(); _j.hasNext();) {
+						final Object _def = _j.next();
+						_temp.append("\t\t" + _use + " <== " + _def + "\n");
+					}
+					_localEdgeCount += (_defs).size();
+				}
+
+				final Object _key = _entry1.getKey();
+				_result.append("\tFor " + _key + "[");
+
+				if (_key != null) {
+					_result.append(_key.hashCode());
+				} else {
+					_result.append(0);
+				}
+				_result.append("] there are " + _localEdgeCount + " use-defs.\n");
+				_result.append(_temp);
+				_temp.delete(0, _temp.length());
+				_edgeCount += _localEdgeCount;
+			}
+		}
+		_result.append("A total of " + _edgeCount + " use-defs.");
+		return _result.toString();
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -323,7 +377,6 @@ public final class AliasedUseDefInfo
 			useContext.setProgramPoint(_vBox1);
 
 			final Collection _c1 = analyzer.getValues(_vBox1.getValue(), useContext);
-
 			final ValueBox _vBox2 = defStmt.getArrayRef().getBaseBox();
 			defContext.setStmt(defStmt);
 			defContext.setProgramPoint(_vBox2);
@@ -347,17 +400,16 @@ public final class AliasedUseDefInfo
 			_result = true;
 
 			if (_fr instanceof InstanceFieldRef) {
-				ValueBox _vBox = ((InstanceFieldRef) useStmt.getFieldRef()).getBaseBox();
+				final ValueBox _vBox1 = ((InstanceFieldRef) useStmt.getFieldRef()).getBaseBox();
 				useContext.setStmt(useStmt);
-				useContext.setProgramPoint(_vBox);
+				useContext.setProgramPoint(_vBox1);
 
-				final Collection _c1 = analyzer.getValues(_vBox.getValue(), useContext);
-
-				_vBox = ((InstanceFieldRef) defStmt.getFieldRef()).getBaseBox();
+				final Collection _c1 = analyzer.getValues(_vBox1.getValue(), useContext);
+				final ValueBox _vBox2 = ((InstanceFieldRef) defStmt.getFieldRef()).getBaseBox();
 				defContext.setStmt(defStmt);
-				defContext.setProgramPoint(_vBox);
+				defContext.setProgramPoint(_vBox2);
 
-				final Collection _c2 = analyzer.getValues(_vBox.getValue(), defContext);
+				final Collection _c2 = analyzer.getValues(_vBox2.getValue(), defContext);
 
 				// if the primaries of the access expression alias atleast one object.
 				_result =
@@ -386,30 +438,37 @@ public final class AliasedUseDefInfo
 	 */
 	private boolean doesDefReachUse(final SootMethod defMethod, final Stmt defStmt, final SootMethod useMethod,
 		final Stmt useStmt) {
-		boolean _flag;
+		boolean _result;
 
 		if (useMethod.equals(defMethod)) {
 			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(useMethod);
 			final BasicBlock _bbUse = _bbg.getEnclosingBlock(useStmt);
 			final BasicBlock _bbDef = _bbg.getEnclosingBlock(defStmt);
-			_flag = _bbUse == _bbDef || _bbg.isReachable(_bbDef, _bbUse, true);
+
+			if (_bbUse == _bbDef) {
+				final List _sl = _bbUse.getStmtsOf();
+				_result = _sl.indexOf(defStmt) < _sl.indexOf(useMethod);
+			} else {
+				_result = _bbg.isReachable(_bbDef, _bbUse, true);
+			}
 		} else {
 			// TODO: determine if the use method is reachable via a call-site in the 
 			// def method that is reachable from the def site in the def method.  
 			// If so, set _flag to true
-			_flag = true;
+			_result = true;
 		}
-		return _flag;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/06/28 22:44:26  venku
+   - null was returned when no info was available. FIXED.
    Revision 1.32  2004/06/28 08:07:19  venku
    - documentation.
    - refactoring.
-
    Revision 1.31  2004/05/31 21:38:09  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
