@@ -1,0 +1,24 @@
+2005-02-26  venku  <rvprasad@cis.ksu.edu>
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java: Although divergence is captured in non-
+	termination sensitive control dependence, it's mixed with control dependence.  Hence, it is best to calculate divergence 
+	dependence separately.  This seems like an overhead, but it is useful in program comprehension.  Hence, I reverted to the
+	old code base of both intra- and inter-procedural flavour.
+		I also changed the manner in which new instances of this class wer created.	
+	
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/InterProceduralDivergenceDA.java: Created a pure 
+	Interprocedural divergence dependence analysis.
+		I also changed the manner in which new instances of this class wer created.
+	
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/NonTerminationInsensitiveEntryControlDA.java: Added support
+	to toggle between direct	and indirect version of non-termination sensitive control dependence used to calculate non-termination
+	insensitive control dependence.
+
+2005-02-25  venku  <rvprasad@cis.ksu.edu>
+
+	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/DependencyXMLizerCLI.java: Ripple effect from changes to 
+	DivergenceDA.java.
+	
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java: Trimmed the DivergenceDA to calculate
+	simple inter-procedural Divergence dependence.  This can be used in conjunction with non-termination-sensitive control 
+	dependence to arrive at intra- plus inter-procedural divergence dependence information.
