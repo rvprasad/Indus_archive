@@ -149,7 +149,7 @@ final class StmtLevelDependencyXMLizer
 				}
 				writer.endTag();
 			}
-		} catch (IOException _e) {
+		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
 			}
@@ -173,7 +173,7 @@ final class StmtLevelDependencyXMLizer
 			writer.startTag("class");
 			writer.attribute("id", idGenerator.getIdForClass(clazz));
 			processingMethod = false;
-		} catch (IOException _e) {
+		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
 			}
@@ -237,7 +237,6 @@ final class StmtLevelDependencyXMLizer
 		    writer.startTag("dependency");
 		    writer.attribute("id", String.valueOf(analysis.getId()));
 		    writer.attribute("class", analysis.getClass().getName().toString());
-		    writer.endTag();
 		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
@@ -257,6 +256,9 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/05/09 08:24:08  venku
+   - all xmlizers use xmlenc to write xml data.
+
    Revision 1.8  2004/04/25 23:18:18  venku
    - coding conventions.
 
