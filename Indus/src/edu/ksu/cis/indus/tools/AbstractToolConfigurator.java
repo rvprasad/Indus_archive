@@ -54,7 +54,7 @@ public abstract class AbstractToolConfigurator
 		/**
 		 * The configuration that houses the associated property.
 		 */
-		private final AbstractToolConfiguration configuration;
+		private final AbstractToolConfiguration containingConfiguration;
 
 		/**
 		 * The button widget that triggers property changes.
@@ -79,7 +79,7 @@ public abstract class AbstractToolConfigurator
 			final AbstractToolConfiguration config) {
 			id = propID;
 			button = sender;
-			configuration = config;
+			containingConfiguration = config;
 		}
 
 		/**
@@ -93,7 +93,7 @@ public abstract class AbstractToolConfigurator
 		 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
 		 */
 		public void widgetSelected(final SelectionEvent evt) {
-			configuration.setProperty(id, Boolean.valueOf(button.getSelection()));
+			containingConfiguration.setProperty(id, Boolean.valueOf(button.getSelection()));
 		}
 	}
 
@@ -150,6 +150,13 @@ public abstract class AbstractToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/10/20 13:55:25  venku
+   - Added a factory to create new configurations.
+   - Simplified AbstractToolConfigurator methods.
+   - The driver manages the shell.
+   - Got all the gui parts running EXCEPT for changing
+     the name of the configuration.
+
    Revision 1.3  2003/10/14 02:56:51  venku
    - exposed parent field to subclasses.
    - added hide() method
