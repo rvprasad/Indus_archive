@@ -31,4 +31,4 @@ Export-Package: edu.ksu.cis.projects.indus
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.junit
-Eclipse-AutoStart: true
+Eclipse-AutoStart: false
