@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -46,9 +47,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.IntType;
 import soot.Local;
-import soot.LongType;
 import soot.Modifier;
 import soot.SootClass;
 import soot.SootField;
@@ -130,6 +129,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final CFGAnalysis cfgAnalysis;
 
 	/**
+	 * This is the collection of notify methods in the system that can lead to ready dependences.
+	 */
+	final Collection notifyMethods = new HashSet();
+
+	/**
+	 * This is the collection of wait methods in the system that can lead to ready dependences.
+	 */
+	final Collection waitMethods = new HashSet();
+
+	/**
 	 * This provides context information pertaining to caller-callee relation across method calls.  The method stored in the
 	 * context is the caller.  The statement is one in which invocation occurs.  The program point is at which place the
 	 * invocation happens.
@@ -190,16 +199,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * This is a cache variable that holds method context map between method calls.
 	 */
 	MethodContext methodCtxtCache;
-
-	/**
-	 * This is the collection of notify methods in the system that can lead to ready dependences.
-	 */
-	private Collection notifyMethods = new HashSet();
-
-	/**
-	 * This is the collection of wait methods in the system that can lead to ready dependences.
-	 */
-	private Collection waitMethods = new HashSet();
 
 	/**
 	 * This maps a site context to a corresponding to method context.  This is used to collect contexts corresponding to
@@ -727,25 +726,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				  && callee.getDeclaringClass().getName().equals("java.lang.Thread")
 				  && callee.getReturnType() instanceof VoidType
 				  && callee.getParameterCount() == 0) {
-				// unify all parts of alias sets if "start" is being invoked.
+				// unify alias sets after all statements are processed if "start" is being invoked.
 				_delayUnification = true;
-			} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")
-				  && callee.getReturnType() instanceof VoidType) {
-				final String _calleeName = callee.getName();
-
-				// set notifies/waits flags if this is wait/notify call. 
-				if ((_calleeName.equals("notify") || _calleeName.equals("notifyAll")) && callee.getParameterCount() == 0) {
+			} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")) {
+				if (waitMethods.contains(callee)) {
+					primaryAliasSet.setWaits();
+				} else if (notifyMethods.contains(callee)) {
 					primaryAliasSet.setNotifies();
-				} else if (_calleeName.equals("wait")) {
-					final int _pCount = callee.getParameterCount();
-					boolean _flag = _pCount > 0 && _pCount < 3 ? callee.getParameterType(0) instanceof LongType
-															   : true;
-					_flag = _flag && _pCount > 1 ? callee.getParameterType(1) instanceof IntType
-												 : _flag;
-
-					if (_flag) {
-						primaryAliasSet.setWaits();
-					}
 				}
 			}
 			return _delayUnification;
@@ -1092,6 +1079,47 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * Rewires the method context, local variable alias sets, and site contexts such that they contain only representative
+	 * alias sets and no the nominal(indirectional) alias sets.
+	 *
+	 * @param method for which this processing should occur.
+	 *
+	 * @pre method != null
+	 */
+	private void discardReferentialAliasSets(final SootMethod method) {
+		if (localASsCache.isEmpty()) {
+			localASsCache = Collections.EMPTY_MAP;
+		} else {
+			for (final Iterator _i = localASsCache.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry _entry = (Map.Entry) _i.next();
+				final AliasSet _as = (AliasSet) _entry.getValue();
+				final AliasSet _equiv = (AliasSet) _as.find();
+
+				if (_equiv != _as) {
+					_entry.setValue(_equiv);
+				}
+			}
+		}
+
+		if (scCache.isEmpty()) {
+			scCache = Collections.EMPTY_MAP;
+		} else {
+			for (final Iterator _i = scCache.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry _entry = (Map.Entry) _i.next();
+				final MethodContext _mc = (MethodContext) _entry.getValue();
+				final FastUnionFindElement _mcRep = _mc.find();
+
+				if (_mcRep != _mc) {
+					_entry.setValue(_mcRep);
+				} else {
+					_mc.discardReferentialAliasSets();
+				}
+			}
+		}
+		method2Triple.put(method, new Triple(methodCtxtCache, localASsCache, scCache));
+	}
+
+	/**
 	 * Performs the unification of contexts occurring at start call-sites as collected via
 	 * <code>addToDelayedUnificationSet</code>.
 	 *
@@ -1139,10 +1167,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				 * have been created for each processed method in the callback method.
 				 */
 				if (_triple == null) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("NO METHOD TRIPLE: " + _sm.getSignature());
-					}
-
+					LOGGER.error("NO METHOD TRIPLE: " + _sm.getSignature());
 					continue;
 				}
 
@@ -1178,6 +1203,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				// unify the contexts at start call-sites.
 				performDelayedUnification();
+
+				// discard alias sets that serve as a mere indirection level. 
+				discardReferentialAliasSets(_sm);
 			}
 		}
 	}
@@ -1256,6 +1284,14 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.46  2004/02/28 22:06:06  venku
    - variables in cast expressions were ignored. FIXED.
    Revision 1.45  2004/02/27 23:04:10  venku

@@ -235,6 +235,35 @@ final class MethodContext
 	}
 
 	/**
+	 * Rewires the context such that it contains only representative alias sets and no the nominal(indirectional) alias sets.
+	 */
+	void discardReferentialAliasSets() {
+		if (thrown != null) {
+			thrown = (AliasSet) thrown.find();
+		}
+
+		if (thisAS != null) {
+			thisAS = (AliasSet) thisAS.find();
+		}
+
+		if (ret != null) {
+			ret = (AliasSet) ret.find();
+		}
+
+		if (argAliasSets != null && !argAliasSets.isEmpty()) {
+			final int _size = argAliasSets.size();
+
+			for (int i = 0; i < _size; i++) {
+				final Object _temp = argAliasSets.get(i);
+
+				if (_temp != null) {
+					argAliasSets.set(i, ((AliasSet) _temp).find());
+				}
+			}
+		}
+	}
+
+	/**
 	 * Propogates the information from this context to the given context.  Please refer to the {@link
 	 * unify(MethodContext,boolean) #unify} for important information.
 	 *
@@ -470,18 +499,18 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/01/21 09:58:16  venku
+   - throw alias sets were being unified via AliasSet.unify().  Used
+     unifyAliasSets() instead.
    Revision 1.14  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.13  2004/01/03 21:20:06  venku
    - deleted unused methods.
-
    Revision 1.12  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.11  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
