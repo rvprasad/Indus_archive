@@ -266,14 +266,15 @@ public class SootBasedDriver {
 
 	/**
 	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation. By default, it
-	 * provides an instance of <code>TrapStmtGraphFactory</code>
+	 * provides an instance of <code>ExceptionFlowSensitiveStmtGraphFactory</code> initialized to prune synchronization
+	 * related exceptions.
 	 *
 	 * @return an unit graph factory
 	 *
 	 * @post return != null
 	 */
 	public IStmtGraphFactory getStmtGraphFactory() {
-		return new TrapStmtGraphFactory();
+		return new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
 	}
 
 	/**
@@ -418,6 +419,8 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/04/16 17:45:31  venku
+   - added default implementation for initialize for sake of convenience.
    Revision 1.18  2004/04/16 17:42:04  venku
    - coding convention
    - enabled the user to pass soot options while initializing the driver.
