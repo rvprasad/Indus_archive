@@ -71,7 +71,8 @@ public final class SimpleNodeGraph
 	 * @version $Revision$
 	 */
 	public final class SimpleNode
-	  extends AbstractMutableDirectedGraph.AbstractMutableNode {
+	  extends AbstractMutableDirectedGraph.AbstractMutableNode
+	  implements IObjectNode {
 		/** 
 		 * The object being represetned by this node.
 		 */
@@ -124,8 +125,8 @@ public final class SimpleNodeGraph
 		public Object transform(final Object input) {
 			Object _result = null;
 
-			if (input instanceof SimpleNode) {
-				_result = ((SimpleNode) input).getObject();
+			if (input instanceof IObjectNode) {
+				_result = ((IObjectNode) input).getObject();
 			}
 			return _result;
 		}
@@ -168,7 +169,7 @@ public final class SimpleNodeGraph
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#queryNode(java.lang.Object)
 	 */
-	public INode queryNode(Object o) {
+	public IObjectNode queryNode(final Object o) {
 		if (o == null) {
 			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("object to be represented cannot be null.");
@@ -176,7 +177,7 @@ public final class SimpleNodeGraph
 			throw new NullPointerException("object to be represented cannot be null.");
 		}
 
-		final INode _result = (INode) object2nodes.get(o);
+		final IObjectNode _result = (IObjectNode) object2nodes.get(o);
 		return _result;
 	}
 
@@ -191,6 +192,8 @@ public final class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/07/24 09:57:05  venku
+   - added a new interface to extract objects associated with nodes of the graph.
    Revision 1.7  2004/02/24 22:25:56  venku
    - documentation
    Revision 1.6  2004/01/25 08:59:52  venku
