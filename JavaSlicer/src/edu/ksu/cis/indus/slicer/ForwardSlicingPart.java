@@ -196,14 +196,17 @@ public class ForwardSlicingPart
 	 * @see IDirectionSensitivePartOfSlicingEngine#processNewExpr(Stmt, SootMethod)
 	 */
 	public void processNewExpr(final Stmt stmt, final SootMethod method) {
-		// DOES NOTHING
+		if (stmt instanceof AssignStmt) {
+            final AssignStmt _as = (AssignStmt) stmt;
+            engine.generateExprLevelSliceCriterion(_as.getLeftOpBox(), stmt, method, false);
+        }
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#processParameterRef(ValueBox, SootMethod)
+	 * @see IDirectionSensitivePartOfSlicingEngine#processParameterRef(IdentityStmt, SootMethod)
 	 */
-	public void processParameterRef(final ValueBox box, final SootMethod method) {
-		// DOES NOTHING
+	public void processParameterRef(final IdentityStmt stmt, final SootMethod method) {
+		engine.generateExprLevelSliceCriterion(stmt.getLeftOpBox(), stmt, method, false);
 	}
 
 	/**

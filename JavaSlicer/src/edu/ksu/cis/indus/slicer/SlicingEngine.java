@@ -65,6 +65,7 @@ import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.FieldRef;
+import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
@@ -883,6 +884,9 @@ public final class SlicingEngine {
 
 		CollectionUtils.filter(_callees, nonStartMethodPredicate);
 		directionSensitiveInfo.generateCriteriaToIncludeCallees(stmt, method, _callees);
+        
+        // include the invoked method (not the resolved method)
+        includeMethodAndDeclaringClassInSlice(_sm);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for invocation expressions (caller-callee)");
@@ -927,6 +931,8 @@ public final class SlicingEngine {
 
 					directionSensitiveInfo.processLocalAt(_local, _depStmt, method);
 				}
+                
+                directionSensitiveInfo.processLocalAt(_local, stmt, method);
 			}
 		}
 
@@ -1012,7 +1018,7 @@ public final class SlicingEngine {
 	 * @pre das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
 	 */
-	private void generateStmtMethodCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
+	private void generateCriteriaBasedOnDependences(final Stmt stmt, final SootMethod method, final Collection das) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
 		}
@@ -1188,17 +1194,21 @@ public final class SlicingEngine {
 		final SootMethod _method = expr.getOccurringMethod();
 		final ValueBox _vBox = (ValueBox) expr.getCriterion();
 		final boolean _considerExecution = expr.isConsiderExecution();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox.getValue() + "[" + _considerExecution + "] at "
+		final Value _value = _vBox.getValue();
+        if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Transforming expr criteria: " + _value + "[" + _considerExecution + "] at "
 				+ _stmt + " in " + _method + "   " + callStackCache);
 		}
 
-		// include the statement to capture control dependency and generate criteria from it. Remember to collect it.
-		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
+        // include the statement to capture control dependency and generate criteria from it. Remember to collect it.
+        if (sliceType.equals(FORWARD_SLICE)) {
+            transformAndGenerateNewCriteriaForStmt(_stmt, _method, true);
+        } else {
+            transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
+        }
 
-		// generate new slice criteria
-		if (sliceType.equals(COMPLETE_SLICE)
+        // generate new slice criteria
+        if (sliceType.equals(COMPLETE_SLICE)
 			  || (_considerExecution && sliceType.equals(BACKWARD_SLICE))
 			  || (!_considerExecution && sliceType.equals(FORWARD_SLICE))) {
 			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformExpr(_vBox, _stmt);
@@ -1206,13 +1216,14 @@ public final class SlicingEngine {
 			// include any sub expressions and generate criteria from them
 			transformAndGenerateToConsiderExecution(_stmt, _method, _valueBoxes);
 
-			if (_vBox.getValue() instanceof InvokeExpr) {
+			if (_value instanceof InvokeExpr) {
 				generateCriteriaForInvokeExprIn(_stmt, _method);
 			}
+            
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
+			LOGGER.debug("END: Transforming expr criteria: " + _value + " at " + _stmt + " in " + _method);
 		}
 	}
 
@@ -1229,7 +1240,7 @@ public final class SlicingEngine {
 		}
 
 		includeMethodAndDeclaringClassInSlice(method);
-		generateStmtMethodCriteria(null, method, controlflowBasedDAs);
+		generateCriteriaBasedOnDependences(null, method, controlflowBasedDAs);
 		generateCriteriaForTheCallToMethod(method);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -1272,7 +1283,7 @@ public final class SlicingEngine {
 
 		// capture control flow based dependences.
 		if (isNotIncludedInSlice(stmt)) {
-			generateStmtMethodCriteria(stmt, method, controlflowBasedDAs);
+			generateCriteriaBasedOnDependences(stmt, method, controlflowBasedDAs);
 		}
 
 		// generate new slice criteria
@@ -1325,11 +1336,11 @@ public final class SlicingEngine {
 				final Value _value = _vBox.getValue();
 
 				if (_value instanceof ParameterRef) {
-					directionSensitiveInfo.processParameterRef(_vBox, method);
+					directionSensitiveInfo.processParameterRef((IdentityStmt) stmt, method);
 				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
 					_das.addAll(controller.getAnalyses(IDependencyAnalysis.REFERENCE_BASED_DATA_DA));
 
-					if (useInterferenceDACache) {
+                    if (useInterferenceDACache) {
 						_das.addAll(controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
 					}
 
@@ -1348,7 +1359,7 @@ public final class SlicingEngine {
 
 		// create new slice criteria based on statement level dependence.
 		if (!_das.isEmpty()) {
-			generateStmtMethodCriteria(stmt, method, _das);
+			generateCriteriaBasedOnDependences(stmt, method, _das);
 		}
 
 		// create new criteria based on program point level dependence (identifier based dependence).

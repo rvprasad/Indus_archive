@@ -21,6 +21,7 @@ import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
 
+import soot.jimple.IdentityStmt;
 import soot.jimple.Stmt;
 
 
@@ -93,19 +94,18 @@ interface IDirectionSensitivePartOfSlicingEngine
 	void processNewExpr(final Stmt stmt, final SootMethod method);
 
 	/**
-	 * Process the parameter reference in <code>paramRef</code> for inclusion in the slice.
+	 * Process the parameter reference in <code>stmt</code> for inclusion in the slice.
 	 * 
 	 * <p>
 	 * This should be called from within the method's context (callStack containing the call to method as TOS).
 	 * </p>
 	 *
-	 * @param paramRef is the program point that contains the parameter ref to be processed.
-	 * @param method containting <code>paramRef</code>.
+     * @param stmt in which the parameter is referenced.
+	 * @param method containting <code>stmt</code>.
 	 *
-	 * @pre paramRef != null and method != null
-	 * @pre paramRef.getValue().oclIsKindOf(ParameterRef))
+	 * @pre method != null and stmt != null
 	 */
-	void processParameterRef(ValueBox paramRef, SootMethod method);
+	void processParameterRef(IdentityStmt stmt, SootMethod method);
 
 	/**
 	 * Reset the part.

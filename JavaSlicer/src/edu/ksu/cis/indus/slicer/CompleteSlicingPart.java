@@ -24,6 +24,7 @@ import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
 
+import soot.jimple.IdentityStmt;
 import soot.jimple.Stmt;
 
 
@@ -118,11 +119,11 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#processParameterRef(ValueBox, SootMethod)
+	 * @see IDirectionSensitivePartOfSlicingEngine#processParameterRef(IdentityStmt, SootMethod)
 	 */
-	public void processParameterRef(final ValueBox box, final SootMethod method) {
-		backwardPart.processParameterRef(box, method);
-		forwardPart.processParameterRef(box, method);
+	public void processParameterRef(final IdentityStmt stmt, final SootMethod method) {
+		backwardPart.processParameterRef(stmt, method);
+		forwardPart.processParameterRef(stmt, method);
 	}
 
 	/**

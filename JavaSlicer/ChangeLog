@@ -1,3 +1,14 @@
+2005-03-13  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/slicer/CompleteSlicingPart.java,
+	  src/edu/ksu/cis/indus/slicer/IDirectionSensitivePartOfSlicingEngine.java,
+	  src/edu/ksu/cis/indus/slicer/ForwardSlicingPart.java,
+	  src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java,
+	  src/edu/ksu/cis/indus/slicer/SlicingEngine.java: 
+		 The signature of processParameterRef() was changed.  
+		 The required inter-procedural dependence based on the local's position in an assignment-invocation stmt was not 
+		 recorded.  This has been addressed.
+
 2005-03-10  venku  <rvprasad@cis.ksu.edu>
 
 	* auxiliary/slicerConfig.xsd,
@@ -9,7 +20,7 @@
 	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java, 
 	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java,
 	  src/edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml:
-	  Added facility to pick deadlock criteria and assertions in application classes only.	  
+	  	Added facility to pick deadlock criteria and assertions in application classes only.	  
 
 2005-03-09  venku  <rvprasad@cis.ksu.edu>
 

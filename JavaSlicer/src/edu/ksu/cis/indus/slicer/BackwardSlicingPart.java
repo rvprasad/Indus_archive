@@ -51,6 +51,7 @@ import soot.ValueBox;
 
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
@@ -332,18 +333,18 @@ public class BackwardSlicingPart
 	 * This should be called from within the callee's context (callStack containing the call to the callee).
 	 * </p>
 	 *
-	 * @param pBox is the parameter reference to be sliced on.
-	 * @param callee in which<code>pBox</code> occurs.
+	 * @param stmt is the statement in which <code>pBox</code> occurs.
+	 * @param callee in which<code>stmt</code> occurs.
 	 *
-	 * @pre pBox != null and method != null
+	 * @pre method != null and stmt != null
 	 */
-	public void processParameterRef(final ValueBox pBox, final SootMethod callee) {
+	public void processParameterRef(final IdentityStmt stmt, final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("processParameterRef(ValueBox pBox = " + pBox + ", SootMethod callee = " + callee + ", stack = "
-				+ engine.getCopyOfCallStackCache() + ") - BEGIN");
+			LOGGER.debug("processParameterRef(ValueBox pBox = " + stmt.getRightOpBox() + ", SootMethod callee = " + callee
+				+ ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
-		final ParameterRef _param = (ParameterRef) pBox.getValue();
+		final ParameterRef _param = (ParameterRef) stmt.getRightOp();
 		final int _index = _param.getIndex();
 
 		BitSet _params = (BitSet) method2params.get(callee);
