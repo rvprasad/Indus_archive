@@ -1,0 +1,12 @@
+log4j.rootLogger=WARN, LogServer
+log4j.logger.edu.ksu.cis.bandera.bfa=DEBUG
+
+log4j.appender.Default=org.apache.log4j.ConsoleAppender
+log4j.appender.Default.layout=org.apache.log4j.PatternLayout
+log4j.appender.Default.layout.ConversionPattern=[%-5p] %c%n \t%l%n \t%m%n
+
+log4j.appender.LogServer=org.apache.log4j.net.SocketAppender
+log4j.appender.LogServer.port=4445
+log4j.appender.LogServer.remoteHost=127.0.0.1
+log4j.appender.LogServer.layout=org.apache.log4j.PatternLayout
+log4j.appender.LogServer.layout.ConversionPattern=[%-5p] %c%n \t%l%n \t%m%n\n
