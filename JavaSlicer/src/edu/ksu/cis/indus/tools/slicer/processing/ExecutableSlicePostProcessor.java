@@ -165,8 +165,8 @@ public final class ExecutableSlicePostProcessor
 					pickReturnPoints(_method);
 				}
 			} else {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Could not process method " + _method.getSignature());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Could not process method " + _method.getSignature());
 				}
 			}
 		}
@@ -565,6 +565,9 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/08/10 00:05:46  venku
+   - minor addition.
+
    Revision 1.29  2004/08/06 13:29:00  venku
    - minor changes.
 
