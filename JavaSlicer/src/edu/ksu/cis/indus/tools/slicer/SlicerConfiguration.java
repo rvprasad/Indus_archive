@@ -62,8 +62,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.jimple.internal.JAssignStmt;
-import soot.jimple.internal.JThrowStmt;
+import soot.jimple.AssignStmt;
+import soot.jimple.ThrowStmt;
 
 
 /**
@@ -1001,8 +1001,8 @@ public final class SlicerConfiguration
 		if (_b.booleanValue()) {
 			final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
 			final Collection _stmtTypes = new ArrayList();
-			_stmtTypes.add(JAssignStmt.class);
-			_stmtTypes.add(JThrowStmt.class);
+			_stmtTypes.add(AssignStmt.class);
+			_stmtTypes.add(ThrowStmt.class);
 			_t.setStmtTypes(_stmtTypes);
 			_t.setCriteriaFilter(new AssertionSliceCriteriaPredicate());
 			id2critGenerators.put(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID, _t);
