@@ -13,9 +13,6 @@
 	<property name="javacTarget" value="1.2"/>
 	<property name="compilerArg" value=""/>
 
-    <property file="build.properties"/>
-    <property file="antbuild.properties"/>
-
 	<target name="init" depends="properties">
 		<condition property="pluginTemp" value="${buildTempFolder}/plugins">
 			<isset property="buildTempFolder"/>
@@ -51,45 +48,44 @@
 		<javac destdir="${temp.folder}/Indus_Plugin.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui_3.0.1/ui.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.core.runtime_3.0.1/runtime.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/core.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/console.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/osgi.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/resolver.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/defaultAdaptor.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.osgi_3.0.1/eclipseAdaptor.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.help_3.0.1/help.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.swt_3.0.1/ws/${basews}/swt.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.swt.gtk_3.0.1/ws/${basews}/swt.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.swt.gtk_3.0.1/ws/gtk/swt-mozilla.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.swt.gtk_3.0.1/ws/gtk/swt-pi.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.jface_3.0.1/jface.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui.workbench_3.0.0/compatibility.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui.workbench_3.0.1/workbench.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui.workbench.compatibility_3.0.0/compatibility.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.ui.workbench.compatibility_3.0.0/workbench.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.eclipse.core.expressions_3.0.1/expressions.jar"/>
-				<pathelement path="${eclipse.home}/plugins/org.junit_3.8.1/junit.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui_3.0.0/ui.jar"/>
+				<pathelement path="../../plugins/org.eclipse.core.runtime_3.0.0/runtime.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/core.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/console.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/osgi.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/resolver.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/defaultAdaptor.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.0/eclipseAdaptor.jar"/>
+				<pathelement path="../../plugins/org.eclipse.help_3.0.0/help.jar"/>
+				<pathelement path="../../plugins/org.eclipse.swt_3.0.0/ws/${basews}/swt.jar"/>
+				<pathelement path="../../plugins/org.eclipse.swt.win32_3.0.0/ws/${basews}/swt.jar"/>
+				<pathelement path="../../plugins/org.eclipse.swt.win32_3.0.0"/>
+				<pathelement path="../../plugins/org.eclipse.jface_3.0.0/jface.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.workbench_3.0.0/compatibility.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.workbench_3.0.0/workbench.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.workbench.compatibility_3.0.0/compatibility.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.workbench.compatibility_3.0.0/workbench.jar"/>
+				<pathelement path="../../plugins/org.eclipse.core.expressions_3.0.0/expressions.jar"/>
+				<pathelement path="../../plugins/org.junit_3.8.1/junit.jar"/>
 				<pathelement path="lib/commons-cli-1.0.jar"/>
 				<pathelement path="lib/commons-collections-3.1.jar"/>
 				<pathelement path="lib/commons-lang-2.0.jar"/>
-				<pathelement path="lib/commons-logging.jar"/>
-				<pathelement path="lib/commons-logging-api.jar"/>
 				<pathelement path="lib/commons-pool-1.1.jar"/>
-				<pathelement path="lib/jasminclasses-sable-1.2.jar"/>
 				<pathelement path="lib/jibx-run.jar"/>
-				<pathelement path="lib/polyglot-1.1.0.jar"/>
 				<pathelement path="lib/xmlenc-0.44.jar"/>
 				<pathelement path="lib/xmlunit1.0.jar"/>
 				<pathelement path="lib/xpp3.jar"/>
-				<pathelement path="lib/soot-2.1.0-modified.jar"/>
+				<pathelement path="lib/commons-io-1.0.jar"/>
 				<pathelement path="lib/log4j-1.2.8.jar"/>
 				<pathelement path="lib/log4jconfig.jar"/>
-				<pathelement path="lib/commons-io-1.0.jar"/>
-				<pathelement path="lib/indus-20040717.jar"/>
-				<pathelement path="lib/slicer-20040717.jar"/>
-				<pathelement path="lib/staticanalyses-20040717.jar"/>
+				<pathelement path="lib/commons-logging.jar"/>
+				<pathelement path="lib/commons-logging-api.jar"/>
+				<pathelement path="lib/jasminclasses-sable-1.2.jar"/>
+				<pathelement path="lib/polyglot-1.1.0.jar"/>
+				<pathelement path="lib/soot-2.1.0-modified.jar"/>
+				<pathelement path="lib/indus.jar"/>
+				<pathelement path="lib/slicer.jar"/>
+				<pathelement path="lib/staticanalyses.jar"/>
 			</classpath>
 			<src path="src/"			/>
 			</javac>
@@ -125,10 +121,7 @@
 			<fileset dir="${build.result.folder}" includes="Indus_Plugin.jar"			/>
 		</copy>
 		<copy todir="${destination.temp.folder}/edu.ksu.cis.indus_0.3.0" failonerror="true">
-			<fileset dir="${basedir}" includes="plugin.xml,Indus_Plugin.jar">
-                <include name="lib/*jar"/>
-                <include name="licences/*"/>
-            </fileset>
+			<fileset dir="${basedir}" includes="plugin.xml,Indus_Plugin.jar,lib/,license/,licenses/"			/>
 		</copy>
 	</target>
 
@@ -157,7 +150,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="/home/ganeshan/Desktop/eclipse/workspace/Indus-Plugin" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="C:/Documents and Settings/Ganeshan/Desktop/eclipse-SDK-3.0-win32/eclipse/workspace/Indus-Plugin" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
@@ -165,7 +158,6 @@
 		<delete dir="${temp.folder}"/>
 		<mkdir dir="${temp.folder}"/>
 		<antcall target="build.jars"/>
-		<antcall target="build.sources"/>
 		<antcall target="gather.bin.parts">
 			<param name="destination.temp.folder" value="${temp.folder}/"/>
 		</antcall>
