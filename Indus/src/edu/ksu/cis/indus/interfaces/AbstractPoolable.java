@@ -28,7 +28,7 @@ import org.apache.commons.pool.ObjectPool;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractPoolable {
+public abstract class AbstractPoolable implements IPoolable {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -73,4 +73,8 @@ public abstract class AbstractPoolable {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/04 09:45:29  venku
+   - added interface and it's abstract implementation to
+     support pooling of objects.
+
  */
