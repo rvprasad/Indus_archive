@@ -25,10 +25,10 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.set.ListOrderedSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,7 +54,7 @@ public final class BitSetTokenManager
 	 * @invariant valueList.oclIsKindOf(Sequence(Object))
 	 * @invariant valueList->forall( o | valueList->remove(o)->forall(p | p != o))
 	 */
-	final List valueList = new ArrayList();
+	final ListOrderedSet valueList = new ListOrderedSet();
 
 	/** 
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
@@ -215,9 +215,9 @@ public final class BitSetTokenManager
 
 		if (!values.isEmpty()) {
 			final Collection _commons = CollectionUtils.intersection(valueList, values);
-
 			for (final Iterator _i = _commons.iterator(); _i.hasNext();) {
-				_result.bitset.set(valueList.indexOf(_i.next()));
+				final Object _o = _i.next();
+				_result.bitset.set(valueList.indexOf(_o));
 			}
 
 			final Collection _diff = CollectionUtils.subtract(values, _commons);
@@ -265,6 +265,10 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/08/18 12:07:33  venku
+   - type manager was not reset when the token manager was reset. FIXED.
+   - refactoring.
+
    Revision 1.10  2004/08/09 03:31:09  venku
    - type cast error. FIXED.
    Revision 1.9  2004/08/09 03:11:49  venku
