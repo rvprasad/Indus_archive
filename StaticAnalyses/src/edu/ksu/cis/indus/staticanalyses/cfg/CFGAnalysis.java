@@ -35,22 +35,18 @@
 
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
-import soot.Scene;
 import soot.SootMethod;
 
-import soot.jimple.NewExpr;
 import soot.jimple.Stmt;
 
 import soot.toolkits.graph.CompleteUnitGraph;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -75,33 +71,14 @@ public class CFGAnalysis {
 	private ICallGraphInfo cgi;
 
 	/**
-	 * This manages the classes being analyzed.
-	 */
-	private Scene scm;
-
-	/**
 	 * Creates a new CFGAnalysis object.
 	 *
-	 * @param scmParam manages the classes being analyzed.
-	 * @param cgiParam provides the call-graph information.
-	 *
-	 * @pre scmParam != null and cgiParam != null
-	 */
-	public CFGAnalysis(final Scene scmParam, final ICallGraphInfo cgiParam) {
-		this(scmParam, cgiParam, new BasicBlockGraphMgr());
-	}
-
-	/**
-	 * Creates a new CFGAnalysis object.
-	 *
-	 * @param scmParam manages the classes being analyzed.
 	 * @param cgiParam provides the call-graph information.
 	 * @param bbmParam manages the basic block graphs of the methods being analyzed.
 	 *
 	 * @pre scmParam != null and cgiParam != null and bbmParam != null
 	 */
-	public CFGAnalysis(final Scene scmParam, final ICallGraphInfo cgiParam, final BasicBlockGraphMgr bbmParam) {
-		this.scm = scmParam;
+	public CFGAnalysis(final ICallGraphInfo cgiParam, final BasicBlockGraphMgr bbmParam) {
 		this.cgi = cgiParam;
 		this.bbm = bbmParam;
 	}
@@ -109,25 +86,20 @@ public class CFGAnalysis {
 	/**
 	 * Checks if the given new expression is enclosed in a loop.
 	 *
-	 * @param ne is an allocation expression.
-	 * @param context in which <code>ne</code> occurs.
+	 * @param newStmt is the statement of the allocation site.
+	 * @param method in which<code>newStmt</code> occurs.
 	 *
 	 * @return <code>true</code> if the given allocation site is loop enclosed; <code>false</code>, otherwise.
 	 *
 	 * @pre ne != null and context != null and context.getCurrentMethod() != null
 	 */
-	public boolean checkForLoopEnclosedNewExpr(final NewExpr ne, final Context context) {
-		String classname = ne.getBaseType().getClassName();
-		SootMethod sm = context.getCurrentMethod();
+	public boolean checkForLoopEnclosedNewExpr(final Stmt newStmt, final SootMethod method) {
 		boolean result = false;
 
-		if (Util.isDescendentOf(scm.getSootClass(classname), "java.lang.Thread")) {
-			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(sm.retrieveActiveBody()));
-			Stmt stmt = context.getStmt();
+		BasicBlockGraph bbg = getBasicBlockGraph(method);
 
-			if (occursInCycle(bbg, bbg.getEnclosingBlock(stmt))) {
-				result = true;
-			}
+		if (occursInCycle(bbg, bbg.getEnclosingBlock(newStmt))) {
+			result = true;
 		}
 		return result;
 	}
@@ -157,13 +129,13 @@ public class CFGAnalysis {
 	 * @pre stmt != null and caller != null
 	 */
 	public boolean executedMultipleTimes(final Stmt stmt, final SootMethod caller) {
-		BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(caller.retrieveActiveBody()));
+		BasicBlockGraph bbg = getBasicBlockGraph(caller);
 		return occursInCycle(bbg, bbg.getEnclosingBlock(stmt)) || executedMultipleTimes(caller);
 	}
 
 	/**
-	 * Checks if the given soot method is executed multiple times in the system.  It may be due to loop enclosed call-sites, 
-     * multiple call sites, or call-sites in call graph SCCs (with more than one element).  
+	 * Checks if the given soot method is executed multiple times in the system.  It may be due to loop enclosed call-sites,
+	 * multiple call sites, or call-sites in call graph SCCs (with more than one element).
 	 *
 	 * @param caller is the method.
 	 *
@@ -190,7 +162,7 @@ main_control:
 
 			CallTriple ctrp = (CallTriple) callers.iterator().next();
 			SootMethod caller2 = ctrp.getMethod();
-			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(caller2.retrieveActiveBody()));
+			BasicBlockGraph bbg = getBasicBlockGraph(caller2);
 
 			if (occursInCycle(bbg, bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
@@ -230,15 +202,34 @@ main_control:
 		}
 		return result;
 	}
+
+	/**
+	 * Retrieves the basic block graph for the requested method.
+	 *
+	 * @param method for which basic block graph is requested.
+	 *
+	 * @return the basic block graph.
+	 *
+	 * @post result != null
+	 */
+	private BasicBlockGraph getBasicBlockGraph(final SootMethod method) {
+		BasicBlockGraph result = bbm.getBasicBlockGraph(method);
+
+		if (result == null) {
+			result = bbm.getBasicBlockGraph(new CompleteUnitGraph(method.retrieveActiveBody()));
+		}
+		return result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/07 21:59:31  venku
+   - missing documentation.  FIXED.
    Revision 1.5  2003/09/01 11:56:20  venku
    - instantiated occursInCycle()
    - added executedMultipleTimes() for Stmt and SootMethod.
-
    Revision 1.4  2003/08/24 12:04:32  venku
    Removed occursInCycle() method from DirectedGraph.
    Installed occursInCycle() method in CFGAnalysis.

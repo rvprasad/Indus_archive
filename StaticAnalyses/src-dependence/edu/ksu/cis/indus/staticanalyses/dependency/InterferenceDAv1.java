@@ -60,7 +60,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * This class provides interference dependency information.  This implementation refers to the technical report <a
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
@@ -224,19 +223,15 @@ public class InterferenceDAv1
 	 */
 	public Collection getDependents(final Object dependee, final Object stmtMethodPair) {
 		Collection result = Collections.EMPTY_LIST;
-		Map method2map = getDependentMapFor(dependee);
+        Map pair2set = getDependentMapFor(dependee);
 
-		if (method2map != null) {
-			Map stmt2set = (Map) method2map.get(((Pair) stmtMethodPair).getSecond());
+        if (pair2set != null) {
+            Collection set = (Set) pair2set.get(stmtMethodPair);
 
-			if (stmt2set != null) {
-				Collection set = (Collection) stmt2set.get(((Pair) stmtMethodPair).getFirst());
-
-				if (set != null) {
-					result = Collections.unmodifiableCollection(set);
-				}
-			}
-		}
+            if (set != null) {
+                result = Collections.unmodifiableCollection(set);
+            }
+        }
 		return result;
 	}
 
@@ -251,7 +246,6 @@ public class InterferenceDAv1
 
 		for (Iterator i = dependeeMap.keySet().iterator(); i.hasNext();) {
 			Object o = i.next();
-
 			if (dependentMap.get(o) == null) {
 				continue;
 			}
@@ -260,26 +254,26 @@ public class InterferenceDAv1
 			Map dtMap = (Map) dependentMap.get(o);
 
 			for (Iterator j = deMap.keySet().iterator(); j.hasNext();) {
-				Pair p1 = (Pair) j.next();
+				Pair dt = (Pair) j.next();
 
 				for (Iterator k = dtMap.keySet().iterator(); k.hasNext();) {
-					Pair p2 = (Pair) k.next();
+					Pair de = (Pair) k.next();
 
-					if (ifDependentOn(p2, p1)) {
-						Collection t = (Collection) deMap.get(p1);
-
-						if (t.equals(Collections.EMPTY_LIST)) {
-							t = new HashSet();
-							deMap.put(p1, t);
-						}
-						t.add(p2);
-						t = (Collection) dtMap.get(p2);
+					if (isDependentOn(dt, de)) {
+						Collection t = (Collection) deMap.get(dt);
 
 						if (t.equals(Collections.EMPTY_LIST)) {
 							t = new HashSet();
-							dtMap.put(p2, t);
+							deMap.put(dt, t);
 						}
-						t.add(p1);
+						t.add(de);
+						t = (Collection) dtMap.get(de);
+
+						if (t.equals(Collections.EMPTY_LIST)) {
+							t = new HashSet();
+							dtMap.put(de, t);
+						}
+						t.add(dt);
 					}
 				}
 			}
@@ -300,7 +294,7 @@ public class InterferenceDAv1
 
 		StringBuffer temp = new StringBuffer();
 
-		for (Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
+		for (Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			localEdgeCount = 0;
 
@@ -361,10 +355,10 @@ public class InterferenceDAv1
 	 *
 	 * @return <code>true</code>.
 	 */
-	protected boolean ifDependentOn(final Pair dependent, final Pair dependee) {
+	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
 		return true;
 	}
-
+    
 	/**
 	 * Extracts information as provided by environment at initialization time.
 	 *
@@ -393,6 +387,10 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/11 08:49:34  venku
+   Javadoc documentation errors were fixed.
+   Some classes were documented.
+
    Revision 1.5  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
 
