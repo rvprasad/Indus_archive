@@ -68,7 +68,7 @@ public final class ValueAnalysisRegressionTestSuite
 
 	/**
 	 * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
-	 * <code>VAELUE_ANALYSIS_TEST_PROPERTIES_FILE</code> system property.  Refer to
+	 * <code>VALUE_ANALYSIS_TEST_PROPERTIES_FILE</code> system property.  Refer to
 	 * <code>edu.ksu.cis.indus.staticanalyses.flow.instances.ValueAnalysisTest.properties</code> for the format of the file.
 	 *
 	 * @return the suite of tests.
@@ -149,6 +149,11 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/07 20:27:54  venku
+   - refactoring! refactoring!
+   - generalized OFA Test base to be applicable to any value flow
+     analysis built on top of FA.
+
    Revision 1.8  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.7  2004/02/11 09:37:18  venku
