@@ -29,23 +29,95 @@ import java.util.Collection;
 public abstract class AbstractProcessingFilter
   implements IProcessingFilter {
 	/**
+	 * The successor filter, if any.
+	 */
+	private IProcessingFilter successor;
+
+	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#chain(edu.ksu.cis.indus.processing.IProcessingFilter)
+	 */
+	public final void chain(final IProcessingFilter filter) {
+		successor = filter;
+	}
+
+	/**
 	 * {@inheritDoc}  Default implementation returns the given classes as is.
 	 */
-	public Collection filterClasses(final Collection classes) {
-		return classes;
+	public final Collection filterClasses(final Collection classes) {
+		Collection _result = localFilterClasses(classes);
+
+		if (successor != null) {
+			_result = successor.filterClasses(classes);
+		}
+		return _result;
 	}
 
 	/**
 	 * {@inheritDoc}  Default implementation returns the given fields as is.
 	 */
-	public Collection filterFields(final Collection fields) {
-		return fields;
+	public final Collection filterFields(final Collection fields) {
+		Collection _result = localFilterFields(fields);
+
+		if (successor != null) {
+			_result = successor.filterFields(fields);
+		}
+		return _result;
 	}
 
 	/**
 	 * {@inheritDoc}  Default implementation returns the given methods as is.
 	 */
-	public Collection filterMethods(final Collection methods) {
+	public final Collection filterMethods(final Collection methods) {
+		Collection _result = localFilterMethods(methods);
+
+		if (successor != null) {
+			_result = successor.filterMethods(methods);
+		}
+		return _result;
+	}
+
+	/**
+	 * Filter the given classes.
+	 *
+	 * @param classes to be filtered.
+	 *
+	 * @return the collection of filterate classes.
+	 *
+	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 * @post classes.containsAll(result)
+	 */
+	protected Collection localFilterClasses(final Collection classes) {
+		return classes;
+	}
+
+	/**
+	 * Filter the given fields.
+	 *
+	 * @param fields to be filtered.
+	 *
+	 * @return the collection of filterate fields.
+	 *
+	 * @pre fields != null and fields.oclIsKindOf(Collection(SootClass))
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 * @post fields.containsAll(result)
+	 */
+	protected Collection localFilterFields(Collection fields) {
+		return fields;
+	}
+
+	/**
+	 * Filter the given methods.
+	 *
+	 * @param methods to be filtered.
+	 *
+	 * @return the collection of filterate methods.
+	 *
+	 * @pre methods != null and methods.oclIsKindOf(Collection(SootClass))
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 * @post methods.containsAll(result)
+	 */
+	protected Collection localFilterMethods(Collection methods) {
 		return methods;
 	}
 }
@@ -53,10 +125,11 @@ public abstract class AbstractProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/14 16:44:11  venku
+   - coding convention.
    Revision 1.6  2003/12/14 16:43:44  venku
    - extended ProcessingController to filter fields as well.
    - ripple effect.
-
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -13,11 +13,9 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.AbstractXMLBasedTest;
-
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.processing.IProcessor;
 
@@ -41,7 +39,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class XMLBasedCallGraphTest
+public final class XMLBasedOFATest
   extends AbstractXMLBasedTest
   implements IFAProcessorTest {
 	/**
@@ -56,33 +54,39 @@ public final class XMLBasedCallGraphTest
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private CallGraphXMLizer xmlizer;
+	private OFAXMLizer xmlizer;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private String nameOfTheTag;
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(IValueAnalyzer)
+	 * @see IFAProcessorTest#setFA(IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
+		if (valueAnalyzer instanceof OFAnalyzer) {
+			info.put(IValueAnalyzer.ID, valueAnalyzer);
+		}
 	}
 
 	/**
-	 * @see IFAProcessorTest#setFA(FA)
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFA(edu.ksu.cis.indus.staticanalyses.flow.FA)
 	 */
-	public void setFA(final FA fa) {
+	public void setFA(final FA flowAnalysis) {
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
 	 */
 	public void setFATagName(final String tagName) {
+		nameOfTheTag = tagName;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setProcessor(edu.ksu.cis.indus.processing.IProcessor)
 	 */
 	public void setProcessor(final IProcessor processor) {
-		if (processor instanceof ICallGraphInfo) {
-			info.put(ICallGraphInfo.ID, processor);
-		}
 	}
 
 	/**
@@ -99,10 +103,11 @@ public final class XMLBasedCallGraphTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		xmlizer = new CallGraphXMLizer();
+		xmlizer = new OFAXMLizer();
 		xmlizer.setXmlOutputDir(xmlOutputDir);
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
+		info.put(IValueAnalyzer.TAG_ID, nameOfTheTag);
 		xmlizer.writeXML(info);
 	}
 }

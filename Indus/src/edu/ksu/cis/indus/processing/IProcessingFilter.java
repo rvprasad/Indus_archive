@@ -27,6 +27,16 @@ import java.util.Collection;
  */
 public interface IProcessingFilter {
 	/**
+	 * Chains the given filter to this filter.  The net effect is that the result from the <code>filter</code> methods are
+	 * the entities which passed through this filter and the corresponding filter method of <code>successor</code> as well.
+	 *
+	 * @param successor is another filter.
+	 *
+	 * @pre successor != null
+	 */
+	void chain(final IProcessingFilter successor);
+
+	/**
 	 * Filter out classes from the given collection of classes.
 	 *
 	 * @param classes is the collection to be filtered.
@@ -69,6 +79,8 @@ public interface IProcessingFilter {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/08 19:08:03  venku
+   - documentation
    Revision 1.5  2003/12/14 16:43:45  venku
    - extended ProcessingController to filter fields as well.
    - ripple effect.

@@ -126,6 +126,7 @@ public final class OFARegressionTestSuite
 					final TestSuite _temp = new TestSuite(_config);
 					_temp.addTestSuite(XMLBasedCallGraphTest.class);
 					_temp.addTestSuite(CallGraphTest.class);
+					_temp.addTestSuite(XMLBasedOFATest.class);
 					_temp.addTestSuite(FATest.class);
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
@@ -146,6 +147,8 @@ public final class OFARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/09 06:49:02  venku
+   - deleted dependency xmlization and test classes.
    Revision 1.5  2004/02/09 01:20:10  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -22,7 +22,8 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
@@ -57,12 +58,12 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CallGraphXMLizerCLI
+public final class OFAXMLizerCLI
   extends SootBasedDriver {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizerCLI.class);
+	private static final Log LOGGER = LogFactory.getLog(OFAXMLizerCLI.class);
 
 	/**
 	 * The entry point to the program via command line.
@@ -93,7 +94,7 @@ public final class CallGraphXMLizerCLI
 				System.exit(1);
 			}
 
-			final CallGraphXMLizer _xmlizer = new CallGraphXMLizer();
+			final OFAXMLizer _xmlizer = new OFAXMLizer();
 			String _outputDir = _cl.getOptionValue('o');
 
 			if (_outputDir == null) {
@@ -105,7 +106,7 @@ public final class CallGraphXMLizerCLI
 			_xmlizer.setXmlOutputDir(_outputDir);
 			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
-			final CallGraphXMLizerCLI _cli = new CallGraphXMLizerCLI();
+			final OFAXMLizerCLI _cli = new OFAXMLizerCLI();
 			_cli.setClassNames(_cl.getOptionValues('c'));
 			_cli.initialize();
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
@@ -140,7 +141,8 @@ public final class CallGraphXMLizerCLI
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
 		final Map _info = new HashMap();
-		_info.put(ICallGraphInfo.ID, _cgi);
+		_info.put(IValueAnalyzer.ID, _cgi);
+		_info.put(IValueAnalyzer.TAG_ID, _tagName);
 
 		for (final Iterator _k = getRootMethods().iterator(); _k.hasNext();) {
 			_rm.clear();
@@ -187,5 +189,4 @@ public final class CallGraphXMLizerCLI
      - Each information type has a xmlizer (XMLizer)
      - Each information type has a xmlizer driver (XMLizerCLI)
      - Tests use the XMLizer.
-
  */

@@ -32,6 +32,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootMethod;
 
 
@@ -42,8 +45,26 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CallGraphXMLizer
+final class CallGraphXMLizer
   extends AbstractXMLizer {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param name DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public String getFileName(final String name) {
+		return "callgraph_" + xmlizeString(name) + ".xml";
+	}
+
 	/**
 	 * Writes the call graph in XML.
 	 *
@@ -53,7 +74,7 @@ public final class CallGraphXMLizer
 	 * @pre info.oclIsKindOf(Map(Object, Object))
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
 	 */
-	public final void writeXML(final Map info) {
+	public void writeXML(final Map info) {
 		final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
 		final FileWriter _writer;
 
@@ -79,7 +100,7 @@ public final class CallGraphXMLizer
 				}
 
 				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
-					SootMethod _callee = (SootMethod) _j.next();
+					final SootMethod _callee = (SootMethod) _j.next();
 					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\"/>\n");
 				}
 
@@ -91,8 +112,8 @@ public final class CallGraphXMLizer
 				}
 
 				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
-					SootMethod _caller = (SootMethod) _j.next();
-					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_caller) + "\"/>\n");
+					final SootMethod _caller = (SootMethod) _j.next();
+					_writer.write("\t\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\"/>\n");
 				}
 
 				_writer.write("\t</method>\n");
@@ -100,28 +121,21 @@ public final class CallGraphXMLizer
 			_writer.write("</callgraph>\n");
 			_writer.flush();
 			_writer.close();
-		} catch (IOException _e) {
-			_e.printStackTrace();
+		} catch (final IOException _e) {
+			LOGGER.error("Error while xmlizing call graph", _e);
 		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param name DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public String getFileName(final String name) {
-		return "callgraph_" + xmlizeString(name);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/09 17:40:53  venku
+   - dependence and call graph info serialization is done both ways.
+   - refactored the xmlization framework.
+     - Each information type has a xmlizer (XMLizer)
+     - Each information type has a xmlizer driver (XMLizerCLI)
+     - Tests use the XMLizer.
    Revision 1.7  2004/02/09 07:32:38  venku
    - added support to differentiate test method name and test name.
    - added logic to change name of AbstractXMLBasedTest tests as well.

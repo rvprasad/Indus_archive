@@ -140,7 +140,7 @@ public abstract class AbstractXMLizer
 		Writer _writer;
 
 		try {
-			_writer = new FileWriter(new File(getXmlOutputDir() + File.separator + getFileName(name) + "_jimple.xml"));
+			_writer = new FileWriter(new File(getXmlOutputDir() + File.separator + "jimple_" + getFileName(name)));
 			_t.setWriter(_writer);
 			_t.hookup(xmlcgipc);
 			xmlcgipc.process();
@@ -168,6 +168,13 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/02/09 17:40:57  venku
+   - dependence and call graph info serialization is done both ways.
+   - refactored the xmlization framework.
+     - Each information type has a xmlizer (XMLizer)
+     - Each information type has a xmlizer driver (XMLizerCLI)
+     - Tests use the XMLizer.
+
    Revision 1.9  2004/02/09 06:49:05  venku
    - deleted dependency xmlization and test classes.
    Revision 1.8  2004/02/09 04:39:40  venku

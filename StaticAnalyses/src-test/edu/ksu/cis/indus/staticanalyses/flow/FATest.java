@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.IndusTestCase;
 
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -39,7 +41,8 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public final class FATest
-  extends IndusTestCase {
+  extends IndusTestCase
+  implements IFATest {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -54,6 +57,12 @@ public final class FATest
 	 * The name of that tag used to identify parts of the system that was touched by the analysis.
 	 */
 	private String faTagName;
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer)
+	 */
+	public void setAnalyzer(IValueAnalyzer valueAnalyzer) {
+	}
 
 	/**
 	 * Sets the flow analyzer instance to be tested.
@@ -189,6 +198,10 @@ public final class FATest
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/09 00:32:16  venku
+   - all test cases in indus extends IndusTestCase.
+   - RegressionTestSuites alter the name of the test instances
+     via appendSuiteTestName().
    Revision 1.6  2004/02/08 21:31:41  venku
    - test refactoring to enable same test case to be used as
      unit test case and regression test case

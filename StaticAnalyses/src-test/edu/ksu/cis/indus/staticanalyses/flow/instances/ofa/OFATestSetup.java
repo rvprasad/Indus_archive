@@ -32,8 +32,6 @@ import java.util.Iterator;
 
 import junit.framework.TestSuite;
 
-import soot.Scene;
-
 
 /**
  * This class sets up the call graph once before various tests are run on the call graph.
@@ -54,7 +52,6 @@ public final class OFATestSetup
 	 */
 	OFATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test, theNameOfClasses, classpath);
-		cgiImpl = new CallGraph();
 	}
 
 	/**
@@ -68,20 +65,18 @@ public final class OFATestSetup
 		_pc.setAnalyzer(valueAnalyzer);
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
+        cgiImpl = new CallGraph();
 		cgiImpl.hookup(_pc);
 		_pc.process();
 		cgiImpl.unhook(_pc);
 
-		final Scene _scene = Scene.v();
 		final Collection _temp =
 			new ArrayList(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class));
 		_temp.addAll(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedCallGraphTest.class));
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			final IFAProcessorTest _tester = (IFAProcessorTest) _i.next();
-			_tester.setFA(valueAnalyzer);
-			_tester.setScene(_scene);
-			_tester.setProcessor(cgiImpl);
+			final IFAProcessorTest _test = (IFAProcessorTest) _i.next();
+			_test.setProcessor(cgiImpl);
 		}
 	}
 
@@ -91,6 +86,7 @@ public final class OFATestSetup
 	protected void tearDown()
 	  throws Exception {
 		cgiImpl.reset();
+        cgiImpl = null;
 		super.tearDown();
 	}
 }
@@ -98,6 +94,11 @@ public final class OFATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 01:20:10  venku
+   - coding convention.
+   - added a new abstract class contain the logic required for xml-based
+     testing.  (AbstractXMLBasedTest)
+   - added a new xml-based call graph testing class.
    Revision 1.4  2004/02/08 21:31:41  venku
    - test refactoring to enable same test case to be used as
      unit test case and regression test case

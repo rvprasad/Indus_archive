@@ -127,7 +127,7 @@ public final class XMLizingProcessingFilter
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.IFilter#filter(java.lang.Object)
 	 */
-	public Collection filterClasses(final Collection classes) {
+	protected Collection localFilterClasses(final Collection classes) {
 		final List _result = new ArrayList(classes);
 		Collections.sort(_result, new LexographicalClassComparator());
 		return _result;
@@ -139,7 +139,7 @@ public final class XMLizingProcessingFilter
 	 *
 	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterFields(java.util.Collection)
 	 */
-	public Collection filterFields(final Collection fields) {
+	protected Collection localFilterFields(final Collection fields) {
 		final List _result = new ArrayList(fields);
 		Collections.sort(_result, new LexographicalFieldComparator());
 		return _result;
@@ -151,7 +151,7 @@ public final class XMLizingProcessingFilter
 	 *
 	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
 	 */
-	public Collection filterMethods(final Collection methods) {
+	protected Collection localFilterMethods(final Collection methods) {
 		final List _result = new ArrayList(methods);
 		Collections.sort(_result, new LexographicalMethodComparator());
 		return _result;
@@ -161,10 +161,12 @@ public final class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/09 07:31:21  venku
+   - in cases where fields and methods from different classes are
+     compared, a fixed ordering may not result. FIXED.
    Revision 1.6  2003/12/14 16:43:45  venku
    - extended ProcessingController to filter fields as well.
    - ripple effect.
-
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

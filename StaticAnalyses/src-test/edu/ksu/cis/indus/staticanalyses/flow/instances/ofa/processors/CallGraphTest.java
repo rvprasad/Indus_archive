@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.IProcessor;
 
+import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -37,7 +38,6 @@ import java.util.Iterator;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 
@@ -66,7 +66,8 @@ public final class CallGraphTest
 	/**
 	 * The system that provides the call graph.
 	 */
-	private Scene scene;
+
+	//private Scene scene;
 
 	/**
 	 * The call graph.
@@ -82,8 +83,20 @@ public final class CallGraphTest
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setFA(IValueAnalyzer)
 	 */
-	public void setFA(final IValueAnalyzer valueAnalyzer) {
+	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
 		ofa = (OFAnalyzer) valueAnalyzer;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFA(edu.ksu.cis.indus.staticanalyses.flow.FA)
+	 */
+	public void setFA(final FA flowAnalysis) {
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
+	 */
+	public void setFATagName(final String tagName) {
 	}
 
 	/**
@@ -103,24 +116,13 @@ public final class CallGraphTest
 	}
 
 	/**
-	 * Set the scene used during test.
-	 *
-	 * @param theScene used during test.
-	 *
-	 * @pre theScene != null
-	 */
-	public void setScene(final Scene theScene) {
-		scene = theScene;
-	}
-
-	/**
 	 * Tests <code>isReachable</code>.
 	 */
 	public void localtestIsReachable() {
 		final Collection _reachables = cgi.getReachableMethods();
 		final Collection _heads = cgi.getHeads();
 
-		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
+		for (final Iterator _i = ofa.getEnvironment().getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
 			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
@@ -364,10 +366,11 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/09 07:35:04  venku
+   - coding conventions.
    Revision 1.7  2004/02/08 21:31:41  venku
    - test refactoring to enable same test case to be used as
      unit test case and regression test case
-
    Revision 1.6  2004/02/08 19:32:09  venku
    - test refactoring for regression testing.
    Revision 1.5  2004/02/08 04:53:10  venku

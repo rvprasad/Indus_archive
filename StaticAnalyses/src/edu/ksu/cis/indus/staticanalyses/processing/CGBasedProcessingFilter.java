@@ -54,7 +54,7 @@ public class CGBasedProcessingFilter
 	 *
 	 * @see ValueAnalyzerBasedProcessingController#filterMethods(Collection)
 	 */
-	public Collection filterMethods(final Collection methods) {
+	protected final Collection localFilterMethods(final Collection methods) {
 		return CollectionUtils.intersection(methods, cgi.getReachableMethods());
 	}
 }
@@ -62,6 +62,10 @@ public class CGBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.2  2003/12/02 09:42:39  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -115,12 +115,13 @@ public class FATestSetup
 
 		valueAnalyzer.analyze(_scene, _rootMethods);
 
-		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), FATest.class);
+		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IFATest.class);
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			final FATest _tester = (FATest) _i.next();
-			_tester.setFA(((AbstractAnalyzer) valueAnalyzer).fa);
-			_tester.setFATagName(TAG_NAME);
+			final IFATest _test = (IFATest) _i.next();
+			_test.setFA(((AbstractAnalyzer) valueAnalyzer).fa);
+			_test.setAnalyzer(valueAnalyzer);
+			_test.setFATagName(TAG_NAME);
 		}
 	}
 
@@ -138,6 +139,9 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/08 21:31:41  venku
+   - test refactoring to enable same test case to be used as
+     unit test case and regression test case
    Revision 1.8  2004/02/08 19:53:31  venku
    - it should be tearDown and not teardown. FIXED.
    Revision 1.7  2004/02/08 19:17:19  venku

@@ -25,10 +25,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.SootClass;
-import soot.SootField;
-import soot.SootMethod;
-
 import soot.tagkit.Host;
 
 
@@ -63,75 +59,24 @@ public class TagBasedProcessingFilter
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterClasses(java.util.Collection)
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterClasses(java.util.Collection)
 	 */
-	public final Collection filterClasses(final Collection classes) {
-		final List _result = new ArrayList();
-
-		for (final Iterator _i = classes.iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			if (isFilterate(_sc)) {
-				_result.add(_sc);
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Filtered out: " + CollectionUtils.subtract(classes, _result));
-				LOGGER.debug("Filtrate : " + _result);
-			}
-		}
-
-		return _result;
+	protected final Collection localFilterClasses(final Collection classes) {
+		return filter(classes);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterMethods(java.util.Collection)
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterFields(java.util.Collection)
 	 */
-	public final Collection filterMethods(final Collection methods) {
-		final List _result = new ArrayList();
-
-		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-
-			if (isFilterate(_sm)) {
-				_result.add(_sm);
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Filtered out: " + CollectionUtils.subtract(methods, _result));
-				LOGGER.debug("Filtrate : " + _result);
-			}
-		}
-
-		return _result;
+	protected final Collection localFilterFields(final Collection fields) {
+		return filter(fields);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterFields(java.util.Collection)
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterMethods(java.util.Collection)
 	 */
-	public final Collection filterFields(final Collection fields) {
-		final List _result = new ArrayList();
-
-		for (final Iterator _i = fields.iterator(); _i.hasNext();) {
-			final SootField _sf = (SootField) _i.next();
-
-			if (isFilterate(_sf)) {
-				_result.add(_sf);
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Filtered out: " + CollectionUtils.subtract(fields, _result));
-				LOGGER.debug("Filtrate : " + _result);
-			}
-		}
-
-		return _result;
+	protected final Collection localFilterMethods(final Collection methods) {
+		return filter(methods);
 	}
 
 	/**
@@ -146,21 +91,51 @@ public class TagBasedProcessingFilter
 	protected boolean isFilterate(final Host host) {
 		return host.hasTag(tagName);
 	}
+
+	/**
+	 * Filters the given hosts based on the return value of <code>isFilterate</code> method.
+	 *
+	 * @param hosts is the collection of hosts to be filterd.
+	 *
+	 * @return a collection of hosts that passed through the filter.
+	 *
+	 * @pre hosts != null and hosts.oclIsKindOf(Collection(Host))
+	 * @post result != null and hosts.containsAll(result)
+	 * @post result->foreach(o | isFilterate(o))
+	 */
+	private Collection filter(final Collection hosts) {
+		final List _result = new ArrayList();
+
+		for (final Iterator _i = hosts.iterator(); _i.hasNext();) {
+			final Host _sc = (Host) _i.next();
+
+			if (isFilterate(_sc)) {
+				_result.add(_sc);
+			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Filtered out: " + CollectionUtils.subtract(hosts, _result));
+				LOGGER.debug("Filtrate : " + _result);
+			}
+		}
+		return _result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/16 08:43:50  venku
+   - logging.
    Revision 1.10  2003/12/14 20:36:51  venku
    - documentation.
-
    Revision 1.9  2003/12/14 20:36:05  venku
    - the filtering methods were incorrect in TagBased... FIXED.
-
    Revision 1.8  2003/12/14 16:43:44  venku
    - extended ProcessingController to filter fields as well.
    - ripple effect.
-
    Revision 1.7  2003/12/14 15:53:31  venku
    - added a new class AntiTagBasedProcessingFilter that
      does the opposite of TagBasedProcessingFilter.

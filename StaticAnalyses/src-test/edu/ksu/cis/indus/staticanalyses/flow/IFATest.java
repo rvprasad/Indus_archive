@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.processing.IProcessor;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 
 /**
@@ -25,27 +25,35 @@ import edu.ksu.cis.indus.processing.IProcessor;
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$ $Date$
+ * @version $Revision$
  */
-public interface IFAProcessorTest
-  extends IFATest {
+public interface IFATest {
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param valueAnalyzer DOCUMENT ME!
+	 */
+	void setAnalyzer(IValueAnalyzer valueAnalyzer);
+
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param processor
+	 * @param valueAnalyzer
 	 */
-	void setProcessor(IProcessor processor);
+	void setFA(FA flowAnalysis);
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param tagName DOCUMENT ME!
+	 */
+	void setFATagName(String tagName);
+
 }
 
 /*
    ChangeLog:
    $Log$
-   Revision 1.3  2004/02/08 21:31:41  venku
-   - test refactoring to enable same test case to be used as
-     unit test case and regression test case
-   Revision 1.2  2004/02/08 19:17:19  venku
-   - test refactoring for regression testing.
-   Revision 1.1  2004/02/08 01:10:33  venku
-   - renamed TestSuite classes to ArgTestSuite classes.
-   - added DependencyArgTestSuite.
  */
