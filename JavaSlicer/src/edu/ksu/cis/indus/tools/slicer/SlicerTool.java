@@ -39,6 +39,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -193,6 +194,11 @@ public final class SlicerTool
 	 */
 	private final SliceCriteriaFactory criteriaFactory;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private EquivalenceClassBasedEscapeAnalysis ecba;
+
 	/**
 	 * Creates a new SlicerTool object.
 	 */
@@ -220,6 +226,8 @@ public final class SlicerTool
 		bbgMgr.setUnitGraphProvider(new TrapUnitGraphFactory());
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
+		// create equivalence class-based escape analysis.
+		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, threadGraph, bbgMgr);
 
 		// set up data required for dependency analyses.
 		Map info = new HashMap();
@@ -229,8 +237,7 @@ public final class SlicerTool
 		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(ofa));
 		info.put(Pair.PairManager.ID, new Pair.PairManager());
 		info.put(IValueAnalyzer.ID, ofa);
-		info.put(EquivalenceClassBasedEscapeAnalysis.ID,
-			new EquivalenceClassBasedEscapeAnalysis(callGraph, threadGraph, bbgMgr));
+		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 		unitGraphProvider = new CompleteUnitGraphFactory();
 
 		// create dependency analyses controller 
@@ -396,6 +403,14 @@ public final class SlicerTool
 			threadGraph.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
 			threadGraph.unhook(cgBasedPreProcessCtrl);
+			phase.nextMinorPhase();
+
+			movingToNextPhase();
+
+			// process escape analyses.
+			ecba.hookup(cgBasedPreProcessCtrl);
+			cgBasedPreProcessCtrl.process();
+			ecba.unhook(cgBasedPreProcessCtrl);
 			phase.nextMajorPhase();
 			ph = phase;
 		}
@@ -530,6 +545,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/03 08:05:34  venku
+   - lots of changes
+     - changes to get the configuration working with JiBX
+     - changes to make configuration amenable to CompositeConfigurator
+     - added EquivalenceClassBasedAnalysis
+     - added fix for Thread's start method
    Revision 1.15  2003/10/21 08:41:49  venku
    - fixed minor errors regarding missing mandatory
      method calls on the analyses.
