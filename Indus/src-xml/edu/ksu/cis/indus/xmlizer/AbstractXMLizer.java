@@ -154,7 +154,7 @@ public abstract class AbstractXMLizer
 	/**
 	 * Dumps the jimple into a file.
 	 *
-	 * @param name is the name of the file into which jimple should be dumped.
+	 * @param name is the basis of the name of the file into which jimple should be dumped.
 	 * @param xmlcgipc is the processing controller to be used to control the dumping operation.  The user can use this
 	 * 		  controller to control the methods and classes to be included in the dump.  This controller sholuld be able to
 	 * 		  have deterministic behavior over a given set of class files.
@@ -197,6 +197,9 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/03/05 11:59:40  venku
+   - documentation.
+
    Revision 1.13  2004/02/14 23:16:49  venku
    - coding convention.
    Revision 1.12  2004/02/11 10:00:20  venku
