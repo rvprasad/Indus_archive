@@ -88,7 +88,8 @@ final class AliasSet
 	private boolean global;
 
 	/** 
-	 * This is used to indicate that the alias set represents an object that is accessed in multiple threads.
+	 * This is used to indicate that the alias set represents an object that is accessible in multiple threads. This differs 
+	 * from <code>shared</code> as this captures the exposure of the object in multiple threads.
 	 */
 	private boolean multiThreadAccess;
 
@@ -104,7 +105,8 @@ final class AliasSet
 	private boolean read;
 
 	/** 
-	 * This indicates if the variable (hence, the object referred to) associated with this alias set shared across threads.
+	 * This indicates if the variable (hence, the object referred to) associated with this alias set is shared across threads.
+	 * This is different from <code>multiThreadAccess</code> as this captures access in multiple threads.
 	 */
 	private boolean shared;
 
@@ -386,18 +388,17 @@ final class AliasSet
 	}
 
 	/**
-	 * Propogates the information from the source alias set to the destination alias set.
+	 * Propogates the information from the this alias set to the destination alias set.
 	 *
-	 * @param from is the source of the information transfer.
 	 * @param to is the destination of the information transfer.
 	 *
-	 * @post to.isShared() == (from.isShared() or from.isShared())
-	 * @post to.getReadyEntities().containsAll(from.getReadyEntities())
-	 * @post to.getShareEntities().containsAll(from.getShareEntities())
+	 * @post to.isShared() == (isShared() or to.isShared())
+	 * @post to.getReadyEntities().containsAll(getReadyEntities())
+	 * @post to.getShareEntities().containsAll(getShareEntities())
 	 */
-	static void propogateInfoFromTo(final AliasSet from, final AliasSet to) {
+	void propogateInfoFromTo(final AliasSet to) {
 		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
-		_wb.addWork(new Pair(from, to));
+		_wb.addWork(new Pair(this, to));
 
 		while (_wb.hasWork()) {
 			final Pair _pair = (Pair) _wb.getWork();
@@ -512,21 +513,20 @@ final class AliasSet
 	 * @pre a != null
 	 */
 	void unifyAliasSet(final AliasSet a) {
-		unifyAliasSetHelper(this, a, true);
+		unifyAliasSetHelper(a, true);
 	}
 
 	/**
-	 * Unifies the given alias sets.
+	 * Unifies the given alias set with this alias set.
 	 *
-	 * @param as1 obviously.
 	 * @param as2 obviously.
 	 * @param unifyAll <code>true</code> indicates that unification should be multi-thread access sensitive;
 	 * 		  <code>false</code>, otherwise.
 	 *
-	 * @pre as1 != null and as2 != null
+	 * @pre as2 != null
 	 */
-	static void unifyAliasSetHelper(final AliasSet as1, final AliasSet as2, final boolean unifyAll) {
-		final AliasSet _m = (AliasSet) as1.find();
+	void unifyAliasSetHelper(final AliasSet as2, final boolean unifyAll) {
+		final AliasSet _m = (AliasSet) find();
 		final AliasSet _n = (AliasSet) as2.find();
 
 		if (_m != _n) {
@@ -566,8 +566,10 @@ final class AliasSet
 				}
 			}
 
-			if (unifyAll && _representative.multiThreadAccess) {
-				unifyEscapeInfo(_representative, _represented);
+			if (unifyAll) {
+			    if (_representative.multiThreadAccess) {
+			        _representative.unifyThreadEscapeInfo(_represented);
+			    }
 			}
 
 			_representative.unifyFields(_represented, unifyAll);
@@ -601,31 +603,31 @@ final class AliasSet
 	}
 
 	/**
-	 * Unify escape and sharing information in the given alias set.
+	 * Unify thread escape and sharing information in the given alias set.
 	 *
-	 * @param representative is one of the alias set involved in the unification.
 	 * @param represented is the other alias set involved in the unification.
+	 * @pre represented != null
 	 */
-	private static void unifyEscapeInfo(final AliasSet representative, final AliasSet represented) {
-		representative.shared |= (representative.accessed && represented.accessed);
+	private void unifyThreadEscapeInfo(final AliasSet represented) {
+		shared |= (accessed && represented.accessed);
 
-		if ((representative.waits && represented.notifies) || (representative.notifies && represented.waits)) {
-			if (representative.readyEntities == null) {
-				representative.readyEntities = new HashSet();
+		if ((waits && represented.notifies) || (notifies && represented.waits)) {
+			if (readyEntities == null) {
+				readyEntities = new HashSet();
 			}
 
-			if (representative.readyEntities.isEmpty()) {
-				representative.readyEntities.add(getNewReadyEntity());
+			if (readyEntities.isEmpty()) {
+				readyEntities.add(getNewReadyEntity());
 			}
 		}
 
-		if ((representative.read && represented.written) || (representative.written && represented.read)) {
-			if (representative.shareEntities == null) {
-				representative.shareEntities = new HashSet();
+		if ((read && represented.written) || (written && represented.read)) {
+			if (shareEntities == null) {
+				shareEntities = new HashSet();
 			}
 
-			if (representative.shareEntities.isEmpty()) {
-				representative.shareEntities.add(getNewShareEntity());
+			if (shareEntities.isEmpty()) {
+				shareEntities.add(getNewShareEntity());
 			}
 		}
 	}
@@ -647,7 +649,7 @@ final class AliasSet
 			final AliasSet _repAS = getASForField(_field);
 
 			if (_repAS != null) {
-				unifyAliasSetHelper(_repAS, _fieldAS, unifyAll);
+				_repAS.unifyAliasSetHelper(_fieldAS, unifyAll);
 			} else {
 				putASForField(_field, _fieldAS);
 			}

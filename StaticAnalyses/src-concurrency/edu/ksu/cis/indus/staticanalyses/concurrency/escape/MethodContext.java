@@ -305,16 +305,15 @@ final class MethodContext
 	}
 
 	/**
-	 * Propogates the information from the srouce context to the destination context.  Please refer to the   {@link
+	 * Propogates the information from the source (this) context to the destination context.  Please refer to the   {@link
 	 * #unifyMethodContext(MethodContext) unify(MethodContext)} for important information.
 	 *
-	 * @param from is the source of the information transfer.
 	 * @param to is the destination of the information transfer.
 	 *
-	 * @pre from != null and to != null
+	 * @pre to != null
 	 */
-	static void propogateInfoFromTo(final MethodContext from, final MethodContext to) {
-		final MethodContext _fromRep = (MethodContext) from.find();
+	void propogateInfoFromTo(final MethodContext to) {
+		final MethodContext _fromRep = (MethodContext) find();
 		final MethodContext _toRep = (MethodContext) to.find();
 
 		final int _paramCount = _fromRep.method.getParameterCount();
@@ -325,7 +324,7 @@ final class MethodContext
 				final AliasSet _temp2 = (AliasSet) _toRep.argAliasSets.get(_i);
 
 				if (_temp1 != null && _temp2 != null) {
-					AliasSet.propogateInfoFromTo(_temp1, _temp2);
+					_temp1.propogateInfoFromTo(_temp2);
 				}
 			}
 		}
@@ -333,14 +332,14 @@ final class MethodContext
 		final AliasSet _retAS = _fromRep.ret;
 
 		if (_retAS != null) {
-			AliasSet.propogateInfoFromTo(_retAS, _toRep.ret);
+			_retAS.propogateInfoFromTo(_toRep.ret);
 		}
-		AliasSet.propogateInfoFromTo(_fromRep.thrown, _toRep.thrown);
+		_fromRep.thrown.propogateInfoFromTo(_toRep.thrown);
 
 		final AliasSet _thisAS = _fromRep.thisAS;
 
 		if (_thisAS != null) {
-			AliasSet.propogateInfoFromTo(_thisAS, _toRep.thisAS);
+			_thisAS.propogateInfoFromTo(_toRep.thisAS);
 		}
 	}
 
@@ -510,7 +509,7 @@ final class MethodContext
 				if (_k1 != _k2 && _k1.find() == _k2.find()) {
 					final AliasSet _v1 = (AliasSet) src2clone.get(_k1);
 					final AliasSet _v2 = (AliasSet) src2clone.get(_k2);
-					AliasSet.unifyAliasSetHelper(_v1, _v2, false);
+					_v1.unifyAliasSetHelper(_v2, false);
 				}
 			}
 		}

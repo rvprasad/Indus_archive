@@ -338,7 +338,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 	}
 
-
 	/**
 	 * This class encapsulates the logic to process the expressions during escape analysis.  Alias sets are created as
 	 * required.  The class relies on <code>AliasSet</code> to decide if alias set needs to be created for a type of value.
@@ -711,7 +710,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			return _delayUnification;
 		}
 	}
-
 
 	/**
 	 * This class is used to create alias sets for global variables.
@@ -1214,7 +1212,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final MethodContext _calleeMethodContext = (MethodContext) (_calleeTriple.getFirst());
 				final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
 				final MethodContext _calleeSiteContext = (MethodContext) _ctrp2sc.get(_callerTrp);
-				MethodContext.propogateInfoFromTo(_calleeSiteContext, _calleeMethodContext);
+				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
 		}
 
