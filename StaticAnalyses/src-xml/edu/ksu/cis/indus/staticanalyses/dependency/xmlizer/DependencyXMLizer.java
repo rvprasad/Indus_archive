@@ -43,7 +43,6 @@ import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -132,7 +131,7 @@ public class DependencyXMLizer
 	/**
 	 * This is the flow analyser used by the analyses being tested.
 	 */
-	protected AbstractAnalyzer aa;
+	protected IValueAnalyzer aa;
 
 	/**
 	 * A collection of dependence analyses.
@@ -234,13 +233,16 @@ public class DependencyXMLizer
 				{ "e", "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "f", "sda", "Synchronization dependence", new SynchronizationDA() },
 				{ "g", "rda1", "Ready dependence v1", new ReadyDAv1() },
-				{ "h", "rda2", "Ready dependence v2", new ReadyDAv2() },
-				{ "i", "rda3", "Ready dependence v3", new ReadyDAv3() },
-				{ "k", "ida1", "Interference dependence v1", new InterferenceDAv1() },
-				{ "l", "ida2", "Interference dependence v2", new InterferenceDAv2() },
-				{ "m", "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "n", "dda", "Divergence dependence", new DivergenceDA() },
+				{ "i", "rda2", "Ready dependence v2", new ReadyDAv2() },
+				{ "k", "rda3", "Ready dependence v3", new ReadyDAv3() },
+				{ "l", "ida1", "Interference dependence v1", new InterferenceDAv1() },
+				{ "m", "ida2", "Interference dependence v2", new InterferenceDAv2() },
+				{ "n", "ida3", "Interference dependence v3", new InterferenceDAv3() },
+				{ "p", "dda", "Divergence dependence", new DivergenceDA() },
 			};
+		_option = new Option("h", "help", false, "Display message.");
+		_option.setOptionalArg(false);
+		_options.addOption(_option);
 
 		for (int _i = 0; _i < _dasOptions.length; _i++) {
 			final String _shortOption = _dasOptions[_i][0].toString();
@@ -254,6 +256,13 @@ public class DependencyXMLizer
 
 		try {
 			final CommandLine _cl = _parser.parse(_options, args);
+
+			if (_cl.hasOption("h")) {
+				(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer ",
+					_options);
+				System.exit(1);
+			}
+
 			final DependencyXMLizer _xmlizer = new DependencyXMLizer(true);
 			String _outputDir = _cl.getOptionValue('o');
 
@@ -281,6 +290,7 @@ public class DependencyXMLizer
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", _options);
+			System.exit(1);
 		} catch (Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
 			throw new RuntimeException(_e);
@@ -654,6 +664,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/12/15 02:11:15  venku
+   - added exception handling at outer most level.
    Revision 1.29  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
