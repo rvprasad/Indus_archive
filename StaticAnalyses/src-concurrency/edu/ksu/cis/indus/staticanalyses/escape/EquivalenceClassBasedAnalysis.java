@@ -1061,9 +1061,12 @@ public class EquivalenceClassBasedAnalysis
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:39:07  venku
+   Major:
+    - Moved the package under indus umbrella.
+   Minor:
+    - changes to accomodate ripple effect from support package.
+ */

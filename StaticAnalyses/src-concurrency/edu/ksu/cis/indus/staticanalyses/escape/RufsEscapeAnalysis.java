@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2002, 2003, 2004.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
@@ -105,13 +105,12 @@ import java.util.Map;
 
 /**
  * This is an implementation of Ruf's escape analysis.
- * 
- * @deprecated This is rather a comparison implementation which will not be supported.
- *   
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated This is rather a comparison implementation which will not be supported.
  */
 public class RufsEscapeAnalysis
   extends AbstractProcessor {
@@ -1762,21 +1761,21 @@ main_control:
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.3  2003/07/30 08:30:31  venku
-Refactoring ripple.
-Also fixed a subtle bug in isShared() which caused wrong results.
-
-Revision 1.2  2003/07/27 21:22:14  venku
-Minor:
- - removed unnecessary casts.
-
-Revision 1.1  2003/07/27 20:52:39  venku
-First of the many refactoring while building towards slicer release.
-This is the escape analysis refactored and implemented as per to tech report.
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:39:07  venku
+   Major:
+    - Moved the package under indus umbrella.
+   Minor:
+    - changes to accomodate ripple effect from support package.
+   Revision 1.3  2003/07/30 08:30:31  venku
+   Refactoring ripple.
+   Also fixed a subtle bug in isShared() which caused wrong results.
+   Revision 1.2  2003/07/27 21:22:14  venku
+   Minor:
+    - removed unnecessary casts.
+   Revision 1.1  2003/07/27 20:52:39  venku
+   First of the many refactoring while building towards slicer release.
+   This is the escape analysis refactored and implemented as per to tech report.
+ */

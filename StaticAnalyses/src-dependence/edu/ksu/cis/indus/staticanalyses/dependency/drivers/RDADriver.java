@@ -80,10 +80,13 @@ public final class RDADriver
 	}
 }
 
-/*****
+/*
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/09 23:29:52  venku
+Ripple Effect of renaming Inter/Intra procedural data DAs to Aliased/NonAliased data DA.
+
 Revision 1.1  2003/08/07 06:38:05  venku
 Major:
  - Moved the packages under indus umbrella.
@@ -92,4 +95,4 @@ Major:
  - Documented and specified the classes.
 
 
-*****/
+*/

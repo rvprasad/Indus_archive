@@ -379,12 +379,17 @@ public class DivergenceDA
 	}
 }
 
-/*****
+/*
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/08/11 04:20:19  venku
+- Pair and Triple were changed to work in optimized and unoptimized mode.
+- Ripple effect of the previous change.
+- Documentation and specification of other classes.
+
 Revision 1.2  2003/08/09 23:30:28  venku
 Enabled divergence dependency to be interprocedural.
 
 
-*****/
+*/

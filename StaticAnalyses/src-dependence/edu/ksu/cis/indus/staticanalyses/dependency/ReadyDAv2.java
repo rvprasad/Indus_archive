@@ -230,9 +230,13 @@ public class ReadyDAv2
 	 */
 }
 
-/*****
+/*
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/09 23:33:30  venku
+ - Enabled ready dependency to be interprocedural.
+ - Utilized containsXXX() method in Stmt.
 
-*****/
+
+*/

@@ -133,9 +133,13 @@ public class AliasedDataDA
 	}
 }
 
-/*****
+/*
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/09 23:29:09  venku
+Renamed InterProceduralDataDAv1 to AliasedDataDA
+Renamed IntraProceduralDataDA to NonAliasedDataDA
 
-*****/
+
+*/

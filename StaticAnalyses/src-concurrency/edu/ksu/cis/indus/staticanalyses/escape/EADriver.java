@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2002, 2003, 2004.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
@@ -45,8 +45,8 @@ import soot.jimple.JimpleBody;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
@@ -58,6 +58,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 
 /**
  * This class drives escape analysis and displays the calculated information.
@@ -125,7 +126,7 @@ public final class EADriver
 		ProcessingController ppc = new ProcessingController();
 		ppc.setAnalyzer(aa);
 
-        // Create call graph
+		// Create call graph
 		CallGraph cg = new CallGraph();
 		cg.hookup(ppc);
 
@@ -136,19 +137,20 @@ public final class EADriver
 		ppc.process();
 		cg.unhook(ppc);
 
-        ppc = new CGBasedProcessingController(cg);
-        ppc.setAnalyzer(aa);
-        // Create Thread graph 
+		ppc = new CGBasedProcessingController(cg);
+		ppc.setAnalyzer(aa);
+
+		// Create Thread graph 
 		ThreadGraph tg = new ThreadGraph(cg);
 		tg.hookup(ppc);
 		ppc.process();
-        tg.unhook(ppc);
-        
-        // Perform equivalence-class-based escape analysis
-        EquivalenceClassBasedAnalysis analysis = new EquivalenceClassBasedAnalysis(scm, cg, tg);
-        analysis.hookup(ppc);
-        ppc.process();
-        stop = System.currentTimeMillis();
+		tg.unhook(ppc);
+
+		// Perform equivalence-class-based escape analysis
+		EquivalenceClassBasedAnalysis analysis = new EquivalenceClassBasedAnalysis(scm, cg, tg);
+		analysis.hookup(ppc);
+		ppc.process();
+		stop = System.currentTimeMillis();
 		analysis.unhook(ppc);
 
 		if (LOGGER.isInfoEnabled()) {
@@ -214,20 +216,20 @@ public final class EADriver
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/07 06:39:07  venku
-Major:
- - Moved the package under indus umbrella.
-
-Minor:
- - changes to accomodate ripple effect from support package.
-
-Revision 1.1  2003/07/30 08:27:03  venku
-Renamed IATester to EADriver.
-Also, staged various analyses.
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.2  2003/08/10 03:43:26  venku
+   Renamed Tester to Driver.
+   Refactored logic to pick entry points.
+   Provided for logging timing stats into any specified stream.
+   Ripple effect in others.
+   Revision 1.1  2003/08/07 06:39:07  venku
+   Major:
+    - Moved the package under indus umbrella.
+   Minor:
+    - changes to accomodate ripple effect from support package.
+   Revision 1.1  2003/07/30 08:27:03  venku
+   Renamed IATester to EADriver.
+   Also, staged various analyses.
+ */
