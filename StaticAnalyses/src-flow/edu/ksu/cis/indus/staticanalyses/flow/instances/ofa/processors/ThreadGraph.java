@@ -460,6 +460,17 @@ public class ThreadGraph
 	}
 
 	/**
+	 * Resets all internal data structure and forgets all info from the previous run.
+	 */
+	public void reset() {
+		thread2methods.clear();
+		method2threads.clear();
+		analyzer = null;
+		startSites.clear();
+		newThreadExprs.clear();
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -537,6 +548,8 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/21 03:43:56  venku
+   Ripple effect of adding IStatus.
    Revision 1.3  2003/08/13 08:29:40  venku
    Spruced up documentation and specification.
    Revision 1.2  2003/08/11 04:27:33  venku

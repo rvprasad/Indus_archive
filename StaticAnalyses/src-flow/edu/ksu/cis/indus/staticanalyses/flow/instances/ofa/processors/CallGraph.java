@@ -662,6 +662,21 @@ public class CallGraph
 	}
 
 	/**
+	 * Resets all internal data structure and forgets all info from the previous run.
+	 */
+	public void reset() {
+		caller2callees.clear();
+		callee2callers.clear();
+		analyzer = null;
+		graphCache = null;
+		sccs.clear();
+		recursionRoots.clear();
+		cycles.clear();
+		reachables.clear();
+		heads.clear();
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -725,6 +740,13 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/08/24 08:13:11  venku
+   Major refactoring.
+    - The methods to modify the graphs were exposed.
+    - The above anamoly was fixed by supporting a new class MutableDirectedGraph.
+    - Each Mutable graph extends this graph and exposes itself via
+      suitable interface to restrict access.
+    - Ripple effect of the above changes.
    Revision 1.11  2003/08/21 03:43:56  venku
    Ripple effect of adding IStatus.
    Revision 1.10  2003/08/17 11:54:25  venku
