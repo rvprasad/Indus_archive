@@ -22,6 +22,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import soot.Body;
 import soot.SootMethod;
 
 import soot.jimple.Jimple;
@@ -37,15 +38,6 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public final class BasicBlockGraphMgr {
-	/** 
-	 * Represents an empty unit graph that can be used as a placeholder for non-concrete methods or methods with no body. 
-	 */
-	private static final UnitGraph EMPTY_GRAPH;
-
-	static {
-		EMPTY_GRAPH = new UnitGraph(Jimple.v().newBody(), false);
-	}
-
 	/**
 	 * This maps methods to basic block graphs.
 	 *
@@ -92,7 +84,9 @@ public final class BasicBlockGraphMgr {
 			UnitGraph graph = unitGraphProvider.getUnitGraph(sm);
 
 			if (graph == null) {
-				graph = EMPTY_GRAPH;
+                final Body _body = Jimple.v().newBody();
+                _body.setMethod(sm);
+				graph = new UnitGraph(_body, false);
 			}
 			result = new BasicBlockGraph(graph);
 			method2graph.put(sm, new WeakReference(result));
@@ -135,6 +129,9 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/09 04:23:49  venku
+   - used IUnitGraphFactory instead of AbstractGraphUnitFactory.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
