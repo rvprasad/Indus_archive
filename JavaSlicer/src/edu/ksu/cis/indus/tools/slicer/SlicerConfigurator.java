@@ -754,11 +754,10 @@ public final class SlicerConfigurator
 		_gridData2.horizontalSpan = 2;
 		executableSliceButton.setLayoutData(_gridData2);
 
-		executableSliceButton.setSelection(_cfg.getExecutableSlice());
-
 		final SelectionListener _sl1 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
 		executableSliceButton.addSelectionListener(_sl1);
+        executableSliceButton.setSelection(_cfg.getExecutableSlice());
 
 		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 			executableSliceButton.setEnabled(false);
@@ -777,7 +776,6 @@ public final class SlicerConfigurator
 		_propertyAwareSlicingButton.addSelectionListener(_sl3);
 
 		setupAssertionUI(composite, _cfg);
-
 		setupDeadlockUI(composite, _cfg);
 
 		//Slice type related group
@@ -810,6 +808,8 @@ public final class SlicerConfigurator
 
 					if (evt.widget == _forwardSlice) {
 						_value = SlicingEngine.FORWARD_SLICE;
+                        executableSliceButton.setSelection(false);
+                        executableSliceButton.notifyListeners(SWT.Selection, null);
 						executableSliceButton.setEnabled(false);
 					} else {
 						if (evt.widget == _backwardSlice) {
