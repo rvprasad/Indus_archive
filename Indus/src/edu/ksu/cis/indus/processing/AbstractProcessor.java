@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.processing;
 
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
+
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -31,7 +32,8 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractProcessor extends AbstractStatus
+public abstract class AbstractProcessor
+  extends AbstractStatus
   implements IProcessor {
 	/**
 	 * Does nothing.
@@ -93,13 +95,15 @@ public abstract class AbstractProcessor extends AbstractStatus
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/07/11 09:42:15  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.7  2004/02/24 22:25:56  venku
    - documentation
-
    Revision 1.6  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.5  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

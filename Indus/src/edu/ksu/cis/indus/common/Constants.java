@@ -40,7 +40,7 @@ public final class Constants {
 	/** 
 	 * This is the name of the property via which the constants properties file can be specified.
 	 */
-	public static String CONSTANTS_CONFIGURATION_FILE = "indus.constant.configuration.properties.file";
+	public static final String CONSTANTS_CONFIGURATION_FILE = "indus.constant.configuration.properties.file";
 
 	///CLOVER:ON
 
@@ -66,7 +66,7 @@ public final class Constants {
 	/** 
 	 * This constant serves as the key for the value corresponding to the number of methods in the system.
 	 */
-	private static String NUM_OF_METHODS_IN_APPLICATION = "NumOfMethodsInApplication";
+	private static final String NUM_OF_METHODS_IN_APPLICATION = "NumOfMethodsInApplication";
 
 	/** 
 	 * This is the default for the number of classes in the system.
@@ -76,7 +76,7 @@ public final class Constants {
 	/** 
 	 * This constant serves as the key for the value corresponding to the number of classes in the system.
 	 */
-	private static String NUM_OF_CLASSES_IN_APPLICATION = "NumOfClassesInApplication";
+	private static final String NUM_OF_CLASSES_IN_APPLICATION = "NumOfClassesInApplication";
 
 	/** 
 	 * This is the default for the number of classes in the system.
@@ -86,7 +86,7 @@ public final class Constants {
 	/** 
 	 * This constant serves as the key for the value corresponding to the number of fields in the system.
 	 */
-	private static String NUM_OF_FIELDS_IN_APPLICATION = "NumOfFieldsInApplication";
+	private static final String NUM_OF_FIELDS_IN_APPLICATION = "NumOfFieldsInApplication";
 
 	/** 
 	 * This is the default for the number of fields in the system.
@@ -101,6 +101,8 @@ public final class Constants {
 	private Constants() {
 	}
 
+	///CLOVER:ON
+	 
 	/**
 	 * Returns the approximate number of classes that the application may contain.  This defaults to 1000.
 	 *
@@ -167,4 +169,7 @@ public final class Constants {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/08/08 10:11:39  venku
+   - added a new class to configure constants used when creating data structures.
+   - ripple effect.
  */

@@ -32,8 +32,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.collections.Predicate;
 
 
 /**
@@ -814,6 +812,9 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/08/09 10:13:58  venku
+   - added features to find SCCs and cycles in a given set of nodes.
+
    Revision 1.24  2004/08/07 04:15:23  venku
    - deleted a redundant check.
    Revision 1.23  2004/08/02 07:33:47  venku

@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This is an abstract implementation of ITool which the concrete implementations are encouraged to extend.
  *
- * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
  * @author $Author$
  * @version $Revision$
  */
@@ -48,15 +48,14 @@ public abstract class AbstractTool
 	protected final Object control = new Object();
 
 	/** 
-	 * This is the configuration information associated with this tool instance.  Subclasses should provide a valid
-	 * reference.
+	 * This is the configuration information associated with this tool instance. Subclasses should provide a valid reference.
 	 *
 	 * @invariant configurationInfo != null
 	 */
 	protected IToolConfiguration configurationInfo;
 
 	/** 
-	 * This is the configurator associated with this tool instance.  Subclasses should provide a valid reference.
+	 * This is the configurator associated with this tool instance. Subclasses should provide a valid reference.
 	 *
 	 * @invariant configurator != null
 	 */
@@ -87,12 +86,12 @@ public abstract class AbstractTool
 	/** 
 	 * This is the number of messages that have been accepted for delivery.
 	 */
-	int messageId = 0;
+	int messageId;
 
 	/** 
 	 * This is the number of the message to be delivered next.
 	 */
-	int token = 0;
+	int token;
 
 	/**
 	 * Retrieves an object that represents the active configuration of the tool.
@@ -113,7 +112,7 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Retrieves an editor which enables the user to edit the configuration of the tool.  This can return <code>null</code>,
+	 * Retrieves an editor which enables the user to edit the configuration of the tool. This can return <code>null</code>,
 	 * if the tool does not have a configurationCollection to edit which is seldom the case.
 	 *
 	 * @return a configurationCollection editor.
@@ -133,9 +132,9 @@ public abstract class AbstractTool
 	 * @see edu.ksu.cis.indus.tools.ITool#addToolProgressListener(edu.ksu.cis.indus.tools.IToolProgressListener)
 	 */
 	public void addToolProgressListener(final IToolProgressListener listener) {
-	    synchronized(listener) {
-	        listeners.add(listener);
-	    }
+		synchronized (listener) {
+			listeners.add(listener);
+		}
 	}
 
 	/**
@@ -149,9 +148,9 @@ public abstract class AbstractTool
 	 * @see edu.ksu.cis.indus.tools.ITool#removeToolProgressListener(edu.ksu.cis.indus.tools.IToolProgressListener)
 	 */
 	public void removeToolProgressListener(final IToolProgressListener listener) {
-	    synchronized(listener) {
-	        listeners.remove(listener);
-	    }
+		synchronized (listener) {
+			listeners.remove(listener);
+		}
 	}
 
 	/**
@@ -163,9 +162,9 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Executes the tool. The tool is multithreaded.  However, the user can run it in asynchronous mode.  In asynchronous
-	 * mode, if tool fails, any subsequent calls to <code>isStable()</code> until a following call to <code>run()</code>
-	 * will return  <code>false</code>.
+	 * Executes the tool. The tool is multithreaded. However, the user can run it in asynchronous mode. In asynchronous mode,
+	 * if tool fails, any subsequent calls to <code>isStable()</code> until a following call to <code>run()</code> will
+	 * return <code>false</code>.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
 	 * @param synchronous <code>true</code> indicates that this method should behave synchronously and return only after the
@@ -239,8 +238,8 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Checks if the tool can be configured as per the given configuration.  Subclasses must override this method and throw
-	 * an <code>IllegalStateException</code> if the tool cannot be configured.
+	 * Checks if the tool can be configured as per the given configuration. Subclasses must override this method and throw an
+	 * <code>IllegalStateException</code> if the tool cannot be configured.
 	 *
 	 * @throws ToolConfigurationException when the tool cannot be configured according to the configuration.
 	 */
@@ -259,55 +258,55 @@ public abstract class AbstractTool
 	  throws InterruptedException;
 
 	/**
-	 * Reports the given tool progress information to any registered listeners.  The listeners will receive the events in
-	 * the order they were fired.
+	 * Reports the given tool progress information to any registered listeners. The listeners will receive the events in the
+	 * order they were fired.
 	 *
 	 * @param message about the progress of the tool.
 	 * @param info anything the tool may want to convey to the listener.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException is thrown by the message delivery thread when it is interrupted. 
 	 *
 	 * @pre message != null and info != null
 	 */
 	protected void fireToolProgressEvent(final String message, final Object info) {
-	    synchronized(listeners) {
-		final ToolProgressEvent _evt = new ToolProgressEvent(this, message, info);
-		final Collection _listenersList = (Collection) ((HashSet) listeners).clone();
-		final Thread _t =
-			new Thread() {
-				private final int msgId = messageId++;
+		synchronized (listeners) {
+			final ToolProgressEvent _evt = new ToolProgressEvent(this, message, info);
+			final Collection _listenersList = (Collection) ((HashSet) listeners).clone();
+			final Thread _t =
+				new Thread() {
+					private final int msgId = messageId++;
 
-				public void run() {
-					synchronized (listeners) {
-						while (token != msgId) {
-							try {
-							    listeners.wait();
-							} catch (final InterruptedException _e) {
-								LOGGER.fatal("Thread interrupted.  Message will not be delivered - " + _evt, _e);
-								token++;
-								throw new RuntimeException(_e);
+					public void run() {
+						synchronized (listeners) {
+							while (token != msgId) {
+								try {
+									listeners.wait();
+								} catch (final InterruptedException _e) {
+									LOGGER.fatal("Thread interrupted.  Message will not be delivered - " + _evt, _e);
+									token++;
+									throw new RuntimeException(_e);
+								}
 							}
 						}
-					}
 
-					for (final Iterator _iter = _listenersList.iterator(); _iter.hasNext();) {
-						final IToolProgressListener _listener = (IToolProgressListener) _iter.next();
-						_listener.toolProgess(_evt);
-					}
+						for (final Iterator _iter = _listenersList.iterator(); _iter.hasNext();) {
+							final IToolProgressListener _listener = (IToolProgressListener) _iter.next();
+							_listener.toolProgess(_evt);
+						}
 
-					synchronized (listeners) {
-						token++;
-						listeners.notifyAll();
+						synchronized (listeners) {
+							token++;
+							listeners.notifyAll();
+						}
 					}
-				}
-			};
-		_t.start();
-	    }
+				};
+			_t.start();
+		}
 	}
 
 	/**
 	 * Used to suspend the tool execution. This indicates that the tool implementation is moving onto a new phase, hence, it
-	 * is at a point where it is safe to  pause/suspend execution.  If the application had requested the tool to pause via
+	 * is at a point where it is safe to pause/suspend execution. If the application had requested the tool to pause via
 	 * <code>pause()</code>, this method will suspend the execution of the tool.
 	 *
 	 * @throws InterruptedException when the thread in which the tool has paused is interrupted.
@@ -330,94 +329,41 @@ public abstract class AbstractTool
 }
 
 /*
-   ChangeLog:
-   $Log$
-   Revision 1.26  2004/08/12 02:48:58  venku
-   - catered feature request #411.
-
-   Revision 1.25  2004/07/20 00:30:30  venku
-   - added a new exception to be thrown when configuration fails.
-   Revision 1.24  2004/07/11 09:42:15  venku
-   - Changed the way status information was handled the library.
-     - Added class AbstractStatus to handle status related issues while
-       the implementations just announce their status.
-   Revision 1.23  2004/05/11 19:16:47  venku
-   The logic to spawn a thread and wait on it to finish was incorrect.  It led
-   to race condition.  FIXED.
-   Revision 1.22  2004/02/27 09:40:45  venku
-   - documentation.
-   Revision 1.21  2004/02/23 03:04:53  venku
-   - synchronization issues in the tool.
-   Revision 1.20  2004/02/17 05:43:57  venku
-   - we do not want to catch errors but only exceptions. FIXED.
-   Revision 1.19  2004/01/27 15:19:21  venku
-   - coding convention.
-   Revision 1.18  2004/01/25 09:07:18  venku
-   - coding convention.
-   Revision 1.17  2004/01/16 22:11:47  venku
-   - join does not relinquish the lock.  Hence, a new solution
-     to communicate the death of the child thread has been
-     implemented.
-   Revision 1.16  2004/01/13 10:01:35  venku
-   - added a provision for the tool to check if it can be configured
-     according to the given configuration.
-   Revision 1.15  2004/01/08 23:55:34  venku
-   - documentation.
-   Revision 1.14  2004/01/08 23:51:34  venku
-   - exceptions in child thread were not being communicated to
-     the parent thread.  Now, the parent thread will know about
-     such exceptions while doing synchronous runs.  However,
-     on asynchronous runs, if the child thread fails, subsequent
-     calls to isStable() until a following call to run() will return false.
-   Revision 1.13  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.12  2003/12/09 12:18:18  venku
-   - added support to control synchronicity of method runs.
-   Revision 1.11  2003/12/02 11:47:19  venku
-   - raised the tool to an interface ITool.
-   Revision 1.10  2003/12/02 11:31:57  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-   Revision 1.9  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.8  2003/12/02 01:30:59  venku
-   - coding conventions and formatting.
-   Revision 1.7  2003/11/17 17:56:25  venku
-   - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
-     way to intialize the tool independent of how it's dependent
-     parts (such as configuration) were instantiated and intialized.
-   Revision 1.6  2003/11/17 01:46:38  venku
-   - documented the support to query stability information.
-   Revision 1.5  2003/11/15 21:54:24  venku
-   - added support to query status of tool.
-   Revision 1.4  2003/11/15 21:26:08  venku
-   - removed initialize() method as it was not used.
-   Revision 1.3  2003/11/09 05:18:16  venku
-   - changed destringizeConfiguraiton() method to inform
-     the caller if the given information was used to construct the
-     configuration or not.
-   Revision 1.2  2003/10/19 20:29:03  venku
-   - access specifier on pause.
-   Revision 1.1  2003/09/26 23:46:58  venku
-   - Renamed Tool to AbstractTool
-   - Renamed ToolConfiguration to AbstractToolConfiguration
-   - Renamed ToolConfigurator to AbstractToolConfigurator
-   Revision 1.5  2003/09/26 15:00:01  venku
-   - The configuration of tools in Indus has been placed in this package.
-   - Formatting.
-   Revision 1.4  2003/09/26 13:58:43  venku
-   - checkpoint commit.
-   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
-   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
-   Revision 1.3  2003/09/26 05:56:10  venku
-   - a checkpoint commit.
-   Revision 1.2  2003/09/24 07:03:02  venku
-   - Renamed ToolConfigurationEditor to AbstractToolConfigurator.
-   - Added property id creation support, via factory method, to AbstractToolConfiguration.
-   - Changed the interface in AbstractTool.
-   Revision 1.1  2003/09/24 02:38:55  venku
-   - Added Interfaces to expose the components of Indus as a
-     tool and configure it.
+ * ChangeLog: $Log$ Revision 1.27 2004/08/12 03:34:56 venku - notification was missing for the waits()
+ * in progress event indicator. FIXED.
+ *
+ * Revision 1.26 2004/08/12 02:48:58 venku - catered feature request #411.
+ *
+ * Revision 1.25 2004/07/20 00:30:30 venku - added a new exception to be thrown when configuration fails. Revision 1.24
+ * 2004/07/11 09:42:15 venku - Changed the way status information was handled the library. - Added class AbstractStatus to
+ * handle status related issues while the implementations just announce their status. Revision 1.23 2004/05/11 19:16:47 venku
+ * The logic to spawn a thread and wait on it to finish was incorrect. It led to race condition. FIXED. Revision 1.22
+ * 2004/02/27 09:40:45 venku - documentation. Revision 1.21 2004/02/23 03:04:53 venku - synchronization issues in the tool.
+ * Revision 1.20 2004/02/17 05:43:57 venku - we do not want to catch errors but only exceptions. FIXED. Revision 1.19
+ * 2004/01/27 15:19:21 venku - coding convention. Revision 1.18 2004/01/25 09:07:18 venku - coding convention. Revision 1.17
+ * 2004/01/16 22:11:47 venku - join does not relinquish the lock. Hence, a new solution to communicate the death of the child
+ * thread has been implemented. Revision 1.16 2004/01/13 10:01:35 venku - added a provision for the tool to check if it can be
+ * configured according to the given configuration. Revision 1.15 2004/01/08 23:55:34 venku - documentation. Revision 1.14
+ * 2004/01/08 23:51:34 venku - exceptions in child thread were not being communicated to the parent thread. Now, the parent
+ * thread will know about such exceptions while doing synchronous runs. However, on asynchronous runs, if the child thread
+ * fails, subsequent calls to isStable() until a following call to run() will return false. Revision 1.13 2003/12/13 02:28:53
+ * venku - Refactoring, documentation, coding convention, and formatting. Revision 1.12 2003/12/09 12:18:18 venku - added
+ * support to control synchronicity of method runs. Revision 1.11 2003/12/02 11:47:19 venku - raised the tool to an interface
+ * ITool. Revision 1.10 2003/12/02 11:31:57 venku - Added Interfaces for ToolConfiguration and ToolConfigurator. - coding
+ * convention and formatting. Revision 1.9 2003/12/02 09:42:25 venku - well well well. coding convention and formatting
+ * changed as a result of embracing checkstyle 3.2 Revision 1.8 2003/12/02 01:30:59 venku - coding conventions and formatting.
+ * Revision 1.7 2003/11/17 17:56:25 venku - reinstated initialize() method in AbstractTool and SlicerTool. It provides a neat
+ * way to intialize the tool independent of how it's dependent parts (such as configuration) were instantiated and intialized.
+ * Revision 1.6 2003/11/17 01:46:38 venku - documented the support to query stability information. Revision 1.5 2003/11/15
+ * 21:54:24 venku - added support to query status of tool. Revision 1.4 2003/11/15 21:26:08 venku - removed initialize()
+ * method as it was not used. Revision 1.3 2003/11/09 05:18:16 venku - changed destringizeConfiguraiton() method to inform the
+ * caller if the given information was used to construct the configuration or not. Revision 1.2 2003/10/19 20:29:03 venku -
+ * access specifier on pause. Revision 1.1 2003/09/26 23:46:58 venku - Renamed Tool to AbstractTool - Renamed
+ * ToolConfiguration to AbstractToolConfiguration - Renamed ToolConfigurator to AbstractToolConfigurator Revision 1.5
+ * 2003/09/26 15:00:01 venku - The configuration of tools in Indus has been placed in this package. - Formatting. Revision 1.4
+ * 2003/09/26 13:58:43 venku - checkpoint commit. - Renamed ToolConfigurationCollection to CompositeToolConfiguration -
+ * Renamed CollectiveToolConfigurator to CompositeToolConfigurator Revision 1.3 2003/09/26 05:56:10 venku - a checkpoint
+ * commit. Revision 1.2 2003/09/24 07:03:02 venku - Renamed ToolConfigurationEditor to AbstractToolConfigurator. - Added
+ * property id creation support, via factory method, to AbstractToolConfiguration. - Changed the interface in AbstractTool.
+ * Revision 1.1 2003/09/24 02:38:55 venku - Added Interfaces to expose the components of Indus as a tool and configure it.
  */
