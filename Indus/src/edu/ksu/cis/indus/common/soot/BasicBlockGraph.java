@@ -183,7 +183,7 @@ public final class BasicBlockGraph
 		 * 		 getStmtGraph().getBody().getUnits().indexOf(start) > sgetStmtGraph().getBody().getUnits().indexOf(end))
 		 * 		 implies (result.size() = 0)
 		 */
-		public List getStmtFromTo(final Stmt start, final Stmt end) {
+		public List getStmtsFromTo(final Stmt start, final Stmt end) {
 			final List _result;
 			final int _startIndex = stmtList.indexOf(start);
 			final int _endIndex = stmtList.indexOf(end);
@@ -211,7 +211,7 @@ public final class BasicBlockGraph
 		 * 		 getStmtGraph().getBody().getUnits().indexOf(start) > trailer) implies (result.size() = 0)
 		 */
 		public List getStmtsFrom(final Stmt start) {
-			return getStmtFromTo(start, trailerStmt);
+			return getStmtsFromTo(start, trailerStmt);
 		}
 
 		/**
@@ -492,6 +492,10 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/08/09 08:49:41  venku
+   - add() versus addAll() error. FIXED.
+   - renamed getEnclosedBasicBlocks() as getEnclosingBasicBlocks().
+
    Revision 1.8  2004/08/06 08:40:44  venku
    - added logging statement for getEnclosingBlock() method.
 

@@ -192,7 +192,7 @@ public final class AliasedUseDefInfov2
 		if (forward) {
 			_bbDefStmts = _bbDef.getStmtsFrom(stmt);
 		} else {
-			_bbDefStmts = _bbDef.getStmtFromTo(_bbDef.getLeaderStmt(), stmt);
+			_bbDefStmts = _bbDef.getStmtsFromTo(_bbDef.getLeaderStmt(), stmt);
 		}
 
 		for (final Iterator _j =
@@ -258,6 +258,10 @@ public final class AliasedUseDefInfov2
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/08/11 09:22:44  venku
+   - changed the method name in the subclass but not in the parent :-) FIXED.
+   - the way we decided on exploring various paths in v2 was not incorrect.  FIXED.
+
    Revision 1.5  2004/08/07 13:16:56  venku
    - documentation
    - if tgi is absent, occursInSameThread() should return true. FIXED.
