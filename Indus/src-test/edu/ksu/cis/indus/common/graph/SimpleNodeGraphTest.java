@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +48,11 @@ public class SimpleNodeGraphTest
 	 * @invariant dg = sng
 	 */
 	protected SimpleNodeGraph sng;
+
+	/** 
+	 * The number of cycles in the graph being tested.
+	 */
+	protected int numberOfCycles;
 
 	/**
 	 * Tests <code>getNode</code> method.
@@ -144,6 +148,8 @@ public class SimpleNodeGraphTest
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("f"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("h"), (SimpleNode) name2node.get("h"));
 		setSNG(_sng);
+
+		numberOfCycles = 4;
 	}
 
 	/**
@@ -217,12 +223,7 @@ public class SimpleNodeGraphTest
 	 */
 	protected void localtestGetCycles() {
 		final Collection _cycles = dg.getCycles();
-        assertFalse(_cycles.isEmpty());
-		final List _cycle = new ArrayList();
-		_cycle.add(this.sng.getNode("a"));
-		_cycle.add(this.sng.getNode("b"));
-		_cycle.add(this.sng.getNode("e"));
-		assertTrue(_cycles.contains(_cycle));
+		assertTrue(_cycles.size() == numberOfCycles);
 	}
 
 	/**

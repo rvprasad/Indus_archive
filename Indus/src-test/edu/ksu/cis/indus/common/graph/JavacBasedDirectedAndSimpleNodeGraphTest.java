@@ -64,6 +64,8 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("b"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("b"));
 		setSNG(_sng);
+		
+		numberOfCycles = 2;
 	}
 
 	/**

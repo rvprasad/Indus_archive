@@ -90,6 +90,8 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("c"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("b"));
 		setSNG(_sng);
+		
+		numberOfCycles = 2;
 	}
 
 	/**

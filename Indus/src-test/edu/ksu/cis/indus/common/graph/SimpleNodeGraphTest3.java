@@ -68,6 +68,8 @@ public class SimpleNodeGraphTest3
 		_sng.addEdgeFromTo((INode) name2node.get("d"), (INode) name2node.get("b"));
 		_sng.addEdgeFromTo((INode) name2node.get("b"), (INode) name2node.get("e"));
 		setSNG(_sng);
+		
+		numberOfCycles = 1;
 	}
 
 	/**
