@@ -116,11 +116,9 @@ public final class SimpleNodeGraph
 	 */
 	public INode getNode(final Object o) {
 		if (o == null) {
-            ///CLOVER:OFF
 			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("object to be represented cannot be null.");
 			}
-            ///CLOVER:ON
 			throw new NullPointerException("object to be represented cannot be null.");
 		}
 
@@ -155,6 +153,11 @@ public final class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/30 09:12:50  venku
+   - added clover source directives.
+   - size() was concretized in AbstractDirectedGraph.  So,
+     got deleted here.
+
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
