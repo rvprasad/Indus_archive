@@ -302,11 +302,11 @@ public class SlicingEngine {
 			AbstractSliceCriterion work = (AbstractSliceCriterion) workbag.getWork();
 
 			if (work instanceof SliceExpr) {
-				sliceExpr((SliceExpr) work);
+				transformAndGenerateNewCriteriaForExpr((SliceExpr) work);
 			} else if (work instanceof SliceStmt) {
 				SliceStmt temp = (SliceStmt) work;
 				SootMethod sm = temp.getOccurringMethod();
-				sliceStmt((Stmt) temp.getCriterion(), sm, temp.isIncluded());
+				transformAndGenerateNewCriteriaForStmt((Stmt) temp.getCriterion(), sm, temp.shouldConsiderExecution());
 			}
 			work.sliced();
 		}
@@ -322,7 +322,7 @@ public class SlicingEngine {
 	 * @param method DOCUMENT ME!
 	 * @param das DOCUMENT ME!
 	 */
-	private void createNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
+	private void generateNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
 		Collection newCriteria = new HashSet();
 
 		if (sliceType.equals(COMPLETE_SLICE)) {
@@ -367,6 +367,61 @@ public class SlicingEngine {
 	}
 
 	/**
+	 * Generates new slice criteria based on the specified dependence.
+	 *
+	 * @param stmt in which expression which leads to dependence occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param dependenceId identifies the dependence based on which the slice criteria should be generated.
+	 *
+	 * @pre stmt != null and method != null and dependenceId != null
+	 */
+	private void generateNewCriteriaBasedOnDependence(final Stmt stmt, final SootMethod method, final Object dependenceId) {
+		Collection das = controller.getAnalyses(dependenceId);
+
+		if (!das.isEmpty()) {
+			generateNewCriteria(stmt, method, das);
+		}
+	}
+
+	/**
+	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression.  By nature of
+	 * Jimple, only one invoke expression can occur in a statement, hence, the arguments.
+	 *
+	 * @param stmt in which the field occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre stmt != null and method != null
+	 * @pre stmt.containsInvokeExpr() == true
+	 */
+	private void generateNewCriteriaForInvocation(final Stmt stmt, final SootMethod method) {
+		InvokeExpr expr = stmt.getInvokeExpr();
+		Context context = new Context();
+		context.setRootMethod(method);
+		context.setStmt(stmt);
+
+		// add exit points of callees as the slice criteria
+		for (Iterator i = cgi.getCallees(expr, context).iterator(); i.hasNext();) {
+			SootMethod callee = (SootMethod) i.next();
+			BasicBlockGraph bbg = slicedBBGMgr.getBasicBlockGraph(callee);
+
+			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
+				BasicBlock bb = (BasicBlock) j.next();
+				Stmt trailer = bb.getTrailerStmt();
+
+				if (transformer.getTransformed(stmt, method) == null) {
+					SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
+					sliceCriterion.initialize(callee, trailer, true);
+					workbag.addWorkNoDuplicates(sliceCriterion);
+				}
+			}
+		}
+
+		if (useReady) {
+			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
+		}
+	}
+
+	/**
 	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
 	 *
 	 * @param pBox is the parameter reference to be sliced on.
@@ -374,7 +429,7 @@ public class SlicingEngine {
 	 *
 	 * @pre pBox != null and method != null
 	 */
-	private void createNewCriteriaForParam(final ValueBox pBox, final SootMethod method) {
+	private void generateNewCriteriaForParam(final ValueBox pBox, final SootMethod method) {
 		/*
 		 * Note that this will cause us to include all caller sites as slicing criteria which may not be what the user
 		 * intended.
@@ -411,20 +466,33 @@ public class SlicingEngine {
 	}
 
 	/**
-	 * Generates new slice criteria based on the specified dependence.
+	 * Transforms the given value boxes and generates new slice criteria based on what affects the given occurrence of the
+	 * value boxes.
 	 *
-	 * @param stmt in which expression which leads to dependence occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param dependenceId identifies the dependence based on which the slice criteria should be generated.
+	 * @param vBoxes is collection of value boxes.
+	 * @param stmt is the statement in which <code>vBoxes</code> occur.
+	 * @param method is the method in which <code>stmt</code> occurs.
 	 *
-	 * @pre stmt != null and method != null and dependenceId != null
+	 * @pre vBoxes != null and stmt != null and method != null
+	 * @pre vBoxes.oclIsKindOf(Collection(ValueBoxes)) and stmt.getUseAndDefBoxes().containsAll(vBoxes)
 	 */
-	private void sliceBasedOnThisDependence(final Stmt stmt, final SootMethod method, final Object dependenceId) {
-		Collection das = controller.getAnalyses(dependenceId);
+	private void transformAndGenerateCriteriaForVBoxes(final Collection vBoxes, final Stmt stmt, final SootMethod method) {
+		Collection das = controller.getAnalyses(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 
-		if (!das.isEmpty()) {
-			createNewCriteria(stmt, method, das);
+		for (Iterator i = vBoxes.iterator(); i.hasNext();) {
+			ValueBox vBox = (ValueBox) i.next();
+
+			if (transformer.getTransformed(vBox, stmt, method) == null) {
+				transformer.transform(vBox, stmt, method);
+
+				if (vBox.getValue() instanceof ParameterRef) {
+					generateNewCriteriaForParam(vBox, method);
+				}
+			}
 		}
+
+		// create new slice criteria
+		generateNewCriteria(stmt, method, das);
 	}
 
 	/**
@@ -435,127 +503,75 @@ public class SlicingEngine {
 	 * @pre sExpr != null and sExpr.getOccurringStmt() != null and sExpr.getOccurringMethod() != null
 	 * @pre sExpr.getCriterion() != null and sExpr.getCriterion().oclIsKindOf(ValueBox)
 	 */
-	private void sliceExpr(final SliceExpr sExpr) {
+	private void transformAndGenerateNewCriteriaForExpr(final SliceExpr sExpr) {
 		Stmt stmt = sExpr.getOccurringStmt();
 		SootMethod method = sExpr.getOccurringMethod();
 		ValueBox expr = (ValueBox) sExpr.getCriterion();
 
 		if (!transformer.handlesPartialInclusions()) {
-			sliceStmt(stmt, method, true);
+			transformAndGenerateNewCriteriaForStmt(stmt, method, true);
 		} else {
 			Value value = expr.getValue();
+			transformAndGenerateCriteriaForVBoxes(value.getUseBoxes(), stmt, method);
+			// include the statement to capture control dependency
+			transformAndGenerateNewCriteriaForStmt(stmt, method, false);
 
 			if (value instanceof InvokeExpr) {
-				sliceInvokeExpr(stmt, method);
+				generateNewCriteriaForInvocation(stmt, method);
 			} else if (value instanceof FieldRef || value instanceof ArrayRef) {
-				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
-				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
+				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
+				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
 			}
-			sliceValueBoxes(value.getUseBoxes(), stmt, method);
-			// include the statement to capture control dependency
-			sliceStmt(stmt, method, false);
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Sliced : " + stmt + " [" + sExpr.shouldConsiderExecution() + "] | " + method);
 		}
 	}
 
 	/**
-	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression.  By nature of
-	 * Jimple, only one invoke expression can occur in a statement, hence, the arguments.
-	 *
-	 * @param stmt in which the field occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 *
-	 * @pre stmt != null and method != null
-	 * @pre stmt.containsInvokeExpr() == true
-	 */
-	private void sliceInvokeExpr(final Stmt stmt, final SootMethod method) {
-		InvokeExpr expr = stmt.getInvokeExpr();
-		Context context = new Context();
-		context.setRootMethod(method);
-		context.setStmt(stmt);
-
-		// add exit points of callees as the slice criteria
-		for (Iterator i = cgi.getCallees(expr, context).iterator(); i.hasNext();) {
-			SootMethod callee = (SootMethod) i.next();
-			BasicBlockGraph bbg = slicedBBGMgr.getBasicBlockGraph(callee);
-
-			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
-				BasicBlock bb = (BasicBlock) j.next();
-				Stmt trailer = bb.getTrailerStmt();
-
-				if (transformer.getTransformed(stmt, method) == null) {
-					SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
-					sliceCriterion.initialize(callee, trailer, true);
-					workbag.addWorkNoDuplicates(sliceCriterion);
-				}
-			}
-		}
-
-		if (useReady) {
-			sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.READY_DA);
-		}
-	}
-
-	/**
-	 * Generates immediate slice for the given statement and method.
+	 * Transforms the given statement and Generates new criteria.
 	 *
 	 * @param stmt is the statement-level slice criterion.
 	 * @param method is the method in which <code>stmt</code> occurs.
-	 * @param inclusive <code>true</code> if all entities in <code>stmt</code> should be included in the slice;
-	 * 		  <code>false</code>, otherwise.
+	 * @param considerExecution <code>true</code> indicates that the effect of executing this criterion should be considered
+	 * 		  while slicing.  This means all the expressions of the associated statement are also considered as slice
+	 * 		  criteria. <code>false</code> indicates that just the mere effect of the control reaching this criterion should
+	 * 		  be considered while slicing.  This means none of the expressions of the associated statement are considered as
+	 * 		  slice criteria.
 	 */
-	private void sliceStmt(final Stmt stmt, final SootMethod method, final boolean inclusive) {
-		if (inclusive) {
-			if (stmt.containsInvokeExpr()) {
-				sliceInvokeExpr(stmt, method);
-			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
-				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
-				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
-			} else if (useReady && (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt)) {
-				sliceBasedOnThisDependence(stmt, method, DependencyAnalysis.READY_DA);
-			}
-
-			sliceValueBoxes(stmt.getUseAndDefBoxes(), stmt, method);
+	private void transformAndGenerateNewCriteriaForStmt(final Stmt stmt, final SootMethod method,
+		final boolean considerExecution) {
+		if (considerExecution) {
+			transformAndGenerateCriteriaForVBoxes(stmt.getUseAndDefBoxes(), stmt, method);
 			transformer.transform(stmt, method);
-		}
 
-		// create new slice criteria
-		createNewCriteria(stmt, method, intraProceduralDependencies);
-	}
-
-	/**
-	 * Generates slice based on the given value boxes and generates new slice criteria based on what affects the given
-	 * occurrence of the value boxes.
-	 *
-	 * @param vBoxes is collection of value boxes.
-	 * @param stmt is the statement in which <code>vBoxes</code> occur.
-	 * @param method is the method in which <code>stmt</code> occurs.
-	 *
-	 * @pre vBoxes != null and stmt != null and method != null
-	 * @pre vBoxes.oclIsKindOf(Collection(ValueBoxes)) and stmt.getUseAndDefBoxes().containsAll(vBoxes)
-	 */
-	private void sliceValueBoxes(final Collection vBoxes, final Stmt stmt, final SootMethod method) {
-		Collection das = controller.getAnalyses(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
-
-		for (Iterator i = vBoxes.iterator(); i.hasNext();) {
-			ValueBox vBox = (ValueBox) i.next();
-
-			if (transformer.getTransformed(vBox, stmt, method) == null) {
-				transformer.transform(vBox, stmt, method);
-
-				if (vBox.getValue() instanceof ParameterRef) {
-					createNewCriteriaForParam(vBox, method);
-				}
+			if (stmt.containsInvokeExpr()) {
+				generateNewCriteriaForInvocation(stmt, method);
+			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
+				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
+				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
+			} else if (useReady && (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt)) {
+				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
 			}
 		}
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Sliced : " + stmt + " [" + considerExecution + "] | " + method);
+		}
+
 		// create new slice criteria
-		createNewCriteria(stmt, method, das);
+		generateNewCriteria(stmt, method, intraProceduralDependencies);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/03 08:19:56  venku
+   - Major changes
+     value boxes are the atomic entities in a slice.
+     code restructuring.
    Revision 1.2  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete
