@@ -183,10 +183,10 @@ public class ReferenceBasedDataDA
 	  throws InitializationException {
 		super.setup();
 
-		aliasedUD = (IUseDefInfo) info.get(IUseDefInfo.ID);
+		aliasedUD = (IUseDefInfo) info.get(IUseDefInfo.ALIASED_USE_DEF_ID);
 
 		if (aliasedUD == null) {
-			throw new InitializationException(IUseDefInfo.ID + " was not provided.");
+			throw new InitializationException(IUseDefInfo.ALIASED_USE_DEF_ID + " was not provided.");
 		}
 	}
 }
@@ -194,6 +194,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/07/11 23:34:03  venku
+   -
+    coding conventions.
    Revision 1.26  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while

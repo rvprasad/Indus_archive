@@ -21,6 +21,8 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
+
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -52,7 +54,8 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class LocalUseDefAnalysis {
+public final class LocalUseDefAnalysis
+  implements IUseDefInfo {
 	/** 
 	 * A map from local and statement pair to a collection of def statement.
 	 *
@@ -107,43 +110,63 @@ public final class LocalUseDefAnalysis {
 	 *
 	 * @param local variable.
 	 * @param stmt in which <code>local</code> occurs.
+	 * @param context <i>ignored</i>.
 	 *
 	 * @return a collection of def statements.
 	 *
 	 * @pre local != null and stmt != null
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
 	 */
-	public Collection getDefsOf(final Local local, final Stmt stmt) {
+	public Collection getDefs(final Local local, final Stmt stmt, final Object context) {
 		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(defInfo, new Pair(local, stmt),
 				Collections.EMPTY_LIST));
 	}
 
 	/**
-	 * Retrieves the definitions of local at the statement encapsulated in <code>losalStmtPair</code>.
+	 * {@inheritDoc}
 	 *
-	 * @param localStmtPair is a pair consisting of a <code>Local</code> and a <code>Stmt</code> in which the local occurs.
-	 *
-	 * @return a collection of def statements.
-	 *
-	 * @pre localStmtPair != null
-	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
+	 * @param context <i>ignored</i>.
 	 */
-	public Collection getDefsOf(final Pair localStmtPair) {
-		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(defInfo, localStmtPair,
-				Collections.EMPTY_LIST));
+	public Collection getDefs(final Stmt useStmt, final Object context) {
+		final Collection _result = new HashSet();
+
+		for (final Iterator _i = useStmt.getUseBoxes().iterator(); _i.hasNext();) {
+			final ValueBox _vb = (ValueBox) _i.next();
+			final Value _value = _vb.getValue();
+
+			if (_value instanceof Local) {
+				_result.addAll(getDefs((Local) _value, useStmt, null));
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
+	 */
+	public Object getId() {
+		return IUseDefInfo.LOCAL_USE_DEF_ID;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
+	 */
+	public boolean isStable() {
+		return true;
 	}
 
 	/**
 	 * Retrieves the uses of definitions at <code>stmt</code>.
 	 *
 	 * @param stmt in which a definition occurs.
+	 * @param context <i>ignored</i>.
 	 *
 	 * @return a collection of statements.
 	 *
 	 * @pre stmt != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
-	public Collection getUsesOf(final Stmt stmt) {
+	public Collection getUses(final DefinitionStmt stmt, final Object context) {
 		return (Collection) MapUtils.getObject(useInfo, stmt, Collections.EMPTY_LIST);
 	}
 
@@ -305,6 +328,9 @@ public final class LocalUseDefAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
    Revision 1.4  2004/06/24 06:27:48  venku
    - previous performance improvement was buggy. FIXED.
    Revision 1.3  2004/06/23 05:05:21  venku

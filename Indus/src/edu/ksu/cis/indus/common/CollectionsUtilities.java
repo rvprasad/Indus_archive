@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -301,6 +302,34 @@ public final class CollectionsUtilities {
 	}
 
 	/**
+	 * Inverts the given map.  In the returned map, each key is mapped to a collection.  This is to address situation where
+	 * multiple keys may map to the same value in the given map.
+	 *
+	 * @param map to be inverted.
+	 *
+	 * @return the inverted map.
+	 *
+	 * @pre map != null
+	 * @post result != null
+	 * @post map.values().containsAll(result.keySet())
+	 * @post result.keySet().containsAll(map.values())
+	 * @post result.values()->forall(o | map.keySet().containsAll(o))
+	 * @post map.keySet()->forall(o | result.values()->exists(p | p.contains(o)))
+	 */
+	public static Map invertMap(final Map map) {
+		final Map _result = new HashMap();
+		final Collection _values = map.keySet();
+		final Iterator _i = _values.iterator();
+		final int _iEnd = _values.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Object _key = _i.next();
+			CollectionsUtilities.getListFromMap(_result, map.get(_key)).add(_key);
+		}
+		return _result;
+	}
+
+	/**
 	 * Puts all values in <code>values</code> into the value of the given key in the given map .  If no collection exists
 	 * against the  given key, the given collection is installed as the value for the given key and the values are loaded
 	 * into it.
@@ -414,6 +443,9 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/07/17 23:32:19  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
    Revision 1.8  2004/07/11 11:05:04  venku
    - added new specialized method to CollectionsUtilities.
    - used the above method in DivergenceDA.

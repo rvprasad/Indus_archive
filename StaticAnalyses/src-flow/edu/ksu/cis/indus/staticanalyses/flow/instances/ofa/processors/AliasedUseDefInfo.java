@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
-import edu.ksu.cis.indus.common.ContainmentPredicate;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -42,11 +41,11 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
@@ -82,11 +81,6 @@ public class AliasedUseDefInfo
 	 * The basic block graph manager to use during analysis.
 	 */
 	protected final BasicBlockGraphMgr bbgMgr;
-
-	/** 
-	 * This is a predicate that checks if the given element exists in the given container.
-	 */
-	private final ContainmentPredicate containmentPredicate = new ContainmentPredicate();
 
 	/** 
 	 * The object flow analyzer to be used to calculate the UD info.
@@ -130,13 +124,17 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getDefs(Stmt, Context)
+	 * {@inheritDoc}
+	 *
+	 * @param method in which the use occurs.
+	 *
+	 * @pre method != null and method.oclIsKindOf(SootMethod)
 	 */
-	public Collection getDefs(final Stmt useStmt, final Context context) {
+	public Collection getDefs(final Stmt useStmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
 
 		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
-			final Map _stmt2defs = (Map) use2defsMap.get(context.getCurrentMethod());
+			final Map _stmt2defs = (Map) use2defsMap.get(method);
 
 			if (_stmt2defs != null) {
 				_result = (Collection) MapUtils.getObject(_stmt2defs, useStmt, Collections.EMPTY_LIST);
@@ -146,20 +144,31 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
+	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getDefs(soot.Local, soot.jimple.Stmt, java.lang.Object)
 	 */
-	public Object getId() {
-		return IUseDefInfo.ID;
+	public Collection getDefs(final Local local, final Stmt useStmt, final Object context) {
+		throw new UnsupportedOperationException("This opertation is not supported.");
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
 	 */
-	public Collection getUses(final DefinitionStmt defStmt, final Context context) {
+	public Object getId() {
+		return IUseDefInfo.ALIASED_USE_DEF_ID;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param method in which the definition occurs.
+	 *
+	 * @pre method != null and method.oclIsKindOf(SootMethod)
+	 */
+	public Collection getUses(final DefinitionStmt defStmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
 
 		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
-			final Map _stmt2uses = (Map) def2usesMap.get(context.getCurrentMethod());
+			final Map _stmt2uses = (Map) def2usesMap.get(method);
 
 			if (_stmt2uses != null) {
 				_result = (Collection) MapUtils.getObject(_stmt2uses, defStmt, Collections.EMPTY_LIST);
@@ -377,10 +386,9 @@ public class AliasedUseDefInfo
 			final ValueBox _vBox2 = defStmt.getArrayRef().getBaseBox();
 			defContext.setStmt(defStmt);
 			defContext.setProgramPoint(_vBox2);
-			containmentPredicate.setContainer(analyzer.getValues(_vBox2.getValue(), defContext));
+
 			// if the primaries of the access expression alias atleast one object
-			_result = CollectionUtils.exists(_c1, containmentPredicate);
-			containmentPredicate.setContainer(null);
+			_result = CollectionUtils.containsAny(_c1, analyzer.getValues(_vBox2.getValue(), defContext));
 		} else if (defStmt.containsFieldRef()
 			  && useStmt.containsFieldRef()
 			  && defStmt.getFieldRef().getField().equals(useStmt.getFieldRef().getField())) {
@@ -399,16 +407,8 @@ public class AliasedUseDefInfo
 				defContext.setStmt(defStmt);
 				defContext.setProgramPoint(_vBox2);
 
-				final Collection _c2 = analyzer.getValues(_vBox2.getValue(), defContext);
-
 				// if the primaries of the access expression alias atleast one object.
-				_result =
-					CollectionUtils.exists(_c1,
-						new Predicate() {
-							public boolean evaluate(final Object o) {
-								return _c2.contains(o);
-							}
-						});
+				_result = CollectionUtils.containsAny(_c1, analyzer.getValues(_vBox2.getValue(), defContext));
 			}
 		}
 		return _result;
@@ -456,6 +456,9 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
    Revision 1.39  2004/07/17 19:35:46  venku
    - added a new predicate class that can be used to checking existential
      containment relation between two collections.

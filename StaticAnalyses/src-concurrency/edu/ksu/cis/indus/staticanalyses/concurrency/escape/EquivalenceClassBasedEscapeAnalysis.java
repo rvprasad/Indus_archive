@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
-import edu.ksu.cis.indus.common.ContainmentPredicate;
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
@@ -203,11 +202,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * This is a cache variable that holds method context map between method calls.
 	 */
 	MethodContext methodCtxtCache;
-
-	/** 
-	 * This is a predicate that checks if the given element exists in the given container.
-	 */
-	private final ContainmentPredicate containmentPredicate = new ContainmentPredicate();
 
 	/** 
 	 * This maps a site context to a corresponding to method context.  This is used to collect contexts corresponding to
@@ -794,9 +788,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final AliasSet _as2 = (AliasSet) ((Map) _trp2.getSecond()).get(_nTemp.getBase());
 
 				if ((_as1.getReadyEntity() != null) && (_as2.getReadyEntity() != null)) {
-					containmentPredicate.setContainer(_as2.getReadyEntity());
-					_result = CollectionUtils.exists(_as1.getReadyEntity(), containmentPredicate);
-					containmentPredicate.setContainer(null);
+					_result = CollectionUtils.containsAny(_as1.getReadyEntity(), _as2.getReadyEntity());
 				} else {
 					/*
 					 * This is the case where a start site has wait and notify called on a reference.
@@ -959,9 +951,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				// polluted (pessimistic) only when necessary.
 				final Collection _o1 = getAliasSetFor(v1, sm1).getShareEntities();
 				final Collection _o2 = getAliasSetFor(v2, sm2).getShareEntities();
-				containmentPredicate.setContainer(_o2);
-				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.exists(_o1, containmentPredicate);
-				containmentPredicate.setContainer(null);
+				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 			} catch (final NullPointerException _e) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
@@ -1307,6 +1297,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.55  2004/07/18 19:22:32  venku
+   - site contexts are not required after the analysis.  Hence, these are discarded
+     from method2triple map at the end of performPhase3.
    Revision 1.54  2004/07/17 20:21:35  venku
    -  removed rogue printlns.
    Revision 1.53  2004/07/17 19:37:18  venku

@@ -66,37 +66,37 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DependencyAnalysisTestSetup
   extends ValueAnalysisTestSetup {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DependencyAnalysisTestSetup.class);
 
-	/**
+	/** 
 	 * The instance of aliased use-def info to use.
 	 */
 	private AliasedUseDefInfo aliasUD;
 
-	/**
+	/** 
 	 * The instance of basic block graph manager to use.
 	 */
 	private BasicBlockGraphMgr bbgMgr;
 
-	/**
+	/** 
 	 * The collection of dependency analyses being tested.
 	 */
 	private Collection das;
 
-	/**
+	/** 
 	 * The instance of equivalence class based escape analysis to use.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
-	/**
+	/** 
 	 * A map used to communicate arguments to various analyses.
 	 */
 	private Map info;
 
-	/**
+	/** 
 	 * The thread graph to be used.
 	 */
 	private ThreadGraph tgiImpl;
@@ -138,7 +138,7 @@ public class DependencyAnalysisTestSetup
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, valueAnalyzer.getEnvironment());
 		info.put(IValueAnalyzer.ID, valueAnalyzer);
-		info.put(IUseDefInfo.ID, aliasUD);
+		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, aliasUD);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 
 		// retrieve dependence analysis
@@ -244,18 +244,18 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
    Revision 1.18  2004/07/16 06:38:47  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.
-
    Revision 1.17  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
-
    Revision 1.16  2004/05/31 21:38:07  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
-
    Revision 1.15  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract

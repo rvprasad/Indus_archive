@@ -96,7 +96,6 @@ public class DependencyXMLizerCLI
 	 */
 	protected final Map info = new HashMap();
 
-
 	/** 
 	 * The xmlizer used to xmlize dependence information.
 	 */
@@ -139,20 +138,21 @@ public class DependencyXMLizerCLI
 		final DirectEntryControlDA _dncda = new DirectEntryControlDA();
 		final Object[][] _dasOptions =
 			{
-				{ "a", "ibdda", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
+				{ "a1", "ibdda", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
 				{ "b", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
 				{ "d", "dncda", "Direct Entry control dependence", _dncda },
 				{ "e", "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "f", "sda", "Synchronization dependence", new SynchronizationDA() },
-				{ "g", "rda1", "Ready dependence v1", new ReadyDAv1() },
-				{ "i", "rda2", "Ready dependence v2", new ReadyDAv2() },
-				{ "k", "rda3", "Ready dependence v3", new ReadyDAv3() },
-				{ "l", "ida1", "Interference dependence v1", new InterferenceDAv1() },
-				{ "m", "ida2", "Interference dependence v2", new InterferenceDAv2() },
-				{ "n", "ida3", "Interference dependence v3", new InterferenceDAv3() },
+				{ "g1", "rda1", "Ready dependence v1", new ReadyDAv1() },
+				{ "g2", "rda2", "Ready dependence v2", new ReadyDAv2() },
+				{ "g3", "rda3", "Ready dependence v3", new ReadyDAv3() },
+				{ "l1", "ida1", "Interference dependence v1", new InterferenceDAv1() },
+				{ "l2", "ida2", "Interference dependence v2", new InterferenceDAv2() },
+				{ "l3", "ida3", "Interference dependence v3", new InterferenceDAv3() },
 				{ "q", "dda", "Divergence dependence", new DivergenceDA() },
 				{ "r", "incda", "Indirect Entry control dependence", _incda },
-				{ "s", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
+				{ "a2", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
+				{ "a3", "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
 				{ "t", "ipdda", "Interprocedural Divergence dependence", _ipdda },
 			};
 		_option = new Option("h", "help", false, "Display message.");
@@ -281,7 +281,7 @@ public class DependencyXMLizerCLI
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
-		info.put(IUseDefInfo.ID, _aliasUD);
+		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, _aliasUD);
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, _ecba);
@@ -333,7 +333,7 @@ public class DependencyXMLizerCLI
 		final long _stop1 = System.currentTimeMillis();
 		addTimeLog("Dependency preprocessing", _stop1 - _start1);
 		writeInfo("END: dependency analyses");
-		
+
 		// write xml
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
@@ -353,10 +353,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/07/21 10:13:33  venku
+   - previous refactoring disabled xml output. FIXED.
    Revision 1.28  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
-
    Revision 1.27  2004/07/17 19:37:38  venku
    - coding conventions.
    Revision 1.26  2004/07/17 19:37:18  venku
@@ -594,10 +595,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/07/21 10:13:33  venku
+   - previous refactoring disabled xml output. FIXED.
    Revision 1.28  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
-
    Revision 1.27  2004/07/17 19:37:38  venku
    - coding conventions.
    Revision 1.26  2004/07/17 19:37:18  venku

@@ -67,51 +67,51 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class DADriver
   extends SootBasedDriver {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DADriver.class);
 
-	/**
+	/** 
 	 * This is the flow analyser used by the analyses being tested.
 	 */
 	protected AbstractAnalyzer aa;
 
-	/**
+	/** 
 	 * A collection of dependence analyses.
 	 *
 	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 */
 	protected Collection das;
 
-	/**
+	/** 
 	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
 	 *
 	 * @invariant info.oclIsKindOf(Map(String, Object))
 	 */
 	protected final Map info = new HashMap();
 
-	/**
+	/** 
 	 * This indicates if EquivalenceClassBasedAnalysis should be executed.  Subclasses should set this appropriately.
 	 */
 	protected boolean ecbaRequired;
 
-	/**
+	/** 
 	 * This provides equivalence class based escape analysis.
 	 */
 	EquivalenceClassBasedEscapeAnalysis ecba = null;
 
-	/**
+	/** 
 	 * This provides call-graph based processing controller.
 	 */
 	ValueAnalyzerBasedProcessingController cgipc;
 
-	/**
+	/** 
 	 * This provides use-def information that considers the effect  of aliasing.
 	 */
 	private AliasedUseDefInfo aliasUD;
 
-	/**
+	/** 
 	 * The command line arguments.
 	 */
 	private String[] args;
@@ -170,7 +170,7 @@ public abstract class DADriver
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
-		info.put(IUseDefInfo.ID, aliasUD);
+		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, aliasUD);
 
 		if (ecbaRequired) {
 			ecba = new EquivalenceClassBasedEscapeAnalysis(cgi, tgi, bbm);
@@ -358,14 +358,15 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/07/16 06:38:47  venku
+   - added  a more precise implementation of aliased use-def information.
+   - ripple effect.
    Revision 1.45  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
-
    Revision 1.44  2004/06/23 06:16:42  venku
    - deleted  SootBasedDriver.setClassNames(String[])
    - ripple effect.
-
    Revision 1.43  2004/05/14 06:27:26  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.42  2004/04/16 20:10:39  venku

@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysis;
@@ -36,6 +37,7 @@ import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
 
+import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
@@ -60,12 +62,12 @@ import soot.toolkits.graph.UnitGraph;
  */
 public class IdentifierBasedDataDAv2
   extends AbstractDependencyAnalysis {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(IdentifierBasedDataDAv2.class);
 
-	/**
+	/** 
 	 * This provides call graph information.
 	 */
 	private ICallGraphInfo callgraph;
@@ -86,18 +88,18 @@ public class IdentifierBasedDataDAv2
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(DefinitionStmt))
 	 */
-	public Collection getDependees(final Object programPoint, final Object method) {
+	public final Collection getDependees(final Object programPoint, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
-		final LocalUseDefAnalysis _useDefAnalysis = (LocalUseDefAnalysis) dependee2dependent.get(method);
+		final IUseDefInfo _useDefAnalysis = (IUseDefInfo) dependee2dependent.get(method);
 
 		if (_useDefAnalysis != null) {
 			if (programPoint instanceof Stmt) {
-				_result = collectDefInfoForAllLocalsIn((Stmt) programPoint, _useDefAnalysis);
+				_result = collectDefInfoForAllLocalsIn((Stmt) programPoint, _useDefAnalysis, (SootMethod) method);
 			} else if (programPoint instanceof Pair) {
 				final Pair _pair = (Pair) programPoint;
 				final Stmt _stmt = (Stmt) _pair.getFirst();
 				final Local _local = (Local) _pair.getSecond();
-				_result = _useDefAnalysis.getDefsOf(_local, _stmt);
+				_result = _useDefAnalysis.getDefs(_local, _stmt, method);
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("We do not handle program points of type " + programPoint.getClass().getName() + " - "
@@ -126,12 +128,12 @@ public class IdentifierBasedDataDAv2
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
-	public Collection getDependents(final Object stmt, final Object method) {
-		final LocalUseDefAnalysis _useDefAnalysis = (LocalUseDefAnalysis) dependee2dependent.get(method);
+	public final Collection getDependents(final Object stmt, final Object method) {
+		final IUseDefInfo _useDefAnalysis = (IUseDefInfo) dependee2dependent.get(method);
 		Collection _result = Collections.EMPTY_LIST;
 
-		if (_useDefAnalysis != null) {
-			_result = _useDefAnalysis.getUsesOf((Stmt) stmt);
+		if (_useDefAnalysis != null && stmt instanceof DefinitionStmt) {
+			_result = _useDefAnalysis.getUses((DefinitionStmt) stmt, method);
 		}
 		return _result;
 	}
@@ -139,7 +141,7 @@ public class IdentifierBasedDataDAv2
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
-	public Object getId() {
+	public final Object getId() {
 		return IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
 	}
 
@@ -148,7 +150,7 @@ public class IdentifierBasedDataDAv2
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
-	public void analyze() {
+	public final void analyze() {
 		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -164,7 +166,7 @@ public class IdentifierBasedDataDAv2
 					LOGGER.debug("Processing " + _currMethod.getSignature());
 				}
 
-				final LocalUseDefAnalysis _useDef = new LocalUseDefAnalysis(_unitGraph);
+				final IUseDefInfo _useDef = getLocalUseDefAnalysis(_currMethod);
 				dependee2dependent.put(_currMethod, _useDef);
 				dependent2dependee.put(_currMethod, _useDef);
 			} else {
@@ -191,7 +193,7 @@ public class IdentifierBasedDataDAv2
 	 *
 	 * @return a stringized representation of this object.
 	 */
-	public String toString() {
+	public final String toString() {
 		final StringBuffer _result =
 			new StringBuffer("Statistics for Identifier-based Data dependence as calculated by " + this.getClass().getName()
 				+ "\n");
@@ -204,7 +206,7 @@ public class IdentifierBasedDataDAv2
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			_localEdgeCount = 0;
 
-			final LocalUseDefAnalysis _useDef = (LocalUseDefAnalysis) _entry.getValue();
+			final IUseDefInfo _useDef = (IUseDefInfo) _entry.getValue();
 
 			final SootMethod _sm = (SootMethod) _entry.getKey();
 
@@ -212,12 +214,14 @@ public class IdentifierBasedDataDAv2
 				for (final Iterator _j = _sm.getActiveBody().getUnits().iterator(); _j.hasNext();) {
 					final Stmt _stmt = (Stmt) _j.next();
 
-					final Collection _uses = _useDef.getUsesOf(_stmt);
+					if (_stmt instanceof DefinitionStmt) {
+						final Collection _uses = _useDef.getUses((DefinitionStmt) _stmt, _sm);
 
-					for (final Iterator _k = _uses.iterator(); _k.hasNext();) {
-						_temp.append("\t\t" + _stmt + " <-- " + _k.next() + "\n");
+						for (final Iterator _k = _uses.iterator(); _k.hasNext();) {
+							_temp.append("\t\t" + _stmt + " <-- " + _k.next() + "\n");
+						}
+						_localEdgeCount += _uses.size();
 					}
-					_localEdgeCount += _uses.size();
 				}
 			}
 			_result.append("\tFor " + _sm + " there are " + _localEdgeCount + " Identifier-based Data dependence edges.\n");
@@ -227,6 +231,19 @@ public class IdentifierBasedDataDAv2
 		}
 		_result.append("A total of " + _edgeCount + " Identifier-based Data dependence edges exist.");
 		return _result.toString();
+	}
+
+	/**
+	 * Retrieves the local use def analysis for the given method.
+	 *
+	 * @param method of interest.
+	 *
+	 * @return local use-def analysis.
+	 *
+	 * @pre method != null
+	 */
+	protected IUseDefInfo getLocalUseDefAnalysis(final SootMethod method) {
+		return new LocalUseDefAnalysis(getUnitGraph(method));
 	}
 
 	///CLOVER:ON
@@ -255,20 +272,21 @@ public class IdentifierBasedDataDAv2
 	 *
 	 * @param stmt in which the locals occur for which the def info is requested.
 	 * @param useDefAnalysis to be used to retrieve the def into for each variable.
+	 * @param method DOCUMENT ME!
 	 *
 	 * @return a collection of definition statement.
 	 *
 	 * @pre stmt != null and useDefAnalysis != null
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
 	 */
-	private Collection collectDefInfoForAllLocalsIn(final Stmt stmt, final LocalUseDefAnalysis useDefAnalysis) {
+	private Collection collectDefInfoForAllLocalsIn(final Stmt stmt, final IUseDefInfo useDefAnalysis, final SootMethod method) {
 		final Collection _result = new HashSet();
 
 		for (final Iterator _i = stmt.getUseBoxes().iterator(); _i.hasNext();) {
 			final Value _o = ((ValueBox) _i.next()).getValue();
 
 			if (_o instanceof Local) {
-				final Collection _c = useDefAnalysis.getDefsOf((Local) _o, stmt);
+				final Collection _c = useDefAnalysis.getDefs((Local) _o, stmt, method);
 
 				if (!_c.isEmpty()) {
 					_result.addAll(_c);
@@ -282,9 +300,12 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.4  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
-
    Revision 1.3  2004/07/08 11:04:40  venku
    - formatting.
    Revision 1.2  2004/06/23 04:44:59  venku

@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.processing.Context;
-
 import java.util.Collection;
+
+import soot.Local;
 
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
@@ -38,10 +38,15 @@ import soot.jimple.Stmt;
 public interface IUseDefInfo
   extends IStatus,
 	  IIdentification {
-	/**
+	/** 
+	 * This is one of the ID of this interface.
+	 */
+	String ALIASED_USE_DEF_ID = "Aliased Use-Def Information";
+
+	/** 
 	 * This is the ID of this interface.
 	 */
-	String ID = "Aliased Use-Def Information";
+	String LOCAL_USE_DEF_ID = "Local Use-Def Information";
 
 	/**
 	 * Retrieves the def sites that reach the given use site in the given context.
@@ -51,9 +56,22 @@ public interface IUseDefInfo
 	 *
 	 * @return a collection of def sites.
 	 *
-	 * @pre usesStmt != null and context != null
+	 * @pre useStmt != null
 	 */
-	Collection getDefs(Stmt useStmt, Context context);
+	Collection getDefs(Stmt useStmt, Object context);
+
+	/**
+	 * Retrieves the def sites that reach the given local at the given use site in the given context.
+	 *
+	 * @param local for which the definition is requested.
+	 * @param useStmt is the statement containing the use site.
+	 * @param context in which the use-site occurs.
+	 *
+	 * @return a collection of def sites.
+	 *
+	 * @pre local != null and useStmt != null
+	 */
+	Collection getDefs(Local local, Stmt useStmt, Object context);
 
 	/**
 	 * Retrieves the use sites that reach the given def site in the given context.
@@ -63,14 +81,17 @@ public interface IUseDefInfo
 	 *
 	 * @return a collection of use sites.
 	 *
-	 * @pre defStmt != null and context != null
+	 * @pre defStmt != null
 	 */
-	Collection getUses(DefinitionStmt defStmt, Context context);
+	Collection getUses(DefinitionStmt defStmt, Object context);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/11 14:17:41  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.3  2004/02/08 19:08:03  venku
    - documentation
    Revision 1.2  2003/12/13 02:28:54  venku

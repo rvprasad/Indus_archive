@@ -315,7 +315,7 @@ public final class SlicerTool
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
 		info.put(IEnvironment.ID, ofa.getEnvironment());
-		info.put(IUseDefInfo.ID, aliasUD);
+		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, aliasUD);
 		info.put(Pair.PairManager.ID, new Pair.PairManager());
 		info.put(IValueAnalyzer.ID, ofa);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
@@ -915,10 +915,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.100  2004/07/21 06:28:06  venku
+   - changed the signature of methods in SliceCriteriaFactory.
+   - When creating expression-based criteria the criteria for the enclosing statement
+     is not generated.
    Revision 1.99  2004/07/20 05:20:28  venku
    - EntryControlDA needs to be added only for daController based execution
      and not for slicer execution purposes during forward slicing.  FIXED.
-
    Revision 1.98  2004/07/20 01:19:48  venku
    - addressed bug #408.
    Revision 1.97  2004/07/20 00:53:09  venku

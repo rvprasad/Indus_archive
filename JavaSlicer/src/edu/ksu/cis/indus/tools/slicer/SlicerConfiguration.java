@@ -23,7 +23,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv2;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
@@ -233,9 +233,9 @@ public final class SlicerConfiguration
 	 */
 	public void setExecutableSlice(final boolean value) {
 		if (!getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-			setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));			
+			setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));
 		} else if (value) {
-		    throw new IllegalStateException("Forward Executable Slices are not supported.");
+			throw new IllegalStateException("Forward Executable Slices are not supported.");
 		}
 	}
 
@@ -491,7 +491,7 @@ public final class SlicerConfiguration
 		// default required fixed dependency analyses
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
-			Collections.singleton(new IdentifierBasedDataDAv2()));
+			Collections.singleton(new IdentifierBasedDataDAv3()));
 		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 		id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,
 			Collections.singleton(new ReferenceBasedDataDA()));
@@ -836,10 +836,11 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.48  2004/07/21 02:06:36  venku
+   - documentation.
    Revision 1.47  2004/07/20 06:20:27  venku
    - fixed a few more issues pertaining to serialized configuration and how the
      configurator should treat illegal configurations.
-
    Revision 1.46  2004/07/20 05:20:28  venku
    - EntryControlDA needs to be added only for daController based execution
      and not for slicer execution purposes during forward slicing.  FIXED.
