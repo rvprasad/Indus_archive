@@ -55,7 +55,7 @@
             <fileset dir="${dist.dir}">
                 <include name="*.jar"/>
             </fileset>
-            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${DSTAMP}.jar"/>
+            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${DSTAMP}-${TSTAMP}.jar"/>
         </move>
 
         <zip destfile="${examples.src.zip.filename}">
