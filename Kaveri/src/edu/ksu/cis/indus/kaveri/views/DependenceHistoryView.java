@@ -15,11 +15,10 @@
 
 package edu.ksu.cis.indus.kaveri.views;
 
-import java.util.Arrays;
+
 import java.util.Stack;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
