@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
@@ -56,6 +57,43 @@ public final class Util {
 	}
 
 	///CLOVER:ON
+
+	/**
+	 * Retrieves all ancestors (classes/interfaces) of the given class.
+	 *
+	 * @param sootClass for which the ancestors are requested.
+	 *
+	 * @return a collection of classes.
+	 *
+	 * @pre sootClass != null
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 */
+	public static Collection getAncestors(final SootClass sootClass) {
+		final Collection _result = new HashSet();
+		final Collection _temp = new HashSet();
+		final IWorkBag _wb = new LIFOWorkBag();
+		_wb.addWork(sootClass);
+
+		while (_wb.hasWork()) {
+			final SootClass _work = (SootClass) _wb.getWork();
+
+			if (_work.hasSuperclass()) {
+				final SootClass _superClass = _work.getSuperclass();
+				_temp.add(_superClass);
+			}
+			_temp.addAll(_work.getInterfaces());
+
+			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+				final SootClass _sc = (SootClass) _i.next();
+
+				if (!_result.contains(_sc)) {
+					_result.add(_sc);
+					_wb.addWork(_sc);
+				}
+			}
+		}
+		return _result;
+	}
 
 	/**
 	 * Provides the class which injects the given method into the specific branch of the inheritence hierarchy which contains
@@ -323,6 +361,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/19 22:44:04  venku
+   - added method declarations in interfaces to be found by
+     findMethodsInClassesAndInterfaces().
    Revision 1.10  2004/01/19 11:38:03  venku
    - moved findMethodInSuperClasses into Util.
    Revision 1.9  2004/01/08 23:44:09  venku
