@@ -132,8 +132,10 @@ public abstract class AbstractTool
 	/**
 	 * @see edu.ksu.cis.indus.tools.ITool#addToolProgressListener(edu.ksu.cis.indus.tools.IToolProgressListener)
 	 */
-	public synchronized void addToolProgressListener(final IToolProgressListener listener) {
-		listeners.add(listener);
+	public void addToolProgressListener(final IToolProgressListener listener) {
+	    synchronized(listener) {
+	        listeners.add(listener);
+	    }
 	}
 
 	/**
@@ -146,8 +148,10 @@ public abstract class AbstractTool
 	/**
 	 * @see edu.ksu.cis.indus.tools.ITool#removeToolProgressListener(edu.ksu.cis.indus.tools.IToolProgressListener)
 	 */
-	public synchronized void removeToolProgressListener(final IToolProgressListener listener) {
-		listeners.remove(listener);
+	public void removeToolProgressListener(final IToolProgressListener listener) {
+	    synchronized(listener) {
+	        listeners.remove(listener);
+	    }
 	}
 
 	/**
@@ -265,7 +269,8 @@ public abstract class AbstractTool
 	 *
 	 * @pre message != null and info != null
 	 */
-	protected synchronized void fireToolProgressEvent(final String message, final Object info) {
+	protected void fireToolProgressEvent(final String message, final Object info) {
+	    synchronized(listeners) {
 		final ToolProgressEvent _evt = new ToolProgressEvent(this, message, info);
 		final Collection _listenersList = (Collection) ((HashSet) listeners).clone();
 		final Thread _t =
@@ -273,10 +278,10 @@ public abstract class AbstractTool
 				private final int msgId = messageId++;
 
 				public void run() {
-					synchronized (AbstractTool.this) {
+					synchronized (listeners) {
 						while (token != msgId) {
 							try {
-							    AbstractTool.this.wait();
+							    listeners.wait();
 							} catch (final InterruptedException _e) {
 								LOGGER.fatal("Thread interrupted.  Message will not be delivered - " + _evt, _e);
 								token++;
@@ -290,12 +295,14 @@ public abstract class AbstractTool
 						_listener.toolProgess(_evt);
 					}
 
-					synchronized (AbstractTool.this) {
+					synchronized (listeners) {
 						token++;
+						listeners.notifyAll();
 					}
 				}
 			};
 		_t.start();
+	    }
 	}
 
 	/**
@@ -325,6 +332,9 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/08/12 02:48:58  venku
+   - catered feature request #411.
+
    Revision 1.25  2004/07/20 00:30:30  venku
    - added a new exception to be thrown when configuration fails.
    Revision 1.24  2004/07/11 09:42:15  venku
