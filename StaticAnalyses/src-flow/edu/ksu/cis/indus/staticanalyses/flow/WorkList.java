@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -40,13 +40,9 @@ import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 import org.apache.log4j.Logger;
 
 
-// WorkList.java
-
 /**
- * <p>
  * A worklist implementation.
- * </p>
- *
+ * 
  * <p>
  * Created: Tue Jan 22 02:43:16 2002
  * </p>
@@ -57,30 +53,26 @@ import org.apache.log4j.Logger;
 public class WorkList
   extends WorkBag {
 	/**
-	 * <p>
 	 * An instance of <code>Logger</code> used for logging purposes.
-	 * </p>
 	 */
 	private static final Logger LOGGER = Logger.getLogger(WorkList.class);
 
 	/**
-	 * <p>
 	 * Creates a new <code>WorkList</code> instance.
-	 * </p>
 	 */
 	WorkList() {
 		super(LIFO);
 	}
 
 	/**
-	 * <p>
 	 * Adds a work piece into the worklist.  If <code>w</code> exists in the worklist, it will not be added.  The existence
 	 * check is done using <code>java.lang.Object.equals()</code> method.
-	 * </p>
 	 *
 	 * @param w the work to be added into the worklist.
+	 *
+	 * @pre w != null
 	 */
-	public final void addWork(AbstractWork w) {
+	public final void addWork(final AbstractWork w) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Added new work:" + w);
 		}
@@ -88,10 +80,8 @@ public class WorkList
 	}
 
 	/**
-	 * <p>
 	 * Executes the work pieces in the worklist.  This method returns when the worklist is empty, i.e., all the work peices
 	 * have been executed.
-	 * </p>
 	 */
 	void process() {
 		while (hasWork()) {
@@ -105,13 +95,16 @@ public class WorkList
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 0.9  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 0.9  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

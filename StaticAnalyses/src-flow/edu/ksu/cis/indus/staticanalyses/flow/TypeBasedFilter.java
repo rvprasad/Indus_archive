@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -38,9 +38,6 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 import soot.RefType;
 import soot.SootClass;
 import soot.Type;
-
-import soot.jimple.NewExpr;
-import soot.jimple.NullConstant;
 import soot.Value;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
@@ -52,64 +49,72 @@ import java.util.Iterator;
 
 
 /**
- * DOCUMENT ME!
- *
- * <p></p>
+ * This class filters out values which are not of the same type or a sub type of <code>type</code>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public class TypeBasedFilter
-  extends ValueFilter {
+  extends AValueFilter {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The environment in which the analysis happens.
+	 *
+	 * @invariant env != null
 	 */
 	private final IEnvironment env;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The type which is used to decide filtering.
+	 *
+	 * @invariant type != null
 	 */
 	private final Type type;
 
 	/**
 	 * Creates a new TypeBasedFilter object.
 	 *
-	 * @param type DOCUMENT ME!
-	 * @param env DOCUMENT ME!
+	 * @param filterType to be used to decide filtering.
+	 * @param enclosingEnv is the environment in which the analysis happens.
+	 *
+	 * @pre filterType != null and enclosingEnv != null
 	 */
-	public TypeBasedFilter(Type type, IEnvironment env) {
-		this.type = type;
-		this.env = env;
+	public TypeBasedFilter(final Type filterType, final IEnvironment enclosingEnv) {
+		this.type = filterType;
+		this.env = enclosingEnv;
 	}
 
 	/**
 	 * Creates a new TypeBasedFilter object.
 	 *
-	 * @param clazz DOCUMENT ME!
-	 * @param env DOCUMENT ME!
+	 * @param clazz to be used to decide filtering.
+	 * @param enclosingEnv is the environment in which the analysis happens.
+	 *
+	 * @pre class != null and enclosingEnv != null
 	 */
-	public TypeBasedFilter(SootClass clazz, IEnvironment env) {
+	public TypeBasedFilter(final SootClass clazz, final IEnvironment enclosingEnv) {
 		this.type = RefType.v(clazz.getName());
-		this.env = env;
+		this.env = enclosingEnv;
 	}
 
 	/**
-	 * Filters away values that do not have the required type.
+	 * Filters out those values from the given collection which are not of the type being monitored by this object.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.ValueFilter#filter(java.util.Collection)
+	 * @param values to be filtered
+	 *
+	 * @return a collection of values which are of type being monitored by this object.
+	 *
+	 * @pre values != null and values.oclIsKindOf(Collection(Value))
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.AValueFilter#filter(java.util.Collection)
 	 */
-	public Collection filter(Collection values) {
+	public Collection filter(final Collection values) {
 		Collection result = new ArrayList();
 
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			Value o = (Value) i.next();
 
-			if ((type instanceof RefType && o instanceof NullConstant) || Util.isSameOrSubType(o.getType(), type, env)) {
+			if (filter(o)) {
 				result.add(o);
 			}
 		}
@@ -117,22 +122,31 @@ public class TypeBasedFilter
 	}
 
 	/**
-	 * Checks if the given value can be filtered away(<code>true</code>) or not(<code>false</code>).
+	 * Checks if value should be filtered.  It is filtered if it is of the type being monitored by this object.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.ValueFilter#filter(java.lang.Object)
+	 * @param value to be filtered.
+	 *
+	 * @return <code>true</code> if <code>value</code> should be filtered; <code>false</code>, otherwise.
+	 *
+	 * @pre value != null and value.oclIsKindOf(Value)
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.AValueFilter#filter(java.lang.Object)
 	 */
-	public boolean filter(Object value) {
-		return Util.isSameOrSubType(((NewExpr) value).getType(), type, env);
+	public boolean filter(final Object value) {
+		return Util.isSameOrSubType(((Value) value).getType(), type, env);
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.2  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 1.2  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

@@ -53,7 +53,7 @@ public abstract class AValueFilter {
 	 *
 	 * @return a collection of values without the values that were filtered.
 	 */
-	public abstract Collection filter(Collection values);
+	public abstract Collection filter(final Collection values);
 
 	/**
 	 * Checks if the given value should be filtered out.
@@ -62,13 +62,16 @@ public abstract class AValueFilter {
 	 *
 	 * @return <code>true</code> indicates the given value should be filtered out; <code>false</code>, otherwise.
 	 */
-	public abstract boolean filter(Object value);
+	public abstract boolean filter(final Object value);
 }
 
 /*
    ChangeLog:
    
    $Log$
+   Revision 1.1  2003/08/15 03:41:35  venku
+   Renamed ValueFilter to AValueFilter as it is an abstract class.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
