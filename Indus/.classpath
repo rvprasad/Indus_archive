@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-    <classpathentry kind="src" path="src"/>
-    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-    <classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
-    <classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
-    <classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
-    <classpathentry kind="var" path="JAVACLASSES/swt/swt.jar"/>
-    <classpathentry kind="output" path="build"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src-xml"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
+	<classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
+	<classpathentry kind="var" path="JAVACLASSES/swt/swt.jar"/>
+	<classpathentry kind="output" path="build"/>
 </classpath>

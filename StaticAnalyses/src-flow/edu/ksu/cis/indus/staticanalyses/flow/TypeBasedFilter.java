@@ -20,7 +20,7 @@ import soot.SootClass;
 import soot.Type;
 import soot.Value;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 
 import org.apache.commons.logging.Log;
@@ -132,6 +132,10 @@ public class TypeBasedFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.6  2003/08/25 11:25:23  venku
    Formatting.
    Revision 1.5  2003/08/25 11:24:53  venku

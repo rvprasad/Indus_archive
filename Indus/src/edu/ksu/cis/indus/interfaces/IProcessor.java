@@ -13,17 +13,16 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.interfaces;
+package edu.ksu.cis.indus.interfaces;
 
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.Stmt;
-
-import edu.ksu.cis.indus.staticanalyses.Context;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 
 
 /**
@@ -36,15 +35,6 @@ import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
  * @version $Revision$
  */
 public interface IProcessor {
-	/**
-	 * Sets the analyzer that provides the low-level information to be processed..
-	 *
-	 * @param analyzer that provides low-level info.
-	 *
-	 * @pre analyzer != null
-	 */
-	void setAnalyzer(IValueAnalyzer analyzer);
-
 	/**
 	 * This method will be called by the controlling agent upon walking a value in the analyzed system.
 	 *
@@ -125,6 +115,10 @@ public interface IProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/28 03:08:03  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.

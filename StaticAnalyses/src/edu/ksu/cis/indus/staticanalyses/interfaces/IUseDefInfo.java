@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.interfaces;
 import soot.jimple.AssignStmt;
 
 import edu.ksu.cis.indus.interfaces.IStatus;
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 
@@ -65,6 +65,10 @@ public interface IUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:08:03  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.5  2003/08/21 03:32:37  venku
    Incorporated IStatus interface into any interface that provides analysis information.
    Revision 1.4  2003/08/13 08:49:10  venku

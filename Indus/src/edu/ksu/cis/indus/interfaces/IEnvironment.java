@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.interfaces;
+package edu.ksu.cis.indus.interfaces;
 
 import soot.SootClass;
 
@@ -67,6 +67,10 @@ public interface IEnvironment {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/28 03:08:03  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.4  2003/08/21 08:22:51  venku
    Changed ID value.
    Revision 1.3  2003/08/17 10:48:34  venku

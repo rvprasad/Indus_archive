@@ -22,8 +22,8 @@ import soot.Value;
 
 import soot.jimple.Stmt;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 
@@ -35,11 +35,11 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
  * @version $Revision$
  */
 public abstract class AbstractProcessor
-  implements IProcessor {
+  implements IValueAnalyzerBasedProcessor {
 	/**
 	 * Does nothing.
 	 *
-	 * @see IProcessor#setAnalyzer(IValueAnalyzer)
+	 * @see IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer analyzer) {
 	}
@@ -47,7 +47,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see IProcessor#callback(Value, Context)
+	 * @see IValueAnalyzerBasedProcessor#callback(Value, Context)
 	 */
 	public void callback(final Value value, final Context context) {
 	}
@@ -55,7 +55,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see IProcessor#callback(Stmt, Context)
+	 * @see IValueAnalyzerBasedProcessor#callback(Stmt, Context)
 	 */
 	public void callback(final Stmt stmt, final Context context) {
 	}
@@ -63,7 +63,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see IProcessor#callback(SootMethod)
+	 * @see IValueAnalyzerBasedProcessor#callback(SootMethod)
 	 */
 	public void callback(final SootMethod method) {
 	}
@@ -71,7 +71,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see IProcessor#callback(SootClass)
+	 * @see IValueAnalyzerBasedProcessor#callback(SootClass)
 	 */
 	public void callback(final SootClass clazz) {
 	}
@@ -79,7 +79,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see IProcessor#callback(SootField)
+	 * @see IValueAnalyzerBasedProcessor#callback(SootField)
 	 */
 	public void callback(final SootField field) {
 	}
@@ -87,7 +87,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see IProcessor#consolidate()
+	 * @see IValueAnalyzerBasedProcessor#consolidate()
 	 */
 	public void consolidate() {
 	}
@@ -96,9 +96,13 @@ public abstract class AbstractProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.6  2003/08/21 03:43:04  venku
    Removed support for status check.  There can be no query
-    on AbstractProcessor/IProcessor, hence, negating any reason
+    on AbstractProcessor/IValueAnalyzerBasedProcessor, hence, negating any reason
    for such support.
    Revision 1.5  2003/08/21 03:32:37  venku
    Incorporated IStatus interface into any interface that provides analysis information.
@@ -114,7 +118,7 @@ public abstract class AbstractProcessor
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
    Revision 1.3  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

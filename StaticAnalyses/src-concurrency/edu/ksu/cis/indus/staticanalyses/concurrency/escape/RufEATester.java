@@ -40,7 +40,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 
@@ -129,7 +129,7 @@ public final class RufEATester
 		           LOGGER.info("END: FA analysis");
 		       }
 		       addTimeLog("FA analysis", stop - start);
-		       ProcessingController ppc = new ProcessingController();
+		       ValueAnalyzerBasedProcessingController ppc = new ValueAnalyzerBasedProcessingController();
 		       ppc.setAnalyzer(aa);
 		       CallGraph cg = new CallGraph();
 		       cg.hookup(ppc);
@@ -221,7 +221,7 @@ public final class RufEATester
 			}
 			addTimeLog("FA analysis", stop - start);
 
-			ProcessingController ppc = new ProcessingController();
+			ValueAnalyzerBasedProcessingController ppc = new ValueAnalyzerBasedProcessingController();
 			ppc.setAnalyzer(aa);
 
 			// Create call graph
@@ -349,6 +349,9 @@ public final class RufEATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/10/31 01:02:04  venku
+   - added code for extracting data for CC04 paper.
+
    Revision 1.3  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

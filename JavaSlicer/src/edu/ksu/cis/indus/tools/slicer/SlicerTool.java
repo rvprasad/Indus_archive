@@ -25,6 +25,7 @@ import soot.toolkits.graph.UnitGraph;
 import edu.ksu.cis.indus.common.CompleteUnitGraphFactory;
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
@@ -37,13 +38,12 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUse
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
@@ -161,12 +161,12 @@ public final class SlicerTool
 	/**
 	 * This is a call-graph based pre processing controller.
 	 */
-	private final ProcessingController cgBasedPreProcessCtrl;
+	private final ValueAnalyzerBasedProcessingController cgBasedPreProcessCtrl;
 
 	/**
 	 * This controls the processing of callgraph.
 	 */
-	private final ProcessingController cgPreProcessCtrl;
+	private final ValueAnalyzerBasedProcessingController cgPreProcessCtrl;
 
 	/**
 	 * This is the slicing engine that identifies the slice.
@@ -211,7 +211,7 @@ public final class SlicerTool
 		ofa = OFAnalyzer.getFSOSAnalyzer();
 
 		// create the pre processor for call graph construction.
-		cgPreProcessCtrl = new ProcessingController();
+		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgPreProcessCtrl.setAnalyzer(ofa);
 
 		// create the call graph.
@@ -544,6 +544,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/11/05 03:16:21  venku
+   - changes in creating the criteria.
+   - coding convention.
+
    Revision 1.17  2003/11/03 08:14:17  venku
    - fixed processing for equivalence class based escape analysis.
 

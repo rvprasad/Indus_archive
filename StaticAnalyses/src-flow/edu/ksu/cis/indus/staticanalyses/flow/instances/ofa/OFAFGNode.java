@@ -126,6 +126,10 @@ public class OFAFGNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.6  2003/08/25 11:26:14  venku
    Major bug: Added the original set of values instead of the filtered values. FIXED.
    Revision 1.5  2003/08/17 11:54:19  venku
@@ -135,7 +139,7 @@ public class OFAFGNode
    Extended it with work pool support.
    Amended AbstractWork and WorkList to enable work pool support.
    Revision 1.3  2003/08/17 10:33:03  venku
-   WorkList does not inherit from WorkBag rather contains an instance of WorkBag.
+   WorkList does not inherit from IWorkBag rather contains an instance of IWorkBag.
    Ripple effect of the above change.
    Revision 1.2  2003/08/15 03:39:53  venku
    Spruced up documentation and specification.

@@ -24,11 +24,11 @@ import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.Stmt;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -133,7 +133,7 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Stmt, Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt, Context)
 	 */
 	public void callback(final Stmt stmt, final Context context) {
 		AssignStmt as = (AssignStmt) stmt;
@@ -168,7 +168,7 @@ public class AliasedUseDefInfo
 	 * Records naive interprocedural data dependence.  All it does it records dependence between type conformant writes and
 	 * reads.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#consolidate()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
 	 */
 	public void consolidate() {
 		Collection uses = new HashSet();
@@ -258,7 +258,7 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		stable = false;
@@ -266,7 +266,7 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(AssignStmt.class, this);
@@ -277,6 +277,10 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.7  2003/08/25 09:57:35  venku
    Exposed the constructor to the public.
    Revision 1.6  2003/08/21 03:43:56  venku

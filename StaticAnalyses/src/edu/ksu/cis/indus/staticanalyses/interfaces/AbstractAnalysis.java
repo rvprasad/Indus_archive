@@ -42,7 +42,7 @@ public abstract class AbstractAnalysis
 	/**
 	 * The pre-processor for this analysis, if one exists.
 	 */
-	protected IProcessor preprocessor;
+	protected IValueAnalyzerBasedProcessor preprocessor;
 
 	/**
 	 * This contains auxiliary information required by the subclasses. It is recommended that this represent
@@ -69,7 +69,7 @@ public abstract class AbstractAnalysis
 	 *
 	 * @post doesPreProcessing() == true implies result != null
 	 */
-	public IProcessor getPreProcessor() {
+	public IValueAnalyzerBasedProcessor getPreProcessor() {
 		return preprocessor;
 	}
 
@@ -190,6 +190,9 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/01 23:50:34  venku
+   - documentation.
+
    Revision 1.13  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
@@ -230,5 +233,5 @@ public abstract class AbstractAnalysis
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
  */

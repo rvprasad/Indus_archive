@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -162,6 +162,10 @@ public abstract class AbstractVariantManager {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.5  2003/08/30 22:39:20  venku
    Added support to query statistics of the managers.
    Revision 1.4  2003/08/21 03:47:11  venku

@@ -27,8 +27,8 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
+import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
-import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
@@ -37,7 +37,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -134,7 +134,7 @@ public class SlicingEngine {
 	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
 	 * @invariant workbag->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
 	 */
-	private final WorkBag workbag = new FIFOWorkBag();
+	private final IWorkBag workbag = new FIFOWorkBag();
 
 	/**
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
@@ -569,6 +569,9 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/05 09:33:39  venku
+   - ripple effect of splitting Workbag.
+
    Revision 1.4  2003/11/05 08:34:40  venku
    - Slicing on single threaded and single procedure
      program works but does not terminate.  Now the

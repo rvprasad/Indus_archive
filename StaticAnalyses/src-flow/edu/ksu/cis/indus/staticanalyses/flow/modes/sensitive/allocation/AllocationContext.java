@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
 
 
 /**
@@ -104,6 +104,10 @@ public class AllocationContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.4  2003/08/13 08:02:28  venku
    Fixed Checkstyle formatting errors.
 

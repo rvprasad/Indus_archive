@@ -224,6 +224,9 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 06:46:49  venku
+   - Some more changes to extract unit graphs from the enviroment.
+
    Revision 1.7  2003/09/08 02:20:12  venku
    - it now only requires call graph info and basic block graph manager
    - checkForLoopEnclosedNewExpr() is now applicable to any allocation sites
@@ -247,7 +250,7 @@ main_control:
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
    Revision 1.3  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

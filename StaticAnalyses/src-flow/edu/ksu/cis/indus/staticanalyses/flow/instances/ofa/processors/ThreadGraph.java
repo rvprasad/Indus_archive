@@ -27,19 +27,19 @@ import soot.jimple.NewExpr;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -528,7 +528,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
+	 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		stable = false;
@@ -550,7 +550,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
+	 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
@@ -594,7 +594,7 @@ public class ThreadGraph
 	 */
 	private Collection transitiveThreadCallClosure(final SootMethod starterMethod) {
 		Collection result = new HashSet();
-		WorkBag wb = new FIFOWorkBag();
+		IWorkBag wb = new FIFOWorkBag();
 		wb.addWork(starterMethod);
 		result.add(starterMethod);
 
@@ -627,6 +627,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/05 09:32:48  venku
+   - ripple effect of splitting Workbag.
+
    Revision 1.10  2003/09/29 05:52:44  venku
    - added more info to the dump.
 

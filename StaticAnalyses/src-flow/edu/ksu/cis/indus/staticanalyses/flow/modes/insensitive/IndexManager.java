@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.modes.insensitive;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
@@ -138,6 +138,10 @@ public class IndexManager
    ChangeLog:
 
    $Log$
+   Revision 1.4  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.3  2003/08/13 07:56:25  venku
    Fixed coding style violations for redundant throws and field name.
 

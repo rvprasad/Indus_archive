@@ -18,8 +18,9 @@ package edu.ksu.cis.indus.staticanalyses.interfaces;
 import soot.Scene;
 import soot.SootMethod;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IStatus;
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 
@@ -104,6 +105,10 @@ public interface IValueAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/28 03:08:03  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.8  2003/09/07 19:24:49  venku
    - coding convention changes.
    Revision 1.7  2003/09/07 08:59:31  venku
@@ -131,5 +136,5 @@ public interface IValueAnalyzer
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
  */

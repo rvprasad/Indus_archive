@@ -56,14 +56,15 @@ import soot.jimple.VirtualInvokeExpr;
 
 import soot.toolkits.graph.CompleteUnitGraph;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
@@ -73,7 +74,7 @@ import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -267,7 +268,7 @@ public class RufsEscapeAnalysis
 	 */
 	class AliasSet
 	  extends FastUnionFindElement
-	  implements Cloneable {        
+	  implements Cloneable {
 		/**
 		 * <p>
 		 * DOCUMENT ME!
@@ -606,7 +607,9 @@ public class RufsEscapeAnalysis
 
 			Collection toBeProcessed = new HashSet();
 			toBeProcessed.addAll(rep2.fieldMap.keySet());
+
 			Collection keySet = rep1.fieldMap.keySet();
+
 			for (Iterator i = keySet.iterator(); i.hasNext();) {
 				String field = (String) i.next();
 				AliasSet repAS = (AliasSet) ((FastUnionFindElement) rep1.fieldMap.get(field)).find();
@@ -1009,8 +1012,8 @@ public class RufsEscapeAnalysis
 			stmt.getOp().apply(valueProcessor);
 
 			AliasSet v = (AliasSet) valueProcessor.getResult();
-			//v.setSynced();
 
+			//v.setSynced();
 			if (v.isGlobal()) {
 				v.addSyncThreads(tgi.getExecutionThreads(context.getCurrentMethod()));
 			}
@@ -1023,8 +1026,8 @@ public class RufsEscapeAnalysis
 			stmt.getOp().apply(valueProcessor);
 
 			AliasSet v = (AliasSet) valueProcessor.getResult();
-			//v.setSynced();
 
+			//v.setSynced();
 			if (v.isGlobal()) {
 				v.addSyncThreads(tgi.getExecutionThreads(context.getCurrentMethod()));
 			}
@@ -1105,7 +1108,7 @@ public class RufsEscapeAnalysis
 					elt = new AliasSet();
 					base.putASForField(ARRAY_FIELD, elt);
 				}
-                elt.setSynced();
+				elt.setSynced();
 			}
 			setResult(elt);
 		}
@@ -1128,7 +1131,7 @@ public class RufsEscapeAnalysis
 					field = new AliasSet();
 					base.putASForField(fieldSig, field);
 				}
-                field.setSynced();
+				field.setSynced();
 			}
 			setResult(field);
 		}
@@ -1153,7 +1156,7 @@ public class RufsEscapeAnalysis
 					s = new AliasSet();
 					localASsCache.put(v, s);
 				}
-                s.setSynced();
+				s.setSynced();
 			}
 			setResult(s);
 		}
@@ -1392,7 +1395,7 @@ public class RufsEscapeAnalysis
 	 *
 	 * @pre value.isOclKindOf(NewExpr)
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback( soot.jimple.Value,
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback( soot.jimple.Value,
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
@@ -1404,7 +1407,7 @@ public class RufsEscapeAnalysis
 	/**
 	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootField)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootField)
 	 */
 	public void callback(SootField sf) {
 		if (Modifier.isStatic(sf.getModifiers())) {
@@ -1420,17 +1423,28 @@ public class RufsEscapeAnalysis
 	/**
 	 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootMethod)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootMethod)
 	 */
 	public void callback(SootMethod sm) {
 		methodCtxt2triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param type DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public boolean canHaveAliasSet(final Type type) {
+		return type instanceof RefType || type instanceof ArrayType;
+	}
+
+	/**
 	 * Performs phase1 (condition 2 and 3) operation here.  This should be called after the call graph information has been
 	 * consolidated.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#consolidate()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
 	 */
 	public void consolidate() {
 		Collection tassBak = new HashSet(threadAllocSitesSingle);
@@ -1549,7 +1563,7 @@ public class RufsEscapeAnalysis
 			}
 		}
 
-		WorkBag wb = new LIFOWorkBag();
+		IWorkBag wb = new LIFOWorkBag();
 		Collection processed = new HashSet();
 		wb.addAllWork(cgi.getHeads());
 
@@ -1578,8 +1592,8 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#hookup(
+	 * 		edu.ksu.cis.indus.staticanalyses.flow.ValueAnalyzerBasedProcessingController)
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
@@ -1587,8 +1601,8 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#unhook(
+	 * 		edu.ksu.cis.indus.staticanalyses.flow.ValueAnalyzerBasedProcessingController)
 	 */
 	public void unhook(ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
@@ -1645,6 +1659,40 @@ public class RufsEscapeAnalysis
 			}
 		} else if (type instanceof RefType) {
 			result = getASForClass(scm.getSootClass(((RefType) type).getClassName()));
+		}
+		return result;
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param v DOCUMENT ME!
+	 * @param sm DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
+		Triple trp = (Triple) methodCtxt2triple.get(sm);
+
+		if (trp == null) {
+			throw new IllegalArgumentException("Method " + sm + " was not analyzed.");
+		}
+
+		Map local2AS = (Map) trp.getSecond();
+		AliasSet result = null;
+
+		if (canHaveAliasSet(v.getType())) {
+			if (v instanceof InstanceFieldRef) {
+				InstanceFieldRef i = (InstanceFieldRef) v;
+				result = ((AliasSet) local2AS.get(i.getBase())).getASForField(((FieldRef) v).getField().getSignature());
+			} else if (v instanceof StaticFieldRef) {
+				result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
+			} else if (v instanceof ArrayRef) {
+				ArrayRef a = (ArrayRef) v;
+				result = ((AliasSet) local2AS.get(a.getBase())).getASForField(ARRAY_FIELD);
+			} else if (v instanceof Local) {
+				result = (AliasSet) local2AS.get(v);
+			}
 		}
 		return result;
 	}
@@ -1821,77 +1869,47 @@ main_control:
 			}
 		}
 	}
-    
-    AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
-        Triple trp = (Triple) methodCtxt2triple.get(sm);
-
-        if (trp == null) {
-            throw new IllegalArgumentException("Method " + sm + " was not analyzed.");
-        }
-
-        Map local2AS = (Map) trp.getSecond();
-        AliasSet result = null;
-
-        if (canHaveAliasSet(v.getType())) {
-            if (v instanceof InstanceFieldRef) {
-                InstanceFieldRef i = (InstanceFieldRef) v;
-                result = ((AliasSet) local2AS.get(i.getBase())).getASForField(((FieldRef) v).getField().getSignature());
-            } else if (v instanceof StaticFieldRef) {
-                result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
-            } else if (v instanceof ArrayRef) {
-                ArrayRef a = (ArrayRef) v;
-                result = ((AliasSet) local2AS.get(a.getBase())).getASForField(ARRAY_FIELD);
-            } else if (v instanceof Local) {
-                result = (AliasSet) local2AS.get(v);
-            }
-        }
-        return result;
-    }
-    
-    public boolean canHaveAliasSet(final Type type) {
-        return type instanceof RefType || type instanceof ArrayType;
-    }
-    
-    
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/05 09:27:10  venku
+   - Split IWorkBag into an interface and an implementation
+     for the sake of performance.
    Revision 1.6  2003/10/31 01:02:04  venku
    - added code for extracting data for CC04 paper.
-
    Revision 1.5  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
    Revision 1.4  2003/09/08 02:23:24  venku
  *** empty log message ***
-         Revision 1.3  2003/09/01 11:57:30  venku
-         - Ripple effect of changes in CFGAnalysis.
-         Revision 1.2  2003/08/24 12:42:33  venku
-         Removed occursInCycle() method from DirectedGraph.
-         Installed occursInCycle() method in CFGAnalysis.
-         Converted performTopologicalsort() and getFinishTimes() into instance methods.
-         Ripple effect of the above changes.
-         Revision 1.1  2003/08/21 01:24:25  venku
-          - Renamed src-escape to src-concurrency to as to group all concurrency
-            issue related analyses into a package.
-          - Renamed escape package to concurrency.escape.
-          - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-         Revision 1.2  2003/08/11 06:29:07  venku
-         Changed format of change log accumulation at the end of the file
-         Revision 1.1  2003/08/07 06:39:07  venku
-         Major:
-          - Moved the package under indus umbrella.
-         Minor:
-          - changes to accomodate ripple effect from support package.
-         Revision 1.3  2003/07/30 08:30:31  venku
-         Refactoring ripple.
-         Also fixed a subtle bug in isShared() which caused wrong results.
-         Revision 1.2  2003/07/27 21:22:14  venku
-         Minor:
-          - removed unnecessary casts.
-         Revision 1.1  2003/07/27 20:52:39  venku
-         First of the many refactoring while building towards slicer release.
-         This is the escape analysis refactored and implemented as per to tech report.
+           Revision 1.3  2003/09/01 11:57:30  venku
+           - Ripple effect of changes in CFGAnalysis.
+           Revision 1.2  2003/08/24 12:42:33  venku
+           Removed occursInCycle() method from DirectedGraph.
+           Installed occursInCycle() method in CFGAnalysis.
+           Converted performTopologicalsort() and getFinishTimes() into instance methods.
+           Ripple effect of the above changes.
+           Revision 1.1  2003/08/21 01:24:25  venku
+            - Renamed src-escape to src-concurrency to as to group all concurrency
+              issue related analyses into a package.
+            - Renamed escape package to concurrency.escape.
+            - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+           Revision 1.2  2003/08/11 06:29:07  venku
+           Changed format of change log accumulation at the end of the file
+           Revision 1.1  2003/08/07 06:39:07  venku
+           Major:
+            - Moved the package under indus umbrella.
+           Minor:
+            - changes to accomodate ripple effect from support package.
+           Revision 1.3  2003/07/30 08:30:31  venku
+           Refactoring ripple.
+           Also fixed a subtle bug in isShared() which caused wrong results.
+           Revision 1.2  2003/07/27 21:22:14  venku
+           Minor:
+            - removed unnecessary casts.
+           Revision 1.1  2003/07/27 20:52:39  venku
+           First of the many refactoring while building towards slicer release.
+           This is the escape analysis refactored and implemented as per to tech report.
  */

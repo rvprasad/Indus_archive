@@ -21,7 +21,7 @@ import soot.jimple.NewExpr;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.interfaces.IStatus;
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 
 import java.util.Collection;
@@ -166,6 +166,10 @@ public interface IThreadGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 03:08:03  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.7  2003/09/08 02:21:53  venku
    - supports a new method to extract thread allocation sites
      which may be executed multiple times.
@@ -184,7 +188,7 @@ public interface IThreadGraphInfo
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
    Revision 1.1  2003/05/22 22:16:45  venku
    All the interfaces were renamed to start with an "I".
  */

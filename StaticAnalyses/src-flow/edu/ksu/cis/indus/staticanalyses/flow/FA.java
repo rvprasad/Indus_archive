@@ -24,8 +24,8 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.processing.Context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -490,6 +490,10 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.5  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.

@@ -62,6 +62,10 @@ public class InitializationException
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.2  2003/08/11 08:12:26  venku
    Major changes in equals() method of Context, Pair, Marker, and Triple.
    Similar changes in hashCode()
@@ -70,7 +74,7 @@ public class InitializationException
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
    Revision 1.3  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

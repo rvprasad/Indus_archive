@@ -26,7 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -173,7 +173,7 @@ public class DivergenceDA
 
 		final List DEPENDENTS = new ArrayList();
 		final Collection SUCCS = new HashSet();
-		WorkBag wb = new LIFOWorkBag();
+		IWorkBag wb = new LIFOWorkBag();
 		final Collection PREDIVPOINTBBS = new HashSet();
 
 		// Pass 2:Record dependence information from pre-divergence points to pre-divergence points or exits.
@@ -382,7 +382,7 @@ public class DivergenceDA
 	 * @post method2preDivPoints.oclIsKindOf(Map(SootMethod, Set))
 	 */
 	private void findPreDivPoints(final Map method2preDivPoints) {
-		WorkBag preDivMethods = null;
+		IWorkBag preDivMethods = null;
 		Collection preDivPoints = new HashSet();
 		Collection succs = new ArrayList();
 
@@ -566,6 +566,9 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/05 09:29:51  venku
+   - ripple effect of splitting IWorkBag.
+
    Revision 1.18  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
 

@@ -32,20 +32,19 @@ import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Marker;
 import edu.ksu.cis.indus.staticanalyses.support.MutableDirectedGraph.MutableNode;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
-import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -157,7 +156,7 @@ public class CallGraph
 	 *
 	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#setAnalyzer(IValueAnalyzer)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
 		this.analyzer = (OFAnalyzer) objFlowAnalyzer;
@@ -300,7 +299,7 @@ public class CallGraph
 		context.setRootMethod(root);
 		result.add(getCallees(ie, context));
 
-		WorkBag wb = new FIFOWorkBag();
+		IWorkBag wb = new FIFOWorkBag();
 		wb.addAllWorkNoDuplicates(result);
 
 		while (wb.hasWork()) {
@@ -358,7 +357,7 @@ public class CallGraph
 
 			Context context = new Context();
 			Stack callStack = new Stack();
-			WorkBag workbag = new FIFOWorkBag();
+			IWorkBag workbag = new FIFOWorkBag();
 
 			for (Iterator i = heads.iterator(); i.hasNext();) {
 				SootMethod sm = (SootMethod) i.next();
@@ -426,7 +425,7 @@ public class CallGraph
 	 *
 	 * @pre context != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Value,Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Value,Context)
 	 */
 	public void callback(final Value value, final Context context) {
 		Stmt stmt = context.getStmt();
@@ -504,7 +503,7 @@ public class CallGraph
 	/**
 	 * This calculates information such as heads, tails, recursion roots, and such.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#consolidate()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
 	 */
 	public void consolidate() {
 		if (LOGGER.isInfoEnabled()) {
@@ -519,7 +518,7 @@ public class CallGraph
 		}
 
 		// calculate reachables.
-		WorkBag wb = new FIFOWorkBag();
+		IWorkBag wb = new FIFOWorkBag();
 		wb.addAllWork(heads);
 		reachables.addAll(heads);
 
@@ -773,12 +772,12 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/05 09:32:48  venku
+   - ripple effect of splitting Workbag.
    Revision 1.21  2003/09/29 06:54:57  venku
    - dump formatting.
-
    Revision 1.20  2003/09/29 06:19:34  venku
    - added more info to the dump.
-
    Revision 1.19  2003/09/29 05:52:44  venku
    - added more info to the dump.
    Revision 1.18  2003/09/28 03:16:33  venku
@@ -812,7 +811,7 @@ public class CallGraph
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
    Revision 1.8  2003/08/15 23:23:32  venku
-   Removed redundant "implement IProcessor".
+   Removed redundant "implement IValueAnalyzerBasedProcessor".
    Revision 1.7  2003/08/14 05:10:29  venku
    Fixed documentation links.
    Revision 1.6  2003/08/13 08:49:10  venku

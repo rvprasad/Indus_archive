@@ -17,6 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 import soot.Scene;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IProcessor;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -27,14 +30,13 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUse
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
@@ -99,7 +101,7 @@ public abstract class DADriver
 	/**
 	 * This provides call-graph based processing controller.
 	 */
-	ProcessingController cgipc;
+	ValueAnalyzerBasedProcessingController cgipc;
 
 	/**
 	 * The command line arguments.
@@ -151,7 +153,7 @@ public abstract class DADriver
 		scm = loadupClassesAndCollectMains(args);
 		aa = OFAnalyzer.getFSOSAnalyzer();
 
-		ProcessingController pc = new ProcessingController();
+		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
 		Collection processors = new ArrayList();
 		ICallGraphInfo cgi = new CallGraph();
 		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
@@ -198,7 +200,7 @@ public abstract class DADriver
 			}
 
 			((CallGraph) cgi).reset();
-            processors.clear();
+			processors.clear();
 			processors.add(cgi);
 			process(pc, processors);
 			System.out.println("CALL GRAPH:\n" + ((CallGraph) cgi).dumpGraph());
@@ -265,11 +267,11 @@ public abstract class DADriver
 	 * @param pc controls the processing activity.
 	 * @param processors is the collection of processors.
 	 *
-	 * @pre processors.oclIsKindOf(Collection(IProcessor))
+	 * @pre processors.oclIsKindOf(Collection(IValueAnalyzerBasedProcessor))
 	 */
 	protected void process(final ProcessingController pc, final Collection processors) {
 		for (Iterator i = processors.iterator(); i.hasNext();) {
-			IProcessor processor = (IProcessor) i.next();
+			IProcessor processor = (IValueAnalyzerBasedProcessor) i.next();
 
 			processor.hookup(pc);
 		}
@@ -289,7 +291,7 @@ public abstract class DADriver
 		}
 
 		for (Iterator i = processors.iterator(); i.hasNext();) {
-			IProcessor processor = (IProcessor) i.next();
+			IProcessor processor = (IValueAnalyzerBasedProcessor) i.next();
 
 			processor.unhook(pc);
 		}
@@ -357,6 +359,9 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/11/02 22:10:08  venku
+   - changed the signature of the constructor of
+     EquivalenceClassBasedEscapeAnalysis.
    Revision 1.24  2003/10/05 16:24:01  venku
    - coding convention.
    Revision 1.23  2003/10/05 16:21:21  venku

@@ -25,8 +25,8 @@ import soot.Value;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.Collection;
@@ -345,6 +345,10 @@ public abstract class AbstractAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.7  2003/08/21 03:47:11  venku
    Ripple effect of adding IStatus.
    Documentation.

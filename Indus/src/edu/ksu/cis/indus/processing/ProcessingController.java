@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.processing;
+package edu.ksu.cis.indus.processing;
 
 import soot.SootClass;
 import soot.SootField;
@@ -46,10 +46,8 @@ import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.interfaces.*;
+import edu.ksu.cis.indus.interfaces.IProcessor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,12 +63,11 @@ import java.util.Set;
 
 
 /**
- * This class controls the post processing for an analysis.  The analysis as realised by FA is very low-level.  The
- * information is raw.  This needs to be massaged via post processing.  Each post processor can registered interest in
- * particular types of AST chunks.  The controller will walk over the analyzed system and call the registered post
- * processors. The post processors then collect information from the analysis in form which is more accessible to the other
- * applications. This visitor will notify the interested post processors with the given AST node and then visit it's
- * children.
+ * This class controls the post processing for an analysis.  The analyses such as FA are very low-level.  The information is
+ * raw.  This needs to be massaged via post processing.  Each post processor can registered interest in particular types of
+ * AST chunks.  The controller will walk over the analyzed system and call the registered post processors. The post
+ * processors then collect information from the analysis in form which is more accessible to the other applications. This
+ * visitor will notify the interested post processors with the given AST node and then visit it's children.
  * 
  * <p>
  * Please note that the processor should be registered/unregistered separately for interface-level (class/method)  processing
@@ -99,13 +96,6 @@ public class ProcessingController {
 	 * The context in which the AST chunk is visited during post processing.
 	 */
 	protected Context context = new Context();
-
-	/**
-	 * The analyzer instance that provides the low-level analysis information to be be further processed.
-	 *
-	 * @invariant analyzer != null
-	 */
-	protected IValueAnalyzer analyzer;
 
 	/**
 	 * This maps a class to the post processors interested in processing the analysis information pertaining to AST nodes of
@@ -379,19 +369,18 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Sets the analyzer which provides the information to be processed.
+	 * Sets the environment which provides
 	 *
-	 * @param analyzerParam an instance of the FA.
+	 * @param environment an instance of the FA.
 	 */
-	public void setAnalyzer(final IValueAnalyzer analyzerParam) {
-		analyzer = analyzerParam;
-		env = analyzer.getEnvironment();
+	public void setEnvironment(final IEnvironment environment) {
+		env = environment;
 	}
 
 	/**
 	 * Controls the processing activity.
 	 */
-	public void process() {
+	public final void process() {
 		Collection processors = new HashSet();
 		processors.addAll(interfaceProcessors);
 
@@ -399,10 +388,7 @@ public class ProcessingController {
 			processors.addAll((Collection) i.next());
 		}
 
-		for (Iterator i = processors.iterator(); i.hasNext();) {
-			IProcessor pp = (IProcessor) i.next();
-			pp.setAnalyzer(analyzer);
-		}
+		initializeProcessors(processors);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: processing classes");
@@ -507,6 +493,14 @@ public class ProcessingController {
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param processors DOCUMENT ME!
+	 */
+	protected void initializeProcessors(final Collection processors) {
+	}
+
+	/**
 	 * Controls the processing of class level entities.
 	 *
 	 * @param theClasses to be processed.
@@ -595,6 +589,8 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/10/21 08:41:04  venku
+   - Changed the methods/classes get filtered.
    Revision 1.7  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

@@ -16,9 +16,9 @@
 package edu.ksu.cis.indus.staticanalyses;
 
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -117,7 +117,7 @@ public class AnalysesController {
 			AbstractAnalysis analysis = (AbstractAnalysis) i.next();
 
 			if (analysis.doesPreProcessing()) {
-				IProcessor p = analysis.getPreProcessor();
+				IValueAnalyzerBasedProcessor p = analysis.getPreProcessor();
 				p.hookup(preprocessController);
 			}
 		}
@@ -227,6 +227,8 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/11/03 07:56:42  venku
+   - renamed getAnalysis() to getAnalyses().
    Revision 1.23  2003/11/02 22:11:17  venku
    - initialization needs to happen before any processing. FIXED.
    Revision 1.22  2003/11/02 20:18:25  venku
@@ -286,5 +288,5 @@ public class AnalysesController {
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
  */

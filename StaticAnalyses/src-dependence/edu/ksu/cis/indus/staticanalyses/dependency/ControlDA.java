@@ -24,7 +24,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -282,7 +282,7 @@ public class ControlDA
 		Collection processed = new ArrayList();
 		BitSet currResult = new BitSet();
 		BitSet temp1 = new BitSet();
-		WorkBag wb = new FIFOWorkBag();
+		IWorkBag wb = new FIFOWorkBag();
 		Collection roots;
 
 		if (forward) {
@@ -482,6 +482,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/05 09:29:51  venku
+   - ripple effect of splitting IWorkBag.
+
    Revision 1.21  2003/11/05 04:25:34  venku
    - return value of getDependees() was type incorrect.  FIXED.
 

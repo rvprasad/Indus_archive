@@ -16,7 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +41,7 @@ public class WorkList {
 	/**
 	 * The backend workbag object which holds the work piece.
 	 */
-	private final WorkBag workbag;
+	private final IWorkBag workbag;
 
 	/**
 	 * Creates a new <code>WorkList</code> instance.
@@ -92,6 +92,9 @@ public class WorkList {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/05 09:33:13  venku
+   - ripple effect of splitting Workbag.
+
    Revision 1.7  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
@@ -105,7 +108,7 @@ public class WorkList {
    Extended it with work pool support.
    Amended AbstractWork and WorkList to enable work pool support.
    Revision 1.3  2003/08/17 10:33:03  venku
-   WorkList does not inherit from WorkBag rather contains an instance of WorkBag.
+   WorkList does not inherit from IWorkBag rather contains an instance of IWorkBag.
    Ripple effect of the above change.
    Revision 1.2  2003/08/15 04:07:56  venku
    Spruced up documentation and specification.

@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 import soot.SootClass;
 
 import edu.ksu.cis.indus.interfaces.IPrototype;
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -148,6 +148,10 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.8  2003/08/30 23:15:17  venku
    Added support to display statistics in managers.
    Revision 1.7  2003/08/30 22:39:20  venku

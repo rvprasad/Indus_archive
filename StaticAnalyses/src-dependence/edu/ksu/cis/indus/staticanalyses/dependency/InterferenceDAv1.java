@@ -27,11 +27,11 @@ import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.Stmt;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
@@ -104,7 +104,7 @@ public class InterferenceDAv1
 		 * @pre stmt.isOclKindOf(AssignStmt)
 		 * @pre context.getCurrentMethod() != null
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Stmt,Context)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt,Context)
 		 */
 		public void callback(final Stmt stmt, final Context context) {
 			SootMethod method = context.getCurrentMethod();
@@ -413,6 +413,8 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/05 00:44:51  venku
+   - added logging statements to track the execution.
    Revision 1.14  2003/10/05 16:23:34  venku
    - formatting.
    Revision 1.13  2003/10/05 16:20:58  venku

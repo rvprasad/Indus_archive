@@ -21,19 +21,19 @@ import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.Stmt;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Quadraple;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,8 +68,10 @@ import java.util.Stack;
 public class SynchronizationDA
   extends DependencyAnalysis
   implements IMonitorInfo {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SynchronizationDA.class);
 
@@ -121,7 +123,7 @@ public class SynchronizationDA
 		/**
 		 * Preprocesses the given method.  It records if the method is synchronized.
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootMethod)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootMethod)
 		 */
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
@@ -138,7 +140,7 @@ public class SynchronizationDA
 		 * @pre stmt.isOclTypeOf(EnterMonitorStmt) or stmt.isOclTypeOf(ExitMonitorStmt)
 		 * @pre context.getCurrentMethod() != null
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Stmt,Context)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt,Context)
 		 */
 		public void callback(final Stmt stmt, final Context context) {
 			if (stmt instanceof EnterMonitorStmt) {
@@ -233,7 +235,7 @@ public class SynchronizationDA
 			LOGGER.info("BEGIN: Synchronization Dependence processing");
 		}
 
-		WorkBag workbag = new LIFOWorkBag();
+		IWorkBag workbag = new LIFOWorkBag();
 		Collection temp = new HashSet();
 		Collection col;
 		Stack stack = new Stack();
@@ -500,12 +502,12 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/05 09:29:05  venku
+   - ripple effect of splitting IWorkBag.
    Revision 1.14  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
-
    Revision 1.13  2003/11/03 07:54:56  venku
    - added logging.
-
    Revision 1.12  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
@@ -517,7 +519,7 @@ nextBasicBlock:
    Revision 1.9  2003/09/10 11:49:31  venku
    - documentation change.
    Revision 1.8  2003/09/08 02:25:04  venku
-   - Ripple effect of changes to ProcessingController.
+   - Ripple effect of changes to ValueAnalyzerBasedProcessingController.
    Revision 1.7  2003/09/07 09:02:13  venku
    - Synchronization dependence now handles exception based
      sync dep edges.  This requires a Value Flow analysis which can

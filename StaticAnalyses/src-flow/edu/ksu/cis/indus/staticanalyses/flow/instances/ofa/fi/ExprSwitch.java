@@ -42,7 +42,7 @@ import soot.jimple.ThisRef;
 import soot.jimple.UnopExpr;
 import soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
@@ -449,6 +449,10 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.6  2003/08/26 17:55:45  venku
    Well, we used typing info for triggering static field expression.  However,
    this was incorrect as the flow to the primary is cut off.  FIXED.

@@ -46,21 +46,22 @@ import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -195,9 +196,8 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @pre scene != null and callgraph != null and tgi != null
 	 */
-	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph,
-		final IThreadGraphInfo tgiPrm, final BasicBlockGraphMgr basicBlockGraphMgr) {
-	
+	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final IThreadGraphInfo tgiPrm,
+		final BasicBlockGraphMgr basicBlockGraphMgr) {
 		this.cgi = callgraph;
 		this.tgi = tgiPrm;
 
@@ -747,7 +747,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootField)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootField)
 	 */
 	public void callback(final SootField sf) {
 		if (Modifier.isStatic(sf.getModifiers())) {
@@ -763,7 +763,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootMethod)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootMethod)
 	 */
 	public void callback(final SootMethod sm) {
 		if (LOGGER.isDebugEnabled()) {
@@ -820,7 +820,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	public void execute() {
 		SimpleNodeGraph sng = cgi.getCallGraph();
 		Collection sccs = sng.getSCCs(false);
-		WorkBag wb = new FIFOWorkBag();
+		IWorkBag wb = new FIFOWorkBag();
 		Collection processed = new HashSet();
 
 		// Phase 2: The SCCs are ordered bottom up. 
@@ -955,7 +955,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
+	 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(this);
@@ -1010,7 +1010,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
+	 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(this);
@@ -1062,7 +1062,8 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * @param sm is the method in which <code>v</code> occurs.
 	 *
 	 * @return <code>true</code> if <code>v</code> is marked as global; <code>false</code>, otherwise.
-     * @pre v != null and sm != null
+	 *
+	 * @pre v != null and sm != null
 	 */
 	boolean isGlobal(final Value v, final SootMethod sm) {
 		boolean result = true;
@@ -1114,16 +1115,15 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/11/05 09:28:34  venku
+   - ripple effect of splitting IWorkBag.
    Revision 1.22  2003/11/02 22:09:57  venku
    - changed the signature of the constructor of
      EquivalenceClassBasedEscapeAnalysis.
-
    Revision 1.21  2003/11/01 23:50:00  venku
    - documentation.
-
    Revision 1.20  2003/10/31 01:02:04  venku
    - added code for extracting data for CC04 paper.
-
    Revision 1.19  2003/10/21 04:29:23  venku
    - subtle bug emanated from the order in which the
      statements were processed.  As a fix, all start call-sites

@@ -36,7 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -120,7 +120,7 @@ public final class EADriver
 			}
 			addTimeLog("FA analysis", stop - start);
 
-			ProcessingController ppc = new ProcessingController();
+			ValueAnalyzerBasedProcessingController ppc = new ValueAnalyzerBasedProcessingController();
 			ppc.setAnalyzer(aa);
 
 			// Create call graph
@@ -248,6 +248,10 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/02 22:09:57  venku
+   - changed the signature of the constructor of
+     EquivalenceClassBasedEscapeAnalysis.
+
    Revision 1.13  2003/10/31 01:02:04  venku
    - added code for extracting data for CC04 paper.
 

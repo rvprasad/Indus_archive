@@ -30,7 +30,7 @@ import java.util.Collection;
  * @version $Revision$
  */
 public class CGBasedProcessingController
-  extends ProcessingController {
+  extends ValueAnalyzerBasedProcessingController {
 	/**
 	 * Provides the call graph information to drive the processing.
 	 */
@@ -50,7 +50,7 @@ public class CGBasedProcessingController
 	/**
 	 * Filters out methods that unreachable in the call graph provided at construction.
 	 *
-	 * @see ProcessingController#filterMethods(Collection)
+	 * @see ValueAnalyzerBasedProcessingController#filterMethods(Collection)
 	 */
 	protected Collection filterMethods(final Collection methods) {
 		return CollectionUtils.intersection(methods, cgi.getReachableMethods());
@@ -60,6 +60,9 @@ public class CGBasedProcessingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/10/21 08:41:04  venku
+   - Changed the methods/classes get filtered.
+
    Revision 1.4  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
@@ -73,5 +76,5 @@ public class CGBasedProcessingController
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
  */

@@ -27,20 +27,20 @@ import soot.jimple.InvokeStmt;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
-import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -612,7 +612,7 @@ public class ReadyDAv1
 	 */
 	private void processRule1And3() {
 		Collection temp = new HashSet();
-		WorkBag workbag = new LIFOWorkBag();
+		IWorkBag workbag = new LIFOWorkBag();
 		Collection processed = new HashSet();
 		Map map = new HashMap();
 
@@ -849,6 +849,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/11/05 09:29:51  venku
+   - ripple effect of splitting IWorkBag.
+
    Revision 1.22  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
 
@@ -872,7 +875,7 @@ public class ReadyDAv1
    Revision 1.14  2003/09/10 11:49:30  venku
    - documentation change.
    Revision 1.13  2003/09/08 02:25:25  venku
-   - Ripple effect of changes to ProcessingController.
+   - Ripple effect of changes to ValueAnalyzerBasedProcessingController.
    Revision 1.12  2003/08/27 12:41:30  venku
    It is possible that in ill balanced wait/notify lead to a situation
    where there are no entities to match them, in particular, when
