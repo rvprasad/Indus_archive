@@ -29,9 +29,9 @@ package edu.ksu.cis.indus.common.datastructures;
  * 
  * <p>
  * The above feature of this class can lead to a situation where the hashcode of an instance obtained via
- * <code>hashCode()</code> in optimized mode is not equal to the hashcode of the instance if calculated on the fly.  This is
- * not a serious ramification as this will not affect the equality test of instances rather only the preformance of
- * container classes using these instances as keys.
+ * <code>hashCode()</code> in optimized mode is not equal to the hashcode of the instance if calculated on the fly.  This
+ * will not affect the equality test of instances rather only the preformance of container classes using these instances as
+ * keys.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -237,6 +237,8 @@ public class Triple {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/25 15:39:20  venku
+   - when the elements were null, a NPE could occur. FIXED.
    Revision 1.1  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
@@ -278,12 +280,12 @@ public class Triple {
    Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-               Revision 1.2  2003/08/11 04:20:19  venku
-               - Pair and Triple were changed to work in optimized and unoptimized mode.
-               - Ripple effect of the previous change.
-               - Documentation and specification of other classes.
-               Revision 1.1  2003/08/07 06:42:16  venku
-               Major:
-                - Moved the package under indus umbrella.
-                - Renamed isEmpty() to hasWork() in IWorkBag.
+                 Revision 1.2  2003/08/11 04:20:19  venku
+                 - Pair and Triple were changed to work in optimized and unoptimized mode.
+                 - Ripple effect of the previous change.
+                 - Documentation and specification of other classes.
+                 Revision 1.1  2003/08/07 06:42:16  venku
+                 Major:
+                  - Moved the package under indus umbrella.
+                  - Renamed isEmpty() to hasWork() in IWorkBag.
  */
