@@ -141,10 +141,12 @@ public abstract class AbstractTool
 	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
 	 * 		  it's run.
 	 *
-	 * @throws IllegalStateException when this method is called on a paused tool.
+	 * @throws IllegalStateException when this method is called on a paused tool or the tool cannot be configuraed according
+	 * 		   to the configuration.
 	 */
 	public final synchronized void run(final Object phase, final boolean synchronous) {
 		if (!pause || isNotAlive()) {
+			checkConfiguration();
 			childException = null;
 
 			final AbstractTool _parent = this;
@@ -196,6 +198,13 @@ public abstract class AbstractTool
 	}
 
 	/**
+	 * Checks if the tool can be configured as per the given configuration.  Subclasses must override this method and throw
+	 * an <code>IllegalStateException</code> if the tool cannot be configured.
+	 */
+	protected void checkConfiguration() {
+	}
+
+	/**
 	 * This is the template method in which the actual processing of the tool happens.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
@@ -232,6 +241,8 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/01/08 23:55:34  venku
+   - documentation.
    Revision 1.14  2004/01/08 23:51:34  venku
    - exceptions in child thread were not being communicated to
      the parent thread.  Now, the parent thread will know about
