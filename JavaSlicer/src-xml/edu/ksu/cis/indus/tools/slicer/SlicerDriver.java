@@ -211,7 +211,6 @@ public class SlicerDriver
 		slicer.setSystem(scene);
 		slicer.setRootMethods(rootMethods);
 		slicer.setCriteria(Collections.EMPTY_LIST);
-		slicer.initialize();
 		slicer.run(Phase.STARTING_PHASE);
 
 		while (!slicer.isStable()) {
@@ -257,7 +256,7 @@ public class SlicerDriver
 
 			try {
 				jimpleWriter.flush();
-                jimpleWriter.close();
+				jimpleWriter.close();
 			} catch (IOException e) {
 				LOGGER.error("Failed to close the xml file based for jimple representation.", e);
 			}
@@ -324,29 +323,46 @@ public class SlicerDriver
 			System.exit(0);
 		} else {
 			String config = cl.getOptionValue("c");
+			FileReader reader = null;
+
+			if (config != null) {
+				try {
+					reader = new FileReader(config);
+				} catch (FileNotFoundException e) {
+					LOGGER.warn("Non-existent configuration file specified.");
+					config = null;
+				}
+			} else {
+				LOGGER.info("No configuration file specified.");
+			}
+
 			configFileName = config;
 
 			if (config == null) {
-				LOGGER.error("Using default configuration as none was specified.");
+				LOGGER.info("Trying to use default configuration.");
 
 				URL defaultConfigFileName =
 					ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
-				config = defaultConfigFileName.getFile();
+
+				try {
+					reader = new FileReader(defaultConfigFileName.getFile());
+				} catch (FileNotFoundException e) {
+					LOGGER.fatal("Even default configuration file could not be found.  Aborting", e);
+					System.exit(2);
+				}
 			}
 
 			try {
-				BufferedReader br = new BufferedReader(new FileReader(config));
+				BufferedReader br = new BufferedReader(reader);
 				StringBuffer buffer = new StringBuffer();
 
 				while (br.ready()) {
 					buffer.append(br.readLine());
 				}
 				xmlizer.setConfiguration(buffer.toString());
-			} catch (FileNotFoundException e1) {
-				LOGGER.error("Non-existent configuration file specified. Using default configuration.");
-			} catch (IOException e2) {
-				LOGGER.fatal("IO error while reading configuration file.  Aborting");
-				System.exit(2);
+			} catch (IOException e) {
+				LOGGER.fatal("IO error while reading configuration file.  Aborting", e);
+				System.exit(3);
 			}
 
 			String outputDir = cl.getOptionValue("o");
@@ -367,7 +383,7 @@ public class SlicerDriver
 
 			if (result.isEmpty()) {
 				LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
-				System.exit(3);
+				System.exit(4);
 			}
 
 			String jimpleOutDir = cl.getOptionValue("j");
@@ -377,7 +393,7 @@ public class SlicerDriver
 					xmlizer.jimpleWriter = new FileWriter(jimpleOutDir + File.separator + "jimple.xml");
 				} catch (IOException e) {
 					LOGGER.fatal("IO error while reading configuration file.  Aborting", e);
-					System.exit(4);
+					System.exit(5);
 				}
 			}
 
@@ -433,12 +449,15 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/24 10:12:03  venku
+   - there are no residualizers now.  There is a very precise
+     slice collector which will collect the slice via tags.
+   - architectural change. The slicer is hard-wired wrt to
+     slice collection.  Residualization is outside the slicer.
    Revision 1.10  2003/11/24 09:01:07  venku
    - closed the jimple output stream.
-
    Revision 1.9  2003/11/24 01:21:57  venku
    - added command line option for jiimple output.
-
    Revision 1.8  2003/11/24 00:11:42  venku
    - moved the residualizers/transformers into transformation
      package.
