@@ -463,7 +463,7 @@ public abstract class AbstractDirectedGraph
 				final INode _node = (INode) _scc.iterator().next();
 
 				if (_node.getSuccsOf().contains(_node)) {
-					_result.add(Collections.singleton(_node));
+					_result.add(Collections.singletonList(_node));
 				}
 			} else {
 				final Collection _edges = new ArrayList(backedges);
@@ -574,7 +574,7 @@ public abstract class AbstractDirectedGraph
 				_temp.clear();
 				_temp.addAll(_cycle);
 				_temp.addAll(_cycle);
-				_result = Collections.indexOfSubList(_temp, newCycle) != -1;
+				_result = Collections.indexOfSubList(_temp, newCycle) == -1;
 			}
 		}
 		return _result;
