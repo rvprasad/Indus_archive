@@ -111,6 +111,11 @@ public final class SlicingEngine {
 	}
 
 	/** 
+	 * This collects the parts of the system that make up the slice.
+	 */
+	SliceCollector collector;
+
+	/** 
 	 * The controller used to access the dependency analysis info during slicing.
 	 */
 	private AnalysesController controller;
@@ -176,11 +181,6 @@ public final class SlicingEngine {
 	 * This predicate is used to filter out java.lang.Thread.start methods from a set of methods.
 	 */
 	private Predicate nonStartMethodPredicate = new NonStartMethodPredicate();
-
-	/** 
-	 * This collects the parts of the system that make up the slice.
-	 */
-	private SliceCollector collector;
 
 	/** 
 	 * This caches the call stack of the criteria currently being processed.
@@ -575,8 +575,9 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " to workbag.");
 			}
 		} else {
-			if (((considerExecution && (sliceType.equals(BACKWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)))
-				  || (!considerExecution && (sliceType.equals(FORWARD_SLICE) || sliceType.equals(COMPLETE_SLICE))))) {
+			if (sliceType.equals(COMPLETE_SLICE)
+				  || ((considerExecution && sliceType.equals(BACKWARD_SLICE))
+				  || (!considerExecution && sliceType.equals(FORWARD_SLICE)))) {
 				final Collection _temp = new HashSet(stmt.getUseAndDefBoxes());
 
 				// if it contains an invocation expression, we do not want to include the arguments/sub-expressions.
@@ -835,8 +836,9 @@ public final class SlicingEngine {
 		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
 
 		// generate new slice criteria
-		if (((_considerExecution && (sliceType.equals(BACKWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)))
-			  || (!_considerExecution && (sliceType.equals(FORWARD_SLICE) || sliceType.equals(COMPLETE_SLICE))))) {
+		if (sliceType.equals(COMPLETE_SLICE)
+			  || (_considerExecution && sliceType.equals(BACKWARD_SLICE))
+			  || (!_considerExecution && sliceType.equals(FORWARD_SLICE))) {
 			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformExpr(_vBox);
 
 			// include any sub expressions and generate criteria from them
@@ -871,8 +873,9 @@ public final class SlicingEngine {
 		}
 
 		// transform the statement
-		if ((considerExecution && (sliceType.equals(BACKWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)))
-			  || (!considerExecution && (sliceType.equals(FORWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)))) {
+		if (sliceType.equals(COMPLETE_SLICE)
+			  || (considerExecution && sliceType.equals(BACKWARD_SLICE))
+			  || (!considerExecution && sliceType.equals(FORWARD_SLICE))) {
 			directionSensitiveInfo.processNewExpr(stmt, method);
 
 			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformStmt(stmt);
@@ -953,7 +956,7 @@ public final class SlicingEngine {
 
 		// create new slice criteria based on statement level dependence.
 		if (!collector.hasBeenCollected(stmt)) {
-		    _das.addAll(controlflowBasedDAs);
+			_das.addAll(controlflowBasedDAs);
 			generateStmtMethodCriteria(stmt, method, _das);
 		}
 
@@ -966,381 +969,4 @@ public final class SlicingEngine {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.96  2004/08/23 20:28:43  venku
-   - optimization.
-
-   Revision 1.95  2004/08/23 17:59:19  venku
-   - local processing compared incorrect value types.  FIXED.
-
-   Revision 1.94  2004/08/23 03:46:08  venku
-   - documentation.
-
-   Revision 1.93  2004/08/20 02:13:05  venku
-   - refactored slicer based on slicing direction.
-   Revision 1.92  2004/08/18 09:10:34  venku
-   - made slicing more interprocedural.
-   Revision 1.91  2004/08/17 16:13:01  venku
-   - While extracting backward dependence closure the logic to handle bi-directional
-     dependence implementation was incorrect.  FIXED.
-   Revision 1.90  2004/08/16 16:51:57  venku
-   - documentation.
-   Revision 1.89  2004/08/16 14:26:33  venku
-   - contains changes pertaining to dependence refactoring and changes to
-     create smaller forward slices and complete slices.
-   Revision 1.88  2004/07/28 09:05:31  venku
-   - changed the way arguments to native methods were handled.
-   Revision 1.87  2004/07/25 01:36:44  venku
-   - changed the way invoke expression arguments are handled when transforming
-     statements and expressions while considering execution.
-   Revision 1.86  2004/07/23 13:10:06  venku
-   - Refactoring in progress.
-     - Extended IMonitorInfo interface.
-     - Teased apart the logic to calculate monitor info from SynchronizationDA
-       into MonitorAnalysis.
-     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
-     - ripple effect.
-     - Implemented safelock analysis to handle intraprocedural processing.
-   Revision 1.85  2004/07/21 07:26:56  venku
-   - statements were not tagged due to execution consideration. FIXED.
-   Revision 1.84  2004/07/20 07:04:36  venku
-   - changes to accomodate changes to directions of dependence analyses.
-   Revision 1.83  2004/07/09 05:05:25  venku
-   - refactored the code to enable the criteria creation to be completely hidden
-     from the user.
-   - exposed the setting of the considerExecution flag of the criteria in the factory.
-   - made SliceCriteriaFactory a singleton.
-   Revision 1.82  2004/07/08 11:08:13  venku
-   - refactoring to remove redundance.
-   Revision 1.81  2004/06/26 10:16:35  venku
-   - bug #389. FIXED.
-   Revision 1.80  2004/06/14 04:32:11  venku
-   - removed an unnecessary method invocation.
-   Revision 1.79  2004/06/14 02:57:23  venku
-   - documentation.
-   Revision 1.78  2004/06/13 07:31:22  venku
-   - documentation.
-   Revision 1.77  2004/06/12 06:47:27  venku
-   - documentation.
-   - refactoring.
-   - coding conventions.
-   - catered feature request 384, 385, and 386.
-   Revision 1.76  2004/05/31 21:38:10  venku
-   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
-   - ripple effect.
-   Revision 1.75  2004/05/14 09:02:57  venku
-   - refactored:
-     - The ids are available in IDependencyAnalysis, but their collection is
-       available via a utility class, DependencyAnalysisUtil.
-     - DependencyAnalysis will have a sanity check via Unit Tests.
-   - ripple effect.
-   Revision 1.74  2004/05/14 06:27:21  venku
-   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-   Revision 1.73  2004/03/03 10:09:41  venku
-   - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
-   Revision 1.72  2004/02/23 04:40:51  venku
-   - does a naive tracking of the call chain back to the roots.
-   Revision 1.71  2004/02/13 08:39:38  venku
-   - reafactored code related to marking to facilitate
-     ease of tracking updates to required and invoked.
-   Revision 1.70  2004/02/06 00:10:11  venku
-   - optimization and logging.
-   Revision 1.69  2004/02/04 02:02:35  venku
-   - coding convention and formatting.
-   - the logic to include the return values in return statement was
-     being determined while generating the criteria. This is bad design. FIXED.
-   Revision 1.68  2004/02/01 23:36:59  venku
-   - used INewExpr2InitMapper instead of NewExpr2InitMapper
-     to improve configrurability.
-   Revision 1.67  2004/02/01 22:16:16  venku
-   - renamed set/getSlicedBBGMgr to set/getBasicBlockGraphManager
-     in SlicingEngine.
-   - ripple effect.
-   Revision 1.66  2004/01/31 01:50:21  venku
-   - logging.
-   Revision 1.65  2004/01/30 18:25:58  venku
-   - logging.
-   Revision 1.64  2004/01/27 01:46:50  venku
-   - coding convention.
-   Revision 1.63  2004/01/25 08:53:37  venku
-   - changed generateNewCritieria to be more modularized.
-   - method only trigger the inclusion of the base
-     and the invoke expressions at the call site and rely on the
-     parameter ref handling to suck in the arguments.
-   - optimized criteria generation by not including values of
-     exit points of in synchronized methods.
-   Revision 1.62  2004/01/22 12:42:21  venku
-   - logging.
-   Revision 1.61  2004/01/22 01:01:40  venku
-   - coding convention.
-   Revision 1.60  2004/01/21 02:37:51  venku
-   - logging.
-   Revision 1.59  2004/01/20 17:32:28  venku
-   - logging.
-   Revision 1.58  2004/01/20 17:16:45  venku
-   - coding convention.
-   - renamed includeClassHierarchyInSlice to includeClassInSlice.
-   - similarly, renamed includeMethodAndClassHierarchyInSlice.
-   Revision 1.57  2004/01/20 16:49:39  venku
-   - ready dependence was added to controlbased da's and useReady
-     was deleted.
-   Revision 1.56  2004/01/20 00:46:36  venku
-   - criteria are sorted in SlicingEngine instead of SlicerTool.
-   - formatting and logging.
-   Revision 1.55  2004/01/19 23:54:21  venku
-   - coding convention.
-   Revision 1.54  2004/01/19 23:53:44  venku
-   - moved the logic to order criteria to enforce pseudo-determinism
-     during slicing into SlicingEngine.
-   Revision 1.53  2004/01/19 22:55:11  venku
-   - formatting and coding convention.
-   Revision 1.52  2004/01/19 22:52:49  venku
-   - inclusion of method declaration with identical signature in the
-     super classes/interfaces is a matter of executability.  Hence,
-     this is now deferred to ExecutableSlicePostProcessor.  The
-     ramifications are each method is processed in
-     ExecutablePostProcessor to include methods in super classes;
-     only the called methods, it's declaring class
-     are included in the slice in SlicingEngine.
-   - renamed generateNewCriteriaForCallToEnclosingMethod() to
-     generateNewCriteriaForCallToMethod()
-   -
-   Revision 1.51  2004/01/19 12:23:09  venku
-   - optimized includeClassHierarchy() and includeMethodAndClassHierarchy() methods.
-   Revision 1.50  2004/01/14 12:04:14  venku
-   - we check if the statement is collected to optimized.  However,
-     a statement may be collected but not all parts of it and a later
-     request to collect all of it will not include unincluded parts
-     into the slice due to check. FIXED.
-   Revision 1.49  2004/01/13 23:25:04  venku
-   - documentation.
-   Revision 1.48  2004/01/13 10:03:31  venku
-   - documentation.
-   Revision 1.47  2004/01/13 04:33:39  venku
-   - Renamed TaggingBasedSliceCollector to SliceCollector.
-   - Ripple effect in the engine.
-   - SlicingEngine does not handle issues such as executability
-     as they do not affect the generated slice.  The slice can be
-     transformed independent of the slice via postprocessing to
-     adhere to such properties.
-   Revision 1.46  2004/01/11 03:42:22  venku
-   - synchronization, control, and divergence are now considered as
-     control based DAs and are used instead of just control.
-   - renamed controlDAs to controlBasedDAs.
-   - while considering invocations,
-     - static invocations do not use call graph.
-     - for executable slices, we tag methods in declaring
-       class to keep the type hierarchy correct.
-   Revision 1.45  2004/01/06 00:17:05  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.44  2003/12/16 12:46:03  venku
-   - changed the way return points of native method are
-     handled.
-   - changed the way class hierarchies are included into the slice.
-   Revision 1.43  2003/12/16 00:48:14  venku
-   - optimization.
-   Revision 1.42  2003/12/16 00:46:23  venku
-   - included super classes/interfaces and methods in them
-     when a method with the same signature in the subclass
-     is included.
-   Revision 1.41  2003/12/16 00:22:53  venku
-   - when we include invoke expressions leading to the
-     enclosed method (callee-caller), we need to consider
-     their execution to reach the callee.
-   - logging.
-   Revision 1.40  2003/12/15 16:34:12  venku
-   - teased out the logic to suck in the class initializers.
-   - removed includeInSlice as it was not used.
-   - added method includeClassHierarchyInSlice.
-   Revision 1.39  2003/12/15 08:09:53  venku
-   - safety check.
-   Revision 1.38  2003/12/15 08:09:09  venku
-   - incorrect way to detect super calls in init. FIXED.
-   - incorrect approximation when generating criteria
-     based on return points of method.  FIXED.
-   Revision 1.37  2003/12/13 20:54:27  venku
-   - it is possible that none of the parameters are used.
-     In such cases, _params will be null in generateNewCriteriaForMethodExit()
-     which is incorrect.  FIXED.
-   Revision 1.36  2003/12/13 20:52:33  venku
-   - documentation.
-   Revision 1.35  2003/12/13 19:52:41  venku
-   - renamed Init2NewExprMapper to NewExpr2InitMapper.
-   - ripple effect.
-   Revision 1.34  2003/12/13 19:46:33  venku
-   - documentation of SliceCollector.
-   - renamed collect() to includeInSlice().
-   Revision 1.33  2003/12/13 02:29:16  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.32  2003/12/09 04:22:14  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.31  2003/12/08 12:20:48  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.30  2003/12/08 12:16:05  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.29  2003/12/07 22:13:12  venku
-   - renamed methods in SliceCollector.
-   Revision 1.28  2003/12/07 15:16:01  venku
-   - the order of collecting the slice had an impact on the
-     generation of the slice (due to optimization).  For this
-     reason the enclosing method should be collected after
-     the criteria are generated.
-   Revision 1.27  2003/12/05 15:33:35  venku
-   - more logging and logic to handle inter procedural slicing.
-     Getting there.
-   Revision 1.26  2003/12/04 12:10:12  venku
-   - changes that take a stab at interprocedural slicing.
-   Revision 1.25  2003/12/02 09:42:17  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.24  2003/12/02 01:30:50  venku
-   - coding conventions and formatting.
-   Revision 1.23  2003/12/01 13:52:21  venku
-   - utilizes pooling support.
-   Revision 1.22  2003/12/01 12:22:09  venku
-   - lots of changes to get it working.  Not yet there, but getting there.
-   Revision 1.21  2003/11/30 13:24:30  venku
-   - amidst changes.
-    - control da is used while slicing statements only.
-    - logging.
-    - corrected logic to suck in return points, call-sites,
-      new-<init> pairs, and <clinit>s.
-   Revision 1.20  2003/11/28 18:16:58  venku
-   - a hack and an optimization.
-   Revision 1.19  2003/11/26 10:14:56  venku
-   - refactored method to suck in <clinit> method dependence.
-   - included logic to suck in <clinit> dependences.
-   Revision 1.18  2003/11/25 00:00:45  venku
-   - added support to include gotos in the slice.
-   - added logic to include all tail points in the slice after slicing
-     and only in case of backward executable slice.
-   - added logic to include exceptions in a limited way.
-   Revision 1.17  2003/11/24 18:20:25  venku
-   - added partial support to handle exceptions during slicing.
-   Revision 1.16  2003/11/24 16:46:15  venku
-   - exposed certain variables which are part of the package
-     rather than the class.
-   Revision 1.15  2003/11/24 10:11:32  venku
-   - there are no residualizers now.  There is a very precise
-     slice collector which will collect the slice via tags.
-   - architectural change. The slicer is hard-wired wrt to
-     slice collection.  Residualization is outside the slicer.
-   Revision 1.14  2003/11/24 09:46:49  venku
-   - moved ISliceCollector and SliceCollector
-     into slicer package.
-   - The idea is to collect the slice based on annotation which
-     can be as precise as we require and then layer on
-     top of that the slicer residualization logic, either constructive or destructive.
-   Revision 1.13  2003/11/24 01:21:00  venku
-   - coding convention.
-   Revision 1.12  2003/11/24 00:01:14  venku
-   - moved the residualizers/transformers into transformation
-     package.
-   - Also, renamed the transformers as residualizers.
-   - opened some methods and classes in slicer to be public
-     so that they can be used by the residualizers.  This is where
-     published interface annotation is required.
-   - ripple effect of the above refactoring.
-   Revision 1.11  2003/11/22 00:43:34  venku
-   - split initialize() into many setter methods.
-   - initialize() now just does sanity check on the runtime configuration
-     of the engine.
-   Revision 1.10  2003/11/20 08:22:37  venku
-   - added support to include calls to <init> based on new expressions.
-   - need to implement the class that provides this information.
-   Revision 1.9  2003/11/17 02:23:52  venku
-   - documentation.
-   - xmlizers require streams/writers to be provided to them
-     rather than they constructing them.
-   Revision 1.8  2003/11/16 23:01:44  venku
-   - exercises the support to process seed criteria.
-   Revision 1.7  2003/11/13 14:08:08  venku
-   - added a new tag class for the purpose of recording branching information.
-   - renamed fixReturnStmts() to makeExecutable() and raised it
-     into ISliceCollector interface.
-   - ripple effect.
-   Revision 1.6  2003/11/06 05:15:05  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.5  2003/11/05 09:33:39  venku
-   - ripple effect of splitting Workbag.
-   Revision 1.4  2003/11/05 08:34:40  venku
-   - Slicing on single threaded and single procedure
-     program works but does not terminate.  Now the
-     slicing algorithm is just tracing dependence and
-     creating new criteria along the way.
-   Revision 1.3  2003/11/03 08:19:56  venku
-   - Major changes
-     value boxes are the atomic entities in a slice.
-     code restructuring.
-   Revision 1.2  2003/10/21 06:00:19  venku
-   - Split slicing type into 2 sets:
-        b/w, f/w, and complete
-        executable and non-executable.
-   - Extended transformer classes to handle these
-     classification.
-   - Added a new class to house the logic for fixing
-     return statements in case of backward executable slice.
-   Revision 1.1  2003/10/13 00:58:03  venku
-   - empty log message
-   Revision 1.16  2003/09/28 06:20:38  venku
-   - made the core independent of hard code used to create unit graphs.
-     The core depends on the environment to provide a factory that creates
-     these unit graphs.
-   Revision 1.15  2003/09/27 22:38:30  venku
-   - package documentation.
-   - formatting.
-   Revision 1.14  2003/09/15 08:09:17  venku
-   - fixed param dependency.  However, this needs to be addressed
-     in a generic setting.  Also, the theoretics concerned to inclusion
-     should be dealt appropriately.
-   Revision 1.13  2003/08/21 10:25:08  venku
-   - Now here is where things get interesting.  Inclusion has 2 meanings.
-   - One is should the entity be included in the transformed system.
-   - Two is shoudl the enclosed entities be considered for slicing.
-   - In the process of setting this right.  Not fixed yet.  In fact fails to compile.
-   Revision 1.12  2003/08/19 12:44:39  venku
-   - Changed the signature of ITransformer.getLocal()
-   - Introduced reset() in ITransformer.
-   - Ripple effect of the above changes.
-   Revision 1.11  2003/08/19 11:52:25  venku
-   - The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
-     and  Slicer to SliceEngine.
-   - Ripple effect of the above.
-   Revision 1.10  2003/08/19 11:37:41  venku
-   Major changes:
-    - Changed ITransformMap extensively such that it now provides
-      interface to perform the actual transformation.
-    - Extended ITransformMap as AbstractTransformer to provide common
-      functionalities.
-    - Ripple effect of the above change in SlicerMapImpl.
-    - Ripple effect of the above changes in Slicer.
-    - The slicer now actually detects what needs to be included in the slice.
-      Hence, it is more of an analysis/driver/engine that drives the transformation
-      and SliceMapImpl is the engine that does or captures the transformation.
-   - The immediate following change will be to rename ITransformMap to ITransformer,
-     SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
-   Revision 1.9  2003/08/18 12:14:13  venku
-   - Well, to start with the slicer implementation is complete.
-     Although not necessarily bug free, hoping to stabilize it quickly.
-   Revision 1.8  2003/08/18 05:01:45  venku
-   - Committing package name change in source after they were moved.
-   Revision 1.7  2003/08/18 04:56:47  venku
-   - Spruced up Documentation and specification.
-    But committing before moving slicer under transformation umbrella of Indus.
-   Revision 1.6  2003/05/22 22:23:49  venku
-   - Changed interface names to start with a "I".
-     Formatting.
- */
+// End of File

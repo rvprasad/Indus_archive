@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -53,6 +54,7 @@ import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
+import soot.jimple.ThrowStmt;
 
 import soot.toolkits.graph.CompleteUnitGraph;
 
@@ -91,9 +93,9 @@ public class BackwardSlicingPart
 	private final Closure tailStmtInclusionClosure = new TailStmtInclusionClosure();
 
 	/** 
-	 * This is the collection of methods whose exits were transformed.
+	 * This is a map from methods to transformed return statements.
 	 */
-	private final Collection exitTransformedMethods = new HashSet();
+	private final Map exitTransformedMethods = new HashMap();
 
 	/** 
 	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the
@@ -212,6 +214,11 @@ public class BackwardSlicingPart
 	 * 		soot.SootMethod)
 	 */
 	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processLocalAt(Local local = " + local + ", Stmt stmt = " + stmt + ", SootMethod method = "
+				+ method + ") - BEGIN");
+		}
+
 		engine.generateSliceStmtCriterion(stmt, method, true);
 
 		if (stmt.containsInvokeExpr()) {
@@ -231,6 +238,10 @@ public class BackwardSlicingPart
 					break;
 				}
 			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("processLocalAt() - END");
 		}
 	}
 
@@ -377,16 +388,32 @@ public class BackwardSlicingPart
 	 * should be marked as invoked or required before calling this method.
 	 *
 	 * @param callee is the method in question.
+	 * @param expr indicates if the expression in the tail statement should be probed to indicate if criteria should be
+	 * 		  generated.
 	 *
 	 * @return <code>true</code> if method's return points of callee should be considered to generate new slice criterion;
 	 * 		   <code>false</code>, otherwise.
 	 */
-	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee) {
+	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee, final boolean expr) {
 		boolean _result = false;
 
-		if (!exitTransformedMethods.contains(callee)) {
-			exitTransformedMethods.add(callee);
+		if (!exitTransformedMethods.containsKey(callee)) {
+			exitTransformedMethods.put(callee, null);
 			_result = true;
+		} else if (expr) {
+			final Collection _temp = CollectionsUtilities.getSetFromMap(exitTransformedMethods, callee);
+			final Iterator _i = _temp.iterator();
+			final int _iEnd = _temp.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+				final Stmt _tail = (Stmt) _i.next();
+
+				if (_tail instanceof ReturnStmt) {
+					_result |= !engine.collector.hasBeenCollected(((ReturnStmt) _tail).getOpBox());
+				} else if (_tail instanceof ThrowStmt) {
+					_result |= !engine.collector.hasBeenCollected(((ThrowStmt) _tail).getOpBox());
+				}
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -455,7 +482,8 @@ public class BackwardSlicingPart
 	}
 
 	/**
-	 * Processes the tails of the callees called at the given statements in the caller with the given closure.
+	 * Processes the callees called at the given statements in the caller with the given closure to include tails of the
+	 * callees along with any arguments at the call-site.
 	 *
 	 * @param callees are the methods called at the statement.
 	 * @param stmt is the statment containing the invocation.
@@ -470,35 +498,44 @@ public class BackwardSlicingPart
 		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
 			final SootMethod _callee = (SootMethod) _i.next();
 
-			if (considerMethodExitForCriteriaGeneration(_callee)) {
+			if (considerMethodExitForCriteriaGeneration(_callee, closure == returnValueInclClosure)) {
 				if (_callee.isConcrete()) {
 					if (engine.getCallStackCache() == null) {
 						engine.setCallStackCache(new Stack());
 					}
 
 					final Stack _callStackCache = engine.getCallStackCache();
-					_callStackCache.push(new CallTriple(caller, stmt, stmt.getInvokeExpr()));
-
 					final BasicBlockGraph _calleeBasicBlockGraph = _bbgMgr.getBasicBlockGraph(_callee);
+					_callStackCache.push(new CallTriple(caller, stmt, stmt.getInvokeExpr()));
 					processSuperInitInInit(_callee, _calleeBasicBlockGraph);
+
+					final Collection _temp = new HashSet();
 
 					for (final Iterator _j = _calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
 						final BasicBlock _bb = (BasicBlock) _j.next();
 						final Stmt _trailer = _bb.getTrailerStmt();
 						closure.execute(new Pair(_trailer, _callee));
+						_temp.add(_trailer);
 					}
+					exitTransformedMethods.put(_callee, _temp);
 					_callStackCache.pop();
 
 					if (_callStackCache.isEmpty()) {
 						engine.setCallStackCache(null);
+					}
+				} else {
+					final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
+
+					for (int _j = _callee.getParameterCount() - 1; _j >= 0; _j--) {
+						engine.generateSliceExprCriterion(_invokeExpr.getArgBox(_j), stmt, caller, true);
 					}
 				}
 			} else {
 				/*
 				 * if not, then check if any of the method parameters are marked as required.  If so, include them.
 				 * It is possible that the return statements are not affected by the parameters in which case _params will be
-				 * null.  On the other hand, may be the return statements have been included but not yet processed in which case
-				 * _params will be null again.  In the latter case, we postpone for callee-caller propogation to generate
+				 * null.  On the other hand, may be the return statements have been included but not yet processed in which 
+				 * case _params will be null again.  In the latter case, we postpone for callee-caller propogation to generate
 				 * criteria to consider suitable argument expressions.
 				 */
 				final BitSet _params = (BitSet) method2params.get(_callee);
@@ -516,18 +553,4 @@ public class BackwardSlicingPart
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.5  2004/08/23 17:29:35  venku
-   - incorrect comparison in processLocalsAt() led to incorrect slices.  FIXED.
-
-   Revision 1.4  2004/08/23 15:04:06  venku
-   - return values were included by default and this led to larger slices.  FIXED.
-   Revision 1.3  2004/08/23 03:46:08  venku
-   - documentation.
-   Revision 1.2  2004/08/20 02:13:05  venku
-   - refactored slicer based on slicing direction.
-   Revision 1.1  2004/08/18 09:54:49  venku
-   - adding first cut classes from refactoring for feature 427.  This is not included in v0.3.2.
- */
+// End of File
