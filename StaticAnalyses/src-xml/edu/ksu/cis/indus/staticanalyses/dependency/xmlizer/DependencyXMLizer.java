@@ -222,6 +222,21 @@ public class DependencyXMLizer
 	 * @param s DOCUMENT ME!
 	 */
 	public static void main(final String[] s) {
+		Object[][] das =
+			{
+				{ "1", "ibdda", "Identifier based data dependence", new IdentifierBasedDataDA() },
+				{ "2", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
+				{ "3", "ncda", "Entry control dependence", new EntryControlDA() },
+				{ "4", "xcda", "Exit control dependence", new ExitControlDA() },
+				{ "5", "sda", "Synchronization dependence", new SynchronizationDA() },
+				{ "6", "rda1", "Ready dependence v1", new ReadyDAv1() },
+				{ "7", "rda2", "Ready dependence v2", new ReadyDAv2() },
+				{ "8", "rda3", "Ready dependence v3", new ReadyDAv3() },
+				{ "9", "ida1", "Interference dependence v1", new InterferenceDAv1() },
+				{ "10", "ida2", "Interference dependence v2", new InterferenceDAv2() },
+				{ "11", "ida3", "Interference dependence v3", new InterferenceDAv3() },
+				{ "12", "dda", "Divergence dependence", new DivergenceDA() }
+			};
 		Options options = new Options();
 		Option option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
 		option.setRequired(true);
@@ -234,6 +249,11 @@ public class DependencyXMLizer
 		option.setArgs(1);
 		options.addOption(option);
 		option.setRequired(false);
+
+		for (int i = 0; i < das.length; i++) {
+			option = new Option(das[i][0].toString(), das[i][1].toString(), false, das[i][2].toString());
+			options.addOption(option);
+		}
 
 		PosixParser parser = new PosixParser();
 
@@ -251,7 +271,12 @@ public class DependencyXMLizer
 			xmlizer.setXMLOutputDir(outputDir);
 			xmlizer.setClassNames(cl.getOptionValues('c'));
 			xmlizer.setGenerator(new UniqueJimpleIDGenerator());
-			xmlizer.populateDAs();
+
+			for (int i = 0; i < das.length; i++) {
+				if (cl.hasOption(das[i][0].toString())) {
+					xmlizer.populateDA((DependencyAnalysis) das[i][3]);
+				}
+			}
 			xmlizer.initialize();
 			xmlizer.execute();
 			xmlizer.printTimingStats();
@@ -490,18 +515,18 @@ public class DependencyXMLizer
 	 */
 	public void populateDAs() {
 		// The order is important for the purpose of Testing as it influences the output file name
+		das.add(new IdentifierBasedDataDA());
+		das.add(new ReferenceBasedDataDA());
 		das.add(new EntryControlDA());
 		das.add(new ExitControlDA());
-		das.add(new DivergenceDA());
-		das.add(new IdentifierBasedDataDA());
+		das.add(new SynchronizationDA());
 		das.add(new InterferenceDAv1());
 		das.add(new InterferenceDAv2());
 		das.add(new InterferenceDAv3());
 		das.add(new ReadyDAv1());
 		das.add(new ReadyDAv2());
 		das.add(new ReadyDAv3());
-		das.add(new ReferenceBasedDataDA());
-		das.add(new SynchronizationDA());
+		das.add(new DivergenceDA());
 	}
 
 	/**
@@ -568,6 +593,17 @@ public class DependencyXMLizer
 			LOGGER.error("Unknown dependency xmlizer type requested.  Bailing on this.");
 		}
 		return result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param da DOCUMENT ME!
+	 */
+	private void populateDA(final DependencyAnalysis da) {
+		das.add(da);
 	}
 
 	/**
@@ -660,6 +696,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/30 01:38:52  venku
+   - incorporated tag based filtering during CG construction.
    Revision 1.13  2003/11/30 01:17:15  venku
    - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
    - renamed XMLizingController to XMLizingProcessingFilter.
