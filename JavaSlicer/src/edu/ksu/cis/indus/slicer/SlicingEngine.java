@@ -491,17 +491,22 @@ public final class SlicingEngine {
 				LOGGER.error("The work piece is not a subtype of AbstractSliceCriterion" + _o);
 				throw new IllegalStateException("The work piece is not a subtype of AbstractSliceCriterion" + _o);
 			}
+
+			try {
+				criteria.add(((AbstractSliceCriterion) _o).clone());
+			} catch (final CloneNotSupportedException _e) {
+				LOGGER.error("The work piece could not be cloned - " + _o, _e);
+				throw new IllegalStateException("The work piece could not be cloned - " + _o);
+			}
 		}
-		criteria.addAll(sliceCriteria);
 		Collections.sort(criteria, ToStringBasedComparator.SINGLETON);
 
 		if (LOGGER.isDebugEnabled()) {
 			final StringBuffer _sb = new StringBuffer();
 
 			for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
-				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
 				_sb.append("\n\t");
-				_sb.append(_criterion);
+				_sb.append(_i.next());
 			}
 			LOGGER.debug("Criteria:\n" + _sb.toString());
 			LOGGER.debug("END: Populating deadlock criteria.");
@@ -1296,18 +1301,17 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.80  2004/06/14 04:32:11  venku
+   - removed an unnecessary method invocation.
    Revision 1.79  2004/06/14 02:57:23  venku
    - documentation.
-
    Revision 1.78  2004/06/13 07:31:22  venku
    - documentation.
-
    Revision 1.77  2004/06/12 06:47:27  venku
    - documentation.
    - refactoring.
    - coding conventions.
    - catered feature request 384, 385, and 386.
-
    Revision 1.76  2004/05/31 21:38:10  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.

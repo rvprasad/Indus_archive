@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
@@ -233,6 +234,13 @@ public class SliceXMLizerCLI
 		slicer.setRootMethods(rootMethods);
 		slicer.setCriteria(Collections.EMPTY_LIST);
 		slicer.run(Phase.STARTING_PHASE, true);
+
+		// We use default slicer configuration in which criteria to preserve deadlock properties are created on behalf the CLI
+		// Hence, the CLI should return these criteria to the pool.
+		for (final Iterator _i = slicer.getCriteria().iterator(); _i.hasNext();) {
+			final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
+			_criterion.returnToPool();
+		}
 	}
 
 	/**
@@ -601,6 +609,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/06/14 08:39:29  venku
+   - added a property to SootBasedDriver to control the type of statement graph
+     factory to be used.
+   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
+   - ripple effect.
    Revision 1.39  2004/06/12 06:47:27  venku
    - documentation.
    - refactoring.

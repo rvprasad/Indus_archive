@@ -33,7 +33,8 @@ import soot.SootMethod;
  */
 abstract class AbstractSliceCriterion
   extends AbstractPoolable
-  implements ISliceCriterion {
+  implements Cloneable,
+	  ISliceCriterion {
 	/**
 	 * The method in which <code>stmt</code> occurs.
 	 */
@@ -55,7 +56,7 @@ abstract class AbstractSliceCriterion
 	public boolean equals(final Object o) {
 		boolean _result = false;
 
-		if (o instanceof ISliceCriterion) {
+		if (o instanceof AbstractSliceCriterion) {
 			_result =
 				((AbstractSliceCriterion) o).method == method
 				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution;
@@ -90,6 +91,14 @@ abstract class AbstractSliceCriterion
 	 */
 	protected final SootMethod getOccurringMethod() {
 		return method;
+	}
+
+	/**
+	 * @see java.lang.Object#clone()
+	 */
+	protected final Object clone()
+	  throws CloneNotSupportedException {
+		return super.clone();
 	}
 
 	/**
@@ -136,6 +145,13 @@ abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/06/24 06:53:53  venku
+   - refactored SliceConfiguration
+     - added processBooleanProperty()
+     - renamed getNamesOfDAToUse() to getIDOfDAToUse()
+   - ripple effect
+   - made AbstractSliceCriterion package private
+   - made ISliceCriterion public
    Revision 1.14  2004/02/25 23:43:46  venku
    - build and check for compilation errors before committing.
    Revision 1.12  2004/01/22 11:43:38  venku
