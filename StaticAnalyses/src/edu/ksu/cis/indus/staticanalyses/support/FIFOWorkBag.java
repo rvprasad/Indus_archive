@@ -32,9 +32,7 @@ import java.util.List;
 public class FIFOWorkBag
   implements IWorkBag {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This contains the work pieces put into the work bag.
 	 */
 	protected List container = new ArrayList();
 
@@ -93,6 +91,9 @@ public class FIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/16 19:09:42  venku
+   - documentation.
+
    Revision 1.4  2003/11/06 06:50:53  venku
    - subtle error of using get() instead of remove() on
      the container.

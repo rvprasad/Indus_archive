@@ -21,9 +21,7 @@ import java.util.Collection;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a Last-in-First-out implementation of the workbag.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -65,6 +63,9 @@ public class LIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/06 05:04:02  venku
+   - renamed WorkBag to IWorkBag and the ripple effect.
+
    Revision 1.2  2003/11/06 05:01:57  venku
    - finalized the parameters.
 
