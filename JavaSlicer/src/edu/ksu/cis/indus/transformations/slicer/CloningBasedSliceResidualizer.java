@@ -211,11 +211,9 @@ public class CloningBasedSliceResidualizer
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
 	public void completeTransformation() {
-		if (sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			makeExecutable();
-		}
 		fixupMethods();
 
+		// TODO:
 		for (Iterator i = unslicedMethod2stmtMap.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			SootMethod slicedMethod = cloner.getCloneOf(method);
@@ -358,6 +356,13 @@ public class CloningBasedSliceResidualizer
 	 */
 	public void initialize(final Scene theSystem) {
 		untransformedSystem = theSystem;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer#makeExecutable()
+	 */
+	public void makeExecutable() {
+		// TODO: Auto-generated method stub
 	}
 
 	/**
@@ -524,11 +529,18 @@ public class CloningBasedSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
    Revision 1.31  2003/11/17 02:23:52  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them
      rather than they constructing them.
-
    Revision 1.30  2003/11/16 23:12:17  venku
    - coding convention.
    Revision 1.29  2003/11/16 22:55:31  venku
