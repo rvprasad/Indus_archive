@@ -91,7 +91,7 @@ public class ValueXMLizer
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	StringBuffer tabs = new StringBuffer("\t\t\t\t");
+	StringBuffer tabs = new StringBuffer("\t\t\t");
 
 	/**
 	 * <p>
@@ -740,6 +740,9 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/30 09:44:53  venku
+   - renamed getIdForValue to getIdForValueBox.
+
    Revision 1.8  2003/11/28 09:41:49  venku
    - tags and attribute names were changed.
 
