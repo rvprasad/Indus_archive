@@ -82,6 +82,13 @@ public class NamedTag
 		_result = _result * 37 + name.hashCode();
 		return _result;
 	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return super.toString() + "[name = " + name + "]";
+	}
 }
 
 // End of File
