@@ -95,7 +95,7 @@ public abstract class AbstractController {
 	 * The map of analysis being controlled by this object. It maps names of analysis to the analysis object.
 	 *
 	 * @invariant participatingAnalyses != null
-	 * @invariant participatingAnalyses.oclIsTypeOf(Map(String, DependencyAnalysis)
+	 * @invariant participatingAnalyses.oclIsTypeOf(Map(Object, DependencyAnalysis)
 	 */
 	protected final Map participatingAnalyses;
 
@@ -278,6 +278,10 @@ public abstract class AbstractController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/18 00:59:11  venku
+   Changed the type of the IDs to java.lang.Object to provide extensibility.
+   Ripple effect of that happens in AbstractController.
+
    Revision 1.5  2003/08/16 02:41:37  venku
    Renamed AController to AbstractController.
    Renamed AAnalysis to AbstractAnalysis.
