@@ -77,21 +77,18 @@ class OFAFGNode
 	 */
 	public void injectValue(final Object value) {
 		final ITokens _tokens = tokenMgr.getTokens(Collections.singleton(value));
-		addTokens(_tokens);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFGNode#injectValues(java.util.Collection)
-	 */
-	public void injectValues(final Collection values) {
-		final ITokens _tokens = tokenMgr.getTokens(values);
-		addTokens(_tokens);
+		injectTokens(_tokens);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.11  2004/04/02 21:59:54  venku
    - refactoring.
      - all classes except OFAnalyzer is package private.

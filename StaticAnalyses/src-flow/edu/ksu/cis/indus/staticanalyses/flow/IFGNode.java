@@ -85,6 +85,15 @@ public interface IFGNode
 	void addSucc(IFGNode node);
 
 	/**
+	 * Injects the given tokens into this node.
+	 *
+	 * @param tokens to be injected into this node.
+	 *
+	 * @pre tokens != null
+	 */
+	void injectTokens(ITokens tokens);
+
+	/**
 	 * Injects a value into this node.
 	 *
 	 * @param value to be injected into this node.
@@ -92,20 +101,16 @@ public interface IFGNode
 	 * @pre value !- null
 	 */
 	void injectValue(Object value);
-
-	/**
-	 * Injects the given values into this node.
-	 *
-	 * @param values to be injected into this node.
-	 *
-	 * @pre values != null
-	 */
-	void injectValues(Collection values);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.6  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

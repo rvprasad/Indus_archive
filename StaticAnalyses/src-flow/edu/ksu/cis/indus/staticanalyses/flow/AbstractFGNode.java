@@ -75,6 +75,15 @@ public abstract class AbstractFGNode
 	protected final IWorkBag worklist;
 
 	/**
+	 * This refers to the work piece which will inject tokens in to this node.  The protocol is that if this field is
+	 * <code>null</code> then there are no tokens to be injected into this node.  If this field is not-<code>null</code>
+	 * then there is are some  tokens waiting to be injected into this node.  So, any new tokens to be injected at that
+	 * point can be added to the work referred to by this work piece rather than creating and adding a new work piece to the
+	 * work list.
+	 */
+	private SendTokensWork sendTokensWork;
+
+	/**
 	 * Creates a new <code>AbstractFGNode</code> instance.
 	 *
 	 * @param worklistToUse The worklist associated with the enclosing instance of the framework.
@@ -160,6 +169,22 @@ public abstract class AbstractFGNode
 	}
 
 	/**
+	 * Injects a set of values into the set of values associated with this node.
+	 *
+	 * @param newTokens the collection of tokens to be added as successors to this node.
+	 *
+	 * @pre newTokens != null
+	 */
+	public final void injectTokens(final ITokens newTokens) {
+		final ITokens _diffTokens = newTokens.diffTokens(tokens);
+
+		if (!_diffTokens.isEmpty()) {
+			tokens.addTokens(_diffTokens);
+			onNewTokens(_diffTokens);
+		}
+	}
+
+	/**
 	 * Returns a stringized representation of this object.
 	 *
 	 * @return the stringized representation of this object.
@@ -171,33 +196,6 @@ public abstract class AbstractFGNode
 	}
 
 	/**
-	 * Injects a set of values into the set of values associated with this node.
-	 *
-	 * @param newTokens the collection of<code>Object</code>s to be added as successors to this node.
-	 *
-	 * @pre values != null
-	 */
-	protected final void addTokens(final ITokens newTokens) {
-		final ITokens _diffTokens = newTokens.diffTokens(tokens);
-		tokens.addTokens(newTokens);
-		onNewTokens(_diffTokens);
-	}
-
-	/**
-	 * Returns a collection containing the set difference between values in this node and the given node.  The values in this
-	 * node provide A in A \ B whereas B is provided by the <code>src</code>.
-	 *
-	 * @param src the node containing the values of set B in A \ B.
-	 *
-	 * @return a collection of values in that exist in this node and not in <code>src</code>.
-	 *
-	 * @pre src != null
-	 */
-	protected ITokens diffTokens(final IFGNode src) {
-		return tokens.diffTokens(src.getTokens());
-	}
-
-	/**
 	 * Adds a new work to the worklist to propogate the values in this node to <code>succ</code>.  Only the difference values
 	 * are propogated.
 	 *
@@ -206,14 +204,18 @@ public abstract class AbstractFGNode
 	 * @pre succ != null
 	 */
 	protected void onNewSucc(final IFGNode succ) {
-		ITokens _temp = diffTokens(succ);
+		final ITokens _filterate;
 
 		if (filter != null) {
-			_temp = filter.filter(_temp);
+			_filterate = filter.filter(tokens);
+		} else {
+			_filterate = tokens;
 		}
 
+		final ITokens _temp = _filterate.diffTokens(succ.getTokens());
+
 		if (!_temp.isEmpty()) {
-			worklist.addWork(SendTokensWork.getWork(succ, _temp));
+			generateWorkToInjectWorkInto(_temp, succ);
 		}
 	}
 
@@ -226,18 +228,55 @@ public abstract class AbstractFGNode
 	 * @pre newTokens != null
 	 */
 	protected void onNewTokens(final ITokens newTokens) {
-		ITokens _temp = newTokens;
+		if (!succs.isEmpty()) {
+			final ITokens _temp;
 
-		if (filter != null) {
-			_temp = filter.filter(_temp);
-		}
-
-		for (final Iterator _i = succs.iterator(); _i.hasNext();) {
-			final IFGNode _succ = (IFGNode) _i.next();
-
-			if (!diffTokens(_succ).isEmpty()) {
-				worklist.addWork(SendTokensWork.getWork(_succ, _temp));
+			if (filter != null) {
+				_temp = filter.filter(newTokens);
+			} else {
+				_temp = newTokens;
 			}
+
+			for (final Iterator _i = succs.iterator(); _i.hasNext();) {
+				final IFGNode _succ = (IFGNode) _i.next();
+				final ITokens _diff = _temp.diffTokens(_succ.getTokens());
+
+				if (!_diff.isEmpty()) {
+					generateWorkToInjectWorkInto(_diff, _succ);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Forgets about the associated work that pushes values to the successor nodes.
+	 */
+	void forgetSendTokensWork() {
+		sendTokensWork = null;
+	}
+
+	/**
+	 * Enqueues a work piece to inject the given tokens into the given target.  If there is a work piece associated with the
+	 * target that is enqueued, then we piggy-back on it.
+	 *
+	 * @param tokensToBeSent are the tokens to be injected.
+	 * @param target into which to inject the new tokens.
+	 *
+	 * @pre tokensToBeSent != null and target != null
+	 */
+	private void generateWorkToInjectWorkInto(final ITokens tokensToBeSent, final IFGNode target) {
+		if (target instanceof AbstractFGNode) {
+			SendTokensWork _work = ((AbstractFGNode) target).sendTokensWork;
+
+			if (_work == null) {
+				_work = SendTokensWork.getWork(target, tokensToBeSent);
+				((AbstractFGNode) target).sendTokensWork = _work;
+				worklist.addWork(_work);
+			} else {
+				_work.addTokens(tokensToBeSent);
+			}
+		} else {
+			worklist.addWork(SendTokensWork.getWork(target, tokensToBeSent));
 		}
 	}
 }
@@ -245,6 +284,11 @@ public abstract class AbstractFGNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.6  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

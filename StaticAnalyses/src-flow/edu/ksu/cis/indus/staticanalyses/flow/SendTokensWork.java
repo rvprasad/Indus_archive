@@ -103,7 +103,7 @@ public class SendTokensWork
 	 * Injects the tokens into the associated node.
 	 */
 	public final void execute() {
-		node.injectValues(tokens.getValues());
+		node.injectTokens(tokens);
 	}
 
 	/**
@@ -119,6 +119,9 @@ public class SendTokensWork
 	 */
 	public void returnToPool() {
 		try {
+			if (node instanceof AbstractFGNode) {
+				((AbstractFGNode) node).forgetSendTokensWork();
+			}
 			node = null;
 			tokens = null;
 			POOL.returnObject(this);
@@ -134,6 +137,11 @@ public class SendTokensWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.9  2004/04/02 21:59:54  venku
    - refactoring.
      - all classes except OFAnalyzer is package private.
