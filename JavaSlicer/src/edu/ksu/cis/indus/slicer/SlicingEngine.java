@@ -321,6 +321,18 @@ public final class SlicingEngine {
 		}
 		criteria.addAll(sliceCriteria);
 		Collections.sort(criteria, new ToStringBasedComparator());
+
+		if (LOGGER.isDebugEnabled()) {
+			final StringBuffer _sb = new StringBuffer();
+
+			for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
+				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
+				_sb.append("\n\t");
+				_sb.append(_criterion);
+			}
+			LOGGER.debug("Criteria:\n" + _sb.toString());
+			LOGGER.debug("END: Populating deadlock criteria.");
+		}
 	}
 
 	/**
@@ -1192,10 +1204,11 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.55  2004/01/19 23:54:21  venku
+   - coding convention.
    Revision 1.54  2004/01/19 23:53:44  venku
    - moved the logic to order criteria to enforce pseudo-determinism
      during slicing into SlicingEngine.
-
    Revision 1.53  2004/01/19 22:55:11  venku
    - formatting and coding convention.
    Revision 1.52  2004/01/19 22:52:49  venku

@@ -725,18 +725,6 @@ public final class SlicerTool
 			final ISliceCriterion _criterion = (ISliceCriterion) _k.next();
 			((AbstractSliceCriterion) _criterion).setConsiderExecution(true);
 		}
-
-		if (LOGGER.isDebugEnabled()) {
-			final StringBuffer _sb = new StringBuffer();
-
-			for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
-				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
-				_sb.append("\n\t");
-				_sb.append(_criterion);
-			}
-			LOGGER.debug("Criteria:\n" + _sb.toString());
-			LOGGER.debug("END: Populating deadlock criteria.");
-		}
 	}
 
 	/**
@@ -769,6 +757,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.63  2004/01/19 23:53:44  venku
+   - moved the logic to order criteria to enforce pseudo-determinism
+     during slicing into SlicingEngine.
    Revision 1.62  2004/01/19 23:00:23  venku
    - imposed ordering on the criteria to try to make slicing
      deterministic.
