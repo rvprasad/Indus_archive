@@ -94,27 +94,27 @@ public class SootBasedDriver {
 		LOGGER = LogFactory.getLog(SootBasedDriver.class);
 		TRAPPER_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.RootMethodTrapper.class";
 
-		final String _className = System.getProperty(TRAPPER_CLASS_PROPERTY);
+		final String _rmtClassName = System.getProperty(TRAPPER_CLASS_PROPERTY);
 		RootMethodTrapper _rmt = new RootMethodTrapper();
 
-		if (_className != null) {
+		if (_rmtClassName != null) {
 			try {
-				final Object _o = ClassLoader.getSystemClassLoader().loadClass(_className).newInstance();
+				final Object _o = ClassLoader.getSystemClassLoader().loadClass(_rmtClassName).newInstance();
 
 				if (_o instanceof RootMethodTrapper) {
 					_rmt = (RootMethodTrapper) _o;
 				} else {
-					throw new IllegalArgumentException(_className
+					throw new IllegalArgumentException(_rmtClassName
 						+ " is not a subclass of SootBasedDriver.RootMethodTrapper.");
 				}
 			} catch (final ClassNotFoundException _e) {
-				LOGGER.fatal("class " + _className + " could not be loaded/resolved. Bailing.", _e);
+				LOGGER.fatal("class " + _rmtClassName + " could not be loaded/resolved. Bailing.", _e);
 				throw new RuntimeException(_e);
 			} catch (final InstantiationException _e) {
-				LOGGER.fatal("An instance of class " + _className + " could not be created. Bailing.", _e);
+				LOGGER.fatal("An instance of class " + _rmtClassName + " could not be created. Bailing.", _e);
 				throw new RuntimeException(_e);
 			} catch (final IllegalAccessException _e) {
-				LOGGER.fatal("No-arg constructor of " + _className + " cannot be accessed.  Bailing.", _e);
+				LOGGER.fatal("No-arg constructor of " + _rmtClassName + " cannot be accessed.  Bailing.", _e);
 				throw new RuntimeException(_e);
 			}
 		}
@@ -122,26 +122,26 @@ public class SootBasedDriver {
 
 		STMT_GRAPH_FACTORY_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.StmtGraphFactory.class";
 
-		final String _className2 = System.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
+		final String stmtGraphFactoryClassName = System.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
 		IStmtGraphFactory _graphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
 
-		if (_className2 != null) {
+		if (stmtGraphFactoryClassName != null) {
 			try {
-				final Object _o = ClassLoader.getSystemClassLoader().loadClass(_className).newInstance();
+				final Object _o = ClassLoader.getSystemClassLoader().loadClass(stmtGraphFactoryClassName).newInstance();
 
 				if (_o instanceof IStmtGraphFactory) {
 					_graphFactory = (IStmtGraphFactory) _o;
 				} else {
-					throw new IllegalArgumentException(_className + " is not a subclass of IStmtGraphFactory.");
+					throw new IllegalArgumentException(stmtGraphFactoryClassName + " is not a subclass of IStmtGraphFactory.");
 				}
 			} catch (final ClassNotFoundException _e) {
-				LOGGER.fatal("class " + _className + " could not be loaded/resolved. Bailing.", _e);
+				LOGGER.fatal("class " + stmtGraphFactoryClassName + " could not be loaded/resolved. Bailing.", _e);
 				throw new RuntimeException(_e);
 			} catch (final InstantiationException _e) {
-				LOGGER.fatal("An instance of class " + _className + " could not be created. Bailing.", _e);
+				LOGGER.fatal("An instance of class " + stmtGraphFactoryClassName + " could not be created. Bailing.", _e);
 				throw new RuntimeException(_e);
 			} catch (final IllegalAccessException _e) {
-				LOGGER.fatal("No-arg constructor of " + _className + " cannot be accessed.  Bailing.", _e);
+				LOGGER.fatal("No-arg constructor of " + stmtGraphFactoryClassName + " cannot be accessed.  Bailing.", _e);
 				throw new RuntimeException(_e);
 			}
 		}
@@ -538,6 +538,12 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/06/14 08:39:29  venku
+   - added a property to SootBasedDriver to control the type of statement graph
+     factory to be used.
+   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
+   - ripple effect.
+
    Revision 1.26  2004/05/31 21:38:12  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
