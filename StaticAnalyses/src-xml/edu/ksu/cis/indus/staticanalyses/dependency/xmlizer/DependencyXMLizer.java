@@ -236,18 +236,18 @@ public class DependencyXMLizer
 	public static void main(final String[] s) {
 		Object[][] dasOptions =
 			{
-				{ "1", "ibdda", "Identifier based data dependence", new IdentifierBasedDataDA() },
-				{ "2", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
-				{ "3", "ncda", "Entry control dependence", new EntryControlDA() },
-				{ "4", "xcda", "Exit control dependence", new ExitControlDA() },
-				{ "5", "sda", "Synchronization dependence", new SynchronizationDA() },
-				{ "6", "rda1", "Ready dependence v1", new ReadyDAv1() },
-				{ "7", "rda2", "Ready dependence v2", new ReadyDAv2() },
-				{ "8", "rda3", "Ready dependence v3", new ReadyDAv3() },
-				{ "9", "ida1", "Interference dependence v1", new InterferenceDAv1() },
-				{ "10", "ida2", "Interference dependence v2", new InterferenceDAv2() },
-				{ "11", "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "12", "dda", "Divergence dependence", new DivergenceDA() }
+				{ "", "ibdda", "Identifier based data dependence", new IdentifierBasedDataDA() },
+				{ "", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
+				{ "", "ncda", "Entry control dependence", new EntryControlDA() },
+				{ "", "xcda", "Exit control dependence", new ExitControlDA() },
+				{ "", "sda", "Synchronization dependence", new SynchronizationDA() },
+				{ "", "rda1", "Ready dependence v1", new ReadyDAv1() },
+				{ "", "rda2", "Ready dependence v2", new ReadyDAv2() },
+				{ "", "rda3", "Ready dependence v3", new ReadyDAv3() },
+				{ "", "ida1", "Interference dependence v1", new InterferenceDAv1() },
+				{ "", "ida2", "Interference dependence v2", new InterferenceDAv2() },
+				{ "", "ida3", "Interference dependence v3", new InterferenceDAv3() },
+				{ "", "dda", "Divergence dependence", new DivergenceDA() }
 			};
 		Options options = new Options();
 		Option option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
@@ -349,6 +349,7 @@ public class DependencyXMLizer
 	 * Drives the analyses.
 	 */
 	public void execute() {
+        setLogger(LOGGER);
 		String tagName = "DependencyXMLizer:FA";
 		aa = OFAnalyzer.getFSOSAnalyzer(tagName);
 
@@ -405,11 +406,13 @@ public class DependencyXMLizer
 			((CallGraph) cgi).reset();
 			processors.clear();
 			processors.add(cgi);
+            pc.reset();
 			process(pc, processors);
 			writeInfo("CALL GRAPH:\n" + ((CallGraph) cgi).dumpGraph());
 			processors.clear();
 			((ThreadGraph) tgi).reset();
 			processors.add(tgi);
+            cgipc.reset();
 			process(cgipc, processors);
 			writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) tgi).dumpGraph());
 			setupDependencyAnalyses();
@@ -702,9 +705,11 @@ public class DependencyXMLizer
 			}
 		}
 		das.removeAll(failed);
+        aliasUD.reset();
 		aliasUD.hookup(cgipc);
 
 		if (ecbaRequired) {
+            ecba.reset();
 			ecba.hookup(cgipc);
 		}
 
@@ -736,6 +741,9 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/12/05 13:46:55  venku
+   - coding convention.
+
    Revision 1.19  2003/12/05 13:44:50  venku
    - xmlization messed up the controller.  FIXED.
 
