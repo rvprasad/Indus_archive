@@ -40,7 +40,7 @@ import soot.SootMethod;
 
 
 /**
- * This is an abstract implementation of <code>ICallingContextRetriever</code>.  A concrete implementation of this class 
+ * This is an abstract implementation of <code>ICallingContextRetriever</code>.  A concrete implementation of this class
  * asis will return null (open) contexts.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -108,7 +108,8 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves caller side token at the given call-site corresponding to the given token at the callee side.
+	 * Retrieves caller side token at the given call-site corresponding to the given token at the callee side.  If this
+	 * method returns <code>null</code> then that will terminate the extension of current call context along this "path".
 	 *
 	 * @param token on the calle side.
 	 * @param callee of course.
@@ -123,7 +124,8 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Retrieves the token for the given program point.
+	 * Retrieves the token for the given program point. If this  method returns <code>null</code> then that will terminate
+	 * the extension of current call context along this "path".
 	 *
 	 * @param programPoint of interest.
 	 *
@@ -149,7 +151,7 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Checks if the given program point should be considered call context generation.
+	 * Checks if the given program point (calling context base) should be considered for call context generation.
 	 *
 	 * @param programPoint of interest.
 	 *
@@ -163,9 +165,7 @@ public abstract class AbstractCallingContextRetriever
 	}
 
 	/**
-	 * Checks if the "this" variable of the method should be considered call context generation.
-	 * 
-	 * <p></p>
+	 * Checks if the "this" variable of the method should be considered for call context generation.
 	 *
 	 * @param method of interest.
 	 *
