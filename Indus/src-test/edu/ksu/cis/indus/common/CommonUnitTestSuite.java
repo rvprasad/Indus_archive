@@ -28,13 +28,13 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CommonNoArgTestSuite {
+public final class CommonUnitTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new DataStructuresNoArgTestSuite object.
+	 * Creates a new DataStructuresUnitTestSuite object.
 	 */
-	private CommonNoArgTestSuite() {
+	private CommonUnitTestSuite() {
 	}
 
 	/**
@@ -72,6 +72,9 @@ public final class CommonNoArgTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 01:04:13  venku
+   - renamed TestSuite classes to NoArgTestSuite classes.
+
    Revision 1.3  2004/02/05 18:16:21  venku
    - coding convention.
 

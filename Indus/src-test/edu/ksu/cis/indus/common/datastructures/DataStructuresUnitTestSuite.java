@@ -28,13 +28,13 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DataStructuresNoArgTestSuite {
+public final class DataStructuresUnitTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new DataStructuresNoArgTestSuite object.
+	 * Creates a new DataStructuresUnitTestSuite object.
 	 */
-	private DataStructuresNoArgTestSuite() {
+	private DataStructuresUnitTestSuite() {
 	}
 
 	/**
@@ -79,6 +79,9 @@ public final class DataStructuresNoArgTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 01:04:13  venku
+   - renamed TestSuite classes to NoArgTestSuite classes.
+
    Revision 1.3  2004/01/28 00:18:45  venku
    - added unit tests for classes in data structures package.
 

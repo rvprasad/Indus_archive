@@ -29,13 +29,13 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class GraphNoArgTestSuite {
+public final class GraphUnitestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new GraphNoArgTestSuite object.
+	 * Creates a new GraphUnitestSuite object.
 	 */
-	private GraphNoArgTestSuite() {
+	private GraphUnitestSuite() {
 	}
 
 	/**
@@ -77,6 +77,9 @@ public final class GraphNoArgTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 01:04:12  venku
+   - renamed TestSuite classes to NoArgTestSuite classes.
+
    Revision 1.2  2004/02/05 16:12:36  venku
    - added a new test case for testing pseudoTails.
 

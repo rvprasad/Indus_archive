@@ -28,13 +28,13 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class SootNoArgTestSuite {
+public final class SootUnitTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new GraphNoArgTestSuite object.
+	 * Creates a new GraphUnitestSuite object.
 	 */
-	private SootNoArgTestSuite() {
+	private SootUnitTestSuite() {
 	}
 
 	/**
@@ -74,6 +74,9 @@ public final class SootNoArgTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 01:04:12  venku
+   - renamed TestSuite classes to NoArgTestSuite classes.
+
    Revision 1.1  2004/01/28 22:45:07  venku
    - added new test cases for testing classes in soot package.
 
