@@ -25,6 +25,11 @@
         <src refid="${ant.project.name}.srcpath"/>
         <classpath refid="${ant.project.name}.classpath"/>
     </javac>
+	<antcall target="executeCustomBuild"/>
+</target>
+
+<target name="executeCustomBuild" if="custombuild.exists">
+	<antcall target="custombuild"/>
 </target>
 
 <target name="debugBuild" depends="init">
@@ -33,6 +38,7 @@
         <src refid="${ant.project.name}.srcpath"/>
         <classpath refid="${ant.project.name}.classpath"/>
     </javac>
+   	<antcall target="executeCustomBuild"/>
 </target>
 
 <target name="jar" depends="init">
@@ -126,6 +132,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.18  2003/12/09 11:55:44  venku
+- deleted postlocalbuild.xml as it was not required.
+- spruced up build.xml and prelocalbuild.xml.
+
 Revision 1.17  2003/11/17 17:57:30  venku
 - minor bug fix.
 

@@ -17,6 +17,11 @@
         <src refid="${ant.project.name}.srcpath" />
         <classpath refid="${ant.project.name}.classpath"/>
     </javac>
+    <antcall target="executeCustomBuild"/>
+</target>
+
+<target name="executeCustomBuild" if="custombuild.exists">
+	<antcall target="custombuild"/>
 </target>
 
 <target name="debugBuild" depends="init">
@@ -25,6 +30,7 @@
         <src refid="${ant.project.name}.srcpath" />
         <classpath refid="${ant.project.name}.classpath"/>
     </javac>
+   	<antcall target="executeCustomBuild"/>
 </target>
 
 <target name="jar" depends="init">
@@ -118,6 +124,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.17  2003/12/09 11:55:40  venku
+- deleted postlocalbuild.xml as it was not required.
+- spruced up build.xml and prelocalbuild.xml.
+
 Revision 1.16  2003/11/17 17:03:48  venku
 - build process can now be configured for each project
   via pre and post build files.
