@@ -138,7 +138,7 @@ public class IdentifierBasedDataDA
 	 *
 	 * @pre stmt.isOclKindOf(Stmt)
 	 * @pre method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.isOclKindOf(LocalUnitPair))
+	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
 		SootMethod sm = (SootMethod) method;
@@ -299,6 +299,10 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/12 01:04:54  venku
+   - each analysis implementation has to identify itself as
+     belonging to a analysis category via an id.
+
    Revision 1.21  2003/11/10 02:12:52  venku
    - coding convention.
    Revision 1.20  2003/11/05 00:44:51  venku
