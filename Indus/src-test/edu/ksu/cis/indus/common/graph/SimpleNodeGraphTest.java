@@ -223,7 +223,7 @@ public class SimpleNodeGraphTest
 	 */
 	protected void localtestGetCycles() {
 		final Collection _cycles = dg.getCycles();
-		assertTrue(_cycles.size() == numberOfCycles);
+		assertTrue(_cycles.size() + "==" + numberOfCycles, _cycles.size() == numberOfCycles);
 	}
 
 	/**
