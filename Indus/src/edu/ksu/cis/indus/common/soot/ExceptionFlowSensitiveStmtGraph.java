@@ -111,7 +111,7 @@ final class ExceptionFlowSensitiveStmtGraph
 
 					final List _succs = new ArrayList((List) unitToSuccs.get(_unit));
 					_succs.remove(_handler);
-					unitToPreds.put(_unit, _succs);
+					unitToSuccs.put(_unit, _succs);
 				}
 			}
 		}
@@ -125,7 +125,6 @@ final class ExceptionFlowSensitiveStmtGraph
 	 */
 	private void pruneExceptionalEdges(final Collection namesOfExceptionsToIgnore) {
 		final Chain _traps = body.getTraps();
-		final Collection _preds = new ArrayList();
 
 		for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
 			final Trap _trap = (Trap) _j.next();
@@ -134,19 +133,16 @@ final class ExceptionFlowSensitiveStmtGraph
 				final Chain _units = body.getUnits();
 				final Unit _handler = _trap.getHandlerUnit();
 				final Unit _endUnit = (Unit) _units.getPredOf(_trap.getEndUnit());
-				_preds.clear();
 
+                final List _preds = new ArrayList((List) unitToPreds.get(_handler));                
 				for (final Iterator _i = _units.iterator(_trap.getBeginUnit(), _endUnit); _i.hasNext();) {
 					final Unit _unit = (Unit) _i.next();
-					final List _list = new ArrayList((List) unitToSuccs.get(_unit));
-					_list.remove(_handler);
-					unitToSuccs.put(_unit, _list);
-					_preds.add(_unit);
+					final List _succs =  new ArrayList((List) unitToSuccs.get(_unit));
+					_succs.remove(_handler);
+					unitToSuccs.put(_unit, _succs);
+                    _preds.remove(_unit);
 				}
-
-				final List _list = new ArrayList((List) unitToPreds.get(_handler));
-				_list.removeAll(_preds);
-				unitToPreds.put(_handler, _list);
+				unitToPreds.put(_handler, _preds);
 				_j.remove();
 			}
 		}
@@ -156,6 +152,11 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/26 00:22:31  venku
+   - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
+   - ripple effect.
+   - changed logic in ExceptionFlowSensitiveStmtGraph.
+
    Revision 1.4  2004/03/26 00:07:26  venku
    - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
    - ripple effect in classes and method names.
