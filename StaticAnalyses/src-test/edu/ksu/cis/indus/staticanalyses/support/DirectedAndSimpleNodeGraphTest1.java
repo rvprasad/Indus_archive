@@ -58,6 +58,7 @@ import java.util.Map;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ *
  * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph
  * @see edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph
  */
@@ -245,12 +246,12 @@ public class DirectedAndSimpleNodeGraphTest1
 	 * Tests <code>getSCCs()</code> method.
 	 */
 	public final void testGetSCCs() {
-		Collection sccs = dg.getSCCs(true);
-		assertFalse(sccs.isEmpty());
+		Collection sccsTrue = dg.getSCCs(true);
+		assertFalse(sccsTrue.isEmpty());
 
 		List nodes = dg.getNodes();
 
-		for (Iterator i = sccs.iterator(); i.hasNext();) {
+		for (Iterator i = sccsTrue.iterator(); i.hasNext();) {
 			Collection scc = (Collection) i.next();
 
 			for (Iterator j = scc.iterator(); j.hasNext();) {
@@ -267,6 +268,28 @@ public class DirectedAndSimpleNodeGraphTest1
 				}
 			}
 		}
+
+		Collection sccsFalse = dg.getSCCs(false);
+		assertFalse(sccsFalse.isEmpty());
+
+		for (Iterator i = sccsFalse.iterator(); i.hasNext();) {
+			Collection scc = (Collection) i.next();
+
+			for (Iterator j = scc.iterator(); j.hasNext();) {
+				INode srcNode = (INode) j.next();
+
+				for (Iterator k = nodes.iterator(); k.hasNext();) {
+					INode destNode = (INode) k.next();
+
+					if (scc.contains(destNode)) {
+						assertTrue(dg.isReachable(srcNode, destNode, true) && dg.isReachable(destNode, srcNode, true));
+					} else {
+						assertTrue(dg.isReachable(srcNode, destNode, true) ^ dg.isReachable(destNode, srcNode, true));
+					}
+				}
+			}
+		}
+		assertTrue(sccsTrue.containsAll(sccsFalse) && sccsFalse.containsAll(sccsTrue));
 	}
 
 	/**
@@ -379,13 +402,12 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/02 02:46:39  venku
+   - Removed unwanted import.
    Revision 1.3  2003/09/01 20:57:12  venku
    - Deleted getForwardSuccsOf().
-
    Revision 1.2  2003/08/24 12:35:47  venku
    Documentation changes.
-
    Revision 1.1  2003/08/24 12:05:34  venku
    Well added unit tests based on JUnit to the StaticAnalyses part of Indus.
-
  */
