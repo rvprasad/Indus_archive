@@ -16,14 +16,14 @@
 package edu.ksu.cis.indus.xmlizer;
 
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
+
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
-
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -83,6 +83,15 @@ public abstract class AbstractXMLizer
 
 	/**
 	 * DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public final IJimpleIDGenerator getIdGenerator() {
+		return idGenerator;
+	}
+
+	/**
+	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
 	 *
@@ -128,7 +137,7 @@ public abstract class AbstractXMLizer
 	protected final void dumpJimple(final String rootname, final ProcessingController xmlcgipc) {
 		if (dumpXMLizedJimple) {
 			final JimpleXMLizer _t = new JimpleXMLizer(idGenerator);
-			FileWriter _writer;
+			Writer _writer;
 
 			try {
 				_writer =
@@ -177,24 +186,18 @@ public abstract class AbstractXMLizer
 			processor.unhook(pc);
 		}
 	}
-    /**
-     * DOCUMENT ME!
-     * @return DOCUMENT ME!
-     * 
-     */
-    public final IJimpleIDGenerator getIdGenerator() {
-        return idGenerator;
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.2  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.1  2003/12/08 11:59:44  venku
    - added a new class AbstractXMLizer which will host
      primary logic to xmlize analyses information.
@@ -202,5 +205,4 @@ public abstract class AbstractXMLizer
    - added a new class CallGraphXMLizer to xmlize
      call graph information.  The logic to write out the call
      graph is empty.
-
  */
