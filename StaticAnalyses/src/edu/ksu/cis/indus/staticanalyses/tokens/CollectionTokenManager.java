@@ -169,6 +169,13 @@ public final class CollectionTokenManager
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
+	 */
+	public ITokens getNewTokenSet() {
+		return new CollectionTokens(Collections.EMPTY_LIST);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTokens(java.util.Collection)
 	 */
 	public ITokens getTokens(final Collection values) {
@@ -193,4 +200,9 @@ public final class CollectionTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
  */

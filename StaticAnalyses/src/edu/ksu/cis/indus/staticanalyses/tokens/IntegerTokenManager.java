@@ -251,6 +251,13 @@ public class IntegerTokenManager
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
+	 */
+	public ITokens getNewTokenSet() {
+		return new IntegerTokens(this);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTokens(java.util.Collection)
 	 */
 	public ITokens getTokens(final Collection values) {
@@ -311,6 +318,8 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/05/19 00:20:49  venku
+   - optimized getTokens() method.
    Revision 1.4  2004/05/06 22:27:29  venku
    - optimized getTokens() by avoiding redundant calls when adding the values
      to the end of the list.

@@ -143,7 +143,7 @@ public final class BitSetTokenManager
 		 */
 		BitSetTokens(final BitSetTokenManager tokenManager) {
 			tokenMgr = tokenManager;
-			bitset = new BitSet();
+			bitset = new BitSet(1);
 		}
 
 		/**
@@ -166,7 +166,7 @@ public final class BitSetTokenManager
 		 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokens#getValues()
 		 */
 		public Collection getValues() {
-			final Collection _result = new ArrayList();
+			final Collection _result = new ArrayList(bitset.cardinality());
 
 			for (int _i = bitset.nextSetBit(0); _i >= 0; _i = bitset.nextSetBit(_i + 1)) {
 				_result.add(tokenMgr.valueList.get(_i));
@@ -200,6 +200,13 @@ public final class BitSetTokenManager
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getNewTokenSet()
+	 */
+	public ITokens getNewTokenSet() {
+		return new BitSetTokens(this);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTokens(java.util.Collection)
 	 */
 	public ITokens getTokens(final Collection values) {
@@ -224,7 +231,7 @@ public final class BitSetTokenManager
 
 				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
-					final BitSet _tokens = (BitSet) CollectionsModifier.getFromMap(type2tokens, _type, new BitSet());
+					final BitSet _tokens = (BitSet) CollectionsModifier.getFromMap(type2tokens, _type, new BitSet(1));
 					_tokens.set(_index);
 				}
 				_index++;
@@ -240,7 +247,7 @@ public final class BitSetTokenManager
 		BitSet _mask = (BitSet) type2tokens.get(type);
 
 		if (_mask == null) {
-			_mask = new BitSet();
+			_mask = new BitSet(1);
 			type2tokens.put(type, _mask);
 		}
 
@@ -260,6 +267,8 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/05/19 00:20:49  venku
+   - optimized getTokens() method.
    Revision 1.2  2004/05/06 22:27:29  venku
    - optimized getTokens() by avoiding redundant calls when adding the values
      to the end of the list.

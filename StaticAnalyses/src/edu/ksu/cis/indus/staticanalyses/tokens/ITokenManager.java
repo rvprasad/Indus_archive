@@ -27,6 +27,15 @@ import java.util.Collection;
  */
 public interface ITokenManager {
 	/**
+	 * Retrieves a new empty token set.
+	 *
+	 * @return the new token set.
+	 *
+	 * @post result != null and result.getValues().isEmpty()
+	 */
+	ITokens getNewTokenSet();
+
+	/**
 	 * Retrieves a collection of tokens that represents the given values.
 	 *
 	 * @param values is the collection of values to be represented as tokens.
@@ -68,4 +77,9 @@ public interface ITokenManager {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
  */

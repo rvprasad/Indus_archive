@@ -117,7 +117,7 @@ class FlowInsensitiveExprSwitch
 		final IFGNode _ast = method.getASTNode(e);
 		final ITokenManager _tokenMgr = fa.getTokenManager();
 		final AbstractTokenProcessingWork _work =
-			new ArrayAccessExprWork(method, context, _ast, connector, _tokenMgr.getTokens(Collections.EMPTY_LIST));
+			new ArrayAccessExprWork(method, context, _ast, connector, _tokenMgr.getNewTokenSet());
 		final FGAccessNode _temp = new FGAccessNode(_work, fa, _tokenMgr);
 		_baseNode.addSucc(_temp);
 		process(e.getIndexBox());
@@ -174,7 +174,7 @@ class FlowInsensitiveExprSwitch
 		final IFGNode _ast = method.getASTNode(e);
 		final ITokenManager _tokenMgr = fa.getTokenManager();
 		final AbstractTokenProcessingWork _work =
-			new FieldAccessExprWork(method, context, _ast, connector, _tokenMgr.getTokens(Collections.EMPTY_LIST));
+			new FieldAccessExprWork(method, context, _ast, connector, _tokenMgr.getNewTokenSet());
 		final FGAccessNode _temp = new FGAccessNode(_work, fa, _tokenMgr);
 		_baseNode.addSucc(_temp);
 		setResult(_ast);
@@ -432,8 +432,7 @@ class FlowInsensitiveExprSwitch
 		}
 
 		final ITokenManager _tokenMgr = fa.getTokenManager();
-		final AbstractTokenProcessingWork _work =
-			new InvokeExprWork(method, context, _tokenMgr.getTokens(Collections.EMPTY_LIST));
+		final AbstractTokenProcessingWork _work = new InvokeExprWork(method, context, _tokenMgr.getNewTokenSet());
 		final FGAccessNode _baseNode = new FGAccessNode(_work, fa, _tokenMgr);
 		_temp.addSucc(_baseNode);
 
@@ -492,6 +491,11 @@ class FlowInsensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/05/19 06:50:30  venku
+   - changes to use two-level worklist iteration.  That is, while processing
+     work peice in a worklist, any newly generated work is added to another
+     worklist which is processed next.  The worklist are switched till both are
+     empty.
    Revision 1.4  2004/05/19 05:11:48  venku
    - coding convention.
    Revision 1.3  2004/04/16 20:10:39  venku

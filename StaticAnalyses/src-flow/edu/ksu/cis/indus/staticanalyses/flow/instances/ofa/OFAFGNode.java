@@ -53,7 +53,7 @@ class OFAFGNode
 	 * @pre provider != null and tokenManager != null
 	 */
 	public OFAFGNode(final IWorkBagProvider provider, final ITokenManager tokenManager) {
-		super(provider, tokenManager.getTokens(Collections.EMPTY_LIST));
+		super(provider, tokenManager.getNewTokenSet());
 		tokenMgr = tokenManager;
 	}
 
@@ -83,6 +83,11 @@ class OFAFGNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/05/19 06:50:30  venku
+   - changes to use two-level worklist iteration.  That is, while processing
+     work peice in a worklist, any newly generated work is added to another
+     worklist which is processed next.  The worklist are switched till both are
+     empty.
    Revision 1.13  2004/05/19 05:15:11  venku
    - changed the interface of FGNode to enable piggy-backing more work
      on the current unprocessed work piece.
