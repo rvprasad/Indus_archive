@@ -1,5 +1,9 @@
 2005-03-14  venku  <rvprasad@cis.ksu.edu>
 
+	* src-test/edu/ksu/cis/indus/IEnvironmentBasedTest.java,
+	  src-test/edu/ksu/cis/indus/AbstractEnvironmentBasedTest.java: 
+		Teased apart the support required by environment requiring tests into separate classes.
+		
 	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java: Added interface to expose class hierarchy information.
 	
 	* src/edu/ksu/cis/indus/processing/ProcessingController.java,
