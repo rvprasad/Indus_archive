@@ -75,7 +75,7 @@ public class BackwardSlice extends BasicSliceFunctions implements
                     MessageDialog.openError(null, "Error", "Please set a configuration for this action from the Indus plugin preference");
                     return;
                 }
-                runSlice(_configName, editor, textSelection);
+                runSlice(_configName, editor, textSelection, true);
             }
         });
     }

@@ -250,7 +250,7 @@ public class KaveriPlugin extends AbstractUIPlugin {
 
         if (_config.equals("")) {
             loadDefaultConfigurations();
-        } else {
+        } else {           
             final boolean _result = slicerTool
                     .destringizeConfiguration(_config);
             if (!_result) {

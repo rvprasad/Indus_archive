@@ -161,9 +161,10 @@ abstract public class BasicSliceFunctions {
      *            The Java editor
      * @param textSelection
      *            The selected text
+     * @param postExec Whether post execution is enabled.
      */
     protected void runSlice(final String sliceType,
-            final CompilationUnitEditor editor, ISelection textSelection) {
+            final CompilationUnitEditor editor, ISelection textSelection, final boolean postExec) {
         final ITextSelection _tselection = (ITextSelection) textSelection;
         final String _text = _tselection.getText();
         final int _nSelLine = _tselection.getEndLine() + 1; // Havent figured
@@ -194,7 +195,7 @@ abstract public class BasicSliceFunctions {
                     _c.setStrMethodName(PrettySignature.getSignature(_element));
                     _c.setNLineNo(_nSelLine);
                     _c.setNJimpleIndex(_noStmts - 1);
-                    _c.setBConsiderValue(true);
+                    _c.setBConsiderValue(postExec);
 
                     KaveriPlugin.getDefault().getIndusConfiguration()
                             .setAdditive(false);

@@ -78,6 +78,7 @@ import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
 import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.tools.IToolProgressListener;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
@@ -114,6 +115,11 @@ public class IndusRunner implements IRunnableWithProgress {
      */
     List fileList;
 
+    /**
+     * Reachable warning given
+     */
+    boolean reachableWarningGiven = false;
+    
     /**
      * All the java files in the given project.
      */
@@ -239,8 +245,9 @@ public class IndusRunner implements IRunnableWithProgress {
         if (editor != null) {
             highlightEditor();
         }
+          
         returnCriteriaToPool();
-        monitor.done();        
+        monitor.done();      
         KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().update();
         if (!_oldTag.equals("")) {
             final SootIndusTagCleaner _job = new SootIndusTagCleaner(
@@ -629,9 +636,27 @@ public class IndusRunner implements IRunnableWithProgress {
     private void returnCriteriaToPool() {
         final Collection _coll = driver.getSlicer().getCriteria();
         final Iterator _it = _coll.iterator();
-
+        
+        
         while (_it.hasNext()) {
             final ISliceCriterion _crt = (ISliceCriterion) _it.next();
+            final SootMethod _sm = _crt.getOccurringMethod();
+            final SlicerTool _slicer = driver.getSlicer();
+            if (_slicer != null) {
+                if(!_slicer.getCallGraph().getReachableMethods().contains(_sm) && !reachableWarningGiven) {
+                    reachableWarningGiven = true;
+                    Display.getDefault().asyncExec(new Runnable() {
+                        public void run() {
+                        final String _msg = "Some criteria were in unreachable part of the system.  " +
+                		"Please use appropriate root methods or select criteria appropriately.";
+                        MessageDialog.openError(null, "Warning", _msg);                        
+                        }
+                    });
+                    
+                }
+                
+                
+            }
             _crt.returnToPool();
         }
     }

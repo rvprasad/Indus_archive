@@ -8,8 +8,8 @@
 		slicer:propertyAware="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
-				slicer:sliceForDeadlock="true"/>
-			<slicer:assertion slicer:sliceToPreserveAssertions="false"/>
+				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="false" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
@@ -17,7 +17,7 @@
 		<slicer:divergence slicer:active="true" slicer:natureOfDivergenceAnalysis="INTER_PROCEDURAL_ONLY"/>
 		<slicer:ready slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
 			slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" slicer:useOFA="true" 
-			slicer:callSiteSensitive="true" 	slicer:useSafeLockAnalysis="true"/>
+			slicer:callSiteSensitive="true" slicer:useSafeLockAnalysis="true"/>
 		<slicer:synchronization slicer:active="true"/>
 	</indus:configurationInfo>
 	
@@ -26,8 +26,8 @@
 		slicer:propertyAware="false">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
-				slicer:sliceForDeadlock="true"/>
-			<slicer:assertion slicer:sliceToPreserveAssertions="false"/>
+				slicer:sliceForDeadlock="true" slicer:inApplicationClassesOnly="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="false" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
@@ -44,8 +44,8 @@
 		slicer:propertyAware="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
-				slicer:sliceForDeadlock="false"/>
-			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
@@ -62,8 +62,8 @@
 		slicer:propertyAware="false">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"
-				slicer:sliceForDeadlock="false"/>
-			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
@@ -79,8 +79,8 @@
 		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="true">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
-				slicer:sliceForDeadlock="false"/>
-			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
@@ -96,8 +96,8 @@
 		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ALL_SYNC_CONSTRUCTS"
-				slicer:sliceForDeadlock="false"/>
-			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="true" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
@@ -113,8 +113,8 @@
 		slicer:slicetype="BACKWARD_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
-				slicer:sliceForDeadlock="false"/>
-			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"
@@ -130,8 +130,8 @@
 		slicer:slicetype="COMPLETE_SLICE" xsi:type="slicer:slicerConfiguration" slicer:propertyAware="false">
 		<slicer:criteria>
 			<slicer:deadlock slicer:deadlockCriteriaSelectionStrategy="ESCAPING_SYNC_CONSTRUCTS"
-				slicer:sliceForDeadlock="false"/>
-			<slicer:assertion slicer:sliceToPreserveAssertions="true"/>
+				slicer:sliceForDeadlock="false" slicer:inApplicationClassesOnly="false"/>
+			<slicer:assertion slicer:sliceToPreserveAssertions="true" slicer:inApplicationClassesOnly="true"/>
 		</slicer:criteria>
 		<slicer:control slicer:nonTerminationSensitive="true"/>
 		<slicer:interference slicer:active="false" slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"

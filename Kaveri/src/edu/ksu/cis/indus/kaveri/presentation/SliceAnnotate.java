@@ -242,7 +242,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
                     final IRunnableWithProgress _progress = new IRunnableWithProgress() {
 
                         public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                            monitor.beginTask("Loading Soot", IProgressMonitor.UNKNOWN);
+                            monitor.beginTask("Loading Soot", IProgressMonitor.UNKNOWN);                            
                             handleSelectionForSliceView(_selection);
                         }
                         
