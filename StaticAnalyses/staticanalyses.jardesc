@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="/home/venku/workspace/eclipse/JavaSlicer/slicer.jar"/>
+    <jar path="/home/venku/workspace/eclipse/StaticAnalyses/staticanalyses.jar"/>
     <options overwrite="false" compress="true" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/StaticAnalyses/staticanalyses.jardesc" useSourceFolders="false" buildIfNeeded="false"/>
     <manifest manifestVersion="1.0" usesManifest="false" reuseManifest="false" saveManifest="false" generateManifest="true" manifestLocation="">
         <sealing sealJar="false">
@@ -9,8 +9,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="false" exportOutputFolder="true" exportJavaFiles="false">
-        <javaElement handleIdentifier="=JavaSlicer/src"/>
-        <javaElement handleIdentifier="=JavaSlicer/src-test"/>
-        <javaElement handleIdentifier="=JavaSlicer/src-xml"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-test"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-xml"/>
     </selectedElements>
 </jardesc>
