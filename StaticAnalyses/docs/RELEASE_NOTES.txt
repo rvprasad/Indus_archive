@@ -21,15 +21,12 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
-Version 0.2
--------------
+Current Version
+----------------
 	- All xmlizers use classes from xmlenc library to generate xml documents.
 	- Reimplemented Entry Control dependence.
 	- Added new options to OFA and CallGraph CLI classes.
-
-
-Version 0.2a
--------------
+	- Added a new implementation of Use-Def Analysis for method locals.
 	- Memory/Performance optimizations in EquivalenceClassBasedEscapeAnalysis.
 
 

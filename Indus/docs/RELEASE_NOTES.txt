@@ -27,8 +27,8 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
-Version 0.2
--------------
+Current Version
+----------------
 	- All xmlizers use classes from xmlenc library to generate xml documents.
 
 
