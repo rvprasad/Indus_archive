@@ -99,7 +99,7 @@ class SliceExpr
 
 		if (o != null && o instanceof SliceExpr) {
 			SliceExpr temp = (SliceExpr) o;
-			result = temp.expr.equals(expr) && super.equals(temp);
+			result = temp.expr == expr && super.equals(temp);
 		}
 		return result;
 	}
@@ -159,25 +159,22 @@ class SliceExpr
 
 /*
    ChangeLog:
-
    $Log$
+   Revision 1.1  2003/10/13 00:58:04  venku
+ *** empty log message ***
    Revision 1.8  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.7  2003/08/20 18:31:22  venku
    Documentation errors fixed.
    Revision 1.6  2003/08/18 12:14:13  venku
    Well, to start with the slicer implementation is complete.
    Although not necessarily bug free, hoping to stabilize it quickly.
-
    Revision 1.5  2003/08/18 05:01:45  venku
    Committing package name change in source after they were moved.
-
    Revision 1.4  2003/08/17 11:56:18  venku
    Renamed SliceCriterion to AbstractSliceCriterion.
    Formatting, documentation, and specification.
-
    Revision 1.3  2003/05/22 22:23:50  venku
    Changed interface names to start with a "I".
    Formatting.
