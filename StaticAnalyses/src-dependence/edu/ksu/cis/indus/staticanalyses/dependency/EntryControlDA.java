@@ -84,7 +84,7 @@ public class EntryControlDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
 	 */
 	public Object getDirection() {
-		return BACKWARD_DIRECTIONAL;
+		return BACKWARD_DIRECTION;
 	}
 
 	/**
@@ -128,8 +128,8 @@ public class EntryControlDA
 			fixupMaps(_bbGraph, _bbCDBitSets, _currMethod);
 		}
 
-		nodesCache.clear();
-		nodesWithChildrenCache.clear();
+		nodesCache = null;
+		nodesWithChildrenCache = null;
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
@@ -460,6 +460,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/07/11 11:26:55  venku
+   - compilation error. Duh.
+
    Revision 1.30  2004/07/11 11:20:50  venku
    - refactored code to simplify control dependence implementation.
 
