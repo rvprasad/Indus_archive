@@ -187,7 +187,8 @@ public final class SlicerConfigurator
 
 		final Button _useOFAForInterference = new Button(_group, SWT.CHECK);
 		_useOFAForInterference.setText("use object flow analysis information");
-		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _useOFAForInterference, _cfg);
+		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.USE_OFA_FOR_INTERFERENCE_DA, _useOFAForInterference,
+				_cfg);
 		_useOFAForInterference.addSelectionListener(_sl);
 
 		_sl = new SelectionListener() {
@@ -356,7 +357,7 @@ public final class SlicerConfigurator
 
 		final Button _useOFAForReady = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_useOFAForReady.setText("use object flow analysis information");
-		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _useOFAForReady, _cfg);
+		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.USE_OFA_FOR_READY_DA, _useOFAForReady, _cfg);
 		_useOFAForReady.addSelectionListener(_sl);
 
 		final Composite _readyComposite = new Composite(_group, SWT.NONE);
@@ -450,6 +451,8 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/01/25 16:19:52  venku
+   - enabled configuration support for using object flow information.
    Revision 1.20  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
