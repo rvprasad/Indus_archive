@@ -401,15 +401,7 @@ public abstract class DirectedGraph {
 		Collection processed = new HashSet();
 
 		while(!wb.isEmpty()) {
-			//Node temp = (Node) wb.getWork();
-			Node temp = null;
-			Object o = wb.getWork();
-
-			try {
-				temp = (Node) o;
-			} catch(ClassCastException e) {
-				System.out.println(o.getClass());
-			}
+			Node temp = (Node) wb.getWork();
 
 			if(processed.contains(temp)) {
 				result = true;
@@ -524,6 +516,9 @@ public abstract class DirectedGraph {
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/02/21 07:22:22  venku
+Changed \@pre to $pre in the ocl constraints specified in Javadoc.
+
 Revision 1.2  2003/02/19 17:31:19  venku
 Things are in flux.  Stabilizing them with CVS.
 
