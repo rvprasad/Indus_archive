@@ -217,7 +217,7 @@ public class SootBasedDriver {
 	public SootBasedDriver() {
 		cfgProvider = getStmtGraphFactory();
 		bbm = new BasicBlockGraphMgr();
-		bbm.setUnitGraphFactory(cfgProvider);
+		bbm.setStmtGraphFactory(cfgProvider);
 	}
 
 	/**
@@ -542,6 +542,10 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/06/23 06:16:41  venku
+   - deleted  SootBasedDriver.setClassNames(String[])
+   - ripple effect.
+
    Revision 1.30  2004/06/22 14:38:41  venku
    - coding conventions.
    Revision 1.29  2004/06/22 00:42:30  venku

@@ -154,7 +154,7 @@ public class BasicBlockGraphTest
 	 */
 	protected void setUp() {
 		final BasicBlockGraphMgr _mgr = new BasicBlockGraphMgr();
-		_mgr.setUnitGraphFactory(factory);
+		_mgr.setStmtGraphFactory(factory);
 
 		final SootClass _sc = scene.getSootClass(className);
 		final SootMethod _sm = _sc.getMethodByName(methodName);
@@ -242,6 +242,10 @@ public class BasicBlockGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/07/09 05:42:31  venku
+   - deleted CollectionsUtilities.addAllFromTo().
+   - used CollectionUtils.addAll() instead of CollectionsUtilities.addAllFromTo().
+
    Revision 1.5  2004/06/14 08:39:29  venku
    - added a property to SootBasedDriver to control the type of statement graph
      factory to be used.

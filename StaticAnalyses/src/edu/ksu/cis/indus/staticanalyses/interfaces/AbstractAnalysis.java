@@ -158,7 +158,7 @@ public abstract class AbstractAnalysis
 		if (graphManager != null) {
 			_result = graphManager.getStmtList(method);
 		} else {
-			final UnitGraph _stmtGraph = graphManager.getUnitGraph(method);
+			final UnitGraph _stmtGraph = graphManager.getStmtGraph(method);
 
 			if (_stmtGraph != null) {
 				_result = Collections.unmodifiableList(new ArrayList(_stmtGraph.getBody().getUnits()));
@@ -179,7 +179,7 @@ public abstract class AbstractAnalysis
 	 * @post result != null
 	 */
 	protected UnitGraph getUnitGraph(final SootMethod method) {
-		return graphManager.getUnitGraph(method);
+		return graphManager.getStmtGraph(method);
 	}
 
 	/**
@@ -196,6 +196,9 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/08/16 14:18:27  venku
+   - refactored getStmtList() method to use cached behavior.
+
    Revision 1.22  2004/07/24 09:57:49  venku
    - extracted interface from AbstractAnalysis.
    - ripple effect.

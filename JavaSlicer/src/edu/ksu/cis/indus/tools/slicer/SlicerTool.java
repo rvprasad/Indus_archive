@@ -321,7 +321,7 @@ public final class SlicerTool
 
 		// create basic block graph manager
 		bbgMgr = new BasicBlockGraphMgr();
-		bbgMgr.setUnitGraphFactory(getStmtGraphFactory());
+		bbgMgr.setStmtGraphFactory(getStmtGraphFactory());
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr), pairMgr);
 		// create equivalence class-based escape analysis.
@@ -931,6 +931,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.114  2004/08/12 02:48:57  venku
+   - catered feature request #411.
+
    Revision 1.113  2004/08/11 08:52:05  venku
    - massive changes.
      - Changed the way threads were represented in ThreadGraph.

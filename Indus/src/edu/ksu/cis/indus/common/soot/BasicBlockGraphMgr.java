@@ -107,7 +107,7 @@ public final class BasicBlockGraphMgr {
 		List _result = (List) method2stmtlist.get(method);
 
 		if (_result == null) {
-			final UnitGraph _stmtGraph = getUnitGraph(method);
+			final UnitGraph _stmtGraph = getStmtGraph(method);
 
 			if (_stmtGraph != null) {
 				_result = Collections.unmodifiableList(new ArrayList(_stmtGraph.getBody().getUnits()));
@@ -130,7 +130,7 @@ public final class BasicBlockGraphMgr {
 	 * @pre method != null
 	 * @post result != null
 	 */
-	public UnitGraph getUnitGraph(final SootMethod method) {
+	public UnitGraph getStmtGraph(final SootMethod method) {
 		return stmtGraphProvider.getStmtGraph(method);
 	}
 
@@ -139,7 +139,7 @@ public final class BasicBlockGraphMgr {
 	 *
 	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	public void setUnitGraphFactory(final IStmtGraphFactory cfgProvider) {
+	public void setStmtGraphFactory(final IStmtGraphFactory cfgProvider) {
 		stmtGraphProvider = cfgProvider;
 	}
 
@@ -155,6 +155,11 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/08/16 14:13:47  venku
+   - added a new method to retrieve statement lists of methods.  This may not
+     be the best place to store this information (may be statement graph factory is)
+     but this suffices for now.
+
    Revision 1.2  2004/08/08 10:11:39  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.

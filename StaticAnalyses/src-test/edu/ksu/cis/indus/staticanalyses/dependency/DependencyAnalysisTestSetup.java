@@ -112,7 +112,7 @@ public class DependencyAnalysisTestSetup
 	  throws Exception {
 		super.setUp();
 		bbgMgr = new BasicBlockGraphMgr();
-		bbgMgr.setUnitGraphFactory(getStmtGraphFactory());
+		bbgMgr.setStmtGraphFactory(getStmtGraphFactory());
 
 		// setup level 1 analysis here.
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
@@ -211,6 +211,12 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/08/11 08:52:04  venku
+   - massive changes.
+     - Changed the way threads were represented in ThreadGraph.
+     - Changed the interface in IThreadGraph.
+     - ripple effect in other classes.
+
    Revision 1.24  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.
