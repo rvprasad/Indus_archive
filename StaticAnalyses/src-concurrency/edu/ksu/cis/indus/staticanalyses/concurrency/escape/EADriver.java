@@ -241,7 +241,7 @@ public final class EADriver
 	 *
 	 * @param o about which information should be written.
 	 */
-	protected void writeInfo(final Object o) {
+	public void writeInfo(final Object o) {
 		if (o != null) {
 			System.out.println(o.toString());
 		} else {
@@ -253,6 +253,10 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.26  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
