@@ -774,9 +774,7 @@ public class SafeLockAnalysis
 
 			final Collection _c2 = iva.getValues(((VirtualInvokeExpr) _waitStmt.getInvokeExpr()).getBase(), _context);
 
-			if (_c1.size() != 1 || _c1.equals(_c2)) {
-				_safe = false;
-			}
+			_safe = _c1.size() == 1 && _c1.equals(_c2);
 		}
 		return _safe;
 	}
@@ -833,10 +831,7 @@ public class SafeLockAnalysis
 					_c2 = iva.getValuesForThis(_context);
 				}
 			}
-
-			if (_c1.size() != 1 || _c1.equals(_c2)) {
-				_safe = false;
-			}
+			_safe = _c1.size() == 1 && _c1.equals(_c2);
 		}
 		return _safe;
 	}
@@ -845,6 +840,9 @@ public class SafeLockAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/07/25 10:26:07  venku
+   - added a new interface to query values attached to nodes.
+
    Revision 1.9  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
