@@ -408,14 +408,14 @@ public final class SlicerConfiguration
 			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
 				_c.clear();
 				_c.add(new EntryControlDA());
-			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
-				_c.clear();
-				_c.add(new ExitControlDA());
-				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
-			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
+			} else if (type.equals(SlicingEngine.FORWARD_SLICE) || type.equals(SlicingEngine.COMPLETE_SLICE)) {
 				_c.clear();
 				_c.add(new EntryControlDA());
 				_c.add(new ExitControlDA());
+
+				if (type.equals(SlicingEngine.FORWARD_SLICE)) {
+					setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
+				}
 			}
 		}
 	}
@@ -509,6 +509,69 @@ public final class SlicerConfiguration
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
 		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
+	}
+
+	/**
+	 * Configures if divergence dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useDivergenceDepAnalysis(final boolean use) {
+		processPropertyHelper(USE_DIVERGENCEDA, use);
+	}
+
+	/**
+	 * Configures if interprocedural dependence dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useInterproceduralDivergenceDepAnalysis(final boolean use) {
+		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
+	}
+
+	/**
+	 * Configures if ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useReadyDepAnalysis(final boolean use) {
+		processPropertyHelper(USE_READYDA, use);
+	}
+
+	/**
+	 * Configures if rule/condition 1 of ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useReadyRule1(final boolean use) {
+		processPropertyHelper(USE_RULE1_IN_READYDA, use);
+	}
+
+	/**
+	 * Configures if rule/condition 2 of ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useReadyRule2(final boolean use) {
+		processPropertyHelper(USE_RULE2_IN_READYDA, use);
+	}
+
+	/**
+	 * Configures if rule/condition 3 of ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useReadyRule3(final boolean use) {
+		processPropertyHelper(USE_RULE3_IN_READYDA, use);
+	}
+
+	/**
+	 * Configures if rule/condition 4 of ready dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useReadyRule4(final boolean use) {
+		processPropertyHelper(USE_RULE4_IN_READYDA, use);
 	}
 
 	/**
@@ -762,77 +825,15 @@ public final class SlicerConfiguration
 			id2dependencyAnalyses.remove(daID);
 		}
 	}
-
-	/**
-	 * Configures if divergence dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useDivergenceDepAnalysis(final boolean use) {
-		processPropertyHelper(USE_DIVERGENCEDA, use);
-	}
-
-	/**
-	 * Configures if interprocedural dependence dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useInterproceduralDivergenceDepAnalysis(final boolean use) {
-		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
-	}
-
-	/**
-	 * Configures if ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyDepAnalysis(final boolean use) {
-		processPropertyHelper(USE_READYDA, use);
-	}
-
-	/**
-	 * Configures if rule/condition 1 of ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyRule1(final boolean use) {
-		processPropertyHelper(USE_RULE1_IN_READYDA, use);
-	}
-
-	/**
-	 * Configures if rule/condition 2 of ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyRule2(final boolean use) {
-		processPropertyHelper(USE_RULE2_IN_READYDA, use);
-	}
-
-	/**
-	 * Configures if rule/condition 3 of ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyRule3(final boolean use) {
-		processPropertyHelper(USE_RULE3_IN_READYDA, use);
-	}
-
-	/**
-	 * Configures if rule/condition 4 of ready dependence analysis should be used during slicing.
-	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
-	 */
-	public void useReadyRule4(final boolean use) {
-		processPropertyHelper(USE_RULE4_IN_READYDA, use);
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/07/20 01:04:34  venku
+   - addressed bug #408.
    Revision 1.43  2004/07/20 00:53:09  venku
    - addressed bug #408.
-
    Revision 1.42  2004/07/20 00:31:04  venku
    - addressed bug #408.
    Revision 1.41  2004/07/02 05:28:53  venku

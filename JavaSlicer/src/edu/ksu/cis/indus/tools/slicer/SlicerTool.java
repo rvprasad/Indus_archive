@@ -142,122 +142,127 @@ public final class SlicerTool
 		SLICE_MAJOR_PHASE = (Phase) _i.clone();
 	}
 
-	/**
+	/** 
 	 * This represents the phase in which dependence analysis happens.
 	 */
 	public static final Object DEPENDENCE_MAJOR_PHASE;
 
-	/**
+	/** 
 	 * This represents the phase in which slicing happens.
 	 */
 	public static final Object SLICE_MAJOR_PHASE;
 
-	/**
+	/** 
 	 * The tag used to identify the parts touched by flow analysis.
 	 */
 	public static final String FLOW_ANALYSIS_TAG_NAME = "indus.tools.slicer.SlicerTool:FA";
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
 
-	/**
+	/** 
 	 * This is the indentation step to be used during stringization of the configuration.
 	 */
 	private static final int INDENT = 4;
 
-	/**
+	/** 
 	 * This controls dependency analysis.
 	 *
 	 * @invariant daController != null
 	 */
 	private final AnalysesController daController;
 
-	/**
+	/** 
 	 * This manages the basic block graphs for the methods being transformed.
 	 *
 	 * @invariant bbgMgr != null
 	 */
 	private final BasicBlockGraphMgr bbgMgr;
 
-	/**
+	/** 
 	 * This provides the call graph.
 	 *
 	 * @invariant callGraph != null
 	 */
 	private final CallGraph callGraph;
 
-	/**
+	/** 
 	 * The slicing criteria.
 	 *
 	 * @invariant criteria != null and criteria.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
 	private final Collection criteria;
 
-	/**
+	/** 
 	 * The entry point methods.
 	 *
 	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	private final Collection rootMethods;
 
-	/**
+	/** 
 	 * This provides <code>UnitGraph</code>s for the analyses.
 	 */
 	private final IStmtGraphFactory stmtGraphFactory;
 
-	/**
+	/** 
 	 * This provides object flow anlaysis.
 	 */
 	private final OFAnalyzer ofa;
 
-	/**
+	/** 
 	 * The phase in which the tool's execution is in.
 	 */
 	private Phase phase;
 
-	/**
+	/** 
 	 * This is the slicing engine that identifies the slice.
 	 */
 	private final SlicingEngine engine;
 
-	/**
+	/** 
 	 * This provides thread graph.
 	 */
 	private final ThreadGraph threadGraph;
 
-	/**
+	/** 
 	 * This is a call-graph based pre processing controller.
 	 */
 	private final ValueAnalyzerBasedProcessingController cgBasedPreProcessCtrl;
 
-	/**
+	/** 
 	 * This controls the processing of callgraph.
 	 */
 	private final ValueAnalyzerBasedProcessingController cgPreProcessCtrl;
 
-	/**
+	/** 
 	 * The system to be sliced.
 	 */
 	private Scene system;
 
-	/**
+	/** 
 	 * This is the slice criterion factory that will be used.
 	 */
 	private final SliceCriteriaFactory criteriaFactory;
 
-	/**
+	/** 
 	 * This provides use-def information based on aliasing.
 	 */
 	private AliasedUseDefInfo aliasUD;
 
-	/**
+	/** 
 	 * This is the instance of equivalence class based escape analysis used by this object.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
-	/**
+	/** 
+	 * This is the information map used to initialized analyses.
+	 */
+	private final Map info = new HashMap();
+
+	/** 
 	 * This provides mapping from init invocation expression to corresponding new expression.
 	 */
 	private NewExpr2InitMapper initMapper;
@@ -304,18 +309,17 @@ public final class SlicerTool
 		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, threadGraph, bbgMgr);
 
 		// set up data required for dependency analyses.
-		final Map _info = new HashMap();
 		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, bbgMgr);
-		_info.put(ICallGraphInfo.ID, callGraph);
-		_info.put(IThreadGraphInfo.ID, threadGraph);
-		_info.put(IEnvironment.ID, ofa.getEnvironment());
-		_info.put(IUseDefInfo.ID, aliasUD);
-		_info.put(Pair.PairManager.ID, new Pair.PairManager());
-		_info.put(IValueAnalyzer.ID, ofa);
-		_info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
+		info.put(ICallGraphInfo.ID, callGraph);
+		info.put(IThreadGraphInfo.ID, threadGraph);
+		info.put(IEnvironment.ID, ofa.getEnvironment());
+		info.put(IUseDefInfo.ID, aliasUD);
+		info.put(Pair.PairManager.ID, new Pair.PairManager());
+		info.put(IValueAnalyzer.ID, ofa);
+		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 
 		// create dependency analyses controller 
-		daController = new AnalysesController(_info, cgBasedPreProcessCtrl, bbgMgr);
+		daController = new AnalysesController(info, cgBasedPreProcessCtrl, bbgMgr);
 
 		// create the slicing engine.
 		engine = new SlicingEngine();
@@ -636,6 +640,10 @@ public final class SlicerTool
 		// perform dependency analyses
 		daController.reset();
 
+		if (slicerConfig.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+			info.put(IDependencyAnalysis.CONTROL_DA, slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA));
+		}
+
 		for (final Iterator _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 			final Collection _c = slicerConfig.getDependenceAnalyses(_id);
@@ -883,26 +891,23 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.97  2004/07/20 00:53:09  venku
+   - addressed bug #408.
    Revision 1.96  2004/07/20 00:31:04  venku
    - addressed bug #408.
-
    Revision 1.95  2004/07/16 06:38:48  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.
-
    Revision 1.94  2004/07/11 14:17:40  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
-
    Revision 1.93  2004/07/09 05:05:25  venku
    - refactored the code to enable the criteria creation to be completely hidden
      from the user.
    - exposed the setting of the considerExecution flag of the criteria in the factory.
    - made SliceCriteriaFactory a singleton.
-
    Revision 1.92  2004/07/04 11:09:00  venku
    - headless and multiple headed methods cause issue with statement graphs and basic blocks.  FIXED.
-
    Revision 1.91  2004/06/26 10:15:13  venku
    - documentation.
    Revision 1.90  2004/06/26 06:52:49  venku
