@@ -191,8 +191,7 @@ public class BasicBlockGraphTest
 
 		final IStmtGraphFactory[] _factories =
 			new IStmtGraphFactory[] {
-				new CompleteStmtGraphFactory(), new TrapStmtGraphFactory(),
-				ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory(),
+				new CompleteStmtGraphFactory(), new TrapStmtGraphFactory(), new ExceptionFlowSensitiveStmtGraphFactory(),
 			};
 		final String[] _methodNames = { "notify", "equals", "loadOneMoreProvider" };
 		final String[] _classNames = { "java.lang.Object", "java.lang.Object", "java.security.Security" };
@@ -244,6 +243,9 @@ public class BasicBlockGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/06/14 04:55:04  venku
+   - documentation.
+   - coding conventions.
    Revision 1.3  2004/06/01 08:13:02  venku
    - changed the name of the tests.
    Revision 1.2  2004/06/01 08:05:12  venku

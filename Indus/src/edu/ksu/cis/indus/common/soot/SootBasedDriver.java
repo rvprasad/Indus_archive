@@ -56,11 +56,18 @@ import soot.options.Options;
  * 
  * <p>
  * The user can provide a root method trapper object to be used to identify root methods.  However, if the user does not
- * povide one,  then an instance of the class named via
+ * provide one,  then an instance of the class named via
  * <code>indus.common.soot.SootBasedDriver.RootMethodTrapper.class</code> property will be used.  This named class should be
- * a subclass of <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>. If this property is
- * unspecified, the an instance of <code>SootBasedDriver.RootMethodMapper</code> is created via reflection and used.  Hence,
- * the class specified by the property should have a no-argument constructor.
+ * a subclass of <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>.   As reflection is used on
+ * to instantiate an object, the specified class by the property should have a no-argument constructor.
+ * </p>
+ * 
+ * <p>
+ * The user can provide a statement graph factory object to be used to identify root methods.  However, if the user does not
+ * provide one,  then an instance of the class named via
+ * <code>indus.common.soot.SootBasedDriver.StmtGraphFactory.class</code> property will be used.  This named class should be
+ * a subclass of <code>edu.ksu.cis.indus.common.soot.IStmtGraphFactory</code>. As reflection is used on  to instantiate an
+ * object, the specified class by the property should have a no-argument constructor.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -69,7 +76,7 @@ import soot.options.Options;
  */
 public class SootBasedDriver {
 	/**
-	 * The name of the property via which the name of the root method trapper can be specified.
+	 * The name of the property via which the name of the root method trapper class can be specified.
 	 */
 	public static final String TRAPPER_CLASS_PROPERTY;
 
@@ -77,6 +84,11 @@ public class SootBasedDriver {
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER;
+
+	/**
+	 * The name of the property via which the name of the statement graph factory class can be specified.
+	 */
+	private static final String STMT_GRAPH_FACTORY_CLASS_PROPERTY;
 
 	static {
 		LOGGER = LogFactory.getLog(SootBasedDriver.class);
@@ -107,12 +119,44 @@ public class SootBasedDriver {
 			}
 		}
 		DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER = _rmt;
+
+		STMT_GRAPH_FACTORY_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.StmtGraphFactory.class";
+
+		final String _className2 = System.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
+		IStmtGraphFactory _graphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
+
+		if (_className2 != null) {
+			try {
+				final Object _o = ClassLoader.getSystemClassLoader().loadClass(_className).newInstance();
+
+				if (_o instanceof IStmtGraphFactory) {
+					_graphFactory = (IStmtGraphFactory) _o;
+				} else {
+					throw new IllegalArgumentException(_className + " is not a subclass of IStmtGraphFactory.");
+				}
+			} catch (final ClassNotFoundException _e) {
+				LOGGER.fatal("class " + _className + " could not be loaded/resolved. Bailing.", _e);
+				throw new RuntimeException(_e);
+			} catch (final InstantiationException _e) {
+				LOGGER.fatal("An instance of class " + _className + " could not be created. Bailing.", _e);
+				throw new RuntimeException(_e);
+			} catch (final IllegalAccessException _e) {
+				LOGGER.fatal("No-arg constructor of " + _className + " cannot be accessed.  Bailing.", _e);
+				throw new RuntimeException(_e);
+			}
+		}
+		DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY = _graphFactory;
 	}
 
 	/**
 	 * The default object that can be used for trapping root methods.
 	 */
 	private static final RootMethodTrapper DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER;
+
+	/**
+	 * The default object that can be used for created statement graphs.
+	 */
+	private static final IStmtGraphFactory DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
 
 	/**
 	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
@@ -128,7 +172,7 @@ public class SootBasedDriver {
 
 	/**
 	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
-	 * <code>TrapStmtGraphFactory</code>.
+	 * <code>ExceptionFlowSensitiveStmtGraphFactory</code>.
 	 */
 	protected IStmtGraphFactory cfgProvider;
 
@@ -350,8 +394,7 @@ public class SootBasedDriver {
 	 * @post return != null
 	 */
 	public IStmtGraphFactory getStmtGraphFactory() {
-		final IStmtGraphFactory _result = ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory();
-		return _result;
+		return DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
 	}
 
 	/**
@@ -495,6 +538,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/05/31 21:38:12  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.25  2004/05/28 21:53:21  venku
    - added a method to ExceptionFlowSensitiveGraphFactory to create
      default factory objects.

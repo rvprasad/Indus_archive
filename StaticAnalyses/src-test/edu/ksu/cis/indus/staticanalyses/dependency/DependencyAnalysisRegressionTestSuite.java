@@ -15,12 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.textui.TestRunner;
-
 import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
@@ -46,6 +40,12 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import java.util.regex.Pattern;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -183,7 +183,7 @@ public class DependencyAnalysisRegressionTestSuite
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
 			final Collection _das = new ArrayList();
-			final IStmtGraphFactory _stmtGraphFactory = ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory();
+			final IStmtGraphFactory _stmtGraphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
@@ -267,6 +267,9 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/28 21:53:19  venku
+   - added a method to ExceptionFlowSensitiveGraphFactory to create
+     default factory objects.
    Revision 1.12  2004/05/21 22:30:54  venku
    - documentation.
    Revision 1.11  2004/05/14 09:02:56  venku

@@ -141,7 +141,7 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
-		slicer = new SlicerTool(TokenUtil.getTokenManager(), ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory());
+		slicer = new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 
@@ -601,6 +601,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/06/12 06:47:27  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
    Revision 1.38  2004/06/03 03:50:34  venku
    - changed the way help will be output on command line classes.
    Revision 1.37  2004/05/29 00:11:44  venku

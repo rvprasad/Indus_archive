@@ -99,8 +99,8 @@ public final class JimpleXMLizerCLI {
 			final String[] _args = _cl.getArgs();
 
 			if (_cl.hasOption('h')) {
-			    final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
-			    _help.printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+				final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
+				_help.printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 			} else {
 				if (_args.length > 0) {
 					if (_cl.hasOption('p')) {
@@ -116,7 +116,7 @@ public final class JimpleXMLizerCLI {
 					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(),
 						new AbstractProcessingFilter() {
 							public Collection localFilterClasses(final Collection classes) {
-							    return Util.getHostsWithTag(classes, _tag.getName());
+								return Util.getHostsWithTag(classes, _tag.getName());
 							}
 						});
 				} else {
@@ -125,8 +125,9 @@ public final class JimpleXMLizerCLI {
 			}
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line");
-		    final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
-		    _help.printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+
+			final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
+			_help.printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 		}
 	}
 
@@ -146,7 +147,7 @@ public final class JimpleXMLizerCLI {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(jimpleIDGenerator);
 		final Environment _env = new Environment(scene);
 		final ProcessingController _pc = new ProcessingController();
-		_pc.setStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory());
+		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory());
 		_pc.setEnvironment(_env);
 
 		final XMLizingProcessingFilter _xmlFilter = new XMLizingProcessingFilter();
@@ -165,25 +166,23 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/06/14 04:55:04  venku
+   - documentation.
+   - coding conventions.
    Revision 1.10  2004/06/14 04:31:17  venku
    - added method to check tags on a collection of hosts in Util.
    - ripple effect.
-
    Revision 1.9  2004/06/12 06:45:22  venku
    - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
-
    Revision 1.8  2004/06/03 03:50:35  venku
    - changed the way help will be output on command line classes.
-
    Revision 1.7  2004/05/28 21:53:21  venku
    - added a method to ExceptionFlowSensitiveGraphFactory to create
      default factory objects.
-
    Revision 1.6  2004/05/13 03:30:03  venku
    - coding convention.
    - documentation.
    - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
-
    Revision 1.5  2004/05/12 18:09:59  venku
    - coding convention.
    Revision 1.4  2004/05/11 21:58:51  venku

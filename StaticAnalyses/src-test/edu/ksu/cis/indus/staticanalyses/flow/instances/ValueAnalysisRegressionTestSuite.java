@@ -15,12 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.textui.TestRunner;
-
 import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
@@ -40,6 +34,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.util.Properties;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.textui.TestRunner;
 
 
 /**
@@ -109,7 +109,7 @@ public final class ValueAnalysisRegressionTestSuite
 			_props.load(new FileInputStream(new File(propFileName)));
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
-			final IStmtGraphFactory stmtGraphFactory = ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory();
+			final IStmtGraphFactory stmtGraphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
@@ -155,6 +155,9 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/05/28 21:53:19  venku
+   - added a method to ExceptionFlowSensitiveGraphFactory to create
+     default factory objects.
    Revision 1.16  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.

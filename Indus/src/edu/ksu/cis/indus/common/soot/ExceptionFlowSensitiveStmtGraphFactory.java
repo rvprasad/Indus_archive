@@ -78,15 +78,11 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	}
 
 	/**
-	 * Returns a default factory instance.  This will return a factory object created by  <code>new
-	 * ExceptionFlowSensitiveStmtGraphFactory(SYNC_RELATED_EXCEPTIONS, true)</code>
-	 *
-	 * @return a new factory instance.
-	 *
-	 * @post result != null
+	 * Creates a new instance of this class.  This is identical to calling <code>new
+	 * ExceptionFlowSensitiveStmtGraphFactory(SYNC_RELATED_EXCEPTIONS, true)</code>.
 	 */
-	public static ExceptionFlowSensitiveStmtGraphFactory getDefaultFactory() {
-		return new ExceptionFlowSensitiveStmtGraphFactory(SYNC_RELATED_EXCEPTIONS, true);
+	public ExceptionFlowSensitiveStmtGraphFactory() {
+		this(SYNC_RELATED_EXCEPTIONS, true);
 	}
 
 	/**
@@ -114,9 +110,10 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/06/12 20:42:21  venku
+   - renaming of methods.
    Revision 1.5  2004/05/28 21:41:58  venku
    - added a new method to create default factory instances implementation.
-
    Revision 1.4  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

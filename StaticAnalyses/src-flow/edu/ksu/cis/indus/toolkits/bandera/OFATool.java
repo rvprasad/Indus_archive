@@ -312,7 +312,7 @@ public final class OFATool
 		callgraph = new CallGraph();
 		_pc.setAnalyzer(_aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
-		_pc.setStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory());
+		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory());
 
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, callgraph);
