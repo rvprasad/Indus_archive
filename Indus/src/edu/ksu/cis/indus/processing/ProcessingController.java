@@ -80,8 +80,8 @@ import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
 import soot.jimple.UshrExpr;
-import soot.jimple.XorExpr;
 import soot.jimple.VirtualInvokeExpr;
+import soot.jimple.XorExpr;
 
 import edu.ksu.cis.indus.interfaces.*;
 
@@ -153,49 +153,49 @@ public class ProcessingController {
 		t.add(AddExpr.class);
 		t.add(AndExpr.class);
 		t.add(ArrayRef.class);
-        t.add(CastExpr.class);
-        t.add(CaughtExceptionRef.class);
-        t.add(CmpExpr.class);
-        t.add(CmpgExpr.class);
-        t.add(CmplExpr.class);
-        t.add(DivExpr.class);
-        t.add(DoubleConstant.class);
-        t.add(EqExpr.class);
-        t.add(FloatConstant.class);
-        t.add(GeExpr.class);
-        t.add(GtExpr.class);
-        t.add(InstanceFieldRef.class);
-        t.add(InstanceOfExpr.class);
-        t.add(IntConstant.class);
-        t.add(InterfaceInvokeExpr.class);
-        t.add(LeExpr.class);
-        t.add(LengthExpr.class);
-        t.add(Local.class);
-        t.add(LongConstant.class);
-        t.add(LtExpr.class);
-        t.add(MulExpr.class);
-        t.add(NeExpr.class);
-        t.add(NegExpr.class);
-        t.add(NewArrayExpr.class);
-        t.add(NewExpr.class);
-        t.add(NewMultiArrayExpr.class);
-        t.add(NullConstant.class);
-        t.add(OrExpr.class);
-        t.add(ParameterRef.class);
-        t.add(RemExpr.class);
-        t.add(ShlExpr.class);
-        t.add(ShrExpr.class);
-        t.add(SpecialInvokeExpr.class);
-        t.add(StaticFieldRef.class);
-        t.add(StaticInvokeExpr.class);
-        t.add(StringConstant.class);
-        t.add(SubExpr.class);
-        t.add(ThisRef.class);
-        t.add(UshrExpr.class);
-        t.add(VirtualInvokeExpr.class);
-        t.add(XorExpr.class);
-        
-        VALUE_CLASSES = Collections.unmodifiableCollection(t);
+		t.add(CastExpr.class);
+		t.add(CaughtExceptionRef.class);
+		t.add(CmpExpr.class);
+		t.add(CmpgExpr.class);
+		t.add(CmplExpr.class);
+		t.add(DivExpr.class);
+		t.add(DoubleConstant.class);
+		t.add(EqExpr.class);
+		t.add(FloatConstant.class);
+		t.add(GeExpr.class);
+		t.add(GtExpr.class);
+		t.add(InstanceFieldRef.class);
+		t.add(InstanceOfExpr.class);
+		t.add(IntConstant.class);
+		t.add(InterfaceInvokeExpr.class);
+		t.add(LeExpr.class);
+		t.add(LengthExpr.class);
+		t.add(Local.class);
+		t.add(LongConstant.class);
+		t.add(LtExpr.class);
+		t.add(MulExpr.class);
+		t.add(NeExpr.class);
+		t.add(NegExpr.class);
+		t.add(NewArrayExpr.class);
+		t.add(NewExpr.class);
+		t.add(NewMultiArrayExpr.class);
+		t.add(NullConstant.class);
+		t.add(OrExpr.class);
+		t.add(ParameterRef.class);
+		t.add(RemExpr.class);
+		t.add(ShlExpr.class);
+		t.add(ShrExpr.class);
+		t.add(SpecialInvokeExpr.class);
+		t.add(StaticFieldRef.class);
+		t.add(StaticInvokeExpr.class);
+		t.add(StringConstant.class);
+		t.add(SubExpr.class);
+		t.add(ThisRef.class);
+		t.add(UshrExpr.class);
+		t.add(VirtualInvokeExpr.class);
+		t.add(XorExpr.class);
+
+		VALUE_CLASSES = Collections.unmodifiableCollection(t);
 	}
 
 	/**
@@ -236,19 +236,19 @@ public class ProcessingController {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	boolean processValues;
-
-	/**
-	 * This defines the environment in which the processing runs.
-	 */
-	private IEnvironment env;
+	boolean processStmts;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private boolean processStmts;
+	boolean processValues;
+
+	/**
+	 * This defines the environment in which the processing runs.
+	 */
+	private IEnvironment env;
 
 	/**
 	 * This class visits the statements of the methods and calls the call-back methods of the registered processors.
@@ -277,7 +277,9 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
 		public void caseAssignStmt(final AssignStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(AssignStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getLeftOpBox());
@@ -291,14 +293,18 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseBreakpointStmt(soot.jimple.BreakpointStmt)
 		 */
 		public void caseBreakpointStmt(final BreakpointStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(BreakpointStmt.class, stmt);
+			}
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 		 */
 		public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(EnterMonitorStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getOpBox());
@@ -310,7 +316,9 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 		 */
 		public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(ExitMonitorStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getOpBox());
@@ -322,14 +330,18 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseGotoStmt(soot.jimple.GotoStmt)
 		 */
 		public void caseGotoStmt(final GotoStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(GotoStmt.class, stmt);
+			}
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 		 */
 		public void caseIdentityStmt(final IdentityStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(IdentityStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getLeftOpBox());
@@ -343,16 +355,23 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseIfStmt(soot.jimple.IfStmt)
 		 */
 		public void caseIfStmt(final IfStmt stmt) {
-			defaultCase(stmt);
-			context.setProgramPoint(stmt.getConditionBox());
-			stmt.getCondition().apply(valueSwitcher);
+			if (processStmts) {
+				defaultCase(IfStmt.class, stmt);
+			}
+
+			if (processValues) {
+				context.setProgramPoint(stmt.getConditionBox());
+				stmt.getCondition().apply(valueSwitcher);
+			}
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 		 */
 		public void caseInvokeStmt(final InvokeStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(InvokeStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getInvokeExprBox());
@@ -364,7 +383,9 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 		 */
 		public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(LookupSwitchStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getKeyBox());
@@ -376,14 +397,18 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseNopStmt(soot.jimple.NopStmt)
 		 */
 		public void caseNopStmt(final NopStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(NopStmt.class, stmt);
+			}
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseRetStmt(soot.jimple.RetStmt)
 		 */
 		public void caseRetStmt(final RetStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(RetStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getStmtAddressBox());
@@ -395,7 +420,9 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 		 */
 		public void caseReturnStmt(final ReturnStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(ReturnStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getOpBox());
@@ -407,14 +434,18 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseReturnVoidStmt(soot.jimple.ReturnVoidStmt)
 		 */
 		public void caseReturnVoidStmt(final ReturnVoidStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(ReturnVoidStmt.class, stmt);
+			}
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 		 */
 		public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(TableSwitchStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getKeyBox());
@@ -426,7 +457,9 @@ public class ProcessingController {
 		 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 		 */
 		public void caseThrowStmt(final ThrowStmt stmt) {
-			defaultCase(stmt);
+			if (processStmts) {
+				defaultCase(ThrowStmt.class, stmt);
+			}
 
 			if (processValues) {
 				context.setProgramPoint(stmt.getOpBox());
@@ -435,12 +468,13 @@ public class ProcessingController {
 		}
 
 		/**
-		 * Calls the processors interested in processing objects of type <code>o</code>.
+		 * Calls the processors interested in processing objects of type <code>objClass</code>.
 		 *
+		 * @param objClass is the type of <code>o</code>.
 		 * @param o the AST INode to be processed.
 		 */
-		public void defaultCase(final Object o) {
-			Collection temp = (Collection) class2processors.get(o.getClass());
+		public void defaultCase(final Class objClass, final Object o) {
+			Collection temp = (Collection) class2processors.get(objClass);
 
 			if (temp != null) {
 				Stmt stmt = (Stmt) o;
@@ -464,12 +498,321 @@ public class ProcessingController {
 	private class ValueSwitcher
 	  extends AbstractJimpleValueSwitch {
 		/**
-		 * Calls the processors interested in processing object of type <code>o</code>.
+		 * @see soot.jimple.ExprSwitch#caseAddExpr(soot.jimple.AddExpr)
+		 */
+		public void caseAddExpr(AddExpr v) {
+			defaultCase(AddExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseAndExpr(soot.jimple.AndExpr)
+		 */
+		public void caseAndExpr(AndExpr v) {
+			defaultCase(AndExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
+		 */
+		public void caseArrayRef(ArrayRef v) {
+			defaultCase(ArrayRef.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
+		 */
+		public void caseCastExpr(CastExpr v) {
+			defaultCase(CastExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.RefSwitch#caseCaughtExceptionRef(soot.jimple.CaughtExceptionRef)
+		 */
+		public void caseCaughtExceptionRef(CaughtExceptionRef v) {
+			defaultCase(CaughtExceptionRef.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseCmpExpr(soot.jimple.CmpExpr)
+		 */
+		public void caseCmpExpr(CmpExpr v) {
+			defaultCase(CmpExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseCmpgExpr(soot.jimple.CmpgExpr)
+		 */
+		public void caseCmpgExpr(CmpgExpr v) {
+			defaultCase(CmpgExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseCmplExpr(soot.jimple.CmplExpr)
+		 */
+		public void caseCmplExpr(CmplExpr v) {
+			defaultCase(CmplExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseDivExpr(soot.jimple.DivExpr)
+		 */
+		public void caseDivExpr(DivExpr v) {
+			defaultCase(DivExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ConstantSwitch#caseDoubleConstant(soot.jimple.DoubleConstant)
+		 */
+		public void caseDoubleConstant(DoubleConstant v) {
+			defaultCase(DoubleConstant.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseEqExpr(soot.jimple.EqExpr)
+		 */
+		public void caseEqExpr(EqExpr v) {
+			defaultCase(EqExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ConstantSwitch#caseFloatConstant(soot.jimple.FloatConstant)
+		 */
+		public void caseFloatConstant(FloatConstant v) {
+			defaultCase(FloatConstant.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseGeExpr(soot.jimple.GeExpr)
+		 */
+		public void caseGeExpr(GeExpr v) {
+			defaultCase(GeExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseGtExpr(soot.jimple.GtExpr)
+		 */
+		public void caseGtExpr(GtExpr v) {
+			defaultCase(GtExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
+		 */
+		public void caseInstanceFieldRef(InstanceFieldRef v) {
+			defaultCase(InstanceFieldRef.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseInstanceOfExpr(soot.jimple.InstanceOfExpr)
+		 */
+		public void caseInstanceOfExpr(InstanceOfExpr v) {
+			defaultCase(InstanceOfExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ConstantSwitch#caseIntConstant(soot.jimple.IntConstant)
+		 */
+		public void caseIntConstant(IntConstant v) {
+			defaultCase(IntConstant.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
+		 */
+		public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
+			defaultCase(InterfaceInvokeExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseLeExpr(soot.jimple.LeExpr)
+		 */
+		public void caseLeExpr(LeExpr v) {
+			defaultCase(LeExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseLengthExpr(soot.jimple.LengthExpr)
+		 */
+		public void caseLengthExpr(LengthExpr v) {
+			defaultCase(LengthExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.Local)
+		 */
+		public void caseLocal(Local v) {
+			defaultCase(Local.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ConstantSwitch#caseLongConstant(soot.jimple.LongConstant)
+		 */
+		public void caseLongConstant(LongConstant v) {
+			defaultCase(LongConstant.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseLtExpr(soot.jimple.LtExpr)
+		 */
+		public void caseLtExpr(LtExpr v) {
+			defaultCase(LtExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseMulExpr(soot.jimple.MulExpr)
+		 */
+		public void caseMulExpr(MulExpr v) {
+			defaultCase(MulExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseNeExpr(soot.jimple.NeExpr)
+		 */
+		public void caseNeExpr(NeExpr v) {
+			defaultCase(NeExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseNegExpr(soot.jimple.NegExpr)
+		 */
+		public void caseNegExpr(NegExpr v) {
+			defaultCase(NegExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseNewArrayExpr(soot.jimple.NewArrayExpr)
+		 */
+		public void caseNewArrayExpr(NewArrayExpr v) {
+			defaultCase(NewArrayExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseNewExpr(soot.jimple.NewExpr)
+		 */
+		public void caseNewExpr(NewExpr v) {
+			defaultCase(NewExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
+		 */
+		public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
+			defaultCase(NewMultiArrayExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ConstantSwitch#caseNullConstant(soot.jimple.NullConstant)
+		 */
+		public void caseNullConstant(NullConstant v) {
+			defaultCase(NullConstant.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseOrExpr(soot.jimple.OrExpr)
+		 */
+		public void caseOrExpr(OrExpr v) {
+			defaultCase(OrExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.RefSwitch#caseParameterRef(soot.jimple.ParameterRef)
+		 */
+		public void caseParameterRef(ParameterRef v) {
+			defaultCase(ParameterRef.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseRemExpr(soot.jimple.RemExpr)
+		 */
+		public void caseRemExpr(RemExpr v) {
+			defaultCase(RemExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseShlExpr(soot.jimple.ShlExpr)
+		 */
+		public void caseShlExpr(ShlExpr v) {
+			defaultCase(ShlExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseShrExpr(soot.jimple.ShrExpr)
+		 */
+		public void caseShrExpr(ShrExpr v) {
+			defaultCase(ShrExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
+		 */
+		public void caseSpecialInvokeExpr(SpecialInvokeExpr v) {
+			defaultCase(SpecialInvokeExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.RefSwitch#caseStaticFieldRef(soot.jimple.StaticFieldRef)
+		 */
+		public void caseStaticFieldRef(StaticFieldRef v) {
+			defaultCase(StaticFieldRef.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
+		 */
+		public void caseStaticInvokeExpr(StaticInvokeExpr v) {
+			defaultCase(StaticInvokeExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
+		 */
+		public void caseStringConstant(StringConstant v) {
+			defaultCase(StringConstant.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseSubExpr(soot.jimple.SubExpr)
+		 */
+		public void caseSubExpr(SubExpr v) {
+			defaultCase(SubExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
+		 */
+		public void caseThisRef(ThisRef v) {
+			defaultCase(ThisRef.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseUshrExpr(soot.jimple.UshrExpr)
+		 */
+		public void caseUshrExpr(UshrExpr v) {
+			defaultCase(UshrExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
+		 */
+		public void caseVirtualInvokeExpr(VirtualInvokeExpr v) {
+			defaultCase(VirtualInvokeExpr.class, v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseXorExpr(soot.jimple.XorExpr)
+		 */
+		public void caseXorExpr(XorExpr v) {
+			defaultCase(XorExpr.class, v);
+		}
+
+		/**
+		 * Calls the processors interested in processing object of type <code>objClass</code>.
 		 *
+		 * @param objClass is the type of <code>o</code>
 		 * @param o the AST node to be processed.
 		 */
-		public void defaultCase(final Object o) {
-			Collection temp = (Collection) class2processors.get(o.getClass());
+		public void defaultCase(final Class objClass, final Object o) {
+			Collection temp = (Collection) class2processors.get(objClass);
 
 			if (temp != null) {
 				Value value = (Value) o;
@@ -681,7 +1024,7 @@ public class ProcessingController {
 				LOGGER.debug("Processing method " + sm);
 			}
 
-			if (processStmts) {
+			if (processStmts || processValues) {
 				if (sm.isConcrete()) {
 					try {
 						sl.clear();
@@ -710,6 +1053,8 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/06 07:57:10  venku
+   - optimized processing depending on the processors.
    Revision 1.3  2003/11/06 06:22:12  venku
    - documentation.
    Revision 1.2  2003/11/06 05:31:08  venku
