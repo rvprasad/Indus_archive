@@ -23,11 +23,12 @@ Required software:
 
 Current Version
 ----------------
+	- Memory/Performance optimizations in EquivalenceClassBasedEscapeAnalysis.
 	- All xmlizers use classes from xmlenc library to generate xml documents.
-	- Reimplemented Entry Control dependence.
+	- Implemented Indirect and Direct Entry Control dependence.
 	- Added new options to OFA and CallGraph CLI classes.
 	- Added a new implementation of Use-Def Analysis for method locals.
-	- Memory/Performance optimizations in EquivalenceClassBasedEscapeAnalysis.
+    - Implemented Divergence Dependence.
 
 
 Version 0.1
@@ -48,7 +49,7 @@ docs for more information.
 In this release, the following implementations do not work.
 	Exit Control dependence (edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA)
 	Divergence dependence (edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA)
-	Safe Lock Analysis (edu.ksu.cis.indus.staticanalyses.concurrence.SafeLockAnalysis)
+	Safe Lock Analysis (edu.ksu.cis.indus.staticanalyses.concurence.SafeLockAnalysis)
 	
 Ruf's escape analysis will not be supported in the future, so, please refrain from using it or use it at your own risk.
 Likewise, please refrain from using Driver classes as these are not intended for the users and also it is planned to delete
