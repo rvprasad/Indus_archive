@@ -556,13 +556,17 @@ public final class SlicerTool
 			}
 
 			if (!criteria.isEmpty()) {
-				// setup the slicing engine and slice
+                // sort the criteria to inject determinism into slicing.
+                final List _temp = new ArrayList(criteria);
+                Collections.sort(_temp);
+                
+                // setup the slicing engine and slice
 				engine.setCgi(callGraph);
 				engine.setSliceType(_slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 				engine.setInitMapper(initMapper);
 				engine.setSlicedBBGMgr(bbgMgr);
 				engine.setAnalysesControllerAndDependenciesToUse(daController, _slicerConfig.getNamesOfDAsToUse());
-				engine.setSliceCriteria(criteria);
+				engine.setSliceCriteria(_temp);
 				engine.initialize();
 				engine.slice();
 
@@ -731,8 +735,8 @@ public final class SlicerTool
 
 			for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
 				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
-                _sb.append("\n\t");
-                _sb.append(_criterion);
+				_sb.append("\n\t");
+				_sb.append(_criterion);
 			}
 			LOGGER.debug("Criteria:\n" + _sb.toString());
 			LOGGER.debug("END: Populating deadlock criteria.");
@@ -769,6 +773,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.61  2004/01/19 08:45:20  venku
+   - formatting.
    Revision 1.60  2004/01/19 08:30:55  venku
    - Log output formatting.
    Revision 1.59  2004/01/19 08:27:03  venku
