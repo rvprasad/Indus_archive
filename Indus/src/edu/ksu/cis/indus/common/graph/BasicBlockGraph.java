@@ -108,6 +108,7 @@ public final class BasicBlockGraph
 			_trailer = getTrailer(_stmt, _wb, _stmts);
 
 			final BasicBlock _bblock = new BasicBlock(_leader, _trailer, _stmts);
+
 			for (final Iterator _i = _stmts.iterator(); _i.hasNext();) {
 				stmt2BlockMap.put(_i.next(), _bblock);
 			}
@@ -198,24 +199,30 @@ public final class BasicBlockGraph
 		 */
 		public List getStmtFromTo(final int start, final int end) {
 			List _result = Collections.EMPTY_LIST;
-			final Stmt _begStmt = getStmtAt(start);
-			final Stmt _endStmt = getStmtAt(end);
 
-			if (stmts.contains(_begStmt) && stmts.contains(_endStmt)) {
+			if (start == end) {
 				_result = new ArrayList();
-				_result.add(_begStmt);
+                _result.add(getStmtAt(start));
+			} else {
+				final Stmt _begStmt = getStmtAt(start);
+				final Stmt _endStmt = getStmtAt(end);
 
-				List _succs = getStmtGraph().getSuccsOf(_begStmt);
+				if (stmts.contains(_begStmt) && stmts.contains(_endStmt)) {
+					_result = new ArrayList();
+					_result.add(_begStmt);
 
-				while (_succs.size() == 1) {
-					final Object _o = _succs.get(0);
+					List _succs = getStmtGraph().getSuccsOf(_begStmt);
 
-					if (_o.equals(_endStmt)) {
-						_result.add(_endStmt);
-						break;
+					while (_succs.size() == 1) {
+						final Object _o = _succs.get(0);
+
+						if (_o.equals(_endStmt)) {
+							_result.add(_endStmt);
+							break;
+						}
+						_result.add(_o);
+						_succs = getStmtGraph().getSuccsOf(_o);
 					}
-					_result.add(_o);
-					_succs = getStmtGraph().getSuccsOf(_o);
 				}
 			}
 			return _result;
@@ -410,22 +417,20 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/01/17 00:38:13  venku
+   - documentation.
    Revision 1.7  2004/01/06 00:53:36  venku
    - coding conventions.
-
    Revision 1.6  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.5  2003/12/31 10:43:08  venku
    - size() was unused in IDirectedGraph, hence, removed it.
      Ripple effect.
-
    Revision 1.4  2003/12/28 01:02:38  venku
    - removed field handlerBlocks as it was only used in one method.
      The blocks are generated on the fly.
-
    Revision 1.3  2003/12/15 06:55:06  venku
    - formatting
    - error while building basic block graph.  FIXED.
