@@ -226,7 +226,6 @@ class FlowInsensitiveExprSwitch
 
 		final IFGNode _ast = method.getASTNode(e);
 		fa.getArrayVariant((ArrayType) e.getType(), context);
-		//_ast.addValue(e);
 		_ast.injectValue(e);
 		setResult(_ast);
 	}
@@ -493,6 +492,12 @@ class FlowInsensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.2  2004/04/02 21:59:54  venku
    - refactoring.
      - all classes except OFAnalyzer is package private.
