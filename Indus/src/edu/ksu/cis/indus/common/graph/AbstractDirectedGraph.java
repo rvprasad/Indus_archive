@@ -147,18 +147,10 @@ public abstract class AbstractDirectedGraph
 		for (final Iterator _i = getSCCs(true).iterator(); _i.hasNext();) {
 			final Collection _scc = (Collection) _i.next();
 
-			if (_scc.size() == 1) {
-				final INode _node = (INode) _scc.iterator().next();
+			final Collection _temp = findCycles(_scc);
 
-				if (_node.getSuccsOf().contains(_node)) {
-					_result.add(Collections.singleton(_node));
-				}
-			} else {
-				final Collection _temp = findCycles(_scc);
-
-				if (!_temp.isEmpty()) {
-					_result.addAll(_temp);
-				}
+			if (!_temp.isEmpty()) {
+				_result.addAll(_temp);
 			}
 		}
 
@@ -387,6 +379,70 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
+	 * Finds cycles in the given SCC.
+	 *
+	 * @param scc in which to search for cycles.
+	 *
+	 * @return a collection of cycles. Each cycle is represented as a sequence in which the first element starts the cycle.
+	 *
+	 * @pre scc != null and scc.oclIsKindOf(Collection(INode))
+	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
+	 */
+	public static Collection findCycles(final Collection scc) {
+		final Collection _result = new ArrayList();
+
+		if (scc.size() == 1) {
+			final INode _node = (INode) scc.iterator().next();
+
+			if (_node.getSuccsOf().contains(_node)) {
+				_result.add(Collections.singleton(_node));
+			}
+		} else {
+			final IWorkBag _wb = new LIFOWorkBag();
+			final Stack _dfsPath = new Stack();
+			_wb.addWork(scc.iterator().next());
+
+			while (_wb.hasWork()) {
+				final Object _o = _wb.getWork();
+
+				if (_o instanceof Marker) {
+					final Object _temp = ((Marker) _o).getContent();
+
+					while (!_temp.equals(_dfsPath.peek())) {
+						_dfsPath.pop();
+					}
+				} else if (_dfsPath.contains(_o)) {
+					final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_o), _dfsPath.size());
+
+					if (!_result.contains(_cycle)) {
+						_result.add(new ArrayList(_cycle));
+					}
+				} else {
+					final INode _node = (INode) _o;
+					final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), scc);
+
+					if (!_succs.isEmpty()) {
+						_dfsPath.push(_node);
+
+						if (_succs.size() > 1) {
+							final Marker _marker = new Marker(_node);
+
+							for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
+								final Object _ele = _j.next();
+								_wb.addWork(_marker);
+								_wb.addWork(_ele);
+							}
+						} else {
+							_wb.addWork(_succs.iterator().next());
+						}
+					}
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * @see Object#toString()
 	 */
 	public String toString() {
@@ -598,61 +654,6 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Finds cycles in the given SCC.
-	 *
-	 * @param scc in which to search for cycles.
-	 *
-	 * @return a collection of cycles. Each cycle is represented as a sequence in which the first element starts the cycle.
-	 *
-	 * @pre scc != null and scc.oclIsKindOf(Collection(INode))
-	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
-	 */
-	private Collection findCycles(final Collection scc) {
-		final Collection _result = new ArrayList();
-		final IWorkBag _wb = new LIFOWorkBag();
-		final Stack _dfsPath = new Stack();
-		_wb.addWork(scc.iterator().next());
-
-		while (_wb.hasWork()) {
-			final Object _o = _wb.getWork();
-
-			if (_o instanceof Marker) {
-				final Object _temp = ((Marker) _o).getContent();
-
-				while (!_temp.equals(_dfsPath.peek())) {
-					_dfsPath.pop();
-				}
-			} else if (_dfsPath.contains(_o)) {
-				final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_o), _dfsPath.size());
-
-				if (!_result.contains(_cycle)) {
-					_result.add(new ArrayList(_cycle));
-				}
-			} else {
-				final INode _node = (INode) _o;
-				final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), scc);
-
-				if (!_succs.isEmpty()) {
-					_dfsPath.push(_node);
-
-					if (_succs.size() > 1) {
-						final Marker _marker = new Marker(_node);
-
-						for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
-							final Object _ele = _j.next();
-							_wb.addWork(_marker);
-							_wb.addWork(_ele);
-						}
-					} else {
-						_wb.addWork(_succs.iterator().next());
-					}
-				}
-			}
-		}
-		return _result;
-	}
-
-	/**
 	 * Processes the given node while creating a spanning tree.
 	 *
 	 * @param reachedNodes is the collection of nodes already visited or reached.
@@ -703,6 +704,8 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/07/03 07:56:56  venku
+   - improved the algorithm to calculate cycles.
    Revision 1.16  2004/06/04 04:49:50  venku
    - added toString() method.
    Revision 1.15  2004/03/29 01:55:16  venku
