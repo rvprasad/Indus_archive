@@ -88,13 +88,6 @@ public class EntryControlDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
-	 */
-	public final Object getId() {
-		return IDependencyAnalysis.CONTROL_DA;
-	}
-
-	/**
 	 * Calculates the control dependency information for the methods provided during initialization.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
@@ -467,6 +460,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/07/11 11:20:50  venku
+   - refactored code to simplify control dependence implementation.
+
    Revision 1.29  2004/07/11 11:02:34  venku
    - logging.
    Revision 1.28  2004/07/11 09:42:13  venku
