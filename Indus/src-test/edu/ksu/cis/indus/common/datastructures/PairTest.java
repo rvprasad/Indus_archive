@@ -114,7 +114,7 @@ public class PairTest
 		final Collection _second = new ArrayList();
 		_second.add("first");
 
-		final Pair _p1 = new Pair("first", _second);
+		final Pair _p1 = new Pair("first", _second, true, false);
 		final int _hash1 = _p1.hashCode();
 		_second.add("second");
 
@@ -132,7 +132,7 @@ public class PairTest
 		final StringBuffer _second = new StringBuffer();
 		_second.append("first");
 
-		final Pair _p1 = new Pair("first", _second);
+		final Pair _p1 = new Pair("first", _second, true, false);
 		final int _hash1 = _p1.hashCode();
 		_second.append("second");
 
@@ -206,6 +206,10 @@ public class PairTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/08/02 07:33:47  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
+
    Revision 1.4  2004/06/14 04:55:03  venku
    - documentation.
    - coding conventions.
