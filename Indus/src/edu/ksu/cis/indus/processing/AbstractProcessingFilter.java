@@ -38,7 +38,7 @@ public abstract class AbstractProcessingFilter
 	/**
 	 * {@inheritDoc}  Default implementation returns the given fields as is.
 	 */
-	public Collection filterFields(Collection fields) {
+	public Collection filterFields(final Collection fields) {
 		return fields;
 	}
 
@@ -53,6 +53,10 @@ public abstract class AbstractProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/14 16:43:44  venku
+   - extended ProcessingController to filter fields as well.
+   - ripple effect.
+
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
