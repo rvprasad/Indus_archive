@@ -141,23 +141,32 @@ public abstract class AbstractAnalysis
 	}
 
 	/**
-	 * Returns the list of statements in the given method, if it exists.  Each call returns a new list.
+	 * Returns a list of statements in the given method, if it exists.  This implementation retrieves the statement list from
+	 * the basic block graph manager, if it is available.  If not, it retrieves the statement list from the method body
+	 * directly. It will return an unmodifiable list of statements.
 	 *
 	 * @param method of interest.
 	 *
-	 * @return the list of statements.
+	 * @return an unmodifiable list of statements.
 	 *
 	 * @pre method != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
 	protected List getStmtList(final SootMethod method) {
-		List result = Collections.EMPTY_LIST;
-		UnitGraph stmtGraph = graphManager.getUnitGraph(method);
+		List _result;
 
-		if (stmtGraph != null) {
-			result = new ArrayList(stmtGraph.getBody().getUnits());
+		if (graphManager != null) {
+			_result = graphManager.getStmtList(method);
+		} else {
+			final UnitGraph _stmtGraph = graphManager.getUnitGraph(method);
+
+			if (_stmtGraph != null) {
+				_result = Collections.unmodifiableList(new ArrayList(_stmtGraph.getBody().getUnits()));
+			} else {
+				_result = Collections.EMPTY_LIST;
+			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -187,6 +196,9 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/07/24 09:57:49  venku
+   - extracted interface from AbstractAnalysis.
+   - ripple effect.
    Revision 1.21  2004/07/11 09:42:14  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
