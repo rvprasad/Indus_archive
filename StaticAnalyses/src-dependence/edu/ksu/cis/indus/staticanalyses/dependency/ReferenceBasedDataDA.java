@@ -22,6 +22,8 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,8 +34,9 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class provides data dependence information which considers references and hence the effects of aliasing. It is an
- * adapter for an interprocedural use-def analysis which considers the effects of aliasing.
+ * This class provides data dependence information which considers references. Hence, it considers the effects of aliasing.
+ * It is an adapter for an interprocedural use-def analysis which considers the effects of aliasing.  It can be  configured
+ * to provide dependence based on static field references.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -49,7 +52,12 @@ public class ReferenceBasedDataDA
 	/** 
 	 * This provides inter-procedural use-def information which considers the effects of aliasing.
 	 */
-	protected IUseDefInfo aliasedUD;
+	private IUseDefInfo aliasedUD;
+
+	/** 
+	 * This provides static field use-def information.
+	 */
+	private IUseDefInfo staticFieldRefUD;
 
 	/**
 	 * Return the statements on which field/array access in <code>stmt</code> in <code>method</code> depends on.
@@ -72,7 +80,13 @@ public class ReferenceBasedDataDA
 		final Stmt _theStmt = (Stmt) stmt;
 
 		if (_theStmt.containsArrayRef() || _theStmt.containsFieldRef()) {
-			_result = aliasedUD.getDefs(_theStmt, (SootMethod) method);
+			if (staticFieldRefUD != null) {
+				_result =
+					CollectionUtils.union(aliasedUD.getDefs(_theStmt, (SootMethod) method),
+						staticFieldRefUD.getDefs(_theStmt, (SootMethod) method));
+			} else {
+				_result = aliasedUD.getDefs(_theStmt, (SootMethod) method);
+			}
 		} else {
 			_result = Collections.EMPTY_LIST;
 		}
@@ -101,7 +115,13 @@ public class ReferenceBasedDataDA
 		final Stmt _theStmt = (Stmt) stmt;
 
 		if (stmt instanceof DefinitionStmt && (_theStmt.containsArrayRef() || _theStmt.containsFieldRef())) {
-			_result = aliasedUD.getUses((DefinitionStmt) stmt, (SootMethod) method);
+			if (staticFieldRefUD != null) {
+				_result =
+					CollectionUtils.union(aliasedUD.getUses((DefinitionStmt) _theStmt, (SootMethod) method),
+						staticFieldRefUD.getUses((DefinitionStmt) _theStmt, (SootMethod) method));
+			} else {
+				_result = aliasedUD.getUses((DefinitionStmt) _theStmt, (SootMethod) method);
+			}
 		} else {
 			_result = Collections.EMPTY_LIST;
 		}
@@ -161,18 +181,20 @@ public class ReferenceBasedDataDA
 	 * @return a stringized representation of this object.
 	 */
 	public String toString() {
-		return aliasedUD + "";
+		return aliasedUD + " " + staticFieldRefUD;
 	}
 
 	///CLOVER:ON
 
 	/**
-	 * Extracts information provided by environment at initialization time.
+	 * Extracts information provided by environment at initialization time.  The user can configure this analysis to include
+	 * static field reference based dependence information by passing in an implementation of <code>IUseDefInfo</code>
+	 * implementation mapped to <code>IUseDefInfo.GLOBAL_USE_DEF_ID</code> constant in the information map.
 	 *
 	 * @throws InitializationException if an implementation that provides aliased interprocedural use-def information is not
 	 * 		   provided.
 	 *
-	 * @pre info.get(IUseDefInfo.ID) != null
+	 * @pre info.get(IUseDefInfo.ALIASED_USE_DEF_ID) != null
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
@@ -184,6 +206,13 @@ public class ReferenceBasedDataDA
 
 		if (aliasedUD == null) {
 			throw new InitializationException(IUseDefInfo.ALIASED_USE_DEF_ID + " was not provided.");
+		}
+
+		staticFieldRefUD = (IUseDefInfo) info.get(IUseDefInfo.GLOBAL_USE_DEF_ID);
+
+		if (staticFieldRefUD == null) {
+			LOGGER.info(IUseDefInfo.GLOBAL_USE_DEF_ID + " was not provided.  Hence, static field reference based dependence"
+				+ " info will not be provided.");
 		}
 	}
 }

@@ -19,7 +19,17 @@ Required software:
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
+	Bandera [OPTIONAL]
+		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
+
+
+Version 0.5
+------------
+	- Support for tracking thread "escape" information across method boundaries (bottom-up).
+	- Fixed bugs in Reference-based DA and OFAXMLizer.
+	- Added analysis to calculate static field based use-def info.
+	- Added support to generated thread-locality based calling context.
 
 Version 0.4
 ------------

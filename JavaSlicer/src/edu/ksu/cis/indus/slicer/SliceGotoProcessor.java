@@ -15,9 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;

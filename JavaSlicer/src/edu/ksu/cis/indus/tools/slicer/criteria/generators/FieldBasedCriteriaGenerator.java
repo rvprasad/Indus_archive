@@ -13,17 +13,17 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer;
+package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
-import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+
+import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -48,26 +48,26 @@ import soot.jimple.Stmt;
  * @version $Revision$ $Date$
  */
 public final class FieldBasedCriteriaGenerator
-  implements ISliceCriteriaGenerator {
+  extends AbstractSliceCriteriaGenerator {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(FieldBasedCriteriaGenerator.class);
 
-	/** 
-	 * The specification-based matcher to be used.
-	 */
-	private SpecificationBasedScopeDefinition matcher;
-
 	/**
-	 * @see edu.ksu.cis.indus.tools.slicer.ISliceCriteriaGenerator#getCriteria(edu.ksu.cis.indus.tools.slicer.SlicerTool)
+	 * Retrieves the criteria based on the information set on this generator.
+	 *
+	 * @return a collection of criterion.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection getCriteria(final SlicerTool slicer) {
+	public Collection getCriteriaTemplateMethod() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: creating deadlock criteria.");
 		}
 
-		final Object _sliceType = ((SlicerConfiguration) slicer.getActiveConfiguration()).getSliceType();
+		final SlicerTool _slicer = getSlicerTool();
+		final Object _sliceType = ((SlicerConfiguration) _slicer.getActiveConfiguration()).getSliceType();
 		final boolean _considerExecution;
 
 		if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
@@ -78,9 +78,8 @@ public final class FieldBasedCriteriaGenerator
 
 		final Collection _result = new HashSet();
 		final SliceCriteriaFactory _criteriaFactory = SliceCriteriaFactory.getFactory();
-		final BasicBlockGraphMgr _bbgMgr = slicer.getBasicBlockGraphManager();
-		final ICallGraphInfo _cgi = slicer.getCallGraph();
-		final IEnvironment _system = slicer.getSystem();
+		final BasicBlockGraphMgr _bbgMgr = _slicer.getBasicBlockGraphManager();
+		final ICallGraphInfo _cgi = _slicer.getCallGraph();
 		final Collection _reachableMethods = _cgi.getReachableMethods();
 		final Iterator _i = _reachableMethods.iterator();
 		final int _iEnd = _reachableMethods.size();
@@ -98,7 +97,7 @@ public final class FieldBasedCriteriaGenerator
 					final FieldRef _fRef = _stmt.getFieldRef();
 					final SootField _field = _fRef.getField();
 
-					if (matcher.isInScope(_field, _system)) {
+					if (shouldGenerateCriteriaFrom(_field)) {
 						if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
 							_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, true));
 							_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, false));
@@ -110,17 +109,6 @@ public final class FieldBasedCriteriaGenerator
 			}
 		}
 		return _result;
-	}
-
-	/**
-	 * Sets the value of <code>matcher</code>.  This method should be called before using this generator.
-	 *
-	 * @param theMatcher the new value of <code>matcher</code>.
-	 *
-	 * @pre theMatcher != null
-	 */
-	public void setMatcher(final SpecificationBasedScopeDefinition theMatcher) {
-		this.matcher = theMatcher;
 	}
 }
 

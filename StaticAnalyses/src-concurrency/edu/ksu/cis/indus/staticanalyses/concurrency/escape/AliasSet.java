@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -88,10 +89,10 @@ final class AliasSet
 	private boolean global;
 
 	/** 
-	 * This is used to indicate that the alias set represents an object that is accessible in multiple threads. This differs 
-	 * from <code>shared</code> as this captures the exposure of the object in multiple threads.
+	 * This is used to indicate that the alias set represents an object that is accessible in multiple threads. This differs
+	 * from <code>shared</code> as this captures the exposure of the object in multiple threads and not the access.
 	 */
-	private boolean multiThreadAccess;
+	private boolean multiThreadAccessibility;
 
 	/** 
 	 * This indicates if the variable associated with this alias set is the receiver of <code>notify()/notifyAll()</code>
@@ -105,8 +106,9 @@ final class AliasSet
 	private boolean read;
 
 	/** 
-	 * This indicates if the variable (hence, the object referred to) associated with this alias set is shared across threads.
-	 * This is different from <code>multiThreadAccess</code> as this captures access in multiple threads.
+	 * This indicates if the variable (hence, the object referred to) associated with this alias set is shared via access
+	 * across threads. This is different from <code>multiThreadAccess</code> as this captures access in multiple threads and
+	 * not accessibility.
 	 */
 	private boolean shared;
 
@@ -137,7 +139,7 @@ final class AliasSet
 		read = false;
 		written = false;
 		shareEntities = null;
-		multiThreadAccess = false;
+		multiThreadAccessibility = false;
 	}
 
 	/**
@@ -197,7 +199,7 @@ final class AliasSet
 					new ToStringBuilder(this).append("waits", this.waits).append("written", this.written)
 											   .append("global", this.global).append("accessed", this.accessed)
 											   .append("readyEntities", this.readyEntities)
-											   .append("multiThreadAccess", this.multiThreadAccess)
+											   .append("multiThreadAccess", this.multiThreadAccessibility)
 											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
 											   .append("notifies", this.notifies).append("read", this.read)
 											   .append("fieldMap", this.fieldMap).toString();
@@ -283,7 +285,7 @@ final class AliasSet
 
 		_rep.global = true;
 		_rep.shared = true;
-		_rep.multiThreadAccess = true;
+		_rep.multiThreadAccessibility = true;
 
 		if (_rep.fieldMap != null) {
 			for (final Iterator _i = _rep.fieldMap.values().iterator(); _i.hasNext();) {
@@ -379,7 +381,7 @@ final class AliasSet
 
 		while (_wb.hasWork()) {
 			final AliasSet _as = (AliasSet) _wb.getWork();
-			_as.multiThreadAccess = true;
+			_as.multiThreadAccessibility = true;
 
 			for (final Iterator _i = _as.fieldMap.values().iterator(); _i.hasNext();) {
 				_wb.addWork(((AliasSet) _i.next()).find());
@@ -506,6 +508,51 @@ final class AliasSet
 	}
 
 	/**
+	 * Retrieves the alias set that is reachable from this alias set and corresponds to <code>ref</code> that is reachable
+	 * from the <code>root</code> alias set. This method can be used to retrieve the alias set in the site-context
+	 * corresponding to an alias side in the callee method context.
+	 *
+	 * @param root the alias set to start point in the reference context.
+	 * @param ref the alias set in end point in the reference context.
+	 * @param processed a collection of alias set pairs that is used during the search.  The contents of this alias set is
+	 * 		  not relevant to the caller.
+	 *
+	 * @return the alias set reachable from this alias set and that corresponds to <code>ref</code>.  This will be
+	 * 		   <code>null</code> if there is no such alias set.
+	 *
+	 * @pre root != null and ref != null and processed != null
+	 */
+	AliasSet getASReachableFromGivenASForGivenAS(final AliasSet root, final AliasSet ref, final Collection processed) {
+		AliasSet _result = null;
+
+		// THINK: Should the following condition be ref.find() == find() && root.escapes()?
+		if (ref.find() == find()) {
+			_result = root;
+		} else {
+			processed.add(new Pair(find(), root.find()));
+
+			final Set _keySet = getFieldMap().keySet();
+			final Iterator _i = _keySet.iterator();
+			final int _iEnd = _keySet.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd && _result == null; _iIndex++) {
+				final String _key = (String) _i.next();
+				final AliasSet _as1 = getASForField(_key);
+				final AliasSet _as2 = root.getASForField(_key);
+
+				if (_as1 != null && _as2 != null) {
+					final Pair _pair = new Pair(_as1.find(), _as2.find());
+
+					if (!processed.contains(_pair)) {
+						_result = _as1.getASReachableFromGivenASForGivenAS(_as2, ref, processed);
+					}
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Unifies the given alias set with this alias set.
 	 *
 	 * @param a is the alias set to be unified with this alias set.
@@ -546,7 +593,7 @@ final class AliasSet
 			_representative.accessed |= _represented.accessed;
 			_representative.read |= _represented.read;
 			_representative.written |= _represented.written;
-			_representative.multiThreadAccess |= _represented.multiThreadAccess;
+			_representative.multiThreadAccessibility |= _represented.multiThreadAccessibility;
 			_representative.shared |= _represented.shared;
 			_representative.global |= _represented.global;
 
@@ -567,9 +614,9 @@ final class AliasSet
 			}
 
 			if (unifyAll) {
-			    if (_representative.multiThreadAccess) {
-			        _representative.unifyThreadEscapeInfo(_represented);
-			    }
+				if (_representative.multiThreadAccessibility) {
+					_representative.unifyThreadEscapeInfo(_represented);
+				}
 			}
 
 			_representative.unifyFields(_represented, unifyAll);
@@ -603,9 +650,34 @@ final class AliasSet
 	}
 
 	/**
+	 * Unify the fields of the given alias sets with that of this alias set.
+	 *
+	 * @param aliasSet is the other alias set involved in the unification.
+	 * @param unifyAll <code>true</code> indicates that unification should be multi-thread access sensitive;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @pre aliasSet != null
+	 */
+	private void unifyFields(final AliasSet aliasSet, final boolean unifyAll) {
+		for (final Iterator _i = aliasSet.fieldMap.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final String _field = (String) _entry.getKey();
+			final AliasSet _fieldAS = (AliasSet) _entry.getValue();
+			final AliasSet _repAS = getASForField(_field);
+
+			if (_repAS != null) {
+				_repAS.unifyAliasSetHelper(_fieldAS, unifyAll);
+			} else {
+				putASForField(_field, _fieldAS);
+			}
+		}
+	}
+
+	/**
 	 * Unify thread escape and sharing information in the given alias set.
 	 *
 	 * @param represented is the other alias set involved in the unification.
+	 *
 	 * @pre represented != null
 	 */
 	private void unifyThreadEscapeInfo(final AliasSet represented) {
@@ -628,30 +700,6 @@ final class AliasSet
 
 			if (shareEntities.isEmpty()) {
 				shareEntities.add(getNewShareEntity());
-			}
-		}
-	}
-
-	/**
-	 * Unify the fields of the given alias sets with that of this alias set.
-	 *
-	 * @param aliasSet is the other alias set involved in the unification.
-	 * @param unifyAll <code>true</code> indicates that unification should be multi-thread access sensitive;
-	 * 		  <code>false</code>, otherwise.
-	 *
-	 * @pre aliasSet != null
-	 */
-	private void unifyFields(final AliasSet aliasSet, final boolean unifyAll) {
-		for (final Iterator _i = aliasSet.fieldMap.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final String _field = (String) _entry.getKey();
-			final AliasSet _fieldAS = (AliasSet) _entry.getValue();
-			final AliasSet _repAS = getASForField(_field);
-
-			if (_repAS != null) {
-				_repAS.unifyAliasSetHelper(_fieldAS, unifyAll);
-			} else {
-				putASForField(_field, _fieldAS);
 			}
 		}
 	}

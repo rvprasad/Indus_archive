@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer.criteria;
+package edu.ksu.cis.indus.tools.slicer.criteria.specification;
 
 import java.io.StringReader;
 import java.io.StringWriter;

@@ -206,6 +206,60 @@ final class MethodContext
 	}
 
 	/**
+	 * Retrieves the alias set in this method context that corresponds to the given alias set in the given method context.
+	 *
+	 * @param ref the reference alias set.
+	 * @param context the context in which <code>ref</code> occurs.
+	 *
+	 * @return the alias set in this context and that corresponds to <code>ref</code>.  This will be  <code>null</code> if
+	 * 		   there is no such alias set.
+	 *
+	 * @pre ref != null and context != null
+	 */
+	AliasSet getASCorrespondingToGivenASInGivenContext(final AliasSet ref, final MethodContext context) {
+		AliasSet _result = null;
+
+		final Set _temp = new HashSet();
+		final AliasSet _thisAS = getThisAS();
+		final AliasSet _thisAS2 = context.getThisAS();
+
+		if (_thisAS != null && _thisAS2 != null) {
+			_temp.clear();
+			_result = _thisAS.getASReachableFromGivenASForGivenAS(_thisAS2, ref, _temp);
+		}
+
+		if (_result == null) {
+			for (int _i = argAliasSets.size() - 1; _i >= 0; _i--) {
+				final AliasSet _paramAS = getParamAS(_i);
+				final AliasSet _paramAS2 = context.getParamAS(_i);
+
+				if (_result != null && _paramAS != null && _paramAS2 != null) {
+					_temp.clear();
+					_result = _paramAS.getASReachableFromGivenASForGivenAS(_paramAS2, ref, _temp);
+				}
+			}
+		}
+
+		final AliasSet _thrownAS = getThrownAS();
+		final AliasSet _thrownAS2 = context.getThrownAS();
+
+		if (_result == null && _thrownAS != null && _thrownAS2 != null) {
+			_temp.clear();
+			_result = _thrownAS.getASReachableFromGivenASForGivenAS(_thrownAS2, ref, _temp);
+		}
+
+		final AliasSet _returnAS = getReturnAS();
+		final AliasSet _returnAS2 = context.getReturnAS();
+
+		if (_result == null && _returnAS != null && _returnAS2 != null) {
+			_temp.clear();
+			_result = _returnAS.getASReachableFromGivenASForGivenAS(_returnAS2, ref, _temp);
+		}
+
+		return _result;
+	}
+
+	/**
 	 * Retrieves the alias set corresponding to the parameter occuring at position <code>index</code> in the method
 	 * interface.
 	 *

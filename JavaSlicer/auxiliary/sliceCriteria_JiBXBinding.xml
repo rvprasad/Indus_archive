@@ -1,11 +1,11 @@
-<binding package="edu.ksu.cis.indus.tools.slicer.criteria">
+<binding package="edu.ksu.cis.indus.tools.slicer.criteria.specification">
     <namespace uri="http://indus.projects.cis.ksu.edu/slicer" prefix="slicer" default="all"/>
-	<mapping name="criteria" class="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaSpec"
+	<mapping name="criteria" class="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaSpec"
         ns="http://indus.projects.cis.ksu.edu/slicer">
-		<collection field="criteria" item-type="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriterionSpec" 
-			factory="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaSpec.createCriteriaContainer"/>
+		<collection field="criteria" item-type="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec" 
+			factory="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaSpec.createCriteriaContainer"/>
 	</mapping>
-	<mapping name="criterion" class="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriterionSpec" 
+	<mapping name="criterion" class="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec" 
          ns="http://indus.projects.cis.ksu.edu/slicer">
 		<value style="attribute" name="considerExecution" field="considerExecution" type="boolean"/>
 		<value name="className" field="className" type="java.lang.String"/>
@@ -13,7 +13,7 @@
 			<value name="methodName" field="methodName" type="java.lang.String"/>
 			<value name="returnTypeName" field="returnTypeName" type="java.lang.String"/>
 			<collection field="parameterTypeNames" ordered="true" 
-				factory="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriterionSpec.createParameterTypeNamesContainer">
+				factory="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec.createParameterTypeNamesContainer">
 				<value name="parameterTypeName" type="java.lang.String"/>
 			</collection>
 		</structure>

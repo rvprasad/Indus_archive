@@ -39,6 +39,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
 import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -49,6 +50,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processors.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
 import edu.ksu.cis.indus.tools.AbstractTool;
@@ -56,6 +58,7 @@ import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.Phase;
+import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.processing.ExecutableSlicePostProcessor;
 import edu.ksu.cis.indus.tools.slicer.processing.ISlicePostProcessor;
 
@@ -193,7 +196,7 @@ public final class SlicerTool
 	 *
 	 * @invariant criteriaGenerators.oclIsKindOf(Collection(ISliceCriteriaGenerator))
 	 */
-	private final Collection criteriaGenerators = new HashSet();
+	private final Collection criteriaGenerators;
 
 	/** 
 	 * The entry point methods.
@@ -215,7 +218,7 @@ public final class SlicerTool
 	/** 
 	 * This is the information map used to initialized analyses.
 	 */
-	private final Map info = new HashMap();
+	private final Map info;
 
 	/** 
 	 * This provides monitor information.
@@ -280,12 +283,17 @@ public final class SlicerTool
 	/** 
 	 * This provides safe lock information.
 	 */
-	private SafeLockAnalysis safelockAnalysis;
+	private final SafeLockAnalysis safelockAnalysis;
 
 	/** 
 	 * This defines the scope of slicing.  If this undefined, then the entire reachbable system is the scope.
 	 */
 	private SpecificationBasedScopeDefinition sliceScopeDefinition;
+
+	/** 
+	 * This provides use def information for static fields.
+	 */
+	private final StaticFieldUseDefInfo staticFieldUD;
 
 	/**
 	 * Creates a new SlicerTool object.  The client should relinquish control/ownership of the arguments as they are provided
@@ -302,6 +310,8 @@ public final class SlicerTool
 
 		rootMethods = new HashSet();
 		criteria = new HashSet();
+		info = new HashMap();
+		criteriaGenerators = new HashSet();
 
 		// create the flow analysis.
 		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr);
@@ -338,12 +348,15 @@ public final class SlicerTool
 		safelockAnalysis = new SafeLockAnalysis();
 		// create alias use def analysis
 		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, threadGraph, bbgMgr, pairMgr);
+		// create static field use def analysis
+		staticFieldUD = new StaticFieldUseDefInfo();
 
 		// set up data required for dependency analyses.
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
 		info.put(IEnvironment.ID, ofa.getEnvironment());
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, aliasUD);
+		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, staticFieldUD);
 		info.put(PairManager.ID, pairMgr);
 		info.put(IValueAnalyzer.ID, ofa);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
@@ -432,6 +445,24 @@ public final class SlicerTool
 			_result.addAll(_config.getDependenceAnalyses(_i.next()));
 		}
 		return _result;
+	}
+
+	/**
+	 * Retrieves the value in <code>ecba</code>.
+	 *
+	 * @return the value in <code>ecba</code>.
+	 */
+	public EquivalenceClassBasedEscapeAnalysis getECBA() {
+		return ecba;
+	}
+
+	/**
+	 * Retrieves the value in <code>monitorInfo</code>.
+	 *
+	 * @return the value in <code>monitorInfo</code>.
+	 */
+	public MonitorAnalysis getMonitorInfo() {
+		return monitorInfo;
 	}
 
 	/**
@@ -711,24 +742,6 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Retrieves the value in <code>ecba</code>.
-	 *
-	 * @return the value in <code>ecba</code>.
-	 */
-	EquivalenceClassBasedEscapeAnalysis getECBA() {
-		return ecba;
-	}
-
-	/**
-	 * Retrieves the value in <code>monitorInfo</code>.
-	 *
-	 * @return the value in <code>monitorInfo</code>.
-	 */
-	MonitorAnalysis getMonitorInfo() {
-		return monitorInfo;
-	}
-
-	/**
 	 * Executes dependency analyses and monitor analysis.
 	 *
 	 * @param slicerConfig provides the configuration.
@@ -768,6 +781,10 @@ public final class SlicerTool
 		}
 		daController.initialize();
 		daController.execute();
+
+		if (!slicerConfig.isContextSensitiveDeadlockCriteria()) {
+			ecba.flushSiteContexts();
+		}
 
 		/*
 		 * We fixed the dependences in the slicer and daController for execution purposes.  Here we unfix it.
@@ -854,8 +871,11 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl.reset();
 		aliasUD.reset();
 		aliasUD.hookup(cgBasedPreProcessCtrl);
+		staticFieldUD.reset();
+		staticFieldUD.hookup(cgBasedPreProcessCtrl);
 		cgBasedPreProcessCtrl.process();
 		aliasUD.unhook(cgBasedPreProcessCtrl);
+		staticFieldUD.unhook(cgBasedPreProcessCtrl);
 
 		phase.nextMajorPhase();
 
@@ -923,6 +943,16 @@ public final class SlicerTool
 			engine.setSliceCriteria(criteria);
 			engine.setSliceScopeDefinition(sliceScopeDefinition);
 			engine.setSystem(system);
+
+			if (slicerConfig.isContextSensitiveDeadlockCriteria()) {
+				final Map _map = new HashMap();
+				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetriever();
+				_t1.setECBA(getECBA());
+				_t1.setCallGraph(getCallGraph());
+				_map.put(IDependencyAnalysis.READY_DA, _t1);
+				_map.put(IDependencyAnalysis.INTERFERENCE_DA, _t1);
+				engine.setDepID2ContextRetrieverMapping(_map);
+			}
 			engine.initialize();
 			engine.slice();
 			phase.nextMinorPhase();

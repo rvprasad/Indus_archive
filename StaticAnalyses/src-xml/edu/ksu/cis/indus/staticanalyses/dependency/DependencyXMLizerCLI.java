@@ -44,6 +44,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processors.StaticFieldUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -209,8 +210,7 @@ public class DependencyXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
-				(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
+				printUsage(_options);
 				System.exit(1);
 			}
 
@@ -272,14 +272,24 @@ public class DependencyXMLizerCLI
 			_xmlizerCLI.execute();
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-
-			final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
-			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+			printUsage(_options);
 			System.exit(1);
 		} catch (final Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
 			throw new RuntimeException(_e);
 		}
+	}
+
+	/**
+	 * Prints the help/usage info for this class.
+	 *
+	 * @param options is the command line option.
+	 *
+	 * @pre options != null
+	 */
+	private static void printUsage(final Options options) {
+		final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName() + " <options> <classnames>";
+		(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are: ", options, "");
 	}
 
 	/**
@@ -310,6 +320,7 @@ public class DependencyXMLizerCLI
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
+		final StaticFieldUseDefInfo _staticFieldUD = new StaticFieldUseDefInfo();
 		final AliasedUseDefInfo _aliasUD;
 
 		if (useAliasedUseDefv1) {
@@ -323,6 +334,7 @@ public class DependencyXMLizerCLI
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, _aliasUD);
+		info.put(IUseDefInfo.GLOBAL_USE_DEF_ID, _staticFieldUD);
 
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, getBbm());
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, _ecba);
@@ -362,7 +374,9 @@ public class DependencyXMLizerCLI
 		writeInfo(_stream.toString());
 
 		_aliasUD.hookup(_cgipc);
+		_staticFieldUD.hookup(_cgipc);
 		_cgipc.process();
+		_staticFieldUD.unhook(_cgipc);
 		_aliasUD.unhook(_cgipc);
 
 		writeInfo("BEGIN: dependency analyses");

@@ -27,13 +27,23 @@ Required software:
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
+	Bandera [OPTIONAL]
+		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
+
 
 
 Version 0.5
 -----------
+	- Added support to inject context into seed criteria.  This support was also used to generate context-sensitive criteria 
+	  that preserve dead locking properties of the program.
+  	- Added support to perform property-sensitive (thread locality) context-sensitive slicing.  This extends context 
+  	  injection into seed criteria.
+	- The user can now specify scope of slicing via a scope specification file.	  
 	- Feature request 232.
-	- The user can now specify scope of slicing via a scope specification file.
+	- Provided a new class "FieldBasedCriteriaGenerator" to generated criteria based on fields.
+	- Refactored classes related criteria filters, generators, and specification.
 	- A whole lot of bug fixes.
+	
 
 Version 0.4
 ------------

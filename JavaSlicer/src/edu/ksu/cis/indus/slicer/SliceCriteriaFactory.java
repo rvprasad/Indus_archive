@@ -273,13 +273,15 @@ public final class SliceCriteriaFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Clones the given criterion.
 	 *
-	 * @param criterion
+	 * @param criterion to be cloned.
 	 *
-	 * @return
+	 * @return the clone.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @throws IllegalArgumentException if criterion is not of type <code>ISliceCriterion</code>.
+	 *
+	 * @pre criterion != null
 	 */
 	public ISliceCriterion clone(final ISliceCriterion criterion) {
 		final ISliceCriterion _result;
@@ -311,14 +313,18 @@ public final class SliceCriteriaFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a slice criterion for the given program point.
 	 *
-	 * @param method
-	 * @param stmt
-	 * @param valueBox
-	 * @param considerExecution
+	 * @param method containing <code>stmt</code>.
+	 * @param stmt containing <code>valueBox</code>.
+	 * @param valueBox is the slice criterion.
+	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching
+	 * 		  it.
 	 *
-	 * @return
+	 * @return a slice criterion.
+	 *
+	 * @pre method != null and stmt != null and vlaueBox != null
+	 * @post result != null
 	 */
 	private SliceExpr getExprCriteria(final SootMethod method, final Stmt stmt, final ValueBox valueBox,
 		final boolean considerExecution) {
@@ -329,13 +335,17 @@ public final class SliceCriteriaFactory {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a slice criterion for the given statement.
 	 *
-	 * @param method
-	 * @param stmt
-	 * @param considerExecution
+	 * @param method containing <code>stmt</code>.
+	 * @param stmt is the slice criterion.
+	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching
+	 * 		  it.
 	 *
-	 * @return
+	 * @return a slice criterion.
+	 *
+	 * @pre method != null and stmt != null
+	 * @post result != null
 	 */
 	private SliceStmt getStmtCriteria(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
 		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();

@@ -32,7 +32,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaParser;
+import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
 
 import java.util.ArrayList;
 import java.util.Collection;

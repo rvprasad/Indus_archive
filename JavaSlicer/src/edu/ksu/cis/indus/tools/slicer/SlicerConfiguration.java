@@ -36,6 +36,10 @@ import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
+import edu.ksu.cis.indus.tools.slicer.criteria.filters.EscapingSliceCriteriaFilter;
+import edu.ksu.cis.indus.tools.slicer.criteria.filters.ISliceCriteriaFilter;
+import edu.ksu.cis.indus.tools.slicer.criteria.generators.DeadlockPreservingCriteriaGenerator;
+import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -146,6 +150,13 @@ public final class SlicerConfiguration
 	 * strategy.
 	 */
 	static final Object ESCAPING_SYNC_CONSTRUCTS = "ESCAPING_SYNC_CONSTRUCTS";
+
+	/** 
+	 * This indicates
+	 * all-synchronization-constructs-with-escaping-monitors-should-be-considered-in-a-context-sensitive-manner deadlock
+	 * criteria selection strategy.
+	 */
+	static final Object CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS = "CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS";
 
 	/** 
 	 * This identifies the option to create executable slice.
@@ -494,6 +505,17 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Retrieves the type of slice that will be generated.
+	 *
+	 * @return the type of slice.
+	 *
+	 * @post result != null
+	 */
+	public String getSliceType() {
+		return properties.get(SLICE_TYPE).toString();
+	}
+
+	/**
 	 * Sets if OFA should be used during interference dependence calculation.
 	 *
 	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
@@ -580,6 +602,9 @@ public final class SlicerConfiguration
 		setProperty(USE_SLA_FOR_READY_DA, Boolean.TRUE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 
+		criteriaGenerator = new DeadlockPreservingCriteriaGenerator();
+		setProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY, CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS);
+
 		// default required fixed dependency analyses
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
@@ -592,7 +617,6 @@ public final class SlicerConfiguration
 		dependencesToUse.add(IDependencyAnalysis.INTERFERENCE_DA);
 		dependencesToUse.add(IDependencyAnalysis.READY_DA);
 		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
-		criteriaGenerator = new DeadlockPreservingCriteriaGeneratorv2();
 	}
 
 	/**
@@ -695,6 +719,15 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Checks if the deadlock preserving criteria selection strategy is context sensitive.
+	 *
+	 * @return <code>true</code> if the strategy is context sensitive; <code>false</code>, otherwise.
+	 */
+	boolean isContextSensitiveDeadlockCriteria() {
+		return getProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY).equals(CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS);
+	}
+
+	/**
 	 * Provides the id of the dependences to use for slicing.
 	 *
 	 * @return a collection of id of the dependence analyses.
@@ -703,17 +736,6 @@ public final class SlicerConfiguration
 	 */
 	Collection getIDsOfDAsToUse() {
 		return Collections.unmodifiableCollection(dependencesToUse);
-	}
-
-	/**
-	 * Retrieves the type of slice that will be generated.
-	 *
-	 * @return the type of slice.
-	 *
-	 * @post result != null
-	 */
-	String getSliceType() {
-		return properties.get(SLICE_TYPE).toString();
 	}
 
 	/**
@@ -811,9 +833,14 @@ public final class SlicerConfiguration
 			_result = true;
 
 			if (property.equals(ALL_SYNC_CONSTRUCTS)) {
-				criteriaGenerator = new DeadlockPreservingCriteriaGenerator();
+				criteriaGenerator.setCriteriaFilter(ISliceCriteriaFilter.DUMMY_FILTER);
+				criteriaGenerator.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (property.equals(ESCAPING_SYNC_CONSTRUCTS)) {
-				criteriaGenerator = new DeadlockPreservingCriteriaGeneratorv2();
+				criteriaGenerator.setCriteriaFilter(new EscapingSliceCriteriaFilter());
+				criteriaGenerator.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
+			} else if (property.equals(CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
+				criteriaGenerator.setCriteriaFilter(new EscapingSliceCriteriaFilter());
+				criteriaGenerator.setCriteriaContextualizer(new DeadlockPreservingCriteriaContextualizer());
 			} else {
 				_result = false;
 			}

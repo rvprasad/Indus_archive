@@ -143,20 +143,20 @@ public final class SlicerConfigurator
 		final Button _escapingSyncStrategy = new Button(_group1, SWT.RADIO);
 		_escapingSyncStrategy.setText("Escaping Sychronization constructs");
 
-		/*final Button _completeSlice = new Button(_group, SWT.RADIO);
-		   _completeSlice.setText("Complete slice");*/
+		final Button _ctxtsensEscapingSyncStrategy = new Button(_group1, SWT.RADIO);
+		_ctxtsensEscapingSyncStrategy.setText("Escaping Sychronization constructs with their contexts");
+
 		final SelectionListener _sl2 =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					Object _value = null;
 
-					if (evt.widget == _escapingSyncStrategy) {
+					if (evt.widget == _ctxtsensEscapingSyncStrategy) {
+						_value = SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS;
+					} else if (evt.widget == _escapingSyncStrategy) {
 						_value = SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS;
 					} else if (evt.widget == _allSycnStrategy) {
 						_value = SlicerConfiguration.ALL_SYNC_CONSTRUCTS;
-
-						/*} else if (evt.widget == _completeSlice) {
-						   _value = SlicingEngine.COMPLETE_SLICE;*/
 					}
 
 					if (_value != null) {
@@ -169,18 +169,17 @@ public final class SlicerConfigurator
 				}
 			};
 		_allSycnStrategy.addSelectionListener(_sl2);
-		//_completeSlice.addSelectionListener(_sl);
 		_escapingSyncStrategy.addSelectionListener(_sl2);
+		_ctxtsensEscapingSyncStrategy.addSelectionListener(_sl2);
 
 		final Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
 
 		if (_temp.equals(SlicerConfiguration.ALL_SYNC_CONSTRUCTS)) {
 			_allSycnStrategy.setSelection(true);
-
-			/*} else if (_temp.equals(SlicingEngine.COMPLETE_SLICE)) {
-			   _completeSlice.setSelection(true);*/
 		} else if (_temp.equals(SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS)) {
 			_escapingSyncStrategy.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
+			_ctxtsensEscapingSyncStrategy.setSelection(true);
 		}
 
 		final SelectionListener _sl1 =

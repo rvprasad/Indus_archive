@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.tools.slicer;
+package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -22,7 +22,10 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.processing.Context;
+
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
+
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -52,9 +55,9 @@ public final class DeadlockPreservingCriteriaGenerator
 	private static final Log LOGGER = LogFactory.getLog(DeadlockPreservingCriteriaGenerator.class);
 
 	/**
-	 * @see ISliceCriteriaGenerator#getCriteria(SlicerTool)
+	 * @see edu.ksu.cis.indus.tools.slicer.criteria.generators.AbstractSliceCriteriaGenerator#getCriteriaTemplateMethod()
 	 */
-	public Collection getCriteria(final SlicerTool slicer) {
+	protected Collection getCriteriaTemplateMethod() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: creating deadlock criteria.");
 		}
@@ -62,17 +65,17 @@ public final class DeadlockPreservingCriteriaGenerator
 		final Collection _result = new HashSet();
 		final Collection _subResult = new HashSet();
 		final Context _context = new Context();
-		final BasicBlockGraphMgr _bbgMgr = slicer.getBasicBlockGraphManager();
+		final SlicerTool _slicer = getSlicerTool();
+		final BasicBlockGraphMgr _bbgMgr = _slicer.getBasicBlockGraphManager();
 		final SliceCriteriaFactory _criteriaFactory = SliceCriteriaFactory.getFactory();
 
-		for (final Iterator _i = slicer.getMonitorInfo().getMonitorTriples().iterator(); _i.hasNext();) {
+		for (final Iterator _i = _slicer.getMonitorInfo().getMonitorTriples().iterator(); _i.hasNext();) {
 			final Triple _mTriple = (Triple) _i.next();
 			final SootMethod _method = (SootMethod) _mTriple.getThird();
 			_subResult.clear();
 			_context.setRootMethod(_method);
 
-			if (_method.getDeclaringClass().isApplicationClass()
-				  && criteriaFilter.shouldGenerateCriteriaFrom(_mTriple, slicer)) {
+			if (_method.getDeclaringClass().isApplicationClass() && shouldGenerateCriteriaFrom(_mTriple)) {
 				if (_mTriple.getFirst() == null) {
 					// add all entry points and return points (including throws) of the method as the criteria
 					final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_method);
@@ -87,7 +90,7 @@ public final class DeadlockPreservingCriteriaGenerator
 							final Stmt _stmt = _bb.getTrailerStmt();
 							_subResult.addAll(_criteriaFactory.getCriteria(_method, _stmt, false));
 						}
-						contextualizer.processCriteriaBasedOnThis(_method, _subResult, slicer);
+						contextualizeCriteriaBasedOnThis(_method, _subResult);
 					} else {
 						if (LOGGER.isWarnEnabled()) {
 							LOGGER.warn("Could not retrieve the basic block graph for " + _method.getSignature()
@@ -95,14 +98,13 @@ public final class DeadlockPreservingCriteriaGenerator
 						}
 					}
 				} else {
-				    final EnterMonitorStmt _enterStmt =  (EnterMonitorStmt) _mTriple.getFirst();
-					Collection _criteria = _criteriaFactory.getCriteria(_method, _enterStmt, true, true);
-					_subResult.addAll(_criteria);
-					_criteria = _criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getSecond(), true, true);
-					_subResult.addAll(_criteria);
-				    _context.setStmt(_enterStmt);
-				    _context.setProgramPoint(_enterStmt.getOpBox());
-				    contextualizer.processCriteriaBasedOnProgramPoint(_context, _subResult, slicer);
+					final EnterMonitorStmt _enterStmt = (EnterMonitorStmt) _mTriple.getFirst();
+
+					_subResult.addAll(_criteriaFactory.getCriteria(_method, _enterStmt, true, true));
+					_subResult.addAll(_criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getSecond(), true, true));
+					_context.setStmt(_enterStmt);
+					_context.setProgramPoint(_enterStmt.getOpBox());
+					contextualizeCriteriaBasedOnProgramPoint(_context, _subResult);
 				}
 			}
 			_result.addAll(_subResult);
@@ -111,6 +113,7 @@ public final class DeadlockPreservingCriteriaGenerator
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: creating deadlock criteria. - " + CollectionsUtilities.prettyPrint(_result));
 		}
+
 		return _result;
 	}
 }

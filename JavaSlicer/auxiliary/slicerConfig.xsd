@@ -53,6 +53,7 @@
         </xsd:documentation>
       </xsd:annotation>
       <xsd:restriction base="xsd:token">
+        <xsd:enumeration value="CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS"/>
         <xsd:enumeration value="ESCAPING_SYNC_CONSTRUCTS"/>
         <xsd:enumeration value="ALL_SYNC_CONSTRUCTS"/>
       </xsd:restriction>

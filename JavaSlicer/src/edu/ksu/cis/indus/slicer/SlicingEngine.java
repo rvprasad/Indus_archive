@@ -209,6 +209,13 @@ public final class SlicingEngine {
 	private Stack callStackCache;
 
 	/**
+	 * Creates a new SlicingEngine object.
+	 */
+	public SlicingEngine() {
+		collector = new SliceCollector(this);
+	}
+
+	/**
 	 * This predicate can be used to filter out java.lang.Thread.start methods from a set of methods.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -223,13 +230,6 @@ public final class SlicingEngine {
 		public boolean evaluate(final Object object) {
 			return !Util.isStartMethod((SootMethod) object);
 		}
-	}
-	
-	/**
-	 * Creates a new SlicingEngine object.
-	 */
-	public SlicingEngine() {
-		collector = new SliceCollector(this);
 	}
 
 	/**
@@ -295,6 +295,21 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Sets the information that provides context retriever based on dependence analysis id.
+	 *
+	 * @param map a map from dependence analysis id to context retriever to be used with it.
+	 *
+	 * @pre map != null and map.oclIsKindOf(Map(Object, ICallingContextRetriever))
+	 * @pre map.keySet()->forall( o | o.equals(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA) or
+	 * 		o.equals(IDependencyAnalysis.REFERENCE_BASED_DATA_DA) or o.equals(IDependencyAnalysis.INTERFERENCE_DA) or
+	 * 		o.equals(IDependencyAnalysis.READY_DA) or o.equals(IDependencyAnalysis.CONTROL_DA) or
+	 * 		o.equals(IDependencyAnalysis.DIVERGENCE_DA) or o.equals(IDependencyAnalysis.SYNCHRONIZATION_DA)
+	 */
+	public void setDepID2ContextRetrieverMapping(final Map map) {
+		dependenceExtractor.setDepID2ContextRetrieverMapping(map);
+	}
+
+	/**
 	 * Sets the object that maps new expressions to corresponding init invocation sites.
 	 *
 	 * @param mapper maps new expressions to corresponding init invocation sites.
@@ -328,6 +343,7 @@ public final class SlicingEngine {
 		}
 
 		final SliceCriteriaFactory _criteriaFactory = SliceCriteriaFactory.getFactory();
+
 		for (final Iterator _i = sliceCriteria.iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
 
@@ -386,7 +402,7 @@ public final class SlicingEngine {
 		} else if (theSliceType.equals(COMPLETE_SLICE)) {
 			directionSensitiveInfo = new CompleteSlicingPart(this);
 		}
-		dependenceExtractor.setRetriever(directionSensitiveInfo);
+		dependenceExtractor.setDependenceRetriever(directionSensitiveInfo);
 	}
 
 	/**
@@ -505,10 +521,7 @@ public final class SlicingEngine {
 	 * Slices the system provided at initialization for the initialized criteria to generate the given type of slice..
 	 */
 	public void slice() {
-		for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
-			final ISliceCriterion _crit = (ISliceCriterion) _i.next();
-			workbag.addWorkNoDuplicates(_crit);
-		}
+		workbag.addAllWorkNoDuplicates(criteria);
 
 		while (workbag.hasWork()) {
 			final Object _work = workbag.getWork();
@@ -548,6 +561,15 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Retrieves the value in <code>cgi</code>.
+	 *
+	 * @return the value in <code>cgi</code>.
+	 */
+	ICallGraphInfo getCgi() {
+		return cgi;
+	}
+
+	/**
 	 * Retrieves a copy of <code>callStackCache</code>.
 	 *
 	 * @return a copy of <code>callStackCache</code>.
@@ -561,15 +583,6 @@ public final class SlicingEngine {
 			_result = null;
 		}
 		return _result;
-	}
-
-	/**
-	 * Retrieves the value in <code>cgi</code>.
-	 *
-	 * @return the value in <code>cgi</code>.
-	 */
-	ICallGraphInfo getCgi() {
-		return cgi;
 	}
 
 	/**
@@ -772,13 +785,13 @@ public final class SlicingEngine {
 	 * @pre theCriteria != null and theCriteria.oclIsKindOf(Collection(ISliceCriterion))
 	 */
 	private void setContext(final Collection theCriteria) {
-		final Iterator _i = theCriteria.iterator();
-		final int _iEnd = theCriteria.size();
+		if (callStackCache != null) {
+			final Iterator _i = theCriteria.iterator();
+			final int _iEnd = theCriteria.size();
 
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final ISliceCriterion _criterion = ((ISliceCriterion) _i.next());
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final ISliceCriterion _criterion = ((ISliceCriterion) _i.next());
 
-			if (callStackCache != null) {
 				((AbstractSliceCriterion) _criterion).setCallStack((Stack) callStackCache.clone());
 			}
 		}
@@ -849,7 +862,7 @@ public final class SlicingEngine {
 				dependenceExtractor.setTrigger(_pair, method);
 				CollectionUtils.forAllDo(_analyses, dependenceExtractor);
 
-				final Collection _valuesSet = dependenceExtractor.getCriteriaMap().values();
+				final Collection _valuesSet = dependenceExtractor.getDependenceMap().values();
 				final Iterator _l = _valuesSet.iterator();
 				final int _lEnd = _valuesSet.size();
 
@@ -873,6 +886,43 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Generates contextualized criteria based on inter-procedural dependence.
+	 *
+	 * @param criteriaBase a reference that is required to generate contexts.  This is not used by this method. Rather it is
+	 * 		  provided to the context generator.
+	 * @param stmtToBeIncluded the criteria needs to be generated to include this statement into the slice.
+	 * @param methodToBeIncluded this method contains <code>stmtToBeIncluded</code>.
+	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching
+	 * 		  it.
+	 *
+	 * @pre criteriaBase != null and stmtToBeIncluded != null and methodToBeIncluded != null
+	 */
+	private void generateInterProceduralContextualizedCriteria(final Object criteriaBase, final Stmt stmtToBeIncluded,
+		final SootMethod methodToBeIncluded, final boolean considerExecution) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateInterProceduralContextualizedCriteria(Object criteriaBase = " + criteriaBase
+				+ ", Stmt stmtToBeIncluded = " + stmtToBeIncluded + ", SootMethod methodToBeIncluded = " + methodToBeIncluded
+				+ ", boolean considerExecution = " + considerExecution + ") - BEGIN");
+		}
+
+		final Stack _temp = getCopyOfCallStackCache();
+		final Collection _contexts = dependenceExtractor.getContextsFor(criteriaBase);
+		final Iterator _i = _contexts.iterator();
+		final int _iEnd = _contexts.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Stack _context = (Stack) _i.next();
+			setCallStackCache(_context);
+			generateSliceStmtCriterion(stmtToBeIncluded, methodToBeIncluded, considerExecution);
+		}
+		setCallStackCache(_temp);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("generateInterProceduralContextualizedCriteria() - END");
+		}
+	}
+
+	/**
 	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
 	 * the given dependency analyses.
 	 *
@@ -892,7 +942,7 @@ public final class SlicingEngine {
 		dependenceExtractor.setTrigger(stmt, method);
 		CollectionUtils.forAllDo(das, dependenceExtractor);
 
-		for (final Iterator _i = dependenceExtractor.getCriteriaMap().entrySet().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dependenceExtractor.getDependenceMap().entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final boolean _considerExecution = ((Boolean) _entry.getKey()).booleanValue();
 
@@ -913,10 +963,8 @@ public final class SlicingEngine {
 				if (_methodToBeIncluded.equals(method)) {
 					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
 				} else {
-					final Stack _temp = callStackCache;
-					setCallStackCache(null);
-					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
-					setCallStackCache(_temp);
+					generateInterProceduralContextualizedCriteria(_o, _stmtToBeIncluded, _methodToBeIncluded,
+						_considerExecution);
 				}
 			}
 		}

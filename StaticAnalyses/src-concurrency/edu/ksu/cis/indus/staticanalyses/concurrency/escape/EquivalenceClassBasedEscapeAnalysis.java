@@ -338,6 +338,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 	}
 
+
 	/**
 	 * This class encapsulates the logic to process the expressions during escape analysis.  Alias sets are created as
 	 * required.  The class relies on <code>AliasSet</code> to decide if alias set needs to be created for a type of value.
@@ -720,6 +721,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 	}
 
+
 	/**
 	 * This class is used to create alias sets for global variables.
 	 *
@@ -915,6 +917,18 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * Flushes the site contexts.
+	 */
+	public void flushSiteContexts() {
+		// delete references to site caches as they will not be used hereon.
+		for (final Iterator _i = cgi.getReachableMethods().iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final Triple _triple = (Triple) method2Triple.get(_sm);
+			method2Triple.put(_sm, new Triple(_triple.getFirst(), _triple.getSecond(), null));
+		}
+	}
+
+	/**
 	 * Reset internal data structures.
 	 */
 	public void reset() {
@@ -1042,6 +1056,40 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 		}
 		return _result;
+	}
+
+	/**
+	 * Retrieves the alias set for "this" variable of the given method.
+	 *
+	 * @param method of interest.
+	 *
+	 * @return the alias set corresponding to the "this" variable of the given method.
+	 *
+	 * @pre method != null and method.isStatic()
+	 */
+	AliasSet getAliasSetForThis(final SootMethod method) {
+		return ((MethodContext) ((Triple) method2Triple.get(method)).getFirst()).thisAS;
+	}
+
+	/**
+	 * Retrieves the alias set on the caller side that corresponds to the given alias set on the callee side at the given
+	 * call site in the caller.
+	 *
+	 * @param ref the reference alias set.
+	 * @param callee the method in which <code>ref</code> occurs.
+	 * @param site the call site at which <code>callee</code> is called.
+	 *
+	 * @return the caller site alias set that corresponds to <code>ref</code>.  This will be <code>null</code> if there is no
+	 * 		   such alias set.
+	 *
+	 * @pre ref != null and callee != null and site != null
+	 */
+	AliasSet getCallerSideAliasSet(final AliasSet ref, final SootMethod callee, final CallTriple site) {
+		final Triple _triple = (Triple) method2Triple.get(site.getMethod());
+		final Map _callsite2mc = (Map) _triple.getThird();
+		final MethodContext _callingContext = (MethodContext) _callsite2mc.get(site);
+		final MethodContext _calleeContext = (MethodContext) ((Triple) method2Triple.get(callee)).getFirst();
+		return _calleeContext.getASCorrespondingToGivenASInGivenContext(ref, _callingContext);
 	}
 
 	/**
@@ -1215,13 +1263,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final MethodContext _calleeSiteContext = (MethodContext) _ctrp2sc.get(_callerTrp);
 				_calleeSiteContext.propogateInfoFromTo(_calleeMethodContext);
 			}
-		}
-
-		// delete references to site caches as they will not be used hereon.
-		for (final Iterator _i = _methodsInTopologicalOrder.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-			final Triple _triple = (Triple) method2Triple.get(_sm);
-			method2Triple.put(_sm, new Triple(_triple.getFirst(), _triple.getSecond(), null));
 		}
 	}
 }

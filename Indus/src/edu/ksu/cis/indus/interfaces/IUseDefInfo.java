@@ -40,12 +40,17 @@ public interface IUseDefInfo
   extends IStatus,
 	  IIdentification {
 	/** 
-	 * This is one of the ID of this interface.
+	 * This is an ID of this interface. This is used in conjuction with instance-based reference use-def info.
 	 */
 	String ALIASED_USE_DEF_ID = "Aliased Use-Def Information";
 
 	/** 
-	 * This is the ID of this interface.
+	 * This is an ID of this interface. This is used in conjuction with class-based reference use-def info.
+	 */
+	String GLOBAL_USE_DEF_ID = "Global Use-Def Information";
+
+	/** 
+	 * This is an ID of this interface. This is used in conjuction with method local variable use-def info.
 	 */
 	String LOCAL_USE_DEF_ID = "Local Use-Def Information";
 
@@ -70,9 +75,12 @@ public interface IUseDefInfo
 	 *
 	 * @return a collection of def sites.
 	 *
+	 * @throws UnsupportedOperationException when the implementation does not support this operation.
+	 *
 	 * @pre local != null and useStmt != null
 	 */
-	Collection getDefs(Local local, Stmt useStmt, SootMethod method);
+	Collection getDefs(Local local, Stmt useStmt, SootMethod method)
+	  throws UnsupportedOperationException;
 
 	/**
 	 * Retrieves the use sites that reach the given def site in the given context.

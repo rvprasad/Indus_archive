@@ -31,11 +31,12 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaParser;
+import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
@@ -177,6 +178,11 @@ public class SliceXMLizerCLI
 	 */
 	private boolean residualize;
 
+	/** 
+	 * This indicates if the xml representation of the slice should be generated.
+	 */
+	private boolean shouldWriteSliceXML;
+
 	/**
 	 * Creates an instance of this class.
 	 */
@@ -208,7 +214,7 @@ public class SliceXMLizerCLI
 		}
 
 		_xmlizer.setIDGenerator(new UniqueJimpleIDGenerator());
-		_xmlizer.writeXML();
+		_xmlizer.writeSliceXML();
 		_xmlizer.outputStats();
 		_xmlizer.residualize();
 		_xmlizer.slicer.reset();
@@ -413,6 +419,9 @@ public class SliceXMLizerCLI
 				"Residualize after slicing. This will also dump the class files for the residualized classes.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
+		_o = new Option("x", "output-slice-xml", false, "Output xml representation of the slice.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
 
 		CommandLine _cl = null;
 
@@ -426,8 +435,7 @@ public class SliceXMLizerCLI
 		}
 
 		if (_exception != null || _cl.hasOption("h")) {
-			final String _cmdLineSyn = "java " + SliceXMLizerCLI.class.getName() + "<options> <class names>";
-			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+			printUsage(_options);
 
 			if (_exception != null) {
 				LOGGER.fatal("Incorrect command line.  Aborting.", _exception);
@@ -463,6 +471,8 @@ public class SliceXMLizerCLI
 			xmlizer.setSliceScopeSpecFile(_cl.getOptionValue('S'));
 		}
 
+		xmlizer.shouldWriteSliceXML = _cl.hasOption('x');
+
 		final List _result = _cl.getArgList();
 
 		if (_result.isEmpty()) {
@@ -471,6 +481,18 @@ public class SliceXMLizerCLI
 		}
 
 		xmlizer.setClassNames(_cl.getArgList());
+	}
+
+	/**
+	 * Prints the help/usage info for this class.
+	 *
+	 * @param options is the command line option.
+	 *
+	 * @pre options != null
+	 */
+	private static void printUsage(final Options options) {
+		final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName() + " <options> <classnames>";
+		(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are: ", options, "");
 	}
 
 	/**
@@ -633,7 +655,7 @@ public class SliceXMLizerCLI
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Dumping jimple for " + _sc);
+				LOGGER.debug("Dumping jimple for " + _sc + " with suffix " + suffix);
 			}
 
 			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
@@ -643,7 +665,7 @@ public class SliceXMLizerCLI
 					try {
 						_sm.retrieveActiveBody();
 					} catch (final RuntimeException _e) {
-						LOGGER.warn("Failed to retrieve body for method " + _sm, _e);
+						LOGGER.error("Failed to retrieve body for method " + _sm, _e);
 					}
 				}
 			}
@@ -663,9 +685,9 @@ public class SliceXMLizerCLI
 					_printer.write(_sc, outputDirectory);
 				}
 			} catch (final IOException _e) {
-				LOGGER.warn("Error while writing " + _sc, _e);
+				LOGGER.error("Error while writing " + _sc, _e);
 			} catch (final RuntimeException _e) {
-				LOGGER.warn("Error while writing class file of " + _sc, _e);
+				LOGGER.error("Error while writing class file of " + _sc, _e);
 			} finally {
 				if (_writer != null) {
 					_writer.flush();
@@ -682,9 +704,10 @@ public class SliceXMLizerCLI
 		if (LOGGER.isInfoEnabled()) {
 			final MetricsProcessor _processor = new MetricsProcessor();
 			final ProcessingController _pc = new ProcessingController();
+			_pc.setEnvironment(new Environment(scene));
+			_pc.setStmtGraphFactory(getStmtGraphFactory());
 			_pc.setProcessingFilter(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
 			_processor.hookup(_pc);
-			_pc.setEnvironment(new Environment(scene));
 			_pc.process();
 			_processor.unhook(_pc);
 
@@ -876,15 +899,17 @@ public class SliceXMLizerCLI
 	/**
 	 * Write the slice as XML document.
 	 */
-	private void writeXML() {
-		final IXMLizer _xmlizer = getXMLizer();
+	private void writeSliceXML() {
+		if (shouldWriteSliceXML) {
+			// serialize the output of the slicer
+			final IXMLizer _xmlizer = getXMLizer();
+			final Map _info = new HashMap();
 
-		// serialize the output of the slicer
-		final Map _info = new HashMap();
-		_info.put(IEnvironment.ID, slicer.getSystem());
-		_info.put(IStmtGraphFactory.ID, slicer.getStmtGraphFactory());
-		_xmlizer.setXmlOutputDir(outputDirectory);
-		_xmlizer.writeXML(_info);
+			_info.put(IEnvironment.ID, slicer.getSystem());
+			_info.put(IStmtGraphFactory.ID, slicer.getStmtGraphFactory());
+			_xmlizer.setXmlOutputDir(outputDirectory);
+			_xmlizer.writeXML(_info);
+		}
 	}
 }
 
