@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import soot.SootClass;
+import soot.SootMethod;
 
 import edu.ksu.cis.indus.interfaces.IPrototype;
 import edu.ksu.cis.indus.processing.Context;
@@ -120,7 +121,13 @@ public class ClassManager
 			}
 
 			if (sc.declaresMethodByName("<clinit>")) {
-				fa.getMethodVariant(sc.getMethodByName("<clinit>"), context);
+				SootMethod method = sc.getMethodByName("<clinit>");
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("considered " + method);
+				}
+
+				fa.getMethodVariant(method, context);
 			}
 
 			SootClass temp = sc;
@@ -138,7 +145,13 @@ public class ClassManager
 				}
 
 				if (temp.declaresMethodByName("<clinit>")) {
-					fa.getMethodVariant(temp.getMethodByName("<clinit>"), context);
+					SootMethod method = temp.getMethodByName("<clinit>");
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("considered " + method);
+					}
+
+					fa.getMethodVariant(method, context);
 				}
 			}
 
@@ -159,10 +172,11 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/26 01:23:59  venku
+   - getMethod() is used instead of getMethodByName(). FIXED.
    Revision 1.11  2003/11/25 22:16:30  venku
    - logging
    - super classes were not being added to classes. FIXED.
-
    Revision 1.10  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
