@@ -63,7 +63,7 @@ public final class SlicerTest
 	/**
 	 * The slicer driver.
 	 */
-	SlicerDriver driver;
+	SliceXMLizer driver;
 
 	/**
 	 * The properties that define the test configuration.
@@ -83,7 +83,7 @@ public final class SlicerTest
 	 *
 	 * @pre driver != null and xmlInputDir != null
 	 */
-	public SlicerTest(final SlicerDriver object, final String xmlInputDir) {
+	public SlicerTest(final SliceXMLizer object, final String xmlInputDir) {
 		driver = object;
 		xmlInDir = xmlInputDir;
 	}
@@ -214,7 +214,7 @@ public final class SlicerTest
 				SlicerTest _test;
 
 				try {
-					_test = new SlicerTest(new SlicerDriver(_idGenerator), _xmlInputDir);
+					_test = new SlicerTest(new SliceXMLizer(_idGenerator), _xmlInputDir);
 					_test.driver.setClassNames(_temp);
 					_test.driver.setOutputDirectory(_xmlOutputDir);
 					_test.setProperties(_props);
@@ -250,6 +250,10 @@ public final class SlicerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.3  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
