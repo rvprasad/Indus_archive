@@ -135,6 +135,14 @@ public class CallGraph
 	private Collection sccs = new HashSet();
 
 	/**
+	 * The FA instance which implements object flow analysis.  This instance is used to calculate call graphCache
+	 * information.
+	 *
+	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
+	 */
+	private IValueAnalyzer analyzer;
+
+	/**
 	 * This maps callees to callers.
 	 *
 	 * @invariant callee2callers.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
@@ -147,13 +155,6 @@ public class CallGraph
 	 * @invariant caller2callees.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
 	private Map caller2callees = new HashMap();
-
-	/**
-	 * The FA instance which implements object flow analysis.  This instance is used to calculate call graphCache
-	 * information.
-     * @invariant analyzer.oclIsKindOf(OFAnalyzer)
-	 */
-	private IValueAnalyzer analyzer;
 
 	/**
 	 * This caches a traversable graphCache representation of the call graphCache.
@@ -257,6 +258,7 @@ public class CallGraph
 	 * @param callee is the method being called.
 	 *
 	 * @return a collection of call-sites at which <code>callee</code> is called.
+	 *
 	 * @pre callee != null
 	 * @post result->forall(o | o.oclIsKindOf(CallTriple))
 	 *
@@ -330,7 +332,8 @@ public class CallGraph
 	 * @param method to be checked for reachabiliy.
 	 *
 	 * @return <code>true</code> if <code>method</code> is reachable; <code>false</code>, otherwise.
-     * @pre method != null
+	 *
+	 * @pre method != null
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#isReachable(soot.SootMethod)
 	 */
@@ -424,7 +427,9 @@ public class CallGraph
 	 *
 	 * @param value is the AST node to be processed.
 	 * @param context in which value should be processed.
+	 *
 	 * @pre context != null
+	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Value,Context)
 	 */
 	public void callback(final Value value, final Context context) {
@@ -656,8 +661,10 @@ public class CallGraph
 	 *
 	 * @param accessClass is the class via which <code>method</code> is accesed.
 	 * @param method being accessed/invoked.
-	 * @pre accessClass != null and method != null
+	 *
 	 * @return the implementation of <code>method</code> if present in the class hierarchy; <code>null</code>, otherwise.
+	 *
+	 * @pre accessClass != null and method != null
 	 */
 	private SootMethod findMethodImplementation(final SootClass accessClass, final SootMethod method) {
 		String methodName = method.getName();
@@ -673,8 +680,10 @@ public class CallGraph
 	 * @param methodName is the name of the method.
 	 * @param parameterTypes is the list of parameter types of the method.
 	 * @param returnType is the return type of the method.
-	 * @pre accessClass != null and methodName != null and parameterTypes != null and returnType != null
+	 *
 	 * @return the implementation of the requested method if present in the class hierarchy; <code>null</code>, otherwise.
+	 *
+	 * @pre accessClass != null and methodName != null and parameterTypes != null and returnType != null
 	 */
 	private SootMethod findMethodImplementation(final SootClass accessClass, final String methodName,
 		final List parameterTypes, final Type returnType) {
@@ -699,33 +708,36 @@ public class CallGraph
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.9  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+   
    Revision 1.8  2003/08/15 23:23:32  venku
    Removed redundant "implement IProcessor".
-
+   
    Revision 1.7  2003/08/14 05:10:29  venku
    Fixed documentation links.
-
+   
    Revision 1.6  2003/08/13 08:49:10  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosed later on in implementaions.
-
+   
    Revision 1.5  2003/08/13 08:29:40  venku
    Spruced up documentation and specification.
 
-   
    Revision 1.4  2003/08/12 18:20:43  venku
    Ripple effect of changing the analyzer and the environment.
-   
+
    Revision 1.3  2003/08/11 04:27:34  venku
    - Ripple effect of changes to Pair
    - Ripple effect of changes to _content in Marker
    - Changes of how thread start sites are tracked in ThreadGraphInfo
-   
+
    Revision 1.2  2003/08/09 21:54:00  venku
    Leveraging getInvokeExpr() in Stmt class in getMethodsReachableFrom()
-   
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

@@ -36,14 +36,11 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractFGNode;
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.WorkList;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -150,6 +147,11 @@ public class OFAFGNode
    ChangeLog:
 
    $Log$
+   Revision 1.4  2003/08/17 11:19:13  venku
+   Placed the simple SendValuesWork class into a separate file.
+   Extended it with work pool support.
+   Amended AbstractWork and WorkList to enable work pool support.
+
 
    Revision 1.3  2003/08/17 10:33:03  venku
    WorkList does not inherit from WorkBag rather contains an instance of WorkBag.
