@@ -730,7 +730,7 @@ public class ProcessingController {
 		public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
 			defaultCase(NewMultiArrayExpr.class, v);
 
-			for (int i = 0; i < v.getSizeCount(); i--) {
+			for (int i = 0; i < v.getSizeCount(); i++) {
 				context.setProgramPoint(v.getSizeBox(i));
 				v.getSize(i).apply(this);
 			}
@@ -1198,6 +1198,10 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/05 03:08:56  venku
+   - size expressions in new array and multi array were
+     being ignored.  FIXED.
+
    Revision 1.21  2003/12/02 11:31:57  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
