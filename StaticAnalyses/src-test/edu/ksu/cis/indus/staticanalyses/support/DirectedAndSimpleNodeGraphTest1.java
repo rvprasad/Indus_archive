@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
@@ -42,7 +22,6 @@ import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,66 +65,6 @@ public class DirectedAndSimpleNodeGraphTest1
 	}
 
 	/**
-	 * Tests <code>getAllPredsAsBitSet()</code> method.
-	 */
-	public final void testGetAllPredsAsBitSet() {
-		BitSet[] preds = dg.getAllPredsAsBitSet();
-		List nodes = dg.getNodes();
-		Collection temp = new HashSet();
-
-		for (int i = 0; i < preds.length; i++) {
-			temp.clear();
-
-			int pos = preds[i].nextSetBit(0);
-
-			while (pos != -1) {
-				temp.add(nodes.get(pos));
-				pos = preds[i].nextSetBit(pos + 1);
-			}
-
-			INode node = (INode) nodes.get(i);
-			Collection p = node.getPredsOf();
-
-			// check if the provided predecessors information matches that occurring in the graph. 
-			if (temp.isEmpty()) {
-				assertTrue(p.isEmpty());
-			} else {
-				assertTrue(!temp.isEmpty() && !p.isEmpty() && p.size() == temp.size() && p.containsAll(temp));
-			}
-		}
-	}
-
-	/**
-	 * Tests <code>getAllSuccsAsBitSet()</code> method.
-	 */
-	public final void testGetAllSuccsAsBitSet() {
-		BitSet[] succs = dg.getAllSuccsAsBitSet();
-		List nodes = dg.getNodes();
-		Collection temp = new HashSet();
-
-		for (int i = 0; i < succs.length; i++) {
-			temp.clear();
-
-			int pos = succs[i].nextSetBit(0);
-
-			while (pos != -1) {
-				temp.add(nodes.get(pos));
-				pos = succs[i].nextSetBit(pos + 1);
-			}
-
-			INode node = (INode) nodes.get(i);
-			Collection p = node.getSuccsOf();
-
-			// check if the provided predecessors information matches that occurring in the graph. 
-			if (temp.isEmpty()) {
-				assertTrue(p.isEmpty());
-			} else {
-				assertTrue(!temp.isEmpty() && !p.isEmpty() && p.size() == temp.size() && p.containsAll(temp));
-			}
-		}
-	}
-
-	/**
 	 * Tests <code>getBackEdges()</code> method.
 	 */
 	public final void testGetBackEdges() {
@@ -183,6 +102,23 @@ public class DirectedAndSimpleNodeGraphTest1
 			Collection cycle = (Collection) i.next();
 			INode node = (INode) cycle.iterator().next();
 			assertTrue(dg.isReachable(node, node, true));
+		}
+	}
+
+	/**
+	 * Tests <code>getDAG()</code> method.
+	 */
+	public final void testGetDAG() {
+		Map dag = dg.getDAG();
+		Collection backedges = dg.getBackEdges();
+
+		for (Iterator i = dag.keySet().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
+			Collection succs = (Collection) ((Pair) dag.get(node)).getSecond();
+
+			for (Iterator j = succs.iterator(); j.hasNext();) {
+				assertFalse(backedges.contains(new Pair(node, j.next())));
+			}
 		}
 	}
 
@@ -409,34 +345,71 @@ public class DirectedAndSimpleNodeGraphTest1
 	}
 
 	/**
+	 * Extracts the predecessors and successors of the given graph into the given maps.
+	 * 
+	 * @param graph from which to extract information.
+	 * @param preds will contain a node to predecessor mapping on return.
+	 * @param succs will contain a node to successor mapping on return.
+     * @pre graph != null and preds != null and succs != null
+     * @post preds.oclIsKindOf(INode, Collection(INode)) and succs.oclIsKindOf(INode, Collection(INode))
+	 */
+	protected void extractPredSuccCopy(final DirectedGraph graph, final Map preds, final Map succs) {
+		for (Iterator i = graph.getNodes().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
+			preds.put(node, new ArrayList(node.getPredsOf()));
+			succs.put(node, new ArrayList(node.getSuccsOf()));
+		}
+	}
+
+	/**
 	 * Tests <code>addEdgeFromTo</code> method on test local graph instance.
 	 */
 	protected void localtestAddEdgeFromTo() {
-		BitSet[] preds1 = dg.getAllPredsAsBitSet();
-		BitSet[] succs1 = dg.getAllSuccsAsBitSet();
+		Map preds1 = new HashMap();
+		Map succs1 = new HashMap();
+		extractPredSuccCopy(dg, preds1, succs1);
 
 		// Add edge from c to h
 		dg.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("h"));
+
+		assertTrue(((INode) name2node.get("c")).getSuccsOf().contains(name2node.get("h")));
+		assertTrue(((INode) name2node.get("h")).getPredsOf().contains(name2node.get("c")));
+
+		Map preds2 = new HashMap();
+		Map succs2 = new HashMap();
+		extractPredSuccCopy(dg, preds2, succs2);
+
+		for (Iterator i = dg.getNodes().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
+
+			if (name2node.get("h") != node) {
+				assertTrue(preds1.get(node).equals(preds2.get(node)));
+			}
+
+			if (name2node.get("c") != node) {
+				assertTrue(succs1.get(node).equals(succs2.get(node)));
+			}
+		}
+
 		// Add edge from a to f
 		dg.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("f"));
 
-		BitSet[] preds2 = dg.getAllPredsAsBitSet();
-		BitSet[] succs2 = dg.getAllSuccsAsBitSet();
+		preds1.clear();
+		succs1.clear();
+		extractPredSuccCopy(dg, preds1, succs1);
 
-		for (int i = 0; i < succs2.length; i++) {
-			succs2[i].xor(succs1[i]);
+		assertTrue(((INode) name2node.get("a")).getSuccsOf().contains(name2node.get("f")));
+		assertTrue(((INode) name2node.get("f")).getPredsOf().contains(name2node.get("a")));
 
-			if (i == dg.getNodes().indexOf(name2node.get("a")) || i == dg.getNodes().indexOf(name2node.get("c"))) {
-				assertTrue(succs2[i].cardinality() == 1);
-			} else {
-				assertTrue(succs2[i].cardinality() == 0);
+		for (Iterator i = dg.getNodes().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
+
+			if (name2node.get("f") != node) {
+				assertTrue(preds1.get(node).equals(preds2.get(node)));
 			}
-			preds2[i].xor(preds1[i]);
 
-			if (i == dg.getNodes().indexOf(name2node.get("h")) || i == dg.getNodes().indexOf(name2node.get("f"))) {
-				assertTrue(preds2[i].cardinality() == 1);
-			} else {
-				assertTrue(preds2[i].cardinality() == 0);
+			if (name2node.get("a") != node) {
+				assertTrue(succs1.get(node).equals(succs2.get(node)));
 			}
 		}
 	}
@@ -479,10 +452,11 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/12 08:07:26  venku
+   - documentation.
    Revision 1.9  2003/09/11 12:31:00  venku
    - made ancestral relationship antisymmetric
    - added testcases to test the relationship.
-
    Revision 1.8  2003/09/11 02:37:30  venku
    - formatting.
    Revision 1.7  2003/09/11 02:37:12  venku

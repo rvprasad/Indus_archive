@@ -1,42 +1,21 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -110,31 +89,58 @@ public abstract class DirectedGraph {
 	private int[] prenums;
 
 	/**
-	 * Retrieves the predecessor relation in the graph.  The <code>BitSet</code> object occurring at the location (in the
-	 * returned array) captures the predecessor information of the node at that location in the graph.  The size of all
-	 * BitSet objects in the array is equal to the number of nodes in the graph.  The position of each set bit in the BitSet
-	 * indicates index of the predecessor node in the list of nodes.
+	 * Retrieves the directed acyclic graph from the given graph.  It removes all the backedges from the given graph.
 	 *
-	 * @return the predecessor relation in the graph.
+	 * @return a map from nodes in <code>graph</code> to a collection of pairs in <code>graph</code>.
 	 *
-	 * @post result != null and result.oclIsKindOf(Sequence(Sequence))
-	 * @post result->size == self.getNodes().size()
-	 * @post result->forall( o | o->size == self.getNodes().size())
+	 * @pre graph != null
+	 * @post result.oclIsKindOf(Map(INode, Pair(Collection(INode), Collection(INode)))
+	 * @post result->entrySet()->forall(o | graph.getNodes()->includes(o.getKey()) and
+	 * 		 graph.getNodes()->includes(o.getValue().getFirst()) and graph.getNodes()->includes(o.getValue().getSecond()))
+	 * @post graph.getNodes()->forall(o | result.keySet()->includes(o))
 	 */
-	public final BitSet[] getAllPredsAsBitSet() {
-		List nodes = getNodes();
-		BitSet[] result = new BitSet[nodes.size()];
+	public final Map getDAG() {
+		Map result = new HashMap();
+		Map srcdestBackEdges = Pair.mapify(getBackEdges(), true);
+		Map destsrcBackEdges = Pair.mapify(getBackEdges(), false);
 
-		for (int i = 0, len = nodes.size(); i < len; i++) {
-			INode temp = (INode) nodes.get(i);
-			BitSet preds = new BitSet(nodes.size());
+		Collection succs = new HashSet();
+		Collection preds = new HashSet();
 
-			for (Iterator j = temp.getPredsOf().iterator(); j.hasNext();) {
-				preds.set(nodes.indexOf(j.next()));
+		for (Iterator i = getNodes().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
+			Collection backSuccessors = (Collection) srcdestBackEdges.get(node);
+			succs.clear();
+			succs.addAll(node.getSuccsOf());
+
+			if (backSuccessors != null) {
+				succs.removeAll(backSuccessors);
 			}
-			result[i] = preds;
-		}
 
+			Collection backPredecessors = (Collection) destsrcBackEdges.get(node);
+			preds.clear();
+			preds.addAll(node.getPredsOf());
+
+			if (backPredecessors != null) {
+				preds.removeAll(backPredecessors);
+			}
+
+            Collection s;
+            Collection p;
+			if (succs.isEmpty()) {
+				s = Collections.EMPTY_LIST;
+			} else {
+				s = new ArrayList(succs);
+			}
+
+			if (preds.isEmpty()) {
+				p = Collections.EMPTY_LIST;
+			} else {
+				p = new ArrayList(preds);
+			}
+
+			result.put(node, new Pair(p, s));
+		}
 		return result;
 	}
 
@@ -160,33 +166,6 @@ public abstract class DirectedGraph {
 	 * @post result != null and result.oclIsKindOf(Sequence(INode))
 	 */
 	public abstract List getNodes();
-
-	/**
-	 * Retrieves the successor relation in the graph.  Please refer to {@link #getAllPredsAsBitSet() getAllPredAsBitSet} for
-	 * details.
-	 *
-	 * @return the successor relation in the graph.
-	 *
-	 * @post result != null and result.oclIsKindOf(Sequence(Sequence))
-	 * @post result->size == self.getNodes().size()
-	 * @post result->forall( o | o->size == self.getNodes().size())
-	 */
-	public final BitSet[] getAllSuccsAsBitSet() {
-		List nodes = getNodes();
-		BitSet[] result = new BitSet[nodes.size()];
-
-		for (int i = 0, len = nodes.size(); i < len; i++) {
-			INode temp = (INode) nodes.get(i);
-			BitSet succs = new BitSet(nodes.size());
-
-			for (Iterator j = temp.getSuccsOf().iterator(); j.hasNext();) {
-				succs.set(nodes.indexOf(j.next()));
-			}
-			result[i] = succs;
-		}
-
-		return result;
-	}
 
 	/**
 	 * Checks if the given nodes have ancestral relationship.  A node is considered as the ancestor of itself.
@@ -614,6 +593,9 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/11 12:31:00  venku
+   - made ancestral relationship antisymmetric
+   - added testcases to test the relationship.
    Revision 1.8  2003/09/11 12:18:35  venku
    - added support to retrieve basic blocks in which
      exception handlers begin.
