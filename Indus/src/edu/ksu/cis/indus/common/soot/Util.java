@@ -117,7 +117,7 @@ public final class Util {
 		while (_wb.hasWork()) {
 			final SootClass _work = (SootClass) _wb.getWork();
 
-			if (_work.hasSuperclass()) {
+			if (hasSuperclass(_work)) {
 				final SootClass _superClass = _work.getSuperclass();
 				_temp.add(_superClass);
 			}
@@ -166,7 +166,7 @@ public final class Util {
 				_wb.addWorkNoDuplicates(_interface);
 			}
 
-			if (_sc.hasSuperclass()) {
+			if (hasSuperclass(_sc)) {
 				final SootClass _superClass = _sc.getSuperclass();
 				_sng.addEdgeFromTo(_sng.getNode(_superClass), _sn);
 				_wb.addWorkNoDuplicates(_superClass);
@@ -559,6 +559,33 @@ public final class Util {
 	}
 
 	/**
+	 * Returns the class, starting from the given class and above it in the class hierarchy, that declares the given method.
+	 *
+	 * @param sc the class from which to start the search in the class hierarchy.  This parameter cannot be
+	 * 		  <code>null</code>.
+	 * @param sm the method to search for in the class hierarchy.  This parameter cannot be <code>null</code>.
+	 *
+	 * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
+	 *
+	 * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
+	 *
+	 * @pre sc != null and sm != null
+	 * @post result != null
+	 */
+	public static SootMethod findDeclaringMethod(final SootClass sc, final SootMethod sm) {
+		final SootMethod _result;
+
+		if (sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
+			_result = sc.getMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType());
+		} else if (hasSuperclass(sc)) {
+			_result = findDeclaringMethod(sc.getSuperclass(), sm);
+		} else {
+			throw new IllegalStateException("Method " + sm + " not available in class " + sc + ".");
+		}
+		return _result;
+	}
+
+	/**
 	 * Collects all the method with signature identical to <code>method</code> in the superclasses/interfaces of
 	 * <code>method</code>'s declaring class.
 	 *
@@ -585,7 +612,7 @@ public final class Util {
 				_result.add(_sc.getMethod(_methodName, _parameterTypes, _retType));
 			}
 
-			if (_sc.hasSuperclass()) {
+			if (hasSuperclass(_sc)) {
 				final SootClass _superClass = _sc.getSuperclass();
 
 				_toProcess.addWorkNoDuplicates(_superClass);
@@ -771,33 +798,6 @@ public final class Util {
 		}
 		return _result;
 	}
-
-    /**
-     * Returns the class, starting from the given class and above it in the class hierarchy, that declares the given method.
-     *
-     * @param sc the class from which to start the search in the class hierarchy.  This parameter cannot be
-     * 		  <code>null</code>.
-     * @param sm the method to search for in the class hierarchy.  This parameter cannot be <code>null</code>.
-     *
-     * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
-     *
-     * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
-     *
-     * @pre sc != null and sm != null
-     * @post result != null
-     */
-    public static SootMethod findDeclaringMethod(final SootClass sc, final SootMethod sm) {
-    	final SootMethod _result;
-    
-    	if (sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
-    		_result = sc.getMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType());
-    	} else if (sc.hasSuperclass()) {
-    		_result = findDeclaringMethod(sc.getSuperclass(), sm);
-    	} else {
-    		throw new IllegalStateException("Method " + sm + " not available in class " + sc + ".");
-    	}
-    	return _result;
-    }
 }
 
 // End of File
