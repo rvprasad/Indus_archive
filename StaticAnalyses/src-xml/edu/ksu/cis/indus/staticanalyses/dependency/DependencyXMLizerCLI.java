@@ -158,7 +158,7 @@ public class DependencyXMLizerCLI
 		final DivergenceDA _bipdda = DivergenceDA.getBackwardDivergenceDA();
 		_bipdda.setConsiderCallSites(true);
 
-		final EntryControlDA _ncda = new EntryControlDA();
+		final NonTerminationSensitiveEntryControlDA _ncda = new NonTerminationSensitiveEntryControlDA();
 		final Object[][] _dasOptions =
 			{
 				{ "ibdda1", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },

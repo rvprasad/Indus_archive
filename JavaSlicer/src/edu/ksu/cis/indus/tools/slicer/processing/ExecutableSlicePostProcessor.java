@@ -24,7 +24,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -101,7 +101,7 @@ public final class ExecutableSlicePostProcessor
 	/** 
 	 * This provides entry-based control dependency information required to include exit points.
 	 */
-	private EntryControlDA cd = new EntryControlDA();
+	private NonTerminationSensitiveEntryControlDA cd = new NonTerminationSensitiveEntryControlDA();
 
 	/** 
 	 * The slice collector to be used to add on to the slice.

@@ -53,12 +53,12 @@ import soot.SootMethod;
  * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod, Sequence(Set(Stmt))))
  * @invariant dependee2dependent.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
  */
-public final class EntryControlDA
+public final class NonTerminationSensitiveEntryControlDA
   extends AbstractControlDA {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(EntryControlDA.class);
+	private static final Log LOGGER = LogFactory.getLog(NonTerminationSensitiveEntryControlDA.class);
 
 	/** 
 	 * This is a cache that contains the nodes with multiple children.
@@ -280,7 +280,7 @@ public final class EntryControlDA
 	/**
 	 * Calculates the control dependency from a directed graph.  This calculates the dependence information in terms of nodes
 	 * in the graph.  This is later translated to statement level information by {@link
-	 * EntryControlDA#fixupMaps(BasicBlockGraph, BitSet[], SootMethod) fixupMaps}.
+	 * NonTerminationSensitiveEntryControlDA#fixupMaps(BasicBlockGraph, BitSet[], SootMethod) fixupMaps}.
 	 *
 	 * @param graph for which dependence info needs to be calculated.  Each node in the graph should have an unique index and
 	 * 		  the indices should start from 0.

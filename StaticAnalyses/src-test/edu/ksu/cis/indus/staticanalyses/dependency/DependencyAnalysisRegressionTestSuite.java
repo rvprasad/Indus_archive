@@ -205,7 +205,7 @@ public class DependencyAnalysisRegressionTestSuite
 						_das.clear();
 						_das.add(DivergenceDA.getForwardDivergenceDA());
 						_das.add(DivergenceDA.getBackwardDivergenceDA());
-						_das.add(new EntryControlDA());
+						_das.add(new NonTerminationSensitiveEntryControlDA());
 						_das.add(new ExitControlDA());
 						_das.add(new IdentifierBasedDataDA());
 						_das.add(new InterferenceDAv1());

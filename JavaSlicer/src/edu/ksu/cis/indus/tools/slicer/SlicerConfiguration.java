@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv3;
@@ -564,14 +564,14 @@ public final class SlicerConfiguration
 
 			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
 				_c.clear();
-				_c.add(new EntryControlDA());
+				_c.add(new NonTerminationSensitiveEntryControlDA());
 			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
 				_c.clear();
 				_c.add(new ExitControlDA());
 				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
 				_c.clear();
-				_c.add(new EntryControlDA());
+				_c.add(new NonTerminationSensitiveEntryControlDA());
 				_c.add(new ExitControlDA());
 			}
 		}
