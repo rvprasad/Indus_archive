@@ -236,6 +236,7 @@ public abstract class AbstractDirectedGraph
 
 			// for each dtail that is not a tail, check if tail is reachable from it.  
             // If so, dtail is not a pseudo tail.  If not, it is a pseudo tail.
+            _dtails.removeAll(_tails);
 			final Collection _temp = getDestUnreachableSources(_dtails, _tails, true);
 			pseudoTails.addAll(getDestUnreachableSources(_temp, _temp, true));
 			pseudoTailsCalculated = true;
@@ -664,6 +665,9 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/25 08:58:43  venku
+   - coding convention.
+
    Revision 1.10  2004/01/22 12:23:30  venku
    - subtle boundary condition bug in getPseudoTails. FIXED.
 
