@@ -16,6 +16,8 @@
 			get-method="getSliceType"/>
 		<value style="attribute" name="executableSlice" type="boolean" set-method="setExecutableSlice"
 			get-method="getExecutableSlice"/>
+		<value style="attribute" name="propertyAware" type="boolean" set-method="setPropertyAware"
+			get-method="getPropertyAware"/>
 		<value style="attribute" name="name" type="java.lang.String" ns="http://indus.projects.cis.ksu.edu/indus"
 		    set-method="setConfigName" get-method="getConfigName"/>
 		<structure name="criteria">

@@ -33,6 +33,8 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 
 
 /**
@@ -83,79 +85,58 @@ public final class SlicerConfigurator
 	 * {@inheritDoc} This method should be called after <code>setConfiguration</code> has been invoked on this object.
 	 */
 	protected void setup() {
-		final GridLayout _gridLayout = new GridLayout();
-		_gridLayout.numColumns = 3;
-		parent.setLayout(_gridLayout);
+		final TabFolder _tabFolder = new TabFolder(parent, SWT.TOP | SWT.BORDER);
 
-		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
+		final TabItem _sliceInfoTab = new TabItem(_tabFolder, SWT.NONE);
+		final Composite _sliceInfoTabComposite = new Composite(_tabFolder, SWT.NONE);
+		setupSliceInfoUI(_sliceInfoTabComposite);
+		_sliceInfoTabComposite.pack();
+		_sliceInfoTab.setControl(_sliceInfoTabComposite);
+		_sliceInfoTab.setText("Slice");
 
-		executableSliceButton = new Button(parent, SWT.CHECK);
-		executableSliceButton.setText("Executable slice");
+		final TabItem _interferenceDATab = new TabItem(_tabFolder, SWT.NONE);
+		final Composite _interferenceDATabComposite = new Composite(_tabFolder, SWT.NONE);
+		setupInteferenceDepUI(_interferenceDATabComposite);
+		_interferenceDATabComposite.pack();
+		_interferenceDATab.setControl(_interferenceDATabComposite);
+		_interferenceDATab.setText("Intereference");
 
-		final GridData _gridData1 = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		_gridData1.horizontalSpan = 2;
-		_gridData1.horizontalAlignment = SWT.LEFT;
-		executableSliceButton.setLayoutData(_gridData1);
+		final TabItem _divergenceDATab = new TabItem(_tabFolder, SWT.NONE);
+		final Composite _divergenceDAComposite = new Composite(_tabFolder, SWT.NONE);
+		setupDivergenceDepUI(_divergenceDAComposite);
+		_divergenceDAComposite.pack();
+		_divergenceDATab.setControl(_divergenceDAComposite);
+		_divergenceDATab.setText("Divergence");
 
-		final Boolean _executableProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.EXECUTABLE_SLICE);
-		executableSliceButton.setSelection(_executableProperty.booleanValue());
+		final TabItem _readyDATab = new TabItem(_tabFolder, SWT.NONE);
+		final Composite _readyDATabComposite = new Composite(_tabFolder, SWT.NONE);
+		setupReadyDepUI(_readyDATabComposite);
+		_readyDATabComposite.pack();
+		_readyDATab.setControl(_readyDATabComposite);
+		_readyDATab.setText("Ready");
 
-		final SelectionListener _sl1 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
-		executableSliceButton.addSelectionListener(_sl1);
-
-		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-			executableSliceButton.setEnabled(false);
-		}
-
-		final Button _assertionPreservingSliceButton = new Button(parent, SWT.CHECK);
-		_assertionPreservingSliceButton.setText("Preserve assertions");
-
-		final GridData _gridData2 = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-		_gridData2.horizontalSpan = 1;
-		_gridData2.horizontalAlignment = SWT.LEFT;
-		_assertionPreservingSliceButton.setLayoutData(_gridData2);
-
-		final Boolean _assertionsProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS);
-		_assertionPreservingSliceButton.setSelection(_assertionsProperty.booleanValue());
-
-		final SelectionListener _sl2 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
-				_assertionPreservingSliceButton, _cfg);
-		_assertionPreservingSliceButton.addSelectionListener(_sl2);
-
-		setupSliceInfoUI();
-		setupInteferenceDepUI();
-		setupDivergenceDepUI();
-		setupReadyDepUI();
+		_tabFolder.pack();
 		parent.pack();
 	}
 
 	/**
 	 * Sets up row corresponding to Divergence DA in the configurator composite.
+	 *
+	 * @param composite
 	 */
-	private void setupDivergenceDepUI() {
+	private void setupDivergenceDepUI(final Composite composite) {
+		final RowLayout _rowLayout = new RowLayout(SWT.VERTICAL);
+		composite.setLayout(_rowLayout);
+
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
-		// Divergence dependence related group
-		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
-		_gridData.horizontalSpan = 3;
-
-		final Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		_group.setText("Divergence dependence");
-		_group.setLayoutData(_gridData);
-
-		final GridLayout _gridLayout = new GridLayout();
-		_gridLayout.numColumns = 2;
-		_group.setLayout(_gridLayout);
-
-		final Button _useDDAButton = new Button(_group, SWT.CHECK);
+		final Button _useDDAButton = new Button(composite, SWT.CHECK);
 		_useDDAButton.setText("use divergence dependence");
 		_useDDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
 		_useDDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
 				_useDDAButton, _cfg));
 
-		final Button _interProceduralDivergenceDAButton = new Button(_group, SWT.CHECK);
+		final Button _interProceduralDivergenceDAButton = new Button(composite, SWT.CHECK);
 		_interProceduralDivergenceDAButton.setText("use interprocedural variant");
 
 		if (_useDDAButton.getSelection()) {
@@ -190,30 +171,24 @@ public final class SlicerConfigurator
 
 	/**
 	 * Sets up row corresponding Interference DA in the configurator composite.
+	 *
+	 * @param composite
 	 */
-	private void setupInteferenceDepUI() {
+	private void setupInteferenceDepUI(final Composite composite) {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
-
-		// Interference dependence related group
-		final Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		_group.setText("Interference dependence");
-
-		final GridData _gridData = new GridData(GridData.FILL_HORIZONTAL);
-		_gridData.horizontalSpan = 3;
-		_group.setLayoutData(_gridData);
 
 		final GridLayout _gridLayout = new GridLayout();
 		_gridLayout.numColumns = 2;
-		_group.setLayout(_gridLayout);
+		composite.setLayout(_gridLayout);
 
-		final Button _useIDAButton = new Button(_group, SWT.CHECK);
+		final Button _useIDAButton = new Button(composite, SWT.CHECK);
 		_useIDAButton.setText("use interference dependence");
 		_useIDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_INTERFERENCEDA)).booleanValue());
 		_useIDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_INTERFERENCEDA,
 				_useIDAButton, _cfg));
 
 		//Sets up the composite and buttons pertaining to precision control.        
-		final Group _natureOfIDAGroup = new Group(_group, SWT.SHADOW_ETCHED_IN);
+		final Group _natureOfIDAGroup = new Group(composite, SWT.SHADOW_ETCHED_IN);
 		final GridLayout _gridLayout3 = new GridLayout();
 		_gridLayout3.numColumns = 2;
 		_natureOfIDAGroup.setLayout(_gridLayout3);
@@ -337,47 +312,32 @@ public final class SlicerConfigurator
 
 	/**
 	 * Sets up row corresponding to Ready DA in the configurator composite.
+	 *
+	 * @param composite
 	 */
-	private void setupReadyDepUI() {
+	private void setupReadyDepUI(final Composite composite) {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
 
-		// Ready dependence related group
-		final Group _group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-		_group.setText("Ready dependence");
+		final RowLayout _rowLayout1 = new RowLayout(SWT.VERTICAL);
+		composite.setLayout(_rowLayout1);
 
-		GridData _twoSpanHorzFill = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		_twoSpanHorzFill.horizontalSpan = 3;
-		_group.setLayoutData(_twoSpanHorzFill);
-
-		final GridLayout _gridLayout1 = new GridLayout();
-		_gridLayout1.numColumns = 2;
-		_group.setLayout(_gridLayout1);
-
-		Composite _readyComposite = new Composite(_group, SWT.NONE);
-		_twoSpanHorzFill = new GridData(GridData.FILL_HORIZONTAL);
-		_twoSpanHorzFill.horizontalSpan = 2;
-		_readyComposite.setLayoutData(_twoSpanHorzFill);
-
+		final Composite _readyComposite1 = new Composite(composite, SWT.NONE);
 		final GridLayout _gridLayout2 = new GridLayout();
 		_gridLayout2.numColumns = 2;
-		_readyComposite.setLayout(_gridLayout2);
+		_readyComposite1.setLayout(_gridLayout2);
 
-		final Button _useRDAButton = new Button(_readyComposite, SWT.CHECK);
+		final Button _useRDAButton = new Button(_readyComposite1, SWT.CHECK);
 		_useRDAButton.setText("use ready dependence");
 		_useRDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
 		_useRDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA,
 				_useRDAButton, _cfg));
 
 		// Sets up the composite and buttons pertaining to precision control.        
-		final Group _natureOfRDAGroup = new Group(_group, SWT.SHADOW_ETCHED_IN);
+		final Group _natureOfRDAGroup = new Group(composite, SWT.SHADOW_ETCHED_IN);
 		final GridLayout _gridLayout3 = new GridLayout();
 		_gridLayout3.numColumns = 2;
 		_natureOfRDAGroup.setLayout(_gridLayout3);
 		_natureOfRDAGroup.setText("Precision of Ready dependence");
-
-		final GridData _gridData1 = new GridData(GridData.FILL_HORIZONTAL);
-		_gridData1.horizontalSpan = 2;
-		_natureOfRDAGroup.setLayoutData(_gridData1);
 
 		final Group _precisionGroup = new Group(_natureOfRDAGroup, SWT.SHADOW_ETCHED_IN);
 		final GridLayout _gridLayout4 = new GridLayout();
@@ -437,10 +397,6 @@ public final class SlicerConfigurator
 		_rowLayout.type = SWT.VERTICAL;
 		_analysisComposite.setLayout(_rowLayout);
 
-		final GridData _analysisCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
-		_analysisCompositeGridData.verticalAlignment = SWT.TOP;
-		_analysisComposite.setLayoutData(_analysisCompositeGridData);
-
 		final Button _useOFAForReady = new Button(_analysisComposite, SWT.CHECK);
 		_useOFAForReady.setText("use object flow analysis information");
 		_useOFAForReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA)).booleanValue());
@@ -454,35 +410,27 @@ public final class SlicerConfigurator
 				_useSLAForReady, _cfg));
 
 		// Sets up the buttons that control what rules of ready dependence analysis are used.        
-		_readyComposite = new Composite(_group, SWT.NONE);
-		_twoSpanHorzFill = new GridData(GridData.FILL_HORIZONTAL);
-		_twoSpanHorzFill.horizontalSpan = 2;
-		_readyComposite.setLayoutData(_twoSpanHorzFill);
-
+		final Composite _readyComposite2 = new Composite(composite, SWT.NONE);
 		final GridLayout _gridLayout5 = new GridLayout();
 		_gridLayout5.numColumns = 2;
-		_readyComposite.setLayout(_gridLayout5);
+		_readyComposite2.setLayout(_gridLayout5);
 
-		final GridData _gridData2 = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		_gridData2.horizontalSpan = 2;
-		_readyComposite.setLayoutData(_gridData2);
-
-		final Button _rule1RDAButton = new Button(_readyComposite, SWT.CHECK);
+		final Button _rule1RDAButton = new Button(_readyComposite2, SWT.CHECK);
 		_rule1RDAButton.setText("use rule 1 of ready dependence");
 		_rule1RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule1RDAButton, _cfg));
 
-		final Button _rule2RDAButton = new Button(_readyComposite, SWT.CHECK);
+		final Button _rule2RDAButton = new Button(_readyComposite2, SWT.CHECK);
 		_rule2RDAButton.setText("use rule 2 of ready dependence");
 		_rule2RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule2RDAButton, _cfg));
 
-		final Button _rule3RDAButton = new Button(_readyComposite, SWT.CHECK);
+		final Button _rule3RDAButton = new Button(_readyComposite2, SWT.CHECK);
 		_rule3RDAButton.setText("use rule 3 of ready dependence");
 		_rule3RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule3RDAButton, _cfg));
 
-		final Button _rule4RDAButton = new Button(_readyComposite, SWT.CHECK);
+		final Button _rule4RDAButton = new Button(_readyComposite2, SWT.CHECK);
 		_rule4RDAButton.setText("use rule 4 of ready dependence");
 		_rule4RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule4RDAButton, _cfg));
@@ -549,11 +497,65 @@ public final class SlicerConfigurator
 
 	/**
 	 * Sets up row to configure deadlock preserving slicing  and slice type.
+	 *
+	 * @param composite
 	 */
-	private void setupSliceInfoUI() {
+	private void setupSliceInfoUI(final Composite composite) {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
-		final Group _deadlockGroup = new Group(parent, SWT.NONE);
-		final GridData _gridData1 = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.GRAB_VERTICAL);
+
+		final GridLayout _gridLayout = new GridLayout(3, false);
+		composite.setLayout(_gridLayout);
+
+		executableSliceButton = new Button(composite, SWT.CHECK);
+		executableSliceButton.setText("Executable slice");
+
+		final GridData _gridData2 = new GridData();
+		_gridData2.horizontalSpan = 2;
+		executableSliceButton.setLayoutData(_gridData2);
+
+		final Boolean _executableProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.EXECUTABLE_SLICE);
+		executableSliceButton.setSelection(_executableProperty.booleanValue());
+
+		final SelectionListener _sl1 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
+		executableSliceButton.addSelectionListener(_sl1);
+
+		if (_cfg.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+			executableSliceButton.setEnabled(false);
+		}
+
+		final Button _propertyAwareSlicingButton = new Button(composite, SWT.CHECK);
+		_propertyAwareSlicingButton.setText("Property Aware Slicing");
+
+		final GridData _gridData4 = new GridData();
+		_gridData4.horizontalSpan = 1;
+		_propertyAwareSlicingButton.setLayoutData(_gridData4);
+
+		final Boolean _propertyAwareSlicingProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.PROPERTY_AWARE);
+		_propertyAwareSlicingButton.setSelection(_propertyAwareSlicingProperty.booleanValue());
+
+		final SelectionListener _sl3 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
+				_propertyAwareSlicingButton, _cfg);
+		_propertyAwareSlicingButton.addSelectionListener(_sl3);
+
+		final Button _assertionPreservingSliceButton = new Button(composite, SWT.CHECK);
+		_assertionPreservingSliceButton.setText("Preserve assertions");
+
+		final GridData _gridData3 = new GridData();
+		_gridData3.horizontalSpan = 2;
+		_assertionPreservingSliceButton.setLayoutData(_gridData3);
+
+		final Boolean _assertionsProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS);
+		_assertionPreservingSliceButton.setSelection(_assertionsProperty.booleanValue());
+
+		final SelectionListener _sl2 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
+				_assertionPreservingSliceButton, _cfg);
+		_assertionPreservingSliceButton.addSelectionListener(_sl2);
+
+		final Group _deadlockGroup = new Group(composite, SWT.NONE);
+		final GridData _gridData1 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		_gridData1.horizontalSpan = 2;
 		_deadlockGroup.setLayoutData(_gridData1);
 
@@ -583,7 +585,7 @@ public final class SlicerConfigurator
 		final Button _ctxtsensEscapingSyncStrategy = new Button(_group1, SWT.RADIO);
 		_ctxtsensEscapingSyncStrategy.setText("Escaping Sychronization constructs with their contexts");
 
-		final SelectionListener _sl2 =
+		final SelectionListener _sl4 =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					Object _value = null;
@@ -605,9 +607,9 @@ public final class SlicerConfigurator
 					widgetSelected(evt);
 				}
 			};
-		_allSycnStrategy.addSelectionListener(_sl2);
-		_escapingSyncStrategy.addSelectionListener(_sl2);
-		_ctxtsensEscapingSyncStrategy.addSelectionListener(_sl2);
+		_allSycnStrategy.addSelectionListener(_sl4);
+		_escapingSyncStrategy.addSelectionListener(_sl4);
+		_ctxtsensEscapingSyncStrategy.addSelectionListener(_sl4);
 
 		final Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
 
@@ -619,7 +621,7 @@ public final class SlicerConfigurator
 			_ctxtsensEscapingSyncStrategy.setSelection(true);
 		}
 
-		final SelectionListener _sl1 =
+		final SelectionListener _sl5 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg) {
 				public void widgetSelected(final SelectionEvent evt) {
 					final boolean _value = button.getSelection();
@@ -630,13 +632,13 @@ public final class SlicerConfigurator
 					_ctxtsensEscapingSyncStrategy.setEnabled(_value);
 				}
 			};
-		_button.addSelectionListener(_sl1);
+		_button.addSelectionListener(_sl5);
 
 		//Slice type related group
-		final Group _group2 = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		final Group _group2 = new Group(composite, SWT.SHADOW_ETCHED_IN);
 		_group2.setText("Slice Type");
 
-		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		final GridData _gridData = new GridData(GridData.FILL_HORIZONTAL);
 		_gridData.horizontalSpan = 1;
 		_gridData.verticalAlignment = SWT.TOP;
 		_gridData.horizontalAlignment = SWT.RIGHT;
@@ -655,7 +657,7 @@ public final class SlicerConfigurator
 		final Button _completeSlice = new Button(_group2, SWT.RADIO);
 		_completeSlice.setText("Complete slice");
 
-		final SelectionListener _sl3 =
+		final SelectionListener _sl6 =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					Object _value = null;
@@ -681,9 +683,9 @@ public final class SlicerConfigurator
 					widgetSelected(evt);
 				}
 			};
-		_backwardSlice.addSelectionListener(_sl3);
-		_completeSlice.addSelectionListener(_sl3);
-		_forwardSlice.addSelectionListener(_sl3);
+		_backwardSlice.addSelectionListener(_sl6);
+		_completeSlice.addSelectionListener(_sl6);
+		_forwardSlice.addSelectionListener(_sl6);
 
 		final Object _sliceType = _cfg.getSliceType();
 

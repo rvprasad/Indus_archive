@@ -28,6 +28,7 @@
         </xsd:sequence>
         <xsd:attribute name="executableSlice" type="xsd:boolean" use="required"/>
         <xsd:attribute name="slicetype" type="slicer:slicingType" use="required"/>
+        <xsd:attribute name="propertyAware" type="xsd:boolean" use="required"/>
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>

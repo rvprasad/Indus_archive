@@ -36,7 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
-import edu.ksu.cis.indus.tools.slicer.contextualizers.DeadlockPreservingCriteriaContextualizer;
+import edu.ksu.cis.indus.tools.slicer.contextualizers.DeadlockPreservingCriteriaCallStackContextualizer;
 import edu.ksu.cis.indus.tools.slicer.contextualizers.ISliceCriteriaContextualizer;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.DeadlockPreservingCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator;
@@ -210,6 +210,11 @@ public final class SlicerConfiguration
 	static final Object DEADLOCK_CRITERIA_SELECTION_STRATEGY = "deadlock criteria selection strategy";
 
 	/** 
+	 * This identifies the property that determines if property aware slicing is required.
+	 */
+	static final Object PROPERTY_AWARE = "property aware slicing";
+
+	/** 
 	 * This is the factory object to create configurations.
 	 */
 	private static final IToolConfigurationFactory FACTORY_SINGLETON = new SlicerConfiguration();
@@ -233,8 +238,8 @@ public final class SlicerConfiguration
 
 	/** 
 	 * This maps identifiers to criteria generators.
-     * 
-     * @invariant id2critGenerators.oclIsKindOf(Map(Object, ISliceCriteriaGenerator))
+	 *
+	 * @invariant id2critGenerators.oclIsKindOf(Map(Object, ISliceCriteriaGenerator))
 	 */
 	private final Map id2critGenerators = new HashMap();
 
@@ -267,6 +272,7 @@ public final class SlicerConfiguration
 		propertyIds.add(DEADLOCK_CRITERIA_SELECTION_STRATEGY);
 		propertyIds.add(SLICE_TYPE);
 		propertyIds.add(EXECUTABLE_SLICE);
+		propertyIds.add(PROPERTY_AWARE);
 	}
 
 	/**
@@ -430,6 +436,24 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Sets the property that governs if property aware slices will be generated.
+	 *
+	 * @param value <code>true</code> indicates property aware slices should be generated; <code>false</code>, otherwise.
+	 */
+	public void setPropertyAware(final boolean value) {
+		setProperty(PROPERTY_AWARE, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Checks if property aware slices will be generated.
+	 *
+	 * @return <code>true</code> if the property aware slices will be generated; <code>false</code>, otherwise.
+	 */
+	public boolean getPropertyAware() {
+		return ((Boolean) getProperty(PROPERTY_AWARE)).booleanValue();
+	}
+
+	/**
 	 * Checks if ready dependence analysis is enabled in this configuration.
 	 *
 	 * @return <code>true</code> if the use of ready dependence analysis is enabled; <code>false</code>, otherwise.
@@ -488,7 +512,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Toggles the preservation of deadlocking in the slice.
+	 * Sets the preservation of deadlocking in the slice.
 	 *
 	 * @param value <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
 	 */
@@ -506,7 +530,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Toggles the preservation of assertions in the slice.
+	 * Sets the preservation of assertions in the slice.
 	 *
 	 * @param value <code>true</code> indicates slice should preserve assertions; <code>false</code>, otherwise.
 	 */
@@ -652,6 +676,7 @@ public final class SlicerConfiguration
 		setProperty(USE_RULE4_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_SLA_FOR_READY_DA, Boolean.TRUE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
+		setProperty(PROPERTY_AWARE, Boolean.FALSE);
 
 		id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, new DeadlockPreservingCriteriaGenerator());
 		setProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY, CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS);
@@ -779,15 +804,6 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Checks if the deadlock preserving criteria selection strategy is context sensitive.
-	 *
-	 * @return <code>true</code> if the strategy is context sensitive; <code>false</code>, otherwise.
-	 */
-	boolean isContextSensitiveDeadlockCriteria() {
-		return getProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY).equals(CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS);
-	}
-
-	/**
 	 * Provides the id of the dependences to use for slicing.
 	 *
 	 * @return a collection of id of the dependence analyses.
@@ -905,7 +921,7 @@ public final class SlicerConfiguration
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (property.equals(CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
 				_t.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
-				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaContextualizer());
+				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer());
 			} else {
 				_result = false;
 			}
@@ -960,8 +976,8 @@ public final class SlicerConfiguration
 	 *
 	 * @param propertyID obviously.
 	 * @param booleanValue obviously.
-     * 
-     * @pre propertyID != null and booleanValue != null
+	 *
+	 * @pre propertyID != null and booleanValue != null
 	 */
 	private void processInterferenceDARelatedProperties(final Object propertyID, final Boolean booleanValue) {
 		if (propertyID.equals(USE_INTERFERENCEDA)) {
@@ -1084,11 +1100,11 @@ public final class SlicerConfiguration
 
 	/**
 	 * Processes properties related to Ready dependence analysis.
-     *
-     * @param propertyID obviously.
-     * @param booleanValue obviously.
-     * 
-     * @pre propertyID != null and booleanValue != null
+	 *
+	 * @param propertyID obviously.
+	 * @param booleanValue obviously.
+	 *
+	 * @pre propertyID != null and booleanValue != null
 	 */
 	private void processReadyDARelatedProperties(final Object propertyID, final Boolean booleanValue) {
 		if (propertyID.equals(USE_READYDA)) {
