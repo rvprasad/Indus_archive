@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import soot.SootMethod;
 import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
@@ -213,13 +214,17 @@ public class AliasedUseDefInfo
 						if (defStmt.containsArrayRef()
 							  && useStmt.containsArrayRef()
 							  && defStmt.getArrayRef().getType().equals(useStmt.getArrayRef().getType())) {
+							ValueBox vBox = useStmt.getArrayRef().getBaseBox();
 							context1.setStmt(useStmt);
+							context1.setProgramPoint(vBox);
 
-							Collection c1 = analyzer.getValues(useStmt.getArrayRef().getBase(), context1);
+							Collection c1 = analyzer.getValues(vBox.getValue(), context1);
 
+							vBox = defStmt.getArrayRef().getBaseBox();
 							context2.setStmt(defStmt);
+							context2.setProgramPoint(vBox);
 
-							Collection c2 = analyzer.getValues(defStmt.getArrayRef().getBase(), context2);
+							Collection c2 = analyzer.getValues(vBox.getValue(), context2);
 
 							// if the primaries of the access expression alias atleast one object
 							if (!CollectionUtils.intersection(c1, c2).isEmpty()) {
@@ -234,14 +239,17 @@ public class AliasedUseDefInfo
 							useDef = true;
 
 							if (fr instanceof InstanceFieldRef) {
+								ValueBox vBox = ((InstanceFieldRef) useStmt.getFieldRef()).getBaseBox();
 								context1.setStmt(useStmt);
+								context1.setProgramPoint(vBox);
 
-								Collection c1 =
-									analyzer.getValues(((InstanceFieldRef) useStmt.getFieldRef()).getBase(), context1);
+								Collection c1 = analyzer.getValues(vBox.getValue(), context1);
 
+								vBox = ((InstanceFieldRef) defStmt.getFieldRef()).getBaseBox();
 								context2.setStmt(defStmt);
+								context2.setProgramPoint(vBox);
 
-								Collection c2 = analyzer.getValues(((InstanceFieldRef) fr).getBase(), context2);
+								Collection c2 = analyzer.getValues(vBox.getValue(), context2);
 
 								// if the primaries of the access expression do not alias even one object.
 								if (CollectionUtils.intersection(c1, c2).isEmpty()) {
@@ -295,6 +303,8 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/26 08:15:06  venku
+   - incorrect map used in getDependees(). FIXED.
    Revision 1.12  2003/11/25 19:02:20  venku
    - bugs during info calculations.  FIXED.
    Revision 1.11  2003/11/12 03:51:12  venku
