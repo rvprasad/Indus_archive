@@ -59,7 +59,7 @@ public abstract class AbstractTool
 	/**
 	 * This variable is used by the child thread to communicate exception state to the parent thread.
 	 */
-	Throwable childException;
+	Exception childException;
 
 	/**
 	 * This indicates if the tool should pause execution.
@@ -141,6 +141,7 @@ public abstract class AbstractTool
 	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
 	 * 		  it's run.
 	 *
+	 * @throws RuntimeException DOCUMENT ME!
 	 * @throws IllegalStateException when this method is called on a paused tool or the tool cannot be configuraed according
 	 * 		   to the configuration.
 	 */
@@ -149,11 +150,11 @@ public abstract class AbstractTool
 			checkConfiguration();
 			childException = null;
 
-            final Object _parent = this;
+			final Object _syncObject = new Object();
 			thread =
 				new Thread() {
 						public final void run() {
-							Throwable _temp = null;
+							Exception _temp = null;
 
 							try {
 								execute(phase);
@@ -164,14 +165,13 @@ public abstract class AbstractTool
 								LOGGER.fatal("Tool failed.", _e);
 								_temp = _e;
 							} finally {
-                                synchronized (_parent) {
-                                    if (_temp != null) {
+								synchronized (_syncObject) {
+									if (_temp != null) {
 										childException = _temp;
 									}
-                                    pause = false;
-                                    _parent.notify();
-                                }
-                                
+									pause = false;
+									_syncObject.notify();
+								}
 							}
 						}
 					};
@@ -179,15 +179,16 @@ public abstract class AbstractTool
 
 			if (synchronous) {
 				try {
-					wait();
+					synchronized (_syncObject) {
+						_syncObject.wait();
+					}
 
 					if (childException != null) {
 						throw new RuntimeException(childException);
 					}
 				} catch (InterruptedException _e) {
 					LOGGER.error("Interrupted while waiting on the run to complete.", _e);
-				} finally {
-					pause = false;
+					throw new RuntimeException(_e);
 				}
 			}
 		} else {
@@ -239,21 +240,19 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/02/17 05:43:57  venku
+   - we do not want to catch errors but only exceptions. FIXED.
    Revision 1.19  2004/01/27 15:19:21  venku
    - coding convention.
-
    Revision 1.18  2004/01/25 09:07:18  venku
    - coding convention.
-
    Revision 1.17  2004/01/16 22:11:47  venku
    - join does not relinquish the lock.  Hence, a new solution
      to communicate the death of the child thread has been
      implemented.
-
    Revision 1.16  2004/01/13 10:01:35  venku
    - added a provision for the tool to check if it can be configured
      according to the given configuration.
-
    Revision 1.15  2004/01/08 23:55:34  venku
    - documentation.
    Revision 1.14  2004/01/08 23:51:34  venku
