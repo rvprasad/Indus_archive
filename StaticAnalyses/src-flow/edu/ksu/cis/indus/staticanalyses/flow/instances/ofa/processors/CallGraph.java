@@ -307,7 +307,7 @@ public class CallGraph
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallTreeRootedAt(soot.jimple.InvokeStmt,
 	 * 		soot.SootMethod)
 	 */
-	public Collection getMethodsReachableFrom(InvokeStmt stmt, SootMethod root) {
+	public Collection getMethodsReachableFrom(final Stmt stmt, final SootMethod root) {
 		Collection result = new HashSet();
 		InvokeExpr ie = stmt.getInvokeExpr();
 		Context context = new Context();
@@ -720,5 +720,9 @@ public class CallGraph
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:40:24  venku
+Major:
+ - Moved the package under indus umbrella.
+
 
 *****/
