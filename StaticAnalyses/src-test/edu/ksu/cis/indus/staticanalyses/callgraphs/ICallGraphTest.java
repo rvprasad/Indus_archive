@@ -13,28 +13,24 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow;
-
-import edu.ksu.cis.indus.processing.IProcessor;
-
+package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 /**
- * This is the common interface to be implemented by unit tests that test pre/post processors of flow analysis information.
+ * This interface is implemented by tests for call graph.
  *
- * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
- * @version $Revision$ $Date$
+ * @version $Revision$
  */
-public interface IFAProcessorTest
-  extends IFATest {
+public interface ICallGraphTest {
 	/**
-	 * Set the processor being tested.
+	 * Sets the call graph instance to test.
 	 *
-	 * @param processor is to be tested.
+	 * @param callgraph instance to test.
 	 *
-	 * @pre processor != null
+	 * @pre callgraph != null
 	 */
-	void setProcessor(IProcessor processor);
+	void setCallGraph(CallGraphInfo callgraph);
 }
 
 // End of File

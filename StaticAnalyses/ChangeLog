@@ -1,3 +1,12 @@
+2005-03-19  venku  <rvprasad@cis.ksu.edu>
+
+	* Changes pertaining to Class Hierarchy calculation, class hierarchy based call graph construction, rapid-type	analysis based 
+	call graph construction, and refactoring of call graph constructione.
+
+2005-03-14  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/staticanalyses/impl/ClassHierarchy.java: Added an implementation of class hierarchy.
+
 2005-02-27  venku  <rvprasad@cis.ksu.edu>
 
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/DivergenceDA.java (getDependees): enhanced the 

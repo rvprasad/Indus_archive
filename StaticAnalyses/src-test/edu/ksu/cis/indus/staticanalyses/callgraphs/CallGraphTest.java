@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
@@ -23,12 +23,8 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.processing.IProcessor;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
-import edu.ksu.cis.indus.staticanalyses.flow.IFATest;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +33,6 @@ import java.util.Iterator;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import soot.SootClass;
 import soot.SootMethod;
 
 
@@ -49,49 +44,25 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CallGraphTest
-  extends AbstractDirectedGraphTest implements IFATest {
+public class CallGraphTest
+  extends AbstractDirectedGraphTest
+  implements ICallGraphTest {
 	/** 
 	 * The call graph to be tested.
 	 */
-	private ICallGraphInfo cgi;
-
-	/** 
-	 * The object flow analysis used to construct the call graph.
-	 */
-	private OFAnalyzer ofa;
+	protected ICallGraphInfo cgi;
 
 	/** 
 	 * The call graph.
 	 */
-	private SimpleNodeGraph cg;
+	protected SimpleNodeGraph cg;
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(IValueAnalyzer)
+	 * @see edu.ksu.cis.indus.staticanalyses.callgraphs.ICallGraphTest#setCallGraph(CallGraphInfo)
 	 */
-	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
-		ofa = (OFAnalyzer) valueAnalyzer;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
-	 */
-	public void setFATagName(final String tagName) {
-	}
-
-	/**
-	 * Sets the call graph information instance to be used during test.
-	 *
-	 * @param processor provides call graph information.
-	 *
-	 * @pre processor != null
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setProcessor(IProcessor)
-	 */
-	public void setProcessor(final IProcessor processor) {
-		final CallGraph _cg = (CallGraph) processor;
-		cgi = _cg;
-		cg = (SimpleNodeGraph) _cg.getCallGraph();
+	public void setCallGraph(final CallGraphInfo callgraph) {
+		cgi = callgraph;
+		cg = (SimpleNodeGraph) callgraph.getCallGraph();
 		dg = cg;
 	}
 
@@ -102,21 +73,17 @@ public final class CallGraphTest
 		final Collection _reachables = cgi.getReachableMethods();
 		final Collection _heads = cgi.getHeads();
 
-		for (final Iterator _i = ofa.getEnvironment().getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
+		for (final Iterator _i = _reachables.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			assertEquals(cgi.isReachable(_sm), _reachables.contains(_sm));
 
-			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
-				assertEquals(cgi.isReachable(_sm), _reachables.contains(_sm));
+			if (cgi.isReachable(_sm)) {
+				boolean _t = false;
 
-				if (cgi.isReachable(_sm)) {
-					boolean _t = false;
-
-					for (final Iterator _k = _heads.iterator(); _k.hasNext();) {
-						_t |= cg.isReachable(cg.getNode(_k.next()), cg.getNode(_sm), true);
-					}
-					assertTrue(_t || _heads.contains(_sm));
+				for (final Iterator _k = _heads.iterator(); _k.hasNext();) {
+					_t |= cg.isReachable(cg.getNode(_k.next()), cg.getNode(_sm), true);
 				}
+				assertTrue(_t || _heads.contains(_sm));
 			}
 		}
 	}
@@ -125,8 +92,8 @@ public final class CallGraphTest
 	 * Tests <code>getCallGraph()</code>.
 	 */
 	public void testGetCallGraph() {
-		if (cgi instanceof CallGraph) {
-			assertNotNull(((CallGraph) cgi).getCallGraph());
+		if (cgi instanceof CallGraphInfo) {
+			assertNotNull(((CallGraphInfo) cgi).getCallGraph());
 		}
 	}
 
@@ -247,7 +214,6 @@ public final class CallGraphTest
 	 * Tests the tags on the reachable methods based on tags used during object flow analysis.
 	 */
 	public void testTagsOnReachableMethods() {
-		final Context _ctxt = new Context();
 		final Collection _reachables = cgi.getReachableMethods();
 		assertNotNull(_reachables);
 
@@ -255,26 +221,6 @@ public final class CallGraphTest
 			final SootMethod _o = (SootMethod) _i.next();
 			assertTrue(_o.hasTag(FATestSetup.TAG_NAME));
 			assertTrue(_o.getDeclaringClass().hasTag(FATestSetup.TAG_NAME));
-
-			if (!_o.isStatic()) {
-				_ctxt.setRootMethod(_o);
-				assertNotNull(ofa.getValuesForThis(_ctxt));
-			}
-		}
-
-		Collection _methods = new HashSet();
-
-		for (final Iterator _i = ofa.getEnvironment().getClasses().iterator(); _i.hasNext();) {
-			_methods.addAll(((SootClass) _i.next()).getMethods());
-		}
-		_methods = CollectionUtils.subtract(_methods, _reachables);
-
-		for (final Iterator _i = _methods.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-
-			if (!_sm.isAbstract()) {
-				assertFalse(_sm.hasTag(FATestSetup.TAG_NAME));
-			}
 		}
 	}
 
@@ -350,7 +296,6 @@ public final class CallGraphTest
 	  throws Exception {
 		cg = null;
 		cgi = null;
-		ofa = null;
 		super.tearDown();
 	}
 }

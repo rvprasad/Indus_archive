@@ -74,10 +74,8 @@ public final class CallGraphInfo
 	private static final Log LOGGER = LogFactory.getLog(CallGraphInfo.class);
 
 	/** 
-	 * The collection of methods from which the system can be started. Although an instance of a class can be created and a
-	 * method can be invoked on it from the environment, this method will not be considered as a <i>head method </i>.
-	 * However, our definition of head methods are those methods (excluding those invoked via <code>invokespecial</code>
-	 * bytecode) with no caller method that belongs to the system.
+	 * The collection of methods that don't have callers in the system.  These typically include root methods and class 
+     * initializers.
 	 *
 	 * @invariant head != null and heads.oclIsKindOf(Set(SootMethod))
 	 */
@@ -185,16 +183,15 @@ public final class CallGraphInfo
 		 * @post result != null and result.oclIsKindOf(Map(CallTriple, Collection(CallTriple)))
 		 */
 		Map getCaller2CalleesMap();
-
-		/**
-		 * Retrieves the head methods (methods with to caller).
-		 *
-		 * @return a collection of head methods.
-		 *
-		 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-		 */
-		Collection getHeads();
-
+        /**
+         * Retrieves the head methods (methods with to caller).
+         *
+         * @return a collection of head methods.
+         *
+         * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+         */
+        Collection getHeads();
+        
 		/**
 		 * Retrieves the methods reachable in the system.
 		 *
@@ -492,12 +489,13 @@ public final class CallGraphInfo
 	 *
 	 * @param provider provides call information to be consolidated.
 	 */
-	public void consolidate(final ICallInfoProvider provider) {
+	public void createCallGraphInfo(final ICallInfoProvider provider) {
 		callee2callers.putAll(provider.getCallee2CallersMap());
-		callee2callers.putAll(provider.getCaller2CalleesMap());
-		heads.addAll(provider.getHeads());
+		caller2callees.putAll(provider.getCaller2CalleesMap());
 		reachables.addAll(provider.getReachableMethods());
+        heads.addAll(provider.getHeads());
 		createGraph();
+        stable();
 	}
 
 	/**
@@ -639,8 +637,8 @@ public final class CallGraphInfo
 			}
 		}
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: call graph consolidation");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: call graph consolidation");
 		}
 	}
 }

@@ -42,10 +42,10 @@ import soot.jimple.ParameterRef;
 
 
 /**
- * This class represents the central access point for the information calculated in an analysis.  The subclass should extend
- * this class with methods to access various information about the implmented analysis.  This class by itself provides the
- * interface to query generic, low-level analysis information.  These interfaces should be used by implemented components of
- * the framework to extract information during the analysis.
+ * This class represents the central access point for the information calculated in a value flow analysis.  The subclass 
+ * should extend this class with methods to access various information about the implmented analysis.  This class by itself 
+ * provides the interface to query generic, low-level analysis information.  These interfaces should be used by implemented 
+ * components of the framework to extract information during the analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$

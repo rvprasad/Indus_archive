@@ -34,16 +34,7 @@ public interface IFATest {
 	 * @pre valueAnalyzer != null
 	 */
 	void setAnalyzer(IValueAnalyzer valueAnalyzer);
-
-	/**
-	 * Sets the instance of flow analyasis framework instance to be used during testing.
-	 *
-	 * @param flowAnalysis will be used during testing.
-	 *
-	 * @pre flowAnalysis != null
-	 */
-	void setFA(FA flowAnalysis);
-
+    
 	/**
 	 * Sets the name of the tag used by the flow analysis instance.
 	 *

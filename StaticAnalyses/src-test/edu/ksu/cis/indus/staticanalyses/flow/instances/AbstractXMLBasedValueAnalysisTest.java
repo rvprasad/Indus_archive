@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
 import edu.ksu.cis.indus.AbstractXMLBasedTest;
 
-import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFATest;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
@@ -32,20 +31,13 @@ import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractXMLBasedValueAnalysisTest
-  extends AbstractXMLBasedTest
-  implements IFATest {
+  extends AbstractXMLBasedTest implements IFATest {
 	/** 
 	 * The name of the tag used to mark the parts of the system visited during FA.
 	 */
 	private String nameOfTheTag;
 
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFA(edu.ksu.cis.indus.staticanalyses.flow.FA)
-	 */
-	public void setFA(final FA flowAnalysis) {
-	}
-
-	/**
+    /**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
 	 */
 	public void setFATagName(final String tagName) {

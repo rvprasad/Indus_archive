@@ -21,9 +21,10 @@ import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.ICallGraphTest;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
-import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
@@ -47,7 +48,7 @@ public class ValueAnalysisTestSetup
 	/** 
 	 * The call graph implementation to be tested.
 	 */
-	protected CallGraph cgiImpl;
+	protected CallGraphInfo cgiImpl;
 
 	/**
 	 * @see FATestSetup#FATestSetup(TestSuite,String,String)
@@ -68,18 +69,20 @@ public class ValueAnalysisTestSetup
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
 		_pc.setStmtGraphFactory(getStmtGraphFactory());
-		cgiImpl = new CallGraph(new PairManager(false, true));
-		cgiImpl.hookup(_pc);
+		cgiImpl = new CallGraphInfo(new PairManager(false, true));
+        final OFABasedCallInfoCollector _ofaci = new OFABasedCallInfoCollector();
+		_ofaci.hookup(_pc);
 		_pc.process();
-		cgiImpl.unhook(_pc);
+		_ofaci.unhook(_pc);
+        cgiImpl.createCallGraphInfo(_ofaci.getCallInfoProvider());
 
 		final Collection _temp =
 			new ArrayList(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class));
 		_temp.addAll(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedCallGraphTest.class));
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			final IFAProcessorTest _test = (IFAProcessorTest) _i.next();
-			_test.setProcessor(cgiImpl);
+			final ICallGraphTest _test = (ICallGraphTest) _i.next();
+			_test.setCallGraph(cgiImpl);
 		}
 	}
 

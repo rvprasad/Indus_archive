@@ -103,7 +103,6 @@ public class FATestSetup
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IFATest _test = (IFATest) _i.next();
-			_test.setFA(((AbstractAnalyzer) valueAnalyzer).fa);
 			_test.setAnalyzer(valueAnalyzer);
 			_test.setFATagName(TAG_NAME);
 		}

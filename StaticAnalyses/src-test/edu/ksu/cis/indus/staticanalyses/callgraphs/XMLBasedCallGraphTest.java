@@ -13,15 +13,11 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.callgraphs;
 
 import edu.ksu.cis.indus.AbstractXMLBasedTest;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
-import edu.ksu.cis.indus.processing.IProcessor;
-
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
@@ -34,29 +30,16 @@ import edu.ksu.cis.indus.xmlizer.IXMLizer;
  * @version $Revision$ $Date$
  */
 public final class XMLBasedCallGraphTest
-  extends AbstractXMLBasedTest {
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(IValueAnalyzer)
-	 */
-	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
-	}
+  extends AbstractXMLBasedTest
+  implements ICallGraphTest {
+	/** 
+     * @see edu.ksu.cis.indus.staticanalyses.callgraphs.ICallGraphTest#setCallGraph(CallGraphInfo)
+     */
+    public void setCallGraph(final CallGraphInfo callgraph) {
+        info.put(ICallGraphInfo.ID, callgraph);        
+    }
 
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
-	 */
-	public void setFATagName(final String tagName) {
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setProcessor(edu.ksu.cis.indus.processing.IProcessor)
-	 */
-	public void setProcessor(final IProcessor processor) {
-		if (processor instanceof ICallGraphInfo) {
-			info.put(ICallGraphInfo.ID, processor);
-		}
-	}
-
-	/**
+    /**
 	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getXMLizer()
 	 */
 	protected IXMLizer getXMLizer() {

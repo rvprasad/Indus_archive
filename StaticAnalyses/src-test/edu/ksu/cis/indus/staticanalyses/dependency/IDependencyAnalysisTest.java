@@ -15,9 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-
-import junit.framework.Test;
+import edu.ksu.cis.indus.IEnvironmentBasedTest;
 
 
 /**
@@ -28,20 +26,13 @@ import junit.framework.Test;
  * @version $Revision$
  */
 interface IDependencyAnalysisTest
-  extends Test {
+  extends IEnvironmentBasedTest {
 	/**
 	 * Retrieves the analysis instance being tested.
 	 *
 	 * @return the instance of the analysis.
 	 */
 	IDependencyAnalysis getDA();
-
-	/**
-	 * Retrieves the environment which the analysis analyzed.
-	 *
-	 * @param environment that was analyzed.
-	 */
-	void setEnvironment(IEnvironment environment);
 }
 
 // End of File

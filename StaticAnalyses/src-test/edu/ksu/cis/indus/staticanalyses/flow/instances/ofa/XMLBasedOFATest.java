@@ -29,7 +29,7 @@ import edu.ksu.cis.indus.xmlizer.IXMLizer;
  * @version $Revision$ $Date$
  */
 public class XMLBasedOFATest
-  extends AbstractXMLBasedValueAnalysisTest {
+  extends AbstractXMLBasedValueAnalysisTest {    
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(IValueAnalyzer)
 	 */
