@@ -493,16 +493,22 @@ public final class SlicerTool
 
 			// process flow information into a more meaningful call graph
 			callGraph.reset();
+            cgPreProcessCtrl.reset();
 			callGraph.hookup(cgPreProcessCtrl);
 			cgPreProcessCtrl.process();
 			callGraph.unhook(cgPreProcessCtrl);
 			phase.nextMinorPhase();
-
+            
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Call Graph:\n" + callGraph.dumpGraph());
+            }
+            
 			movingToNextPhase();
 
 			// process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression 
 			// mapper.
 			threadGraph.reset();
+            cgBasedPreProcessCtrl.reset();
 			initMapper.hookup(cgBasedPreProcessCtrl);
 			threadGraph.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
@@ -510,9 +516,14 @@ public final class SlicerTool
 			initMapper.unhook(cgBasedPreProcessCtrl);
 			phase.nextMinorPhase();
 
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Thread Graph:\n" + threadGraph.dumpGraph());
+			}
+
 			movingToNextPhase();
 
 			// process escape analyses.
+            cgBasedPreProcessCtrl.reset();
 			ecba.hookup(cgBasedPreProcessCtrl);
 			aliasUD.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
@@ -752,10 +763,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.65  2004/01/20 22:26:12  venku
+   - AnalysisController can now set basic block graph managers
+     on the controlled analyses.
+   - SlicerTool uses the above feature.
    Revision 1.64  2004/01/20 00:46:36  venku
    - criteria are sorted in SlicingEngine instead of SlicerTool.
    - formatting and logging.
-
    Revision 1.63  2004/01/19 23:53:44  venku
    - moved the logic to order criteria to enforce pseudo-determinism
      during slicing into SlicingEngine.
