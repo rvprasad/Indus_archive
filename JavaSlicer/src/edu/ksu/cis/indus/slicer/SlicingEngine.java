@@ -956,7 +956,7 @@ public final class SlicingEngine {
 		final boolean considerExecution) {
 		if (!collector.hasBeenCollected(valueBox)) {
 			final Collection _sliceCriteria =
-				SliceCriteriaFactory.getFactory().getCriterion(method, stmt, valueBox, considerExecution);
+				SliceCriteriaFactory.getFactory().getCriteria(method, stmt, valueBox, considerExecution);
 			workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled()) {
@@ -987,7 +987,7 @@ public final class SlicingEngine {
 	 */
 	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
 		if (!collector.hasBeenCollected(stmt)) {
-			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriterion(method, stmt, considerExecution);
+			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method, stmt, considerExecution);
 			workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled()) {
@@ -1152,7 +1152,7 @@ public final class SlicingEngine {
 				+ _stmt + " in " + _method);
 		}
 
-		// include the statement to capture control dependency and generate criteria from it
+		// include the statement to capture control dependency and generate criteria from it. Remember to collect it.
 		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
 
 		// generate new slice criteria
@@ -1162,15 +1162,15 @@ public final class SlicingEngine {
 			// include any sub expressions and generate criteria from them
 			transformAndGenerateToConsiderExecution(_stmt, _method, _temp);
 		}
-
-		// DO NOT COLLECT THE EXPRESSION UNLESS EXECUTION EFFECT IS REQUIRED.
+		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
 		}
 	}
 
 	/**
-	 * Transforms the given statement and Generates new criteria.
+	 * Transforms the given statement and generates new criteria.  The given statement is only collected if 
+	 * <code>considerExecution</code> is <code>true</code>.
 	 *
 	 * @param stmt is the statement-level slice criterion.
 	 * @param method is the method in which <code>stmt</code> occurs.
@@ -1191,14 +1191,15 @@ public final class SlicingEngine {
 			// generate new slice criteria
 			processForNewExpr(stmt, method);
 			transformAndGenerateToConsiderExecution(stmt, method, stmt.getUseAndDefBoxes());
-			collector.includeInSlice(stmt);
 		}
-
-		// DO NOT COLLECT THE EXPRESSION UNLESS EXECUTION EFFECT IS REQUIRED.
+		
 		// generate new slice criteria
 		generateNewCriteriaForTheCallToMethod(method);
 		generateNewCriteria(stmt, method, controlflowBasedDAs);
 		includeMethodAndDeclaringClassInSlice(method);
+
+		// collect the statement
+		collector.includeInSlice(stmt);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
@@ -1273,6 +1274,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.84  2004/07/20 07:04:36  venku
+   - changes to accomodate changes to directions of dependence analyses.
+
    Revision 1.83  2004/07/09 05:05:25  venku
    - refactored the code to enable the criteria creation to be completely hidden
      from the user.
