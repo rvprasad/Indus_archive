@@ -34,28 +34,28 @@ public class LIFOWorkBag
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addAllWork(java.util.Collection)
 	 */
-	public void addAllWork(Collection c) {
+	public void addAllWork(final Collection c) {
 		container.addAll(0, c);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
-	public void addAllWorkNoDuplicates(Collection c) {
+	public void addAllWorkNoDuplicates(final Collection c) {
 		container.addAll(0, CollectionUtils.subtract(c, container));
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addWork(java.lang.Object)
 	 */
-	public void addWork(Object o) {
+	public void addWork(final Object o) {
 		container.add(0, o);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
-	public void addWorkNoDuplicates(Object o) {
+	public void addWorkNoDuplicates(final Object o) {
 		if (!container.contains(o)) {
 			container.add(0, o);
 		}
@@ -65,4 +65,7 @@ public class LIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/05 09:27:10  venku
+   - Split WorkBag into an interface and an implementation
+     for the sake of performance.
  */

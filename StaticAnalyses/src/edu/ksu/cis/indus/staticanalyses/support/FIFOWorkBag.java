@@ -24,6 +24,7 @@ import java.util.List;
 
 /**
  * DOCUMENT ME!
+ * 
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -32,8 +33,10 @@ import java.util.List;
  */
 public class FIFOWorkBag
   implements WorkBag {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	protected List container = new ArrayList();
 
@@ -47,28 +50,28 @@ public class FIFOWorkBag
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addAllWork(java.util.Collection)
 	 */
-	public void addAllWork(Collection c) {
+	public void addAllWork(final Collection c) {
 		container.addAll(c);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
-	public void addAllWorkNoDuplicates(Collection c) {
+	public void addAllWorkNoDuplicates(final Collection c) {
 		container.addAll(CollectionUtils.subtract(c, container));
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addWork(java.lang.Object)
 	 */
-	public void addWork(Object o) {
+	public void addWork(final Object o) {
 		container.add(o);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.WorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
-	public void addWorkNoDuplicates(Object o) {
+	public void addWorkNoDuplicates(final Object o) {
 		if (!container.contains(o)) {
 			container.add(o);
 		}
@@ -92,4 +95,7 @@ public class FIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/05 09:27:10  venku
+   - Split WorkBag into an interface and an implementation
+     for the sake of performance.
  */
