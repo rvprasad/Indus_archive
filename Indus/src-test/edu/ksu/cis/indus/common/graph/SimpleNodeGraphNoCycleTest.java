@@ -50,22 +50,24 @@ public class SimpleNodeGraphNoCycleTest
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("d"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("e"));
-        _sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("c"));
-        setSNG(_sng);
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("c"));
+		setSNG(_sng);
 	}
 
-    /**
-     * Does nothing.
-     */
-    protected final void localtestAddEdgeFromTo() {}
-    
-    /**
-     * @see TestCase#tearDown
-     */
-    protected final void tearDown() throws Exception {
-        super.tearDown();
-    }
-    
+	/**
+	 * Does nothing.
+	 */
+	protected final void localtestAddEdgeFromTo() {
+	}
+
+	/**
+	 * @see TestCase#tearDown
+	 */
+	protected final void tearDown()
+	  throws Exception {
+		super.tearDown();
+	}
+
 	/**
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetHeads()
 	 */
@@ -103,11 +105,14 @@ public class SimpleNodeGraphNoCycleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/31 08:29:58  venku
+   - changed the graph.
+   - added localtestAddEdgeFromTo() to override that
+     defined in the super class.
    Revision 1.2  2003/12/30 10:04:25  venku
    - sng in SimpleNodeGraphTest should track dg or the otherway
      round to make the hierarchy of test work.  This has
      been fixed by adding setSNG().
-
    Revision 1.1  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
       - AbstractDirectedGraphTest
@@ -117,5 +122,4 @@ public class SimpleNodeGraphNoCycleTest
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
      DirectedGraphTestSuite.
    - added checks to test exceptional behavior as well.
-
  */
