@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.atomicity;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.interfaces.IAtomicityInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -58,7 +59,7 @@ import soot.jimple.ThrowStmt;
  * @version $Revision$ $Date$
  */
 public class AtomicStmtDetector
-  extends AbstractProcessor {
+  extends AbstractProcessor implements IAtomicityInfo {
 	/** 
 	 * This filter is used to identify AST chunks that may represent references that can escape.
 	 */
