@@ -104,7 +104,7 @@ public final class CallGraphTest
 	 */
 	public void setProcessor(final IProcessor processor) {
 		final CallGraph _cg = (CallGraph) processor;
-		cgi = (ICallGraphInfo) _cg;
+		cgi = _cg;
 		cg = (SimpleNodeGraph) _cg.getCallGraph();
 		dg = cg;
 	}
@@ -361,6 +361,10 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/03/29 08:48:58  venku
+   - all nodes reachable should be represented in the embedded graph in
+     the call graph.  FIXED.
+
    Revision 1.10  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
