@@ -255,7 +255,7 @@ public class IndusConfigurationDialog2 extends Dialog implements IStatusChangeLi
         createButton(parent, IDialogConstants.OK_ID, Messages
                 .getString("IndusConfigurationDialog.29"), true);
         
-        createButton(parent, IndusConfigurationDialog2.J2B_ID, "Run J2B", false);
+       // createButton(parent, IndusConfigurationDialog2.J2B_ID, "Run J2B", false);
         
         createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
@@ -484,7 +484,7 @@ public class IndusConfigurationDialog2 extends Dialog implements IStatusChangeLi
         _gd.horizontalSpan = 1;
         _comp.setLayoutData(_gd);
         
-        final Group _grp = new Group(_comp, SWT.BORDER);
+        final Group _grp = new Group(_comp, SWT.NONE);
         _grp.setText("Additional root methods");
         
         _gd = new GridData(GridData.FILL_BOTH);
@@ -623,7 +623,7 @@ public class IndusConfigurationDialog2 extends Dialog implements IStatusChangeLi
         
         _comp.setLayout(new GridLayout(1, true));
 
-        final Group _grp = new Group(_comp, SWT.BORDER);
+        final Group _grp = new Group(_comp, SWT.NONE);
         _grp.setText("Pick the elements to be included in the scope");
         _grp.setLayout(new GridLayout(1, true));
 

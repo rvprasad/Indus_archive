@@ -46,6 +46,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -67,6 +68,7 @@ import soot.SootMethod;
 import soot.jimple.Stmt;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.ResourceManager;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 import edu.ksu.cis.indus.peq.customengine.IndusExistentialQueryEngine;
@@ -114,6 +116,8 @@ public class PEQView extends ViewPart {
     public void createPartControl(Composite parent) {
         final Composite _comp = new Composite(parent, SWT.NONE);
         _comp.setLayout(new GridLayout(2, false));
+        final ResourceManager _rm = KaveriPlugin.getDefault().
+        getIndusConfiguration().getRManager();
         
         final Label _lblStatement = new Label(_comp, SWT.NONE);
         _lblStatement.setText("Statement:");
@@ -127,7 +131,7 @@ public class PEQView extends ViewPart {
         _gd.grabExcessHorizontalSpace = true;
         _gd.horizontalSpan = 1;        
         txtStatement.setLayoutData(_gd);
-        
+        txtStatement.setForeground(_rm.getColor(new RGB(255,255,255)));
         
         final Label _lblQuery = new Label(_comp, SWT.NONE);
         _lblQuery.setText("Query:");

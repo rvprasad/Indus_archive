@@ -222,7 +222,7 @@ public class ConfigurationDialog extends Dialog {
 
             _grp1.setLayout(new GridLayout(2, false));
             final Label _lblBackwardSlice = new Label(_grp1, SWT.LEFT);
-            _lblBackwardSlice.setText("SB Slice Configuration");
+            _lblBackwardSlice.setText("Backward Slice Action Configuration");
             _gd = new GridData();
             _gd.horizontalSpan = 1;
             _lblBackwardSlice.setLayoutData(_gd);
@@ -236,7 +236,7 @@ public class ConfigurationDialog extends Dialog {
             initializeConfigs(cmbBackSliceConfig, false);
 
             final Label _lblForwardSlice = new Label(_grp1, SWT.LEFT);
-            _lblForwardSlice.setText("SF Slice Configuration");
+            _lblForwardSlice.setText("Forward Slice Action Configuration");
             _gd = new GridData();
             _gd.horizontalSpan = 1;
             _lblForwardSlice.setLayoutData(_gd);

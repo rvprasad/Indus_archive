@@ -61,6 +61,7 @@ import soot.jimple.Stmt;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.ResourceManager;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
@@ -403,15 +404,17 @@ public class PartialSliceView extends ViewPart {
         _dataL.horizontalSpan = 1;
         _lbl.setLayoutData(_dataL);
 
-        txt = new Text(_comp, SWT.LEFT);
+        txt = new Text(_comp, SWT.LEFT | SWT.BORDER);
         _dataL = new GridData();
         _dataL.horizontalSpan = 1;
         _dataL.horizontalAlignment = GridData.FILL;
         _dataL.grabExcessHorizontalSpace = true;
         txt.setLayoutData(_dataL);
-
+        final ResourceManager _rm = KaveriPlugin.getDefault().
+        getIndusConfiguration().getRManager();
+        txt.setBackground(_rm.getColor(new RGB(255, 255, 255)));
         txt.setEditable(false);
-        //txt.setText(" ");
+        
 
         final Table _table = createTable(_comp);
         final GridData _data = new GridData();

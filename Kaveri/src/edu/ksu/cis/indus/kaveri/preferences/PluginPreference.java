@@ -271,7 +271,7 @@ public class PluginPreference extends PreferencePage implements
         _layout.numColumns = 1;
         _comp.setLayout(_layout);
         
-        final Group _grp = new Group(_comp, SWT.BORDER);
+        final Group _grp = new Group(_comp, SWT.NONE);
         _grp.setText("Exception Ignore List");
         GridData _gd = new GridData(GridData.FILL_BOTH);
         _gd.horizontalSpan = 1;
@@ -464,7 +464,7 @@ public class PluginPreference extends PreferencePage implements
             //  KaveriPlugin.getDefault().loadDefaultConfigurations();
             final SlicerTool _stool = KaveriPlugin.getDefault().getSlicerTool();
 
-            final Group _grp1 = new Group(_comp, SWT.BORDER);
+            final Group _grp1 = new Group(_comp, SWT.NONE);
             _grp1
                     .setText("Select the configurations used by the slice editor actions");
             GridData _gd = new GridData(GridData.FILL_BOTH);
@@ -475,7 +475,7 @@ public class PluginPreference extends PreferencePage implements
 
             _grp1.setLayout(new GridLayout(2, false));
             final Label _lblBackwardSlice = new Label(_grp1, SWT.LEFT);
-            _lblBackwardSlice.setText("SB Slice Configuration");
+            _lblBackwardSlice.setText("Backward Slice Action Configuration");
             _gd = new GridData();
             _gd.horizontalSpan = 1;
             _lblBackwardSlice.setLayoutData(_gd);
@@ -489,7 +489,7 @@ public class PluginPreference extends PreferencePage implements
             initializeConfigs(cmbBackSliceConfig, false);
 
             final Label _lblForwardSlice = new Label(_grp1, SWT.LEFT);
-            _lblForwardSlice.setText("SF Slice Configuration");
+            _lblForwardSlice.setText("Forward Slice Action Configuration");
             _gd = new GridData();
             _gd.horizontalSpan = 1;
             _lblForwardSlice.setLayoutData(_gd);

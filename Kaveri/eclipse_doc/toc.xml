@@ -4,42 +4,45 @@
    <topic label="Requirement" href="eclipse_doc/ar01s02.html"/>
    <topic label="Name" href="eclipse_doc/ar01s03.html"/>
    <topic label="Install / Uninstall" href="eclipse_doc/ar01s04.html">
-      <topic label="Installation" href="eclipse_doc/ar01s04.html#d0e64">
-         <topic label="Install: Using zip files" href="eclipse_doc/ar01s04.html#d0e67"/>
+      <topic label="Installation" href="eclipse_doc/ar01s04.html#d0e67">
+         <topic label="Install: Using zip files" href="eclipse_doc/ar01s04.html#d0e70"/>
       </topic>
-      <topic label="Uninstall" href="eclipse_doc/ar01s04.html#d0e88"/>
+      <topic label="Uninstall" href="eclipse_doc/eclipse_doc/ar01s04.html#d0e91"/>
    </topic>
    <topic label="Concepts" href="eclipse_doc/ar01s05.html"/>
    <topic label="Setup" href="eclipse_doc/ar01s06.html">
-      <topic label="Setting up Kaveri" href="eclipse_doc/ar01s06.html#d0e285">
-         <topic label="Preferences" href="eclipse_doc/ar01s06.html#d0e288">
-            <topic label="Indus Preferences" href="eclipse_doc/ar01s06.html#d0e291"/>
-            <topic label="Scope Preferences" href="eclipse_doc/ar01s06.html#d0e316"/>
-            <topic label="Slice Button Configuration Preferences" href="eclipse_doc/ar01s06.html#d0e335"/>
-            <topic label="Exception Ignore List" href="eclipse_doc/ar01s06.html#d0e357"/>
+      <topic label="Setting up Kaveri" href="eclipse_doc/ar01s06.html#d0e288">
+         <topic label="Preferences" href="eclipse_doc/ar01s06.html#d0e291">
+            <topic label="Indus Preferences" href="eclipse_doc/ar01s06.html#d0e294"/>
+            <topic label="Scope Preferences" href="eclipse_doc/ar01s06.html#d0e319"/>
+            <topic label="Slice Button Configuration Preferences" href="eclipse_doc/ar01s06.html#d0e338"/>
+            <topic label="Exception Ignore List" href="eclipse_doc/ar01s06.html#d0e360"/>
          </topic>
-         <topic label="Setting up the criteria" href="eclipse_doc/ar01s06.html#d0e379">
-            <topic label="Slice View" href="eclipse_doc/ar01s06.html#d0e382"/>
+         <topic label="Setting up the criteria" href="eclipse_doc/ar01s06.html#d0e382">
+            <topic label="Slice View" href="eclipse_doc/ar01s06.html#d0e385"/>
          </topic>
       </topic>
    </topic>
    <topic label="Running Kaveri" href="eclipse_doc/ar01s07.html">
-      <topic label="Steps" href="eclipse_doc/ar01s07.html#d0e458"/>
+      <topic label="Steps" href="eclipse_doc/ar01s07.html#d0e480"/>
    </topic>
    <topic label="Dependence Chasing" href="eclipse_doc/ar01s08.html">
-      <topic label="Dependence Tracking View" href="eclipse_doc/ar01s08.html#d0e585"/>
-      <topic label="Dependence History View" href="eclipse_doc/ar01s08.html#d0e632"/>
+      <topic label="Dependence Tracking View" href="eclipse_doc/ar01s08.html#d0e618"/>
+      <topic label="Dependence History View" href="eclipse_doc/ar01s08.html#d0e665"/>
    </topic>
    <topic label="Features" href="eclipse_doc/ar01s09.html">
-      <topic label="Toolbar buttons" href="eclipse_doc/ar01s09.html#d0e670">
-         <topic label="Slice highlight toggle" href="eclipse_doc/ar01s09.html#d0e680"/>
-         <topic label="Backward Slice" href="eclipse_doc/ar01s09.html#d0e685"/>
-         <topic label="Forward Slice" href="eclipse_doc/ar01s09.html#d0e693"/>
+      <topic label="Toolbar buttons" href="eclipse_doc/ar01s09.html#d0e703">
+         <topic label="Slice highlight toggle" href="eclipse_doc/ar01s09.html#d0e713"/>
+         <topic label="Backward Slice" href="eclipse_doc/ar01s09.html#d0e718"/>
+         <topic label="Forward Slice" href="eclipse_doc/ar01s09.html#d0e726"/>
+         <topic label="Reset" href="eclipse_doc/ar01s09.html#d0e734"/>
       </topic>
-      <topic label="Slice label decoration" href="eclipse_doc/ar01s09.html#d0e701"/>
+      <topic label="Slice label decoration" href="eclipse_doc/ar01s09.html#d0e739"/>
+      <topic label="Criteria View" href="eclipse_doc/ar01s09.html#d0e758"/>
+      <topic label="Indus Menu" href="eclipse_doc/ar01s09.html#d0e774"/>
    </topic>
    <topic label="Appendix - How to pick criteria" href="eclipse_doc/ar01s10.html">
-      <topic label="Examples of picking Jimple criteria" href="eclipse_doc/ar01s10.html#d0e725"/>
+      <topic label="Examples of picking Jimple criteria" href="eclipse_doc/ar01s10.html#d0e797"/>
    </topic>
    <topic label="Appendix - Creating Scope Specifications" href="eclipse_doc/ar01s11.html"/>
    <topic label="Appendix - Creating Contexts" href="eclipse_doc/ar01s12.html"/>
