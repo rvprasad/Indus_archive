@@ -32,6 +32,7 @@ import edu.ksu.cis.indus.tools.Phase;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.BufferedReader;
@@ -117,11 +118,6 @@ public class SliceXMLizerCLI
 	private final String nameOfSliceTag = "SliceXMLizerCLI";
 
 	/**
-	 * This indicates if jimple should be destructively updated to reflect the slice and dumped.
-	 */
-	private boolean destructiveJimpleUpdate;
-
-	/**
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
@@ -133,34 +129,27 @@ public class SliceXMLizerCLI
 	 * The entry point to the driver.
 	 *
 	 * @param args contains the command line arguments.
-	 *
-	 * @throws RuntimeException when an Throwable exception beyond our control occurs.
 	 */
 	public static void main(final String[] args) {
-		try {
-			final SliceXMLizerCLI _driver = new SliceXMLizerCLI();
-			_driver.setIDGenerator(new UniqueJimpleIDGenerator());
+		final SliceXMLizerCLI _driver = new SliceXMLizerCLI();
+		_driver.setIDGenerator(new UniqueJimpleIDGenerator());
 
-			// parse command line arguments
-			parseCommandLine(args, _driver);
+		// parse command line arguments
+		parseCommandLine(args, _driver);
 
-			_driver.initialize();
+		_driver.initialize();
 
-			final long _startTime = System.currentTimeMillis();
-			_driver.execute();
+		final long _startTime = System.currentTimeMillis();
+		_driver.execute();
 
-			final long _stopTime = System.currentTimeMillis();
+		final long _stopTime = System.currentTimeMillis();
 
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
-			}
-
-			_driver.writeXML();
-			_driver.residualize();
-		} catch (Throwable _e) {
-			LOGGER.error("Beyond our control. May day! May day!", _e);
-			throw new RuntimeException(_e);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
 		}
+
+		_driver.writeXML();
+		_driver.residualize();
 	}
 
 	/**
@@ -232,7 +221,7 @@ public class SliceXMLizerCLI
 	 * Write the slice as XML document.
 	 */
 	void writeXML() {
-		final AbstractXMLizer _xmlizer = getXMLizer();
+		final IXMLizer _xmlizer = getXMLizer();
 
 		if (jimpleXMLDumpDir != null) {
 			if (LOGGER.isInfoEnabled()) {
@@ -243,7 +232,7 @@ public class SliceXMLizerCLI
 			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
 			_ctrl.setEnvironment(new Environment(scene));
 			_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(slicer.getCallGraph()));
-			_xmlizer.dumpJimple("", jimpleXMLDumpDir, _ctrl);
+			((AbstractXMLizer) _xmlizer).dumpJimple("", jimpleXMLDumpDir, _ctrl);
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("END: Dumping Jimple");
@@ -305,9 +294,6 @@ public class SliceXMLizerCLI
 		_o = new Option("j", "output-jimple", false, "Output xml representation of the jimple.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("d", "destructive-jimple-update", false, "Destructively update jimple and dump it.");
-		_o.setOptionalArg(false);
-		_options.addOption(_o);
 
 		CommandLine _cl = null;
 
@@ -332,7 +318,6 @@ public class SliceXMLizerCLI
 			}
 		}
 		xmlizer.setConfiguration(processCommandLineForConfiguration(_cl));
-		xmlizer.destructiveJimpleUpdate = _cl.hasOption('d');
 		setupOutputOptions(_cl, xmlizer);
 
 		if (_cl.hasOption('p')) {
@@ -432,10 +417,13 @@ public class SliceXMLizerCLI
 		if (cl.hasOption('o')) {
 			_outputDir = cl.getOptionValue("o");
 		} else {
-			_outputDir = ".";
+			final File _tempDir =
+				new File(System.getProperty("java.io.tmpdir") + File.separator + System.currentTimeMillis() + "_slicer");
+			_tempDir.mkdirs();
+			_outputDir = _tempDir.getAbsolutePath();
 
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Using current directory to output artifacts.");
+				LOGGER.warn("Using " + _outputDir + " as the directory to dump information");
 			}
 		}
 
@@ -461,9 +449,7 @@ public class SliceXMLizerCLI
 	 * Residualize the slice as jimple files in the output directory.
 	 */
 	private void residualize() {
-		if (destructiveJimpleUpdate) {
-			destructivelyUpdateJimple();
-		}
+		destructivelyUpdateJimple();
 
 		final Printer _printer = Printer.v();
 
@@ -541,10 +527,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/05/09 09:59:41  venku
+   - deleted an unused constant.
    Revision 1.23  2004/05/04 09:58:21  venku
    - the test will also drive tagbased slice residualizer via the new
      method added to SliceXMLizerCLI.
-
    Revision 1.22  2004/05/04 07:55:44  venku
    - id generator was not initialized correctly in slicer test setup. FIXED.
    Revision 1.21  2004/04/25 23:18:20  venku
