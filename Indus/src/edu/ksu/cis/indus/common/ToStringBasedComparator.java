@@ -28,6 +28,17 @@ import java.util.Comparator;
 public class ToStringBasedComparator
   implements Comparator {
 	/**
+	 * A single of this class.
+	 */
+	public static Comparator SINGLETON = new ToStringBasedComparator();
+
+	/// CLOVER:OFF
+	private ToStringBasedComparator() {
+	}
+
+	/// CLOVER:ON
+
+	/**
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	public int compare(final Object o1, final Object o2) {
@@ -38,4 +49,6 @@ public class ToStringBasedComparator
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/19 23:50:16  venku
+   - added a toString() based comparator.
  */
