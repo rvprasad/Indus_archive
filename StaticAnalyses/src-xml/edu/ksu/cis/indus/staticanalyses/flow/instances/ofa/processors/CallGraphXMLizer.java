@@ -81,8 +81,6 @@ final class CallGraphXMLizer
 			final XMLOutputter _xmlWriter = new CustomXMLOutputter(_writer);
 			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 			_xmlWriter.declaration();
-			_xmlWriter.dtd("callgraph", "-//INDUS:STATICANALYSES.FLOW.INSTANCES.OFA.PROCESSORS.CALLGRAPH//DTD project//EN",
-				"callgraphXML.xsd");
 			_xmlWriter.startTag("callgraph");
 
 			// Control the order in which methods are processed. 
@@ -135,6 +133,10 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/05/13 06:50:59  venku
+   - renamed .xsd's to XML.xsd's.
+   - ripple effect.
+
    Revision 1.19  2004/05/13 03:32:04  venku
    - documentation.  refactoring of getFileName() in IXMLizer.
 

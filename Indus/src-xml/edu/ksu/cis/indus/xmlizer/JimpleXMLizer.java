@@ -373,7 +373,6 @@ public class JimpleXMLizer
 				writer = new CustomXMLOutputter(new BufferedWriter(new FileWriter(_file)));
 				stmtXmlizer.setWriter(writer);
 				writer.declaration();
-				writer.dtd("class", "-//INDUS:JIMPLE//DTD project//EN", "jimple.dtd");
 			} catch (final IOException _e) {
 				LOGGER.error("Exception while trying to open " + _filename, _e);
 				throw _e;
@@ -431,6 +430,12 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/05/13 03:12:33  venku
+   - CustomXMLOutputter defaults to UTF-8 encoding.
+   - Added a new method to AbstractXMLizer to encode strings.
+   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
+   - ripple effect.
+
    Revision 1.40  2004/05/13 01:14:46  venku
    - it should be synchronized.
 

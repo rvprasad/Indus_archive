@@ -227,8 +227,6 @@ public final class OFAXMLizer
 
 			try {
 			    xmlWriter.declaration();
-			    xmlWriter.dtd("ofa", "-//INDUS:STATICANALYSES.FLOW.INSTANCES.OFA//DTD project//EN", "ofaXML.xsd");
-
 				xmlWriter.startTag("ofa");
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
@@ -290,6 +288,10 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/05/13 06:50:59  venku
+   - renamed .xsd's to XML.xsd's.
+   - ripple effect.
+
    Revision 1.15  2004/05/13 03:32:04  venku
    - documentation.  refactoring of getFileName() in IXMLizer.
 

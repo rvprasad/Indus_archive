@@ -287,7 +287,6 @@ final class TagBasedSliceXMLizer
 		public void processingBegins() {
 			try {
 			    writer.declaration();
-			    writer.dtd("system", "-//INDUS:JAVASLICER:TAGBASEDSLICE//DTD project//EN", "slice.xsd");
 				writer.startTag("system");
 			} catch (IOException _e) {
 				LOGGER.error("Exception while starting up writing xml information.", _e);
@@ -355,6 +354,9 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/05/13 03:32:04  venku
+   - documentation.  refactoring of getFileName() in IXMLizer.
+
    Revision 1.24  2004/05/13 03:12:34  venku
    - CustomXMLOutputter defaults to UTF-8 encoding.
    - Added a new method to AbstractXMLizer to encode strings.
