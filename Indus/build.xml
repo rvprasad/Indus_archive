@@ -53,11 +53,19 @@
 
 
 	<target name="jar" depends="init">
-		<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*" />
+		<jar destfile="${jarfile}">
+            <fileset dir="${build.dir}">
+                <exclude name="**/.*"/>
+                <exclude name="**/*Test.class"/>
+                <exclude name="**/*TestSetup.class"/>
+                <exclude name="**/*TestSuite.class"/>
+                <exclude name="**/*TestCase.class"/>
+            </fileset>
+        </jar>
 	</target>
 
 	<target name="buildAndJar" depends="build">
-		<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*" />
+        <antcall target="jar"/>
 	</target>
 
 	<target name="docs" depends="init">
@@ -154,6 +162,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.34  2004/07/09 10:05:03  venku
+- changed the way clean happens.
+- also enabled the copying of xml and xsd files into build directory.
+
 Revision 1.33  2004/06/12 07:30:56  venku
 - factored out the base of docbook app directory.
 

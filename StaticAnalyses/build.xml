@@ -20,8 +20,8 @@
 		<copy todir="${build.dir}">
 			<fileset dir=".">
 				<include name="src*/**/*.properties" />
-				<include name="src*/**/*.xsd" />				
-				<include name="src*/**/*.xml" />		
+				<include name="src*/**/*.xsd" />
+				<include name="src*/**/*.xml" />
 			</fileset>
 			<mapper type="regexp" from="^(src[^/]*/)(.+)(properties|xsd|xml)" to="\2\3" />
 		</copy>
@@ -52,11 +52,19 @@
 	</target>
 
 	<target name="jar" depends="init">
-		<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*" />
+		<jar destfile="${jarfile}">
+			<fileset dir="${build.dir}">
+				<exclude name="**/.*" />
+				<exclude name="**/*Test.class" />
+				<exclude name="**/*TestSetup.class" />
+				<exclude name="**/*TestSuite.class" />
+				<exclude name="**/*TestCase.class" />
+			</fileset>
+		</jar>
 	</target>
 
 	<target name="buildAndJar" depends="build">
-		<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*" />
+		<antcall target="jar" />
 	</target>
 
 	<target name="docs" depends="init">
@@ -156,6 +164,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.37  2004/07/09 10:05:05  venku
+- changed the way clean happens.
+- also enabled the copying of xml and xsd files into build directory.
+
 Revision 1.36  2004/06/12 07:32:02  venku
 - factored out the base of docbook app directory.
 
