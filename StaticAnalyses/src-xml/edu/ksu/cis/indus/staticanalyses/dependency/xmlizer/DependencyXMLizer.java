@@ -16,11 +16,12 @@
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
 import edu.ksu.cis.indus.common.structures.Pair.PairManager;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -53,7 +54,6 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
-import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
@@ -61,6 +61,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -406,7 +407,7 @@ public class DependencyXMLizer
 
 			if (dumpXMLizedJimple) {
 				final JimpleXMLizer _t = new JimpleXMLizer(new UniqueJimpleIDGenerator());
-				FileWriter _writer;
+				Writer _writer;
 
 				try {
 					_writer =
@@ -655,15 +656,16 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/12/09 04:22:09  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.26  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.25  2003/12/08 12:15:56  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.24  2003/12/08 11:59:47  venku
    - added a new class AbstractXMLizer which will host
      primary logic to xmlize analyses information.
@@ -671,7 +673,6 @@ public class DependencyXMLizer
    - added a new class CallGraphXMLizer to xmlize
      call graph information.  The logic to write out the call
      graph is empty.
-
    Revision 1.23  2003/12/08 11:53:25  venku
    - formatting.
    Revision 1.22  2003/12/08 10:58:52  venku

@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -142,7 +143,7 @@ public class JimpleXMLizer
 			_scene.loadClassAndSupport(s[i]);
 		}
 
-		final Writer _writer = new OutputStreamWriter(System.out);
+		final Writer _writer = new BufferedWriter(new OutputStreamWriter(System.out));
 		_xmlizer.setWriter(_writer);
 		_xmlizer.hookup(_pc);
 		_pc.process();
@@ -397,6 +398,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/02 11:36:16  venku
+   - coding convention.
    Revision 1.24  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

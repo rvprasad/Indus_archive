@@ -502,7 +502,9 @@ public class ValueXMLizer
 	 */
 	public final void caseStringConstant(final StringConstant v) {
 		try {
-			out.write(tabs + "<string id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
+			String _temp = v.value.replaceAll("[^\\p{Print}]", "");
+			_temp = _temp.toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\\\"", "&quot;");
+			out.write(tabs + "<string id=\"" + newId + "\" value=\"" + _temp + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -740,6 +742,8 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/02 11:36:16  venku
+   - coding convention.
    Revision 1.12  2003/12/02 09:42:24  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

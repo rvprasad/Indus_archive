@@ -16,7 +16,9 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
@@ -103,13 +105,6 @@ public class SlicerDriver
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private FileWriter jimpleWriter;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
 	private IJimpleIDGenerator idGenerator;
 
 	/**
@@ -118,6 +113,13 @@ public class SlicerDriver
 	 * </p>
 	 */
 	private String tagName = "SlicingTag";
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Writer jimpleWriter;
 
 	/**
 	 * DOCUMENT ME!
@@ -407,7 +409,7 @@ public class SlicerDriver
 
 			if (jimpleOutDir != null) {
 				try {
-					xmlizer.jimpleWriter = new FileWriter(jimpleOutDir + File.separator + "jimple.xml");
+					xmlizer.jimpleWriter = new FileWriter(new File(jimpleOutDir + File.separator + "jimple.xml"));
 				} catch (IOException e) {
 					LOGGER.fatal("IO error while reading configuration file.  Aborting", e);
 					System.exit(5);
@@ -466,19 +468,19 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/12/09 04:22:14  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.20  2003/12/08 12:20:48  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.19  2003/12/08 12:16:05  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.18  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.17  2003/12/01 04:20:10  venku
    - tag name should be provided for the engine before execution.
    Revision 1.16  2003/11/30 09:02:01  venku
