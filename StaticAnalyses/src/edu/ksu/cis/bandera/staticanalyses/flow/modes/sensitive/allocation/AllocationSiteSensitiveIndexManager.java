@@ -39,7 +39,6 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 import edu.ksu.cis.bandera.staticanalyses.flow.Index;
 import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
-import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation.*;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -92,5 +91,9 @@ public class AllocationSiteSensitiveIndexManager
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 16:07:36  venku
+The major change is that the index managers have been
+placed in separate packages.
+
 
 *****/
