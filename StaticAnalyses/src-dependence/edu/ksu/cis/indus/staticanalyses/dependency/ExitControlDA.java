@@ -19,13 +19,10 @@ import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,15 +38,14 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class contains the logic to calculate control dependences in the reverse direction of control flow considering the
- * exit points as the entry points.
+ * This class provides indirect intraprocedural forward control dependence information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class ExitControlDA
-  extends AbstractDependencyAnalysis {
+  extends AbstractControlDA {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -60,140 +56,13 @@ public class ExitControlDA
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private ICallGraphInfo callgraph;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
 	private IDependencyAnalysis entryControlDA;
 
-	/**
-	 * Returns the statements on which <code>dependentStmt</code> depends on in the given <code>method</code>.
-	 *
-	 * @param dependentStmt is the dependent of interest.
-	 * @param method in which <code>dependentStmt</code> occurs.
-	 *
-	 * @return a collection of statements.
-	 *
-	 * @pre dependentStmt.oclIsKindOf(Stmt)
-	 * @pre method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.isOclKindOf(Stmt))
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object,
-	 * 		java.lang.Object)
-	 */
-	public final Collection getDependees(final Object dependentStmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
-		final List _list = (List) dependent2dependee.get(method);
-
-		if (_list != null) {
-			final int _index = getStmtList((SootMethod) method).indexOf(dependentStmt);
-
-			if (_list.get(_index) != null) {
-				_result = Collections.unmodifiableCollection((Collection) _list.get(_index));
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Returns the statements which depend on <code>dependeeStmt</code> in the given <code>method</code>.
-	 *
-	 * @param dependeeStmt is the dependee of interest.
-	 * @param method in which <code>dependentStmt</code> occurs.
-	 *
-	 * @return a collection of statements.
-	 *
-	 * @pre dependeeStmt.isOclKindOf(Stmt)
-	 * @pre method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.isOclKindOf(Stmt))
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents(java.lang.Object,
-	 * 		java.lang.Object)
-	 */
-	public final Collection getDependents(final Object dependeeStmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
-		final List _list = (List) dependee2dependent.get(method);
-
-		if (_list != null) {
-			final int _index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
-
-			if (_list.get(_index) != null) {
-				_result = Collections.unmodifiableCollection((Collection) _list.get(_index));
-			}
-		}
-		return _result;
-	}
-
-	///CLOVER:OFF
-
-	/**
-	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
-	 *
-	 * @return a stringized representation of this object.
-	 *
-	 * @post result != null
-	 */
-	public final String toString() {
-		final StringBuffer _result =
-			new StringBuffer("Statistics for exit control dependence as calculated by " + getClass().getName() + "\n");
-		int _localEdgeCount;
-		int _localEntryPointDep;
-		int _edgeCount = 0;
-		int _entryPointDep = 0;
-
-		final StringBuffer _temp = new StringBuffer();
-
-		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final SootMethod _method = (SootMethod) _entry.getKey();
-			final List _stmts = getStmtList(_method);
-			final List _cd = (List) _entry.getValue();
-			_localEdgeCount = 0;
-			_localEntryPointDep = _stmts.size();
-
-			for (int _j = 0; _j < _stmts.size(); _j++) {
-				if (_cd == null) {
-					continue;
-				}
-
-				final Collection _dees = (Collection) _cd.get(_j);
-
-				if (_dees != null) {
-					_temp.append("\t\t" + _stmts.get(_j) + " --> " + _dees + "\n");
-					_localEdgeCount += _dees.size();
-					_localEntryPointDep--;
-				}
-			}
-
-			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount + " control dependence edges with "
-				+ _localEntryPointDep + " entry point dependences.\n");
-			_result.append(_temp);
-			_temp.delete(0, _temp.length());
-			_edgeCount += _localEdgeCount;
-			_entryPointDep += _localEntryPointDep;
-		}
-		_result.append("A total of " + _edgeCount + " control dependence edges exists with " + _entryPointDep
-			+ " entry point dependences.");
-		return _result.toString();
-	}
-
-	///CLOVER:ON
-	
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
 	 */
 	public Object getDirection() {
 		return FORWARD_DIRECTIONAL;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
-	 */
-	public Object getId() {
-		return IDependencyAnalysis.CONTROL_DA;
 	}
 
 	/**
@@ -246,7 +115,6 @@ public class ExitControlDA
 	 *
 	 * @throws InitializationException when call graph service is not provided.
 	 *
-	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
 	 * @pre info.get(IDependencyAnalysis.CONTROL_DA) != null
 	 * @pre info.get(IDependencyAnalysis.ID).oclIsTypeOf(IDependencyAnalysis)
 	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTIONAL)
@@ -256,11 +124,6 @@ public class ExitControlDA
 	protected void setup()
 	  throws InitializationException {
 		super.setup();
-		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
-
-		if (callgraph == null) {
-			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
-		}
 
 		final IDependencyAnalysis _temp = (IDependencyAnalysis) info.get(IDependencyAnalysis.CONTROL_DA);
 
@@ -369,6 +232,8 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/07/11 11:06:54  venku
+   - Added implementation.
    Revision 1.12  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while

@@ -29,11 +29,9 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,7 +40,7 @@ import soot.SootMethod;
 
 
 /**
- * This class provides indirect entry-based intraprocedural control dependence information.
+ * This class provides indirect intraprocedural backward control dependence information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -54,7 +52,7 @@ import soot.SootMethod;
  * @invariant dependee2dependent.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
  */
 public class EntryControlDA
-  extends AbstractDependencyAnalysis {
+  extends AbstractControlDA {
 	// TODO: Link to documentation describing direct entry-based intraprocedural control dependence needs to be added.
 
 	/*
@@ -81,69 +79,6 @@ public class EntryControlDA
 	 * @invariant nodesCache.oclIsKindOf(Collection(INode))
 	 */
 	protected List nodesCache;
-
-	/**
-	 * This provides the call graph information.
-	 */
-	private ICallGraphInfo callgraph;
-
-	/**
-	 * Returns the statements on which <code>dependentStmt</code> depends on in the given <code>method</code>.
-	 *
-	 * @param dependentStmt is the dependent of interest.
-	 * @param method in which <code>dependentStmt</code> occurs.
-	 *
-	 * @return a collection of statements.
-	 *
-	 * @pre dependentStmt.oclIsKindOf(Stmt)
-	 * @pre method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.isOclKindOf(Stmt))
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object,
-	 * 		java.lang.Object)
-	 */
-	public final Collection getDependees(final Object dependentStmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
-		final List _list = (List) dependent2dependee.get(method);
-
-		if (_list != null) {
-			final int _index = getStmtList((SootMethod) method).indexOf(dependentStmt);
-
-			if (_list.get(_index) != null) {
-				_result = Collections.unmodifiableCollection((Collection) _list.get(_index));
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Returns the statements which depend on <code>dependeeStmt</code> in the given <code>method</code>.
-	 *
-	 * @param dependeeStmt is the dependee of interest.
-	 * @param method in which <code>dependentStmt</code> occurs.
-	 *
-	 * @return a collection of statements.
-	 *
-	 * @pre dependeeStmt.isOclKindOf(Stmt)
-	 * @pre method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.isOclKindOf(Stmt))
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents(java.lang.Object,
-	 * 		java.lang.Object)
-	 */
-	public final Collection getDependents(final Object dependeeStmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
-		final List _list = (List) dependee2dependent.get(method);
-
-		if (_list != null) {
-			final int _index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
-
-			if (_list.get(_index) != null) {
-				_result = Collections.unmodifiableCollection((Collection) _list.get(_index));
-			}
-		}
-		return _result;
-	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
@@ -200,6 +135,9 @@ public class EntryControlDA
 			fixupMaps(_bbGraph, _bbCDBitSets, _currMethod);
 		}
 
+		nodesCache.clear();
+		nodesWithChildrenCache.clear();
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
 		}
@@ -209,61 +147,6 @@ public class EntryControlDA
 		}
 		stable();
 	}
-
-	///CLOVER:OFF
-
-	/**
-	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
-	 *
-	 * @return a stringized representation of this object.
-	 *
-	 * @post result != null
-	 */
-	public final String toString() {
-		final StringBuffer _result =
-			new StringBuffer("Statistics for entry control dependence as calculated by " + getClass().getName() + "\n");
-		int _localEdgeCount;
-		int _localEntryPointDep;
-		int _edgeCount = 0;
-		int _entryPointDep = 0;
-
-		final StringBuffer _temp = new StringBuffer();
-
-		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final SootMethod _method = (SootMethod) _entry.getKey();
-			final List _stmts = getStmtList(_method);
-			final List _cd = (List) _entry.getValue();
-			_localEdgeCount = 0;
-			_localEntryPointDep = _stmts.size();
-
-			for (int _j = 0; _j < _stmts.size(); _j++) {
-				if (_cd == null) {
-					continue;
-				}
-
-				final Collection _dees = (Collection) _cd.get(_j);
-
-				if (_dees != null) {
-					_temp.append("\t\t" + _stmts.get(_j) + " --> " + _dees + "\n");
-					_localEdgeCount += _dees.size();
-					_localEntryPointDep--;
-				}
-			}
-
-			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount + " control dependence edges with "
-				+ _localEntryPointDep + " entry point dependences.\n");
-			_result.append(_temp);
-			_temp.delete(0, _temp.length());
-			_edgeCount += _localEdgeCount;
-			_entryPointDep += _localEntryPointDep;
-		}
-		_result.append("A total of " + _edgeCount + " control dependence edges exists with " + _entryPointDep
-			+ " entry point dependences.");
-		return _result.toString();
-	}
-
-	///CLOVER:ON
 
 	/**
 	 * Retrieves the bitset at the given location. If none exists, a new bit set is added.
@@ -584,11 +467,12 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/07/11 11:02:34  venku
+   - logging.
    Revision 1.28  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
        the implementations just announce their status.
-
    Revision 1.27  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
    Revision 1.26  2004/07/08 10:28:48  venku
