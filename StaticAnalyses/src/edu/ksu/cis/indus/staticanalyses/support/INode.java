@@ -50,8 +50,9 @@ public interface INode {
 	 * Retrieves the predecessors of this node.
 	 *
 	 * @return the collection of predecessors of this node.
-     * @post result->forall(o | o.oclIsKindOf(INode))
-     * @post result->forall(o | o.getSuccsOf()->includes(this))
+	 *
+	 * @post result->forall(o | o.oclIsKindOf(INode))
+	 * @post result->forall(o | o.getSuccsOf()->includes(this))
 	 */
 	Collection getPredsOf();
 
@@ -62,9 +63,10 @@ public interface INode {
 	 * 		  (predecessors).
 	 *
 	 * @return the collection of successors of this node.
-     * @post result->forall(o | o.oclIsKindOf(INode))
-     * @post forward == true implies result->forall(o | o.getPredsOf()->includes(this))
-     * @post forward == false implies result->forall(o | o.getSuccsOf()->includes(this))
+	 *
+	 * @post result->forall(o | o.oclIsKindOf(INode))
+	 * @post forward == true implies result->forall(o | o.getPredsOf()->includes(this))
+	 * @post forward == false implies result->forall(o | o.getSuccsOf()->includes(this))
 	 */
 	Collection getSuccsNodesInDirection(boolean forward);
 
@@ -72,22 +74,27 @@ public interface INode {
 	 * Retrieves the set of successor nodes of this node.
 	 *
 	 * @return the collection of successor nodes(<code>INode</code>) of this node.
-     * @post result->forall(o | o.oclIsKindOf(INode))
-     * @post result->forall(o | o.getPredsOf()->includes(this))
+	 *
+	 * @post result->forall(o | o.oclIsKindOf(INode))
+	 * @post result->forall(o | o.getPredsOf()->includes(this))
 	 */
 	Collection getSuccsOf();
 }
 
 /*
    ChangeLog:
-   
+
    $Log$
-   
+   Revision 1.2  2003/08/11 04:20:19  venku
+   - Pair and Triple were changed to work in optimized and unoptimized mode.
+   - Ripple effect of the previous change.
+   - Documentation and specification of other classes.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
     - Renamed isEmpty() to hasWork() in WorkBag.
-    
+
    Revision 1.1  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

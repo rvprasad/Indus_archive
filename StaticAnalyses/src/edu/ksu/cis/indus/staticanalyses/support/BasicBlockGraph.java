@@ -59,19 +59,21 @@ import java.util.Map;
 public class BasicBlockGraph
   extends DirectedGraph {
 	/**
+	 * The list of statements in the method being represented by this graph.
+	 *
+	 * @invariant stmtList.oclIsKindOf(Sequence(Stmt))
+	 */
+	final List stmtList;
+
+	/**
 	 * The control flow graph of the method represented by this graph.
 	 */
 	final UnitGraph stmtGraph;
 
 	/**
-	 * The list of statements in the method being represented by this graph.
-     * @invariant stmtList.oclIsKindOf(Sequence(Stmt)) 
-	 */
-	final List stmtList;
-
-	/**
 	 * The collection of basic block nodes in this graph.
-     * @invariant blocks.oclIsKindOf(Sequence(BasicBlock))
+	 *
+	 * @invariant blocks.oclIsKindOf(Sequence(BasicBlock))
 	 */
 	private final List blocks;
 
@@ -84,7 +86,8 @@ public class BasicBlockGraph
 	 * Creates a new BasicBlockGraph object.
 	 *
 	 * @param stmtGraphParam is the control flow graph being represented by this graph.
-     * @pre stmtGraphParam != null
+	 *
+	 * @pre stmtGraphParam != null
 	 */
 	BasicBlockGraph(final UnitGraph stmtGraphParam) {
 		this.stmtGraph = stmtGraphParam;
@@ -196,7 +199,8 @@ public class BasicBlockGraph
 
 		/**
 		 * The list of statements represented by this block.
-         * @invariant stmts.oclIsKindOf(Sequence(Stmt))
+		 *
+		 * @invariant stmts.oclIsKindOf(Sequence(Stmt))
 		 */
 		private final List stmts;
 
@@ -223,7 +227,8 @@ public class BasicBlockGraph
 		 * 		  statement list of the method and not the statement list of this block.
 		 *
 		 * @return a list of <code>Stmt</code>s.
-		 * @post result != null 
+		 *
+		 * @post result != null
 		 * @post (start &lt; leader or start >= trailer) implies (result.size() = 0)
 		 */
 		public final List getStmtFrom(final int start) {
@@ -238,7 +243,8 @@ public class BasicBlockGraph
 		 * @param end is the ending index of the requested statement list.
 		 *
 		 * @return a list of <code>Stmt</code>s.
-		 *@post result != null
+		 *
+		 * @post result != null
 		 * @post ((start &lt; leader or end > trailer or start >= end)) implies (result.size() = 0)
 		 */
 		public final List getStmtFromTo(final int start, final int end) {
@@ -274,7 +280,8 @@ public class BasicBlockGraph
 		 * Retrieves the statements in this block .
 		 *
 		 * @return a list of statements.
-         * @post result.oclIsKindOf(Sequence(Stmt))
+		 *
+		 * @post result.oclIsKindOf(Sequence(Stmt))
 		 */
 		public final List getStmtsOf() {
 			return Collections.unmodifiableList(stmts);
@@ -287,7 +294,8 @@ public class BasicBlockGraph
 	 * @param stmt is the statement of interest.
 	 *
 	 * @return the basic block enclosing the statement.
-     * @pre stmt != null
+	 *
+	 * @pre stmt != null
 	 */
 	public final BasicBlock getEnclosingBlock(final Stmt stmt) {
 		return (BasicBlock) stmt2BlockMap.get(stmt);
@@ -298,8 +306,9 @@ public class BasicBlockGraph
 	 *
 	 * @return the list of <code>BasicBlocks</code> that make up the nodes in the graph.
 	 *
+	 * @post result != null
+	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph#getNodes()
-     * @post result != null 
 	 */
 	public List getNodes() {
 		return Collections.unmodifiableList(blocks);
@@ -328,9 +337,11 @@ public class BasicBlockGraph
 
 /*
    ChangeLog:
-
    $Log$
-
+   Revision 1.2  2003/08/11 04:20:19  venku
+   - Pair and Triple were changed to work in optimized and unoptimized mode.
+   - Ripple effect of the previous change.
+   - Documentation and specification of other classes.
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

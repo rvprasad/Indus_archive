@@ -46,12 +46,12 @@ import java.util.Stack;
 /**
  * This is a generic container of objects.  The order in which the objects are added and removed can be configured.  At
  * present, it supports LIFO and FIFO ordering.  This affects the order in which the <code>getWork()</code> will return the
- * work added to this bag.      
- * 
- * @since Created: Thu Jul 25 18:37:24 2002.
+ * work added to this bag.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad</a>
  * @version $Revision$
+ *
+ * @since Created: Thu Jul 25 18:37:24 2002.
  */
 public class WorkBag {
 	/**
@@ -77,7 +77,8 @@ public class WorkBag {
 	 * @param order is the requested ordering on the work pieces that will stored in this bag.
 	 *
 	 * @throws IllegalArgumentException when any order other than<code>LIFO</code> or <code>FIFO</code> is specified.
-     * @pre order == FIFO or order == LIFO
+	 *
+	 * @pre order == FIFO or order == LIFO
 	 */
 	public WorkBag(final int order) {
 		if (order == LIFO) {
@@ -109,7 +110,7 @@ public class WorkBag {
 		 * @param o the object to be stored.
 		 *
 		 * @post self->includes(o)
-         * @invariant self->includesAll(self$pre)
+		 * @invariant self->includesAll(self$pre)
 		 */
 		void add(Object o);
 
@@ -120,7 +121,7 @@ public class WorkBag {
 		 *
 		 * @invariant c.oclIsTypeOf(Bag(Object))
 		 * @post self->includesAll(c)
-         * @invariant self->includesAll(self$pre)
+		 * @invariant self->includesAll(self$pre)
 		 */
 		void addAll(Collection c);
 
@@ -130,7 +131,7 @@ public class WorkBag {
 		 * @param c the collection containing the objects to be stored.
 		 *
 		 * @invariant c.oclIsTypeOf(Bag(Object))
-         * @invariant self->includesAll(self$pre)
+		 * @invariant self->includesAll(self$pre)
 		 * @post self->includesAll(c) and self->forall( o | self->count(o) = 1)
 		 */
 		void addAllNoDuplicates(Collection c);
@@ -167,8 +168,10 @@ public class WorkBag {
 	 * An abstract implementation of the <code>ICollectionWrapper</code> interface.  <code>add(Object)</code> needs to be
 	 * implemented by the extending class.  Also, the container needs to be initialized in the constructor of the extending
 	 * class.
-     * @see ICollectionWrapper
-     * @invariant self.oclIsTypeOf(Collection(Object))
+	 *
+	 * @invariant self.oclIsTypeOf(Collection(Object))
+	 *
+	 * @see ICollectionWrapper
 	 */
 	protected abstract class AbstractCollectionWrapper
 	  implements ICollectionWrapper {
@@ -195,8 +198,8 @@ public class WorkBag {
 		 * the container.
 		 *
 		 * @param c is the collection of the elements to be added.
-		 * 
-         * @invariant c.oclIsKindOf(Bag(Object))
+		 *
+		 * @invariant c.oclIsKindOf(Bag(Object))
 		 * @invariant self->includesAll(self$pre)
 		 * @post self->includesAll(c)
 		 */
@@ -252,8 +255,10 @@ public class WorkBag {
 
 	/**
 	 * This class imposes FIFO ordering on the stored objects.
-     * @see AbstractCollectionWrapper
-     * @invariant self.oclIsTypeOf(Sequence(Object))
+	 *
+	 * @invariant self.oclIsTypeOf(Sequence(Object))
+	 *
+	 * @see AbstractCollectionWrapper
 	 */
 	private class CWQueue
 	  extends AbstractCollectionWrapper {
@@ -300,8 +305,10 @@ public class WorkBag {
 
 	/**
 	 * This class imposes LIFO ordering on the stored objects.
-     * @see AbstractCollectionWrapper
-     * @invariant self.oclIsTypeOf(Sequence(Object))
+	 *
+	 * @invariant self.oclIsTypeOf(Sequence(Object))
+	 *
+	 * @see AbstractCollectionWrapper
 	 */
 	private class CWStack
 	  extends AbstractCollectionWrapper {
@@ -360,8 +367,9 @@ public class WorkBag {
 	 * Adds all the work pieces in <code>c</code> to the bag.  This will not check if the work piece exists in the bag.
 	 *
 	 * @param o the work pieces to be added.
-     * @invariant self->includesAll(self$pre)
-     * @post self->includesAll(c)
+	 *
+	 * @invariant self->includesAll(self$pre)
+	 * @post self->includesAll(c)
 	 */
 	public void addAllWork(final Object[] o) {
 		container.addAll(Arrays.asList(o));
@@ -441,7 +449,8 @@ public class WorkBag {
 	 * Checks if there is any work in this bag.
 	 *
 	 * @return <code>true</code> if the bag is non-empty; <code>false</code>, otherwise.
-     * @post result == (self->size() != 0)
+	 *
+	 * @post result == (self->size() != 0)
 	 */
 	public boolean hasWork() {
 		return !container.isEmpty();
@@ -450,14 +459,17 @@ public class WorkBag {
 
 /*
    ChangeLog:
-
    $Log$
-   
+   Revision 1.2  2003/08/11 04:20:19  venku
+   - Pair and Triple were changed to work in optimized and unoptimized mode.
+   - Ripple effect of the previous change.
+   - Documentation and specification of other classes.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
     - Renamed isEmpty() to hasWork() in WorkBag.
-    
+
    Revision 1.7  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

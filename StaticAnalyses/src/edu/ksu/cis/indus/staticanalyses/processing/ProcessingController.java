@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.processing;
@@ -67,7 +67,7 @@ import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
-import edu.ksu.cis.indus.staticanalyses.interfaces.*;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import org.apache.commons.logging.Log;
@@ -102,11 +102,6 @@ public class ProcessingController {
 	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
 
 	/**
-	 * The analyzer instance that provides the low-level analysis information to be be further processed.
-	 */
-	protected IValueAnalyzer analyzer;
-
-	/**
 	 * The collection of post processors registered with this controller.  This maintains the insertion order.
 	 *
 	 * @invariant processors->forall(o | o.isOclKindOf(IProcessor))
@@ -119,33 +114,27 @@ public class ProcessingController {
 	protected Context context = new Context();
 
 	/**
+	 * The analyzer instance that provides the low-level analysis information to be be further processed.
+	 *
+	 * @invariant analyzer != null
+	 */
+	protected IValueAnalyzer analyzer;
+
+	/**
 	 * This maps a class to the post processors interested in processing the analysis information pertaining to AST nodes of
 	 * class type.
 	 *
-	 * @invariant class2processors.keySet()->forall( o | o.oclType = Class)
-	 * @invariant class2processors.valueSet()->forall( o | o.oclIsKindOf(java.util.Set))
-	 * @invariant class2processors.valueSet()->forall(o | o->forall( p | p.isOclKindOf(IProcessor)))
+	 * @invariant class2processors.oclIsKindOf(Map(Class, Set(IProcessors)))
 	 */
 	protected final Map class2processors = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This walks over the statements for processing.
 	 */
-	protected final ValueSwitcher valueSwitcher = new ValueSwitcher();
+	protected final StmtSwitcher stmtSwitcher = new StmtSwitcher(new ValueSwitcher());
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	protected final StmtSwitcher stmtSwitcher = new StmtSwitcher(valueSwitcher);
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This class visits the statements of the methods and calls the call-back methods of the registered processors.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -154,158 +143,157 @@ public class ProcessingController {
 	private class StmtSwitcher
 	  extends AbstractStmtSwitch {
 		/**
-		 * Processes expressions in the statement.
+		 * This walks expressions in the statement.
 		 */
-		private final ValueSwitcher vs;
+		private final ValueSwitcher valueSwitcher;
 
 		/**
 		 * Creates a new StmtSwitcher object.
 		 *
 		 * @param vs is the expressions processor.
 		 */
-		StmtSwitcher(ValueSwitcher vs) {
-			this.vs = vs;
+		StmtSwitcher(final ValueSwitcher vs) {
+			this.valueSwitcher = vs;
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
-		public void caseAssignStmt(AssignStmt stmt) {
+		public void caseAssignStmt(final AssignStmt stmt) {
 			defaultCase(AssignStmt.class, stmt);
 			context.setProgramPoint(stmt.getLeftOpBox());
-			stmt.getLeftOp().apply(vs);
+			stmt.getLeftOp().apply(valueSwitcher);
 			context.setProgramPoint(stmt.getRightOpBox());
-			stmt.getRightOp().apply(vs);
+			stmt.getRightOp().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseBreakpointStmt(soot.jimple.BreakpointStmt)
 		 */
-		public void caseBreakpointStmt(BreakpointStmt stmt) {
+		public void caseBreakpointStmt(final BreakpointStmt stmt) {
 			defaultCase(BreakpointStmt.class, stmt);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 		 */
-		public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
+		public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
 			defaultCase(EnterMonitorStmt.class, stmt);
 			context.setProgramPoint(stmt.getOpBox());
-			stmt.getOp().apply(vs);
+			stmt.getOp().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 		 */
-		public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
+		public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
 			defaultCase(ExitMonitorStmt.class, stmt);
 			context.setProgramPoint(stmt.getOpBox());
-			stmt.getOp().apply(vs);
+			stmt.getOp().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseGotoStmt(soot.jimple.GotoStmt)
 		 */
-		public void caseGotoStmt(GotoStmt stmt) {
+		public void caseGotoStmt(final GotoStmt stmt) {
 			defaultCase(GotoStmt.class, stmt);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 		 */
-		public void caseIdentityStmt(IdentityStmt stmt) {
+		public void caseIdentityStmt(final IdentityStmt stmt) {
 			defaultCase(IdentityStmt.class, stmt);
 			context.setProgramPoint(stmt.getLeftOpBox());
-			stmt.getLeftOp().apply(vs);
+			stmt.getLeftOp().apply(valueSwitcher);
 			context.setProgramPoint(stmt.getRightOpBox());
-			stmt.getRightOp().apply(vs);
+			stmt.getRightOp().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseIfStmt(soot.jimple.IfStmt)
 		 */
-		public void caseIfStmt(IfStmt stmt) {
+		public void caseIfStmt(final IfStmt stmt) {
 			defaultCase(IfStmt.class, stmt);
 			context.setProgramPoint(stmt.getConditionBox());
-			stmt.getCondition().apply(vs);
+			stmt.getCondition().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 		 */
-		public void caseInvokeStmt(InvokeStmt stmt) {
+		public void caseInvokeStmt(final InvokeStmt stmt) {
 			defaultCase(InvokeStmt.class, stmt);
 			context.setProgramPoint(stmt.getInvokeExprBox());
-			stmt.getInvokeExpr().apply(vs);
+			stmt.getInvokeExpr().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 		 */
-		public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
+		public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
 			defaultCase(LookupSwitchStmt.class, stmt);
 			context.setProgramPoint(stmt.getKeyBox());
-			stmt.getKey().apply(vs);
+			stmt.getKey().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseNopStmt(soot.jimple.NopStmt)
 		 */
-		public void caseNopStmt(NopStmt stmt) {
+		public void caseNopStmt(final NopStmt stmt) {
 			defaultCase(NopStmt.class, stmt);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseRetStmt(soot.jimple.RetStmt)
 		 */
-		public void caseRetStmt(RetStmt stmt) {
+		public void caseRetStmt(final RetStmt stmt) {
 			defaultCase(RetStmt.class, stmt);
 			context.setProgramPoint(stmt.getStmtAddressBox());
-			stmt.getStmtAddress().apply(vs);
+			stmt.getStmtAddress().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 		 */
-		public void caseReturnStmt(ReturnStmt stmt) {
+		public void caseReturnStmt(final ReturnStmt stmt) {
 			defaultCase(ReturnStmt.class, stmt);
 			context.setProgramPoint(stmt.getOpBox());
-			stmt.getOp().apply(vs);
+			stmt.getOp().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseReturnVoidStmt(soot.jimple.ReturnVoidStmt)
 		 */
-		public void caseReturnVoidStmt(ReturnVoidStmt stmt) {
+		public void caseReturnVoidStmt(final ReturnVoidStmt stmt) {
 			defaultCase(ReturnVoidStmt.class, stmt);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 		 */
-		public void caseTableSwitchStmt(TableSwitchStmt stmt) {
+		public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
 			defaultCase(TableSwitchStmt.class, stmt);
 			context.setProgramPoint(stmt.getKeyBox());
-			stmt.getKey().apply(vs);
+			stmt.getKey().apply(valueSwitcher);
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 		 */
-		public void caseThrowStmt(ThrowStmt stmt) {
+		public void caseThrowStmt(final ThrowStmt stmt) {
 			defaultCase(ThrowStmt.class, stmt);
 			context.setProgramPoint(stmt.getOpBox());
-			stmt.getOp().apply(vs);
+			stmt.getOp().apply(valueSwitcher);
 		}
 
 		/**
-		 * Calls the post processors interested in <code>o</code>.  This handles the case when <code>o</code> is of type
-		 * <code>ca. mcgill.sable.soot.Jimple.Stmt</code>.
+		 * Calls the processors interested in processing objects of type <code>objClass</code>.
 		 *
 		 * @param objClass the class of <code>o</code>.
 		 * @param o the AST INode to be processed.
 		 */
-		private void defaultCase(Class objClass, Object o) {
+		private void defaultCase(final Class objClass, final Object o) {
 			Collection temp = (Collection) class2processors.get(objClass);
 
 			if (temp != null) {
@@ -321,9 +309,7 @@ public class ProcessingController {
 
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This class walks the expressions and calls the call-methods of the registered processors.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -334,60 +320,59 @@ public class ProcessingController {
 		/**
 		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr( soot.jimple.InterfaceInvokeExpr)
 		 */
-		public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
+		public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
 			defaultCase(InterfaceInvokeExpr.class, v);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseNewArrayExpr( soot.jimple.NewArrayExpr)
 		 */
-		public void caseNewArrayExpr(NewArrayExpr v) {
+		public void caseNewArrayExpr(final NewArrayExpr v) {
 			defaultCase(NewArrayExpr.class, v);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseNewExpr( soot.jimple.NewExpr)
 		 */
-		public void caseNewExpr(NewExpr v) {
+		public void caseNewExpr(final NewExpr v) {
 			defaultCase(NewExpr.class, v);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr( soot.jimple.NewMultiArrayExpr)
 		 */
-		public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
+		public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
 			defaultCase(NewMultiArrayExpr.class, v);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr( soot.jimple.SpecialInvokeExpr)
 		 */
-		public void caseSpecialInvokeExpr(SpecialInvokeExpr v) {
+		public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
 			defaultCase(SpecialInvokeExpr.class, v);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr( soot.jimple.StaticInvokeExpr)
 		 */
-		public void caseStaticInvokeExpr(StaticInvokeExpr v) {
+		public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
 			defaultCase(StaticInvokeExpr.class, v);
 		}
 
 		/**
 		 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr( soot.jimple.VirtualInvokeExpr)
 		 */
-		public void caseVirtualInvokeExpr(VirtualInvokeExpr v) {
+		public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
 			defaultCase(VirtualInvokeExpr.class, v);
 		}
 
 		/**
-		 * Calls the post processors interested in <code>o</code>.  This handles the case when <code>o</code> is of type
-		 * <code>soot.Jimple.Value</code>.
+		 * Calls the processors interested in processing object of type <code>objClass</code>.
 		 *
 		 * @param objClass the class of <code>o</code>.
 		 * @param o the AST node to be processed.
 		 */
-		private void defaultCase(Class objClass, Object o) {
+		private void defaultCase(final Class objClass, final Object o) {
 			Collection temp = (Collection) class2processors.get(objClass);
 
 			if (temp != null) {
@@ -402,16 +387,16 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Sets the analyzer which provides the information to be post processed.
+	 * Sets the analyzer which provides the information to be processed.
 	 *
-	 * @param analyzer an instance of the BFA.
+	 * @param analyzerParam an instance of the BFA.
 	 */
-	public void setAnalyzer(IValueAnalyzer analyzer) {
-		this.analyzer = analyzer;
+	public void setAnalyzer(final IValueAnalyzer analyzerParam) {
+		this.analyzer = analyzerParam;
 	}
 
 	/**
-	 * Controls the post processing activity.
+	 * Controls the processing activity.
 	 */
 	public void process() {
 		for (Iterator i = processors.iterator(); i.hasNext();) {
@@ -426,9 +411,6 @@ public class ProcessingController {
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: processing classes");
-		}
-
-		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: processor consolidation");
 		}
 
@@ -442,28 +424,18 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Registers the interest of <code>processor</code> in processing AST chunk of type <code>interest</code>.
+	 * Registers the processor.  It indicates that the processor is interested in processing AST chunk of type
+	 * <code>interest</code>.
 	 *
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
 	 * @param processor the instance of post processor.
-	 *
-	 * @throws IllegalArgumentException when <code>interest</code> is not of type <code>java.lang.Class</code>.
-	 *
-	 * @pre interest.oclType = Class
 	 */
-	public void register(Object interest, IProcessor processor)
-	  throws IllegalArgumentException {
-		if (!(interest instanceof Class)) {
-			throw new IllegalArgumentException(
-				"In this ProcessingController implementation, interest has to be of type java.lang.Class");
-		}
-
-		Class valueClass = (Class) interest;
-		Set temp = (Set) class2processors.get(valueClass);
+	public void register(final Class interest, final IProcessor processor) {
+		Set temp = (Set) class2processors.get(interest);
 
 		if (temp == null) {
 			temp = new HashSet();
-			class2processors.put(valueClass, temp);
+			class2processors.put(interest, temp);
 		}
 		temp.add(processor);
 
@@ -473,38 +445,32 @@ public class ProcessingController {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Unregisters the processor.  It indicates that the processor is no longer interested in processing AST chunk of type
+	 * <code>interest</code>.
 	 *
-	 * @param interest DOCUMENT ME!
-	 * @param processor DOCUMENT ME!
+	 * @param interest the class of AST node in which the <code>processor</code> is interested.
+	 * @param processor the instance of post processor.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @throws IllegalArgumentException when there are no processors who have registered to process <code>interest</code>.
 	 */
-	public void unregister(Object interest, IProcessor processor)
-	  throws IllegalArgumentException {
-		if (!(interest instanceof Class)) {
-			throw new IllegalArgumentException(
-				"In this ProcessingController implementation, interest has to be of type java.lang.Class");
-		}
-
-		Class valueClass = (Class) interest;
-		Set temp = (Set) class2processors.get(valueClass);
+	public void unregister(final Class interest, final IProcessor processor) {
+		Set temp = (Set) class2processors.get(interest);
 
 		if (temp == null) {
-			throw new IllegalArgumentException("There are no processors registered  for " + ((Class) interest).getName());
+			throw new IllegalArgumentException("There are no processors registered  for " + interest.getName());
 		}
 		temp.remove(processor);
-        processors.remove(processor);
+		processors.remove(processor);
 	}
 
 	/**
 	 * Controls the processing of class level entities.
 	 *
 	 * @param classes to be processed.
+	 *
+	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
 	 */
-	protected void processClasses(Collection classes) {
+	protected void processClasses(final Collection classes) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Classes to be processed:\n" + classes);
 		}
@@ -530,11 +496,13 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Controls the processing of method level entities.
+	 * Controls the processing of methods and their bodies.
 	 *
 	 * @param methods to be processed.
+	 *
+	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod))
 	 */
-	protected void processMethods(Collection methods) {
+	protected void processMethods(final Collection methods) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Methods to be processed:\n" + methods);
 		}
@@ -577,9 +545,11 @@ public class ProcessingController {
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+ */

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2002, 2003, 2004.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
@@ -43,7 +43,7 @@ import java.util.Collection;
 
 
 /**
- * Call-Graph-based pre- or post-processing controller.  This only processes reachable methods.
+ * Call-Graph-based processing controller.  This only processes reachable methods.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -60,6 +60,7 @@ public class CGBasedProcessingController
 	 * Creates a new CGBasedProcessingController object.
 	 *
 	 * @param cgiPrm provides the call graph information to drive the processing.
+     * @pre cgiPrm != null
 	 */
 	public CGBasedProcessingController(final ICallGraphInfo cgiPrm) {
 		this.cgi = cgiPrm;
@@ -75,9 +76,11 @@ public class CGBasedProcessingController
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+ */
