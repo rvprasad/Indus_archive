@@ -13,10 +13,8 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.interfaces;
+package edu.ksu.cis.indus.processing;
 
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.processing.ProcessingController;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -115,6 +113,13 @@ public interface IProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 05:15:06  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.3  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

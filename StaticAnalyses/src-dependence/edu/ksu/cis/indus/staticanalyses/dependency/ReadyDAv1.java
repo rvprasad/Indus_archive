@@ -36,11 +36,11 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -299,7 +299,7 @@ public class ReadyDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
+		 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
@@ -309,7 +309,7 @@ public class ReadyDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
+		 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
@@ -849,12 +849,16 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.23  2003/11/05 09:29:51  venku
    - ripple effect of splitting IWorkBag.
-
    Revision 1.22  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
-
    Revision 1.21  2003/09/29 06:40:51  venku
    - redundant call to super.reset was deleted.
    Revision 1.20  2003/09/29 06:35:48  venku

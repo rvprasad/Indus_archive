@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import edu.ksu.cis.indus.interfaces.IProcessor;
+import edu.ksu.cis.indus.processing.IProcessor;
 
 
 /**
@@ -41,6 +41,13 @@ public interface IValueAnalyzerBasedProcessor extends IProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.3  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

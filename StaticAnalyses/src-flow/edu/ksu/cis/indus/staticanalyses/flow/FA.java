@@ -284,7 +284,7 @@ public class FA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment#getRoots()
+	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getRoots()
 	 */
 	public Collection getRoots() {
 		return Collections.unmodifiableCollection(rootMethods);
@@ -490,10 +490,15 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.6  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.5  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
@@ -511,7 +516,6 @@ public class FA
    Formatted source.
    Moved getRoots() into the environment.
    Added support to inject new roots in FA.
-
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

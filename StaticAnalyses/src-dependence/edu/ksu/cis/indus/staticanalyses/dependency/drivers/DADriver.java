@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 import soot.Scene;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.interfaces.IProcessor;
+import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -359,6 +359,13 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.25  2003/11/02 22:10:08  venku
    - changed the signature of the constructor of
      EquivalenceClassBasedEscapeAnalysis.

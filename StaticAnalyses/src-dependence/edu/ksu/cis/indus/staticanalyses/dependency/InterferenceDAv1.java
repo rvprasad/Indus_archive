@@ -139,14 +139,14 @@ public class InterferenceDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
+		 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(AssignStmt.class, this);
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
+		 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(AssignStmt.class, this);
@@ -413,6 +413,12 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.15  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
    Revision 1.14  2003/10/05 16:23:34  venku

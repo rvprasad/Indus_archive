@@ -123,7 +123,7 @@ public class SynchronizationDA
 		/**
 		 * Preprocesses the given method.  It records if the method is synchronized.
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootMethod)
+		 * @see edu.ksu.cis.indus.interfaces.IProcessor#callback(SootMethod)
 		 */
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
@@ -140,7 +140,7 @@ public class SynchronizationDA
 		 * @pre stmt.isOclTypeOf(EnterMonitorStmt) or stmt.isOclTypeOf(ExitMonitorStmt)
 		 * @pre context.getCurrentMethod() != null
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt,Context)
+		 * @see edu.ksu.cis.indus.interfaces.IProcessor#callback(Stmt,Context)
 		 */
 		public void callback(final Stmt stmt, final Context context) {
 			if (stmt instanceof EnterMonitorStmt) {
@@ -151,7 +151,7 @@ public class SynchronizationDA
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
+		 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
@@ -160,7 +160,7 @@ public class SynchronizationDA
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
+		 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
@@ -502,6 +502,13 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.15  2003/11/05 09:29:05  venku
    - ripple effect of splitting IWorkBag.
    Revision 1.14  2003/11/05 00:44:51  venku

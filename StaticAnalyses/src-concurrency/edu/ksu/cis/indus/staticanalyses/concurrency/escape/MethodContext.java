@@ -283,7 +283,7 @@ class MethodContext
 
 	/**
 	 * Propogates the information from this context to the given context.  Please refer to the {@link
-	 * unify(MethodContext,boolean) unify} for important information.
+	 * unify(MethodContext,boolean) #unify} for important information.
 	 *
 	 * @param mc is the destination of the information transfer.
 	 */
@@ -503,6 +503,12 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/10/05 16:22:25  venku
+   - Interference dependence is now symbol based.
+   - Both interference and ready dependence consider
+     loop information in a more sound manner.
+   - ripple effect of the above.
+
    Revision 1.6  2003/10/05 06:31:35  venku
    - Things work.  The bug was the order in which the
      parameter alias sets were being accessed.  FIXED.
