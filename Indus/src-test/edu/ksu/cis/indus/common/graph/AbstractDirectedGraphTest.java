@@ -33,8 +33,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 /**
  * This class tests <code>DirectedGraph</code> class that exists in the same package. Methods which conduct tests specific to
- * the setup data are named as <code>localtestXXX()</code> and these will be called from <code>testXXX()</code> methods.
- * So, subclasses which setup diffferent graph should override this method suitably.
+ * the setup data are named as <code>localtestXXX()</code> and these will be called from <code>testXXX()</code> methods. So,
+ * subclasses which setup diffferent graph should override this method suitably.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -64,20 +64,25 @@ public abstract class AbstractDirectedGraphTest
 		final Collection _backedges = dg.getBackEdges();
 		final Collection _nodes = new HashSet();
 
+		assertTrue(_cycles.isEmpty() == _backedges.isEmpty());
+
+		// ensure that all nodes in the edge do belong to the graph.
 		for (final Iterator _i = _backedges.iterator(); _i.hasNext();) {
 			final Pair _edge = (Pair) _i.next();
-			_nodes.clear();
 			_nodes.add(_edge.getFirst());
 			_nodes.add(_edge.getSecond());
-			// ensure that all nodes in the edge do belong to the graph.
-			assertTrue(dg.getNodes().containsAll(_nodes));
+		}
+		assertTrue(dg.getNodes().containsAll(_nodes));
 
+		for (final Iterator _i = _backedges.iterator(); _i.hasNext();) {
+			final Pair _edge = (Pair) _i.next();
 			boolean _flag = false;
 
-			// ensure that the edge belongs to atlease one cycle.
+			// ensure that the edge belongs to atleast one cycle.
 			for (final Iterator _j = _cycles.iterator(); _j.hasNext();) {
 				final Collection _cycle = (Collection) _j.next();
-				_flag |= _cycle.containsAll(_nodes);
+				_flag |= _cycle.contains(_edge.getFirst());
+				_flag |= _cycle.contains(_edge.getSecond());
 			}
 			assertTrue(_flag);
 		}
@@ -137,17 +142,19 @@ public abstract class AbstractDirectedGraphTest
 	/**
 	 * Tests <code>getNode()</code> method.
 	 */
-	public abstract void testGetNode();
+	public void testGetNode() {
+	}
 
 	/**
 	 * Tests <code>getNodes()</code> method.
 	 */
-	public abstract void testGetNodes();
+	public void testGetNodes() {
+	}
 
 	/**
 	 * Tests <code>getSCCs()</code> method.
 	 */
-	public final void testGetSCCs() {
+	public void testGetSCCs() {
 		final Collection _sccsTrue = dg.getSCCs(true);
 		assertFalse(_sccsTrue.isEmpty());
 
@@ -247,27 +254,8 @@ public abstract class AbstractDirectedGraphTest
 	/**
 	 * Tests <code>size()</code> method.
 	 */
-	public abstract void testSize();
-
-	/**
-	 * Checks <code>getHeads()</code> on the local graph instance.
-	 */
-	protected abstract void localtestGetHeads();
-
-	/**
-	 * Checks <code>getTails()</code> on the local graph instance.
-	 */
-	protected abstract void localtestGraphGetTails();
-
-	/**
-	 * Tests <code>isAncestorOf()</code> method.
-	 */
-	protected abstract void localtestIsAncestorOf();
-
-	/**
-	 * Checks <code>isReachable()</code> on the local graph instance.
-	 */
-	protected abstract void localtestIsReachable();
+	public void testSize() {
+	}
 
 	/**
 	 * Extracts the predecessors and successors of the given graph into the given maps.
@@ -290,7 +278,32 @@ public abstract class AbstractDirectedGraphTest
 	/**
 	 * Tests <code>addEdgeFromTo</code> method on test local graph instance.
 	 */
-	protected abstract void localtestAddEdgeFromTo();
+	protected void localtestAddEdgeFromTo() {
+	}
+
+	/**
+	 * Checks <code>getHeads()</code> on the local graph instance.
+	 */
+	protected void localtestGetHeads() {
+	}
+
+	/**
+	 * Checks <code>getTails()</code> on the local graph instance.
+	 */
+	protected void localtestGraphGetTails() {
+	}
+
+	/**
+	 * Tests <code>isAncestorOf()</code> method.
+	 */
+	protected void localtestIsAncestorOf() {
+	}
+
+	/**
+	 * Checks <code>isReachable()</code> on the local graph instance.
+	 */
+	protected void localtestIsReachable() {
+	}
 
 	/**
 	 * Checks for the reachability of nodes in the SCCs.
@@ -328,6 +341,15 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/30 09:24:59  venku
+   - Refactored DirectedAndSimpleNodeGraphTest into
+      - AbstractDirectedGraphTest
+      - SimpleNodeGraphTest
+   - Introduced SimpleNodeGraphNoCycleTest
+   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
+   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
+     DirectedGraphTestSuite.
+   - added checks to test exceptional behavior as well.
    Revision 1.3  2003/12/14 20:35:26  venku
    - SCC test was buggy.  FIXED.
    Revision 1.2  2003/12/13 02:28:54  venku
