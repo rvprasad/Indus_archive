@@ -1,0 +1,12 @@
+2005-02-26  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml,
+	  auxiliary/slicerConfig.xsd, 
+	  auxiliary/slicerConfig_JiBXBinding.xml, 
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerTool.java, 
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java, 
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java, : 
+	  	Added support to control 
+		- inter-procedural v/s intra-procedural v/s inter-and-intra-procedural diveregence deps
+		- synchronization dependence
+		- non-termination sensitive and insensitive control dependence.
