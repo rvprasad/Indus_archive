@@ -488,6 +488,10 @@ public final class SlicerTool
 		}
 
 		if (_ph.equalsMajor(Phase.STARTING_PHASE)) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: low level static analyses phase");
+			}
+
 			phase.reset();
 			// do the flow analyses
 			ofa.reset();
@@ -538,6 +542,10 @@ public final class SlicerTool
 			ecba.unhook(cgBasedPreProcessCtrl);
 			ecba.execute();
 			phase.nextMajorPhase();
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: low level static analyses phase");
+			}
 		}
 
 		movingToNextPhase();
@@ -545,6 +553,10 @@ public final class SlicerTool
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
 
 		if (_ph.equalsMajor((Phase) DEPENDENCE_MAJOR_PHASE)) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: dependence analyses phase");
+			}
+
 			// perform dependency analyses
 			daController.reset();
 
@@ -556,11 +568,19 @@ public final class SlicerTool
 			daController.initialize();
 			daController.execute();
 			phase.nextMajorPhase();
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: dependence analyses phase");
+			}
 		}
 
 		movingToNextPhase();
 
 		if (_ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: slicing phase");
+			}
+
 			// perform slicing
 			engine.reset();
 
@@ -587,6 +607,10 @@ public final class SlicerTool
 						"No slicing criteria were specified. Hence, no slicing was done.\nIf \"slice for deadlock\" was "
 						+ "selected then the system did not have any synchronized methods are blocks.");
 				}
+			}
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: slicing phase");
 			}
 		}
 		phase.finished();
@@ -797,6 +821,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.73  2004/02/23 06:49:17  venku
+   - logging.
    Revision 1.72  2004/02/23 04:40:17  venku
    - uses ExceptionFlowSensitiveStmtGraph as the default unit graph.
    Revision 1.71  2004/02/01 22:16:16  venku
