@@ -149,11 +149,6 @@ public class DependencyXMLizer
 	protected final Map info = new HashMap();
 
 	/**
-	 * This is the directory into which the xml output will be written into.
-	 */
-	protected String xmlOutDir;
-
-	/**
 	 * This indicates if EquivalenceClassBasedAnalysis should be executed.  Subclasses should set this appropriately.
 	 */
 	protected boolean ecbaRequired;
@@ -481,18 +476,16 @@ public class DependencyXMLizer
 	public final Map initXMLizers(final String rootname, final ProcessingController ctrl) {
 		final Map _result = new HashMap();
 
-		if (xmlOutDir == null) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Defaulting to current directory for xml output.");
-			}
-			xmlOutDir = ".";
+		if (getXmlOutDir() == null) {
+			LOGGER.fatal("Defaulting to current directory for xml output.");
+			throw new IllegalStateException("Please specify an output directory while using the xmlizer.");
 		}
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 
 			final File _f =
-				new File(xmlOutDir + File.separator + _da.getId() + "_" + das.indexOf(_da) + "_"
+				new File(getXmlOutDir() + File.separator + _da.getId() + "_" + das.indexOf(_da) + "_"
 					+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
 
 			try {
@@ -672,6 +665,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.36  2003/12/28 02:10:07  venku
    - handling of command line arguments was changed.
 
