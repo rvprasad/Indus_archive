@@ -44,7 +44,7 @@ public class FIFOWorkBag
 	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#getWork()
 	 */
 	public Object getWork() {
-		return container.get(0);
+		return container.remove(0);
 	}
 
 	/**
@@ -95,6 +95,9 @@ public class FIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/06 05:04:02  venku
+   - renamed WorkBag to IWorkBag and the ripple effect.
+
    Revision 1.2  2003/11/06 05:01:57  venku
    - finalized the parameters.
 
