@@ -88,7 +88,7 @@ public class SootBasedDriver {
 	static {
 		LOGGER = LogFactory.getLog(SootBasedDriver.class);
 
-		final String _rmtClassName = System.getProperty(Constants.getRootMethodTrapperClassName());
+		final String _rmtClassName = Constants.getRootMethodTrapperClassName();
 
 		try {
 			final Object _o = ClassLoader.getSystemClassLoader().loadClass(_rmtClassName).newInstance();
@@ -109,7 +109,7 @@ public class SootBasedDriver {
 			throw new RuntimeException(_e);
 		}
 
-		final String _nameOfStmtGraphFactoryClass = System.getProperty(Constants.getStmtGraphFactoryClassName());
+		final String _nameOfStmtGraphFactoryClass = Constants.getStmtGraphFactoryClassName();
 
 		try {
 			final Object _o = ClassLoader.getSystemClassLoader().loadClass(_nameOfStmtGraphFactoryClass).newInstance();
