@@ -354,8 +354,8 @@ public final class Util {
 	public static String[] getSootOptions() {
 		final String[] _options =
 			{
-				"-p", "jb", "use-original-names:false", "jb.ls", "enabled:true", "jb.ulp", "enabled:false",
-				"unsplit-original-locals:false",
+				"-p", "jb", "enabled:true,use-original-names:false", "-p", "jb.ls", "enabled:true", "-p", "jb.a",
+				"enabled:false", "-p", "jb.ule", "enabled:false", "-p", "jb.ulp", "enabled:false"
 			};
 
 		return _options;
@@ -548,6 +548,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/04/16 17:42:04  venku
+   - coding convention
+   - enabled the user to pass soot options while initializing the driver.
    Revision 1.21  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -556,7 +559,6 @@ public final class Util {
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.20  2004/03/21 02:54:28  venku
    - unit graph cannot be modified outside it's constructor or subclasses.
      Moved the method to prune exception based edges to ExceptionFlowSensitiveUnitGraph.
