@@ -69,6 +69,13 @@ abstract class AbstractSliceCriterion
 	}
 
 	/**
+	 * @see ISliceCriterion#getOccurringMethod()
+	 */
+	public final SootMethod getOccurringMethod() {
+		return method;
+	}
+
+	/**
 	 * Checks if the given object is "equal" to this object.
 	 *
 	 * @param o is the object to be compared.
@@ -122,17 +129,6 @@ abstract class AbstractSliceCriterion
 	public String toString() {
 		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).append("considerExecution",
 			this.considerExecution).append("method", this.method).append("callStack", this.callStack).toString();
-	}
-
-	/**
-	 * Provides the method in which criterion occurs.
-	 *
-	 * @return the method in which the slice statement occurs.
-	 *
-	 * @post result != null
-	 */
-	protected final SootMethod getOccurringMethod() {
-		return method;
 	}
 
 	/**

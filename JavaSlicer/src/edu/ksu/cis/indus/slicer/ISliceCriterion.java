@@ -19,6 +19,8 @@ import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import java.util.Stack;
 
+import soot.SootMethod;
+
 
 /**
  * This is an interface via which slice criterion is exposed to the external world.
@@ -68,6 +70,15 @@ public interface ISliceCriterion
 	 * @post result != null
 	 */
 	Stack getCallStack();
+
+	/**
+	 * Provides the method in which criterion occurs.
+	 *
+	 * @return the method in which the slice statement occurs.
+	 *
+	 * @post result != null
+	 */
+	SootMethod getOccurringMethod();
 }
 
 // End of File
