@@ -455,7 +455,6 @@ public final class SlicerTool
 			ofa.reset();
 			bbgMgr.reset();
 			unitGraphProvider.reset();
-			Util.fixupThreadStartBody(system);
 			ofa.analyze(system, rootMethods);
 			phase.nextMinorPhase();
 
@@ -668,6 +667,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.50  2003/12/16 12:44:12  venku
+   - exposed the flow analysis tag name.
+
    Revision 1.49  2003/12/14 16:48:27  venku
    - retrieves sync points only from application classes.
    Revision 1.48  2003/12/13 19:52:41  venku
