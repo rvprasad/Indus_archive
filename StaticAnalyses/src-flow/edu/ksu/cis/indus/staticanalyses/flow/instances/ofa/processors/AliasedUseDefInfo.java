@@ -20,6 +20,7 @@ import soot.Value;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.Stmt;
@@ -98,7 +99,7 @@ public class AliasedUseDefInfo
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getDefs(AssignStmt, Context)
 	 */
-	public Collection getDefs(final AssignStmt useStmt, final Context context) {
+	public Collection getDefs(final Stmt useStmt, final Context context) {
 		Map stmt2defs = (Map) usesMap.get(context.getCurrentMethod());
 		Collection result = null;
 
@@ -118,9 +119,9 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getUses(AssignStmt, Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
 	 */
-	public Collection getUses(final AssignStmt defStmt, final Context context) {
+	public Collection getUses(final DefinitionStmt defStmt, final Context context) {
 		Map stmt2uses = (Map) usesMap.get(context.getCurrentMethod());
 		Collection result = null;
 
@@ -277,17 +278,18 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/10 03:17:19  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
+   - ripple effect.
    Revision 1.9  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.8  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.7  2003/08/25 09:57:35  venku
    Exposed the constructor to the public.
    Revision 1.6  2003/08/21 03:43:56  venku

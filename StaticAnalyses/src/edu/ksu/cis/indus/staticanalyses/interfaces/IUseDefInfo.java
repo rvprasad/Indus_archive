@@ -15,7 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.interfaces.IStatus;
 import edu.ksu.cis.indus.processing.Context;
@@ -47,7 +48,7 @@ public interface IUseDefInfo
 	 *
 	 * @pre usesStmt != null and context != null
 	 */
-	Collection getDefs(AssignStmt useStmt, Context context);
+	Collection getDefs(Stmt useStmt, Context context);
 
 	/**
 	 * Retrieves the use sites that reach the given def site in the given context.
@@ -59,12 +60,19 @@ public interface IUseDefInfo
 	 *
 	 * @pre defStmt != null and context != null
 	 */
-	Collection getUses(AssignStmt defStmt, Context context);
+	Collection getUses(DefinitionStmt defStmt, Context context);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.6  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
