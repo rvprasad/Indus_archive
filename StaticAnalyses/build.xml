@@ -13,7 +13,8 @@
 
 	<target name="localbuild" depends="init">
 		<mkdir dir="${build.dir}" />
-		<javac destdir="${build.dir}" debug="on" debuglevel="${debuglevel}" includes="**/*.java">
+		<javac source="1.4"  compiler="javac1.4" target="1.4" destdir="${build.dir}" debug="on" 
+			debuglevel="${debuglevel}" includes="**/*.java">
 			<src refid="${ant.project.name}.srcpath" />
 			<classpath refid="${classpath}" />
 		</javac>
@@ -166,6 +167,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.39  2004/08/06 14:52:40  venku
+- changed the way tester classes were ignored during jarring.
+
 Revision 1.38  2004/08/06 14:46:16  venku
 - changed the way jars were created.
 
