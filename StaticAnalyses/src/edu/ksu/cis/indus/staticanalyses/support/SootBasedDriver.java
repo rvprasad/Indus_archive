@@ -95,6 +95,11 @@ public abstract class SootBasedDriver {
 	 */
 	private final Map times = new LinkedHashMap();
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private String classpathToAdd;
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -136,17 +141,6 @@ public abstract class SootBasedDriver {
 	}
 
 	/**
-	 * @see TestCase#setUp()
-	 */
-	protected void initialize() {
-		if (classNames == null) {
-			throw new RuntimeException("Please call setClassNames() before using this TestCase object.");
-		}
-        writeInfo("Loading classes....");
-		scene = loadupClassesAndCollectMains();
-	}
-
-	/**
 	 * Adds an entry into the time log of this test.  The subclasses should use this method to add time logs corresponding to
 	 * each analysis they test/drive.
 	 *
@@ -157,6 +151,29 @@ public abstract class SootBasedDriver {
 	 */
 	protected void addTimeLog(final String name, final long milliseconds) {
 		times.put("[" + count++ + "]" + name, new Long(milliseconds));
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param classpath DOCUMENT ME!
+	 */
+	protected void addToSootClassPath(final String classpath) {
+		classpathToAdd = classpath;
+	}
+
+	/**
+	 * Initialize the driver.  Loads up the classes and sets up the scene.
+	 *
+	 * @throws RuntimeException DOCUMENT ME!
+	 */
+	protected void initialize() {
+		if (classNames == null) {
+			throw new RuntimeException("Please call setClassNames() before using this TestCase object.");
+		}
+		writeInfo("Loading classes....");
+		scene = loadupClassesAndCollectMains();
+		scene.setSootClassPath(scene.getSootClassPath() + ":" + classpathToAdd);
 	}
 
 	/**
@@ -265,15 +282,15 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/12 09:12:25  venku
+   - logged more info.
    Revision 1.1  2003/11/12 05:22:26  venku
    - moved this from src-test source directory to src.
-
    Revision 1.1  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
    - Switched the contents of DependencyXMLizer and DependencyTest.
    - Corrected errors which emitting xml tags.
    - added a scrapbook.
-
    Revision 1.1  2003/11/11 10:11:27  venku
    - in the process of making XMLization a user
      application and at the same time a tester application.
