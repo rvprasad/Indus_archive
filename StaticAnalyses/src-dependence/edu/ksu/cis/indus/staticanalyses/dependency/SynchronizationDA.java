@@ -103,14 +103,6 @@ public final class SynchronizationDA
 	final Collection monitorTriples = new HashSet();
 
 	/**
-	 * This maps synchronized methods to monitor triples.
-	 *
-	 * @invariant syncmethod2MonitorTriple.oclIsKindOf(Map(SootMethod, Triple))
-	 * @invariant syncmethod2MonitorTriple.keySet()->forall(o | o.isSynchronized())
-	 */
-	private final Map syncmethod2MonitorTriple = new HashMap();
-
-	/**
 	 * This provides object flow information.
 	 */
 	private IValueAnalyzer ofa;
@@ -362,7 +354,9 @@ nextBasicBlock:
 							_stmt2ddents.put(_enter, _col);
 						}
 						_col.addAll(_currStmts);
-						recordMonitorTriple(_method, _enter, (ExitMonitorStmt) _stmt);
+
+						final Triple _triple = new Triple(_enter, ((ExitMonitorStmt) _stmt), _method);
+						monitorTriples.add(_triple);
 						_currStmts = (HashSet) _pair.getSecond();
 						_currStmts.add(_stmt);
 						_coupled.add(_stmt);
@@ -513,35 +507,13 @@ nextBasicBlock:
 			throw new InitializationException(IValueAnalyzer.ID + " was not provided in the info.");
 		}
 	}
-
-	/**
-	 * Records the monitor triples occurring in synchronized methods.
-	 *
-	 * @param method is the synchronized method containing the monitor.
-	 * @param enter is the monitor entry.
-	 * @param exit is the monitor exit.
-	 *
-	 * @pre method != null and enter != null and exit != null
-	 */
-	private void recordMonitorTriple(final SootMethod method, final EnterMonitorStmt enter, final ExitMonitorStmt exit) {
-		final Triple _triple = new Triple(enter, exit, method);
-		monitorTriples.add(_triple);
-
-		if (method.isSynchronized()) {
-			Collection _temp = (Collection) syncmethod2MonitorTriple.get(method);
-
-			if (_temp == null) {
-				_temp = new HashSet();
-				syncmethod2MonitorTriple.put(method, _temp);
-			}
-			_temp.add(enter);
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/01/21 13:52:12  venku
+   - documentation.
    Revision 1.29  2004/01/19 08:57:29  venku
    - documentation and formatting.
    Revision 1.28  2004/01/19 08:26:59  venku
