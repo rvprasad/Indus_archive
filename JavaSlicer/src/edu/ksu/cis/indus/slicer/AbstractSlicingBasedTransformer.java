@@ -69,8 +69,6 @@ public abstract class AbstractSlicingBasedTransformer
 
 	/**
 	 * {@inheritDoc} Does nothing.
-	 *
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
 		// does nothing
@@ -101,6 +99,10 @@ public abstract class AbstractSlicingBasedTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/16 22:55:31  venku
+   - added new methods to support processing of seed criteria.
+     This is not same as slicing seed criteria of which we do not
+     make any distinction.
    Revision 1.2  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
