@@ -62,13 +62,11 @@ public class BackwardSliceGotoProcessor
 	 * {@inheritDoc}
 	 */
 	protected final void processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
-		final Collection _gotos = new HashSet();
 		final String _tagName = sliceCollector.getTagName();
 
 		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
 			boolean _tagged = false;
-			_gotos.clear();
 
 			for (final Iterator _i = getStmtsOfForProcessing(_bb).iterator(); _i.hasNext();) {
 				final Stmt _stmt = (Stmt) _i.next();
@@ -77,12 +75,8 @@ public class BackwardSliceGotoProcessor
 					_tagged = true;
 					workBag.addWork(_bb);
 				} else if (_stmt instanceof GotoStmt && _tagged) {
-					_gotos.add(_stmt);
+					sliceCollector.includeInSlice(_stmt);
 				}
-			}
-
-			if (_tagged) {
-				sliceCollector.includeInSlice(_gotos);
 			}
 		}
 	}
@@ -91,6 +85,8 @@ public class BackwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/23 06:08:43  venku
+   - optimization.
    Revision 1.5  2004/01/22 01:01:40  venku
    - coding convention.
    Revision 1.4  2004/01/13 23:34:54  venku

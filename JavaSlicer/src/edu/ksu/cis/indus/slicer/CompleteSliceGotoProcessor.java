@@ -51,13 +51,12 @@ public final class CompleteSliceGotoProcessor
 	 */
 	protected void processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
 		final Collection _gotos = new HashSet();
+        final String _tagName = sliceCollector.getTagName();
 
 		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
-			_gotos.clear();
-
 			boolean _tagged = false;
-			final String _tagName = sliceCollector.getTagName();
+            _gotos.clear();
 
 			for (final Iterator _i = _bb.getStmtsOf().iterator(); _i.hasNext();) {
 				final Stmt _stmt = (Stmt) _i.next();
@@ -80,6 +79,9 @@ public final class CompleteSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/01/22 01:01:40  venku
+   - coding convention.
+
    Revision 1.11  2004/01/19 11:39:11  venku
    - added new batched includeInSlice() method to SliceCollector.
    - used new includeInSlice() method in CompleteSliceGotoProcessor.
