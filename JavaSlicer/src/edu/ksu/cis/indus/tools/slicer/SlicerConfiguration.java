@@ -230,9 +230,9 @@ public final class SlicerConfiguration
 	private final Collection dependencesToUse = new HashSet();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps identifiers to criteria generators.
+     * 
+     * @invariant id2critGenerators.oclIsKindOf(Map(Object, ISliceCriteriaGenerator))
 	 */
 	private final Map id2critGenerators = new HashMap();
 
@@ -510,18 +510,6 @@ public final class SlicerConfiguration
 	 */
 	public void setSliceToPreserveAssertions(final boolean value) {
 		setProperty(SLICE_TO_PRESERVE_ASSERTIONS, Boolean.valueOf(value));
-
-		if (value) {
-			final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
-			final Collection _stmtTypes = new ArrayList();
-			_stmtTypes.add(AssignStmt.class);
-			_stmtTypes.add(ThrowStmt.class);
-			_t.setStmtTypes(_stmtTypes);
-			_t.setCriteriaFilter(new AssertionSliceCriteriaPredicate());
-			id2critGenerators.put(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID, _t);
-		} else {
-			id2critGenerators.remove(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID);
-		}
 	}
 
 	/**
@@ -861,13 +849,31 @@ public final class SlicerConfiguration
 	 * @pre propertyID != null and booleanValue != null
 	 */
 	private void processBooleanProperty(final Object propertyID, final Boolean booleanValue) {
-		if (!processInterferenceIDARelatedProperties(propertyID, booleanValue)
-			  && !processReadyDARelatedProperties(propertyID, booleanValue)) {
-			if (propertyID.equals(USE_DIVERGENCEDA)) {
-				processUseDivergenceProperty(booleanValue);
-			} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
-				processInterProceduralDivergenceDAProperty();
+		if (propertyID.equals(SLICE_FOR_DEADLOCK)) {
+			if (booleanValue.booleanValue()) {
+				id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, new DeadlockPreservingCriteriaGenerator());
+			} else {
+				id2critGenerators.remove(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID);
 			}
+		} else if (propertyID.equals(SLICE_TO_PRESERVE_ASSERTIONS)) {
+			if (booleanValue.booleanValue()) {
+				final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
+				final Collection _stmtTypes = new ArrayList();
+				_stmtTypes.add(AssignStmt.class);
+				_stmtTypes.add(ThrowStmt.class);
+				_t.setStmtTypes(_stmtTypes);
+				_t.setCriteriaFilter(new AssertionSliceCriteriaPredicate());
+				id2critGenerators.put(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID, _t);
+			} else {
+				id2critGenerators.remove(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID);
+			}
+		} else if (propertyID.equals(USE_DIVERGENCEDA)) {
+			processUseDivergenceProperty(booleanValue);
+		} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
+			processInterProceduralDivergenceDAProperty();
+		} else {
+			processInterferenceDARelatedProperties(propertyID, booleanValue);
+			processReadyDARelatedProperties(propertyID, booleanValue);
 		}
 	}
 
@@ -948,16 +954,14 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Processes properties related to Interference dependence analysis.
 	 *
-	 * @param propertyID
-	 * @param booleanValue
-	 *
-	 * @return DOCUMENT ME!
+	 * @param propertyID obviously.
+	 * @param booleanValue obviously.
+     * 
+     * @pre propertyID != null and booleanValue != null
 	 */
-	private boolean processInterferenceIDARelatedProperties(final Object propertyID, final Boolean booleanValue) {
-		boolean _result = true;
-
+	private void processInterferenceDARelatedProperties(final Object propertyID, final Boolean booleanValue) {
 		if (propertyID.equals(USE_INTERFERENCEDA)) {
 			final Object _id = IDependencyAnalysis.INTERFERENCE_DA;
 
@@ -974,10 +978,7 @@ public final class SlicerConfiguration
 				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
 				_ida.setUseOFA(booleanValue.booleanValue());
 			}
-		} else {
-			_result = false;
 		}
-		return _result;
 	}
 
 	/**
@@ -1051,12 +1052,9 @@ public final class SlicerConfiguration
 	 * @param propertyID is one of <code>USE_RULE1_IN_READYDA</code>, <code>USE_RULE2_IN_READYDA</code>,
 	 * 		  <code>USE_RULE3_IN_READYDA</code>, and <code>USE_RULE4_IN_READYDA</code>.
 	 *
-	 * @return DOCUMENT ME!
-	 *
 	 * @pre propertyID != null
 	 */
-	private boolean processRDARuleProperties(final Object propertyID) {
-		boolean _result = false;
+	private void processRDARuleProperties(final Object propertyID) {
 		final Boolean _bool = (Boolean) properties.get(USE_READYDA);
 
 		if (_bool != null && _bool.booleanValue()) {
@@ -1079,23 +1077,18 @@ public final class SlicerConfiguration
 				final int _rules = _rd.getRules();
 				_rd.setRules(_rules | _rule);
 			}
-
-			_result |= _rule != 0;
 		}
-		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param propertyID
-	 * @param booleanValue
-	 *
-	 * @return DOCUMENT ME!
+	 * Processes properties related to Ready dependence analysis.
+     *
+     * @param propertyID obviously.
+     * @param booleanValue obviously.
+     * 
+     * @pre propertyID != null and booleanValue != null
 	 */
-	private boolean processReadyDARelatedProperties(final Object propertyID, final Boolean booleanValue) {
-		boolean _result = true;
-
+	private void processReadyDARelatedProperties(final Object propertyID, final Boolean booleanValue) {
 		if (propertyID.equals(USE_READYDA)) {
 			final Object _id = IDependencyAnalysis.READY_DA;
 
@@ -1119,9 +1112,8 @@ public final class SlicerConfiguration
 				_rda.setUseSafeLockAnalysis(booleanValue.booleanValue());
 			}
 		} else {
-			_result = processRDARuleProperties(propertyID);
+			processRDARuleProperties(propertyID);
 		}
-		return _result;
 	}
 
 	/**
