@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.slicer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.commons.pool.ObjectPool;
 
 
@@ -43,7 +42,7 @@ public abstract class AbstractSliceCriterion {
 	 * This indicates if the effect of executing the criterion should be considered for slicing.  By default it takes on  the
 	 * value <code>false</code> to indicate execution should not be considered.
 	 */
-	private boolean considerExecution = false;
+	private boolean considerExecution;
 
 	/**
 	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
@@ -54,7 +53,7 @@ public abstract class AbstractSliceCriterion {
 	 * 		  criterion should be considered while slicing.  This means none of the subexpressions of the associated
 	 * 		  expression are considered as slice criteria.
 	 */
-	public void setConsiderExecution(final boolean shouldConsiderExecution) {
+	public final void setConsiderExecution(final boolean shouldConsiderExecution) {
 		considerExecution = shouldConsiderExecution;
 	}
 
@@ -69,8 +68,7 @@ public abstract class AbstractSliceCriterion {
 		boolean result = false;
 
 		if (o != null && o instanceof AbstractSliceCriterion) {
-			AbstractSliceCriterion t = (AbstractSliceCriterion) o;
-			result = t.considerExecution == considerExecution;
+			result = ((AbstractSliceCriterion) o).considerExecution == considerExecution;
 		}
 		return result;
 	}
@@ -98,7 +96,7 @@ public abstract class AbstractSliceCriterion {
 	 *
 	 * @return <code>true</code> if the effect of execution should be considered; <code>false</code>, otherwise.
 	 */
-	boolean isConsiderExecution() {
+	final boolean isConsiderExecution() {
 		return considerExecution;
 	}
 
@@ -108,12 +106,14 @@ public abstract class AbstractSliceCriterion {
 	 *
 	 * @throws RuntimeException if the returning of the object to it's pool failed.
 	 */
-	void finished() {
+	final void finished() {
 		if (pool != null) {
 			try {
 				pool.returnObject(this);
 			} catch (Exception e) {
-				LOGGER.error("How can this happen?", e);
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("How can this happen?", e);
+				}
 				throw new RuntimeException(e);
 			}
 		}
@@ -123,6 +123,9 @@ public abstract class AbstractSliceCriterion {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:17  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/12/01 12:13:37  venku
    - removed support to carry slice type as it was needed now.
      It can be rolled back on when required. :-)

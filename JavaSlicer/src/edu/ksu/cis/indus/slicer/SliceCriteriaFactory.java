@@ -65,7 +65,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  */
-public class SliceCriteriaFactory {
+public final class SliceCriteriaFactory {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -87,16 +87,16 @@ public class SliceCriteriaFactory {
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
 	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expression) {
-		Collection result = new HashSet();
-		SliceExpr exprCriterion = SliceExpr.getSliceExpr();
-		exprCriterion.initialize(method, stmt, expression);
-		result.add(exprCriterion);
+		final Collection _result = new HashSet();
+		final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
+		_exprCriterion.initialize(method, stmt, expression);
+		_result.add(_exprCriterion);
 
-		SliceStmt stmtCriterion = SliceStmt.getSliceStmt();
-		stmtCriterion.initialize(method, stmt);
-		result.add(stmtCriterion);
+		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();
+		_stmtCriterion.initialize(method, stmt);
+		_result.add(_stmtCriterion);
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -113,12 +113,12 @@ public class SliceCriteriaFactory {
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
 	public Collection getCriterion(final SootMethod method, final Stmt stmt) {
-		Collection result = new HashSet();
+		final Collection _result = new HashSet();
 
-		SliceStmt stmtCriterion = SliceStmt.getSliceStmt();
-		stmtCriterion.initialize(method, stmt);
-		result.add(stmtCriterion);
-		return result;
+		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();
+		_stmtCriterion.initialize(method, stmt);
+		_result.add(_stmtCriterion);
+		return _result;
 	}
 
 	/**
@@ -134,21 +134,21 @@ public class SliceCriteriaFactory {
 	public Collection getCriterion(final SootMethod method, final Local local) {
 		Collection result = Collections.EMPTY_LIST;
 
-		Body body = method.getActiveBody();
+		final Body _body = method.getActiveBody();
 
-		if (body != null) {
+		if (_body != null) {
 			result = new HashSet();
 
-			for (Iterator i = body.getUnits().iterator(); i.hasNext();) {
-				Stmt stmt = (Stmt) i.next();
+			for (final Iterator _i = _body.getUnits().iterator(); _i.hasNext();) {
+				final  Stmt _stmt = (Stmt) _i.next();
 
-				for (Iterator j = stmt.getUseAndDefBoxes().iterator(); j.hasNext();) {
-					ValueBox vBox = (ValueBox) j.next();
+				for (final Iterator _j = _stmt.getUseAndDefBoxes().iterator(); _j.hasNext();) {
+					final ValueBox _vBox = (ValueBox) _j.next();
 
-					if (vBox.getValue().equals(local)) {
-						SliceExpr exprCriterion = SliceExpr.getSliceExpr();
-						exprCriterion.initialize(method, stmt, vBox);
-						result.add(exprCriterion);
+					if (_vBox.getValue().equals(local)) {
+						final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
+						_exprCriterion.initialize(method, _stmt, _vBox);
+						result.add(_exprCriterion);
 					}
 				}
 			}
@@ -166,7 +166,7 @@ public class SliceCriteriaFactory {
 	 *
 	 * @return <code>true</code> if <code>o</code> is a slicing criterion; <code>false</code>, otherwise.
 	 */
-	public static final boolean isSlicingCriterion(final Object o) {
+	public static boolean isSlicingCriterion(final Object o) {
 		boolean result = false;
 
 		if (o != null) {
@@ -179,6 +179,10 @@ public class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.3  2003/12/01 12:18:25  venku
    - as criteria creation is only the function of the factory
      and as setConsider..() method is available, the

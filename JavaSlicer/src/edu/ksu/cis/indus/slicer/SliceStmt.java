@@ -37,27 +37,28 @@ import soot.jimple.Stmt;
  */
 class SliceStmt
   extends AbstractSliceCriterion {
+    /**
+     * A pool of <code>SliceStmt</code> criterion objects.
+     *
+     * @invariant STMT_POOL.borrowObject().oclIsKindOf(SliceStmt)
+     */
+    static final ObjectPool STMT_POOL =
+    new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
+        /**
+         * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
+         */
+        public final Object makeObject() {
+            final SliceStmt _result = new SliceStmt();
+            _result.pool = STMT_POOL;
+            return _result;
+        }
+    });
+
+    
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceStmt.class);
-
-	/**
-	 * A pool of <code>SliceStmt</code> criterion objects.
-	 *
-	 * @invariant STMT_POOL.borrowObject().oclIsKindOf(SliceStmt)
-	 */
-	static final ObjectPool STMT_POOL =
-		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
-				/**
-				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
-				 */
-				public Object makeObject() {
-					SliceStmt result = new SliceStmt();
-					result.pool = STMT_POOL;
-					return result;
-				}
-			});
 
 	/**
 	 * The method in which <code>stmt</code> occurs.
@@ -67,9 +68,9 @@ class SliceStmt
 	/**
 	 * The statement associated with this criterion.
 	 */
-	protected Stmt stmt;
-
-	/**
+	protected Stmt stmt;    
+    
+    /**
 	 * Checks if the given object is "equal" to this object.
 	 *
 	 * @param o is the object to be compared.
@@ -80,8 +81,8 @@ class SliceStmt
 		boolean result = false;
 
 		if (o != null && o instanceof SliceStmt) {
-			SliceStmt temp = (SliceStmt) o;
-			result = temp.stmt == stmt && temp.method == method && super.equals(temp);
+			final SliceStmt _temp = (SliceStmt) o;
+			result = _temp.stmt == stmt && _temp.method == method && super.equals(_temp);
 		}
 		return result;
 	}
@@ -105,7 +106,7 @@ class SliceStmt
 	 *
 	 * @see AbstractSliceCriterion#getCriterion()
 	 */
-	Object getCriterion() {
+	protected Object getCriterion() {
 		return stmt;
 	}
 
@@ -116,7 +117,7 @@ class SliceStmt
 	 *
 	 * @post result != null
 	 */
-	SootMethod getOccurringMethod() {
+	protected SootMethod getOccurringMethod() {
 		return method;
 	}
 
@@ -160,6 +161,9 @@ class SliceStmt
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:17  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/12/01 12:20:14  venku
    - ripple effect of adding setConsider..() method to super class.
    - restricted the access to all methods.

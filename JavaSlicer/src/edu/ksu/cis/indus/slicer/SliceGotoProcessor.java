@@ -87,36 +87,36 @@ public class SliceGotoProcessor
 	/**
 	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#postprocess()
 	 */
-	public void postprocess() {
-		String tagName = sliceCollector.getTagName();
+	public final void postprocess() {
+		final String _tagName = sliceCollector.getTagName();
 
-		IWorkBag workBag = new LIFOWorkBag();
-		Collection processed = new HashSet();
+		final IWorkBag _workBag = new LIFOWorkBag();
+		final Collection _processed = new HashSet();
 
-		while (workBag.hasWork()) {
-			BasicBlock bb = (BasicBlock) workBag.getWork();
-			processed.add(bb);
+		while (_workBag.hasWork()) {
+			final BasicBlock _bb = (BasicBlock) _workBag.getWork();
+			_processed.add(_bb);
 
 			Stmt trailer;
 			Collection succs;
 
 			if (backwardSlice) {
-				trailer = bb.getTrailerStmt();
-				succs = bb.getSuccsOf();
+				trailer = _bb.getTrailerStmt();
+				succs = _bb.getSuccsOf();
 			} else {
-				trailer = bb.getLeaderStmt();
-				succs = bb.getPredsOf();
+				trailer = _bb.getLeaderStmt();
+				succs = _bb.getPredsOf();
 			}
 
 			if (!CollectionUtils.intersection(taggedBB, succs).isEmpty()
-				  && trailer.getTag(tagName) == null
+				  && trailer.getTag(_tagName) == null
 				  && trailer instanceof GotoStmt) {
 				sliceCollector.collect(trailer);
 				sliceCollector.collect(method);
-				process(bb);
+				process(_bb);
 
-				if (!processed.contains(bb)) {
-					workBag.addWorkNoDuplicates(bb);
+				if (!_processed.contains(_bb)) {
+					_workBag.addWorkNoDuplicates(_bb);
 				}
 			}
 		}
@@ -125,7 +125,7 @@ public class SliceGotoProcessor
 	/**
 	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#process(soot.SootMethod)
 	 */
-	public void preprocess(final SootMethod theMethod) {
+	public final void preprocess(final SootMethod theMethod) {
 		method = theMethod;
 		taggedBB.clear();
 	}
@@ -133,23 +133,23 @@ public class SliceGotoProcessor
 	/**
 	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#process(BasicBlock)
 	 */
-	public void process(final BasicBlock bb) {
+	public final void process(final BasicBlock bb) {
 		boolean tagged = false;
-		String tagName = sliceCollector.getTagName();
-		List list = new ArrayList(bb.getStmtsOf());
+		final String _tagName = sliceCollector.getTagName();
+		final List _list = new ArrayList(bb.getStmtsOf());
 
 		if (backwardSlice) {
-			Collections.reverse(list);
+			Collections.reverse(_list);
 		}
 
-		for (Iterator i = list.iterator(); i.hasNext();) {
-			Stmt stmt = (Stmt) i.next();
+		for (final Iterator _i = _list.iterator(); _i.hasNext();) {
+			final Stmt _stmt = (Stmt) _i.next();
 
-			if (stmt.getTag(tagName) != null) {
+			if (_stmt.getTag(_tagName) != null) {
 				tagged = true;
 				taggedBB.add(bb);
-			} else if (stmt instanceof GotoStmt && tagged) {
-				sliceCollector.collect(stmt);
+			} else if (_stmt instanceof GotoStmt && tagged) {
+				sliceCollector.collect(_stmt);
 				sliceCollector.collect(method);
 			}
 		}
@@ -159,6 +159,10 @@ public class SliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.2  2003/12/01 12:21:25  venku
    - methods in collector underwent a lot of change to minimize them.
    - ripple effect.

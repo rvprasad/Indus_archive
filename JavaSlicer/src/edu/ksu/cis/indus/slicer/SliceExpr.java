@@ -48,10 +48,10 @@ class SliceExpr
 				/**
 				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
 				 */
-				public Object makeObject() {
-					SliceExpr result = new SliceExpr();
-					result.pool = EXPR_POOL;
-					return result;
+				public final Object makeObject() {
+					final SliceExpr _result = new SliceExpr();
+					_result.pool = EXPR_POOL;
+					return _result;
 				}
 			});
 
@@ -76,8 +76,8 @@ class SliceExpr
 		boolean result = false;
 
 		if (o != null && o instanceof SliceExpr) {
-			SliceExpr temp = (SliceExpr) o;
-			result = temp.expr == expr && super.equals(temp);
+			final SliceExpr _temp = (SliceExpr) o;
+			result = _temp.expr == expr && super.equals(_temp);
 		}
 		return result;
 	}
@@ -100,7 +100,7 @@ class SliceExpr
 	 *
 	 * @see AbstractSliceCriterion#getCriterion()
 	 */
-	Object getCriterion() {
+	protected Object getCriterion() {
 		return expr;
 	}
 
@@ -111,7 +111,7 @@ class SliceExpr
 	 *
 	 * @post result != null
 	 */
-	Stmt getOccurringStmt() {
+	protected Stmt getOccurringStmt() {
 		return stmt;
 	}
 
@@ -156,6 +156,9 @@ class SliceExpr
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/12/01 12:20:14  venku
    - ripple effect of adding setConsider..() method to super class.
    - restricted the access to all methods.
