@@ -27,6 +27,13 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
+Verion 0.3
+-----------
+	- Added a new interface and implementation in which graphs can be queried fro objects associated with nodes.
+	- Added a few more methods to CollectionsUtilities.
+	- Minor bug fixes to Tools api classes.
+
+
 Version 0.2
 ------------
 	- All xmlizers use classes from xmlenc library to generate xml documents.

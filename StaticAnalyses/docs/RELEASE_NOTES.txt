@@ -21,6 +21,20 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
+Version 0.3
+------------
+	- Implemented SafeLock Analysis.
+	- Refactored Synchronization dependence analysis into a simple dependence analysis and a general purpose
+	  Monitor Analysis.
+	- Bugfixes in Escape analysis, Interference dependence analysis, Reference Based Data Dependence analysis
+	  and EquivalenceClass-based Escape Analysis.
+	- Optimizations in AliasedUseDefInfov2.
+	- Optimized version of Local Use Def analysis (LocalUseDefInfov2).
+	- Provided a helper class to calculate indirect dependence based on direct dependence information.
+	- Catered bug reports 395.
+	- Deleted deprecated Driver classes along with Ruf's Escape analysis.
+
+
 Version 0.2
 ------------
 	- Memory/Performance optimizations and bug fixes in EquivalenceClassBasedEscapeAnalysis.
