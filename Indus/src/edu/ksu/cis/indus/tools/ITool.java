@@ -94,8 +94,6 @@ public interface ITool {
 	 * @param synchronous <code>true</code> indicates that this method should behave synchronously and return only after the
 	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
 	 * 		  it's run.
-	 *
-	 * @throws RuntimeException when this method called on a paused tool.
 	 */
 	void run(final Object phase, final boolean synchronous);
 
@@ -112,6 +110,9 @@ public interface ITool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/09 12:23:52  venku
+   - added support to control synchronicity of method runs.
+   - ripple effect.
    Revision 1.1  2003/12/02 11:47:19  venku
    - raised the tool to an interface ITool.
  */

@@ -131,8 +131,8 @@ public abstract class AbstractTool extends AbstractStatus
 	 * 		  it's run.
 	 *
 	 * @throws RuntimeException when the tool fails.
-	 * @throws IllegalStateException when this method is called on a paused tool or the tool cannot be configuraed according
-	 * 		   to the configuration.
+	 * @throws IllegalStateException when this method is called on a paused tool.
+	 * @throws ToolConfigurationException when the tool cannot be configured according to the configuration.
 	 */
 	public final synchronized void run(final Object phase, final boolean synchronous) {
 		if (!pause || isNotAlive()) {
@@ -194,8 +194,10 @@ public abstract class AbstractTool extends AbstractStatus
 	/**
 	 * Checks if the tool can be configured as per the given configuration.  Subclasses must override this method and throw
 	 * an <code>IllegalStateException</code> if the tool cannot be configured.
+	 * 
+	 * @throws ToolConfigurationException when the tool cannot be configured according to the configuration.
 	 */
-	protected void checkConfiguration() {
+	protected void checkConfiguration() throws ToolConfigurationException {
 	}
 
 	/**
@@ -235,6 +237,11 @@ public abstract class AbstractTool extends AbstractStatus
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/07/11 09:42:15  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
+
    Revision 1.23  2004/05/11 19:16:47  venku
    The logic to spawn a thread and wait on it to finish was incorrect.  It led
    to race condition.  FIXED.
