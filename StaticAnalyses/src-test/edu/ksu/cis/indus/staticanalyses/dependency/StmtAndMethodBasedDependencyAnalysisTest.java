@@ -29,7 +29,7 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class tests results from dependency analysis which can be queried for dependence on a statement in a method. 
+ * This class tests results from dependency analysis which can be queried for dependence on a statement in a method.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -46,22 +46,41 @@ class StmtAndMethodBasedDependencyAnalysisTest
 	 * @see AbstractDependencyAnalysisTest#verifyDAFor(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	protected void verifyDAFor(final Stmt unit, final SootMethod sm) {
-		final Collection _dependees = getDA().getDependees(unit, sm);
+		final IDependencyAnalysis _da = getDA();
+		verifyDependentPosition(unit, sm, _da);
+		verifyDependeePosition(unit, sm, _da);
+	}
 
-		if (!_dependees.isEmpty()) {
-			final Object _temp = _dependees.iterator().next();
+	/**
+	 * Verifies dependency analysis from dependee position, i.e., checks if the given unit occurs as a dependee in the
+	 * dependees set of all it's dependents.
+	 *
+	 * @param dependee is the dependee
+	 * @param method is the method containing <code>stmt</code>.
+	 * @param dependencyAnalysis is the analysis to be tested.
+	 *
+	 * @throws IllegalStateException when the given dependency analysis does not report info as pairs or as statements.
+	 *
+	 * @pre dependee != null and method != null and dependencyAnalysis != null
+	 */
+	private void verifyDependeePosition(final Stmt dependee, final SootMethod method,
+		final IDependencyAnalysis dependencyAnalysis) {
+		final Collection _dependents = dependencyAnalysis.getDependents(dependee, method);
+
+		if (!_dependents.isEmpty()) {
+			final Object _temp = _dependents.iterator().next();
 			final Object _dependee;
 
 			if (_temp instanceof Pair) {
-				_dependee = new Pair(unit, sm);
+				_dependee = new Pair(dependee, method);
 			} else {
-				_dependee = unit;
+				_dependee = dependee;
 			}
 
-			for (final Iterator _i = _dependees.iterator(); _i.hasNext();) {
+			for (final Iterator _i = _dependents.iterator(); _i.hasNext();) {
 				final Object _o = _i.next();
 				Stmt _stmt;
-				SootMethod _method = sm;
+				SootMethod _method = method;
 
 				if (_o instanceof Pair) {
 					final Pair _pair = (Pair) _o;
@@ -75,9 +94,57 @@ class StmtAndMethodBasedDependencyAnalysisTest
 					throw new IllegalStateException(_msg);
 				}
 
-				final Collection _dependents = getDA().getDependents(_stmt, _method);
-				assertTrue(getDA().getClass().getName() + ": (" + unit + ", " + sm + ") -> (" + _stmt + ", " + _method + ")",
-					_dependents.contains(_dependee));
+				assertTrue("Dependee:" + getDA().getClass().getName() + ": (" + dependee + ", " + method + ") -> (" + _stmt
+					+ ", " + _method + ")", dependencyAnalysis.getDependees(_stmt, _method).contains(_dependee));
+			}
+		}
+	}
+
+	/**
+	 * Verifies dependency analysis from dependent position, i.e., checks if the given unit occurs as a dependent in the
+	 * dependents set of all it's dependees.
+	 *
+	 * @param dependent is the dependent
+	 * @param method is the method containing <code>stmt</code>.
+	 * @param dependencyAnalysis is the analysis to be tested.
+	 *
+	 * @throws IllegalStateException when the given dependency analysis does not report info as pairs or as statements.
+	 *
+	 * @pre dependent != null and method != null and dependencyAnalysis != null
+	 */
+	private void verifyDependentPosition(final Stmt dependent, final SootMethod method,
+		final IDependencyAnalysis dependencyAnalysis) {
+		final Collection _dependees = dependencyAnalysis.getDependees(dependent, method);
+
+		if (!_dependees.isEmpty()) {
+			final Object _temp = _dependees.iterator().next();
+			final Object _dependent;
+
+			if (_temp instanceof Pair) {
+				_dependent = new Pair(dependent, method);
+			} else {
+				_dependent = dependent;
+			}
+
+			for (final Iterator _i = _dependees.iterator(); _i.hasNext();) {
+				final Object _o = _i.next();
+				Stmt _stmt;
+				SootMethod _method = method;
+
+				if (_o instanceof Pair) {
+					final Pair _pair = (Pair) _o;
+					_stmt = (Stmt) _pair.getFirst();
+					_method = (SootMethod) _pair.getSecond();
+				} else if (_o instanceof Stmt) {
+					_stmt = (Stmt) _o;
+				} else {
+					final String _msg = "This class can only handle Pair and Stmt as targets of dependence information.";
+					LOGGER.error(_msg);
+					throw new IllegalStateException(_msg);
+				}
+
+				assertTrue("Dependent:" + getDA().getClass().getName() + ": (" + dependent + ", " + method + ") -> (" + _stmt
+					+ ", " + _method + ")", dependencyAnalysis.getDependents(_stmt, _method).contains(_dependent));
 			}
 		}
 	}
@@ -86,11 +153,12 @@ class StmtAndMethodBasedDependencyAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/21 22:30:54  venku
+   - documentation.
    Revision 1.1  2004/05/14 09:02:56  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is
        available via a utility class, DependencyAnalysisUtil.
      - DependencyAnalysis will have a sanity check via Unit Tests.
    - ripple effect.
-
  */
