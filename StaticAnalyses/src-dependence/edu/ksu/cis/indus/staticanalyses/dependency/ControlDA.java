@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import soot.SootMethod;
 
-import soot.jimple.Stmt;
-
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
@@ -169,11 +167,11 @@ public class ControlDA
 					continue;
 				}
 
-				Stmt de = (Stmt) cd.get(j);
+				Collection dees = (Collection) cd.get(j);
 
-				if (de != null) {
-					temp.append("\t\t" + stmts.get(j) + " --> " + de + "\n");
-					localEdgeCount++;
+				if (dees != null) {
+					temp.append("\t\t" + stmts.get(j) + " --> " + dees + "\n");
+					localEdgeCount += dees.size();
 				} else {
 					temp.append("\t\t" + stmts.get(j) + " --> METHOD_ENTRY\n");
 				}
@@ -284,11 +282,6 @@ public class ControlDA
 		}
 
 		for (int i = 0; i < NUM_OF_NODES; i++) {
-			for (int j = 0; j < NUM_OF_NODES; j++) {
-				if (cd[i][j] != null) {
-					System.out.println(i + "," + j + " " + cd[i][j]);
-				}
-			}
 			System.out.println(i + " " + result[i] + " " + ((BasicBlock) NODES.get(i)).getStmtsOf());
 		}
 
@@ -323,25 +316,30 @@ public class ControlDA
 
 		boolean flag = false;
 
-		for (Iterator i = sl.iterator(); i.hasNext();) {
-			Stmt stmt = (Stmt) i.next();
-			BasicBlock bb = graph.getEnclosingBlock(stmt);
-			BitSet t = bbCDBitSets[nodes.indexOf(bb)];
+		for (int i = bbCDBitSets.length - 1; i >= 0; i--) {
+			BitSet cd = bbCDBitSets[i];
+			flag |= cd != null;
 
-			if (t != null) {
-				flag |= t.nextSetBit(0) != -1;
+			if (cd != null && !cd.isEmpty()) {
+				Collection cdp = new ArrayList();
+				BasicBlock bb = (BasicBlock) nodes.get(i);
 
-				for (int j = t.nextSetBit(0); j >= 0; j = t.nextSetBit(j + 1)) {
-					BasicBlock bb2 = graph.getEnclosingBlock((Stmt) sl.get(j));
-					mDependee.set(sl.indexOf(stmt), sl.get(bb2._trailer));
+				for (Iterator j = bb.getStmtsOf().iterator(); j.hasNext();) {
+					mDependee.set(sl.indexOf(j.next()), cdp);
+				}
 
-					List dependents = (List) mDependent.get(bb2._trailer);
+				for (int j = cd.nextSetBit(0); j != -1; j = cd.nextSetBit(j + 1)) {
+					BasicBlock cdbb = (BasicBlock) nodes.get(j);
+					cdp.add(cdbb.getTrailerStmt());
 
-					if (dependents == null) {
-						dependents = new ArrayList();
-						mDependent.set(bb2._trailer, dependents);
+					int deIndex = sl.indexOf(cdbb.getTrailerStmt());
+					Collection dees = (Collection) mDependent.get(deIndex);
+
+					if (dees == null) {
+						dees = new ArrayList();
+						mDependent.set(deIndex, dees);
 					}
-					dependents.add(stmt);
+					dees.add(bb.getStmtsOf());
 				}
 			}
 		}
@@ -359,6 +357,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/15 00:58:25  venku
+   - well, things were fine I guess. Nevertheless, they are more
+     streamlined now.
    Revision 1.8  2003/09/14 23:24:26  venku
    - alas a working control DA. However, I have not been able
      to compile a program such that the basic block has two CD points.
