@@ -59,6 +59,8 @@ import java.util.Map;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph
+ * @see edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph
  */
 public class DirectedAndSimpleNodeGraphTest1
   extends TestCase {
@@ -393,4 +395,7 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/24 12:05:34  venku
+   Well added unit tests based on JUnit to the StaticAnalyses part of Indus.
+
  */
