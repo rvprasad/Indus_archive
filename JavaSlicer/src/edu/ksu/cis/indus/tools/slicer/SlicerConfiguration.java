@@ -45,6 +45,7 @@ import edu.ksu.cis.indus.tools.slicer.criteria.predicates.AssertionSliceCriteria
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.EscapingSliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import java.util.ArrayList;
@@ -1106,13 +1107,13 @@ public final class SlicerConfiguration
 			dependencesToUse.add(_id);
 
 			final Object _property = getNatureOfInterferenceDepAnalysis();
-
+            final Class _clazz;
 			if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(_property)) {
-				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv3()));
+				_clazz = InterferenceDAv3.class;
 			} else if (EQUIVALENCE_CLASS_BASED_INFO.equals(_property)) {
-				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv2()));
+                _clazz = InterferenceDAv2.class;
 			} else if (TYPE_BASED_INFO.equals(_property)) {
-				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv1()));
+                _clazz = InterferenceDAv1.class;
 			} else {
 				final String _msg =
 					"Interference dependence could not be configured due to illegal " + "interference dependence nature.";
@@ -1120,6 +1121,54 @@ public final class SlicerConfiguration
 				throw new IllegalStateException(_msg);
 			}
 
+            final Constructor _instance;
+            try {
+                _instance = _clazz.getConstructor(null);
+                id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(_instance.newInstance(null)));
+            } catch (final NoSuchMethodException _e) {
+                final String _msg =
+                    "Dependence analysis does not provide zero parameter constructor :" + _clazz;
+                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+
+                final RuntimeException _runtimeException = new RuntimeException(_msg);
+                _runtimeException.initCause(_e);
+                throw _runtimeException;
+            } catch (final IllegalArgumentException _e) {
+                final String _msg =
+                    "Dependence analysis does not provide zero-parameter constructor : " + _clazz;
+                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+                throw _e;
+            } catch (final SecurityException _e) {
+                final String _msg = "Insufficient permission to access specified dependence analysis class : " + _clazz;
+                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+
+                final RuntimeException _runtimeException = new RuntimeException(_msg);
+                _runtimeException.initCause(_e);
+                throw _runtimeException;
+            } catch (final IllegalAccessException _e) {
+                final String _msg =
+                    "Dependence analysis does not provide publicly accessible constructors : " + _clazz;
+                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+
+                final RuntimeException _runtimeException = new RuntimeException(_msg);
+                _runtimeException.initCause(_e);
+                throw _runtimeException;
+            } catch (final InvocationTargetException _e) {
+                final String _msg = "constructor threw an exception : " + _clazz;
+                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+
+                final RuntimeException _runtimeException = new RuntimeException(_msg);
+                _runtimeException.initCause(_e);
+                throw _runtimeException;
+            } catch (final InstantiationException _e) {
+                final String _msg = "Exception while instantiating the analysis : " + _clazz;
+                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+
+                final RuntimeException _runtimeException = new RuntimeException(_msg);
+                _runtimeException.initCause(_e);
+                throw _runtimeException;
+            }
+            
 			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
 				  _i.hasNext();) {
 				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
