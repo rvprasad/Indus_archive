@@ -13,7 +13,7 @@
 <property name="demo" value="demo"/>
 <property name="docs" value="docs"/>
 <property name="gui" value="GUI"/>
-<property name="src" value="${basedir}"/>
+<property name="src" value="${basedir}/src"/>
 <property name="package" value="edu.ksu.cis.bandera.bfa"/>
 <property name="jdklink" value="http://127.0.0.1/docs/java/jdk-1.3.1/api/"/>
 <property name="sootlink" value="http://127.0.0.1/docs/compilers/soot-0.x/"/>
@@ -41,7 +41,7 @@
 
 <target name="javadocs">
     <mkdir dir="${docs}/javadocs"/>
-    <javadoc sourcepath="${basedir}" packagenames="${package}.*"
+    <javadoc sourcepath="${src}" packagenames="${package}.*"
              destdir="${docs}/javadocs" access="private" use="true"
              author="true">
              <link href="${sootlink}"/>
@@ -58,9 +58,9 @@
     <mkdir dir="${dist}"/>
     <property name="filename" value="${dist}/${ant.project.name}-${DSTAMP}"/>
     <jar jarfile="${filename}.jar" basedir="${build}" excludes="*.jar, *.tar, *.tgz"/>
-    <tar tarfile="${filename}.tar" basedir="${basedir}"
+    <tar tarfile="${filename}.tar" basedir="."
          excludes="**/\..*, **/rational/html/**"
-         includes="${demo}/, edu/, ${filename}.jar, ${design}/, ${docs}/, ${docs}/README.TXT, ${bin}/, build.xml"/>
+         includes="${demo}/, edu/, ${filename}.jar, ${design}/, ${docs}/**, ${docs}/README.TXT, ${bin}/, build.xml"/>
     <gzip src="${filename}.tar" zipfile="${filename}.tgz"/>
     <delete file="${filename}.tar"/>
 </target>
