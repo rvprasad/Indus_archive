@@ -26,13 +26,16 @@ import soot.SootMethod;
 import soot.VoidType;
 
 import soot.jimple.Jimple;
+import soot.jimple.JimpleBody;
 
 import soot.toolkits.graph.UnitGraph;
 
 
 /**
  * This class provides the an abstract implementation of <code>IUnitGraphFactory</code> via which unit graphs can be
- * retrieved.  The subclasses should provide suitable  unit graph implementation.
+ * retrieved.  The subclasses should provide suitable  unit graph implementation.  The control flow edges in the  provided
+ * unit graphs are pruned by matching the thrown exceptions to the enclosing catch blocks.  Refer to
+ * <code>Util.pruneExceptionBasedControlFlow()</code> for more information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -89,6 +92,12 @@ public abstract class AbstractUnitGraphFactory
 					_units.add(_jimple.newReturnStmt(Util.getDefaultValueFor(method.getReturnType())));
 				}
 				_result = getUnitGraphForBody(_body);
+			} else {
+				final Body _body = _result.getBody();
+
+				if (_body instanceof JimpleBody) {
+					Util.pruneExceptionBasedControlFlow((JimpleBody) _body, _result);
+				}
 			}
 
 			method2UnitGraph.put(method, new WeakReference(_result));
@@ -130,6 +139,9 @@ public abstract class AbstractUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/04 11:56:48  venku
+   - renamed a method.
+   - added a valid empty body into native methods.
    Revision 1.5  2004/01/28 22:41:08  venku
    - added a new method to extract default bodies.
    Revision 1.4  2003/12/31 09:30:18  venku
