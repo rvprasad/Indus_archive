@@ -30,9 +30,9 @@ import soot.util.Chain;
 
 
 /**
- * This is a specialized version of <code>UnitGraph</code> in which the control flow edges can be based on exceptions can be
+ * This is a specialized version of <code>UnitGraph</code> in which the control flow edges based on exceptions can be
  * controlled.  The user can specify the names of exceptions and the control flow via the throw of these exceptions will not
- * be included  in the graph.
+ * be included in the graph.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -46,12 +46,16 @@ final class ExceptionFlowSensitiveUnitGraph
 	 * @param unitBody is the body for which the graph should be constructed.
 	 * @param exceptionNamesToIgnore is the fully qualified names of the exceptions.  Control flow based on these exceptions
 	 * 		  are not captured in the graph.
+	 * @param dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock <code>true</code> indicates if the edge from the unit
+	 * 		  before the unit that begins the trap protected region to the handler unit should be omitted;
+	 * 		  <code>false</code>, otherwise.
 	 *
 	 * @pre unitBody != null and exceptionNamesToIgnore != null
 	 * @pre exceptionNamesToIgnore.oclIsKindOf(Collection(String))
 	 */
-	ExceptionFlowSensitiveUnitGraph(final Body unitBody, final Collection exceptionNamesToIgnore) {
-		super(unitBody, true);
+	ExceptionFlowSensitiveUnitGraph(final Body unitBody, final Collection exceptionNamesToIgnore,
+		final boolean dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock) {
+		super(unitBody, true, dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock);
 
 		final Chain _traps = unitBody.getTraps();
 		final Collection _preds = new ArrayList();
@@ -62,9 +66,10 @@ final class ExceptionFlowSensitiveUnitGraph
 			if (exceptionNamesToIgnore.contains(_trap.getException().getName())) {
 				final Chain _units = unitBody.getUnits();
 				final Unit _handler = _trap.getHandlerUnit();
+				final Unit _endUnit = (Unit) _units.getPredOf(_trap.getEndUnit());
 				_preds.clear();
 
-				for (final Iterator _i = _units.iterator(_trap.getBeginUnit(), _trap.getEndUnit()); _i.hasNext();) {
+				for (final Iterator _i = _units.iterator(_trap.getBeginUnit(), _endUnit); _i.hasNext();) {
 					final Unit _unit = (Unit) _i.next();
 					final List _list = new ArrayList((List) unitToSuccs.get(_unit));
 					_list.remove(_handler);
@@ -74,8 +79,7 @@ final class ExceptionFlowSensitiveUnitGraph
 
 				final List _list = new ArrayList((List) unitToPreds.get(_handler));
 				_list.removeAll(_preds);
-				unitToSuccs.put(_handler, _list);
-				break;
+				unitToPreds.put(_handler, _list);
 			}
 		}
 	}
@@ -84,6 +88,8 @@ final class ExceptionFlowSensitiveUnitGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/23 06:37:16  venku
+   - succs/preds in the parent  class were unmodifiable.  FIXED.
    Revision 1.1  2004/02/17 05:59:15  venku
    - renamed ExceptionFlowSensitiveStmtGraphXXXX to
      ExceptionFlowSensitiveUnitGraph.
