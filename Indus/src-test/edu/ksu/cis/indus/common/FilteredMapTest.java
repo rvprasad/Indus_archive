@@ -23,6 +23,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
 
 
 /**
@@ -43,13 +44,7 @@ public class FilteredMapTest
 	 * Tests <code>entrySet()</code>.
 	 */
 	public final void testEntrySet1() {
-		final Map _o1 =
-			new FilteredMap(map,
-				new Predicate() {
-					public boolean evaluate(final Object o) {
-						return o instanceof Integer;
-					}
-				}, null);
+		final Map _o1 =	new FilteredMap(map, PredicateUtils.instanceofPredicate(java.lang.Integer.class), null);
 		final Set _entrySet = _o1.entrySet();
 		assertTrue(_entrySet.size() == 1);
 
