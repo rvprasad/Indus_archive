@@ -29,6 +29,16 @@ import soot.jimple.Stmt;
  * @version $Revision$ $Date$
  */
 public final class CriteriaSpecHelper {
+	///CLOVER:OFF
+
+	/**
+	 * Creates a new CriteriaSpecHelper object.
+	 */
+	private CriteriaSpecHelper() {
+	}
+
+	///CLOVER:ON
+
 	/**
 	 * Checks if the criterion's execution is considered during slicing.
 	 *
@@ -105,4 +115,8 @@ public final class CriteriaSpecHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/02 09:00:08  venku
+   - added support to serialize/deserialize slice criteria. (feature #397)
+   - used the above support in SliceXMLizerCLI.
+   - used Jakarta Commons IO library.
  */
