@@ -20,5 +20,7 @@
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/swt/swt-pi.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

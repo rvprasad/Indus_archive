@@ -21,5 +21,7 @@
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
 	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry sourcepath="JAVACLASSES/src/trove.jar" kind="var" path="JAVACLASSES/trove.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
