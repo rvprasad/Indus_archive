@@ -16,13 +16,7 @@ import org.apache.log4j.Logger;
  * @version $Revision$
  */
 
-public class WorkList {
-
-	/**
-	 * <p>The list containing the work pieces in the work list. </p>
-	 *
-	 */
-	private final List list;
+public class WorkList extends WorkBag {
 
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purposes.</p>
@@ -35,7 +29,7 @@ public class WorkList {
 	 *
 	 */
 	WorkList() {
-		list = new ArrayList();
+		super(WorkBag.DFS);
 	}
 
 	/**
@@ -45,18 +39,8 @@ public class WorkList {
 	 * @param w the work to be added into the worklist.
 	 */
 	public final void addWork(AbstractWork w) {
-		if (!list.contains(w)) {
-			logger.debug("Added new work:" + w);
-			list.add(w);
-		} // end of if (!list.contains(w))
-	}
-
-	/**
-	 * <p>Removes any work left in the worklist.  These work pieces are not "executed".</p>
-	 *
-	 */
-	void clear() {
-		list.clear();
+		logger.debug("Added new work:" + w);
+		addWorkNoDuplicates(w);
 	}
 
 	/**
@@ -65,8 +49,8 @@ public class WorkList {
 	 *
 	 */
 	void process() {
-		while (!list.isEmpty()) {
-			AbstractWork w = (AbstractWork)list.remove(0);
+		while (!isEmpty()) {
+			AbstractWork w = (AbstractWork)getWork();
 			logger.debug("Processing work:" + w);
 			w.execute();
 		} // end of while (!list.isEmpty())

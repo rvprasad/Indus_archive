@@ -149,7 +149,7 @@ public class MethodVariant implements Variant {
 
 		this.astvm = astvm;
 
-		
+
 		logger.debug("<< Method:" + sm + context + "\n");
 	}
 
@@ -201,7 +201,7 @@ public class MethodVariant implements Variant {
 
 	/**
 	 * <p> Returns the definitions of local variable <code>l</code> that arrive at statement <code>s</code>.</p>
-	 * 
+	 *
 	 * @param l the local for which the definitions are requested.
 	 * @param s the statement at which the definitions are requested.
 	 * @return the list of definitions of <code>l</code> that arrive at statement <code>s</code>.
@@ -209,8 +209,8 @@ public class MethodVariant implements Variant {
 	public List getDefsOfAt(Local l, Stmt s) {
 		if (defs == null)
 			return new ArrayList();
-		else 
-			return defs.getDefsOfAt(l, s);	
+		else
+			return defs.getDefsOfAt(l, s);
 	}
 
 	/**

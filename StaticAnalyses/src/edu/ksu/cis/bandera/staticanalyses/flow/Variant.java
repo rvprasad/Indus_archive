@@ -12,5 +12,9 @@ package edu.ksu.cis.bandera.bfa;
  */
 
 interface Variant {
-	public void process();
+	/**
+	 * Performs any required post processing after the variant has been instantiated.  This method will be called by the
+	 * framework.
+	 */
+	void process();
 }// Variant
