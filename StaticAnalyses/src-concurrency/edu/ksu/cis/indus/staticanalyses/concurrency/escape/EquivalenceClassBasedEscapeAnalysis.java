@@ -1266,15 +1266,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					_sc.selfUnify(true);
 				}
 
-				try {
-					_sc.propogateInfoFromTo(_mc);
-				} catch (NullPointerException _e) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug(_ctrp2sc + "\n\n-=====\n" + _callerTrp);
-					}
-					throw _e;
-				}
-
+				_sc.propogateInfoFromTo(_mc);
 				_wb.addWorkNoDuplicates(_callee);
 			}
 		}
@@ -1284,6 +1276,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.50  2004/07/11 14:17:40  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
+
    Revision 1.49  2004/05/31 21:38:08  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
