@@ -13,12 +13,17 @@ Required software:
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
         - Polyglot 1.1.0	
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
-    xmlenc (0.41)
+    xmlenc (0.44)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)	
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
+
+
+Version 0.2
+-------------
+	- All xmlizers use classes from xmlenc library to generate xml documents.
 
 
 Version 0.2a

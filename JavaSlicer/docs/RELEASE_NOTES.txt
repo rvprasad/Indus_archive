@@ -19,12 +19,17 @@ Required software:
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
     SWT (3.0 >= M7)
         (swt.jar) [http://www.eclipse.org]
-    xmlenc (0.41)
+    xmlenc (0.44)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)	
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
+
+
+Version 0.2
+-------------
+	- All xmlizers use classes from xmlenc library to generate xml documents.
 
 
 Version 0.1
