@@ -13,11 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.slicer.processing;
+package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +44,7 @@ public final class CompleteSliceGotoProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.processing.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
 	 */
 	protected Collection getLastStmtAndSuccsOfBasicBlock(final BasicBlock bb) {
 		final Collection _stmts = bb.getStmtsOf();
@@ -59,7 +58,7 @@ public final class CompleteSliceGotoProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.processing.AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
 	 */
 	protected List getStmtsOfForProcessing(BasicBlock bb) {
 		return bb.getStmtsOf();
@@ -69,6 +68,9 @@ public final class CompleteSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/13 04:39:29  venku
+   - method and class visibility.
+
    Revision 1.1  2004/01/13 04:35:08  venku
    - added a new package called "processing" and it will house
      all processing done on the slice to ensure the slice satisfies

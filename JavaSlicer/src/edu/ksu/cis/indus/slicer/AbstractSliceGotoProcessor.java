@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.slicer.processing;
+package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
@@ -22,7 +22,6 @@ import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
-import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -213,6 +212,14 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/13 07:53:51  venku
+   - as post processing beyond retention of semantics of slice is
+     particular to the application or the tool.  Hence, moved the
+     post processors into processing package under slicer tool.
+   - added a new method to AbstractSliceGotoProcessor to
+     process a collection of methods given a basic block graph
+     manager.
+
    Revision 1.2  2004/01/13 04:39:29  venku
    - method and class visibility.
    Revision 1.1  2004/01/13 04:35:08  venku
