@@ -34,13 +34,15 @@ public class SimpleNodeGraphTest2
 		name2node.put("b", _sng.getNode("b"));
 		name2node.put("c", _sng.getNode("c"));
 		name2node.put("d", _sng.getNode("d"));
+		name2node.put("e", _sng.getNode("e"));
 
 		_sng.addEdgeFromTo((INode) name2node.get("a"), (INode) name2node.get("b"));
 		_sng.addEdgeFromTo((INode) name2node.get("b"), (INode) name2node.get("c"));
 		_sng.addEdgeFromTo((INode) name2node.get("b"), (INode) name2node.get("d"));
 		_sng.addEdgeFromTo((INode) name2node.get("c"), (INode) name2node.get("d"));
-		_sng.addEdgeFromTo((INode) name2node.get("c"), (INode) name2node.get("b"));
+		_sng.addEdgeFromTo((INode) name2node.get("c"), (INode) name2node.get("e"));
 		_sng.addEdgeFromTo((INode) name2node.get("d"), (INode) name2node.get("b"));
+		_sng.addEdgeFromTo((INode) name2node.get("e"), (INode) name2node.get("b"));
 		setSNG(_sng);
 	}
 
@@ -63,8 +65,9 @@ public class SimpleNodeGraphTest2
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetPseudoTails()
 	 */
 	protected void localtestGetPseudoTails() {
-		assertTrue(dg.getPseudoTails().size() == 1);
+		assertTrue(dg.getPseudoTails().size() == 2);
 		assertTrue(dg.getPseudoTails().contains(name2node.get("d")));
+		assertTrue(dg.getPseudoTails().contains(name2node.get("e")));
 	}
 
 	/**
@@ -90,4 +93,6 @@ public class SimpleNodeGraphTest2
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/05 16:12:36  venku
+   - added a new test case for testing pseudoTails.
  */

@@ -235,10 +235,22 @@ public abstract class AbstractDirectedGraph
 			final Collection _tails = getTails();
 
 			// for each dtail that is not a tail, check if tail is reachable from it.  
-            // If so, dtail is not a pseudo tail.  If not, it is a pseudo tail.
-            _dtails.removeAll(_tails);
+			// If so, dtail is not a pseudo tail.  If not, it is a pseudo tail.
+			_dtails.removeAll(_tails);
+
 			final Collection _temp = getDestUnreachableSources(_dtails, _tails, true);
-			pseudoTails.addAll(getDestUnreachableSources(_temp, _temp, true));
+			final Collection _result = getDestUnreachableSources(_temp, _temp, true);
+
+			/*
+			 * It is possible that a graph have 2 pseudo tails which are mutually reachable in the graph. In that case,
+			 * _result is empty.  This is the case when cycles in graph have common nodes. In such case, both should qualify
+			 * as pseudo tails.  In other cases, only those in _result should qualify as pseudo tails.
+			 */
+			if (_result.isEmpty()) {
+				pseudoTails.addAll(_temp);
+			} else {
+				pseudoTails.addAll(_result);
+			}
 			pseudoTailsCalculated = true;
 		}
 		return Collections.unmodifiableCollection(pseudoTails);
@@ -397,12 +409,14 @@ public abstract class AbstractDirectedGraph
 		if (destinations.isEmpty()) {
 			_result.addAll(sources);
 		} else {
-            final Collection _temp = new HashSet(destinations);
+			final Collection _temp = new HashSet(destinations);
+
 			for (final Iterator _i = sources.iterator(); _i.hasNext();) {
 				final INode _src = (INode) _i.next();
 				boolean _flag = true;
 
-                _temp.remove(_src);
+				_temp.remove(_src);
+
 				for (final Iterator _k = _temp.iterator(); _k.hasNext() && _flag;) {
 					final INode _dest = (INode) _k.next();
 
@@ -410,7 +424,7 @@ public abstract class AbstractDirectedGraph
 						_flag &= !isReachable(_src, _dest, forward);
 					}
 				}
-                _temp.add(_src);
+				_temp.add(_src);
 
 				if (_flag) {
 					_result.add(_src);
@@ -665,18 +679,17 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/01/28 00:23:21  venku
+   - dtails are only those that aren't tails.  FIXED.
    Revision 1.11  2004/01/25 08:58:43  venku
    - coding convention.
-
    Revision 1.10  2004/01/22 12:23:30  venku
    - subtle boundary condition bug in getPseudoTails. FIXED.
-
    Revision 1.9  2004/01/22 08:15:55  venku
    - added a new method to calculated pseudo tails.
    - added a new method that can be used to indicate the
      graph has changed shape, hence, marking any cached
      data as stale.
-
    Revision 1.8  2004/01/22 00:53:32  venku
    - formatting and coding convention.
    Revision 1.7  2004/01/20 21:23:18  venku
