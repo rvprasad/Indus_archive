@@ -52,7 +52,13 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface IValueAnalyzer extends IStatus {
+public interface IValueAnalyzer
+  extends IStatus {
+	/** 
+	 * The id of this interface.
+	 */
+	static final Object ID = "value flow analyzer";
+
 	/**
 	 * Retrieves the enviroment in which the analysis operates.
 	 *
@@ -118,20 +124,19 @@ public interface IValueAnalyzer extends IStatus {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/21 03:32:37  venku
+   Incorporated IStatus interface into any interface that provides analysis information.
    Revision 1.5  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
-
    Revision 1.4  2003/08/12 01:52:00  venku
    Removed redundant final in parameter declaration in methods of interfaces.
-
    Revision 1.3  2003/08/11 07:11:47  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.
    Formatted source.
    Moved getRoots() into the environment.
    Added support to inject new roots in FA.
-
    Revision 1.2  2003/08/09 23:26:20  venku
    - Added an interface to provide use-def information.
    - Added an implementation to the above interface.
