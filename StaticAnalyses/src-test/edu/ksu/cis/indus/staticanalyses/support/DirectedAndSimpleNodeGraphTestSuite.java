@@ -46,8 +46,8 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 
 		//$JUnit-BEGIN$
 		suite.addTestSuite(DirectedAndSimpleNodeGraphTest1.class);
-		suite.addTestSuite(DirectedAndSimpleNodeGraphTest2.class);
-		suite.addTestSuite(DirectedAndSimpleNodeGraphTest3.class);
+		suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
+		suite.addTestSuite(JavacBasedDirectedAndSimpleNodeGraphTest.class);
 		//$JUnit-END$
 		return suite;
 	}
@@ -56,6 +56,9 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/28 23:19:36  venku
+   *** empty log message ***
+
    Revision 1.1  2003/09/11 02:37:12  venku
    - added a test case for javac compilation of Divergent04 test.
    - created test suite to test directed and simple node graph.

@@ -42,10 +42,10 @@ import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class DirectedAndSimpleNodeGraphTest3
-  extends DirectedAndSimpleNodeGraphTest2 {
+public class JavacBasedDirectedAndSimpleNodeGraphTest
+  extends JikesBasedDirectedAndSimpleNodeGraphTest {
 	/**
-	 * @see DirectedAndSimpleNodeGraphTest2#setUp()
+	 * @see JikesBasedDirectedAndSimpleNodeGraphTest#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -88,6 +88,9 @@ public class DirectedAndSimpleNodeGraphTest3
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/28 23:19:36  venku
+   *** empty log message ***
+
    Revision 1.2  2003/09/11 12:31:00  venku
    - made ancestral relationship antisymmetric
    - added testcases to test the relationship.
