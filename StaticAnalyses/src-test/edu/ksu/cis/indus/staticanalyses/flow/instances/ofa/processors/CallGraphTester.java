@@ -15,8 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.common.graph.DirectedAndSimpleNodeGraphTest;
+import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraphTest;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -95,7 +96,7 @@ public class CallGraphTester
 	 * @version $Revision$ $Date$
 	 */
 	public static final class GraphTest
-	  extends DirectedAndSimpleNodeGraphTest {
+	  extends SimpleNodeGraphTest {
 		/**
 		 * Tests getNodes() of the graph associated with the call graph.
 		 */
@@ -152,7 +153,7 @@ public class CallGraphTester
 				final SootMethod _sm = (SootMethod) _i.next();
 
 				if (cgi.getCallees(_sm).isEmpty()) {
-					assertTrue(dg.getNode(_sm).getSuccsOf().isEmpty());
+					assertTrue(sng.getNode(_sm).getSuccsOf().isEmpty());
 				}
 			}
 		}
@@ -495,6 +496,10 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.16  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
@@ -511,7 +516,7 @@ public class CallGraphTester
    - Enabled call graph xmlization.
    Revision 1.11  2003/12/07 14:04:43  venku
    - made FATester command-line compatible.
-   - made use of DirectedAndSimpleNodeGraphTest in
+   - made use of AbstractDirectedGraphTest in
      CallGraphTester to test the constructed call graphs.
    Revision 1.10  2003/12/05 21:34:01  venku
    - formatting.
