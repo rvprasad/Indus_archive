@@ -346,7 +346,7 @@ public final class TagBasedSliceXMLizer
 			_writer.flush();
 			_writer.close();
 		} catch (IOException _e) {
-			LOGGER.error("Error while xmlizing OFA information ", _e);
+			LOGGER.error("Error while xmlizing slice information ", _e);
 		}
 	}
 }
@@ -354,6 +354,12 @@ public final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/06/12 06:47:27  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
+
    Revision 1.26  2004/05/13 07:34:24  venku
    - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
    Revision 1.25  2004/05/13 03:32:04  venku
