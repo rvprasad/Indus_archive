@@ -3,5 +3,14 @@
 <!--#set var="description" value="Developer Resources" -->
 
 <!--#include virtual="/header.shtml" -->
-<p>Developer resources  will be posted shortly.</p>
+<p>
+    <ul>
+        <li><a href="http://checkstyle.sourceforge.net/">Checkstyle</a> is a source code checking tool and we use it in 
+        Indus.  We use this in Indus and please use the <a href="indus-checkstyle-config.xml">configuration</a> to check 
+        any code you may plan to submit to Indus.  If you use eclipse (like us) then you may use
+        <a href="http://eclipse-cs.sourceforge.net/">Checkstyle plugin for Eclipse</a> and the following 
+        <a href="indus-checkstyle-plugin-config.xml">configuration file</a> to setup your checkstyle engine within eclipse.</li>
+        <li><a href="http://jalopy.sourceforge.net/">Jalopy</a> is the Java source code formatter and we use it in Indus.
+        If you plan to contribute to Indus please use this <a href="indus-jalopy.xml">configuration file</a>.</li>        
+    </ul>
 <!--#include virtual="/footer.shtml" -->
