@@ -67,10 +67,10 @@ public class SafeLockAnalysis
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
 	 */
 	public void analyze() {
+	    stable = false;
 		if (monitorInfo.isStable()) {
-			processNoWaitFreeLoops();
-			processNoWaitOnOtherLocks();
-			processNoLockingOfUnsafeLocks();
+			// process c1, c2, and c3
+			stable = true;
 		}
 	}
 
@@ -95,34 +95,15 @@ public class SafeLockAnalysis
 		}
 	}
 
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	private void processNoLockingOfUnsafeLocks() {
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	private void processNoWaitFreeLoops() {
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	private void processNoWaitOnOtherLocks() {
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.5  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
