@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.slicer.transformations;
 
+import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
@@ -25,6 +26,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +38,9 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Body;
+import soot.Local;
+import soot.RefType;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
@@ -50,21 +55,26 @@ import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
+import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.LookupSwitchStmt;
+import soot.jimple.NewExpr;
 import soot.jimple.ReturnStmt;
+import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
 
 import soot.jimple.toolkits.scalar.ConditionalBranchFolder;
+import soot.jimple.toolkits.scalar.LocalCreation;
 import soot.jimple.toolkits.scalar.NopEliminator;
 import soot.jimple.toolkits.scalar.UnconditionalBranchFolder;
 import soot.jimple.toolkits.scalar.UnreachableCodeEliminator;
 
 import soot.tagkit.Host;
+import soot.tagkit.Tag;
 
 import soot.util.Chain;
 
@@ -92,9 +102,22 @@ public final class TagBasedDestructiveSliceResidualizer
 	final Map oldStmt2newStmt = new HashMap();
 
 	/**
+	 * This maps a statement to a sequence of statements that need to be inserted before the key statement the statement
+	 * sequence of the method body.
+	 *
+	 * @invariant stmt2predecessors.oclIsKindOf(Map(Stmt, Sequence(Stmt)))
+	 */
+	final Map stmt2predecessors = new HashMap();
+
+	/**
 	 * The system to be residualized.
 	 */
 	Scene theScene;
+
+	/**
+	 * The method being processed.
+	 */
+	SootMethod currMethod;
 
 	/**
 	 * The name of the tag used to identify the parts of the system to be residualized.
@@ -136,11 +159,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * The class being processed up until now.
 	 */
 	private SootClass currClass;
-
-	/**
-	 * The method being processed.
-	 */
-	private SootMethod currMethod;
 
 	/**
 	 * This class residualizes statements.
@@ -232,7 +250,45 @@ public final class TagBasedDestructiveSliceResidualizer
 			final ValueBox _vBox = stmt.getOpBox();
 
 			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				stmt.setOp(Util.getDefaultValueFor(_vBox.getValue().getType()));
+				final Value _val = stmt.getOp();
+				final RefType _type = (RefType) _val.getType();
+				final Jimple _jimple = Jimple.v();
+
+				// add a new local to the body
+				final LocalCreation _lc = new LocalCreation(currMethod.getActiveBody().getLocals());
+				final Local _local = _lc.newLocal(_type);
+
+				// create an exception of the thrown type and assign it to the created local.
+				final NewExpr _newExpr = _jimple.newNewExpr(_type);
+				final AssignStmt _astmt = _jimple.newAssignStmt(_local, _newExpr);
+				final Tag _tag = new NamedTag(tagToResidualize);
+				_astmt.addTag(_tag);
+				_astmt.getLeftOpBox().addTag(_tag);
+				_astmt.getRightOpBox().addTag(_tag);
+
+				// find an <init> method on the type and prepare the argument list
+				final SootClass _clazz = _type.getSootClass();
+				final SootMethod _init = prepareInitIn(_clazz);
+				final List _args = new ArrayList(_init.getParameterCount());
+
+				for (int _i = _init.getParameterCount() - 1; _i >= 0; _i--) {
+					_args.add(Util.getDefaultValueFor(_init.getParameterType(_i)));
+				}
+
+				// invoke <init> on the local
+				final InvokeExpr _iexpr = _jimple.newSpecialInvokeExpr(_local, _init, _args);
+				final InvokeStmt _istmt = _jimple.newInvokeStmt(_iexpr);
+				_istmt.addTag(_tag);
+				_istmt.getInvokeExprBox().addTag(_tag);
+				((SpecialInvokeExpr) _iexpr).getBaseBox().addTag(_tag);
+
+				// prepare a new list of statements of predecessors to be inserted before the throw statement in the final
+				// body of the method.
+				final List _stmts = new ArrayList();
+				_stmts.add(_astmt);
+				_stmts.add(_istmt);
+				stmt2predecessors.put(stmt, _stmts);
+				stmt.setOp(_local);
 			}
 		}
 
@@ -261,6 +317,68 @@ public final class TagBasedDestructiveSliceResidualizer
 				_result = true;
 			}
 			return _result;
+		}
+
+		/**
+		 * Sucks in vanilla &lt;init&gt; methods if it exists in the given class.  If not it will insert one.  It will also
+		 * massage the class hierarchy branch to be executable.
+		 *
+		 * @param clazz in which we are searching for the constructor.
+		 *
+		 * @return the constructor method.
+		 *
+		 * @pre clazz != null
+		 * @post result != null
+		 */
+		private SootMethod prepareInitIn(final SootClass clazz) {
+			SootMethod _superinit = null;
+
+			if (clazz.hasSuperclass()) {
+				_superinit = prepareInitIn(clazz.getSuperclass());
+			}
+
+			SootMethod _init = clazz.getMethod("<init>", Collections.EMPTY_LIST, VoidType.v());
+			final boolean _existsButIsNotIncluded = !_init.hasTag(tagToResidualize);
+
+			if (_init == null || _existsButIsNotIncluded) {
+				final Tag _tag = new NamedTag(tagToResidualize);
+
+				if (_existsButIsNotIncluded) {
+					clazz.removeMethod(_init);
+				}
+				_init = new SootMethod("<init>", Collections.EMPTY_LIST, VoidType.v());
+				_init.addTag(_tag);
+
+				final Jimple _jimple = Jimple.v();
+				final Body _body = _jimple.newBody(_init);
+
+				if (_superinit != null) {
+					final RefType _clazzType = RefType.v(clazz);
+					final Local _this = _jimple.newLocal("_this", _clazzType);
+					final IdentityStmt _astmt = _jimple.newIdentityStmt(_this, _jimple.newThisRef(_clazzType));
+					_astmt.addTag(_tag);
+					_astmt.getLeftOpBox().addTag(_tag);
+					_astmt.getRightOpBox().addTag(_tag);
+					_body.getUnits().add(_astmt);
+					_body.getLocals().add(_this);
+
+					final InvokeExpr _iexpr = _jimple.newSpecialInvokeExpr(_this, _superinit);
+					final InvokeStmt _istmt = _jimple.newInvokeStmt(_iexpr);
+					_istmt.addTag(_tag);
+					_istmt.getInvokeExprBox().addTag(_tag);
+					((SpecialInvokeExpr) _iexpr).getBaseBox().addTag(_tag);
+					_body.getUnits().add(_istmt);
+				}
+
+				final Stmt _retStmt = _jimple.newReturnVoidStmt();
+				_retStmt.addTag(_tag);
+				_body.getUnits().add(_retStmt);
+				_init.setActiveBody(_body);
+				clazz.addMethod(_init);
+				clazz.addTag(_tag);
+			}
+
+			return _init;
 		}
 
 		/**
@@ -472,13 +590,22 @@ public final class TagBasedDestructiveSliceResidualizer
 				_ch.remove(_oldStmt);
 			}
 
-			oldStmt2newStmt.clear();
-            NopEliminator.v().transform(_body);
-            UnconditionalBranchFolder.v().transform(_body);
-            ConditionalBranchFolder.v().transform(_body);
-            UnreachableCodeEliminator.v().transform(_body);
+			//inject any cooked up predecessors
+			for (final Iterator _i = stmt2predecessors.entrySet().iterator(); _i.hasNext();) {
+				final Map.Entry _entry = (Map.Entry) _i.next();
+				final Object _stmt = _entry.getKey();
+				final List _preds = (List) _entry.getValue();
+				_ch.insertBefore(_preds, _stmt);
+			}
 
-            _body.validateLocals();
+			stmt2predecessors.clear();
+			oldStmt2newStmt.clear();
+			NopEliminator.v().transform(_body);
+			UnconditionalBranchFolder.v().transform(_body);
+			ConditionalBranchFolder.v().transform(_body);
+			UnreachableCodeEliminator.v().transform(_body);
+
+			_body.validateLocals();
 			_body.validateTraps();
 			_body.validateUnitBoxes();
 			_body.validateUses();
@@ -608,16 +735,16 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/25 23:33:40  venku
+   - well package naming convention was inconsistent. FIXED.
    Revision 1.20  2004/02/23 09:10:54  venku
    - depending on the unit graph used the body may be inconsistent in
      terms of control/data flow paths as the data analyses are based
      on the unit graph.  Hence, soot transformers are used to bring the
      body into a consistent state and then the validity tests are performed.
-
    Revision 1.19  2004/02/23 04:43:39  venku
    - jumps were not fixed properly when old statements were
      replaced with new statements.
-
    Revision 1.18  2004/02/04 04:33:41  venku
    - locals in empty methods need to be removed as well. FIXED.
    Revision 1.17  2004/01/31 01:48:18  venku
