@@ -13,7 +13,7 @@
 
 <target name="localbuild" depends="init">
     <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" debug="${debug}" includes="**/*.java">
+    <javac destdir="${build.dir}" debug="on" debuglevel="${debuglevel}" includes="**/*.java">
         <src refid="${srcpath}"/>
         <classpath refid="${classpath}"/>
     </javac>
@@ -24,7 +24,7 @@
     <antcall target="localbuild">
        <param name="srcpath" value="${ant.project.name}.docsrcpath"/> 
        <param name="classpath" value="${ant.project.name}.classpath"/> 
-       <param name="debug" value="off"/>
+       <param name="debuglevel" value="lines"/>
     </antcall>
 	<antcall target="executeCustomBuild"/>
 </target>
@@ -34,7 +34,7 @@
     <antcall target="localbuild">
        <param name="srcpath" value="${ant.project.name}.srcpath"/> 
        <param name="classpath" value="${ant.project.name}.classpath"/> 
-       <param name="debug" value="on"/>
+       <param name="debuglevel" value="lines,vars,source"/>
     </antcall>
 	<antcall target="executeCustomBuild"/>
 </target>
@@ -140,6 +140,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.29  2004/03/05 09:06:27  venku
+- added link to depending project's javadocs.
+
 Revision 1.28  2004/02/26 09:37:37  venku
 - added support for building docbook doc.
 

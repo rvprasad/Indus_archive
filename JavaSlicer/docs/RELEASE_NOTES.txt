@@ -1,0 +1,31 @@
+Required software:
+    Jakarta Commons CLI (1.0)
+        (commons-cli.jar) [http://jakarta.apache.org/commons/cli/]
+    Jakarta Commons Collection 3.0 
+        (commons-collections.jar) [http://jakarta.apache.org/commons/collections/]
+    Jakarta Commons Lang 2.0 
+        (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
+    Jakarta Commons Logging 1.0.2 
+        (commons-logging-api.jar, commons-logging.jar) [http://jakarta.apache.org/commons/logging/]
+    Jakarta Commons Pool 1.1 
+        (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
+    JiBX: Binding XML to Java Code (bleeding edge)
+        (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
+    Polyglot 1.0.1	
+        (polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]
+    Soot: a Java Optimization Framework (bleeding edge)
+        (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
+    SWT (3.0 >= M7)
+        (swt.jar) [http://www.eclipse.org]
+    xmlenc	(0.41)
+        (xmlenc.jar) [http://xmlenc.sourceforge.net/]
+    XMLUnit (1.0)	
+        (xmlunit.jar) [http://xmlunit.sourceforge.net/]
+    MXP1: Xml Pull Parser 3rd Edition (XPP3) (1.1.2)
+        (xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]
+
+
+Version 0.1a
+--------------
+This is the first release of Java Slicer subproject of Indus.  This module provides a Java program slicer that is preassembled as a
+tool and can be assembled to the liking of the user.  Please refer to the user guid and the java docs for more information.
