@@ -256,12 +256,12 @@ final class TaggingBasedSliceCollector {
 	 * together into a basic block.
 	 */
 	private void processGotos() {
-		IGotoProcessor _gotoProcessor = null;
+		AbstractSliceGotoProcessor _gotoProcessor = null;
 
 		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			_gotoProcessor = new SliceGotoProcessor(this, true);
+			_gotoProcessor = new BackwardSliceGotoProcessor(this);
 		} else if (engine.sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-			_gotoProcessor = new SliceGotoProcessor(this, false);
+			_gotoProcessor = new ForwardSliceGotoProcessor(this);
 		} else if (engine.sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
 			_gotoProcessor = new CompleteSliceGotoProcessor(this);
 		}
@@ -276,13 +276,7 @@ final class TaggingBasedSliceCollector {
 			if (_bbg == null) {
 				continue;
 			}
-			_gotoProcessor.preprocess(_sm);
-
-			for (final Iterator _j = _bbg.getNodes().iterator(); _j.hasNext();) {
-				final BasicBlock _bb = (BasicBlock) _j.next();
-				_gotoProcessor.process(_bb);
-			}
-			_gotoProcessor.postprocess();
+			_gotoProcessor.process(_sm, _bbg);
 		}
 	}
 }
@@ -290,6 +284,8 @@ final class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/16 12:44:49  venku
+   - safety check.
    Revision 1.16  2003/12/16 00:13:12  venku
    - logging.
    Revision 1.15  2003/12/15 16:31:46  venku
