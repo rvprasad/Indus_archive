@@ -40,7 +40,7 @@ public abstract class AbstractTokenManager
 	 * valid value/token of all reference types in the system. Hence, token to type relation will change as more types are
 	 * loaded into the system after <code>null</code> has been considered.
 	 */
-	protected final IDynamicTokenTypeRelationEvaluator onlineTokenTypeRelationEvalutator;
+	protected final IDynamicTokenTypeRelationDetector onlineTokenTypeRelationEvalutator;
 
     
 	/** 

@@ -83,7 +83,7 @@ public interface ITypeManager {
 	 *
 	 * @return dynamic token-type relation evaluating implementation.
 	 */
-	IDynamicTokenTypeRelationEvaluator getDynamicTokenTypeRelationEvaluator();
+	IDynamicTokenTypeRelationDetector getDynamicTokenTypeRelationEvaluator();
 
 	/**
 	 * Retrieves the specific type of the value.  It may be that the value is of type T1, T2, .. Tn of which Tn is it's

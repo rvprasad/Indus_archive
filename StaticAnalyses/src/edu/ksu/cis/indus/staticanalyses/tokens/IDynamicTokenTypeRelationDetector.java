@@ -19,13 +19,14 @@ import java.util.Collection;
 
 
 /**
- * This interface can be used to retrieve information about dynamic updates to value to type relationship.
+ * This interface can be used to detect value-to-type relationship that may be orthogonal or transparent to the type system
+ * being represented. 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface IDynamicTokenTypeRelationEvaluator {
+public interface IDynamicTokenTypeRelationDetector {
 	/**
 	 * Retrieves values conforming to the given type.
 	 *

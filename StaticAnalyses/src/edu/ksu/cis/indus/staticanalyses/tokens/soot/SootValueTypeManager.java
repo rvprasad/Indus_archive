@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.tokens.soot;
 import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.soot.Util;
 
-import edu.ksu.cis.indus.staticanalyses.tokens.IDynamicTokenTypeRelationEvaluator;
+import edu.ksu.cis.indus.staticanalyses.tokens.IDynamicTokenTypeRelationDetector;
 import edu.ksu.cis.indus.staticanalyses.tokens.IType;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager;
 
@@ -29,11 +29,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.PredicateUtils;
 
+import soot.ArrayType;
 import soot.NullType;
 import soot.RefLikeType;
 import soot.RefType;
@@ -62,7 +64,7 @@ public class SootValueTypeManager
 	/** 
 	 * This is the dynamic token-type relation evaluator.
 	 */
-	private final IDynamicTokenTypeRelationEvaluator evaluator;
+	private final IDynamicTokenTypeRelationDetector evaluator;
 
 	/** 
 	 * This maps soot types to user's type.
@@ -74,6 +76,11 @@ public class SootValueTypeManager
 	 */
 	private final Predicate typesForNullConstPredicate;
 
+	/** 
+	 * The type corresponding to the soot type representing <code>java.lang.Object</code>.
+	 */
+	private IType tokenTypeForObjectType;
+
 	/**
 	 * Creates an instance of this class.
 	 */
@@ -81,7 +88,7 @@ public class SootValueTypeManager
 		super();
 		typesForNullConstant = new HashSet();
 		typesForNullConstPredicate = PredicateUtils.instanceofPredicate(RefLikeType.class);
-		evaluator = new SootDynamicTokenTypeEvaluator();
+		evaluator = new SootDynamicTokenTypeRelationDetector();
 		sootType2Type = new HashMap(Constants.getNumOfClassesInApplication());
 	}
 
@@ -92,8 +99,23 @@ public class SootValueTypeManager
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private static class DummyType
+	static class DummyType
 	  implements IType {
+		/** 
+		 * The soot type represented by this instance.
+		 */
+		final Type sootType;
+
+		/**
+		 * Creates an instance of this class.
+		 *
+		 * @param sType is the represented Soot type.
+		 *
+		 * @pre sType != null
+		 */
+		public DummyType(final Type sType) {
+			sootType = sType;
+		}
 	}
 
 	/**
@@ -122,6 +144,12 @@ public class SootValueTypeManager
 				_result.add(sootType2Type.get(_t));
 			}
 			typesForNullConstant.addAll(_s);
+		} else if (_type instanceof ArrayType) {
+			final IType _t = getTokenTypeForObjectType();
+
+			if (_t != null) {
+				_result.add(_t);
+			}
 		}
 
 		return _result;
@@ -130,7 +158,7 @@ public class SootValueTypeManager
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getDynamicTokenTypeRelationEvaluator()
 	 */
-	public IDynamicTokenTypeRelationEvaluator getDynamicTokenTypeRelationEvaluator() {
+	public IDynamicTokenTypeRelationDetector getDynamicTokenTypeRelationEvaluator() {
 		return evaluator;
 	}
 
@@ -150,7 +178,7 @@ public class SootValueTypeManager
 		IType _result = (IType) sootType2Type.get(sootType);
 
 		if (_result == null) {
-			_result = new DummyType();
+			_result = new DummyType((Type) sootType);
 			sootType2Type.put(sootType, _result);
 			setChanged();
 			notifyObservers(new NewTypeCreated(_result));
@@ -165,6 +193,35 @@ public class SootValueTypeManager
 		sootType2Type.clear();
 		typesForNullConstant.clear();
 		evaluator.reset();
+		tokenTypeForObjectType = null;
+	}
+
+	/**
+	 * Retrieves the type for the soot type representing <code>java.lang.Object</code>.
+	 *
+	 * @return the type
+	 */
+	private IType getTokenTypeForObjectType() {
+		if (tokenTypeForObjectType == null) {
+			final Set _entrySet = sootType2Type.entrySet();
+			final Iterator _i = _entrySet.iterator();
+			final int _iEnd = _entrySet.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Map.Entry _entry = (Map.Entry) _i.next();
+				final Type _sootType = (Type) _entry.getKey();
+
+				if (_sootType instanceof RefType) {
+					final SootClass _sc = ((RefType) _sootType).getSootClass();
+
+					if (_sc.getName().equals("java.lang.Object")) {
+						tokenTypeForObjectType = (IType) _entry.getValue();
+						break;
+					}
+				}
+			}
+		}
+		return tokenTypeForObjectType;
 	}
 }
 
