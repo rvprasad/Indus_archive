@@ -1,11 +1,13 @@
-<compositeConfiguration xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
+<indus:compositeConfiguration 
+    xmlns:indus="http://indus.projects.cis.ksu.edu/indus"
+    xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://indus.projects.cis.ksu.edu/slicer slicerConfig.xsd" activeConfiguration="base">
-	<configurationInfo executableSlice="true" slicetype="BACKWARD_SLICE" analysis="base" name="first"
-    	sliceForDeadlock="true"> 
-	    <divergence active="false" interprocedural="true"/>
-	   	<interference natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"/>
-	    <ready active="false" rule1="true" rule2="true" rule3="true" rule4="true" 
-	        natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVCLS_BASED_INFO"/> 
-	</configurationInfo>
-</compositeConfiguration>
+    indus:activeConfiguration="first">
+	<indus:configurationInfo xsi:type="slicer:slicerConfiguration" slicer:executableSlice="true" 
+		slicer:slicetype="BACKWARD_SLICE" indus:name="first" slicer:sliceForDeadlock="true"> 
+	   	<slicer:interference slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVALENCE_CLASS_BASED_INFO"/>
+	    <slicer:divergence slicer:active="false" slicer:interprocedural="true"/>
+	    <slicer:ready slicer:active="false" slicer:rule1="true" slicer:rule2="true" slicer:rule3="true" slicer:rule4="true" 
+	        slicer:natureOfInterThreadAnalysis="SYMBOL_AND_EQUIVALENCE_CLASS_BASED_INFO"/> 
+	</indus:configurationInfo>
+</indus:compositeConfiguration>

@@ -1,0 +1,39 @@
+<xsd:schema id="indusConfig" version="1.0" xml:lang="en"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:indus="http://indus.projects.cis.ksu.edu/indus"
+    targetNamespace="http://indus.projects.cis.ksu.edu/indus"
+    elementFormDefault="qualified"
+    attributeFormDefault="qualified"
+    blockDefault="restriction"
+    finalDefault="restriction">
+
+    <xsd:complexType id="configuration" name="configuration" abstract="true">
+      <xsd:annotation>
+        <xsd:appinfo>
+          A configuration
+        </xsd:appinfo>
+        <xsd:documentation>
+          This is a configuration.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:attribute name="name" type="xsd:ID" use="required"/>
+    </xsd:complexType>
+
+    <xsd:element id="compositeConfiguration" name="compositeConfiguration">
+      <xsd:annotation>
+        <xsd:appinfo>
+          Composite configuration
+        </xsd:appinfo>
+        <xsd:documentation>
+          This is a set of configurations.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="configurationInfo" type="indus:configuration" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="activeConfiguration" type="xsd:IDREF" use="required"/>
+      </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>
