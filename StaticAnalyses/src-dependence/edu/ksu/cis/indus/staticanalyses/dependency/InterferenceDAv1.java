@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -61,8 +60,8 @@ import java.util.Set;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependeeMap.oclIsKindOf(Map(Object, Map(SootMethod, Map(Stmt, Collection(Pair(Stmt, SootMethodMethod))))))
- * @invariant dependentMap.oclIsKindOf(Map(Object, Map(SootMethod, Map(Stmt, Collection(Pair(Stmt, SootMethodMethod))))))
+ * @invariant dependeeMap.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethodMethod)))))
+ * @invariant dependentMap.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethodMethod)))))
  */
 public class InterferenceDAv1
   extends DependencyAnalysis {
@@ -203,7 +202,7 @@ public class InterferenceDAv1
 			pair2set = getDependeeMapFor(dependent);
 
 			if (pair2set != null) {
-				Collection set = (Set) pair2set.get(method);
+				Collection set = (Collection) pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
 
 				if (set != null) {
 					result = Collections.unmodifiableCollection(set);
@@ -242,7 +241,7 @@ public class InterferenceDAv1
 			pair2set = getDependentMapFor(dependee);
 
 			if (pair2set != null) {
-				Collection set = (Set) pair2set.get(method);
+				Collection set = (Collection) pair2set.get(pairMgr.getUnOptimizedPair(stmt, method));
 
 				if (set != null) {
 					result = Collections.unmodifiableCollection(set);
@@ -496,6 +495,8 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/26 06:14:02  venku
+   - added logic to consider class initializers.
    Revision 1.21  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
