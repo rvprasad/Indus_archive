@@ -61,6 +61,13 @@ public class IntegerTokenManager
 	 */
 	final Map type2tokens = new HashMap(Constants.getNumOfClassesInApplication());
 
+	/** 
+	 * The mapping between types to the type based filter.
+	 *
+	 * @invariant type2filter.oclIsKindOf(Map(IType, ITokenFilter))
+	 */
+	private final Map type2filter = new HashMap();
+
 	/**
 	 * Creates an instacne of this class.
 	 *
@@ -314,7 +321,13 @@ public class IntegerTokenManager
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeBasedFilter(IType)
 	 */
 	public ITokenFilter getTypeBasedFilter(final IType type) {
-		final IntegerTokenFilter _result = new IntegerTokenFilter(type);
+		ITokenFilter _result = (ITokenFilter) type2filter.get(type);
+
+		if (_result == null) {
+			_result = new IntegerTokenFilter(type);
+			type2filter.put(type, _result);
+		}
+
 		return _result;
 	}
 
@@ -330,10 +343,12 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/08/08 10:11:35  venku
+   - added a new class to configure constants used when creating data structures.
+   - ripple effect.
    Revision 1.8  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
-
    Revision 1.7  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract

@@ -57,6 +57,13 @@ public final class BitSetTokenManager
 	final List valueList = new ArrayList();
 
 	/** 
+	 * The mapping between types to the type based filter.
+	 *
+	 * @invariant type2filter.oclIsKindOf(Map(IType, ITokenFilter))
+	 */
+	private final Map type2filter = new HashMap();
+
+	/** 
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
 	 *
 	 * @invariant type2tokens.oclIsKindOf(Map(IType, BitSet))
@@ -246,14 +253,15 @@ public final class BitSetTokenManager
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeBasedFilter(IType)
 	 */
 	public ITokenFilter getTypeBasedFilter(final IType type) {
-		BitSet _mask = (BitSet) type2tokens.get(type);
+		final BitSet _mask =
+			(BitSet) CollectionsUtilities.getFromMap(type2tokens, type, CollectionsUtilities.BIT_SET_FACTORY);
+		ITokenFilter _result = (ITokenFilter) type2filter.get(type);
 
-		if (_mask == null) {
-			_mask = new BitSet();
-			type2tokens.put(type, _mask);
+		if (_result == null) {
+			_result = new BitSetTokenFilter(_mask);
+			type2filter.put(type, _mask);
 		}
 
-		final BitSetTokenFilter _result = new BitSetTokenFilter(_mask);
 		return _result;
 	}
 
@@ -269,10 +277,12 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/08/08 10:11:35  venku
+   - added a new class to configure constants used when creating data structures.
+   - ripple effect.
    Revision 1.7  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
-
    Revision 1.6  2004/06/22 01:01:37  venku
    - BitSet(1) creates an empty bitset.  Instead we use BitSet() to create a
      bit set that contains a long array of length 1.

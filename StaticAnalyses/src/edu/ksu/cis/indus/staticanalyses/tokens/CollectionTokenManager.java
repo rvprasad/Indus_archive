@@ -20,8 +20,10 @@ import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -38,10 +40,17 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class CollectionTokenManager
   extends AbstractTokenManager {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(CollectionTokenManager.class);
+
+	/** 
+	 * The mapping between types to the type based filter.
+	 *
+	 * @invariant type2filter.oclIsKindOf(Map(IType, ITokenFilter))
+	 */
+	private final Map type2filter = new HashMap();
 
 	/**
 	 * Creates an instacne of this class.
@@ -63,7 +72,7 @@ public final class CollectionTokenManager
 	 */
 	private class CollectionTokenFilter
 	  implements ITokenFilter {
-		/**
+		/** 
 		 * The type associated with the filter.
 		 */
 		private final IType filterType;
@@ -107,7 +116,7 @@ public final class CollectionTokenManager
 	private class CollectionTokens
 	  extends AbstractPrototype
 	  implements ITokens {
-		/**
+		/** 
 		 * The collection of values.
 		 *
 		 * @invariant values != null
@@ -186,7 +195,13 @@ public final class CollectionTokenManager
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeBasedFilter(IType)
 	 */
 	public ITokenFilter getTypeBasedFilter(final IType type) {
-		final CollectionTokenFilter _result = new CollectionTokenFilter(type);
+		ITokenFilter _result = (ITokenFilter) type2filter.get(type);
+
+		if (_result == null) {
+			_result = new CollectionTokenFilter(type);
+			type2filter.put(type, _result);
+		}
+
 		return _result;
 	}
 
@@ -200,6 +215,9 @@ public final class CollectionTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/20 07:29:41  venku
+   - optimized the token set to be optimal when created.
+   - added new method to retrieve empty token sets (getNewTokenSet()).
    Revision 1.1  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
