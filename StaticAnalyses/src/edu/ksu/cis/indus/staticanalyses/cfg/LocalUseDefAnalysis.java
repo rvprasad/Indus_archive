@@ -50,6 +50,11 @@ import soot.toolkits.graph.UnitGraph;
  */
 public final class LocalUseDefAnalysis {
 	/**
+	 * A manager of Pair objects.
+	 */
+	private static final PairManager PAIR_MGR = new PairManager();
+
+	/**
 	 * A map from local and statement pair to a collection of def statement.
 	 *
 	 * @invariant defInfo.oclIsKindOf(Map(Pair(Local, Stmt), Collection(DefinitionStmt))
@@ -62,11 +67,6 @@ public final class LocalUseDefAnalysis {
 	 * @invariant defInfo.oclIsKindOf(Map(DefinitionStmt, Collection(Stmt))
 	 */
 	private final Map useInfo = new HashMap();
-
-	/**
-	 * A manager of Pair objects.
-	 */
-	private final PairManager pairMgr = new PairManager();
 
 	/**
 	 * A list of statements in the given method.
@@ -91,10 +91,10 @@ public final class LocalUseDefAnalysis {
 		final Body _body = graph.getBody();
 		final BitSet[][] _l2defs = new BitSet[_body.getUnits().size()][_body.getLocalCount()];
 		stmtList = new ArrayList();
-		stmtList.addAll(graph.getBody().getUnits());
+		stmtList.addAll(_body.getUnits());
 
 		final List _listOfLocals = new ArrayList();
-		_listOfLocals.addAll(graph.getBody().getLocals());
+		_listOfLocals.addAll(_body.getLocals());
 		unitGraph = graph;
 		analyze(_l2defs, _listOfLocals);
 		extract(_l2defs, _listOfLocals);
@@ -115,7 +115,7 @@ public final class LocalUseDefAnalysis {
 	 */
 	public Collection getDefsOf(final Local local, final Stmt stmt) {
 		return Collections.unmodifiableCollection((Collection) CollectionsUtilities.getFromMap(defInfo,
-				pairMgr.getUnOptimizedPair(local, stmt), Collections.EMPTY_LIST));
+				PAIR_MGR.getUnOptimizedPair(local, stmt), Collections.EMPTY_LIST));
 	}
 
 	/**
@@ -158,45 +158,48 @@ public final class LocalUseDefAnalysis {
 	 */
 	private void analyze(final BitSet[][] local2defs, final List listOfLocals) {
 		final BitSet _temp = new BitSet();
-		final int _size = stmtList.size();
 		final IWorkBag _wb = new LIFOWorkBag();
-		final Collection _defStmts = seedDefInfo(local2defs, listOfLocals);
-		_wb.addAllWork(_defStmts);
+		_wb.addAllWork(seedDefInfo(local2defs, listOfLocals));
 
 		while (_wb.hasWork()) {
-			final Stmt _stmt = (Stmt) _wb.getWork();
+			final Pair _pair = (Pair) _wb.getWork();
+			final Stmt _stmt = (Stmt) _pair.getFirst();
+			final Integer _localIndexValue = (Integer) _pair.getSecond();
+			final int _localIndex = (_localIndexValue).intValue();
 			final BitSet[] _defsAtStmt = local2defs[stmtList.indexOf(_stmt)];
 			int _killIndex = -1;
 
 			if (_stmt instanceof DefinitionStmt) {
-				_killIndex = listOfLocals.indexOf(((ValueBox) _stmt.getDefBoxes().iterator().next()).getValue());
+				final Value _leftOp = ((DefinitionStmt) _stmt).getLeftOp();
+
+				if (_leftOp instanceof Local) {
+					_killIndex = listOfLocals.indexOf(_leftOp);
+				}
 			}
 
-			for (final Iterator _i = unitGraph.getSuccsOf(_stmt).iterator(); _i.hasNext();) {
-				final Stmt _succ = (Stmt) _i.next();
-				final int _succIndex = stmtList.indexOf(_succ);
-				final BitSet[] _defsAtSucc = local2defs[_succIndex];
-				boolean _flag = false;
+			if (_killIndex != _localIndex) {
+				for (final Iterator _i = unitGraph.getSuccsOf(_stmt).iterator(); _i.hasNext();) {
+					final Stmt _succ = (Stmt) _i.next();
+					final int _succIndex = stmtList.indexOf(_succ);
+					final BitSet[] _defsAtSucc = local2defs[_succIndex];
+					boolean _flag = false;
 
-				for (int _j = _defsAtStmt.length - 1; _j >= 0; _j--) {
-					if (_j != _killIndex) {
-						final BitSet _defsOfLocalAtStmt = _defsAtStmt[_j];
+					final BitSet _defsOfLocalAtStmt = _defsAtStmt[_localIndex];
 
-						if (_defsOfLocalAtStmt != null) {
-							if (_defsAtSucc[_j] == null) {
-								_defsAtSucc[_j] = new BitSet(_size);
-							}
-							_temp.clear();
-							_temp.or(_defsOfLocalAtStmt);
-							_temp.andNot(_defsAtSucc[_j]);
-							_flag |= _temp.cardinality() > 0;
-							_defsAtSucc[_j].or(_defsOfLocalAtStmt);
+					if (_defsOfLocalAtStmt != null) {
+						if (_defsAtSucc[_localIndex] == null) {
+							_defsAtSucc[_localIndex] = new BitSet();
 						}
+						_temp.clear();
+						_temp.or(_defsOfLocalAtStmt);
+						_temp.andNot(_defsAtSucc[_localIndex]);
+						_flag |= _temp.cardinality() > 0;
+						_defsAtSucc[_localIndex].or(_defsOfLocalAtStmt);
 					}
-				}
 
-				if (_flag) {
-					_wb.addWorkNoDuplicates(_succ);
+					if (_flag) {
+						_wb.addWorkNoDuplicates(PAIR_MGR.getOptimizedPair(_succ, _localIndexValue));
+					}
 				}
 			}
 		}
@@ -235,7 +238,7 @@ public final class LocalUseDefAnalysis {
 							_cache.add(_defStmt);
 							CollectionsUtilities.getListFromMap(useInfo, _defStmt).add(_stmt);
 						}
-						CollectionsUtilities.putAllIntoSetInMap(defInfo, pairMgr.getUnOptimizedPair(_local, _stmt), _cache);
+						CollectionsUtilities.putAllIntoSetInMap(defInfo, PAIR_MGR.getUnOptimizedPair(_local, _stmt), _cache);
 					}
 				}
 			}
@@ -256,14 +259,12 @@ public final class LocalUseDefAnalysis {
 	 */
 	private Collection seedDefInfo(final BitSet[][] local2defs, final List listOfLocals) {
 		final Collection _result = new ArrayList();
-		final int _sizeOfStmtList = stmtList.size();
 
 		for (final Iterator _i = unitGraph.iterator(); _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
 
 			if (_stmt instanceof DefinitionStmt) {
-				final ValueBox _vb = (ValueBox) _stmt.getDefBoxes().iterator().next();
-				final Value _value = _vb.getValue();
+				final Value _value = ((DefinitionStmt) _stmt).getLeftOp();
 
 				if (_value instanceof Local) {
 					final int _localIndex = listOfLocals.indexOf(_value);
@@ -271,14 +272,15 @@ public final class LocalUseDefAnalysis {
 
 					for (final Iterator _j = unitGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
 						final Stmt _succ = (Stmt) _j.next();
-						BitSet _temp = local2defs[stmtList.indexOf(_succ)][_localIndex];
+						final int _succIndex = stmtList.indexOf(_succ);
+						BitSet _temp = local2defs[_succIndex][_localIndex];
 
 						if (_temp == null) {
-							_temp = new BitSet(_sizeOfStmtList);
-							local2defs[stmtList.indexOf(_succ)][_localIndex] = _temp;
+							_temp = new BitSet();
+							local2defs[_succIndex][_localIndex] = _temp;
 						}
 						_temp.set(_stmtIndex, true);
-						_result.add(_succ);
+						_result.add(PAIR_MGR.getOptimizedPair(_succ, new Integer(_localIndex)));
 					}
 				}
 			}
@@ -290,6 +292,9 @@ public final class LocalUseDefAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/15 10:28:32  venku
+   - when the unit graph is used as basis for analysis, the units should be
+     extracted from it as well.
    Revision 1.1  2004/06/15 08:54:48  venku
    - implemented method local use-def info analysis.
    - implemented identified based dependence analysis based on above analysis.
