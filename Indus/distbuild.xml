@@ -71,6 +71,7 @@
         <zip destfile="${examples.src.zip.filename}">
             <fileset dir="..">
                 <include name="*/src-xml/**/*CLI.java"/>
+            	<include name="Indus/src/**/SootBasedDriver.java"/>
             </fileset>
         </zip>
     </target>
