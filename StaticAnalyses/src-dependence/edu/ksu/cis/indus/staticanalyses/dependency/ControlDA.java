@@ -191,6 +191,10 @@ public class ControlDA
 				continue;
 			}
 
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing method: " + currMethod.getSignature());
+			}
+
 			BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
 			fixupMaps(bbGraph, bbCDBitSets, currMethod);
 		}
@@ -489,6 +493,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/11/12 01:04:54  venku
+   - each analysis implementation has to identify itself as
+     belonging to a analysis category via an id.
    Revision 1.23  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
