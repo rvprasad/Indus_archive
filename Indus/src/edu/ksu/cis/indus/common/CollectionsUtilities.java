@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +47,40 @@ public final class CollectionsUtilities {
 	}
 
 	///CLOVER:ON
+
+	/**
+	 * Retrieves an element at the given index in the list.  If the value at the given index is <code>null</code> then the
+	 * null value is replaced by the <code>defaultValue</code> and the same is returned. If the index does not occur in the
+	 * list (list is short) then the list is extended with null values, <code>defaultValue</code> is added at the
+	 * appropriate index, and the same is  returned.
+	 *
+	 * @param list from which to retrieve the value.
+	 * @param index in <code>list</code> from which to retrive the value.
+	 * @param defaultValue to be injected and returned if none exists or if <code>null</code> exists.
+	 *
+	 * @return the value at <code>index</code> in <code>list</code>.
+	 *
+	 * @throws IndexOutOfBoundsException when <code>index</code> is less than 0.
+	 *
+	 * @pre list != null and index != null and defaultValue != null
+	 * @post list$pre.get(index) = null or list$pre.size() &lt; index implies result = defaultValue
+	 * @post list.get(index) = result
+	 */
+	public static Object getAtIndexFromList(final List list, final int index, final Object defaultValue) {
+		if (index < 0) {
+			throw new IndexOutOfBoundsException("invalid index: " + index + " < 0");
+		}
+
+		if (index > list.size()) {
+			list.addAll(Collections.nCopies(index - list.size(), null));
+			list.add(defaultValue);
+		}
+
+		if (list.get(index) == null) {
+			list.set(index, defaultValue);
+		}
+		return list.get(index);
+	}
 
 	/**
 	 * Retrieves a filtered map backed by the given map.
@@ -285,6 +320,9 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/06/01 06:29:58  venku
+   - added new methods to CollectionUtilities.
+   - ripple effect.
    Revision 1.3  2004/06/01 01:12:16  venku
    - added a new testcase to test BasicBlockGraph.
    - documentation.
