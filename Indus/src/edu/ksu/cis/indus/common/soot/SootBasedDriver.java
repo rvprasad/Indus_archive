@@ -358,12 +358,7 @@ public class SootBasedDriver {
 	private Scene loadupClassesAndCollectMains() {
 		final Scene _result = Scene.v();
 		String _temp = _result.getSootClassPath();
-		final String[] _options =
-			{
-				"-p", "jb", "use-original-names:false", "jb.ls", "enabled:true", "jb.ulp", "enabled:false",
-				"unsplit-original-locals:false",
-			};
-		Options.v().parse(_options);
+		Options.v().parse(Util.getSootOptions());
 
 		if (_temp != null) {
 			_temp += File.pathSeparator + classpathToAdd + File.pathSeparator + System.getProperty("java.class.path");
@@ -410,6 +405,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/03/05 11:59:40  venku
+   - documentation.
+
    Revision 1.12  2004/02/09 04:39:40  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.

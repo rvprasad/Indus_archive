@@ -319,6 +319,19 @@ public final class Util {
 	}
 
 	/**
+	 * Checks if the given type is a valid reference type.
+	 *
+	 * @param t is the type to checked.
+	 *
+	 * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
+	 *
+	 * @pre t != null
+	 */
+	public static final boolean isReferenceType(final Type t) {
+		return t instanceof RefType || t instanceof ArrayType || t instanceof NullType;
+	}
+
+	/**
 	 * Checks if type <code>t1</code> is the same/sub-type of type <code>t2</code>.
 	 *
 	 * @param t1 is the type to be checked for equivalence or sub typing.
@@ -339,6 +352,25 @@ public final class Util {
 				isDescendentOf(env.getClass(((RefType) t1).getClassName()), env.getClass(((RefType) t2).getClassName()));
 		}
 		return _result;
+	}
+
+	/**
+	 * Retrieve the soot options to be used when using Indus modules.  These options should be used via
+	 * <code>Options.v().parse(getSootOptions())</code>.  These options are setup according to the requirement of the 
+     * analyses in the project.
+	 *
+	 * @return the soot options.
+	 *
+	 * @post result != null.
+	 */
+	public static String[] getSootOptions() {
+		final String[] _options =
+			{
+				"-p", "jb", "use-original-names:false", "jb.ls", "enabled:true", "jb.ulp", "enabled:false",
+				"unsplit-original-locals:false",
+			};
+
+		return _options;
 	}
 
 	/**
@@ -529,34 +561,21 @@ public final class Util {
 		}
 		return _result;
 	}
-
-    /**
-     * Checks if the given type is a valid reference type.
-     *
-     * @param t is the type to checked.
-     *
-     * @return <code>true</code> if <code>t</code> is a valid reference type; <code>false</code>, otherwise.
-     *
-     * @pre t != null
-     */
-    public static final boolean isReferenceType(final Type t) {
-    	return t instanceof RefType || t instanceof ArrayType || t instanceof NullType;
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/02/27 07:53:04  venku
+   - logging.
    Revision 1.16  2004/02/26 08:31:26  venku
    - refactoring - moved OFAnalyzer.isReferenceType() to Util.
-
    Revision 1.15  2004/02/05 18:21:02  venku
    - moved getClassesInTopologicalSortedOrder() into Util.
    - logging.
    - getClassesInTopologicalSortedOrder() was collecting the
      retain methods rather than the methods from which
      to retain. FIXED.
-
    Revision 1.14  2004/01/25 09:02:46  venku
    - coding convention.
    Revision 1.13  2004/01/24 01:42:50  venku
