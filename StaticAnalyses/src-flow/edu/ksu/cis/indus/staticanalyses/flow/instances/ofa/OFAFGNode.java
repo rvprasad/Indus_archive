@@ -41,7 +41,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.WorkList;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 
 
@@ -83,7 +82,8 @@ public class OFAFGNode
 		 * @pre toNode != null and valuesToBeSent != null
 		 */
 		SendValuesWork(final IFGNode toNode, final Collection valuesToBeSent) {
-			super(toNode, valuesToBeSent);
+			setFGNode(toNode);
+            addValues(valuesToBeSent);
 		}
 
 		/**
@@ -95,7 +95,7 @@ public class OFAFGNode
 		 * @pre toNode != null and valueToBeSent != null
 		 */
 		SendValuesWork(final IFGNode toNode, final Object valueToBeSent) {
-			super(toNode, new HashSet());
+            setFGNode(toNode);
 			addValue(valueToBeSent);
 		}
 
@@ -114,7 +114,7 @@ public class OFAFGNode
 	 *
 	 * @return a new instance of this class parameterized by <code>o</code>.
 	 *
-	 * @pre o != null
+	 * @pre o != null and o.oclIsKindOf(WorkList)
 	 * @post result != null and result.oclIsKindOf(OFAFGNode)
 	 */
 	public Object getClone(final Object o) {
@@ -187,6 +187,11 @@ public class OFAFGNode
    ChangeLog:
 
    $Log$
+   Revision 1.2  2003/08/15 03:39:53  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
+   Renamed a few fields/parameter variables to avoid name confusion.
+
 
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

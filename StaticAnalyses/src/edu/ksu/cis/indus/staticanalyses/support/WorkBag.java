@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
-
 /**
  * This is a generic container of objects.  The order in which the objects are added and removed can be configured.  At
  * present, it supports LIFO and FIFO ordering.  This affects the order in which the <code>getWork()</code> will return the
@@ -402,6 +401,7 @@ public class WorkBag {
 	 * @param c the work pieces to be added.
 	 *
 	 * @invariant self->includesAll(self$pre)
+     * @pre c.oclIsKindOf(Collection(Object))
 	 * @post self->includesAll(c)
 	 * @post self->forall( o | self->count() = 1)
 	 */
@@ -455,11 +455,16 @@ public class WorkBag {
 	public boolean hasWork() {
 		return !container.isEmpty();
 	}
+    
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 08:49:34  venku
+   Javadoc documentation errors were fixed.
+   Some classes were documented.
+
    Revision 1.3  2003/08/11 06:40:54  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.

@@ -50,18 +50,22 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class WorkList
-  extends WorkBag {
+public class WorkList {
 	/**
 	 * An instance of <code>Logger</code> used for logging purposes.
 	 */
 	private static final Logger LOGGER = Logger.getLogger(WorkList.class);
 
 	/**
+	 * The backend workbag object which holds the work piece.
+	 */
+	private final WorkBag workbag;
+
+	/**
 	 * Creates a new <code>WorkList</code> instance.
 	 */
 	WorkList() {
-		super(LIFO);
+		workbag = new WorkBag(WorkBag.LIFO);
 	}
 
 	/**
@@ -76,7 +80,14 @@ public class WorkList
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Added new work:" + w);
 		}
-		addWorkNoDuplicates(w);
+		workbag.addWorkNoDuplicates(w);
+	}
+
+	/**
+	 * Removes any work in the work list without processing them.
+	 */
+	final void clear() {
+		workbag.clear();
 	}
 
 	/**
@@ -84,8 +95,8 @@ public class WorkList
 	 * have been executed.
 	 */
 	void process() {
-		while (hasWork()) {
-			AbstractWork w = (AbstractWork) getWork();
+		while (workbag.hasWork()) {
+			AbstractWork w = (AbstractWork) workbag.getWork();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Processing work:" + w);
@@ -100,6 +111,12 @@ public class WorkList
    
    $Log$
    
+   Revision 1.2  2003/08/15 04:07:56  venku
+   Spruced up documentation and specification.
+   - Important change is that previously all types of retype and nullconstant were let through.
+     This is incorrect as there is not type filtering happening.  This has been fixed.  We now
+     only let those that are not of the monitored type.
+     
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

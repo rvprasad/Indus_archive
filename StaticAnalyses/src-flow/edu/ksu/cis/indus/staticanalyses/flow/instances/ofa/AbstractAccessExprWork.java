@@ -119,16 +119,22 @@ public abstract class AbstractAccessExprWork
 	 */
 	protected AbstractAccessExprWork(final IFGNode accessNode, final Collection arrivingValues,
 		final MethodVariant callerMethod, final ValueBox accessExpr, final Context accessContext) {
-		super(accessNode, arrivingValues);
 		this.accessExprBox = accessExpr;
 		this.caller = callerMethod;
 		this.context = (AllocationContext) accessContext.clone();
+        setFGNode(accessNode);
+        addValues(arrivingValues);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/15 03:39:53  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
+   Renamed a few fields/parameter variables to avoid name confusion.
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
