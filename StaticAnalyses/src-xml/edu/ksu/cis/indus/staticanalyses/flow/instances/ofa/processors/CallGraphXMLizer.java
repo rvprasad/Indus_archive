@@ -101,7 +101,7 @@ final class CallGraphXMLizer
 				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
 					final SootMethod _callee = (SootMethod) _j.next();
 					_xmlWriter.startTag("callee");
-					_xmlWriter.attribute("calleID", getIdGenerator().getIdForMethod(_callee));
+					_xmlWriter.attribute("calleeId", getIdGenerator().getIdForMethod(_callee));
 					_xmlWriter.endTag();
 				}
 
@@ -115,7 +115,7 @@ final class CallGraphXMLizer
 				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
 					final SootMethod _caller = (SootMethod) _j.next();
 					_xmlWriter.startTag("caller");
-					_xmlWriter.attribute("callerID", getIdGenerator().getIdForMethod(_caller));
+					_xmlWriter.attribute("callerId", getIdGenerator().getIdForMethod(_caller));
 					_xmlWriter.endTag();
 				}
 
@@ -133,6 +133,9 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/05/09 08:24:08  venku
+   - all xmlizers use xmlenc to write xml data.
+
    Revision 1.14  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
