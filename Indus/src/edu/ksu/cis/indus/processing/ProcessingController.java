@@ -19,7 +19,6 @@ import soot.Local;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
@@ -1181,6 +1180,10 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/30 13:20:51  venku
+   - sub-expressions of complex expressions were not being
+     processed.  FIXED.
+
    Revision 1.15  2003/11/30 00:21:11  venku
    - methodFilter fields was removed.
    - error in logic while filtering methods. FIXED.
