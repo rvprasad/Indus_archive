@@ -34,6 +34,9 @@ import edu.ksu.cis.indus.staticanalyses.support.Quadraple;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,6 +67,11 @@ import java.util.Stack;
 public class SynchronizationDA
   extends DependencyAnalysis
   implements IMonitorInfo {
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(SynchronizationDA.class);
+
 	/**
 	 * This collects the enter-monitor statements during preprocessing.
 	 *
@@ -220,6 +228,10 @@ public class SynchronizationDA
 	public void analyze() {
 		stable = false;
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: processing");
+		}
+
 		WorkBag workbag = new WorkBag(WorkBag.LIFO);
 		Collection temp = new HashSet();
 		Collection col;
@@ -369,6 +381,10 @@ nextBasicBlock:
 		}
 
 		stable = true;
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: processing");
+		}
 	}
 
 	/**
@@ -483,6 +499,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.11  2003/09/12 22:33:09  venku
    - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
    - Ripple effect of the above changes.

@@ -65,23 +65,20 @@ public class ControlDA
 	private static final Log LOGGER = LogFactory.getLog(ControlDA.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates the dependence information is required in the forward direction assuming all the exit points of the
+	 * method as entry points.
 	 */
 	public static final Object FORWARD = "forward direction";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates the dependence information is required in the backward direction assuming all the entry points of the
+	 * method as entry points.
 	 */
 	public static final Object BACKWARD = "backward direction";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This captures the direction of the information calculated by this object.  <code>true</code> indicates following
+	 * control flow edges in reverse direction. <code>false</code> indicates follow control flow edges in forward direction.
 	 */
 	private final boolean forward;
 
@@ -93,9 +90,9 @@ public class ControlDA
 	/**
 	 * Creates a new ControlDA object.
 	 *
-	 * @param direction DOCUMENT ME!
+	 * @param direction of the information.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @throws IllegalArgumentException when the direction is not one of <code>BACKWARD</code> or <code>FORWARD</code>.
 	 */
 	public ControlDA(final Object direction) {
 		if (direction.equals(BACKWARD)) {
@@ -172,6 +169,10 @@ public class ControlDA
 	public void analyze() {
 		stable = false;
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: processing");
+		}
+
 		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod currMethod = (SootMethod) i.next();
 			BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
@@ -183,6 +184,10 @@ public class ControlDA
 
 			BitSet[] bbCDBitSets = computeControlDependency(bbGraph);
 			fixupMaps(bbGraph, bbCDBitSets, currMethod);
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: processing");
 		}
 		stable = true;
 	}
@@ -475,6 +480,11 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/10/31 01:00:58  venku
+   - added support to switch direction.  However, forward
+     slicing can be viewed in two interesting ways and
+     our implementation handles the most interesting
+     direction.
    Revision 1.15  2003/09/28 12:27:31  venku
    -  The control dep was buggy. FIXED.
    Revision 1.14  2003/09/28 06:20:38  venku
