@@ -21,6 +21,8 @@ import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import java.io.File;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -75,9 +77,13 @@ public final class JimpleXMLizerCLI {
 		_o.setArgs(1);
 		_o.setArgName("path");
 		_o.setOptionalArg(false);
-		_o.setRequired(true);
 		_options.addOption(_o);
 		_o = new Option("h", "help", false, "Display message.");
+		_options.addOption(_o);
+		_o = new Option("p", "soot-classpath", true, "Prepend this to soot class path.");
+		_o.setArgs(1);
+		_o.setArgName("classpath");
+		_o.setOptionalArg(false);
 		_options.addOption(_o);
 
 		final HelpFormatter _help = new HelpFormatter();
@@ -89,10 +95,16 @@ public final class JimpleXMLizerCLI {
 			if (_cl.hasOption('h')) {
 				_help.printHelp("java edu.ksu.cis.indus.JimpleXMLizer <options> <class names>", _options, true);
 			} else {
-				for (int _i = 0; _i < _args.length; _i++) {
-					_scene.loadClassAndSupport(_args[_i]);
+				if (_args.length > 0) {
+					_scene.setSootClassPath(_cl.getOptionValue('p') + File.pathSeparator + _scene.getSootClassPath());
+
+					for (int _i = 0; _i < _args.length; _i++) {
+						_scene.loadClassAndSupport(_args[_i]);
+					}
+					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(), null);
+				} else {
+					System.out.println("No classes were specified.");
 				}
-				writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(), null);
 			}
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line");
@@ -137,6 +149,8 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/10 11:28:24  venku
+   - Jimple is dumped only for the reachable parts of the system.
    Revision 1.1  2004/04/25 21:18:39  venku
    - refactoring.
      - created new classes from previously embedded classes.
