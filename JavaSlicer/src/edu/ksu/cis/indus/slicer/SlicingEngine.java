@@ -855,7 +855,7 @@ public final class SlicingEngine {
 		if (!marked(method)) {
 			markAsInvoked(method);
 		}
-
+        
 		if (!collector.hasBeenCollected(stmt)) {
 			final SliceStmt _sliceCriterion = SliceStmt.getSliceStmt();
 			_sliceCriterion.initialize(method, stmt);
@@ -865,7 +865,13 @@ public final class SlicingEngine {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " to workbag.");
 			}
-		} else if (LOGGER.isDebugEnabled()) {
+		} else  {
+            if (considerExecution) {
+                for (final Iterator _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext(); ) {
+                    final ValueBox _valueBox = (ValueBox) _i.next();
+                    generateSliceExprCriterion(_valueBox, stmt, method, considerExecution);
+                } 
+            } else if (LOGGER.isDebugEnabled())        
 			LOGGER.debug("Already collected stmt " + stmt + " in " + method.getSignature());
 		}
 	}
@@ -1236,6 +1242,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.49  2004/01/13 23:25:04  venku
+   - documentation.
+
    Revision 1.48  2004/01/13 10:03:31  venku
    - documentation.
    Revision 1.47  2004/01/13 04:33:39  venku
