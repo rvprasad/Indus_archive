@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
+import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.Collection;
@@ -33,7 +34,6 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.collections.Predicate;
 
 import soot.SootMethod;
 
@@ -77,7 +77,7 @@ public final class AliasedUseDefInfov2
 	 *
 	 * @param cg is the call graph to use.
 	 * @param tg is the thread graph to use.  If this parameter is <code>null</code> then it is assumed all methods execute
-	 * in the same thread. 
+	 * 		  in the same thread.
 	 *
 	 * @pre iva != null and cg != null and bbgManager != null and pairManager != null
 	 */
@@ -98,34 +98,43 @@ public final class AliasedUseDefInfov2
 	}
 
 	/**
-	 * {@inheritDoc} 
+	 * {@inheritDoc}
 	 * 
-	 * <p>This implementation actually checks if the use site is reachable from the def site via control flow.
-	 * However, it does not check for the existence of any overriding definitions alike strong updates.</p>
+	 * <p>
+	 * This implementation actually checks if the use site is reachable from the def site via control flow. However, it does
+	 * not check for the existence of any overriding definitions alike strong updates.
+	 * </p>
 	 *
 	 * @pre defMethod != null and defStmt != null and useMethod != null and useStmt != null
 	 */
 	protected boolean isReachableViaInterProceduralControlFlow(final SootMethod defMethod, final Stmt defStmt,
 		final SootMethod useMethod, final Stmt useStmt) {
-		boolean _result = occurInSameThread(defMethod, useMethod);
+		boolean _result = !tgi.mustOccurInDifferentThread(defMethod, useMethod);
 
 		if (_result) {
+			_result = false;
+
 			/*
-			 * Check if the use method is reachable from the def method. If so, check the ordering within the def method.
+			 * Check if the use method is reachable from the def method. If so, check the use method is reachable via
+			 * any of the invocation statement that succeed defStmt in defMethod.
 			 */
 			if (cgi.getMethodsReachableFrom(defMethod, true).contains(useMethod)) {
 				_result = doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true);
 			}
 
 			/*
-			 * Check if the def method is reachable from the use method. If so, check the ordering within the use method.
+			 * Check if the def method is reachable from the use method. If so, check the def method is reachable via
+			 * any of the invocation statements that precede useStmt in useMethod.
 			 */
 			if (!_result && cgi.getMethodsReachableFrom(useMethod, true).contains(defMethod)) {
 				_result = doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false);
 			}
 
 			/*
-			 * Check if the control can reach from the def method to the use method across common call-graph ancestor.
+			 * Check if the control can reach from the def method to the use method via some common ancestor in the
+			 * call-graph.  We cannot assume that the previous two conditions need to be false to evaluate this block.  The
+			 * reason being that there may be a call chain from the defMethod to the useMethod but the invocation site in 
+			 * defMethod may occur prior to the defStmt.  The same holds for condition two.
 			 */
 			if (!_result) {
 				_result = doesControlPathExistsFromTo(defMethod, useMethod);
@@ -150,15 +159,8 @@ public final class AliasedUseDefInfov2
 		final Iterator _result;
 
 		if (_temp == null) {
-			final Predicate _invokeExprFilter =
-				new Predicate() {
-					public boolean evaluate(final Object o) {
-						return ((Stmt) o).containsInvokeExpr();
-					}
-				};
-
 			final Iterator _stmts = bbgMgr.getBasicBlockGraph(method).getStmtGraph().iterator();
-			_result = IteratorUtils.filteredIterator(_stmts, _invokeExprFilter);
+			_result = IteratorUtils.filteredIterator(_stmts, MonitorAnalysis.INVOKE_EXPR_PREDICATE);
 			method2EnclosingInvokingStmtsCache.put(method, IteratorUtils.toList(_result));
 		} else {
 			_result = _temp.iterator();
@@ -193,23 +195,21 @@ public final class AliasedUseDefInfov2
 			_bbDefStmts = _bbDef.getStmtFromTo(_bbDef.getLeaderStmt(), stmt);
 		}
 
-		for (final Iterator _j = _bbDefStmts.iterator(); _j.hasNext() && !_result;) {
+		for (final Iterator _j =
+				IteratorUtils.filteredIterator(_bbDefStmts.iterator(), MonitorAnalysis.INVOKE_EXPR_PREDICATE);
+			  _j.hasNext() && !_result;) {
 			final Stmt _stmt = (Stmt) _j.next();
-
-			if (_stmt.containsInvokeExpr()) {
-				_result = cgi.getMethodsReachableFrom(_stmt, method).contains(targetMethod);
-			}
+			_result = cgi.getMethodsReachableFrom(_stmt, method).contains(targetMethod);
 		}
 
 		for (final Iterator _i = _reachableBBs.iterator(); _i.hasNext() && !_result;) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
 
-			for (final Iterator _j = _bb.getStmtsOf().iterator(); _j.hasNext() && !_result;) {
+			for (final Iterator _j =
+					IteratorUtils.filteredIterator(_bb.getStmtsOf().iterator(), MonitorAnalysis.INVOKE_EXPR_PREDICATE);
+				  _j.hasNext() && !_result;) {
 				final Stmt _stmt = (Stmt) _j.next();
-
-				if (_stmt.containsInvokeExpr()) {
-					_result = cgi.getMethodsReachableFrom(_stmt, method).contains(targetMethod);
-				}
+				_result = cgi.getMethodsReachableFrom(_stmt, method).contains(targetMethod);
 			}
 		}
 		return _result;
@@ -230,6 +230,7 @@ public final class AliasedUseDefInfov2
 		final Collection _commonAncestors =
 			CollectionUtils.intersection(cgi.getMethodsReachableFrom(defMethod, false),
 				cgi.getMethodsReachableFrom(useMethod, false));
+		final boolean _flag = cgi.getMethodsReachableFrom(defMethod, true).contains(useMethod);
 
 		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext() && !_result;) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -239,31 +240,16 @@ public final class AliasedUseDefInfov2
 				final Stmt _stmt = (Stmt) _j.next();
 				final Collection _callees = cgi.getMethodsReachableFrom(_stmt, _sm);
 
-				if (_callees.contains(defMethod) && !_callees.contains(useMethod)) {
+				/*
+				 * We cannot just require !_callees.contains(useMethod) as it is possible that useMethod is reachable from
+				 * defMethod but the defStmt may not be (see comments in isReachableViaInterProceduralControlFlow).  However,
+				 * we can strenghten the condition to avoid unnecessary explorations by requiring either the useMethod be not 
+				 * reachable from the invocation site or it be reachable via the defMethod also. 
+				 */
+				if (_callees.contains(defMethod) && (!_callees.contains(useMethod) ^ _flag)) {
 					_result = doesControlFlowPathExistsBetween(_sm, _stmt, useMethod, true);
 				}
 			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Checks if the data defining method and the method in which the data is used occurs in the same thread.
-	 *
-	 * @param defMethod obviously contains the definition.
-	 * @param useMethod obviously contains the use.
-	 *
-	 * @return <code>true</code> if the given methods occur in the same thread; <code>false</code>, otherwise.
-	 *
-	 * @pre defMethod != null and useMethod != null
-	 */
-	private boolean occurInSameThread(final SootMethod defMethod, final SootMethod useMethod) {
-		final boolean _result;
-
-		if (tgi != null) {
-			_result = CollectionUtils.containsAny(tgi.getExecutionThreads(defMethod), tgi.getExecutionThreads(useMethod));
-		} else {
-			_result = true;
 		}
 		return _result;
 	}
@@ -272,6 +258,9 @@ public final class AliasedUseDefInfov2
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/08/07 13:16:56  venku
+   - documentation
+   - if tgi is absent, occursInSameThread() should return true. FIXED.
    Revision 1.4  2004/08/06 07:37:33  venku
    - thread-graph based optimization.
    Revision 1.3  2004/08/02 07:33:45  venku

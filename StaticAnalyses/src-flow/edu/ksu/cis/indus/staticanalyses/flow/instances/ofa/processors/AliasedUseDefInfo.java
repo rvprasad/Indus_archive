@@ -357,7 +357,7 @@ public class AliasedUseDefInfo
 	 *
 	 * @return <code>true</code>
 	 */
-	protected boolean isReachableViaInterProceduralFlow(final SootMethod defMethod, final Stmt defStmt,
+	protected boolean isReachableViaInterProceduralControlFlow(final SootMethod defMethod, final Stmt defStmt,
 		final SootMethod useMethod, final Stmt useStmt) {
 		return true;
 	}
@@ -454,7 +454,7 @@ public class AliasedUseDefInfo
 					_result = _bbg.isReachable(_bbDef, _bbUse, true);
 				}
 			} else {
-				_result = isReachableViaInterProceduralFlow(_defMethod, _defStmt, _useMethod, _useStmt);
+				_result = isReachableViaInterProceduralControlFlow(_defMethod, _defStmt, _useMethod, _useStmt);
 			}
 		}
 		return _result;
@@ -464,6 +464,10 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/08/08 10:11:35  venku
+   - added a new class to configure constants used when creating data structures.
+   - ripple effect.
+
    Revision 1.45  2004/08/08 08:50:03  venku
    - aspectized profiling/statistics logic.
    - used a cache in CallGraph for reachable methods.
