@@ -46,10 +46,8 @@ public final class CompleteUnitGraphFactory
 
 		if (method.isConcrete()) {
 			_result = new CompleteUnitGraph(method.retrieveActiveBody());
-
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("Method " + method + " is not concrete.");
-			}
+		} else if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Method " + method + " is not concrete.");
 		}
 		return _result;
 	}
@@ -58,6 +56,9 @@ public final class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.2  2003/12/09 04:42:42  venku
    - unit graph factories are responsible to construct empty
      bodies for methods not BasicBlockGraphMgr.  FIXED.
@@ -89,7 +90,7 @@ public final class CompleteUnitGraphFactory
      have a body.
    Revision 1.2  2003/09/28 06:52:22  venku
  *** empty log message ***
-                       Revision 1.1  2003/09/28 06:22:54  venku
-                       - Added support to plug unit graphs from the environment when
-                         requested by the implementations.
+                         Revision 1.1  2003/09/28 06:22:54  venku
+                         - Added support to plug unit graphs from the environment when
+                           requested by the implementations.
  */
