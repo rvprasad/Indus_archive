@@ -50,22 +50,22 @@ public class SlicerTool
 	/**
 	 * This identifies the scene in the input arguments.
 	 */
-	public static final Object SCENE = "The Scene to be transformed.";
+	public static final Object SCENE = "scene";
 
 	/**
 	 * This identifies the root methods/entry point methods in the input arguments.
 	 */
-	public static final Object ROOT_METHODS = "The Entry-point methods.";
+	public static final Object ROOT_METHODS = "entryPoints";
 
 	/**
 	 * This identifies the slicing criteria in the input arguments.
 	 */
-	public static final Object CRITERIA = "The Slicing criteria.";
+	public static final Object CRITERIA = "slicingCriteria";
 
 	/**
 	 * This identifies the slicing tag name in the input arguments.
 	 */
-	public static final String TAG_NAME = "The name of the slice tag.";
+	public static final String TAG_NAME = "slicingTagName";
 
 	/**
 	 * The collection of input argument identifiers.
@@ -239,10 +239,11 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 23:16:18  venku
+   - documentation
    Revision 1.7  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.6  2003/09/27 01:27:46  venku
    - documentation.
    Revision 1.5  2003/09/27 01:09:35  venku
