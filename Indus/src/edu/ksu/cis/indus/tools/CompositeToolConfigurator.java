@@ -52,99 +52,142 @@ public final class CompositeToolConfigurator
 	/**
 	 * This is composite on which the child configurator will be displayed.
 	 */
-	Composite composite;
+	Composite childComposite;
 
 	/**
 	 * This is the composite configuration being configured.
 	 */
-	CompositeToolConfiguration configurationCollection;
+	CompositeToolConfiguration compositeConfiguration;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	IToolConfigurationFactory toolConfigFactory;
 
 	/**
 	 * Creates a new CompositeToolConfigurator object.
 	 *
 	 * @param configs is the composite configuration.
 	 * @param child is the configurator to be used for each configuration instance.
+	 * @param factory is used to create tool configuration of a specific type when there exists none.
 	 *
 	 * @pre configs != null and child != null
 	 */
-	public CompositeToolConfigurator(final CompositeToolConfiguration configs, final AbstractToolConfigurator child) {
-		configurationCollection = configs;
+	public CompositeToolConfigurator(final CompositeToolConfiguration configs, final AbstractToolConfigurator child,
+		final IToolConfigurationFactory factory) {
+		compositeConfiguration = configs;
 		childConfigurator = child;
-	}
-
-	/**
-	 * Disposes the editor widget. If the widget is displayed, it will be hidden and the widget will not respond to any
-	 * subsequent method calls.
-	 */
-	public void disposeTemplateMethod() {
-		composite = null;
-		configCombo = null;
-		configurationCollection = null;
-		childConfigurator.dispose();
-		childConfigurator = null;
-
+		toolConfigFactory = factory;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	protected void displayTemplateMethod() {
-		configCombo.removeAll();
-
-		for (Iterator i = configurationCollection.configurations.iterator(); i.hasNext();) {
-			AbstractToolConfiguration config = (AbstractToolConfiguration) i.next();
-			configCombo.add(config.NAME);
-		}
-		configCombo.select(configurationCollection.configurations.indexOf(
-				configurationCollection.getActiveToolConfiguration()));
-        parent.setVisible(true);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected void initialize() {
+	protected void setup() {
 		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
+		gridLayout.numColumns = 3;
 		parent.setLayout(gridLayout);
 
-		new Label(parent, SWT.NONE).setText("Configurations:");
+		Label label = new Label(parent, SWT.NONE);
+		label.setText("Configurations:");
+
+		GridData gridData = new GridData();
+		gridData.horizontalSpan = 3;
+		label.setLayoutData(gridData);
 		configCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
 		configCombo.setItems(new String[0]);
-		configCombo.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+		configCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		configCombo.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					int index = configCombo.getSelectionIndex();
-					AbstractToolConfiguration tc =
-						(AbstractToolConfiguration) configurationCollection.configurations.get(index);
-					configurationCollection.setActiveToolConfiguration(tc);
-					childConfigurator.setConfiguration(tc);
-					childConfigurator.display(composite);
+					displayChild();
+					parent.pack();
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
 					widgetSelected(evt);
 				}
 			});
-		composite = new Composite(parent, SWT.NONE);
+		configCombo.setVisible(true);
 
 		Button ok = new Button(parent, SWT.PUSH);
+		ok.setText("Ok");
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
+		gridData.horizontalIndent = ok.getText().length() * 5;
+		ok.setLayoutData(gridData);
 		ok.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(SelectionEvent evt) {
-					parent.setVisible(false);
+					parent.dispose();
 				}
 
 				public void widgetDefaultSelected(SelectionEvent evt) {
 					widgetSelected(evt);
 				}
 			});
-        childConfigurator.parent = composite;
+
+		Button newConfig = new Button(parent, SWT.PUSH);
+		newConfig.setText("Create");
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
+		gridData.horizontalIndent = newConfig.getText().length() * 5;
+		newConfig.setLayoutData(gridData);
+		newConfig.addSelectionListener(new SelectionListener() {
+				public void widgetSelected(SelectionEvent evt) {
+					AbstractToolConfiguration atc = toolConfigFactory.createToolConfiguration();
+					atc.NAME = "slicer_configuration_" + compositeConfiguration.configurations.size();
+					compositeConfiguration.addToolConfiguration(atc);
+					configCombo.add(atc.NAME);
+					configCombo.select(compositeConfiguration.configurations.indexOf(atc));
+				}
+
+				public void widgetDefaultSelected(SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			});
+
+		if (compositeConfiguration.configurations.isEmpty()) {
+			compositeConfiguration.configurations.add(toolConfigFactory.createToolConfiguration());
+		}
+
+		for (Iterator i = compositeConfiguration.configurations.iterator(); i.hasNext();) {
+			AbstractToolConfiguration config = (AbstractToolConfiguration) i.next();
+			configCombo.add(config.NAME);
+		}
+
+		AbstractToolConfiguration c = compositeConfiguration.getActiveToolConfiguration();
+		configCombo.select(compositeConfiguration.configurations.indexOf(c));
+		displayChild();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	void displayChild() {
+		if (childComposite != null) {
+			childComposite.dispose();
+		}
+		childComposite = new Composite(parent, SWT.NONE);
+
+		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+		gridData.horizontalSpan = 3;
+		childComposite.setLayoutData(gridData);
+		childComposite.setVisible(true);
+
+		int index = configCombo.getSelectionIndex();
+		AbstractToolConfiguration tc = (AbstractToolConfiguration) compositeConfiguration.configurations.get(index);
+		compositeConfiguration.setActiveToolConfiguration(tc);
+		childConfigurator.setConfiguration(tc);
+		childConfigurator.initialize(childComposite);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/10/14 02:57:10  venku
+   - ripple effect of changes to AbstractToolConfigurator.
    Revision 1.5  2003/09/27 01:27:47  venku
    - documentation.
    Revision 1.4  2003/09/27 01:09:36  venku

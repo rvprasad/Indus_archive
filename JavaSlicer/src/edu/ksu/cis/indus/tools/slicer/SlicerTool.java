@@ -24,6 +24,9 @@ import soot.toolkits.graph.UnitGraph;
 
 import edu.ksu.cis.indus.common.CompleteUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
+import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
+import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
@@ -46,9 +49,6 @@ import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
-import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
-import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -174,14 +174,14 @@ public final class SlicerTool
 	private final SlicingEngine engine;
 
 	/**
+	 * This provides <code>UnitGraph</code>s for the analyses.
+	 */
+	private AbstractUnitGraphFactory unitGraphProvider;
+
+	/**
 	 * This is the slice transformer.
 	 */
 	private ISlicingBasedTransformer transformer;
-
-	/** 
-	 * This provides <code>UnitGraph</code>s for the analyses. 
-	 */
-	private AbstractUnitGraphFactory unitGraphProvider;
 
 	/**
 	 * This is the slice criterion factory that will be used.
@@ -339,12 +339,9 @@ public final class SlicerTool
 			IBindingFactory bfact = BindingDirectory.getFactory(CompositeToolConfiguration.class);
 			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
 			configurationInfo = (AbstractToolConfiguration) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
-
-			if (configurator != null) {
-				configurator.dispose();
-			}
 			configurator =
-				new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator());
+				new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(),
+					new SlicerConfiguration());
 		} catch (JiBXException e) {
 			LOGGER.error("Error while unmarshalling Slicer configurationCollection.", e);
 			throw new RuntimeException(e);
@@ -483,23 +480,21 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/10/19 20:04:42  venku
+   - configuration should be (un)marshalled not the tool. FIXED.
    Revision 1.11  2003/10/13 01:01:45  venku
    - Split transformations.slicer into 2 packages
       - transformations.slicer
       - slicer
    - Ripple effect of the above changes.
-
    Revision 1.10  2003/09/28 06:54:17  venku
    - one more small change to the interface.
-
    Revision 1.9  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
-
    Revision 1.8  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
      these unit graphs.
-
    Revision 1.7  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.

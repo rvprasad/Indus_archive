@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
@@ -22,8 +23,9 @@ import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
-import edu.ksu.cis.indus.slicer.SlicingEngine;
+import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,7 +42,8 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public class SlicerConfiguration
-  extends AbstractToolConfiguration {
+  extends AbstractToolConfiguration
+  implements IToolConfigurationFactory {
 	/**
 	 * This identifies the property that indicates if interprocedural divergence dependence should be used instead of mere
 	 * intraprocedural divergent dependence.
@@ -106,8 +109,16 @@ public class SlicerConfiguration
 	public static final Object SLICE_TYPE = "slice type";
 
 	/**
-	 * This is used to track the initialization of PROPERTY_IDS upon the creation of the first instance and then avoid it on
-	 * subsequent instantiations.
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private static final Collection PROPERTY_IDS_CACHE = new ArrayList();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private static boolean uninitialized = true;
 
@@ -115,7 +126,7 @@ public class SlicerConfiguration
 	 * This indicates if the tool should criteria that ensure the deadlock behavior of the slice is same as that of the
 	 * original program.
 	 */
-	boolean sliceForDeadlock = false;
+	protected boolean sliceForDeadlock = false;
 
 	/**
 	 * The collection of ids of the dependences to be considered for slicing.
@@ -135,20 +146,30 @@ public class SlicerConfiguration
 	 * Creates a new SlicerConfiguration object.
 	 */
 	public SlicerConfiguration() {
-		if (!uninitialized) {
-			PROPERTY_IDS.add(INTERPROCEDURAL_DIVERGENCEDA);
-			PROPERTY_IDS.add(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA);
-			PROPERTY_IDS.add(EQUIVALENCE_CLASS_BASED_READYDA);
-			PROPERTY_IDS.add(USE_READYDA);
-			PROPERTY_IDS.add(USE_DIVERGENCEDA);
-			PROPERTY_IDS.add(USE_RULE1_IN_READYDA);
-			PROPERTY_IDS.add(USE_RULE2_IN_READYDA);
-			PROPERTY_IDS.add(USE_RULE3_IN_READYDA);
-			PROPERTY_IDS.add(USE_RULE4_IN_READYDA);
-			PROPERTY_IDS.add(SLICE_FOR_DEADLOCK);
-			PROPERTY_IDS.add(SLICE_TYPE);
+		if (uninitialized) {
+			PROPERTY_IDS_CACHE.add(USE_DIVERGENCEDA);
+			PROPERTY_IDS_CACHE.add(INTERPROCEDURAL_DIVERGENCEDA);
+			PROPERTY_IDS_CACHE.add(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA);
+			PROPERTY_IDS_CACHE.add(USE_READYDA);
+			PROPERTY_IDS_CACHE.add(EQUIVALENCE_CLASS_BASED_READYDA);
+			PROPERTY_IDS_CACHE.add(USE_RULE1_IN_READYDA);
+			PROPERTY_IDS_CACHE.add(USE_RULE2_IN_READYDA);
+			PROPERTY_IDS_CACHE.add(USE_RULE3_IN_READYDA);
+			PROPERTY_IDS_CACHE.add(USE_RULE4_IN_READYDA);
+			PROPERTY_IDS_CACHE.add(SLICE_FOR_DEADLOCK);
+			PROPERTY_IDS_CACHE.add(SLICE_TYPE);
 			uninitialized = false;
 		}
+		PROPERTY_IDS.addAll(PROPERTY_IDS_CACHE);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.IToolConfigurationFactory#createToolConfiguration()
+	 */
+	public AbstractToolConfiguration createToolConfiguration() {
+		SlicerConfiguration result = new SlicerConfiguration();
+		result.initialize();
+		return result;
 	}
 
 	/**
@@ -156,7 +177,7 @@ public class SlicerConfiguration
 	 */
 	public void initialize() {
 		setProperty(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, Boolean.TRUE);
-		setProperty(EQUIVALENCE_CLASS_BASED_READYDA, Boolean.TRUE);
+		setProperty(EQUIVALENCE_CLASS_BASED_READYDA, Boolean.FALSE);
 		setProperty(USE_READYDA, Boolean.FALSE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
@@ -187,7 +208,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isECBasedReadyDepAnalysisUsed() {
-		return ((Boolean) properties.get(EQUIVALENCE_CLASS_BASED_READYDA)).booleanValue();
+		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(EQUIVALENCE_CLASS_BASED_READYDA)).booleanValue();
 	}
 
 	/**
@@ -196,7 +217,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isInterproceduralDivergenceDepAnalysisUsed() {
-		return ((Boolean) properties.get(INTERPROCEDURAL_DIVERGENCEDA)).booleanValue();
+		return isDivergenceDepAnalysisUsed() && ((Boolean) properties.get(INTERPROCEDURAL_DIVERGENCEDA)).booleanValue();
 	}
 
 	/**
@@ -214,7 +235,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule1Used() {
-		return ((Boolean) properties.get(USE_RULE1_IN_READYDA)).booleanValue();
+		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(USE_RULE1_IN_READYDA)).booleanValue();
 	}
 
 	/**
@@ -223,7 +244,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule2Used() {
-		return ((Boolean) properties.get(USE_RULE2_IN_READYDA)).booleanValue();
+		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(USE_RULE2_IN_READYDA)).booleanValue();
 	}
 
 	/**
@@ -232,7 +253,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule3Used() {
-		return ((Boolean) properties.get(USE_RULE3_IN_READYDA)).booleanValue();
+		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(USE_RULE3_IN_READYDA)).booleanValue();
 	}
 
 	/**
@@ -241,7 +262,7 @@ public class SlicerConfiguration
 	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule4Used() {
-		return ((Boolean) properties.get(USE_RULE4_IN_READYDA)).booleanValue();
+		return isReadyDepAnalysisUsed() && ((Boolean) properties.get(USE_RULE4_IN_READYDA)).booleanValue();
 	}
 
 	/**
@@ -289,40 +310,64 @@ public class SlicerConfiguration
 				}
 			} else if (propertyID.equals(USE_READYDA)) {
 				if (val.booleanValue()) {
-					dependencesToUse.remove(DependencyAnalysis.READY_DA);
-				} else {
 					dependencesToUse.add(DependencyAnalysis.READY_DA);
+					id2dependencyAnalysis.put(DependencyAnalysis.READY_DA, new ReadyDAv1());
+				} else {
+					dependencesToUse.remove(DependencyAnalysis.READY_DA);
+					id2dependencyAnalysis.remove(DependencyAnalysis.READY_DA);
 				}
 			} else if (propertyID.equals(USE_DIVERGENCEDA)) {
 				if (val.booleanValue()) {
-					dependencesToUse.remove(DependencyAnalysis.DIVERGENCE_DA);
-				} else {
 					dependencesToUse.add(DependencyAnalysis.DIVERGENCE_DA);
+					id2dependencyAnalysis.put(DependencyAnalysis.DIVERGENCE_DA, new DivergenceDA());
+				} else {
+					dependencesToUse.remove(DependencyAnalysis.DIVERGENCE_DA);
+					id2dependencyAnalysis.remove(DependencyAnalysis.DIVERGENCE_DA);
 				}
 			} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
-				if (val.booleanValue()) {
-					((DivergenceDA) id2dependencyAnalysis.get(DependencyAnalysis.DIVERGENCE_DA)).setConsiderCallSites(true);
-				} else {
-					((DivergenceDA) id2dependencyAnalysis.get(DependencyAnalysis.DIVERGENCE_DA)).setConsiderCallSites(false);
+				Boolean bool = (Boolean) properties.get(USE_DIVERGENCEDA);
+
+				if (bool != null && bool.booleanValue()) {
+					if (val.booleanValue()) {
+						((DivergenceDA) id2dependencyAnalysis.get(DependencyAnalysis.DIVERGENCE_DA)).setConsiderCallSites(true);
+					} else {
+						((DivergenceDA) id2dependencyAnalysis.get(DependencyAnalysis.DIVERGENCE_DA)).setConsiderCallSites(false);
+					}
 				}
 			} else if (propertyID.equals(SLICE_FOR_DEADLOCK)) {
 				sliceForDeadlock = val.booleanValue();
 			} else if (propertyID.equals(USE_RULE1_IN_READYDA)) {
-				ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
-				int rules = rd.getRules();
-				rd.setRules(rules | ReadyDAv1.RULE_2);
+				Boolean bool = (Boolean) properties.get(USE_READYDA);
+
+				if (bool != null && bool.booleanValue()) {
+					ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
+					int rules = rd.getRules();
+					rd.setRules(rules | ReadyDAv1.RULE_1);
+				}
 			} else if (propertyID.equals(USE_RULE2_IN_READYDA)) {
-				ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
-				int rules = rd.getRules();
-				rd.setRules(rules | ReadyDAv1.RULE_3);
+				Boolean bool = (Boolean) properties.get(USE_READYDA);
+
+				if (bool != null && bool.booleanValue()) {
+					ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
+					int rules = rd.getRules();
+					rd.setRules(rules | ReadyDAv1.RULE_2);
+				}
 			} else if (propertyID.equals(USE_RULE3_IN_READYDA)) {
-				ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
-				int rules = rd.getRules();
-				rd.setRules(rules | ReadyDAv1.RULE_4);
+				Boolean bool = (Boolean) properties.get(USE_READYDA);
+
+				if (bool != null && bool.booleanValue()) {
+					ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
+					int rules = rd.getRules();
+					rd.setRules(rules | ReadyDAv1.RULE_3);
+				}
 			} else if (propertyID.equals(USE_RULE4_IN_READYDA)) {
-				ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
-				int rules = rd.getRules();
-				rd.setRules(rules | ReadyDAv1.RULE_4);
+				Boolean bool = (Boolean) properties.get(USE_READYDA);
+
+				if (bool != null && bool.booleanValue()) {
+					ReadyDAv1 rd = ((ReadyDAv1) id2dependencyAnalysis.get(DependencyAnalysis.READY_DA));
+					int rules = rd.getRules();
+					rd.setRules(rules | ReadyDAv1.RULE_4);
+				}
 			}
 		} else {
 			if (propertyID.equals(SLICE_TYPE)) {
@@ -340,7 +385,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useDivergenceDepAnalysis(final boolean use) {
-		properties.put(USE_DIVERGENCEDA, Boolean.valueOf(use));
+		processPropertyHelper(USE_DIVERGENCEDA, use);
 	}
 
 	/**
@@ -349,7 +394,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useECBasedInterferenceDepAnalysis(final boolean use) {
-		properties.put(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, Boolean.valueOf(use));
+		processPropertyHelper(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, use);
 	}
 
 	/**
@@ -358,7 +403,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useECBasedReadyDepAnalysis(final boolean use) {
-		properties.put(EQUIVALENCE_CLASS_BASED_READYDA, Boolean.valueOf(use));
+		processPropertyHelper(EQUIVALENCE_CLASS_BASED_READYDA, use);
 	}
 
 	/**
@@ -367,7 +412,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useInterproceduralDivergenceDepAnalysis(final boolean use) {
-		properties.put(INTERPROCEDURAL_DIVERGENCEDA, Boolean.valueOf(use));
+		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
 	}
 
 	/**
@@ -376,7 +421,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useReadyDepAnalysis(final boolean use) {
-		properties.put(USE_READYDA, Boolean.valueOf(use));
+		processPropertyHelper(USE_READYDA, use);
 	}
 
 	/**
@@ -385,7 +430,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useReadyRule1(final boolean use) {
-		properties.put(USE_RULE1_IN_READYDA, Boolean.valueOf(use));
+		processPropertyHelper(USE_RULE1_IN_READYDA, use);
 	}
 
 	/**
@@ -394,7 +439,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useReadyRule2(final boolean use) {
-		properties.put(USE_RULE2_IN_READYDA, Boolean.valueOf(use));
+		processPropertyHelper(USE_RULE2_IN_READYDA, use);
 	}
 
 	/**
@@ -403,7 +448,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useReadyRule3(final boolean use) {
-		properties.put(USE_RULE3_IN_READYDA, Boolean.valueOf(use));
+		processPropertyHelper(USE_RULE3_IN_READYDA, use);
 	}
 
 	/**
@@ -412,7 +457,7 @@ public class SlicerConfiguration
 	 * @param use Should not be used!
 	 */
 	protected void useReadyRule4(final boolean use) {
-		properties.put(USE_RULE4_IN_READYDA, Boolean.valueOf(use));
+		processPropertyHelper(USE_RULE4_IN_READYDA, use);
 	}
 
 	/**
@@ -437,21 +482,36 @@ public class SlicerConfiguration
 	Collection getNamesOfDAsToUse() {
 		return Collections.unmodifiableCollection(dependencesToUse);
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param propertyID DOCUMENT ME!
+	 * @param use DOCUMENT ME!
+	 */
+	private void processPropertyHelper(final Object propertyID, final boolean use) {
+		Boolean value = Boolean.valueOf(use);
+		properties.put(propertyID, value);
+		processProperty(propertyID, value);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/10/19 20:04:05  venku
+   - class needs to be public for the purpose of
+     marshalling and unmarshalling.  FIXED.
    Revision 1.9  2003/10/13 01:01:45  venku
    - Split transformations.slicer into 2 packages
       - transformations.slicer
       - slicer
    - Ripple effect of the above changes.
-
    Revision 1.8  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.7  2003/09/27 01:09:35  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.
@@ -463,8 +523,8 @@ public class SlicerConfiguration
    Revision 1.5  2003/09/26 07:33:18  venku
    - checkpoint commit.
    Revision 1.4  2003/09/26 05:55:41  venku
- *** empty log message ***
-           Revision 1.1  2003/09/24 07:32:23  venku
-           - Created an implementation of indus tool api specific to Slicer.
-             The GUI needs to be setup and bandera adapter needs to be fixed.
+   - *** empty log message ***
+   Revision 1.1  2003/09/24 07:32:23  venku
+   - Created an implementation of indus tool api specific to Slicer.
+     The GUI needs to be setup and bandera adapter needs to be fixed.
  */

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.tools;
 
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -28,7 +30,8 @@ import org.eclipse.swt.widgets.Composite;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractToolConfigurator {
+public abstract class AbstractToolConfigurator
+  implements DisposeListener {
 	/**
 	 * This is the configuration to be handled by this object.
 	 */
@@ -38,16 +41,6 @@ public abstract class AbstractToolConfigurator {
 	 * The parent composite on which the provided interface will be displayed.
 	 */
 	protected Composite parent;
-
-	/**
-	 * This indicates if the configurator has been disposed.
-	 */
-	private boolean disposed;
-
-	/**
-	 * This indicates if the configurator has been initialized.
-	 */
-	private boolean initialized = false;
 
 	/**
 	 * This class handles the changing of boolean property as per to the selection of the associated button widget.
@@ -117,102 +110,51 @@ public abstract class AbstractToolConfigurator {
 	}
 
 	/**
-	 * Displays the editor widget.  The widget can be hidden by calling <code>hide()</code>.
+	 * Initializes the configurator with the given composite on which it should provide the UI.
 	 *
-	 * @param composite on which to display the configuration interface.
-	 *
-	 * @throws RuntimeException when this method is invoked on a disposed instance.
+	 * @param composite on which the UI is provided.
 	 *
 	 * @pre composite != null
 	 */
-	public final void display(final Composite composite) {
-		if (composite != parent || !initialized) {
-			initialized = false;
-			parent = composite;
-			initialize();
-			initialized = true;
-		}
-
-		if (!disposed) {
-			displayTemplateMethod();
-		} else {
-			throw new RuntimeException("Disposed configurators cannot be displayed.");
-		}
+	public final void initialize(final Composite composite) {
+		parent = composite;
+		parent.addDisposeListener(this);
+		setup();
 	}
 
 	/**
-	 * Disposes the configurator widget. If the configurator was displayed, it will be hidden. The configurator will not 
-     * respond to any subsequent method calls.
+	 * Called when the parent widget is disposed.  Subclasses should override this method appropriately.
+	 *
+	 * @see org.eclipse.swt.events.DisposeListener#widgetDisposed(org.eclipse.swt.events.DisposeEvent)
 	 */
-	public final void dispose() {
-		disposed = true;
-        if (!parent.isDisposed()) {
-            parent.dispose();
-            parent = null;
-        }
-		disposeTemplateMethod();
+	public void widgetDisposed(final DisposeEvent evt) {
 	}
 
 	/**
-	 * Hides the configurator.  The configurator can be displayed again by calling <code>display()</code>.
-	 */
-	public void hide() {
-		parent.setVisible(false);
-	}
-
-	/**
-	 * Checks the given configuration.  This is an empty implementation.  Subclasses can check the configuration in this method.
+	 * Checks the given configuration.  This is an empty implementation.  Subclasses can check the configuration in this
+	 * method.
 	 *
 	 * @param toolConfiguration to be checked.
 	 *
 	 * @pre toolConfiguration != null
 	 */
-	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {        
-    }
-
-	/**
-	 * Checks if this instance has been disposed.
-	 *
-	 * @return <code>true</code> if this object has been disposed; <code>false</code>, otherwise.
-	 */
-	protected final boolean isDisposed() {
-		return disposed;
+	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {
 	}
 
 	/**
-	 * Checks if this instance has been initialized.
-	 *
-	 * @return <code>true</code> if this object has been initialized; <code>false</code>, otherwise.
+	 * Setup the graphical parts of the configurator.  This will be called before the configurator is displayed.
 	 */
-	protected final boolean isInitialized() {
-		return initialized;
-	}
-
-	/**
-	 * Called when <code>display()</code> is called on this instance.  The default implement just displays the widget. The
-	 * subclasses can override this method to control the display.
-	 */
-	protected void displayTemplateMethod() {
-		parent.setVisible(true);
-	}
-
-	/**
-	 * Called when <code>dispose()</code> is called on this instance.  The subclass should clean up GUI related resources
-	 * here.
-	 */
-	protected abstract void disposeTemplateMethod();
-
-	/**
-	 * Initialize the configurator.  This will be called once on each configurator.  The intention is to create the GUI
-	 * resources here and later on use during display.  This will be called before <code>displayTemplateMethod()</code> is
-	 * called.
-	 */
-	protected abstract void initialize();
+	protected abstract void setup();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/10/14 02:56:51  venku
+   - exposed parent field to subclasses.
+   - added hide() method
+   - added setConfiguration() method to change configuration
+   - added checkConfiguration() because of setConfiguration()
    Revision 1.2  2003/09/27 01:09:36  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.

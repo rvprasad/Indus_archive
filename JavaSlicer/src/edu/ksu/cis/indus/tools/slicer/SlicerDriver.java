@@ -25,6 +25,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.BufferedReader;
@@ -50,17 +52,16 @@ public class SlicerDriver {
 	private static final Log LOGGER = LogFactory.getLog(SlicerDriver.class);
 
 	/**
-	 * The default configuration.  
-     * TODO: This should be moved out to a file/resource.
+	 * The default configuration.   TODO: This should be moved out to a file/resource.
 	 */
 	private static String configuration =
 		"<slicerConfiguration " + "xmlns:slicer=\"http://indus.projects.cis.ksu.edu/slicer\""
 		+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
 		+ "xsi:schemaLocation=\"http://indus.projects.cis.ksu.edu/slicer slicerConfig.xsd\" activeConfiguration=\"base\">"
-		+ "<configurationInfo slicetype=\"backward slice\" analysis=\"base\" name=\"first\" sliceForDeadlock=\"true\">"
+		+ "<configurationInfo slicetype=\"BACKWARD_SLICE\" analysis=\"base\" name=\"first\" sliceForDeadlock=\"true\">"
 		+ "<divergence active=\"true\" interprocedural=\"true\"/>" + "<interference equivalenceClassBased=\"true\"/>"
-		+ "<ready active=\"true\" rule1=\"true\" rule2=\"true\" rule3=\"true\" rule4=\"true\" equivalenceClassBased=\"true\"/>"
-		+ "</configurationInfo>" + "</slicerConfiguration>";
+		+ "<ready active=\"true\" rule1=\"true\" rule2=\"true\" rule3=\"true\" rule4=\"true\" "
+		+ "equivalenceClassBased=\"true\"/>" + "</configurationInfo>" + "</slicerConfiguration>";
 
 	/**
 	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
@@ -77,7 +78,7 @@ public class SlicerDriver {
 	 *
 	 * @param args contains the command line arguments.
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		// parse command line arguments
 		parseCommandLine(args);
 
@@ -86,20 +87,40 @@ public class SlicerDriver {
 		slicer.destringizeConfiguration(configuration);
 
 		// call the configurator on the slicer
-		slicer.getConfigurator().display(new Shell());
+        Display display = new Display();
+        Shell shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		shell.setText("Slicer configuration");
+		slicer.getConfigurator().initialize(shell);
+		shell.pack();
+		shell.open();
+
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+        display.dispose();
 
 		// save the configuration
 		try {
-			BufferedWriter configFile = new BufferedWriter(new FileWriter(configFileName));
-			configFile.write(slicer.stringizeConfiguration());
+			if (configFileName != null) {
+				BufferedWriter configFile = new BufferedWriter(new FileWriter(configFileName));
+				configFile.write(slicer.stringizeConfiguration());
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Configuration file name is unspecified.  Printing to console.");
+				}
+				System.out.println(slicer.stringizeConfiguration());
+			}
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Could not write the configuration file.", e);
+				LOGGER.warn("Could not write the configuration file.  Printing to console", e);
 			}
 			System.out.println(slicer.stringizeConfiguration());
 		}
 
 		// execute the slicer
+        
 		slicer.run(Phase.STARTING_PHASE);
 
 		// serialize the output of the slicer
@@ -110,7 +131,7 @@ public class SlicerDriver {
 	 *
 	 * @param args contains the command line arguments.
 	 */
-	private static void parseCommandLine(String[] args) {
+	private static void parseCommandLine(final String[] args) {
 		// create options
 		Options options = new Options();
 		options.addOption("c", false, "The configuration file to use.");
@@ -170,8 +191,9 @@ public class SlicerDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/10/14 05:35:41  venku
+   - documentation.
    Revision 1.1  2003/10/14 05:33:26  venku
    - First cut at slicer driver.  This will be used to drive the testing
      of the slicer.
-
  */

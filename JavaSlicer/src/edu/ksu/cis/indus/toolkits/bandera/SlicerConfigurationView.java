@@ -100,20 +100,23 @@ public class SlicerConfigurationView
 			shell = new Shell();
 			shell.setText("Configure Slicer");
 		}
-		configurator.display(shell);
+		configurator.initialize(shell);
+		shell.pack();
+		shell.open();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/10/14 03:00:22  venku
+   - setConfiguration() was not called. This makes sense as the
+     CompositeToolConfigurator() will provide the configuration.
    Revision 1.6  2003/09/28 23:16:18  venku
    - documentation
-
    Revision 1.5  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.4  2003/09/27 01:09:35  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.
