@@ -135,7 +135,7 @@ public class Triple
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public static final class PairManager {
+	public static final class TripleManager {
 		/**
 		 * This is the id of this service.
 		 */
@@ -388,6 +388,12 @@ public class Triple
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 08:12:26  venku
+   Major changes in equals() method of Context, Pair, Marker, and Triple.
+   Similar changes in hashCode()
+   Spruced up Documentation and Specification.
+   Formatted code.
+
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
      Revision 1.2  2003/08/11 04:20:19  venku
