@@ -19,6 +19,7 @@ import soot.SootClass;
 import soot.SootMethod;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
 import org.apache.commons.logging.Log;
@@ -173,6 +174,9 @@ public abstract class AbstractDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/12 05:18:54  venku
+   - moved xmlizing classes to a different class.
+
    Revision 1.2  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
    - Switched the contents of DependencyXMLizer and DependencyTest.

@@ -24,6 +24,18 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.ControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
+import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
+import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
+import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
+import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
+import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
+import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
@@ -52,9 +64,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,16 +107,16 @@ public class DependencyXMLizer
 		String propFileName = System.getProperty("indus.dependencyxmlizer.properties.file");
 
 		if (propFileName == null) {
-			propFileName =
-				ClassLoader.getSystemResource("edu/ksu/cis/indus/staticanalyses/dependency/DependencyXMLizer.properties")
-							 .getFile();
+			propFileName = "edu/ksu/cis/indus/staticanalyses/dependency/xmlizer/DependencyXMLizer.properties";
 		}
 
+		InputStream stream = ClassLoader.getSystemResourceAsStream(propFileName);
+
 		try {
-			PROPERTIES.load(new FileInputStream(new File(propFileName)));
+			PROPERTIES.load(stream);
 		} catch (IOException e) {
-			e.printStackTrace();
 			System.out.println("Well, error loading property file.  Bailing.");
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -135,6 +147,13 @@ public class DependencyXMLizer
 	protected final Map info = new HashMap();
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected String xmlOutDir;
+
+	/**
 	 * This indicates if EquivalenceClassBasedAnalysis should be executed.  Subclasses should set this appropriately.
 	 */
 	protected boolean ecbaRequired;
@@ -162,13 +181,6 @@ public class DependencyXMLizer
 	 * </p>
 	 */
 	private Properties properties;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private String xmlOutDir;
 
 	/**
 	 * Creates a new DependencyXMLizer object.
@@ -216,6 +228,7 @@ public class DependencyXMLizer
 			xmlizer.setClassNames(cl.getOptionValues('c'));
 			xmlizer.setGenerator(new UniqueIDGenerator());
 			xmlizer.populateDAs();
+			xmlizer.initialize();
 			xmlizer.execute();
 			xmlizer.printTimingStats();
 			xmlizer.reset();
@@ -227,12 +240,8 @@ public class DependencyXMLizer
 
 	/**
 	 * Drives the analyses.
-	 *
-	 * @post scene != null and aa != null
 	 */
 	public void execute() {
-		writeInfo("Loading classes....");
-		initialize();
 		aa = OFAnalyzer.getFSOSAnalyzer();
 
 		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
@@ -385,6 +394,7 @@ public class DependencyXMLizer
 	 * <p></p>
 	 */
 	protected void populateDAs() {
+		// The order is important for the purpose of Testing as it influences the output file name
 		das.add(new ControlDA(ControlDA.BACKWARD));
 		das.add(new ControlDA(ControlDA.FORWARD));
 		das.add(new DivergenceDA());
@@ -565,10 +575,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/12 05:18:54  venku
+   - moved xmlizing classes to a different class.
    Revision 1.3  2003/11/12 05:08:10  venku
    - DependencyXMLizer.properties will hold dependency xmlization
      related properties.
-
    Revision 1.2  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
    - Switched the contents of DependencyXMLizer and DependencyTest.

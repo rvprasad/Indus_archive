@@ -26,6 +26,8 @@ import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
 import org.apache.commons.logging.Log;
 
+import java.io.File;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -163,7 +165,9 @@ public abstract class SootBasedDriver {
 	 * @param classpath DOCUMENT ME!
 	 */
 	protected void addToSootClassPath(final String classpath) {
-		classpathToAdd = classpath;
+		classpathToAdd =
+			classpath + File.pathSeparator + System.getProperty("java.home") + File.separator + "lib" + File.separator
+			+ "rt.jar";
 	}
 
 	/**
@@ -190,10 +194,17 @@ public abstract class SootBasedDriver {
 	 */
 	protected final Scene loadupClassesAndCollectMains() {
 		Scene result = Scene.v();
-		scene.setSootClassPath(scene.getSootClassPath() + ":" + classpathToAdd);
+		String temp = result.getSootClassPath();
 
-		for (int i = 0; i < classNames.size(); i++) {
-			result.loadClassAndSupport((String) classNames.get(i));
+		if (temp != null) {
+			temp += File.pathSeparator + classpathToAdd;
+		} else {
+			temp = classpathToAdd;
+		}
+		result.setSootClassPath(temp);
+
+		for (Iterator i = classNames.iterator(); i.hasNext();) {
+			result.loadClassAndSupport((String) i.next());
 		}
 
 		Collection mc = new HashSet();
@@ -286,6 +297,8 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/12 09:24:15  venku
+   - soot class path was being injected at a wrong location. FIXED.
    Revision 1.3  2003/11/12 09:19:41  venku
    - added support to change soot-related class path.
    Revision 1.2  2003/11/12 09:12:25  venku

@@ -21,6 +21,7 @@ import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
@@ -109,6 +110,9 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/12 05:18:54  venku
+   - moved xmlizing classes to a different class.
+
    Revision 1.3  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
    - Switched the contents of DependencyXMLizer and DependencyTest.
