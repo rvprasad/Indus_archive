@@ -197,12 +197,12 @@ public final class OFAnalyzer
 	 * </p>
 	 *
 	 * @param method to be checked if it was analyzed.
-	 * @param context in which the method was analyzed.
+	 * @param ctxt in which the method was analyzed.
 	 *
 	 * @return <code>true</code> if <code>method</code> was analyzed; <code>false</code>, otherwise.
 	 */
-	public boolean wasAnalyzed(SootMethod method, AllocationContext context) {
-		return bfa.queryMethodVariant(method, context) != null;
+	public boolean wasAnalyzed(SootMethod method, AllocationContext ctxt) {
+		return bfa.queryMethodVariant(method, ctxt) != null;
 	}
 }
 
@@ -210,5 +210,9 @@ public final class OFAnalyzer
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:40:24  venku
+Major:
+ - Moved the package under indus umbrella.
+
 
 *****/
