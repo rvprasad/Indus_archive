@@ -69,6 +69,11 @@ public class FATestSetup
 	protected final String classNames;
 
 	/**
+	 * The class path to use with soot in this setup.
+	 */
+	private final String sootClassPath;
+
+	/**
 	 * Creates a new FATestSetup object.
 	 *
 	 * @param test is the test to run in this setup.
@@ -81,7 +86,7 @@ public class FATestSetup
 		super(test);
 		valueAnalyzer = OFAnalyzer.getFSOSAnalyzer(FATestSetup.TAG_NAME);
 		scene = Scene.v();
-		scene.setSootClassPath(classpath);
+		sootClassPath = classpath;
 		classNames = theNameOfClasses;
 	}
 
@@ -94,6 +99,8 @@ public class FATestSetup
 
 		final String[] _j = classNames.toString().split(" ");
 		final Collection _rootMethods = new ArrayList();
+
+		scene.setSootClassPath(sootClassPath);
 
 		for (int _i = _j.length - 1; _i >= 0; _i--) {
 			final SootClass _sc = scene.loadClassAndSupport(_j[_i]);
@@ -124,9 +131,10 @@ public class FATestSetup
 	/**
 	 * @see TestCase#teardown()
 	 */
-	protected void teardown()
+	protected void tearDown()
 	  throws Exception {
 		G.reset();
+		valueAnalyzer.reset();
 		valueAnalyzer = null;
 		scene = null;
 	}
@@ -135,6 +143,8 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/08 19:17:19  venku
+   - test refactoring for regression testing.
    Revision 1.6  2004/02/08 05:28:49  venku
    - class names was not initialized properly.
    Revision 1.5  2004/02/08 04:53:10  venku

@@ -85,13 +85,16 @@ public final class OFATestSetup
 	 */
 	protected void tearDown()
 	  throws Exception {
-		G.reset();
+		cgiImpl.reset();
+		super.tearDown();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 19:17:19  venku
+   - test refactoring for regression testing.
    Revision 1.1  2004/02/08 04:53:10  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.
