@@ -41,17 +41,17 @@ public final class XMLizingProcessingFilter
 	/** 
 	 * Singleton instance of class comparator.
 	 */
-	private static final Comparator classComparator = new LexographicalClassComparator();
+	private static final Comparator CLASS_COMPARATOR = new LexographicalClassComparator();
 
 	/** 
 	 * Singleton instance of field comparator.
 	 */
-	private static final Comparator fieldComparator = new LexographicalFieldComparator();
+	private static final Comparator FIELD_COMPARATOR = new LexographicalFieldComparator();
 
 	/** 
 	 * Singleton instance of method comparator.
 	 */
-	private static final Comparator methodComparator = new LexographicalMethodComparator();
+	private static final Comparator METHOD_COMPARATOR = new LexographicalMethodComparator();
 
 	/**
 	 * This compares <code>SootClass</code> objects lexographically based on their fully qualified java names.
@@ -144,7 +144,7 @@ public final class XMLizingProcessingFilter
 	 */
 	protected Collection localFilterClasses(final Collection classes) {
 		final List _result = new ArrayList(classes);
-		Collections.sort(_result, classComparator);
+		Collections.sort(_result, CLASS_COMPARATOR);
 		return _result;
 	}
 
@@ -156,7 +156,7 @@ public final class XMLizingProcessingFilter
 	 */
 	protected Collection localFilterFields(final Collection fields) {
 		final List _result = new ArrayList(fields);
-		Collections.sort(_result, fieldComparator);
+		Collections.sort(_result, FIELD_COMPARATOR);
 		return _result;
 	}
 
@@ -168,7 +168,7 @@ public final class XMLizingProcessingFilter
 	 */
 	protected Collection localFilterMethods(final Collection methods) {
 		final List _result = new ArrayList(methods);
-		Collections.sort(_result, methodComparator);
+		Collections.sort(_result, METHOD_COMPARATOR);
 		return _result;
 	}
 }
@@ -176,6 +176,9 @@ public final class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/03/26 07:50:27  venku
+   - optimization.
+
    Revision 1.9  2004/02/24 22:25:56  venku
    - documentation
    Revision 1.8  2004/02/11 09:37:21  venku
