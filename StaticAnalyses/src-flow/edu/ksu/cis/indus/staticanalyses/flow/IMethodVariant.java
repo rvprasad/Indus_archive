@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import soot.SootClass;
 import soot.SootMethod;
 import soot.Value;
 
@@ -162,29 +161,25 @@ public interface IMethodVariant
 	IFGNode queryThisNode();
 
 	/**
-	 * Returns the flow graph node associated with <code>exception</code> class at invoke expression <code>e</code>.
+	 * Returns the flow graph node associated with throwing of exception at invoke expression <code>e</code>.
 	 *
 	 * @param e is the method invoke expression.
-	 * @param exception is the class of the exception thrown at <code>e</code>.
-	 *
-	 * @return the node that captures values associated with the <code>exception</code> class at <code>e</code>.
-	 *
-	 * @pre e != null and exception != null
-	 */
-	IFGNode queryThrowNode(final InvokeExpr e, final SootClass exception);
-
-	/**
-	 * Returns the flow graph node associated with <code>exception</code> class at invoke expression <code>e</code>.
-	 *
-	 * @param e is the method invoke expression.
-	 * @param exception is the class of the exception thrown at <code>e</code>.
 	 * @param c is the context in which the node is requested.
 	 *
-	 * @return the node that captures values associated with the <code>exception</code> class at <code>e</code>.
+	 * @return the node that captures values of exceptions thrown at <code>e</code>.
 	 *
-	 * @pre e != null and exception != null and c != null
+	 * @pre e != null and c != null
 	 */
-	IFGNode queryThrowNode(final InvokeExpr e, final SootClass exception, final Context c);
+	IFGNode queryThrowNode(final InvokeExpr e, final Context c);
+
+	/**
+	 * Returns the flow graph node corresponding to the exceptions thrown by this method variant.
+	 *
+	 * @return the node.
+	 *
+	 * @post result != null
+	 */
+	IFGNode queryThrownNode();
 }
 
 // End of File

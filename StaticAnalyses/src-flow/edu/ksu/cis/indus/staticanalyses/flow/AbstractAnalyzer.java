@@ -32,11 +32,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
-import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
 
+import soot.jimple.ArrayRef;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 
@@ -105,17 +105,12 @@ public abstract class AbstractAnalyzer
 	}
 
 	/**
-	 * Returns the values associated with exception class for the given invocation expression and <code>this.context</code>.
-	 *
-	 * @param e is the method invoke expression.
-	 * @param exception is the class of the exception thrown by this expression.
-	 *
-	 * @return the collection of values associated with given exception class and and invoke expression.
-	 *
-	 * @pre e != null and exception != null
-	 * @post result != null
+	 * @see IValueAnalyzer#getThrownValues(InvokeExpr, edu.ksu.cis.indus.processing.Context)
 	 */
-	public final Collection getThrowValues(final InvokeExpr e, final SootClass exception) {
+	public final Collection getThrownValues(final InvokeExpr e, final Context ctxt) {
+		final Context _tmpCtxt = context;
+		context = ctxt;
+
 		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection _temp = Collections.EMPTY_SET;
 
@@ -123,9 +118,31 @@ public abstract class AbstractAnalyzer
 			final InvocationVariant _iv = (InvocationVariant) _mv.getASTVariant(e, context);
 
 			if (_iv != null) {
-				_temp = _iv.queryThrowNode(exception).getValues();
+				_temp = _iv.queryThrowNode().getValues();
 			}
 		}
+		context = _tmpCtxt;
+		return _temp;
+	}
+
+	/**
+	 * @see IValueAnalyzer#getThrownValues(soot.SootMethod, edu.ksu.cis.indus.processing.Context)
+	 */
+	public Collection getThrownValues(final SootMethod method, final Context ctxt) {
+		final Context _tmpCtxt = context;
+		context = ctxt;
+
+		final IMethodVariant _mv = fa.queryMethodVariant(method);
+		Collection _temp = Collections.EMPTY_SET;
+
+		if (_mv != null) {
+			final IFGNode _tv = _mv.queryThrownNode();
+
+			if (_tv != null) {
+				_temp = _tv.getValues();
+			}
+		}
+		context = _tmpCtxt;
 		return _temp;
 	}
 
@@ -138,28 +155,21 @@ public abstract class AbstractAnalyzer
 	 * @return a collection of <code>Object</code>s.  The actual instance of the analysis framework decides the static type
 	 * 		   of the objects in this collection.
 	 *
-	 * @throws IllegalArgumentException when <code>astChunk</code> is not of type <code>Value</code>, <code>SootField</code>,
-	 * 		   <code>ParameterRef</code>, or <code>ArrayType</code>.
-	 *
 	 * @pre astChunk != null and ctxt != null
 	 * @post result != null
 	 */
-	public final Collection getValues(final Object astChunk, final Context ctxt) {
+	public final Collection getValues(final Value astChunk, final Context ctxt) {
 		final Context _tmpCtxt = context;
 		context = ctxt;
 
 		Collection _result = Collections.EMPTY_LIST;
 
-		if (astChunk instanceof Value) {
-			_result = getValues((Value) astChunk);
-		} else if (astChunk instanceof SootField) {
-			_result = getValues((SootField) astChunk);
-		} else if (astChunk instanceof ParameterRef) {
+		if (astChunk instanceof ParameterRef) {
 			_result = getValues((ParameterRef) astChunk);
-		} else if (astChunk instanceof ArrayType) {
-			_result = getValues((ArrayType) astChunk);
+		} else if (astChunk instanceof ArrayRef) {
+			_result = getValues((ArrayRef) astChunk);
 		} else {
-			throw new IllegalArgumentException("v has to of type Value, SootField, ParameterRef, or ArrayType.");
+			_result = getValues(astChunk);
 		}
 		context = _tmpCtxt;
 		return _result;
@@ -256,17 +266,17 @@ public abstract class AbstractAnalyzer
 	}
 
 	/**
-	 * Returns the set of values associated with the given array type in the context given by <code>this.context</code>.
+	 * Returns the set of values associated with the given array reference in the context given by <code>this.context</code>.
 	 *
-	 * @param a the array type for which the values are requested.
+	 * @param a the array reference for which the values are requested.
 	 *
 	 * @return the collection of values associated with <code>a</code> in <code>this.context</code>.
 	 *
 	 * @pre a != null
 	 * @post result != null
 	 */
-	protected final Collection getValues(final ArrayType a) {
-		final ValuedVariant _v = fa.queryArrayVariant(a);
+	protected final Collection getValues(final ArrayRef a) {
+		final ValuedVariant _v = fa.queryArrayVariant((ArrayType) a.getBase().getType());
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_v != null) {

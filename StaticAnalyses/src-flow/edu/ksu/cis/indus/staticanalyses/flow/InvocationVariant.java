@@ -15,13 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import soot.SootClass;
-
-
 /**
  * This class represents a variant for a method invocation expression.  It captures node information regarding return value
  * of the expression and the exceptions thrown by the expression.
@@ -33,41 +26,34 @@ import soot.SootClass;
 public class InvocationVariant
   extends ValuedVariant {
 	/** 
-	 * This maps exception classes to nodes.
+	 * This is the node corresponding to exception thrown by the invocation.
 	 *
-	 * @invariant exception2Node != null
+	 * @invariant thrownExceptionNode != null
 	 */
-	private final Map exception2node;
+	private final IFGNode thrownExceptionNode;
 
 	/**
 	 * Creates a new InvocationVariant object.
 	 *
-	 * @param returnNode is the node associated with the return value of <code>e</code>.
-	 * @param thrownExceptions2node is the map from class of exceptions thrown by <code>e</code>to nodes.
+	 * @param returnNode is the node associated with the return value.
+	 * @param thrownNode is the node associated with exception thrown.
 	 *
-	 * @pre returnNode != null and thrownExceptions2node != null
+	 * @pre returnNode != null and thrownNode != null
 	 */
-	protected InvocationVariant(final IFGNode returnNode, final Map thrownExceptions2node) {
+	protected InvocationVariant(final IFGNode returnNode, final IFGNode thrownNode) {
 		super(returnNode);
-
-		if (thrownExceptions2node.isEmpty()) {
-			this.exception2node = Collections.EMPTY_MAP;
-		} else {
-			this.exception2node = new HashMap(thrownExceptions2node);
-		}
+		thrownExceptionNode = thrownNode;
 	}
 
 	/**
-	 * Returns the node associated with given exception.
-	 *
-	 * @param exception is the class of the exception thrown by the expression associated with this variant.
+	 * Returns the node for the thrown exception.
 	 *
 	 * @return the node associated the exception thrown by the expression associated with this variant.
 	 *
 	 * @pre exception != null
 	 */
-	public IFGNode queryThrowNode(final SootClass exception) {
-		return (IFGNode) exception2node.get(exception);
+	public IFGNode queryThrowNode() {
+		return thrownExceptionNode;
 	}
 }
 

@@ -15,13 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import soot.SootClass;
-import soot.SootMethod;
-
 import soot.jimple.InvokeExpr;
 
 
@@ -64,20 +57,7 @@ public class ASTVariantManager
 		final IVariant _result;
 
 		if (o instanceof InvokeExpr) {
-			final InvokeExpr _expr = (InvokeExpr) o;
-			final SootMethod _sm = _expr.getMethod();
-			final Map _exception2node = new HashMap();
-
-			/*
-			 * for an invoke expression the exceptions thrown by the methods at run-time has to be a subset of those thrown
-			 * by the static method mentioned in the invoke expression.  So, it suffices to create nodes for only the
-			 *  exception classes mentioned at the invoke expression.
-			 */
-			for (final Iterator _i = _sm.getExceptions().iterator(); _i.hasNext();) {
-				final SootClass _exception = (SootClass) _i.next();
-				_exception2node.put(_exception, fa.getNewFGNode());
-			}
-			_result = new InvocationVariant(fa.getNewFGNode(), _exception2node);
+			_result = new InvocationVariant(fa.getNewFGNode(), fa.getNewFGNode());
 		} else {
 			_result = new ValuedVariant(fa.getNewFGNode());
 		}

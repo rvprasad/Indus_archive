@@ -21,6 +21,11 @@ import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 
+import soot.SootMethod;
+import soot.Value;
+
+import soot.jimple.InvokeExpr;
+
 
 /**
  * This is the interface to be provided by an analysis that operates on values (which may be symbolic).  The analysis that
@@ -41,21 +46,47 @@ public interface IValueAnalyzer
 	/** 
 	 * The id of the tag used by the underlying flow analysis.
 	 */
-	Object TAG_ID = "id of tag used by flow analysis";
+	String TAG_ID = "id of tag used by flow analysis";
 
 	/**
-	 * Retrieves the values associated with the given entity in the given context.
+	 * Returns the values associated with thrown exceptions for the given invocation expression and <code>this.context</code>.
 	 *
-	 * @param entity for which values are requested.
+	 * @param e is the method invoke expression.
+	 * @param context in which the returned values will be associatd with the invocation site.
+	 *
+	 * @return the collection of values of type of the given exception class.
+	 *
+	 * @pre e != null and context != null
+	 * @post result != null
+	 */
+	Collection getThrownValues(InvokeExpr e, Context context);
+
+	/**
+	 * Returns the values associated with exceptions thrown by the given method in the given context..
+	 *
+	 * @param method of interest
+	 * @param context in which the returned values will be associatd with the method.
+	 *
+	 * @return the collection of values of type of the  given exception class.
+	 *
+	 * @pre method != null and context != null
+	 * @post result != null
+	 */
+	Collection getThrownValues(SootMethod method, Context context);
+
+	/**
+	 * Retrieves the values associated with the given value expression in the given context.
+	 *
+	 * @param value expression for which values are requested.
 	 * @param context in which the returned values will be associated with the entity.
 	 *
 	 * @return the collection of values.
 	 *
 	 * @pre context != null
-	 * @pre entity != null
+	 * @pre value != null
 	 * @post result != null
 	 */
-	Collection getValues(Object entity, Context context);
+	Collection getValues(Value value, Context context);
 
 	/**
 	 * Retrieves the values associated with <code>this</code> variable in the given context.

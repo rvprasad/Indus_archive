@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -38,6 +38,7 @@ import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Trap;
+import soot.TrapManager;
 import soot.Type;
 
 import soot.jimple.CaughtExceptionRef;
@@ -111,6 +112,8 @@ class MethodVariant
 			}
 		}
 
+		setOutFilterOfBasedOn(thrownNode, this.fa.getClass("java.lang.Throwable").getType(), _tokenMgr);
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed " + sm);
 		}
@@ -173,6 +176,36 @@ class MethodVariant
 	}
 
 	/**
+	 * Connects the nodes corresponding the exceptions thrown (throw and method invocations) in the body to the nodd
+	 * corresponding to the expression thrown by the method.
+	 *
+	 * @param body of the method.
+	 *
+	 * @pre body != null
+	 */
+	private void connectThrowNodesToThrownNode(final JimpleBody body) {
+		final Collection _units = body.getUnits();
+		final Iterator _j = _units.iterator();
+		final int _jEnd = _units.size();
+
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			final Stmt _stmt = (Stmt) _j.next();
+			context.setStmt(_stmt);
+
+			if (_stmt instanceof ThrowStmt) {
+				final Collection _t = TrapManager.getTrapsAt(_stmt, body);
+
+				if (_t.isEmpty()) {
+					final ThrowStmt _throwStmt = (ThrowStmt) _stmt;
+					queryASTNode(_throwStmt.getOp(), context).addSucc(thrownNode);
+				}
+			} else if (_stmt.containsInvokeExpr()) {
+				queryThrowNode(_stmt.getInvokeExpr(), context).addSucc(thrownNode);
+			}
+		}
+	}
+
+	/**
 	 * Process the body.
 	 *
 	 * @param body to be processed.
@@ -225,7 +258,7 @@ class MethodVariant
 					if (!_caught.contains(_tmp)) {
 						context.setStmt(_tmp);
 
-						final IFGNode _tempNode = queryThrowNode(_expr, _exception);
+						final IFGNode _tempNode = queryThrowNode(_expr, context);
 
 						if (_tempNode != null) {
 							_tempNode.addSucc(getASTNode(_catchRef));
@@ -234,6 +267,8 @@ class MethodVariant
 				}
 			}
 		}
+
+		connectThrowNodesToThrownNode(body);
 	}
 }
 

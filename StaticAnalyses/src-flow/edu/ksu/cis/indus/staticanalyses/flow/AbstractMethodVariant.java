@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -23,7 +23,6 @@ import java.util.Iterator;
 
 import soot.Local;
 import soot.RefType;
-import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
@@ -72,6 +71,11 @@ public abstract class AbstractMethodVariant
 	 * @invariant not _method.isStatic() implies thisVar != null
 	 */
 	protected final IFGNode thisVar;
+
+	/** 
+	 * The flow graph node associated with an abstract single exceptional return point of the corresponding method.
+	 */
+	protected final IFGNode thrownNode;
 
 	/** 
 	 * The statement visitor used to process in the statement in the correpsonding method.
@@ -123,11 +127,11 @@ public abstract class AbstractMethodVariant
 		fa = theFA;
 		context = (Context) fa.getAnalyzer().getContext().clone();
 		context.callNewMethod(sm);
-		
-        fa.processClass(sm.getDeclaringClass());
-        sm.addTag(fa.getTag());
 
-        final Collection _typesToProcess = new HashSet();		
+		fa.processClass(sm.getDeclaringClass());
+		sm.addTag(fa.getTag());
+
+		final Collection _typesToProcess = new HashSet();
 		final RefType _sootType = sm.getDeclaringClass().getType();
 
 		if (!sm.isStatic() && shouldConsider(_sootType)) {
@@ -153,6 +157,8 @@ public abstract class AbstractMethodVariant
 		} else {
 			returnVar = null;
 		}
+
+		thrownNode = fa.getNewFGNode();
 
 		stmt = fa.getStmt(this);
 
@@ -270,23 +276,27 @@ public abstract class AbstractMethodVariant
 	}
 
 	/**
-	 * @see IMethodVariant#queryThrowNode(InvokeExpr, SootClass)
+	 * @see IMethodVariant#queryThrowNode(InvokeExpr, Context)
 	 */
-	public final IFGNode queryThrowNode(final InvokeExpr e, final SootClass exception) {
-		return queryThrowNode(e, exception, context);
-	}
-
-	/**
-	 * @see IMethodVariant#queryThrowNode(InvokeExpr, SootClass, Context)
-	 */
-	public final IFGNode queryThrowNode(final InvokeExpr e, final SootClass exception, final Context c) {
+	public final IFGNode queryThrowNode(final InvokeExpr e, final Context c) {
 		final InvocationVariant _var = (InvocationVariant) queryASTVariant(e, c);
 		IFGNode _temp = null;
 
 		if (_var != null) {
-			_temp = _var.queryThrowNode(exception);
+			_temp = _var.queryThrowNode();
 		}
 		return _temp;
+	}
+
+	/**
+	 * Retrieves the node corresponding to the exceptions thrown by this method variant.
+	 *
+	 * @return the node for thrown exceptions.
+	 *
+	 * @post result != null
+	 */
+	public final IFGNode queryThrownNode() {
+		return thrownNode;
 	}
 
 	/**
