@@ -57,21 +57,6 @@ public class KaveriPlugin
 	private ResourceBundle resourceBundle;
 
 	/**
-	 * The constructor.
-	 */
-	public KaveriPlugin() {
-		super();
-		plugin = this;
-		indusConfiguration = new IndusConfiguration();
-
-		try {
-			resourceBundle = ResourceBundle.getBundle("Kaveri.KaveriPluginResources");
-		} catch (MissingResourceException _x) {
-			resourceBundle = null;
-		}
-	}
-
-	/**
 	 * Returns the shared instance.
 	 *
 	 * @return KaveriPlugin The plugin
@@ -127,6 +112,14 @@ public class KaveriPlugin
 	public void start(final BundleContext context)
 	  throws Exception {
 		super.start(context);
+		plugin = this;
+		indusConfiguration = new IndusConfiguration();
+
+		try {
+			resourceBundle = ResourceBundle.getBundle("Kaveri.KaveriPluginResources");
+		} catch (MissingResourceException _x) {
+			resourceBundle = null;
+		}
 		loadDefaultConfigurations();
 	}
 
