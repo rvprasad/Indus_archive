@@ -47,13 +47,31 @@ import java.util.Collection;
 public interface IFGNode
   extends IPrototype {
 	/**
-	 * Sets a filter object which will filter the values flowing out of this graph.
+	 * Sets a filter object which will filter the values flowing out of this node.
 	 *
 	 * @param filter object to be used.
 	 *
 	 * @pre filter != null
 	 */
-	void setFilter(ITokenFilter filter);
+	void setOutFilter(ITokenFilter filter);
+    
+    /**
+     * Sets a filter object which will filter the values flowing into this node.
+     *
+     * @param filter object to be used.
+     *
+     * @pre filter != null
+     */
+    void setInFilter(ITokenFilter filter);
+
+	/**
+	 * Retrieves the successors of this node.
+	 *
+	 * @return the successor nodes.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(IFGNode))
+	 */
+	Collection getSuccs();
 
 	/**
 	 * Retrieves the tokens accumulated at this node.
@@ -90,6 +108,15 @@ public interface IFGNode
 	 * @pre tokens != null
 	 */
 	void injectTokens(ITokens tokens);
+
+	/**
+	 * Injects the tokens into this node lazily.  The laziness is defined by the implementation.
+	 *
+	 * @param tokens to be injected.
+	 *
+	 * @pre tokens != null
+	 */
+	void injectTokensLazily(ITokens tokens);
 
 	/**
 	 * Injects a value into this node.

@@ -19,7 +19,9 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.IType;
 
 import java.lang.ref.WeakReference;
 
@@ -53,13 +55,10 @@ import soot.toolkits.graph.CompleteUnitGraph;
 
 import soot.toolkits.scalar.SimpleLocalDefs;
 
-
-//MethodVariant.java
-
 /**
  * The variant that represents a method implementation.  It maintains variant specific information about local variables and
  * the AST nodes in associated method. It also maintains information about the parameters, this variable, and return values,
- * if any are present.    Created: Tue Jan 22 05:27:59 2002
+ * if any are present.    
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Name$
@@ -171,18 +170,13 @@ public class MethodVariant
 
 		final Collection _typesToProcess = new HashSet();
 		final int _pCount = sm.getParameterCount();
+		parameters = new IFGNode[_pCount];
 
-		if (_pCount > 0) {
-			parameters = new AbstractFGNode[_pCount];
-
-			for (int _i = 0; _i < _pCount; _i++) {
-				if (sm.getParameterType(_i) instanceof RefLikeType) {
-					parameters[_i] = fa.getNewFGNode();
-					_typesToProcess.add(sm.getParameterType(_i));
-				}
+		for (int _i = 0; _i < _pCount; _i++) {
+			if (sm.getParameterType(_i) instanceof RefLikeType) {
+				parameters[_i] = fa.getNewFGNode();
+				_typesToProcess.add(sm.getParameterType(_i));
 			}
-		} else {
-			parameters = new AbstractFGNode[0];
 		}
 
 		if (sm.isStatic()) {
@@ -198,7 +192,10 @@ public class MethodVariant
 			 */
 			final ITokenManager _tokenMgr = fa.getTokenManager();
 			final RefType _sootType = sm.getDeclaringClass().getType();
-			thisVar.setFilter(_tokenMgr.getTypeBasedFilter(_tokenMgr.getTypeManager().getTypeForIRType(_sootType)));
+			final IType _tokenTypeForRepType = _tokenMgr.getTypeManager().getTokenTypeForRepType(_sootType);
+            final ITokenFilter _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
+            thisVar.setInFilter(_typeBasedFilter);
+            thisVar.setOutFilter(_typeBasedFilter);
 		}
 
 		if (sm.getReturnType() instanceof RefLikeType) {

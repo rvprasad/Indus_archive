@@ -28,9 +28,15 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.TransformerUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,9 +65,41 @@ public class FA
   implements IEnvironment,
 	  IWorkBagProvider {
 	/** 
+	 * This is the property that the user can specify to control the interval between the application of SCC-based
+	 * optimziation. The name of the property is "edu.ksu.cis.indus.staticanalyses.flow.FA.sccOptimizationInterval". If
+	 * unspecified, the interval defaults to <i>10000</i>.
+	 */
+	public static final String SCC_OPTIMIZATION_INTERVAL_PROPERTY;
+
+	/** 
+	 * This is the default length of the interval between which SCC-based optimization is applied to the flow network.
+	 */
+	private static final int DEFAULT_SCC_OPTIMIZATION_INTERVAL;
+
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(FA.class);
+	private static final Log LOGGER;
+
+	static {
+		LOGGER = LogFactory.getLog(FA.class);
+		SCC_OPTIMIZATION_INTERVAL_PROPERTY = "edu.ksu.cis.indus.staticanalyses.flow.FA.sccOptimizationInterval";
+
+		final String _prop = System.getProperty(SCC_OPTIMIZATION_INTERVAL_PROPERTY);
+		int _val = 10000;
+
+		if (_prop != null) {
+			_val = Integer.parseInt(_prop);
+
+			if (_val < 1) {
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("SCC optimization has been disabled.");
+				}
+				_val = 0;
+			}
+		}
+		DEFAULT_SCC_OPTIMIZATION_INTERVAL = _val;
+	}
 
 	/** 
 	 * This is the collection of methods that serve as entry points into the system being analyzed.
@@ -120,6 +158,11 @@ public class FA
 	private NamedTag tag;
 
 	/** 
+	 * This optimizes flow graph based on SCC.
+	 */
+	private final SCCBasedOptimizer sccBasedOptimizer = new SCCBasedOptimizer();
+
+	/** 
 	 * The manager of array variants.
 	 */
 	private ValuedVariantManager arrayVariantManager;
@@ -133,6 +176,11 @@ public class FA
 	 * The manager of static field variants.
 	 */
 	private ValuedVariantManager staticFieldVariantManager;
+
+	/** 
+	 * This is the interval between which SCC-based optimization is applied.
+	 */
+	private int sccOptimizationInterval;
 
 	/**
 	 * Creates a new <code>FA</code> instance.
@@ -153,6 +201,7 @@ public class FA
 		analyzer = theAnalyzer;
 		tag = new NamedTag(tagName);
 		tokenManager = tokenMgr;
+		sccOptimizationInterval = DEFAULT_SCC_OPTIMIZATION_INTERVAL;
 	}
 
 	/**
@@ -209,6 +258,25 @@ public class FA
 	 */
 	public final SootClass getClass(final String className) {
 		return environment.getClass(className);
+	}
+
+	/**
+	 * Sets the value of <code>sccOptimizationInterval</code>.
+	 *
+	 * @param interval the new value of <code>sccOptimizationInterval</code>. Zero and negative values will turn off the
+	 * 		  optimization.
+	 */
+	public final void setSccOptimizationInterval(final int interval) {
+		this.sccOptimizationInterval = interval;
+	}
+
+	/**
+	 * Retrieves the value in <code>sccOptimizationInterval</code>.
+	 *
+	 * @return the value in <code>sccOptimizationInterval</code>.
+	 */
+	public final int getSccOptimizationInterval() {
+		return sccOptimizationInterval;
 	}
 
 	/**
@@ -407,6 +475,7 @@ public class FA
 		workBags[1].clear();
 		rootMethods.clear();
 		classManager.reset();
+        sccBasedOptimizer.reset();
 		environment = null;
 	}
 
@@ -552,22 +621,28 @@ public class FA
 			LOGGER.info("Starting worklist processing...");
 		}
 
+		long _count = 0;
+        int _bagToggleCounter = 0;
 		final WorkList[] _workLists = new WorkList[2];
 		_workLists[0] = new WorkList(workBags[0]);
 		_workLists[1] = new WorkList(workBags[1]);
-
+        
 		while (workBags[0].hasWork() || workBags[1].hasWork()) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing work pieces in workbag 0.");
-			}
-			currWorkBag = workBags[1];
-			_workLists[0].process();
+            final int _bag = _bagToggleCounter % 2;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Processing work pieces in workbag " + _bag);
+            }
+            currWorkBag = workBags[_bag];
+			_count += _workLists[_bag].process();
+            _bagToggleCounter++;
 
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing work pieces in workbag 1.");
+			if (sccOptimizationInterval > 0 && (++_count > sccOptimizationInterval)) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Collapsing SCCs...");
+				}
+				collapseSCCOfNodes();
+                _count = 0;
 			}
-			currWorkBag = workBags[0];
-			_workLists[1].process();
 		}
 	}
 
@@ -584,6 +659,40 @@ public class FA
 		} else if (type instanceof ArrayType && ((ArrayType) type).baseType instanceof RefType) {
 			classManager.process(getClass(((RefType) ((ArrayType) type).baseType).getClassName()));
 		}
+	}
+
+	/**
+	 * Retrieves the variants at the method interfaces.
+	 *
+	 * @return the variants
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(IVariant))
+	 */
+	private Collection getVariantsAtMethodInterfaces() {
+		final Collection _result = new HashSet();
+		final Iterator _i = methodVariantManager.getVariants().iterator();
+		final int _iEnd = methodVariantManager.getVariants().size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final MethodVariant _mv = (MethodVariant) _i.next();
+			_result.add(_mv.returnVar);
+			_result.add(_mv.thisVar);
+			_result.addAll(Arrays.asList(_mv.parameters));
+		}
+		_result.remove(null);
+		return _result;
+	}
+
+	/**
+	 * Collapses SCC of nodes.
+	 */
+	private void collapseSCCOfNodes() {
+		final Collection _rootNodes = new HashSet();
+		final Transformer _transformer = TransformerUtils.invokerTransformer("getFGNode");
+		CollectionUtils.collect(instanceFieldVariantManager.getVariants(), _transformer, _rootNodes);
+		CollectionUtils.collect(staticFieldVariantManager.getVariants(), _transformer, _rootNodes);
+		_rootNodes.addAll(getVariantsAtMethodInterfaces());
+		sccBasedOptimizer.optimize(_rootNodes, tokenManager);
 	}
 }
 

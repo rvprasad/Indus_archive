@@ -25,7 +25,9 @@ import edu.ksu.cis.indus.staticanalyses.flow.ITokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.ValuedVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.IType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,7 +63,7 @@ import soot.jimple.VirtualInvokeExpr;
 
 
 /**
- * The expression visitor used in flow insensitive mode of object flow analysis.  Created: Sun Jan 27 14:29:14 2002
+ * The expression visitor used in flow insensitive mode of object flow analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -135,7 +137,9 @@ class FlowInsensitiveExprSwitch
 			final IFGNode _base = (IFGNode) getResult();
 			final IFGNode _cast = method.getASTNode(e);
 			final ITokenManager _tokenMgr = fa.getTokenManager();
-			_cast.setFilter(_tokenMgr.getTypeBasedFilter(_tokenMgr.getTypeManager().getExactType(e)));
+			final ITokenFilter _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenMgr.getTypeManager().getExactType(e));
+            _cast.setInFilter(_typeBasedFilter);
+            _cast.setOutFilter(_typeBasedFilter);
 			_base.addSucc(_cast);
 			setResult(_cast);
 		}
@@ -418,8 +422,12 @@ class FlowInsensitiveExprSwitch
 		fa.processClass(e.getMethod().getDeclaringClass());
 		process(e.getBaseBox());
 
-		final IFGNode _temp = (IFGNode) getResult();
-
+		final IFGNode _receiverNode = (IFGNode) getResult();
+        final ITokenManager _tokenMgr = fa.getTokenManager();
+        final IType _tokenTypeForRepType = _tokenMgr.getTypeManager().getTokenTypeForRepType(e.getBase().getType());
+        final ITokenFilter _typeBasedFilter = _tokenMgr.getTypeBasedFilter(_tokenTypeForRepType);
+        _receiverNode.setOutFilter(_typeBasedFilter);
+        
 		for (int _i = 0; _i < e.getArgCount(); _i++) {
 			process(e.getArgBox(_i));
 		}
@@ -430,10 +438,10 @@ class FlowInsensitiveExprSwitch
 			setResult(null);
 		}
 
-		final ITokenManager _tokenMgr = fa.getTokenManager();
 		final ITokenProcessingWork _work = new InvokeExprWork(method, context, _tokenMgr.getNewTokenSet());
 		final FGAccessNode _baseNode = new FGAccessNode(_work, fa, _tokenMgr);
-		_temp.addSucc(_baseNode);
+        _baseNode.setInFilter(_typeBasedFilter);
+		_receiverNode.addSucc(_baseNode);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: processed " + e);

@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +60,7 @@ public abstract class AbstractVariantManager
 	/** 
 	 * A map from indices to variants.
 	 *
-	 * @invariant index2variant != null
+	 * @invariant index2variant != null and index2variant.oclIsKindOf(Map(IIndex, IVariant))
 	 */
 	private final Map index2variant = new HashMap();
 
@@ -154,8 +155,19 @@ public abstract class AbstractVariantManager
 	 *
 	 * @return number of variants managed.
 	 */
-	protected int auxGetVariantCount() {
+	protected int getVariantCount() {
 		return index2variant.values().size();
+	}
+
+	/**
+	 * Retrieves the variants managed by this object.
+	 *
+	 * @return the variants.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(IVariant))
+	 */
+	Collection getVariants() {
+		return index2variant.values();
 	}
 }
 
