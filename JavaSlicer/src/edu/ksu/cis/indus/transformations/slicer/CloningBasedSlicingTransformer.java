@@ -35,15 +35,20 @@
 
 package edu.ksu.cis.indus.transformations.slicer;
 
+import soot.Local;
 import soot.PatchingChain;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootField;
 import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
 
+import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 import edu.ksu.cis.indus.transformations.common.Cloner;
-import edu.ksu.cis.indus.transformations.common.ITransformMap;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -60,7 +65,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public class SliceMapImpl
-  implements ITransformMap {
+  extends AbstractTransformer {
 	/**
 	 * The cloner from which the map is extracted.
 	 */
@@ -69,64 +74,119 @@ public class SliceMapImpl
 	/**
 	 * This maps statements in untransformed methods to their counterparts in the transformed version of the methods.
 	 *
-	 * @invariant method2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
-	 * @invariant method2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
-	 * @invariant method2stmtMap != null
+	 * @invariant unslicedMethod2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
+	 * @invariant unslicedMethod2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
+	 * @invariant unslicedMethod2stmtMap != null
 	 */
-	private Map method2stmtMap = new HashMap();
+	private Map unslicedMethod2stmtMap = new HashMap();
 
 	/**
 	 * This maps statements in transformed version of methods to their counterparts in the untransformed version of the
 	 * methods.
 	 *
-	 * @invariant transformedMethod2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
-	 * @invariant transformedMethod2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
-	 * @invariant transformedMethod2stmtMap != null
+	 * @invariant slicedMethod2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
+	 * @invariant slicedMethod2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
+	 * @invariant slicedMethod2stmtMap != null
 	 */
-	private Map transformedMethod2stmtMap = new HashMap();
+	private Map slicedMethod2stmtMap = new HashMap();
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.ITransformMap#getSlicedStmt(Stmt, SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformed(soot.SootClass)
 	 */
-	public Stmt getTransformedStmt(final Stmt untransformedStmt, final SootMethod untransformedMethod) {
+	public SootClass getTransformed(final SootClass clazz) {
+		return cloner.getCloneOf(clazz);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformed(soot.SootField)
+	 */
+	public SootField getTransformed(final SootField field) {
+		return cloner.getCloneOf(field);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformed(soot.SootMethod)
+	 */
+	public SootMethod getTransformed(final SootMethod method) {
+		return cloner.getCloneOf(method);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.slicer.ITransformMap#getTransformed(Stmt, SootMethod)
+	 */
+	public Stmt getTransformed(final Stmt unslicedStmt, final SootMethod unslicedMethod) {
 		Stmt result = null;
-		Map stmtMap = (Map) method2stmtMap.get(untransformedMethod);
+		Map stmtMap = (Map) unslicedMethod2stmtMap.get(unslicedMethod);
 
 		if (stmtMap != null) {
-			result = (Stmt) stmtMap.get(untransformedStmt);
+			result = (Stmt) stmtMap.get(unslicedStmt);
 		}
 		return result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.ITransformMap#getUntransformedStmt(Stmt, SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformedClasses()
 	 */
-	public Stmt getUntransformedStmt(final Stmt transformedStmt, final SootMethod transformedMethod) {
+	public Collection getTransformedClasses() {
+		return transformedSystem.getClasses();
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformedLocal(java.lang.String, soot.SootMethod)
+	 */
+	public Local getTransformedLocal(final String name, final SootMethod method) {
+		return cloner.getLocal(name, method);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformedSootClass(java.lang.String)
+	 */
+	public SootClass getTransformedSootClass(final String className) {
+		return transformedSystem.getSootClass(className);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getUntransformed(soot.SootClass)
+	 */
+	public SootClass getUntransformed(final SootClass clazz) {
+		return untransformedSystem.getSootClass(clazz.getName());
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.slicer.ITransformMap#getUntransformed(Stmt, SootMethod)
+	 */
+	public Stmt getUntransformed(final Stmt slicedStmt, final SootMethod slicedMethod) {
 		Stmt result = null;
-		Map stmtMap = (Map) transformedMethod2stmtMap.get(transformedMethod);
+		Map stmtMap = (Map) slicedMethod2stmtMap.get(slicedMethod);
 
 		if (stmtMap != null) {
-			result = (Stmt) stmtMap.get(transformedStmt);
+			result = (Stmt) stmtMap.get(slicedStmt);
 		}
 		return result;
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @post getUntransformedStmt(transformedStmt, slicer.getCloneOf(untransformedMethod)) == untransformedStmt
-	 * @post getSlicedStmt(untransformedStmt, untransformedMethod) == transformedStmt
+     * Registers the mapping between statements in the transformed and untransformed versions of a method.
+     *
+     * @param slicedStmt in the transformed version of the method.
+     * @param unslicedStmt in the untransformed version of the method.
+     * @param unslicedMethod in which <code>stmt</code> occurs.
+     *
+     * @pre unslicedStmt != null and slicedStmt != null and unslicedMethod != null
+     *
+	 * @post getUnslicedStmt(slicedStmt, slicer.getCloneOf(unslicedMethod)) == unslicedStmt
+	 * @post getSlicedStmt(unslicedStmt, unslicedMethod) == slicedStmt
 	 */
-	public void addMapping(final Stmt transformedStmt, final Stmt untransformedStmt, final SootMethod untransformedMethod) {
-		Map stmtMap = (Map) method2stmtMap.get(untransformedMethod);
+	private void addMapping(final Stmt slicedStmt, final Stmt unslicedStmt, final SootMethod unslicedMethod) {
+		Map stmtMap = (Map) unslicedMethod2stmtMap.get(unslicedMethod);
 
 		if (stmtMap != null) {
-			stmtMap.put(untransformedStmt, transformedStmt);
+			stmtMap.put(unslicedStmt, slicedStmt);
 		}
-		stmtMap = (Map) transformedMethod2stmtMap.get(cloner.getCloneOf(untransformedMethod));
+		stmtMap = (Map) slicedMethod2stmtMap.get(cloner.getCloneOf(unslicedMethod));
 
 		if (stmtMap != null) {
-			stmtMap.put(transformedStmt, untransformedStmt);
+			stmtMap.put(slicedStmt, unslicedStmt);
 		}
 	}
 
@@ -134,25 +194,25 @@ public class SliceMapImpl
 	 * Correct invalid mappings.  Mappings may be invalidated when transformations external to slicer are applied to  the
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
-	public void fixupMappings() {
-		for (Iterator i = method2stmtMap.keySet().iterator(); i.hasNext();) {
+	public void completeTransformation() {
+		for (Iterator i = unslicedMethod2stmtMap.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
-			SootMethod transformedMethod = cloner.getCloneOf(method);
+			SootMethod slicedMethod = cloner.getCloneOf(method);
 
-			if (transformedMethod == null) {
-				transformedMethod2stmtMap.put(transformedMethod, null);
+			if (slicedMethod == null) {
+				slicedMethod2stmtMap.put(slicedMethod, null);
 			} else {
-				Map untransformedStmt2transformedStmt = (Map) method2stmtMap.get(method);
-				Map transformedStmt2untransformedStmt = (Map) transformedMethod2stmtMap.get(transformedMethod);
+				Map unslicedStmt2slicedStmt = (Map) unslicedMethod2stmtMap.get(method);
+				Map slicedStmt2unslicedStmt = (Map) slicedMethod2stmtMap.get(slicedMethod);
 				PatchingChain untransformedSL = ((JimpleBody) method.getActiveBody()).getUnits();
-				PatchingChain transformedSL = ((JimpleBody) transformedMethod.getActiveBody()).getUnits();
+				PatchingChain transformedSL = ((JimpleBody) slicedMethod.getActiveBody()).getUnits();
 
 				for (Iterator j = untransformedSL.iterator(); j.hasNext();) {
 					Stmt stmt = (Stmt) j.next();
 
-					if (!transformedSL.contains(untransformedStmt2transformedStmt.get(stmt))) {
-						transformedStmt2untransformedStmt.remove(untransformedStmt2transformedStmt.get(stmt));
-						untransformedStmt2transformedStmt.remove(stmt);
+					if (!transformedSL.contains(unslicedStmt2slicedStmt.get(stmt))) {
+						slicedStmt2unslicedStmt.remove(unslicedStmt2slicedStmt.get(stmt));
+						unslicedStmt2slicedStmt.remove(stmt);
 					}
 				}
 			}
@@ -160,27 +220,77 @@ public class SliceMapImpl
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#transform(soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public void transform(final Stmt stmt, final SootMethod method) {
+        
+		Stmt sliced = cloner.cloneASTFragment(stmt, method);
+		PatchingChain unslicedSL = method.getActiveBody().getUnits();
+		PatchingChain slicedSL = getSliceStmtListFor(method);
+
+		writeIntoAt(sliced, slicedSL, stmt, unslicedSL);
+		addMapping(sliced, stmt, method);
+	}
+
+	/**
 	 * Initializes the map with a cloner which manages the clone to clonee mappings.
 	 *
 	 * @param theCloner manages the clone to clonee mappings.
+	 * @param theSystem that is to be sliced.
+	 * @param theTransformedSystem is an out parameter that will contain the transformed system after transformation.
 	 *
 	 * @pre theCloner != null
 	 */
-	protected void initialize(final Cloner theCloner) {
+	protected void initialize(final Cloner theCloner, final Scene theSystem, final Scene theTransformedSystem) {
 		cloner = theCloner;
+		untransformedSystem = theSystem;
+		transformedSystem = theTransformedSystem;
+	}
+
+	/**
+	 * Inserts the given data into the given chain at the same position at which <code>posData</code> is found in
+	 * <code>posChain</code>. This is required as the statements of a methods are not maintained in a list into which we can
+	 * index directly.
+	 *
+	 * @param writeData is the data to be inserted into <code>writeChain</code>.
+	 * @param writeChain is the chain into which data should be inserted.
+	 * @param posData is the data that gives the position at which data should be inserted in <code>writeChain</code>.
+	 * @param posChain is the chain relative to which <code>posData</code> gives the insertion position.
+	 *
+	 * @pre writeData != null and writeChain != null and posData != null and posChain != null
+	 * @pre writeChain.size() == posChain.size()
+	 * @pre writeChain.contains(posData)
+	 */
+	private void writeIntoAt(final Stmt writeData, final PatchingChain writeChain, final Object posData,
+		final PatchingChain posChain) {
+		Object index = null;
+		Iterator j = writeChain.iterator();
+
+		for (Iterator i = posChain.iterator(); i.hasNext();) {
+			Object temp = i.next();
+			index = j.next();
+
+			if (temp.equals(posData)) {
+				break;
+			}
+		}
+		writeChain.insertAfter(index, writeData);
+		writeChain.remove(index);
 	}
 }
 
 /*
    ChangeLog:
-   
    $Log$
+   Revision 1.10  2003/08/18 12:14:13  venku
+   Well, to start with the slicer implementation is complete.
+   Although not necessarily bug free, hoping to stabilize it quickly.
+
    Revision 1.9  2003/08/18 05:01:45  venku
    Committing package name change in source after they were moved.
 
    Revision 1.8  2003/08/18 04:49:47  venku
    Modified SlicerMap to be an specific implementation of ITransformMap specific to the Slicer.
-
    
    Revision 1.7  2003/08/18 02:40:23  venku
    It is better to elevate the mapping interface to a Type and implement in SliceMap.

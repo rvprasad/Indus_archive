@@ -37,9 +37,7 @@ package edu.ksu.cis.indus.transformations.slicer;
 
 import soot.Body;
 import soot.Local;
-import soot.PatchingChain;
 import soot.RefType;
-import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Trap;
@@ -70,6 +68,7 @@ import soot.util.Chain;
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.controller.SimpleController;
+import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
@@ -78,7 +77,6 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
-import edu.ksu.cis.indus.transformations.common.Cloner;
 import edu.ksu.cis.indus.transformations.common.ITransformMap;
 
 import org.apache.commons.logging.Log;
@@ -151,13 +149,6 @@ public class Slicer {
 	}
 
 	/**
-	 * This provides the cloning functionality required while creating the sliced system.
-	 *
-	 * @invariant cloner != null
-	 */
-	private final Cloner cloner = new Cloner();
-
-	/**
 	 * The collection of slice criteria.
 	 *
 	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
@@ -174,7 +165,7 @@ public class Slicer {
 	/**
 	 * The controller used to access the dependency analysis info during slicing.
 	 */
-	private SimpleController controller;
+	private AbstractController controller;
 
 	/**
 	 * The work bag used during slicing.
@@ -219,21 +210,9 @@ public class Slicer {
 	private Object sliceType = BACKWARD_SLICE;
 
 	/**
-	 * The class manager which manages unsliced classes.
-	 */
-	private Scene clazzManager;
-
-	/**
-	 * The class manager which manages sliced classes.
-	 */
-	private Scene slicedClazzManager;
-
-	/**
 	 * Sets the slicing criteria on which the slice should be based on.
 	 *
 	 * @param sliceCriteria are ofcourse the slicing criteria
-	 * @param theSystem that is to be sliced.
-	 * @param slicedSystem is an out parameter that will contain the sliced system after slicing.
 	 * @param dependenceInfoController provides dependency information required for slicing.
 	 * @param callgraph provides call graph information about the system being sliced.
 	 * @param theSlicemap maps the sliced statements to the unsliced statement and vice versa. This is used by the
@@ -248,8 +227,8 @@ public class Slicer {
 	 * 		slicedSystem != null and theSlicemap != null and dependenciesToUse != null
 	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
 	 */
-	public void setSliceCriteria(final Collection sliceCriteria, final Scene theSystem, final Scene slicedSystem,
-		final SimpleController dependenceInfoController, final ICallGraphInfo callgraph, final ITransformMap theSlicemap,
+	public void setSliceCriteria(final Collection sliceCriteria, 
+		final AbstractController dependenceInfoController, final ICallGraphInfo callgraph, final ITransformMap theSlicemap,
 		final Collection dependenciesToUse) {
 		for (Iterator i = sliceCriteria.iterator(); i.hasNext();) {
 			Object o = i.next();
@@ -261,12 +240,9 @@ public class Slicer {
 		}
 		criteria.addAll(sliceCriteria);
 
-		clazzManager = theSystem;
 		controller = dependenceInfoController;
 		cgi = callgraph;
-		slicedClazzManager = slicedSystem;
 		slicemap = theSlicemap;
-		cloner.initialize(clazzManager, slicedClazzManager, dependenceInfoController);
 		dependencies.addAll(dependenciesToUse);
 		intraProceduralDependencies.clear();
 
@@ -287,11 +263,11 @@ public class Slicer {
 	 * calling any other methods.
 	 */
 	public void reset() {
-		clazzManager = null;
-		slicedClazzManager = null;
+		//clazzManager = null;
+		//slicedClazzManager = null;
 		cgi = null;
 		slicemap = null;
-		cloner.reset();
+		//cloner.reset();
 		criteria.clear();
 
 		// clear the work bag of slice criterion
@@ -316,7 +292,7 @@ public class Slicer {
 		if (criteria == null || criteria.size() == 0) {
 			LOGGER.warn("Slice criteria is unspecified.");
 			throw new IllegalStateException("Slice criteria is unspecified.");
-		} else if (clazzManager == null || controller == null) {
+		} else if (/*clazzManager == null ||*/ controller == null) {
 			LOGGER.warn("Class Manager and/or Controller is unspecified.");
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
@@ -345,24 +321,7 @@ public class Slicer {
 			work.sliced();
 		}
 		fixupMethods();
-		slicemap.fixupMappings();
-	}
-
-	/**
-	 * Retrieves the statement list for the slice version of given sliced method.
-	 *
-	 * @param method is the sliced method.
-	 *
-	 * @return the statement list for the slice version of the given method.
-	 *
-	 * @pre method != null
-	 * @post result != null
-	 */
-	private PatchingChain getSliceStmtListFor(final SootMethod method) {
-		SootMethod sliceMethod = cloner.getCloneOf(method);
-		Body body = sliceMethod.getActiveBody();
-		PatchingChain result = body.getUnits();
-		return result;
+		slicemap.completeTransformation();
 	}
 
 	/**
@@ -378,7 +337,7 @@ public class Slicer {
 	 */
 	private Stmt getSlicedStmt(final Stmt unslicedStmt, final SootMethod unslicedMethod) {
 		Stmt result = null;
-		SootMethod slicedMethod = cloner.getCloneOf(unslicedMethod);
+		SootMethod slicedMethod = slicemap.getTransformed(unslicedMethod);
 		Iterator j = slicedMethod.getActiveBody().getUnits().iterator();
 
 		for (Iterator i = unslicedMethod.getActiveBody().getUnits().iterator(); i.hasNext();) {
@@ -449,9 +408,9 @@ public class Slicer {
 	private void fixupMethods() {
 		NopEliminator nopTranformation = NopEliminator.v();
 
-		for (Iterator i = slicedClazzManager.getClasses().iterator(); i.hasNext();) {
+		for (Iterator i = slicemap.getTransformedClasses().iterator(); i.hasNext();) {
 			SootClass slicedClass = (SootClass) i.next();
-			SootClass unslicedClass = clazzManager.getSootClass(slicedClass.getName());
+			SootClass unslicedClass = slicemap.getUntransformed(slicedClass);
 
 			for (Iterator j = slicedClass.getMethods().iterator(); j.hasNext();) {
 				SootMethod slicedMethod = (SootMethod) j.next();
@@ -467,12 +426,12 @@ public class Slicer {
 				for (Iterator k = unslicedBody.getTraps().iterator(); k.hasNext();) {
 					Trap unslicedTrap = (Trap) k.next();
 					Unit unslicedBeginTrap = unslicedTrap.getBeginUnit();
-					Unit slicedBeginTrap = (Unit) slicemap.getTransformedStmt((Stmt) unslicedBeginTrap, unslicedMethod);
+					Unit slicedBeginTrap = (Unit) slicemap.getTransformed((Stmt) unslicedBeginTrap, unslicedMethod);
 					Unit unslicedEndTrap = unslicedTrap.getEndUnit();
-					Unit slicedEndTrap = (Unit) slicemap.getTransformedStmt((Stmt) unslicedEndTrap, unslicedMethod);
+					Unit slicedEndTrap = (Unit) slicemap.getTransformed((Stmt) unslicedEndTrap, unslicedMethod);
 					Unit unslicedHandler = unslicedTrap.getHandlerUnit();
-					Unit slicedHandler = (Unit) slicemap.getTransformedStmt((Stmt) unslicedHandler, unslicedMethod);
-					slicedTraps.add(jimple.newTrap(cloner.getCloneOf(unslicedTrap.getException()), slicedBeginTrap,
+					Unit slicedHandler = (Unit) slicemap.getTransformed((Stmt) unslicedHandler, unslicedMethod);
+					slicedTraps.add(jimple.newTrap(slicemap.getTransformed(unslicedTrap.getException()), slicedBeginTrap,
 							slicedEndTrap, slicedHandler));
 				}
 
@@ -485,14 +444,14 @@ public class Slicer {
 
 					if (unslicedStmt.branches()) {
 						if (unslicedStmt instanceof GotoStmt) {
-							GotoStmt slicedStmt = (GotoStmt) slicemap.getTransformedStmt(unslicedStmt, unslicedMethod);
+							GotoStmt slicedStmt = (GotoStmt) slicemap.getTransformed(unslicedStmt, unslicedMethod);
 							slicedStmt.setTarget(getSlicedStmt((Stmt) slicedStmt.getTarget(), unslicedMethod));
 						} else if (unslicedStmt instanceof IfStmt) {
-							IfStmt slicedStmt = (IfStmt) slicemap.getTransformedStmt(unslicedStmt, unslicedMethod);
+							IfStmt slicedStmt = (IfStmt) slicemap.getTransformed(unslicedStmt, unslicedMethod);
 							slicedStmt.setTarget(getSlicedStmt(slicedStmt.getTarget(), unslicedMethod));
 						} else if (unslicedStmt instanceof LookupSwitchStmt) {
 							LookupSwitchStmt slicedStmt =
-								(LookupSwitchStmt) slicemap.getTransformedStmt(unslicedStmt, unslicedMethod);
+								(LookupSwitchStmt) slicemap.getTransformed(unslicedStmt, unslicedMethod);
 
 							for (int index = 0; index < slicedStmt.getTargetCount(); index++) {
 								Stmt target = (Stmt) slicedStmt.getTarget(index);
@@ -503,7 +462,7 @@ public class Slicer {
 							slicedStmt.setDefaultTarget(getSlicedStmt(target, unslicedMethod));
 						} else if (unslicedStmt instanceof TableSwitchStmt) {
 							TableSwitchStmt slicedStmt =
-								(TableSwitchStmt) slicemap.getTransformedStmt(unslicedStmt, unslicedMethod);
+								(TableSwitchStmt) slicemap.getTransformed(unslicedStmt, unslicedMethod);
 
 							for (int index = 0; index < slicedStmt.getHighIndex() - slicedStmt.getLowIndex(); index++) {
 								Stmt target = (Stmt) slicedStmt.getTarget(index);
@@ -539,13 +498,8 @@ public class Slicer {
 			Stmt unslicedStmt = (Stmt) pair.getFirst();
 			SootMethod unslicedMethod = (SootMethod) pair.getSecond();
 
-			if (slicemap.getTransformedStmt(unslicedStmt, unslicedMethod) == null) {
-				Stmt slicedStmt = cloner.cloneASTFragment(unslicedStmt, unslicedMethod);
-				PatchingChain slicedSL = getSliceStmtListFor(unslicedMethod);
-				PatchingChain unslicedSL = unslicedMethod.getActiveBody().getUnits();
-				writeIntoAt(slicedStmt, slicedSL, unslicedStmt, unslicedSL);
-				slicemap.addMapping(slicedStmt, unslicedStmt, unslicedMethod);
-
+			if (slicemap.getTransformed(unslicedStmt, unslicedMethod) == null) {
+				slicemap.transform(unslicedStmt, unslicedMethod);
 				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
 				sliceCriterion.initialize(unslicedMethod, unslicedStmt, true);
 				workbag.addWorkNoDuplicates(sliceCriterion);
@@ -570,7 +524,7 @@ public class Slicer {
 			Stmt stmt = (Stmt) i.next();
 
 			if (stmt instanceof ThrowStmt) {
-				thrownInBody.add(slicedClazzManager.getSootClass(
+				thrownInBody.add(slicemap.getTransformedSootClass(
 						((RefType) ((ThrowStmt) stmt).getOp().getType()).getClassName()));
 			} else {
 				if (stmt instanceof InvokeStmt) {
@@ -733,12 +687,12 @@ public class Slicer {
 		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.METHOD_LOCAL_DATA_DA);
 
 		// add the new local
-		SootMethod transformedMethod = cloner.getCloneOf(method);
+		SootMethod transformedMethod = slicemap.getTransformed(method);
 		Body body = transformedMethod.getActiveBody();
 		Local local = (Local) vBox.getValue();
 		String lName = local.getName();
 
-		if (cloner.getLocal(lName, transformedMethod) == null) {
+		if (slicemap.getTransformedLocal(lName, transformedMethod) == null) {
 			body.getLocals().add(jimple.newLocal(lName, local.getType()));
 		}
 
@@ -770,10 +724,7 @@ public class Slicer {
 	 * 		  <code>false</code>, otherwise.
 	 */
 	private void sliceStmt(final Stmt stmt, final SootMethod method, final boolean inclusive) {
-		PatchingChain unslicedSL = method.getActiveBody().getUnits();
-		PatchingChain slicedSL = getSliceStmtListFor(method);
-
-		if (inclusive) {
+				if (inclusive) {
 			if (stmt.containsInvokeExpr()) {
 				sliceInvokeExpr(stmt, method);
 			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
@@ -791,9 +742,10 @@ public class Slicer {
 				}
 			}
 
-			Stmt slice = cloner.cloneASTFragment(stmt, method);
-			writeIntoAt(slice, slicedSL, stmt, unslicedSL);
-			slicemap.addMapping(slice, stmt, method);
+			//Stmt slice = cloner.cloneASTFragment(stmt, method);
+			//writeIntoAt(slice, slicedSL, stmt, unslicedSL);
+			//slicemap.addMapping(slice, stmt, method);
+            slicemap.transform(stmt, method);
 		}
 
 		Collection slices = new HashSet();
@@ -815,11 +767,11 @@ public class Slicer {
 		for (Iterator i = slices.iterator(); i.hasNext();) {
 			Stmt unsliced = (Stmt) i.next();
 
-			if (slicemap.getTransformedStmt(unsliced, method) == null) {
-				Stmt sliced = cloner.cloneASTFragment(unsliced, method);
-
-				writeIntoAt(sliced, slicedSL, unsliced, unslicedSL);
-				slicemap.addMapping(sliced, unsliced, method);
+			if (slicemap.getTransformed(unsliced, method) == null) {
+				//Stmt sliced = cloner.cloneASTFragment(unsliced, method);
+				//writeIntoAt(sliced, slicedSL, unsliced, unslicedSL);
+				//slicemap.addMapping(sliced, unsliced, method);
+                slicemap.transform(stmt, method);
 
 				SliceStmt sliceStmt = SliceStmt.getSliceStmt();
 				sliceStmt.initialize(method, unsliced, true);
@@ -827,42 +779,15 @@ public class Slicer {
 			}
 		}
 	}
-
-	/**
-	 * Inserts the given data into the given chain at the same position at which <code>posData</code> is found in
-	 * <code>posChain</code>. This is required as the statements of a methods are not maintained in a list into which we can
-	 * index directly.
-	 *
-	 * @param writeData is the data to be inserted into <code>writeChain</code>.
-	 * @param writeChain is the chain into which data should be inserted.
-	 * @param posData is the data that gives the position at which data should be inserted in <code>writeChain</code>.
-	 * @param posChain is the chain relative to which <code>posData</code> gives the insertion position.
-	 *
-	 * @pre writeData != null and writeChain != null and posData != null and posChain != null
-	 * @pre writeChain.size() == posChain.size()
-	 * @pre writeChain.contains(posData)
-	 */
-	private void writeIntoAt(final Stmt writeData, final PatchingChain writeChain, final Object posData,
-		final PatchingChain posChain) {
-		Object index = null;
-		Iterator j = writeChain.iterator();
-
-		for (Iterator i = posChain.iterator(); i.hasNext();) {
-			Object temp = i.next();
-			index = j.next();
-
-			if (temp.equals(posData)) {
-				break;
-			}
-		}
-		writeChain.insertAfter(index, writeData);
-		writeChain.remove(index);
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/08/18 12:14:13  venku
+   Well, to start with the slicer implementation is complete.
+   Although not necessarily bug free, hoping to stabilize it quickly.
+
 
    Revision 1.8  2003/08/18 05:01:45  venku
    Committing package name change in source after they were moved.

@@ -35,20 +35,67 @@
 
 package edu.ksu.cis.indus.transformations.common;
 
+import soot.Local;
+import soot.PatchingChain;
+import soot.SootClass;
+import soot.SootField;
 import soot.SootMethod;
 
 import soot.jimple.Stmt;
 
+import java.util.Collection;
+
 
 /**
- * This interface should be used to retrieve the mapping between statements in untransformed and transformed version of the
- * system. 
+ * This interface is used to maintain the mapping between statements in untransformed and transformed version of the system.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface ITransformMap {
+	/**
+	 * Retrieves the statement list for the transformed version of given transformed method.
+	 *
+	 * @param method is the transformed method.
+	 *
+	 * @return the statement list for the slice version of the given method.
+	 *
+	 * @pre method != null
+	 * @post result != null
+	 */
+	PatchingChain getSliceStmtListFor(final SootMethod method);
+
+	/**
+	 * Retrieves the transformed version of the given untransformed class.
+	 *
+	 * @param clazz is the untransformed class.
+	 *
+	 * @return the transformed class.
+     * * @pre clazz != null
+	 */
+	SootClass getTransformed(SootClass clazz);
+
+	/**
+	 * Retrieves the transformed version of the given untransformed method.
+     *
+     * @param method is the untransformed method.
+     *
+     * @return the transformed method.
+     * * @pre method != null
+     */
+	SootMethod getTransformed(SootMethod method);
+
+	/**
+	 * Retrieves the transformed version of the given untransformed field.
+     *
+     * @param field is the untransformed field.
+     *
+     * @return the transformed field.
+     * @pre field != null
+     */
+	SootField getTransformed(SootField field);
+
 	/**
 	 * Provides the transformed statement corresponding to the given statement in the untransformed version of the method.
 	 *
@@ -60,7 +107,47 @@ public interface ITransformMap {
 	 *
 	 * @pre untransformedStmt != null and untransformedMethod != null
 	 */
-	Stmt getTransformedStmt(final Stmt untransformedStmt, final SootMethod untransformedMethod);
+	Stmt getTransformed(Stmt untransformedStmt, SootMethod untransformedMethod);
+
+	/**
+	 * Retrieves the classes in the transformed system.
+	 *
+	 * @return a collection of transformed classes.
+     * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 */
+	Collection getTransformedClasses();
+
+	/**
+	 * Retrieve the transformed version of the given local in the transformed version of the given method.
+	 *
+	 * @param name of the local.
+	 * @param method in which the local occurs.
+	 *
+	 * @return the transformed local.
+     * @pre name != null and method != null
+	 */
+	Local getTransformedLocal(String name, SootMethod method);
+
+	/**
+	 * Retrieves the transformed version of the named class.
+     * 
+	 * @param name is the name of the requested class.
+	 *
+	 * @return the transformed class.
+     * @pre name != null
+	 */
+	SootClass getTransformedSootClass(String name);
+
+	/**
+	 * Retrieves the untransformed version of the given  class.
+     * 
+     * @param clazz is the transformed version of the class.
+     *
+     * @return the untransformed class.
+     * 
+     * @pre clazz != null
+	 */
+	SootClass getUntransformed(SootClass clazz);
 
 	/**
 	 * Provides the untransformed statement corresponding to the given statement in the transformed of the method.
@@ -72,31 +159,35 @@ public interface ITransformMap {
 	 *
 	 * @pre transformedStmt != null and transformedMethod != null
 	 */
-	Stmt getUntransformedStmt(final Stmt transformedStmt, final SootMethod transformedMethod);
+	Stmt getUntransformed(Stmt transformedStmt, SootMethod transformedMethod);
 
 	/**
-	 * Registers the mapping between statements in the transformed and untransformed versions of a method.
-	 *
-	 * @param transformedStmt in the transformed version of the method.
-	 * @param untransformedStmt in the untransformed version of the method.
-	 * @param untransformedMethod in which <code>stmt</code> occurs.
-	 *
-	 * @pre untransformedStmt != null and transformedStmt != null and untransformedMethod != null
+	 * Called by the transformation engine after the transformation is completed.  The implementation can suitably do any
+	 * postprocessing on the mappings here.
 	 */
-	void addMapping(final Stmt transformedStmt, final Stmt untransformedStmt, final SootMethod untransformedMethod);
+	void completeTransformation();
 
 	/**
-	 * Correct any mappings that may have been invalidated.
+	 * Transform the given statement.  This method will suffice for simple transformation which do not require any context
+     * information except the method in which the statement occurs.  Both parameters refer to untransformed versions.
+	 *
+	 * @param stmt to be transformed.
+	 * @param method in which <code>stmt</code> occurs.
+     * @pre stmt != null and method != null
 	 */
-	void fixupMappings();
+	void transform(Stmt stmt, SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   
+   Revision 1.2  2003/08/18 04:45:31  venku
+   Moved the code such that code common to transformations are in one location
+   and independent of any specific transformation.
+   
    Revision 1.1  2003/08/18 04:01:52  venku
    Major changes:
     - Teased apart cloning logic in the slicer.  Made it transformation independent.
     - Moved it under transformation common location under indus.
-
  */
