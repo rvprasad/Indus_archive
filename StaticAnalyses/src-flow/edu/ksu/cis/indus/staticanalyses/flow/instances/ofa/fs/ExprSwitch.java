@@ -67,9 +67,11 @@ public class ExprSwitch
 
 	/**
 	 * Creates a new <code>ExprSwitch</code> instance.
-	 * @pre stmtSwitch != null and nodeConnector != null
+	 *
 	 * @param stmtSwitch the statement visitor which uses this instance of expression visitor.
 	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
+	 *
+	 * @pre stmtSwitch != null and nodeConnector != null
 	 */
 	public ExprSwitch(final AbstractStmtSwitch stmtSwitch, final IFGNodeConnector nodeConnector) {
 		super(stmtSwitch, nodeConnector);
@@ -77,19 +79,24 @@ public class ExprSwitch
 
 	/**
 	 * Returns a new instance of this class.
-	 * @pre o != null
-	 * @param o the statement visitor which shall use the created visitor instance.  
-	 * @post result.oclIsKindOf(AbstractExprSwitch)
+	 *
+	 * @param o the statement visitor which shall use the created visitor instance.
+	 *
 	 * @return the new visitor instance.
+	 *
+	 * @pre o != null
+	 * @post result.oclIsKindOf(AbstractExprSwitch)
 	 */
 	public Object getClone(final Object o) {
 		return new ExprSwitch((AbstractStmtSwitch) o, connector);
 	}
 
 	/**
-	 * Handles the array reference expressions.  
-	 * @pre e != null
+	 * Handles the array reference expressions.
+	 *
 	 * @param e the array ref expression to be processed.
+	 *
+	 * @pre e != null
 	 */
 	public void caseArrayRef(final ArrayRef e) {
 		super.caseArrayRef(e);
@@ -97,13 +104,28 @@ public class ExprSwitch
 	}
 
 	/**
-	 * Handles the instance field reference expressions. 
-	 * @pre e != null
+	 * Handles the instance field reference expressions.
+	 *
 	 * @param e the instance field ref expression to be processed.
+	 *
+	 * @pre e != null
 	 */
 	public void caseInstanceFieldRef(final InstanceFieldRef e) {
 		super.caseInstanceFieldRef(e);
 		postProcessBase(e.getBaseBox());
+	}
+
+	/**
+	 * Process the expression at the given program point.
+	 *
+	 * @param vb the program point encapsulating the expression to be processed.
+	 *
+	 * @pre vb != null
+	 */
+	public void process(final ValueBox vb) {
+		ValueBox temp = context.setProgramPoint(vb);
+		super.process(vb);
+		context.setProgramPoint(temp);
 	}
 
 	/**
@@ -112,8 +134,10 @@ public class ExprSwitch
 	 * nodes have been set up for the primary and the identifier, the nodes corresponding to the primary is connected
 	 * according to the mode of operation to instigate flow of values into fields and array components according to the
 	 * mode.
-	 * @pre e != null
+	 *
 	 * @param e the reference program point to be processed.
+	 *
+	 * @pre e != null
 	 */
 	protected void postProcessBase(final ValueBox e) {
 		Local l = (Local) e.getValue();
@@ -135,28 +159,19 @@ public class ExprSwitch
 		// end of for (Iterator i = defs.getDefsOfAt(e, stmt.stmt).iterator(); i.hasNext();)
 		context.setProgramPoint(backup);
 	}
-
-	/**
-	 * Process the expression at the given program point.
-	 * @pre vb != null
-	 * @param vb the program point encapsulating the expression to be processed.
-	 */
-	public void process(final ValueBox vb) {
-		ValueBox temp = context.setProgramPoint(vb);
-		super.process(vb);
-		context.setProgramPoint(temp);
-	}
 }
 
 /*
    ChangeLog:
-   
+
    $Log$
-   
+   Revision 1.2  2003/08/13 08:58:04  venku
+   Spruced up documentation and specification.
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 1.6  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
