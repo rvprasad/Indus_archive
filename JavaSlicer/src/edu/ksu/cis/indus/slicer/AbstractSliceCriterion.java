@@ -39,18 +39,41 @@ public abstract class AbstractSliceCriterion {
 	protected ObjectPool pool;
 
 	/**
-	 * This indicates if the effect of executing the criterion should be considered for slicing.
+	 * This indicates type of slicing being generated. It defaults to <code>SlicingEngine.BACKWARD_SLICE</code>.
+	 *
+	 * @invariant SlicingEngine.SLICE_TYPES.contains(sliceType)
 	 */
-	private boolean considerExecution;
+	private Object sliceType = SlicingEngine.BACKWARD_SLICE;
 
 	/**
-	 * Returns the stored criterion object.
-	 *
-	 * @return Object representing the criterion.
-	 *
-	 * @post result != null
+	 * This indicates if the effect of executing the criterion should be considered for slicing.  By default it takes on  the
+	 * value <code>false</code> to indicate execution should not be considered.
 	 */
-	public abstract Object getCriterion();
+	private boolean considerExecution = false;
+
+	/**
+	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
+	 *
+	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
+	 * 		  considered while slicing.  This means all the subexpressions of the associated expression are also considered
+	 * 		  as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching this
+	 * 		  criterion should be considered while slicing.  This means none of the subexpressions of the associated
+	 * 		  expression are considered as slice criteria.
+	 */
+	public void setConsiderExecution(final boolean shouldConsiderExecution) {
+		considerExecution = shouldConsiderExecution;
+	}
+
+	/**
+	 * Sets the type of slice this criterion should be used with.
+	 *
+	 * @param theSliceType is type of slice.
+	 *
+	 * @pre theSliceType != null and SlicingEngine.SLICE_TYPES.contains(theSliceType)
+	 */
+	void setSliceType(final Object theSliceType) {
+		sliceType = theSliceType;
+	}
 
 	/**
 	 * Checks if the given object is "equal" to this object.
@@ -79,25 +102,32 @@ public abstract class AbstractSliceCriterion {
 	}
 
 	/**
+	 * Returns the stored criterion object.
+	 *
+	 * @return Object representing the criterion.
+	 *
+	 * @post result != null
+	 */
+	abstract Object getCriterion();
+
+	/**
+	 * Provides the type of slice associated with this criterion.
+	 *
+	 * @return the slice type.
+	 *
+	 * @post result != null and SlicingEngine.SLICE_TYPES.contains(result)
+	 */
+	Object getSliceType() {
+		return sliceType;
+	}
+
+	/**
 	 * Indicates if the effect of execution of criterion should be considered.
 	 *
 	 * @return <code>true</code> if the effect of execution should be considered; <code>false</code>, otherwise.
 	 */
-	public boolean shouldConsiderExecution() {
+	boolean isConsiderExecution() {
 		return considerExecution;
-	}
-
-	/**
-	 * Initializes this object.
-	 *
-	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
-	 * 		  considered while slicing.  This means all the subexpressions of the associated expression are also considered
-	 * 		  as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching this
-	 * 		  criterion should be considered while slicing.  This means none of the subexpressions of the associated
-	 * 		  expression are considered as slice criteria.
-	 */
-	protected void initialize(final boolean shouldConsiderExecution) {
-		considerExecution = shouldConsiderExecution;
 	}
 
 	/**
@@ -106,14 +136,12 @@ public abstract class AbstractSliceCriterion {
 	 *
 	 * @throws RuntimeException if the returning of the object to it's pool failed.
 	 */
-	public void sliced() {
+	void finished() {
 		if (pool != null) {
 			try {
 				pool.returnObject(this);
 			} catch (Exception e) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("How can this happen?", e);
-				}
+				LOGGER.error("How can this happen?", e);
 				throw new RuntimeException(e);
 			}
 		}
@@ -123,10 +151,17 @@ public abstract class AbstractSliceCriterion {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
    Revision 1.2  2003/11/05 08:28:49  venku
    - used more intuitive field names.
    - changed hashcode calculation.
-
    Revision 1.1  2003/10/13 00:58:04  venku
    - empty log message
    Revision 1.4  2003/09/27 22:38:30  venku
