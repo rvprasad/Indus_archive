@@ -549,13 +549,13 @@ public class FA
 		_workLists[1] = new WorkList(workBags[1]);
 
 		while (workBags[0].hasWork() || workBags[1].hasWork()) {
-		    if (LOGGER.isInfoEnabled()) {
-			    LOGGER.info("Processing work pieces in workbag 0.");
+		    if (LOGGER.isDebugEnabled()) {
+			    LOGGER.debug("Processing work pieces in workbag 0.");
     		}
 			currWorkBag = workBags[1];
 			_workLists[0].process();
-		    if (LOGGER.isInfoEnabled()) {
-			    LOGGER.info("Processing work pieces in workbag 1.");
+		    if (LOGGER.isDebugEnabled()) {
+			    LOGGER.debug("Processing work pieces in workbag 1.");
 	    	}
 			currWorkBag = workBags[0];
 			_workLists[1].process();
@@ -581,6 +581,9 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/05/21 22:30:53  venku
+   - documentation.
+
    Revision 1.19  2004/05/20 07:30:15  venku
    - added logging to track work bag switching.
 
