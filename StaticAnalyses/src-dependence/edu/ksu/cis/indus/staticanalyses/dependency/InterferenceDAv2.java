@@ -39,7 +39,6 @@ import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.AssignStmt;
-import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.escape.EquivalenceClassBasedAnalysis;
@@ -110,5 +109,11 @@ public class InterferenceDAv2
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/08/09 23:46:11  venku
+Well if the read and write access points are marked as shared, then pessimistically
+they occur in different threads.  In such situation, sequential path between
+these points does not bear any effect unless the escape analysis is thread and
+call-tree sensitive.
+
 
 *****/
