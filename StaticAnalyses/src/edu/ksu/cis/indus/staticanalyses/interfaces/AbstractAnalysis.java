@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.interfaces.IStatus;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,10 +153,10 @@ public abstract class AbstractAnalysis
 	 * @return the list of statements.
 	 *
 	 * @pre method != null
-	 * @post result.oclIsKindOf(Collection(Stmt))
+	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
 	protected List getStmtList(final SootMethod method) {
-		List result = null;
+		List result = Collections.EMPTY_LIST;
 		UnitGraph stmtGraph = graphManager.getUnitGraph(method);
 
 		if (stmtGraph != null) {
@@ -191,6 +192,10 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.17  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
