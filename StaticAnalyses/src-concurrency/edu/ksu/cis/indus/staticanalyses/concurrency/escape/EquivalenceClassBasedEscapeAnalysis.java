@@ -1245,6 +1245,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * Reset internal data structures.
 	 */
 	public void reset() {
+        super.reset();
 		globalASs.clear();
 		method2Triple.clear();
 	}
