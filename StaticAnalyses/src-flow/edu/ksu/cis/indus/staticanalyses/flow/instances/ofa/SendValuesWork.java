@@ -122,5 +122,12 @@ public class SendValuesWork
 
 /*
    ChangeLog:
+   
    $Log$
+   
+   Revision 1.1  2003/08/17 11:19:13  venku
+   Placed the simple SendValuesWork class into a separate file.
+   Extended it with work pool support.
+   Amended AbstractWork and WorkList to enable work pool support.
+
  */
