@@ -55,7 +55,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.TrapManager;
+import soot.Trap;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
@@ -64,6 +64,7 @@ import soot.VoidType;
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
+import soot.jimple.CaughtExceptionRef;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InterfaceInvokeExpr;
@@ -126,14 +127,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @invariant methodsToKill.oclIsKindOf(Collection(SootMethod))
 	 */
 	final Collection methodsToKill = new HashSet();
-
-	/** 
-	 * This is the traps of a method that need to be retained.
-	 *
-	 * @invariant trapsToRetain != null
-	 * @invariant trapsToRetain.oclIsKindOf(Set(Trap))
-	 */
-	final Collection trapsToRetain = new HashSet();
 
 	/** 
 	 * This is used to create new AST chunks.
@@ -640,8 +633,6 @@ public final class TagBasedDestructiveSliceResidualizer
 
 			if (!_flag) {
 				stmtsToBeNOPed.add(stmt);
-			} else {
-				processHandlers(stmt);
 			}
 		}
 	}
@@ -655,7 +646,6 @@ public final class TagBasedDestructiveSliceResidualizer
 			currMethod = method;
 			methodsToKill.remove(method);
 			localsToKeep.clear();
-			trapsToRetain.clear();
 			localUseDef = new LocalUseDefAnalysisv2(bbgMgr.getBasicBlockGraph(method));
 		}
 	}
@@ -867,7 +857,7 @@ public final class TagBasedDestructiveSliceResidualizer
 
 			// prune locals and traps
 			_body.getLocals().retainAll(localsToKeep);
-			_body.getTraps().retainAll(trapsToRetain);
+			removeTrapsNotInSlice(_body);
 
 			injectReturnsIntoDanglingNopBlocks(_ch);
 			// transformations built into Soot
@@ -1011,29 +1001,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
-	 * Marks the traps to be included in the slice.
-	 *
-	 * @param stmt will trigger the traps to include.
-	 *
-	 * @pre method != null and stmt != null
-	 */
-	private void processHandlers(final Stmt stmt) {
-		// calculate the relevant traps
-		if (stmt.hasTag(theNameOfTagToResidualize)) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("BEGIN: Collecting handlers " + stmt + "@" + currMethod);
-			}
-
-			final Body _body = currMethod.retrieveActiveBody();
-			trapsToRetain.addAll(TrapManager.getTrapsAt(stmt, _body));
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("END: Collecting handlers " + stmt + "@" + currMethod);
-			}
-		}
-	}
-
-	/**
 	 * Prunes the locals in the given stmt.
 	 *
 	 * @param stmt in which to process the locals.
@@ -1057,11 +1024,48 @@ public final class TagBasedDestructiveSliceResidualizer
 			}
 		}
 	}
+
+	/**
+	 * Removes the traps not included in the slice.
+	 *
+	 * @param body to be mutated.
+	 *
+	 * @pre body != null
+	 */
+	private void removeTrapsNotInSlice(final Body body) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Collecting handlers for " + currMethod);
+		}
+
+		final Chain _traps = body.getTraps();
+		final Iterator _i = _traps.iterator();
+		final int _iEnd = _traps.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Trap _trap = (Trap) _i.next();
+			final Stmt _handlerStmt = (Stmt) _trap.getHandlerUnit();
+
+			if (!_handlerStmt.hasTag(theNameOfTagToResidualize)
+				  || !(_handlerStmt instanceof IdentityStmt
+				  && ((IdentityStmt) _handlerStmt).getRightOp() instanceof CaughtExceptionRef)) {
+				_i.remove();
+			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("RETAINED TRAPS: " + body.getTraps());
+			LOGGER.debug("END: Collecting handlers for " + currMethod);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/08/15 00:02:13  venku
+   - previous changes addressing "classes of types used in cast and instanceof expressions
+     were being ignored during residualization" is more of an executability problem.  Hence, this
+     is now handled in ExecutableSlicePostProcessing instead of TagBasedDestructiveSliceResidualizer.
    Revision 1.23  2004/08/13 16:56:01  venku
    - classes of types used in cast and instanceof expressions
      were being ignored during residualization.  FIXED.
