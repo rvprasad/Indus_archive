@@ -997,7 +997,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
 		boolean result = escapes(v1, sm1) && escapes(v2, sm2);
 
-		if (result) {
+		if (result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
 			try {
 				// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
 				// information. But this is untrue, as all the data that can be shared across threads have been exposed and 
@@ -1127,6 +1127,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/11/25 21:47:30  venku
+   - logging.
+
    Revision 1.28  2003/11/16 19:06:50  venku
    - documentation.
 
