@@ -51,7 +51,7 @@ public class RHSExprSwitch extends ExprSwitch {
 	public void caseLocal(Local e) {
 		FGNode ast = method.getASTNode(e);
 		logger.debug("Local:" + e + "\n" + ast);
-		List l = method.defs.getDefsOfAt(e, stmt.getStmt());
+		List l = method.getDefsOfAt(e, stmt.getStmt());
 		if (l != null) {
 			ValueBox temp = context.getProgramPoint();
 			for (Iterator i = l.iterator(); i.hasNext();) {

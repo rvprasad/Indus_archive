@@ -67,4 +67,9 @@ public abstract class AbstractValuedVariant implements Variant {
 		return node.getValues();
 	}
 
+	/**
+	 * <p>Performs nothing.  This will be called after a variant is created.</p>
+	 */
+	public void process() {}
+
 }// AbstractValuedVariant

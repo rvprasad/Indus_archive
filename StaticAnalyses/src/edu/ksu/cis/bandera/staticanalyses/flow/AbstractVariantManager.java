@@ -97,6 +97,7 @@ public abstract class AbstractVariantManager {
 		else if (bfa.analyzer.active) {
 			temp = getNewVariant(o);
 			index2variant.put(index, temp);
+			temp.process();
 		} // end of if (index2variant.containsKey(index)) else
 
 		logger.debug("Exiting - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa.analyzer.active);

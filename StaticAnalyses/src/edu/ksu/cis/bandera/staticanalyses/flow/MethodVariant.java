@@ -5,12 +5,15 @@ import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.VoidType;
 import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
 import ca.mcgill.sable.soot.jimple.Jimple;
+import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.soot.jimple.SimpleLocalDefs;
 import ca.mcgill.sable.soot.jimple.Stmt;
 import ca.mcgill.sable.soot.jimple.StmtBody;
 import ca.mcgill.sable.soot.jimple.StmtList;
 import ca.mcgill.sable.soot.jimple.Value;
+import ca.mcgill.sable.util.ArrayList;
 import ca.mcgill.sable.util.Iterator;
+import ca.mcgill.sable.util.List;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -39,7 +42,7 @@ public class MethodVariant implements Variant {
 	 * <p>The statement visitor used to process in the statement in the correpsonding method.</p>
 	 *
 	 */
-	protected final AbstractStmtSwitch stmt;
+	protected AbstractStmtSwitch stmt;
 
 	/**
 	 * <p>The array of flow graph nodes associated with the parameters of thec corresponding method.  This will be
@@ -99,7 +102,7 @@ public class MethodVariant implements Variant {
 	 * flow-sensitive information calculation.</p>
 	 *
 	 */
-	public final SimpleLocalDefs defs;
+	protected SimpleLocalDefs defs;
 
 	/**
 	 * <p>Creates a new <code>MethodVariant</code> instance.</p>
@@ -146,19 +149,7 @@ public class MethodVariant implements Variant {
 
 		this.astvm = astvm;
 
-		if (sm.isBodyStored(bodyrep)) {
-			stmt = bfa.getStmt(this);
-			logger.debug(">>>> Starting processing statements of " + sm);
-			StmtList list = ((StmtBody)sm.getBody(bodyrep)).getStmtList();
-			defs = new SimpleLocalDefs(new CompleteStmtGraph(list));
-			for (Iterator i = list.iterator(); i.hasNext();) {
-				stmt.process((Stmt)i.next());
-			} // end of for (Iterator i = list.iterator(); i.hasNext();)
-			logger.debug("<<<< Finished processing statements of " + sm);
-		} else {
-			stmt = null;
-			defs = null;
-		} // end of else
+		
 		logger.debug("<< Method:" + sm + context + "\n");
 	}
 
@@ -206,6 +197,39 @@ public class MethodVariant implements Variant {
 	 */
 	public final ASTVariant getASTVariant(Value v, Context context) {
 		return (ASTVariant)astvm.select(v, context);
+	}
+
+	/**
+	 * <p> Returns the definitions of local variable <code>l</code> that arrive at statement <code>s</code>.</p>
+	 * 
+	 * @param l the local for which the definitions are requested.
+	 * @param s the statement at which the definitions are requested.
+	 * @return the list of definitions of <code>l</code> that arrive at statement <code>s</code>.
+	 */
+	public List getDefsOfAt(Local l, Stmt s) {
+		if (defs == null)
+			return new ArrayList();
+		else 
+			return defs.getDefsOfAt(l, s);	
+	}
+
+	/**
+	 * <p>Processes the body of the method implementation associated with this variant.</p>
+	 */
+	public void process() {
+		if (sm.isBodyStored(bodyrep)) {
+			stmt = bfa.getStmt(this);
+			logger.debug(">>>> Starting processing statements of " + sm);
+			StmtList list = ((StmtBody)sm.getBody(bodyrep)).getStmtList();
+			defs = new SimpleLocalDefs(new CompleteStmtGraph(list));
+			for (Iterator i = list.iterator(); i.hasNext();) {
+				stmt.process((Stmt)i.next());
+			} // end of for (Iterator i = list.iterator(); i.hasNext();)
+			logger.debug("<<<< Finished processing statements of " + sm);
+		} else {
+			stmt = null;
+			defs = null;
+		} // end of else
 	}
 
 	/**

@@ -12,5 +12,5 @@ package edu.ksu.cis.bandera.bfa;
  */
 
 interface Variant {
-
+	public void process();
 }// Variant

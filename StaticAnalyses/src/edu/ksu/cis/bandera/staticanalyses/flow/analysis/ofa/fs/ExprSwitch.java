@@ -78,7 +78,7 @@ public class ExprSwitch extends edu.ksu.cis.bandera.bfa.analysis.ofa.fi.ExprSwit
 		Local l = (Local)e.getValue();
 		ValueBox backup = context.setProgramPoint(e);
 		FGNode localNode = method.getASTNode(l);
-		for (Iterator i = method.defs.getDefsOfAt(l, stmt.getStmt()).iterator(); i.hasNext();) {
+		for (Iterator i = method.getDefsOfAt(l, stmt.getStmt()).iterator(); i.hasNext();) {
 			DefinitionStmt defStmt = (DefinitionStmt)i.next();
 			context.setProgramPoint(defStmt.getLeftOpBox());
 			FGNode defNode = method.getASTNode(defStmt.getLeftOp());
