@@ -78,7 +78,7 @@ public class InterferenceDAv2
 	 * @pre dependent.getFirst() != null and dependent.getSecond() != null
 	 * @pre dependent.getFirst().oclIsTypeOf(AssignStmt) and dependent.getSecond().oclIsTypeOf(SootMethod)
 	 */
-	protected boolean ifDependentOn(final Pair dependent, final Pair dependee) {
+	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
 		SootMethod deMethod = (SootMethod) dependee.getSecond();
 		SootMethod dtMethod = (SootMethod) dependent.getSecond();
 		Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
@@ -110,6 +110,9 @@ public class InterferenceDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/08/21 03:56:08  venku
+   Formatting.
+
    Revision 1.8  2003/08/21 01:25:21  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.
