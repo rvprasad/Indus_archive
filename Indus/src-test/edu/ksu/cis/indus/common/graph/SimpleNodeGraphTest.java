@@ -60,9 +60,7 @@ public class SimpleNodeGraphTest
 
 		try {
 			sng.getNode(null);
-			///CLOVER:OFF
 			fail("Should have raised an exception.");
-			///CLOVER:ON
 		} catch (NullPointerException _e) {
 			;
 		}
@@ -239,6 +237,9 @@ public class SimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/06 01:51:06  venku
+   - renamed DirectedGraphTestSuite to GraphTestSuite.
+
    Revision 1.4  2004/01/03 19:02:38  venku
    - formatting and coding conventions.
 
