@@ -634,6 +634,15 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					_mc.markAsCrossingThreadBoundary();
 				}
 
+				// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
+				// information. But this is untrue, as all the data that can be shared across threads have been exposed and 
+				// marked rightly so at allocation sites.  By equivalence class-based unification, it is guaranteed that the 
+				// corresponding alias set at the caller side is unified atleast twice in case these threads are started at 
+				// different sites.  In case the threads are started at the same site, then the processing of call-site during
+				// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
+				// structure and the language semantics along with the rules above ensure that the escape information is 
+				// polluted (pessimistic) only when necessary.
+				//
 				// It would suffice to unify the method context with it self in the case of loop enclosure
 				// as this is more semantically close to what happens during execution.
 				if (Util.isStartMethod(_callee) && cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
@@ -931,14 +940,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 		if (_result && !(v1 instanceof StaticFieldRef) && !(v2 instanceof StaticFieldRef)) {
 			try {
-				// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
-				// information. But this is untrue, as all the data that can be shared across threads have been exposed and 
-				// marked rightly so at allocation sites.  By equivalence class-based unification guarantees that the 
-				// corresponding alias set at the caller side is unified atleast twice in case these threads are started at 
-				// different sites.  In case the threads are started at the same site, then the processing of call-site during
-				// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
-				// structure and the language semantics along with the rules above ensure that the escape information is 
-				// polluted (pessimistic) only when necessary.
 				final Collection _o1 = getAliasSetFor(v1, sm1).getShareEntities();
 				final Collection _o2 = getAliasSetFor(v2, sm2).getShareEntities();
 				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
