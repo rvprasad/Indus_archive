@@ -394,9 +394,7 @@ public class DivergenceDA
 			final BasicBlockGraph BBGRAPH = getBasicBlockGraph(METHOD);
 
 			if (BBGRAPH == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Method " + METHOD.getSignature() + " did not have a basic block graph.");
-				}
+				LOGGER.error("Method " + METHOD.getSignature() + " did not have a basic block graph.");
 				continue;
 			}
 
@@ -565,6 +563,10 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/09/13 05:42:07  venku
+   - What if the unit graphs for all methods are unavailable?  Hence,
+     added a method to AbstractAnalysis to retrieve the methods to
+     process.  The subclasses work only on this methods.
    Revision 1.12  2003/09/12 22:33:08  venku
    - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
    - Ripple effect of the above changes.

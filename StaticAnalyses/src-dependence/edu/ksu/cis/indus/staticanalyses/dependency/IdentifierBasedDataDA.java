@@ -31,6 +31,9 @@ import soot.toolkits.scalar.UnitValueBoxPair;
 
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,6 +60,11 @@ import java.util.Map;
  */
 public class IdentifierBasedDataDA
   extends DependencyAnalysis {
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(IdentifierBasedDataDA.class);
+
 	/*
 	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
 	 * the methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
@@ -123,6 +131,12 @@ public class IdentifierBasedDataDA
 		for (Iterator i = getMethods().iterator(); i.hasNext();) {
 			SootMethod currMethod = (SootMethod) i.next();
 			CompleteUnitGraph stmtGraph = (CompleteUnitGraph) getUnitGraph(currMethod);
+
+			if (stmtGraph == null) {
+				LOGGER.error("Method " + currMethod.getSignature() + " does not have a unit graph.");
+				continue;
+			}
+
 			SimpleLocalDefs defs = new SimpleLocalDefs(stmtGraph);
 			SimpleLocalUses uses = new SimpleLocalUses(stmtGraph, defs);
 			Collection t = getStmtList(currMethod);
@@ -213,10 +227,13 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/13 05:42:07  venku
+   - What if the unit graphs for all methods are unavailable?  Hence,
+     added a method to AbstractAnalysis to retrieve the methods to
+     process.  The subclasses work only on this methods.
    Revision 1.7  2003/09/12 22:33:08  venku
    - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
    - Ripple effect of the above changes.
-
    Revision 1.6  2003/09/02 12:21:03  venku
    - Tested and it works.  A small bug was fixed.
    Revision 1.5  2003/08/25 09:30:41  venku
