@@ -57,11 +57,6 @@ import java.util.Map;
  */
 public class DivergenceDA
   extends DependencyAnalysis {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(DivergenceDA.class);
-
 	/*
 	 * The dependence information is stored as follows: For each method, a sequence of collection of statements is maintained.
 	 * The length of the sequence is equal to the number of statements in the method.  The statement collection at a location
@@ -70,8 +65,12 @@ public class DivergenceDA
 	 */
 
 	/**
-	 * This provides the call graph information in case this object was setup to provide interprocedural divergence
-	 * dependence information.
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(DivergenceDA.class);
+
+	/**
+	 * This provides the call graph information.
 	 */
 	private ICallGraphInfo callgraph;
 
@@ -351,21 +350,17 @@ public class DivergenceDA
 	 *
 	 * @throws InitializationException when call graph service is not provided.
 	 *
-	 * @pre self.considerCallSites implies (info.get(ICallGraphInfo.ID) != null and
-	 * 		info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo))
+	 * @pre info.get(ICallGraphInfo.ID) != null and    info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
 	protected void setup()
 	  throws InitializationException {
 		super.setup();
+		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
-		if (considerCallSites) {
-			callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
-
-			if (callgraph == null) {
-				throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
-			}
+		if (callgraph == null) {
+			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
 		}
 	}
 
@@ -388,7 +383,7 @@ public class DivergenceDA
 
 		// Pass 1: Calculate pre-divergence points
 		// Pass 1.1: Calculate intraprocedural pre-divergence points
-		for (Iterator i = getMethods().iterator(); i.hasNext();) {
+		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
 			final SootMethod METHOD = (SootMethod) i.next();
 			final BasicBlockGraph BBGRAPH = getBasicBlockGraph(METHOD);
 
@@ -562,6 +557,9 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.15  2003/09/15 01:40:48  venku
    - well, getMethods() was not changed in findPreDivPoints(). FIXED.
    Revision 1.14  2003/09/13 05:56:08  venku

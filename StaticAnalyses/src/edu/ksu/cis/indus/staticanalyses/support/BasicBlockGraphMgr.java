@@ -19,6 +19,8 @@ import soot.SootMethod;
 
 import soot.toolkits.graph.UnitGraph;
 
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphProvider;
+
 import java.lang.ref.WeakReference;
 
 import java.util.HashMap;
@@ -39,6 +41,11 @@ public class BasicBlockGraphMgr {
 	 * @invariant method2graph.oclIsKindOf(Map(SootMethod, BasicBlockGraph))
 	 */
 	private final Map method2graph = new HashMap();
+
+	/**
+	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
+	 */
+	private AbstractUnitGraphProvider unitGraphProvider;
 
 	/**
 	 * Provides the basic block graph corresponding to the given control flow graph.  It creates one if none exists.
@@ -65,17 +72,40 @@ public class BasicBlockGraphMgr {
 	 *
 	 * @param sm is the method for which the graph is requested.
 	 *
-	 * @return the basic block graph corresponding to <code>sm</code>, if one exists.  <code>null</code> is returned
-	 * 		   otherwise.
+	 * @return the basic block graph corresponding to <code>sm</code>.
+	 *
+	 * @throws IllegalStateException when this method is called without calling <code>setStmtGraphProvider()</code>.
 	 */
 	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm) {
-		WeakReference ref = (WeakReference) method2graph.get(sm);
-		BasicBlockGraph result = null;
-
-		if (ref != null) {
-			result = (BasicBlockGraph) ref.get();
+		if (unitGraphProvider == null) {
+			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphProvider() before "
+				+ "calling this method.");
 		}
-		return result;
+		return getBasicBlockGraph(unitGraphProvider.getStmtGraph(sm));
+	}
+
+	/**
+	 * Provides the unit graph for the given method.  This is retrieved from the unit graph provider set via
+	 * <code>setUnitGraphProvider</code>.
+	 *
+	 * @param method for which the unit graph is requested.
+	 *
+	 * @return the unit graph for the method.
+	 *
+	 * @pre method != null
+	 * @post result != null
+	 */
+	public UnitGraph getUnitGraph(final SootMethod method) {
+		return unitGraphProvider.getStmtGraph(method);
+	}
+
+	/**
+	 * Sets the unit graph provider.
+	 *
+	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
+	 */
+	public void setUnitGraphProvider(final AbstractUnitGraphProvider cfgProvider) {
+		unitGraphProvider = cfgProvider;
 	}
 
 	/**
@@ -89,6 +119,9 @@ public class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.5  2003/09/15 02:21:24  venku
    - added reset method.
    Revision 1.4  2003/09/10 10:51:07  venku

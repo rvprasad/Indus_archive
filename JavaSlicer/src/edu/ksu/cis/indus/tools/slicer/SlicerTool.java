@@ -22,6 +22,8 @@ import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
+import edu.ksu.cis.indus.commons.CompleteUnitGraphProvider;
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphProvider;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
@@ -176,6 +178,11 @@ public final class SlicerTool
 	 */
 	private ISlicingBasedTransformer transformer;
 
+	/** 
+	 * This provides <code>UnitGraph</code>s for the analyses. 
+	 */
+	private AbstractUnitGraphProvider unitGraphProvider;
+
 	/**
 	 * This is the slice criterion factory that will be used.
 	 */
@@ -214,9 +221,10 @@ public final class SlicerTool
 		info.put(IEnvironment.ID, ofa.getEnvironment());
 		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(ofa));
 		info.put(Pair.PairManager.ID, new Pair.PairManager());
+		unitGraphProvider = new CompleteUnitGraphProvider();
 
 		// create dependency analyses controller 
-		daController = new AnalysesController(info, cgBasedPreProcessCtrl);
+		daController = new AnalysesController(info, cgBasedPreProcessCtrl, unitGraphProvider);
 
 		// create the slicing objects.
 		engine = new SlicingEngine();
@@ -354,6 +362,7 @@ public final class SlicerTool
 			// do the flow analyses
 			bbgMgr.reset();
 			ofa.reset();
+			unitGraphProvider.reset();
 			ofa.analyze(system, rootMethods);
 			phase.nextMinorPhase();
 
@@ -388,7 +397,7 @@ public final class SlicerTool
 				Object id = i.next();
 				daController.setAnalysis(id, slicerConfig.getDependenceAnalysis(id));
 			}
-			daController.initialize(callGraph.getReachableMethods());
+			daController.initialize();
 			daController.execute();
 			phase.nextMajorPhase();
 		}
@@ -457,7 +466,7 @@ public final class SlicerTool
 
 			if (mTriple.getFirst() == null) {
 				// add all return points (including throws) of the method as the criteria
-				UnitGraph graph = daController.getStmtGraph(method);
+				UnitGraph graph = unitGraphProvider.getStmtGraph(method);
 
 				for (Iterator j = graph.getTails().iterator(); j.hasNext();) {
 					Stmt stmt = (Stmt) j.next();
@@ -474,6 +483,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
    Revision 1.6  2003/09/27 01:27:46  venku
    - documentation.
    Revision 1.5  2003/09/27 01:09:35  venku

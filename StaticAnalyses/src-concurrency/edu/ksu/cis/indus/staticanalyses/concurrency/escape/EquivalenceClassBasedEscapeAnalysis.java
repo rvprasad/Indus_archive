@@ -36,7 +36,6 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
-import soot.jimple.JimpleBody;
 import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
 import soot.jimple.SpecialInvokeExpr;
@@ -47,8 +46,6 @@ import soot.jimple.StringConstant;
 import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
-
-import soot.toolkits.graph.CompleteUnitGraph;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -100,8 +97,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * xxxCache variables do not capture state of the object.  Rather they are used cache values across method calls.  Hence,
 	 * any subclasses of this class should  not reply on these variables as they may be removed in the future.
 	 */
-
-	// TODO: Tighten sharing information by using symbols.
 
 	/**
 	 * This is the unique string identifier that can be used to identify an instance of this class.
@@ -196,11 +191,12 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * @param scene provides and manages the classes to be analysed.
 	 * @param callgraph provides call-graph information.
 	 * @param tgiPrm provides thread-graph information.
+	 * @param basicBlockGraphMgr provides basic block graphs required by this analysis.
 	 *
 	 * @pre scene != null and callgraph != null and tgi != null
 	 */
 	public EquivalenceClassBasedEscapeAnalysis(final Scene scene, final ICallGraphInfo callgraph,
-		final IThreadGraphInfo tgiPrm) {
+		final IThreadGraphInfo tgiPrm, final BasicBlockGraphMgr basicBlockGraphMgr) {
 		this.scm = scene;
 		this.cgi = callgraph;
 		this.tgi = tgiPrm;
@@ -209,7 +205,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 		method2Triple = new HashMap();
 		stmtProcessor = new StmtProcessor();
 		valueProcessor = new ValueProcessor();
-		bbm = new BasicBlockGraphMgr();
+		bbm = basicBlockGraphMgr;
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
 	}
@@ -783,7 +779,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 					continue;
 				}
 
-				JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
 				Triple triple = (Triple) method2Triple.get(sm);
 
 				/*
@@ -801,22 +796,16 @@ public class EquivalenceClassBasedEscapeAnalysis
 				scCache = (Map) triple.getThird();
 				context.setRootMethod(sm);
 
-				wb.clear();
-
-				BasicBlockGraph bbg = bbm.getBasicBlockGraph(sm);
-
-				if (bbg == null) {
-					bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(body));
-				}
-				wb.addAllWork(bbg.getHeads());
-
-				Collection processed = new HashSet();
-
 				if (sm.getName().equals("<init>")) {
 					valueProcessor.accessed = false;
 				} else {
 					valueProcessor.accessed = true;
 				}
+
+				BasicBlockGraph bbg = bbm.getBasicBlockGraph(sm);
+				Collection processed = new HashSet();
+				wb.clear();
+				wb.addAllWork(bbg.getHeads());
 
 				while (wb.hasWork()) {
 					BasicBlock bb = (BasicBlock) wb.getWork();
@@ -983,6 +972,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/09/28 03:17:13  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.10  2003/09/27 01:27:46  venku
    - documentation.
    Revision 1.9  2003/09/12 08:13:40  venku

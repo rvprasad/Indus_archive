@@ -42,8 +42,6 @@ import soot.jimple.ThrowStmt;
 
 import soot.jimple.toolkits.scalar.NopEliminator;
 
-import soot.toolkits.graph.UnitGraph;
-
 import soot.util.Chain;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
@@ -637,8 +635,9 @@ public class SlicingEngine {
 		for (Iterator i = cgi.getCallees(expr, context).iterator(); i.hasNext();) {
 			CallTriple ctrp = (CallTriple) i.next();
 			SootMethod callee = ctrp.getMethod();
-			UnitGraph stmtGraph = controller.getStmtGraph(callee);
-			BasicBlockGraph bbg = clonedGraphMgr.getBasicBlockGraph(stmtGraph);
+
+			//			UnitGraph stmtGraph = controller.getStmtGraph(callee);
+			BasicBlockGraph bbg = clonedGraphMgr.getBasicBlockGraph(callee);
 
 			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
 				BasicBlock bb = (BasicBlock) j.next();
@@ -785,6 +784,9 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
    Revision 1.14  2003/09/15 08:09:17  venku
    - fixed param dependency.  However, this needs to be addressed
      in a generic setting.  Also, the theoretics concerned to inclusion

@@ -25,8 +25,6 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,14 +50,7 @@ public abstract class AbstractAnalysis
 	 *
 	 * @invariant info.oclIsKindOf(Map(String, Object))
 	 */
-	protected Map info = new HashMap();
-
-	/**
-	 * This maps the methods being analyzed to their control graphs.
-	 *
-	 * @invariant method2stmtGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
-	 */
-	private final Map method2unitGraph = new HashMap();
+	protected final Map info = new HashMap();
 
 	/**
 	 * This manages the basic block graphs of methods.
@@ -105,19 +96,16 @@ public abstract class AbstractAnalysis
 	/**
 	 * Initializes the analyzer with the information from the system to perform the analysis.
 	 *
-	 * @param method2stmtGraphParam maps methods that constitute that analyzed system to their control flow graphs.
 	 * @param infoParam contains the value for the member variable<code>info</code>. Refer to {@link #info info} and subclass
 	 * 		  documenation for more details.
 	 *
 	 * @throws InitializationException if the initialization in the sub classes fails.
 	 *
-	 * @pre method2stmtGraph.oclIsKindOf(java.util.Map(soot.SootMethod, soot.jimple.CompleteUnitGraph))
-	 * @pre classes != null and method2stmtGraph != null and info != null
+	 * @pre classes != null
 	 */
-	public final void initialize(final Map method2stmtGraphParam, final Map infoParam)
+	public final void initialize(final Map infoParam)
 	  throws InitializationException {
-		this.info.putAll(infoParam);
-		this.method2unitGraph.putAll(method2stmtGraphParam);
+		info.putAll(infoParam);
 		setup();
 	}
 
@@ -133,12 +121,11 @@ public abstract class AbstractAnalysis
 	}
 
 	/**
-	 * Resets all internal data structures.
+	 * Resets all internal data structures.  This will <i>not</i> reset data structures provided by the application.
 	 *
-	 * @post info.size() == 0 and method2stmtGraph.size() == 0
+	 * @post info.size() == 0
 	 */
 	public void reset() {
-		method2unitGraph.clear();
 		info.clear();
 	}
 
@@ -153,23 +140,7 @@ public abstract class AbstractAnalysis
 	 * @pre method != null
 	 */
 	protected BasicBlockGraph getBasicBlockGraph(final SootMethod method) {
-		BasicBlockGraph result = graphManager.getBasicBlockGraph(method);
-
-		if (result == null) {
-			result = graphManager.getBasicBlockGraph(getUnitGraph(method));
-		}
-		return result;
-	}
-
-	/**
-	 * Returns a collection of methods for which unit graphs are available.
-	 *
-	 * @return a colletion of methods
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-	 */
-	protected Collection getMethods() {
-		return Collections.unmodifiableCollection(method2unitGraph.keySet());
+		return graphManager.getBasicBlockGraph(method);
 	}
 
 	/**
@@ -184,7 +155,7 @@ public abstract class AbstractAnalysis
 	 */
 	protected List getStmtList(final SootMethod method) {
 		List result = null;
-		UnitGraph stmtGraph = (UnitGraph) method2unitGraph.get(method);
+		UnitGraph stmtGraph = graphManager.getUnitGraph(method);
 
 		if (stmtGraph != null) {
 			result = new ArrayList(stmtGraph.getBody().getUnits());
@@ -193,16 +164,16 @@ public abstract class AbstractAnalysis
 	}
 
 	/**
-	 * Returns the unit graph for the method.
+	 * Retrives the unit graph of the given method.
 	 *
 	 * @param method for which the unit graph is requested.
 	 *
-	 * @return the unit graph.
+	 * @return the unit graph of the method.
 	 *
 	 * @post result != null
 	 */
 	protected UnitGraph getUnitGraph(final SootMethod method) {
-		return (UnitGraph) method2unitGraph.get(method);
+		return graphManager.getUnitGraph(method);
 	}
 
 	/**
@@ -219,6 +190,9 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/28 03:08:03  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.11  2003/09/13 05:42:07  venku
    - What if the unit graphs for all methods are unavailable?  Hence,
      added a method to AbstractAnalysis to retrieve the methods to

@@ -16,11 +16,9 @@
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 import soot.Scene;
-import soot.SootMethod;
 
-import soot.toolkits.graph.TrapUnitGraph;
-import soot.toolkits.graph.UnitGraph;
-
+import edu.ksu.cis.indus.commons.CompleteUnitGraphProvider;
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphProvider;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -73,25 +71,18 @@ public abstract class DADriver
 	protected AbstractAnalyzer aa;
 
 	/**
-	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
-	 *
-	 * @invariant info.oclIsKindOf(Map(String, Object))
-	 */
-	protected Map info;
-
-	/**
-	 * This is a map from methods to their complete statement graph as obtained from Soot.
-	 *
-	 * @invariant method2cmpltStmtGraph.oclIsKindOf(Map(SootMethod, CompleteUnitGraph))
-	 */
-	protected final Map method2cmpltStmtGraph = new HashMap();
-
-	/**
 	 * A collection of dependence analyses.
 	 *
 	 * @invariant das.oclIsKindOf(Collection(DependencyAnalysis))
 	 */
 	protected Collection das;
+
+	/**
+	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
+	 *
+	 * @invariant info.oclIsKindOf(Map(String, Object))
+	 */
+	protected Map info;
 
 	/**
 	 * This is the collection of classes to be analysed.
@@ -130,7 +121,8 @@ public abstract class DADriver
 			System.exit(-1);
 		}
 		this.args = argsParam;
-		this.bbm = new BasicBlockGraphMgr();
+		bbm = new BasicBlockGraphMgr();
+        bbm.setUnitGraphProvider(cfgProvider);
 	}
 
 	/**
@@ -185,28 +177,6 @@ public abstract class DADriver
 		processors.add(tgi);
 		process(pc, processors);
 		System.out.println("THREAD GRAPH:\n" + ((ThreadGraph) tgi).dumpGraph());
-
-		bbm = new BasicBlockGraphMgr();
-
-		for (Iterator i = cgi.getReachableMethods().iterator(); i.hasNext();) {
-			SootMethod method = (SootMethod) i.next();
-
-			if (method.isConcrete()) {
-				try {
-					UnitGraph sg = new TrapUnitGraph(method.retrieveActiveBody());
-					method2cmpltStmtGraph.put(method, sg);
-					bbm.getBasicBlockGraph(sg);
-				} catch (RuntimeException e) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("Method " + method.getSignature() + " may not have body.", e);
-					}
-				}
-			} else {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Method " + method.getSignature() + " is not concrete.");
-				}
-			}
-		}
 
 		info = new HashMap();
 		info.put(ICallGraphInfo.ID, cgi);
@@ -311,7 +281,7 @@ public abstract class DADriver
 		EquivalenceClassBasedEscapeAnalysis ecba = null;
 
 		if (ecbaRequired) {
-			ecba = new EquivalenceClassBasedEscapeAnalysis(scm, cgi, tgi);
+			ecba = new EquivalenceClassBasedEscapeAnalysis(scm, cgi, tgi, bbm);
 			info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 		}
 
@@ -326,7 +296,7 @@ public abstract class DADriver
 			}
 
 			try {
-				da.initialize(method2cmpltStmtGraph, info);
+				da.initialize(info);
 			} catch (InitializationException e) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn(da.getClass() + " failed to initialize, hence, will not be executed.", e);
@@ -372,6 +342,9 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.15  2003/09/15 00:02:48  venku
    - TrapUnitGraphs are generated instead of CompleteUnitGraphs
    Revision 1.14  2003/09/15 00:02:05  venku

@@ -24,11 +24,14 @@ import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
 import soot.toolkits.graph.CompleteUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 
 import soot.toolkits.scalar.SimpleLocalDefs;
 import soot.toolkits.scalar.SimpleLocalUses;
 import soot.toolkits.scalar.UnitValueBoxPair;
 
+import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 import org.apache.commons.logging.Log;
@@ -60,11 +63,6 @@ import java.util.Map;
  */
 public class IdentifierBasedDataDA
   extends DependencyAnalysis {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(IdentifierBasedDataDA.class);
-
 	/*
 	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
 	 * the methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
@@ -76,6 +74,16 @@ public class IdentifierBasedDataDA
 	 * definition of a local reaches a statement, then all occurrences of that local at that statement must be dependent on
 	 * the same reaching def.
 	 */
+
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(IdentifierBasedDataDA.class);
+
+	/**
+	 * This provides call graph information.
+	 */
+	private ICallGraphInfo callgraph;
 
 	/**
 	 * Returns  the statements on which <code>o</code>, depends in the given <code>method</code>.
@@ -128,14 +136,20 @@ public class IdentifierBasedDataDA
 	public void analyze() {
 		stable = false;
 
-		for (Iterator i = getMethods().iterator(); i.hasNext();) {
+		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod currMethod = (SootMethod) i.next();
-			CompleteUnitGraph stmtGraph = (CompleteUnitGraph) getUnitGraph(currMethod);
+			UnitGraph graph = getUnitGraph(currMethod);
 
-			if (stmtGraph == null) {
+			if (graph == null) {
 				LOGGER.error("Method " + currMethod.getSignature() + " does not have a unit graph.");
 				continue;
+			} else if (!(graph instanceof CompleteUnitGraph)) {
+				LOGGER.error("Could not retrieve a CompleteUnitGraph for " + currMethod.getSignature() + ".  Please"
+					+ "initialize the analyses with a CompleteUnitGraphProvider.");
+				continue;
 			}
+
+			CompleteUnitGraph stmtGraph = (CompleteUnitGraph) graph;
 
 			SimpleLocalDefs defs = new SimpleLocalDefs(stmtGraph);
 			SimpleLocalUses uses = new SimpleLocalUses(stmtGraph, defs);
@@ -222,11 +236,33 @@ public class IdentifierBasedDataDA
 		result.append("A total of " + edgeCount + " Identifier-based Data dependence edges exist.");
 		return result.toString();
 	}
+
+	/**
+	 * Sets up internal data structures.
+	 *
+	 * @throws InitializationException when call graph service is not provided.
+	 *
+	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
+	 */
+	protected void setup()
+	  throws InitializationException {
+		super.setup();
+		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
+
+		if (callgraph == null) {
+			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.10  2003/09/15 07:31:00  venku
    - documentation.
    Revision 1.9  2003/09/13 05:56:08  venku

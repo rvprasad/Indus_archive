@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import soot.SootMethod;
 
+import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
@@ -61,6 +63,11 @@ public class ControlDA
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ControlDA.class);
+
+	/**
+	 * This provides the call graph information.
+	 */
+	private ICallGraphInfo callgraph;
 
 	/**
 	 * Returns the statements on which <code>dependentStmt</code> depends on in the given <code>method</code>.
@@ -126,7 +133,7 @@ public class ControlDA
 	public void analyze() {
 		stable = false;
 
-		for (Iterator i = getMethods().iterator(); i.hasNext();) {
+		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod currMethod = (SootMethod) i.next();
 			BasicBlockGraph bbGraph = getBasicBlockGraph(currMethod);
 
@@ -184,6 +191,25 @@ public class ControlDA
 		}
 		result.append("A total of " + edgeCount + " control dependence edges exist.");
 		return result.toString();
+	}
+
+	/**
+	 * Sets up internal data structures.
+	 *
+	 * @throws InitializationException when call graph service is not provided.
+	 *
+	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
+	 */
+	protected void setup()
+	  throws InitializationException {
+		super.setup();
+		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
+
+		if (callgraph == null) {
+			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
+		}
 	}
 
 	/**
@@ -374,6 +400,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.12  2003/09/16 08:27:35  venku
    - Well, we calculated doms, not idoms.  FIXED.
    Revision 1.11  2003/09/16 05:54:56  venku

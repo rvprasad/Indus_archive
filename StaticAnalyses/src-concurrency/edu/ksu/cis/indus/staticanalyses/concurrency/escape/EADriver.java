@@ -130,7 +130,7 @@ public final class EADriver
 		tg.unhook(ppc);
 
 		// Perform equivalence-class-based escape analysis
-		EquivalenceClassBasedEscapeAnalysis analysis = new EquivalenceClassBasedEscapeAnalysis(scm, cg, tg);
+		EquivalenceClassBasedEscapeAnalysis analysis = new EquivalenceClassBasedEscapeAnalysis(scm, cg, tg, bbm);
 		analysis.hookup(ppc);
 		ppc.process();
 		stop = System.currentTimeMillis();
@@ -202,6 +202,10 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/28 03:17:13  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.2  2003/09/08 02:23:13  venku
    - Ripple effect of bbm support in Driver and change of constructor
      in ThreadGraph.
