@@ -274,13 +274,14 @@ public final class SynchronizationDA
 				}
 			}
 		}
+
 		method2enterMonitors.clear();
 		stable = true;
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
 		}
-		
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Synchronization Dependence processing");
 		}
@@ -545,6 +546,7 @@ public final class SynchronizationDA
 		_enterMonitors.add(enterMonitor);
 		_workbag.addWork(new Quadraple(_bbGraph.getEnclosingBlock(enterMonitor), enterMonitor, new Stack(), new HashSet()));
 
+outerloop:
 		do {
 			final Quadraple _work = (Quadraple) _workbag.getWork();
 			final BasicBlock _bb = (BasicBlock) _work.getFirst();
@@ -587,6 +589,19 @@ public final class SynchronizationDA
 					}
 				} else if (_stmt instanceof ExitMonitorStmt) {
 					_currStmts = processExitMonitor(method, enter2exits, _enterStack, _currStmts, _stmt);
+					
+					/*
+					 * Although it seems that continuing processing the rest of the statements in the basic block seems like
+					 * a efficient idea, but it fails in the following case if we start processing the monitor in bb2
+					 * bb1: entermonitor r1
+					 * bb2: entermonitor r2
+					 * bb3: exitmonitor r2
+					 *      exitmonitor r1
+					 * Hence, it is safer to end local processing when the monitor stack is empty.
+					 */
+					if (_enterStack.isEmpty()) {
+						continue outerloop;
+					}
 				} else {
 					_currStmts.add(_stmt);
 				}
@@ -645,12 +660,12 @@ public final class SynchronizationDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/06/16 14:30:12  venku
+   - logging.
    Revision 1.42  2004/06/03 20:24:12  venku
    - documentation.
-
    Revision 1.41  2004/06/03 20:23:23  venku
    - MAJOR CHANGE - Reworked the impl as it was missing some dependencies.
-
    Revision 1.40  2004/06/01 06:29:57  venku
    - added new methods to CollectionUtilities.
    - ripple effect.
