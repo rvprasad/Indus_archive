@@ -100,7 +100,7 @@ public abstract class AbstractToolConfigurator
 	}
 
 	/**
-	 * @see IToolconfigurator#setConfiguration(IToolConfiguration)
+	 * @see IToolConfigurator#setConfiguration(IToolConfiguration)
 	 */
 	public final void setConfiguration(final IToolConfiguration toolConfiguration) {
 		checkConfiguration(toolConfiguration);
@@ -108,7 +108,7 @@ public abstract class AbstractToolConfigurator
 	}
 
 	/**
-	 * @see IToolconfigurator#initialize(Composite)
+	 * @see IToolConfigurator#initialize(Composite)
 	 */
 	public final void initialize(final Composite composite) {
 		parent = composite;
@@ -141,6 +141,10 @@ public abstract class AbstractToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.7  2003/12/02 11:31:57  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.

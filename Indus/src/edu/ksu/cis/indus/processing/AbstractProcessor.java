@@ -35,7 +35,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see IProcessor#callback(Value, Context)
+	 * @see IProcessor#callback(ValueBox, Context)
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
 	}
@@ -92,6 +92,10 @@ public abstract class AbstractProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.5  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
