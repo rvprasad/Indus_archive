@@ -30,6 +30,7 @@
         <pathelement location="${jars.dir}/commons-collections.jar"/>
         <pathelement location="${jars.dir}/xmlunit.jar"/>
         <pathelement location="${jars.dir}/xmlenc.jar"/>
+        <pathelement location="${jars.dir}/trove.jar"/>
         <pathelement location="../Indus/${build.dir}/"/>
     </path>
 </project>
