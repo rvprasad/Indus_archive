@@ -246,18 +246,24 @@ public final class EADriver
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Writes the stringized form of the given object onto System.out.
 	 *
-	 * @param o DOCUMENT ME!
+	 * @param o about which information should be written.
 	 */
 	protected void writeInfo(final Object o) {
-		System.out.println(o.toString());
+        if (o != null)
+            System.out.println(o.toString());
+        else
+            System.out.println("null");
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/12 10:50:55  venku
+   - this is now based on SootBasedDriver.
+
    Revision 1.15  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

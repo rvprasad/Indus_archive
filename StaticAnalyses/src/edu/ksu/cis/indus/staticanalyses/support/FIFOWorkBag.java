@@ -23,9 +23,7 @@ import java.util.List;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a First-in-First-out implementation of the workbag.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -95,6 +93,10 @@ public class FIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/06 06:50:53  venku
+   - subtle error of using get() instead of remove() on
+     the container.
+
    Revision 1.3  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
 

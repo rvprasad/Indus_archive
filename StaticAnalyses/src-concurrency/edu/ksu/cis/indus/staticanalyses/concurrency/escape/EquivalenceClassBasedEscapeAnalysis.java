@@ -79,7 +79,12 @@ import java.util.Map;
 /**
  * This class represents Equivalence Class-based analysis to calculate escape information of objects.  Escape information is
  * provided in terms of share-ability of the object bound to a given value in a given method.  This analysis is overloaded
- * as  a symbolic analysis to calculate information that can be used to prune ready-dependence edges.
+ * as a symbolic analysis to calculate information that can be used to prune ready-dependence edges.
+ * 
+ * <p>
+ * This analysis requires <code>local splitting</code> option of Soot framework to be enabled while generating the Jimple for
+ * the system being analyzed.
+ * </p>
  * 
  * <p>
  * The implementation is based on the techreport <a
@@ -1122,9 +1127,11 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/11/10 03:17:19  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
+   - ripple effect.
    Revision 1.26  2003/11/07 12:20:36  venku
    - added information logging.
-
    Revision 1.25  2003/11/06 05:59:17  venku
    - coding convention.
    Revision 1.24  2003/11/06 05:15:07  venku
