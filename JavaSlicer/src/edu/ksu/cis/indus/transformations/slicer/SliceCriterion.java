@@ -35,6 +35,7 @@
 
 package edu.ksu.cis.bandera.slicer;
 
+
 /**
  * <p>
  * This class represents a slice criterion.
@@ -58,7 +59,7 @@ public abstract class SliceCriterion {
 	 * </p>
 	 *
 	 * @param inclusive <code>true</code> indicates this criterion should be included in the slice; <code>false</code>,
-	 * 		  otherwise.
+	 *           otherwise.
 	 */
 	protected SliceCriterion(boolean inclusive) {
 		this.inclusive = inclusive;
@@ -98,7 +99,7 @@ public abstract class SliceCriterion {
 	public boolean equals(Object o) {
 		boolean result = false;
 
-		if(o instanceof SliceCriterion) {
+		if (o instanceof SliceCriterion) {
 			result = ((SliceCriterion) o).inclusive == inclusive;
 		}
 		return result;
@@ -114,7 +115,7 @@ public abstract class SliceCriterion {
 	public int hashCode() {
 		int result;
 
-		if(inclusive) {
+		if (inclusive) {
 			result = Boolean.TRUE.hashCode();
 		} else {
 			result = Boolean.FALSE.hashCode();
@@ -127,11 +128,5 @@ public abstract class SliceCriterion {
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/18 00:18:49  venku
-*** empty log message ***
-
-Revision 1.1.1.1  2003/02/17 23:59:51  venku
-Placing JavaSlicer under version control.
-
 
 *****/

@@ -65,7 +65,7 @@ public class SliceStmt
 	 * @param method in which the slice criterion occurs.
 	 * @param stmt is the slice criterion.
 	 * @param inclusive <code>true</code> if the slice criterion should be included in the slice; <code>false</code>,
-	 * 		  otherwise.
+	 *           otherwise.
 	 *
 	 * @pre method != null and stmt != null
 	 */
@@ -109,7 +109,7 @@ public class SliceStmt
 	public boolean equals(Object o) {
 		boolean result = false;
 
-		if(o instanceof SliceStmt) {
+		if (o instanceof SliceStmt) {
 			SliceStmt temp = (SliceStmt) o;
 			result = temp.stmt.equals(stmt) && temp.method.equals(method) && super.equals(temp);
 		}
@@ -130,8 +130,5 @@ public class SliceStmt
  ChangeLog:
 
 $Log$
-Revision 1.1.1.1  2003/02/17 23:59:51  venku
-Placing JavaSlicer under version control.
-
 
 *****/

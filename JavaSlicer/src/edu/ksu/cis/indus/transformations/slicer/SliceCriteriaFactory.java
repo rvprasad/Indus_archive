@@ -102,7 +102,7 @@ public class SliceCriteriaFactory {
 	 * @param stmt in which the criterion occurs.
 	 * @param vBox is the criterion.
 	 * @param inclusive <code>true</code> indicates include the criterion in the slice; <code>false</code> indicates
-	 * 		  otherwise.
+	 *           otherwise.
 	 *
 	 * @return a collection of <code>SliceCriterion</code> objects corresponding to the given criterion.
 	 *
@@ -115,12 +115,12 @@ public class SliceCriteriaFactory {
 
 		ca.mcgill.sable.util.Collection temp = value.getUseBoxes();
 
-		if(temp.size() > 0) {
-			for(ca.mcgill.sable.util.Iterator i = temp.iterator(); i.hasNext();) {
+		if (temp.size() > 0) {
+			for (ca.mcgill.sable.util.Iterator i = temp.iterator(); i.hasNext();) {
 				ValueBox cBox = (ValueBox) i.next();
 				Value containee = cBox.getValue();
 
-				if(containee instanceof Local || (containee instanceof Ref && !(containee instanceof CaughtExceptionRef))) {
+				if (containee instanceof Local || (containee instanceof Ref && !(containee instanceof CaughtExceptionRef))) {
 					result.add(new SliceExpr(method, stmt, cBox, inclusive));
 				}
 			}
@@ -138,7 +138,7 @@ public class SliceCriteriaFactory {
 	 * @param method in which the criterion occurs.
 	 * @param stmt is the criterion.
 	 * @param inclusive <code>true</code> indicates include the criterion in the slice; <code>false</code> indicates
-	 * 		  otherwise.
+	 *           otherwise.
 	 *
 	 * @return a collection of <code>SliceCriterion</code> objects corresponding to the given criterion.
 	 *
@@ -149,12 +149,12 @@ public class SliceCriteriaFactory {
 		Collection result = new HashSet();
 		ca.mcgill.sable.util.Collection temp = stmt.getUseAndDefBoxes();
 
-		if(temp.size() > 0) {
-			for(ca.mcgill.sable.util.Iterator i = temp.iterator(); i.hasNext();) {
+		if (temp.size() > 0) {
+			for (ca.mcgill.sable.util.Iterator i = temp.iterator(); i.hasNext();) {
 				ValueBox cBox = (ValueBox) i.next();
 				Value containee = cBox.getValue();
 
-				if(containee instanceof Local || (containee instanceof Ref && !(containee instanceof CaughtExceptionRef))) {
+				if (containee instanceof Local || (containee instanceof Ref && !(containee instanceof CaughtExceptionRef))) {
 					result.add(new SliceExpr(method, stmt, cBox, inclusive));
 				}
 			}
@@ -178,16 +178,16 @@ public class SliceCriteriaFactory {
 
 		JimpleBody body = (JimpleBody) method.getBody(Jimple.v());
 
-		if(body != null) {
+		if (body != null) {
 			result = new HashSet();
 
-			for(ca.mcgill.sable.util.Iterator i = body.getStmtList().iterator(); i.hasNext();) {
+			for (ca.mcgill.sable.util.Iterator i = body.getStmtList().iterator(); i.hasNext();) {
 				Stmt stmt = (Stmt) i.next();
 
-				for(ca.mcgill.sable.util.Iterator j = stmt.getUseAndDefBoxes().iterator(); j.hasNext();) {
+				for (ca.mcgill.sable.util.Iterator j = stmt.getUseAndDefBoxes().iterator(); j.hasNext();) {
 					ValueBox vBox = (ValueBox) j.next();
 
-					if(vBox.getValue().equals(local)) {
+					if (vBox.getValue().equals(local)) {
 						result.add(new SliceExpr(method, stmt, vBox, true));
 					}
 				}
@@ -204,11 +204,5 @@ public class SliceCriteriaFactory {
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/18 00:18:49  venku
-*** empty log message ***
-
-Revision 1.1.1.1  2003/02/17 23:59:51  venku
-Placing JavaSlicer under version control.
-
 
 *****/

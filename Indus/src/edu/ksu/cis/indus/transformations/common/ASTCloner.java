@@ -115,7 +115,7 @@ public class ASTCloner
 	 * and such.
 	 * </p>
 	 */
-	private final ASTClonerHelper helper;
+	private final IASTClonerHelper helper;
 
 	/**
 	 * <p>
@@ -159,7 +159,7 @@ public class ASTCloner
 	 *
 	 * @param helper is the instance that provides information about parts of the system such as fields during cloning.
 	 */
-	public ASTCloner(ASTClonerHelper helper) {
+	public ASTCloner(IASTClonerHelper helper) {
 		this.helper = helper;
 	}
 
@@ -173,7 +173,7 @@ public class ASTCloner
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public interface ASTClonerHelper {
+	public interface IASTClonerHelper {
 		/**
 		 * <p>
 		 * Returns the clone of the given method, if it exists.  Otherwise, <code>null</code> is returned.
@@ -433,7 +433,7 @@ public class ASTCloner
 	public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
 		ca.mcgill.sable.util.List sizes = new ca.mcgill.sable.util.ArrayList();
 
-		for(int i = sizes.size() - 1; i >= 0; i--) {
+		for (int i = sizes.size() - 1; i >= 0; i--) {
 			v.getSize(i).apply(this);
 			sizes.add(i, resValue);
 		}
@@ -595,7 +595,7 @@ public class ASTCloner
 	private ca.mcgill.sable.util.List getArgs(InvokeExpr v) {
 		ca.mcgill.sable.util.List result = new ca.mcgill.sable.util.ArrayList();
 
-		for(int i = result.size() - 1; i >= 0; i--) {
+		for (int i = result.size() - 1; i >= 0; i--) {
 			v.getArg(i).apply(this);
 			result.add(i, resValue);
 		}
@@ -607,7 +607,5 @@ public class ASTCloner
  ChangeLog:
 
 $Log$
-Revision 1.3  2003/03/14 08:42:30  venku
-AST creation for local was broken - fixed.
 
 *****/

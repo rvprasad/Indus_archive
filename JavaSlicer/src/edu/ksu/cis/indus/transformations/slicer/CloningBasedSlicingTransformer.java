@@ -99,7 +99,7 @@ public class SliceMap {
 		Stmt result = null;
 		Map stmtMap = (Map) method2stmtMap.get(method);
 
-		if(stmtMap != null) {
+		if (stmtMap != null) {
 			result = (Stmt) stmtMap.get(stmt);
 		}
 		return result;
@@ -119,7 +119,7 @@ public class SliceMap {
 		Stmt result = null;
 		Map stmtMap = (Map) sliceMethod2stmtMap.get(method);
 
-		if(stmtMap != null) {
+		if (stmtMap != null) {
 			result = (Stmt) stmtMap.get(sliceStmt);
 		}
 		return result;
@@ -130,11 +130,11 @@ public class SliceMap {
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
 	protected void cleanup() {
-		for(Iterator i = sliceMethod2stmtMap.keySet().iterator(); i.hasNext();) {
+		for (Iterator i = sliceMethod2stmtMap.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			SootMethod sliceMethod = slicer.getCloneOf(method);
 
-			if(sliceMethod == null) {
+			if (sliceMethod == null) {
 				method2stmtMap.put(method, null);
 			} else {
 				Map sliced = (Map) method2stmtMap.get(method);
@@ -142,10 +142,10 @@ public class SliceMap {
 				StmtList slicedSl = ((JimpleBody) method.getBody(Jimple.v())).getStmtList();
 				StmtList sliceSl = ((JimpleBody) sliceMethod.getBody(Jimple.v())).getStmtList();
 
-				for(ca.mcgill.sable.util.Iterator j = slicedSl.iterator(); j.hasNext();) {
+				for (ca.mcgill.sable.util.Iterator j = slicedSl.iterator(); j.hasNext();) {
 					Stmt stmt = (Stmt) j.next();
 
-					if(!sliceSl.contains(sliced.get(stmt))) {
+					if (!sliceSl.contains(sliced.get(stmt))) {
 						slice.remove(sliced.get(stmt));
 						sliced.remove(stmt);
 					}
@@ -166,12 +166,12 @@ public class SliceMap {
 	protected void put(Stmt stmt, Stmt sliceStmt, SootMethod unslicedMethod) {
 		Map stmtMap = (Map) method2stmtMap.get(unslicedMethod);
 
-		if(stmtMap != null) {
+		if (stmtMap != null) {
 			stmtMap.put(stmt, sliceStmt);
 		}
 		stmtMap = (Map) sliceMethod2stmtMap.get(slicer.getCloneOf(unslicedMethod));
 
-		if(stmtMap != null) {
+		if (stmtMap != null) {
 			stmtMap.put(sliceStmt, stmt);
 		}
 	}
@@ -181,8 +181,5 @@ public class SliceMap {
  ChangeLog:
 
 $Log$
-Revision 1.3  2003/03/14 08:43:21  venku
-Some mappings get invalidated after code clean up occurs.
-These mappings are removed in cleanup().
 
 *****/

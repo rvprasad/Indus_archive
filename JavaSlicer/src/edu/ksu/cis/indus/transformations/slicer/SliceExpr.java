@@ -62,7 +62,7 @@ public class SliceExpr
 	 * @param stmt in which the criterion containing expression occurs.
 	 * @param expr is the slicing criterion.
 	 * @param inclusive <code>true</code> if the slice criterion should be included in the slice; <code>false</code>,
-	 * 		  otherwise.
+	 *           otherwise.
 	 *
 	 * @pre expr != null
 	 */
@@ -105,7 +105,7 @@ public class SliceExpr
 	public boolean equals(Object o) {
 		boolean result = false;
 
-		if(o instanceof SliceExpr) {
+		if (o instanceof SliceExpr) {
 			SliceExpr temp = (SliceExpr) o;
 			result = temp.expr.equals(expr) && super.equals(temp);
 		}
@@ -126,8 +126,5 @@ public class SliceExpr
  ChangeLog:
 
 $Log$
-Revision 1.1.1.1  2003/02/17 23:59:51  venku
-Placing JavaSlicer under version control.
-
 
 *****/
