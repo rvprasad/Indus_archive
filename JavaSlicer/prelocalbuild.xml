@@ -22,8 +22,8 @@
         <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
         <pathelement location="/home/venku/projects/Misc/banderaNG/lib/bandera/banderaTools.jar"/>        
         <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>
-    	<pathelement location="../Indus/${build}/"/>
-	    <pathelement location="../StaticAnalyses/${build}/"/>        
+    	<pathelement location="../Indus/${build.dir}/"/>
+	    <pathelement location="../StaticAnalyses/${build.dir}/"/>        
     </path>    
     
     <path id="bind.classpath">
@@ -41,8 +41,8 @@
         <bind verbose="true" binding="${basedir}/auxiliary/slicerConfig_JiBXBinding.xml">
         	<classpath>
         		<path refid="bind.classpath"/>
-	        	<pathelement location="../Indus/${build}/"/>
-    	        <pathelement location="${build}"/>
+	        	<pathelement location="../Indus/${build.dir}/"/>
+    	        <pathelement location="${build.dir}"/>
         	</classpath>
         </bind>
     </target>
