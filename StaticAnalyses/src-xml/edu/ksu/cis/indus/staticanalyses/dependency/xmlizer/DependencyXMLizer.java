@@ -205,7 +205,7 @@ public class DependencyXMLizer
 	 *
 	 * @param args is the command line arguments.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when an Throwable exception beyond our control occurs.
 	 *
 	 * @pre args != null
 	 */
@@ -664,6 +664,9 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2003/12/15 16:34:40  venku
+   - added help switch to command line.
+
    Revision 1.30  2003/12/15 02:11:15  venku
    - added exception handling at outer most level.
    Revision 1.29  2003/12/13 02:29:08  venku

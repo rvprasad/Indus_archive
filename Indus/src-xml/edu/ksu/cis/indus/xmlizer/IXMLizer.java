@@ -16,8 +16,7 @@
 package edu.ksu.cis.indus.xmlizer;
 
 /**
- * DOCUMENT ME!
- * <p></p>
+ * This is the interface for xmlizing jimple-based systems. 
  * 
  * @version $Revision$ 
  * @author <a href="$user_web$">$user_name$</a>
@@ -62,4 +61,8 @@ public interface IXMLizer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
  */

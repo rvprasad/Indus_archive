@@ -34,11 +34,10 @@ import soot.tagkit.Tag;
 public class AntiTagBasedProcessingFilter
   extends TagBasedProcessingFilter {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private static final Log LOGGER = LogFactory.getLog(AntiTagBasedProcessingFilter.class);
+     * The logger used by instances of this class to log messages.
+     * 
+     */
+    private static final Log LOGGER = LogFactory.getLog(AntiTagBasedProcessingFilter.class);
 
 	/**
 	 * Creates a new TagBasedProcessingFilter object.
@@ -77,6 +76,9 @@ public class AntiTagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/16 00:11:09  venku
+   - logging.
+
    Revision 1.3  2003/12/15 16:30:12  venku
    - logging.
    Revision 1.2  2003/12/14 20:36:05  venku

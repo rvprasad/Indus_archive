@@ -169,7 +169,7 @@ public class SlicerDriver
 	 *
 	 * @param args contains the command line arguments.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when an Throwable exception beyond our control occurs.
 	 */
 	public static void main(final String[] args) {
 		try {
@@ -548,6 +548,9 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/12/15 16:35:29  venku
+   - added option to dump jimple.
+
    Revision 1.27  2003/12/15 02:11:11  venku
    - added exception handling at outer most level.
    Revision 1.26  2003/12/13 19:46:45  venku
