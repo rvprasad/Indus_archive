@@ -170,6 +170,8 @@ public final class SlicerTool
 	 * @pre inputArgs.get(CRITERIA_SPECIFICATION).oclIsKindOf(String)
 	 * @pre inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.AbstractSliceCriterion))
 	 * @pre inputArgs.get(ROOT_METHODS) != null and inputArgs.get(ROOT_METHODS).oclIsKindOf(Collection(SootMethod))
+	 * @pre inputArgs.get(CONFIGURATION_SPECIFICATION).oclIsKindOf(String)
+	 * @pre inputArgs.get(ID_OF_CONFIGURATION_TO_USE).oclIsKindOf(String)
 	 *
 	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
 	 */
@@ -227,21 +229,7 @@ public final class SlicerTool
 		}
 		tool.setRootMethods(_rootMethods);
 
-		final String _configuration = (String) inputArgs.get(CONFIGURATION_SPECIFICATION);
-
-		if (_configuration == null) {
-			LOGGER.info("No configuration specification provided.  The default specification will be used.");
-		} else {
-			tool.destringizeConfiguration(_configuration);
-		}
-
-		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
-
-		if (_activeConfID == null) {
-			LOGGER.info("No active configuration is provided. The default in the specification will be used.");
-		} else {
-			tool.setActiveConfiguration(_activeConfID);
-		}
+		setupConfiguration(inputArgs);
 	}
 
 	/**
@@ -306,6 +294,31 @@ public final class SlicerTool
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: bandera slicer tool");
+		}
+	}
+
+	/**
+	 * Sets up the configuration from the given arguments.
+	 *
+	 * @param inputArgs maps the input argument identifiers to the arguments.
+	 *
+	 * @see #setInputMap(Map)
+	 */
+	private void setupConfiguration(final Map inputArgs) {
+		final String _configuration = (String) inputArgs.get(CONFIGURATION_SPECIFICATION);
+
+		if (_configuration == null) {
+			LOGGER.info("No configuration specification provided.  The default specification will be used.");
+		} else {
+			tool.destringizeConfiguration(_configuration);
+		}
+
+		final String _activeConfID = (String) inputArgs.get(ID_OF_CONFIGURATION_TO_USE);
+
+		if (_activeConfID == null) {
+			LOGGER.info("No active configuration is provided. The default in the specification will be used.");
+		} else {
+			tool.setActiveConfiguration(_activeConfID);
 		}
 	}
 }
