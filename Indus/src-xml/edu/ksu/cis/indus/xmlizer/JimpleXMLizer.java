@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import soot.Body;
+import soot.Local;
+import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -23,10 +26,15 @@ import soot.Value;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import java.io.StringWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
+import java.util.Iterator;
 
 
 /**
@@ -38,26 +46,28 @@ import java.io.StringWriter;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class JimpleXMLizer
+public class JimpleXMLizer
   implements IProcessor {
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private StmtXMLizer stmtXmlizer;
-
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	private IJimpleIDGenerator generator;
+	private final IJimpleIDGenerator idGenerator;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private StringWriter xmlizedSystem = new StringWriter();
+	private final StmtXMLizer stmtXmlizer;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Writer xmlizedSystem;
 
 	/**
 	 * <p>
@@ -76,15 +86,55 @@ public abstract class JimpleXMLizer
 	/**
 	 * Creates a new JimpleXMLizer object.
 	 *
-	 * @param stmtXML DOCUMENT ME!
-	 * @param idGenerator DOCUMENT ME!
+	 * @param generator DOCUMENT ME!
 	 */
-	public JimpleXMLizer(final IJimpleIDGenerator idGenerator) {
-		stmtXmlizer = new StmtXMLizer(new ValueXMLizer(idGenerator));
-		generator = idGenerator;
-		stmtXmlizer.setGenerator(generator);
-		stmtXmlizer.setOutputStream(xmlizedSystem);
-		stmtXmlizer.valueXMLizer.setOutputStream(xmlizedSystem);
+	public JimpleXMLizer(final IJimpleIDGenerator generator) {
+		idGenerator = generator;
+		stmtXmlizer = new StmtXMLizer(new ValueXMLizer(generator), generator);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param writer DOCUMENT ME!
+	 */
+	public void setWriter(final Writer writer) {
+		xmlizedSystem = writer;
+		stmtXmlizer.setWriter(writer);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param s DOCUMENT ME!
+	 */
+	public static void main(String[] s) {
+		JimpleXMLizer xmlizer = new JimpleXMLizer(new UniqueIDGenerator());
+		ProcessingController pc = new XMLizingController();
+		Scene scene = Scene.v();
+		Environment env = new Environment(scene);
+		pc.setEnvironment(env);
+
+		for (int i = 0; i < s.length; i++) {
+			scene.loadClassAndSupport(s[i]);
+		}
+
+		Writer writer = new OutputStreamWriter(System.out);
+		xmlizer.setWriter(writer);
+		xmlizer.hookup(pc);
+		pc.process();
+		xmlizer.unhook(pc);
+
+		try {
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -121,15 +171,30 @@ public abstract class JimpleXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
 	public final void callback(SootMethod method) {
-		if (processingMethod) {
-			//TODO: output method end tag
-		} else {
-			processingMethod = true;
-		}
+		try {
+			if (processingMethod) {
+				xmlizedSystem.write("<method/>");
+			} else {
+				processingMethod = true;
+			}
 
-		// TODO: output method begin tag
-		// TODO: output method information
-		generator.getNewMethodId();
+			xmlizedSystem.write("<class signature=\"" + method.getSubSignature() + "\" id=\""
+				+ idGenerator.getIdForMethod(method) + "\"/>");
+			stmtXmlizer.setMethod(method);
+			idGenerator.resetStmtCounter();
+
+			if (method.isConcrete()) {
+				Body body = method.retrieveActiveBody();
+
+				for (Iterator i = body.getLocals().iterator(); i.hasNext();) {
+					Local l = (Local) i.next();
+					xmlizedSystem.write("<local id=\"" + idGenerator.getIdForLocal(l, method) + "\" name=\"" + l.getName()
+						+ "\"/>");
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -138,22 +203,31 @@ public abstract class JimpleXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
 	public final void callback(SootClass clazz) {
-		if (processingClass) {
-			//TODO: output class end tag
-		} else {
-			processingClass = true;
-		}
+		try {
+			if (processingClass) {
+				xmlizedSystem.write("</class>");
+			} else {
+				processingClass = true;
+			}
 
-		// TODO: output class begin tag
-		// TODO: output class information
-		processingMethod = false;
+			xmlizedSystem.write("<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz)
+				+ "\"/>");
+			processingMethod = false;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
 	 */
 	public final void callback(SootField field) {
-		// TODO: output field tag with information
+		try {
+			xmlizedSystem.write("<field signature=\"" + field.getSubSignature() + "\" id=\""
+				+ idGenerator.getIdForField(field) + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -162,33 +236,28 @@ public abstract class JimpleXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 	 */
 	public final void consolidate() {
-		if (processingMethod) {
-			;
-		}
+		try {
+			if (processingMethod) {
+				xmlizedSystem.write("</method>");
+			}
 
-		// TODO: output method end tag
-		if (processingClass) {
-			;
+			if (processingClass) {
+				xmlizedSystem.write("</class>");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-
-		// TODO: output class end tag
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void hookup(ProcessingController ppc) {
-		ppc.register(Stmt.class, this);
-		ppc.register(this);
-	}
+		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
+			ppc.register((Class) i.next(), this);
+		}
 
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	public final void reset() {
-		xmlizedSystem.flush();
+		ppc.register(this);
 	}
 
 	/**
@@ -197,7 +266,9 @@ public abstract class JimpleXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void unhook(ProcessingController ppc) {
-		ppc.unregister(Stmt.class, this);
+		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
+			ppc.unregister((Class) i.next(), this);
+		}
 		ppc.unregister(this);
 	}
 }
@@ -205,6 +276,11 @@ public abstract class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/07 06:27:03  venku
+   - Made the XMLizer classes concrete by moving out the
+     id generation logic outside.
+   - Added an interface which provides the id required for
+     xmlizing Jimple.
    Revision 1.1  2003/11/06 10:01:25  venku
    - created support for xmlizing Jimple in a customizable manner.
  */

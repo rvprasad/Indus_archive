@@ -15,13 +15,17 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import soot.ArrayType;
 import soot.Local;
+import soot.SootField;
+import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AddExpr;
 import soot.jimple.AndExpr;
 import soot.jimple.ArrayRef;
+import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.CmpExpr;
@@ -34,6 +38,7 @@ import soot.jimple.FloatConstant;
 import soot.jimple.GeExpr;
 import soot.jimple.GtExpr;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InstanceOfExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InterfaceInvokeExpr;
@@ -56,14 +61,17 @@ import soot.jimple.ShrExpr;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.StaticInvokeExpr;
+import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.SubExpr;
 import soot.jimple.ThisRef;
+import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
 
-import java.io.StringWriter;
+import java.io.IOException;
+import java.io.Writer;
 
 
 /**
@@ -77,12 +85,13 @@ import java.io.StringWriter;
  */
 public class ValueXMLizer
   extends AbstractJimpleValueSwitch {
-    private IJimpleIDGenerator idGenerator;
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final IJimpleIDGenerator idGenerator;
 
-    ValueXMLizer(final IJimpleIDGenerator generator) {
-        idGenerator = generator;
-    }
-    
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -95,484 +104,468 @@ public class ValueXMLizer
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private StringWriter out;
+	private SootMethod currMethod;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Stmt currStmt;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Writer out;
+
+	/**
+	 * Creates a new ValueXMLizer object.
+	 *
+	 * @param generator DOCUMENT ME!
+	 */
+	ValueXMLizer(final IJimpleIDGenerator generator) {
+		idGenerator = generator;
+	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseAddExpr(soot.jimple.AddExpr)
 	 */
 	public final void caseAddExpr(AddExpr v) {
-		out.write("<add_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</add_expr>");
+		writeBinaryExpr("add", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseAndExpr(soot.jimple.AndExpr)
 	 */
 	public final void caseAndExpr(AndExpr v) {
-		out.write("<and_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</and_expr>");
+		writeBinaryExpr("binary_and", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 	 */
 	public final void caseArrayRef(ArrayRef v) {
-		// TODO: Auto-generated method stub
-		super.caseArrayRef(v);
+		try {
+			out.write("<array_ref id=\"" + newId + "\">");
+			writeBase(v.getBase());
+			out.write("<index>");
+			apply(v.getIndex());
+			out.write("</index>");
+			out.write("</array_ref>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
 	 */
 	public final void caseCastExpr(CastExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseCastExpr(v);
+		try {
+			out.write("<cast id=\"" + newId + "\" " + idGenerator.getIdForType(v.getCastType()) + " \">");
+			apply(v.getOp());
+			out.write("</cast >");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseCaughtExceptionRef(soot.jimple.CaughtExceptionRef)
 	 */
 	public final void caseCaughtExceptionRef(CaughtExceptionRef v) {
-		// TODO: Auto-generated method stub
-		super.caseCaughtExceptionRef(v);
+		try {
+			out.write("<caught_exception_ref id=\"" + newId + " exceptionTypeId=\"" + idGenerator.getIdForType(v.getType())
+				+ "\">");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseCmpExpr(soot.jimple.CmpExpr)
 	 */
 	public final void caseCmpExpr(CmpExpr v) {
-		out.write("<cmp_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</cmp_expr>");
+		writeBinaryExpr("compare", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseCmpgExpr(soot.jimple.CmpgExpr)
 	 */
 	public final void caseCmpgExpr(CmpgExpr v) {
-		out.write("<cmpg_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</cmpg_expr>");
+		writeBinaryExpr("compare greater", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseCmplExpr(soot.jimple.CmplExpr)
 	 */
 	public final void caseCmplExpr(CmplExpr v) {
-		out.write("<cmpl_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</cmpl_expr>");
+		writeBinaryExpr("compare lesser", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseDivExpr(soot.jimple.DivExpr)
 	 */
 	public final void caseDivExpr(DivExpr v) {
-		out.write("<div_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</div_expr>");
+		writeBinaryExpr("divide", v);
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseDoubleConstant(soot.jimple.DoubleConstant)
 	 */
 	public final void caseDoubleConstant(DoubleConstant v) {
-		// TODO: Auto-generated method stub
-		super.caseDoubleConstant(v);
+		try {
+			out.write("<double id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseEqExpr(soot.jimple.EqExpr)
 	 */
 	public final void caseEqExpr(EqExpr v) {
-		out.write("<equal_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</equal_expr>");
+		writeBinaryExpr("equal", v);
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseFloatConstant(soot.jimple.FloatConstant)
 	 */
 	public final void caseFloatConstant(FloatConstant v) {
-		// TODO: Auto-generated method stub
-		super.caseFloatConstant(v);
+		try {
+			out.write("<float id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseGeExpr(soot.jimple.GeExpr)
 	 */
 	public final void caseGeExpr(GeExpr v) {
-		out.write("<ge_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</ge_expr>");
+		writeBinaryExpr("greater than or equal", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseGtExpr(soot.jimple.GtExpr)
 	 */
 	public final void caseGtExpr(GtExpr v) {
-		out.write("<gt_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</gt_expr>");
+		writeBinaryExpr("greater than", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 	 */
 	public final void caseInstanceFieldRef(InstanceFieldRef v) {
-		// TODO: Auto-generated method stub
-		super.caseInstanceFieldRef(v);
+		try {
+			out.write("<instance_field_ref id=\"" + newId + "\">");
+			writeBase(v.getBase());
+			writeField(v.getField());
+			out.write("</instance_field_ref>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseInstanceOfExpr(soot.jimple.InstanceOfExpr)
 	 */
 	public final void caseInstanceOfExpr(InstanceOfExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseInstanceOfExpr(v);
+		try {
+			out.write("<instanceof id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getCheckType()) + "\">");
+			apply(v.getOp());
+			out.write("</instanceof>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseIntConstant(soot.jimple.IntConstant)
 	 */
 	public final void caseIntConstant(IntConstant v) {
-		// TODO: Auto-generated method stub
-		super.caseIntConstant(v);
+		try {
+			out.write("<integer id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 	 */
 	public final void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseInterfaceInvokeExpr(v);
+		writeInstanceInvokeExpr("interface", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseLeExpr(soot.jimple.LeExpr)
 	 */
 	public final void caseLeExpr(LeExpr v) {
-		out.write("<le_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</le_expr>");
+		writeBinaryExpr("less than or equal", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseLengthExpr(soot.jimple.LengthExpr)
 	 */
 	public final void caseLengthExpr(LengthExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseLengthExpr(v);
+		writeUnaryExpr("length", v);
 	}
 
 	/**
 	 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.Local)
 	 */
 	public final void caseLocal(Local v) {
-		out.write("<local id=\"" + newId + "\" name=\"" + v.getName() + "\"/>");
+		try {
+			out.write("<local id=\"" + newId + "\" localId=\"" + idGenerator.getIdForLocal(v, currMethod) + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseLongConstant(soot.jimple.LongConstant)
 	 */
 	public final void caseLongConstant(LongConstant v) {
-		// TODO: Auto-generated method stub
-		super.caseLongConstant(v);
+		try {
+			out.write("<long id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseLtExpr(soot.jimple.LtExpr)
 	 */
 	public final void caseLtExpr(LtExpr v) {
-		out.write("<lt_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</lt_expr>");
+		writeBinaryExpr("less than", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseMulExpr(soot.jimple.MulExpr)
 	 */
 	public final void caseMulExpr(MulExpr v) {
-		out.write("<mul_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</mul_expr>");
+		writeBinaryExpr("multiply", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNeExpr(soot.jimple.NeExpr)
 	 */
 	public final void caseNeExpr(NeExpr v) {
-		out.write("<ne_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</ne_expr>");
+		writeBinaryExpr("not equal", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNegExpr(soot.jimple.NegExpr)
 	 */
 	public final void caseNegExpr(NegExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseNegExpr(v);
+		writeUnaryExpr("binary negation", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNewArrayExpr(soot.jimple.NewArrayExpr)
 	 */
 	public final void caseNewArrayExpr(NewArrayExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseNewArrayExpr(v);
+		try {
+			out.write("<new_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(v.getBaseType()) + "\">");
+			writeDimensionSize(1, v.getSize());
+			out.write("</new_array>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNewExpr(soot.jimple.NewExpr)
 	 */
 	public final void caseNewExpr(NewExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseNewExpr(v);
+		try {
+			out.write("<new id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getType()) + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
 	 */
 	public final void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseNewMultiArrayExpr(v);
+		ArrayType type = v.getBaseType();
+
+		try {
+			out.write("<new_multi_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(type.baseType)
+				+ "\" dimension=\"" + type.numDimensions + "\">");
+
+			for (int i = 0; i < type.numDimensions; i++) {
+				writeDimensionSize(i + 1, v.getSize(i));
+			}
+			out.write("</new_multi_array>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseNullConstant(soot.jimple.NullConstant)
 	 */
 	public final void caseNullConstant(NullConstant v) {
-		out.write("<null/>");
+		try {
+			out.write("<null/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseOrExpr(soot.jimple.OrExpr)
 	 */
 	public final void caseOrExpr(OrExpr v) {
-		out.write("<or_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</or_expr>");
+		writeBinaryExpr("binary or", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseParameterRef(soot.jimple.ParameterRef)
 	 */
 	public final void caseParameterRef(ParameterRef v) {
-		// TODO: Auto-generated method stub
-		super.caseParameterRef(v);
+		try {
+			out.write("<parameter_ref id=\"" + newId + "\" position=\"" + v.getIndex() + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseRemExpr(soot.jimple.RemExpr)
 	 */
 	public final void caseRemExpr(RemExpr v) {
-		out.write("<rem_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</rem_expr>");
+		writeBinaryExpr("reminder", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseShlExpr(soot.jimple.ShlExpr)
 	 */
 	public final void caseShlExpr(ShlExpr v) {
-		out.write("<shl_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</shl_expr>");
+		writeBinaryExpr("shift left", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseShrExpr(soot.jimple.ShrExpr)
 	 */
 	public final void caseShrExpr(ShrExpr v) {
-		out.write("<shr_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</shr_expr>");
+		writeBinaryExpr("shift right", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
 	 */
 	public final void caseSpecialInvokeExpr(SpecialInvokeExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseSpecialInvokeExpr(v);
+		writeInstanceInvokeExpr("special", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseStaticFieldRef(soot.jimple.StaticFieldRef)
 	 */
 	public final void caseStaticFieldRef(StaticFieldRef v) {
-		// TODO: Auto-generated method stub
-		super.caseStaticFieldRef(v);
+		try {
+			out.write("<static_field_ref id=\"" + newId + "\">");
+			writeField(v.getField());
+			out.write("</static_field_ref>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 	 */
 	public final void caseStaticInvokeExpr(StaticInvokeExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseStaticInvokeExpr(v);
+		try {
+			out.write("<invoke_expr name=\"static\" id=\"" + newId + "\">");
+			out.write("<method id=\"" + idGenerator.getIdForMethod(v.getMethod()) + "\"/>");
+			out.write("<arguments>");
+
+			for (int i = 0; i < v.getArgCount(); i++) {
+				apply(v.getArg(i));
+			}
+			out.write("</arguments>");
+			out.write("</invoke_expr>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ConstantSwitch#caseStringConstant(soot.jimple.StringConstant)
 	 */
 	public final void caseStringConstant(StringConstant v) {
-		// TODO: Auto-generated method stub
-		super.caseStringConstant(v);
+		try {
+			out.write("<string id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseSubExpr(soot.jimple.SubExpr)
 	 */
 	public final void caseSubExpr(SubExpr v) {
-		out.write("<sub_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</sub_expr>");
+		writeBinaryExpr("subtract", v);
 	}
 
 	/**
 	 * @see soot.jimple.RefSwitch#caseThisRef(soot.jimple.ThisRef)
 	 */
 	public final void caseThisRef(ThisRef v) {
-		// TODO: Auto-generated method stub
-		super.caseThisRef(v);
+		try {
+			out.write("<this id=\"" + newId + "\"/>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseUshrExpr(soot.jimple.UshrExpr)
 	 */
 	public final void caseUshrExpr(UshrExpr v) {
-		out.write("<ushr_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</ushr_expr>");
+		writeBinaryExpr("unsigned shift right", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
 	 */
 	public final void caseVirtualInvokeExpr(VirtualInvokeExpr v) {
-		// TODO: Auto-generated method stub
-		super.caseVirtualInvokeExpr(v);
+		writeInstanceInvokeExpr("virtual", v);
 	}
 
 	/**
 	 * @see soot.jimple.ExprSwitch#caseXorExpr(soot.jimple.XorExpr)
 	 */
 	public final void caseXorExpr(XorExpr v) {
-		out.write("<xor_expr id=\"" + newId + "\">");
-		out.write("<left_op>");
-		v.getOp1().apply(this);
-		out.write("</left_op>");
-		out.write("<right_op>");
-		v.getOp2().apply(this);
-		out.write("</right_op>");
-		out.write("</xor_expr>");
+		writeBinaryExpr("binary xor", v);
 	}
 
 	/**
-	 * @see soot.jimple.RefSwitch#defaultCase(java.lang.Object)
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param method DOCUMENT ME!
 	 */
-	public final void defaultCase(Object v) {
-		// TODO: Auto-generated method stub
-		super.defaultCase(v);
+	void setMethod(final SootMethod method) {
+		currMethod = method;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param stmt DOCUMENT ME!
+	 */
+	void setStmt(final Stmt stmt) {
+		currStmt = stmt;
 	}
 
 	/**
@@ -582,7 +575,7 @@ public class ValueXMLizer
 	 *
 	 * @param stream DOCUMENT ME!
 	 */
-	void setOutputStream(final StringWriter stream) {
+	void setWriter(final Writer stream) {
 		out = stream;
 	}
 
@@ -595,16 +588,128 @@ public class ValueXMLizer
 	 */
 	void apply(final Value value) {
 		Object temp = newId;
-		newId = idGenerator.getNewValueId();
+		newId = idGenerator.getNewValueId(currStmt, currMethod);
 		value.apply(this);
 		newId = temp;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param v
+	 */
+	private void writeBase(Value v) {
+		try {
+			out.write("<base>");
+			apply(v);
+			out.write("</base>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param operatorName
+	 * @param v
+	 */
+	private void writeBinaryExpr(String operatorName, BinopExpr v) {
+		try {
+			out.write("<binary_expr id=\"" + newId + "\" op=\"" + operatorName + "\">");
+			out.write("<left_op>");
+			apply(v.getOp1());
+			out.write("</left_op>");
+			out.write("<right_op>");
+			apply(v.getOp1());
+			out.write("</right_op>");
+			out.write("</binary_expr>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param i DOCUMENT ME!
+	 * @param v DOCUMENT ME!
+	 */
+	private void writeDimensionSize(int i, Value v) {
+		try {
+			out.write("<size dimension=\"" + i + "\">");
+			apply(v);
+			out.write("</size>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param field
+	 */
+	private void writeField(SootField field) {
+		try {
+			out.write("<field id=\"" + idGenerator.getIdForField(field) + "\" signature=\"" + field.getSubSignature() + "\">");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param name
+	 * @param v
+	 */
+	private void writeInstanceInvokeExpr(String name, InstanceInvokeExpr v) {
+		try {
+			out.write("<invoke_expr name=\"" + name + "\" id=\"" + newId + "\">");
+
+			SootMethod method = v.getMethod();
+			out.write("<method id=\"" + idGenerator.getIdForMethod(method) + "\"/>");
+			writeBase(v.getBase());
+			out.write("<arguments>");
+
+			for (int i = 0; i < v.getArgCount(); i++) {
+				apply(v.getArg(i));
+			}
+			out.write("</arguments>");
+			out.write("</invoke_expr>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param operatorName
+	 * @param value
+	 */
+	private void writeUnaryExpr(String operatorName, UnopExpr value) {
+		try {
+			out.write("<unary_expr name=\"" + operatorName + "\" id=\"" + newId + "\">");
+			apply(value.getOp());
+			out.write("</" + operatorName + ">");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/07 06:27:03  venku
+   - Made the XMLizer classes concrete by moving out the
+     id generation logic outside.
+   - Added an interface which provides the id required for
+     xmlizing Jimple.
    Revision 1.1  2003/11/06 10:01:25  venku
    - created support for xmlizing Jimple in a customizable manner.
-
  */

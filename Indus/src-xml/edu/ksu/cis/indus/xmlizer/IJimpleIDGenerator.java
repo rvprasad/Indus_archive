@@ -15,64 +15,116 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import soot.Local;
+import soot.SootClass;
+import soot.SootField;
+import soot.SootMethod;
+import soot.Type;
+
 import soot.jimple.Stmt;
 
 
 /**
  * DOCUMENT ME!
- * <p></p>
  * 
- * @version $Revision$ 
+ * <p></p>
+ *
  * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IJimpleIDGenerator {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	Object getIdForNextStmt();
+	String getIdForClass(SootClass clazz);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 *
+	 * @param field
+	 *
+	 * @return
+	 */
+	String getIdForField(SootField field);
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param v
+	 *
+	 * @return
+	 */
+	String getIdForLocal(Local v, SootMethod method);
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method
+	 *
+	 * @return
+	 */
+	String getIdForMethod(SootMethod method);
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param stmt DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	Object getIdForStmt(Stmt stmt);
+	String getIdForStmt(Stmt stmt, SootMethod method);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 *
+	 * @param type
+	 *
+	 * @return
+	 */
+	String getIdForType(Type type);
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return
+	 */
+	String getNewStmtId(SootMethod method);
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	Object getNewClassId();
+	String getNewValueId(Stmt stmt, SootMethod method);
 
 	/**
-	 * DOCUMENT ME! <p></p>
 	 *
-	 * @return DOCUMENT ME!
 	 */
-	Object getNewMethodId();
+	void resetStmtCounter();
 
 	/**
-	 * DOCUMENT ME! <p></p>
-	 *
-	 * @return DOCUMENT ME!
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
-	Object getNewStmtId();
-
-	/**
-	 * DOCUMENT ME! <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	Object getNewValueId();
+	void resetValueCounter();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/07 06:27:03  venku
+   - Made the XMLizer classes concrete by moving out the
+     id generation logic outside.
+   - Added an interface which provides the id required for
+     xmlizing Jimple.
  */
