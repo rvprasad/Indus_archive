@@ -41,7 +41,7 @@ final class MethodSpecification
 	 *
 	 * @invariant parameterTypeSpecs.oclIsKindOf(List(TypeSpecification))
 	 */
-	private List parameterTypeSpecs;
+	private final List parameterTypeSpecs = new ArrayList();
 
 	/** 
 	 * The pattern of the method's name.

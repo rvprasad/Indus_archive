@@ -31,6 +31,14 @@ final class AccessSpecification {
 	private byte access;
 
 	/**
+	 * Creates a new AccessSpecification object with default access set to public and private.
+	 */
+	public AccessSpecification() {
+		access |= IAccessSpecifiers.PROTECTED_ACCESS;
+		access |= IAccessSpecifiers.PUBLIC_ACCESS;
+	}
+
+	/**
 	 * Checks if the given access control specifier confirms to this specification.
 	 *
 	 * @param specifier to be checked for conformance.

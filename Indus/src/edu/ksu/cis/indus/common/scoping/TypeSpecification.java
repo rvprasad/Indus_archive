@@ -43,44 +43,55 @@ final class TypeSpecification {
 	private static final Log LOGGER = LogFactory.getLog(TypeSpecification.class);
 
 	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>hierarchySpec</code> element.
+	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
 	 */
 	private static final Object EXCLUSIVE_ANCESTORS = "EXCLUSIVE_ANCESTORS";
 
 	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>hierarchySpec</code> element.
+	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
 	 */
 	private static final Object EXCLUSIVE_DESCENDANTS = "EXCLUSIVE_DESCENDANTS";
 
 	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>hierarchySpec</code> element.
+	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
 	 */
 	private static final Object INCLUSIVE_ANCESTORS = "INCLUSIVE_ANCESTORS";
 
 	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>hierarchySpec</code> element.
+	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
 	 */
 	private static final Object INCLUSIVE_DESCENDANTS = "INCLUSIVE_DESCENDANTS";
 
 	/** 
-	 * This correspond to the enumeration constants used in java-xml binding under <code>hierarchySpec</code> element.
+	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
 	 */
 	private static final Object IDENTITY = "IDENTITY";
 
 	/** 
-	 * This is the specification for the name of the type. It should be a regular expression.
+	 * This correspond to the enumeration constants used in java-xml binding under <code>scopeExtension</code> element.
 	 */
-	private Pattern namePattern;
+	private static final Object PRIMITIVE = "PRIMITIVE";
 
 	/** 
-	 * One of EXCLUSIVE_ANCESTORS, EXCLUSIVE_DESCENDANTS, INCLUSIVE_ANCESTORS, INCLUSIVE_DESCENDANTS, and IDENTITY.
+	 * This contains the regex pattern in case of IDENTITY type specification.
 	 */
-	private String hierarchySpec;
+	private Pattern nameRegex;
+
+	/** 
+	 * This is the specification for the name of the type.
+	 */
+	private String namePattern;
+
+	/** 
+	 * One of EXCLUSIVE_ANCESTORS, EXCLUSIVE_DESCENDANTS, INCLUSIVE_ANCESTORS, INCLUSIVE_DESCENDANTS, IDENTITY, and
+	 * PRIMITIVE.
+	 */
+	private String scopeExtension;
 
 	/** 
 	 * This indicates if the specification should be interpreted as inclusive or exclusive.
 	 */
-	private boolean inclusion;
+	private boolean inclusion = true;
 
 	/**
 	 * Creates a new TypeSpecification object. This is used by xml-java binding.
@@ -96,7 +107,7 @@ final class TypeSpecification {
 	 * @pre nameSpec != null
 	 */
 	TypeSpecification(final String nameSpec) {
-		namePattern = Pattern.compile(nameSpec);
+		namePattern = nameSpec;
 	}
 
 	/**
@@ -115,50 +126,33 @@ final class TypeSpecification {
 		final String _name = type.toString();
 		boolean _result;
 
-		if (type instanceof RefType) {
+		if (Util.isReferenceType(type) && !scopeExtension.equals(IDENTITY)) {
 			final SootClass _sc = ((RefType) type).getSootClass();
-			final SootClass _basisClass = system.getClass(namePattern.pattern());
+			final SootClass _basisClass = system.getClass(namePattern);
 
-			if (hierarchySpec.equals(EXCLUSIVE_ANCESTORS)) {
+			if (scopeExtension.equals(EXCLUSIVE_ANCESTORS)) {
 				_result = Util.isDescendentOf(_basisClass, _sc) && !_sc.equals(_basisClass);
-			} else if (hierarchySpec.equals(EXCLUSIVE_DESCENDANTS)) {
+			} else if (scopeExtension.equals(EXCLUSIVE_DESCENDANTS)) {
 				_result = Util.isDescendentOf(_sc, _basisClass) && !_sc.equals(_basisClass);
-			} else if (hierarchySpec.equals(INCLUSIVE_ANCESTORS)) {
+			} else if (scopeExtension.equals(INCLUSIVE_ANCESTORS)) {
 				_result = Util.isDescendentOf(_basisClass, _sc);
-			} else if (hierarchySpec.equals(INCLUSIVE_DESCENDANTS)) {
+			} else if (scopeExtension.equals(INCLUSIVE_DESCENDANTS)) {
 				_result = Util.isDescendentOf(_sc, _basisClass);
-			} else if (hierarchySpec.equals(IDENTITY)) {
-				_result = namePattern.matcher(_name).matches();
+			} else if (scopeExtension.equals(PRIMITIVE)) {
+				_result = namePattern.equals(_name);
 			} else {
-				LOGGER.error("Invalid hierarchy spec [" + hierarchySpec + "] for reference type " + _name);
-				throw new IllegalStateException("Invalid hierarchy spec [" + hierarchySpec + "] for reference type " + _name);
+				final String _msg = "Invalid scope extension [" + scopeExtension + "] for reference type " + _name;
+				LOGGER.error(_msg);
+				throw new IllegalStateException(_msg);
 			}
 		} else {
-			_result = namePattern.matcher(_name).matches();
+			_result = nameRegex.matcher(_name).matches();
 		}
 
 		if (!inclusion) {
 			_result = !_result;
 		}
 		return false;
-	}
-
-	/**
-	 * Sets the value of <code>hierarchySpec</code>.
-	 *
-	 * @param theHierarchySpec the new value of <code>hierarchySpec</code>.
-	 */
-	void setHierarchySpec(final String theHierarchySpec) {
-		this.hierarchySpec = theHierarchySpec;
-	}
-
-	/**
-	 * Retrieves the value in <code>hierarchySpec</code>.
-	 *
-	 * @return the value in <code>hierarchySpec</code>.
-	 */
-	String getHierarchySpec() {
-		return hierarchySpec;
 	}
 
 	/**
@@ -187,7 +181,11 @@ final class TypeSpecification {
 	 * @pre spec != null
 	 */
 	void setNamePattern(final String spec) {
-		this.namePattern = Pattern.compile(spec);
+		this.namePattern = spec;
+
+		if (scopeExtension != null && scopeExtension.equals(IDENTITY)) {
+			nameRegex = Pattern.compile(spec);
+		}
 	}
 
 	/**
@@ -196,7 +194,29 @@ final class TypeSpecification {
 	 * @return the value in <code>namePattern</code>.
 	 */
 	String getNamePattern() {
-		return namePattern.pattern();
+		return namePattern;
+	}
+
+	/**
+	 * Sets the value of <code>scopeExtension</code>.
+	 *
+	 * @param theScopeExtension the new value of <code>scopeExtension</code>.
+	 */
+	void setScopeExtension(final String theScopeExtension) {
+		this.scopeExtension = theScopeExtension;
+
+		if (scopeExtension.equals(IDENTITY) && namePattern != null) {
+			nameRegex = Pattern.compile(namePattern);
+		}
+	}
+
+	/**
+	 * Retrieves the value in <code>scopeExtension</code>.
+	 *
+	 * @return the value in <code>scopeExtension</code>.
+	 */
+	String getScopeExtension() {
+		return scopeExtension;
 	}
 }
 
