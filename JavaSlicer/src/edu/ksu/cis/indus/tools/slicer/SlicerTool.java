@@ -928,7 +928,7 @@ public final class SlicerTool
 		} else {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("No slicing criteria were specified. Hence, no slicing was done.\nIf \"slice for deadlock\" was "
-					+ "selected then the system did not have any synchronized methods are blocks.");
+					+ "selected then the system did not have any synchronized methods or synchronized blocks.");
 			}
 		}
 
@@ -941,6 +941,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.117  2004/08/22 08:25:42  venku
+   - reorganized the way reset was called on components of slicer.
+
    Revision 1.116  2004/08/17 17:13:07  venku
    - one of the arguments provided to the constructor was reset in reset(), but not the other. FIXED.
 
