@@ -50,10 +50,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
  * This class tests <code>DirectedGraph</code> and <code>SimpleNodeGraph</code> classes that exists in the same package.
+ * Methods which conduct tests specific to the setup data are named as <code>localtestXXX()</code> and these will be called
+ * from <code>testXXX()</code> methods.  So, subclasses which setup diffferent graph should override this method suitably.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -69,21 +72,12 @@ public class DirectedAndSimpleNodeGraphTest1
 	 *
 	 * @invariant name2node.oclIsKindOf(Map(String, INode))
 	 */
-	private final Map name2node = new HashMap();
+	protected final Map name2node = new HashMap();
 
 	/**
 	 * This is the graph that will be tested.
 	 */
-	private SimpleNodeGraph dg;
-
-	/**
-	 * Constructor for DirectedAndSimpleNodeGraphTest1.
-	 *
-	 * @param name of the test
-	 */
-	public DirectedAndSimpleNodeGraphTest1(final String name) {
-		super(name);
-	}
+	protected SimpleNodeGraph dg;
 
 	/**
 	 * Returns a suite of tests defined in this class.
@@ -100,33 +94,7 @@ public class DirectedAndSimpleNodeGraphTest1
 	 * Tests <code>addEdgeFromTo</code> method.
 	 */
 	public final void testAddEdgeFromTo() {
-		BitSet[] preds1 = dg.getAllPredsAsBitSet();
-		BitSet[] succs1 = dg.getAllSuccsAsBitSet();
-
-		// Add edge from c to h
-		dg.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("h"));
-		// Add edge from a to f
-		dg.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("f"));
-
-		BitSet[] preds2 = dg.getAllPredsAsBitSet();
-		BitSet[] succs2 = dg.getAllSuccsAsBitSet();
-
-		for (int i = 0; i < succs2.length; i++) {
-			succs2[i].xor(succs1[i]);
-
-			if (i == dg.getNodes().indexOf(name2node.get("a")) || i == dg.getNodes().indexOf(name2node.get("c"))) {
-				assertTrue(succs2[i].cardinality() == 1);
-			} else {
-				assertTrue(succs2[i].cardinality() == 0);
-			}
-			preds2[i].xor(preds1[i]);
-
-			if (i == dg.getNodes().indexOf(name2node.get("h")) || i == dg.getNodes().indexOf(name2node.get("f"))) {
-				assertTrue(preds2[i].cardinality() == 1);
-			} else {
-				assertTrue(preds2[i].cardinality() == 0);
-			}
-		}
+		localtestAddEdgeFromTo();
 	}
 
 	/**
@@ -150,12 +118,12 @@ public class DirectedAndSimpleNodeGraphTest1
 			INode node = (INode) nodes.get(i);
 			Collection p = node.getPredsOf();
 
-			/*
-			 * check if preds from the above call is a non-empty set.
-			 * check if preds from the getPredsOf() call is a non-empty set.
-			 * check if the returned preds are the same.
-			 */
-			assertTrue(!temp.isEmpty() && !p.isEmpty() && p.containsAll(temp) && temp.containsAll(p));
+			// check if the provided predecessors information matches that occurring in the graph. 
+			if (temp.isEmpty()) {
+				assertTrue(p.isEmpty());
+			} else {
+				assertTrue(!temp.isEmpty() && !p.isEmpty() && p.size() == temp.size() && p.containsAll(temp));
+			}
 		}
 	}
 
@@ -180,12 +148,36 @@ public class DirectedAndSimpleNodeGraphTest1
 			INode node = (INode) nodes.get(i);
 			Collection p = node.getSuccsOf();
 
-			/*
-			 * check if succs from the above call is a non-empty set.
-			 * check if succs from the getPredsOf() call is a non-empty set.
-			 * check if the returned succs are the same.
-			 */
-			assertTrue(!temp.isEmpty() && !p.isEmpty() && p.containsAll(temp) && temp.containsAll(p));
+			// check if the provided predecessors information matches that occurring in the graph. 
+			if (temp.isEmpty()) {
+				assertTrue(p.isEmpty());
+			} else {
+				assertTrue(!temp.isEmpty() && !p.isEmpty() && p.size() == temp.size() && p.containsAll(temp));
+			}
+		}
+	}
+
+	/**
+	 * Tests <code>getBackEdges()</code> method.
+	 */
+	public final void testGetBackEdges() {
+		Collection cycles = dg.getCycles();
+		Collection backedges = dg.getBackEdges();
+		Collection nodes = new HashSet();
+
+		for (Iterator i = backedges.iterator(); i.hasNext();) {
+			Pair edge = (Pair) i.next();
+			nodes.clear();
+			nodes.add(edge.getFirst());
+			nodes.add(edge.getSecond());
+
+			boolean flag = false;
+
+			for (Iterator j = cycles.iterator(); j.hasNext();) {
+				Collection cycle = (Collection) j.next();
+				flag |= cycle.containsAll(nodes);
+			}
+			assertTrue(flag);
 		}
 	}
 
@@ -207,11 +199,18 @@ public class DirectedAndSimpleNodeGraphTest1
 	 * Tests <code>getHeads()</code> method.
 	 */
 	public final void testGetHeads() {
-		assertTrue(dg.getHeads().isEmpty());
+		Collection heads = dg.getHeads();
 
-		for (Iterator i = dg.getHeads().iterator(); i.hasNext();) {
+		// ensure there are no predecessors for the head nodes
+		for (Iterator i = heads.iterator(); i.hasNext();) {
 			INode node = (INode) i.next();
 			assertTrue(node.getPredsOf().isEmpty());
+		}
+
+		// ensure none of the nodes have a head node as their successor
+		for (Iterator i = dg.getNodes().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
+			assertTrue(CollectionUtils.intersection(node.getSuccsOf(), heads).isEmpty());
 		}
 	}
 
@@ -249,21 +248,23 @@ public class DirectedAndSimpleNodeGraphTest1
 		Collection sccsTrue = dg.getSCCs(true);
 		assertFalse(sccsTrue.isEmpty());
 
-		List nodes = dg.getNodes();
+		Collection rest = new ArrayList();
+		Collection nodes = new ArrayList();
 
 		for (Iterator i = sccsTrue.iterator(); i.hasNext();) {
 			Collection scc = (Collection) i.next();
+			nodes.addAll(scc);
 
-			for (Iterator j = scc.iterator(); j.hasNext();) {
-				INode srcNode = (INode) j.next();
+			if (scc.size() > 1) {
+				for (Iterator j = scc.iterator(); j.hasNext();) {
+					INode srcNode = (INode) j.next();
+					rest.clear();
+					rest.addAll(scc);
+					rest.remove(srcNode);
 
-				for (Iterator k = nodes.iterator(); k.hasNext();) {
-					INode destNode = (INode) k.next();
-
-					if (scc.contains(destNode)) {
-						assertTrue(dg.isReachable(srcNode, destNode, true) && dg.isReachable(destNode, srcNode, true));
-					} else {
-						assertTrue(dg.isReachable(srcNode, destNode, true) ^ dg.isReachable(destNode, srcNode, true));
+					for (Iterator k = rest.iterator(); k.hasNext();) {
+						INode destNode = (INode) k.next();
+						assertTrue(dg.isReachable(srcNode, destNode, true) && dg.isReachable(srcNode, destNode, false));
 					}
 				}
 			}
@@ -275,21 +276,21 @@ public class DirectedAndSimpleNodeGraphTest1
 		for (Iterator i = sccsFalse.iterator(); i.hasNext();) {
 			Collection scc = (Collection) i.next();
 
-			for (Iterator j = scc.iterator(); j.hasNext();) {
-				INode srcNode = (INode) j.next();
+			if (scc.size() > 1) {
+				for (Iterator j = scc.iterator(); j.hasNext();) {
+					INode srcNode = (INode) j.next();
+					rest.clear();
+					rest.addAll(scc);
+					rest.remove(srcNode);
 
-				for (Iterator k = nodes.iterator(); k.hasNext();) {
-					INode destNode = (INode) k.next();
-
-					if (scc.contains(destNode)) {
-						assertTrue(dg.isReachable(srcNode, destNode, true) && dg.isReachable(destNode, srcNode, true));
-					} else {
-						assertTrue(dg.isReachable(srcNode, destNode, true) ^ dg.isReachable(destNode, srcNode, true));
+					for (Iterator k = rest.iterator(); k.hasNext();) {
+						INode destNode = (INode) k.next();
+						assertTrue(dg.isReachable(srcNode, destNode, true) && dg.isReachable(srcNode, destNode, false));
 					}
 				}
 			}
 		}
-		assertTrue(sccsTrue.containsAll(sccsFalse) && sccsFalse.containsAll(sccsTrue));
+		assertTrue(sccsTrue.containsAll(sccsFalse) && sccsFalse.containsAll(sccsTrue) && dg.getNodes().containsAll(nodes));
 	}
 
 	/**
@@ -297,7 +298,7 @@ public class DirectedAndSimpleNodeGraphTest1
 	 */
 	public final void testGetSpanningSuccs() {
 		Map spanningSuccs = dg.getSpanningSuccs();
-		List temp = new ArrayList();
+		Set temp = new HashSet();
 
 		for (Iterator i = spanningSuccs.values().iterator(); i.hasNext();) {
 			Collection succs = (Collection) i.next();
@@ -313,28 +314,37 @@ public class DirectedAndSimpleNodeGraphTest1
 			INode node = (INode) i.next();
 			assertTrue(CollectionUtils.cardinality(node, temp) == 1);
 		}
+
+		// ensure that all nodes occur in the spanning tree
+		temp.addAll(spanningSuccs.keySet());
+		assertTrue(temp.containsAll(dg.getNodes()));
 	}
 
 	/**
 	 * Tests <code>getTails()</code> method.
 	 */
 	public final void testGetTails() {
-		assertTrue(dg.getTails().isEmpty());
+		Collection tails = dg.getTails();
 
-		for (Iterator i = dg.getTails().iterator(); i.hasNext();) {
+		// ensure none of the tails have a successor
+		for (Iterator i = tails.iterator(); i.hasNext();) {
 			INode node = (INode) i.next();
 			assertTrue(node.getSuccsOf().isEmpty());
 		}
+
+		// ensure none of the nodes have a tail node as a predecessor
+		for (Iterator i = dg.getNodes().iterator(); i.hasNext();) {
+			INode node = (INode) i.next();
+			assertTrue(CollectionUtils.intersection(node.getPredsOf(), tails).isEmpty());
+		}
+		localtestGraphGetTails();
 	}
 
 	/**
 	 * Tests <code>isReachable()</code> method.
 	 */
 	public final void testIsReachable() {
-		assertTrue(dg.isReachable((INode) name2node.get("a"), (INode) name2node.get("e"), true));
-		assertFalse(dg.isReachable((INode) name2node.get("f"), (INode) name2node.get("c"), true));
-		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("a"), false));
-		assertFalse(dg.isReachable((INode) name2node.get("c"), (INode) name2node.get("h"), false));
+		localtestIsReachable();
 	}
 
 	/**
@@ -366,13 +376,15 @@ public class DirectedAndSimpleNodeGraphTest1
 	}
 
 	/**
+	 * We construct the graph given in the book "Introduction to Algorithms" on page 553.
+	 *
 	 * @see TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
 		super.setUp();
 		dg = new SimpleNodeGraph();
-		// create graph as given on pp 553 of "Introduction to Algorithms" book.
+
 		name2node.put("a", dg.getNode("a"));
 		name2node.put("b", dg.getNode("b"));
 		name2node.put("c", dg.getNode("c"));
@@ -397,11 +409,72 @@ public class DirectedAndSimpleNodeGraphTest1
 		dg.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("e"));
 		dg.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("a"));
 	}
+
+	/**
+	 * Tests <code>addEdgeFromTo</code> method on test local graph instance.
+	 */
+	protected void localtestAddEdgeFromTo() {
+		BitSet[] preds1 = dg.getAllPredsAsBitSet();
+		BitSet[] succs1 = dg.getAllSuccsAsBitSet();
+
+		// Add edge from c to h
+		dg.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("h"));
+		// Add edge from a to f
+		dg.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("f"));
+
+		BitSet[] preds2 = dg.getAllPredsAsBitSet();
+		BitSet[] succs2 = dg.getAllSuccsAsBitSet();
+
+		for (int i = 0; i < succs2.length; i++) {
+			succs2[i].xor(succs1[i]);
+
+			if (i == dg.getNodes().indexOf(name2node.get("a")) || i == dg.getNodes().indexOf(name2node.get("c"))) {
+				assertTrue(succs2[i].cardinality() == 1);
+			} else {
+				assertTrue(succs2[i].cardinality() == 0);
+			}
+			preds2[i].xor(preds1[i]);
+
+			if (i == dg.getNodes().indexOf(name2node.get("h")) || i == dg.getNodes().indexOf(name2node.get("f"))) {
+				assertTrue(preds2[i].cardinality() == 1);
+			} else {
+				assertTrue(preds2[i].cardinality() == 0);
+			}
+		}
+	}
+
+	/**
+	 * Checks <code>getHeads()</code> on the local graph instance.
+	 */
+	protected void localtestGetHeads() {
+		assertTrue(dg.getHeads().isEmpty());
+	}
+
+	/**
+	 * Checks <code>getTails()</code> on the local graph instance.
+	 */
+	protected void localtestGraphGetTails() {
+		assertTrue(dg.getTails().isEmpty());
+	}
+
+	/**
+	 * Checks <code>isReachable()</code> on the local graph instance.
+	 */
+	protected void localtestIsReachable() {
+		assertTrue(dg.isReachable((INode) name2node.get("a"), (INode) name2node.get("e"), true));
+		assertFalse(dg.isReachable((INode) name2node.get("f"), (INode) name2node.get("c"), true));
+		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("a"), false));
+		assertFalse(dg.isReachable((INode) name2node.get("c"), (INode) name2node.get("h"), false));
+		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("h"), false));
+		assertTrue(dg.isReachable((INode) name2node.get("h"), (INode) name2node.get("h"), true));
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/09 01:14:29  venku
+   - spruced up getSCCs() test for both true and false arguments.
    Revision 1.4  2003/09/02 02:46:39  venku
    - Removed unwanted import.
    Revision 1.3  2003/09/01 20:57:12  venku

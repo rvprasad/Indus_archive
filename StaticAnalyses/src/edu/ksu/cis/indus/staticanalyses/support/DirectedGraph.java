@@ -35,8 +35,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -81,12 +79,33 @@ public abstract class DirectedGraph {
 	protected boolean hasSpanningForest;
 
 	/**
+	 * This is the collection of back edges in this graph.
+	 */
+	private Collection backedges = new ArrayList();
+
+	/**
 	 * This maps a node to it's spanning successor nodes.
 	 *
 	 * @invariant spanningSuccs.keySet()->forall( o | o.oclIsKindOf(INode))
 	 * @invariant spanningSuccs.values()->forall( o | o.oclIsKindOf(Set) and o->forall( p | p.oclIsKindOf(INode)))
 	 */
 	private Map spanningSuccs;
+
+	/**
+	 * This is the node indexed prenum of the nodes in this graph.
+	 *
+	 * @invariant postnums.size = getNodes().size()
+	 * @invariant postnums->forall(o | o > 0)
+	 */
+	private int[] postnums;
+
+	/**
+	 * This is the node indexed prenum of the nodes in this graph.
+	 *
+	 * @invariant prenums.size = getNodes().size()
+	 * @invariant prenums->forall(o | o > 0)
+	 */
+	private int[] prenums;
 
 	/**
 	 * Retrieves the predecessor relation in the graph.  The <code>BitSet</code> object occurring at the location (in the
@@ -238,6 +257,36 @@ public abstract class DirectedGraph {
 	 * @post result == getNodes().size
 	 */
 	public abstract int size();
+
+	/**
+	 * Retrieves the back edges in this graph.
+	 *
+	 * @return a collection of pairs containing the backedge. The source and the destination nodes of the edge are the first
+	 * 		   and the secondelement of the pair, respectively.
+	 *
+	 * @post result != null
+	 */
+	public final Collection getBackEdges() {
+		if (!hasSpanningForest) {
+			createSpanningForest();
+		}
+
+		List nodes = getNodes();
+		Collection temp = new ArrayList();
+
+		for (Iterator i = backedges.iterator(); i.hasNext();) {
+			Pair edge = (Pair) i.next();
+			int descendent = nodes.indexOf(edge.getFirst());
+			int ancestor = nodes.indexOf(edge.getSecond());
+
+			if (prenums[ancestor] > prenums[descendent] || postnums[ancestor] < postnums[descendent]) {
+				temp.add(edge);
+			}
+		}
+		backedges.removeAll(temp);
+		return backedges.isEmpty() ? Collections.EMPTY_LIST
+								   : Collections.unmodifiableCollection(backedges);
+	}
 
 	/**
 	 * Returns the cycles that occur in the graph.
@@ -467,46 +516,68 @@ public abstract class DirectedGraph {
 
 		if (spanningSuccs == null) {
 			spanningSuccs = new HashMap();
+		} else {
+			spanningSuccs.clear();
 		}
-		spanningSuccs.clear();
 
-		List order = new ArrayList(getHeads());
-		boolean flag = false;
+		WorkBag order = new WorkBag(WorkBag.LIFO);
+		List nodes = getNodes();
 
-		// It is possible that the graph has no heads, i.e., nodes with no predecessors. 
-		// In such cases, the do loop ensures that all the nodes in the graph will be considered as heads.
-		do {
-			for (Iterator i = order.iterator(); i.hasNext();) {
-				INode node = (INode) i.next();
+		// It is possible that the graph has no heads, i.e., nodes with no predecessors, and these are handled here. 
+		if (getHeads().isEmpty()) {
+			order.addAllWork(nodes);
+		} else {
+			order.addAllWork(getHeads());
+		}
+
+		Collection processed = new ArrayList();
+		int prenum = 0;
+		int postnum = 0;
+		prenums = new int[nodes.size()];
+		postnums = new int[nodes.size()];
+		backedges.clear();
+
+		while (order.hasWork()) {
+			Object work = order.getWork();
+
+			if (work instanceof Marker) {
+				INode node = (INode) ((Marker) work)._content;
+				postnums[nodes.indexOf(node)] = ++postnum;
+			} else {
+				INode node = (INode) work;
 
 				// we do not want to process nodes that are already processed.
-				if (!spanningSuccs.keySet().contains(node)) {
+				if (!processed.contains(node)) {
 					Collection temp = new HashSet();
 					spanningSuccs.put(node, temp);
-					// mark any processed node as also visited.
-					reached.add(node);
+					processed.add(node);
+					order.addWork(new Marker(node));
+					prenums[nodes.indexOf(node)] = ++prenum;
+
+					boolean flag = true;
 
 					for (Iterator j = node.getSuccsOf().iterator(); j.hasNext();) {
 						INode succ = (INode) j.next();
 
 						// record only those successors which have not been visited via other nodes. 
-						if (!reached.contains(succ)) {
+						if (!reached.contains(succ) && !processed.contains(succ)) {
 							temp.add(succ);
 							reached.add(succ);
+							order.addWork(succ);
+							flag = false;
+						} else {
+							backedges.add(new Pair(node, succ, false));
 						}
+					}
+
+					if (flag) {
+						postnums[nodes.indexOf(node)] = ++postnum;
+						order.getWork();
 					}
 				}
 			}
+		}
 
-			Collection processed = spanningSuccs.keySet();
-			flag = !processed.containsAll(getNodes());
-
-			// if there are nodes in the graph that are not covered, then consider them here.
-			if (flag) {
-				order.clear();
-				order.addAll(CollectionUtils.subtract(getNodes(), processed));
-			}
-		} while (flag);
 		hasSpanningForest = true;
 	}
 }
@@ -514,26 +585,26 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/10 07:40:34  venku
+   - documentation change.
    Revision 1.5  2003/09/01 20:57:11  venku
    - Deleted getForwardSuccsOf().
-
    Revision 1.4  2003/08/24 12:04:32  venku
    Removed occursInCycle() method from DirectedGraph.
    Installed occursInCycle() method in CFGAnalysis.
    Converted performTopologicalsort() and getFinishTimes() into instance methods.
    Ripple effect of the above changes.
-
    Revision 1.3  2003/08/11 07:13:58  venku
- *** empty log message ***
-         Revision 1.2  2003/08/11 04:20:19  venku
-         - Pair and Triple were changed to work in optimized and unoptimized mode.
-         - Ripple effect of the previous change.
-         - Documentation and specification of other classes.
-         Revision 1.1  2003/08/07 06:42:16  venku
-         Major:
-          - Moved the package under indus umbrella.
-          - Renamed isEmpty() to hasWork() in WorkBag.
-         Revision 1.6  2003/05/22 22:18:31  venku
-         All the interfaces were renamed to start with an "I".
-         Optimizing changes related Strings were made.
+   empty log message
+   Revision 1.2  2003/08/11 04:20:19  venku
+   - Pair and Triple were changed to work in optimized and unoptimized mode.
+   - Ripple effect of the previous change.
+   - Documentation and specification of other classes.
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+   Revision 1.6  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
  */
