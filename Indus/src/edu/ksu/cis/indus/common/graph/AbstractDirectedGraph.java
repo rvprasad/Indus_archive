@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Marker;
@@ -87,6 +85,16 @@ public abstract class AbstractDirectedGraph
 	private Map spanningSuccs;
 
 	/**
+	 * This captures backward reachability information.
+	 */
+	private boolean[][] backwardReachabilityMatrix;
+
+	/**
+	 * This captures backward reachability information.
+	 */
+	private boolean[][] forwardReachabilityMatrix;
+
+	/**
 	 * This is the node indexed prenum of the nodes in this graph.
 	 *
 	 * @invariant postnums.size = getNodes().size()
@@ -106,6 +114,11 @@ public abstract class AbstractDirectedGraph
 	 * This indicates if pseudo tails have been calculated for this graph.
 	 */
 	private boolean pseudoTailsCalculated;
+
+	/**
+	 * This indicates if reachability information has been calculated for this graph.
+	 */
+	private boolean reachability;
 
 	/**
 	 * @see IDirectedGraph#getBackEdges()
@@ -243,8 +256,8 @@ public abstract class AbstractDirectedGraph
 			// If so, dtail is not a pseudo tail.  If not, it is a pseudo tail.
 			_dtails.removeAll(_tails);
 
-			final Collection _temp = getDestUnreachableSources(_dtails, _tails, true);
-			final Collection _result = getDestUnreachableSources(_temp, _temp, true);
+			final Collection _temp = getDestUnreachableSources(_dtails, _tails, true, false);
+			final Collection _result = getDestUnreachableSources(_temp, _temp, true, false);
 
 			/*
 			 * It is possible that a graph have 2 pseudo tails which are mutually reachable in the graph. In that case,
@@ -283,45 +296,44 @@ public abstract class AbstractDirectedGraph
 	 * @see IDirectedGraph#isReachable(INode,INode,boolean)
 	 */
 	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
-		boolean _result = false;
-		final IWorkBag _workbag = new HistoryAwareLIFOWorkBag(new HashSet());
-		_workbag.addAllWorkNoDuplicates(src.getSuccsNodesInDirection(forward));
-
-		while (_workbag.hasWork()) {
-			final INode _node = (INode) _workbag.getWork();
-
-			if (_node == dest) {
-				_result = true;
-				break;
-			}
-			_workbag.addAllWorkNoDuplicates(_node.getSuccsNodesInDirection(forward));
+		if (!reachability) {
+			calculateReachabilityInfo();
 		}
-		return _result;
+
+		final boolean[][] _matrix;
+		final List _nodes = getNodes();
+
+		if (forward) {
+			_matrix = forwardReachabilityMatrix;
+		} else {
+			_matrix = backwardReachabilityMatrix;
+		}
+		return _matrix[_nodes.indexOf(src)][_nodes.indexOf(dest)];
 	}
 
 	/**
 	 * @see IDirectedGraph#getReachablesFrom(INode, boolean)
 	 */
 	public final Collection getReachablesFrom(final INode root, final boolean forward) {
-		final Collection _result = new HashSet();
-		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_result);
-
-		if (forward) {
-			_wb.addAllWork(root.getSuccsOf());
-		} else {
-			_wb.addAllWork(root.getPredsOf());
+		if (!reachability) {
+			calculateReachabilityInfo();
 		}
 
-		while (_wb.hasWork()) {
-			final INode _node = (INode) _wb.getWork();
-			final Collection _succs;
+		final boolean[] _matrix;
+		final List _nodes = getNodes();
 
-			if (forward) {
-				_succs = _node.getSuccsOf();
-			} else {
-				_succs = _node.getPredsOf();
+		if (forward) {
+			_matrix = forwardReachabilityMatrix[_nodes.indexOf(root)];
+		} else {
+			_matrix = backwardReachabilityMatrix[_nodes.indexOf(root)];
+		}
+
+		final Collection _result = new ArrayList();
+
+		for (int _i = _nodes.size() - 1; _i >= 0; _i--) {
+			if (_matrix[_i]) {
+				_result.add(_nodes.get(_i));
 			}
-			_wb.addAllWorkNoDuplicates(_succs);
 		}
 		return _result;
 	}
@@ -495,49 +507,54 @@ public abstract class AbstractDirectedGraph
 	protected void shapeChanged() {
 		hasSpanningForest = false;
 		pseudoTailsCalculated = false;
+		reachability = false;
 	}
 
 	/**
-	 * Retrieves the source nodes which cannot reach any of the given destinations.  If there are not destination nodes then
+	 * Retrieves the source nodes which cannot reach any of the given destinations.  If there are no destination nodes then
 	 * all source nodes are returned.
 	 *
 	 * @param sources is the collection of source nodes.
 	 * @param destinations is the collection of destination nodes.
 	 * @param forward <code>true</code> indicates following outgoing edges; <code>false</code> indicates following incoming
 	 * 		  edges.
+	 * @param considerSelfReachability <code>true</code> indicates that the reachability of a source from the source should
+	 * 		  be considered; <code>false</code>, otherwise.  In other words, if a source node is also a destination node
+	 * 		  then  the source node will not occur in the result if this parameter is <code>true</code>.  It will occur in
+	 * 		  the result when the parameter is <code>false</code>.
 	 *
 	 * @return a collection of source nodes.
 	 *
 	 * @pre sources != null and destinations != null
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
 	 * @post sources->includesAll(result)
+	 * @post considerSelfReachability implies not result->exists(o | sources.contains(o))
+	 * @post (not considerSelfReachability) implies sources->forall(o | destinations.contains(o) implies result.contains(o))
 	 */
 	private Collection getDestUnreachableSources(final Collection sources, final Collection destinations,
-		final boolean forward) {
-		final Collection _result = new HashSet();
+		final boolean forward, final boolean considerSelfReachability) {
+		final Collection _result = new HashSet(sources);
+		final Collection _temp = new ArrayList(destinations);
 
-		if (destinations.isEmpty()) {
-			_result.addAll(sources);
-		} else {
-			final Collection _temp = new HashSet(destinations);
+		if (!destinations.isEmpty()) {
+			final Iterator _i = sources.iterator();
+			final int _iEnd = sources.size();
 
-			for (final Iterator _i = sources.iterator(); _i.hasNext();) {
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final INode _src = (INode) _i.next();
-				boolean _flag = true;
+				final Collection _reachables = getReachablesFrom(_src, forward);
+				final boolean _flag = destinations.contains(_src);
 
-				_temp.remove(_src);
-
-				for (final Iterator _k = _temp.iterator(); _k.hasNext() && _flag;) {
-					final INode _dest = (INode) _k.next();
-
-					if (_src != _dest) {
-						_flag &= !isReachable(_src, _dest, forward);
-					}
+				if (_flag && !considerSelfReachability) {
+					_temp.remove(_src);
 				}
-				_temp.add(_src);
 
-				if (_flag) {
-					_result.add(_src);
+				if (CollectionUtils.containsAny(_reachables, _temp)) {
+					_result.remove(_src);
+				}
+
+				if (_flag && !considerSelfReachability) {
+					_temp.add(_src);
 				}
 			}
 		}
@@ -575,6 +592,42 @@ public abstract class AbstractDirectedGraph
 		}
 		finishTime2node.put(new Integer(++_temp), node);
 		return _temp;
+	}
+
+	/**
+	 * Calculates reachability information for this graph.
+	 */
+	private void calculateReachabilityInfo() {
+		if (!reachability) {
+			final List _nodes = getNodes();
+			final int _noOfNodes = _nodes.size();
+			forwardReachabilityMatrix = new boolean[_noOfNodes][_noOfNodes];
+			backwardReachabilityMatrix = new boolean[_noOfNodes][_noOfNodes];
+
+			for (int _iIndex = 0; _iIndex < _noOfNodes; _iIndex++) {
+				final INode _node = (INode) _nodes.get(_iIndex);
+				final Iterator _j = _node.getSuccsOf().iterator();
+				final int _jEnd = _node.getSuccsOf().size();
+
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final INode _succ = (INode) _j.next();
+					forwardReachabilityMatrix[_iIndex][_nodes.indexOf(_succ)] = true;
+					backwardReachabilityMatrix[_nodes.indexOf(_succ)][_iIndex] = true;
+				}
+			}
+
+			for (int _j = 0; _j < _noOfNodes; _j++) {
+				for (int _k = 0; _k < _noOfNodes; _k++) {
+					for (int _l = 0; _l < _noOfNodes; _l++) {
+						if (forwardReachabilityMatrix[_k][_j] && forwardReachabilityMatrix[_j][_l]) {
+							forwardReachabilityMatrix[_k][_l] = true;
+							backwardReachabilityMatrix[_l][_k] = true;
+						}
+					}
+				}
+			}
+			reachability = true;
+		}
 	}
 
 	/**
@@ -732,6 +785,8 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/07/07 10:07:36  venku
+   - added new method to calculate reachables. With test of course.
    Revision 1.18  2004/07/04 04:56:27  venku
    - made findCycles() public and static.
    Revision 1.17  2004/07/03 07:56:56  venku
