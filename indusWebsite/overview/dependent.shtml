@@ -1,0 +1,42 @@
+<!--#set var="menuItem" value="Overview.Dependent" -->
+<!--#set var="title" value="Dependent Projects" -->
+<!--#set var="description" value="Projects on which Indus and it's subprojects depend on" -->
+
+<!--#include virtual="/header.shtml" -->
+
+<p>Following are the projects whose libraries we use in Indus and it's subprojects during execution.<br/>
+  <ul>
+    <li><a href="http://jakarta.apache.org/commons/cli/">Jakarta Commons CLI</a></li>
+    <li><a href="http://jakarta.apache.org/commons/collections/">Jakarta Commons Collection </a></li>
+    <li><a href="http://jakarta.apache.org/commons/lang/">Jakarta Commons Lang</a></li>
+    <li><a href="http://jakarta.apache.org/commons/logging/">Jakarta Commons Logging</a></li>
+    <li><a href="http://jakarta.apache.org/commons/pool/">Jakarta Commons Pool</a></li>
+    <li><a href="http://jibx.sourceforge.net/index.html">JiBX: Binding XML to Java Code</a></li>
+    <li><a href="http://www.sable.mcgill.ca/soot/">Soot: a Java Optimization Framework</a>
+        <ul>
+            <li><a href="http://www.cs.cornell.edu/Projects/polyglot/">Polyglot</a></li>
+        </ul>
+    </li>
+    <li><a href="http://www.eclipse.org">SWT</a></li>
+    <li><a href="http://xmlenc.sourceforge.net/">xmlenc</a></li>
+    <li><a href="http://xmlunit.sourceforge.net/">XMLUnit</a></li>
+    <li><a href="http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/">MXP1: Xml Pull Parser 3rd Edition (XPP3)</a></li>
+    <li><a href="http://junit.org">JUnit</a></li>
+  </ul>
+  </p>
+  <p>Following are the projects we use in Indus and it's subprojects in the course of development.<br/>
+  <ul>
+      <li><a href="http://www.thecortex.net/clover/index.html">Clover</a></li>
+      <li><a href="http://jalopy.sourceforge.net/">Jalopy</a></li>
+      <li><a href="http://eclipse-cs.sourceforge.net">Checkstyle for eclipse</a></li>
+      <li><a href="http://checkstyle.sourceforge.net">Checkstyle</a></li>
+      <li><a href="http://www.eclipse.org">Eclipse</a></li>
+      <li><a href="http://ant.apache.org/index.html">Ant</a></li>
+      <li><a href="http://statcvs.sourceforge.net/">StatCVS</a></li>
+      <li><a href="http://www.clarkware.com/software/JDepend.html">JDepend</a></li>
+      <li><a href="http://www.kclee.com/clemens/java/javancss/">JavaNCSS</a></li>
+  </ul>
+  </p>
+
+  
+<!--#include virtual="/footer.shtml" -->

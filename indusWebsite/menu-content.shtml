@@ -24,6 +24,12 @@
     <li><a href="/overview/related.shtml">Related projects</a></li>
     <!--#endif -->
     
+    <!--#if expr="${menuItem} = Overview.Dependent" -->
+    <li>Dependent Projects</li>
+    <!--#else -->
+    <li><a href="/overview/dependent.shtml">Dependent projects</a></li>
+    <!--#endif -->
+    
     <li><a href="http://projects.cis.ksu.edu/projects/indus/">Sourceforge</a></li>
   </ul>
 
