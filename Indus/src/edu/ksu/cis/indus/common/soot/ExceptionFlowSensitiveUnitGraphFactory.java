@@ -36,12 +36,12 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ExceptionFlowSensitiveStmtGraphFactory
+public class ExceptionFlowSensitiveUnitGraphFactory
   extends AbstractUnitGraphFactory {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ExceptionFlowSensitiveStmtGraphFactory.class);
+	private static final Log LOGGER = LogFactory.getLog(ExceptionFlowSensitiveUnitGraphFactory.class);
 
 	/**
 	 * <p>
@@ -51,18 +51,18 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	private Collection exceptionsToIgnore = new ArrayList();
 
 	/**
-	 * Creates a new ExceptionFlowSensitiveStmtGraphFactory object.
+	 * Creates a new ExceptionFlowSensitiveUnitGraphFactory object.
 	 *
 	 * @param namesOfExceptionToIgnore DOCUMENT ME!
 	 */
-	public ExceptionFlowSensitiveStmtGraphFactory(final Collection namesOfExceptionToIgnore) {
+	public ExceptionFlowSensitiveUnitGraphFactory(final Collection namesOfExceptionToIgnore) {
 		exceptionsToIgnore.addAll(namesOfExceptionToIgnore);
 	}
 
 	/**
-	 * Creates a new ExceptionFlowSensitiveStmtGraphFactory object.
+	 * Creates a new ExceptionFlowSensitiveUnitGraphFactory object.
 	 */
-	public ExceptionFlowSensitiveStmtGraphFactory() {
+	public ExceptionFlowSensitiveUnitGraphFactory() {
 		exceptionsToIgnore.add("java.lang.Throwable");
 	}
 
@@ -70,7 +70,7 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getMethodForBody(soot.Body)
 	 */
 	protected UnitGraph getMethodForBody(final Body body) {
-		return new ExceptionFlowSensitiveStmtGraph(body, exceptionsToIgnore);
+		return new ExceptionFlowSensitiveUnitGraph(body, exceptionsToIgnore);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 		UnitGraph _result = null;
 
 		if (method.isConcrete()) {
-			_result = new ExceptionFlowSensitiveStmtGraph(method.retrieveActiveBody(), exceptionsToIgnore);
+			_result = new ExceptionFlowSensitiveUnitGraph(method.retrieveActiveBody(), exceptionsToIgnore);
 		} else if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Method " + method + " is not concrete.");
 		}
@@ -91,4 +91,8 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/17 05:45:34  venku
+   - added the logic to create stmt graphs whose structure can be
+     tuned to consider the flow of control due to certain exceptions.
+
  */

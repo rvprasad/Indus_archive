@@ -21,8 +21,7 @@ import java.util.Iterator;
 
 import soot.Body;
 import soot.Trap;
-
-import soot.jimple.Stmt;
+import soot.Unit;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -30,22 +29,27 @@ import soot.util.Chain;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a specialized version of <code>UnitGraph</code> in which the control flow edges can be based on exceptions can be
+ * controlled.  The user can specify the names of exceptions and the control flow via the throw of these exceptions will not
+ * be included  in the graph.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ExceptionFlowSensitiveStmtGraph
+final class ExceptionFlowSensitiveUnitGraph
   extends UnitGraph {
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param unitBody DOCUMENT ME!
+	 * @param unitBody is the body for which the graph should be constructed.
+	 * @param exceptionNamesToIgnore is the fully qualified names of the exceptions.  Control flow based on these exceptions
+	 * 		  are not captured in the graph.
+	 *
+	 * @pre unitBody != null and exceptionNamesToIgnore != null
+	 * @pre exceptionNamesToIgnore.oclIsKindOf(Collection(String))
 	 */
-	public ExceptionFlowSensitiveStmtGraph(final Body unitBody, final Collection exceptionNamesToIgnore) {
+	ExceptionFlowSensitiveUnitGraph(final Body unitBody, final Collection exceptionNamesToIgnore) {
 		super(unitBody, true);
 
 		final Chain _traps = unitBody.getTraps();
@@ -56,13 +60,13 @@ public class ExceptionFlowSensitiveStmtGraph
 
 			if (exceptionNamesToIgnore.contains(_trap.getException().getName())) {
 				final Chain _units = unitBody.getUnits();
-				final Stmt _handler = (Stmt) _trap.getHandlerUnit();
+				final Unit _handler = _trap.getHandlerUnit();
 				_preds.clear();
 
 				for (final Iterator _i = _units.iterator(_trap.getBeginUnit(), _trap.getEndUnit()); _i.hasNext();) {
-					final Stmt _stmt = (Stmt) _i.next();
-					((Collection) unitToSuccs.get(_stmt)).remove(_handler);
-					_preds.add(_stmt);
+					final Unit _unit = (Unit) _i.next();
+					((Collection) unitToSuccs.get(_unit)).remove(_handler);
+					_preds.add(_unit);
 				}
 				((Collection) unitToPreds.get(_handler)).removeAll(_preds);
 				break;
@@ -74,8 +78,11 @@ public class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/17 05:45:34  venku
+   - added the logic to create stmt graphs whose structure can be
+     tuned to consider the flow of control due to certain exceptions.
    Revision 1.1  2004/02/16 19:30:55  venku
-   - added a new class, ExceptionFlowSensitiveStmtGraph, to
+   - added a new class, ExceptionFlowSensitiveUnitGraph, to
      provide a stmt graph that is specific to jimple but considers
      the effect of exceptions raised at each statement while
      building the graph.  The idea is for the user to control the

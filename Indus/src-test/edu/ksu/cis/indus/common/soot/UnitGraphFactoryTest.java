@@ -101,16 +101,19 @@ public class UnitGraphFactoryTest
 		assertNotNull(_cmpltg2);
 		assertTrue(_cmpltg2 instanceof TrapUnitGraph);
 
-		final IUnitGraphFactory _ugf3 = new ExceptionFlowSensitiveStmtGraphFactory();
+		final IUnitGraphFactory _ugf3 = new ExceptionFlowSensitiveUnitGraphFactory();
 		final UnitGraph _cmpltg3 = _ugf3.getUnitGraph(method);
 		assertNotNull(_cmpltg3);
-		assertTrue(_cmpltg3 instanceof ExceptionFlowSensitiveStmtGraph);
+		assertTrue(_cmpltg3 instanceof ExceptionFlowSensitiveUnitGraph);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/17 05:48:45  venku
+   - added test for ExceptionFlowSensitiveUnitGraph.
+
    Revision 1.2  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the
