@@ -107,7 +107,7 @@ public class SootBasedDriver {
 	/**
 	 * This traps the root methods.
 	 */
-	private RootMethodTrapper rootMethodTrapper;
+	protected RootMethodTrapper rootMethodTrapper;
 
 	/**
 	 * The class path that should be added.
@@ -378,6 +378,10 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/28 01:07:33  venku
+   - refactoring: added a new class that traps the root methods.
+   - class path now uses java.class.path instead of JVM dependent hacks.
+
    Revision 1.3  2003/12/14 16:49:15  venku
    - marks given classes as application classes after they
      are loaded.
