@@ -8,3 +8,4 @@
   - Slice highlight toggle, backward and forward slice buttons.
   - Decorator to show which files are included in a slice.
   - Slice view - Watch which parts of the jimple for a java statement have the tag.
+  - Integrate Eclipse help.
