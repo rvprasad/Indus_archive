@@ -45,18 +45,16 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class DependencyArgTestSuite
   extends TestCase {
+    /**
+     * This is the property via which the dependence test accepts input.  Refer to DependenceTest.properties for format.
+     */
+    public static final String DEPENDENCE_TEST_PROPERTIES_FILE =
+        "indus.staticanalyses.dependency.DependencyTest.properties.file";
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DependencyArgTestSuite.class);
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	public static final String DEPENDENCE_TEST_PROPERTIES_FILE =
-		"indus.staticanalyses.dependency.DependencyTest.properties.file";
 
 	//  /CLOVER:OFF
 
@@ -172,6 +170,10 @@ public final class DependencyArgTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 01:14:33  venku
+   - added clover source directives.
+   - renamed DependencyTestSuite to DependencyArgTestSuite.
+
    Revision 1.1  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

@@ -69,9 +69,14 @@ public class UtilTest
 	private static SootClass sc;
 
 	/** 
+	 * The number of tests in this suite.
+	 */
+	private static final int NUMBER_OF_TESTS = 12;
+
+	/**
 	 * Count the number of tests in this suite.  This is used to trigger logic in <code>teardown</code>.
 	 */
-	private static int count = 12;
+	private static int count;
 
 	/**
 	 * Tests <code>findMethodInSuperClassesAndInterfaces</code>.
@@ -238,9 +243,9 @@ public class UtilTest
 	 */
 	protected void tearDown()
 	  throws Exception {
-		count--;
+		count++;
 
-		if (count == 0) {
+		if (count == NUMBER_OF_TESTS) {
 			G.reset();
 			scene = null;
 		}
@@ -250,6 +255,9 @@ public class UtilTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 01:46:44  venku
+   - <init>, <clinit>, and clone were unaccounted for while
+     removing and retaining methods.
    Revision 1.2  2004/02/07 16:13:29  venku
    - coding conventions.
    Revision 1.1  2004/01/28 22:45:07  venku
