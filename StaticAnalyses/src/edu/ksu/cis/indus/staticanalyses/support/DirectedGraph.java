@@ -118,24 +118,6 @@ public abstract class DirectedGraph {
 	}
 
 	/**
-	 * Retrieves the successor nodes of the given node only as they occur in the spanning tree of the graph.
-	 *
-	 * @param node of interest.
-	 *
-	 * @return the successors the given node.
-	 *
-	 * @pre node != null
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->forall(o | o.getPredsOf()->includes(self))
-	 */
-	public Collection getForwardSuccsOf(final INode node) {
-		if (!hasSpanningForest) {
-			createSpanningForest();
-		}
-		return (Collection) spanningSuccs.get(node);
-	}
-
-	/**
 	 * Retrieves the head nodes of this graph.
 	 *
 	 * @return the head nodes(<code>INode</code>) of this graph.
@@ -533,6 +515,12 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/24 12:04:32  venku
+   Removed occursInCycle() method from DirectedGraph.
+   Installed occursInCycle() method in CFGAnalysis.
+   Converted performTopologicalsort() and getFinishTimes() into instance methods.
+   Ripple effect of the above changes.
+
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
          Revision 1.2  2003/08/11 04:20:19  venku

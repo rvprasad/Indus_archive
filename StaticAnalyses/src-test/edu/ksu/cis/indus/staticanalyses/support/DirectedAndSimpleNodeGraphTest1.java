@@ -204,21 +204,6 @@ public class DirectedAndSimpleNodeGraphTest1
 	}
 
 	/**
-	 * Tests <code>getForwardSuccsOf()</code> method.
-	 */
-	public final void testGetForwardSuccsOf() {
-		for (Iterator i = name2node.values().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			Collection succs = dg.getForwardSuccsOf(node);
-
-			for (Iterator j = succs.iterator(); j.hasNext();) {
-				MutableNode succ = (MutableNode) j.next();
-				assertTrue(succ.getPredsOf().contains(node));
-			}
-		}
-	}
-
-	/**
 	 * Tests <code>getHeads()</code> method.
 	 */
 	public final void testGetHeads() {
@@ -395,6 +380,9 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/24 12:35:47  venku
+   Documentation changes.
+
    Revision 1.1  2003/08/24 12:05:34  venku
    Well added unit tests based on JUnit to the StaticAnalyses part of Indus.
 
