@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class AccessSpecification {
+public final class AccessSpecification {
 	/** 
 	 * This contains the access specification encoded in terms of XXX_ACCESS constants defined in
 	 * <code>IAccessSpecifiers</code>.
@@ -34,7 +34,7 @@ final class AccessSpecification {
 	private byte access;
 
 	/**
-	 * Creates a new AccessSpecification object with default access set to public and private.
+	 * Creates a new AccessSpecification object with default access set to public and protected.
 	 */
 	public AccessSpecification() {
 		access |= IAccessSpecifiers.PROTECTED_ACCESS;

@@ -29,7 +29,7 @@ abstract class AbstractSpecification {
 	/** 
 	 * This is the access control specification.
 	 */
-	private AccessSpecification accessSpec;
+	private AccessSpecification accessSpec = new AccessSpecification();
 
 	/** 
 	 * The name of this specification.
@@ -40,6 +40,17 @@ abstract class AbstractSpecification {
 	 * This indicates if the specification should be interpreted as inclusive or exclusive.
 	 */
 	private boolean inclusion = true;
+
+	/**
+	 * Sets the access specification.  If not set, default access specification is attached to this specification.
+	 *
+	 * @param accessSpecification for this specification.
+	 *
+	 * @pre accessSpecification != null
+	 */
+	public final void setAccessSpec(final AccessSpecification accessSpecification) {
+		this.accessSpec = accessSpecification;
+	}
 
 	/**
 	 * Sets the value of <code>inclusion</code>.
@@ -54,6 +65,8 @@ abstract class AbstractSpecification {
 	 * Sets the value of <code>name</code>.
 	 *
 	 * @param nameOfTheSpec the new value of <code>name</code>.
+	 *
+	 * @pre nameOfTheSpec != null
 	 */
 	public final void setName(final String nameOfTheSpec) {
 		this.name = nameOfTheSpec;
@@ -82,6 +95,8 @@ abstract class AbstractSpecification {
 	 * @param accessSpecifier to be tested.
 	 *
 	 * @return <code>true</code> if it is conformant; <code>false</code>, otherwise.
+	 *
+	 * @pre accessSpecifier != null
 	 */
 	protected final boolean accessConformant(final AccessSpecifierWrapper accessSpecifier) {
 		return accessSpec.conformant(accessSpecifier);
