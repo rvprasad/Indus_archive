@@ -28,8 +28,8 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CommonTestSuite {
-	//  /CLOVER:OFF
+public final class CommonTestSuite {
+	///CLOVER:OFF
 
 	/**
 	 * Creates a new DataStructuresTestSuite object.
@@ -72,4 +72,7 @@ public class CommonTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/28 22:55:23  venku
+   - added test suites for classes in common package.
+
  */
