@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -16,11 +16,12 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
-import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.Collection;
@@ -47,10 +48,6 @@ import soot.jimple.NullConstant;
 /**
  * This class represents a peice of work that plugin new fragments of flow graph as new types which provide new
  * implementations flow into the receiver at the associated call-site.
- * 
- * <p>
- * Created: Mon Jan 28 12:36:18 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -89,7 +86,7 @@ class InvokeExprWork
 	 *
 	 * @pre callerMethod != null and callContext != null and tokenSet != null
 	 */
-	public InvokeExprWork(final MethodVariant callerMethod, final Context callContext, final ITokens tokenSet) {
+	public InvokeExprWork(final IMethodVariant callerMethod, final Context callContext, final ITokens tokenSet) {
 		super(callerMethod, callContext, tokenSet);
 
 		final ValueBox _invocationExpr = callContext.getProgramPoint();
@@ -184,7 +181,7 @@ class InvokeExprWork
 			throw _excp;
 		}
 
-		final MethodVariant _mv = _fa.getMethodVariant(_sm, context);
+		final IMethodVariant _mv = _fa.getMethodVariant(_sm, context);
 
 		if (!installedVariants.contains(_mv)) {
 			IFGNode _param;

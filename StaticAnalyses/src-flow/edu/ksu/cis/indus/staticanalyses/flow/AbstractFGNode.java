@@ -239,7 +239,7 @@ public abstract class AbstractFGNode
 	 * @pre succ != null
 	 */
 	protected void onNewSucc(final IFGNode succ) {
-		succ.absorbTokensLazily(getTokens());
+		succ.absorbTokensLazily(tokens);
 	}
 
 	/**

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
-import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
@@ -76,7 +76,7 @@ abstract class AbstractMemberDataAccessExprWork
 	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
 	 * 		connectorToUse != null and tokenSet != null
 	 */
-	public AbstractMemberDataAccessExprWork(final MethodVariant callerMethod, final Context accessContext,
+	public AbstractMemberDataAccessExprWork(final IMethodVariant callerMethod, final Context accessContext,
 		final IFGNode accessNode, final IFGNodeConnector connectorToUse, final ITokens tokenSet) {
 		super(callerMethod, accessContext, tokenSet);
 		this.ast = accessNode;

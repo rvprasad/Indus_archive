@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.ClassManager;
 import edu.ksu.cis.indus.staticanalyses.flow.ModeFactory;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.insensitive.IndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
@@ -82,8 +81,7 @@ public final class OFAnalyzer
 		_mf.setStmtVisitorPrototype(stmt);
 		_mf.setLHSExprVisitorPrototype(lexpr);
 		_mf.setRHSExprVisitorPrototype(rexpr);
-		_mf.setClassManagerPrototype(new ClassManager(null));
-		setModeFactory(_mf);
+		setFactories(_mf, new MethodVariantFactory());
 	}
 
 	/**

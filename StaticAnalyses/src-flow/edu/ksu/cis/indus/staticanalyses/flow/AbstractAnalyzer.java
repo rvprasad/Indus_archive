@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -46,10 +46,6 @@ import soot.jimple.ParameterRef;
  * this class with methods to access various information about the implmented analysis.  This class by itself provides the
  * interface to query generic, low-level analysis information.  These interfaces should be used by implemented components of
  * the framework to extract information during the analysis.
- * 
- * <p>
- * Created: Fri Jan 25 14:49:45 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -121,7 +117,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	public final Collection getThrowValues(final InvokeExpr e, final SootClass exception) {
-		final MethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_mv != null) {
@@ -185,7 +181,7 @@ public abstract class AbstractAnalyzer
 		final Context _tmpCtxt = context;
 		context = ctxt;
 
-		final MethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection _temp = Collections.EMPTY_LIST;
 
 		if (_mv != null) {
@@ -287,7 +283,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final ParameterRef p) {
-		final MethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_mv != null) {
@@ -315,7 +311,7 @@ public abstract class AbstractAnalyzer
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_fv != null) {
-			_temp = _fv.getValues();
+			_temp = _fv.getFGNode().getValues();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Values for field  " + sf + " are " + _temp);
@@ -335,7 +331,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final Value v) {
-		final MethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		final IMethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_mv != null) {
@@ -353,14 +349,16 @@ public abstract class AbstractAnalyzer
 	}
 
 	/**
-	 * Sets the mode factory on the underlaying framework object.  Refer to <code>ModeFactory</code> for more details.
+	 * Sets the factory on the underlaying framework instance.  Refer to <code>ModeFactory</code> and
+	 * <code>IMethodVariantFactory</code> for more details.
 	 *
-	 * @param mf is the mode factory which provides the entities that dictate the mode of the analysis.
+	 * @param mf is the mode factory that provides objects that dictate the mode of the analysis.
+	 * @param mvf is the factory object the provides method variants.
 	 *
-	 * @pre mf != null
+	 * @pre mf != null and mvf != null
 	 */
-	protected void setModeFactory(final ModeFactory mf) {
-		fa.setModeFactory(mf);
+	protected void setFactories(final ModeFactory mf, final IMethodVariantFactory mvf) {
+		fa.setFactories(mf, mvf);
 	}
 
 	/**

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
-import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import soot.ValueBox;
@@ -26,10 +26,6 @@ import soot.ValueBox;
 
 /**
  * This class encapsulates the logic and data related to work to be done in correspondence to access expressions.
- * 
- * <p>
- * Created: Tue Jan 22 04:27:47 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -48,7 +44,7 @@ abstract class AbstractAccessExprWork
 	 *
 	 * @invariant caller != null
 	 */
-	protected final MethodVariant caller;
+	protected final IMethodVariant caller;
 
 	/** 
 	 * The program point at which the entity occurs.
@@ -66,7 +62,7 @@ abstract class AbstractAccessExprWork
 	 *
 	 * @pre callerMethod != null and accessContext != null and tokenSet != null
 	 */
-	protected AbstractAccessExprWork(final MethodVariant callerMethod, final Context accessContext, final ITokens tokenSet) {
+	protected AbstractAccessExprWork(final IMethodVariant callerMethod, final Context accessContext, final ITokens tokenSet) {
 		super(tokenSet);
 		accessExprBox = accessContext.getProgramPoint();
 		caller = callerMethod;

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -19,6 +19,9 @@ import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 
+import java.lang.ref.WeakReference;
+
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,10 +29,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Local;
+import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
+
+import soot.toolkits.graph.CompleteUnitGraph;
+
+import soot.toolkits.scalar.SimpleLocalDefs;
 
 
 /**
@@ -44,6 +52,17 @@ class FlowSensitiveExprSwitch
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(FlowSensitiveExprSwitch.class);
+
+	/** 
+	 * This is a weak reference to the local def information and it provides the def sites for local variables in the
+	 * associated method.  This is used in conjunction with flow-sensitive information calculation.
+	 */
+	protected WeakReference defs = new WeakReference(null);
+
+	/** 
+	 * This indicates if the method variant is unretrievale due to various reasons such as non-concrete body.
+	 */
+	protected boolean unRetrievable;
 
 	/**
 	 * Creates a new <code>FlowSensitiveExprSwitch</code> instance.
@@ -72,6 +91,39 @@ class FlowSensitiveExprSwitch
 	}
 
 	/**
+	 * Returns the definitions of local variable <code>l</code> that arrive at statement <code>s</code>.
+	 *
+	 * @param l the local for which the definitions are requested.
+	 * @param s the statement at which the definitions are requested.
+	 *
+	 * @return the list of definitions of <code>l</code> that arrive at statement <code>s</code>.
+	 *
+	 * @pre l != null and s != null
+	 */
+	public List getDefsOfAt(final Local l, final Stmt s) {
+		List _result = Collections.EMPTY_LIST;
+
+		if (!unRetrievable) {
+			final SimpleLocalDefs _temp = (SimpleLocalDefs) defs.get();
+
+			if (_temp != null) {
+				_result = _temp.getDefsOfAt(l, s);
+			} else {
+				final SootMethod _method = method.getMethod();
+
+				if (_method.hasActiveBody()) {
+					final SimpleLocalDefs _temp2 = new SimpleLocalDefs(new CompleteUnitGraph(_method.retrieveActiveBody()));
+					defs = new WeakReference(_temp2);
+					_result = _temp2.getDefsOfAt(l, s);
+				} else {
+					unRetrievable = true;
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Processes the local expression.  This implementation connects the nodes at the def sites to the nodes at the use site
 	 * of the local.
 	 *
@@ -85,7 +137,7 @@ class FlowSensitiveExprSwitch
 		final ValueBox _backup = context.setProgramPoint(null);
 
 		if (_stmt.getUseBoxes().contains(_backup)) {
-			final List _defs = method.getDefsOfAt(e, _stmt);
+			final List _defs = getDefsOfAt(e, _stmt);
 
 			for (final Iterator _i = _defs.iterator(); _i.hasNext();) {
 				final DefinitionStmt _defStmt = (DefinitionStmt) _i.next();
@@ -97,6 +149,7 @@ class FlowSensitiveExprSwitch
 					LOGGER.debug("Local Def:" + _defStmt.getLeftOp() + "\n" + _defNode + context);
 				}
 				_defNode.addSucc(_localNode);
+                MethodVariant.setOutFilterOfBasedOn(_defNode, e.getType(), tokenMgr);
 			}
 		}
 

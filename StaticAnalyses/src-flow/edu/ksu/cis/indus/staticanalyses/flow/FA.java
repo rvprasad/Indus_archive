@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -29,7 +29,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.optimizations.SCCBasedOptimizer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -355,7 +354,7 @@ public class FA
 	 * @pre sm != null
 	 * @post result != null
 	 */
-	public final MethodVariant getMethodVariant(final SootMethod sm) {
+	public final IMethodVariant getMethodVariant(final SootMethod sm) {
 		return getMethodVariant(sm, analyzer.getContext());
 	}
 
@@ -371,8 +370,8 @@ public class FA
 	 * @pre sm != null and context != null
 	 * @post result != null
 	 */
-	public final MethodVariant getMethodVariant(final SootMethod sm, final Context context) {
-		return (MethodVariant) methodVariantManager.select(sm, context);
+	public final IMethodVariant getMethodVariant(final SootMethod sm, final Context context) {
+		return (IMethodVariant) methodVariantManager.select(sm, context);
 	}
 
 	/**
@@ -424,7 +423,7 @@ public class FA
 	 *
 	 * @pre e != null
 	 */
-	public final IStmtSwitch getStmt(final MethodVariant e) {
+	public final IStmtSwitch getStmt(final IMethodVariant e) {
 		return modeFactory.getStmtVisitor(e);
 	}
 
@@ -476,9 +475,9 @@ public class FA
 		workBags[1].clear();
 		rootMethods.clear();
 		classManager.reset();
-        sccBasedOptimizer.reset();
+		sccBasedOptimizer.reset();
 		environment = null;
-        currWorkBag = workBags[0];
+		currWorkBag = workBags[0];
 	}
 
 	/**
@@ -558,7 +557,7 @@ public class FA
 	 * @pre sm != null
 	 * @post result != null
 	 */
-	final MethodVariant queryMethodVariant(final SootMethod sm) {
+	final IMethodVariant queryMethodVariant(final SootMethod sm) {
 		return queryMethodVariant(sm, analyzer.getContext());
 	}
 
@@ -573,21 +572,24 @@ public class FA
 	 * @pre sm != null and context != null
 	 * @post result != null
 	 */
-	final MethodVariant queryMethodVariant(final SootMethod sm, final Context context) {
-		return (MethodVariant) methodVariantManager.query(sm, context);
+	final IMethodVariant queryMethodVariant(final SootMethod sm, final Context context) {
+		return (IMethodVariant) methodVariantManager.query(sm, context);
 	}
 
 	/**
-	 * Sets the mode factory on this framework instance.
+	 * Sets the factories to be used in this instance of the framework.
 	 *
-	 * @param mf is the factory object which provides the objects that dictate the mode of analysis.
+	 * @param mf is the factory object that provides the objects that dictate the mode of analysis.
+	 * @param mvf is the factory object the provides method variants.
+	 *
+	 * @pre mf != null and mvf != null
 	 */
-	void setModeFactory(final ModeFactory mf) {
+	void setFactories(final ModeFactory mf, final IMethodVariantFactory mvf) {
 		modeFactory = mf;
-		this.classManager = mf.getClassManager(this);
+		classManager = new ClassManager(this);
 		arrayVariantManager = new ValuedVariantManager(this, mf.getArrayIndexManager());
 		instanceFieldVariantManager = new ValuedVariantManager(this, mf.getInstanceFieldIndexManager());
-		methodVariantManager = new MethodVariantManager(this, mf.getMethodIndexManager(), mf.getASTIndexManager());
+		methodVariantManager = new MethodVariantManager(this, mf.getMethodIndexManager(), mf.getASTIndexManager(), mvf);
 		staticFieldVariantManager = new ValuedVariantManager(this, mf.getStaticFieldIndexManager());
 	}
 
@@ -624,24 +626,26 @@ public class FA
 		}
 
 		long _count = 0;
-        int _bagToggleCounter = 0;
+		int _bagToggleCounter = 0;
 		final WorkList[] _workLists = new WorkList[2];
 		_workLists[0] = new WorkList(workBags[0]);
 		_workLists[1] = new WorkList(workBags[1]);
-        
+
 		while (workBags[0].hasWork() || workBags[1].hasWork()) {
-            final int _bagToProcess = _bagToggleCounter % 2;
-            _bagToggleCounter++;
-            final int _bagToCollect = _bagToggleCounter % 2;
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Processing work pieces in workbag " + _bagToProcess);
-            }
-            currWorkBag = workBags[_bagToCollect];
+			final int _bagToProcess = _bagToggleCounter % 2;
+			_bagToggleCounter++;
+
+			final int _bagToCollect = _bagToggleCounter % 2;
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing work pieces in workbag " + _bagToProcess);
+			}
+			currWorkBag = workBags[_bagToCollect];
 			_count += _workLists[_bagToProcess].process();
 
 			if (sccOptimizationInterval > 0 && (++_count > sccOptimizationInterval)) {
 				collapseSCCOfNodes();
-                _count = 0;
+				_count = 0;
 			}
 		}
 	}
@@ -674,10 +678,13 @@ public class FA
 		final int _iEnd = methodVariantManager.getVariants().size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final MethodVariant _mv = (MethodVariant) _i.next();
-			_result.add(_mv.returnVar);
-			_result.add(_mv.thisVar);
-			_result.addAll(Arrays.asList(_mv.parameters));
+			final IMethodVariant _mv = (IMethodVariant) _i.next();
+			_result.add(_mv.queryReturnNode());
+			_result.add(_mv.queryThisNode());
+
+			for (int _j = _mv.getMethod().getParameterCount() - 1; _j >= 0; _j--) {
+				_result.add(_mv.queryParameterNode(_j));
+			}
 		}
 		_result.remove(null);
 		return _result;

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -34,10 +34,6 @@ import soot.jimple.StmtSwitch;
  * be dealt at Jimple level in Bandera framework.  The class is tagged as <code>abstract</code> to force the users to extend
  * the class as required.  It patches the inheritance hierarchy to inject the new constructs declared in
  * <code>BanderaExprSwitch</code> into the visitor provided in <code>AbstractJimpleValueSwitch</code>.
- * 
- * <p>
- * Created: Sun Jan 27 14:29:14 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -71,7 +67,7 @@ public abstract class AbstractExprSwitch
 	/** 
 	 * This visitor is used to visit the expressions in the <code>method</code> variant.
 	 */
-	protected final MethodVariant method;
+	protected final IMethodVariant method;
 
 	/** 
 	 * This visitor is used by <code>stmt</code> to walk the embedded expressions.
@@ -79,7 +75,8 @@ public abstract class AbstractExprSwitch
 	protected final StmtSwitch stmtSwitch;
 
 	/**
-	 * Creates a new <code>AbstractExprSwitch</code> instance.
+	 * Creates a new <code>AbstractExprSwitch</code> instance. In non-prototype mode, all of the fields (declared  in this
+	 * class) will be non-null after returning from the constructor.
 	 *
 	 * @param stmtVisitor the statement visitor which shall use this expression visitor.
 	 * @param connectorToUse the connector to be used by this expression visitor to connect flow graph nodes corresponding to
@@ -134,7 +131,7 @@ public abstract class AbstractExprSwitch
 	 *
 	 * @pre v != null
 	 */
-	public final void process(final ValueBox v) {
+	public void process(final ValueBox v) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Started to process expression: " + v.getValue());
 		}

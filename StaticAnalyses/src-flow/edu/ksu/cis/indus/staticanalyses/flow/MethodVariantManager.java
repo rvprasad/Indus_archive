@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -43,6 +43,11 @@ class MethodVariantManager
 	 */
 	protected final IPrototype astIMPrototype;
 
+	/** 
+	 * The factory used to create method variants.
+	 */
+	private final IMethodVariantFactory mvFactory;
+
 	/**
 	 * Creates a new <code>MethodVariantManager</code> instance.
 	 *
@@ -52,15 +57,17 @@ class MethodVariantManager
 	 * 		  <code>null</code>.
 	 * @param astIndexManagerPrototype the prototype object used to create index managers related to AST nodes.  This
 	 * 		  implementation should support <code>getClone()</code>.
+	 * @param factory used to create method variants.
 	 *
 	 * @pre theAnalysis != null and indexManager != null and astIndexManagerPrototype != null
 	 */
-	MethodVariantManager(final FA theAnalysis, final IIndexManager indexManager, final IPrototype astIndexManagerPrototype) {
+	MethodVariantManager(final FA theAnalysis, final IIndexManager indexManager, final IPrototype astIndexManagerPrototype,
+		final IMethodVariantFactory factory) {
 		super(theAnalysis, indexManager);
 		this.astIMPrototype = astIndexManagerPrototype;
+		mvFactory = factory;
 	}
-    
-    
+
 	/**
 	 * Returns a new variant of the method represented by <code>o</code>.
 	 *
@@ -76,8 +83,9 @@ class MethodVariantManager
 			LOGGER.debug("STATS: Processing method: " + o + "\t number: " + (getVariantCount() + 1));
 		}
 
-		return new MethodVariant((SootMethod) o, new ASTVariantManager(fa, (AbstractIndexManager) astIMPrototype.getClone()),
-			fa);
+		final ASTVariantManager _astVM = new ASTVariantManager(fa, (AbstractIndexManager) astIMPrototype.getClone());
+		final SootMethod _sootMethod = (SootMethod) o;
+		return mvFactory.create(_sootMethod, _astVM, fa);
 	}
 }
 

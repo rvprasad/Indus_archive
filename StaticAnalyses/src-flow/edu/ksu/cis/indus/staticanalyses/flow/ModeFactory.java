@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -22,10 +22,6 @@ import edu.ksu.cis.indus.interfaces.IPrototype;
  * An implementation of <i>Abstract Factory</i> pattern given in "Gang of Four" book.  It "creates" various compoments
  * required to setup and run the analysis.  Other components of the framework use this class to obtain components when
  * assembling the analysis and the flow graph.
- * 
- * <p>
- * Created: Sun Jan 27 16:31:18 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -40,12 +36,6 @@ public class ModeFactory {
 	 * The prototype of index managers that manage indices related to AST nodes.
 	 */
 	private IPrototype astIdxMgrPrototype;
-
-	/** 
-	 * The prototype of class managers that manage class related primitive information and processing.  Processing of
-	 * &lt;clinit&gt; would be an example of such information.
-	 */
-	private IPrototype classMgrPrototype;
 
 	/** 
 	 * The prototype of index managers that manage indices related to instance field variables.
@@ -123,30 +113,6 @@ public class ModeFactory {
 	 */
 	public void setArrayIndexManagerPrototype(final IPrototype arrayIndexManagerPrototype) {
 		this.arrayIdxMgrPrototype = arrayIndexManagerPrototype;
-	}
-
-	/**
-	 * Returns an object that manages class related primitive information and processing.  Processing of &lt;clinit&gt; would
-	 * be an example of such information.
-	 *
-	 * @param o parameter to be used to create manager.
-	 *
-	 * @return a <code>ClassManager</code> object parameterized by <code>o</code>.
-	 */
-	public final ClassManager getClassManager(final Object o) {
-		return (ClassManager) classMgrPrototype.getClone(o);
-	}
-
-	/**
-	 * Set the prototype from which new instances of class managers should be created.
-	 *
-	 * @param classManagerPrototype the prototype to generate managers to manage class related primitive information and
-	 * 		  processing.  This implementation should support <code>getClone(o)</code>.
-	 *
-	 * @pre classManagerPrototype != null
-	 */
-	public void setClassManagerPrototype(final IPrototype classManagerPrototype) {
-		this.classMgrPrototype = classManagerPrototype;
 	}
 
 	/**
@@ -286,7 +252,7 @@ public class ModeFactory {
 	 *
 	 * @return a LHS expression visitor parameterizec by <code>m</code>.
 	 */
-	public final IStmtSwitch getStmtVisitor(final MethodVariant m) {
+	public final IStmtSwitch getStmtVisitor(final IMethodVariant m) {
 		return (IStmtSwitch) stmtPrototype.getClone(m);
 	}
 
