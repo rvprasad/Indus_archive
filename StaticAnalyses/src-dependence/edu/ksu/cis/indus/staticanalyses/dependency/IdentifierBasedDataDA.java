@@ -144,8 +144,8 @@ public class IdentifierBasedDataDA
 				LOGGER.error("Method " + currMethod.getSignature() + " does not have a unit graph.");
 				continue;
 			} else if (!(graph instanceof CompleteUnitGraph)) {
-				LOGGER.error("Could not retrieve a CompleteUnitGraph for " + currMethod.getSignature() + ".  Please"
-					+ "initialize the analyses with a CompleteUnitGraphFactory.");
+				LOGGER.error("Could not retrieve a CompleteUnitGraph for " + currMethod.getSignature() + ".  Please "
+					+ "initialize the analyses with a AbstractUnitGraphFactory.");
 				continue;
 			}
 
@@ -260,6 +260,9 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/09/28 06:46:49  venku
+   - Some more changes to extract unit graphs from the enviroment.
+
    Revision 1.12  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
