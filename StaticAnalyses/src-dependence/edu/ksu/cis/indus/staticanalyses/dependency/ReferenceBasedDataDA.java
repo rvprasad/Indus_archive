@@ -62,6 +62,7 @@ public class ReferenceBasedDataDA
 	 *
 	 * @return a collection of statements which affect the data being read in <code>stmt</code>.
 	 *
+     * @pre stmt.isOclKindOf(Stmt) and method.isOclKindOf(SootMethod)
 	 * @post result.oclIsKindOf(Pair(AssignStmt, SootMethod))
 	 * @post result->forall(o | o.getFirst().getLeftOf().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getLeftOf().oclIsKindOf(ArrayRef))
@@ -81,6 +82,7 @@ public class ReferenceBasedDataDA
 	 *
 	 * @return a collection of statements which are affectted by the data write in <code>stmt</code>.
 	 *
+     * @pre stmt.isOclKindOf(Stmt) and method.isOclKindOf(SootMethod)
 	 * @post result.oclIsKindOf(Pair(AssignStmt, SootMethod))
 	 * @post result->forall(o | o.getFirst().getRightOp().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getRightOp().oclIsKindOf(ArrayRef))
@@ -137,6 +139,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/10 02:24:30  venku
+   - coding convention.
+
    Revision 1.10  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
