@@ -16,9 +16,9 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
-import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -61,7 +61,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -138,14 +137,14 @@ public class SliceXMLizerCLI
 	private IJimpleIDGenerator idGenerator;
 
 	/** 
-	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
-	 */
-	private final String nameOfSliceTag = "indus.tools.slicer.SliceXMLizerCLI:SLICER";
-
-	/** 
 	 * The name of the criteria specification file.
 	 */
 	private String criteriaSpecFileName;
+
+	/** 
+	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
+	 */
+	private final String nameOfSliceTag = "indus.tools.slicer.SliceXMLizerCLI:SLICER";
 
 	/** 
 	 * The name of the slice scope specification file.
@@ -237,6 +236,17 @@ public class SliceXMLizerCLI
 	}
 
 	/**
+	 * Retrieves the xmlizer to be used to xmlizer the slice.
+	 *
+	 * @return the slice xmlizer.
+	 *
+	 * @post result != null
+	 */
+	protected final TagBasedSliceXMLizer getXMLizer() {
+		return new TagBasedSliceXMLizer(nameOfSliceTag, idGenerator);
+	}
+
+	/**
 	 * Sets the id generator to use during xmlization.
 	 *
 	 * @param generator used to generate the id's during xmlization.
@@ -256,17 +266,6 @@ public class SliceXMLizerCLI
 	 */
 	protected final void setOutputDirectory(final String oDir) {
 		outputDirectory = oDir;
-	}
-
-	/**
-	 * Retrieves the xmlizer to be used to xmlizer the slice.
-	 *
-	 * @return the slice xmlizer.
-	 *
-	 * @post result != null
-	 */
-	protected final TagBasedSliceXMLizer getXMLizer() {
-		return new TagBasedSliceXMLizer(nameOfSliceTag, idGenerator);
 	}
 
 	/**
@@ -340,35 +339,6 @@ public class SliceXMLizerCLI
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("END: Dumping XMLized Jimple");
 			}
-		}
-	}
-
-	/**
-	 * Outputs the statistics for the system.
-	 */
-	private void outputStats() {
-		if (LOGGER.isInfoEnabled()) {
-			final MetricsProcessor _processor = new MetricsProcessor();
-			final ProcessingController _pc = new ProcessingController();
-			_pc.setProcessingFilter(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
-			_processor.hookup(_pc);
-			_pc.setEnvironment(new Environment(scene));
-			_pc.process();
-			_processor.unhook(_pc);
-
-			final ByteArrayOutputStream _stream1 = new ByteArrayOutputStream();
-			MapUtils.verbosePrint(new PrintStream(_stream1), "PRE SLICING STATISTICS:", _processor.getStatistics());
-			LOGGER.info(_stream1.toString());
-
-			_pc.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
-			_processor.hookup(_pc);
-			_pc.setEnvironment(new Environment(scene));
-			_pc.process();
-			_processor.unhook(_pc);
-
-			final ByteArrayOutputStream _stream2 = new ByteArrayOutputStream();
-			MapUtils.verbosePrint(new PrintStream(_stream2), "POST SLICING STATISTICS:", _processor.getStatistics());
-			LOGGER.info(_stream2.toString());
 		}
 	}
 
@@ -504,37 +474,6 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Sets if the slice should be residualized.
-	 *
-	 * @param flag <code>true</code> indicates the slice should be residualized; <code>false</code>, otherwise.
-	 */
-	private void setResidulization(final boolean flag) {
-		residualize = flag;
-	}
-
-	/**
-	 * Sets the name of the file containing the slice criteria specification.
-	 *
-	 * @param fileName of the slice criteria spec.
-	 *
-	 * @pre fileName != null
-	 */
-	private void setSliceCriteriaSpecFile(final String fileName) {
-		criteriaSpecFileName = fileName;
-	}
-
-	/**
-	 * Sets the name of the file containing the slice scope specification.
-	 *
-	 * @param fileName of the slice scope spec.
-	 *
-	 * @pre fileName != null
-	 */
-	private void setSliceScopeSpecFile(final String fileName) {
-		sliceScopeSpecFileName = fileName;
-	}
-
-	/**
 	 * Processes the command line for slicer tool configuration information.  Defaults to a configuration if none are
 	 * specified.
 	 *
@@ -592,6 +531,177 @@ public class SliceXMLizerCLI
 			System.exit(1);
 		}
 		return _result;
+	}
+
+	/**
+	 * Sets up the output options according to the command line args.
+	 *
+	 * @param cl contains the command line.
+	 * @param xmlizer that needs to be configured.
+	 *
+	 * @pre cl != null and xmlizer != null
+	 */
+	private static void setupOutputOptions(final CommandLine cl, final SliceXMLizerCLI xmlizer) {
+		final String _outputDir;
+
+		if (cl.hasOption('o')) {
+			_outputDir = cl.getOptionValue("o");
+		} else {
+			final File _tempDir =
+				new File(System.getProperty("java.io.tmpdir") + File.separator + System.currentTimeMillis() + "_slicer");
+			_tempDir.mkdirs();
+			_outputDir = _tempDir.getAbsolutePath();
+
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Using " + _outputDir + " as the directory to dump information");
+			}
+		}
+
+		xmlizer.preResXMLJimpleDump = cl.hasOption('i');
+		xmlizer.postResXMLJimpleDump = cl.hasOption('j') && cl.hasOption('r');
+		xmlizer.preResJimpleDump = cl.hasOption('I');
+		xmlizer.postResJimpleDump = cl.hasOption('J') && cl.hasOption('r');
+
+		if (xmlizer.preResXMLJimpleDump
+			  || xmlizer.postResXMLJimpleDump
+			  || xmlizer.preResJimpleDump
+			  || xmlizer.postResJimpleDump) {
+			xmlizer.jimpleXMLDumpDir = _outputDir;
+		}
+
+		xmlizer.setOutputDirectory(_outputDir);
+	}
+
+	/**
+	 * Changes the active configuration to use.
+	 *
+	 * @param configID is the id of the active configuration.
+	 *
+	 * @pre configID != null
+	 */
+	private void setConfigName(final String configID) {
+		slicer.setActiveConfiguration(configID);
+	}
+
+	/**
+	 * Sets if the slice should be residualized.
+	 *
+	 * @param flag <code>true</code> indicates the slice should be residualized; <code>false</code>, otherwise.
+	 */
+	private void setResidulization(final boolean flag) {
+		residualize = flag;
+	}
+
+	/**
+	 * Sets the name of the file containing the slice criteria specification.
+	 *
+	 * @param fileName of the slice criteria spec.
+	 *
+	 * @pre fileName != null
+	 */
+	private void setSliceCriteriaSpecFile(final String fileName) {
+		criteriaSpecFileName = fileName;
+	}
+
+	/**
+	 * Sets the name of the file containing the slice scope specification.
+	 *
+	 * @param fileName of the slice scope spec.
+	 *
+	 * @pre fileName != null
+	 */
+	private void setSliceScopeSpecFile(final String fileName) {
+		sliceScopeSpecFileName = fileName;
+	}
+
+	/**
+	 * Dumps jimple for the classes in the scene.  The jimple file names will end with the given suffix.
+	 *
+	 * @param suffix to be appended to the file name.
+	 * @param jimpleFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>,
+	 * 		  otherwise.
+	 * @param classFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>, otherwise.
+	 */
+	private void dumpJimple(final String suffix, final boolean jimpleFile, final boolean classFile) {
+		final Printer _printer = Printer.v();
+
+		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+
+			if (!_sc.hasTag(nameOfSliceTag)) {
+				continue;
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Dumping jimple for " + _sc);
+			}
+
+			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+				final SootMethod _sm = (SootMethod) _j.next();
+
+				if (_sm.isConcrete()) {
+					try {
+						_sm.retrieveActiveBody();
+					} catch (final RuntimeException _e) {
+						LOGGER.warn("Failed to retrieve body for method " + _sm, _e);
+					}
+				}
+			}
+
+			PrintWriter _writer = null;
+
+			try {
+				// write .jimple file
+				if (jimpleFile) {
+					final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple" + suffix);
+					_writer = new PrintWriter(new FileWriter(_file));
+					_printer.printTo(_sc, _writer);
+				}
+
+				// write .class file
+				if (classFile) {
+					_printer.write(_sc, outputDirectory);
+				}
+			} catch (final IOException _e) {
+				LOGGER.warn("Error while writing " + _sc, _e);
+			} catch (final RuntimeException _e) {
+				LOGGER.warn("Error while writing class file of " + _sc, _e);
+			} finally {
+				if (_writer != null) {
+					_writer.flush();
+					_writer.close();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Outputs the statistics for the system.
+	 */
+	private void outputStats() {
+		if (LOGGER.isInfoEnabled()) {
+			final MetricsProcessor _processor = new MetricsProcessor();
+			final ProcessingController _pc = new ProcessingController();
+			_pc.setProcessingFilter(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
+			_processor.hookup(_pc);
+			_pc.setEnvironment(new Environment(scene));
+			_pc.process();
+			_processor.unhook(_pc);
+
+			final ByteArrayOutputStream _stream1 = new ByteArrayOutputStream();
+			MapUtils.verbosePrint(new PrintStream(_stream1), "PRE SLICING STATISTICS:", _processor.getStatistics());
+			LOGGER.info(_stream1.toString());
+
+			_pc.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
+			_processor.hookup(_pc);
+			_pc.setEnvironment(new Environment(scene));
+			_pc.process();
+			_processor.unhook(_pc);
+
+			final ByteArrayOutputStream _stream2 = new ByteArrayOutputStream();
+			MapUtils.verbosePrint(new PrintStream(_stream2), "POST SLICING STATISTICS:", _processor.getStatistics());
+			LOGGER.info(_stream2.toString());
+		}
 	}
 
 	/**
@@ -679,117 +789,6 @@ public class SliceXMLizerCLI
 			}
 		}
 		return _result;
-	}
-
-	/**
-	 * Sets up the output options according to the command line args.
-	 *
-	 * @param cl contains the command line.
-	 * @param xmlizer that needs to be configured.
-	 *
-	 * @pre cl != null and xmlizer != null
-	 */
-	private static void setupOutputOptions(final CommandLine cl, final SliceXMLizerCLI xmlizer) {
-		final String _outputDir;
-
-		if (cl.hasOption('o')) {
-			_outputDir = cl.getOptionValue("o");
-		} else {
-			final File _tempDir =
-				new File(System.getProperty("java.io.tmpdir") + File.separator + System.currentTimeMillis() + "_slicer");
-			_tempDir.mkdirs();
-			_outputDir = _tempDir.getAbsolutePath();
-
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Using " + _outputDir + " as the directory to dump information");
-			}
-		}
-
-		xmlizer.preResXMLJimpleDump = cl.hasOption('i');
-		xmlizer.postResXMLJimpleDump = cl.hasOption('j') && cl.hasOption('r');
-		xmlizer.preResJimpleDump = cl.hasOption('I');
-		xmlizer.postResJimpleDump = cl.hasOption('J') && cl.hasOption('r');
-
-		if (xmlizer.preResXMLJimpleDump
-			  || xmlizer.postResXMLJimpleDump
-			  || xmlizer.preResJimpleDump
-			  || xmlizer.postResJimpleDump) {
-			xmlizer.jimpleXMLDumpDir = _outputDir;
-		}
-
-		xmlizer.setOutputDirectory(_outputDir);
-	}
-
-	/**
-	 * Changes the active configuration to use.
-	 *
-	 * @param configID is the id of the active configuration.
-	 *
-	 * @pre configID != null
-	 */
-	private void setConfigName(final String configID) {
-		slicer.setActiveConfiguration(configID);
-	}
-
-	/**
-	 * Dumps jimple for the classes in the scene.  The jimple file names will end with the given suffix.
-	 *
-	 * @param suffix to be appended to the file name.
-	 * @param jimpleFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>,
-	 * 		  otherwise.
-	 * @param classFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>, otherwise.
-	 */
-	private void dumpJimple(final String suffix, final boolean jimpleFile, final boolean classFile) {
-		final Printer _printer = Printer.v();
-
-		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			if (!_sc.hasTag(nameOfSliceTag)) {
-				continue;
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Dumping jimple for " + _sc);
-			}
-
-			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
-
-				if (_sm.isConcrete()) {
-					try {
-						_sm.retrieveActiveBody();
-					} catch (final RuntimeException _e) {
-						LOGGER.warn("Failed to retrieve body for method " + _sm, _e);
-					}
-				}
-			}
-
-			PrintWriter _writer = null;
-
-			try {
-				// write .jimple file
-				if (jimpleFile) {
-					final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple" + suffix);
-					_writer = new PrintWriter(new FileWriter(_file));
-					_printer.printTo(_sc, _writer);
-				}
-
-				// write .class file
-				if (classFile) {
-					_printer.write(_sc, outputDirectory);
-				}
-			} catch (final IOException _e) {
-				LOGGER.warn("Error while writing " + _sc, _e);
-			} catch (final RuntimeException _e) {
-				LOGGER.warn("Error while writing class file of " + _sc, _e);
-			} finally {
-				if (_writer != null) {
-					_writer.flush();
-					_writer.close();
-				}
-			}
-		}
 	}
 
 	/**
