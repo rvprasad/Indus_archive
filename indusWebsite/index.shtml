@@ -4,6 +4,81 @@
 
 <!--#include virtual="/header.shtml" -->
     
-<p>A general description of Indus will be posted soon.</p>
+<p>Indus is an effort to provide a collection of program analyses and transformations implemented in Java to customize and
+adapt Java programs.  It is intended to serve as an umbrella for </p>
+
+<ul>
+<li>static analyses such as points-to analysis, escape analysis, and dependence analyses, </li> 
+<li>transformations such as program slicing and program specialization via partial evaluation, and </li> 
+<li>any software module that delivers the analyses/transformations into a particular application such as <a
+	href="http://bandera.projects.cis.ksu.edu/">Bandera</a> or platform such as <a
+	href="http://www.eclipse.org">Eclipse</a>.</li>   
+</ul>
+
+<p>At present, there are 3 modules that are part of Indus. More modules are expected to be added over the course of time.  We
+   provide an overview of the intent of each module that are available at present.</p>
+<ul>
+<li><p><b>Indus</b> is a module that houses the implementation pertaining to algorithms and data structures common to analyses
+      and transformations that are part of or are planned to be part of Indus.  This module contains interface definition
+      common to most analyses and transformations to provide a framework in which various implementations of
+      analyses/transformations can be combined to form systems with ease.  Hence, this module is updated when a new sort of
+      analysis/transformation is implemented as a module in Indus.  However, a new implementation of an
+      analysis/transformation will not affect this module as will implement an existing interface.</p></li>
+
+<li><p><b>StaticAnalyses</b> module is intended to be the collection of static analyses such as object-flow analysis, escape
+      analysis, and dependence analyses.  The analyses in this module use common interfaces and implementations from
+      <i>Indus</i> and may define/provide new interfaces/implementations specific to new analyses.  Existing analyses are
+      mentioned below.</p>
+      <ul>
+	<li><p><u>Object-flow Analysis (OFA)</u> is a points-to analysis for Java.  Each allocation site in the analyzed
+	system is treated as an abstract object and it's flow through the system is tracked to infer the possible types an
+	receiver at a call-site to enable the construction of a precise call-graph.  The precision of the analysis can be
+	varied in terms of flow-sensitiveness for method local variables and object-sensitiveness for instance
+	fields.</p></li> 
+
+	<li><p><u>Escape Analysis</u> is an extended implementation of the escape analysis proposed by Ruf for the purpose of
+	pruning interference and ready dependence edges.  The extensions are in the form of seamless addition of value
+	equivalence to the analysis to improve the detection of conflicting field reads/writes occurring in different threads
+	beyond just using type equality of the primaries of the access expressions. The analysis also uses object-flow
+	information orthogonally to further improve precision.</p></li>
+
+	<li><p><u>Dependence Analyses</u> is a collection of dependence analyses: entry-based control, exit-based control,
+	identifier-based data, reference-based data, interference, ready, synchronization, and divergence, required by
+	analyses/transformations such program slicing and partial evaluation.  Interference and Ready dependence analyses
+	depend on the previous escape analysis while reference-based data and synchronization dependence analyses depend on
+	object-flow information and the calculated call-graph information. Some analyses have varying levels of precision
+	which can be varied via a well defined interface.</p>
+      </ul>
+      <p>Some analyses may be large enough to constitute module on their own and such analyses will be hosted as different
+      modules in Indus rather than being consumed by this module.</p></li>
+
+<li><p><b>Java Program Slicer</b> module contains the core implementation of Java program slicer along with adapters that
+      deliver the slicer in other applications such as Bandera and Eclipse.  The implementation is architected as a library
+      rather than as an application to facilitate the reuse of it's subparts.  The core is independent of the application;
+      Each application's requirement of the slice can be satisfied by coding up implementations of post-processing interfaces
+      and hooking in these implementations to form a customized slicer.</p>
+      <p>This module heavily relies on information provided by dependence analyses and call-graph information provided by
+      OFA via well-defined interfaces that enables external implementations to be used for slicing.</p></li>
+</ul>
+</p>
+
+<p>All modules in Indus project work on <i>Jimple</i>, an intermediate representation of Java, provided by Soot toolkit from
+    <a href="http://www.sable.mcgill.ca">Sable</a> group in McGill University.  Each module in the project will be exposed as
+    one or more Eclipse plugins if the provided information is useful to the user and amenable for user consumption via a
+    graphical user interface.</p>
+
+<h3>Software Engineering Philosophy</h3> 
+
+<p>Each module in this project will provide just the required functionality via well-defined interfaces that can be
+ implemented to assemble a customized system with suitable extensions that fulfill specific requirement.  As the interface is
+ clearly separated from the implementation, any external implementation that provide the required interface can be seamlessly
+ used with modules from this project.</p>
+
+<h3>Background</h3>
+
+<p>The implementation of most of the analyses was driven by the requirements of Java program slicer required by Bandera.
+    However, as the program slicer could be used outside Bandera and the analyses could be used to enable other
+    transformations such as program specialization via partial evaluation the previous, we moved the analyses and
+    transformations into a new project called <i>Indus</i>.</p>
 
 <!--#include virtual="/footer.shtml" -->
