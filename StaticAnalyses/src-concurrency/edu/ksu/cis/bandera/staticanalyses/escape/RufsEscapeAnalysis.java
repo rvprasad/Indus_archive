@@ -75,13 +75,13 @@ import soot.jimple.VirtualInvokeExpr;
 
 import soot.toolkits.graph.CompleteUnitGraph;
 
-import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
+import edu.ksu.cis.bandera.staticanalyses.Context;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.bandera.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.bandera.staticanalyses.support.FastUnionFindElement;
@@ -1766,6 +1766,10 @@ main_control:
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/07/27 21:22:14  venku
+Minor:
+ - removed unnecessary casts.
+
 Revision 1.1  2003/07/27 20:52:39  venku
 First of the many refactoring while building towards slicer release.
 This is the escape analysis refactored and implemented as per to tech report.

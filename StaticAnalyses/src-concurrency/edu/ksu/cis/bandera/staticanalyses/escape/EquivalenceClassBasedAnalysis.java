@@ -71,14 +71,14 @@ import soot.jimple.VirtualInvokeExpr;
 
 import soot.toolkits.graph.CompleteUnitGraph;
 
-import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.auxillary.ICFGAnalysis;
-import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
+import edu.ksu.cis.bandera.staticanalyses.Context;
+import edu.ksu.cis.bandera.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.bandera.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
@@ -87,6 +87,7 @@ import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.bandera.staticanalyses.support.Triple;
 import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -138,16 +139,16 @@ public class EquivalenceClassBasedAnalysis
 	final BasicBlockGraphMgr bbm;
 
 	/**
+	 * This provides inter-procedural control-flow information.
+	 */
+	final CFGAnalysis cfgAnalysis;
+
+	/**
 	 * This provides context information pertaining to caller-callee relation across method calls.  The method stored in the
 	 * context is the caller.  The statement is one in which invocation occurs.  The program point is at which place the
 	 * invocation happens.
 	 */
 	final Context context;
-
-	/**
-	 * This provides inter-procedural control-flow information.
-	 */
-	final ICFGAnalysis icfgAnalysis;
 
 	/**
 	 * This provides call-graph information.
@@ -248,7 +249,7 @@ public class EquivalenceClassBasedAnalysis
 		valueProcessor = new ValueProcessor();
 		bbm = new BasicBlockGraphMgr();
 		context = new Context();
-		icfgAnalysis = new ICFGAnalysis(scm, cgi, bbm);
+		cfgAnalysis = new CFGAnalysis(scm, cgi, bbm);
 	}
 
 	/**
@@ -595,7 +596,7 @@ public class EquivalenceClassBasedAnalysis
 				 * the site context.  If not, unify the method context with site-context as precision will be lost any which
 				 * way.
 				 */
-				if (icfgAnalysis.notInSameSCC(caller, callee)) {
+				if (cfgAnalysis.notInSameSCC(caller, callee)) {
 					try {
 						mc = (MethodContext) mc.clone();
 					} catch (CloneNotSupportedException e) {
@@ -710,12 +711,13 @@ public class EquivalenceClassBasedAnalysis
 	 * @pre v != null and sm != null
 	 */
 	public boolean isShared(final Value v, final SootMethod sm) {
-		boolean result = false;
+		boolean result = true;
 
 		try {
 			// check if given value has an alias set and if so, check if the enclosing method executes only in threads created
 			// allocation sites which are executed only once. 
-			if (AliasSet.canHaveAliasSet(v.getType()) && threadAllocSitesSingle.containsAll(tgi.getExecutionThreads(sm))) {
+			if (AliasSet.canHaveAliasSet(v.getType())
+				  && CollectionUtils.intersection(threadAllocSitesMulti, tgi.getExecutionThreads(sm)).isEmpty()) {
 				result = getAliasSetFor(v, sm).isShared();
 			}
 		} catch (RuntimeException e) {
@@ -723,7 +725,6 @@ public class EquivalenceClassBasedAnalysis
 				LOGGER.warn("There is no information about " + v + " occurring in " + sm
 					+ ".  So, providing pessimistic info (true).");
 			}
-			result = true;
 		}
 		return result;
 	}
@@ -740,11 +741,11 @@ public class EquivalenceClassBasedAnalysis
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(final Value value, final Context contextParam) {
-		if (value instanceof NewExpr) {
+		if (value instanceof NewExpr && cgi.isReachable(contextParam.getCurrentMethod())) {
 			NewExpr e = (NewExpr) value;
 			Object o = new NewExprTriple(contextParam.getCurrentMethod(), context.getStmt(), e);
 
-			if (icfgAnalysis.checkForLoopEnclosedNewExpr(e, contextParam)) {
+			if (cfgAnalysis.checkForLoopEnclosedNewExpr(e, contextParam)) {
 				threadAllocSitesMulti.add(o);
 			} else {
 				threadAllocSitesSingle.add(o);
@@ -799,7 +800,7 @@ public class EquivalenceClassBasedAnalysis
 			NewExprTriple trp = (NewExprTriple) i.next();
 			SootMethod encloser = trp.getMethod();
 
-			if (icfgAnalysis.executedMultipleTimes(encloser)) {
+			if (cfgAnalysis.executedMultipleTimes(encloser)) {
 				threadAllocSitesSingle.remove(trp);
 				threadAllocSitesMulti.add(trp);
 			}
@@ -1066,17 +1067,5 @@ public class EquivalenceClassBasedAnalysis
  ChangeLog:
 
 $Log$
-Revision 1.3  2003/07/27 21:15:22  venku
-Minor:
- - arg name changes.
- - comment changes.
-
-Revision 1.2  2003/07/27 20:53:22  venku
-Deleted commented code that was not used.
-
-Revision 1.1  2003/07/27 20:52:39  venku
-First of the many refactoring while building towards slicer release.
-This is the escape analysis refactored and implemented as per to tech report.
-
 
 *****/
