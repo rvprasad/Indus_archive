@@ -201,7 +201,7 @@ final class AliasSet
 											   .append("multiThreadAccess", this.multiThreadAccess)
 											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
 											   .append("notifies", this.notifies).append("read", this.read)
-											   .append("fieldMap", fieldMap).append("\n").toString();
+											   .append("fieldMap", fieldMap).toString();
 				stringifying = false;
 			}
 		}
@@ -693,6 +693,13 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/08/01 22:58:25  venku
+   - ECBA was erroneous for 2 reasons.
+     - top-down propagation was not complete. FIXED.
+     - cloning of alias sets was not complete. FIXED.
+   - optimized certain other aspects of ECBA.
+   - removed RufsEscapeAnalysis.
+
    Revision 1.19  2004/07/30 07:47:35  venku
    - there was a bug in escape analysis cloning and union algorithm.  FIXED.
    Revision 1.18  2004/07/17 19:37:18  venku
