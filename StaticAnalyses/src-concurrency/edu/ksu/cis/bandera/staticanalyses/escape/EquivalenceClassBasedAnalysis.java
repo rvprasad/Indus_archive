@@ -373,7 +373,7 @@ public class EquivalenceClassBasedAnalysis
 			v.getBase().apply(this);
 
 			AliasSet base = (AliasSet) getResult();
-			AliasSet elt = (AliasSet) base.getASForField(AliasSet.ARRAY_FIELD);
+			AliasSet elt = base.getASForField(AliasSet.ARRAY_FIELD);
 
 			if (elt == null) {
 				elt = AliasSet.getASForType(v.getType());
@@ -397,7 +397,7 @@ public class EquivalenceClassBasedAnalysis
 
 			AliasSet base = (AliasSet) getResult();
 			String fieldSig = v.getField().getSignature();
-			AliasSet field = (AliasSet) base.getASForField(fieldSig);
+			AliasSet field = base.getASForField(fieldSig);
 
 			if (field == null) {
 				field = AliasSet.getASForType(v.getType());
@@ -640,8 +640,8 @@ public class EquivalenceClassBasedAnalysis
 			throw new IllegalArgumentException(notifyMethod + " was not processed.");
 		}
 
-		InvokeExpr wi = (InvokeExpr) wait.getInvokeExpr();
-		InvokeExpr ni = (InvokeExpr) notify.getInvokeExpr();
+		InvokeExpr wi = wait.getInvokeExpr();
+		InvokeExpr ni = notify.getInvokeExpr();
 		boolean result = false;
 
 		if (wi instanceof VirtualInvokeExpr && ni instanceof VirtualInvokeExpr) {
@@ -658,8 +658,8 @@ public class EquivalenceClassBasedAnalysis
 				  && nSM.getReturnType() instanceof VoidType
 				  && nSM.getParameterCount() == 0
 				  && (nSM.getName().equals("notify") || nSM.getName().equals("notifyAll"))) {
-				AliasSet as1 = (AliasSet) ((Map) trp1.getSecond()).get((Local) wTemp.getBase());
-				AliasSet as2 = (AliasSet) ((Map) trp2.getSecond()).get((Local) nTemp.getBase());
+				AliasSet as1 = (AliasSet) ((Map) trp1.getSecond()).get(wTemp.getBase());
+				AliasSet as2 = (AliasSet) ((Map) trp2.getSecond()).get(nTemp.getBase());
 				result = as1.getEntity().equals(as2.getEntity());
 			}
 		}
@@ -797,7 +797,7 @@ public class EquivalenceClassBasedAnalysis
 		// as creating multiple threads.
 		for (Iterator i = tassBak.iterator(); i.hasNext();) {
 			NewExprTriple trp = (NewExprTriple) i.next();
-			SootMethod encloser = (SootMethod) trp.getMethod();
+			SootMethod encloser = trp.getMethod();
 
 			if (icfgAnalysis.executedMultipleTimes(encloser)) {
 				threadAllocSitesSingle.remove(trp);
@@ -822,7 +822,7 @@ public class EquivalenceClassBasedAnalysis
 		// filter the thread allocation site sets based on multiExecMethods.
 		for (Iterator i = tassBak.iterator(); i.hasNext();) {
 			NewExprTriple trp = (NewExprTriple) i.next();
-			SootMethod encloser = (SootMethod) trp.getMethod();
+			SootMethod encloser = trp.getMethod();
 
 			if (multiExecMethods.contains(encloser)) {
 				threadAllocSitesSingle.remove(trp);
@@ -1066,6 +1066,11 @@ public class EquivalenceClassBasedAnalysis
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/07/27 21:15:22  venku
+Minor:
+ - arg name changes.
+ - comment changes.
+
 Revision 1.2  2003/07/27 20:53:22  venku
 Deleted commented code that was not used.
 

@@ -1107,7 +1107,7 @@ public class RufsEscapeAnalysis
 				v.getBase().apply(this);
 
 				AliasSet base = (AliasSet) getResult();
-				elt = (AliasSet) base.getASForField(ARRAY_FIELD);
+				elt = base.getASForField(ARRAY_FIELD);
 
 				if (elt == null) {
 					elt = new AliasSet();
@@ -1129,7 +1129,7 @@ public class RufsEscapeAnalysis
 
 				AliasSet base = (AliasSet) getResult();
 				String fieldSig = v.getField().getSignature();
-				field = (AliasSet) base.getASForField(fieldSig);
+				field = base.getASForField(fieldSig);
 
 				if (field == null) {
 					field = new AliasSet();
@@ -1766,5 +1766,9 @@ main_control:
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/07/27 20:52:39  venku
+First of the many refactoring while building towards slicer release.
+This is the escape analysis refactored and implemented as per to tech report.
+
 
 *****/

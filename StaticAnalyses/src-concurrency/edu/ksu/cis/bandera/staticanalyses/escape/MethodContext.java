@@ -232,7 +232,7 @@ class MethodContext
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getReturnAS() {
-		return (AliasSet) ((MethodContext) find()).ret;
+		return ((MethodContext) find()).ret;
 	}
 
 	/**
@@ -241,7 +241,7 @@ class MethodContext
 	 * @return the corresponding alias set.
 	 */
 	AliasSet getThisAS() {
-		return (AliasSet) ((MethodContext) find()).thisAS;
+		return ((MethodContext) find()).thisAS;
 	}
 
 	/**
@@ -252,7 +252,7 @@ class MethodContext
 	 * @post result != null
 	 */
 	AliasSet getThrownAS() {
-		return (AliasSet) ((MethodContext) find()).thrown;
+		return ((MethodContext) find()).thrown;
 	}
 
 	/**
@@ -419,5 +419,9 @@ class MethodContext
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/07/27 20:52:39  venku
+First of the many refactoring while building towards slicer release.
+This is the escape analysis refactored and implemented as per to tech report.
+
 
 *****/
