@@ -922,7 +922,7 @@ public final class SlicingEngine {
 		}
 
 		final Collection _types = new HashSet();
-		final Collection _das = new ArrayList(controlflowBasedDAs);
+		final Collection _das = new ArrayList();
 		final Collection _locals = new HashSet();
 
 		for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
@@ -954,6 +954,7 @@ public final class SlicingEngine {
 
 		// create new slice criteria based on statement level dependence.
 		if (!collector.hasBeenCollected(stmt)) {
+		    _das.addAll(controlflowBasedDAs);
 			generateStmtMethodCriteria(stmt, method, _das);
 		}
 
@@ -969,6 +970,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.95  2004/08/23 17:59:19  venku
+   - local processing compared incorrect value types.  FIXED.
+
    Revision 1.94  2004/08/23 03:46:08  venku
    - documentation.
 
