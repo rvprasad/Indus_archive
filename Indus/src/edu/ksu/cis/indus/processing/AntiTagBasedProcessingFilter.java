@@ -57,13 +57,16 @@ public class AntiTagBasedProcessingFilter
 	protected boolean isFilterate(final Host host) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Host " + host + " is tagged:" + host.hasTag(tagName) + " [" + tagName + "]");
-			LOGGER.debug("Host " + host + " has the following tags: ");
 
-			for (final Iterator _i = host.getTags().iterator(); _i.hasNext();) {
-				final Tag _tag = (Tag) _i.next();
+			if (!host.getTags().isEmpty()) {
+				LOGGER.debug("Host " + host + " has the following tags: ");
 
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug(_tag.getName());
+				for (final Iterator _i = host.getTags().iterator(); _i.hasNext();) {
+					final Tag _tag = (Tag) _i.next();
+
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug(_tag.getName());
+					}
 				}
 			}
 		}
@@ -74,6 +77,8 @@ public class AntiTagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/15 16:30:12  venku
+   - logging.
    Revision 1.2  2003/12/14 20:36:05  venku
    - the filtering methods were incorrect in TagBased... FIXED.
    Revision 1.1  2003/12/14 15:53:31  venku

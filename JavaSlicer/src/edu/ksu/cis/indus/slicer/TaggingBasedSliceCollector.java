@@ -150,7 +150,7 @@ final class TaggingBasedSliceCollector {
 	void includeInSlice(final Host host) {
 		final SlicingTag _hostTag = (SlicingTag) host.getTag(tagName);
 
-		if (_hostTag != null) {
+		if (_hostTag == null) {
 			host.addTag(tag);
 
 			if (host instanceof SootMethod) {
@@ -163,15 +163,31 @@ final class TaggingBasedSliceCollector {
 				if (host instanceof ValueBox) {
 					_o = ((ValueBox) host).getValue();
 				}
-				LOGGER.debug("Tagged: " + _o);
+				LOGGER.debug("Tagged[1]: " + _o);
 			}
 		} else if (_hostTag != tag) {
 			host.removeTag(tagName);
 			host.addTag(tag);
-            
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Tagged:" + host);
-            }
+
+			if (LOGGER.isDebugEnabled()) {
+				Object _temp;
+
+				if (host instanceof ValueBox) {
+					_temp = ((ValueBox) host).getValue();
+				} else {
+					_temp = host;
+				}
+				LOGGER.debug("Tagged[2]: " + _temp);
+			}
+		} else if (LOGGER.isDebugEnabled()) {
+			Object _temp;
+
+			if (host instanceof ValueBox) {
+				_temp = ((ValueBox) host).getValue();
+			} else {
+				_temp = host;
+			}
+			LOGGER.debug("Already Tagged: " + _temp);
 		}
 	}
 
@@ -275,6 +291,8 @@ final class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/15 16:31:46  venku
+   - deleted tagHost and inlined it in includeInSlice.
    Revision 1.14  2003/12/13 19:46:33  venku
    - documentation of TaggingBasedSliceCollector.
    - renamed collect() to includeInSlice().
