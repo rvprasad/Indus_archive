@@ -328,7 +328,7 @@ public class StmtXMLizer
 	 *
 	 * @param method DOCUMENT ME!
 	 */
-	void setMethod(final SootMethod method) {
+	final void setMethod(final SootMethod method) {
 		currMethod = method;
 		valueXMLizer.setMethod(method);
 	}
@@ -340,7 +340,7 @@ public class StmtXMLizer
 	 *
 	 * @param stream DOCUMENT ME!
 	 */
-	void setWriter(final Writer stream) {
+	final void setWriter(final Writer stream) {
 		out = stream;
 		valueXMLizer.setWriter(stream);
 	}
@@ -352,7 +352,7 @@ public class StmtXMLizer
 	 *
 	 * @param stmt DOCUMENT ME!
 	 */
-	void apply(final Stmt stmt) {
+	final void apply(final Stmt stmt) {
 		newId = idGenerator.getIdForStmt(stmt, currMethod);
 		valueXMLizer.setStmt(stmt);
 		stmt.apply(this);
@@ -362,6 +362,9 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:24  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.8  2003/12/02 01:30:58  venku
    - coding conventions and formatting.
    Revision 1.7  2003/11/28 09:39:22  venku

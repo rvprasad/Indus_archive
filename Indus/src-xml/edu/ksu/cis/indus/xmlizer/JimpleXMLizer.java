@@ -118,7 +118,7 @@ public class JimpleXMLizer
 	 *
 	 * @param writer DOCUMENT ME!
 	 */
-	public void setWriter(final Writer writer) {
+	public final void setWriter(final Writer writer) {
 		xmlizedSystem = writer;
 		stmtXmlizer.setWriter(writer);
 	}
@@ -370,19 +370,9 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
-	 */
-	public final void unhook(final ProcessingController ppc) {
-		ppc.unregisterForAllStmts(this);
-		ppc.unregister(this);
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
 	 */
-	public void processingBegins() {
+	public final void processingBegins() {
 		try {
 			xmlizedSystem.write("<!DOCTYPE jimple PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
 			xmlizedSystem.write("<jimple>\n");
@@ -392,11 +382,24 @@ public class JimpleXMLizer
 			}
 		}
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
+	 */
+	public final void unhook(final ProcessingController ppc) {
+		ppc.unregisterForAllStmts(this);
+		ppc.unregister(this);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.23  2003/12/02 01:30:58  venku
    - coding conventions and formatting.
    Revision 1.22  2003/11/30 02:12:41  venku

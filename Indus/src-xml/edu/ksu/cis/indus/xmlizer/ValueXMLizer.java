@@ -554,7 +554,7 @@ public class ValueXMLizer
 	 *
 	 * @param method DOCUMENT ME!
 	 */
-	void setMethod(final SootMethod method) {
+	final void setMethod(final SootMethod method) {
 		currMethod = method;
 	}
 
@@ -565,7 +565,7 @@ public class ValueXMLizer
 	 *
 	 * @param stmt DOCUMENT ME!
 	 */
-	void setStmt(final Stmt stmt) {
+	final void setStmt(final Stmt stmt) {
 		currStmt = stmt;
 	}
 
@@ -576,7 +576,7 @@ public class ValueXMLizer
 	 *
 	 * @param stream DOCUMENT ME!
 	 */
-	void setWriter(final Writer stream) {
+	final void setWriter(final Writer stream) {
 		out = stream;
 	}
 
@@ -587,7 +587,7 @@ public class ValueXMLizer
 	 *
 	 * @param vBox DOCUMENT ME!
 	 */
-	void apply(final ValueBox vBox) {
+	final void apply(final ValueBox vBox) {
 		Object temp = newId;
 		newId = idGenerator.getIdForValueBox(vBox, currStmt, currMethod);
 		incrementTabs();
@@ -740,6 +740,9 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/02 09:42:24  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.11  2003/12/02 01:30:58  venku
    - coding conventions and formatting.
    Revision 1.10  2003/11/30 12:49:28  venku

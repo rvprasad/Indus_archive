@@ -42,7 +42,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class UniqueJimpleIDGenerator
+public final class UniqueJimpleIDGenerator
   implements IJimpleIDGenerator {
 	/**
 	 * <p>
@@ -193,6 +193,9 @@ public class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 09:42:24  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.6  2003/12/02 01:30:58  venku
    - coding conventions and formatting.
    Revision 1.5  2003/11/30 09:44:53  venku
