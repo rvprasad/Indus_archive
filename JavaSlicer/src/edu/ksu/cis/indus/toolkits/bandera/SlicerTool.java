@@ -214,7 +214,7 @@ public final class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#getToolIconView()
+	 * @see edu.ksu.cis.bandera.tool.Tool#getToolIconView()
 	 */
 	public ToolIconView getToolIconView() {
 		return configurationView;
@@ -251,6 +251,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/05/28 21:53:20  venku
+   - added a method to ExceptionFlowSensitiveGraphFactory to create
+     default factory objects.
+
    Revision 1.31  2004/05/09 11:09:46  venku
    - the client can now specify the statement graph factory to use during slicing.
    Revision 1.30  2004/04/20 00:43:40  venku
