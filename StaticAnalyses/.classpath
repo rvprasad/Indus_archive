@@ -4,6 +4,6 @@
     <classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
     <classpathentry kind="var" path="DRISHTI_UTILS"/>
     <classpathentry kind="var" path="JAVACLASSES/log4j.jar"/>
-    <classpathentry kind="src" path="/bandera"/>
-    <classpathentry kind="output" path="dist"/>
+    <classpathentry kind="src" path="/bandera-core"/>
+    <classpathentry kind="output" path="build"/>
 </classpath>

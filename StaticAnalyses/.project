@@ -3,7 +3,7 @@
 	<name>BFA</name>
 	<comment></comment>
 	<projects>
-		<project>bandera</project>
+		<project>bandera-core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
