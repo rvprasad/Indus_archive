@@ -335,7 +335,7 @@ public abstract class DADriver
 		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
 
-			if (da.getPreProcessor() != null) {
+			if (da.doesPreProcessing()) {
 				da.getPreProcessor().hookup(ppc);
 			}
 
@@ -386,6 +386,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/08 02:23:13  venku
+   - Ripple effect of bbm support in Driver and change of constructor
+     in ThreadGraph.
+
    Revision 1.9  2003/09/07 09:02:13  venku
    - Synchronization dependence now handles exception based
      sync dep edges.  This requires a Value Flow analysis which can
