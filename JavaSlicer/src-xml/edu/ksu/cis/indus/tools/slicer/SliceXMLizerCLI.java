@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -122,7 +123,10 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
-		slicer = new SlicerTool(TokenUtil.getTokenManager());
+		slicer =
+			new SlicerTool(TokenUtil.getTokenManager(),
+				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
+					true));
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 
@@ -496,6 +500,7 @@ public class SliceXMLizerCLI
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Dumping class file for " + _sc);
 			}
+
 			// write .class file
 			_printer.write(_sc, outputDirectory);
 		}
@@ -544,6 +549,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/05/09 11:01:14  venku
+   - slice can be seen easily if the user just sees the slice.  So, there
+     is no point in having -d option.  Hence, it was removed.
+   - temporary directory is used to dump the slice instead of the current
+     directory when no directory is mentioned.
    Revision 1.25  2004/05/09 10:41:46  venku
    - slice can be seen easily if the user just sees the slice.  So, there
      is no point in having -d option.  Hence, it was removed.

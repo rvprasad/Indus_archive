@@ -21,6 +21,8 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 
 import edu.ksu.cis.bandera.util.BaseObservable;
 
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
@@ -111,7 +113,10 @@ public final class SlicerTool
 	 * Creates a new SlicerTool object.
 	 */
 	public SlicerTool() {
-		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool(new BitSetTokenManager(new SootValueTypeManager()));
+		tool =
+			new edu.ksu.cis.indus.tools.slicer.SlicerTool(new BitSetTokenManager(new SootValueTypeManager()),
+				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
+					true));
 		tool.setTagName(TAG_NAME);
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
 	}
@@ -247,12 +252,15 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/04/20 00:43:40  venku
+   - The processing during residualization was driven by a graph.  This
+     caused errors when the graph did not cover all of the statements.
+     Hence, during residualization we will visit all parts of a method.
    Revision 1.29  2004/04/16 20:10:41  venku
    - refactoring
     - enabled bit-encoding support in indus.
     - ripple effect.
     - moved classes to related packages.
-
    Revision 1.28  2004/03/29 01:55:08  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
