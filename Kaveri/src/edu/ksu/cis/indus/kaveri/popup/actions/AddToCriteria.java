@@ -108,10 +108,20 @@ public class AddToCriteria
 
 				if (_element != null && (_element instanceof IMethod)) {
 					final IFile _file =  ((IFileEditorInput) editor.getEditorInput()).getFile();
+					final boolean _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+					if (! _properNature) {
+						throw new IllegalArgumentException("File does not have java nature");
+					} 
 					processCriteriaForFile(_file, _type, _element, _nSelLine);
 				}
 			} catch (JavaModelException _e) {
 				SECommons.handleException(_e);
+			}
+			catch (CoreException _ce) {
+				SECommons.handleException(_ce);
+			}
+			catch (IllegalArgumentException _ile) {
+				SECommons.handleException(_ile);
 			}
 		}
 	}

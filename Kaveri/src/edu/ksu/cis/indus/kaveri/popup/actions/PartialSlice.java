@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -78,11 +79,16 @@ public class PartialSlice
 		if (selection instanceof ITextSelection) {
 			final ITextSelection _tselection = (ITextSelection) selection;
 			final String _text = _tselection.getText();
-			final int _nSelLine = _tselection.getEndLine() + 1;  
+			final int _nSelLine = _tselection.getEndLine() + 1;			
 			try {
+				final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+				final boolean _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+				if (! _properNature) {
+					throw new IllegalArgumentException("File does not have java nature");
+				} 
 				final IType _type = SelectionConverter.getTypeAtOffset(editor);
 				final IJavaElement _element = SelectionConverter.getElementAtOffset(editor);
-
+				
 				if (_element != null && (_element instanceof IMethod)) {
 				    final Map _map = KaveriPlugin.getDefault().getIndusConfiguration()
 					.getLineNumbers();
@@ -90,13 +96,19 @@ public class PartialSlice
 				    
 				    if (_map != null && _map.get(_classname) != null
 				    		 && ((Map) _map.get(_classname)).size() > 0) {
-				    	final IFile _file =  ((IFileEditorInput) editor.getEditorInput()).getFile();
-						processStmtListForFile(_file, _type, _element, _nSelLine);	
+				    	final IFile _file1 =  ((IFileEditorInput) editor.getEditorInput()).getFile();
+						processStmtListForFile(_file1, _type, _element, _nSelLine);	
 				    }
 					
 				}
 			} catch (JavaModelException _e) {
 				SECommons.handleException(_e);
+			}
+			catch (CoreException _ce) {
+				SECommons.handleException(_ce);
+			}
+			catch (IllegalArgumentException _ile) {
+				SECommons.handleException(_ile);
 			}
 		}
 	}
