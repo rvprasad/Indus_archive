@@ -23,7 +23,7 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
       common to most analyses and transformations to provide a framework in which various implementations of
       analyses/transformations can be combined to form systems with ease.  Hence, this module is updated when a new sort of
       analysis/transformation is implemented as a module in Indus.  However, a new implementation of an
-      analysis/transformation will not affect this module as will implement an existing interface.</p></li>
+      analysis/transformation will not affect this module as it will implement an existing interface.</p></li>
 
 <li><p><b>StaticAnalyses</b> module is intended to be the collection of static analyses such as object-flow analysis, escape
       analysis, and dependence analyses.  The analyses in this module use common interfaces and implementations from
@@ -57,7 +57,7 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
       rather than as an application to facilitate the reuse of it's subparts.  The core is independent of the application;
       Each application's requirement of the slice can be satisfied by coding up implementations of post-processing interfaces
       and hooking in these implementations to form a customized slicer.</p>
-      <p>This module heavily relies on information provided by dependence analyses and call-graph information provided by
+      <p>This module relies heavily on the information provided by dependence analyses and also the call-graph provided by
       OFA via well-defined interfaces that enables external implementations to be used for slicing.</p></li>
 </ul>
 </p>
@@ -71,7 +71,7 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
 
 <p>Each module in this project will provide just the required functionality via well-defined interfaces that can be
  implemented to assemble a customized system with suitable extensions that fulfill specific requirement.  As the interface is
- clearly separated from the implementation, any external implementation that provide the required interface can be seamlessly
+ clearly separated from the implementation, any external implementation that provides the required interface can be seamlessly
  used with modules from this project.</p>
 
 <h3>Background</h3>
