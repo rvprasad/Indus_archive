@@ -40,12 +40,12 @@ final class IndirectDependenceAnalysis
 	/** 
 	 * This is a cache variable for work bag processed elements.
 	 */
-	Collection processedCache = new HashSet();
+	private final Collection processedCache = new HashSet();
 
 	/** 
 	 * This is a cache variable for work bag.
 	 */
-	IWorkBag wbCache = new HistoryAwareLIFOWorkBag(processedCache);
+	private final IWorkBag wbCache = new HistoryAwareLIFOWorkBag(processedCache);
 
 	/** 
 	 * This retrieves dependence from the given analysis.
