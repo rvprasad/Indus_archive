@@ -20,6 +20,8 @@ import edu.ksu.cis.indus.TestHelper;
 
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
+
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
@@ -105,7 +107,8 @@ public class FATestSetup
 		}
 
 		if (dumpLocation != null) {
-			JimpleXMLizerCLI.writeJimpleAsXML(_driver.getScene(), dumpLocation, null, idGenerator);
+			JimpleXMLizerCLI.writeJimpleAsXML(_driver.getScene(), dumpLocation, null, idGenerator,
+				new TagBasedProcessingFilter(TAG_NAME));
 		}
 	}
 
@@ -125,16 +128,20 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/05/10 08:12:03  venku
+   - streamlined the names of tags that are used.
+   - deleted SlicingTag class.  NamedTag is used instead.
+   - ripple effect.
+   - SliceCriteriaFactory's interface is enhanced to generate individual
+     slice criterion as well as criteria set for all nodes in the given AST chunk.
    Revision 1.21  2004/04/25 23:18:18  venku
    - coding conventions.
-
    Revision 1.20  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.19  2004/04/22 22:12:06  venku
    - made changes to jimple xmlizer to dump each class into a separate file.
    - ripple effect.

@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.xmlizer;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import org.apache.commons.cli.BasicParser;
@@ -91,7 +92,7 @@ public final class JimpleXMLizerCLI {
 				for (int _i = 0; _i < _args.length; _i++) {
 					_scene.loadClassAndSupport(_args[_i]);
 				}
-				writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator());
+				writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(), null);
 			}
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line");
@@ -106,11 +107,12 @@ public final class JimpleXMLizerCLI {
 	 * @param directory with which jimple is dumped. If <code>null</code>, the output will be redirected to standarad output.
 	 * @param suffix to be appended each file name.  If <code>null</code>, no suffix is appended.
 	 * @param jimpleIDGenerator is the id generator to be used during xmlization.
+	 * @param processingFilter to be used to control the parts of the system that should be jimplified.
 	 *
 	 * @pre scene != null and jimpleIDGenerator != null
 	 */
 	public static void writeJimpleAsXML(final Scene scene, final String directory, final String suffix,
-		final IJimpleIDGenerator jimpleIDGenerator) {
+		final IJimpleIDGenerator jimpleIDGenerator, final IProcessingFilter processingFilter) {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(jimpleIDGenerator);
 		final Environment _env = new Environment(scene);
 		final ProcessingController _pc = new ProcessingController();
@@ -118,7 +120,13 @@ public final class JimpleXMLizerCLI {
 				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
 				true));
 		_pc.setEnvironment(_env);
-		_pc.setProcessingFilter(new XMLizingProcessingFilter());
+
+		final XMLizingProcessingFilter _xmlFilter = new XMLizingProcessingFilter();
+
+		if (processingFilter != null) {
+			_xmlFilter.chain(processingFilter);
+		}
+		_pc.setProcessingFilter(_xmlFilter);
 		_xmlizer.setDumpOptions(directory, suffix);
 		_xmlizer.hookup(_pc);
 		_pc.process();
@@ -129,4 +137,10 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/25 21:18:39  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
  */

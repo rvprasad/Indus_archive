@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
+import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -138,10 +139,13 @@ public final class OFAXMLizerCLI
 		final ProcessingController _xmlcgipc = new ProcessingController();
 
 		_pc.setAnalyzer(_aa);
-		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
+		final IProcessingFilter _tagFilter = new TagBasedProcessingFilter(_tagName);
+        _pc.setProcessingFilter(_tagFilter);
 		_pc.setStmtGraphFactory(getStmtGraphFactory());
 		_xmlcgipc.setEnvironment(_aa.getEnvironment());
-		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
+		final IProcessingFilter _xmlFilter = new CGBasedXMLizingProcessingFilter(_cgi);
+		_xmlFilter.chain(_tagFilter);
+		_xmlcgipc.setProcessingFilter(_xmlFilter);
 		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
 		final Map _info = new HashMap();
@@ -187,6 +191,13 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.9  2004/04/23 01:00:48  venku
    - trying to resolve issues with canonicalization of Jimple.
 
