@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.common;
 
+import edu.ksu.cis.indus.IndusTestCase;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -31,7 +31,7 @@ import junit.framework.TestCase;
  * @version $Revision$ $Date$
  */
 public class CollectionsModifierTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * The map.
 	 */
@@ -85,6 +85,9 @@ public class CollectionsModifierTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/07 16:13:29  venku
+   - coding conventions.
+
    Revision 1.1  2004/01/28 22:55:23  venku
    - added test suites for classes in common package.
  */

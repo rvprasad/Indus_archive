@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.IndusTestCase;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.ArrayList;
@@ -25,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import junit.framework.TestCase;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -43,7 +42,7 @@ import org.apache.commons.collections.CollectionUtils;
  * @see edu.ksu.cis.indus.common.graph.DirectedGraph
  */
 public abstract class AbstractDirectedGraphTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * This is the graph that will be tested.
 	 */
@@ -349,6 +348,9 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/08 19:32:13  venku
+   - test refactoring for regression testing.
+
    Revision 1.8  2004/02/08 01:04:12  venku
    - renamed TestSuite classes to NoArgTestSuite classes.
    Revision 1.7  2004/01/22 08:18:55  venku

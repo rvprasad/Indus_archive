@@ -20,9 +20,11 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 
@@ -78,12 +80,41 @@ public final class TestHelper {
 		}
 		return _result;
 	}
+
+	/**
+	 * Appends the containing suite's name to the tests.
+	 *
+	 * @param suite containing the tests whose name should be altered.
+	 * @param recursive if all reachable test case's names should be altered.
+	 *
+	 * @pre suite != null
+	 */
+	public static void appendSuiteNameToTestsIn(final TestSuite suite, final boolean recursive) {
+		for (final Enumeration _e = suite.tests(); _e.hasMoreElements();) {
+			final Test _test = (Test) _e.nextElement();
+
+			if (_test instanceof IndusTestCase) {
+				final IndusTestCase _t = (IndusTestCase) _test;
+				_t.setTestName(suite.getName() + ":" + _t.getName());
+			} else if (_test instanceof TestSuite) {
+				final TestSuite _t = (TestSuite) _test;
+				_t.setName(suite.getName() + ":" + _t.getName());
+
+				if (recursive) {
+					appendSuiteNameToTestsIn((TestSuite) _test, recursive);
+				}
+			}
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.1  2003/12/31 08:46:07  venku
    - provides helper functions to make setup flexible and pluggable.
-
  */

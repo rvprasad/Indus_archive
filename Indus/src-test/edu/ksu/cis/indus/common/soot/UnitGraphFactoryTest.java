@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import junit.framework.TestCase;
+import edu.ksu.cis.indus.IndusTestCase;
 
 import soot.Scene;
 import soot.SootClass;
@@ -34,7 +34,7 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$ $Date$
  */
 public class UnitGraphFactoryTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * The scene.
 	 */
@@ -106,4 +106,7 @@ public class UnitGraphFactoryTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/28 22:45:07  venku
+   - added new test cases for testing classes in soot package.
+
  */

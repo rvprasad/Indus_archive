@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import junit.framework.TestCase;
+import edu.ksu.cis.indus.IndusTestCase;
 
 
 /**
@@ -26,7 +26,7 @@ import junit.framework.TestCase;
  * @version $Revision$ $Date$
  */
 public final class FastUnionFindElementTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * One of the test element.
 	 */
@@ -177,6 +177,9 @@ public final class FastUnionFindElementTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/28 00:18:45  venku
+   - added unit tests for classes in data structures package.
+
    Revision 1.3  2004/01/27 16:27:16  venku
    - added setType() and addChild() methods.
    - added test logic to test the class.

@@ -15,14 +15,13 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.IndusTestCase;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -33,7 +32,7 @@ import junit.framework.TestCase;
  * @version $Revision$ $Date$
  */
 public class PairTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * One of the pairs.
 	 */
@@ -206,6 +205,9 @@ public class PairTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/28 01:47:58  venku
+   - coding convention.
+
    Revision 1.1  2004/01/28 00:18:45  venku
    - added unit tests for classes in data structures package.
  */

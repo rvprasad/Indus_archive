@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.IndusTestCase;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Environment;
@@ -24,8 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import soot.ArrayType;
 import soot.BooleanType;
@@ -57,7 +56,7 @@ import soot.jimple.NullConstant;
  * @version $Revision$ $Date$
  */
 public class UtilTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * The scene.
 	 */
@@ -255,6 +254,9 @@ public class UtilTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/08 01:53:20  venku
+   - documentation and coding convention.
+
    Revision 1.3  2004/02/08 01:46:44  venku
    - <init>, <clinit>, and clone were unaccounted for while
      removing and retaining methods.

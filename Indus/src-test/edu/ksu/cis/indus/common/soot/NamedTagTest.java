@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import junit.framework.TestCase;
+import edu.ksu.cis.indus.IndusTestCase;
 
 
 /**
@@ -26,7 +26,7 @@ import junit.framework.TestCase;
  * @version $Revision$ $Date$
  */
 public class NamedTagTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * The tag.
 	 */
@@ -82,4 +82,7 @@ public class NamedTagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/28 22:45:07  venku
+   - added new test cases for testing classes in soot package.
+
  */

@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.IndusTestCase;
+
 import java.util.ArrayList;
 import java.util.Collection;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -29,7 +29,7 @@ import junit.framework.TestCase;
  * @version $Revision$ $Date$
  */
 public class TripleTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * A triple.
 	 */
@@ -161,6 +161,9 @@ public class TripleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/07 16:13:29  venku
+   - coding conventions.
+
    Revision 1.2  2004/01/28 22:42:27  venku
  *** empty log message ***
    Revision 1.1  2004/01/28 00:18:45  venku

@@ -15,11 +15,11 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.IndusTestCase;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -30,7 +30,7 @@ import junit.framework.TestCase;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractWorkBagTest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * The workbag.
 	 */
@@ -125,6 +125,9 @@ public abstract class AbstractWorkBagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/07 16:13:29  venku
+   - coding conventions.
+
    Revision 1.3  2004/01/28 22:44:16  venku
    empty message.
    Revision 1.2  2004/01/28 22:42:27  venku
