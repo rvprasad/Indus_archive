@@ -234,6 +234,21 @@ public class DependencyXMLizer
 	 * @param s DOCUMENT ME!
 	 */
 	public static void main(final String[] s) {
+		Options options = new Options();
+		Option option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
+		option.setRequired(true);
+		option.setArgs(Option.UNLIMITED_VALUES);
+		option.setValueSeparator(' ');
+		options.addOption(option);
+		option =
+			new Option("o", "output", true,
+				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
+		option.setArgs(1);
+		options.addOption(option);
+		option.setRequired(false);
+		option = new Option("j", "jimple", false, "Dump xmlized jimple.");
+		options.addOption(option);
+
 		Object[][] dasOptions =
 			{
 				{ "a", "ibdda", "Identifier based data dependence", new IdentifierBasedDataDA() },
@@ -249,20 +264,6 @@ public class DependencyXMLizer
 				{ "m", "ida3", "Interference dependence v3", new InterferenceDAv3() },
 				{ "n", "dda", "Divergence dependence", new DivergenceDA() }
 			};
-		Options options = new Options();
-		Option option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		option.setRequired(true);
-		option.setArgs(Option.UNLIMITED_VALUES);
-		option.setValueSeparator(' ');
-		options.addOption(option);
-		option =
-			new Option("o", "output", true,
-				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
-		option.setArgs(1);
-		options.addOption(option);
-		option.setRequired(false);
-		option = new Option("j", "jimple", false, "Dump xmlized jimple.");
-		options.addOption(option);
 
 		for (int i = 0; i < dasOptions.length; i++) {
 			option = new Option(dasOptions[i][0].toString(), dasOptions[i][1].toString(), false, dasOptions[i][2].toString());
@@ -742,6 +743,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/08 10:58:52  venku
+   - changed command-line interface.
    Revision 1.21  2003/12/08 09:47:53  venku
    - set the logger.
    - reset() is called on used objects before they are reused.
