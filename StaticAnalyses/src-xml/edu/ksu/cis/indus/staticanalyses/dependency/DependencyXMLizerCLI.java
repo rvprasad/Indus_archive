@@ -146,7 +146,8 @@ public class DependencyXMLizerCLI
 			{
 				{ "a", "ibdda", "Identifier based data dependence", new IdentifierBasedDataDA() },
 				{ "b", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
-				{ "d", "ncda", "Entry control dependence", new EntryControlDA() },
+				{ "d", "dncda", "Direct Entry control dependence", new DirectEntryControlDA() },
+				{ "r", "incda", "Indirect Entry control dependence", new EntryControlDA() },
 				{ "e", "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "f", "sda", "Synchronization dependence", new SynchronizationDA() },
 				{ "g", "rda1", "Ready dependence v1", new ReadyDAv1() },
@@ -370,6 +371,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/06/03 03:50:34  venku
+   - changed the way help will be output on command line classes.
+
    Revision 1.13  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
@@ -572,6 +576,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/06/03 03:50:34  venku
+   - changed the way help will be output on command line classes.
+
    Revision 1.13  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract

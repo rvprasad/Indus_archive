@@ -31,8 +31,7 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ExitControlDA
-  extends EntryControlDA {
+public class ExitControlDA {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -43,13 +42,16 @@ public class ExitControlDA
 	 */
 	protected BitSet[] computeControlDependency(final IDirectedGraph graph) {
 		// TODO: Implement this.
-		return super.computeControlDependency(graph);
+		return null;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/03/03 10:11:40  venku
+   - formatting.
+
    Revision 1.8  2004/02/25 00:04:02  venku
    - documenation.
    Revision 1.7  2004/01/30 23:55:18  venku

@@ -17,8 +17,10 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
+import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
@@ -87,7 +89,7 @@ public class EntryControlDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object,
 	 * 		java.lang.Object)
 	 */
-	public Collection getDependees(final Object dependentStmt, final Object method) {
+	public final Collection getDependees(final Object dependentStmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
 		final List _list = (List) dependent2dependee.get(method);
 
@@ -116,7 +118,7 @@ public class EntryControlDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents(java.lang.Object,
 	 * 		java.lang.Object)
 	 */
-	public Collection getDependents(final Object dependeeStmt, final Object method) {
+	public final Collection getDependents(final Object dependeeStmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
 		final List _list = (List) dependee2dependent.get(method);
 
@@ -133,7 +135,7 @@ public class EntryControlDA
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
-	public Object getId() {
+	public final Object getId() {
 		return IDependencyAnalysis.CONTROL_DA;
 	}
 
@@ -142,7 +144,7 @@ public class EntryControlDA
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
-	public void analyze() {
+	public final void analyze() {
 		analyze(callgraph.getReachableMethods());
 	}
 
@@ -154,7 +156,7 @@ public class EntryControlDA
 	 *
 	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod)) and not method->includes(null)
 	 */
-	public void analyze(final Collection methods) {
+	public final void analyze(final Collection methods) {
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
@@ -174,11 +176,12 @@ public class EntryControlDA
 				LOGGER.debug("Processing method: " + _currMethod.getSignature());
 			}
 
-			final BitSet[] _bbCDBitSets = computeControlDependency(_bbGraph);
+			final BitSet[] _bbCDBitSets = computeControlDependency2(_bbGraph);
 			fixupMaps(_bbGraph, _bbCDBitSets, _currMethod);
 		}
 
 		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(toString());
 			LOGGER.info("END: Control Dependence processing");
 		}
 		stable = true;
@@ -189,7 +192,7 @@ public class EntryControlDA
 	 *
 	 * @return a stringized representation of this object.
 	 */
-	public String toString() {
+	public final String toString() {
 		final StringBuffer _result =
 			new StringBuffer("Statistics for control dependence as calculated by " + getClass().getName() + "\n");
 		int _localEdgeCount = 0;
@@ -244,7 +247,7 @@ public class EntryControlDA
 	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
 	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
-	protected BitSet[] computeControlDependency(final IDirectedGraph graph) {
+	private BitSet[] computeControlDependency(final IDirectedGraph graph) {
 		final Map _dag = graph.getDAG();
 		final List _nodes = graph.getNodes();
 		final int _noOfNodes = _nodes.size();
@@ -256,7 +259,7 @@ public class EntryControlDA
 		final BitSet _temp1 = new BitSet();
 		final IWorkBag _wb = new FIFOWorkBag();
 		final Collection _roots = graph.getHeads();
-		
+
 		_wb.addAllWorkNoDuplicates(_roots);
 
 		while (_wb.hasWork()) {
@@ -355,6 +358,77 @@ public class EntryControlDA
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param graph DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private BitSet[] computeControlDependency2(final IDirectedGraph graph) {
+		final List _nodes = graph.getNodes();
+		final BitSet[][] _tokenSets = new BitSet[_nodes.size()][_nodes.size()];
+		final BitSet[] _result = new BitSet[_nodes.size()];
+		final Collection _nodesWithChildren = getNodesWithChildren(_nodes);
+		final IWorkBag _wb = injectTokensAndGenerateWorkForTokenPropagation(_nodes, _tokenSets, _nodesWithChildren);
+
+		while (_wb.hasWork()) {
+			final INode _parent = (INode) _wb.getWork();
+			final int _parentIndex = _nodes.indexOf(_parent);
+
+			for (int _j = 0; _j < _parentIndex; _j++) {
+				final BitSet _parentNodeTokenSet = _tokenSets[_parentIndex][_j];
+
+				if (_parentNodeTokenSet != null) {
+					_wb.addAllWorkNoDuplicates(propagateInfoToSuccs(_parentNodeTokenSet, _parent.getSuccsOf(), _j,
+							_tokenSets, _nodes));
+				}
+			}
+
+			final int _iterEnd = _nodes.size();
+
+			for (int _j = _parentIndex + 1; _j < _iterEnd; _j++) {
+				final BitSet _parentNodeTokenSet = _tokenSets[_parentIndex][_j];
+
+				if (_parentNodeTokenSet != null) {
+					_wb.addAllWorkNoDuplicates(propagateInfoToSuccs(_parentNodeTokenSet, _parent.getSuccsOf(), _j,
+							_tokenSets, _nodes));
+				}
+			}
+		}
+		
+		// calculate control dependence based on token information
+		final Iterator _i = _nodesWithChildren.iterator();
+
+		for (int _j = _nodesWithChildren.size(); _j > 0; _j--) {
+			final INode _controlPoint = (INode) _i.next();
+			final int _cpIndex = _nodes.indexOf(_controlPoint);
+			final int _succsSize = _controlPoint.getSuccsOf().size();
+
+			for (int _k = _nodes.size() - 1; _k >= 0; _k--) {
+				final BitSet _tokens = _tokenSets[_k][_cpIndex];
+
+				if (_tokens != null) {
+					final int _cardinality = _tokens.cardinality();
+
+					if (_cardinality > 0 && _cardinality != _succsSize) {
+						BitSet _temp = _result[_k];
+
+						if (_temp == null) {
+							_temp = new BitSet(1);
+							_result[_k] = _temp;
+						}
+						_temp.set(_cpIndex);
+					}
+				}
+			}
+		}
+
+		return _result;
+	}
+
+	/**
 	 * Sets up internal data structures.
 	 *
 	 * @throws InitializationException when call graph service is not provided.
@@ -371,6 +445,26 @@ public class EntryControlDA
 		if (callgraph == null) {
 			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param nodes DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private final Collection getNodesWithChildren(final List nodes) {
+		final Collection _result = new ArrayList();
+
+		for (final Iterator _i = nodes.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+
+			if (_node.getSuccsOf().size() > 1) {
+				_result.add(_node);
+			}
+		}
+		return _result;
 	}
 
 	/**
@@ -438,15 +532,98 @@ public class EntryControlDA
 			dependent2dependee.put(method, null);
 		}
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param nodes DOCUMENT ME!
+	 * @param tokenSets DOCUMENT ME!
+	 * @param nodesWithChildren DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private IWorkBag injectTokensAndGenerateWorkForTokenPropagation(final List nodes, final BitSet[][] tokenSets,
+		final Collection nodesWithChildren) {
+		final IWorkBag _wb = new LIFOWorkBag();
+
+		for (final Iterator _i = nodesWithChildren.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			final int _nodeIndex = nodes.indexOf(_node);
+			final Collection _succs = _node.getSuccsOf();
+			final Iterator _k = _succs.iterator();
+
+			for (int _j = _succs.size(), _count = 0; _j > 0; _j--) {
+				final INode _succ = (INode) _k.next();
+				final int _succIndex = nodes.indexOf(_succ);
+				final BitSet[] _succBitSets = tokenSets[_succIndex];
+				BitSet _temp = _succBitSets[_nodeIndex];
+
+				if (_temp == null) {
+					_temp = new BitSet(1);
+					_succBitSets[_nodeIndex] = _temp;
+				}
+				_temp.set(_count++);
+				_wb.addWork(_succ);
+			}
+		}
+		return _wb;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param parentNodeTokenSet DOCUMENT ME!
+	 * @param succsOf DOCUMENT ME!
+	 * @param nodeIndex DOCUMENT ME!
+	 * @param tokenSets DOCUMENT ME!
+	 * @param nodes DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	protected Collection propagateInfoToSuccs(final BitSet parentNodeTokenSet, final Collection succsOf, final int nodeIndex,
+		final BitSet[][] tokenSets, final List nodes) {
+		final Collection _result = new ArrayList();
+		final Iterator _j = succsOf.iterator();
+		final BitSet _t = new BitSet(1);
+
+		for (int _k = succsOf.size(); _k > 0; _k--) {
+			final INode _succ = (INode) _j.next();
+			final int _succIndex = nodes.indexOf(_succ);
+			final BitSet[] _succBitSets = tokenSets[_succIndex];
+			BitSet _temp = _succBitSets[nodeIndex];
+			boolean _flag = false;
+
+			if (_temp == null) {
+				_temp = new BitSet(1);
+				_succBitSets[nodeIndex] = _temp;
+				_flag = true;
+			} else {
+				_t.clear();
+				_t.or(parentNodeTokenSet);
+				_t.andNot(_temp);
+				_flag = _t.cardinality() > 1;
+			}
+
+			if (_flag) {
+				_temp.or(parentNodeTokenSet);
+				_result.add(_succ);
+			}
+		}
+		return _result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/06/01 06:29:57  venku
+   - added new methods to CollectionUtilities.
+   - ripple effect.
    Revision 1.17  2004/05/31 21:38:08  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
-
    Revision 1.16  2004/05/14 06:27:24  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.15  2004/03/29 01:55:03  venku
