@@ -28,8 +28,9 @@ import java.util.Map;
  * This class should be extended by a configurationCollection instance of a tool.  It provides methods to programmatically
  * configure the tool.  It also provides a method to stringize the configurationCollection if required by the toolkits/IDEs.
  * Some toolkits/IDE may support persistence of only string-based properties.  To this end, we explicitly provide a
- * <code>stringizeConfiguration</code> and <code>destringizeConfiguration</code> methods in <code>AbstractTool</code> interface that
- * should be used to set and get the information in an instance of this class as a string suitable for serialization.
+ * <code>stringizeConfiguration</code> and <code>destringizeConfiguration</code> methods in <code>AbstractTool</code>
+ * interface that should be used to set and get the information in an instance of this class as a string suitable for
+ * serialization.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -54,9 +55,7 @@ public abstract class AbstractToolConfiguration {
 	protected final Map properties = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The name of the configuration.
 	 */
 	protected String NAME;
 
@@ -102,9 +101,8 @@ public abstract class AbstractToolConfiguration {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Initialize the configuration.  This is required if the configuration is created programmatically rather than
+	 * java-to-xml binding.
 	 */
 	public abstract void initialize();
 
@@ -125,14 +123,16 @@ public abstract class AbstractToolConfiguration {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/26 23:46:59  venku
+   - Renamed Tool to AbstractTool
+   - Renamed ToolConfiguration to AbstractToolConfiguration
+   - Renamed ToolConfigurator to AbstractToolConfigurator
    Revision 1.7  2003/09/26 15:35:53  venku
    - finalized methods.
-
    Revision 1.6  2003/09/26 15:30:39  venku
    - removed PropertyIdentifier class.
    - ripple effect of the above change.
    - formatting
-
    Revision 1.5  2003/09/26 15:00:01  venku
    - The configuration of tools in Indus has been placed in this package.
    - Formatting.

@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
-import edu.ksu.cis.indus.tools.ToolConfiguration;
+import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
 
 import java.util.Collection;
@@ -40,7 +40,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 class SlicerConfiguration
-  extends ToolConfiguration {
+  extends AbstractToolConfiguration {
 	/**
 	 * This identifies the property that indicates if interprocedural divergence dependence should be used instead of mere
 	 * intraprocedural divergent dependence.
@@ -152,7 +152,7 @@ class SlicerConfiguration
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#initialize()
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
 		setProperty(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, Boolean.TRUE);
@@ -166,7 +166,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isDivergenceDepAnalysisUsed() {
 		return ((Boolean) properties.get(USE_DIVERGENCEDA)).booleanValue();
@@ -175,7 +175,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isECBasedInterferenceDepAnalysisUsed() {
 		return ((Boolean) properties.get(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA)).booleanValue();
@@ -184,7 +184,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isECBasedReadyDepAnalysisUsed() {
 		return ((Boolean) properties.get(EQUIVALENCE_CLASS_BASED_READYDA)).booleanValue();
@@ -193,7 +193,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isInterproceduralDivergenceDepAnalysisUsed() {
 		return ((Boolean) properties.get(INTERPROCEDURAL_DIVERGENCEDA)).booleanValue();
@@ -202,7 +202,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isReadyDepAnalysisUsed() {
 		return ((Boolean) properties.get(USE_READYDA)).booleanValue();
@@ -211,7 +211,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule1Used() {
 		return ((Boolean) properties.get(USE_RULE1_IN_READYDA)).booleanValue();
@@ -220,7 +220,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule2Used() {
 		return ((Boolean) properties.get(USE_RULE2_IN_READYDA)).booleanValue();
@@ -229,7 +229,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule3Used() {
 		return ((Boolean) properties.get(USE_RULE3_IN_READYDA)).booleanValue();
@@ -238,7 +238,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected boolean isReadyRule4Used() {
 		return ((Boolean) properties.get(USE_RULE4_IN_READYDA)).booleanValue();
@@ -247,7 +247,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param type DOCUMENT ME!
+	 * @param type Should not be used!
 	 */
 	protected void setSliceType(final String type) {
 		if (type.equals(SlicingEngine.BACKWARD_SLICE) || type.equals(SlicingEngine.COMPLETE_SLICE)) {
@@ -258,7 +258,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return Should not be used!
 	 */
 	protected String getSliceType() {
 		return properties.get(SLICE_TYPE).toString();
@@ -337,7 +337,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useDivergenceDepAnalysis(final boolean use) {
 		properties.put(USE_DIVERGENCEDA, Boolean.valueOf(use));
@@ -346,7 +346,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useECBasedInterferenceDepAnalysis(final boolean use) {
 		properties.put(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, Boolean.valueOf(use));
@@ -355,7 +355,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useECBasedReadyDepAnalysis(final boolean use) {
 		properties.put(EQUIVALENCE_CLASS_BASED_READYDA, Boolean.valueOf(use));
@@ -364,7 +364,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useInterproceduralDivergenceDepAnalysis(final boolean use) {
 		properties.put(INTERPROCEDURAL_DIVERGENCEDA, Boolean.valueOf(use));
@@ -373,7 +373,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useReadyDepAnalysis(final boolean use) {
 		properties.put(USE_READYDA, Boolean.valueOf(use));
@@ -382,7 +382,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useReadyRule1(final boolean use) {
 		properties.put(USE_RULE1_IN_READYDA, Boolean.valueOf(use));
@@ -391,7 +391,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useReadyRule2(final boolean use) {
 		properties.put(USE_RULE2_IN_READYDA, Boolean.valueOf(use));
@@ -400,7 +400,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useReadyRule3(final boolean use) {
 		properties.put(USE_RULE3_IN_READYDA, Boolean.valueOf(use));
@@ -409,7 +409,7 @@ class SlicerConfiguration
 	/**
 	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
 	 *
-	 * @param use DOCUMENT ME!
+	 * @param use Should not be used!
 	 */
 	protected void useReadyRule4(final boolean use) {
 		properties.put(USE_RULE4_IN_READYDA, Boolean.valueOf(use));
@@ -442,11 +442,15 @@ class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/26 15:30:39  venku
+   - removed PropertyIdentifier class.
+   - ripple effect of the above change.
+   - formatting
    Revision 1.5  2003/09/26 07:33:18  venku
    - checkpoint commit.
    Revision 1.4  2003/09/26 05:55:41  venku
  *** empty log message ***
-       Revision 1.1  2003/09/24 07:32:23  venku
-       - Created an implementation of indus tool api specific to Slicer.
-         The GUI needs to be setup and bandera adapter needs to be fixed.
+         Revision 1.1  2003/09/24 07:32:23  venku
+         - Created an implementation of indus tool api specific to Slicer.
+           The GUI needs to be setup and bandera adapter needs to be fixed.
  */

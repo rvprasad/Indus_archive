@@ -39,16 +39,18 @@ import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.tools.AbstractTool;
+import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
+import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.tools.Tool;
-import edu.ksu.cis.indus.tools.ToolConfiguration;
 import edu.ksu.cis.indus.transformations.slicer.ISlicingBasedTransformer;
 import edu.ksu.cis.indus.transformations.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.swt.widgets.Composite;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
@@ -76,7 +78,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public final class SlicerTool
-  extends Tool {
+  extends AbstractTool {
 	static {
 		Phase i = Phase.createPhase();
 		i.nextMajorPhase();
@@ -222,9 +224,12 @@ public final class SlicerTool
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the slicing criteria.
 	 *
-	 * @param theCriteria The criteria to set.
+	 * @param theCriteria is a collection of slicing criteria.
+	 *
+	 * @pre theCriteria != null and theCriteria.oclIsKindOf(Collection(AbstractSlicingCriteria))
+	 * @pre theCriteria->forall(o | o != null)
 	 */
 	public void setCriteria(final Collection theCriteria) {
 		criteria.clear();
@@ -232,12 +237,14 @@ public final class SlicerTool
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the slicing criteria.
 	 *
-	 * @return Returns the criteria.
+	 * @return returns the criteria.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
 	public Collection getCriteria() {
-		return this.criteria;
+		return criteria;
 	}
 
 	/**
@@ -250,9 +257,12 @@ public final class SlicerTool
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the methods which serve as the entry point into the system to be sliced.
 	 *
-	 * @param theRootMethods The rootMethods to set.
+	 * @param theRootMethods is a collection of methods.
+	 *
+	 * @pre theRootMethods != null and theRootMethods.oclIsKindOf(Collection(SootMethod))
+	 * @pre theRootMethods->forall(o | o != null)
 	 */
 	public void setRootMethods(final Collection theRootMethods) {
 		rootMethods.clear();
@@ -260,47 +270,55 @@ public final class SlicerTool
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Returns the methods which serve as the entry point into the system to be sliced.
 	 *
-	 * @return Returns the rootMethods.
+	 * @return Returns the root methods of the system.
+	 *
+	 * @post result!= null and result.oclIsKindOf(Collection(SootMethod))
 	 */
 	public Collection getRootMethods() {
 		return Collections.unmodifiableCollection(rootMethods);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the system to be sliced.
 	 *
-	 * @param theSystem The theScene to set.
+	 * @param theSystem contains the class of the system to be sliced.
+	 *
+	 * @pre theSystem != null
 	 */
 	public void setSystem(final Scene theSystem) {
 		system = theSystem;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the system being sliced.
 	 *
-	 * @return Returns the theScene.
+	 * @return the system being sliced.
+	 *
+	 * @post result != null
 	 */
 	public Scene getSystem() {
 		return this.system;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Set the transformer to be used during slicing.
 	 *
-	 * @param theTransformer DOCUMENT ME!
+	 * @param theTransformer is the transformer driven by slicing.
+	 *
+	 * @pre theTransformer != null
 	 */
 	public void setTransformer(final ISlicingBasedTransformer theTransformer) {
 		transformer = theTransformer;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the transformer.
 	 *
-	 * @return Returns the transformer.
+	 * @return the transformer driven by slicing.
+	 *
+	 * @post result != null
 	 */
 	public ISlicingBasedTransformer getTransformer() {
 		return this.transformer;
@@ -313,13 +331,13 @@ public final class SlicerTool
 		try {
 			IBindingFactory bfact = BindingDirectory.getFactory(this.getClass());
 			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-			configurationInfo = (ToolConfiguration) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
+			configurationInfo = (AbstractToolConfiguration) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
 
 			if (configurator != null) {
-				configurator.hide();
 				configurator.dispose();
 			}
-			configurator = new SlicerConfigurator();
+			configurator =
+				new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator());
 		} catch (JiBXException e) {
 			LOGGER.error("Error while unmarshalling Slicer configurationCollection.", e);
 			throw new RuntimeException(e);
@@ -327,7 +345,7 @@ public final class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.Tool#run()
+	 * @see edu.ksu.cis.bandera.tool.AbstractTool#run()
 	 */
 	public void execute(final Object phaseParam)
 	  throws InterruptedException {
@@ -394,12 +412,19 @@ public final class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.Tool#initialize()
+	 * @see edu.ksu.cis.indus.tools.AbstractTool#initialize()
 	 */
 	public void initialize() {
 		SlicerConfiguration config = new SlicerConfiguration();
 		config.initialize();
 		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(config);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void reset() {
+		phase.reset();
 	}
 
 	/**
@@ -450,6 +475,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/26 15:08:02  venku
+   - completed support for exposing slicer as a tool
+     and configuring it both in Bandera and outside it.
    Revision 1.3  2003/09/26 07:33:29  venku
    - checkpoint commit.
    Revision 1.2  2003/09/26 05:55:28  venku

@@ -19,61 +19,57 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class represents a composite of configurations. The idea is to use composite to pattern to enable hierarchical
+ * configuration information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class CompositeToolConfiguration
-  extends ToolConfiguration {
+  extends AbstractToolConfiguration {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(CompositeToolConfiguration.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The list of constituent configuration.
 	 */
 	protected final List configurations = new ArrayList();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The active constituent configuration.
 	 */
-	private ToolConfiguration active;
+	private AbstractToolConfiguration active;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Create a new container of configurations.  This is primarily used for java-2-xml binding.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a configurations container.
+	 *
+	 * @post result != null
 	 */
 	public static List createConfigurations() {
 		return new ArrayList();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the active constituent configuration.
 	 *
-	 * @param tc DOCUMENT ME!
+	 * @param config is the active configuration.
+	 *
+	 * @pre config != null and configurations.contains(config)
 	 */
-	public void setActiveToolConfiguration(final ToolConfiguration tc) {
-		if (configurations.contains(tc)) {
-			active = tc;
+	public void setActiveToolConfiguration(final AbstractToolConfiguration config) {
+		if (configurations.contains(config)) {
+			active = config;
 		} else {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("The given configuration is not part of this collection.  It was not activated.");
@@ -82,20 +78,20 @@ public final class CompositeToolConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the active configuration.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the active configuration.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when there are no configurations.
+	 *
+	 * @post result != null
 	 */
-	public ToolConfiguration getActiveToolConfiguration() {
+	public AbstractToolConfiguration getActiveToolConfiguration() {
 		if (active == null) {
-			active = (ToolConfiguration) configurations.get(0);
+			active = (AbstractToolConfiguration) configurations.get(0);
 
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("Selecting the first configurationCollection as active configurationCollection.");
+				LOGGER.info("Selecting the first configuration as active configurationCollection.");
 			}
 
 			if (active == null) {
@@ -106,15 +102,13 @@ public final class CompositeToolConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the configuration with the given id as active.
 	 *
-	 * @param id DOCUMENT ME!
+	 * @param id of the configuration to be activated.
 	 */
 	public void setActiveToolConfigurationID(final String id) {
 		for (Iterator i = configurations.iterator(); i.hasNext();) {
-			ToolConfiguration config = (ToolConfiguration) i.next();
+			AbstractToolConfiguration config = (AbstractToolConfiguration) i.next();
 
 			if (config.NAME.equals(id)) {
 				active = config;
@@ -123,73 +117,72 @@ public final class CompositeToolConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the id of the active configuration.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return id of the configuration.
+	 *
+	 * @post result != null
 	 */
 	public String getActiveToolConfigurationID() {
 		return getActiveToolConfiguration().NAME;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Add a configuration to this composite.
 	 *
-	 * @param tc DOCUMENT ME!
+	 * @param config is the configuration to be added.
+	 *
+	 * @pre config != null
+	 * @post config != null implies configurations.contains(config)
 	 */
-	public void addToolConfiguration(final ToolConfiguration tc) {
-		if (tc == null) {
+	public void addToolConfiguration(final AbstractToolConfiguration config) {
+		if (config == null) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Null configurations are not supported.");
 			}
 		} else {
-			if (configurations.contains(tc)) {
+			if (configurations.contains(config)) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("The given configurationCollection exists.");
 				}
 			} else {
-				configurations.add(tc);
+				configurations.add(config);
 			}
 		}
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#initialize()
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the configurations.
 	 *
-	 * @param configs DOCUMENT ME!
+	 * @param configs to be contained in this composite.
+	 *
+	 * @pre configs != null and configs.oclIsKindOf(Collection(AbstractToolConfiguration))
 	 */
-	protected void setConfigurations(final List configs) {
+	protected void setConfigurations(final Collection configs) {
 		configurations.clear();
 		configurations.addAll(configs);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the tool configuration with the given id.
 	 *
-	 * @param name DOCUMENT ME!
+	 * @param id of the requested configuration.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the requested configuration.
 	 */
-	protected ToolConfiguration getToolConfiguration(final String name) {
-		ToolConfiguration result = null;
+	protected AbstractToolConfiguration getToolConfiguration(final String id) {
+		AbstractToolConfiguration result = null;
 
 		for (Iterator i = configurations.iterator(); i.hasNext();) {
-			result = (ToolConfiguration) i.next();
+			result = (AbstractToolConfiguration) i.next();
 
-			if (result.NAME.equals(name)) {
+			if (result.NAME.equals(id)) {
 				break;
 			}
 			result = null;
@@ -198,7 +191,7 @@ public final class CompositeToolConfiguration
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#processProperty(edu.ksu.cis.indus.tools.ToolConfiguration.PropertyIdentifier,
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#processProperty(edu.ksu.cis.indus.tools.AbstractToolConfiguration.PropertyIdentifier,
 	 * 		java.lang.Object)
 	 */
 	protected boolean processProperty(final Object propertyID, final Object value) {
@@ -209,6 +202,10 @@ public final class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/26 15:30:39  venku
+   - removed PropertyIdentifier class.
+   - ripple effect of the above change.
+   - formatting
    Revision 1.4  2003/09/26 15:16:40  venku
    - coding conventions.
    Revision 1.3  2003/09/26 15:05:01  venku

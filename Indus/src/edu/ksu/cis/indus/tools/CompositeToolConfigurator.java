@@ -30,78 +30,53 @@ import java.util.Iterator;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides a graphical interface to configure composite tool configurations.  It typically provides the support
+ * to pick each configuration and delegates the configuration of each set of configuration information to specific
+ * configurators.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class CompositeToolConfigurator
-  extends ToolConfigurator {
+  extends AbstractToolConfigurator {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the child configurator to be used to configure each instance of configuration.
+	 */
+	AbstractToolConfigurator childConfigurator;
+
+	/**
+	 * This combo presents the available configurations.
 	 */
 	Combo configCombo;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is composite on which the child configurator will be displayed.
 	 */
 	Composite composite;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the composite configuration being configured.
 	 */
 	CompositeToolConfiguration configurationCollection;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The shell on which the provided interface will be displayed.
 	 */
-	ToolConfigurator childConfigurator;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private Shell shell;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private String title;
+	Composite parent;
 
 	/**
 	 * Creates a new CompositeToolConfigurator object.
 	 *
-	 * @param configs DOCUMENT ME!
-	 * @param child DOCUMENT ME!
+	 * @param configs is the composite configuration.
+	 * @param child is the configurator to be used for each configuration instance.
+	 * @param text is the title of the provided interface.
+	 *
+	 * @pre configs != null and child != null
 	 */
-	protected CompositeToolConfigurator(final CompositeToolConfiguration configs, final ToolConfigurator child) {
+	public CompositeToolConfigurator(final CompositeToolConfiguration configs, final AbstractToolConfigurator child) {
 		configurationCollection = configs;
 		childConfigurator = child;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param text DOCUMENT ME!
-	 */
-	public void setTitle(final String text) {
-		title = text;
 	}
 
 	/**
@@ -114,82 +89,52 @@ public final class CompositeToolConfigurator
 		configurationCollection = null;
 		childConfigurator.dispose();
 		childConfigurator = null;
-		shell.dispose();
-		shell = null;
-	}
 
-	/**
-	 * Hides the editor widget.  The widget can be redisplayed by calling <code>display()</code>.
-	 */
-	public void hide() {
-		shell.close();
-	}
-
-	/**
-	 * Displays the editor widget.  The widget can be hidden by calling <code>hide()</code>.
-	 *
-	 * @throws RuntimeException DOCUMENT ME!
-	 */
-	public void open() {
-		if (!isInitialized()) {
-			initialize();
-		}
-
-		if (!isDisposed()) {
-			configCombo.removeAll();
-
-			for (Iterator i = configurationCollection.configurations.iterator(); i.hasNext();) {
-				ToolConfiguration config = (ToolConfiguration) i.next();
-				configCombo.add(config.NAME);
-			}
-			configCombo.select(configurationCollection.configurations.indexOf(
-					configurationCollection.getActiveToolConfiguration()));
-		} else {
-			throw new RuntimeException("Disposed configurators cannot be displayed.");
+		if (!parent.isDisposed()) {
+			parent.dispose();
+			parent = null;
 		}
 	}
 
 	/**
-	 * {@inheritDoc}<i>This method implementation is empty.</i>
+	 * {@inheritDoc}<code>configuration</code> is <i>ignored</i>.
 	 *
-	 * @see edu.ksu.cis.indus.tools.ToolConfigurator#display(java.lang.Object)
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#display(AbstractToolConfiguration)
 	 */
-	protected void displayTemplateMethod(final ToolConfiguration configuration) {
-		// does nothing
+	protected void displayTemplateMethod(final AbstractToolConfiguration configuration) {
+		configCombo.removeAll();
+
+		for (Iterator i = configurationCollection.configurations.iterator(); i.hasNext();) {
+			AbstractToolConfiguration config = (AbstractToolConfiguration) i.next();
+			configCombo.add(config.NAME);
+		}
+		configCombo.select(configurationCollection.configurations.indexOf(
+				configurationCollection.getActiveToolConfiguration()));
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param theComposite DOCUMENT ME!
+	 * {@inheritDoc}<i>Does nothing.</i>
 	 */
 	protected void initialize(final Composite theComposite) {
-		// does nothing
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	private void initialize() {
-		shell = new Shell(SWT.SHELL_TRIM | SWT.APPLICATION_MODAL);
-		shell.setText(title);
+		if (theComposite == null) {
+			parent = new Shell(SWT.SHELL_TRIM | SWT.APPLICATION_MODAL);
+		} else {
+      parent = theComposite;      
+        }
 
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
-		shell.setLayout(gridLayout);
+		parent.setLayout(gridLayout);
 
-		new Label(shell, SWT.NONE).setText("Configurations:");
-		configCombo = new Combo(shell, SWT.DROP_DOWN | SWT.READ_ONLY);
+		new Label(parent, SWT.NONE).setText("Configurations:");
+		configCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
 		configCombo.setItems(new String[0]);
 		configCombo.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 		configCombo.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					int index = configCombo.getSelectionIndex();
-					ToolConfiguration tc = (ToolConfiguration) configurationCollection.configurations.get(index);
+					AbstractToolConfiguration tc =
+						(AbstractToolConfiguration) configurationCollection.configurations.get(index);
 					configurationCollection.setActiveToolConfiguration(tc);
 					childConfigurator.display(composite, tc);
 				}
@@ -198,12 +143,12 @@ public final class CompositeToolConfigurator
 					widgetSelected(evt);
 				}
 			});
-		composite = new Composite(shell, SWT.NONE);
+		composite = new Composite(parent, SWT.NONE);
 
-		Button ok = new Button(shell, SWT.PUSH);
+		Button ok = new Button(parent, SWT.PUSH);
 		ok.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(SelectionEvent evt) {
-					hide();
+					parent.setVisible(false);
 				}
 
 				public void widgetDefaultSelected(SelectionEvent evt) {
@@ -216,6 +161,8 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/26 23:03:13  venku
+   - Added OK button.
    Revision 1.2  2003/09/26 15:00:01  venku
    - The configuration of tools in Indus has been placed in this package.
    - Formatting.
