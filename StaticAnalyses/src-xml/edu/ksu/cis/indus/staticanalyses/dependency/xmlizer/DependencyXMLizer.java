@@ -478,8 +478,8 @@ public class DependencyXMLizer
 	 */
 	public void populateDAs() {
 		// The order is important for the purpose of Testing as it influences the output file name
-		das.add(new ControlDA(ControlDA.BACKWARD));
 		das.add(new ControlDA(ControlDA.FORWARD));
+        das.add(new ControlDA(ControlDA.BACKWARD));
 		das.add(new DivergenceDA());
 		das.add(new IdentifierBasedDataDA());
 		das.add(new InterferenceDAv1());
@@ -645,6 +645,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/17 16:58:15  venku
+   - populateDAs() needs to be called from outside the constructor.
+   - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
+
    Revision 1.6  2003/11/17 15:42:46  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.5  2003/11/17 03:22:59  venku
