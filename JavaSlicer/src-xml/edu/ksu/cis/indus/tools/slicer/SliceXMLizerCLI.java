@@ -209,8 +209,8 @@ public class SliceXMLizerCLI
 
 		_xmlizer.setIDGenerator(new UniqueJimpleIDGenerator());
 		_xmlizer.writeXML();
-		_xmlizer.residualize();
 		_xmlizer.outputStats();
+		_xmlizer.residualize();
 		_xmlizer.slicer.reset();
 		_xmlizer.reset();
 	}
