@@ -50,6 +50,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.ui.search.PrettySignature;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -374,28 +375,22 @@ public class IndusConfigurationDialog
 					final Object _res[] =_sld.getResult();
 					if (_res != null && _res.length > 0) {
 						String _scopeSpec = "<?xml version=\"1.0\"?>\n";
-						_scopeSpec += "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-							"xmlns:indus=\"http://indus.projects.cis.ksu.edu/indus\"" +
+						
+					
+						_scopeSpec += "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+							"xmlns:indus=\"http://indus.projects.cis.ksu.edu/indus\" " +
 							"indus:specName=\"scope_spec\">\n";												
 						for (int i = 0; i < _res.length; i++) {
-							final IMethod _method = (IMethod) _res[i];
-							_scopeSpec += "\n<methodSpec>\n";
-							_scopeSpec += "<declaringClassSpec>\n";
-						    _scopeSpec += "<typeSpec hierarchySpec=\"IDENTITY\" inclusion=\"true\">" + _method.getParent().getElementName();
-						    _scopeSpec += "\n</typeSpec>\n</declaringClassSpec>\n";	
-						    _scopeSpec += "<returnTypeSpec>\n";
-							_scopeSpec += "<typeSpec hierarchySpec=\"IDENTITY\" inclusion=\"true\">";
-							try {
-							final String _retStr = _method.getReturnType();
-							_scopeSpec += _retStr;
-							} catch(JavaModelException _jme) {
-								_scopeSpec += "void";
-							}							
-							_scopeSpec += "\n</typeSpec>\n" + "</returnTypeSpec>";
-						     _scopeSpec += "\n<methodNameSpec>" + _method.getElementName() + "</methodNameSpec>\n";							  
-							_scopeSpec += "</methodSpec>\n";
+							final IMethod _method = (IMethod) _res[i];							 
+							_scopeSpec += "\n<indus:methodSpec indus:specName=\"scope2\" indus:methodNameSpec=\"" + 
+								 _method.getElementName()  +  "\">\n";
+							_scopeSpec += "<indus:declaringClassSpec indus:scopeExtension=\"IDENTITY\""  +
+									"indus:nameSpec=\"" + PrettySignature.getSignature(_method.getParent())  + "\"/>\n";							
+						    _scopeSpec += "<indus:returnTypeSpec indus:scopeExtension=\"PRIMITIVE\" indus:nameSpec=\"void\" />\n";																									
+						    _scopeSpec += " <indus:parameterSpecs/>";
+							_scopeSpec += "</indus:methodSpec>\n";
 						}
-						_scopeSpec += "</scopeSpec>";
+						_scopeSpec += "</indus:scopeSpec>";
 						KaveriPlugin.getDefault().getIndusConfiguration().setScopeSpecification(_scopeSpec);
 					}
 				}
