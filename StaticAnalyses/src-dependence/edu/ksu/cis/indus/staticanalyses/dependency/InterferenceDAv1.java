@@ -614,11 +614,13 @@ public class InterferenceDAv1
 		final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
 		boolean _result = true;
 
-		// If any one of the method is a class initialization method then we can optimize.
+		// If both or atleast one of the methods is a class initialization method then we can optimize.
 		final boolean _deci = _deMethod.getName().equals("<clinit>");
 		final boolean _dtci = _dtMethod.getName().equals("<clinit>");
 
-		if (_deci ^ _dtci) {
+		if (_deci && _dtci) {
+			_result = false;
+		} else if (_deci ^ _dtci) {
 			final SootClass _deClass = _deMethod.getDeclaringClass();
 			final SootClass _dtClass = _dtMethod.getDeclaringClass();
 
@@ -653,6 +655,8 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/07/07 07:19:33  venku
+   - coding conventions.
    Revision 1.37  2004/06/16 14:30:12  venku
    - logging.
    Revision 1.36  2004/05/14 06:27:24  venku
