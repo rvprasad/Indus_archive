@@ -141,12 +141,8 @@ public final class AliasedUseDefInfo
 			final Map _stmt2defs = (Map) use2defsMap.get(context.getCurrentMethod());
 
 			if (_stmt2defs != null) {
-				_result = (Collection) _stmt2defs.get(useStmt);
+				_result = (Collection) CollectionsUtilities.getFromMap(_stmt2defs, useStmt, Collections.EMPTY_LIST);
 			}
-		}
-
-		if (_result == null) {
-			_result = Collections.EMPTY_LIST;
 		}
 		return _result;
 	}
@@ -165,15 +161,11 @@ public final class AliasedUseDefInfo
 		Collection _result = null;
 
 		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
-			Map _stmt2uses = (Map) def2usesMap.get(context.getCurrentMethod());
+			final Map _stmt2uses = (Map) def2usesMap.get(context.getCurrentMethod());
 
 			if (_stmt2uses != null) {
-				_result = (Collection) _stmt2uses.get(defStmt);
+				_result = (Collection) CollectionsUtilities.getFromMap(_stmt2uses, defStmt, Collections.EMPTY_LIST);
 			}
-		}
-
-		if (_result == null) {
-			_result = Collections.EMPTY_LIST;
 		}
 		return _result;
 	}
@@ -189,11 +181,11 @@ public final class AliasedUseDefInfo
 			final Value _ref = _as.getRightOp();
 
 			if (_ref instanceof ArrayRef || _ref instanceof FieldRef) {
-				Map _stmt2ddees = (Map) CollectionsUtilities.getFromMap(use2defsMap, _method, new HashMap());
-				_stmt2ddees.put(stmt, Collections.EMPTY_SET);
+				final Map _stmt2ddees = (Map) CollectionsUtilities.getFromMap(use2defsMap, _method, new HashMap());
+				_stmt2ddees.put(stmt, null);
 			} else {
-				Map _stmt2ddents = (Map) CollectionsUtilities.getFromMap(def2usesMap, _method, new HashMap());
-				_stmt2ddents.put(stmt, Collections.EMPTY_SET);
+				final Map _stmt2ddents = (Map) CollectionsUtilities.getFromMap(def2usesMap, _method, new HashMap());
+				_stmt2ddents.put(stmt, null);
 			}
 		}
 	}
@@ -256,24 +248,10 @@ public final class AliasedUseDefInfo
 							 * Check if the use method and the def method are the same.  If so, use CFG reachability.
 							 * If not, use call graph reachability within the locality of a thread.
 							 */
-							boolean _flag = _related;
-
-							if (_useMethod.equals(_defMethod)) {
-								final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_useMethod);
-								final BasicBlock _bbUse = _bbg.getEnclosingBlock(_useStmt);
-								final BasicBlock _bbDef = _bbg.getEnclosingBlock(_defStmt);
-								_flag = _bbUse == _bbDef || _bbg.isReachable(_bbDef, _bbUse, true);
-							} else {
-								// TODO: determine if the use method is reachable via a call-site in the 
-								// def method that is reachable from the def site in the def method.  
-								// If so, set _flag to true
-								;
-							}
-
-							if (_flag) {
+							if (doesDefReachUse(_defMethod, _defStmt, _useMethod, _useStmt)) {
 								Collection _defs = (Collection) _useStmt2defStmts.getValue();
 
-								if (_defs.equals(Collections.EMPTY_SET)) {
+								if (_defs == null) {
 									_defs = new HashSet();
 									_useStmt2defStmts.setValue(_defs);
 								}
@@ -393,11 +371,44 @@ public final class AliasedUseDefInfo
 		}
 		return _result;
 	}
+
+	/**
+	 * Checks if the def reaches the use site.
+	 *
+	 * @param defMethod in which the def occurs.
+	 * @param defStmt in which the def occurs.
+	 * @param useMethod in which the use occurs.
+	 * @param useStmt in which the use occurs.
+	 *
+	 * @return <code>true</code> if the def may reach the use site; <code>false</code>, otherwise.
+	 *
+	 * @pre defMethod != null and defStmt != null and useMethod != null and useStmt != null
+	 */
+	private boolean doesDefReachUse(final SootMethod defMethod, final Stmt defStmt, final SootMethod useMethod,
+		final Stmt useStmt) {
+		boolean _flag;
+
+		if (useMethod.equals(defMethod)) {
+			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(useMethod);
+			final BasicBlock _bbUse = _bbg.getEnclosingBlock(useStmt);
+			final BasicBlock _bbDef = _bbg.getEnclosingBlock(defStmt);
+			_flag = _bbUse == _bbDef || _bbg.isReachable(_bbDef, _bbUse, true);
+		} else {
+			// TODO: determine if the use method is reachable via a call-site in the 
+			// def method that is reachable from the def site in the def method.  
+			// If so, set _flag to true
+			_flag = true;
+		}
+		return _flag;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/05/31 21:38:09  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.30  2004/05/21 22:30:54  venku
    - documentation.
    Revision 1.29  2004/05/21 22:11:47  venku
