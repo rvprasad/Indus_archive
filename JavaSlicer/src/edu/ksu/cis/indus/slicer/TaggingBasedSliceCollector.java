@@ -225,9 +225,8 @@ final class TaggingBasedSliceCollector {
 			 * Include the first statement of the handler for all traps which cover atleast one statement included in the
 			 * slice
 			 */
-			final Body _body = _method.getActiveBody();
-
-			if (_body != null) {
+			if (_method.isConcrete()) {
+				final Body _body = _method.getActiveBody();
 				final Chain _sl = _body.getUnits();
 
 				for (final Iterator _j = _sl.iterator(); _j.hasNext();) {
@@ -291,6 +290,8 @@ final class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/12/16 00:13:12  venku
+   - logging.
    Revision 1.15  2003/12/15 16:31:46  venku
    - deleted tagHost and inlined it in includeInSlice.
    Revision 1.14  2003/12/13 19:46:33  venku
