@@ -412,7 +412,7 @@ public class ProcessingController {
 					pp.callback(field);
 				}
 			}
-			processMethods(Util.convert("java.util.List", sc.getMethods()));
+			processMethods(Util.convert("java.util.ArrayList", sc.getMethods()));
 		}
 	}
 
@@ -484,6 +484,9 @@ public class ProcessingController {
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/21 07:22:22  venku
+Changed \@pre to $pre in the ocl constraints specified in Javadoc.
+
 Revision 1.1  2003/02/20 19:19:31  venku
 Processing was the general agenda, not post processing.
 Post processing was a flavor.  So, changed the post processing
