@@ -527,9 +527,9 @@ final class MethodContext
 	 */
 	private void unifyAliasSets(final AliasSet representative, final AliasSet represented) {
 		if ((representative == null && represented != null) || (representative != null && represented == null)) {
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("Incompatible method contexts being unified - return value - " + representative + " "
-					+ represented);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Incompatible method contexts being unified - representative - " + representative
+					+ "\n represented - " + represented);
 			}
 		} else if (representative != null) {
 			representative.unifyAliasSet(represented);
@@ -540,10 +540,11 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/08/11 08:47:24  venku
+   - changed logging levels.
    Revision 1.23  2004/08/11 08:21:50  venku
    - inlined unifyParameters().
    - changed the way alias sets of global variables were handled during cloning in fixUpFieldMapsOfClone().
-
    Revision 1.22  2004/08/05 08:26:28  venku
    - fixed the nagging bug in alias set cloning.
    Revision 1.21  2004/08/04 10:51:11  venku

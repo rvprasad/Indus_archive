@@ -53,9 +53,8 @@ import soot.SootMethod;
  */
 public final class EntryControlDA
   extends AbstractControlDA {
-
 	// TODO: Link to documentation describing entry-based intraprocedural control dependence needs to be added.
-    
+
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -101,7 +100,15 @@ public final class EntryControlDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Entry Control Dependence processing");
+		}
+
 		analyze(callgraph.getReachableMethods());
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Entry Control Dependence processing");
+		}
 	}
 
 	/**
@@ -114,10 +121,6 @@ public final class EntryControlDA
 	 */
 	public void analyze(final Collection methods) {
 		unstable();
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Entry Control Dependence processing");
-		}
 
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
 			final SootMethod _currMethod = (SootMethod) _i.next();
@@ -143,9 +146,6 @@ public final class EntryControlDA
 			LOGGER.debug("analyze() - " + toString());
 		}
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: Entry Control Dependence processing");
-		}
 		stable();
 	}
 
@@ -585,6 +585,10 @@ public final class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/08/15 08:37:27  venku
+   - REFACTORING pertaining to feature request #426
+     - refactored dependence retriever interface.
+     - refactored direction sensitive dependence information creation.
    Revision 1.35  2004/08/05 09:19:05  venku
    - coding conventions.
    Revision 1.34  2004/07/28 09:09:27  venku
