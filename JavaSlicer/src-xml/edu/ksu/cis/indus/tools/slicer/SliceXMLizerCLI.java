@@ -121,6 +121,16 @@ public class SliceXMLizerCLI
 	private final String nameOfSliceTag = "indus.tools.slicer.SliceXMLizerCLI:SLICER";
 
 	/**
+	 * This indicates if jimple representation of the system after residualiztion should be dumped in XML form.
+	 */
+	private boolean postResJimpleDump;
+
+	/**
+	 * This indicates if jimple representation of the system before residualiztion should be dumped in XML form.
+	 */
+	private boolean preResJimpleDump;
+
+	/**
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
@@ -154,10 +164,15 @@ public class SliceXMLizerCLI
 			LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
 		}
 
-		_driver.dumpJimpleAsXML("unsliced");
+		if (_driver.preResJimpleDump) {
+			_driver.dumpJimpleAsXML("unsliced");
+		}
 		_driver.writeXML();
 		_driver.residualize();
-		_driver.dumpJimpleAsXML("sliced");
+
+		if (_driver.postResJimpleDump) {
+			_driver.dumpJimpleAsXML("sliced");
+		}
 	}
 
 	/**
@@ -299,7 +314,10 @@ public class SliceXMLizerCLI
 		_o = new Option("h", "help", false, "Display message.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("j", "output-jimple", false, "Output xml representation of the jimple.");
+		_o = new Option("i", "output-jimple", false, "Output xml representation of the jimple BEFORE residualization.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("j", "output-jimple", false, "Output xml representation of the jimple AFTER residualization.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 
@@ -435,7 +453,10 @@ public class SliceXMLizerCLI
 			}
 		}
 
-		if (cl.hasOption('j')) {
+		xmlizer.preResJimpleDump = cl.hasOption('i');
+		xmlizer.postResJimpleDump = cl.hasOption('j');
+
+		if (xmlizer.preResJimpleDump || xmlizer.postResJimpleDump) {
 			xmlizer.jimpleXMLDumpDir = _outputDir;
 		}
 
@@ -553,6 +574,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/05/11 22:17:16  venku
+   - privatized some methods.
+   - enabled dumping of pre-residulization and post-residualization jimple.
    Revision 1.31  2004/05/11 11:59:48  venku
    - privatized destructivelyUpdateJimple.
    Revision 1.30  2004/05/10 12:07:45  venku
