@@ -257,7 +257,7 @@ public class SliceXMLizer
 
 		final TagBasedSliceXMLizer _sliceIP = getXMLizer();
 		final CustomDependencyXMLizer _dep = new CustomDependencyXMLizer();
-		_dep.setXMLOutputDir(outputDirectory);
+		_dep.setXmlOutputDir(outputDirectory);
 		_dep.setClassNames(rootMethods);
 		_dep.setGenerator(idGenerator);
 		_dep.populateDAs();
@@ -563,6 +563,9 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/08 03:06:16  venku
+   - refactoring of xmlizers in staticanalyses.
+
    Revision 1.6  2004/01/22 13:07:30  venku
    - check on output directory missing.  FIXED.
 
