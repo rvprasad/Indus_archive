@@ -85,6 +85,7 @@
              author="true" additionalparam="-breakiterator" defaultexcludes="${exclude}"
              header="&lt;b> &lt;a href='http://indus.projects.cis.ksu.edu'>Indus &lt;/a>, a &lt;a href='http://www.cis.ksu.edu/santos'>SAnToS laboratory &lt;/a> project.&lt;/b>"
              doctitle="&lt;b>Indus, a toolkit to customize and adapt Java programs.&lt;/b>"
+             overview="src/overview.html"
              >
              <classpath refid="classpath"/>
              <sourcepath refid="srcpath"/>
@@ -124,6 +125,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.12  2003/09/12 08:10:34  venku
+- javadoc target spruced.
+
 Revision 1.11  2003/08/24 12:38:20  venku
 Added switch to toggle test case document generation.
 Added testcase to the build path.
