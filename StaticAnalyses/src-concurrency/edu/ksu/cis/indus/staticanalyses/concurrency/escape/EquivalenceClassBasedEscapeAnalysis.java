@@ -57,7 +57,6 @@ import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.JimpleBody;
-import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
 import soot.jimple.SpecialInvokeExpr;
@@ -76,7 +75,6 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
@@ -211,23 +209,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 	MethodContext methodCtxtCache;
 
 	/**
-	 * A collection of thread allocation sites which are executed from within a loop or a SCC in the call graph.  This  also
-	 * includes any allocation sites reachable from a method executed in a loop.
-	 *
-	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
-	 */
-	private final Collection threadAllocSitesMulti;
-
-	/**
-	 * A collection of thread allocation sites which are not executed from within a loop or a SCC in the call graph.  This
-	 * also includes any allocation sites reachable from a method executed in a loop. This is the dual of
-	 * <code>threadAllocSitesMulti.</code>
-	 *
-	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
-	 */
-	private final Collection threadAllocSitesSingle;
-
-	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
 	 * @param scene provides and manages the classes to be analysed.
@@ -242,15 +223,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 		this.cgi = callgraph;
 		this.tgi = tgiPrm;
 
-		threadAllocSitesSingle = new HashSet();
-		threadAllocSitesMulti = new HashSet();
 		globalASs = new HashMap();
 		method2Triple = new HashMap();
 		stmtProcessor = new StmtProcessor();
 		valueProcessor = new ValueProcessor();
 		bbm = new BasicBlockGraphMgr();
 		context = new Context();
-		cfgAnalysis = new CFGAnalysis(scm, cgi, bbm);
+		cfgAnalysis = new CFGAnalysis(cgi, bbm);
 	}
 
 	/**
@@ -621,7 +600,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 					for (Iterator j = loopSet.iterator(); j.hasNext();) {
 						AliasSet as = (AliasSet) j.next();
-						LOGGER.error(context.getStmt() + " " + caller + " " + as.isNotified() + " " + as.isWaitedOn());
 
 						if (as.isNotified() && as.isWaitedOn()) {
 							as.setReadyEntity();
@@ -753,7 +731,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 			// check if given value has an alias set and if so, check if the enclosing method executes only in threads created
 			// allocation sites which are executed only once. 
 			if (AliasSet.canHaveAliasSet(v.getType())) {
-				if (CollectionUtils.intersection(threadAllocSitesMulti, tgi.getExecutionThreads(sm)).isEmpty()) {
+				if (CollectionUtils.intersection(tgi.getMultiThreadAllocSites(), tgi.getExecutionThreads(sm)).isEmpty()) {
 					result = getAliasSetFor(v, sm).isShared();
 				}
 			} else {
@@ -766,29 +744,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Invoked by the controller when a <code>Value</code> is encountered.
-	 *
-	 * @param value that was encountered.
-	 * @param contextParam in which <code>value</code> was encountered.
-	 *
-	 * @pre value != null and context != null
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Value, Context)
-	 */
-	public void callback(final Value value, final Context contextParam) {
-		if (value instanceof NewExpr && cgi.isReachable(contextParam.getCurrentMethod())) {
-			NewExpr e = (NewExpr) value;
-			Object o = new NewExprTriple(contextParam.getCurrentMethod(), context.getStmt(), e);
-
-			if (cfgAnalysis.checkForLoopEnclosedNewExpr(e, contextParam)) {
-				threadAllocSitesMulti.add(o);
-			} else {
-				threadAllocSitesSingle.add(o);
-			}
-		}
 	}
 
 	/**
@@ -817,61 +772,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 			LOGGER.debug("Update method2Triple for " + sm);
 		}
 		method2Triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
-	}
-
-	/**
-	 * Performs phase1 operation as mentioned in the technial report.  This should be called after the call graph information
-	 * has been consolidated.
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#consolidate()
-	 */
-	public void consolidate() {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: equivalence class based escape analysis consolidation");
-		}
-
-		Collection tassBak = new HashSet(threadAllocSitesSingle);
-
-		// Mark any thread allocation site that will be executed multiple times via a loop or a SCC loop in the call graph
-		// as creating multiple threads.
-		for (Iterator i = tassBak.iterator(); i.hasNext();) {
-			NewExprTriple trp = (NewExprTriple) i.next();
-			SootMethod encloser = trp.getMethod();
-
-			if (cfgAnalysis.executedMultipleTimes(encloser)) {
-				threadAllocSitesSingle.remove(trp);
-				threadAllocSitesMulti.add(trp);
-			}
-		}
-
-		Context ctxt = new Context();
-		Collection multiExecMethods = new HashSet();
-
-		// Mark any thread allocation site that is reachable from methods executed in threads created at sites which
-		// create more than one thread also as creating multiple threads. 
-		for (Iterator i = threadAllocSitesMulti.iterator(); i.hasNext();) {
-			NewExprTriple ntrp = (NewExprTriple) i.next();
-			ctxt.setRootMethod(ntrp.getMethod());
-			ctxt.setStmt(ntrp.getStmt());
-			multiExecMethods.addAll(tgi.getExecutedMethods(ntrp.getExpr(), ctxt));
-		}
-		tassBak.clear();
-		tassBak.addAll(threadAllocSitesSingle);
-
-		// filter the thread allocation site sets based on multiExecMethods.
-		for (Iterator i = tassBak.iterator(); i.hasNext();) {
-			NewExprTriple trp = (NewExprTriple) i.next();
-			SootMethod encloser = trp.getMethod();
-
-			if (multiExecMethods.contains(encloser)) {
-				threadAllocSitesSingle.remove(trp);
-				threadAllocSitesMulti.add(trp);
-			}
-		}
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: equivalence class based escape analysis consolidation");
-		}
 	}
 
 	/**
@@ -1045,17 +945,17 @@ public class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
+	 * @see IProcessor#hookup(edu.ksu.cis.indus.staticanalyses.processing.ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
-		ppc.register(NewExpr.class, this);
+		ppc.register(this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
+	 * @see IProcessor#unhook(edu.ksu.cis.indus.staticanalyses.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
-		ppc.unregister(NewExpr.class, this);
+		ppc.unregister(this);
 	}
 
 	/**
@@ -1101,6 +1001,11 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/01 12:01:30  venku
+   Major:
+   - Ready dependence info in ECBA was flaky as it did not consider
+     impact of multiple call sites with contradicting wait/notify use of
+     the primary.  FIXED.
    Revision 1.6  2003/08/27 12:40:35  venku
    It is possible that in ill balanced wait/notify lead to a situation
    where there are no entities to match them, hence, we got a
