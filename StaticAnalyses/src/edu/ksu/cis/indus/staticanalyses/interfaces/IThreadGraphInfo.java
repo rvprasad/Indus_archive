@@ -40,6 +40,7 @@ import soot.SootMethod;
 import soot.jimple.NewExpr;
 import soot.jimple.Stmt;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 
@@ -54,7 +55,7 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface IThreadGraphInfo {
+public interface IThreadGraphInfo extends IStatus {
 	/**
 	 * The id of this interface.
 	 */
@@ -161,6 +162,10 @@ public interface IThreadGraphInfo {
    ChangeLog:
 
    $Log$
+   Revision 1.5  2003/08/13 08:49:10  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosed later on in implementaions.
+
    Revision 1.4  2003/08/13 08:29:40  venku
    Spruced up documentation and specification.
 

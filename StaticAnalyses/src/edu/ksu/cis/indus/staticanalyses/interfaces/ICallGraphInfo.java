@@ -40,6 +40,7 @@ import soot.SootMethod;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
@@ -55,7 +56,7 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface ICallGraphInfo {
+public interface ICallGraphInfo extends IStatus {
 	/**
 	 * The id of this interface.
 	 */
@@ -252,6 +253,9 @@ public interface ICallGraphInfo {
    ChangeLog:
    
    $Log$
+   Revision 1.5  2003/08/13 08:29:40  venku
+   Spruced up documentation and specification.
+
    
    Revision 1.4  2003/08/11 07:46:09  venku
    Finalized the parameters.

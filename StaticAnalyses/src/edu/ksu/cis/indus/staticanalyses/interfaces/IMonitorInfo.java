@@ -35,6 +35,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
+
 import java.util.Collection;
 
 
@@ -45,7 +47,7 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface IMonitorInfo {
+public interface IMonitorInfo extends IStatus {
 	/**
 	 * The id of this interface.
 	 */
@@ -68,6 +70,10 @@ public interface IMonitorInfo {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 07:46:09  venku
+   Finalized the parameters.
+   Spruced up Documentation and Specification.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

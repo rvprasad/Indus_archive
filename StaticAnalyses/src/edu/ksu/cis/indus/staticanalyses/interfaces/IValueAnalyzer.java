@@ -38,6 +38,7 @@ package edu.ksu.cis.indus.staticanalyses.interfaces;
 import soot.Scene;
 import soot.SootMethod;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
 import edu.ksu.cis.indus.staticanalyses.Context;
 
 import java.util.Collection;
@@ -51,7 +52,7 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface IValueAnalyzer {
+public interface IValueAnalyzer extends IStatus {
 	/**
 	 * Retrieves the enviroment in which the analysis operates.
 	 *
@@ -117,6 +118,10 @@ public interface IValueAnalyzer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+
    Revision 1.4  2003/08/12 01:52:00  venku
    Removed redundant final in parameter declaration in methods of interfaces.
 
