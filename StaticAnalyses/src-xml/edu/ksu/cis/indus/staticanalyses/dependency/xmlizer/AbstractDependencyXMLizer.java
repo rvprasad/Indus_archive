@@ -73,14 +73,14 @@ public abstract class AbstractDependencyXMLizer
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	protected boolean processingClass = false;
+	protected boolean processingClass;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	protected boolean processingMethod = false;
+	protected boolean processingMethod;
 
 	/**
 	 * Creates a new AbstractDependencyXMLizer object.
@@ -99,7 +99,7 @@ public abstract class AbstractDependencyXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
-	public void callback(final SootClass clazz) {
+	public final void callback(final SootClass clazz) {
 		try {
 			if (processingMethod) {
 				writer.write("\t\t</method>\n");
@@ -122,7 +122,7 @@ public abstract class AbstractDependencyXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
-	public void callback(final SootMethod method) {
+	public final void callback(final SootMethod method) {
 		try {
 			if (processingMethod) {
 				writer.write("\t\t</method>\n");
@@ -140,7 +140,7 @@ public abstract class AbstractDependencyXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 	 */
-	public void consolidate() {
+	public final void consolidate() {
 		try {
 			if (processingMethod) {
 				writer.write("\t\t</method>\n");
@@ -149,6 +149,7 @@ public abstract class AbstractDependencyXMLizer
 			if (processingClass) {
 				writer.write("\t</class>\n");
 			}
+			writer.write("\t<count>" + getTotalNumberOfDependences() + "</count>\n");
 			writer.write("</dependency>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -160,20 +161,30 @@ public abstract class AbstractDependencyXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
 	 */
-	public void processingBegins() {
+	public final void processingBegins() {
 		try {
-			writer.write("<dependency>\n");
+			writer.write("<dependency id =\"" + analysis.getId() + "\">\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", e);
 			}
 		}
 	}
+
+	/**
+	 * Returns the total number of dependences that were serialized.
+	 *
+	 * @return number of dependences that were serialized.
+	 */
+	protected abstract int getTotalNumberOfDependences();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/11/26 09:17:09  venku
    - removed method and class signature from the emitted xml.
    Revision 1.6  2003/11/24 23:58:01  venku

@@ -53,6 +53,11 @@ public class StmtLevelDependencyXMLizer
 	 */
 	private static final Log LOGGER = LogFactory.getLog(StmtLevelDependencyXMLizer.class);
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private int totalDependences;
+
 	/**
 	 * @see AbstractDependencyXMLizer#AbstractDependencyXMLizer(Writer, IJimpleIDGenerator, DependencyAnalysis)
 	 */
@@ -71,6 +76,7 @@ public class StmtLevelDependencyXMLizer
 		try {
 			if (!dependencies.isEmpty()) {
 				writer.write("\t\t\t<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, method) + "\">\n");
+				totalDependences += dependencies.size();
 
 				for (Iterator i = dependencies.iterator(); i.hasNext();) {
 					Object o = i.next();
@@ -107,11 +113,21 @@ public class StmtLevelDependencyXMLizer
 		ppc.unregisterForAllStmts(this);
 		ppc.unregister(this);
 	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.AbstractDependencyXMLizer#getTotalNumberOfDependences()
+	 */
+	protected int getTotalNumberOfDependences() {
+		return totalDependences;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/11/17 17:17:57  venku
    - dumb iteration error. FIXED.
    Revision 1.4  2003/11/17 15:42:46  venku
