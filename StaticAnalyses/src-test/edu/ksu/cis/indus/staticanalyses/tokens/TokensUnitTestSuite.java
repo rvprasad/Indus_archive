@@ -40,7 +40,7 @@ public final class TokensUnitTestSuite
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new DataStructuresUnitTestSuite object.
+	 * Creates a new TokensUnitTestSuite object.
 	 */
 	private TokensUnitTestSuite() {
 	}
@@ -92,6 +92,9 @@ public final class TokensUnitTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/20 06:53:17  venku
+   - documentation.
+
    Revision 1.1  2004/04/18 00:17:58  venku
    - added testcases for token manager logic.
  */
