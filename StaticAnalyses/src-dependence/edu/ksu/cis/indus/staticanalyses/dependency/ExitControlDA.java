@@ -191,7 +191,7 @@ public class ExitControlDA
 	/**
 	 * Calculates dependence information for statements from the dependence information for basic blocks.
 	 *
-	 * @param dependeeBB2dependentBBs maps dependee basic blocks to collection of depenent basic blocks.
+	 * @param dependeeBB2dependentBBs maps dependee basic blocks to collection of dependent basic blocks.
 	 * @param method for which the dependence is being recorded.
 	 *
 	 * @pre dependeeBB2dependentBBs != null and method != null
@@ -211,7 +211,7 @@ public class ExitControlDA
 			final BasicBlock _dependeeBB = (BasicBlock) _entry.getKey();
 			final Stmt _dependee = _dependeeBB.getTrailerStmt();
 
-			//record dependnece within dependee block
+			//record dependence within dependee block
 			final Collection _dependents =
 				(Collection) CollectionsUtilities.getSetAtIndexFromList(_methodLocalDee2Dent, _stmtList.indexOf(_dependee));
 			_dependeeBBStmtst.clear();
