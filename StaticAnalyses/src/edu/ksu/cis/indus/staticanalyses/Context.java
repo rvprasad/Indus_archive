@@ -195,12 +195,9 @@ public class Context
 			temp = (Context) super.clone();
 			temp.callString = (Stack) callString.clone();
 		} catch (CloneNotSupportedException e) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("This should not happen.", e);
-			}
-		} finally {
-			return temp;
-		}
+			LOGGER.error("This should not happen.", e);
+        }
+		return temp;
 	}
 
 	/**
@@ -283,6 +280,12 @@ public class Context
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 08:12:26  venku
+   Major changes in equals() method of Context, Pair, Marker, and Triple.
+   Similar changes in hashCode()
+   Spruced up Documentation and Specification.
+   Formatted code.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
