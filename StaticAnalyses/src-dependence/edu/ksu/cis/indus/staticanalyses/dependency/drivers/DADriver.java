@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 import soot.Scene;
 
-import soot.options.Options;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -355,6 +353,9 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/10/05 16:21:21  venku
+   - removed option to use local names.
+
    Revision 1.22  2003/09/29 07:30:51  venku
    - added support to spit out local variables names as they occur
      in the source rather than jimplified names.
