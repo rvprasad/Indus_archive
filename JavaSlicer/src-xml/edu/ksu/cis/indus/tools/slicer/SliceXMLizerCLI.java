@@ -31,6 +31,7 @@ import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidual
 
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
+import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaParser;
 
@@ -98,68 +99,68 @@ import soot.SootMethod;
  */
 public class SliceXMLizerCLI
   extends SootBasedDriver {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SliceXMLizerCLI.class);
+	static final Log LOGGER = LogFactory.getLog(SliceXMLizerCLI.class);
 
-	/**
+	/** 
 	 * This is the name of the configuration file to use.
 	 */
 	private static String configFileName;
 
-	/**
+	/** 
 	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
 	 */
 	protected String outputDirectory;
 
-	/**
+	/** 
 	 * The instance of the slicer tool.
 	 */
 	SlicerTool slicer;
 
-	/**
+	/** 
 	 * This directory into which jimple should be dumped.
 	 */
 	String jimpleXMLDumpDir;
 
-	/**
+	/** 
 	 * The id generator used during xmlization.
 	 */
 	private IJimpleIDGenerator idGenerator;
 
-	/**
+	/** 
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
 	private final String nameOfSliceTag = "indus.tools.slicer.SliceXMLizerCLI:SLICER";
 
-	/**
+	/** 
 	 * The name of the criteria specification file.
 	 */
 	private String criteriaSpecFileName;
 
-	/**
+	/** 
 	 * This indicates if jimple representation of the system after residualiztion should be dumped.
 	 */
 	private boolean postResJimpleDump;
 
-	/**
+	/** 
 	 * This indicates if jimple representation of the system after residualiztion should be dumped in XML form.
 	 */
 	private boolean postResXMLJimpleDump;
 
-	/**
+	/** 
 	 * This indicates if jimple representation of the system after slicing and before residualization should be dumped.
 	 */
 	private boolean preResJimpleDump;
 
-	/**
+	/** 
 	 * This indicates if jimple representation of the system after slicing and before residualiztion should be dumped in XML
 	 * form.
 	 */
 	private boolean preResXMLJimpleDump;
 
-	/**
+	/** 
 	 * This indicates if the slice should be residualized.
 	 */
 	private boolean residualize;
@@ -278,6 +279,13 @@ public class SliceXMLizerCLI
 			}
 		}
 		slicer.setCriteria(_criteria);
+		slicer.addToolProgressListener(new IToolProgressListener() {
+				public void toolProgess(final ToolProgressEvent evt) {
+					if (LOGGER.isInfoEnabled()) {
+						LOGGER.info(evt.getMsg() + " - " + evt.getInfo());
+					}
+				}
+			});
 		slicer.run(Phase.STARTING_PHASE, true);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -747,15 +755,14 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.50  2004/08/04 02:11:26  venku
+   - documentation.
    Revision 1.49  2004/07/25 01:35:37  venku
    - ripple effect of the change to TagBasedSliceResidualizer.
-
    Revision 1.48  2004/07/20 05:36:05  venku
    - slicer criteria specifying options was missing.  How? FIXED.
-
    Revision 1.47  2004/07/10 00:49:40  venku
    - In pre-residualizaion jimple/xml dump, only the classes who are in the slice are dumped.
-
    Revision 1.46  2004/07/07 00:43:54  venku
    - class files are dumped only if residualization is requested.
    Revision 1.45  2004/07/04 12:17:58  venku
