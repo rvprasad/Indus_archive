@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.0.jar"/>
@@ -11,16 +9,18 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-pool-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jasminclasses-sable-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jibx-run.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/polyglot-1.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlenc-0.44.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlunit1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xpp3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/soot-2.1.0-modified.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
-	<classpathentry kind="lib" path="lib/log4jconfig.jar"/>
-	<classpathentry kind="lib" path="lib/indus-20040717.jar"/>
-	<classpathentry kind="lib" path="lib/slicer-20040717.jar"/>
-	<classpathentry kind="lib" path="lib/staticanalyses-20040717.jar"/>
+	<classpathentry exported="true" sourcepath="/home/ganeshan/Desktop/Downloads/temp/sootc/temp/soot-2.1.0-barebones.jar" kind="lib" path="lib/soot-2.1.0-modified.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4jconfig.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/commons-io-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/indus-20040717.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slicer-20040717.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/staticanalyses-20040717.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

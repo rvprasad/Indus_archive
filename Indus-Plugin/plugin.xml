@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin
-   id="edu.ksu.cis.projects.indus"
+   id="edu.ksu.cis.indus"
    name="Indus Plug-in"
    version="0.2"
    provider-name="SAnToS laboratory, Kansas State University"
@@ -35,9 +35,6 @@
       <library name="lib/jibx-run.jar">
          <export name="*"/>
       </library>
-      <library name="lib/junit.jar">
-         <export name="*"/>
-      </library>
       <library name="lib/polyglot-1.1.0.jar">
          <export name="*"/>
       </library>
@@ -59,6 +56,9 @@
       <library name="lib/log4jconfig.jar">
          <export name="*"/>
       </library>
+      <library name="lib/commons-io-1.0.jar">
+         <export name="*"/>
+      </library>
       <library name="lib/indus-20040717.jar">
          <export name="*"/>
       </library>
@@ -73,6 +73,7 @@
    <requires>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.junit"/>
    </requires>
 
 </plugin>
