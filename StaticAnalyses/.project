@@ -21,7 +21,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>Ant_StaticAnalyses.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/Ant_StaticAnalyses.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
