@@ -179,7 +179,7 @@ public class InterferenceDAv1
 	 *
 	 * @return a colleciton of pairs comprising of a statement and a method.
 	 *
-	 * @pre dependent.oclIsTypeOf(SootField) or dependent.oclIsTypeOf(ArrayRef)
+	 * @pre dependent.oclIsTypeOf(SootField) or dependent.oclIsTypeOf(ArrayType)
 	 * @pre stmtMethodPair.oclIsKindOf(Pair(Stmt, SootMethod))
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
@@ -207,7 +207,7 @@ public class InterferenceDAv1
 	 *
 	 * @return a colleciton of pairs comprising of a statement and a method.
 	 *
-	 * @pre dependee.oclIsTypeOf(SootField) or dependee.oclIsTypeOf(ArrayRef)
+	 * @pre dependee.oclIsTypeOf(SootField) or dependee.oclIsTypeOf(ArrayType)
 	 * @pre stmtMethodPair.oclIsKindOf(Pair(Stmt, SootMethod))
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
@@ -413,6 +413,10 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/11/10 03:17:18  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
+   - ripple effect.
+
    Revision 1.17  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
