@@ -26,7 +26,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import soot.Body;
+import org.apache.commons.collections.IteratorUtils;
+
 import soot.SootMethod;
 import soot.Trap;
 
@@ -111,12 +112,11 @@ public abstract class AbstractSliceGotoProcessor
 		processForIntraBasicBlockGotos(bbg);
 
 		final UnitGraph _unitGraph = bbg.getStmtGraph();
-		final Body _body = _unitGraph.getBody();
-		final List _units = new ArrayList(_body.getUnits());
+		final List _units = IteratorUtils.toList(_unitGraph.iterator());
 		final Collection _handlerStmts = new ArrayList();
 
 		// collect the handler statements in the traps
-		for (final Iterator _i = _body.getTraps().iterator(); _i.hasNext();) {
+		for (final Iterator _i = _unitGraph.getBody().getTraps().iterator(); _i.hasNext();) {
 			final Trap _trap = (Trap) _i.next();
 			_handlerStmts.add(_trap.getHandlerUnit());
 		}
@@ -151,6 +151,11 @@ public abstract class AbstractSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/06/12 06:47:28  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
    Revision 1.12  2004/05/31 21:38:11  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
