@@ -90,6 +90,10 @@
             <config-properties/>
         </rule-configuration>
         <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.DefaultComesLastCheck" severity="warning">
+            <config-properties/>
+        </rule-configuration>
+        <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck" severity="warning">
             <config-properties/>
         </rule-configuration>
@@ -99,6 +103,10 @@
         </rule-configuration>
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.coding.ExplicitInitializationCheck" severity="warning">
+            <config-properties/>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.FallThroughCheck" severity="warning">
             <config-properties/>
         </rule-configuration>
         <rule-configuration
@@ -118,10 +126,18 @@
         </rule-configuration>
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.coding.IllegalCatchCheck" severity="info">
-            <config-properties/>
+            <config-properties>
+                <config-property name="illegalClassNames" value="java.lang.Exception, java.lang.Throwable, java.lang.RuntimeException"/>
+            </config-properties>
         </rule-configuration>
         <rule-configuration
-            classname="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTypeCheck" severity="info">
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.IllegalInstantiationCheck" severity="warning">
+            <config-properties>
+                <config-property name="classes" value="java.lang.Boolean"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTypeCheck" severity="warning">
             <config-properties>
                 <config-property name="tokens" value="METHOD_DEF, PARAMETER_DEF, VARIABLE_DEF"/>
             </config-properties>
@@ -139,13 +155,27 @@
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck" severity="warning">
             <config-properties>
-                <config-property name="ignoreNumbers" value="-1, 0, 1, 2, 3, 17, 37"/>
+                <config-property name="ignoreNumbers" value="-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 17, 37"/>
                 <config-property name="tokens" value="NUM_DOUBLE, NUM_FLOAT, NUM_INT, NUM_LONG"/>
             </config-properties>
         </rule-configuration>
         <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.MissingCtorCheck" severity="info">
+            <config-properties/>
+        </rule-configuration>
+        <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.coding.MissingSwitchDefaultCheck" severity="warning">
             <config-properties/>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.ModifiedControlVariableCheck" severity="warning">
+            <config-properties/>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.MultipleStringLiteralsCheck" severity="warning">
+            <config-properties>
+                <config-property name="allowedDuplicates" value="1"/>
+            </config-properties>
         </rule-configuration>
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.coding.NestedIfDepthCheck" severity="info">
@@ -198,6 +228,10 @@
         </rule-configuration>
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.coding.SuperFinalizeCheck" severity="warning">
+            <config-properties/>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.coding.UnnecessaryParenthesesCheck" severity="warning">
             <config-properties/>
         </rule-configuration>
         <rule-configuration
@@ -298,9 +332,41 @@
             </config-properties>
         </rule-configuration>
         <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.metrics.BooleanExpressionComplexityCheck" severity="info">
+            <config-properties>
+                <config-property name="max" value="3"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.metrics.ClassDataAbstractionCouplingCheck" severity="info">
+            <config-properties>
+                <config-property name="max" value="15"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.metrics.ClassFanOutComplexityCheck" severity="info">
+            <config-properties>
+                <config-property name="max" value="30"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.metrics.CyclomaticComplexityCheck" severity="warning">
             <config-properties>
                 <config-property name="max" value="14"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.metrics.JavaNCSSCheck" severity="info">
+            <config-properties>
+                <config-property name="classMaximum" value="1500"/>
+                <config-property name="fileMaximum" value="2000"/>
+                <config-property name="methodMaximum" value="50"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.metrics.NPathComplexityCheck" severity="info">
+            <config-properties>
+                <config-property name="max" value="200"/>
             </config-properties>
         </rule-configuration>
         <rule-configuration
@@ -334,8 +400,7 @@
             </config-properties>
         </rule-configuration>
         <rule-configuration
-            classname="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck"
-            severity="warning" comment="kljl;kjlkj;lk">
+            classname="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck" severity="warning">
             <config-properties>
                 <config-property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             </config-properties>
@@ -440,9 +505,28 @@
             </config-properties>
         </rule-configuration>
         <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.usage.UnusedPrivateMethodCheck" severity="warning">
+            <config-properties>
+                <config-property name="ignoreFormat" value="^$"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyForInitializerPadCheck" severity="warning">
+            <config-properties>
+                <config-property name="option" value="nospace"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyForIteratorPadCheck" severity="warning">
             <config-properties>
                 <config-property name="option" value="nospace"/>
+            </config-properties>
+        </rule-configuration>
+        <rule-configuration
+            classname="com.puppycrawl.tools.checkstyle.checks.whitespace.MethodParamPadCheck" severity="warning">
+            <config-properties>
+                <config-property name="allowLineBreaks" value="true"/>
+                <config-property name="tokens" value="CTOR_DEF, LITERAL_NEW, METHOD_CALL, METHOD_DEF, SUPER_CTOR_CALL"/>
             </config-properties>
         </rule-configuration>
         <rule-configuration
@@ -489,7 +573,7 @@
         <rule-configuration
             classname="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAroundCheck" severity="warning">
             <config-properties>
-                <config-property name="tokens" value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAND, LCURLY, LE, LITERAL_ASSERT, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, RCURLY, SL, SLIST, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN"/>
+                <config-property name="tokens" value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAND, LCURLY, LE, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, RCURLY, SL, SLIST, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN"/>
             </config-properties>
         </rule-configuration>
     </check-configuration>
