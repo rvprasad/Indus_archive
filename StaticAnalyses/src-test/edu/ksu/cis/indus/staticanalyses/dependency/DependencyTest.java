@@ -24,6 +24,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.*;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueIDGenerator;
 
@@ -140,6 +141,12 @@ public class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/12 05:05:45  venku
+   - Renamed SootDependentTest to SootBasedDriver.
+   - Switched the contents of DependencyXMLizer and DependencyTest.
+   - Corrected errors which emitting xml tags.
+   - added a scrapbook.
+
    Revision 1.1  2003/11/11 10:11:27  venku
    - in the process of making XMLization a user
      application and at the same time a tester application.

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.dependency;
+package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
 import soot.SootMethod;
 
@@ -565,6 +565,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/12 05:08:10  venku
+   - DependencyXMLizer.properties will hold dependency xmlization
+     related properties.
+
    Revision 1.2  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
    - Switched the contents of DependencyXMLizer and DependencyTest.

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.dependency;
+package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
 import soot.SootMethod;
 
@@ -109,6 +109,12 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/12 05:05:45  venku
+   - Renamed SootDependentTest to SootBasedDriver.
+   - Switched the contents of DependencyXMLizer and DependencyTest.
+   - Corrected errors which emitting xml tags.
+   - added a scrapbook.
+
    Revision 1.2  2003/11/10 20:05:02  venku
    - formatting.
    Revision 1.1  2003/11/10 08:26:09  venku

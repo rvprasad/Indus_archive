@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.dependency;
+package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
@@ -72,4 +72,10 @@ public class CGBasedXMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/12 05:05:45  venku
+   - Renamed SootDependentTest to SootBasedDriver.
+   - Switched the contents of DependencyXMLizer and DependencyTest.
+   - Corrected errors which emitting xml tags.
+   - added a scrapbook.
+
  */
