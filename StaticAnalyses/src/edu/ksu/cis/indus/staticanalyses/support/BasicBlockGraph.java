@@ -340,6 +340,18 @@ public class BasicBlockGraph
 	}
 
 	/**
+	 * Return the head node of this graph.  Basic Block graphs for procedures in languages without unconditional gotos can
+	 * have only one entry point, hence, this method.
+	 *
+	 * @return the head node
+	 *
+	 * @post result != null
+	 */
+	public BasicBlock getHead() {
+		return (BasicBlock) getHeads().iterator().next();
+	}
+
+	/**
 	 * Returns the nodes in the graph.
 	 *
 	 * @return an unmodifiable list of <code>BasicBlocks</code> that make up the nodes in the graph.
@@ -383,6 +395,9 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.13  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.12  2003/11/05 09:28:10  venku
