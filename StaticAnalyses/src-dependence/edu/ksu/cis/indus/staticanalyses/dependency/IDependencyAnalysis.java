@@ -24,8 +24,16 @@ import java.util.Collection;
  * The interface to dependency analysis information.
  * 
  * <p>
- * Subtypes of this class have to return one of the XXXX_DA constants defined in this class as a result of
- * <code>getId</code>.
+ * Subtypes of this class have to return one of the XXXX_DA constants defined in this class as a result of <code>getId</code>
+ * and one of <code>BACKWARD_DIRECTION, BI_DIRECTIONAL, FORWARD_DIRECTION,</code> and <code>DIRECTIONLESS</code> as a result
+ * of <code>getDirection</code>.
+ * </p>
+ * 
+ * <p>
+ * There is room for confusion due to <code>BI_DIRECTIONAL</code> behavior of an analysis.  To avoid this, it is required
+ * that in a bi-directional analysis implement <code>getDependees</code> and <code>getDependents</code> to provide dependee
+ * and dependent info, respectively, in backward  direction while <code>getDependents</code> and <code>getDependees</code>
+ * provide dependee and dependent info, respectively, in forward direction.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -157,6 +165,10 @@ public interface IDependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/08/15 08:37:27  venku
+   - REFACTORING pertaining to feature request #426
+     - refactored dependence retriever interface.
+     - refactored direction sensitive dependence information creation.
    Revision 1.6  2004/07/20 06:36:12  venku
    - documentation.
    - deleted BI_DIRECTIONAL as it is rarely true that a dependence is bi-directional.
