@@ -151,7 +151,7 @@ public abstract class AbstractXMLBasedTest
 			final Reader _previous = new FileReader(new File(xmlControlDir + File.separator + getFileName()));
 			final Diff _diff = new Diff(_previous, _current);
 			_diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
-			assertXMLEqual(_diff, true);
+            assertTrue(_diff.similar());
 		} catch (IOException _e) {
 			LOGGER.error("Failed to read the xml file " + _outfileName, _e);
 			fail(_e.getMessage());
@@ -247,6 +247,9 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/04/18 08:59:02  venku
+   - enabled test support for slicer.
+
    Revision 1.13  2004/04/18 02:05:19  venku
    - memory leak fixes.
    Revision 1.12  2004/04/17 22:07:37  venku
