@@ -22,6 +22,8 @@ import edu.ksu.cis.indus.processing.IProcessor;
  * This is the interface to be provided by higher level analyses to a controlling agent.  The controlling agent walks over
  * the analyzed system and calls the interested processors at each value and statement in the analyzed system.  Upon
  * callback, the processors suitably collect/process the information available from the low-level analyzer.
+ * 
+ * <p>Objects that provide this interface can be used with <code>ValueAnalyzerBasedProcessingController</code>.</p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -42,6 +44,10 @@ public interface IValueAnalyzerBasedProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.2  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
