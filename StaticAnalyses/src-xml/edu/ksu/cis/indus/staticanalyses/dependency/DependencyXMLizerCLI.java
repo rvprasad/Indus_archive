@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -47,6 +48,9 @@ import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,6 +58,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -63,6 +68,8 @@ import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
+import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -207,7 +214,7 @@ public class DependencyXMLizerCLI
 				System.exit(1);
 			}
 
-			final DependencyXMLizerCLI _cli = new DependencyXMLizerCLI();
+			final DependencyXMLizerCLI _xmlizerCLI = new DependencyXMLizerCLI();
 			String _outputDir = _cl.getOptionValue('o');
 
 			if (_outputDir == null) {
@@ -217,25 +224,25 @@ public class DependencyXMLizerCLI
 				_outputDir = ".";
 			}
 
-			_cli.xmlizer.setXmlOutputDir(_outputDir);
+			_xmlizerCLI.xmlizer.setXmlOutputDir(_outputDir);
 
 			if (_cl.hasOption('p')) {
-				_cli.addToSootClassPath(_cl.getOptionValue('p'));
+				_xmlizerCLI.addToSootClassPath(_cl.getOptionValue('p'));
 			}
-			_cli.dumpJimple = _cl.hasOption('j');
-			_cli.useAliasedUseDefv1 = _cl.hasOption("aliasedusedefv1");
-			_cli.useSafeLockAnalysis = _cl.hasOption("safelockanalysis");
+			_xmlizerCLI.dumpJimple = _cl.hasOption('j');
+			_xmlizerCLI.useAliasedUseDefv1 = _cl.hasOption("aliasedusedefv1");
+			_xmlizerCLI.useSafeLockAnalysis = _cl.hasOption("safelockanalysis");
 
 			final List _classNames = _cl.getArgList();
 
 			if (_classNames.isEmpty()) {
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
-			_cli.setClassNames(_classNames);
+			_xmlizerCLI.setClassNames(_classNames);
 
 			if (_cl.hasOption(_dasOptions[5][0].toString())) {
-				_cli.das.add(_ncda);
-				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _ncda.getId(), _ncda,
+				_xmlizerCLI.das.add(_ncda);
+				CollectionsUtilities.putIntoCollectionInMap(_xmlizerCLI.info, _ncda.getId(), _ncda,
 					CollectionsUtilities.HASH_SET_FACTORY);
 			}
 
@@ -244,7 +251,7 @@ public class DependencyXMLizerCLI
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
 				if (_cl.hasOption(_dasOptions[_i][0].toString())) {
 					final Object _da = _dasOptions[_i][2];
-					_cli.das.add(_da);
+					_xmlizerCLI.das.add(_da);
 					_flag = false;
 
 					if (_da instanceof InterferenceDAv1) {
@@ -253,7 +260,7 @@ public class DependencyXMLizerCLI
 
 					if (_da instanceof ReadyDAv1) {
 						((ReadyDAv1) _da).setUseOFA(_cl.hasOption("ofaforready"));
-						((ReadyDAv1) _da).setUseSafeLockAnalysis(_cli.useSafeLockAnalysis);
+						((ReadyDAv1) _da).setUseSafeLockAnalysis(_xmlizerCLI.useSafeLockAnalysis);
 					}
 				}
 			}
@@ -262,7 +269,7 @@ public class DependencyXMLizerCLI
 				throw new ParseException("Atleast one dependence analysis must be requested.");
 			}
 
-			_cli.execute();
+			_xmlizerCLI.execute();
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 
@@ -291,6 +298,7 @@ public class DependencyXMLizerCLI
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
+		final MetricsProcessor _countingProcessor = new MetricsProcessor();
 
 		_pc.setAnalyzer(aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
@@ -344,9 +352,14 @@ public class DependencyXMLizerCLI
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();
 		_processors.add(_tgi);
+		_processors.add(_countingProcessor);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
+
+		final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
+		MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
+		writeInfo(_stream.toString());
 
 		_aliasUD.hookup(_cgipc);
 		_cgipc.process();
@@ -382,7 +395,6 @@ public class DependencyXMLizerCLI
 			xmlizer.dumpJimple(null, xmlizer.getXmlOutputDir(), _xmlcgipc);
 		}
 		writeInfo("Total classes loaded: " + getScene().getClasses().size());
-		printTimingStats();
 	}
 }
 

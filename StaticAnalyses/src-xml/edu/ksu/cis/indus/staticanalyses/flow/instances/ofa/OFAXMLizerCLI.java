@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -37,6 +38,9 @@ import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,6 +48,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -52,6 +57,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+
+import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -194,6 +201,7 @@ public final class OFAXMLizerCLI
 		final ICallGraphInfo _cgi = new CallGraph(new PairManager(false, true));
 		final Collection _rm = new ArrayList();
 		final ProcessingController _xmlcgipc = new ProcessingController();
+		final MetricsProcessor _countingProcessor = new MetricsProcessor();
 
 		_pc.setAnalyzer(_aa);
 
@@ -242,9 +250,15 @@ public final class OFAXMLizerCLI
 			((CallGraph) _cgi).reset();
 			_processors.clear();
 			_processors.add(_cgi);
+			_processors.add(_countingProcessor);
 			_pc.reset();
 			_pc.driveProcessors(_processors);
 			_processors.clear();
+
+			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
+			MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
+			writeInfo(_stream.toString());
+
 			_info.put(AbstractXMLizer.FILE_NAME_ID, _fileBaseName);
 			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			xmlizer.writeXML(_info);

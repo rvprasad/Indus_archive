@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -42,12 +43,14 @@ import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import java.net.URL;
@@ -58,6 +61,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -65,6 +69,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
+import org.apache.commons.collections.MapUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -205,6 +211,7 @@ public class SliceXMLizerCLI
 		_xmlizer.setIDGenerator(new UniqueJimpleIDGenerator());
 		_xmlizer.writeXML();
 		_xmlizer.residualize();
+		_xmlizer.outputStats();
 		_xmlizer.slicer.reset();
 		_xmlizer.reset();
 	}
@@ -333,6 +340,37 @@ public class SliceXMLizerCLI
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("END: Dumping XMLized Jimple");
 			}
+		}
+	}
+
+	/**
+	 * Outputs the statistics for the system.
+	 */
+	private void outputStats() {
+		if (LOGGER.isInfoEnabled()) {
+			final MetricsProcessor _processor = new MetricsProcessor();
+			final ProcessingController _pc = new ProcessingController();
+			_pc.setProcessingFilter(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
+			_processor.hookup(_pc);
+			_pc.setEnvironment(new Environment(scene));
+			_pc.process();
+			_processor.unhook(_pc);
+
+			final ByteArrayOutputStream _stream1 = new ByteArrayOutputStream();
+			MapUtils.verbosePrint(new PrintStream(_stream1), "POST SLICING STATISTICS:",
+				new TreeMap(_processor.getStatistics()));
+			LOGGER.info(_stream1.toString());
+
+			_pc.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
+			_processor.hookup(_pc);
+			_pc.setEnvironment(new Environment(scene));
+			_pc.process();
+			_processor.unhook(_pc);
+
+			final ByteArrayOutputStream _stream2 = new ByteArrayOutputStream();
+			MapUtils.verbosePrint(new PrintStream(_stream2), "POST SLICING STATISTICS:",
+				new TreeMap(_processor.getStatistics()));
+			LOGGER.info(_stream2.toString());
 		}
 	}
 
