@@ -362,7 +362,7 @@ public class SliceXMLizer
 			xmlizer.destructiveJimpleUpdate = true;
 		}
 
-		String _outputDir = _cl.getOptionValue("o");
+		final String _outputDir = _cl.getOptionValue("o");
 
 		try {
 			xmlizer.xmlizedJimpleWriter = new FileWriter(new File(_outputDir + File.separator + "jimple.xml"));
@@ -553,6 +553,9 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/17 23:52:04  venku
+   - minor command line fix.
+
    Revision 1.3  2004/01/13 10:59:42  venku
    - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
      It was deleted.

@@ -410,7 +410,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
 	 */
-	public void callback(SootField field) {
+	public void callback(final SootField field) {
 		if (currClass != null && field.hasTag(tagToResidualize)) {
 			fieldsToKill.remove(field);
 
@@ -641,6 +641,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/01/22 01:06:13  venku
+   - coding convention.
+
    Revision 1.11  2004/01/17 23:25:20  venku
    - value was being cast into a Host.  FIXED.
 
