@@ -70,8 +70,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import soot.Printer;
 import soot.SootClass;
-import soot.SootField;
-import soot.SootMethod;
 
 
 /**
@@ -116,7 +114,7 @@ public class SlicerDriver
 	/**
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
-	private final String tagName = "SlicerDriver";
+	private final String nameOfSliceTag = "SlicerDriver";
 
 	/**
 	 * This is the writer used to write the xmlized Jimple.
@@ -226,7 +224,7 @@ public class SlicerDriver
 		try {
 			final Writer _out =
 				new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
-			_result = new TagBasedSliceXMLizer(_out, tagName, idGenerator);
+			_result = new TagBasedSliceXMLizer(_out, nameOfSliceTag, idGenerator);
 		} catch (IOException _e) {
 			LOGGER.error("Exception while opening file to write xml information.", _e);
 			throw new RuntimeException(_e);
@@ -239,7 +237,7 @@ public class SlicerDriver
 	 */
 	protected final void execute() {
 		// execute the slicer
-		slicer.setTagName(tagName);
+		slicer.setTagName(nameOfSliceTag);
 		slicer.setSystem(scene);
 		slicer.setRootMethods(rootMethods);
 		slicer.setCriteria(Collections.EMPTY_LIST);
@@ -286,7 +284,7 @@ public class SlicerDriver
 		}
 		_dep.flushXMLizers(_xmlizers, _ctrl);
 
-		_ctrl.setProcessingFilter(new TagBasedProcessingFilter(tagName));
+		_ctrl.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
 		_sliceIP.hookup(_ctrl);
 		_ctrl.process();
 		_sliceIP.unhook(_ctrl);
@@ -467,35 +465,32 @@ public class SlicerDriver
 	private void residualize() {
 		if (destructiveJimpleUpdate) {
 			final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
-			_residualizer.setTagToResidualize(tagName);
+			_residualizer.setTagToResidualize(nameOfSliceTag);
+			_residualizer.setSystemTag(SlicerTool.FLOW_ANALYSIS_TAG_NAME);
 			_residualizer.residualizeSystem(scene);
 
 			final Printer _printer = Printer.v();
 
 			for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
 				final SootClass _sc = (SootClass) _i.next();
+
+				if (!_sc.hasTag(SlicerTool.FLOW_ANALYSIS_TAG_NAME)) {
+					continue;
+				}
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Residualizing " + _sc);
+				}
+
 				PrintWriter _writer = null;
 
 				try {
-					_writer =
-						new PrintWriter(new FileWriter(new File(outputDirectory + File.separator + _sc.getName() + ".jimple")));
-
-					_writer.println(_sc.getFields());
-					_writer.println(_sc.getMethods());
-
-					for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
-						final SootField _sf = (SootField) _j.next();
-
-						_writer.println(_sf.getSignature());
-					}
-
-					for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-						final SootMethod _sm = (SootMethod) _j.next();
-
-						_printer.printTo(_sm.getActiveBody(), _writer);
-					}
+					final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
+					_writer = new PrintWriter(new FileWriter(_file));
+					_printer.printTo(_sc, _writer);
+					_printer.write(_sc, outputDirectory);
 				} catch (IOException _e) {
-					LOGGER.error("Error while writing info of " + _sc, _e);
+					LOGGER.error("Error while residualizing " + _sc, _e);
 				} finally {
 					if (_writer != null) {
 						_writer.flush();
@@ -548,9 +543,10 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/12/16 00:29:21  venku
+   - documentation.
    Revision 1.28  2003/12/15 16:35:29  venku
    - added option to dump jimple.
-
    Revision 1.27  2003/12/15 02:11:11  venku
    - added exception handling at outer most level.
    Revision 1.26  2003/12/13 19:46:45  venku
