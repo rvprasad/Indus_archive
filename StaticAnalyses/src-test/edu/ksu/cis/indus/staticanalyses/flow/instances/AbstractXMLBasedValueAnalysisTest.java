@@ -13,16 +13,12 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
 import edu.ksu.cis.indus.AbstractXMLBasedTest;
 
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
-import edu.ksu.cis.indus.processing.IProcessor;
-
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
-import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
+import edu.ksu.cis.indus.staticanalyses.flow.IFATest;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
@@ -31,40 +27,31 @@ import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 
 /**
- * This class tests call graphs based on their xmlized representation.
+ * This is a XML based test for value flow analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class XMLBasedCallGraphTest
+public abstract class AbstractXMLBasedValueAnalysisTest
   extends AbstractXMLBasedTest
-  implements IFAProcessorTest {
+  implements IFATest {
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(IValueAnalyzer)
+	 * The name of the tag used to mark the parts of the system visited during FA.
 	 */
-	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
-	}
+	private String nameOfTheTag;
 
 	/**
-	 * @see IFAProcessorTest#setFA(FA)
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFA(edu.ksu.cis.indus.staticanalyses.flow.FA)
 	 */
-	public void setFA(final FA fa) {
+	public void setFA(final FA flowAnalysis) {
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
 	 */
 	public void setFATagName(final String tagName) {
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setProcessor(edu.ksu.cis.indus.processing.IProcessor)
-	 */
-	public void setProcessor(final IProcessor processor) {
-		if (processor instanceof ICallGraphInfo) {
-			info.put(ICallGraphInfo.ID, processor);
-		}
+		nameOfTheTag = tagName;
 	}
 
 	/**
@@ -75,34 +62,28 @@ public final class XMLBasedCallGraphTest
 	}
 
 	/**
+	 * @see AbstractXMLBasedTest#localSetup()
+	 */
+	protected final void localSetup()
+	  throws Exception {
+		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
+		info.put(IValueAnalyzer.TAG_ID, nameOfTheTag);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getIDGenerator()
 	 */
 	protected IJimpleIDGenerator getIDGenerator() {
 		return new UniqueJimpleIDGenerator();
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getXMLizer()
-	 */
-	protected AbstractXMLizer getXMLizer() {
-		return new CallGraphXMLizer();
-	}
-
-	/**
-	 * @see AbstractXMLBasedTest#localSetup()
-	 */
-	protected void localSetup()
-	  throws Exception {
-		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
-   Revision 1.10  2004/03/05 11:59:45  venku
+   Revision 1.2  2004/03/05 11:59:45  venku
    - documentation.
-   Revision 1.9  2004/02/11 09:37:18  venku
+   Revision 1.1  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.
    - ofa xmlizer was implemented.

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
+package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
 import edu.ksu.cis.indus.TestHelper;
 
@@ -34,13 +34,13 @@ import junit.framework.TestSuite;
 
 
 /**
- * This class sets up the call graph once before various tests are run on the call graph.
+ * This class sets up the data once before various tests are run on them.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class OFATestSetup
+public final class ValueAnalysisTestSetup
   extends FATestSetup {
 	/**
 	 * The call graph implementation to be tested.
@@ -50,7 +50,7 @@ public final class OFATestSetup
 	/**
 	 * @see FATestSetup#FATestSetup(TestSuite,String,String)
 	 */
-	OFATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
+	ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test, theNameOfClasses, classpath);
 	}
 
@@ -94,6 +94,12 @@ public final class OFATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
+
    Revision 1.5  2004/02/09 01:20:10  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based

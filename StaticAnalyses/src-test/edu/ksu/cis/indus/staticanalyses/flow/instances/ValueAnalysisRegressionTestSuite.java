@@ -13,11 +13,12 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
+package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
 import edu.ksu.cis.indus.TestHelper;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
 
@@ -35,18 +36,19 @@ import junit.swingui.TestRunner;
 
 
 /**
- * This is the test suite used to run OFA related tests using JUnit's swing interface to the runner.
+ * This is the test suite used to run FA based value analysis related tests using JUnit's swing interface to the runner.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class OFARegressionTestSuite
+public final class ValueAnalysisRegressionTestSuite
   extends TestCase {
 	/**
-	 * This is the property via which the ofa test accepts input.  Refer to OFATest.properties for format.
+	 * This is the property via which the ofa test accepts input.  Refer to ValueAnalysisTest.properties for format.
 	 */
-	public static final String OFA_TEST_PROPERTIES_FILE = "indus.staticanalyses.flow.instances.ofa.OFATest.properties.file";
+	public static final String VALUE_ANALYSIS_TEST_PROPERTIES_FILE =
+		"indus.staticanalyses.flow.instances.ValueAnalysisTest.properties.file";
 
 	///CLOVER:OFF
 
@@ -57,7 +59,7 @@ public final class OFARegressionTestSuite
 	 */
 	public static void main(final String[] args) {
 		final TestRunner _runner = new TestRunner();
-		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalysis.flow.instances.ofa.OFARegressionTestSuite" };
+		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalysis.flow.instances.ValueAnalysisRegressionTestSuite" };
 		_runner.setLoading(false);
 		_runner.start(_suiteName);
 	}
@@ -66,20 +68,20 @@ public final class OFARegressionTestSuite
 
 	/**
 	 * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
-	 * <code>OFA_TEST_PROPERTIES_FILE</code> system property.  Refer to
-	 * <code>edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFATest.properties</code> for the format of the file.
+	 * <code>VAELUE_ANALYSIS_TEST_PROPERTIES_FILE</code> system property.  Refer to
+	 * <code>edu.ksu.cis.indus.staticanalyses.flow.instances.ValueAnalysisTest.properties</code> for the format of the file.
 	 *
 	 * @return the suite of tests.
 	 *
-	 * @throws RuntimeException when <code>OFA_TEST_PROPERTIES_FILE</code> property is unspecified.
+	 * @throws RuntimeException when <code>VALUE_ANALYSIS_TEST_PROPERTIES_FILE</code> property is unspecified.
 	 */
 	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.ofa");
-		final String _propFileName = System.getProperty(OFA_TEST_PROPERTIES_FILE);
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.flow.instances");
+		final String _propFileName = System.getProperty(VALUE_ANALYSIS_TEST_PROPERTIES_FILE);
 
 		if (_propFileName == null) {
-			throw new RuntimeException("Please provide a property file like OFATest.properties via " + "-D"
-				+ OFA_TEST_PROPERTIES_FILE);
+			throw new RuntimeException("Please provide a property file like ValueAnalysisTest.properties via " + "-D"
+				+ VALUE_ANALYSIS_TEST_PROPERTIES_FILE);
 		}
 		setupTests(_propFileName, _suite);
 		return _suite;
@@ -130,7 +132,7 @@ public final class OFARegressionTestSuite
 					_temp.addTestSuite(FATest.class);
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
-					final OFATestSetup _test = new OFATestSetup(_temp, _classNames, _classpath);
+					final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
 					_test.setSecondXmlInputDir(_xmlSecondInputDir);
 					_test.setFirstXmlInputDir(_xmlFirstInputDir);
 					suite.addTest(_test);
@@ -147,6 +149,8 @@ public final class OFARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/03/05 11:59:45  venku
+   - documentation.
    Revision 1.7  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.
