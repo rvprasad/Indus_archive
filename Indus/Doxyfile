@@ -61,8 +61,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = /home/venku/workspace/eclipse/Indus/src/edu/ksu/cis/indus \
-                         /home/venku/workspace/eclipse/Indus/src-xml/edu/ksu/cis/indus 
+INPUT                  = /home/venku/workspace/eclipse/Indus/src/edu/ksu/cis/indus,  /home/venku/workspace/eclipse/Indus/src-xml/edu/ksu/cis/indus,  /home/venku/workspace/eclipse/Indus/src-test/edu/ksu/cis/indus
 FILE_PATTERNS          = *.java
 RECURSIVE              = YES
 EXCLUDE                = *Test.java
