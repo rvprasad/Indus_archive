@@ -139,21 +139,12 @@ public abstract class AbstractDirectedGraphTest
 		localtestGetHeads();
 	}
 
-	///CLOVER:OFF
-
 	/**
-	 * Tests <code>getNode()</code> method.
+	 * Tests <code>getTailsAndPseudoTails()</code> method.
 	 */
-	public void testGetNode() {
+	public final void testGetPseudoTails() {
+		localtestGetPseudoTails();
 	}
-
-	/**
-	 * Tests <code>getNodes()</code> method.
-	 */
-	public void testGetNodes() {
-	}
-
-	///CLOVER:ON
 
 	/**
 	 * Tests <code>getSCCs()</code> method.
@@ -288,6 +279,12 @@ public abstract class AbstractDirectedGraphTest
 	}
 
 	/**
+	 * Tests <code>getPseudoTails()</code> method.
+	 */
+	protected void localtestGetPseudoTails() {
+	}
+
+	/**
 	 * Checks <code>getTails()</code> on the local graph instance.
 	 */
 	protected void localtestGraphGetTails() {
@@ -343,18 +340,17 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/06 01:51:06  venku
+   - renamed DirectedGraphTestSuite to GraphTestSuite.
    Revision 1.5  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.4  2003/12/31 10:43:08  venku
    - size() was unused in IDirectedGraph, hence, removed it.
      Ripple effect.
-
    Revision 1.3  2003/12/31 09:12:19  venku
    - clover directives.
-
    Revision 1.2  2003/12/31 08:45:23  venku
    - formatting.
    - minor refactorings.
