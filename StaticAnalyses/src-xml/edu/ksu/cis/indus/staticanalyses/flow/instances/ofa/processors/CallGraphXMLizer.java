@@ -82,7 +82,7 @@ final class CallGraphXMLizer
 			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 			_xmlWriter.declaration();
 			_xmlWriter.dtd("callgraph", "-//INDUS:STATICANALYSES.FLOW.INSTANCES.OFA.PROCESSORS.CALLGRAPH//DTD project//EN",
-				"callgraph.xsd");
+				"callgraphXML.xsd");
 			_xmlWriter.startTag("callgraph");
 
 			// Control the order in which methods are processed. 
@@ -135,6 +135,9 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/05/13 03:32:04  venku
+   - documentation.  refactoring of getFileName() in IXMLizer.
+
    Revision 1.18  2004/05/13 03:12:33  venku
    - CustomXMLOutputter defaults to UTF-8 encoding.
    - Added a new method to AbstractXMLizer to encode strings.

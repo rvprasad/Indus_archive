@@ -234,7 +234,7 @@ final class StmtLevelDependencyXMLizer
 	public void processingBegins() {
 		try {
 		    writer.declaration();
-		    writer.dtd("dependency", "-//INDUS:STATICANALYSES:DEPENDENCY//DTD project//EN", "dependency.xsd");
+		    writer.dtd("dependency", "-//INDUS:STATICANALYSES:DEPENDENCY//DTD project//EN", "dependencyXML.xsd");
 		    writer.startTag("dependency");
 		    writer.attribute("id", String.valueOf(analysis.getId()));
 		    writer.attribute("class", analysis.getClass().getName().toString());
@@ -257,6 +257,10 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/13 01:14:21  venku
+   - added declaration and dtd content to all xml documents.
+   - removed redundant value element, the child of string constant.
+
    Revision 1.12  2004/05/11 12:00:03  venku
    - deleted a completed task tag.
 

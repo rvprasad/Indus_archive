@@ -227,7 +227,7 @@ public final class OFAXMLizer
 
 			try {
 			    xmlWriter.declaration();
-			    xmlWriter.dtd("ofa", "-//INDUS:STATICANALYSES.FLOW.INSTANCES.OFA//DTD project//EN", "ofa.xsd");
+			    xmlWriter.dtd("ofa", "-//INDUS:STATICANALYSES.FLOW.INSTANCES.OFA//DTD project//EN", "ofaXML.xsd");
 
 				xmlWriter.startTag("ofa");
 			} catch (final IOException _e) {
@@ -290,6 +290,9 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/05/13 03:32:04  venku
+   - documentation.  refactoring of getFileName() in IXMLizer.
+
    Revision 1.14  2004/05/13 03:12:33  venku
    - CustomXMLOutputter defaults to UTF-8 encoding.
    - Added a new method to AbstractXMLizer to encode strings.
