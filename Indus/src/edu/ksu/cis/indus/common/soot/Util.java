@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.MissingResourceException;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -55,6 +56,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
+import soot.VoidType;
 
 import soot.jimple.DoubleConstant;
 import soot.jimple.FloatConstant;
@@ -340,6 +342,52 @@ public final class Util {
 	}
 
 	/**
+	 * Retrieves the type object for the given primitive (non-array) type in the given scene.
+	 *
+	 * @param typeName is the name of the type.
+	 * @param scene contains the classes that make up the system.
+	 *
+	 * @return the type object
+	 *
+	 * @throws MissingResourceException when the named type does not exists.
+	 *
+	 * @pre typeName != null and scene != null and typeName.indexOf("[") = -1
+	 */
+	public static Type getPrimitiveTypeFor(final String typeName, final Scene scene) {
+		final Type _result;
+
+		if (typeName.equals("int")) {
+			_result = IntType.v();
+		} else if (typeName.equals("char")) {
+			_result = CharType.v();
+		} else if (typeName.equals("byte")) {
+			_result = ByteType.v();
+		} else if (typeName.equals("long")) {
+			_result = LongType.v();
+		} else if (typeName.equals("short")) {
+			_result = ShortType.v();
+		} else if (typeName.equals("float")) {
+			_result = FloatType.v();
+		} else if (typeName.equals("double")) {
+			_result = DoubleType.v();
+		} else if (typeName.equals("boolean")) {
+			_result = BooleanType.v();
+		} else if (typeName.equals("void")) {
+			_result = VoidType.v();
+		} else {
+			final SootClass _sc = scene.getSootClass(typeName);
+
+			if (_sc == null) {
+				final String _msg = typeName + " is not available in the System.";
+				LOGGER.error(_msg);
+				throw new MissingResourceException("Given type is not available in the System", typeName, null);
+			}
+			_result = _sc.getType();
+		}
+		return _result;
+	}
+
+	/**
 	 * Checks if the given type is a valid reference type.
 	 *
 	 * @param t is the type to checked.
@@ -392,6 +440,28 @@ public final class Util {
 			};
 
 		return _options;
+	}
+
+	/**
+	 * Retrieves the type object for the given type in the given scene.
+	 *
+	 * @param typeName is the name of the type.
+	 * @param scene contains the classes that make up the system.
+	 *
+	 * @return the type object.
+	 *
+	 * @pre typeName != null and scene != null
+	 */
+	public static Type getTypeFor(final String typeName, final Scene scene) {
+		final Type _result;
+		final int _i = typeName.indexOf("[", 0);
+
+		if (_i == -1) {
+			_result = getPrimitiveTypeFor(typeName, scene);
+		} else {
+			_result = ArrayType.v(getPrimitiveTypeFor(typeName.substring(0, _i), scene), typeName.length() - _i + 1);
+		}
+		return _result;
 	}
 
 	/**
@@ -581,6 +651,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/06/14 04:31:17  venku
+   - added method to check tags on a collection of hosts in Util.
+   - ripple effect.
    Revision 1.25  2004/04/22 20:08:45  venku
    - fixed soot options, again.
    Revision 1.24  2004/04/22 19:58:59  venku
