@@ -23,7 +23,6 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,6 +32,7 @@ import org.apache.commons.collections.Predicate;
 
 import soot.SootMethod;
 import soot.Trap;
+import soot.Unit;
 
 import soot.jimple.GotoStmt;
 import soot.jimple.Stmt;
@@ -58,7 +58,7 @@ public final class SliceGotoProcessor {
 				return object instanceof GotoStmt;
 			}
 		};
-
+		
 	/** 
 	 * A workbag.
 	 */
@@ -128,16 +128,17 @@ public final class SliceGotoProcessor {
 		// collect the handler statements in the traps
 		for (final Iterator _i = _unitGraph.getBody().getTraps().iterator(); _i.hasNext();) {
 			final Trap _trap = (Trap) _i.next();
-			_handlerStmts.add(_trap.getHandlerUnit());
+			final Unit _handlerUnit = _trap.getHandlerUnit();
+			
+			if (sliceCollector.hasBeenCollected(_handlerUnit)) {
+			    _handlerStmts.add(_handlerUnit);
+			}
 		}
-
-		final Collection _temp = new HashSet();
 
 		while (workBag.hasWork()) {
 			final BasicBlock _bb = (BasicBlock) workBag.getWork();
 			final Stmt _leader = _bb.getLeaderStmt();
 			final int _lind = _units.indexOf(_leader);
-			_temp.add(_bb);
 
 			if (_lind > 0) {
 				final Stmt _predStmtOfLeader = (Stmt) _units.get(_lind - 1);
@@ -202,6 +203,10 @@ public final class SliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/08/02 04:53:45  venku
+   - simplified goto processing logic and collapsed 5 classes into 1 class, SliceGotoProcessor.
+   - ripple effect.
+
    Revision 1.15  2004/06/16 07:59:35  venku
    - goto processing was skewed. FIXED.
    - note that we should just use specialization in executable case.
