@@ -189,7 +189,8 @@ public class BackwardSlicingPart
 			  || _direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependees(entity, context));
 		} else if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction.");
+			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- " 
+                    + analysis.getClass() + " - " + _direction);
 		}
 
 		return _result;
