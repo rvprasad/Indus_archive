@@ -32,18 +32,18 @@ public interface IXMLBasedTest
 	/**
 	 * Sets the directory from which to read the first xml test input.
 	 *
-	 * @param xmlInDir is the directory to read the xml test input from.
+	 * @param xmlInputDir is the directory to read the xml test input from.
 	 *
-	 * @pre xmlInDir != null
+	 * @pre xmlInputDir != null
 	 */
 	void setFirstXmlInputDir(String xmlInputDir);
 
 	/**
 	 * Sets the directory from which to read the second xml test input.
 	 *
-	 * @param xmlInDir is the directory to read the xml test input from.
+	 * @param xmlInputDir is the directory to read the xml test input from.
 	 *
-	 * @pre xmlInDir != null
+	 * @pre xmlInputDir != null
 	 */
 	void setSecondXmlInputDir(String xmlInputDir);
 
@@ -58,6 +58,15 @@ public interface IXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.4  2004/03/05 11:59:40  venku
    - documentation.
    Revision 1.3  2004/02/09 01:20:06  venku
