@@ -165,7 +165,8 @@ public class JimpleXMLizer
 				processingMethod = true;
 			}
 
-			xmlizedSystem.write("\t\t<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;") + "\" id=\""
+			xmlizedSystem.write("\t\t<method signature=\""
+				+ method.getSubSignature().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;") + "\" id=\""
 				+ idGenerator.getIdForMethod(method) + "\">\n");
 
 			if (method.isConcrete()) {
@@ -173,8 +174,8 @@ public class JimpleXMLizer
 
 				for (Iterator i = body.getLocals().iterator(); i.hasNext();) {
 					Local l = (Local) i.next();
-					xmlizedSystem.write("\t\t\t<local id=\"" + idGenerator.getIdForLocal(l, method) + "\" name=\"" + l.getName()
-						+ "\"/>\n");
+					xmlizedSystem.write("\t\t\t<local id=\"" + idGenerator.getIdForLocal(l, method) + "\" name=\""
+						+ l.getName() + "\" type=\"" + l.getType() + "\"/>\n");
 				}
 			}
 		} catch (IOException e) {
@@ -279,25 +280,21 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/24 06:45:23  venku
+   - corrected xml encoding errors along with tag name emission errors.
    Revision 1.15  2003/11/24 06:27:54  venku
    - static invoke expr is also routed through writeInvokeExpr().
-
    Revision 1.14  2003/11/24 01:20:27  venku
    - enhanced output formatting.
-
    Revision 1.13  2003/11/24 00:54:03  venku
    - deleted  getstream() method as it was not used.
-
    Revision 1.12  2003/11/17 15:57:03  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
-
    Revision 1.11  2003/11/16 18:37:42  venku
    - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
-
    Revision 1.10  2003/11/12 04:47:12  venku
    - < needed to be escaped. FIXED.
-
    Revision 1.9  2003/11/12 04:40:06  venku
    - emitted wrong tag for method and classes. FIXED.
    Revision 1.8  2003/11/10 07:52:58  venku
