@@ -13,11 +13,16 @@
 <property name="demo" value="demo"/>
 <property name="docs" value="docs"/>
 <property name="gui" value="GUI"/>
-<property name="src" value="${basedir}/src"/>
-<property name="package" value="edu.ksu.cis.bandera"/>
+<property name="package" value="edu.ksu.cis.indus"/>
 <property name="jdklink" value="http://127.0.0.1/docs/java/jdk-1.4.1/api/"/>
 <property name="sootlink" value="http://127.0.0.1/docs/compilers/soot-0.x/"/>
 
+<path id="src">
+	<pathelement location="src"/>
+	<pathelement location="src-flow"/>
+	<pathelement location="src-dependence"/>
+	<pathelement location="src-escape"/>
+</path>
 
 <target name="init">
     <tstamp/>
@@ -41,11 +46,15 @@
 
 <target name="javadocs">
     <mkdir dir="${docs}/javadocs"/>
-    <javadoc sourcepath="${src}" packagenames="${package}.*"
+    <javadoc packagenames="${package}.*"
              destdir="${docs}/javadocs" access="private" use="true"
              author="true">
+             <sourcepath refid="src"/>
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
+             <tag name="pre" description="Precondition:" scope="constructors,methods"/>
+             <tag name="post" description="Postcondition:" scope="constructors,methods"/>
+             <tag name="invariant" description="Invariant" scope="types,fields"/>
     </javadoc>
 </target>
 
