@@ -41,13 +41,13 @@ public class CompleteUnitGraphFactory
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getStmtGraph(soot.SootMethod)
 	 */
-	public UnitGraph getStmtGraph(SootMethod method) {
-		WeakReference ref = (WeakReference) method2StmtGraph.get(method);
+	public UnitGraph getUnitGraph(SootMethod method) {
+		WeakReference ref = (WeakReference) method2UnitGraph.get(method);
 		UnitGraph result = null;
 
 		if (ref == null || ref.get() == null) {
 			result = new CompleteUnitGraph(method.retrieveActiveBody());
-			method2StmtGraph.put(method, new WeakReference(result));
+			method2UnitGraph.put(method, new WeakReference(result));
 		} else if (ref != null) {
 			result = (CompleteUnitGraph) ref.get();
 		}
@@ -58,4 +58,8 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/28 06:22:54  venku
+   - Added support to plug unit graphs from the environment when
+     requested by the implementations.
+
  */
