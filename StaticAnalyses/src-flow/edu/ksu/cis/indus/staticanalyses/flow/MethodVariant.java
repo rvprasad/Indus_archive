@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.common.soot.Util;
+
+import edu.ksu.cis.indus.processing.Context;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -146,7 +146,7 @@ public class MethodVariant
 
 	/**
 	 * Creates a new <code>MethodVariant</code> instance.  This will not process the statements of this method.  That is
-	 * accomplished via call to <code>process()</code>.
+	 * accomplished via call to <code>process()</code>.  This will also mark the field with the flow analysis tag.
 	 *
 	 * @param sm the method represented by this variant.  This parameter cannot be <code>null</code>.
 	 * @param astVariantManager the manager of flow graph nodes corresponding to the AST nodes of<code>sm</code>.  This
@@ -510,25 +510,22 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/12/31 10:35:53  venku
+   - logging.
    Revision 1.18  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.17  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.16  2003/12/08 13:30:35  venku
    - cosmetic.
-
    Revision 1.15  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.14  2003/12/07 05:02:18  venku
    - formatting.
-
    Revision 1.13  2003/12/05 21:22:15  venku
    - delayed construction of local use-def info
    - process all types known at the interface of the method

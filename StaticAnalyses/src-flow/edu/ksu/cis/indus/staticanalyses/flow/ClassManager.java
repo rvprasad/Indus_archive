@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
-
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -114,7 +114,8 @@ public class ClassManager
 
 	/**
 	 * Processes the given class for assimilating class related primitive information into the analysis.  This implementation
-	 * hooks in the class initialization method into the analysis.
+	 * hooks in the class initialization method into the analysis.  This will also mark the field with the flow analysis
+	 * tag.
 	 *
 	 * @param sc the class to be processed.  This cannot be <code>null</code>.
 	 *
@@ -155,7 +156,7 @@ public class ClassManager
 					continue;
 				}
 				classes.add(_sc);
-                _sc.addTag(theTag);
+				_sc.addTag(theTag);
 				temp.clear();
 
 				if (LOGGER.isDebugEnabled()) {
@@ -203,18 +204,19 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/01/06 00:17:01  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.19  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.18  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.17  2003/12/07 09:37:10  venku
    - changed the logic to handle super classes and their <clinit>s.
-
    Revision 1.16  2003/12/07 03:22:48  venku
    - processing logic did not consider interfaces.  FIXED.
    Revision 1.15  2003/12/02 09:42:35  venku
