@@ -447,7 +447,7 @@ public final class AliasedUseDefInfo
 
 			if (_bbUse == _bbDef) {
 				final List _sl = _bbUse.getStmtsOf();
-				_result = _sl.indexOf(defStmt) < _sl.indexOf(useMethod);
+				_result = _sl.indexOf(defStmt) < _sl.indexOf(useStmt);
 			} else {
 				_result = _bbg.isReachable(_bbDef, _bbUse, true);
 			}
@@ -464,6 +464,9 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/07/08 11:07:46  venku
+   - INTERIM COMMIT.
+
    Revision 1.33  2004/06/28 22:44:26  venku
    - null was returned when no info was available. FIXED.
    Revision 1.32  2004/06/28 08:07:19  venku
