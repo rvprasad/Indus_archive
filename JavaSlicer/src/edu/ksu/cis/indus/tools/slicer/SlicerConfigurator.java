@@ -159,7 +159,10 @@ public final class SlicerConfigurator
 
 		final Button _applclasses = new Button(_assertionGroup, SWT.CHECK);
 		_applclasses.setText("Preserve assertions in application classes only");
-		_applclasses.setSelection(cfg.areAssertionsOnlyInAppClassesConsidered());
+        _applclasses.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, 
+                _applclasses, cfg));
+        _applclasses.setSelection(cfg.areAssertionsOnlyInAppClassesConsidered());
+        
         final GridData _gd3 = new GridData(SWT.END, SWT.BEGINNING, false, false);
         _gd3.horizontalSpan = 2;
         _gd3.grabExcessHorizontalSpace = true;
@@ -205,8 +208,9 @@ public final class SlicerConfigurator
 
 		final Button _applclasses = new Button(_deadlockGroup, SWT.CHECK);
 		_applclasses.setText("Preserve sync constructs in application classes only");
-		_applclasses.setSelection(((Boolean) cfg.getProperty(SlicerConfiguration.SYNCS_IN_APPLICATION_CLASSES_ONLY))
-			  .booleanValue());
+        _applclasses.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.SYNCS_IN_APPLICATION_CLASSES_ONLY, 
+                _applclasses, cfg));
+        _applclasses.setSelection(cfg.areSynchronizationsOnlyInAppClassesConsidered());
 
 		final Group _group1 = new Group(_deadlockGroup, SWT.SHADOW_ETCHED_IN);
 		_group1.setText("Deadlock Criteria Selection Strategy");
