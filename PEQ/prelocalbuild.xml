@@ -1,0 +1,15 @@
+<project>
+    <property file="antbuild.properties"/>        
+    <property name="package" value="edu.ksu.cis.peq"/>
+    <property name="ant.project.name" value="peq"/>
+   
+    <path id="peq.srcpath">
+        <pathelement location="src"/>
+    </path>
+    
+    <property name="home" value="${basedir}"/>
+    
+      <path id="peq.classpath">
+	    <pathelement location="${home}/libraries/trove.jar"/>	   
+	 </path>  
+</project>

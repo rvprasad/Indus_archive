@@ -1,2 +1,4 @@
 .checkstyle
 **.class
+docs
+dist
