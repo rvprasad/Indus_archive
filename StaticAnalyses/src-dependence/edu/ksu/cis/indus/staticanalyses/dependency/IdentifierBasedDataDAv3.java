@@ -35,9 +35,6 @@ import soot.SootMethod;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
- *
- * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod,LocalUseDefAnalysisv2))
- * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod,LocalUseDefAnalysisv2))
  */
 public final class IdentifierBasedDataDAv3
   extends IdentifierBasedDataDAv2 {
@@ -53,4 +50,12 @@ public final class IdentifierBasedDataDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
+
  */

@@ -57,8 +57,8 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod,LocalUseDefAnalysis))
- * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod,LocalUseDefAnalysis))
+ * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod,IUseDefInfo))
+ * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod,IUseDefInfo))
  */
 public class IdentifierBasedDataDAv2
   extends AbstractDependencyAnalysis {
@@ -300,6 +300,14 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
+
    Revision 1.5  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
