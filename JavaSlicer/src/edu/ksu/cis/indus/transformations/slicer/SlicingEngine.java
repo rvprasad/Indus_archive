@@ -52,7 +52,7 @@ import ca.mcgill.sable.soot.jimple.StmtList;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 
-import edu.ksu.cis.bandera.staticanalyses.dependency.Controller;
+import edu.ksu.cis.bandera.staticanalyses.dependency.controller.Controller;
 import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair;
 import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
@@ -491,6 +491,9 @@ public class Slicer
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/18 00:18:49  venku
+*** empty log message ***
+
 Revision 1.1.1.1  2003/02/17 23:59:51  venku
 Placing JavaSlicer under version control.
 
