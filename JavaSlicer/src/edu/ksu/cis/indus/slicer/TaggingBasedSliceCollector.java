@@ -198,7 +198,7 @@ public class TaggingBasedSliceCollector {
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#completeTransformation()
 	 */
 	public void completeTransformation() {
-		// TODO: Auto-generated method stub
+        // TODO: fixup goto statements and branches such that their targets are the statements in the slice.        
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class TaggingBasedSliceCollector {
 	 * <p></p>
 	 */
 	private void makeBackwardSliceExecutable() {
-		// TODO:
+		// TODO: pick minimum number of return statements such that all sliced methods return correctly.  
 		for (Iterator i = taggedMethods.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
 			BasicBlockGraph bbg = bbgMgr.getBasicBlockGraph(sm);
@@ -315,13 +315,19 @@ public class TaggingBasedSliceCollector {
 		if (method.getTag(tagName) == null) {
 			method.addTag(theTag);
 			taggedMethods.add(method);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Tagged: " + method.getSignature());
+            }
+            
 		}
 
 		SootClass sc = method.getDeclaringClass();
 
 		if (sc.getTag(tagName) == null) {
 			sc.addTag(theTag);
-			System.out.println("Tagged: " + sc.getName());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Tagged: " + sc.getName());
+            }
 		}
 
 		if (sc.hasSuperclass()) {
@@ -407,6 +413,12 @@ public class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/24 16:47:31  venku
+   - moved inner classes as external class.
+   - made TaggingBasedSliceCollector package private.
+   - removed inheritance based dependence on ITransformer
+     for TaggingBasedSliceCollector.
+
    Revision 1.1  2003/11/24 10:11:32  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.
