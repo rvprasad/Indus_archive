@@ -43,7 +43,7 @@ import soot.Value;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
-import edu.ksu.cis.indus.staticanalyses.interfaces.*;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 
@@ -62,7 +62,7 @@ public abstract class AbstractProcessor
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#setAnalyzer(
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer)
 	 */
-	public void setAnalyzer(IValueAnalyzer analyzer) {
+	public void setAnalyzer(final IValueAnalyzer analyzer) {
 	}
 
 	/**
@@ -71,7 +71,7 @@ public abstract class AbstractProcessor
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.jimple.Value,
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
 	 */
-	public void callback(Value value, Context context) {
+	public void callback(final Value value, final Context context) {
 	}
 
 	/**
@@ -80,7 +80,7 @@ public abstract class AbstractProcessor
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.jimple.Stmt,
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
 	 */
-	public void callback(Stmt stmt, Context context) {
+	public void callback(final Stmt stmt, final Context context) {
 	}
 
 	/**
@@ -88,7 +88,7 @@ public abstract class AbstractProcessor
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.SootMethod)
 	 */
-	public void callback(SootMethod method) {
+	public void callback(final SootMethod method) {
 	}
 
 	/**
@@ -96,7 +96,7 @@ public abstract class AbstractProcessor
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.SootClass)
 	 */
-	public void callback(SootClass clazz) {
+	public void callback(final SootClass clazz) {
 	}
 
 	/**
@@ -104,7 +104,7 @@ public abstract class AbstractProcessor
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootField)
 	 */
-	public void callback(SootField field) {
+	public void callback(final SootField field) {
 	}
 
 	/**
@@ -119,6 +119,11 @@ public abstract class AbstractProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 06:38:25  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
