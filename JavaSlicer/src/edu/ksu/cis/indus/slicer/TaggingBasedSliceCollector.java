@@ -148,7 +148,31 @@ final class TaggingBasedSliceCollector {
 	 * @pre host != null
 	 */
 	void includeInSlice(final Host host) {
-		tagHost(host);
+		final SlicingTag _hostTag = (SlicingTag) host.getTag(tagName);
+
+		if (_hostTag != null) {
+			host.addTag(tag);
+
+			if (host instanceof SootMethod) {
+				taggedMethods.add(host);
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				Object _o = host;
+
+				if (host instanceof ValueBox) {
+					_o = ((ValueBox) host).getValue();
+				}
+				LOGGER.debug("Tagged: " + _o);
+			}
+		} else if (_hostTag != tag) {
+			host.removeTag(tagName);
+			host.addTag(tag);
+            
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Tagged:" + host);
+            }
+		}
 	}
 
 	/**
@@ -246,46 +270,14 @@ final class TaggingBasedSliceCollector {
 			_gotoProcessor.postprocess();
 		}
 	}
-
-	/**
-	 * Tags the given host.
-	 *
-	 * @param host to be tagged.
-	 *
-	 * @pre host != null
-	 */
-	private void tagHost(final Host host) {
-		final SlicingTag _theTag;
-
-		_theTag = tag;
-
-		final SlicingTag _hostTag = (SlicingTag) host.getTag(tagName);
-
-		if (_hostTag == null) {
-			if (host.getTag(tagName) != null) {
-				host.removeTag(tagName);
-			}
-			host.addTag(_theTag);
-
-			if (host instanceof SootMethod) {
-				taggedMethods.add(host);
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				Object _o = host;
-
-				if (host instanceof ValueBox) {
-					_o = ((ValueBox) host).getValue();
-				}
-				LOGGER.debug("Tagged: " + _o);
-			}
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/13 19:46:33  venku
+   - documentation of TaggingBasedSliceCollector.
+   - renamed collect() to includeInSlice().
    Revision 1.13  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
