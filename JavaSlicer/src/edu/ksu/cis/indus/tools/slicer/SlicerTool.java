@@ -42,6 +42,7 @@ import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
@@ -275,6 +276,11 @@ public final class SlicerTool
 	 */
 	private NewExpr2InitMapper initMapper;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private SafeLockAnalysis safelockAnalysis;
+
 	/**
 	 * Creates a new SlicerTool object.
 	 *
@@ -317,6 +323,8 @@ public final class SlicerTool
 		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, threadGraph, bbgMgr);
 		// create monitor analysis
 		monitorInfo = new MonitorAnalysis();
+		// create safe lock analysis
+		safelockAnalysis = new SafeLockAnalysis();
 
 		// set up data required for dependency analyses.
 		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, bbgMgr);
@@ -328,6 +336,7 @@ public final class SlicerTool
 		info.put(IValueAnalyzer.ID, ofa);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 		info.put(IMonitorInfo.ID, monitorInfo);
+		info.put(SafeLockAnalysis.ID, safelockAnalysis);
 
 		// create dependency analyses controller 
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, bbgMgr);
@@ -680,6 +689,10 @@ public final class SlicerTool
 		}
 		daController.addAnalyses(IMonitorInfo.ID, Collections.singleton(monitorInfo));
 		daController.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(ecba));
+
+		if (slicerConfig.isSafeLockAnalysisUsedForReady()) {
+			daController.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(safelockAnalysis));
+		}
 		daController.initialize();
 		daController.execute();
 
@@ -898,6 +911,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.103  2004/07/25 01:34:36  venku
+   - if a throw was marked and not the exception value, then the code to create
+     a value is injected independent of the fact that the thrown value is in the slice.
+     This was fixed by using local use def analysis.  FIXED.
    Revision 1.102  2004/07/23 13:10:06  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.

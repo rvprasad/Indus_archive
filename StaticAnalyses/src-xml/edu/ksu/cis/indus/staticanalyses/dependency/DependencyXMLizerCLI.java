@@ -115,6 +115,13 @@ public class DependencyXMLizerCLI
 	 */
 	private boolean useAliasedUseDefv1;
 
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private boolean useSafeLockAnalysis;
+
 	/**
 	 * This is the entry point via command-line.
 	 *
@@ -169,6 +176,12 @@ public class DependencyXMLizerCLI
 		_options.addOption(_option);
 		_option = new Option(" ", "aliased-use-def-v1", false, "Use version 1 of aliased use-def info.");
 		_options.addOption(_option);
+		_option = new Option(" ", "use-safe-lock-analysis", false, "Use safe-lock-analysis for ready dependence.");
+		_options.addOption(_option);
+		_option = new Option(" ", "use-ofa-for-interference", false, "Use OFA for interference dependence.");
+		_options.addOption(_option);
+		_option = new Option(" ", "use-ofa-for-ready", false, "Use OFA for ready dependence.");
+		_options.addOption(_option);
 
 		for (int _i = 0; _i < _dasOptions.length; _i++) {
 			final String _shortOption = _dasOptions[_i][0].toString();
@@ -177,7 +190,7 @@ public class DependencyXMLizerCLI
 			_option = new Option(_shortOption, _longOption, false, _description);
 			_options.addOption(_option);
 		}
-		
+
 		final PosixParser _parser = new PosixParser();
 
 		try {
@@ -205,7 +218,8 @@ public class DependencyXMLizerCLI
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
 			_cli.dumpJimple = _cl.hasOption('j');
-			_cli.useAliasedUseDefv1 = _cl.hasOption("au1");
+			_cli.useAliasedUseDefv1 = _cl.hasOption("aliased-use-def-v1");
+			_cli.useSafeLockAnalysis = _cl.hasOption("use-safe-lock-analysis");
 
 			final List _classNames = _cl.getArgList();
 
@@ -224,8 +238,18 @@ public class DependencyXMLizerCLI
 
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
 				if (_cl.hasOption(_dasOptions[_i][0].toString())) {
-					_cli.das.add(_dasOptions[_i][3]);
+					final Object _da = _dasOptions[_i][3];
+					_cli.das.add(_da);
 					_flag = false;
+
+					if (_da instanceof InterferenceDAv1) {
+						((InterferenceDAv1) _da).setUseOFA(_cl.hasOption("use-ofa-for-interference"));
+					}
+
+					if (_da instanceof ReadyDAv1) {
+						((ReadyDAv1) _da).setUseOFA(_cl.hasOption("use-ofa-for-ready"));
+						((ReadyDAv1) _da).setUseSafeLockAnalysis(_cli.useSafeLockAnalysis);
+					}
 				}
 			}
 
@@ -291,9 +315,15 @@ public class DependencyXMLizerCLI
 
 		final IMonitorInfo _monitorInfo = new MonitorAnalysis();
 		info.put(IMonitorInfo.ID, _monitorInfo);
-		
-		final SafeLockAnalysis _sla = new SafeLockAnalysis();
-		info.put(SafeLockAnalysis.ID, _sla);
+
+		final SafeLockAnalysis _sla;
+
+		if (useSafeLockAnalysis) {
+			_sla = new SafeLockAnalysis();
+			info.put(SafeLockAnalysis.ID, _sla);
+		} else {
+			_sla = null;
+		}
 
 		writeInfo("BEGIN: FA");
 
@@ -328,7 +358,10 @@ public class DependencyXMLizerCLI
 		final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());
 		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(_monitorInfo));
 		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
-		_ac.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(_sla));
+
+		if (useSafeLockAnalysis) {
+			_ac.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(_sla));
+		}
 
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
@@ -362,9 +395,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/07/25 10:29:13  venku
+   - figured out how to include long options only (see aliased-use-def-v1)
+   - added safe lock analysis into the pipeline.
    Revision 1.33  2004/07/25 00:08:15  venku
    - command line options.
-
    Revision 1.32  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
@@ -373,7 +408,6 @@ public class DependencyXMLizerCLI
      - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
      - ripple effect.
      - Implemented safelock analysis to handle intraprocedural processing.
-
    Revision 1.31  2004/07/21 20:32:31  venku
    - documentation.
    - CLI options were broken. FIXED.
@@ -626,9 +660,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/07/25 10:29:13  venku
+   - figured out how to include long options only (see aliased-use-def-v1)
+   - added safe lock analysis into the pipeline.
    Revision 1.33  2004/07/25 00:08:15  venku
    - command line options.
-
    Revision 1.32  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
@@ -637,7 +673,6 @@ public class DependencyXMLizerCLI
      - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
      - ripple effect.
      - Implemented safelock analysis to handle intraprocedural processing.
-
    Revision 1.31  2004/07/21 20:32:31  venku
    - documentation.
    - CLI options were broken. FIXED.

@@ -155,16 +155,12 @@ public final class MonitorAnalysis
 	private final Map syncedMethod2enclosedStmts = new HashMap();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The monitor graph.
 	 */
 	private IObjectDirectedGraph monitorGraph;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The pair manager.
 	 */
 	private final PairManager pairMgr = new PairManager();
 
@@ -615,6 +611,9 @@ public final class MonitorAnalysis
 		syncedMethods.clear();
 		syncedMethod2enclosedStmts.clear();
 		pairMgr.reset();
+		method2enclosedStmts2monitors.clear();
+		method2monitor2enclosedStmts.clear();
+		method2enterMonitors.clear();
 		monitorGraph = null;
 	}
 
@@ -702,15 +701,17 @@ public final class MonitorAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the statements enclosed in the monitor of the synchronized method.  This retrieves inter procedural
+	 * enclosures.
 	 *
-	 * @param method DOCUMENT ME!
-	 * @param transitive DOCUMENT ME!
-	 * @param callgraph DOCUMENT ME!
+	 * @param method of interest.
+	 * @param transitive <code>true</code> if transitive closure is required; <code>false</code>, otherwise.
+	 * @param callgraph to be used.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a map from methods to statements in them that occur in the enclosure.
+	 *
+	 * @pre method != null and callgraph != null
+	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 	 */
 	private Map getInterProcedurallyEnclosedStmts(final SootMethod method, final boolean transitive,
 		final ICallGraphInfo callgraph) {
@@ -724,16 +725,19 @@ public final class MonitorAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the statements enclosed in the monitor of the synchronized method.  This retrieves inter procedural
+	 * enclosures.
 	 *
-	 * @param monitorStmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param transitive DOCUMENT ME!
-	 * @param callgraph DOCUMENT ME!
+	 * @param monitorStmt of interest.
+	 * @param method of interest.
+	 * @param transitive <code>true</code> if transitive closure is required; <code>false</code>, otherwise.
+	 * @param callgraph to be used.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a map from methods to statements in them that occur in the enclosure.
+	 *
+	 * @pre method != null and callgraph != null and monitorStmt != null
+	 * @pre monitorStmt.oclIsKindOf(EnterMonitorStmt) or monitorStmt.oclIsKindOf(ExitMonitorStmt)
+	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 	 */
 	private Map getInterProcedurallyEnclosedStmts(final Stmt monitorStmt, final SootMethod method, final boolean transitive,
 		final ICallGraphInfo callgraph) {
@@ -756,13 +760,18 @@ public final class MonitorAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * This helps <code>getInterProcedurallyEnclosedStmts</code> methods to calculate enclosures.
 	 *
-	 * @param method
-	 * @param transitive
-	 * @param callgraph
-	 * @param method2stmts
-	 * @param stmtsWithInvokeExpr
+	 * @param method of interest.
+	 * @param transitive <code>true</code> if transitive closure is required; <code>false</code>, otherwise.
+	 * @param callgraph to be used.
+	 * @param method2stmts an out parameter in which each method will be mapped to a set of statements.
+	 * @param stmtsWithInvokeExpr is an iterator over statements with invoke expresssions.
+	 *
+	 * @pre method != null and callgraph != null
+	 * @pre methdo2stmts != null
+	 * @pre stmtsWithInvokeExpr != null
+	 * @post method2stmts.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
 	 */
 	private void calculateInterprocedurallyEnclosedStmts(final SootMethod method, final boolean transitive,
 		final ICallGraphInfo callgraph, final Map method2stmts, final Iterator stmtsWithInvokeExpr) {
@@ -1143,6 +1152,11 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/07/27 07:08:25  venku
+   - revamped IMonitorInfo interface.
+   - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
+   - deleted WaitNotifyAnalysis
+   - ripple effect in EquivalenceClassBasedEscapeAnalysis.
    Revision 1.2  2004/07/25 10:27:27  venku
    - extended MonitorInfo interface with convenience methods.
    - implemented the above methods in MonitorAnalysis.

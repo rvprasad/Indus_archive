@@ -20,12 +20,14 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
@@ -33,6 +35,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -146,31 +149,10 @@ public class ReadyDAv1
 	protected int rules = RULE_1 | RULE_2 | RULE_3 | RULE_4;
 
 	/** 
-	 * This stores the methods that are synchronized or have synchronized blocks in them.
-	 *
-	 * @invariant monitorMethods.oclIsKindOf(Collection(SootMethod))
-	 */
-	final Collection monitorMethods = new HashSet();
-
-	/** 
-	 * The  collection of <code>notifyXX</code> methods as available in the <code>Object</code> class.
-	 *
-	 * @invariant notifyMethods->forall(o | o.oclIsTypeOf(SootMethod))
-	 */
-	Collection notifyMethods;
-
-	/** 
 	 * The collection of methods (readyMethods) which contain at least an enter-monitor statement or a <code>wait()</code>
 	 * call-site.
 	 */
 	final Collection readyMethods = new HashSet();
-
-	/** 
-	 * This is the <code>java.lang.Object.wait()</code> method.
-	 *
-	 * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
-	 */
-	Collection waitMethods;
 
 	/** 
 	 * This maps a method to a collection of enter monitor statements in that method.
@@ -216,6 +198,13 @@ public class ReadyDAv1
 	private IEnvironment env;
 
 	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private IMonitorInfo monitorInfo;
+
+	/** 
 	 * This provides call graph of the system being analyzed.
 	 */
 	private IThreadGraphInfo threadgraph;
@@ -231,6 +220,13 @@ public class ReadyDAv1
 	private PairManager pairMgr;
 
 	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private SafeLockAnalysis safelockAnalysis;
+
+	/** 
 	 * This indicates if dependence should be considered across call-sites.  Depending on the application, one may choose to
 	 * ignore ready dependence across call-sites and rely on other dependence analysis to include the call-site.  This only
 	 * affects how rule 1 and 3 are interpreted.
@@ -241,6 +237,11 @@ public class ReadyDAv1
 	 * This indicates if object flow analysis should be used.
 	 */
 	private boolean useOFA;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private boolean useSafeLockAnalysis;
 
 	/**
 	 * Creates a new ReadyDAv1 object.
@@ -261,21 +262,6 @@ public class ReadyDAv1
 	private class PreProcessor
 	  extends AbstractProcessor {
 		/**
-		 * Collects synchronized methods.
-		 *
-		 * @param method to be preprocessed.
-		 */
-		public void callback(final SootMethod method) {
-			if (method.isSynchronized()) {
-				monitorMethods.add(method);
-				CollectionsUtilities.putIntoCollectionInMap(enterMonitors, method, SYNC_METHOD_PROXY_STMT,
-					CollectionsUtilities.HASH_SET_FACTORY);
-				CollectionsUtilities.putIntoCollectionInMap(exitMonitors, method, SYNC_METHOD_PROXY_STMT,
-					CollectionsUtilities.HASH_SET_FACTORY);
-			}
-		}
-
-		/**
 		 * Collects monitor statements and statements with <code>Object.wait()</code> and <code>Object.notifyXX()</code>
 		 * call-sites.
 		 *
@@ -287,39 +273,28 @@ public class ReadyDAv1
 		 */
 		public void callback(final Stmt stmt, final Context context) {
 			final SootMethod _method = context.getCurrentMethod();
-			Map _map = null;
 
-			if (stmt instanceof EnterMonitorStmt) {
-				_map = enterMonitors;
-				monitorMethods.add(_method);
-			} else if (stmt instanceof ExitMonitorStmt) {
-				_map = exitMonitors;
-				monitorMethods.add(_method);
+			InvokeExpr _expr = null;
+
+			if (stmt instanceof InvokeStmt) {
+				_expr = stmt.getInvokeExpr();
 			}
 
-			if (_map != null) {
-				CollectionsUtilities.putIntoCollectionInMap(_map, _method, stmt, CollectionsUtilities.HASH_SET_FACTORY);
-			} else {
-				// InvokeStmt branch
-				InvokeExpr _expr = null;
+			if (_expr != null && _expr instanceof VirtualInvokeExpr) {
+				final VirtualInvokeExpr _invokeExpr = (VirtualInvokeExpr) _expr;
+				final SootMethod _callee = _invokeExpr.getMethod();
 
-				if (stmt instanceof InvokeStmt) {
-					_expr = stmt.getInvokeExpr();
+				Map _method2stmts = null;
+
+				if (SafeLockAnalysis.isWaitMethod(_callee)) {
+					_method2stmts = waits;
+				} else if (SafeLockAnalysis.isNotifyMethod(_callee)) {
+					_method2stmts = notifies;
 				}
 
-				if (_expr != null && _expr instanceof VirtualInvokeExpr) {
-					final VirtualInvokeExpr _invokeExpr = (VirtualInvokeExpr) _expr;
-					final SootMethod _callee = _invokeExpr.getMethod();
-
-					if (waitMethods.contains(_callee)) {
-						_map = waits;
-					} else if (notifyMethods.contains(_callee)) {
-						_map = notifies;
-					}
-
-					if (_map != null) {
-						CollectionsUtilities.putIntoCollectionInMap(_map, _method, stmt, CollectionsUtilities.HASH_SET_FACTORY);
-					}
+				if (_method2stmts != null) {
+					CollectionsUtilities.putIntoCollectionInMap(_method2stmts, _method, stmt,
+						CollectionsUtilities.HASH_SET_FACTORY);
 				}
 			}
 		}
@@ -328,7 +303,6 @@ public class ReadyDAv1
 		 * Collects all the methods that encloses an enter-monitor statement or a call to <code>wait()</code> method.
 		 */
 		public void consolidate() {
-			readyMethods.addAll(monitorMethods);
 			readyMethods.addAll(waits.keySet());
 		}
 
@@ -336,20 +310,14 @@ public class ReadyDAv1
 		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
-			ppc.register(EnterMonitorStmt.class, this);
-			ppc.register(ExitMonitorStmt.class, this);
 			ppc.register(InvokeStmt.class, this);
-			ppc.register(this);
 		}
 
 		/**
 		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
-			ppc.unregister(EnterMonitorStmt.class, this);
-			ppc.unregister(ExitMonitorStmt.class, this);
 			ppc.unregister(InvokeStmt.class, this);
-			ppc.unregister(this);
 		}
 	}
 
@@ -472,6 +440,15 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param b
+	 */
+	public void setUseSafeLockAnalysis(final boolean b) {
+		useSafeLockAnalysis = b;
+	}
+
+	/**
 	 * Calculates ready dependency for the methods provided at initialization.  It considers only the rules specified by via
 	 * <code>setRules</code> method. By default, all rules are considered for the analysis.
 	 *
@@ -480,35 +457,43 @@ public class ReadyDAv1
 	public void analyze() {
 		unstable();
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + " processing");
-		}
-
-		if (!threadgraph.getStartSites().isEmpty()) {
-			if (!monitorMethods.isEmpty() && (rules & (RULE_1 | RULE_3)) != 0) {
-				processRule1And3();
+		if (monitorInfo.isStable() && callgraph.isStable() && threadgraph.isStable() && safelockAnalysis.isStable()) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + " processing");
 			}
 
-			if (!waits.isEmpty() && !notifies.isEmpty()) {
-				if ((rules & RULE_2) != 0) {
-					processRule2();
+			if (!threadgraph.getStartSites().isEmpty()) {
+				final boolean _syncedMethodsExist = processMonitorInfo();
+
+				if (_syncedMethodsExist && (rules & (RULE_1 | RULE_3)) != 0) {
+					processRule1And3();
 				}
 
-				if ((rules & RULE_4) != 0) {
-					processRule4();
+				if (!waits.isEmpty() && !notifies.isEmpty()) {
+					if ((rules & RULE_2) != 0) {
+						processRule2();
+					}
+
+					if ((rules & RULE_4) != 0) {
+						processRule4();
+					}
 				}
 			}
-		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("analyze() - " + toString());
-		}
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("analyze() - " + toString());
+			}
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: Ready Dependence processing");
-		}
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: Ready Dependence processing");
+			}
 
-		stable();
+			stable();
+		} else {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Delaying execution as prerequisites are unsatisfied.");
+			}
+		}
 	}
 
 	/**
@@ -523,7 +508,6 @@ public class ReadyDAv1
 		specials.clear();
 		waits.clear();
 		notifies.clear();
-		monitorMethods.clear();
 	}
 
 	///CLOVER:OFF
@@ -658,48 +642,51 @@ public class ReadyDAv1
 		SootClass _enterClass;
 		SootClass _exitClass;
 		final SootMethod _sm1 = (SootMethod) enterPair.getSecond();
-		final SootMethod _sm2 = (SootMethod) exitPair.getSecond();
 
-		boolean _syncedStaticMethod1 = false;
-		boolean _syncedStaticMethod2 = false;
-		final Object _o1 = enterPair.getFirst();
+		boolean _result = isLockUnsafe(enterPair.getFirst(), _sm1);
 
-		if (_o1.equals(SYNC_METHOD_PROXY_STMT)) {
-			_enterClass = _sm1.getDeclaringClass();
-			_syncedStaticMethod1 = _sm1.isStatic();
-		} else {
-			final EnterMonitorStmt _enter = (EnterMonitorStmt) _o1;
-			_enterClass = env.getClass(((RefType) _enter.getOp().getType()).getClassName());
-		}
+		if (_result) {
+			final SootMethod _sm2 = (SootMethod) exitPair.getSecond();
 
-		final Object _o2 = exitPair.getFirst();
+			boolean _syncedStaticMethod1 = false;
+			boolean _syncedStaticMethod2 = false;
+			final Object _o1 = enterPair.getFirst();
 
-		if (_o2.equals(SYNC_METHOD_PROXY_STMT)) {
-			_exitClass = _sm2.getDeclaringClass();
-			_syncedStaticMethod2 = _sm2.isStatic();
-		} else {
-			final ExitMonitorStmt _exit = (ExitMonitorStmt) _o2;
-			_exitClass = env.getClass(((RefType) _exit.getOp().getType()).getClassName());
-		}
+			if (_o1.equals(SYNC_METHOD_PROXY_STMT)) {
+				_enterClass = _sm1.getDeclaringClass();
+				_syncedStaticMethod1 = _sm1.isStatic();
+			} else {
+				final EnterMonitorStmt _enter = (EnterMonitorStmt) _o1;
+				_enterClass = env.getClass(((RefType) _enter.getOp().getType()).getClassName());
+			}
 
-		boolean _result;
+			final Object _o2 = exitPair.getFirst();
 
-		if (_syncedStaticMethod1 && _syncedStaticMethod2) {
-			// if we are dealing with synchronized static methods, then they will lock the class object, hence, inheritance
-			// relation should not be considered.            
-			_result = _enterClass.equals(_exitClass);
-		} else if (_syncedStaticMethod1 ^ _syncedStaticMethod2) {
-			/*
-			 * if only one of the methods is static and synchronized then we cannot determine RDA as it is possible that
-			 * the monitor in the non-static method may actually be on the class object of the class in  which the static
-			 * method is defined.  There are many combinations which can be pruned.  No time now. THINK
-			 */
-			_result = true;
-		} else {
-			_result = Util.isHierarchicallyRelated(_enterClass, _exitClass);
+			if (_o2.equals(SYNC_METHOD_PROXY_STMT)) {
+				_exitClass = _sm2.getDeclaringClass();
+				_syncedStaticMethod2 = _sm2.isStatic();
+			} else {
+				final ExitMonitorStmt _exit = (ExitMonitorStmt) _o2;
+				_exitClass = env.getClass(((RefType) _exit.getOp().getType()).getClassName());
+			}
 
-			if (_result && useOFA) {
-				_result = ifDependentOnBasedOnOFAByRule2(enterPair, exitPair);
+			if (_syncedStaticMethod1 && _syncedStaticMethod2) {
+				// if we are dealing with synchronized static methods, then they will lock the class object, hence,
+				// inheritance relation should not be considered.            
+				_result = _enterClass.equals(_exitClass);
+			} else if (_syncedStaticMethod1 ^ _syncedStaticMethod2) {
+				/*
+				 * if only one of the methods is static and synchronized then we cannot determine RDA as it is possible that
+				 * the monitor in the non-static method may actually be on the class object of the class in  which the static
+				 * method is defined.  There are many combinations which can be pruned.  No time now. THINK
+				 */
+				_result = true;
+			} else {
+				_result = Util.isHierarchicallyRelated(_enterClass, _exitClass);
+
+				if (_result && useOFA) {
+					_result = ifDependentOnBasedOnOFAByRule2(enterPair, exitPair);
+				}
 			}
 		}
 		return _result;
@@ -733,9 +720,10 @@ public class ReadyDAv1
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
 	 * 		   <code>info</code> member.
 	 *
-	 * @pre info.get(IEnvironment.ID) != null and info.get(ICallGraphInfo.ID) != null and info.get(IThreadGraphInfo.ID) !=
-	 * 		null and info.get(PairManager.ID) != null and info.get(IValueAnalyzer.ID) != null and
-	 * 		info.get(IValueAnalyzer.ID).oclIsKindOf(OFAnalyzer)
+	 * @pre info.get(IEnvironment.ID) != null and info.get(ICallGraphInfo.ID) != null
+	 * @pre info.get(IThreadGraphInfo.ID) != null and info.get(PairManager.ID) != null
+	 * @pre info.get(IValueAnalyzer.ID) != null and    info.get(IValueAnalyzer.ID).oclIsKindOf(OFAnalyzer)
+	 * @pre info.get(IMonitorInfo.ID) != null and info.get(SafeLockAnalysis.ID) != null
 	 */
 	protected void setup()
 	  throws InitializationException {
@@ -745,23 +733,6 @@ public class ReadyDAv1
 
 		if (env == null) {
 			throw new InitializationException(IEnvironment.ID + " was not provided in info.");
-		}
-
-		for (final Iterator _i = env.getClasses().iterator(); _i.hasNext();) {
-			final SootClass _sc = (SootClass) _i.next();
-
-			if (_sc.getName().equals("java.lang.Object")) {
-				waitMethods = new ArrayList();
-				waitMethods.add(_sc.getMethod("void wait()"));
-				waitMethods.add(_sc.getMethod("void wait(long)"));
-				waitMethods.add(_sc.getMethod("void wait(long,int)"));
-				waitMethods = Collections.unmodifiableCollection(waitMethods);
-
-				notifyMethods = new ArrayList();
-				notifyMethods.add(_sc.getMethodByName("notify"));
-				notifyMethods.add(_sc.getMethodByName("notifyAll"));
-				notifyMethods = Collections.unmodifiableCollection(notifyMethods);
-			}
 		}
 
 		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
@@ -785,6 +756,43 @@ public class ReadyDAv1
 		if (ofa == null) {
 			throw new InitializationException(IValueAnalyzer.ID + " was not provided in the info.");
 		}
+
+		monitorInfo = (IMonitorInfo) info.get(IMonitorInfo.ID);
+
+		if (monitorInfo == null) {
+			final String _msg = "An interface with id, " + IMonitorInfo.ID + ", was not provided.";
+			LOGGER.error(_msg);
+			throw new InitializationException(_msg);
+		}
+
+		safelockAnalysis = (SafeLockAnalysis) info.get(SafeLockAnalysis.ID);
+
+		if (safelockAnalysis == null) {
+			final String _msg = "An interface with id, " + SafeLockAnalysis.ID + ", was not provided.";
+			LOGGER.error(_msg);
+			throw new InitializationException(_msg);
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param monitorStmt
+	 * @param method DOCUMENT ME!
+	 *
+	 * @return
+	 */
+	private boolean isLockUnsafe(final Object monitorStmt, final SootMethod method) {
+		boolean _result = true;
+
+		if (useSafeLockAnalysis) {
+			if (monitorStmt.equals(SYNC_METHOD_PROXY_STMT)) {
+				_result = !safelockAnalysis.isLockSafe(method);
+			} else {
+				_result = !safelockAnalysis.isLockSafe((Stmt) monitorStmt, method);
+			}
+		}
+		return _result;
 	}
 
 	/**
@@ -974,6 +982,44 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * Process monitor info.
+	 *
+	 * @return <code>true</code> if the system has any methods with synchronization; <code>false</code>, otherwise.
+	 */
+	private boolean processMonitorInfo() {
+		boolean _result = false;
+		final Collection _reachableMethods = callgraph.getReachableMethods();
+		final Iterator _i = _reachableMethods.iterator();
+		final int _iEnd = _reachableMethods.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootMethod _method = (SootMethod) _i.next();
+			final Collection _monitorTriplesIn = monitorInfo.getMonitorTriplesIn(_method);
+			final Iterator _j = _monitorTriplesIn.iterator();
+			final int _jEnd = _monitorTriplesIn.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final Triple _monitor = (Triple) _j.next();
+				final Object _enter = _monitor.getFirst();
+
+				if (_enter == null) {
+					CollectionsUtilities.putIntoSetInMap(enterMonitors, _method, SYNC_METHOD_PROXY_STMT);
+					CollectionsUtilities.putIntoSetInMap(exitMonitors, _method, SYNC_METHOD_PROXY_STMT);
+				} else {
+					CollectionsUtilities.putIntoSetInMap(enterMonitors, _method, _enter);
+					CollectionsUtilities.putIntoSetInMap(exitMonitors, _method, _monitor.getSecond());
+				}
+			}
+
+			if (_jEnd > 0) {
+				_result = true;
+				readyMethods.add(_method);
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Processes the system as per to rule 1 and rule 3 as discussed in the report.  For each <code>Object.wait</code> call
 	 * site or synchronized block in a method, the dependency is calculated for all dominated statements in the same method.
 	 */
@@ -990,16 +1036,28 @@ public class ReadyDAv1
 
 				// if the method is not concrete we there can be no intra-procedural ready dependence.  So, don't bother.
 				if (_method.isConcrete()) {
-					final Collection _col = new HashSet((Collection) enterMonitors.get(_method));
+					final Collection _enterMonitorStmts = (Collection) enterMonitors.get(_method);
+					final Collection _col = new HashSet();
+					final Iterator _j = _enterMonitorStmts.iterator();
+					final int _jEnd = _enterMonitorStmts.size();
 
-					if (_method.isSynchronized()) {
-						_col.remove(SYNC_METHOD_PROXY_STMT);
-						_temp.clear();
-						_temp.add(pairMgr.getUnOptimizedPair(SYNC_METHOD_PROXY_STMT, _method));
-						normalizeEntryInformation(_temp);
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final Object _enter = _j.next();
+						final boolean _safe = isLockUnsafe(_enter, _method);
 
-						for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
-							_col.add(((Pair) _j.next()).getFirst());
+						if (!_safe) {
+							if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
+								_col.remove(SYNC_METHOD_PROXY_STMT);
+								_temp.clear();
+								_temp.add(pairMgr.getUnOptimizedPair(SYNC_METHOD_PROXY_STMT, _method));
+								normalizeEntryInformation(_temp);
+
+								for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
+									_col.add(((Pair) _k.next()).getFirst());
+								}
+							} else {
+								_col.add(_enter);
+							}
 						}
 					}
 					_method2dependeeMap.put(_method, _col);
@@ -1255,10 +1313,12 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.63  2004/07/24 10:02:46  venku
+   - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
+     preprocessor hierarchy tree.
    Revision 1.62  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
-
    Revision 1.61  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while

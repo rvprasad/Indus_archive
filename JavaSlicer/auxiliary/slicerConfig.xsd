@@ -96,6 +96,7 @@
      <xsd:attribute ref="slicer:active" use="required"/>
      <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
      <xsd:attribute name="useOFA" use="required" type="xsd:boolean"/>
+     <xsd:attribute id="useSafeLockAnalysis" name="useSafeLockAnalysis" use="required" type="xsd:boolean"/>     
     </xsd:complexType>
 
 </xsd:schema>

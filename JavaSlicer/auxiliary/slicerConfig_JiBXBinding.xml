@@ -49,6 +49,8 @@
 				set-method="useReadyRule4" get-method="isReadyRule4Used"/>	
 			<value style="attribute" name="useOFA" type="boolean" set-method="setUseOFAForReady"
                 get-method="isOFAUsedForReady"/> 	
+			<value style="attribute" name="useSafeLockAnalysis" type="boolean" set-method="setUseSafeLockAnalysisForReady"
+                get-method="isSafeLockAnalysisUsedForReady"/> 	                
 		</structure>		
 	</mapping>
 </binding>

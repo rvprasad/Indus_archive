@@ -319,10 +319,34 @@ public final class SlicerConfigurator
 		_group.setLayoutData(_twoSpanHorzFill);
 
 		GridLayout _gridLayout = new GridLayout();
-		_gridLayout.numColumns = 2;
+		_gridLayout.numColumns = 3;
 		_group.setLayout(_gridLayout);
 
-		GridData _gridData = new GridData(GridData.FILL_HORIZONTAL);
+		Composite _readyComposite = new Composite(_group, SWT.NONE);
+		_twoSpanHorzFill = new GridData(GridData.FILL_HORIZONTAL);
+		_twoSpanHorzFill.horizontalSpan = 2;
+		_readyComposite.setLayoutData(_twoSpanHorzFill);
+		_gridLayout = new GridLayout();
+		_gridLayout.numColumns = 3;
+		_readyComposite.setLayout(_gridLayout);
+
+		GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		_gridData.horizontalSpan = 2;
+		_readyComposite.setLayoutData(_gridData);
+
+		final Button _useRDAButton = new Button(_readyComposite, SWT.CHECK);
+		_useRDAButton.setText("use ready dependence");
+		_useRDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
+		_useRDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA,
+				_useRDAButton, _cfg));
+
+		final Button _useSLAForReady = new Button(_readyComposite, SWT.CHECK);
+		_useSLAForReady.setText("use safe lock analysis ");
+		_useSLAForReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_SLA_FOR_READY_DA)).booleanValue());
+		_useSLAForReady.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_SLA_FOR_READY_DA,
+				_useRDAButton, _cfg));
+
+		_gridData = new GridData(GridData.FILL_HORIZONTAL);
 		_gridData.horizontalSpan = 2;
 
 		final Group _natureOfRDAGroup = new Group(_group, SWT.SHADOW_ETCHED_IN);
@@ -382,7 +406,7 @@ public final class SlicerConfigurator
 		_sl = new BooleanPropertySelectionListener(SlicerConfiguration.USE_OFA_FOR_READY_DA, _useOFAForReady, _cfg);
 		_useOFAForReady.addSelectionListener(_sl);
 
-		final Composite _readyComposite = new Composite(_group, SWT.NONE);
+		_readyComposite = new Composite(_group, SWT.NONE);
 		_twoSpanHorzFill = new GridData(GridData.FILL_HORIZONTAL);
 		_twoSpanHorzFill.horizontalSpan = 2;
 		_readyComposite.setLayoutData(_twoSpanHorzFill);
@@ -392,12 +416,6 @@ public final class SlicerConfigurator
 		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		_gridData.horizontalSpan = 2;
 		_readyComposite.setLayoutData(_gridData);
-
-		final Button _useRDAButton = new Button(_readyComposite, SWT.CHECK);
-		_useRDAButton.setText("use ready dependence");
-		_useRDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
-		_useRDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA,
-				_useRDAButton, _cfg));
 
 		final Button _rule1RDAButton = new Button(_readyComposite, SWT.CHECK);
 		_rule1RDAButton.setText("use rule 1 of ready dependence");
@@ -418,6 +436,7 @@ public final class SlicerConfigurator
 		_rule4RDAButton.setText("use rule 4 of ready dependence");
 		_rule4RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule4RDAButton, _cfg));
+
 		_useRDAButton.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					boolean _val = false;
@@ -429,6 +448,7 @@ public final class SlicerConfigurator
 					_equivalenceClassBasedEscapceAnalysisBasedRDA.setEnabled(_val);
 					_typedRDA.setEnabled(_val);
 					_useOFAForReady.setEnabled(_val);
+					_useSLAForReady.setEnabled(_val);
 					_symbolBasedEscapeAnalysisBasedRDA.setEnabled(_val);
 					_rule1RDAButton.setEnabled(_val);
 					_rule2RDAButton.setEnabled(_val);
@@ -457,6 +477,8 @@ public final class SlicerConfigurator
 			_rule4RDAButton.setSelection(_bool.booleanValue());
 			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA);
 			_useOFAForReady.setSelection(_bool.booleanValue());
+			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_SLA_FOR_READY_DA);
+			_useSLAForReady.setSelection(_bool.booleanValue());
 		} else {
 			_natureOfRDAGroup.setEnabled(false);
 			_typedRDA.setEnabled(false);
@@ -467,6 +489,7 @@ public final class SlicerConfigurator
 			_rule3RDAButton.setEnabled(false);
 			_rule4RDAButton.setEnabled(false);
 			_useOFAForReady.setEnabled(false);
+			_useSLAForReady.setEnabled(false);
 		}
 	}
 }
@@ -474,10 +497,12 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/07/21 05:07:25  venku
+   - button to toggle usage of OFA for ReadyDA was not being disabled when
+     ready da was disabled.
    Revision 1.25  2004/07/20 06:20:27  venku
    - fixed a few more issues pertaining to serialized configuration and how the
      configurator should treat illegal configurations.
-
    Revision 1.24  2004/07/20 00:31:04  venku
    - addressed bug #408.
    Revision 1.23  2004/02/25 00:09:12  venku

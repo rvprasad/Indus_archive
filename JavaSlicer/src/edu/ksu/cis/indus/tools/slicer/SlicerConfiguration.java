@@ -159,6 +159,11 @@ public final class SlicerConfiguration
 	static final Object USE_OFA_FOR_READY_DA = "use ofa for ready";
 
 	/** 
+	 * This identifies the property that indicates if safe lock analysis should be used in the context of ready dependence.
+	 */
+	static final Object USE_SLA_FOR_READY_DA = "use sla for ready";
+
+	/** 
 	 * This is the factory object to create configurations.
 	 */
 	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
@@ -192,6 +197,7 @@ public final class SlicerConfiguration
 		propertyIds.add(USE_RULE2_IN_READYDA);
 		propertyIds.add(USE_RULE3_IN_READYDA);
 		propertyIds.add(USE_RULE4_IN_READYDA);
+		propertyIds.add(USE_SLA_FOR_READY_DA);
 		propertyIds.add(SLICE_FOR_DEADLOCK);
 		propertyIds.add(SLICE_TYPE);
 		propertyIds.add(EXECUTABLE_SLICE);
@@ -379,6 +385,15 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Checks if Safe Lock Analysis is being used for ready dependence calculation.
+	 *
+	 * @return <code>true</code> if SLA is used for ready dependence; <code>false</code>, otherwise.
+	 */
+	public boolean isSafeLockAnalysisUsedForReady() {
+		return ((Boolean) properties.get(USE_SLA_FOR_READY_DA)).booleanValue();
+	}
+
+	/**
 	 * Toggles the preservation of deadlocking in the slice.
 	 *
 	 * @param value <code>true</code> indicates slice should preserve deadlocking properties; <code>false</code>, otherwise.
@@ -442,6 +457,15 @@ public final class SlicerConfiguration
 	 */
 	public void setUseOFAForReady(final boolean use) {
 		processPropertyHelper(USE_OFA_FOR_READY_DA, use);
+	}
+
+	/**
+	 * Sets if Safe Lock Analysis should be used during ready dependence calculation.
+	 *
+	 * @param use <code>true</code> if SLA should be used; <code>false</code>, otherwise.
+	 */
+	public void setUseSafeLockAnalysisForReady(final boolean use) {
+		processPropertyHelper(USE_SLA_FOR_READY_DA, use);
 	}
 
 	/**
@@ -696,6 +720,12 @@ public final class SlicerConfiguration
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setUseOFA(booleanValue.booleanValue());
 			}
+		} else if (propertyID.equals(USE_SLA_FOR_READY_DA)) {
+			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA)).iterator();
+				  _i.hasNext();) {
+				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
+				_rda.setUseSafeLockAnalysis(booleanValue.booleanValue());
+			}
 		} else {
 			processRDARuleProperties(propertyID);
 		}
@@ -836,6 +866,13 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.49  2004/07/21 11:36:27  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
    Revision 1.48  2004/07/21 02:06:36  venku
    - documentation.
    Revision 1.47  2004/07/20 06:20:27  venku
