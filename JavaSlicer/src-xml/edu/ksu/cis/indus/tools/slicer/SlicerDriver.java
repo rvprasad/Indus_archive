@@ -265,6 +265,7 @@ public class SlicerDriver
 
 			try {
 				jimpleWriter.flush();
+                jimpleWriter.close();
 			} catch (IOException e) {
 				LOGGER.error("Failed to close the xml file based for jimple representation.", e);
 			}
@@ -440,6 +441,9 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/24 01:21:57  venku
+   - added command line option for jiimple output.
+
    Revision 1.8  2003/11/24 00:11:42  venku
    - moved the residualizers/transformers into transformation
      package.
