@@ -82,14 +82,14 @@ public final class OFAXMLizerCLI
 	private static final Log LOGGER = LogFactory.getLog(OFAXMLizerCLI.class);
 
 	/** 
-	 * This indicates if analysis should be run for all root methods or separated for each root method.
-	 */
-	private boolean cumulative;
-	
-	/** 
 	 * The xmlizer used to xmlize information.
 	 */
 	private final OFAXMLizer xmlizer = new OFAXMLizer();
+
+	/** 
+	 * This indicates if analysis should be run for all root methods or separated for each root method.
+	 */
+	private boolean cumulative;
 
 	/**
 	 * Retrieves the name that serves as the base for the file names into which info will be dumped along with the root
@@ -136,6 +136,10 @@ public final class OFAXMLizerCLI
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
+		_option = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
+		_option.setArgs(1);
+		_option.setArgName("classpath");
+		_option.setOptionalArg(false);
 
 		final PosixParser _parser = new PosixParser();
 
@@ -155,6 +159,7 @@ public final class OFAXMLizerCLI
 				}
 				_outputDir = ".";
 			}
+
 			if (_cl.getArgList().isEmpty()) {
 				throw new MissingArgumentException("Please specify atleast one class.");
 			}
@@ -166,6 +171,10 @@ public final class OFAXMLizerCLI
 			_cli.setClassNames(_cl.getArgList());
 			_cli.initialize();
 			_cli.execute(_cl.hasOption('j'));
+
+			if (_cl.hasOption('p')) {
+				_cli.addToSootClassPath(_cl.getOptionValue('p'));
+			}
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 			printUsage(_options);
