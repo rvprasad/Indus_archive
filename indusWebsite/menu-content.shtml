@@ -30,7 +30,7 @@
   <!--#if expr="${menuItem} = Downloads" -->
   <h1>Downloads</h1>
   <!--#else -->
-  <h1><a href="/downloads/index.shtml">Downloads</a></h1>
+  <h1><a href="http://projects.cis.ksu.edu/plugin/ksuafrs/showfiles.php?group_id=12">Downloads</a></h1>
   <!--#endif -->
 
   
@@ -42,10 +42,10 @@
     <li><a href="/documentation/screenshots.shtml">Screen Shots</a></li>
     <!--#endif -->
     
-    <!--#if expr="${menuItem} = Documentation.UserGuides" --> 
+    <!--#if expr="${menuItem} = Documentation.generalDocs" --> 
     <li>User Guides</li>
     <!--#else -->
-    <li><a href="/documentation/user-guides.shtml">User Guides</a></li>
+    <li><a href="http://projects.cis.ksu.edu/docman/index.php?group_id=12">User Guides and Source docs</a></li>
     <!--#endif -->
 
     <!--#if expr="${menuItem} = Documentation.DeveloperResources" --> 
