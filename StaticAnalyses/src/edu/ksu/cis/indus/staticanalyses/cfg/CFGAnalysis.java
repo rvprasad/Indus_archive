@@ -141,8 +141,24 @@ public class CFGAnalysis {
 	 *
 	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
 	 */
-	public static final boolean occursInCycle(final DirectedGraph graph, final BasicBlock node) {
+	public final boolean occursInCycle(final DirectedGraph graph, final BasicBlock node) {
 		return graph.isReachable(node, node, true);
+	}
+
+	/**
+	 * Checks if the given statement is executed multiple times as a result of being loop-enclosed or occuring in a  method
+	 * that is executed multiple times.
+	 *
+	 * @param stmt is the statement.
+	 * @param caller is the method in which <code>stmt</code> occurs.
+	 *
+	 * @return <code>true</code> if <code>stmt</code> is executed multiple times; <code>false</code>, otherwise.
+	 *
+	 * @pre stmt != null and caller != null
+	 */
+	public boolean executedMultipleTimes(final Stmt stmt, final SootMethod caller) {
+		BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(caller.retrieveActiveBody()));
+		return occursInCycle(bbg, bbg.getEnclosingBlock(stmt)) || executedMultipleTimes(caller);
 	}
 
 	/**
@@ -218,6 +234,11 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/24 12:04:32  venku
+   Removed occursInCycle() method from DirectedGraph.
+   Installed occursInCycle() method in CFGAnalysis.
+   Converted performTopologicalsort() and getFinishTimes() into instance methods.
+   Ripple effect of the above changes.
    Revision 1.3  2003/08/14 05:00:48  venku
    Spruced up specification.
    Revision 1.2  2003/08/11 08:49:34  venku
