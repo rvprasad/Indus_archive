@@ -59,7 +59,7 @@ public interface ITransformer {
 	 *
 	 * @param method is the transformed method.
 	 *
-	 * @return the statement list for the slice version of the given method.
+	 * @return the statement list for the transformed version of the given method.
 	 *
 	 * @pre method != null
 	 * @post result != null
@@ -72,28 +72,31 @@ public interface ITransformer {
 	 * @param clazz is the untransformed class.
 	 *
 	 * @return the transformed class.
-     * * @pre clazz != null
+	 *
+	 * @pre clazz != null
 	 */
 	SootClass getTransformed(SootClass clazz);
 
 	/**
 	 * Retrieves the transformed version of the given untransformed method.
-     *
-     * @param method is the untransformed method.
-     *
-     * @return the transformed method.
-     * * @pre method != null
-     */
+	 *
+	 * @param method is the untransformed method.
+	 *
+	 * @return the transformed method.
+	 *
+	 * @pre method != null
+	 */
 	SootMethod getTransformed(SootMethod method);
 
 	/**
 	 * Retrieves the transformed version of the given untransformed field.
-     *
-     * @param field is the untransformed field.
-     *
-     * @return the transformed field.
-     * @pre field != null
-     */
+	 *
+	 * @param field is the untransformed field.
+	 *
+	 * @return the transformed field.
+	 *
+	 * @pre field != null
+	 */
 	SootField getTransformed(SootField field);
 
 	/**
@@ -113,7 +116,8 @@ public interface ITransformer {
 	 * Retrieves the classes in the transformed system.
 	 *
 	 * @return a collection of transformed classes.
-     * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 */
 	Collection getTransformedClasses();
 
@@ -124,28 +128,30 @@ public interface ITransformer {
 	 * @param method in which the local occurs.
 	 *
 	 * @return the transformed local.
-     * @pre name != null and method != null
+	 *
+	 * @pre name != null and method != null
 	 */
 	Local getTransformedLocal(String name, SootMethod method);
 
 	/**
 	 * Retrieves the transformed version of the named class.
-     * 
+	 *
 	 * @param name is the name of the requested class.
 	 *
 	 * @return the transformed class.
-     * @pre name != null
+	 *
+	 * @pre name != null
 	 */
 	SootClass getTransformedSootClass(String name);
 
 	/**
 	 * Retrieves the untransformed version of the given  class.
-     * 
-     * @param clazz is the transformed version of the class.
-     *
-     * @return the untransformed class.
-     * 
-     * @pre clazz != null
+	 *
+	 * @param clazz is the transformed version of the class.
+	 *
+	 * @return the untransformed class.
+	 *
+	 * @pre clazz != null
 	 */
 	SootClass getUntransformed(SootClass clazz);
 
@@ -169,11 +175,12 @@ public interface ITransformer {
 
 	/**
 	 * Transform the given statement.  This method will suffice for simple transformation which do not require any context
-     * information except the method in which the statement occurs.  Both parameters refer to untransformed versions.
+	 * information except the method in which the statement occurs.  Both parameters refer to untransformed versions.
 	 *
 	 * @param stmt to be transformed.
 	 * @param method in which <code>stmt</code> occurs.
-     * @pre stmt != null and method != null
+	 *
+	 * @pre stmt != null and method != null
 	 */
 	void transform(Stmt stmt, SootMethod method);
 }
@@ -181,6 +188,11 @@ public interface ITransformer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/19 11:52:25  venku
+   The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
+   and  Slicer to SliceEngine.
+   Ripple effect of the above.
+   
    Revision 1.3  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides
@@ -195,11 +207,10 @@ public interface ITransformer {
    The immediate following change will be to rename ITransformMap to ITransformer,
     SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
 
-   
    Revision 1.2  2003/08/18 04:45:31  venku
    Moved the code such that code common to transformations are in one location
    and independent of any specific transformation.
-   
+
    Revision 1.1  2003/08/18 04:01:52  venku
    Major changes:
     - Teased apart cloning logic in the slicer.  Made it transformation independent.

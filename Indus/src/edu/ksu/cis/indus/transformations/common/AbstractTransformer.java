@@ -61,11 +61,11 @@ public abstract class AbstractTransformer
 	protected Scene untransformedSystem;
 
 	/**
-	 * Retrieves the statement list for the slice version of given sliced method.
+	 * Retrieves the statement list for the transformed version of given untransformed method.
 	 *
-	 * @param method is the sliced method.
+	 * @param method is the untransformed method.
 	 *
-	 * @return the statement list for the slice version of the given method.
+	 * @return the statement list for the transformed version of the given method.
 	 *
 	 * @pre method != null
 	 * @post result != null
@@ -81,6 +81,11 @@ public abstract class AbstractTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/19 11:52:25  venku
+   The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
+   and  Slicer to SliceEngine.
+   Ripple effect of the above.
+
    Revision 1.1  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides

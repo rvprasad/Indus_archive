@@ -35,7 +35,6 @@
 
 package edu.ksu.cis.indus.transformations.common;
 
-import edu.ksu.cis.indus.interfaces.ISystemInfo;
 import soot.Body;
 import soot.Local;
 import soot.Scene;
@@ -50,6 +49,8 @@ import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
 
 import soot.util.Chain;
+
+import edu.ksu.cis.indus.interfaces.ISystemInfo;
 
 import java.util.Iterator;
 
@@ -210,8 +211,8 @@ public class Cloner
 	 * @pre name != null and method != null
 	 */
 	public Local getLocal(final String name, final SootMethod method) {
-		SootMethod sliceMethod = getCloneOf(method);
-		Body body = sliceMethod.getActiveBody();
+		SootMethod tranformedMethod = getCloneOf(method);
+		Body body = tranformedMethod.getActiveBody();
 		Local result = null;
 
 		for (Iterator i = body.getLocals().iterator(); i.hasNext();) {
@@ -309,9 +310,13 @@ public class Cloner
 /*
    ChangeLog:
    $Log$
+   
+   Revision 1.2  2003/08/18 04:45:31  venku
+   Moved the code such that code common to transformations are in one location
+   and independent of any specific transformation.
+   
    Revision 1.1  2003/08/18 04:01:52  venku
    Major changes:
     - Teased apart cloning logic in the slicer.  Made it transformation independent.
     - Moved it under transformation common location under indus.
-
  */

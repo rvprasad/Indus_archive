@@ -92,9 +92,9 @@ import java.util.List;
 
 /**
  * This class "clones" a given Soot Jimple AST chunk (statement and expression).  Our interpretation of clone here is an
- * semantically identical copy of the given AST chunk.  This is used during construction of the new body after slicing.  The
- * methods of this class walkover the given AST using <i>visitor pattern</i> to clone the given AST chunk.  Note that we
- * cannot use <code>clone()</code> on the all of the chunks as we have to get the references to the chunks created in the
+ * semantically identical copy of the given AST chunk.  This is used during construction of the new body after transforming.
+ * The methods of this class walkover the given AST using <i>visitor pattern</i> to clone the given AST chunk.  Note that
+ * we cannot use <code>clone()</code> on the all of the chunks as we have to get the references to the chunks created in the
  * clone rather than the clonee.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -805,11 +805,16 @@ public class ASTCloner
 /*
    ChangeLog:
    $Log$
+   
+   Revision 1.7  2003/08/18 04:45:31  venku
+   Moved the code such that code common to transformations are in one location
+   and independent of any specific transformation.
+   
    Revision 1.6  2003/08/18 04:01:52  venku
    Major changes:
     - Teased apart cloning logic in the slicer.  Made it transformation independent.
     - Moved it under transformation common location under indus.
-
+    
    Revision 1.5  2003/05/22 22:23:49  venku
    Changed interface names to start with a "I".
    Formatting.
