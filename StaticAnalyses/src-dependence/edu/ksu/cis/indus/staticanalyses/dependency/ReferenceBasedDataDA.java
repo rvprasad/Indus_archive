@@ -134,12 +134,11 @@ public class AliasedDataDA
 }
 
 /*
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/09 23:29:09  venku
-Renamed InterProceduralDataDAv1 to AliasedDataDA
-Renamed IntraProceduralDataDA to NonAliasedDataDA
-
-
-*/
+   ChangeLog:
+   $Log$
+   Revision 1.2  2003/08/11 06:31:55  venku
+   Changed format of change log accumulation at the end of the file
+   Revision 1.1  2003/08/09 23:29:09  venku
+   Renamed InterProceduralDataDAv1 to AliasedDataDA
+   Renamed IntraProceduralDataDA to NonAliasedDataDA
+ */

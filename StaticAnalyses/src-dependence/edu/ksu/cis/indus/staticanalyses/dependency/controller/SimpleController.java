@@ -45,13 +45,9 @@ import java.util.Map;
 
 
 /**
- * An naive implementation of AController. This implementation will run the analyses in the order following order:
- *  - IntraProcedural Data dependency analysis
- *  - Control dependency analysis
- *  - Synchronization dependency analysis
- *  - Interference dependency analysis
- *  - Ready dependency analysis
- *  - Divergence dependency analysis
+ * An naive implementation of AController. This implementation will run the analyses in the order following order: 
+ * IntraProcedural Data dependency analysis, Control dependency analysis, Synchronization dependency analysis, 
+ * Interference dependency analysis, Ready dependency analysis, Divergence dependency analysis
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -119,18 +115,16 @@ public class SimpleController
 }
 
 /*
- ChangeLog:
-
-$Log$
-Revision 1.2  2003/08/09 23:29:52  venku
-Ripple Effect of renaming Inter/Intra procedural data DAs to Aliased/NonAliased data DA.
-
-Revision 1.1  2003/08/07 06:38:05  venku
-Major:
- - Moved the packages under indus umbrella.
- - Renamed MethodLocalDataDA to NonAliasedDataDA.
- - Added class for AliasedDataDA.
- - Documented and specified the classes.
-
-
-*/
+   ChangeLog:
+   $Log$
+   Revision 1.3  2003/08/11 06:31:55  venku
+   Changed format of change log accumulation at the end of the file
+   Revision 1.2  2003/08/09 23:29:52  venku
+   Ripple Effect of renaming Inter/Intra procedural data DAs to Aliased/NonAliased data DA.
+   Revision 1.1  2003/08/07 06:38:05  venku
+   Major:
+    - Moved the packages under indus umbrella.
+    - Renamed MethodLocalDataDA to NonAliasedDataDA.
+    - Added class for AliasedDataDA.
+    - Documented and specified the classes.
+ */

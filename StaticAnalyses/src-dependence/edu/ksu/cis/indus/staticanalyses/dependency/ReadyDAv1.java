@@ -904,17 +904,15 @@ public class ReadyDAv1
 }
 
 /*
- ChangeLog:
-
-$Log$
-Revision 1.3  2003/08/11 04:20:19  venku
-- Pair and Triple were changed to work in optimized and unoptimized mode.
-- Ripple effect of the previous change.
-- Documentation and specification of other classes.
-
-Revision 1.2  2003/08/09 23:33:30  venku
- - Enabled ready dependency to be interprocedural.
- - Utilized containsXXX() method in Stmt.
-
-
-*/
+   ChangeLog:
+   $Log$
+   Revision 1.4  2003/08/11 06:31:55  venku
+   Changed format of change log accumulation at the end of the file
+   Revision 1.3  2003/08/11 04:20:19  venku
+   - Pair and Triple were changed to work in optimized and unoptimized mode.
+   - Ripple effect of the previous change.
+   - Documentation and specification of other classes.
+   Revision 1.2  2003/08/09 23:33:30  venku
+    - Enabled ready dependency to be interprocedural.
+    - Utilized containsXXX() method in Stmt.
+ */

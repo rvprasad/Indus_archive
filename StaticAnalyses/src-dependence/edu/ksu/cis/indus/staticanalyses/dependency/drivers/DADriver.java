@@ -358,12 +358,14 @@ public abstract class DADriver
 
 /*
    ChangeLog:
-
    $Log$
-
+   Revision 1.3  2003/08/10 03:43:26  venku
+   Renamed Tester to Driver.
+   Refactored logic to pick entry points.
+   Provided for logging timing stats into any specified stream.
+   Ripple effect in others.
    Revision 1.2  2003/08/09 23:29:52  venku
    Ripple Effect of renaming Inter/Intra procedural data DAs to Aliased/NonAliased data DA.
-
    Revision 1.1  2003/08/07 06:38:05  venku
    Major:
     - Moved the packages under indus umbrella.
