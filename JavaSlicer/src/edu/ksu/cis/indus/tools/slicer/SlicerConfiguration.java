@@ -200,9 +200,9 @@ public final class SlicerConfiguration
 	 * {@inheritDoc}
 	 * 
 	 * <p>
-	 * This implementation by default uses interference dependency analysis based on equivalence class-based escape analysis.
-	 * It does not use ready and divergence dependences.  It defaults to calculating executable backward slices based on
-	 * slicing for deadlock.
+	 * This configuration defaults to use interference and ready dependency analyses based on equivalence class-based escape
+	 * analysis, synchronization dependences, identifier based dependences, reference based dependence, and  calculate
+	 * executable backward slice required to detect deadlocks.
 	 * </p>
 	 *
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
@@ -218,11 +218,17 @@ public final class SlicerConfiguration
 		dependencesToUse.add(DependencyAnalysis.SYNCHRONIZATION_DA);
 		id2dependencyAnalyses.put(DependencyAnalysis.SYNCHRONIZATION_DA, Collections.singleton(new SynchronizationDA()));
 		dependencesToUse.add(DependencyAnalysis.INTERFERENCE_DA);
+		dependencesToUse.add(DependencyAnalysis.READY_DA);
 		dependencesToUse.add(DependencyAnalysis.CONTROL_DA);
 
 		// set default values for certain properties
 		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
-		setProperty(USE_READYDA, Boolean.FALSE);
+		setProperty(NATURE_OF_READY_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
+		setProperty(USE_READYDA, Boolean.TRUE);
+		setProperty(USE_RULE1_IN_READYDA, Boolean.TRUE);
+		setProperty(USE_RULE2_IN_READYDA, Boolean.TRUE);
+		setProperty(USE_RULE3_IN_READYDA, Boolean.TRUE);
+		setProperty(USE_RULE4_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
@@ -230,7 +236,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -239,7 +245,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -248,7 +254,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -257,7 +263,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -266,7 +272,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -275,7 +281,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -289,7 +295,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -298,7 +304,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -307,7 +313,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -316,7 +322,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -325,7 +331,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -334,7 +340,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param type Should not be used!
 	 */
@@ -378,7 +384,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @return Should not be used!
 	 */
@@ -414,6 +420,7 @@ public final class SlicerConfiguration
 			if (!SlicingEngine.SLICE_TYPES.contains(value)) {
 				_result = false;
 			}
+			setSliceType(value.toString());
 		} else if (propertyID.equals(NATURE_OF_INTERFERENCE_DA)) {
 			_result = processIDANatureProperty(value);
 		} else if (propertyID.equals(NATURE_OF_READY_DA)) {
@@ -423,7 +430,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -432,7 +439,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -441,7 +448,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -450,7 +457,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -459,7 +466,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -468,7 +475,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -477,7 +484,7 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 * This method is used for java-xml binding <b>only</b>.  Hence, <b>this is not part of the supported interface.</b>
 	 *
 	 * @param use Should not be used!
 	 */
@@ -693,6 +700,8 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/01/17 23:51:28  venku
+   - formatting.
    Revision 1.25  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
