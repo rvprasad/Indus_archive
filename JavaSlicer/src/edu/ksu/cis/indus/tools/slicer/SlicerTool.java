@@ -111,10 +111,10 @@ public final class SlicerTool
 	 */
 	public static final Object SLICE_MAJOR_PHASE;
 
-    /**
-     * The tag used to identify the parts touched by flow analysis.
-     */
-    public static final String FLOW_ANALYSIS_TAG_NAME = "SlicerTool:FA";
+	/**
+	 * The tag used to identify the parts touched by flow analysis.
+	 */
+	public static final String FLOW_ANALYSIS_TAG_NAME = "SlicerTool:FA";
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -524,8 +524,8 @@ public final class SlicerTool
 			}
 
 			if (!criteria.isEmpty()) {
+				// setup the slicing engine and slice
 				engine.setCgi(callGraph);
-				engine.setExecutableSlice(_slicerConfig.executableSlice);
 				engine.setSliceType(_slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 				engine.setInitMapper(initMapper);
 				engine.setSlicedBBGMgr(bbgMgr);
@@ -533,6 +533,9 @@ public final class SlicerTool
 				engine.setSliceCriteria(criteria);
 				engine.initialize();
 				engine.slice();
+
+				// post process the slice as required
+				postProcessSlice();
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn(
@@ -661,11 +664,20 @@ public final class SlicerTool
 			criteria.addAll(_temp);
 		}
 	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 */
+	private void postProcessSlice() {
+        // TODO: Implement me
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.54  2004/01/11 00:01:23  venku
+   - formatting and coding convention.
    Revision 1.53  2004/01/06 00:17:05  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
