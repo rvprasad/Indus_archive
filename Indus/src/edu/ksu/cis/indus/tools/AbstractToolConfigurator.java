@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -35,12 +35,12 @@ import org.eclipse.swt.widgets.Composite;
 public abstract class AbstractToolConfigurator
   implements DisposeListener,
 	  IToolConfigurator {
-	/**
+	/** 
 	 * The parent composite on which the provided interface will be displayed.
 	 */
 	protected Composite parent;
 
-	/**
+	/** 
 	 * This is the configuration to be handled by this object.
 	 */
 	protected IToolConfiguration configuration;
@@ -52,22 +52,22 @@ public abstract class AbstractToolConfigurator
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	protected static final class BooleanPropertySelectionListener
+	protected static class BooleanPropertySelectionListener
 	  implements SelectionListener {
-		/**
+		/** 
 		 * The button widget that triggers property changes.
 		 */
-		private final Button button;
+		protected final Button button;
 
-		/**
+		/** 
 		 * The configuration that houses the associated property.
 		 */
-		private final IToolConfiguration containingConfiguration;
+		protected final IToolConfiguration containingConfiguration;
 
-		/**
+		/** 
 		 * The id of the property which can be changed via <code>button</code>.
 		 */
-		private final Object id;
+		protected final Object id;
 
 		/**
 		 * Creates a new BooleanSelectionListener object.
@@ -111,7 +111,7 @@ public abstract class AbstractToolConfigurator
 	 * @see IToolConfigurator#initialize(Composite)
 	 */
 	public final void initialize(final Composite composite) {
-	    composite.removeDisposeListener(this);
+		composite.removeDisposeListener(this);
 		parent = composite;
 		parent.addDisposeListener(this);
 		setup();
@@ -132,65 +132,11 @@ public abstract class AbstractToolConfigurator
 	 * @pre toolConfiguration != null
 	 */
 	protected abstract void checkConfiguration(final IToolConfiguration toolConfiguration);
-    
+
 	/**
 	 * Setup the graphical parts of the configurator.  This will be called before the configurator is displayed.
 	 */
 	protected abstract void setup();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.9  2004/02/24 22:25:56  venku
-   - documentation
-
-   Revision 1.8  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-
-   Revision 1.7  2003/12/02 11:31:57  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-
-   Revision 1.6  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.5  2003/11/05 08:20:52  venku
-   - coding convention.
-   Revision 1.4  2003/10/20 13:55:25  venku
-   - Added a factory to create new configurations.
-   - Simplified AbstractToolConfigurator methods.
-   - The driver manages the shell.
-   - Got all the gui parts running EXCEPT for changing
-     the name of the configuration.
-   Revision 1.3  2003/10/14 02:56:51  venku
-   - exposed parent field to subclasses.
-   - added hide() method
-   - added setConfiguration() method to change configuration
-   - added checkConfiguration() because of setConfiguration()
-   Revision 1.2  2003/09/27 01:09:36  venku
-   - changed AbstractToolConfigurator and CompositeToolConfigurator
-     such that the composite to display the interface on is provided by the application.
-   - documentation.
-   Revision 1.1  2003/09/26 23:46:59  venku
-   - Renamed Tool to AbstractTool
-   - Renamed ToolConfiguration to AbstractToolConfiguration
-   - Renamed ToolConfigurator to AbstractToolConfigurator
-   Revision 1.4  2003/09/26 15:00:01  venku
-   - The configuration of tools in Indus has been placed in this package.
-   - Formatting.
-   Revision 1.3  2003/09/26 13:58:43  venku
-   - checkpoint commit.
-   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
-   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
-   Revision 1.2  2003/09/26 05:56:10  venku
-   - a checkpoint commit.
-   Revision 1.1  2003/09/24 07:03:02  venku
-   - Renamed ToolConfigurationEditor to AbstractToolConfigurator.
-   - Added property id creation support, via factory method, to AbstractToolConfiguration.
-   - Changed the interface in AbstractTool.
-   Revision 1.1  2003/09/24 02:38:55  venku
-   - Added Interfaces to expose the components of Indus as a
-     tool and configure it.
- */
+// End of File
