@@ -22,8 +22,7 @@ import junit.framework.TestCase;
 
 
 /**
- * DOCUMENT ME!
- * <p></p>
+ * This class tests <code>RetrievableSet</code> class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -32,7 +31,7 @@ import junit.framework.TestCase;
 public class RetrievableSetTestCase
   extends TestCase {
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * The instance to be tested.
 	 */
 	private RetrievableSet set;
 
@@ -42,16 +41,20 @@ public class RetrievableSetTestCase
 	public final void testAddObject() {
 		set.add(null);
 		assertTrue(set.contains(null));
-		assertFalse(set.contains("Hi"));
+		final String _hiString = "Hi";
+        assertFalse(set.contains(_hiString));
 
-		set.add("Hi");
+		set.add(_hiString);
 		assertTrue(set.contains(null));
-		assertTrue(set.contains("Hi"));
+		assertTrue(set.contains(_hiString));
 
-		set.add("Hi");
+        final String _string = new String("Hi");
+		set.add(_string);
 		assertTrue(set.contains(null));
-		assertTrue(set.contains("Hi"));
+		assertTrue(set.contains(_string));
 		assertTrue(set.size() == 2);
+        assertSame(_hiString, set.get(_string));
+        assertNotSame(_string, set.get(_string));
 	}
 
 	/**
@@ -85,12 +88,16 @@ public class RetrievableSetTestCase
 		set.add(null);
         assertNull(set.get(null));
         
-        set.add("Hi");
-        assertEquals("Hi", set.get("Hi"));
+        final String _hiString = "Hi";
+        set.add(_hiString);
+        final String _string = new String("Hi");
+        assertEquals(_hiString, set.get(_string));
+        assertSame(_hiString, set.get(_string));
+        assertNotSame(_hiString, _string);
         
-        set.remove("Hi");
+        set.remove(_hiString);
         try {
-            set.get("Hi");
+            set.get(_hiString);
             fail("Element was not removed.");
         } catch (final NoSuchElementException _e) {
             
