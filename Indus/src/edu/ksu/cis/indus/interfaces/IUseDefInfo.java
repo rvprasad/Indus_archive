@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.interfaces;
 import java.util.Collection;
 
 import soot.Local;
+import soot.SootMethod;
 
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
@@ -52,43 +53,51 @@ public interface IUseDefInfo
 	 * Retrieves the def sites that reach the given use site in the given context.
 	 *
 	 * @param useStmt is the statement containing the use site.
-	 * @param context in which the use-site occurs.
+	 * @param method in which the use-site occurs.
 	 *
 	 * @return a collection of def sites.
 	 *
 	 * @pre useStmt != null
 	 */
-	Collection getDefs(Stmt useStmt, Object context);
+	Collection getDefs(Stmt useStmt, SootMethod method);
 
 	/**
 	 * Retrieves the def sites that reach the given local at the given use site in the given context.
 	 *
 	 * @param local for which the definition is requested.
 	 * @param useStmt is the statement containing the use site.
-	 * @param context in which the use-site occurs.
+	 * @param method in which the use-site occurs.
 	 *
 	 * @return a collection of def sites.
 	 *
 	 * @pre local != null and useStmt != null
 	 */
-	Collection getDefs(Local local, Stmt useStmt, Object context);
+	Collection getDefs(Local local, Stmt useStmt, SootMethod method);
 
 	/**
 	 * Retrieves the use sites that reach the given def site in the given context.
 	 *
 	 * @param defStmt is the statement containing the def site.
-	 * @param context in which the def-site occurs.
+	 * @param method in which the def-site occurs.
 	 *
 	 * @return a collection of use sites.
 	 *
 	 * @pre defStmt != null
 	 */
-	Collection getUses(DefinitionStmt defStmt, Object context);
+	Collection getUses(DefinitionStmt defStmt, SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/21 11:36:27  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
+
    Revision 1.4  2004/07/11 14:17:41  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.

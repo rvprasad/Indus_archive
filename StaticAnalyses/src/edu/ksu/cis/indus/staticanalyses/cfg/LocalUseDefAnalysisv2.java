@@ -43,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.Body;
 import soot.Local;
+import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
 
@@ -112,14 +113,14 @@ public final class LocalUseDefAnalysisv2
 	 *
 	 * @param local variable.
 	 * @param stmt in which <code>local</code> occurs.
-	 * @param context <i>ignored</i>.
+	 * @param method <i>ignored</i>.
 	 *
 	 * @return a collection of def statements.
 	 *
 	 * @pre local != null and stmt != null
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
 	 */
-	public Collection getDefs(final Local local, final Stmt stmt, final Object context) {
+	public Collection getDefs(final Local local, final Stmt stmt, final SootMethod method) {
 		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(defInfo, new Pair(local, stmt),
 				Collections.EMPTY_LIST));
 	}
@@ -127,9 +128,9 @@ public final class LocalUseDefAnalysisv2
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param context <i>ignored</i>.
+	 * @param method <i>ignored</i>.
 	 */
-	public Collection getDefs(final Stmt useStmt, final Object context) {
+	public Collection getDefs(final Stmt useStmt, final SootMethod method) {
 		final Collection _result = new HashSet();
 
 		for (final Iterator _i = useStmt.getUseBoxes().iterator(); _i.hasNext();) {
@@ -161,14 +162,14 @@ public final class LocalUseDefAnalysisv2
 	 * Retrieves the uses of definitions at <code>stmt</code>.
 	 *
 	 * @param stmt in which a definition occurs.
-	 * @param context <i>ignored</i>.
+	 * @param method <i>ignored</i>.
 	 *
 	 * @return a collection of statements.
 	 *
 	 * @pre stmt != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
-	public Collection getUses(final DefinitionStmt stmt, final Object context) {
+	public Collection getUses(final DefinitionStmt stmt, final SootMethod method) {
 		return (Collection) MapUtils.getObject(useInfo, stmt, Collections.EMPTY_LIST);
 	}
 
@@ -358,6 +359,14 @@ public final class LocalUseDefAnalysisv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
+
    Revision 1.5  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.

@@ -128,9 +128,9 @@ public class AliasedUseDefInfo
 	 *
 	 * @param method in which the use occurs.
 	 *
-	 * @pre method != null and method.oclIsKindOf(SootMethod)
+	 * @pre context != null 
 	 */
-	public Collection getDefs(final Stmt useStmt, final Object method) {
+	public Collection getDefs(final Stmt useStmt, final SootMethod method) {
 		Collection _result = Collections.EMPTY_LIST;
 
 		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
@@ -144,9 +144,9 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getDefs(soot.Local, soot.jimple.Stmt, java.lang.Object)
+	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getDefs(soot.Local, soot.jimple.Stmt, SootMethod)
 	 */
-	public Collection getDefs(final Local local, final Stmt useStmt, final Object context) {
+	public Collection getDefs(final Local local, final Stmt useStmt, final SootMethod method) {
 		throw new UnsupportedOperationException("This opertation is not supported.");
 	}
 
@@ -162,9 +162,9 @@ public class AliasedUseDefInfo
 	 *
 	 * @param method in which the definition occurs.
 	 *
-	 * @pre method != null and method.oclIsKindOf(SootMethod)
+	 * @pre method != null 
 	 */
-	public Collection getUses(final DefinitionStmt defStmt, final Object method) {
+	public Collection getUses(final DefinitionStmt defStmt, final SootMethod method) {
 		Collection _result = Collections.EMPTY_LIST;
 
 		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
@@ -456,6 +456,14 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
+
    Revision 1.40  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.

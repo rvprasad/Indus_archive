@@ -99,7 +99,7 @@ public class IdentifierBasedDataDAv2
 				final Pair _pair = (Pair) programPoint;
 				final Stmt _stmt = (Stmt) _pair.getFirst();
 				final Local _local = (Local) _pair.getSecond();
-				_result = _useDefAnalysis.getDefs(_local, _stmt, method);
+				_result = _useDefAnalysis.getDefs(_local, _stmt, (SootMethod) method);
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("We do not handle program points of type " + programPoint.getClass().getName() + " - "
@@ -133,7 +133,7 @@ public class IdentifierBasedDataDAv2
 		Collection _result = Collections.EMPTY_LIST;
 
 		if (_useDefAnalysis != null && stmt instanceof DefinitionStmt) {
-			_result = _useDefAnalysis.getUses((DefinitionStmt) stmt, method);
+			_result = _useDefAnalysis.getUses((DefinitionStmt) stmt, (SootMethod) method);
 		}
 		return _result;
 	}
@@ -279,7 +279,8 @@ public class IdentifierBasedDataDAv2
 	 * @pre stmt != null and useDefAnalysis != null
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
 	 */
-	private Collection collectDefInfoForAllLocalsIn(final Stmt stmt, final IUseDefInfo useDefAnalysis, final SootMethod method) {
+	private Collection collectDefInfoForAllLocalsIn(final Stmt stmt, final IUseDefInfo useDefAnalysis, 
+	        final SootMethod method) {
 		final Collection _result = new HashSet();
 
 		for (final Iterator _i = stmt.getUseBoxes().iterator(); _i.hasNext();) {
@@ -300,6 +301,9 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/07/21 20:31:33  venku
+   documentation.
+
    Revision 1.7  2004/07/21 11:40:22  venku
    - documentation.
 

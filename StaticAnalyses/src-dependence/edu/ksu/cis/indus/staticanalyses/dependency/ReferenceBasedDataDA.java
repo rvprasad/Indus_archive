@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
-import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.Collection;
@@ -53,11 +51,6 @@ public class ReferenceBasedDataDA
 	 */
 	protected IUseDefInfo aliasedUD;
 
-	/** 
-	 * A cache context object to be used to retrieve information from <code>interProceduralUD</code>.
-	 */
-	private final Context contextCache = new Context();
-
 	/**
 	 * Return the statements on which field/array access in <code>stmt</code> in <code>method</code> depends on.
 	 *
@@ -79,8 +72,7 @@ public class ReferenceBasedDataDA
 		final Stmt _theStmt = (Stmt) stmt;
 
 		if (_theStmt.containsArrayRef() || _theStmt.containsFieldRef()) {
-			contextCache.setRootMethod((SootMethod) method);
-			_result = aliasedUD.getDefs(_theStmt, contextCache);
+			_result = aliasedUD.getDefs(_theStmt, (SootMethod) method);
 		} else {
 			_result = Collections.EMPTY_LIST;
 		}
@@ -113,8 +105,7 @@ public class ReferenceBasedDataDA
 		final Stmt _theStmt = (Stmt) stmt;
 
 		if (stmt instanceof DefinitionStmt && (_theStmt.containsArrayRef() || _theStmt.containsFieldRef())) {
-			contextCache.setRootMethod((SootMethod) method);
-			_result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
+			_result = aliasedUD.getUses((DefinitionStmt) stmt, (SootMethod) method);
 		} else {
 			_result = Collections.EMPTY_LIST;
 		}
@@ -194,6 +185,14 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
+
    Revision 1.27  2004/07/11 23:34:03  venku
    -
     coding conventions.
