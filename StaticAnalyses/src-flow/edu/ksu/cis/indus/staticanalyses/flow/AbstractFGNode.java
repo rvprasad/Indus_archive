@@ -76,7 +76,7 @@ public abstract class AbstractFGNode
 	/**
 	 * A filter that controls the outflow of values from this node.
 	 */
-	protected ValueFilter filter;
+	protected IValueFilter filter;
 
 	/**
 	 * The worklist associated with the enclosing instance of the framework.  This is required if subclasses will want to
@@ -99,7 +99,7 @@ public abstract class AbstractFGNode
 	 *
 	 * @param filterToUse to be used by this node.
 	 */
-	public void setFilter(ValueFilter filterToUse) {
+	public void setFilter(IValueFilter filterToUse) {
 		this.filter = filterToUse;
 	}
 
@@ -204,12 +204,20 @@ public abstract class AbstractFGNode
 	 *
 	 * @param successors the set of <code>IFGNode</code>s being added as successors to this node.
 	 */
-	public void onNewSuccs(Collection successors) {
+	protected void onNewSuccs(Collection successors) {
 		for (Iterator i = successors.iterator(); i.hasNext();) {
 			onNewSucc((IFGNode) i.next());
 		}
 	}
 
+    /**
+     * Performs a specific action when a successor node is added to this node.  This is a hook method provided for
+     * convenience of implementation.
+     *
+     * @param succ the node being added as the successor to this node.
+     * @pre succ != null
+     */
+    public abstract void onNewSucc(IFGNode succ);
 	/**
 	 * This method will throw <code>UnsupprotedOperationException</code>.
 	 *
@@ -244,12 +252,31 @@ public abstract class AbstractFGNode
 	public String toString() {
 		return "IFGNode:" + hashCode();
 	}
+    /**
+         * Performs a specific action when a value is added to this node.  This is a hook method provided to for convenience of
+         * implementation.
+         *
+         * @param value the value being added to this node.
+         */
+        protected abstract void onNewValue(Object value);
+
+        /**
+         * Performs a specific action when a set of values is added to this node.  This is a hook method provided to for
+         * convenience of implementation.
+         *
+         * @param values the collection of values being added to this node.
+         */
+      protected abstract void onNewValues(Collection values);
 }
 
 /*****
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:40:24  venku
+Major:
+ - Moved the package under indus umbrella.
+
 Revision 0.10  2003/05/22 22:18:32  venku
 All the interfaces were renamed to start with an "I".
 Optimizing changes related Strings were made.

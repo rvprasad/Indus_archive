@@ -56,7 +56,7 @@ import java.util.Iterator;
  * @version $Revision$
  */
 public class TypeBasedFilter
-  extends AValueFilter {
+  implements IValueFilter {
 	/**
 	 * The environment in which the analysis happens.
 	 *
@@ -106,7 +106,7 @@ public class TypeBasedFilter
 	 *
 	 * @pre values != null and values.oclIsKindOf(Collection(Value))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.AValueFilter#filter(java.util.Collection)
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IValueFilter#filter(java.util.Collection)
 	 */
 	public Collection filter(final Collection values) {
 		Collection result = new ArrayList();
@@ -131,7 +131,7 @@ public class TypeBasedFilter
 	 *
 	 * @pre value != null and value.oclIsKindOf(Value)
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.AValueFilter#filter(java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IValueFilter#filter(java.lang.Object)
 	 */
 	public boolean filter(final Object value) {
 		return Util.isSameOrSubType(((Value) value).getType(), type, env);
@@ -142,6 +142,9 @@ public class TypeBasedFilter
    ChangeLog:
 
    $Log$
+   Revision 1.3  2003/08/15 04:15:45  venku
+   Got the documentation right.
+
    Revision 1.2  2003/08/15 04:07:56  venku
    Spruced up documentation and specification.
    - Important change is that previously all types of retype and nullconstant were let through.

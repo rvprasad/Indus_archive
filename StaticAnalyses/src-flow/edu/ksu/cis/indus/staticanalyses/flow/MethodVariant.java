@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -43,11 +43,10 @@ import soot.SootMethod;
 import soot.Trap;
 import soot.Value;
 
-import soot.jimple.AssignStmt;
+
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InvokeExpr;
-import soot.jimple.InvokeStmt;
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
@@ -56,8 +55,7 @@ import soot.toolkits.graph.CompleteUnitGraph;
 
 import soot.toolkits.scalar.SimpleLocalDefs;
 
-import edu.ksu.cis.indus.staticanalyses.*;
-import edu.ksu.cis.indus.staticanalyses.*;
+import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 
 import org.apache.log4j.LogManager;
@@ -90,45 +88,67 @@ public class MethodVariant
 
 	/**
 	 * The instance of <code>BFA</code> which was responsible for the creation of this variant.
+	 *
+	 * @invariant _bfa != null
 	 */
-	public final BFA _BFA;
+	public final BFA _bfa;
 
 	/**
 	 * The context which resulted in the creation of this variant.
+	 *
+	 * @invariant _context != null
 	 */
-	public final Context _CONTEXT;
+	public final Context _context;
 
 	/**
 	 * The method represented by this variant.
+	 *
+	 * @invariant _method != null
 	 */
-	public final SootMethod _METHOD;
+	public final SootMethod _method;
 
 	/**
 	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
 	 * locations in the AST as it serves the purpose of AST representation.
+	 *
+	 * @invariant astvm != null
 	 */
-	protected final ASTVariantManager astvm;
+	protected final AbstractVariantManager astvm;
 
 	/**
 	 * The statement visitor used to process in the statement in the correpsonding method.
+	 *
+	 * @invariant stmt != null
 	 */
 	protected AbstractStmtSwitch stmt;
 
 	/**
 	 * The flow graph node associated with an abstract single return point of the corresponding method.  This will be
-	 * <code>null</code>, if the associated method's return type is <code>void</code>.
+	 * <code>null</code>, if the associated method's return type is any non-ref type.
+	 *
+	 * @invariant _method.getReturnType().oclIsKindOf(RefLikeType) implies returnVar != null
+	 * @invariant not _method.getReturnType().oclIsKindOf(RefLikeType) implies returnVar == null
 	 */
 	protected final IFGNode returnVar;
 
 	/**
 	 * The flow graph nodes associated with the this variable of the corresponding method.  This will be <code>null</code>,
 	 * if the associated method is <code>static</code>.
+	 *
+	 * @invariant _method.isStatic() implies thisVar == null
+	 * @invariant not _method.isStatic() implies thisVar != null
 	 */
 	protected final IFGNode thisVar;
 
 	/**
-	 * The array of flow graph nodes associated with the parameters of thec corresponding method.  This will be
-	 * <code>null</code>, if the associated method has not parameters..
+	 * The array of flow graph nodes associated with the parameters of thec corresponding method.
+	 *
+	 * @invariant parameters.oclIsKindOf(Sequence(IFGNode))
+	 * @invariant _method.getParameterCount() == 0 implies parameters == null
+	 * @invariant _method.getParameterTypes()->forall(p | p.oclIsKindOf(RefLikeType) implies
+	 * 			  parameters.at(method.getParameterTypes().indexOf(p)) != null)
+	 * @invariant _method.getParameterTypes()->forall(p | not p.oclIsKindOf(RefLikeType) implies
+	 * 			  parameters.at(method.getParameterTypes().indexOf(p)) == null)
 	 */
 	protected final IFGNode[] parameters;
 
@@ -139,18 +159,21 @@ public class MethodVariant
 	protected SimpleLocalDefs defs;
 
 	/**
-	 * Creates a new <code>MethodVariant</code> instance.
+	 * Creates a new <code>MethodVariant</code> instance.  This will not process the statements of this method.  That is
+	 * accomplished via call to <code>process()</code>.
 	 *
 	 * @param sm the method represented by this variant.  This parameter cannot be <code>null</code>.
-	 * @param astvm the manager of flow graph nodes corresponding to the AST nodes of <code>sm</code>.  This parameter cannot
-	 * 		  be <code>null</code>.
+	 * @param astVariantManager the manager of flow graph nodes corresponding to the AST nodes of<code>sm</code>.  This
+	 * 		  parameter cannot be <code>null</code>.
 	 * @param bfa the instance of <code>BFA</code> which was responsible for the creation of this variant.  This parameter
 	 * 		  cannot be <code>null</code>.
+	 *
+	 * @pre sm != null and astvm != null and bfa != null
 	 */
-	protected MethodVariant(SootMethod sm, ASTVariantManager astvm, BFA bfa) {
-		_METHOD = sm;
-		_BFA = bfa;
-		_CONTEXT = (Context) bfa._ANALYZER.context.clone();
+	protected MethodVariant(final SootMethod sm, final AbstractVariantManager astVariantManager, final BFA bfa) {
+		_method = sm;
+		_bfa = bfa;
+		_context = (Context) bfa._ANALYZER.context.clone();
 		bfa._ANALYZER.context.callNewMethod(sm);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -194,7 +217,7 @@ public class MethodVariant
 			returnVar = null;
 		}
 
-		this.astvm = astvm;
+		this.astvm = astVariantManager;
 		bfa._ANALYZER.context.returnFromCurrentMethod();
 
 		if (LOGGER.isDebugEnabled()) {
@@ -208,9 +231,11 @@ public class MethodVariant
 	 * @param v the AST node whose associted flow graph node is to be returned.
 	 *
 	 * @return the flow graph node associated with <code>v</code> in the context <code>this.context</code>.
+	 *
+	 * @pre v != null
 	 */
-	public final IFGNode getASTNode(Value v) {
-		return getASTVariant(v, _CONTEXT).getFGNode();
+	public final IFGNode getASTNode(final Value v) {
+		return getASTVariant(v, _context).getFGNode();
 	}
 
 	/**
@@ -221,8 +246,10 @@ public class MethodVariant
 	 * @param c the context in which the flow graph node was associated with <code>v</code>.
 	 *
 	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.
+	 *
+	 * @pre v != null and c != null
 	 */
-	public final IFGNode getASTNode(Value v, Context c) {
+	public final IFGNode getASTNode(final Value v, final Context c) {
 		return getASTVariant(v, c).getFGNode();
 	}
 
@@ -233,10 +260,12 @@ public class MethodVariant
 	 * @param v the AST node whose associted variant is to be returned.
 	 *
 	 * @return the variant associated with <code>v</code> in the context <code>this.context</code>.
+	 *
+	 * @pre v != null
 	 */
-	public final ASTVariant getASTVariant(Value v) {
-		_BFA.processType(v.getType());
-		return (ASTVariant) astvm.select(v, _CONTEXT);
+	public final ASTVariant getASTVariant(final Value v) {
+		_bfa.processType(v.getType());
+		return (ASTVariant) astvm.select(v, _context);
 	}
 
 	/**
@@ -246,8 +275,10 @@ public class MethodVariant
 	 * @param context the context in which the variant was associated with <code>v</code>.
 	 *
 	 * @return the variant associated with <code>v</code> in the context <code>c</code>.
+	 *
+	 * @pre v != null and context != null
 	 */
-	public final ASTVariant getASTVariant(Value v, Context context) {
+	public final ASTVariant getASTVariant(final Value v, final Context context) {
 		return (ASTVariant) astvm.select(v, context);
 	}
 
@@ -258,8 +289,10 @@ public class MethodVariant
 	 * @param s the statement at which the definitions are requested.
 	 *
 	 * @return the list of definitions of <code>l</code> that arrive at statement <code>s</code>.
+	 *
+	 * @pre l != null and s != null
 	 */
-	public List getDefsOfAt(Local l, Stmt s) {
+	public List getDefsOfAt(final Local l, final Stmt s) {
 		if (defs == null) {
 			return Collections.EMPTY_LIST;
 		} else {
@@ -268,55 +301,22 @@ public class MethodVariant
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param v DOCUMENT ME!
-	 * @param c DOCUMENT ME!
-	 * @param filter DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public IFGNode getFilterEnabledNode(Value v, Context c, ValueFilter filter) {
-		IFGNode result = getASTNode(v, c);
-		result.setFilter(filter);
-		return result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param v DOCUMENT ME!
-	 * @param filter DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public IFGNode getFilterEnabledNode(Value v, ValueFilter filter) {
-		IFGNode result = getASTNode(v, _CONTEXT);
-		result.setFilter(filter);
-		return result;
-	}
-
-	/**
 	 * Processes the body of the method implementation associated with this variant.
 	 */
 	public void process() {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: processing of " + _METHOD);
+			LOGGER.debug("BEGIN: processing of " + _method);
 		}
 
 		JimpleBody jb = null;
 
 		// We assume the user has closed the system.
-		if (_METHOD.isConcrete()) {
-			jb = (JimpleBody) _METHOD.retrieveActiveBody();
+		if (_method.isConcrete()) {
+			jb = (JimpleBody) _method.retrieveActiveBody();
 
-			List list = new ArrayList(_METHOD.retrieveActiveBody().getUnits());
-			defs = new SimpleLocalDefs(new CompleteUnitGraph(_METHOD.retrieveActiveBody()));
-			stmt = _BFA.getStmt(this);
+			List list = new ArrayList(_method.retrieveActiveBody().getUnits());
+			defs = new SimpleLocalDefs(new CompleteUnitGraph(_method.retrieveActiveBody()));
+			stmt = _bfa.getStmt(this);
 
 			for (Iterator i = list.iterator(); i.hasNext();) {
 				stmt.process((Stmt) i.next());
@@ -343,21 +343,18 @@ public class MethodVariant
 						ThrowStmt ts = (ThrowStmt) tmp;
 
 						if (!caught.contains(ts)) {
-							SootClass scTemp = _BFA.getClass(((RefType) ts.getOp().getType()).getClassName());
+							SootClass scTemp = _bfa.getClass(((RefType) ts.getOp().getType()).getClassName());
 
 							if (Util.isDescendentOf(scTemp, exception)) {
-								_CONTEXT.setStmt(ts);
+								_context.setStmt(ts);
 
-								IFGNode throwNode = getASTNode(ts.getOp(), _CONTEXT);
+								IFGNode throwNode = getASTNode(ts.getOp(), _context);
 								throwNode.addSucc(getASTNode(catchRef));
 								caught.add(ts);
 							}
 						}
-					} else if (tmp instanceof InvokeStmt) {
-						expr = (InvokeExpr) ((InvokeStmt) tmp).getInvokeExpr();
-						flag = true;
-					} else if (tmp instanceof AssignStmt && ((AssignStmt) tmp).getRightOp() instanceof InvokeExpr) {
-						expr = (InvokeExpr) ((AssignStmt) tmp).getRightOp();
+					} else if (tmp.containsInvokeExpr()) {
+						expr = tmp.getInvokeExpr();
 						flag = true;
 					}
 
@@ -365,7 +362,7 @@ public class MethodVariant
 						flag = false;
 
 						if (!caught.contains(tmp)) {
-							_CONTEXT.setStmt(tmp);
+							_context.setStmt(tmp);
 
 							IFGNode tempNode = queryThrowNode(expr, exception);
 
@@ -378,12 +375,12 @@ public class MethodVariant
 			}
 		} else {
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info(_METHOD + " is not a concrete method. Hence, it's body could not be retrieved.");
+				LOGGER.info(_method + " is not a concrete method. Hence, it's body could not be retrieved.");
 			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: processing of " + _METHOD);
+			LOGGER.debug("END: processing of " + _method);
 		}
 	}
 
@@ -394,9 +391,11 @@ public class MethodVariant
 	 *
 	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.  If none exists,
 	 * 		   <code>null</code> is returned.
+	 *
+	 * @pre v != null
 	 */
-	public final IFGNode queryASTNode(Value v) {
-		return queryASTNode(v, _CONTEXT);
+	public final IFGNode queryASTNode(final Value v) {
+		return queryASTNode(v, _context);
 	}
 
 	/**
@@ -407,8 +406,10 @@ public class MethodVariant
 	 *
 	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.  If none exists,
 	 * 		   <code>null</code> is returned.
+	 *
+	 * @pre v != null and c != null
 	 */
-	public final IFGNode queryASTNode(Value v, Context c) {
+	public final IFGNode queryASTNode(final Value v, final Context c) {
 		ASTVariant var = queryASTVariant(v, c);
 		IFGNode temp = null;
 
@@ -426,8 +427,10 @@ public class MethodVariant
 	 *
 	 * @return the variant associated with <code>v</code> in the context <code>c</code>.  If none exists, <code>null</code>
 	 * 		   is returned.
+	 *
+	 * @pre v != null and c != null
 	 */
-	public final ASTVariant queryASTVariant(Value v, Context c) {
+	public final ASTVariant queryASTVariant(final Value v, final Context c) {
 		return (ASTVariant) astvm.query(v, c);
 	}
 
@@ -437,12 +440,13 @@ public class MethodVariant
 	 * @param index the index of the parameter in the parameter list of the associated method.
 	 *
 	 * @return the flow graph node associated with the <code>index</code>th parameter in the parameter list of the associated
-	 * 		   method.  It returns <code>null</code> if the method has no parameters.
+	 * 		   method.  It returns <code>null</code> if the method has no parameters or if mentioned parameter is of non-ref
+	 * 		   type.
 	 */
-	public final IFGNode queryParameterNode(int index) {
+	public final IFGNode queryParameterNode(final int index) {
 		IFGNode temp = null;
 
-		if (index >= 0 && index <= _METHOD.getParameterCount()) {
+		if (index >= 0 && index <= _method.getParameterCount()) {
 			temp = parameters[index];
 		}
 
@@ -453,7 +457,7 @@ public class MethodVariant
 	 * Returns the flow graph node that represents an abstract single return point of the associated method.
 	 *
 	 * @return the flow graph node that represents an abstract single return point of the associated method.
-	 * 		   <code>null</code> if the corresponding method does not return a value.
+	 * 		   <code>null</code> if the corresponding method does not return a value or if it returns non-ref typed value.
 	 */
 	public final IFGNode queryReturnNode() {
 		return returnVar;
@@ -476,9 +480,11 @@ public class MethodVariant
 	 * @param exception is the class of the exception thrown at <code>e</code>.
 	 *
 	 * @return the node that captures values associated with the <code>exception</code> class at <code>e</code>.
+	 *
+	 * @pre e != null and exception != null
 	 */
-	public final IFGNode queryThrowNode(InvokeExpr e, SootClass exception) {
-		return queryThrowNode(e, exception, _CONTEXT);
+	public final IFGNode queryThrowNode(final InvokeExpr e, final SootClass exception) {
+		return queryThrowNode(e, exception, _context);
 	}
 
 	/**
@@ -489,8 +495,10 @@ public class MethodVariant
 	 * @param c is the context in which the node is requested.
 	 *
 	 * @return the node that captures values associated with the <code>exception</code> class at <code>e</code>.
+	 *
+	 * @pre e != null and exception != null and c != null
 	 */
-	public final IFGNode queryThrowNode(InvokeExpr e, SootClass exception, Context c) {
+	public final IFGNode queryThrowNode(final InvokeExpr e, final SootClass exception, final Context c) {
 		InvocationVariant var = (InvocationVariant) queryASTVariant(e, c);
 		IFGNode temp = null;
 
@@ -501,9 +509,12 @@ public class MethodVariant
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */

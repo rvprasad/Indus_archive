@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,20 +30,18 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.interfaces.*;
-import edu.ksu.cis.indus.interfaces.*;
+import edu.ksu.cis.indus.interfaces.IPrototype;
+
 
 /**
- * <p>
- * An implementation of <i>Abstract Factory</i> pattern given in Gang of Four book.  It "creates" various compoments required
- * to setup and run the analysis.  Other components of the framework use this class to obtain components when assembling the
- * analysis and the flow graph.
- * </p>
+ * An implementation of <i>Abstract Factory</i> pattern given in "Gang of Four" book.  It "creates" various compoments
+ * required to setup and run the analysis.  Other components of the framework use this class to obtain components when
+ * assembling the analysis and the flow graph.
  * 
  * <p>
  * Created: Sun Jan 27 16:31:18 2002
@@ -56,23 +54,23 @@ public class ModeFactory {
 	/**
 	 * The prototype of index managers that manager indices related to arrays.
 	 */
-	private IPrototype arrayIndexManagerPrototype;
+	private IPrototype arrayIdxMgrPrototype;
 
 	/**
 	 * The prototype of index managers that manage indices related to AST nodes.
 	 */
-	private IPrototype astIndexManagerPrototype;
+	private IPrototype astIdxMgrPrototype;
 
 	/**
 	 * The prototype of class managers that manage class related primitive information and processing.  Processing of
 	 * &lt;clinit&gt; would be an example of such information.
 	 */
-	private IPrototype classManagerPrototype;
+	private IPrototype classMgrPrototype;
 
 	/**
 	 * The prototype of index managers that manage indices related to instance field variables.
 	 */
-	private IPrototype instanceFieldIndexManagerPrototype;
+	private IPrototype instanceFieldIdxMgrPrototype;
 
 	/**
 	 * The prototype of LHS expression visitor to be used in the analysis.
@@ -82,12 +80,7 @@ public class ModeFactory {
 	/**
 	 * The prototype of index managers that manage indices related to methods.
 	 */
-	private IPrototype methodIndexManagerPrototype;
-
-	/**
-	 * The prototype of the flow graph node to be used in constructing the flow graph during the analysis.
-	 */
-	private IPrototype nodePrototype;
+	private IPrototype methodIdxMgrPrototype;
 
 	/**
 	 * The prototype of RHS expression visitor to be used in the analysis.
@@ -97,7 +90,7 @@ public class ModeFactory {
 	/**
 	 * A prototype of index managers to manage indices related to static field variables.
 	 */
-	private IPrototype staticFieldIndexManagerPrototype;
+	private IPrototype staticFieldIdxMgrPrototype;
 
 	/**
 	 * The prototype of statement visitor to be used in the analysis.
@@ -105,39 +98,51 @@ public class ModeFactory {
 	private IPrototype stmtPrototype;
 
 	/**
+	 * The prototype of the flow graph node to be used in constructing the flow graph during the analysis.
+	 */
+	private IPrototype theNodePrototype;
+
+	/**
 	 * Returns an index manager to manage indices related to AST nodes.
 	 *
 	 * @return an index manager related to AST nodes.
 	 */
 	public final AbstractIndexManager getASTIndexManager() {
-		return (AbstractIndexManager) astIndexManagerPrototype.getClone();
+		return (AbstractIndexManager) astIdxMgrPrototype.getClone();
 	}
 
 	/**
 	 * Returns an index manager to manage indices related arrays.
 	 *
 	 * @return an index manager related to arrays.
+	 *
+	 * @post result != null
 	 */
 	public final AbstractIndexManager getArrayIndexManager() {
-		return (AbstractIndexManager) arrayIndexManagerPrototype.getClone();
+		return (AbstractIndexManager) arrayIdxMgrPrototype.getClone();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param arrayIndexManagerPrototype the prototype to generate arrays related index manager objects.
-	 */
-	public void setArrayIndexManagerPrototype(IPrototype arrayIndexManagerPrototype) {
-		this.arrayIndexManagerPrototype = arrayIndexManagerPrototype;
-	}
-
-	/**
-	 * DOCUMENT ME!
+	 * Set the prototype from which new instances of corresponding type should be created.
 	 *
 	 * @param astIndexManagerPrototype the prototype to generate AST node related index manager objects.
+	 *
+	 * @pre astIndexManagerPrototype != null
 	 */
-	public void setASTIndexManagerPrototype(IPrototype astIndexManagerPrototype) {
-		this.astIndexManagerPrototype = astIndexManagerPrototype;
+	public void setASTIndexManagerPrototype(final IPrototype astIndexManagerPrototype) {
+		this.astIdxMgrPrototype = astIndexManagerPrototype;
+	}
+
+	/**
+	 * Set the prototype from which new instances of array index managers should be created.
+	 *
+	 * @param arrayIndexManagerPrototype the prototype to generate arrays related index manager objects.  This implementation
+	 * 		  should support <code>getClone()</code>.
+	 *
+	 * @pre arrayIndexManagerPrototype != null
+	 */
+	public void setArrayIndexManagerPrototype(final IPrototype arrayIndexManagerPrototype) {
+		this.arrayIdxMgrPrototype = arrayIndexManagerPrototype;
 	}
 
 	/**
@@ -148,18 +153,20 @@ public class ModeFactory {
 	 *
 	 * @return a <code>ClassManager</code> object parameterized by <code>o</code>.
 	 */
-	public final ClassManager getClassManager(Object o) {
-		return (ClassManager) classManagerPrototype.getClone(o);
+	public final ClassManager getClassManager(final Object o) {
+		return (ClassManager) classMgrPrototype.getClone(o);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the prototype from which new instances of class managers should be created.
 	 *
 	 * @param classManagerPrototype the prototype to generate managers to manage class related primitive information and
-	 * 		  processing.
+	 * 		  processing.  This implementation should support <code>getClone(o)</code>.
+	 *
+	 * @pre classManagerPrototype != null
 	 */
-	public void setClassManagerPrototype(IPrototype classManagerPrototype) {
-		this.classManagerPrototype = classManagerPrototype;
+	public void setClassManagerPrototype(final IPrototype classManagerPrototype) {
+		this.classMgrPrototype = classManagerPrototype;
 	}
 
 	/**
@@ -169,8 +176,8 @@ public class ModeFactory {
 	 *
 	 * @return a flow graph node parameterized by <code>o</code>.
 	 */
-	public final AbstractFGNode getFGNode(Object o) {
-		return (AbstractFGNode) nodePrototype.getClone(o);
+	public final AbstractFGNode getFGNode(final Object o) {
+		return (AbstractFGNode) theNodePrototype.getClone(o);
 	}
 
 	/**
@@ -179,17 +186,19 @@ public class ModeFactory {
 	 * @return an index manager related to instance field variables.
 	 */
 	public final AbstractIndexManager getInstanceFieldIndexManager() {
-		return (AbstractIndexManager) instanceFieldIndexManagerPrototype.getClone();
+		return (AbstractIndexManager) instanceFieldIdxMgrPrototype.getClone();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the prototype from which new instances of instance field index managers should be created.
 	 *
 	 * @param instanceFieldIndexManagerPrototype the prototype to generate instance field variables related index manager
-	 * 		  objects.
+	 * 		  objects.  This implementation should support <code>getClone()</code>.
+	 *
+	 * @pre instanceFieldManagerPrototype != null
 	 */
-	public void setInstanceFieldIndexManagerPrototype(IPrototype instanceFieldIndexManagerPrototype) {
-		this.instanceFieldIndexManagerPrototype = instanceFieldIndexManagerPrototype;
+	public void setInstanceFieldIndexManagerPrototype(final IPrototype instanceFieldIndexManagerPrototype) {
+		this.instanceFieldIdxMgrPrototype = instanceFieldIndexManagerPrototype;
 	}
 
 	/**
@@ -199,17 +208,20 @@ public class ModeFactory {
 	 *
 	 * @return a LHS expression visitor parameterizec by <code>s</code>.
 	 */
-	public final AbstractExprSwitch getLHSExprVisitor(AbstractStmtSwitch s) {
+	public final AbstractExprSwitch getLHSExprVisitor(final AbstractStmtSwitch s) {
 		return (AbstractExprSwitch) lhsExprPrototype.getClone(s);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the prototype from which new instances of LHS expression visitors should be created.
 	 *
-	 * @param lhsExprPrototype the prototype to generate LHS expression vistor to be used in constructing the flow graph.
+	 * @param lhsExprVisitorPrototype the prototype to generate LHS expression vistor to be used in constructing the flow
+	 * 		  graph.  This implementation should support <code>getClone(o)</code>.
+	 *
+	 * @pre lhsExprVisitorPrototype != null
 	 */
-	public void setLHSExprVisitorPrototype(IPrototype lhsExprPrototype) {
-		this.lhsExprPrototype = lhsExprPrototype;
+	public void setLHSExprVisitorPrototype(final IPrototype lhsExprVisitorPrototype) {
+		this.lhsExprPrototype = lhsExprVisitorPrototype;
 	}
 
 	/**
@@ -218,47 +230,52 @@ public class ModeFactory {
 	 * @return an index manager related to methods.
 	 */
 	public final AbstractIndexManager getMethodIndexManager() {
-		return (AbstractIndexManager) methodIndexManagerPrototype.getClone();
+		return (AbstractIndexManager) methodIdxMgrPrototype.getClone();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the prototype from which new instances of method index managers should be created.
 	 *
-	 * @param methodIndexManagerPrototype the prototype to generate method related index manager objects.
-	 */
-	public final void setMethodIndexManagerPrototype(IPrototype methodIndexManagerPrototype) {
-		this.methodIndexManagerPrototype = methodIndexManagerPrototype;
-	}
-
-	/**
-	 * DOCUMENT ME!
+	 * @param methodIndexManagerPrototype the prototype to generate method related index manager objects. This implementation
+	 * 		  should support <code>getClone()</code>.
 	 *
-	 * @param nodePrototype the prototype to generate flow graph nodes to be used in constructing the flow graph.
+	 * @pre methodIndexManagerPrototype != null
 	 */
-	public final void setNodePrototype(IPrototype nodePrototype) {
-		this.nodePrototype = nodePrototype;
+	public final void setMethodIndexManagerPrototype(final IPrototype methodIndexManagerPrototype) {
+		this.methodIdxMgrPrototype = methodIndexManagerPrototype;
 	}
 
 	/**
-	 * <p>
+	 * Set the prototype from which new instances of nodes should be created.
+	 *
+	 * @param nodePrototype the prototype to generate flow graph nodes to be used in constructing the flow graph. This
+	 * 		  implementation should support <code>getClone(o)</code>.
+	 *
+	 * @pre nodePrototype != null
+	 */
+	public final void setNodePrototype(final IPrototype nodePrototype) {
+		this.theNodePrototype = nodePrototype;
+	}
+
+	/**
 	 * Returns a LHS expression visitor parameterized by <code>s</code>.
-	 * </p>
 	 *
 	 * @param s parameter to be used to create the expression visitor.
 	 *
 	 * @return a LHS expression visitor parameterizec by <code>s</code>.
 	 */
-	public final AbstractExprSwitch getRHSExprVisitor(AbstractStmtSwitch s) {
+	public final AbstractExprSwitch getRHSExprVisitor(final AbstractStmtSwitch s) {
 		return (AbstractExprSwitch) rhsExprPrototype.getClone(s);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the prototype from which new instances of RHS expression visitors should be created.
 	 *
-	 * @param rhsExprPrototype the prototype to generate RHS expression vistor to be used in constructing the flow graph.
+	 * @param rhsExprVisitorPrototype the prototype to generate RHS expression vistor to be used in constructing the flow
+	 * 		  graph.  This implementation should support <code>getClone(o)</code>.
 	 */
-	public final void setRHSExprVisitorPrototype(IPrototype rhsExprPrototype) {
-		this.rhsExprPrototype = rhsExprPrototype;
+	public final void setRHSExprVisitorPrototype(final IPrototype rhsExprVisitorPrototype) {
+		this.rhsExprPrototype = rhsExprVisitorPrototype;
 	}
 
 	/**
@@ -267,16 +284,19 @@ public class ModeFactory {
 	 * @return an index manager related to static field variables.
 	 */
 	public final AbstractIndexManager getStaticFieldIndexManager() {
-		return (AbstractIndexManager) staticFieldIndexManagerPrototype.getClone();
+		return (AbstractIndexManager) staticFieldIdxMgrPrototype.getClone();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the prototype from which new instances of static field index managers should be created.
 	 *
-	 * @param staticFieldIndexManagerPrototype the prototype to generate static variables related index manager objects.
+	 * @param staticFieldIndexManagerPrototype the prototype to generate static variables related index manager objects. This
+	 * 		  implementation should support <code>getClone()</code>.
+	 *
+	 * @pre staticFieldManagerPrototype != null
 	 */
-	public final void setStaticFieldIndexManagerPrototype(IPrototype staticFieldIndexManagerPrototype) {
-		this.staticFieldIndexManagerPrototype = staticFieldIndexManagerPrototype;
+	public final void setStaticFieldIndexManagerPrototype(final IPrototype staticFieldIndexManagerPrototype) {
+		this.staticFieldIdxMgrPrototype = staticFieldIndexManagerPrototype;
 	}
 
 	/**
@@ -286,27 +306,32 @@ public class ModeFactory {
 	 *
 	 * @return a LHS expression visitor parameterizec by <code>m</code>.
 	 */
-	public final AbstractStmtSwitch getStmtVisitor(MethodVariant m) {
+	public final AbstractStmtSwitch getStmtVisitor(final MethodVariant m) {
 		return (AbstractStmtSwitch) stmtPrototype.getClone(m);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Set the prototype from which new instances of statement visitors should be created.
 	 *
-	 * @param stmtPrototype the prototype to generate statement vistor to be used in constructing the flow graph.
+	 * @param stmtVisitorPrototype the prototype to generate statement vistor to be used in constructing the flow graph. This
+	 * 		  implementation should support <code>getClone(o)</code>.
+	 *
+	 * @pre stmtVisitorPrototype != null
 	 */
-	public final void setStmtVisitorPrototype(IPrototype stmtPrototype) {
-		this.stmtPrototype = stmtPrototype;
+	public final void setStmtVisitorPrototype(final IPrototype stmtVisitorPrototype) {
+		this.stmtPrototype = stmtVisitorPrototype;
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/07 06:40:24  venku
-Major:
- - Moved the package under indus umbrella.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.2  2003/08/12 18:39:56  venku
+   Ripple effect of moving IPrototype to Indus.
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */
