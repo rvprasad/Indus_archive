@@ -33,8 +33,9 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.transformations.common;
 
+import edu.ksu.cis.indus.interfaces.ISystemInfo;
 import soot.Body;
 import soot.Local;
 import soot.Scene;
@@ -50,8 +51,6 @@ import soot.jimple.Stmt;
 
 import soot.util.Chain;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractController;
-
 import java.util.Iterator;
 
 
@@ -62,7 +61,7 @@ import java.util.Iterator;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class Cloner
+public class Cloner
   implements ASTCloner.IASTClonerHelper {
 	/**
 	 * This instance is used to clone Jimple AST chunks.
@@ -82,7 +81,7 @@ class Cloner
 	 * This provides information about the system such as statement graphs and such that are common to analyses and
 	 * transformations.
 	 */
-	private AbstractController controller;
+	private ISystemInfo sysInfo;
 
 	/**
 	 * The class manager which manages clonee classes.
@@ -171,7 +170,7 @@ class Cloner
 			Chain sl = jb.getUnits();
 			Stmt nop = jimple.newNopStmt();
 
-			for (int i = controller.getStmtGraph(cloneeMethod).getBody().getUnits().size() - 1; i >= 0; i--) {
+			for (int i = sysInfo.getStmtGraph(cloneeMethod).getBody().getUnits().size() - 1; i >= 0; i--) {
 				sl.addLast(nop);
 			}
 			result.setActiveBody(jb);
@@ -237,7 +236,7 @@ class Cloner
 	 * @pre stmt != null and cloneeMethod != null
 	 * @post result != null and result.oclIsTypeOf(stmt.evaluationType())
 	 */
-	Stmt cloneASTFragment(final Stmt stmt, final SootMethod cloneeMethod) {
+	public Stmt cloneASTFragment(final Stmt stmt, final SootMethod cloneeMethod) {
 		return astCloner.cloneASTFragment(stmt, cloneeMethod);
 	}
 
@@ -252,7 +251,7 @@ class Cloner
 	 * @pre value != null and cloneeMethod != null
 	 * @post result != null and result.oclIsTypeOf(stmt.evaluationType())
 	 */
-	Value cloneASTFragment(final Value value, final SootMethod cloneeMethod) {
+	public Value cloneASTFragment(final Value value, final SootMethod cloneeMethod) {
 		return astCloner.cloneASTFragment(value, cloneeMethod);
 	}
 
@@ -261,22 +260,22 @@ class Cloner
 	 *
 	 * @param theSystem is the classes that form the system to be clone.
 	 * @param cloneSystem is the system after slicing.
-	 * @param theController that provides information about the system.
+	 * @param systemInfo that provides information about the system.
 	 *
 	 * @pre cloneeSystem != null and cloneSystem != null and theController != null
 	 */
-	void initialize(final Scene theSystem, final Scene cloneSystem, final AbstractController theController) {
+	public void initialize(final Scene theSystem, final Scene cloneSystem, final ISystemInfo systemInfo) {
 		clazzManager = theSystem;
 		cloneClazzManager = cloneSystem;
-		controller = theController;
+		sysInfo = systemInfo;
 	}
 
 	/**
 	 * Resets the internal data structures.  For safe and meaningful operation after call to this method,
 	 * <code>initialize()</code> should be called before calling any other methods.
 	 */
-	void reset() {
-		controller = null;
+	public void reset() {
+		sysInfo = null;
 		clazzManager = null;
 	}
 
@@ -310,4 +309,9 @@ class Cloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/18 04:01:52  venku
+   Major changes:
+    - Teased apart cloning logic in the slicer.  Made it transformation independent.
+    - Moved it under transformation common location under indus.
+
  */

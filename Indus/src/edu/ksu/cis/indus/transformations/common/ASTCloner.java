@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.transformations.common;
 
 import soot.Local;
 import soot.RefType;
@@ -805,6 +805,11 @@ public class ASTCloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/18 04:01:52  venku
+   Major changes:
+    - Teased apart cloning logic in the slicer.  Made it transformation independent.
+    - Moved it under transformation common location under indus.
+
    Revision 1.5  2003/05/22 22:23:49  venku
    Changed interface names to start with a "I".
    Formatting.

@@ -42,8 +42,7 @@ import soot.jimple.Stmt;
 
 /**
  * This interface should be used to retrieve the mapping between statements in untransformed and transformed version of the
- * system. This is used by the slicer to record this mapping.  The application that uses the slicer should provide an
- * implementation of this interface to record this mapping in a sound manner as the slicer uses these mappings too.
+ * system. 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -95,4 +94,9 @@ public interface ITransformMap {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/18 04:01:52  venku
+   Major changes:
+    - Teased apart cloning logic in the slicer.  Made it transformation independent.
+    - Moved it under transformation common location under indus.
+
  */
