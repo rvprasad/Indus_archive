@@ -98,10 +98,10 @@ public class StmtSwitch
 	public void caseAssignStmt(AssignStmt stmt) {
 		rexpr.process(stmt.getRightOpBox());
 
-		FGNode right = (FGNode)rexpr.getResult();
+		FGNode right = (FGNode) rexpr.getResult();
 		lexpr.process(stmt.getLeftOpBox());
 
-		FGNode left = (FGNode)lexpr.getResult();
+		FGNode left = (FGNode) lexpr.getResult();
 		right.addSucc(left);
 	}
 
@@ -138,10 +138,10 @@ public class StmtSwitch
 	public void caseIdentityStmt(IdentityStmt stmt) {
 		rexpr.process(stmt.getRightOpBox());
 
-		FGNode right = (FGNode)rexpr.getResult();
+		FGNode right = (FGNode) rexpr.getResult();
 		lexpr.process(stmt.getLeftOpBox());
 
-		FGNode left = (FGNode)lexpr.getResult();
+		FGNode left = (FGNode) lexpr.getResult();
 		right.addSucc(left);
 	}
 
@@ -199,7 +199,7 @@ public class StmtSwitch
 	 */
 	public void caseReturnStmt(ReturnStmt stmt) {
 		rexpr.process(stmt.getReturnValueBox());
-		((FGNode)rexpr.getResult()).addSucc(method.queryReturnNode());
+		((FGNode) rexpr.getResult()).addSucc(method.queryReturnNode());
 	}
 
 	/**
@@ -234,7 +234,7 @@ public class StmtSwitch
 	 * @return the new instance of this class.
 	 */
 	public Object prototype(Object o) {
-		return new StmtSwitch((MethodVariant)o);
+		return new StmtSwitch((MethodVariant) o);
 	}
 }
 

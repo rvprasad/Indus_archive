@@ -86,7 +86,7 @@ public class ArrayVariantManager
 	 * @return a new <code>ArrayVariant</code> corresponding to <code>o</code>.
 	 */
 	protected Variant getNewVariant(Object o) {
-		return new ArrayVariant((ArrayType)o, bfa.getNewFGNode());
+		return new ArrayVariant((ArrayType) o, bfa.getNewFGNode());
 	}
 }
 

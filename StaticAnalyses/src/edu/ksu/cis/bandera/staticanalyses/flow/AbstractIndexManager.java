@@ -80,7 +80,7 @@ public abstract class AbstractIndexManager
 	 *
 	 * @return (This method will raise an exception.)
 	 *
-	 * @throws UnsupportedOperationExceptionUnsupportedException </code> if the operation is not supported.
+	 * @throws UnsupportedOperationException if the operation is not supported.
 	 */
 	public Object prototype() {
 		throw new UnsupportedOperationException("prototype() is not supported.");
@@ -95,7 +95,7 @@ public abstract class AbstractIndexManager
 	 *
 	 * @return (This method will raise an exception.)
 	 *
-	 * @throws UnsupportedOperationExceptionUnsupportedException </code> if the operation is not supported.
+	 * @throws UnsupportedOperationException if the operation is not supported.
 	 */
 	public Object prototype(Object o) {
 		throw new UnsupportedOperationException("prototype(Object) is not supported.");
@@ -131,8 +131,8 @@ public abstract class AbstractIndexManager
 		if(!indices.contains(temp)) {
 			indices.add(temp);
 		}
-		 // end of if (sm2indices.containsKey(sm)) else
 
+		// end of if (sm2indices.containsKey(sm)) else
 		return temp;
 	}
 

@@ -50,11 +50,9 @@ import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 /**
- * 
- * The expression visitor used in flow sensitive mode of object flow analysis.
- * 
- * Created: Sun Jan 27 14:29:14 2002
+ * The expression visitor used in flow sensitive mode of object flow analysis.  Created: Sun Jan 27 14:29:14 2002
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -62,16 +60,12 @@ import org.apache.log4j.Logger;
 public class ExprSwitch
   extends edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.ExprSwitch {
 	/**
-	 * 
 	 * An instance of <code>Logger</code> used for logging purpose.
-	 * 
 	 */
 	private static final Logger logger = LogManager.getLogger(ExprSwitch.class);
 
 	/**
-	 * 
 	 * Creates a new <code>ExprSwitch</code> instance.
-	 * 
 	 *
 	 * @param stmt the statement visitor which uses this instance of expression visitor.
 	 * @param connector the connector to be used to connect the ast and non-ast nodes.
@@ -81,9 +75,7 @@ public class ExprSwitch
 	}
 
 	/**
-	 * 
 	 * Handles the array reference expressions.  This calls <code>postProcessBase</code> to finish up processing.
-	 * 
 	 *
 	 * @param e the array ref expression to be processed.
 	 */
@@ -93,9 +85,7 @@ public class ExprSwitch
 	}
 
 	/**
-	 * 
 	 * Handles the instance field reference expressions.  This calls <code>postProcessBase</code> to finish up processing.
-	 * 
 	 *
 	 * @param e the instance field ref expression to be processed.
 	 */
@@ -105,37 +95,34 @@ public class ExprSwitch
 	}
 
 	/**
-	 * 
 	 * Connects the flow graph nodes corresponding to definition of the primary to the use of the primary at the reference
 	 * site.  This method assumes that the primary in a access expression is a local variable.  The idea is that once the
 	 * nodes have been set up for the primary and the identifier, the nodes corresponding to the primary is connected
 	 * according to the mode of operation to instigate flow of values into fields and array components according to the
 	 * mode.
-	 * 
 	 *
 	 * @param e the reference program point to be processed.
 	 */
 	public void postProcessBase(ValueBox e) {
-		Local l = (Local)e.getValue();
+		Local l = (Local) e.getValue();
 		ValueBox backup = context.setProgramPoint(e);
 		FGNode localNode = method.getASTNode(l);
 
 		for(Iterator i = method.getDefsOfAt(l, stmt.getStmt()).iterator(); i.hasNext();) {
-			DefinitionStmt defStmt = (DefinitionStmt)i.next();
+			DefinitionStmt defStmt = (DefinitionStmt) i.next();
 			context.setProgramPoint(defStmt.getLeftOpBox());
 
 			FGNode defNode = method.getASTNode(defStmt.getLeftOp());
 			logger.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
 			defNode.addSucc(localNode);
 		}
-		 // end of for (Iterator i = defs.getDefsOfAt(e, stmt.stmt).iterator(); i.hasNext();)
+
+		// end of for (Iterator i = defs.getDefsOfAt(e, stmt.stmt).iterator(); i.hasNext();)
 		context.setProgramPoint(backup);
 	}
 
 	/**
-	 * 
 	 * Process the expression at the given program point.
-	 * 
 	 *
 	 * @param vb the program point encapsulating the expression to be processed.
 	 */
@@ -146,9 +133,7 @@ public class ExprSwitch
 	}
 
 	/**
-	 * 
 	 * Returns a new instance of this class.
-	 * 
 	 *
 	 * @param o the statement visitor which shall use the created visitor instance.  This is of type
 	 * 		  <code>AbstractStmtSwitch</code>.
@@ -156,7 +141,7 @@ public class ExprSwitch
 	 * @return the new visitor instance.
 	 */
 	public Object prototype(Object o) {
-		return new ExprSwitch((AbstractStmtSwitch)o, connector);
+		return new ExprSwitch((AbstractStmtSwitch) o, connector);
 	}
 }
 

@@ -78,6 +78,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
  * This class controls the post processing for an analysis.  The analysis as realised by BFA is very low-level.  The
  * information is raw.  This needs to be massaged via post processing.  Each post processor can registered interest in
@@ -102,7 +103,7 @@ public class PostProcessingController {
 	protected AbstractAnalyzer analyzer;
 
 	/**
-	 * The collection of post processors registered with this controller.  This maintains the insertion order. 
+	 * The collection of post processors registered with this controller.  This maintains the insertion order.
 	 *
 	 * @invariant processors->forall(o | o.oclType = PostProcessor)
 	 */
@@ -123,28 +124,32 @@ public class PostProcessingController {
 	 */
 	protected final Map class2processors = new HashMap();
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	protected final ValueSwitcher valueSwitcher = new ValueSwitcher();
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	protected final StmtSwitcher stmtSwitcher = new StmtSwitcher(valueSwitcher);
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * <p></p>
 	 *
-	 * TODO : only expression types of interest are handled now.  We need to ensure all expression types are handled. 
-	 * 
-	 * @version $Revision$
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
+	 * @version $Revision$
 	 */
-	private class StmtSwitcher extends AbstractStmtSwitch {
-		/** 
+	private class StmtSwitcher
+	  extends AbstractStmtSwitch {
+		/**
 		 * Processes expressions in the statement.
 		 */
 		private final ValueSwitcher vs;
@@ -271,10 +276,10 @@ public class PostProcessingController {
 		private void defaultCase(Class objClass, Object o) {
 			Collection processors = (Collection) class2processors.get(objClass);
 
-			if (processors != null) {
+			if(processors != null) {
 				Stmt stmt = (Stmt) o;
 
-				for (Iterator i = processors.iterator(); i.hasNext();) {
+				for(Iterator i = processors.iterator(); i.hasNext();) {
 					PostProcessor pp = (PostProcessor) i.next();
 					pp.callback(stmt, context);
 				}
@@ -284,18 +289,41 @@ public class PostProcessingController {
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * <p></p>
 	 *
-	 * @version $Revision$
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
+	 * @version $Revision$
 	 */
-	private class ValueSwitcher extends AbstractJimpleValueSwitch {
+	private class ValueSwitcher
+	  extends AbstractJimpleValueSwitch {
 		/**
 		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
 		 */
 		public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
 			defaultCase(InterfaceInvokeExpr.class, v);
+		}
+
+		/**
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewArrayExpr(ca.mcgill.sable.soot.jimple.NewArrayExpr)
+		 */
+		public void caseNewArrayExpr(NewArrayExpr v) {
+			defaultCase(NewArrayExpr.class, v);
+		}
+
+		/**
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewExpr(ca.mcgill.sable.soot.jimple.NewExpr)
+		 */
+		public void caseNewExpr(NewExpr v) {
+			defaultCase(NewExpr.class, v);
+		}
+
+		/**
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewMultiArrayExpr(ca.mcgill.sable.soot.jimple.NewMultiArrayExpr)
+		 */
+		public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
+			defaultCase(NewMultiArrayExpr.class, v);
 		}
 
 		/**
@@ -329,36 +357,15 @@ public class PostProcessingController {
 		private void defaultCase(Class objClass, Object o) {
 			Collection processors = (Collection) class2processors.get(objClass);
 
-			if (processors != null) {
+			if(processors != null) {
 				Value value = (Value) o;
 
-				for (Iterator i = processors.iterator(); i.hasNext();) {
+				for(Iterator i = processors.iterator(); i.hasNext();) {
 					PostProcessor pp = (PostProcessor) i.next();
 					pp.callback(value, context);
 				}
 			}
 		}
-		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewArrayExpr(ca.mcgill.sable.soot.jimple.NewArrayExpr)
-		 */
-		public void caseNewArrayExpr(NewArrayExpr v) {
-			defaultCase(NewArrayExpr.class, v);
-		}
-
-		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewExpr(ca.mcgill.sable.soot.jimple.NewExpr)
-		 */
-		public void caseNewExpr(NewExpr v) {
-			defaultCase(NewExpr.class, v);
-		}
-
-		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewMultiArrayExpr(ca.mcgill.sable.soot.jimple.NewMultiArrayExpr)
-		 */
-		public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
-			defaultCase(NewMultiArrayExpr.class, v);
-		}
-
 	}
 
 	/**
@@ -374,54 +381,56 @@ public class PostProcessingController {
 	 * Controls the post processing activity.
 	 */
 	public void process() {
-		for (Iterator i = processors.iterator(); i.hasNext();) {
+		for(Iterator i = processors.iterator(); i.hasNext();) {
 			PostProcessor pp = (PostProcessor) i.next();
 			pp.setAnalyzer(analyzer);
 		}
 
 		Collection classes = new HashSet();
 		classes.addAll(analyzer.getClasses());
+
 		Jimple jimple = Jimple.v();
 
-		for (Iterator i = classes.iterator(); i.hasNext();) {
+		for(Iterator i = classes.iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
 			LOGGER.info("Processing class " + sc);
 
-			for (Iterator k = processors.iterator(); k.hasNext();) {
-				PostProcessor pp = (PostProcessor)k.next();
+			for(Iterator k = processors.iterator(); k.hasNext();) {
+				PostProcessor pp = (PostProcessor) k.next();
 				pp.callback(sc);
-				for (ca.mcgill.sable.util.Iterator j = sc.getFields().iterator(); j.hasNext();) {
+
+				for(ca.mcgill.sable.util.Iterator j = sc.getFields().iterator(); j.hasNext();) {
 					SootField field = (SootField) j.next();
 					pp.callback(field);
 				}
 			}
 
-			for (ca.mcgill.sable.util.Iterator j = sc.getMethods().iterator(); j.hasNext();) {
+			for(ca.mcgill.sable.util.Iterator j = sc.getMethods().iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 				context.setRootMethod(sm);
 
-				for (Iterator k = processors.iterator(); k.hasNext();) {
+				for(Iterator k = processors.iterator(); k.hasNext();) {
 					((PostProcessor) k.next()).callback(sm);
 				}
 				LOGGER.info("Processing Method " + sm);
+
 				try {
 					StmtList sl = ((JimpleBody) sm.getBody(jimple)).getStmtList();
 
-					for (ca.mcgill.sable.util.Iterator k = sl.iterator(); k.hasNext();) {
+					for(ca.mcgill.sable.util.Iterator k = sl.iterator(); k.hasNext();) {
 						Stmt stmt = (Stmt) k.next();
 						context.setStmt(stmt);
 						stmt.apply(stmtSwitcher);
 					}
-				} catch (Exception e) {
-					LOGGER.warn(
-						"Well, exception while processing statements of a method may mean the processor does not"
-							+ " recognize the given method or it's parts or method has not stored jimple representation. : "
-							+ sm.getSignature(), e);
+				} catch(Exception e) {
+					LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
+						+ " recognize the given method or it's parts or method has not stored jimple representation. : "
+						+ sm.getSignature(), e);
 				}
 			}
 		}
 
-		for (Iterator i = processors.iterator(); i.hasNext();) {
+		for(Iterator i = processors.iterator(); i.hasNext();) {
 			((PostProcessor) i.next()).consolidate();
 		}
 	}
@@ -437,20 +446,23 @@ public class PostProcessingController {
 	 * @pre interest.oclType = Class
 	 */
 	public void register(Object interest, PostProcessor processor) {
-		if (!(interest instanceof Class)) {
-			throw new IllegalArgumentException("In this PostProcessingController implementation, interest has to be of type java.lang.Class");
+		if(!(interest instanceof Class)) {
+			throw new IllegalArgumentException(
+				"In this PostProcessingController implementation, interest has to be of type java.lang.Class");
 		}
 
 		Class valueClass = (Class) interest;
 		Set temp = (Set) class2processors.get(valueClass);
 
-		if (temp == null) {
+		if(temp == null) {
 			temp = new HashSet();
 			class2processors.put(valueClass, temp);
 		}
 		temp.add(processor);
-		if (!processors.contains(processor))
+
+		if(!processors.contains(processor)) {
 			processors.add(processor);
+		}
 	}
 }
 

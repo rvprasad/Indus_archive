@@ -110,7 +110,7 @@ public abstract class AbstractVariantManager {
 	 * @return the variant correponding to the entity in the given context, if one exists.  <code>null</code> if none exist.
 	 */
 	public final Variant query(Object o, Context context) {
-		return (Variant)index2variant.get(indexManager.getIndex(o, context));
+		return (Variant) index2variant.get(indexManager.getIndex(o, context));
 	}
 
 	/**
@@ -131,14 +131,15 @@ public abstract class AbstractVariantManager {
 			+ index.hashCode());
 
 		if(index2variant.containsKey(index)) {
-			temp = (Variant)index2variant.get(index);
+			temp = (Variant) index2variant.get(index);
 		} // end of if (index2variant.containsKey(index))
 		else if(bfa.analyzer.active) {
 			temp = getNewVariant(o);
 			index2variant.put(index, temp);
 			temp.process();
 		}
-		 // end of if (index2variant.containsKey(index)) else
+
+		// end of if (index2variant.containsKey(index)) else
 		logger.debug("Exiting - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa.analyzer.active);
 
 		return temp;

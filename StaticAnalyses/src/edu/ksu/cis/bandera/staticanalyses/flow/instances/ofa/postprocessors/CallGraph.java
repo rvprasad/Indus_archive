@@ -61,9 +61,9 @@ import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor;
 import edu.ksu.cis.bandera.staticanalyses.support.Marker;
 import edu.ksu.cis.bandera.staticanalyses.support.Node;
 import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph;
+import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.bandera.staticanalyses.support.Triple;
 import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
-import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -126,15 +126,12 @@ public class CallGraph
 	 */
 	private Collection recursionRoots = new HashSet();
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private Collection sccs = new HashSet();
-
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	private SimpleNodeGraph graph;
 
 	/**
 	 * This maps callees to callers.
@@ -156,6 +153,13 @@ public class CallGraph
 	private OFAnalyzer analyzer;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private SimpleNodeGraph graph;
+
+	/**
 	 * Sets the analyzer to be used to calculate call graph information upon call back.
 	 *
 	 * @param analyzer that provides the information to create the call graph.
@@ -175,6 +179,13 @@ public class CallGraph
 		} else {
 			throw new IllegalArgumentException("analyzer has to be of type OFAnalyzer.");
 		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCallGraph()
+	 */
+	public SimpleNodeGraph getCallGraph() {
+		return graph;
 	}
 
 	/**
@@ -223,9 +234,12 @@ public class CallGraph
 
 			for(Iterator i = newExprs.iterator(); i.hasNext();) {
 				Object o = i.next();
-				if (o instanceof NullConstant)
+
+				if(o instanceof NullConstant) {
 					continue;
-				NewExpr expr = (NewExpr)o;
+				}
+
+				NewExpr expr = (NewExpr) o;
 				SootClass sc = analyzer.getEnvironment().getClass(expr.getBaseType().className);
 				result.add(findMethodImplementation(sc, invokeExpr.getMethod()));
 			}
@@ -425,6 +439,7 @@ public class CallGraph
 			}
 
 			context.setProgramPoint(invokeExpr.getBaseBox());
+
 			for(Iterator i = analyzer.getValues(invokeExpr.getBase(), context).iterator(); i.hasNext();) {
 				Object t = i.next();
 
@@ -462,55 +477,66 @@ public class CallGraph
 	 */
 	public void consolidate() {
 		heads.addAll(analyzer.getRoots());
+
 		// calculate reachables.
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
 		wb.addAllWork(heads);
 		reachables.addAll(heads);
+
 		while(!wb.isEmpty()) {
-			SootMethod sm = (SootMethod)wb.getWork();
-			for (Iterator i = getCallees(sm).iterator(); i.hasNext();) {
+			SootMethod sm = (SootMethod) wb.getWork();
+
+			for(Iterator i = getCallees(sm).iterator(); i.hasNext();) {
 				CallTriple ctrp = (CallTriple) i.next();
 				SootMethod callee = ctrp.getMethod();
-				if (reachables.contains(callee))
+
+				if(reachables.contains(callee)) {
 					continue;
+				}
 				wb.addWork(callee);
 				reachables.add(callee);
-			}	
+			}
 		}
+
 		// calculate heads, recursion roots, and cycle information.
 		graph = new SimpleNodeGraph();
+
 		for(Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
 			Collection temp = (Collection) caller2callees.get(sm);
 
 			if(temp != null) {
 				Node callerNode = graph.getNode(sm);
-				
+
 				for(Iterator j = temp.iterator(); j.hasNext();) {
 					CallTriple ctrp = (CallTriple) j.next();
 					SootMethod method = ctrp.getMethod();
 					Node calleeNode = graph.getNode(method);
-					
+
 					graph.addEdgeFromTo(callerNode, calleeNode);
 				}
 			}
 		}
-		
+
 		Collection temp = graph.getCycles();
-		for (Iterator i = temp.iterator(); i.hasNext();) {
+
+		for(Iterator i = temp.iterator(); i.hasNext();) {
 			Collection cycle = (Collection) i.next();
 			java.util.List l = new ArrayList();
-			for (Iterator j = cycle.iterator(); j.hasNext();) {
-				l.add(((SimpleNode)j.next()).object);
+
+			for(Iterator j = cycle.iterator(); j.hasNext();) {
+				l.add(((SimpleNode) j.next()).object);
 			}
 			cycles.add(l);
 		}
 		temp = graph.getSCCs(true);
-		for (Iterator i = temp.iterator(); i.hasNext();) {
+
+		for(Iterator i = temp.iterator(); i.hasNext();) {
 			Collection scc = (Collection) i.next();
 			java.util.List l = new ArrayList();
-			for (Iterator j = scc.iterator(); j.hasNext();) {
-				l.add(((SimpleNode)j.next()).object);
+
+			for(Iterator j = scc.iterator(); j.hasNext();) {
+				l.add(((SimpleNode) j.next()).object);
 			}
 			sccs.add(l);
 		}
@@ -545,22 +571,22 @@ public class CallGraph
 				result.append("\t" + ctrp.getMethod().getSignature() + "\n");
 			}
 		}
-		
+
 		result.append("bottom-up\n");
-		
+
 		for(Iterator i = callee2callers.entrySet().iterator(); i.hasNext();) {
-					Map.Entry entry = (Map.Entry) i.next();
-					SootMethod callee = (SootMethod) entry.getKey();
-					result.append("\n" + callee.getSignature() + "\n");
+			Map.Entry entry = (Map.Entry) i.next();
+			SootMethod callee = (SootMethod) entry.getKey();
+			result.append("\n" + callee.getSignature() + "\n");
 
-					Collection callers = (Collection) entry.getValue();
+			Collection callers = (Collection) entry.getValue();
 
-					for(Iterator j = callers.iterator(); j.hasNext();) {
-						CallTriple ctrp = (CallTriple) j.next();
-						result.append("\t" + ctrp.getMethod().getSignature() + "\n");
-					}
-				}
-		
+			for(Iterator j = callers.iterator(); j.hasNext();) {
+				CallTriple ctrp = (CallTriple) j.next();
+				result.append("\t" + ctrp.getMethod().getSignature() + "\n");
+			}
+		}
+
 		return result.toString();
 	}
 
@@ -613,13 +639,6 @@ public class CallGraph
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCallGraph()
-	 */
-	public SimpleNodeGraph getCallGraph() {
-		return graph;
 	}
 }
 

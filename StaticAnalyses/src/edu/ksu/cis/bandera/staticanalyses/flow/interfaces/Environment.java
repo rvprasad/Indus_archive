@@ -50,7 +50,9 @@ import java.util.Collection;
  * @version $Revision$
  */
 public interface Environment {
-	/** The id of this interface. */
+	/**
+	 * The id of this interface.
+	 */
 	public String NAME = "Environment";
 
 	/**
@@ -59,6 +61,7 @@ public interface Environment {
 	 * @param className the name of the class whose Jimple representation is to be returned.
 	 *
 	 * @return the requested class.
+	 *
 	 * @post result.oclType = ca.mcgill.sable.soot.SootClass
 	 */
 	public SootClass getClass(String className);
@@ -67,6 +70,7 @@ public interface Environment {
 	 * Returns the classes accessed/used by the analyzer.
 	 *
 	 * @return the classes accessed/used by the analyzer.
+	 *
 	 * @post result->forall(o | o.oclType = ca.mcgill.sable.soot.SootClass)
 	 */
 	public Collection getClasses();

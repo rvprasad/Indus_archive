@@ -148,7 +148,8 @@ public abstract class AbstractExprSwitch
 			method = null;
 			bfa = null;
 		}
-		 // end of else
+
+		// end of else
 	}
 
 	/**
@@ -172,7 +173,7 @@ public abstract class AbstractExprSwitch
 	 * @return Returns the current program point.
 	 */
 	public final ValueBox getCurrentProgramPoint() {
-		return (ValueBox)programPoints.peek();
+		return (ValueBox) programPoints.peek();
 	}
 
 	/**
@@ -282,7 +283,7 @@ public abstract class AbstractExprSwitch
 	 * @param o the expression which is not handled by the visitor.
 	 */
 	public void defaultCase(Object o) {
-		setResult(method.getASTNode((Value)o));
+		setResult(method.getASTNode((Value) o));
 		logger.debug(o + " is not handled.");
 	}
 

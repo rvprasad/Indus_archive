@@ -113,12 +113,12 @@ public class FieldAccessExprWork
 	 * </p>
 	 */
 	public synchronized void execute() {
-		SootField sf = ((FieldRef)accessExprBox.getValue()).getField();
+		SootField sf = ((FieldRef) accessExprBox.getValue()).getField();
 		BFA bfa = caller.bfa;
 		logger.debug(values + " values arrived at base node of " + accessExprBox.getValue());
 
 		for(Iterator i = values.iterator(); i.hasNext();) {
-			Value v = (Value)i.next();
+			Value v = (Value) i.next();
 
 			if(v instanceof NullConstant) {
 				continue;

@@ -138,7 +138,7 @@ public class InvokeExprWork
 	 * @param exprSwitch the expression visitor to be used for visiting expressions.
 	 *
 	 * @throws IllegalArgumentException when <code>accessExprBox</code> does not wrap an <code>NonStaticInvokeExpr</code>
-	 * object.
+	 * 		   object.
 	 */
 	public InvokeExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, AbstractExprSwitch exprSwitch) {
 		super(caller, accessExprBox, context);
@@ -146,7 +146,8 @@ public class InvokeExprWork
 		if(!(accessExprBox.getValue() instanceof NonStaticInvokeExpr)) {
 			throw new IllegalArgumentException("accessExprBox has contain a NonStaticInvokeExpr object as value.");
 		}
-		 // end of if (!(accessExprBox.getValue() instanceof NonStaticInvokeExpr))
+
+		// end of if (!(accessExprBox.getValue() instanceof NonStaticInvokeExpr))
 		this.exprSwitch = exprSwitch;
 	}
 
@@ -242,8 +243,8 @@ public class InvokeExprWork
 		 */
 		protected SootMethod getMethod(SootClass sc) {
 			SootMethod temp = null;
-			SootClass decl = Util.getDeclaringClass(sc, calledJavaMethodName, calledJavaMethodParamTypes,
-					calledJavaMethodRetType);
+			SootClass decl =
+				Util.getDeclaringClass(sc, calledJavaMethodName, calledJavaMethodParamTypes, calledJavaMethodRetType);
 			temp = decl.getMethod(calledJavaMethodName, calledJavaMethodParamTypes, calledJavaMethodRetType);
 
 			return temp;
@@ -268,8 +269,8 @@ public class InvokeExprWork
 					&& sm.getParameterTypes().equals(nativeMethodParamTypes)) {
 				temp = true;
 			}
-			 // end of if (sm.getName() == nativeMethodName)
 
+			// end of if (sm.getName() == nativeMethodName)
 			return temp;
 		}
 	}
@@ -282,7 +283,7 @@ public class InvokeExprWork
 	 * </p>
 	 */
 	public synchronized void execute() {
-		NonStaticInvokeExpr e = (NonStaticInvokeExpr)accessExprBox.getValue();
+		NonStaticInvokeExpr e = (NonStaticInvokeExpr) accessExprBox.getValue();
 		SootMethod sm = e.getMethod();
 		BFA bfa = caller.bfa;
 		SootClass sc;
@@ -292,7 +293,7 @@ public class InvokeExprWork
 		ValueBox vb = context.getProgramPoint();
 
 		for(Iterator i = values.iterator(); i.hasNext();) {
-			Value v = (Value)i.next();
+			Value v = (Value) i.next();
 
 			if(v instanceof NullConstant) {
 				continue;
@@ -301,14 +302,15 @@ public class InvokeExprWork
 			if(e instanceof SpecialInvokeExpr) {
 				sc = e.getMethod().getDeclaringClass();
 			} else {
-				sc = bfa.getClass(((RefType)v.getType()).className);
+				sc = bfa.getClass(((RefType) v.getType()).className);
 			}
+
 			// HACK 1: This try wrapper is to address scenarios in which values of incorrect type may flow into invocation
 			// sites as a result of using array types of Object and also as the object flow in array domain is based on array
 			// types rather than array allocation sites.  This needs to be addressed after SAS03.
 			try {
 				sm = MethodVariantManager.findDeclaringMethod(sc, e.getMethod());
-			} catch (IllegalStateException ee) {
+			} catch(IllegalStateException ee) {
 				continue;
 			}
 
@@ -324,7 +326,8 @@ public class InvokeExprWork
 					arg = caller.queryASTNode(e.getArg(j), context);
 					arg.addSucc(param);
 				}
-				 // end of for (int i = 0; i < sm.getArgCount(); i++)
+
+				// end of for (int i = 0; i < sm.getArgCount(); i++)
 				param = mv.queryThisNode();
 				context.setProgramPoint(e.getBaseBox());
 				arg = caller.queryASTNode(e.getBase(), context);
@@ -336,19 +339,20 @@ public class InvokeExprWork
 					param = caller.queryASTNode(e, context);
 					arg.addSucc(param);
 				}
-				 // end of if (isNonVoid(sm))
+
+				// end of if (isNonVoid(sm))
 				installedVariants.add(mv);
 			}
-			 // end of if (!installedVariants.contains(mv))
 
+			// end of if (!installedVariants.contains(mv))
 			for(Iterator j = knownCallChains.iterator(); j.hasNext();) {
-				NativeMethodCall temp = (NativeMethodCall)j.next();
+				NativeMethodCall temp = (NativeMethodCall) j.next();
 				logger.debug("Need to check if " + temp.nativeMethodName + " is same as " + sm.getSignature()
 					+ " declared in " + sm.getDeclaringClass());
 
 				if(temp.isThisTheMethod(sm)) {
 					SootMethod methodToCall = temp.getMethod(scm.getClass(e.getBase().getType().toString()));
-					VirtualInvokeExpr v1 = jimple.newVirtualInvokeExpr((Local)e.getBase(), methodToCall, new VectorList());
+					VirtualInvokeExpr v1 = jimple.newVirtualInvokeExpr((Local) e.getBase(), methodToCall, new VectorList());
 					exprSwitch.process(jimple.newInvokeExprBox(v1));
 					context.setProgramPoint(e.getBaseBox());
 
@@ -357,11 +361,14 @@ public class InvokeExprWork
 					src.addSucc(caller.queryASTNode(v1.getBase(), context));
 					logger.debug("Plugging a call to run method of class" + e.getBase().getType().toString() + ".");
 				}
-				 // end of for (Iterator j = values.iterator(); j.hasNext();)
+
+				// end of for (Iterator j = values.iterator(); j.hasNext();)
 			}
-			 // end of if
+
+			// end of if
 		}
-		 // end of for (Iterator i = knownCallChains.iterator(); i.hasNext();)
+
+		// end of for (Iterator i = knownCallChains.iterator(); i.hasNext();)
 		context.setProgramPoint(vb);
 	}
 

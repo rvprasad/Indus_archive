@@ -495,7 +495,9 @@ public class BFA
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param t DOCUMENT ME!
 	 */
@@ -504,7 +506,9 @@ public class BFA
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param t DOCUMENT ME!
 	 */

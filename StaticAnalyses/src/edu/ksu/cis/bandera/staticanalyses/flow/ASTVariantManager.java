@@ -82,6 +82,7 @@ public class ASTVariantManager
 			InvokeExpr expr = (InvokeExpr) o;
 			SootMethod sm = expr.getMethod();
 			Map exception2node = new HashMap();
+
 			// for an invoke expression the exceptions thrown by the methods at run-time has to be a subset of those thrown 
 			// by the static method mentioned in the invoke expression.  So, it suffices to create nodes for only the 
 			// exception classes mentioned at the invoke expression.

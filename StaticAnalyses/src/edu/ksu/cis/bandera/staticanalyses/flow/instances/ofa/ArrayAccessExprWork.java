@@ -57,11 +57,8 @@ import java.util.Iterator;
 // ArrayAccessExprWork.java
 
 /**
- * 
  * This class is the counter part of <code>FieldAccessExprWork</code>.  It encapsulates the logic to instrument the flow
- * values through array components.
- * 
- * Created: Wed Mar  6 12:31:07 2002.
+ * values through array components.  Created: Wed Mar  6 12:31:07 2002.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -69,31 +66,23 @@ import java.util.Iterator;
 public class ArrayAccessExprWork
   extends AbstractAccessExprWork {
 	/**
-	 * 
 	 * An instance of <code>Logger</code> used for logging purpose.
-	 * 
 	 */
 	private static final Logger logger = LogManager.getLogger(ArrayAccessExprWork.class);
 
 	/**
-	 * 
 	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
 	 * primary.
-	 * 
 	 */
 	protected final FGNode ast;
 
 	/**
-	 * 
 	 * The connector to be used to connect the ast and non-ast node.
-	 * 
 	 */
 	protected final FGNodeConnector connector;
 
 	/**
-	 * 
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
-	 * 
 	 *
 	 * @param caller the method in which the access occurs.
 	 * @param accessExprBox the array access expression program point.
@@ -110,18 +99,16 @@ public class ArrayAccessExprWork
 	}
 
 	/**
-	 * 
 	 * Connects non-ast nodes to ast nodes when new values arrive at the primary of the array access expression.
-	 * 
 	 */
 	public synchronized void execute() {
-		ArrayType atype = (ArrayType)((ArrayRef)accessExprBox.getValue()).getBase().getType();
+		ArrayType atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
 		BFA bfa = caller.bfa;
 		logger.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype + " in "
 			+ context);
 
 		for(Iterator i = values.iterator(); i.hasNext();) {
-			Value v = (Value)i.next();
+			Value v = (Value) i.next();
 
 			if(v instanceof NullConstant) {
 				continue;
@@ -133,7 +120,6 @@ public class ArrayAccessExprWork
 			connector.connect(ast, nonast);
 			logger.debug(nonast + " " + context);
 		}
-
 	}
 }
 

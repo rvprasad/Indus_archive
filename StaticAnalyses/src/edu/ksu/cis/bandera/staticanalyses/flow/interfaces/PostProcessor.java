@@ -87,8 +87,9 @@ public interface PostProcessor {
 	public void callback(Stmt stmt, Context context);
 
 	/**
-	 * This method will be called by the controlling agent for each method for each class in the analyzed system.
-	 * This callback need not be registered.
+	 * This method will be called by the controlling agent for each method for each class in the analyzed system. This
+	 * callback need not be registered.
+	 *
 	 * @param method to be processed.
 	 *
 	 * @pre method != null
@@ -96,15 +97,17 @@ public interface PostProcessor {
 	public void callback(SootMethod method);
 
 	/**
-	 * This method will be called by the controlling agent for each class in the analyzed system.
-	 * This callback need not be registered. 
+	 * This method will be called by the controlling agent for each class in the analyzed system. This callback need not be
+	 * registered.
+	 *
 	 * @param clazz to be processed.
 	 */
 	public void callback(SootClass clazz);
 
 	/**
-	 * This method will be called by the controlling agent for each field in each class in the analyzed system.
-	 * This callback need not be registered. 
+	 * This method will be called by the controlling agent for each field in each class in the analyzed system. This callback
+	 * need not be registered.
+	 *
 	 * @param clazz to be processed.
 	 */
 	public void callback(SootField field);
@@ -114,10 +117,11 @@ public interface PostProcessor {
 	 * called before the post processors are queried for the results of the processing.
 	 */
 	public void consolidate();
-	
+
 	/**
 	 * This method will be called by the application.  The post processor should register it's interest with the controller
 	 * in this method.
+	 *
 	 * @param ppc is the post processing controller.
 	 */
 	public void hookup(PostProcessingController ppc);

@@ -122,7 +122,8 @@ public abstract class AbstractStmtSwitch
 			lexpr = m.bfa.getLHSExpr(this);
 			rexpr = m.bfa.getRHSExpr(this);
 		}
-		 // end of if (m == null) else
+
+		// end of if (m == null) else
 	}
 
 	/**
@@ -155,7 +156,7 @@ public abstract class AbstractStmtSwitch
 	 *
 	 * @return (This method will raise an exception.)
 	 *
-	 * @throws UnsupportedOperationExceptionUnsupportedOperationException as the operation is not supported.
+	 * @throws UnsupportedOperationException as the operation is not supported.
 	 */
 	public Object prototype() {
 		throw new UnsupportedOperationException("prototype() is not supported.");
@@ -170,7 +171,7 @@ public abstract class AbstractStmtSwitch
 	 *
 	 * @return (This method will raise an exception.)
 	 *
-	 * @throws UnsupportedOperationExceptionUnsupportedOperationException as the operation is not supported.
+	 * @throws UnsupportedOperationException as the operation is not supported.
 	 */
 	public Object prototype(Object o) {
 		throw new UnsupportedOperationException("prototype(Object) is not supported.");

@@ -102,7 +102,7 @@ public abstract class AbstractAccessExprWork
 	 * @param context the context in which the access occurs.
 	 */
 	protected AbstractAccessExprWork(MethodVariant caller, ValueBox accessExprBox, Context context) {
-		this(null, new ArrayList(), caller, accessExprBox, (Context)context.clone());
+		this(null, new ArrayList(), caller, accessExprBox, (Context) context.clone());
 	}
 
 	/**
@@ -122,7 +122,7 @@ public abstract class AbstractAccessExprWork
 		super(node, values);
 		this.accessExprBox = accessExprBox;
 		this.caller = caller;
-		this.context = (AllocationContext)context.clone();
+		this.context = (AllocationContext) context.clone();
 	}
 }
 

@@ -106,6 +106,33 @@ public class ClassManager
 
 	/**
 	 * <p>
+	 * Creates a concrete object of the same class as this object but parameterized by <code>o</code>.
+	 * </p>
+	 *
+	 * @param o the instance of the analysis for which this object shall process information.  The actual type of
+	 * 		  <code>o</code> needs to be <code>BFA</code>.  This cannot be <code>null</code>.
+	 *
+	 * @return an instance of <code>ClassManager</code> object parameterized by <code>o</code>.
+	 */
+	public Object prototype(Object o) {
+		return new ClassManager((BFA) o);
+	}
+
+	/**
+	 * <p>
+	 * This method is not supported by this class.
+	 * </p>
+	 *
+	 * @return (This method raises an exception.)
+	 *
+	 * @throws UnsupportedOperationException this method is not supported by this class.
+	 */
+	public Object prototype() {
+		throw new UnsupportedOperationException("Parameterless prototype() method not supported.");
+	}
+
+	/**
+	 * <p>
 	 * Processes the given class for assimilating class related primitive information into the analysis.  This implementation
 	 * hooks in the class initialization method into the analysis.
 	 * </p>
@@ -120,8 +147,8 @@ public class ClassManager
 				context.setRootMethod(sc.getMethod("<clinit>"));
 				bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
 			}
-			 // end of if (sc.declaresMethod("<clinit>"))
 
+			// end of if (sc.declaresMethod("<clinit>"))
 			while(sc.hasSuperClass()) {
 				sc = sc.getSuperClass();
 
@@ -129,38 +156,14 @@ public class ClassManager
 					context.setRootMethod(sc.getMethod("<clinit>"));
 					bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
 				}
-				 // end of if (sc.declaresMethod("<clinit>"))
+
+				// end of if (sc.declaresMethod("<clinit>"))
 			}
-			 // end of while (sc.hasSuperClass())
+
+			// end of while (sc.hasSuperClass())
 		}
-		 // end of if (!classes.contains(sc))
-	}
 
-	/**
-	 * <p>
-	 * Creates a concrete object of the same class as this object but parameterized by <code>o</code>.
-	 * </p>
-	 *
-	 * @param o the instance of the analysis for which this object shall process information.  The actual type of
-	 * 		  <code>o</code> needs to be <code>BFA</code>.  This cannot be <code>null</code>.
-	 *
-	 * @return an instance of <code>ClassManager</code> object parameterized by <code>o</code>.
-	 */
-	public Object prototype(Object o) {
-		return new ClassManager((BFA)o);
-	}
-
-	/**
-	 * <p>
-	 * This method is not supported by this class.
-	 * </p>
-	 *
-	 * @return (This method raises an exception.)
-	 *
-	 * @throws UnsupportedOperationExceptionUnsupportedOperationException </code> this method is not supported by this class.
-	 */
-	public Object prototype() {
-		throw new UnsupportedOperationException("Parameterless prototype() method not supported.");
+		// end of if (!classes.contains(sc))
 	}
 
 	/**

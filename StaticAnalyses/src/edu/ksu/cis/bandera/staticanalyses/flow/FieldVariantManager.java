@@ -89,7 +89,7 @@ public class FieldVariantManager
 	 * @return the variant associated with the field represetned by <code>o</code>.
 	 */
 	protected Variant getNewVariant(Object o) {
-		return new FieldVariant((SootField)o, bfa.getNewFGNode());
+		return new FieldVariant((SootField) o, bfa.getNewFGNode());
 	}
 }
 

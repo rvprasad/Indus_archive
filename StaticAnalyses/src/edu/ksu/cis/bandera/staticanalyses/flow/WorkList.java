@@ -93,11 +93,12 @@ public class WorkList
 	 */
 	void process() {
 		while(!isEmpty()) {
-			AbstractWork w = (AbstractWork)getWork();
+			AbstractWork w = (AbstractWork) getWork();
 			logger.debug("Processing work:" + w);
 			w.execute();
 		}
-		 // end of while (!list.isEmpty())
+
+		// end of while (!list.isEmpty())
 	}
 }
 

@@ -174,7 +174,7 @@ public class ModeFactory {
 	 * @return an index manager related to AST nodes.
 	 */
 	public final AbstractIndexManager getASTIndexManager() {
-		return (AbstractIndexManager)astIndexManagerPrototype.prototype();
+		return (AbstractIndexManager) astIndexManagerPrototype.prototype();
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class ModeFactory {
 	 * @return an index manager related to arrays.
 	 */
 	public final AbstractIndexManager getArrayIndexManager() {
-		return (AbstractIndexManager)arrayIndexManagerPrototype.prototype();
+		return (AbstractIndexManager) arrayIndexManagerPrototype.prototype();
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class ModeFactory {
 	 * @return a <code>ClassManager</code> object parameterized by <code>o</code>.
 	 */
 	public final ClassManager getClassManager(Object o) {
-		return (ClassManager)classManagerPrototype.prototype(o);
+		return (ClassManager) classManagerPrototype.prototype(o);
 	}
 
 	/**
@@ -212,7 +212,7 @@ public class ModeFactory {
 	 * @return a flow graph node parameterized by <code>o</code>.
 	 */
 	public final AbstractFGNode getFGNode(Object o) {
-		return (AbstractFGNode)nodePrototype.prototype(o);
+		return (AbstractFGNode) nodePrototype.prototype(o);
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class ModeFactory {
 	 * @return an index manager related to instance field variables.
 	 */
 	public final AbstractIndexManager getInstanceFieldIndexManager() {
-		return (AbstractIndexManager)instanceFieldIndexManagerPrototype.prototype();
+		return (AbstractIndexManager) instanceFieldIndexManagerPrototype.prototype();
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class ModeFactory {
 	 * @return a LHS expression visitor parameterizec by <code>s</code>.
 	 */
 	public final AbstractExprSwitch getLHSExpr(AbstractStmtSwitch s) {
-		return (AbstractExprSwitch)lhsExprPrototype.prototype(s);
+		return (AbstractExprSwitch) lhsExprPrototype.prototype(s);
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class ModeFactory {
 	 * @return an index manager related to methods.
 	 */
 	public final AbstractIndexManager getMethodIndexManager() {
-		return (AbstractIndexManager)methodIndexManagerPrototype.prototype();
+		return (AbstractIndexManager) methodIndexManagerPrototype.prototype();
 	}
 
 	/**
@@ -260,7 +260,7 @@ public class ModeFactory {
 	 * @return a LHS expression visitor parameterizec by <code>s</code>.
 	 */
 	public final AbstractExprSwitch getRHSExpr(AbstractStmtSwitch s) {
-		return (AbstractExprSwitch)rhsExprPrototype.prototype(s);
+		return (AbstractExprSwitch) rhsExprPrototype.prototype(s);
 	}
 
 	/**
@@ -271,7 +271,7 @@ public class ModeFactory {
 	 * @return an index manager related to static field variables.
 	 */
 	public final AbstractIndexManager getStaticFieldIndexManager() {
-		return (AbstractIndexManager)staticFieldIndexManagerPrototype.prototype();
+		return (AbstractIndexManager) staticFieldIndexManagerPrototype.prototype();
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class ModeFactory {
 	 * @return a LHS expression visitor parameterizec by <code>m</code>.
 	 */
 	public final AbstractStmtSwitch getStmt(MethodVariant m) {
-		return (AbstractStmtSwitch)stmtPrototype.prototype(m);
+		return (AbstractStmtSwitch) stmtPrototype.prototype(m);
 	}
 }
 

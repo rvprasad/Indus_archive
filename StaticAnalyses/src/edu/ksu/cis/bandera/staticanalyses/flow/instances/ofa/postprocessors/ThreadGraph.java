@@ -159,6 +159,10 @@ public class ThreadGraph
 	 * Please refer to class documentation for important information.
 	 * </p>
 	 *
+	 * @param sm DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 *
 	 * @post result->forall(o | o.getExpr().getType().className.indexOf("MainThread") == 0 implies (o.getStmt() = null and
 	 * 		 o.getSootMethod() = null))
 	 *

@@ -101,8 +101,7 @@ public class MethodVariantManager
 	 *
 	 * @return the <code>SootMethod</code> corresponding to the implementation of <code>sm</code>.
 	 *
-	 * @throws IllegalStateExceptionIllegalStateException </code> if <code>sm</code> is not available in the given branch of
-	 * 		   the class hierarchy.
+	 * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
 	 */
 	public static SootMethod findDeclaringMethod(SootClass sc, SootMethod sm) {
 		logger.debug(sc + "." + sm.getName());
@@ -116,7 +115,8 @@ public class MethodVariantManager
 		} else {
 			throw new IllegalStateException("Method " + sm + " not available in class" + sc + ".");
 		}
-		 // end of else
+
+		// end of else
 	}
 
 	/**
@@ -130,8 +130,8 @@ public class MethodVariantManager
 	 * @return the new <code>MethodVariant</code> corresponding to method <code>o</code>.
 	 */
 	protected Variant getNewVariant(Object o) {
-		return new MethodVariant((SootMethod)o,
-			new ASTVariantManager(bfa, (AbstractIndexManager)astIndexManager.prototype()), bfa);
+		return new MethodVariant((SootMethod) o,
+			new ASTVariantManager(bfa, (AbstractIndexManager) astIndexManager.prototype()), bfa);
 	}
 }
 

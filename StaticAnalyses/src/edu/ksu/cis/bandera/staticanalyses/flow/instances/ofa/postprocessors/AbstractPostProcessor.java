@@ -50,9 +50,9 @@ import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor;
 /**
  * Abstract implementation of post processor.
  *
- * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public abstract class AbstractPostProcessor
   implements PostProcessor {
@@ -97,10 +97,10 @@ public abstract class AbstractPostProcessor
 	 */
 	public void callback(SootClass clazz) {
 	}
-	
+
 	/**
 	 * Does nothing.
-	 * 
+	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(SootField)
 	 */
 	public void callback(SootField field) {

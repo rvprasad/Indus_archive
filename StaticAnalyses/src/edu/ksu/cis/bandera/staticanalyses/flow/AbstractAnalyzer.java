@@ -78,8 +78,10 @@ public abstract class AbstractAnalyzer {
 	 */
 	protected BFA bfa;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	protected Collection rootMethods;
 
@@ -150,7 +152,9 @@ public abstract class AbstractAnalyzer {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */

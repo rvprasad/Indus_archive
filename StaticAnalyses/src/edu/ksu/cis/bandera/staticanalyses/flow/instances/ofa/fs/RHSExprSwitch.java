@@ -49,6 +49,7 @@ import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 /**
  * This is the RHS expression visitor.  It provides implementation to handle locals on RHS in flow sensitive mode. Created:
  * Sun Jan 27 14:29:14 2002
