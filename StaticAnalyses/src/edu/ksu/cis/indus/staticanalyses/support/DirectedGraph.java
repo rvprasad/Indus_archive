@@ -309,8 +309,7 @@ public abstract class DirectedGraph {
 	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
 	 * 		  indicates bottom-up.
 	 *
-	 * @return a collection of <code>List</code> of <code>INode</code>s that form SCCs in this graph. NOTE: It is possible to
-	 * 		   reach nodes not in the SCC but in this graph by following edges in reverse direction.
+	 * @return a collection of <code>List</code> of <code>INode</code>s that form SCCs in this graph.
 	 *
 	 * @post result != null and result.isOclKindOf(Collection(Sequence(INode)))
 	 */
@@ -515,6 +514,9 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/01 20:57:11  venku
+   - Deleted getForwardSuccsOf().
+
    Revision 1.4  2003/08/24 12:04:32  venku
    Removed occursInCycle() method from DirectedGraph.
    Installed occursInCycle() method in CFGAnalysis.
