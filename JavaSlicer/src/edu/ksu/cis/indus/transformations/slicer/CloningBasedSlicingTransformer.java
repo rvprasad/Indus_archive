@@ -37,9 +37,13 @@ package edu.ksu.cis.bandera.slicer;
 
 import ca.mcgill.sable.soot.SootMethod;
 
+import ca.mcgill.sable.soot.jimple.Jimple;
+import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.Stmt;
+import ca.mcgill.sable.soot.jimple.StmtList;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -51,24 +55,21 @@ import java.util.Map;
  * @version $Revision$
  */
 public class SliceMap {
-	
 	/**
 	 * This maps statements in unsliced methods to their counterparts in the sliced version of the methods.
 	 *
-	 * @invariant method2stmtMap.keySet().oclIsKindOf(java.util.Set)
-	 * @invariant method2stmtMap.keySet()->forAll( o | o.oclType = ca.mcgill.sable.soot.SootMethod)
-	 * @invariant method2stmtMap.keySet()->forAll( o | o.oclType = ca.mcgill.sable.soot.jimple.Stmt)
+	 * @invariant method2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
+	 * @invariant method2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
 	 */
 	private Map method2stmtMap = new HashMap();
 
 	/**
-	 * This maps statements in unsliced methods to their counterparts in the sliced version of the methods.
+	 * This maps statements in slice methods to their counterparts in the sliced version of the methods.
 	 *
-	 * @invariant slicedMethod2stmtMap.keySet().oclIsKindOf(java.util.Set)
-	 * @invariant slicedMethod2stmtMap.keySet()->forAll( o | o.oclType = ca.mcgill.sable.soot.SootMethod)
-	 * @invariant slicedMethod2stmtMap.keySet()->forAll( o | o.oclType = ca.mcgill.sable.soot.jimple.Stmt
+	 * @invariant sliceMethod2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
+	 * @invariant sliceMethod2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
 	 */
-	private Map slicedMethod2stmtMap = new HashMap();
+	private Map sliceMethod2stmtMap = new HashMap();
 
 	/**
 	 * <p>
@@ -116,12 +117,38 @@ public class SliceMap {
 	 */
 	public Stmt getStmt(Stmt sliceStmt, SootMethod method) {
 		Stmt result = null;
-		Map stmtMap = (Map) slicedMethod2stmtMap.get(method);
+		Map stmtMap = (Map) sliceMethod2stmtMap.get(method);
 
 		if(stmtMap != null) {
 			result = (Stmt) stmtMap.get(sliceStmt);
 		}
 		return result;
+	}
+
+	/**
+	 * Correct invalid mappings.  Mappings may be invalidated when transformations external to slicer are applied to 
+	 * the slice.  This methods detects such mappings and corrects them.
+	 */
+	protected void cleanup() {
+		for (Iterator i = sliceMethod2stmtMap.keySet().iterator(); i.hasNext();) {
+			SootMethod method = (SootMethod) i.next();
+			SootMethod sliceMethod = slicer.getCloneOf(method);
+			if (sliceMethod == null) {
+				method2stmtMap.put(method, null);
+			} else {
+				Map sliced = (Map)method2stmtMap.get(method);
+				Map slice = (Map)sliceMethod2stmtMap.get(sliceMethod);
+				StmtList slicedSl = ((JimpleBody)method.getBody(Jimple.v())).getStmtList();
+				StmtList sliceSl = ((JimpleBody)sliceMethod.getBody(Jimple.v())).getStmtList();
+				for (ca.mcgill.sable.util.Iterator j = slicedSl.iterator(); j.hasNext();) {
+					Stmt stmt = (Stmt) j.next();
+					if (!sliceSl.contains(sliced.get(stmt))) {
+						slice.remove(sliced.get(stmt));
+						sliced.remove(stmt);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -139,7 +166,7 @@ public class SliceMap {
 		if(stmtMap != null) {
 			stmtMap.put(stmt, sliceStmt);
 		}
-		stmtMap = (Map) slicedMethod2stmtMap.get(slicer.getCloneOf(unslicedMethod));
+		stmtMap = (Map) sliceMethod2stmtMap.get(slicer.getCloneOf(unslicedMethod));
 
 		if(stmtMap != null) {
 			stmtMap.put(sliceStmt, stmt);
@@ -151,8 +178,5 @@ public class SliceMap {
  ChangeLog:
 
 $Log$
-Revision 1.1.1.1  2003/02/17 23:59:51  venku
-Placing JavaSlicer under version control.
-
 
 *****/
