@@ -23,7 +23,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
@@ -70,6 +69,9 @@ import org.eclipse.swt.widgets.Shell;
 
 import soot.Printer;
 import soot.SootClass;
+import soot.SootMethod;
+
+import soot.tagkit.Tag;
 
 
 /**
@@ -480,6 +482,23 @@ public class SliceXMLizer
 				try {
 					final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
 					_writer = new PrintWriter(new FileWriter(_file));
+
+					for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+						final SootMethod _sm = (SootMethod) _j.next();
+
+						// REMOVE: begin
+						if (LOGGER.isDebugEnabled()) {
+							final StringBuffer _sb = new StringBuffer();
+							_sb.append("Method: " + _sm + "   " + _sm.isConcrete() + "\nTags:");
+
+							for (final Iterator _k = _sm.getTags().iterator(); _k.hasNext();) {
+								_sb.append("\t" + ((Tag) _k.next()).getName() + "\n");
+							}
+							LOGGER.debug(_sb.toString());
+						}
+
+						// REMOVE: end
+					}
 					_printer.printTo(_sc, _writer);
 					_printer.write(_sc, outputDirectory);
 				} catch (IOException _e) {
@@ -536,6 +555,10 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/09 07:02:11  venku
+   - Made -o mandatory in SliceDriver.
+   - all information is dumped into directory specified via -o.
+   - Renamed SliceDriver to SliceXMLizer.
    Revision 1.31  2003/12/27 20:07:45  venku
    - fixed xmlizers/driver to not throw exception
      when -h is specified
