@@ -216,11 +216,15 @@ public class PEQView extends ViewPart implements IDeltaListener  {
                                 _resultMap = _tp.getParent().getMapping();
                             }
                             if (_resultMap != null) {
-                                tvRight.setInput(_resultMap);
+                                tvRight.setInput(_resultMap);                                
                             }
                             else {
                                 tvRight.setInput("");
                             }
+                            final Table _table = tvRight.getTable();
+                            for (int i = 0; i < _table.getColumnCount(); i++) {
+                            	_table.getColumn(i).pack();					
+            				}
                         }
                         
                     }
@@ -240,6 +244,7 @@ public class PEQView extends ViewPart implements IDeltaListener  {
      * @param manager
      */
     private void fillToolBar(IToolBarManager manager) {
+    	    	
         final IAction _actSwitch = new Action() {
           public void run() {
               if (isReady) {
@@ -269,6 +274,21 @@ public class PEQView extends ViewPart implements IDeltaListener  {
                 "data/icons/trackView.gif");
         _actSwitch.setImageDescriptor(_swdesc);
         manager.add(_actSwitch);
+        
+        final IAction _addQuery = new Action() {
+    		public void run() {
+    			cmbQuery.add("query default {<> <> }; ");
+				cmbQuery.select(cmbQuery.getItemCount() - 1);
+    		}
+    	};
+    	_addQuery.setToolTipText("Add a query");
+    	final ImageDescriptor _addqdesc = AbstractUIPlugin
+        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+        "data/icons/addQuery.gif");
+    	_addQuery.setImageDescriptor(_addqdesc);
+    	manager.add(_addQuery);
+
+       
         
         final IAction _actQuery = new Action() {            
             public void run() {
@@ -327,6 +347,10 @@ public class PEQView extends ViewPart implements IDeltaListener  {
                                       public void run() {
                                           tvLeft.setInput(queryResults);
                                           tvRight.setInput("");
+                                          final Table _table = tvRight.getTable();
+                                          for (int i = 0; i < _table.getColumnCount(); i++) {
+                                          	_table.getColumn(i).pack();					
+                          				}
                                       }
                                   });
                               }
@@ -358,16 +382,16 @@ public class PEQView extends ViewPart implements IDeltaListener  {
                 if (cachedPSD.getStmtList() != null && cachedPSD.getSelectedStatement() != null
                         && cachedPSD.getStmtList().size() > 2 ) {
                     txtStatement.setText(cachedPSD.getSelectedStatement());
-                    if (cmbQuery.indexOf("") != -1) {
-                        cmbQuery.select(cmbQuery.indexOf(""));
-                    } else {
-                        cmbQuery.add("");
-                    }
+                    
                     // Reset the table.
                 }
                 queryResults = Collections.EMPTY_LIST;
                 tvLeft.setInput(queryResults);
                 tvRight.setInput("");
+                final Table _table = tvRight.getTable();
+                for (int i = 0; i < _table.getColumnCount(); i++) {
+                	_table.getColumn(i).pack();					
+				}
                 }
             }
         };
