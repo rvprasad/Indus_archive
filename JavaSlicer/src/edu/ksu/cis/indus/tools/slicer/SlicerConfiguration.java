@@ -213,7 +213,7 @@ public final class SlicerConfiguration
 	 *
 	 * @return the dependency analyses identified by <code>id</code>.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(AbstractDependencyAnalysis))
+	 * @post result != null and result.oclIsKindOf(Collection(IDependencyAnalysis))
 	 */
 	public Collection getDependenceAnalysis(final Object id) {
 		Collection _result = (Collection) id2dependencyAnalyses.get(id);
@@ -238,7 +238,7 @@ public final class SlicerConfiguration
 	 *
 	 * @return a collection of id of the dependence analyses.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(String))
+	 * @post result != null and result.oclIsKindOf(Collection(Object))
 	 */
 	public Collection getIDsOfDAsToUse() {
 		return Collections.unmodifiableCollection(dependencesToUse);
@@ -828,6 +828,10 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/06/24 07:05:44  venku
+   - addressed feature request 391.
+     - made getIDOfDAToUse() and getDependencyAnalyses() public.
+
    Revision 1.38  2004/06/24 06:53:53  venku
    - refactored SliceConfiguration
      - added processBooleanProperty()
