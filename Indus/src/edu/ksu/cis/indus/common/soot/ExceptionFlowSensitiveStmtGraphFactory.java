@@ -38,24 +38,24 @@ import soot.toolkits.graph.UnitGraph;
  */
 public class ExceptionFlowSensitiveStmtGraphFactory
   extends AbstractStmtGraphFactory {
-	/**
+	/** 
 	 * The collection of exception names that are relevant while dealing with synchronization constructs.
 	 */
 	public static final Collection SYNC_RELATED_EXCEPTIONS = Collections.singleton("java.lang.Throwable");
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ExceptionFlowSensitiveStmtGraphFactory.class);
 
-	/**
+	/** 
 	 * The names of the exceptions via which the control flow should be ignored.
 	 *
 	 * @invariant exceptionToIgnore.oclIsKindOf(Collection(String))
 	 */
 	private Collection exceptionsToIgnore = new ArrayList();
 
-	/**
+	/** 
 	 * This flag indicates if the unit graph should be like complete unit graph or like trap unit graph in terms considering
 	 * control from the statement before the try block.
 	 */
@@ -64,12 +64,14 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	/**
 	 * Creates a new ExceptionFlowSensitiveStmtGraphFactory object.
 	 *
-	 * @param namesOfExceptionToIgnore are the names of the exceptions that determine the control edges to be ignored.
+	 * @param namesOfExceptionToIgnore are the fully qualified names of the exceptions that determine the control edges to be
+	 * 		  ignored.
 	 * @param dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock <code>true</code> indicates if the edge from the unit
 	 * 		  before the unit that begins the trap protected region to the handler unit should be omitted;
 	 * 		  <code>false</code>, otherwise.
 	 *
-	 * @pre namesOfExceptionToIgnore != null
+	 * @pre namesOfExceptionToIgnore != null and namesOfExceptionToIgnore.oclIsKindOf(Collection(String))
+	 * @pre namesOfExceptionToIgnore->forall(o | ClassLoader.getSystemClassLoader().loadClass(o) != null)
 	 */
 	public ExceptionFlowSensitiveStmtGraphFactory(final Collection namesOfExceptionToIgnore,
 		final boolean dontAddEdgeFromStmtBeforeAreaOfProtectionToCatchBlock) {
@@ -110,6 +112,11 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/06/14 08:39:29  venku
+   - added a property to SootBasedDriver to control the type of statement graph
+     factory to be used.
+   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
+   - ripple effect.
    Revision 1.6  2004/06/12 20:42:21  venku
    - renaming of methods.
    Revision 1.5  2004/05/28 21:41:58  venku
