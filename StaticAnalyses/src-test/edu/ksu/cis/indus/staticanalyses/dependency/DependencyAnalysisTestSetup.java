@@ -170,7 +170,22 @@ public class DependencyAnalysisTestSetup
 		ecba = null;
 		info.clear();
 		info = null;
+
 		// teardown the dependency analysis
+		for (final Iterator _i =
+				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IDependencyAnalysisTest.class).iterator();
+			  _i.hasNext();) {
+			final IDependencyAnalysisTest _test = (IDependencyAnalysisTest) _i.next();
+			_test.getDA().reset();
+		}
+
+		for (final Iterator _i =
+				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedDependencyAnalysisTest.class)
+							.iterator(); _i.hasNext();) {
+			final XMLBasedDependencyAnalysisTest _test = (XMLBasedDependencyAnalysisTest) _i.next();
+			_test.setCallGraph(null);
+		}
+
 		super.tearDown();
 	}
 
@@ -223,6 +238,8 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/18 00:17:20  venku
+   - added support to dump jimple.xml while testing. (bug fix)
    Revision 1.5  2004/04/01 19:18:29  venku
    - stmtGraphFactory was not set.
    Revision 1.4  2004/03/29 09:44:41  venku

@@ -35,7 +35,7 @@ import junit.framework.TestSuite;
 public class AbstractXMLBasedTestSetup
   extends TestSetup
   implements IXMLBasedTest {
-	/** 
+	/**
 	 * The statement graph (CFG) factory used during testing.
 	 */
 	private IStmtGraphFactory stmtGraphFactory;
@@ -58,26 +58,12 @@ public class AbstractXMLBasedTestSetup
 	}
 
 	/**
-	 * @see IXMLBasedTest#setXMLControlDir(String)
-	 */
-	public void setXMLControlDir(final String xmlInDir) {
-		xmlFirstInputDir = xmlInDir;
-	}
-
-	/**
 	 * Retrieves the directory from which one of the xml-based testing input is read from.
 	 *
 	 * @return directory in which one of the xml-based testing input is read from.
 	 */
 	public String getFirstXmlInputDir() {
 		return xmlFirstInputDir;
-	}
-
-	/**
-	 * @see IXMLBasedTest#setXMLTestDir(String)
-	 */
-	public void setXMLTestDir(final String xmlInDir) {
-		xmlSecondInputDir = xmlInDir;
 	}
 
 	/**
@@ -90,21 +76,35 @@ public class AbstractXMLBasedTestSetup
 	}
 
 	/**
-     * Sets the CFG factory to be used during testing.
-     *
-     * @param cfgFactory is the factory to be used.
-     */
+	 * Sets the CFG factory to be used during testing.
+	 *
+	 * @param cfgFactory is the factory to be used.
+	 */
 	public void setStmtGraphFactory(final IStmtGraphFactory cfgFactory) {
 		stmtGraphFactory = cfgFactory;
 	}
 
 	/**
 	 * Retrieves the CFG factory used during testing.
-     *
-     * @param cfgFactory is the factory being used.
+	 *
+	 * @return DOCUMENT ME!
 	 */
 	public IStmtGraphFactory getStmtGraphFactory() {
 		return stmtGraphFactory;
+	}
+
+	/**
+	 * @see IXMLBasedTest#setXMLControlDir(String)
+	 */
+	public void setXMLControlDir(final String xmlInDir) {
+		xmlFirstInputDir = xmlInDir;
+	}
+
+	/**
+	 * @see IXMLBasedTest#setXMLTestDir(String)
+	 */
+	public void setXMLTestDir(final String xmlInDir) {
+		xmlSecondInputDir = xmlInDir;
 	}
 
 	/**
@@ -121,11 +121,22 @@ public class AbstractXMLBasedTestSetup
 			_tester.setStmtGraphFactory(stmtGraphFactory);
 		}
 	}
+
+	/**
+	 * @see junit.extensions.TestSetup#tearDown()
+	 */
+	protected void tearDown()
+	  throws Exception {
+		System.gc();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/17 22:07:37  venku
+   - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
+   - ripple effect in interfaces, classes, and property files.
    Revision 1.6  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -134,7 +145,6 @@ public class AbstractXMLBasedTestSetup
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.5  2004/03/05 11:59:40  venku
    - documentation.
    Revision 1.4  2004/02/14 23:16:49  venku
