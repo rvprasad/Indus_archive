@@ -216,19 +216,37 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Updates jimple destructively.
+	 * Dump xmlized jimple
 	 */
-	void destructivelyUpdateJimple() {
-		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
-		_residualizer.setTagToResidualize(nameOfSliceTag);
-		_residualizer.residualizeSystem(scene);
+	void dumpJimpleAsXML() {
+		final IXMLizer _xmlizer = getXMLizer();
+
+		if (jimpleXMLDumpDir != null) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: Dumping XMLized Jimple");
+			}
+
+			final ProcessingController _ctrl = new ProcessingController();
+			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
+			_ctrl.setEnvironment(new Environment(scene));
+
+			final IProcessingFilter _filter = new CGBasedXMLizingProcessingFilter(slicer.getCallGraph());
+			_filter.chain(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
+			_ctrl.setProcessingFilter(_filter);
+			((AbstractXMLizer) _xmlizer).dumpJimple("", jimpleXMLDumpDir, _ctrl);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: Dumping XMLized Jimple");
+			}
+		}
 	}
 
 	/**
 	 * Write the slice as XML document.
 	 */
 	void writeXML() {
-	    dumpJimple();
+		dumpJimpleAsXML();
+
 		final IXMLizer _xmlizer = getXMLizer();
 
 		// serialize the output of the slicer
@@ -240,31 +258,19 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-     * Dump xmlized jimple
-     */
-    void dumpJimple() {
-        final IXMLizer _xmlizer = getXMLizer();
-
-		if (jimpleXMLDumpDir != null) {
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("BEGIN: Dumping XMLized Jimple");
-			}
-
-			final ProcessingController _ctrl = new ProcessingController();
-			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
-			_ctrl.setEnvironment(new Environment(scene));
-			final IProcessingFilter _filter = new CGBasedXMLizingProcessingFilter(slicer.getCallGraph());
-			_filter.chain(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
-			_ctrl.setProcessingFilter(_filter);
-			((AbstractXMLizer) _xmlizer).dumpJimple("", jimpleXMLDumpDir, _ctrl);
-
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("END: Dumping XMLized Jimple");
-			}
+	 * Updates jimple destructively.
+	 */
+	private void destructivelyUpdateJimple() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Residualizing");
 		}
-    }
 
-    /**
+		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+		_residualizer.setTagToResidualize(nameOfSliceTag);
+		_residualizer.residualizeSystem(scene);
+	}
+
+	/**
 	 * Parses the command line argument.
 	 *
 	 * @param args contains the command line arguments.
@@ -467,7 +473,7 @@ public class SliceXMLizerCLI
 	 */
 	private void residualize() {
 		destructivelyUpdateJimple();
-	    
+
 		final Printer _printer = Printer.v();
 
 		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
@@ -548,19 +554,19 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/05/10 12:07:45  venku
+   - on thinking it seems better to dump jimple as a post-slice artifact as
+     it is possible to generate the jimple for the original files rather easily.
    Revision 1.29  2004/05/10 09:40:16  venku
    - changed the way jimple is dumped.
-
    Revision 1.28  2004/05/10 08:12:03  venku
    - streamlined the names of tags that are used.
    - deleted SlicingTag class.  NamedTag is used instead.
    - ripple effect.
    - SliceCriteriaFactory's interface is enhanced to generate individual
      slice criterion as well as criteria set for all nodes in the given AST chunk.
-
    Revision 1.27  2004/05/09 11:09:46  venku
    - the client can now specify the statement graph factory to use during slicing.
-
    Revision 1.26  2004/05/09 11:01:14  venku
    - slice can be seen easily if the user just sees the slice.  So, there
      is no point in having -d option.  Hence, it was removed.
