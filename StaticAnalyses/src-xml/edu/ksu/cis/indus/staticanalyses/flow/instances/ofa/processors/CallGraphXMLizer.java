@@ -70,6 +70,7 @@ final class CallGraphXMLizer
 	 * @pre rootname != null and info != null
 	 * @pre info.oclIsKindOf(Map(Object, Object))
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
+	 * @pre info.get(FILE_NAME_ID) != null and info.get(FILE_NAME_ID).oclIsKindOf(String)
 	 */
 	public void writeXML(final Map info) {
 		final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
@@ -141,6 +142,9 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/05/25 19:11:31  venku
+   - added option to control class path and dump reachables.
+
    Revision 1.21  2004/05/13 07:34:25  venku
    - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
 
