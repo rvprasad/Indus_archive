@@ -50,7 +50,6 @@ import soot.Type;
 import soot.Value;
 import soot.ValueBox;
 
-import soot.jimple.AssignStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -94,6 +93,13 @@ public class CallGraph
 	private final Collection heads = new HashSet();
 
 	/**
+	 * The collection of SCCs in this call graph in top-down direction.
+	 *
+	 * @invariant bottomUpSCC.oclIsKindOf(Set(Collection(SootMethod)))
+	 */
+	private Collection bottomUpSCC;
+
+	/**
 	 * The collection of methods that are reachble in the system.
 	 *
 	 * @invariant reachables.oclIsKindOf(Set(SootMethod))
@@ -106,14 +112,6 @@ public class CallGraph
 	 * @invariant topDownSCC.oclIsKindOf(Set(Collection(SootMethod)))
 	 */
 	private Collection topDownSCC;
-    
-    /**
-     * The collection of SCCs in this call graph in top-down direction.
-     *
-     * @invariant bottomUpSCC.oclIsKindOf(Set(Collection(SootMethod)))
-     */
-    private Collection bottomUpSCC;
-    
 
 	/**
 	 * The FA instance which implements object flow analysis.  This instance is used to calculate call graphCache
@@ -135,14 +133,7 @@ public class CallGraph
 	 *
 	 * @invariant caller2callees.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
-	private Map caller2callees = new HashMap();
-
-	/**
-	 * This maps methods to classes which need to be initialized before or during the execution of the method.
-	 *
-	 * @invariant caller2clinitClasses.oclIsKindOf(Map(SootMethod, Collection(SootClass)))
-	 */
-	private Map caller2clinitClasses = new HashMap();
+	private Map caller2callees = new HashMap();	
 
 	/**
 	 * This caches a traversable graphCache representation of the call graphCache.
@@ -163,10 +154,6 @@ public class CallGraph
 		heads.clear();
 		reachables.clear();
 		graphCache = null;
-	}
-
-	final DirectedGraph getCallGraph() {
-		return graphCache;
 	}
 
 	/**
@@ -317,49 +304,47 @@ public class CallGraph
 		return Collections.unmodifiableCollection(reachables);
 	}
 
-    
-    
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getSCCs(boolean)
 	 */
 	public Collection getSCCs(final boolean topDown) {
 		Collection result = new HashSet();
 		Collection temp;
-        if (topDown) {
-            if (topDownSCC == null) {
-                topDownSCC = new HashSet();
-                temp = graphCache.getSCCs(true);
 
-                for (Iterator i = temp.iterator(); i.hasNext();) {
-                    Collection scc = (Collection) i.next();
-                    java.util.List l = new ArrayList();
+		if (topDown) {
+			if (topDownSCC == null) {
+				topDownSCC = new HashSet();
+				temp = graphCache.getSCCs(true);
 
-                    for (Iterator j = scc.iterator(); j.hasNext();) {
-                        l.add(((SimpleNode) j.next())._object);
-                    }
-                    topDownSCC.add(l);
-                }
-                
-            }
-            temp = topDownSCC;
-        } else {
-            if (bottomUpSCC == null) {
-                bottomUpSCC = new HashSet();
-                temp = graphCache.getSCCs(false);
+				for (Iterator i = temp.iterator(); i.hasNext();) {
+					Collection scc = (Collection) i.next();
+					java.util.List l = new ArrayList();
 
-                for (Iterator i = temp.iterator(); i.hasNext();) {
-                    Collection scc = (Collection) i.next();
-                    java.util.List l = new ArrayList();
+					for (Iterator j = scc.iterator(); j.hasNext();) {
+						l.add(((SimpleNode) j.next())._object);
+					}
+					topDownSCC.add(l);
+				}
+			}
+			temp = topDownSCC;
+		} else {
+			if (bottomUpSCC == null) {
+				bottomUpSCC = new HashSet();
+				temp = graphCache.getSCCs(false);
 
-                    for (Iterator j = scc.iterator(); j.hasNext();) {
-                        l.add(((SimpleNode) j.next())._object);
-                    }
-                    bottomUpSCC.add(l);
-                }
-                
-            }
-            temp = bottomUpSCC;
-        }
+				for (Iterator i = temp.iterator(); i.hasNext();) {
+					Collection scc = (Collection) i.next();
+					java.util.List l = new ArrayList();
+
+					for (Iterator j = scc.iterator(); j.hasNext();) {
+						l.add(((SimpleNode) j.next())._object);
+					}
+					bottomUpSCC.add(l);
+				}
+			}
+			temp = bottomUpSCC;
+		}
+
 		for (Iterator i = temp.iterator(); i.hasNext();) {
 			java.util.List scc = (java.util.List) i.next();
 			result.add(Collections.unmodifiableList(scc));
@@ -396,8 +381,7 @@ public class CallGraph
 		if (value instanceof StaticInvokeExpr) {
 			InvokeExpr invokeExpr = (InvokeExpr) value;
 			callee = invokeExpr.getMethod();
-			processForClassInitializer(callee.getDeclaringClass(), caller);
-            
+
 			if (caller2callees.containsKey(caller)) {
 				callees = (Set) caller2callees.get(caller);
 			} else {
@@ -415,7 +399,9 @@ public class CallGraph
 			}
 			triple = new CallTriple(caller, stmt, invokeExpr);
 			callers.add(triple);
-		} else if (value instanceof InterfaceInvokeExpr || value instanceof VirtualInvokeExpr || value instanceof SpecialInvokeExpr) {
+		} else if (value instanceof InterfaceInvokeExpr
+			  || value instanceof VirtualInvokeExpr
+			  || value instanceof SpecialInvokeExpr) {
 			InstanceInvokeExpr invokeExpr = (InstanceInvokeExpr) value;
 			SootMethod calleeMethod = invokeExpr.getMethod();
 			context.setProgramPoint(invokeExpr.getBaseBox());
@@ -459,19 +445,15 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
-	 */
-	public void callback(final Stmt stmt, final Context context) {
-		if (stmt.containsFieldRef()) {
-			processForClassInitializer(stmt.getFieldRef().getField().getDeclaringClass(), context.getCurrentMethod());
-		}
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
 	public void callback(final SootMethod method) {
-		processForClassInitializer(method.getDeclaringClass(), method);
+		// all method marked by the object flow analyses are reachable.
+		reachables.add(method);
+
+		if (method.getName().equals("<clinit>")) {
+			heads.add(method);
+		}
 	}
 
 	/**
@@ -487,72 +469,7 @@ public class CallGraph
 		long start = System.currentTimeMillis();
 		heads.addAll(analyzer.getEnvironment().getRoots());
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Starting the calculation of reachables...");
-		}
-
-		// calculate reachables.
-		IWorkBag wb = new FIFOWorkBag();
-		wb.addAllWork(heads);
-
-		while (wb.hasWork()) {
-			SootMethod sm = (SootMethod) wb.getWork();
-			reachables.add(sm);
-
-			// handle the <clinit> methods that are reachable
-			Collection clinitClasses = (Collection) caller2clinitClasses.get(sm);
-
-			if (clinitClasses != null) {
-				for (Iterator i = clinitClasses.iterator(); i.hasNext();) {
-					SootMethod head = ((SootClass) i.next()).getMethodByName("<clinit>");
-					heads.add(head);
-
-					if (!reachables.contains(head)) {
-						wb.addWorkNoDuplicates(head);
-					}
-				}
-			}
-
-			for (Iterator i = getCallees(sm).iterator(); i.hasNext();) {
-				CallTriple ctrp = (CallTriple) i.next();
-				SootMethod callee = ctrp.getMethod();
-
-				if (!reachables.contains(callee)) {
-					wb.addWorkNoDuplicates(callee);
-				}
-			}
-		}
-
-		// Now prune the caller-callee relationship
-		Collection temp = new ArrayList();
-		Collection unreachables = new HashSet(caller2callees.keySet());
-		unreachables.addAll(callee2callers.keySet());
-		unreachables.removeAll(reachables);
-
-		for (Iterator i = unreachables.iterator(); i.hasNext();) {
-			SootMethod sm = (SootMethod) i.next();
-			temp.clear();
-			temp.addAll(getCallees(sm));
-
-			for (Iterator j = temp.iterator(); j.hasNext();) {
-				CallTriple ctrp = (CallTriple) j.next();
-				CallTriple dup = new CallTriple(sm, ctrp.getStmt(), ctrp.getExpr());
-				((Collection) callee2callers.get(ctrp.getMethod())).remove(dup);
-			}
-			temp.clear();
-			temp.addAll(getCallers(sm));
-
-			for (Iterator j = temp.iterator(); j.hasNext();) {
-				CallTriple ctrp = (CallTriple) j.next();
-				CallTriple dup = new CallTriple(sm, ctrp.getStmt(), ctrp.getExpr());
-				((Collection) caller2callees.get(ctrp.getMethod())).remove(dup);
-			}
-		}
-		callee2callers.keySet().removeAll(unreachables);
-		caller2callees.keySet().removeAll(unreachables);
-		heads.removeAll(unreachables);
-
-		// populate the caller2callees with head information in cases where there are no calls in the system.
+		// populate the caller2callees with head information in cases there are no calls in the system.
 		if (caller2callees.isEmpty()) {
 			for (Iterator i = heads.iterator(); i.hasNext();) {
 				caller2callees.put(i.next(), Collections.EMPTY_LIST);
@@ -567,6 +484,7 @@ public class CallGraph
 		}
 
 		Collection c = new ArrayList();
+		Collection temp;
 
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
@@ -581,18 +499,10 @@ public class CallGraph
 					CallTriple ctrp = (CallTriple) j.next();
 					SootMethod method = ctrp.getMethod();
 
-					if (unreachables.contains(method)) {
-						c.add(ctrp);
-					} else {
-						graphCache.addEdgeFromTo(callerNode, graphCache.getNode(method));
-					}
+					graphCache.addEdgeFromTo(callerNode, graphCache.getNode(method));
 				}
 				temp.removeAll(c);
 			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Starting strongly connected component calculation...");
 		}
 
 		long stop = System.currentTimeMillis();
@@ -660,7 +570,6 @@ public class CallGraph
 		ppc.register(InterfaceInvokeExpr.class, this);
 		ppc.register(StaticInvokeExpr.class, this);
 		ppc.register(SpecialInvokeExpr.class, this);
-		ppc.register(AssignStmt.class, this);
 		ppc.register(this);
 	}
 
@@ -673,10 +582,9 @@ public class CallGraph
 		analyzer = null;
 		graphCache = null;
 		topDownSCC = null;
-        bottomUpSCC = null;
+		bottomUpSCC = null;
 		reachables.clear();
 		heads.clear();
-		caller2clinitClasses.clear();
 	}
 
 	/**
@@ -687,9 +595,17 @@ public class CallGraph
 		ppc.unregister(InterfaceInvokeExpr.class, this);
 		ppc.unregister(StaticInvokeExpr.class, this);
 		ppc.unregister(SpecialInvokeExpr.class, this);
-		ppc.unregister(AssignStmt.class, this);
 		ppc.unregister(this);
 		stable = true;
+	}
+
+	/**
+	 * Testing purposes only.
+	 *
+	 * @return the cached copy of the call graph.
+	 */
+	final DirectedGraph getCallGraph() {
+		return graphCache;
 	}
 
 	/**
@@ -740,38 +656,20 @@ public class CallGraph
 		}
 		return result;
 	}
-
-	/**
-	 * Collects the classes whose initializers should be included into the call graph.
-	 *
-	 * @param clazz is the class whose initializer should be invoked as a result of <code>caller</code>.
-	 * @param caller requires <code>clazz</code> to be initialized.
-	 *
-	 * @pre clazz != null and caller != null
-	 */
-	private void processForClassInitializer(final SootClass clazz, final SootMethod caller) {
-		if (clazz.declaresMethodByName("<clinit>")) {
-			Collection clinitClasses = (Collection) caller2clinitClasses.get(caller);
-
-			if (clinitClasses == null) {
-				clinitClasses = new HashSet();
-				caller2clinitClasses.put(caller, clinitClasses);
-			}
-			clinitClasses.add(clazz);
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2003/12/07 08:41:32  venku
+   - deleted getCallGraph() from ICallGraphInfo interface.
+   - made getSCCs() direction sensitive.
+   - ripple effect.
    Revision 1.34  2003/12/05 21:02:25  venku
    - special invokes are treated just like virtual invoke.
-
    Revision 1.33  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.32  2003/11/29 09:34:59  venku
    - removed getCycles() method as it was not being used.
    Revision 1.31  2003/11/29 09:30:37  venku
