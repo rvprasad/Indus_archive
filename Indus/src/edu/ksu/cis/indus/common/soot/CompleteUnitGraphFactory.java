@@ -40,6 +40,13 @@ public final class CompleteUnitGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(CompleteUnitGraphFactory.class);
 
 	/**
+	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getUnitGraphForBody(soot.Body)
+	 */
+	protected UnitGraph getUnitGraphForBody(final Body body) {
+		return new CompleteUnitGraph(body);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
@@ -52,24 +59,17 @@ public final class CompleteUnitGraphFactory
 		}
 		return _result;
 	}
-
-    /**
-     * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getMethodForBody(soot.Body)
-     */
-    protected UnitGraph getMethodForBody(final Body body) {
-            return new CompleteUnitGraph(body);
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/28 22:41:08  venku
+   - added a new method to extract default bodies.
    Revision 1.5  2003/12/31 09:21:32  venku
    - logging level.
-
    Revision 1.4  2003/12/15 02:07:08  venku
    - logging.
-
    Revision 1.3  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
@@ -104,7 +104,7 @@ public final class CompleteUnitGraphFactory
      have a body.
    Revision 1.2  2003/09/28 06:52:22  venku
  *** empty log message ***
-                         Revision 1.1  2003/09/28 06:22:54  venku
-                         - Added support to plug unit graphs from the environment when
-                           requested by the implementations.
+                             Revision 1.1  2003/09/28 06:22:54  venku
+                             - Added support to plug unit graphs from the environment when
+                               requested by the implementations.
  */

@@ -82,9 +82,9 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getMethodForBody(soot.Body)
+	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getUnitGraphForBody(soot.Body)
 	 */
-	protected UnitGraph getMethodForBody(final Body body) {
+	protected UnitGraph getUnitGraphForBody(final Body body) {
 		return new ExceptionFlowSensitiveUnitGraph(body, exceptionsToIgnore, flag);
 	}
 
@@ -106,6 +106,8 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/23 08:27:21  venku
+   - the graphs were created as complete unit graphs. FIXED.
    Revision 1.1  2004/02/17 05:59:15  venku
    - renamed ExceptionFlowSensitiveStmtGraphXXXX to
      ExceptionFlowSensitiveUnitGraph.

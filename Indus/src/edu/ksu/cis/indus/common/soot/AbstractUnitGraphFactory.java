@@ -17,11 +17,13 @@ package edu.ksu.cis.indus.common.soot;
 
 import java.lang.ref.WeakReference;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import soot.Body;
 import soot.SootMethod;
+import soot.VoidType;
 
 import soot.jimple.Jimple;
 
@@ -52,8 +54,9 @@ public abstract class AbstractUnitGraphFactory
 	 *
 	 * @return the requested unit graph.
 	 *
-	 * @post result != null
-	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
+	 * @post result != null and result.oclIsKindOf(UnitGraph)
+	 * @post method.isConcrete() implies result.getBody() = method.getBody()
+	 * @post 1method.isConcrete() implies result.getBody() != method.getBody()
 	 */
 	public final UnitGraph getUnitGraph(final SootMethod method) {
 		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
@@ -74,9 +77,18 @@ public abstract class AbstractUnitGraphFactory
 			_result = getUnitGraphForMethod(method);
 
 			if (_result == null) {
-				final Body _body = Jimple.v().newBody();
+				final Jimple _jimple = Jimple.v();
+				final Body _body = _jimple.newBody();
 				_body.setMethod(method);
-				_result = getMethodForBody(_body);
+
+				final Collection _units = _body.getUnits();
+
+				if (method.getReturnType() instanceof VoidType) {
+					_units.add(_jimple.newReturnVoidStmt());
+				} else {
+					_units.add(_jimple.newReturnStmt(Util.getDefaultValueFor(method.getReturnType())));
+				}
+				_result = getUnitGraphForBody(_body);
 			}
 
 			method2UnitGraph.put(method, new WeakReference(_result));
@@ -101,7 +113,7 @@ public abstract class AbstractUnitGraphFactory
 	 * @pre body != null
 	 * @post result != null
 	 */
-	protected abstract UnitGraph getMethodForBody(final Body body);
+	protected abstract UnitGraph getUnitGraphForBody(final Body body);
 
 	/**
 	 * Get the unit graph associated with the method.
@@ -118,6 +130,8 @@ public abstract class AbstractUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/28 22:41:08  venku
+   - added a new method to extract default bodies.
    Revision 1.4  2003/12/31 09:30:18  venku
    - removed unused code.
    Revision 1.3  2003/12/13 02:28:53  venku

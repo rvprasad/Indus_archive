@@ -40,9 +40,9 @@ public final class TrapUnitGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(TrapUnitGraphFactory.class);
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getMethodForBody(soot.Body)
+	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getUnitGraphForBody(soot.Body)
 	 */
-	protected UnitGraph getMethodForBody(final Body body) {
+	protected UnitGraph getUnitGraphForBody(final Body body) {
 		return new TrapUnitGraph(body);
 	}
 
@@ -66,6 +66,8 @@ public final class TrapUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/01/28 22:41:08  venku
+   - added a new method to extract default bodies.
    Revision 1.7  2003/12/31 10:01:05  venku
    - coding convention.
    Revision 1.6  2003/12/31 09:52:30  venku
