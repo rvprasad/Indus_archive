@@ -42,13 +42,13 @@ import soot.jimple.ExitMonitorStmt;
 import soot.jimple.InvokeStmt;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.escape.EquivalenceClassBasedAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
 
 /**
- * This class uses symbolic-analysis as calculated by <code>EquivalenceClassBasedAnalysis</code> to prune the ready
+ * This class uses symbolic-analysis as calculated by <code>EquivalenceClassBasedEscapeAnalysis</code> to prune the ready
  * dependency information calculated by it's parent class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -62,7 +62,7 @@ public class ReadyDAv2
 	/**
 	 * This provides information to prune ready dependence edges.
 	 */
-	private EquivalenceClassBasedAnalysis ecba;
+	private EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
 	 * @see ReadyDAv1
@@ -73,8 +73,8 @@ public class ReadyDAv2
 
 	/**
 	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
-	 * results of a {@link edu.ksu.cis.indus.staticanalyses.escape.EquivalenceClassBasedAnalysis
-	 * EquivalenceClassBasedAnalysis} analysis is used to determine the dependence.
+	 * results of a {@link edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
+	 * EquivalenceClassBasedEscapeAnalysis} analysis is used to determine the dependence.
 	 *
 	 * @param enterPair is the enter monitor statement.
 	 * @param exitPair is the exit monitor statement.
@@ -126,7 +126,7 @@ public class ReadyDAv2
 	  throws InitializationException {
 		super.setup();
 
-		ecba = (EquivalenceClassBasedAnalysis) info.get(EquivalenceClassBasedAnalysis.ID);
+		ecba = (EquivalenceClassBasedEscapeAnalysis) info.get(EquivalenceClassBasedEscapeAnalysis.ID);
 
 		if (ecba == null) {
 			throw new InitializationException(PairManager.ID + " was not provided in info.");
@@ -135,7 +135,7 @@ public class ReadyDAv2
 
 	/**
 	 * Processes the system as per to rule 2 in the report.  This uses escape analysis results from
-	 * <code>EquivalenceClassBasedAnalysis</code> to prune ready dependency edges.
+	 * <code>EquivalenceClassBasedEscapeAnalysis</code> to prune ready dependency edges.
 	 */
 
 	/*
@@ -190,7 +190,7 @@ public class ReadyDAv2
 
 	/**
 	 * Processes the system as per to rule 4 in the report.  This uses results from
-	 * <code>EquivalenceClassBasedAnalysis</code> to calculate ready dependency.
+	 * <code>EquivalenceClassBasedEscapeAnalysis</code> to calculate ready dependency.
 	 */
 
 	/*
@@ -232,6 +232,9 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/14 05:10:29  venku
+   Fixed documentation links.
+
    Revision 1.5  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.

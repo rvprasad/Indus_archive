@@ -42,7 +42,7 @@ import soot.toolkits.graph.CompleteUnitGraph;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.escape.EquivalenceClassBasedAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -304,10 +304,10 @@ public abstract class DADriver
 	protected void setupDependencyAnalyses() {
 		ICallGraphInfo cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 		IThreadGraphInfo tgi = (IThreadGraphInfo) info.get(IThreadGraphInfo.ID);
-		EquivalenceClassBasedAnalysis ecba = new EquivalenceClassBasedAnalysis(scm, cgi, tgi);
+		EquivalenceClassBasedEscapeAnalysis ecba = new EquivalenceClassBasedEscapeAnalysis(scm, cgi, tgi);
 		ProcessingController ppc = new CGBasedProcessingController(cgi);
 		Collection failed = new ArrayList();
-		info.put(EquivalenceClassBasedAnalysis.ID, ecba);
+		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 
 		ppc.setAnalyzer(aa);
 
@@ -359,6 +359,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+
    Revision 1.4  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
 
