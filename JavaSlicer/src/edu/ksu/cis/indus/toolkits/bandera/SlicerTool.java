@@ -236,7 +236,7 @@ public final class SlicerTool
 
 		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(TAG_NAME);
-		_residualizer.residualizeSystem(tool.getSystem(), tool.getStmtGraphFactory());
+		_residualizer.residualizeSystem(tool.getSystem());
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: bandera slicer tool");
@@ -247,6 +247,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/04/16 20:10:41  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.28  2004/03/29 01:55:08  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

@@ -73,7 +73,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import soot.Printer;
 import soot.SootClass;
-import soot.SootMethod;
 
 
 /**
@@ -203,22 +202,10 @@ public class SliceXMLizerCLI
 	 *
 	 * @return the slice xmlizer.
 	 *
-	 * @throws RuntimeException if the file into which the xmlizer will write the data cannot be opened.
-	 *
 	 * @post result != null
 	 */
 	protected final TagBasedSliceXMLizer getXMLizer() {
-		TagBasedSliceXMLizer _result;
-
-		try {
-			final Writer _out =
-				new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
-			_result = new TagBasedSliceXMLizer(nameOfSliceTag, idGenerator);
-		} catch (IOException _e) {
-			LOGGER.error("Exception while opening file to write xml information.", _e);
-			throw new RuntimeException(_e);
-		}
-		return _result;
+		return new TagBasedSliceXMLizer(nameOfSliceTag, idGenerator);
 	}
 
 	/**
@@ -491,7 +478,7 @@ public class SliceXMLizerCLI
 		if (destructiveJimpleUpdate) {
 			final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 			_residualizer.setTagToResidualize(nameOfSliceTag);
-			_residualizer.residualizeSystem(scene, slicer.getStmtGraphFactory());
+			_residualizer.residualizeSystem(scene);
 		}
 
 		final Printer _printer = Printer.v();
@@ -511,16 +498,6 @@ public class SliceXMLizerCLI
 
 			try {
 				final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
-
-                // DEL_START
-				/*for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-					final SootMethod _sm = (SootMethod) _j.next();
-
-					if (_sm.isConcrete()) {
-						_sm.retrieveActiveBody().validateLocals();
-					}
-				}*/
-                // DEL_END
 				_writer = new PrintWriter(new FileWriter(_file));
 				// write .jimple file
 				_printer.printTo(_sc, _writer);
@@ -580,9 +557,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/19 19:10:32  venku
+   - We should not have a situation of body not found if we slice right.
+     Commented the block that does this refitting.
    Revision 1.10  2004/04/18 08:59:00  venku
    - enabled test support for slicer.
-
    Revision 1.9  2004/04/16 20:10:41  venku
    - refactoring
     - enabled bit-encoding support in indus.
