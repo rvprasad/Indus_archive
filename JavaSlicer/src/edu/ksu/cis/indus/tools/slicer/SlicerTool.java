@@ -20,8 +20,8 @@ import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveUnitGraphFactory;
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
-import edu.ksu.cis.indus.common.soot.TrapUnitGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -281,7 +281,7 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 
-		unitGraphProvider = new TrapUnitGraphFactory();
+		unitGraphProvider = new ExceptionFlowSensitiveUnitGraphFactory();
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setUnitGraphFactory(unitGraphProvider);
 		// create the thread graph.
@@ -789,9 +789,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.71  2004/02/01 22:16:16  venku
+   - renamed set/getSlicedBBGMgr to set/getBasicBlockGraphManager
+     in SlicingEngine.
+   - ripple effect.
    Revision 1.70  2004/01/23 16:01:11  venku
    - coding convention.
-
    Revision 1.69  2004/01/22 13:35:14  venku
    - while generating deadlock criteria, return and entry statements
      of synchronized methods were included in their entirety when
