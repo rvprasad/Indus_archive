@@ -11,6 +11,9 @@
     <selectedElements exportClassFiles="false" exportOutputFolder="true" exportJavaFiles="false">
         <javaElement handleIdentifier="=StaticAnalyses/src"/>
         <javaElement handleIdentifier="=StaticAnalyses/src-test"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-flow"/>
         <javaElement handleIdentifier="=StaticAnalyses/src-xml"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-concurrency"/>
+        <javaElement handleIdentifier="=StaticAnalyses/src-dependence"/>
     </selectedElements>
 </jardesc>
