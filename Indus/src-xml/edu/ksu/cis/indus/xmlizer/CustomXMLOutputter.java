@@ -32,11 +32,26 @@ import org.znerd.xmlenc.XMLOutputter;
 public final class CustomXMLOutputter
   extends XMLOutputter {
 	/**
+	 * @see org.znerd.xmlenc.XMLOutputter#XMLOutputter()
+	 */
+	public CustomXMLOutputter() {
+		super();
+		initialize();
+	}
+
+	/**
 	 * @see org.znerd.xmlenc.XMLOutputter#XMLOutputter(Writer,String)
 	 */
 	public CustomXMLOutputter(final Writer writer, final String encoding)
 	  throws IllegalStateException, IllegalArgumentException, UnsupportedEncodingException {
 		super(writer, encoding);
+		initialize();
+	}
+
+	/**
+	 * Initializes this outputter's output properties.
+	 */
+	private void initialize() {
 		setEscaping(true);
 		setIndentation("  ");
 		setLineBreak(LineBreak.UNIX);
@@ -46,4 +61,10 @@ public final class CustomXMLOutputter
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/25 21:18:39  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
  */
