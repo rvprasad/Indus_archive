@@ -209,6 +209,10 @@ class TagBasedSliceXMLizer
 	 */
 	public void consolidate() {
 		try {
+			if (processingStmt) {
+				writer.write("\t\t</stmt>\n");
+			}
+
 			if (processingMethod) {
 				writer.write("\t\t</method>\n");
 			}
@@ -238,12 +242,13 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/24 16:51:34  venku
+   - ripple effect of moving inner classes in TaggingBasedSliceCollector as external classes.
    Revision 1.8  2003/11/24 10:12:03  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.
    - architectural change. The slicer is hard-wired wrt to
      slice collection.  Residualization is outside the slicer.
-
    Revision 1.7  2003/11/24 00:11:42  venku
    - moved the residualizers/transformers into transformation
      package.
@@ -252,10 +257,8 @@ class TagBasedSliceXMLizer
      so that they can be used by the residualizers.  This is where
      published interface annotation is required.
    - ripple effect of the above refactoring.
-
    Revision 1.6  2003/11/23 19:41:04  venku
    - incorrect tags were being emitted.  FIXED.
-
    Revision 1.5  2003/11/17 15:56:56  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
