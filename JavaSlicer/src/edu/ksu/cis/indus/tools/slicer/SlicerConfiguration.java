@@ -58,8 +58,8 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import soot.jimple.AssignStmt;
-import soot.jimple.ThrowStmt;
+import soot.jimple.internal.JAssignStmt;
+import soot.jimple.internal.JThrowStmt;
 
 
 /**
@@ -992,8 +992,8 @@ public final class SlicerConfiguration
 			if (booleanValue.booleanValue()) {
 				final StmtTypeBasedSliceCriteriaGenerator _t = new StmtTypeBasedSliceCriteriaGenerator();
 				final Collection _stmtTypes = new ArrayList();
-				_stmtTypes.add(AssignStmt.class);
-				_stmtTypes.add(ThrowStmt.class);
+				_stmtTypes.add(JAssignStmt.class);
+				_stmtTypes.add(JThrowStmt.class);
 				_t.setStmtTypes(_stmtTypes);
 				_t.setCriteriaFilter(new AssertionSliceCriteriaPredicate());
 				id2critGenerators.put(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID, _t);
