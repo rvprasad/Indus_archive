@@ -54,7 +54,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  */
-public class AliasedUseDefInfo
+public final class AliasedUseDefInfo
   extends AbstractValueAnalyzerBasedProcessor
   implements IUseDefInfo {
 	/**
@@ -72,18 +72,18 @@ public class AliasedUseDefInfo
 	private final IValueAnalyzer analyzer;
 
 	/**
-	 * This is a map from use-sites to their corresponding to def-sites.
-	 *
-	 * @invariant defsMap != null
-	 */
-	private final Map use2defsMap;
-
-	/**
 	 * This is a map from def-sites to their corresponding to use-sites.
 	 *
 	 * @invariant usesMap != null
 	 */
 	private final Map def2usesMap;
+
+	/**
+	 * This is a map from use-sites to their corresponding to def-sites.
+	 *
+	 * @invariant defsMap != null
+	 */
+	private final Map use2defsMap;
 
 	/**
 	 * This manages <code>Pair</code> objects.
@@ -300,6 +300,15 @@ public class AliasedUseDefInfo
 	}
 
 	/**
+	 * Reset internal data structures.
+	 */
+	public void reset() {
+		def2usesMap.clear();
+		use2defsMap.clear();
+		pairMgr.reset();
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -311,13 +320,13 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/05 15:32:29  venku
+   - coding convention.
    Revision 1.17  2003/12/05 02:19:01  venku
    - naming scheme was screwed up, hence, caused subtle bugs.  FIXED.
-
    Revision 1.16  2003/12/04 08:57:45  venku
    - added logic to attempt to provide information only if
      the query contains an array ref or field ref.
-
    Revision 1.15  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
