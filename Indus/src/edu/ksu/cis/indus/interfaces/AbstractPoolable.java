@@ -55,11 +55,11 @@ public abstract class AbstractPoolable
 	 *
 	 * @throws RuntimeException if the returning of the object to it's pool failed.
 	 */
-	public final void returnToPool() {
+	public void returnToPool() {
 		if (pool != null) {
 			try {
 				pool.returnObject(this);
-			} catch (Exception _e) {
+			} catch (final Exception _e) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("How can this happen?", _e);
 				}
@@ -72,6 +72,10 @@ public abstract class AbstractPoolable
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.2  2003/12/04 11:13:20  venku
    - well, an abstract implementation of an interface
      did not implement that interface!  FIXED.
