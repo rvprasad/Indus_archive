@@ -20,16 +20,22 @@ import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
+import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InvokeExpr;
+import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
+
+import soot.toolkits.scalar.LocalUses;
+import soot.toolkits.scalar.UnitValueBoxPair;
 
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.InitResolver;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
@@ -471,6 +477,39 @@ public class SlicingEngine {
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 */
+	private void processForNewExpr(final Stmt stmt, final SootMethod method) {
+		/*
+		 * Here we make some assumptions.  new expressions will always be assigned to a variable in order to call the
+		 * constructor. Hence, they will always occur in assignment statement.  It is common practice in compilers to emit 
+         * code to construct the instance just after emitting for creating the instance.  Hence, we should be able to find the
+         * <init> call site by following use-def chain. However, this may fail in case where the <init> call is made on
+         * a variable other than the one to which the new expression was assigned to. 
+         *     r1 = new <X>;
+         *     r2 = r1; 
+         *     r2.<init>();
+         * To handle such cases, we can use OFA.  
+         * 
+         * TODO: For now we use use-def chains, but it is better to switch over to OFA-based implementation.
+		 */
+		if (stmt instanceof AssignStmt) {
+			AssignStmt as = (AssignStmt) stmt;
+
+			if (as.getRightOp() instanceof NewExpr) {
+				Stmt def = initResolver.getInitCallStmt(stmt, method);
+				transformAndGenerateNewCriteriaForStmt(def, method, true);
+				}
+			}
+		}
+    
+    private InitResolver initResolver;
+	
+
+	/**
 	 * Transforms the given value boxes and generates new slice criteria based on what affects the given occurrence of the
 	 * value boxes.
 	 *
@@ -545,6 +584,7 @@ public class SlicingEngine {
 		final boolean considerExecution) {
 		if (considerExecution) {
 			transformAndGenerateCriteriaForVBoxes(stmt.getUseAndDefBoxes(), stmt, method);
+			processForNewExpr(stmt, method);
 			transformer.transform(stmt, method);
 
 			if (stmt.containsInvokeExpr()) {
@@ -569,6 +609,10 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/17 02:23:52  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
    Revision 1.8  2003/11/16 23:01:44  venku
    - exercises the support to process seed criteria.
    Revision 1.7  2003/11/13 14:08:08  venku
