@@ -520,11 +520,9 @@ public class ThreadGraph
 	}
 
 	/**
-	 * Provides a stringized representation of the thread graph.
-	 *
-	 * @return stringized representation of the thread graph.
+	 * @see Object#toString()
 	 */
-	public String dumpGraph() {
+	public String toString() {
 		final StringBuffer _result = new StringBuffer();
 		final List _l = new ArrayList();
 
@@ -679,6 +677,10 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
+
    Revision 1.32  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
