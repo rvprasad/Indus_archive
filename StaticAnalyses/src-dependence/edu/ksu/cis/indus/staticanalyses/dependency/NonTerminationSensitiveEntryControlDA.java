@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
@@ -74,6 +76,11 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @invariant nodesCache.oclIsKindOf(Collection(INode))
 	 */
 	protected List nodesCache;
+
+	/** 
+	 * This manages pair objects.
+	 */
+	private final PairManager pairMgr = new PairManager(false, true);
 
 	/**
 	 * {@inheritDoc} This implementation will return <code>BACKWARD_DIRECTION</code>.
@@ -142,33 +149,13 @@ public final class NonTerminationSensitiveEntryControlDA
 
 		nodesCache = null;
 		nodesWithChildrenCache = null;
+		pairMgr.reset();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
 		}
 
 		stable();
-	}
-
-	/**
-	 * Retrieves the bitset at the given location. If none exists, a new bit set is added.
-	 *
-	 * @param bitsets from which to retrieve the bit set.
-	 * @param location identifies the bitset in <code>bitsets</code>.
-	 *
-	 * @return the bitset.
-	 *
-	 * @pre bitsets != null and 0 &lt;= location &lt; bitsets.length
-	 * @post result != null
-	 */
-	protected BitSet getBitSetAtLocation(final BitSet[] bitsets, final int location) {
-		BitSet _temp = bitsets[location];
-
-		if (_temp == null) {
-			_temp = new BitSet();
-			bitsets[location] = _temp;
-		}
-		return _temp;
 	}
 
 	/**
@@ -233,11 +220,9 @@ public final class NonTerminationSensitiveEntryControlDA
 			final int _ctrlPointNodeIndex = nodesCache.indexOf(_ctrlPointNode);
 			final BitSet _nodesCtrlPointBitSet = tokenSets[_nodeIndex][_ctrlPointNodeIndex];
 
-			if (_nodesCtrlPointBitSet != null
-				  && _nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size()
+			if (_nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size()
 				  && _nodeIndex != _ctrlPointNodeIndex) {
-				copyAncestorBitSetsFromTo(_ctrlPointNodeIndex, _nodeIndex, tokenSets);
-				_result = true;
+				_result |= copyAncestorBitSetsFromTo(_ctrlPointNodeIndex, _nodeIndex, tokenSets);
 			}
 		}
 		return _result;
@@ -273,7 +258,12 @@ public final class NonTerminationSensitiveEntryControlDA
 					final int _cardinality = _tokens.cardinality();
 
 					if (_cardinality > 0 && _cardinality != _succsSize) {
-						final BitSet _temp = getBitSetAtLocation(_result, _k);
+						BitSet _temp = _result[_k];
+
+						if (_temp == null) {
+							_temp = new BitSet();
+							_result[_k] = _temp;
+						}
 						_temp.set(_cpIndex);
 					}
 				}
@@ -302,12 +292,36 @@ public final class NonTerminationSensitiveEntryControlDA
 		nodesCache = graph.getNodes();
 		nodesWithChildrenCache = getNodesWithChildren();
 
-		final BitSet[][] _tokenSets = new BitSet[nodesCache.size()][nodesCache.size()];
+		final int _size = nodesCache.size();
+		final BitSet[][] _tokenSets = new BitSet[_size][_size];
+
+		for (int _i = _size - 1; _i >= 0; _i--) {
+			for (int _j = _size - 1; _j >= 0; _j--) {
+				_tokenSets[_i][_j] = new BitSet();
+			}
+		}
+
 		final IWorkBag _wb = injectTokensAndGenerateWorkForTokenPropagation(_tokenSets);
 
 		while (_wb.hasWork()) {
-			final INode _node = (INode) _wb.getWork();
-			_wb.addAllWorkNoDuplicates(processNode(_node, _tokenSets));
+			final Pair _pair = (Pair) _wb.getWork();
+			_wb.addAllWorkNoDuplicates(processNode(_pair, _tokenSets));
+
+			if (LOGGER.isDebugEnabled()) {
+				final StringBuffer _msg = new StringBuffer();
+
+				for (int _i = _size - 1; _i >= 0; _i--) {
+					_msg.append("{");
+
+					for (int _j = _size - 1; _j >= 0; _j--) {
+						_msg.append(_tokenSets[_i][_j].toString() + ",");
+					}
+					_msg.append("}");
+				}
+
+				LOGGER.debug("computeControlDependency() - Node being processed : _node = " + _pair.getFirst()
+					+ "nodeIndex = " + nodesCache.indexOf(_pair.getFirst()) + " _tokenSets = " + _msg);
+			}
 		}
 
 		return calculateCDFromTokenInfo(_tokenSets);
@@ -321,11 +335,15 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @param dest is the index of the node into which the tokens will be propagated to.
 	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
+	 * @return <code>true</code>if bits/tokens were added to the destination node; <code>false</code>, otherwise.
+	 *
 	 * @pre tokenSets != null
 	 * @pre 0 &lt;= src &lt; tokensSets.length
 	 * @pre 0 &lt;= dest &lt; tokensSets.length
 	 */
-	private void copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
+	private boolean copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
+		boolean _result = false;
+		final BitSet _temp = new BitSet();
 		final BitSet[] _srcBitSets = tokenSets[src];
 		final BitSet[] _destBitSets = tokenSets[dest];
 		final Iterator _i = nodesWithChildrenCache.iterator();
@@ -334,13 +352,18 @@ public final class NonTerminationSensitiveEntryControlDA
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final INode _ancestor = (INode) _i.next();
 			final int _ancestorIndex = nodesCache.indexOf(_ancestor);
-			final BitSet _srcsAncestorBitSet = _srcBitSets[_ancestorIndex];
 
-			if (_srcsAncestorBitSet != null) {
-				final BitSet _destAndAncestorBitSet = getBitSetAtLocation(_destBitSets, _ancestorIndex);
-				_destAndAncestorBitSet.or(_srcsAncestorBitSet);
+			if (dest != _ancestorIndex) {
+				final BitSet _srcsAncestorBitSet = _srcBitSets[_ancestorIndex];
+				final BitSet _destAndAncestorBitSet = _destBitSets[_ancestorIndex];
+				_temp.clear();
+				_temp.or(_srcsAncestorBitSet);
+				_temp.andNot(_destAndAncestorBitSet);
+				_result |= !_temp.isEmpty();
+				_destAndAncestorBitSet.or(_temp);
 			}
 		}
+		return _result;
 	}
 
 	/**
@@ -432,10 +455,9 @@ public final class NonTerminationSensitiveEntryControlDA
 			for (int _j = _succs.size(), _count = 0; _j > 0; _j--, _count++) {
 				final INode _succ = (INode) _k.next();
 				final int _succIndex = nodesCache.indexOf(_succ);
-				final BitSet[] _succBitSets = tokenSets[_succIndex];
-				final BitSet _temp = getBitSetAtLocation(_succBitSets, _nodeIndex);
+				final BitSet _temp = tokenSets[_succIndex][_nodeIndex];
 				_temp.set(_count);
-				_wb.addWorkNoDuplicates(_succ);
+				_wb.addWorkNoDuplicates(pairMgr.getPair(_succ, Boolean.TRUE));
 			}
 		}
 		return _wb;
@@ -451,7 +473,7 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * Processes the given node.  Basically, it propagates the tokens to it's successor and returns the successor whose token
 	 * sets were modified.
 	 *
-	 * @param node to be processed.
+	 * @param pair to be processed.
 	 * @param tokenSets is the collection of token sets of the nodes in the graph.  The first subscript is the index of the
 	 * 		  dependent  basic block in the sequence of basic blocks.  The second subscript is the index of the control
 	 * 		  point  basic block in the sequence of basic blocks.  The bit set at these subscript indicate the number of
@@ -460,40 +482,38 @@ public final class NonTerminationSensitiveEntryControlDA
 	 *
 	 * @return the collection of nodes whose token sets were modified.
 	 *
-	 * @pre parentNod != null and tokenSets != null and 0 &lt;= parentNode.getSuccsOf().size() &lt;= 1
+	 * @pre pair != null and tokenSets != null
+	 * @pre pair.oclIsKindOf(Pair(INode, Boolean)) and 0 &lt;= pair..getFirst().getSuccsOf().size() &lt;= 1
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post parentNode.getSuccsOf().containsAll(result)
+	 * @post pair.getFirst().getSuccsOf().containsAll(result)
 	 */
-	private Collection processNode(final INode node, final BitSet[][] tokenSets) {
-		final Collection _result;
+	private Collection processNode(final Pair pair, final BitSet[][] tokenSets) {
+		final INode _node = (INode) pair.getFirst();
+		final boolean _addedDueToTokePropagation = ((Boolean) pair.getSecond()).booleanValue();
+		final boolean _accumlatedTokens = accumulateTokensAtNode(_node, tokenSets);
 
-		if (accumulateTokensAtNode(node, tokenSets)) {
-			if (!nodesWithChildrenCache.contains(node)) {
-				_result = processNodeWithOneOrLessChildren(node, tokenSets);
-			} else {
-				/*
-				 * Say B and C are control points, A is the control merge point of B, and A and B are dependent on C.
-				 * It is possible that node A accumulated all tokens from control point B when tokens from control point C had
-				 * not reached B.  In such cases, we need to find and add nodes such as A to the workbag for processing.
-				 */
+		Collection _result = Collections.EMPTY_SET;
+
+		if (_addedDueToTokePropagation || _accumlatedTokens) {
+			final int _size = _node.getSuccsOf().size();
+
+			if (_size == 1) {
+				_result = processNodeWithOneChild(_node, tokenSets);
+			} else if (_size > 1) {
+				final int _nodeIndex = nodesCache.indexOf(_node);
 				_result = new HashSet();
 
-				final int _nodeIndex = nodesCache.indexOf(node);
-				final int _succsSize = node.getSuccsOf().size();
 				final int _iEnd = nodesCache.size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 					final BitSet _bitSet = tokenSets[_iIndex][_nodeIndex];
 
-					if (_bitSet != null && _bitSet.cardinality() == _succsSize && _nodeIndex != _iIndex) {
-						_result.add(nodesCache.get(_iIndex));
+					if (_bitSet.cardinality() == _size) {
+						_result.add(pairMgr.getPair(nodesCache.get(_iIndex), Boolean.valueOf(_accumlatedTokens)));
 					}
 				}
 			}
-		} else {
-			_result = Collections.EMPTY_SET;
 		}
-
 		return _result;
 	}
 
@@ -514,74 +534,39 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
 	 * @post node.getSuccsOf().containsAll(result)
 	 */
-	private Collection processNodeWithOneOrLessChildren(final INode node, final BitSet[][] tokenSets) {
-		final Collection _result = new HashSet();
+	private Collection processNodeWithOneChild(final INode node, final BitSet[][] tokenSets) {
+		boolean _addflag = false;
 		final int _nodeIndex = nodesCache.indexOf(node);
-		final Collection _succsOf = node.getSuccsOf();
+		final BitSet[] _nodeBitSets = tokenSets[_nodeIndex];
+		final INode _succ = (INode) node.getSuccsOf().iterator().next();
+		final int _succIndex = nodesCache.indexOf(_succ);
+		final BitSet[] _succBitSets = tokenSets[_succIndex];
+		final BitSet _temp = new BitSet();
+		final Iterator _i = nodesWithChildrenCache.iterator();
+		final int _iEnd = nodesWithChildrenCache.size();
 
-		if (!_succsOf.isEmpty()) {
-			final Iterator _i = nodesWithChildrenCache.iterator();
-			final int _iEnd = nodesWithChildrenCache.size();
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final INode _ancestor = (INode) _i.next();
+			final int _ancIndex = nodesCache.indexOf(_ancestor);
+			final BitSet _nodeAncestorTokenSet = _nodeBitSets[_ancIndex];
+			final BitSet _succAncestorTokenSet = _succBitSets[_ancIndex];
 
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final INode _ancestor = (INode) _i.next();
-				final int _ancIndex = nodesCache.indexOf(_ancestor);
-				final BitSet _nodeAncestorTokenSet = tokenSets[_nodeIndex][_ancIndex];
+			_temp.clear();
+			_temp.or(_nodeAncestorTokenSet);
+			_temp.andNot(_succAncestorTokenSet);
 
-				if (_nodeAncestorTokenSet != null) {
-					_result.addAll(propagateTokensIntoNodes(_nodeAncestorTokenSet, _succsOf, _ancIndex, tokenSets));
-				}
+			if (!_temp.isEmpty()) {
+				_succAncestorTokenSet.or(_temp);
+				_addflag |= true;
 			}
 		}
-		return _result;
-	}
 
-	/**
-	 * Propagates the tokens from <code>parentNodeTokenSet</code> into the token set corresponding to the node at
-	 * <code>nodeIndex</code> at the nodes in <code>succs</code>.
-	 *
-	 * @param parentNodeTokenSet contains the tokens to be propagated.
-	 * @param succs is the collection of nodes at which the target token sets occur.
-	 * @param nodeIndex is the index of the node that identifies the target token set along with nodes in <code>succs</code>.
-	 * @param tokenSets is the collection of token sets of the nodes in the graph.
-	 *
-	 * @return the nodes from <code>succs</code> into which tokens were propagated.
-	 *
-	 * @pre parentNodeTokenSet != null and succs != null and nodeIndex != null and tokenSets != null
-	 * @pre 0 &lt;= parentNodeTokenSet.cardinality() &lt;= tokenSets.length
-	 * @pre succs.oclIsKindOf(Collection(INode))
-	 * @pre 0 &lt;= nodeIndex &lt; nodesCache.size()
-	 * @post succs.containsAll(result)
-	 * @post result.oclIsKindOf(Collection(INode)) and result != null
-	 */
-	private Collection propagateTokensIntoNodes(final BitSet parentNodeTokenSet, final Collection succs, final int nodeIndex,
-		final BitSet[][] tokenSets) {
-		final Collection _result = new HashSet();
-		final Iterator _j = succs.iterator();
-		final BitSet _t = new BitSet();
+		final Collection _result;
 
-		for (int _k = succs.size(); _k > 0; _k--) {
-			final INode _succ = (INode) _j.next();
-			final int _succIndex = nodesCache.indexOf(_succ);
-			final BitSet[] _succBitSets = tokenSets[_succIndex];
-			BitSet _temp = _succBitSets[nodeIndex];
-			boolean _flag = false;
-
-			if (_temp == null) {
-				_temp = new BitSet();
-				_succBitSets[nodeIndex] = _temp;
-				_flag = true;
-			} else {
-				_t.clear();
-				_t.or(parentNodeTokenSet);
-				_t.andNot(_temp);
-				_flag = _t.cardinality() > 0;
-			}
-
-			if (_flag) {
-				_temp.or(parentNodeTokenSet);
-				_result.add(_succ);
-			}
+		if (_addflag) {
+			_result = Collections.singleton(pairMgr.getPair(_succ, Boolean.TRUE));
+		} else {
+			_result = Collections.EMPTY_SET;
 		}
 		return _result;
 	}
