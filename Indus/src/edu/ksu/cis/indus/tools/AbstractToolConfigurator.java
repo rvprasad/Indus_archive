@@ -111,6 +111,7 @@ public abstract class AbstractToolConfigurator
 	 * @see IToolConfigurator#initialize(Composite)
 	 */
 	public final void initialize(final Composite composite) {
+	    composite.removeDisposeListener(this);
 		parent = composite;
 		parent.addDisposeListener(this);
 		setup();
@@ -141,6 +142,9 @@ public abstract class AbstractToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/24 22:25:56  venku
+   - documentation
+
    Revision 1.8  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

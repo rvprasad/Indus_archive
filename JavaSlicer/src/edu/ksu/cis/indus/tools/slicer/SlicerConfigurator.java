@@ -280,8 +280,14 @@ public final class SlicerConfigurator
 		_interProceduralDivergenceDAButton.setText("use interprocedural variant");
 
 		if (_useDDAButton.getSelection()) {
-			_interProceduralDivergenceDAButton.setSelection(((Boolean) _cfg.getProperty(
-					SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA)).booleanValue());
+			final Boolean _interProceduralDDA =
+				((Boolean) _cfg.getProperty(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA));
+
+			if (_interProceduralDDA != null) {
+				_interProceduralDivergenceDAButton.setSelection(_interProceduralDDA.booleanValue());
+			} else {
+				_interProceduralDivergenceDAButton.setSelection(false);
+			}
 		} else {
 			_interProceduralDivergenceDAButton.setEnabled(false);
 		}
@@ -497,9 +503,10 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/07/28 17:20:11  venku
+   - incorrect field used to set value of ofa_for_interference. FIXED.
    Revision 1.27  2004/07/27 11:07:22  venku
    - updated project to use safe lock analysis.
-
    Revision 1.26  2004/07/21 05:07:25  venku
    - button to toggle usage of OFA for ReadyDA was not being disabled when
      ready da was disabled.

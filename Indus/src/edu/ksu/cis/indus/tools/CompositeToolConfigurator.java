@@ -46,38 +46,38 @@ import org.eclipse.swt.widgets.MessageBox;
  */
 public final class CompositeToolConfigurator
   extends AbstractToolConfigurator {
-	/**
+	/** 
 	 * This combo presents the available configurations.
 	 */
 	private Combo configCombo;
 
-	/**
+	/** 
 	 * This is composite on which the child configurator will be displayed.
 	 */
 	private Composite childComposite;
 
-	/**
+	/** 
 	 * This is the composite configuration being configured.
 	 *
 	 * @invariant compositeConfiguration != null
 	 */
 	private CompositeToolConfiguration compositeConfiguration;
 
-	/**
+	/** 
 	 * The factory used to create a new configuration instance.
 	 *
 	 * @invariant toolConfigFactory != null
 	 */
 	private IToolConfigurationFactory toolConfigFactory;
 
-	/**
+	/** 
 	 * This is the child configurator to be used to configure each instance of configuration.
 	 *
 	 * @invariant childConfigurator != null
 	 */
 	private IToolConfigurator childConfigurator;
 
-	/**
+	/** 
 	 * This is the index that is selected in the combo.
 	 */
 	private int selectedIndex;
@@ -143,6 +143,7 @@ public final class CompositeToolConfigurator
 					recordSelection();
 				}
 			});
+
 		configCombo.setVisible(true);
 
 		final Button _newConfig = new Button(parent, SWT.PUSH);
@@ -153,6 +154,9 @@ public final class CompositeToolConfigurator
 		_newConfig.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					createNewConfiguration();
+					displayChild();
+					parent.layout();
+					parent.pack();
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
@@ -200,10 +204,13 @@ public final class CompositeToolConfigurator
 		childComposite.setVisible(true);
 
 		final int _index = configCombo.getSelectionIndex();
-		final IToolConfiguration _tc = (IToolConfiguration) compositeConfiguration.configurations.get(_index);
-		compositeConfiguration.setActiveToolConfiguration(_tc);
-		childConfigurator.setConfiguration(_tc);
-		childConfigurator.initialize(childComposite);
+
+		if (_index != -1) {
+			final IToolConfiguration _tc = (IToolConfiguration) compositeConfiguration.configurations.get(_index);
+			compositeConfiguration.setActiveToolConfiguration(_tc);
+			childConfigurator.setConfiguration(_tc);
+			childConfigurator.initialize(childComposite);
+		}
 	}
 
 	/**
@@ -252,6 +259,10 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/05/29 00:11:43  venku
+   - moved the OK button out of the composite configurator.
+   - the client will provide a composite to the configurator to display and
+     collect info and the client will handle the closing of the composite's parent.
    Revision 1.15  2004/03/22 00:42:32  venku
    - refactoring.
    - enabled configuration name editing.
