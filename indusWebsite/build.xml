@@ -8,7 +8,12 @@
 
        	<scp todir="${login}@projects.cis.ksu.edu:../../groups/indus/htdocs/"
        		keyfile="${user.home}/.ssh/id_rsa" passphrase="">
-       	   	<fileset dir="${basedir}" excludes=".project .cvsignore build.xml lib"/>
+       	   	<fileset dir="${basedir}">
+                <exclude name=".project"/>
+                <exclude name=".cvsignore"/>
+                <exclude name="build.xml"/>
+                <exclude name="lib/**"/>
+            </fileset>
   		</scp>		
 	</target>
 	
