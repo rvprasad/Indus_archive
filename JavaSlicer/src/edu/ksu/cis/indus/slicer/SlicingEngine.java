@@ -34,8 +34,8 @@ import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses;
+package edu.ksu.cis.indus.staticanalyses.impl;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalysis;
 
 import java.util.ArrayList;

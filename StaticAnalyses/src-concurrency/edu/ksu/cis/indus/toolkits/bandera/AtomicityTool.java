@@ -30,9 +30,9 @@ import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.concurrency.atomicity.AtomicStmtDetector;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 
 import java.util.ArrayList;
