@@ -93,9 +93,16 @@ public class TagBasedSlicingTransformer
 	private Object sliceType;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private SlicingTag seedTag = new SlicingTag(SLICING_TAG, true);
+
+	/**
 	 * The tag to be used during transformation.
 	 */
-	private SlicingTag tag = new SlicingTag(SLICING_TAG);
+	private SlicingTag tag = new SlicingTag(SLICING_TAG, false);
 
 	/**
 	 * The name of the tag instance active in this instance of the transformer.
@@ -135,9 +142,10 @@ public class TagBasedSlicingTransformer
 		 *
 		 * @param name DOCUMENT ME!
 		 * @param targetCount DOCUMENT ME!
+		 * @param isSeed DOCUMENT ME!
 		 */
-		BranchingSlicingTag(final String name, final int targetCount) {
-			super(name);
+		BranchingSlicingTag(final String name, final int targetCount, final boolean isSeed) {
+			super(name, isSeed);
 			targets = new ArrayList(targetCount);
 			count = targetCount;
 		}
@@ -205,12 +213,21 @@ public class TagBasedSlicingTransformer
 		private final String name;
 
 		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
+		 */
+		private final boolean seed;
+
+		/**
 		 * Creates a new SlicingTag object.
 		 *
 		 * @param theName DOCUMENT ME!
+		 * @param isSeed DOCUMENT ME!
 		 */
-		public SlicingTag(final String theName) {
+		public SlicingTag(final String theName, final boolean isSeed) {
 			name = theName;
+			seed = isSeed;
 		}
 
 		/**
@@ -222,6 +239,17 @@ public class TagBasedSlicingTransformer
 		 */
 		public String getName() {
 			return name;
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 *
+		 * @return DOCUMENT ME!
+		 */
+		public boolean isSeed() {
+			return seed;
 		}
 
 		/**
@@ -240,7 +268,7 @@ public class TagBasedSlicingTransformer
 	 */
 	public void setTagName(final String theTagName) {
 		if (theTagName != null) {
-			tag = new SlicingTag(theTagName);
+			tag = new SlicingTag(theTagName, false);
 			tagName = theTagName;
 		}
 	}
@@ -397,22 +425,60 @@ public class TagBasedSlicingTransformer
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public void transform(final Stmt stmt, final SootMethod method) {
-		if (stmt.getTag(tagName) == null) {
+		tagStmt(stmt, method, tag, false);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(ValueBox, Stmt, SootMethod)
+	 */
+	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
+		tagValueBox(vBox, stmt, method, tag);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.jimple.Stmt, soot.SootMethod)
+	 */
+	protected void transformSeed(final Stmt stmt, final SootMethod method) {
+		tagStmt(stmt, method, seedTag, true);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.ValueBox, soot.jimple.Stmt,
+	 * 		soot.SootMethod)
+	 */
+	protected void transformSeed(ValueBox vBox, Stmt stmt, SootMethod method) {
+		tagValueBox(vBox, stmt, method, seedTag);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 * @param theTag DOCUMENT ME!
+	 * @param seed DOCUMENT ME!
+	 */
+	private void tagStmt(final Stmt stmt, final SootMethod method, final SlicingTag theTag, final boolean seed) {
+		SlicingTag stmtTag = (SlicingTag) stmt.getTag(tagName);
+
+		if (stmtTag == null || (!seed && stmtTag.isSeed())) {
 			if (stmt instanceof IfStmt) {
-				stmt.addTag(new BranchingSlicingTag(tag.getName(), 2));
+				stmt.addTag(new BranchingSlicingTag(tag.getName(), 2, seed));
 			} else if (stmt instanceof GotoStmt) {
-				stmt.addTag(new BranchingSlicingTag(tag.getName(), 1));
+				stmt.addTag(new BranchingSlicingTag(tag.getName(), 1, seed));
 			} else if (stmt instanceof LookupSwitchStmt) {
-				stmt.addTag(new BranchingSlicingTag(tag.getName(), ((LookupSwitchStmt) stmt).getTargetCount()));
+				stmt.addTag(new BranchingSlicingTag(tag.getName(), ((LookupSwitchStmt) stmt).getTargetCount(), seed));
 			} else if (stmt instanceof TableSwitchStmt) {
 				TableSwitchStmt t = (TableSwitchStmt) stmt;
-				stmt.addTag(new BranchingSlicingTag(tag.getName(), (t.getHighIndex() - t.getLowIndex())));
+				stmt.addTag(new BranchingSlicingTag(tag.getName(), (t.getHighIndex() - t.getLowIndex()), seed));
 			} else {
-				stmt.addTag(tag);
+				stmt.addTag(theTag);
 			}
 
 			if (method.getTag(tagName) == null) {
-				method.addTag(tag);
+				method.addTag(theTag);
 			}
 
 			if (LOGGER.isInfoEnabled()) {
@@ -422,17 +488,26 @@ public class TagBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(ValueBox, Stmt, SootMethod)
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param vBox DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 * @param theTag DOCUMENT ME!
 	 */
-	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		if (vBox.getTag(tagName) == null) {
-			vBox.addTag(tag);
+	private void tagValueBox(final ValueBox vBox, final Stmt stmt, final SootMethod method, final SlicingTag theTag) {
+		SlicingTag valueTag = (SlicingTag) stmt.getTag(tagName);
+
+		if (valueTag == null || (theTag != seedTag && valueTag.isSeed())) {
+			vBox.addTag(theTag);
 
 			if (stmt.getTag(tagName) == null) {
-				stmt.addTag(tag);
+				stmt.addTag(theTag);
 
 				if (method.getTag(tagName) == null) {
-					method.addTag(tag);
+					method.addTag(theTag);
 				}
 			}
 
@@ -447,6 +522,11 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/13 14:08:08  venku
+   - added a new tag class for the purpose of recording branching information.
+   - renamed fixReturnStmts() to makeExecutable() and raised it
+     into ISlicingBasedTransformer interface.
+   - ripple effect.
    Revision 1.13  2003/11/05 09:05:28  venku
    - For strange reasons the StringTag does not fulfill our needs.
      So, we introduce a new class, SlicingTag.

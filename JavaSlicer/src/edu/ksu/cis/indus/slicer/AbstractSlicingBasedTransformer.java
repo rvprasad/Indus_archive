@@ -15,7 +15,15 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import soot.SootMethod;
+import soot.ValueBox;
+
+import soot.jimple.Stmt;
+
 import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 
 /**
@@ -34,13 +42,70 @@ public abstract class AbstractSlicingBasedTransformer
 	 * <p></p>
 	 */
 	public void makeExecutable() {
-        // TODO: implement me!
+		// TODO: implement me!
 	}
+
+	/**
+	 * Marks the given criteria as included in the slice.  {@inheritDoc}
+	 *
+	 * @param seedcriteria DOCUMENT ME!
+	 *
+	 * @see edu.ksu.cis.indus.slicer.ISlicingBasedTransformer#processSeedCriteria(java.util.Collection)
+	 */
+	public final void processSeedCriteria(final Collection seedcriteria) {
+		for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
+			AbstractSliceCriterion crit = (AbstractSliceCriterion) i.next();
+
+			if (crit instanceof SliceExpr) {
+				SliceExpr expr = (SliceExpr) crit;
+				transformSeed((ValueBox) expr.getCriterion(), expr.getOccurringStmt(), expr.getOccurringMethod());
+			} else if (crit instanceof SliceStmt) {
+				SliceStmt stmt = (SliceStmt) crit;
+				transformSeed((Stmt) stmt.getCriterion(), stmt.getOccurringMethod());
+			}
+			crit.sliced();
+		}
+	}
+
+	/**
+	 * {@inheritDoc} Does nothing.
+	 *
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
+		// does nothing
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 */
+	protected abstract void transformSeed(final Stmt stmt, final SootMethod method);
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param vb DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 */
+	protected abstract void transformSeed(final ValueBox vb, final Stmt stmt, final SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/13 14:08:08  venku
+   - added a new tag class for the purpose of recording branching information.
+   - renamed fixReturnStmts() to makeExecutable() and raised it
+     into ISlicingBasedTransformer interface.
+   - ripple effect.
    Revision 1.1  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete
@@ -49,5 +114,4 @@ public abstract class AbstractSlicingBasedTransformer
      classification.
    - Added a new class to house the logic for fixing
      return statements in case of backward executable slice.
-
  */

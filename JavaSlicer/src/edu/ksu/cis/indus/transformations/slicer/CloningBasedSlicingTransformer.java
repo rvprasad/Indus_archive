@@ -375,13 +375,6 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
-	 */
-	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		// does nothing
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public void transform(final Stmt stmt, final SootMethod method) {
@@ -391,6 +384,21 @@ public class CloningBasedSlicingTransformer
 
 		writeIntoAt(sliced, slicedSL, stmt, unslicedSL);
 		addMapping(sliced, stmt, method);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.jimple.Stmt, soot.SootMethod)
+	 */
+	protected void transformSeed(Stmt stmt, SootMethod method) {
+		// TODO: Auto-generated method stub
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.ValueBox, soot.jimple.Stmt,
+	 * 		soot.SootMethod)
+	 */
+	protected void transformSeed(ValueBox vb, Stmt stmt, SootMethod method) {
+		// TODO: Auto-generated method stub
 	}
 
 	/**
@@ -519,9 +527,13 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/11/13 14:08:08  venku
+   - added a new tag class for the purpose of recording branching information.
+   - renamed fixReturnStmts() to makeExecutable() and raised it
+     into ISlicingBasedTransformer interface.
+   - ripple effect.
    Revision 1.27  2003/11/03 08:02:03  venku
    - ripple effect of changes to ITransformer.
-
    Revision 1.26  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete

@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.transformations.common.ITransformer;
 
+import java.util.Collection;
+
 
 /**
  * This interface should be implemented by slicing-based transformers.
@@ -54,11 +56,25 @@ public interface ISlicingBasedTransformer
 	 * Transforms the slice into an executable slice.
 	 */
 	void makeExecutable();
+
+	/**
+	 * Deals with seed criteria based on the nature of the implementation.
+	 *
+	 * @param seedcriteria is the collection of seed criteria.
+	 *
+	 * @pre seedCriteria != null and seedCriteria.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 */
+	void processSeedCriteria(Collection seedcriteria);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/13 14:08:08  venku
+   - added a new tag class for the purpose of recording branching information.
+   - renamed fixReturnStmts() to makeExecutable() and raised it
+     into ISlicingBasedTransformer interface.
+   - ripple effect.
    Revision 1.2  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete
@@ -69,10 +85,10 @@ public interface ISlicingBasedTransformer
      return statements in case of backward executable slice.
    Revision 1.1  2003/10/13 00:58:04  venku
  *** empty log message ***
-       Revision 1.2  2003/09/27 22:38:30  venku
-       - package documentation.
-       - formatting.
-       Revision 1.1  2003/09/15 07:52:08  venku
-       - added a new transformer interface specifically targetted for slicing.
-       - implemented the above interface.
+           Revision 1.2  2003/09/27 22:38:30  venku
+           - package documentation.
+           - formatting.
+           Revision 1.1  2003/09/15 07:52:08  venku
+           - added a new transformer interface specifically targetted for slicing.
+           - implemented the above interface.
  */
