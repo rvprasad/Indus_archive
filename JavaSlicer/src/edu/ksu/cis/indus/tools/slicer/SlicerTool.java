@@ -525,14 +525,21 @@ public final class SlicerTool
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Returns the call graph used by the slicer.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the call graph used by the slicer.
 	 */
 	ICallGraphInfo getCallGraph() {
 		return callGraph;
+	}
+
+	/**
+	 * Returns the environment in which the slicer works.
+	 *
+	 * @return the environment in which the slicer ran or will run.
+	 */
+	IEnvironment getEnvironment() {
+		return ofa.getEnvironment();
 	}
 
 	/**
@@ -589,6 +596,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/15 21:27:03  venku
+   - deleted initialize()
+   - added a new method to extract call graph
    Revision 1.21  2003/11/09 08:00:39  venku
    - if criteria is empty, slicer will not be run.
    - destringizeConfiguration() now creates a new configuration
