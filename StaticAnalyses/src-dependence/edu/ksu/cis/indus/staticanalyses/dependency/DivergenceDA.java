@@ -270,7 +270,7 @@ public class DivergenceDA
 				DEPENDENTS.addAll(BB.getStmtsOf());
 
 				// in case of injecting info into a pre-divergent basic block, do not propogate the information.
-				if (PREDIVPOINTBBS.contains(BB) && !DEPENDENTS.isEmpty()) {
+				if (PREDIVPOINTBBS.contains(BB)) {
 					Object o = null;
 
 					for (Iterator j = DEPENDENTS.iterator(); j.hasNext();) {
@@ -284,7 +284,7 @@ public class DivergenceDA
 					List l = DEPENDENTS.subList(0, DEPENDENTS.indexOf(o));
 					l.add(o);
 					recordDependenceInfoInBB(DEPENDEES, METHOD, l, sl);
-				} else if (!DEPENDEES.isEmpty()) {
+				} else {
 					// in case of non-pre-divergent basic block, remember to propogate the information to the successors.
 					recordDependenceInfoInBB(DEPENDEES, METHOD, DEPENDENTS, sl);
 					SUCCS.clear();
@@ -573,6 +573,9 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/25 19:12:26  venku
+   - documentation.
+
    Revision 1.21  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
