@@ -55,6 +55,8 @@ import soot.SootMethod;
  */
 public class EntryControlDA
   extends AbstractDependencyAnalysis {
+	// TODO: Link to documentation describing direct entry-based intraprocedural control dependence needs to be added.
+
 	/*
 	 * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in
 	 * the list corresponds to the statement at the same location in the statement list of the method.  The collection is the
@@ -67,16 +69,16 @@ public class EntryControlDA
 	private static final Log LOGGER = LogFactory.getLog(EntryControlDA.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is a cache that contains the nodes with multiple children.
+	 *
+	 * @invariant nodesWithChildrenCache.oclIsKindOf(Collection(INode))
 	 */
-	protected final Collection nodesWithChildrenCache = new HashSet();
+	protected Collection nodesWithChildrenCache;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is a cache that contains the nodes.
+	 *
+	 * @invariant nodesCache.oclIsKindOf(Collection(INode))
 	 */
 	protected List nodesCache;
 
@@ -202,6 +204,8 @@ public class EntryControlDA
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
 	 * @return a stringized representation of this object.
+	 *
+	 * @post result != null
 	 */
 	public final String toString() {
 		final StringBuffer _result =
@@ -250,14 +254,15 @@ public class EntryControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the bitset at the given location. If none exists, a new bit set is added.
 	 *
-	 * @param bitsets DOCUMENT ME!
-	 * @param location DOCUMENT ME!
+	 * @param bitsets from which to retrieve the bit set.
+	 * @param location identifies the bitset in <code>bitsets</code>.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the bitset.
+	 *
+	 * @pre bitsets != null and 0 &lt;= location &lt; bitsets.length
+	 * @post result != null
 	 */
 	protected final BitSet getBitSetAtLocation(final BitSet[] bitsets, final int location) {
 		BitSet _temp = bitsets[location];
@@ -270,14 +275,17 @@ public class EntryControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the given node.  Basically, it propagates the tokens to it's successors and returns the successors whose
+	 * token sets were modified.
 	 *
-	 * @param node DOCUMENT ME!
-	 * @param tokenSets DOCUMENT ME!
+	 * @param node to be processed.
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the collection of nodes whose token sets were modified.
+	 *
+	 * @pre node != null and tokenSets != null
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post node.getSuccsOf().containsAll(result)
 	 */
 	protected Collection processNode(final INode node, final BitSet[][] tokenSets) {
 		final Collection _result = new HashSet();
@@ -317,26 +325,38 @@ public class EntryControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Returns a collection of nodes with multiple children.
+	 *
+	 * @return a collection of nodes
+	 *
+	 * @post result != null
+	 * @post result->forall(o | o.getSuccsOf().size() > 1)
 	 */
-	private void getNodesWithChildren() {
-		nodesWithChildrenCache.clear();
+	private Collection getNodesWithChildren() {
+		final Collection _result = new HashSet();
 
 		for (final Iterator _i = nodesCache.iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
 
 			if (_node.getSuccsOf().size() > 1) {
-				nodesWithChildrenCache.add(_node);
+				_result.add(_node);
 			}
 		}
+		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Calculates control dependency information from the given token information.
 	 *
-	 * @param tokenSets DOCUMENT ME!
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an array of bitsets.  The length of the array and each of the bitset in it is equal to the number of nodes in
+	 * 		   the graph.  The nth bitset captures the dependence information via set bits.  The BitSets capture
+	 * 		   dependent->dependee information.
+	 *
+	 * @pre tokenSets != null
+	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
+	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
 	private BitSet[] calculateCDFromTokenInfo(final BitSet[][] tokenSets) {
 		// calculate control dependence based on token information
@@ -366,25 +386,29 @@ public class EntryControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Calculates the control dependency from a directed graph.  This calculates the dependence information in terms of nodes
+	 * in the graph.  This is later translated to statement level information by {@link
+	 * EntryControlDA#fixupMaps(BasicBlockGraph, BitSet[], SootMethod) fixupMaps}.
 	 *
-	 * @param graph DOCUMENT ME!
+	 * @param graph for which dependence info needs to be calculated.  Each node in the graph should have an unique index and
+	 * 		  the indices should start from 0.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return an array of bitsets.  The length of the array and each of the bitset in it is equal to the number of nodes in
+	 * 		   the graph.  The nth bitset captures the dependence information via set bits.  The BitSets capture
+	 * 		   dependent->dependee information.
+	 *
+	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
+	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
 	private BitSet[] computeControlDependency(final IDirectedGraph graph) {
 		nodesCache = graph.getNodes();
-		getNodesWithChildren();
+		nodesWithChildrenCache = getNodesWithChildren();
 
 		final BitSet[][] _tokenSets = new BitSet[nodesCache.size()][nodesCache.size()];
-
 		final IWorkBag _wb = injectTokensAndGenerateWorkForTokenPropagation(_tokenSets);
 
 		while (_wb.hasWork()) {
 			final INode _node = (INode) _wb.getWork();
-
 			_wb.addAllWorkNoDuplicates(processNode(_node, _tokenSets));
 		}
 
@@ -458,13 +482,15 @@ public class EntryControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Injects tokens into token sets of successor nodes of nodes with multiple children and adds the successors to a new
+	 * workbag which is returned.
 	 *
-	 * @param tokenSets DOCUMENT ME!
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a work bag with nodes that contain nodes to process.
+	 *
+	 * @pre tokenSets != null
+	 * @post result != null
 	 */
 	private IWorkBag injectTokensAndGenerateWorkForTokenPropagation(final BitSet[][] tokenSets) {
 		final IWorkBag _wb = new LIFOWorkBag();
@@ -488,22 +514,30 @@ public class EntryControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Propagates the tokens from <code>parentNodeTokenSet</code> into the token set corresponding to the node at
+	 * <code>nodeIndex</code> at the nodes in <code>succs</code>.
 	 *
-	 * @param parentNodeTokenSet DOCUMENT ME!
-	 * @param succsOf DOCUMENT ME!
-	 * @param nodeIndex DOCUMENT ME!
-	 * @param tokenSets DOCUMENT ME!
+	 * @param parentNodeTokenSet contains the tokens to be propagated.
+	 * @param succs is the collection of nodes at which the target token sets occur.
+	 * @param nodeIndex is the index of the node that identifies the target token set along with nodes in <code>succs</code>.
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the nodes from <code>succs</code> into which tokens were propagated.
+	 *
+	 * @pre parentNodeTokenSet != null and succs != null and nodeIndex != null and tokenSets != null
+	 * @pre 0 &lt;= parentNodeTokenSet.cardinality() &lt;= tokenSets.length
+	 * @pre succs.oclIsKindOf(Collection(INode))
+	 * @pre 0 &lt;= nodeIndex &lt; nodesCache.size()
+	 * @post succs.containsAll(result)
+	 * @post result.oclIsKindOf(Collection(INode)) and result != null
 	 */
-	private Collection propagateTokensIntoNodes(final BitSet parentNodeTokenSet, final Collection succsOf,
-		final int nodeIndex, final BitSet[][] tokenSets) {
+	private Collection propagateTokensIntoNodes(final BitSet parentNodeTokenSet, final Collection succs, final int nodeIndex,
+		final BitSet[][] tokenSets) {
 		final Collection _result = new HashSet();
-		final Iterator _j = succsOf.iterator();
+		final Iterator _j = succs.iterator();
 		final BitSet _t = new BitSet(1);
 
-		for (int _k = succsOf.size(); _k > 0; _k--) {
+		for (int _k = succs.size(); _k > 0; _k--) {
 			final INode _succ = (INode) _j.next();
 			final int _succIndex = nodesCache.indexOf(_succ);
 			final BitSet[] _succBitSets = tokenSets[_succIndex];
@@ -533,6 +567,8 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/06/06 02:28:25  venku
+   - completed implementation of indirect control dependence calculation.
    Revision 1.19  2004/06/05 09:52:24  venku
    - INTERIM COMMIT
      - Reimplemented EntryControlDA.  It provides indirect control dependence info.
