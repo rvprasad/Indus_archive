@@ -8,15 +8,15 @@
 
 <property name="bin" value="bin"/>
 <property name="dist" value="dist"/>
-<property name="build" value="${dist}/classes"/>
+<property name="build" value="${dist}"/>
 <property name="design" value="design"/>
 <property name="demo" value="demo"/>
 <property name="docs" value="docs"/>
 <property name="gui" value="GUI"/>
 <property name="src" value="${basedir}"/>
 <property name="package" value="edu.ksu.cis.bandera.bfa"/>
-<property name="jdklink" value="http://boss/docs/java/jdk-1.3.1/api/"/>
-<property name="sootlink" value="http://boss/docs/compilers/soot-0.x/"/>
+<property name="jdklink" value="http://127.0.0.1/docs/java/jdk-1.3.1/api/"/>
+<property name="sootlink" value="http://127.0.0.1/docs/compilers/soot-0.x/"/>
 
 
 <target name="init">
@@ -42,7 +42,7 @@
 <target name="javadocs">
     <mkdir dir="${docs}/javadocs"/>
     <javadoc sourcepath="${basedir}" packagenames="${package}.*"
-             destdir="${docs}/javadocs" access="package" use="true"
+             destdir="${docs}/javadocs" access="private" use="true"
              author="true">
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
@@ -57,11 +57,12 @@
 <target name="backup" depends="init">
     <mkdir dir="${dist}"/>
     <property name="filename" value="${dist}/${ant.project.name}-${DSTAMP}"/>
-    <jar jarfile="${filename}.jar" basedir="${build}"/>
+    <jar jarfile="${filename}.jar" basedir="${build}" excludes="*.jar, *.tar, *.tgz"/>
     <tar tarfile="${filename}.tar" basedir="${basedir}"
          excludes="**/\..*, **/rational/html/**"
          includes="${demo}/, edu/, ${filename}.jar, ${design}/, ${docs}/, ${docs}/README.TXT, ${bin}/, build.xml"/>
     <gzip src="${filename}.tar" zipfile="${filename}.tgz"/>
+    <delete file="${filename}.tar"/>
 </target>
 
 <target name="clean">
