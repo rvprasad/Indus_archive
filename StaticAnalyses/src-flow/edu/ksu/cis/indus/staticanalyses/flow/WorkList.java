@@ -37,7 +37,8 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -52,9 +53,9 @@ import org.apache.log4j.Logger;
  */
 public class WorkList {
 	/**
-	 * An instance of <code>Logger</code> used for logging purposes.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = Logger.getLogger(WorkList.class);
+	private static final Log LOGGER = LogFactory.getLog(WorkList.class);
 
 	/**
 	 * The backend workbag object which holds the work piece.
@@ -102,35 +103,35 @@ public class WorkList {
 				LOGGER.debug("Processing work:" + w);
 			}
 			w.execute();
-            w.finished();
+			w.finished();
 		}
 	}
 }
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.5  2003/08/18 11:08:10  venku
+   Name change for pooling support.
    Revision 1.4  2003/08/17 11:19:13  venku
    Placed the simple SendValuesWork class into a separate file.
    Extended it with work pool support.
    Amended AbstractWork and WorkList to enable work pool support.
-
    Revision 1.3  2003/08/17 10:33:03  venku
    WorkList does not inherit from WorkBag rather contains an instance of WorkBag.
    Ripple effect of the above change.
 
-   
    Revision 1.2  2003/08/15 04:07:56  venku
    Spruced up documentation and specification.
    - Important change is that previously all types of retype and nullconstant were let through.
      This is incorrect as there is not type filtering happening.  This has been fixed.  We now
      only let those that are not of the monitored type.
-     
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 0.9  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

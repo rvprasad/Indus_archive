@@ -53,7 +53,7 @@ public class ArrayVariant
 	/**
 	 * The array type being represented by this variant.
 	 *
-	 * @pre _type != null
+	 * @invariant  _type != null
 	 */
 	public final ArrayType _type;
 
@@ -75,6 +75,10 @@ public class ArrayVariant
    ChangeLog:
 
    $Log$
+   Revision 1.2  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
+
 
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

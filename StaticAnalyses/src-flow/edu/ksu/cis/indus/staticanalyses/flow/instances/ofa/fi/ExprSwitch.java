@@ -78,8 +78,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FGAccessNode;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FieldAccessExprWork;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.InvokeExprWork;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -91,9 +91,9 @@ import org.apache.log4j.Logger;
 public class ExprSwitch
   extends AbstractExprSwitch {
 	/**
-	 * An instance of <code>Logger</code> used for logging purpose.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(ExprSwitch.class);
+	private static final Log LOGGER = LogFactory.getLog(ExprSwitch.class);
 
 	/**
 	 * Creates a new <code>ExprSwitch</code> instance.
@@ -468,15 +468,17 @@ public class ExprSwitch
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.3  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
    Revision 1.2  2003/08/15 02:54:06  venku
    Spruced up specification and documentation for flow-insensitive classes.
    Changed names in AbstractExprSwitch.
    Ripple effect of above change.
    Formatting changes to IPrototype.
 
-   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

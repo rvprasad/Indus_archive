@@ -48,10 +48,10 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -67,11 +67,11 @@ import java.util.Iterator;
  */
 public class ArrayAccessExprWork
   extends AbstractAccessExprWork {
-	/**
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 */
-	private static final Logger LOGGER = LogManager.getLogger(ArrayAccessExprWork.class);
-
+/**
+ * The logger used by instances of this class to log messages.
+ * 
+ */
+private static final Log LOGGER = LogFactory.getLog(ArrayAccessExprWork.class);
 	/**
 	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
 	 * primary.
@@ -141,6 +141,10 @@ public class ArrayAccessExprWork
    ChangeLog:
    
    $Log$
+   Revision 1.4  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+
    Revision 1.3  2003/08/16 21:55:14  venku
    Ripple effect of changing FA._FA to FA._fa
 

@@ -58,7 +58,7 @@ public abstract class AbstractIndexManager
 	/**
 	 * The collection of indices managed by this object.
 	 *
-	 * @pre indices != null
+	 * @invariant indices != null
 	 */
 	protected final Set indices = new HashSet();
 
@@ -132,6 +132,10 @@ public abstract class AbstractIndexManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
+
    Revision 1.2  2003/08/12 18:39:56  venku
    Ripple effect of moving IPrototype to Indus.
    Revision 1.1  2003/08/07 06:40:24  venku

@@ -43,7 +43,6 @@ import soot.SootMethod;
 import soot.Trap;
 import soot.Value;
 
-
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InvokeExpr;
@@ -58,8 +57,8 @@ import soot.toolkits.scalar.SimpleLocalDefs;
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,16 +81,9 @@ import java.util.List;
 public class MethodVariant
   implements IVariant {
 	/**
-	 * An instance of <code>Logger</code> used for logging purposes.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(MethodVariant.class.getName());
-
-	/**
-	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
-	 *
-	 * @invariant _fa != null
-	 */
-	public final FA _fa;
+	private static final Log LOGGER = LogFactory.getLog(MethodVariant.class);
 
 	/**
 	 * The context which resulted in the creation of this variant.
@@ -99,6 +91,13 @@ public class MethodVariant
 	 * @invariant _context != null
 	 */
 	public final Context _context;
+
+	/**
+	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
+	 *
+	 * @invariant _fa != null
+	 */
+	public final FA _fa;
 
 	/**
 	 * The method represented by this variant.
@@ -511,19 +510,20 @@ public class MethodVariant
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.4  2003/08/17 10:48:33  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
    Revision 1.3  2003/08/16 21:50:51  venku
    Removed ASTVariant as it did not contain any data that was used.
    Concretized AbstractValuedVariant and renamed it to ValuedVariant.
    Ripple effect of the above change in some.
    Spruced up documentation and specification.
-
    Revision 1.2  2003/08/16 02:50:22  venku
    Spruced up documentation and specification.
    Moved onNewXXX() methods from IFGNode to AbstractFGNode.
 
-   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

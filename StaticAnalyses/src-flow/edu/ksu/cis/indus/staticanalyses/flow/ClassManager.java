@@ -60,7 +60,7 @@ public class ClassManager
 	/**
 	 * The instance of the framework in which this object is used.
 	 *
-	 * @pre fa != null
+	 * @invariant fa != null
 	 */
 	protected final FA fa;
 
@@ -155,6 +155,10 @@ public class ClassManager
    ChangeLog:
    
    $Log$
+   Revision 1.4  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+
    Revision 1.3  2003/08/16 03:02:42  venku
    Spruced up documentation and specification.
 

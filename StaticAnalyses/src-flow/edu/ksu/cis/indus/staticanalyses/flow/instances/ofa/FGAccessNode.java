@@ -38,7 +38,8 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
 import edu.ksu.cis.indus.staticanalyses.flow.WorkList;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 
@@ -57,9 +58,9 @@ import java.util.Collection;
 public class FGAccessNode
   extends OFAFGNode {
 	/**
-	 * An instance of <code>Logger</code> used for logging purpose.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = Logger.getLogger(FGAccessNode.class.getName());
+	private static final Log LOGGER = LogFactory.getLog(FGAccessNode.class);
 
 	/**
 	 * The work associated with this node.
@@ -118,13 +119,14 @@ public class FGAccessNode
 
 /*
    ChangeLog:
-
    $Log$
-
+   Revision 1.2  2003/08/15 03:39:53  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
+   Renamed a few fields/parameter variables to avoid name confusion.
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-
    Revision 1.6  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

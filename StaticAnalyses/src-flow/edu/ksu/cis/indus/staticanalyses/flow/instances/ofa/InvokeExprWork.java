@@ -56,8 +56,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariantManager;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Iterator;
 
@@ -76,9 +76,9 @@ import java.util.Iterator;
 public class InvokeExprWork
   extends AbstractAccessExprWork {
 	/**
-	 * An instance of <code>Logger</code> used for logging purpose.
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(InvokeExprWork.class);
+	private static final Log LOGGER = LogFactory.getLog(InvokeExprWork.class);
 
 	/**
 	 * This instance is used to create new virtual invoke ast nodes.
@@ -222,17 +222,16 @@ public class InvokeExprWork
 
 /*
    ChangeLog:
-
    $Log$
+   Revision 1.4  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
    Revision 1.3  2003/08/16 21:55:14  venku
    Ripple effect of changing FA._FA to FA._fa
-
    Revision 1.2  2003/08/15 03:39:53  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosened later on in implementaions.
    Renamed a few fields/parameter variables to avoid name confusion.
-
-
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

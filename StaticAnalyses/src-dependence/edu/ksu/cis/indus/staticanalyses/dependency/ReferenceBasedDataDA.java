@@ -105,7 +105,7 @@ public class AliasedDataDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AAnalysis#analyze()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
 	 */
 	public boolean analyze() {
 		return true;
@@ -119,7 +119,7 @@ public class AliasedDataDA
 	 *
 	 * @pre info.get(IUseDefInfo.ID) != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AAnalysis#setup()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
 	protected void setup()
 	  throws InitializationException {
@@ -136,6 +136,9 @@ public class AliasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.2  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.1  2003/08/09 23:29:09  venku

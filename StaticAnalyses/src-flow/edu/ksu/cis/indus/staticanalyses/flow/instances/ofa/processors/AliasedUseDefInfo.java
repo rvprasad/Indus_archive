@@ -81,14 +81,14 @@ public class AliasedUseDefInfo
 	/**
 	 * This is a map from use-sites to their corresponding to def-sites.
 	 *
-	 * @pre defsMap != null
+	 * @invariant defsMap != null
 	 */
 	private final Map defsMap;
 
 	/**
 	 * This is a map from def-sites to their corresponding to use-sites.
 	 *
-	 * @pre usesMap != null
+	 * @invariant usesMap != null
 	 */
 	private final Map usesMap;
 
@@ -284,6 +284,9 @@ public class AliasedUseDefInfo
    ChangeLog:
    
    $Log$
+   Revision 1.4  2003/08/13 08:51:52  venku
+   Fixed Checkstyle formatting errors.
+
    Revision 1.3  2003/08/13 08:49:10  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosed later on in implementaions.

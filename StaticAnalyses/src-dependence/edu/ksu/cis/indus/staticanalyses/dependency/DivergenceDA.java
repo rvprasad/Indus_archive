@@ -304,7 +304,7 @@ public class DivergenceDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AAnalysis#setup()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
 	protected void setup()
 	  throws InitializationException {
@@ -382,6 +382,9 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.4  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 04:20:19  venku
