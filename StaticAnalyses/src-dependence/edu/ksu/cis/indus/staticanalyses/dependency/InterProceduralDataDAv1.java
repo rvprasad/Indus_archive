@@ -46,7 +46,7 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  */
-public class InterProceduralDataDA
+public class InterProceduralDataDAv1
   extends DependencyAnalysis {
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
@@ -74,5 +74,12 @@ public class InterProceduralDataDA
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:38:05  venku
+Major:
+ - Moved the packages under indus umbrella.
+ - Renamed MethodLocalDataDA to IntraProceduralDataDA.
+ - Added class for InterProceduralDataDA.
+ - Documented and specified the classes.
+
 
 *****/
