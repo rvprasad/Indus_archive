@@ -515,8 +515,17 @@ public final class SlicingEngine {
 	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
 	 */
 	private void generateNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
-		final Collection _newCriteria = new HashSet();
+        if (LOGGER.isDebugEnabled()) {
+            final StringBuffer _sb = new StringBuffer();
 
+            for (final Iterator _i = das.iterator(); _i.hasNext();) {
+                DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+                _sb.append(_da.getClass() + "@" + _da.hashCode() + ",");
+            }
+            LOGGER.debug("Generating criteria based on :\n" + _sb.toString());
+        }
+
+        final Collection _newCriteria = new HashSet();
 		if (sliceType.equals(COMPLETE_SLICE)) {
 			for (final Iterator _i = das.iterator(); _i.hasNext();) {
 				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
@@ -890,7 +899,7 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Includes the given method and it's declaring class in the slice.  
+	 * Includes the given method and it's declaring class in the slice.
 	 *
 	 * @param method to be included in the slice.
 	 *
@@ -1198,6 +1207,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.58  2004/01/20 17:16:45  venku
+   - coding convention.
+   - renamed includeClassHierarchyInSlice to includeClassInSlice.
+   - similarly, renamed includeMethodAndClassHierarchyInSlice.
    Revision 1.57  2004/01/20 16:49:39  venku
    - ready dependence was added to controlbased da's and useReady
      was deleted.
