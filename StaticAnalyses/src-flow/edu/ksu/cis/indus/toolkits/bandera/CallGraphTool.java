@@ -128,8 +128,8 @@ public final class CallGraphTool
 	 *
 	 * @param inputMap The Map of input values to use in the next run of this tool.
 	 *
-	 * @throws Exception DOCUMENT ME!
-	 * @throws IllegalArgumentException DOCUMENT ME!
+	 * @throws Exception <i>to satisfy interface specification</i>
+	 * @throws IllegalArgumentException when the input map does not contain information in the required format.
 	 *
 	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
 	 */
