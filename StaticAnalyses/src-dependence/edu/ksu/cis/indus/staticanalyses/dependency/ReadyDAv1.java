@@ -497,7 +497,8 @@ public class ReadyDAv1
 			}
 
 			int localEdgeCount = ((Collection) entry.getValue()).size();
-			result.append("\tFor " + entry.getKey() + "[" + entry.getKey().hashCode() + "] there are " + localEdgeCount
+            final Object _key = entry.getKey();
+			result.append("\tFor " + _key + "[" + (_key != null ? _key.hashCode() : 0) + "] there are " + localEdgeCount
 				+ " Ready dependence edges.\n");
 			result.append(temp);
 			temp.delete(0, temp.length());
@@ -816,62 +817,132 @@ public class ReadyDAv1
 			}
 		}
 
-		Collection nSet = new ArrayList();
-		Collection xSet = new ArrayList();
-
+		final Collection _nSet = new HashSet();
+		final Collection _xSet = new HashSet();
+		final Collection _tails = new HashSet();
 		/*
 		 * Iterate thru enter-monitor sites and record dependencies, in both direction, between each exit-monitor sites.
 		 */
 		for (Iterator i = enterMonitors.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			SootMethod _entryMethod = (SootMethod) entry.getKey();
+			Map.Entry _entry = (Map.Entry) i.next();
+			SootMethod _enterMethod = (SootMethod) _entry.getKey();
 
-			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-				final Object enter = j.next();
+			for (Iterator j = ((Collection) _entry.getValue()).iterator(); j.hasNext();) {
+				final Object _enter = j.next();
 
-				Pair enterPair = pairMgr.getOptimizedPair(enter, _entryMethod);
-				nSet.clear();
+				final Pair _enterPair = pairMgr.getOptimizedPair(_enter, _enterMethod);
+				_nSet.clear();
 
 				// add dependee to dependent information 
 				for (Iterator k = temp.iterator(); k.hasNext();) {
-					Pair exitPair = (Pair) k.next();
-					xSet.clear();
+					final Pair _exitPair = (Pair) k.next();
+					_xSet.clear();
 
-					final Object exit = exitPair.getFirst();
+					final Object _exit = _exitPair.getFirst();
 
-					if (ifDependentOnByRule2(enterPair, exitPair)) {
-						xSet.add(enterPair);
-						nSet.add(exitPair);
+					if (ifDependentOnByRule2(_enterPair, _exitPair)) {
+						_xSet.add(_enterPair);
+						_nSet.add(_exitPair);
 					}
 
-					if (!xSet.isEmpty()) {
-						Object _key;
-
-						if (exit.equals(SYNC_METHOD_PROXY_STMT)) {
-							_key = exitPair.getSecond();
+					if (!_xSet.isEmpty()) {
+                        normalizeEntryInformation(_xSet);
+						if (_exit.equals(SYNC_METHOD_PROXY_STMT)) {
+                            _tails.clear();
+                            final BasicBlockGraph _graph = getBasicBlockGraph((SootMethod)_exitPair.getSecond());
+                            _tails.addAll(_graph.getPseudoTails());
+                            _tails.addAll(_graph.getTails());
+                            for (final Iterator _l = _tails.iterator(); _l.hasNext(); ) {
+                                final BasicBlock _bb = (BasicBlock) _l.next();
+                                CollectionsModifier.putAllIntoCollectionInMap(dependeeMap, _bb.getTrailerStmt(), _xSet, new HashSet());
+                            }
+                            //_key = exitPair.getSecond();
 						} else {
-							_key = exit;
+                            CollectionsModifier.putAllIntoCollectionInMap(dependeeMap, _exit, _xSet, new HashSet());
+                            //_key = exit;
 						}
-						CollectionsModifier.putAllIntoCollectionInMap(dependeeMap, _key, xSet, new HashSet());
+                        //CollectionsModifier.putAllIntoCollectionInMap(dependeeMap, _key, xSet, new HashSet());
 					}
 				}
 
 				// add dependent to dependee information
-				if (!nSet.isEmpty()) {
-					Object _key;
-
-					if (enter.equals(SYNC_METHOD_PROXY_STMT)) {
-						_key = _entryMethod;
+				if (!_nSet.isEmpty()) {
+					normalizeExitInformation(_nSet);
+					if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
+                        final BasicBlock _headBB = getBasicBlockGraph(_enterMethod).getHead();
+                        Stmt _head = null;
+                        if (_headBB != null)
+                            _head = _headBB.getLeaderStmt();
+                        CollectionsModifier.putAllIntoCollectionInMap(dependeeMap, _head, _nSet, new HashSet());
+                        //_key = enterPair.getSecond();                        
 					} else {
-						_key = enter;
+                        CollectionsModifier.putAllIntoCollectionInMap(dependentMap, _enter, _nSet, new HashSet());
+						//_key = enter;
 					}
-					dependentMap.put(_key, enterPair);
+                    //CollectionsModifier.putAllIntoCollectionInMap(dependentMap, _key, nSet, new HashSet());
 				}
 			}
 		}
 	}
 
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param set
+     */
+    private void normalizeExitInformation(final Collection set) {
+        final Collection _result = new HashSet();
+        final Collection _removed = new HashSet();
+        final Collection _tails = new HashSet();
+        for (final Iterator _i = set.iterator(); _i.hasNext(); ) {
+            final Pair _pair = (Pair) _i.next();
+            final Object _first = _pair.getFirst();
+            if (!(_first instanceof Stmt)) {
+                _removed.add(_pair);
+                final SootMethod _sm = (SootMethod)_pair.getSecond();
+                _tails.clear();
+                final BasicBlockGraph _graph = getBasicBlockGraph(_sm);
+                _tails.addAll(_graph.getPseudoTails());
+                _tails.addAll(_graph.getTails());
+                for (final Iterator _j = _tails.iterator(); _j.hasNext(); ) {
+                    final BasicBlock _tail = (BasicBlock) _j.next();
+                    final Object _tailStmt = _tail.getTrailerStmt();
+                    _result.add(pairMgr.getOptimizedPair(_tailStmt, _sm));                    
+                }
+
+            }
+        }
+        set.removeAll(_removed);
+        set.addAll(_result);
+    }
+    
 	/**
+     * DOCUMENT ME!
+     * 
+     * @param set
+     */
+    private void normalizeEntryInformation(final Collection set) {
+        final Collection _result = new HashSet();
+        final Collection _removed = new HashSet();
+        for (final Iterator _i = set.iterator(); _i.hasNext(); ) {
+            final Pair _pair = (Pair) _i.next();
+            final Object _first = _pair.getFirst();
+            if (!(_first instanceof Stmt)) {
+                _removed.add(_pair);
+                final SootMethod _sm = (SootMethod)_pair.getSecond();
+                final BasicBlock _head = getBasicBlockGraph(_sm).getHead();
+                Object _headStmt = null;
+                if (_head != null) {
+                    _headStmt = _head.getLeaderStmt();
+                _result.add(pairMgr.getOptimizedPair(_headStmt, _sm));
+                }
+            }
+        }
+        set.removeAll(_removed);
+        set.addAll(_result);
+    }
+
+    /**
 	 * Processes the system as per to rule 4 in the report.  For each possible wait and notifyXX call-sites in different
 	 * threads, the combination  of these to be  considered is determined by <code>ifRelatedByRule4()</code>.
 	 */
@@ -926,6 +997,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/01/21 13:52:12  venku
+   - documentation.
+
    Revision 1.38  2004/01/21 13:44:09  venku
    - made ready dependence to consider synchronized methods as well.
    - ReadyDAv2 uses escape information for both sorts of inter-thread
