@@ -67,6 +67,18 @@ public class SliceAnnotate
 	 */
 	public void setActiveEditor(final IAction action, final IEditorPart targetEditor) {
 		this.editor = (CompilationUnitEditor) targetEditor;
+		final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+		boolean _properNature = false;
+		try {
+		 _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+		}
+		catch (CoreException _ce) {			
+			return;
+		}
+		if (!_properNature) {
+			action.setEnabled(false);
+			return;
+		}
 		Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
 					final Map _map = KaveriPlugin.getDefault().getIndusConfiguration().getLineNumbers();
@@ -155,5 +167,16 @@ public class SliceAnnotate
 	 * 		org.eclipse.jface.viewers.ISelection)
 	 */
 	public void selectionChanged(final IAction action, final ISelection selection) {
-			}
+		final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+		boolean _properNature = false;
+		try {
+		 _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+		}
+		catch (CoreException _ce) {			
+			return;
+		}
+		if (!_properNature) {
+			action.setEnabled(false);
+		}
+	}
 }

@@ -86,6 +86,17 @@ public class AddToCriteria
 	 */
 	public void setActiveEditor(final IAction action, final IEditorPart targetEditor) {
 		this.editor = (CompilationUnitEditor) targetEditor;
+		final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+		boolean _properNature = false;
+		try {
+		 _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+		}
+		catch (CoreException _ce) {			
+			return;
+		}
+		if (!_properNature) {
+			action.setEnabled(false);
+		}
 	}
 
 	/**
@@ -133,6 +144,17 @@ public class AddToCriteria
 	 * 		org.eclipse.jface.viewers.ISelection)
 	 */
 	public void selectionChanged(final IAction action, final ISelection textselection) {
+		final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+		boolean _properNature = false;
+		try {
+		 _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+		}
+		catch (CoreException _ce) {			
+			return;
+		}
+		if (!_properNature) {
+			action.setEnabled(false);
+		}
 		this.selection = textselection;
 	}
 

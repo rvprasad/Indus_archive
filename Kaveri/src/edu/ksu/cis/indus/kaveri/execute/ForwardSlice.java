@@ -83,6 +83,17 @@ public class ForwardSlice
 	 */
 	public void setActiveEditor(final IAction action, final IEditorPart targetEditor) {
 		editor = (CompilationUnitEditor) targetEditor;
+		final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+		boolean _properNature = false;
+		try {
+		 _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+		}
+		catch (CoreException _ce) {			
+			return;
+		}
+		if (!_properNature) {
+			action.setEnabled(false);
+		}
 	}
 
 	/**
@@ -105,6 +116,17 @@ public class ForwardSlice
 	 * @param selection The selected text
 	 */
 	public void selectionChanged(final IAction action, final ISelection selection) {
+		final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+		boolean _properNature = false;
+		try {
+		 _properNature = _file.getProject().hasNature("org.eclipse.jdt.core.javanature");
+		}
+		catch (CoreException _ce) {			
+			return;
+		}
+		if (!_properNature) {
+			action.setEnabled(false);
+		}
 		this.textSelection = selection;
 	}
 
