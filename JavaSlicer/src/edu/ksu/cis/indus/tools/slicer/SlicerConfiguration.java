@@ -20,8 +20,8 @@ import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
