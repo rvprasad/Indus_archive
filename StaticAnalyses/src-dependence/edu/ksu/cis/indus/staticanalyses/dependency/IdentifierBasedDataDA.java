@@ -60,8 +60,8 @@ import java.util.Map;
  */
 public class IdentifierBasedDataDA
   extends DependencyAnalysis {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(IdentifierBasedDataDA.class);
 
@@ -227,6 +227,8 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/13 05:56:08  venku
+   - bumped up log levels to error.
    Revision 1.8  2003/09/13 05:42:07  venku
    - What if the unit graphs for all methods are unavailable?  Hence,
      added a method to AbstractAnalysis to retrieve the methods to
