@@ -242,6 +242,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	final class StmtProcessor
 	  extends AbstractStmtSwitch {
+        /**
+         * The logger used by instances of this class to log messages.
+         * 
+         */
+        private final Log stmtProcessorLogger = LogFactory.getLog(StmtProcessor.class);
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
@@ -325,7 +330,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		public void caseThrowStmt(final ThrowStmt stmt) {
 			valueProcessor.process(stmt.getOp());
-			methodCtxtCache.getThrownAS().unify((AliasSet) valueProcessor.getResult(), false);
+            final AliasSet _l = (AliasSet) valueProcessor.getResult();
+
+            if (_l != null) {
+                methodCtxtCache.getThrownAS().unify(_l, false);
+            }
 		}
 
 		/**
@@ -336,8 +345,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @pre stmt != null
 		 */
 		void process(final Stmt stmt) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing statement: " + stmt);
+			if (stmtProcessorLogger.isDebugEnabled()) {
+				stmtProcessorLogger.debug("Processing statement: " + stmt);
 			}
 			stmt.apply(this);
 		}
@@ -358,6 +367,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	final class ValueProcessor
 	  extends AbstractJimpleValueSwitch {
+        
+        /**
+         * The logger used by instances of this class to log messages.
+         * 
+         */
+        private final Log valueProcessorLogger = LogFactory.getLog(ValueProcessor.class);
+        
 		/**
 		 * This indicates if the value should be marked as being read or written.  <code>true</code> indicates that the
 		 * values should be marked as being read from.  <code>false</code> indicates that the values should be marked as
@@ -530,8 +546,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @pre value != null
 		 */
 		void process(final Value value) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing value: " + value);
+			if (valueProcessorLogger.isDebugEnabled()) {
+				valueProcessorLogger.debug("Processing value: " + value);
 			}
 			value.apply(this);
 		}
@@ -608,8 +624,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				// This is needed when the system is not closed.
 				if (_triple == null) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("NO TRIPLE.  May be due to open system. - " + _callee.getSignature());
+					if (valueProcessorLogger.isDebugEnabled()) {
+						valueProcessorLogger.debug("NO TRIPLE.  May be due to open system. - " + _callee.getSignature());
 					}
 					continue;
 				}
@@ -628,7 +644,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					try {
 						_mc = (MethodContext) _mc.clone();
 					} catch (CloneNotSupportedException _e) {
-						LOGGER.error("Hell NO!  This should not happen.", _e);
+						valueProcessorLogger.error("Hell NO!  This should not happen.", _e);
 						throw new RuntimeException(_e);
 					}
 				}
@@ -1226,6 +1242,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.38  2003/12/16 06:28:14  venku
    - removed the valueprocessor.accessed field and defaulted
      it to true always.
