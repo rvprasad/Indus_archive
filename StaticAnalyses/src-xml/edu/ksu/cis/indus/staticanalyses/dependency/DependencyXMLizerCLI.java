@@ -40,8 +40,6 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
-import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -304,8 +302,7 @@ public class DependencyXMLizerCLI
 		xmlizer.writeXML(info);
 
 		if (dumpJimple) {
-			_pc.setProcessingFilter(new XMLizingProcessingFilter());
-			xmlizer.dumpJimple(null, xmlizer.getXmlOutputDir(), _pc);
+			xmlizer.dumpJimple(null, xmlizer.getXmlOutputDir(), _xmlcgipc);
 		}
 		writeInfo("Total classes loaded: " + getScene().getClasses().size());
 		printTimingStats();
@@ -368,6 +365,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/23 00:42:36  venku
+   - trying to get canonical xmlized Jimple representation.
+
    Revision 1.8  2004/04/22 10:23:10  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.
@@ -550,6 +550,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/23 00:42:36  venku
+   - trying to get canonical xmlized Jimple representation.
+
    Revision 1.8  2004/04/22 10:23:10  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.

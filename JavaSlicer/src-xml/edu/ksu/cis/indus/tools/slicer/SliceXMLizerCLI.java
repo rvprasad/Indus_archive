@@ -17,13 +17,16 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
 
@@ -219,30 +222,30 @@ public class SliceXMLizerCLI
 	 * Write the slice as XML document.
 	 */
 	void writeXML() {
-		dumpJimple();
+        final AbstractXMLizer _xmlizer = getXMLizer();
+        if (jimpleXMLDumpDir != null) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("BEGIN: Dumping Jimple");
+            }
+
+            final ProcessingController _ctrl = new ProcessingController();
+            _ctrl.setStmtGraphFactory(getStmtGraphFactory());
+            _ctrl.setEnvironment(new Environment(scene));
+            _ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(slicer.getCallGraph()));
+            _xmlizer.dumpJimple("", jimpleXMLDumpDir, _ctrl);
+
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("END: Dumping Jimple");
+            }
+        }
+
 
 		// serialize the output of the slicer
 		final Map _info = new HashMap();
 		_info.put(IEnvironment.ID, slicer.getEnvironment());
 		_info.put(IStmtGraphFactory.ID, slicer.getStmtGraphFactory());
-
-		final AbstractXMLizer _xmlizer = getXMLizer();
 		_xmlizer.setXmlOutputDir(outputDirectory);
 		_xmlizer.writeXML(_info);
-	}
-
-	/**
-	 * Write Jimple representation of the system as XML document.
-	 */
-	private void dumpJimple() {
-		if (jimpleXMLDumpDir != null) {
-            final ProcessingController _ctrl = new ProcessingController();
-            _ctrl.setStmtGraphFactory(getStmtGraphFactory());
-            _ctrl.setEnvironment(slicer.getEnvironment());
-            _ctrl.setProcessingFilter(new XMLizingProcessingFilter());
-            final AbstractXMLizer _xmlizer = getXMLizer();
-            _xmlizer.dumpJimple("", jimpleXMLDumpDir, _ctrl);
-		}
 	}
 
 	/**
@@ -530,13 +533,13 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/04/23 00:42:37  venku
+   - trying to get canonical xmlized Jimple representation.
    Revision 1.16  2004/04/22 23:32:32  venku
    - xml file name were setup incorrectly.  FIXED.
-
    Revision 1.15  2004/04/22 22:12:08  venku
    - made changes to jimple xmlizer to dump each class into a separate file.
    - ripple effect.
-
    Revision 1.14  2004/04/22 10:23:11  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.
