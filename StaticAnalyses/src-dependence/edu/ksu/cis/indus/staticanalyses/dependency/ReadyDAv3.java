@@ -16,11 +16,16 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import edu.ksu.cis.indus.processing.Context;
+
+import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+
+import java.util.Collection;
+import java.util.Collections;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import soot.SootMethod;
 
@@ -40,38 +45,89 @@ import soot.jimple.InvokeStmt;
  * @see edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1
  */
 public class ReadyDAv3
-  extends ReadyDAv1 {
+  extends ReadyDAv2 {
 	/**
-	 * The logger used by instances of this class to log messages.
+	 * This provides object flow information.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ReadyDAv3.class);
+	private IValueAnalyzer ofa;
 
 	/**
-	 * This provides information to prune ready dependence edges.
-	 */
-	private EquivalenceClassBasedEscapeAnalysis ecba;
-
-	/**
-	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
-	 * symbolic and escape analysis infomration from {@link
-	 * edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
-	 * EquivalenceClassBasedEscapeAnalysis} analysis is used to determine the dependence.
+	 * Checks if the given enter monitor statement/synchronized method  is dependent on the exit monitor
+	 * statement/synchronized method according to rule 2.   This relies on the method with same signature in it's super
+	 * class.  Beyond that it uses object flow analysis to further improve  precision.
 	 *
-	 * @param enterPair is the enter monitor statement.
-	 * @param exitPair is the exit monitor statement.
+	 * @param enterPair is the enter monitor statement and containg statement pair.
+	 * @param exitPair is the exit monitor statement and containg statement pair.
 	 *
 	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
 	 *
 	 * @pre enterPair.getSecond() != null and exitPair.getSecond() != null
 	 *
-	 * @see ReadyDAv1#ifDependentOnByRule2(Pair, Pair)
+	 * @see ReadyDAv2#ifDependentOnByRule2(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
-		EnterMonitorStmt enter = (EnterMonitorStmt) enterPair.getFirst();
-		ExitMonitorStmt exit = (ExitMonitorStmt) exitPair.getFirst();
-		SootMethod enterMethod = (SootMethod) enterPair.getSecond();
-		SootMethod exitMethod = (SootMethod) exitPair.getSecond();
-		return ecba.isReadyDependent(exit, exitMethod, enter, enterMethod);
+		boolean _result = super.ifDependentOnByRule2(enterPair, exitPair);
+
+		if (_result) {
+			final SootMethod _enterMethod = (SootMethod) enterPair.getSecond();
+			final SootMethod _exitMethod = (SootMethod) exitPair.getSecond();
+			Object _enterStmt = enterPair.getFirst();
+			Object _exitStmt = exitPair.getFirst();
+			Collection _col1;
+			Collection _col2;
+			boolean _syncedStaticMethod1 = false;
+			boolean _syncedStaticMethod2 = false;
+			final Context _context = new Context();
+
+			if (_enterStmt.equals(SYNC_METHOD_PROXY_STMT)) {
+				_syncedStaticMethod1 = _enterMethod.isStatic();
+
+				if (!_syncedStaticMethod1) {
+					_context.setRootMethod(_enterMethod);
+					_col1 = ofa.getValuesForThis(_context);
+				} else {
+					_col1 = Collections.EMPTY_LIST;
+				}
+			} else {
+				final EnterMonitorStmt _o1 = (EnterMonitorStmt) _enterStmt;
+				_context.setProgramPoint(_o1.getOpBox());
+				_context.setStmt(_o1);
+				_context.setRootMethod(_enterMethod);
+				_col1 = ofa.getValues(_o1.getOp(), _context);
+			}
+
+			if (_exitStmt.equals(SYNC_METHOD_PROXY_STMT)) {
+				_syncedStaticMethod2 = _exitMethod.isStatic();
+
+				if (!_syncedStaticMethod2) {
+					_context.setProgramPoint(null);
+					_context.setStmt(null);
+					_context.setRootMethod(_exitMethod);
+					_col2 = ofa.getValuesForThis(_context);
+				} else {
+					_col2 = Collections.EMPTY_LIST;
+				}
+			} else {
+				final ExitMonitorStmt _o2 = (ExitMonitorStmt) _exitStmt;
+				_context.setProgramPoint(_o2.getOpBox());
+				_context.setStmt(_o2);
+				_context.setRootMethod(_exitMethod);
+				_col2 = ofa.getValues(_o2.getOp(), _context);
+			}
+
+			if (_syncedStaticMethod1 ^ _syncedStaticMethod2) {
+				/*
+				 * if only one of the methods is static and synchronized then we cannot determine RDA as it is possible that
+				 * the monitor in the non-static method may actually be on the class object of the class in  which the static
+				 * method is defined.  There are many combinations which can be pruned.  No time now. THINK
+				 */
+				_result = true;
+			} else {
+				_result = !CollectionUtils.intersection(_col1, _col2).isEmpty();
+			}
+		}
+
+		return _result;
 	}
 
 	/**
@@ -98,22 +154,22 @@ public class ReadyDAv3
 	}
 
 	/**
-	 * Extracts information as provided by environment at initialization time.  It collects <code>wait</code> and
-	 * <code>notifyXX</code> methods as represented in the AST system. It also extract call graph info, pair manaing
-	 * service, and environment from the <code>info</code> member.
+	 * {@inheritDoc}
 	 *
-	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
-	 * 		   <code>info</code> member.
+	 * @throws InitializationException when object flow analysis is not provided.
+	 *
+	 * @pre info.get(OFAnalyzer.ID) != null and info.get(OFAnalyzer.ID).oclIsTypeOf(OFAnalyzer)
+	 *
+	 * @see ReadyDAv2#setup()
 	 */
 	protected void setup()
 	  throws InitializationException {
 		super.setup();
 
-		ecba = (EquivalenceClassBasedEscapeAnalysis) info.get(EquivalenceClassBasedEscapeAnalysis.ID);
+		ofa = (IValueAnalyzer) info.get(IValueAnalyzer.ID);
 
-		if (ecba == null) {
-			LOGGER.error(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
-			throw new InitializationException(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
+		if (ofa == null) {
+			throw new InitializationException(IValueAnalyzer.ID + " was not provided in the info.");
 		}
 	}
 }
@@ -121,19 +177,20 @@ public class ReadyDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.4  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.3  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.2  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.1  2003/11/05 08:25:37  venku
    - This version of ReadyDA is based on symbolic analysis
      and escape analysis.

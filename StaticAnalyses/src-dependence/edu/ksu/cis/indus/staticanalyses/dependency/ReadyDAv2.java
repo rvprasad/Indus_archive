@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 
@@ -51,16 +52,16 @@ public class ReadyDAv2
 	/**
 	 * This provides information to prune ready dependence edges.
 	 */
-	private EquivalenceClassBasedEscapeAnalysis ecba;
+	protected EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
-	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
-	 * results of escape analysis info calculated {@link
+	 * Checks if the given enter monitor statement/synchronized method  is dependent on the exit monitor
+	 * statement/synchronized method according to rule 2.   The results of escape analysis info calculated {@link
 	 * edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
 	 * EquivalenceClassBasedEscapeAnalysis} analysis is used to determine the dependence.
 	 *
-	 * @param enterPair is the enter monitor statement.
-	 * @param exitPair is the exit monitor statement.
+	 * @param enterPair is the enter monitor statement and containg statement pair.
+	 * @param exitPair is the exit monitor statement and containg statement pair.
 	 *
 	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
 	 *
@@ -69,16 +70,32 @@ public class ReadyDAv2
 	 * @see ReadyDAv1#ifDependentOnByRule2(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
-		boolean result = super.ifDependentOnByRule2(enterPair, exitPair);
+		boolean _result = super.ifDependentOnByRule2(enterPair, exitPair);
 
-		if (result) {
-			Value enter = ((EnterMonitorStmt) enterPair.getFirst()).getOp();
-			Value exit = ((ExitMonitorStmt) exitPair.getFirst()).getOp();
-			SootMethod enterMethod = (SootMethod) enterPair.getSecond();
-			SootMethod exitMethod = (SootMethod) exitPair.getSecond();
-			result = ecba.escapes(enter, enterMethod) && ecba.escapes(exit, exitMethod);
+		if (_result) {
+			final SootMethod _enterMethod = (SootMethod) enterPair.getSecond();
+			final SootMethod _exitMethod = (SootMethod) exitPair.getSecond();
+			final Object _o1 = enterPair.getFirst();
+			final Object _o2 = exitPair.getFirst();
+			boolean _flag1;
+			boolean _flag2;
+
+			if (_o1.equals(SYNC_METHOD_PROXY_STMT)) {
+				_flag1 = ecba.thisEscapes(_enterMethod);
+			} else {
+				Value enter = ((EnterMonitorStmt) _o1).getOp();
+				_flag1 = ecba.escapes(enter, _enterMethod);
+			}
+
+			if (_o2.equals(SYNC_METHOD_PROXY_STMT)) {
+				_flag2 = ecba.thisEscapes(_exitMethod);
+			} else {
+				Value exit = ((ExitMonitorStmt) _o2).getOp();
+				_flag2 = ecba.escapes(exit, _exitMethod);
+			}
+			_result = _flag1 && _flag2;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -115,6 +132,8 @@ public class ReadyDAv2
 	 *
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
 	 * 		   <code>info</code> member.
+	 *
+	 * @see AbstractAnalysis#setup()
 	 */
 	protected void setup()
 	  throws InitializationException {
@@ -132,19 +151,20 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.16  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.15  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.14  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.13  2003/11/06 03:12:02  venku
    - it was possible for escaping values of classes in different
      branches of the class hierarchy to be declared as ready dependent

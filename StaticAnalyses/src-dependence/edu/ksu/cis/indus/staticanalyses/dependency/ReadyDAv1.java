@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.CollectionsModifier;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -127,6 +128,13 @@ public class ReadyDAv1
 	private static final Log LOGGER = LogFactory.getLog(ReadyDAv1.class);
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected static final Object SYNC_METHOD_PROXY_STMT = "SYNC_METHOD_PROXY_STMT";
+
+	/**
 	 * This is the logical OR of the <code>RULE_XX</code> as provided by the user.  This indicates the rules which need to be
 	 * considered while calculating ready dependency.
 	 */
@@ -226,6 +234,8 @@ public class ReadyDAv1
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
 				monitorMethods.add(method);
+				CollectionsModifier.putIntoCollectionInMap(enterMonitors, method, SYNC_METHOD_PROXY_STMT, new HashSet());
+				CollectionsModifier.putIntoCollectionInMap(exitMonitors, method, SYNC_METHOD_PROXY_STMT, new HashSet());
 			}
 		}
 
@@ -500,23 +510,68 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * Checks if the given enter monitor statement is dependent on the exit monitor statement according to rule 2.  The
-	 * dependence  is determined based on the relation between the classes  immediately enclosing the given statements
-	 * occur.
+	 * Checks if the given enter monitor statement/synchronized method  is dependent on the exit monitor
+	 * statement/synchronized method according to rule 2.  The dependence is determined based on the relation between the
+	 * classes of the objects on which synchronization is being performed.
 	 *
-	 * @param enterPair is the enter monitor statement.
-	 * @param exitPair is the exit monitor statement.
+	 * @param enterPair is the enter monitor statement and containg statement pair.
+	 * @param exitPair is the exit monitor statement and containg statement pair.
 	 *
 	 * @return <code>true</code> if there is a dependence; <code>false</code>, otherwise.
 	 *
-	 * @pre enterPair.getFirst() != null and exitPair.getFirst() != null
+	 * @pre enterPair != null and exitPair != null
+	 * @pre enterPair.getSecond() != null and exitPair.getSecond() != null
+	 * @pre enterPair.getSecond().oclIsKindOf(SootMethod) and exitPair.getSecond().oclIsKindOf(SootMethod)
+	 * @pre enterPair.getFirst() != null
+	 * @pre enterPair.getFirst().oclIsKindOf(EnterMonitorStmt) or enterPair.getFirst().equals(SYNC_METHOD_PROXY_STMT)
+	 * @pre exitPair.getFirst() != null
+	 * @pre exitPair.getFirst().oclIsKindOf(ExitMonitorStmt) or exitPair.getFirst().equals(SYNC_METHOD_PROXY_STMT)
 	 */
 	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
-		EnterMonitorStmt enter = (EnterMonitorStmt) enterPair.getFirst();
-		ExitMonitorStmt exit = (ExitMonitorStmt) exitPair.getFirst();
-		SootClass enterClass = env.getClass(((RefType) enter.getOp().getType()).getClassName());
-		SootClass exitClass = env.getClass(((RefType) exit.getOp().getType()).getClassName());
-		return Util.isHierarchicallyRelated(enterClass, exitClass);
+		SootClass _enterClass;
+		SootClass _exitClass;
+		final SootMethod _sm1 = (SootMethod) enterPair.getSecond();
+		final SootMethod _sm2 = (SootMethod) exitPair.getSecond();
+
+		boolean _syncedStaticMethod1 = false;
+		boolean _syncedStaticMethod2 = false;
+		final Object _o1 = enterPair.getFirst();
+
+		if (_o1.equals(SYNC_METHOD_PROXY_STMT)) {
+			_enterClass = _sm1.getDeclaringClass();
+			_syncedStaticMethod1 = _sm1.isStatic();
+		} else {
+			final EnterMonitorStmt _enter = (EnterMonitorStmt) _o1;
+			_enterClass = env.getClass(((RefType) _enter.getOp().getType()).getClassName());
+		}
+
+		final Object _o2 = exitPair.getFirst();
+
+		if (_o2.equals(SYNC_METHOD_PROXY_STMT)) {
+			_exitClass = _sm2.getDeclaringClass();
+			_syncedStaticMethod2 = _sm2.isStatic();
+		} else {
+			final ExitMonitorStmt _exit = (ExitMonitorStmt) _o2;
+			_exitClass = env.getClass(((RefType) _exit.getOp().getType()).getClassName());
+		}
+
+		boolean _result;
+
+		if (_syncedStaticMethod1 && _syncedStaticMethod2) {
+			// if we are dealing with synchronized static methods, then they will lock the class object, hence, inheritance
+			// relation should not be considered.            
+			_result = _enterClass.equals(_exitClass);
+		} else if (_syncedStaticMethod1 ^ _syncedStaticMethod2) {
+			/*
+			 * if only one of the methods is static and synchronized then we cannot determine RDA as it is possible that
+			 * the monitor in the non-static method may actually be on the class object of the class in  which the static
+			 * method is defined.  There are many combinations which can be pruned.  No time now. THINK
+			 */
+			_result = true;
+		} else {
+			_result = Util.isHierarchicallyRelated(_enterClass, _exitClass);
+		}
+		return _result;
 	}
 
 	/**
@@ -631,7 +686,12 @@ public class ReadyDAv1
 		if ((rules & RULE_1) != 0) {
 			for (Iterator i = enterMonitors.keySet().iterator(); i.hasNext();) {
 				SootMethod method = (SootMethod) i.next();
-				map.put(method, new HashSet((Collection) enterMonitors.get(method)));
+				final Collection _col = new HashSet((Collection) enterMonitors.get(method));
+
+				if (method.isSynchronized()) {
+					_col.remove(SYNC_METHOD_PROXY_STMT);
+				}
+				map.put(method, _col);
 			}
 		}
 
@@ -766,11 +826,12 @@ public class ReadyDAv1
 		 */
 		for (Iterator i = enterMonitors.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
-			SootMethod method = (SootMethod) entry.getKey();
+			SootMethod _entryMethod = (SootMethod) entry.getKey();
 
 			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-				EnterMonitorStmt enter = (EnterMonitorStmt) j.next();
-				Pair enterPair = pairMgr.getOptimizedPair(enter, method);
+				final Object enter = j.next();
+
+				Pair enterPair = pairMgr.getOptimizedPair(enter, _entryMethod);
 				nSet.clear();
 
 				// add dependee to dependent information 
@@ -778,7 +839,7 @@ public class ReadyDAv1
 					Pair exitPair = (Pair) k.next();
 					xSet.clear();
 
-					ExitMonitorStmt exit = (ExitMonitorStmt) exitPair.getFirst();
+					final Object exit = exitPair.getFirst();
 
 					if (ifDependentOnByRule2(enterPair, exitPair)) {
 						xSet.add(enterPair);
@@ -786,19 +847,27 @@ public class ReadyDAv1
 					}
 
 					if (!xSet.isEmpty()) {
-						Collection exitSet = (Collection) dependeeMap.get(exit);
+						Object _key;
 
-						if (exitSet == null) {
-							exitSet = new ArrayList();
-							dependeeMap.put(exit, exitSet);
+						if (exit.equals(SYNC_METHOD_PROXY_STMT)) {
+							_key = exitPair.getSecond();
+						} else {
+							_key = exit;
 						}
-						exitSet.addAll(xSet);
+						CollectionsModifier.putAllIntoCollectionInMap(dependeeMap, _key, xSet, new HashSet());
 					}
 				}
 
 				// add dependent to dependee information
 				if (!nSet.isEmpty()) {
-					dependentMap.put(enter, new ArrayList(nSet));
+					Object _key;
+
+					if (enter.equals(SYNC_METHOD_PROXY_STMT)) {
+						_key = _entryMethod;
+					} else {
+						_key = enter;
+					}
+					dependentMap.put(_key, enterPair);
 				}
 			}
 		}
@@ -859,6 +928,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/01/20 16:50:16  venku
+   - inadvertently, the dependency between waits and notify was
+     recorded in the reverse direction. FIXED.
    Revision 1.36  2004/01/18 00:02:01  venku
    - more logging info.
    Revision 1.35  2004/01/06 00:17:00  venku
