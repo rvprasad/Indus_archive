@@ -227,7 +227,7 @@ public final class SlicerTool
 	public void run()
 	  throws Exception {
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.debug("END: bandera slicer tool");
+			LOGGER.info("BEGIN: bandera slicer tool");
 		}
 
 		tool.run(Phase.STARTING_PHASE, true);
@@ -236,7 +236,7 @@ public final class SlicerTool
 		_residualizer.setTagToResidualize(TAG_NAME);
 		_residualizer.residualizeSystem(tool.getSystem());
 
-		if (LOGGER.isInfoEnabled()) {
+		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: bandera slicer tool");
 		}
 	}
@@ -245,6 +245,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/02/06 00:19:16  venku
+   - logging.
+
    Revision 1.22  2003/12/14 16:40:30  venku
    - added residualization logic.
    - incorporate the residualizer in the tool.
