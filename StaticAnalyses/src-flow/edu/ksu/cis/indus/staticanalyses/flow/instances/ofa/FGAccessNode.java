@@ -71,7 +71,7 @@ class FGAccessNode
 	 *
 	 * @pre newTokens != null
 	 */
-	public void onNewTokens(final ITokens newTokens) {
+	protected void onNewTokens(final ITokens newTokens) {
 		super.onNewTokens(newTokens);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -85,6 +85,11 @@ class FGAccessNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/16 20:10:38  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.7  2004/04/02 21:59:54  venku
    - refactoring.
      - all classes except OFAnalyzer is package private.
