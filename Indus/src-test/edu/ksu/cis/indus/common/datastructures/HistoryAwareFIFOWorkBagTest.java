@@ -28,7 +28,7 @@ import java.util.HashSet;
 public class HistoryAwareFIFOWorkBagTest
   extends HistoryAwareLIFOWorkBagTest {
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -36,7 +36,7 @@ public class HistoryAwareFIFOWorkBagTest
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -48,6 +48,9 @@ public class HistoryAwareFIFOWorkBagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/21 02:24:04  venku
+   - test clean up code was added.
+
    Revision 1.1  2004/03/29 01:55:15  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

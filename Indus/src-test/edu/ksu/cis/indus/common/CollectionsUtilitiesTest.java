@@ -66,7 +66,7 @@ public class CollectionsUtilitiesTest
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -74,7 +74,7 @@ public class CollectionsUtilitiesTest
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -86,6 +86,12 @@ public class CollectionsUtilitiesTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/21 22:11:48  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
    Revision 1.4  2004/04/21 02:24:04  venku
    - test clean up code was added.
 

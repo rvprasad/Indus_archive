@@ -205,7 +205,8 @@ public class BasicBlockGraphTest
 
 				for (final Enumeration _enum = _temp.tests(); _enum.hasMoreElements();) {
 					final BasicBlockGraphTest _test = (BasicBlockGraphTest) _enum.nextElement();
-					_test.setTestName(_prefix + ":" + _methodNames[_j] + ":" + _classNames[_j] + ":" + _test.getTestMethodName());
+					_test.setTestName(_prefix + ":" + _methodNames[_j] + ":" + _classNames[_j] + ":"
+						+ _test.getTestMethodName());
 					_test.factory = _factory;
 					_test.methodName = _methodNames[_j];
 					_test.className = _classNames[_j];
@@ -243,6 +244,8 @@ public class BasicBlockGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/06/01 08:13:02  venku
+   - changed the name of the tests.
    Revision 1.2  2004/06/01 08:05:12  venku
    - changed the name of the tests.
    Revision 1.1  2004/06/01 01:12:16  venku

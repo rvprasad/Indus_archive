@@ -74,7 +74,7 @@ public class PoolAwareWorkBagTest
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -100,6 +100,15 @@ public class PoolAwareWorkBagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/29 01:55:15  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.1  2004/01/28 00:18:45  venku
    - added unit tests for classes in data structures package.
  */

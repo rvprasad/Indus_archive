@@ -63,6 +63,12 @@ public class AbstractXMLBasedTestSetup
 	private String xmlSecondInputDir;
 
 	/**
+	 * Creates an instance of this class.
+	 *
+	 * @param test to be enclosed by this setup.
+	 *
+	 * @pre test != null
+	 *
 	 * @see TestSetup#TestSetup(TestSuite)
 	 */
 	public AbstractXMLBasedTestSetup(final TestSuite test) {
@@ -174,6 +180,8 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/05/14 04:44:17  venku
+   - enhanced tearDown() method.
    Revision 1.13  2004/04/25 21:18:39  venku
    - refactoring.
      - created new classes from previously embedded classes.

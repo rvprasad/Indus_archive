@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.xmlizer;
 
 import java.io.IOException;
 
-import java.util.Collection;
-
 import org.znerd.xmlenc.XMLOutputter;
 
 import soot.Body;
@@ -396,6 +394,12 @@ final class JimpleStmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/06/01 01:12:16  venku
+   - added a new testcase to test BasicBlockGraph.
+   - documentation.
+   - added iterator() method to ExceptionFlowSensitiveStmtGraph to
+     return only statement captured in the graph.
+
    Revision 1.5  2004/05/25 22:04:54  venku
    - changed the targets dumped for IfStmt.
 

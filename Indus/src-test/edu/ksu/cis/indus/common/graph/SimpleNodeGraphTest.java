@@ -68,7 +68,7 @@ public class SimpleNodeGraphTest
 	}
 
 	/**
-	 * @see AbstractDirectedGraphTest#testGetNodes
+	 * Tests <code>getNodes</code> method.
 	 */
 	public void testGetNodes() {
 		final List _nodes1 = dg.getNodes();
@@ -99,7 +99,7 @@ public class SimpleNodeGraphTest
 	/**
 	 * We construct the graph given in the book "Introduction to Algorithms" on page 553.
 	 *
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -266,6 +266,9 @@ public class SimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/21 02:24:04  venku
+   - test clean up code was added.
+
    Revision 1.11  2004/02/08 19:32:13  venku
    - test refactoring for regression testing.
 

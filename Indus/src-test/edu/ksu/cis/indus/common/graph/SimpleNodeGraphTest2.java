@@ -25,7 +25,7 @@ package edu.ksu.cis.indus.common.graph;
 public class SimpleNodeGraphTest2
   extends SimpleNodeGraphTest {
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -93,6 +93,10 @@ public class SimpleNodeGraphTest2
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/05 18:17:29  venku
+   - getPseudoTails() is incorrect when the pseudo tails are mutually
+     reachable.  FIXED.
+
    Revision 1.1  2004/02/05 16:12:36  venku
    - added a new test case for testing pseudoTails.
  */

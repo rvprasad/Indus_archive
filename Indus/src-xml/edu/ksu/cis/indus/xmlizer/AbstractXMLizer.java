@@ -234,7 +234,7 @@ public abstract class AbstractXMLizer
 			final char[] _chars =
 				{
 					HEX_DIGITS[(_b >> NO_SHIFTS_FROM_HIGHER_TO_LOWER_NIBBLE) & LOWER_NIBBLE_MASK],
-					HEX_DIGITS[_b & LOWER_NIBBLE_MASK]
+					HEX_DIGITS[_b & LOWER_NIBBLE_MASK],
 				};
 			_sb.append(new String(_chars));
 		}
@@ -276,11 +276,12 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/05/13 03:32:20  venku
+   - documentation.  refactoring of getFileName() in IXMLizer.
    Revision 1.24  2004/05/13 03:30:03  venku
    - coding convention.
    - documentation.
    - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
-
    Revision 1.23  2004/05/13 03:12:33  venku
    - CustomXMLOutputter defaults to UTF-8 encoding.
    - Added a new method to AbstractXMLizer to encode strings.

@@ -40,7 +40,7 @@ public class HistoryAwareLIFOWorkBagTest
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -48,7 +48,7 @@ public class HistoryAwareLIFOWorkBagTest
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -60,6 +60,9 @@ public class HistoryAwareLIFOWorkBagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/21 02:24:04  venku
+   - test clean up code was added.
+
    Revision 1.2  2004/04/05 22:30:45  venku
    - renamed HistoryAwareAbstractWorkBag to AbstractHistoryAwareWorkBag.
    - ripple effect on test cases.

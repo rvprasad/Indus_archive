@@ -41,7 +41,7 @@ public final class TrapStmtGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(TrapStmtGraphFactory.class);
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.Body)
+	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
 	 */
 	protected UnitGraph getStmtGraphForBody(final JimpleBody body) {
 		return new TrapUnitGraph(body);
@@ -67,6 +67,9 @@ public final class TrapStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/12 20:42:21  venku
+   - renaming of methods.
+
    Revision 1.1  2004/03/26 00:07:26  venku
    - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
    - ripple effect in classes and method names.

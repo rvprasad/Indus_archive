@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.tools;
 
 import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 
 import org.eclipse.swt.widgets.Composite;
 
@@ -27,7 +28,8 @@ import org.eclipse.swt.widgets.Composite;
  * @author $Author$
  * @version $Revision$
  */
-public interface IToolConfigurator {
+public interface IToolConfigurator
+  extends DisposeListener {
 	/**
 	 * Sets the configuration to be configured.
 	 *
@@ -57,4 +59,7 @@ public interface IToolConfigurator {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
  */

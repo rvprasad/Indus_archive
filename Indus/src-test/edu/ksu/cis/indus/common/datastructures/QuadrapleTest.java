@@ -166,7 +166,7 @@ public class QuadrapleTest
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -175,7 +175,7 @@ public class QuadrapleTest
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -187,6 +187,9 @@ public class QuadrapleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/06/03 00:48:42  venku
+   - deleted the constructor with optimize argument in Quadraple.
+
    Revision 1.4  2004/04/21 02:24:04  venku
    - test clean up code was added.
 

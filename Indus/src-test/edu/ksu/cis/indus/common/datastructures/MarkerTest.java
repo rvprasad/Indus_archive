@@ -45,7 +45,7 @@ public class MarkerTest
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -54,7 +54,7 @@ public class MarkerTest
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -65,6 +65,14 @@ public class MarkerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
+
    Revision 1.1  2004/01/28 00:18:45  venku
    - added unit tests for classes in data structures package.
 

@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
@@ -219,6 +218,9 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/06/13 22:24:43  venku
+   -  RuntimeExceptions were not being considered at invoke expr sites while pruning edges.  FIXED.
+
    Revision 1.10  2004/06/13 07:27:36  venku
    - ensured all collections stored in unitToXXXX mapping are unmodifiable.
    Revision 1.9  2004/06/12 20:42:21  venku

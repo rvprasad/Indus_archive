@@ -228,7 +228,7 @@ public class UtilTest
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -239,7 +239,7 @@ public class UtilTest
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -255,6 +255,15 @@ public class UtilTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.5  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the

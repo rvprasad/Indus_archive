@@ -76,8 +76,8 @@ public abstract class AbstractDirectedGraphTest
 
 		for (final Iterator _i = _backedges.iterator(); _i.hasNext();) {
 			final Pair _edge = (Pair) _i.next();
-			final INode _src = (INode)_edge.getFirst();
-			final INode _dest = (INode)_edge.getSecond();
+			final INode _src = (INode) _edge.getFirst();
+			final INode _dest = (INode) _edge.getSecond();
 			assertTrue(_src.getSuccsOf().contains(_dest));
 			assertTrue(dg.isReachable(_dest, _src, true));
 
@@ -354,6 +354,8 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/06/04 04:50:21  venku
+   - check for more constraints for backedges.
    Revision 1.10  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the

@@ -32,9 +32,16 @@ import org.znerd.xmlenc.XMLOutputter;
 public final class CustomXMLOutputter
   extends XMLOutputter {
 	/**
-	 * This creates an instance which encodes output in UTF-16 format.
+	 * This creates an instance which encodes output in UTF-8 format. {@inheritDoc}
 	 *
-	 * @see org.znerd.xmlenc.XMLOutputter#XMLOutputter(Writer)
+	 * @param writer used to write the xml into.
+	 *
+	 * @throws IllegalStateException if getState() != XMLEventListenerStates.UNINITIALIZED &&  getState() !=
+	 * 		   XMLEventListenerStates.AFTER_ROOT_ELEMENT &&  getState() != XMLEventListenerStates.ERROR_STATE.
+	 * @throws IllegalArgumentException when out == null
+	 * @throws UnsupportedEncodingException should not occur.
+	 *
+	 * @pre writer != null
 	 */
 	public CustomXMLOutputter(final Writer writer)
 	  throws IllegalStateException, IllegalArgumentException, UnsupportedEncodingException {
@@ -64,6 +71,11 @@ public final class CustomXMLOutputter
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/13 03:12:33  venku
+   - CustomXMLOutputter defaults to UTF-8 encoding.
+   - Added a new method to AbstractXMLizer to encode strings.
+   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
+   - ripple effect.
    Revision 1.3  2004/05/10 12:31:00  venku
    - a pretty printer should be used while viewing the xml doc rather
      than writing the XML doc in pretty format.  Fixed CustomXMLOutputter

@@ -27,8 +27,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import java.io.File;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -167,6 +165,10 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/06/14 04:31:17  venku
+   - added method to check tags on a collection of hosts in Util.
+   - ripple effect.
+
    Revision 1.9  2004/06/12 06:45:22  venku
    - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
 

@@ -28,7 +28,7 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 public class SimpleNodeGraphNoCycleTest
   extends SimpleNodeGraphTest {
 	/**
-	 * @see JikesBasedDirectedAndSimpleNodeGraphTest#setUp()
+	 * @see SimpleNodeGraphTest#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -61,7 +61,7 @@ public class SimpleNodeGraphNoCycleTest
 	}
 
 	/**
-	 * @see TestCase#tearDown
+	 * @see SimpleNodeGraphTest#tearDown()
 	 */
 	protected final void tearDown()
 	  throws Exception {
@@ -112,6 +112,9 @@ public class SimpleNodeGraphNoCycleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/08 19:32:13  venku
+   - test refactoring for regression testing.
+
    Revision 1.7  2004/02/08 01:04:12  venku
    - renamed TestSuite classes to NoArgTestSuite classes.
    Revision 1.6  2004/01/22 08:18:55  venku

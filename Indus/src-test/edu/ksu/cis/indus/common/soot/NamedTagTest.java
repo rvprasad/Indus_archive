@@ -63,7 +63,7 @@ public class NamedTagTest
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -71,7 +71,7 @@ public class NamedTagTest
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -82,6 +82,14 @@ public class NamedTagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
+
    Revision 1.1  2004/01/28 22:45:07  venku
    - added new test cases for testing classes in soot package.
 

@@ -29,11 +29,11 @@ public interface IXMLizer {
 	/**
 	 * Retrieves the a name based on the given name for the file into which the xml data will be written into.
 	 *
-	 * @param name to be considered when coming up with the file name.
+	 * @param basename to be considered when coming up with the file name.
 	 *
 	 * @return the name of the file.
 	 *
-	 * @pre name != null
+	 * @pre basename != null
 	 * @post result != null
 	 */
 	String getFileName(final String basename);
@@ -85,6 +85,9 @@ public interface IXMLizer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/05/13 03:32:20  venku
+   - documentation.  refactoring of getFileName() in IXMLizer.
+
    Revision 1.6  2004/05/13 03:30:03  venku
    - coding convention.
    - documentation.
