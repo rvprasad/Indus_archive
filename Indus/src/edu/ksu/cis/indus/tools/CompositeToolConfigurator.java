@@ -113,11 +113,11 @@ public final class CompositeToolConfigurator
 		parent.setLayout(_gridLayout);
 
 		final Label _label = new Label(parent, SWT.NONE);
+		GridData _gridData = new GridData();
+		_gridData.horizontalSpan = 1;
+		_label.setLayoutData(_gridData);
 		_label.setText("Configurations:");
 
-		GridData _gridData = new GridData();
-		_gridData.horizontalSpan = 3;
-		_label.setLayoutData(_gridData);
 		configCombo = new Combo(parent, SWT.DROP_DOWN);
 		configCombo.setItems(new String[0]);
 		configCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -125,6 +125,7 @@ public final class CompositeToolConfigurator
 				public void widgetSelected(final SelectionEvent evt) {
 					recordSelection();
 					displayChild();
+					parent.layout();
 					parent.pack();
 				}
 
@@ -142,23 +143,7 @@ public final class CompositeToolConfigurator
 					recordSelection();
 				}
 			});
-
 		configCombo.setVisible(true);
-
-		final Button _ok = new Button(parent, SWT.PUSH);
-		_ok.setText("Ok");
-		_gridData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
-		_gridData.horizontalIndent = _ok.getText().length();
-		_ok.setLayoutData(_gridData);
-		_ok.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
-					parent.dispose();
-				}
-
-				public void widgetDefaultSelected(final SelectionEvent evt) {
-					widgetSelected(evt);
-				}
-			});
 
 		final Button _newConfig = new Button(parent, SWT.PUSH);
 		_newConfig.setText("Create");
@@ -267,6 +252,9 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/03/22 00:42:32  venku
+   - refactoring.
+   - enabled configuration name editing.
    Revision 1.14  2004/02/12 21:28:52  venku
    - automatically generated configuration name was tied to the slicer.  FIXED.
    Revision 1.13  2003/12/28 03:08:19  venku

@@ -68,6 +68,13 @@ import org.apache.commons.logging.LogFactory;
 
 import org.eclipse.swt.SWT;
 
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+
+import org.eclipse.swt.layout.RowLayout;
+
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -524,7 +531,26 @@ public class SliceXMLizerCLI
 		final Display _display = new Display();
 		final Shell _shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		_shell.setText("Slicer configuration");
-		slicer.getConfigurator().initialize(_shell);
+
+		// create a composite for the configurator to display information.
+		final RowLayout _rowLayout = new RowLayout();
+		_rowLayout.type = SWT.VERTICAL;
+		_shell.setLayout(_rowLayout);
+		slicer.getConfigurator().initialize(new Composite(_shell, SWT.NONE));
+
+		// add a OK button to close the window.
+		final Button _ok = new Button(_shell, SWT.PUSH);
+		_ok.setText("Ok");
+		_ok.addSelectionListener(new SelectionListener() {
+				public void widgetSelected(final SelectionEvent evt) {
+					_shell.dispose();
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			});
+		_shell.layout();
 		_shell.pack();
 		_shell.open();
 
@@ -573,6 +599,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/05/28 21:53:20  venku
+   - added a method to ExceptionFlowSensitiveGraphFactory to create
+     default factory objects.
    Revision 1.35  2004/05/25 19:09:39  venku
    - changed command line options.
    Revision 1.34  2004/05/14 03:10:41  venku
