@@ -12,7 +12,7 @@
         <pathelement location="src"/>
     </path>
     
-    <property name="eclipse.dir" value="c:/eclipse/eclipse"/>
+    <property name="eclipse.dir" value="/home/ganeshan/Desktop/eclipse"/>
 	<property name="eclipse.plugins.dir" value="${eclipse.dir}/plugins"/>
 	<property name="eclipse.version" value="1.0.0"/>
     <property name="home" value="${basedir}"/>
@@ -28,11 +28,12 @@
    	    <pathelement location="${home}/lib/jasminclasses-sable-1.2.jar"/>   	    
    	    <pathelement location="${home}/lib/jibx-run.jar"/>   	    
    	    <pathelement location="${home}/lib/junit.jar"/>   	    
+   	    <pathelement location="${home}/lib/log4j-1.2.8.jar"/>
+   	    <pathelement location="${home}/lib/log4jconfig.jar"/>
    	    <pathelement location="${home}/lib/polyglot-1.1.0.jar"/>   	    
    	    <pathelement location="${home}/lib/slicer.jar"/>   	    
-   	    <pathelement location="${home}/lib/sootclasses-2.1.0.jar"/>   	    
+   	    <pathelement location="${home}/lib/sootclasses-new.jar"/>   	    
    	    <pathelement location="${home}/lib/staticanalyses.jar"/>   	    
-   	    <pathelement location="${home}/lib/swt.jar"/>   	    
    	    <pathelement location="${home}/lib/xmlenc-0.42.jar"/>   	    
    	    <pathelement location="${home}/lib/xmlunit1.0.jar"/>   	    
    	    <pathelement location="${home}/lib/xpp3.jar"/>   
