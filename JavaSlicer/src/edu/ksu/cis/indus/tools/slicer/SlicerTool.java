@@ -25,6 +25,7 @@ import soot.toolkits.graph.UnitGraph;
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
@@ -189,8 +190,10 @@ public final class SlicerTool
 	 */
 	private final SliceCriteriaFactory criteriaFactory;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private AliasedUseDefInfo aliasUD;
 
@@ -216,18 +219,20 @@ public final class SlicerTool
 		criteria = new HashSet();
 
 		// create the flow analysis.
-		ofa = OFAnalyzer.getFSOSAnalyzer("SlicerTool");
+		String tagName = "SlicerTool:FA";
+		ofa = OFAnalyzer.getFSOSAnalyzer(tagName);
 
 		// create the pre processor for call graph construction.
 		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgPreProcessCtrl.setAnalyzer(ofa);
+		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(tagName));
 
 		// create the call graph.
 		callGraph = new CallGraph();
 
 		// create the pre processor for thread graph construction.
 		cgBasedPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
-        cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
+		cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 
 		unitGraphProvider = new TrapUnitGraphFactory();
@@ -638,16 +643,18 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2003/11/30 01:07:54  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.37  2003/11/30 00:10:20  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.36  2003/11/28 18:16:38  venku
    - formatting.
-
    Revision 1.35  2003/11/28 16:39:53  venku
    - uses TrapUnitGraphFactory all through.
    - removed unnecessary addition of SlicerConfiguration
