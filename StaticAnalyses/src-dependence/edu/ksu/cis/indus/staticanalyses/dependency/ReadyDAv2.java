@@ -69,11 +69,16 @@ public class ReadyDAv2
 	 * @see ReadyDAv1#ifDependentOnByRule2(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
-		Value enter = ((EnterMonitorStmt) enterPair.getFirst()).getOp();
-		Value exit = ((ExitMonitorStmt) exitPair.getFirst()).getOp();
-		SootMethod enterMethod = (SootMethod) enterPair.getSecond();
-		SootMethod exitMethod = (SootMethod) exitPair.getSecond();
-		return ecba.escapes(enter, enterMethod) && ecba.escapes(exit, exitMethod);
+		boolean result = super.ifDependentOnByRule2(enterPair, exitPair);
+
+		if (result) {
+			Value enter = ((EnterMonitorStmt) enterPair.getFirst()).getOp();
+			Value exit = ((ExitMonitorStmt) exitPair.getFirst()).getOp();
+			SootMethod enterMethod = (SootMethod) enterPair.getSecond();
+			SootMethod exitMethod = (SootMethod) exitPair.getSecond();
+			result = ecba.escapes(enter, enterMethod) && ecba.escapes(exit, exitMethod);
+		}
+		return result;
 	}
 
 	/**
@@ -91,11 +96,16 @@ public class ReadyDAv2
 	 * @see ReadyDAv1#ifDependentOnByRule4(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule4(final Pair wPair, final Pair nPair) {
-		Value notify = ((VirtualInvokeExpr) ((InvokeStmt) nPair.getFirst()).getInvokeExpr()).getBase();
-		Value wait = ((VirtualInvokeExpr) ((InvokeStmt) wPair.getFirst()).getInvokeExpr()).getBase();
-		SootMethod wMethod = (SootMethod) wPair.getSecond();
-		SootMethod nMethod = (SootMethod) nPair.getSecond();
-		return ecba.escapes(notify, nMethod) && ecba.escapes(wait, wMethod);
+		boolean result = super.ifDependentOnByRule4(wPair, nPair);
+
+		if (result) {
+			Value notify = ((VirtualInvokeExpr) ((InvokeStmt) nPair.getFirst()).getInvokeExpr()).getBase();
+			Value wait = ((VirtualInvokeExpr) ((InvokeStmt) wPair.getFirst()).getInvokeExpr()).getBase();
+			SootMethod wMethod = (SootMethod) wPair.getSecond();
+			SootMethod nMethod = (SootMethod) nPair.getSecond();
+			result = ecba.escapes(notify, nMethod) && ecba.escapes(wait, wMethod);
+		}
+		return result;
 	}
 
 	/**
@@ -122,6 +132,8 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/05 08:25:12  venku
+   - This version of Ready DA is only based on escape information.
    Revision 1.11  2003/11/03 07:54:29  venku
    - deleted comments.
    Revision 1.10  2003/09/28 03:16:48  venku
