@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import java.util.ArrayList;
@@ -66,22 +65,18 @@ public class BackwardSliceGotoProcessor
 	/**
 	 * {@inheritDoc}
 	 */
-	protected final void processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
+	protected final void processForIntraBasicBlockGotos(final BasicBlock bb) {
 		final String _tagName = sliceCollector.getTagName();
+		boolean _tagged = false;
 
-		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
-			final BasicBlock _bb = (BasicBlock) _j.next();
-			boolean _tagged = false;
+		for (final Iterator _i = getStmtsOfForProcessing(bb).iterator(); _i.hasNext();) {
+			final Stmt _stmt = (Stmt) _i.next();
 
-			for (final Iterator _i = getStmtsOfForProcessing(_bb).iterator(); _i.hasNext();) {
-				final Stmt _stmt = (Stmt) _i.next();
-
-				if (_stmt.getTag(_tagName) != null) {
-					_tagged = true;
-					workBag.addWork(_bb);
-				} else if (_stmt instanceof GotoStmt && _tagged) {
-					sliceCollector.includeInSlice(_stmt);
-				}
+			if (_stmt.getTag(_tagName) != null) {
+				_tagged = true;
+				workBag.addWorkNoDuplicates(bb);
+			} else if (_stmt instanceof GotoStmt && _tagged) {
+				sliceCollector.includeInSlice(_stmt);
 			}
 		}
 	}
@@ -90,6 +85,9 @@ public class BackwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/05/31 21:38:10  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.8  2004/02/25 00:09:12  venku
    - documenation.
    Revision 1.7  2004/02/23 06:10:10  venku

@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import java.util.Collection;
@@ -49,29 +48,26 @@ public final class CompleteSliceGotoProcessor
 	/**
 	 * {@inheritDoc}
 	 */
-	protected void processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
+	protected void processForIntraBasicBlockGotos(final BasicBlock bb) {
 		final Collection _gotos = new HashSet();
 		final String _tagName = sliceCollector.getTagName();
 
-		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
-			final BasicBlock _bb = (BasicBlock) _j.next();
-			boolean _tagged = false;
-			_gotos.clear();
+		boolean _tagged = false;
+		_gotos.clear();
 
-			for (final Iterator _i = _bb.getStmtsOf().iterator(); _i.hasNext();) {
-				final Stmt _stmt = (Stmt) _i.next();
+		for (final Iterator _i = bb.getStmtsOf().iterator(); _i.hasNext();) {
+			final Stmt _stmt = (Stmt) _i.next();
 
-				if (_stmt.getTag(_tagName) != null) {
-					_tagged = true;
-					workBag.addWork(_bb);
-				} else if (_stmt instanceof GotoStmt) {
-					_gotos.add(_stmt);
-				}
+			if (_stmt.getTag(_tagName) != null) {
+				_tagged = true;
+				workBag.addWorkNoDuplicates(bb);
+			} else if (_stmt instanceof GotoStmt) {
+				_gotos.add(_stmt);
 			}
+		}
 
-			if (_tagged) {
-				sliceCollector.includeInSlice(_gotos);
-			}
+		if (_tagged) {
+			sliceCollector.includeInSlice(_gotos);
 		}
 	}
 }
@@ -79,6 +75,9 @@ public final class CompleteSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/05/31 21:38:10  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.13  2004/02/23 06:08:43  venku
    - optimization.
    Revision 1.12  2004/01/22 01:01:40  venku

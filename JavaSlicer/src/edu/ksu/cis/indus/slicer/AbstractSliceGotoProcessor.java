@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.apache.commons.collections.IteratorUtils;
 import soot.SootMethod;
 import soot.Trap;
 
+import soot.jimple.GotoStmt;
 import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
@@ -88,13 +90,13 @@ public abstract class AbstractSliceGotoProcessor
 	}
 
 	/**
-	 * Process the basic blocks to consider intra basic block gotos to reconstruct the control flow.
+	 * Process the basic block to consider intra basic block gotos to reconstruct the control flow.
 	 *
-	 * @param bbg is the basic block graph containing the basic blocks to be processed.
+	 * @param bb is the basic block to be processed.
 	 *
-	 * @pre bbg != null
+	 * @pre bb != null
 	 */
-	protected abstract void processForIntraBasicBlockGotos(final BasicBlockGraph bbg);
+	protected abstract void processForIntraBasicBlockGotos(final BasicBlock bb);
 
 	/**
 	 * Process the current method's body for goto-based control flow retention.
@@ -121,29 +123,55 @@ public abstract class AbstractSliceGotoProcessor
 			_handlerStmts.add(_trap.getHandlerUnit());
 		}
 
+		final Collection _temp = new HashSet();
+
 		while (workBag.hasWork()) {
 			final BasicBlock _bb = (BasicBlock) workBag.getWork();
 			final Stmt _leader = _bb.getLeaderStmt();
 			final int _lind = _units.indexOf(_leader);
-			final boolean _flag = _handlerStmts.contains(_leader);
+			_temp.add(_bb);
 
 			if (_lind > 0) {
 				final Stmt _predStmtOfLeader = (Stmt) _units.get(_lind - 1);
 				final List _succsOfPred = _unitGraph.getSuccsOf(_predStmtOfLeader);
 
 				/*
-				 *  if
-				 *   - the leader is not a successor of the statement that preceeds it in the sequence of byte codes and the
-				 *     preceeding statement has other successors
+				 * let pred be the predecessor of the leader in the byte code sequence.
+				 * if
+				 *   - the leader is not a successor of pred
 				 * or
-				 *   - the leader is the successor and a trap handler
-				 * then include the preceeding statement in the slice.
+				 *   - the leader is a trap handler
+				 * or
+				 *   - the leader is a successor of pred and pred is a goto statement
+				 * then include pred in the slice and add the basic block of pred to the workbag.
 				 */
-				if ((!(_succsOfPred.contains(_leader) || _succsOfPred.isEmpty()))
-					  || (_succsOfPred.contains(_leader) && _flag)) {
+				if (!_succsOfPred.contains(_leader)
+					  || _handlerStmts.contains(_leader)
+					  || (_succsOfPred.contains(_leader) && _predStmtOfLeader instanceof GotoStmt)) {
 					sliceCollector.includeInSlice(_predStmtOfLeader);
+
+					final BasicBlock _predBB = bbg.getEnclosingBlock(_predStmtOfLeader);
+
+					if (!_temp.contains(_predBB)) {
+						processForIntraBasicBlockGotos(_predBB);
+						workBag.addWorkNoDuplicates(_predBB);
+					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Process the basic block graph to consider intra basic block gotos to reconstruct the control flow.
+	 *
+	 * @param bbg is the basic block graph containing the basic blocks to be processed.
+	 *
+	 * @pre bbg != null
+	 */
+	private void processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
+		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
+			final BasicBlock _bb = (BasicBlock) _j.next();
+			processForIntraBasicBlockGotos(_bb);
 		}
 	}
 }
@@ -151,6 +179,8 @@ public abstract class AbstractSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/06/15 10:36:51  venku
+   - used units from the graph rather than the body to determine the reachable units.
    Revision 1.13  2004/06/12 06:47:28  venku
    - documentation.
    - refactoring.
