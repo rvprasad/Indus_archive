@@ -318,14 +318,8 @@ public final class ExecutableSlicePostProcessor
 				final BasicBlock _bb = (BasicBlock) _j.next();
 				final Stmt _stmt = _bb.getTrailerStmt();
 				final Collection _dependees = cd.getDependees(_stmt, method);
-				boolean _flag = _dependees.isEmpty();
-
-				if (!_flag) {
-					for (final Iterator _i = _dependees.iterator(); _i.hasNext() && !_flag;) {
-						_flag = ((Stmt) _i.next()).hasTag(_tagName);
-					}
-				}
-
+				boolean _flag = _dependees.isEmpty() || !Util.getHostsWithTag(_dependees, _tagName).isEmpty();
+				
 				if (!_stmt.hasTag(_tagName) && _flag) {
 					collector.includeInSlice(_stmt);
 
@@ -499,6 +493,10 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/05/31 21:38:11  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
+
    Revision 1.22  2004/05/04 01:01:40  venku
    - NPE. FIXED.
    Revision 1.21  2004/04/24 07:49:23  venku

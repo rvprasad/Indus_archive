@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -63,6 +64,8 @@ import soot.jimple.JimpleBody;
 import soot.jimple.LongConstant;
 import soot.jimple.NullConstant;
 import soot.jimple.VirtualInvokeExpr;
+
+import soot.tagkit.Host;
 
 
 /**
@@ -307,6 +310,36 @@ public final class Util {
 	}
 
 	/**
+	 * Retrieves the hosts which are tagged with a tag named <code>tagName</code>.
+	 *
+	 * @param hosts is the collection of hosts to filter.
+	 * @param tagName is the name of the tag to filter <code>hosts</code>.
+	 *
+	 * @return a collection of hosts.
+	 *
+	 * @pre hosts != null and tagName != null
+	 * @pre hosts.oclIsKindOf(Host)
+	 * @post result != null and result.oclIsKindOf(Collection(Host))
+	 * @post result->forall(o | hosts->contains(o) and o.hasTag(tagName))
+	 */
+	public static Collection getHostsWithTag(final Collection hosts, final String tagName) {
+		Collection _result = new ArrayList();
+
+		for (final Iterator _i = hosts.iterator(); _i.hasNext();) {
+			final Host _host = (Host) _i.next();
+
+			if (_host.hasTag(tagName)) {
+				_result.add(_host);
+			}
+		}
+
+		if (_result.isEmpty()) {
+			_result = Collections.EMPTY_LIST;
+		}
+		return _result;
+	}
+
+	/**
 	 * Checks if the given type is a valid reference type.
 	 *
 	 * @param t is the type to checked.
@@ -454,6 +487,27 @@ public final class Util {
 	}
 
 	/**
+	 * Checks if the given class has a super class.  <code>java.lang.Object</code> will not have a super class, but others
+	 * will.
+	 *
+	 * @param sc is the class to  be tested.
+	 *
+	 * @return <code>true</code> if <code>sc</code> has a superclass; <code>false</code>, otherwise.
+	 *
+	 * @pre sc != null
+	 * @post sc.getName().equals("java.lang.Object") implies result = true
+	 * @post (not sc.getName().equals("java.lang.Object")) implies result = false
+	 */
+	public static boolean hasSuperclass(final SootClass sc) {
+		boolean _result = false;
+
+		if (!sc.getName().equals("java.lang.Object")) {
+			_result = sc.hasSuperclass();
+		}
+		return _result;
+	}
+
+	/**
 	 * Checks if the given class implements the named interface.
 	 *
 	 * @param child is the class to be tested for implementation.
@@ -522,32 +576,13 @@ public final class Util {
 		}
 		methods.retainAll(_retainSet);
 	}
-
-	/**
-	 * Checks if the given class has a super class.  <code>java.lang.Object</code> will not have a super class, but others
-	 * will.
-	 *
-	 * @param sc is the class to  be tested.
-	 *
-	 * @return <code>true</code> if <code>sc</code> has a superclass; <code>false</code>, otherwise.
-	 *
-	 * @pre sc != null
-	 * @post sc.getName().equals("java.lang.Object") implies result = true
-	 * @post (not sc.getName().equals("java.lang.Object")) implies result = false
-	 */
-	private static boolean hasSuperclass(final SootClass sc) {
-		boolean _result = false;
-
-		if (!sc.getName().equals("java.lang.Object")) {
-			_result = sc.hasSuperclass();
-		}
-		return _result;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/04/22 20:08:45  venku
+   - fixed soot options, again.
    Revision 1.24  2004/04/22 19:58:59  venku
    - coding conventions.
    Revision 1.23  2004/04/22 18:50:01  venku

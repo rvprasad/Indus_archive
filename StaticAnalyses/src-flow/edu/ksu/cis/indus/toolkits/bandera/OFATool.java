@@ -22,6 +22,7 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -354,25 +355,10 @@ public final class OFATool
 	 * @pre valueAnalyzer != null and tagName != null
 	 */
 	private void retrieveReachableClassesAndFields(final IValueAnalyzer valueAnalyzer, final String tagName) {
-		final Collection _temp = new HashSet();
-
 		for (final Iterator _i = valueAnalyzer.getEnvironment().getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
-			_temp.clear();
-
-			for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
-				final SootField _sf = (SootField) _j.next();
-
-				if (_sf.hasTag(tagName)) {
-					_temp.add(_sf);
-				}
-			}
-
-			if (!_temp.isEmpty()) {
-				reachableClass2Fields.put(_sc, new ArrayList(_temp));
-			} else {
-				reachableClass2Fields.put(_sc, Collections.EMPTY_SET);
-			}
+			final Collection _temp = Util.getHostsWithTag(_sc.getFields(), tagName);
+			reachableClass2Fields.put(_sc, _temp);
 		}
 	}
 }

@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.xmlizer;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
 import edu.ksu.cis.indus.processing.Environment;
@@ -117,16 +118,7 @@ public final class JimpleXMLizerCLI {
 					writeJimpleAsXML(_scene, _cl.getOptionValue('d'), null, new UniqueJimpleIDGenerator(),
 						new AbstractProcessingFilter() {
 							public Collection localFilterClasses(final Collection classes) {
-								final Collection _result = new HashSet();
-
-								for (final Iterator _i = classes.iterator(); _i.hasNext();) {
-									final SootClass _element = (SootClass) _i.next();
-
-									if (_element.hasTag(_tag.getName())) {
-										_result.add(_element);
-									}
-								}
-								return _result;
+							    return Util.getHostsWithTag(classes, _tag.getName());
 							}
 						});
 				} else {
@@ -175,6 +167,9 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/06/12 06:45:22  venku
+   - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
+
    Revision 1.8  2004/06/03 03:50:35  venku
    - changed the way help will be output on command line classes.
 

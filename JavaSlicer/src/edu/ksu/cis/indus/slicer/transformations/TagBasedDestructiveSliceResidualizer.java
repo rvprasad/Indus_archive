@@ -822,11 +822,11 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		if (stmt.hasTag(tagToResidualize)) {
-			for (final Iterator _k = stmt.getUseAndDefBoxes().iterator(); _k.hasNext();) {
+			for (final Iterator _k = Util.getHostsWithTag(stmt.getUseAndDefBoxes(), tagToResidualize).iterator(); _k.hasNext();) {
 				final ValueBox _vBox = (ValueBox) _k.next();
 				final Value _value = _vBox.getValue();
 
-				if (_vBox.hasTag(tagToResidualize) && _value instanceof Local) {
+				if (_value instanceof Local) {
 					localsToKeep.add(_value);
 				}
 			}
@@ -837,6 +837,12 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/06/12 06:47:28  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
+
    Revision 1.10  2004/05/21 22:11:48  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
