@@ -22,14 +22,12 @@ import java.util.Properties;
 
 
 /**
- * This class contains a set of constants that are usually dependent on the usage or application scenario.  Usually, at a
- * time, people work on applications of comparable sizes, i.e., number of methods, number of classes, etc. Hence, definition
- * of common threshold depending on the scenario can optimize performance.  This class caters such thresholds.
+ * This class contains a set of constants that are specific to indus.
  * 
  * <p>
- * The user can configure the values returned by the getter methods in this class can configured by specifying a properties
- * file via <code>indus.constant.configuration.properties.file</code> property.  The name of the properties are governed by
- * the available getter methods.
+ * The user can configure the values returned by the getter methods in this class by specifying a properties file via
+ * <code>indus.constant.configuration.properties.file</code> property.  The name of the properties is the value of the 
+ * constants in this class that end with "PROPERTY".
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -38,11 +36,57 @@ import java.util.Properties;
  */
 public final class Constants {
 	/** 
-	 * This is the name of the property via which the constants properties file can be specified.
+	 * This is the name of the property via which the constants properties file can be specified.  It's value is
+	 * "indus.constant.configuration.properties.file".
 	 */
-	public static final String CONSTANTS_CONFIGURATION_FILE = "indus.constant.configuration.properties.file";
+	public static final String CONSTANTS_CONFIGURATION_FILE_PROPERTY = "indus.constant.configuration.properties.file";
 
-	///CLOVER:ON
+	/** 
+	 * This is the name of the property that control the number of methods in the system. It's name is
+	 * "NumOfMethodsInApplication".
+	 */
+	public static final String NUM_OF_METHODS_IN_APPLICATION_PROPERTY = "NumOfMethodsInApplication";
+
+	/** 
+	 * This is the name of the property that control the number of classes in the system. It's name is
+	 * "NumOfClassesInApplication".
+	 */
+	public static final String NUM_OF_CLASSES_IN_APPLICATION_PROPERTY = "NumOfClassesInApplication";
+
+	/** 
+	 * This is the name of the property that control the number of fields in the system. It's name is
+	 * "NumOfFieldsInApplication".
+	 */
+	public static final String NUM_OF_FIELDS_IN_APPLICATION_PROPERTY = "NumOfFieldsInApplication";
+
+	/** 
+	 * The name of the property via which the name of the statement graph factory class can be specified.  It's name is
+	 * "indus.common.soot.SootBasedDriver.StmtGraphFactory.class".
+	 */
+	public static final String STMT_GRAPH_FACTORY_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.StmtGraphFactory.class";
+
+	/** 
+	 * The name of the property via which the name of the root method trapper class can be specified. The name is
+	 * "indus.common.soot.SootBasedDriver.RootMethodTrapper.class". The specified class should be a subclass of
+	 * <code>SootBasedDriver.RootMethodTrapper</code>.
+	 */
+	public static final String ROOT_METHOD_TRAPPER_CLASS_PROPERTY =
+		"indus.common.soot.SootBasedDriver.RootMethodTrapper.class";
+
+	/** 
+	 * This is the default for the number of classes in the system.
+	 */
+	private static final int DEFAULT_NUM_OF_METHODS_IN_APPLICATION = 5000;
+
+	/** 
+	 * This is the default for the number of classes in the system.
+	 */
+	private static final int DEFAULT_NUM_OF_CLASSES_IN_APPLICATION = 1000;
+
+	/** 
+	 * This is the default for the number of fields in the system.
+	 */
+	private static final int DEFAULT_NUM_OF_FIELDS_IN_APPLICATION = 3000;
 
 	/** 
 	 * This contains the constants.
@@ -50,7 +94,7 @@ public final class Constants {
 	private static Properties configuration = new Properties();
 
 	static {
-		final String _propFileName = System.getProperty(CONSTANTS_CONFIGURATION_FILE);
+		final String _propFileName = System.getProperty(CONSTANTS_CONFIGURATION_FILE_PROPERTY);
 
 		if (_propFileName != null) {
 			try {
@@ -62,36 +106,6 @@ public final class Constants {
 			}
 		}
 	}
-
-	/** 
-	 * This constant serves as the key for the value corresponding to the number of methods in the system.
-	 */
-	private static final String NUM_OF_METHODS_IN_APPLICATION = "NumOfMethodsInApplication";
-
-	/** 
-	 * This is the default for the number of classes in the system.
-	 */
-	private static final int DEFAULT_NUM_OF_METHODS_IN_APPLICATION = 5000;
-
-	/** 
-	 * This constant serves as the key for the value corresponding to the number of classes in the system.
-	 */
-	private static final String NUM_OF_CLASSES_IN_APPLICATION = "NumOfClassesInApplication";
-
-	/** 
-	 * This is the default for the number of classes in the system.
-	 */
-	private static final int DEFAULT_NUM_OF_CLASSES_IN_APPLICATION = 1000;
-
-	/** 
-	 * This constant serves as the key for the value corresponding to the number of fields in the system.
-	 */
-	private static final String NUM_OF_FIELDS_IN_APPLICATION = "NumOfFieldsInApplication";
-
-	/** 
-	 * This is the default for the number of fields in the system.
-	 */
-	private static final int DEFAULT_NUM_OF_FIELDS_IN_APPLICATION = 3000;
 
 	///CLOVER:OFF
 
@@ -110,7 +124,7 @@ public final class Constants {
 	 */
 	public static int getNumOfClassesInApplication() {
 		final int _defaultValue = DEFAULT_NUM_OF_CLASSES_IN_APPLICATION;
-		final String _key = NUM_OF_CLASSES_IN_APPLICATION;
+		final String _key = NUM_OF_CLASSES_IN_APPLICATION_PROPERTY;
 		final int _result;
 		_result = retrieveIntValue(_defaultValue, _key);
 		return _result;
@@ -123,7 +137,7 @@ public final class Constants {
 	 */
 	public static int getNumOfFieldsInApplication() {
 		final int _defaultValue = DEFAULT_NUM_OF_FIELDS_IN_APPLICATION;
-		final String _key = NUM_OF_FIELDS_IN_APPLICATION;
+		final String _key = NUM_OF_FIELDS_IN_APPLICATION_PROPERTY;
 		final int _result;
 		_result = retrieveIntValue(_defaultValue, _key);
 		return _result;
@@ -136,9 +150,43 @@ public final class Constants {
 	 */
 	public static int getNumOfMethodsInApplication() {
 		final int _defaultValue = DEFAULT_NUM_OF_METHODS_IN_APPLICATION;
-		final String _key = NUM_OF_METHODS_IN_APPLICATION;
+		final String _key = NUM_OF_METHODS_IN_APPLICATION_PROPERTY;
 		final int _result;
 		_result = retrieveIntValue(_defaultValue, _key);
+		return _result;
+	}
+
+	/**
+	 * Retrieves the name of the root method trapper class.  If not specified, it defaults to
+	 * <code>edu.ksu.cis.indus.common.soot.SootBasedDriver.RootMethodTrapper</code>.
+	 *
+	 * @return the class name if specified.
+	 *
+	 * @post result != null
+	 */
+	public static String getRootMethodTrapperClassName() {
+		String _result = configuration.getProperty(ROOT_METHOD_TRAPPER_CLASS_PROPERTY);
+
+		if (_result == null) {
+			_result = "edu.ksu.cis.indus.common.soot.SootBasedDriver.RootMethodTrapper";
+		}
+		return _result;
+	}
+
+	/**
+	 * Retrieves the name of the statement graph factory class.  If not specified, it defaults to
+	 * <code>edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory</code>.
+	 *
+	 * @return the class name if specified.
+	 *
+	 * @post result != null
+	 */
+	public static String getStmtGraphFactoryClassName() {
+		String _result = configuration.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
+
+		if (_result == null) {
+			_result = "edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory";
+		}
 		return _result;
 	}
 

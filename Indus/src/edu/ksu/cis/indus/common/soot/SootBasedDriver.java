@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.Constants;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -79,77 +81,54 @@ import soot.options.Options;
  */
 public class SootBasedDriver {
 	/** 
-	 * The name of the property via which the name of the root method trapper class can be specified.
-	 */
-	public static final String TRAPPER_CLASS_PROPERTY;
-
-	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER;
 
-	/** 
-	 * The name of the property via which the name of the statement graph factory class can be specified.
-	 */
-	private static final String STMT_GRAPH_FACTORY_CLASS_PROPERTY;
-
 	static {
 		LOGGER = LogFactory.getLog(SootBasedDriver.class);
-		TRAPPER_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.RootMethodTrapper.class";
 
-		final String _rmtClassName = System.getProperty(TRAPPER_CLASS_PROPERTY);
-		RootMethodTrapper _rmt = new RootMethodTrapper();
+		final String _rmtClassName = System.getProperty(Constants.getRootMethodTrapperClassName());
 
-		if (_rmtClassName != null) {
-			try {
-				final Object _o = ClassLoader.getSystemClassLoader().loadClass(_rmtClassName).newInstance();
+		try {
+			final Object _o = ClassLoader.getSystemClassLoader().loadClass(_rmtClassName).newInstance();
 
-				if (_o instanceof RootMethodTrapper) {
-					_rmt = (RootMethodTrapper) _o;
-				} else {
-					throw new IllegalArgumentException(_rmtClassName
-						+ " is not a subclass of SootBasedDriver.RootMethodTrapper.");
-				}
-			} catch (final ClassNotFoundException _e) {
-				LOGGER.fatal("class " + _rmtClassName + " could not be loaded/resolved. Bailing.", _e);
-				throw new RuntimeException(_e);
-			} catch (final InstantiationException _e) {
-				LOGGER.fatal("An instance of class " + _rmtClassName + " could not be created. Bailing.", _e);
-				throw new RuntimeException(_e);
-			} catch (final IllegalAccessException _e) {
-				LOGGER.fatal("No-arg constructor of " + _rmtClassName + " cannot be accessed.  Bailing.", _e);
-				throw new RuntimeException(_e);
+			if (_o instanceof RootMethodTrapper) {
+				DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER = (RootMethodTrapper) _o;
+			} else {
+				throw new IllegalArgumentException(_rmtClassName + " is not a subclass of SootBasedDriver.RootMethodTrapper.");
 			}
+		} catch (final ClassNotFoundException _e) {
+			LOGGER.fatal("class " + _rmtClassName + " could not be loaded/resolved. Bailing.", _e);
+			throw new RuntimeException(_e);
+		} catch (final InstantiationException _e) {
+			LOGGER.fatal("An instance of class " + _rmtClassName + " could not be created. Bailing.", _e);
+			throw new RuntimeException(_e);
+		} catch (final IllegalAccessException _e) {
+			LOGGER.fatal("No-arg constructor of " + _rmtClassName + " cannot be accessed.  Bailing.", _e);
+			throw new RuntimeException(_e);
 		}
-		DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER = _rmt;
 
-		STMT_GRAPH_FACTORY_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.StmtGraphFactory.class";
+		final String _nameOfStmtGraphFactoryClass = System.getProperty(Constants.getStmtGraphFactoryClassName());
 
-		final String _nameOfStmtGraphFactoryClass = System.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
-		IStmtGraphFactory _graphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
+		try {
+			final Object _o = ClassLoader.getSystemClassLoader().loadClass(_nameOfStmtGraphFactoryClass).newInstance();
 
-		if (_nameOfStmtGraphFactoryClass != null) {
-			try {
-				final Object _o = ClassLoader.getSystemClassLoader().loadClass(_nameOfStmtGraphFactoryClass).newInstance();
-
-				if (_o instanceof IStmtGraphFactory) {
-					_graphFactory = (IStmtGraphFactory) _o;
-				} else {
-					throw new IllegalArgumentException(_nameOfStmtGraphFactoryClass
-						+ " is not a subclass of IStmtGraphFactory.");
-				}
-			} catch (final ClassNotFoundException _e) {
-				LOGGER.fatal("class " + _nameOfStmtGraphFactoryClass + " could not be loaded/resolved. Bailing.", _e);
-				throw new RuntimeException(_e);
-			} catch (final InstantiationException _e) {
-				LOGGER.fatal("An instance of class " + _nameOfStmtGraphFactoryClass + " could not be created. Bailing.", _e);
-				throw new RuntimeException(_e);
-			} catch (final IllegalAccessException _e) {
-				LOGGER.fatal("No-arg constructor of " + _nameOfStmtGraphFactoryClass + " cannot be accessed.  Bailing.", _e);
-				throw new RuntimeException(_e);
+			if (_o instanceof IStmtGraphFactory) {
+				DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY = (IStmtGraphFactory) _o;
+			} else {
+				throw new IllegalArgumentException(_nameOfStmtGraphFactoryClass + " is not a subclass of IStmtGraphFactory.");
 			}
+		} catch (final ClassNotFoundException _e) {
+			LOGGER.fatal("class " + _nameOfStmtGraphFactoryClass + " could not be loaded/resolved. Bailing.", _e);
+			throw new RuntimeException(_e);
+		} catch (final InstantiationException _e) {
+			LOGGER.fatal("An instance of class " + _nameOfStmtGraphFactoryClass + " could not be created. Bailing.", _e);
+			throw new RuntimeException(_e);
+		} catch (final IllegalAccessException _e) {
+			LOGGER.fatal("No-arg constructor of " + _nameOfStmtGraphFactoryClass + " cannot be accessed.  Bailing.", _e);
+			throw new RuntimeException(_e);
 		}
-		DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY = _graphFactory;
 	}
 
 	/** 
