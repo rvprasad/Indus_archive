@@ -68,7 +68,7 @@ public class AnalysesController {
 	 * The status of this controller and it's controllees.  The information provided by it's controllees is valid only when
 	 * this field is <code>true</code>.
 	 */
-	protected boolean stable = false;
+	protected boolean stable;
 
 	/**
 	 * This provides basic block graphs for the analyses.
@@ -164,7 +164,7 @@ public class AnalysesController {
 	}
 
 	/**
-	 * Initializes the controller. Analyses are initialized and then driven to preprocess the system.
+	 * Initializes the controller. Analyses are initialized and then driven to preprocess the system (in that order only).
 	 */
 	public void initialize() {
 		Collection failed = new ArrayList();
@@ -178,14 +178,14 @@ public class AnalysesController {
 			for (Iterator j = c.iterator(); j.hasNext();) {
 				AbstractAnalysis analysis = (AbstractAnalysis) j.next();
 
-				if (analysis.doesPreProcessing()) {
-					IValueAnalyzerBasedProcessor p = analysis.getPreProcessor();
-					p.hookup(preprocessController);
-					preprocessors.add(p);
-				}
-
 				try {
 					analysis.initialize(info);
+
+					if (analysis.doesPreProcessing()) {
+						IValueAnalyzerBasedProcessor p = analysis.getPreProcessor();
+						p.hookup(preprocessController);
+						preprocessors.add(p);
+					}
 
 					if (basicBlockGraphMgr != null) {
 						analysis.setBasicBlockGraphManager(basicBlockGraphMgr);
@@ -233,6 +233,8 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/01/21 00:29:39  venku
+   - preprocessors were not being unhooked.
    Revision 1.31  2004/01/20 22:26:08  venku
    - AnalysisController can now set basic block graph managers
      on the controlled analyses.
