@@ -65,7 +65,6 @@ public final class CommonUnitTestSuite {
 		_suite.addTestSuite(CollectionsUtilitiesTest.class);
 		_suite.addTestSuite(FilteredMapTest.class);
 		_suite.addTestSuite(FilteredCollectionTestCase.class);
-		_suite.addTestSuite(FilteredSetTestCase.class);
 		_suite.addTestSuite(FilteredListTestCase.class);
 		_suite.addTestSuite(FilteredListIteratorTestCase.class);
 		//$JUnit-END$
@@ -78,6 +77,9 @@ public final class CommonUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/06/29 02:00:23  venku
+   - added test cases for FilteredXXXX classes.  These need to be implemented.
+
    Revision 1.8  2004/05/21 22:11:48  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
