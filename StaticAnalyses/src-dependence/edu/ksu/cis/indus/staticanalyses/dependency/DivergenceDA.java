@@ -24,9 +24,9 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -154,6 +154,13 @@ public class DivergenceDA
 		}
 
 		return result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 */
+	public Object getId() {
+		return DependencyAnalysis.DIVERGENCE_DA;
 	}
 
 	/**
@@ -566,12 +573,16 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.19  2003/11/05 09:29:51  venku
    - ripple effect of splitting IWorkBag.
-
    Revision 1.18  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
-
    Revision 1.17  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates

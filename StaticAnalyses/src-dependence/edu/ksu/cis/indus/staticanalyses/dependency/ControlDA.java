@@ -23,8 +23,8 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -161,6 +161,13 @@ public class ControlDA
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 */
+	public Object getId() {
+		return DependencyAnalysis.CONTROL_DA;
 	}
 
 	/**
@@ -482,12 +489,16 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.22  2003/11/05 09:29:51  venku
    - ripple effect of splitting IWorkBag.
-
    Revision 1.21  2003/11/05 04:25:34  venku
    - return value of getDependees() was type incorrect.  FIXED.
-
    Revision 1.20  2003/11/05 04:20:05  venku
    - formatting.
    Revision 1.19  2003/11/05 04:17:28  venku

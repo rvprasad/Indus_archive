@@ -63,18 +63,6 @@ import java.util.Map;
  */
 public class IdentifierBasedDataDA
   extends DependencyAnalysis {
-	/*
-	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
-	 * the methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
-	 * dependent statements is maintained in the list.  In case of dependee information, at each location corresponding to the
-	 * statement a map is maintained in the list.  The map maps a value box in the statement to a collection of dependee
-	 * statements.
-	 *
-	 * The rational for the way the information is maintained is only one local can be defined in a statement.  Also, if the
-	 * definition of a local reaches a statement, then all occurrences of that local at that statement must be dependent on
-	 * the same reaching def.
-	 */
-
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -156,6 +144,25 @@ public class IdentifierBasedDataDA
 		SootMethod sm = (SootMethod) method;
 		List dependents = (List) dependentMap.get(sm);
 		return Collections.unmodifiableCollection((Collection) dependents.get(getStmtList(sm).indexOf(stmt)));
+	}
+
+	/*
+	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
+	 * the methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
+	 * dependent statements is maintained in the list.  In case of dependee information, at each location corresponding to the
+	 * statement a map is maintained in the list.  The map maps a value box in the statement to a collection of dependee
+	 * statements.
+	 *
+	 * The rational for the way the information is maintained is only one local can be defined in a statement.  Also, if the
+	 * definition of a local reaches a statement, then all occurrences of that local at that statement must be dependent on
+	 * the same reaching def.
+	 */
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 */
+	public Object getId() {
+		return DependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
 	}
 
 	/**
@@ -292,9 +299,10 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/10 02:12:52  venku
+   - coding convention.
    Revision 1.20  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
-
    Revision 1.19  2003/11/05 00:36:16  venku
    - changed the way dependence information was stored.
    Revision 1.18  2003/11/05 00:23:04  venku

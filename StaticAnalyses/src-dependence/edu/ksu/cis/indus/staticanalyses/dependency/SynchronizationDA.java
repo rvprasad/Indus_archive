@@ -206,6 +206,13 @@ public class SynchronizationDA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 */
+	public Object getId() {
+		return DependencyAnalysis.SYNCHRONIZATION_DA;
+	}
+
+	/**
 	 * Returns the monitors that occur in the analyzed system.
 	 *
 	 * @return a collection of <code>Triples</code>.
@@ -502,18 +509,19 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/11/10 03:17:18  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
+   - ripple effect.
    Revision 1.17  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
    - fixed documentation errors.
-
    Revision 1.16  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.15  2003/11/05 09:29:05  venku
    - ripple effect of splitting IWorkBag.
    Revision 1.14  2003/11/05 00:44:51  venku

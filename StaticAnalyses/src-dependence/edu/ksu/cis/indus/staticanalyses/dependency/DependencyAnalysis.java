@@ -124,6 +124,15 @@ public abstract class DependencyAnalysis
 	public abstract Collection getDependents(final Object dependee, final Object context);
 
 	/**
+	 * Returns the ID of the analysis implementation.  This has to be one of the XXXX_DA constants defined in this class.
+	 *
+	 * @return the id of the implementation.
+	 *
+	 * @post result != null
+	 */
+	public abstract Object getId();
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
 	 */
 	public boolean isStable() {
@@ -145,6 +154,10 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
    Revision 1.9  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

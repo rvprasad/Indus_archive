@@ -380,6 +380,13 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 */
+	public Object getId() {
+		return DependencyAnalysis.READY_DA;
+	}
+
+	/**
 	 * Sets the rules to be processed.
 	 *
 	 * @param rulesParam is the logical OR of <i>RULE_XX</i> constants defined in this class.
@@ -849,17 +856,17 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/11/10 03:17:18  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
+   - ripple effect.
    Revision 1.27  2003/11/10 02:25:03  venku
    - coding convention.
-
    Revision 1.26  2003/11/10 01:22:25  venku
    - documentation.
-
    Revision 1.25  2003/11/06 05:31:07  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
    - fixed documentation errors.
-
    Revision 1.24  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

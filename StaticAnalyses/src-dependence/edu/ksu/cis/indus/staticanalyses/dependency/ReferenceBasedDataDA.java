@@ -62,7 +62,7 @@ public class ReferenceBasedDataDA
 	 *
 	 * @return a collection of statements which affect the data being read in <code>stmt</code>.
 	 *
-     * @pre stmt.isOclKindOf(Stmt) and method.isOclKindOf(SootMethod)
+	 * @pre stmt.isOclKindOf(Stmt) and method.isOclKindOf(SootMethod)
 	 * @post result.oclIsKindOf(Pair(AssignStmt, SootMethod))
 	 * @post result->forall(o | o.getFirst().getLeftOf().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getLeftOf().oclIsKindOf(ArrayRef))
@@ -82,7 +82,7 @@ public class ReferenceBasedDataDA
 	 *
 	 * @return a collection of statements which are affectted by the data write in <code>stmt</code>.
 	 *
-     * @pre stmt.isOclKindOf(Stmt) and method.isOclKindOf(SootMethod)
+	 * @pre stmt.isOclKindOf(Stmt) and method.isOclKindOf(SootMethod)
 	 * @post result.oclIsKindOf(Pair(AssignStmt, SootMethod))
 	 * @post result->forall(o | o.getFirst().getRightOp().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getRightOp().oclIsKindOf(ArrayRef))
@@ -92,6 +92,13 @@ public class ReferenceBasedDataDA
 	public Collection getDependents(final Object stmt, final Object method) {
 		contextCache.setRootMethod((SootMethod) method);
 		return aliasedUD.getUses((AssignStmt) stmt, contextCache);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 */
+	public Object getId() {
+		return DependencyAnalysis.SYNCHRONIZATION_DA;
 	}
 
 	/**
@@ -139,19 +146,18 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/10 02:26:29  venku
+   - coding convention.
    Revision 1.11  2003/11/10 02:24:30  venku
    - coding convention.
-
    Revision 1.10  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.9  2003/11/05 00:44:51  venku
    - added logging statements to track the execution.
-
    Revision 1.8  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

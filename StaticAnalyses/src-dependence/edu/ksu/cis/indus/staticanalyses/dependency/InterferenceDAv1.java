@@ -250,6 +250,13 @@ public class InterferenceDAv1
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 */
+	public Object getId() {
+		return DependencyAnalysis.INTERFERENCE_DA;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public void analyze() {
@@ -435,6 +442,11 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/10 20:03:55  venku
+   - In Jimple, only one ArrayRef or FieldRef can occur in
+     a statement.  We now use this information to make
+     getDependeXXX() methods of signature type Stmt
+     and Method.
    Revision 1.19  2003/11/10 08:06:01  venku
    - documentation.
    Revision 1.18  2003/11/10 03:17:18  venku
