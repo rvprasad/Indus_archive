@@ -256,12 +256,12 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/>
-    <xsl:apply-templates select="lhs/*"/> = <xsl:apply-templates select="rhs/*"/>
-    <xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/>
+        <xsl:apply-templates select="lhs/*"/> = <xsl:apply-templates select="rhs/*"/>
+        <xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -275,10 +275,10 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    breakpoint TODO
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        breakpoint TODO
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>  
@@ -292,12 +292,12 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/>
-    <xsl:text>entermonitor </xsl:text><xsl:value-of select="id(string(local_ref/@localId))/@name"/>
-    <xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/>
+        <xsl:text>entermonitor </xsl:text><xsl:value-of select="id(string(local_ref/@localId))/@name"/>
+        <xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -311,12 +311,12 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/>
-    <xsl:text>exitmonitor </xsl:text><xsl:value-of select="id(string(local_ref/@localId))/@name"/>
-    <xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/>
+        <xsl:text>exitmonitor </xsl:text><xsl:value-of select="id(string(local_ref/@localId))/@name"/>
+        <xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -330,11 +330,11 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/><xsl:text>goto </xsl:text><xsl:value-of select="@target"/>
-    <xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/><xsl:text>goto </xsl:text><xsl:value-of select="@target"/>
+        <xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -348,12 +348,12 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/>
-    <xsl:apply-templates select="lhs/*"/> := <xsl:apply-templates select="rhs/*"/>
-    <xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/>
+        <xsl:apply-templates select="lhs/*"/> := <xsl:apply-templates select="rhs/*"/>
+        <xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -367,12 +367,12 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/>
-    <xsl:text>if </xsl:text><xsl:apply-templates select="condition"/>
-    <xsl:text> goto </xsl:text><xsl:value-of select="@trueTargetId"/><xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/>
+        <xsl:text>if </xsl:text><xsl:apply-templates select="condition"/>
+        <xsl:text> goto </xsl:text><xsl:value-of select="@trueTargetId"/><xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -386,11 +386,11 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/>
-    <xsl:apply-templates/>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/>
+        <xsl:apply-templates/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -404,26 +404,26 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/>
-    <xsl:text>lookupswitch(</xsl:text>
-    <xsl:apply-templates select="key/*"/>
-    <xsl:text>)&#xA;&#xD;</xsl:text>
-    <xsl:call-template name="l2"/><xsl:text>{</xsl:text>
-    <xsl:for-each select="case">
-       <xsl:text>&#xA;&#xD;&#x9;&#x9;&#x9;case </xsl:text>
-       <xsl:value-of select="@value"/>
-       <xsl:text> goto </xsl:text>
-       <xsl:value-of select="@targetId"/>
-       <xsl:text>;</xsl:text>
-    </xsl:for-each>
-    <xsl:text>&#xA;&#xD;&#x9;&#x9;&#x9;default: </xsl:text>
-    <xsl:text> goto </xsl:text>
-    <xsl:value-of select="@defaultTargetId"/>
-    <xsl:text>;</xsl:text>
-    <xsl:call-template name="l2"/><xsl:text>}</xsl:text>    
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/>
+        <xsl:text>lookupswitch(</xsl:text>
+        <xsl:apply-templates select="key/*"/>
+        <xsl:text>)&#xA;&#xD;</xsl:text>
+        <xsl:call-template name="l2"/><xsl:text>{</xsl:text>
+        <xsl:for-each select="case">
+          <xsl:text>&#xA;&#xD;&#x9;&#x9;&#x9;case </xsl:text>
+          <xsl:value-of select="@value"/>
+          <xsl:text> goto </xsl:text>
+          <xsl:value-of select="@targetId"/>
+          <xsl:text>;</xsl:text>
+        </xsl:for-each>
+        <xsl:text>&#xA;&#xD;&#x9;&#x9;&#x9;default: </xsl:text>
+        <xsl:text> goto </xsl:text>
+        <xsl:value-of select="@defaultTargetId"/>
+        <xsl:text>;</xsl:text>
+        <xsl:call-template name="l2"/><xsl:text>}</xsl:text>    
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -437,10 +437,10 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    table TODO
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        table TODO
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -454,10 +454,10 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/><xsl:text>nop;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/><xsl:text>nop;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -471,11 +471,11 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/><xsl:text>ret </xsl:text><xsl:apply-templates/>
-    <xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/><xsl:text>ret </xsl:text><xsl:apply-templates/>
+        <xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -489,11 +489,11 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/><xsl:text>return </xsl:text><xsl:apply-templates/>
-    <xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/><xsl:text>return </xsl:text><xsl:apply-templates/>
+        <xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -507,10 +507,10 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/><xsl:text>return;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/><xsl:text>return;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -524,11 +524,11 @@
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-    <xsl:call-template name="labelInserter">
-      <xsl:with-param name="node" select="self::node()"/>
-    </xsl:call-template>
-    <xsl:call-template name="l2"/><xsl:text>throw </xsl:text><xsl:apply-templates/>
-    <xsl:text>;</xsl:text>
+        <xsl:call-template name="labelInserter">
+          <xsl:with-param name="node" select="self::node()"/>
+        </xsl:call-template>
+        <xsl:call-template name="l2"/><xsl:text>throw </xsl:text><xsl:apply-templates/>
+        <xsl:text>;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
