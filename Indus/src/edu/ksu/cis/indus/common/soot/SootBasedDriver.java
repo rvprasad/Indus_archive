@@ -467,7 +467,7 @@ public class SootBasedDriver {
 	/**
 	 * Resets internal data structure.
 	 */
-	public final void reset() {
+	public void reset() {
 		rootMethods.clear();
 		scene = null;
 		times.clear();
@@ -551,6 +551,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/08/22 11:20:39  venku
+   - added a reset() method.
+
    Revision 1.32  2004/08/16 16:48:56  venku
    - changed the names of the methods that set and get UnitGraph or related classes to
      contain StmtGraph instead of UnitGraph.
