@@ -29,7 +29,11 @@ import java.util.List;
 
 import soot.SootMethod;
 
+import soot.jimple.GotoStmt;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
+import soot.jimple.ThrowStmt;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -96,11 +100,11 @@ public abstract class AbstractSliceGotoProcessor {
 			final int _lind = _units.indexOf(_leader);
 
 			if (_lind > 0) {
-				final Stmt _predStmtInUnits = (Stmt) _units.get(_lind - 1);
-				final List _succsOfPred = _unitGraph.getSuccsOf(_predStmtInUnits);
+				final Stmt _predStmtOfLeader = (Stmt) _units.get(_lind - 1);
+				final List _succsOfPred = _unitGraph.getSuccsOf(_predStmtOfLeader);
 
 				if (!_succsOfPred.contains(_leader)) {
-					sliceCollector.includeInSlice(_predStmtInUnits);
+					sliceCollector.includeInSlice(_predStmtOfLeader);
 				}
 			}
 		}
@@ -141,6 +145,9 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/22 01:01:40  venku
+   - coding convention.
+
    Revision 1.5  2004/01/14 11:18:17  venku
    - subtle bug in which local variable overrode the field.  FIXED.
 
