@@ -77,14 +77,18 @@ public final class OFAXMLizerCLI
 	 * @post result != null
 	 */
 	public static ITokenManager getTokenManager() {
-		final ITokenManager _tokenMgr;
+		ITokenManager _tokenMgr = null;
 		final String _tmType = System.getProperty("indus.staticanalyses.TokenManagerType");
 
-		if (_tmType.equals("CollectionTokenManager")) {
-			_tokenMgr = new CollectionTokenManager(new SootValueTypeManager());
-		} else if (_tmType.equals("IntegerTokenManager")) {
-			_tokenMgr = new IntegerTokenManager(new SootValueTypeManager());
-		} else {
+		if (_tmType != null) {
+			if (_tmType.equals("CollectionTokenManager")) {
+				_tokenMgr = new CollectionTokenManager(new SootValueTypeManager());
+			} else if (_tmType.equals("IntegerTokenManager")) {
+				_tokenMgr = new IntegerTokenManager(new SootValueTypeManager());
+			}
+		}
+
+		if (_tokenMgr == null) {
 			_tokenMgr = new BitSetTokenManager(new SootValueTypeManager());
 		}
 		return _tokenMgr;
@@ -213,6 +217,10 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/04/22 10:23:10  venku
+   - added getTokenManager() method to OFAXMLizerCLI to create
+     token manager based on a system property.
+   - ripple effect.
    Revision 1.4  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
