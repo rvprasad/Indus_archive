@@ -149,7 +149,7 @@ public class ReferenceBasedDataDA
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("analyze() - " + toString());
+			LOGGER.debug("ReferenceBasedDataDA.analyze() - " + toString());
 		}
 
 		if (LOGGER.isInfoEnabled()) {
@@ -195,6 +195,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/07/09 09:43:23  venku
+   - added clover tags to control coverage of toSting()
+
    Revision 1.23  2004/07/08 11:03:59  venku
    - coding conventions.
    - rely on AliasedUseDef analysis for toString() output.
