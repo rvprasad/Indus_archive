@@ -15,13 +15,7 @@
 
 package edu.ksu.cis.indus.kaveri.views;
 
-import edu.ksu.cis.indus.common.soot.NamedTag;
-
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
-
 import java.util.List;
-
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -29,26 +23,23 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
-
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
-
 import org.eclipse.ui.part.ViewPart;
 
 import soot.jimple.Stmt;
+import edu.ksu.cis.indus.common.soot.NamedTag;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 
 
 /**
@@ -138,6 +129,7 @@ public class PartialSliceView
 		public void propertyChanged() {
 			if (viewer != null) {
 				viewer.refresh();
+				txt.setText(KaveriPlugin.getDefault().getIndusConfiguration().getSelectedStatement());
 				final TableColumn _cols[] = viewer.getTable().getColumns();
 				for (int _i = 0; _i < _cols.length; _i++) {
 					_cols[_i].pack();
@@ -238,18 +230,23 @@ public class PartialSliceView
 		_layout.marginWidth = 10;
 		_comp.setLayout(_layout);
 		
+		final Composite _comp1 = new Composite(_comp, SWT.NONE);
+		final GridData _dataL = new GridData();
+		_dataL.horizontalSpan = 2;
+		//_dataL.grabExcessHorizontalSpace = true;
+		_comp1.setLayoutData(_dataL);
+		final RowLayout _r = new RowLayout(SWT.HORIZONTAL);
+		_r.spacing = 10;
+		_comp1.setLayout(_r);
 		
-		final Label _lbl = new Label(_comp, SWT.LEFT);
+		final Label _lbl = new Label(_comp1, SWT.LEFT);
 		_lbl.setText("Statement: ");
-		final GridData _data1 = new GridData();
-		_data1.horizontalSpan = 1;
-		_lbl.setLayoutData(_data1);
+		;
+			
+		txt = new Text(_comp1, SWT.LEFT);		
 		
-		txt = new Text(_comp, SWT.LEFT);		
-		final GridData _data2 = new GridData();
-		_data2.horizontalSpan = 1;		
-		_data2.grabExcessHorizontalSpace = true;
-		txt.setLayoutData(_data2);
+		txt.setEditable(false);
+		txt.setText("[\t\t\t\t\t\tNo statement selected\t\t\t\t\t\t]");
 		
 		final Table _table = createTable(_comp);
 		final GridData _data = new GridData();		
@@ -265,7 +262,7 @@ public class PartialSliceView
 						TableColumn _col1 = _table.getColumn(0);
 						_col1.setWidth(_comp.getSize().x * 2 /3);
 						_col1 = _table.getColumn(1);
-						_col1.setWidth(_comp.getSize().x /3);
+						_col1.setWidth(_comp.getSize().x /3);						
 					}
 				}
 				);
@@ -283,6 +280,7 @@ public class PartialSliceView
 	/**
 	 * @param _table
 	 */
+	/*
 	private void updateTable(Table _table) {
 		_table.setLinesVisible(true);
 		_table.setHeaderVisible(true);
@@ -294,7 +292,7 @@ public class PartialSliceView
 		_col2.setText("Part of Slice");
 		_col1.pack();
 		_col2.pack();
-	}
+	}*/
 
 	/**
 	 * Creates the table.
@@ -310,7 +308,7 @@ public class PartialSliceView
 		_table.setHeaderVisible(true);				
 		
 		final TableColumn _col1 = new TableColumn(_table, SWT.NONE);
-		_col1.setText("Statement");
+		_col1.setText("Jimple Statement");
 		
 		
 		final TableColumn _col2 = new TableColumn(_table, SWT.NONE);

@@ -149,6 +149,13 @@
                      style="push"
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CriteriaSelectionAction"/>
+               <action
+                     enablesFor="+"
+                     label="Control Dependees"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.DependencyTracker"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.DependenceChaseAction"/>
                      
                
             </viewerContribution>      
@@ -204,7 +211,32 @@
             overviewRulerPreferenceValue="true"
             textStylePreferenceKey="indus.slice.partialhighlight.style"
             isGoToNextNavigationTargetKey="isOccurrencePartialGoToNextNavigationTarget" />
+        <specification            
+            verticalRulerPreferenceKey="occurrenceDependenceIndicationInVerticalRuler"
+            annotationType="indus.slice.DependencehighlightAnnotation"
+            textPreferenceKey="occurrenceDependenceIndication"
+            colorPreferenceKey="occurrenceDependenceIndicationColor"
+            highlightPreferenceKey="occurrenceDependenceHighlighting"
+            isGoToPreviousNavigationTarget="false"
+            includeOnPreferencePage="true"
+            textPreferenceValue="false"
+            isGoToNextNavigationTarget="false"
+            textStylePreferenceValue="IBEAM"
+            overviewRulerPreferenceKey="occurrenceDependenceIndicationInOverviewRuler"
+            showInNextPrevDropdownToolbarAction="true"
+            presentationLayer="4"
+            highlightPreferenceValue="true"
+            label="IndusDependenceSliceAnnotation"
+            colorPreferenceValue="69,255,70"
+            verticalRulerPreferenceValue="false"
+            isGoToPreviousNavigationTargetKey="isOccurrenceDependenceGoToPreviousNavigationTarget"
+            showInNextPrevDropdownToolbarActionKey="showOccurrenceDependenceInNextPrevDropdownToolbarAction"
+            overviewRulerPreferenceValue="true"
+            textStylePreferenceKey="indus.slice.Dependencehighlight.style"
+            isGoToNextNavigationTargetKey="isOccurrenceDependenceGoToNextNavigationTarget" />
+
    </extension>
+   
    <extension
          point="org.eclipse.ui.editorActions">
       <editorContribution

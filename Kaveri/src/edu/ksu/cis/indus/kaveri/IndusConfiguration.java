@@ -66,6 +66,12 @@ public class IndusConfiguration {
 	private ImageDescriptor sliceDecorator;
 
 	/**
+	 * The selected line for viewing the slice.
+	 * 	
+	 */
+	private String selectedStatement;
+	
+	/**
 	 * The project which has been recently sliced.
 	 */
 	private IProject sliceProject;
@@ -119,6 +125,7 @@ public class IndusConfiguration {
 		sliceFileList = new LinkedList();
 		criteria = new ArrayList();
 		stmtList = new PartialStmtData();
+		selectedStatement = "            ";
 	}
 
 	/**
@@ -279,7 +286,7 @@ public class IndusConfiguration {
 		//selectedClasses = null;
 		outputDirectory = ".";
 		lineNumbers = null;
-		
+		selectedStatement = "         ";
 
 		if (!additive) {
 		//	System.out.println("Resetting");
@@ -316,5 +323,17 @@ public class IndusConfiguration {
 	 */
 	public void setSliceProject(IProject sliceProject) {
 		this.sliceProject = sliceProject;
+	}
+	/**
+	 * @return Returns the selectedStatement.
+	 */
+	public String getSelectedStatement() {
+		return selectedStatement;
+	}
+	/**
+	 * @param selectedStatement The selectedStatement to set.
+	 */
+	public void setSelectedStatement(String selectedStatement) {
+		this.selectedStatement = selectedStatement;
 	}
 }

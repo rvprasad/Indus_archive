@@ -158,7 +158,10 @@ public class PartialSlice
 			final List _stmtlist = SootConvertor.getStmtForLine(file, type, (IMethod) element, nSelLine);
 
 			if (_stmtlist != null && _stmtlist.size() >= 3) {
-				
+				final ITextSelection _tselection = (ITextSelection) selection;
+				final String _text = _tselection.getText();
+				KaveriPlugin.getDefault().getIndusConfiguration().
+					setSelectedStatement(_text + " line: " + (_tselection.getEndLine()+1));
 				final List _storeLst = new ArrayList();
 				final int _noStmts = _stmtlist.size() - 2;				
 				if (_noStmts >= 1) {

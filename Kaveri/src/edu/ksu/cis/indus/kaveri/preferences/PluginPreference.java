@@ -21,6 +21,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dialogs.ViewDialog;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -302,7 +303,8 @@ public class PluginPreference
 	 * @return Control The control
 	 */
 	private Control createConfig(final TabFolder folder) {
-		KaveriPlugin.getDefault().loadConfigurations();
+		try {
+		KaveriPlugin.getDefault().loadDefaultConfigurations();		
 		final Composite _comp = new Composite(folder, SWT.NONE);
 		final GridLayout _layout = new GridLayout();
 		_layout.numColumns = 1;
@@ -310,6 +312,10 @@ public class PluginPreference
 		final SlicerTool _stool = KaveriPlugin.getDefault().getSlicerTool();
 		_stool.getConfigurator().initialize(_comp);
 		return _comp;
+		} catch (IllegalArgumentException _ile) {		
+			SECommons.handleException(_ile);
+		}
+		return null;
 	}
 
 	/**

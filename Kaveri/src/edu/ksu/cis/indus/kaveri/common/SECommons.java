@@ -40,7 +40,10 @@ import org.eclipse.swt.widgets.Display;
 import soot.Scene;
 import soot.SootMethod;
 import soot.Type;
+import soot.jimple.Stmt;
 import soot.options.Options;
+import soot.tagkit.LineNumberTag;
+import soot.tagkit.SourceLnPosTag;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.kaveri.dialogs.ExceptionDialog;
 import edu.ksu.cis.indus.kaveri.driver.Messages;
@@ -365,5 +368,26 @@ public final class SECommons {
 			}
 			
 		}
+	}
+
+	/**
+	 * @param _st
+	 * @return
+	 */
+	public static int getLineNumberForStmt(Stmt _st) {
+		int _nLine = -1;
+		final LineNumberTag _lntag = (LineNumberTag) _st.getTag(Messages.getString("EclipseIndusDriver.4"));  //$NON-NLS-1$
+		final SourceLnPosTag _stag = (SourceLnPosTag) _st.getTag(Messages.getString("EclipseIndusDriver.5"));  //$NON-NLS-1$
+
+		if (_stag != null) {
+			_nLine = _stag.startLn();
+		} else {
+			if (_lntag != null) {
+				//_nLine = Integer.parseInt(_lntag.toString()); // To be used with unpatched soot versions
+				_nLine = _lntag.getLineNumber();
+			}
+		}
+
+		return _nLine;		
 	}
 }
