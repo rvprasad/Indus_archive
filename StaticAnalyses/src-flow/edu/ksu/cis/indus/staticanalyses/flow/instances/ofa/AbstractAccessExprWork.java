@@ -75,14 +75,12 @@ public abstract class AbstractAccessExprWork
 	 * Creates a new <code>AbstractAccessExprWork</code> instance.
 	 *
 	 * @param callerMethod the method in which the access expression occurs.
-	 * @param expr the access expression program point.  This is usually <code>ValueBox</code> containing
-	 * 		  <code>FieldRef</code>, <code>ArrayRef</code>, or <code>NonStaticInvokeExpr</code>.
 	 * @param accessContext the context in which the access occurs.
 	 *
 	 * @pre callerMethod != null and accessExpr != null and accessContext != null
 	 */
-	protected AbstractAccessExprWork(final MethodVariant callerMethod, final ValueBox expr, final Context accessContext) {
-		this(null, new ArrayList(), callerMethod, expr, (Context) accessContext.clone());
+	protected AbstractAccessExprWork(final MethodVariant callerMethod, final Context accessContext) {
+		this(null, new ArrayList(), callerMethod, accessContext.getProgramPoint(), (Context) accessContext.clone());
 	}
 
 	/**
@@ -111,6 +109,9 @@ public abstract class AbstractAccessExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

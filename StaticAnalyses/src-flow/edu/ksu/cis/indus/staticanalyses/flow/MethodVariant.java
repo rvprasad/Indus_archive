@@ -158,8 +158,9 @@ public class MethodVariant
 		_method = sm;
 		_fa = fa;
 		_context = (Context) fa._analyzer.context.clone();
-		fa._analyzer.context.callNewMethod(sm);
+		_context.callNewMethod(sm);
 
+		Collection typesToProcess = new HashSet();
 		int pCount = sm.getParameterCount();
 
 		if (pCount > 0) {
@@ -168,7 +169,7 @@ public class MethodVariant
 			for (int i = 0; i < pCount; i++) {
 				if (sm.getParameterType(i) instanceof RefLikeType) {
 					parameters[i] = fa.getNewFGNode();
-					fa.processType(sm.getParameterType(i));
+					typesToProcess.add(sm.getParameterType(i));
 				}
 			}
 		} else {
@@ -188,23 +189,27 @@ public class MethodVariant
 			 */
 			thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), fa));
 		}
-		fa.processClass(sm.getDeclaringClass());
 
 		if (sm.getReturnType() instanceof RefLikeType) {
 			returnVar = fa.getNewFGNode();
-			fa.processType(sm.getReturnType());
+			typesToProcess.add(sm.getReturnType());
 		} else {
 			returnVar = null;
 		}
 
 		astvm = astVariantManager;
-		fa._analyzer.context.returnFromCurrentMethod();
+
+		fa.processClass(sm.getDeclaringClass());
+
+		for (final Iterator i = typesToProcess.iterator(); i.hasNext();) {
+			fa.processType((Type) i.next());
+		}
+
+		sm.addTag(_fa.getTag());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
 		}
-
-		sm.addTag(_fa.getTag());
 	}
 
 	/**
@@ -487,6 +492,9 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.10  2003/11/30 01:11:28  venku
    - types associated with locals are processed.
    - methods are tagged with a named tag retrieved

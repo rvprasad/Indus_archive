@@ -84,7 +84,6 @@ public class InvokeExprWork
 	 * Creates a new <code>InvokeExprWork</code> instance.
 	 *
 	 * @param callerMethod the method in which the call occurs.
-	 * @param invocationExpr expression in which the invocation occurs.
 	 * @param callContext the context in which the invocation occurs.
 	 * @param exprSwitchParam the expression visitor to be used for visiting expressions.
 	 *
@@ -93,9 +92,11 @@ public class InvokeExprWork
 	 *
 	 * @pre callerMethod != null and invocationExpr != null and callContext != null
 	 */
-	public InvokeExprWork(final MethodVariant callerMethod, final ValueBox invocationExpr, final Context callContext,
+	public InvokeExprWork(final MethodVariant callerMethod, final Context callContext,
 		final AbstractExprSwitch exprSwitchParam) {
-		super(callerMethod, invocationExpr, callContext);
+		super(callerMethod, callContext);
+
+		ValueBox invocationExpr = callContext.getProgramPoint();
 
 		if (!(invocationExpr.getValue() instanceof InstanceInvokeExpr)) {
 			throw new IllegalArgumentException("accessExprBox has to contain a InstanceInvokeExpr object as value.");
@@ -119,7 +120,7 @@ public class InvokeExprWork
 		ValueBox vb = context.getProgramPoint();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(this + "\n\tMethod:" + sm + "\n\tExpr:" + e + "\n\tValues:" + values + "\n\tNode:" + node);
+			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
 		}
 
 		for (Iterator i = values.iterator(); i.hasNext();) {
@@ -207,6 +208,9 @@ public class InvokeExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.9  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

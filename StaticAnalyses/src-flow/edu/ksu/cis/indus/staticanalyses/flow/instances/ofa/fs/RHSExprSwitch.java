@@ -90,7 +90,7 @@ public class RHSExprSwitch
 			LOGGER.debug("Local:" + e + "\n" + ast);
 		}
 
-		List l = method.getDefsOfAt(e, stmtSwitch.getCurrentStmt());
+		List l = method.getDefsOfAt(e, context.getStmt());
 
 		if (l != null) {
 			ValueBox temp = context.getProgramPoint();
@@ -115,6 +115,9 @@ public class RHSExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

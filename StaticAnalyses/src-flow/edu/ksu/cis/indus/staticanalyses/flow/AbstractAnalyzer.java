@@ -25,6 +25,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.ArrayType;
 import soot.Scene;
 import soot.SootClass;
@@ -51,6 +54,11 @@ import soot.jimple.ParameterRef;
  */
 public abstract class AbstractAnalyzer
   implements IValueAnalyzer {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AbstractAnalyzer.class);
+
 	/**
 	 * The context to be used when analysis information is requested and a context is not provided.
 	 */
@@ -261,6 +269,10 @@ public abstract class AbstractAnalyzer
 
 		if (v != null) {
 			temp = v.getFGNode().getValues();
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Values for array type " + a + " in node " + v.getFGNode() + " are " + temp);
+			}
 		}
 		return temp;
 	}
@@ -282,6 +294,10 @@ public abstract class AbstractAnalyzer
 
 		if (mv != null) {
 			temp = mv.queryParameterNode(p.getIndex()).getValues();
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Values for param " + p + " in node " + mv.queryParameterNode(p.getIndex()) + " are " + temp);
+			}
 		}
 		return temp;
 	}
@@ -302,6 +318,10 @@ public abstract class AbstractAnalyzer
 
 		if (fv != null) {
 			temp = fv.getValues();
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Values for field  " + sf + " are " + temp);
+			}
 		}
 		return temp;
 	}
@@ -325,6 +345,10 @@ public abstract class AbstractAnalyzer
 
 			if (astv != null) {
 				temp = astv.getFGNode().getValues();
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Values for ast " + v + " in node " + astv.getFGNode() + " are " + temp);
+				}
 			}
 		}
 		return temp;
@@ -352,6 +376,9 @@ public abstract class AbstractAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.10  2003/11/30 01:07:58  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.

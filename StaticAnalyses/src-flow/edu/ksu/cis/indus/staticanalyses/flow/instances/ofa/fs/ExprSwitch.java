@@ -124,7 +124,7 @@ public class ExprSwitch
 		ValueBox backup = context.setProgramPoint(e);
 		IFGNode localNode = method.getASTNode(l);
 
-		for (Iterator i = method.getDefsOfAt(l, stmtSwitch.getCurrentStmt()).iterator(); i.hasNext();) {
+		for (Iterator i = method.getDefsOfAt(l, context.getStmt()).iterator(); i.hasNext();) {
 			DefinitionStmt defStmt = (DefinitionStmt) i.next();
 			context.setProgramPoint(defStmt.getLeftOpBox());
 
@@ -144,6 +144,9 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.6  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

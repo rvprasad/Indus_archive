@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
 import soot.Value;
-import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.NullConstant;
@@ -72,7 +71,6 @@ public class ArrayAccessExprWork
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
 	 *
 	 * @param callerMethod the method in which the access occurs.
-	 * @param accessProgramPoint the array access expression program point.
 	 * @param accessContext the context in which the access occurs.
 	 * @param accessNode the flow graph node associated with the access expression.
 	 * @param connectorToUse the connector to use to connect the ast node to the non-ast node.
@@ -80,9 +78,9 @@ public class ArrayAccessExprWork
 	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
 	 * 		connectorToUse != null
 	 */
-	public ArrayAccessExprWork(final MethodVariant callerMethod, final ValueBox accessProgramPoint,
-		final Context accessContext, final IFGNode accessNode, final IFGNodeConnector connectorToUse) {
-		super(callerMethod, accessProgramPoint, accessContext);
+	public ArrayAccessExprWork(final MethodVariant callerMethod, final Context accessContext, final IFGNode accessNode,
+		final IFGNodeConnector connectorToUse) {
+		super(callerMethod, accessContext);
 		this.ast = accessNode;
 		this.connector = connectorToUse;
 	}
@@ -121,6 +119,9 @@ public class ArrayAccessExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

@@ -19,8 +19,6 @@ import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import java.util.Stack;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -81,8 +79,12 @@ public abstract class AbstractExprSwitch
 
 	/**
 	 * This stores the program points as expressions are recursively descended into and processed.
+	 *
+	 * @param stmtVisitor DOCUMENT ME!
+	 * @param connectorToUse DOCUMENT ME!
 	 */
-	private final Stack programPoints = new Stack();
+
+	//private final Stack programPoints = new Stack();
 
 	/**
 	 * Creates a new <code>AbstractExprSwitch</code> instance.
@@ -168,30 +170,23 @@ public abstract class AbstractExprSwitch
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Started to process expression: " + v.getValue());
 		}
-		programPoints.push(v);
+
+		ValueBox temp = context.setProgramPoint(v);
 		v.getValue().apply(this);
-		programPoints.pop();
+		context.setProgramPoint(temp);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Finished processing expression: " + v.getValue() + "\n" + getResult());
 		}
-	}
-
-	/**
-	 * Returns the current program point.
-	 *
-	 * @return Returns the current program point.
-	 *
-	 * @post result != null
-	 */
-	protected final ValueBox getCurrentProgramPoint() {
-		return (ValueBox) programPoints.peek();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

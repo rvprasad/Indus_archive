@@ -67,11 +67,6 @@ public abstract class AbstractStmtSwitch
 	protected final MethodVariant method;
 
 	/**
-	 * The current statement this visitor is visiting.
-	 */
-	protected Stmt currentStmt;
-
-	/**
 	 * Creates a new <code>AbstractStmtSwitch</code> instance.
 	 *
 	 * @param m the method variant in which this visitor is used.
@@ -115,15 +110,6 @@ public abstract class AbstractStmtSwitch
 	}
 
 	/**
-	 * Returns the current statement being visited.
-	 *
-	 * @return the current statement being visited.
-	 */
-	public Stmt getCurrentStmt() {
-		return currentStmt;
-	}
-
-	/**
 	 * Handles situations when alien statement types are visited, i.e., there are no instructions available on how to handle
 	 * a particular statement type.
 	 *
@@ -145,14 +131,18 @@ public abstract class AbstractStmtSwitch
 	 * @pre stmtToProcess != null
 	 */
 	protected void process(final Stmt stmtToProcess) {
-		this.currentStmt = stmtToProcess;
-		currentStmt.apply(this);
+		Stmt temp = context.setStmt(stmtToProcess);
+		stmtToProcess.apply(this);
+		context.setStmt(temp);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
 
-import edu.ksu.cis.indus.processing.Context;
-
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
@@ -116,7 +114,7 @@ public class ExprSwitch
 
 		IFGNode baseNode = (IFGNode) getResult();
 		IFGNode ast = method.getASTNode(e);
-		AbstractWork work = new ArrayAccessExprWork(method, getCurrentProgramPoint(), context, ast, connector);
+		AbstractWork work = new ArrayAccessExprWork(method, context, ast, connector);
 		FGAccessNode temp = new FGAccessNode(work, getWorkList());
 		baseNode.addSucc(temp);
 		work.setFGNode(temp);
@@ -169,7 +167,7 @@ public class ExprSwitch
 
 		IFGNode baseNode = (IFGNode) getResult();
 		IFGNode ast = method.getASTNode(e);
-		AbstractWork work = new FieldAccessExprWork(method, getCurrentProgramPoint(), context, ast, connector);
+		AbstractWork work = new FieldAccessExprWork(method, context, ast, connector);
 		FGAccessNode temp = new FGAccessNode(work, getWorkList());
 		baseNode.addSucc(temp);
 		work.setFGNode(temp);
@@ -436,7 +434,7 @@ public class ExprSwitch
 			setResult(null);
 		}
 
-		AbstractWork work = new InvokeExprWork(method, getCurrentProgramPoint(), (Context) context.clone(), this);
+		AbstractWork work = new InvokeExprWork(method, context, this);
 		FGAccessNode baseNode = new FGAccessNode(work, getWorkList());
 		work.setFGNode(baseNode);
 		temp.addSucc(baseNode);
@@ -450,6 +448,9 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

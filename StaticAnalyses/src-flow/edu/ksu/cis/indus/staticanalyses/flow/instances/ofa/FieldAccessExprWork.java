@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.SootField;
 import soot.Value;
-import soot.ValueBox;
 
 import soot.jimple.FieldRef;
 import soot.jimple.NullConstant;
@@ -71,7 +70,6 @@ public class FieldAccessExprWork
 	 * Creates a new <code>FieldAccessExprWork</code> instance.
 	 *
 	 * @param callerMethod the method in which the access occurs.
-	 * @param accessProgramPoint the field access expression program point.
 	 * @param accessContext the context in which the access occurs.
 	 * @param accessNode the flow graph node associated with the access expression.
 	 * @param connectorToBeUsed the connector to use to connect the ast node to the non-ast node.
@@ -79,9 +77,9 @@ public class FieldAccessExprWork
 	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
 	 * 		connectorToBeUsed != null
 	 */
-	public FieldAccessExprWork(final MethodVariant callerMethod, final ValueBox accessProgramPoint,
-		final Context accessContext, final IFGNode accessNode, final IFGNodeConnector connectorToBeUsed) {
-		super(callerMethod, accessProgramPoint, accessContext);
+	public FieldAccessExprWork(final MethodVariant callerMethod, final Context accessContext, final IFGNode accessNode,
+		final IFGNodeConnector connectorToBeUsed) {
+		super(callerMethod, accessContext);
 		this.ast = accessNode;
 		this.connector = connectorToBeUsed;
 	}
@@ -94,7 +92,7 @@ public class FieldAccessExprWork
 		FA fa = caller._fa;
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue());
+			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
 		}
 
 		for (Iterator i = values.iterator(); i.hasNext();) {
@@ -114,6 +112,9 @@ public class FieldAccessExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
