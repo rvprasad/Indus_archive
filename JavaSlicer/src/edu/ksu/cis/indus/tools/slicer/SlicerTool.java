@@ -569,7 +569,7 @@ public final class SlicerTool
 				engine.setCgi(callGraph);
 				engine.setSliceType(_slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 				engine.setInitMapper(initMapper);
-				engine.setSlicedBBGMgr(bbgMgr);
+				engine.setBasicBlockGraphManager(bbgMgr);
 				engine.setAnalysesControllerAndDependenciesToUse(daController, _slicerConfig.getNamesOfDAsToUse());
 				engine.setSliceCriteria(criteria);
 				engine.initialize();
@@ -789,6 +789,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.70  2004/01/23 16:01:11  venku
+   - coding convention.
+
    Revision 1.69  2004/01/22 13:35:14  venku
    - while generating deadlock criteria, return and entry statements
      of synchronized methods were included in their entirety when

@@ -123,9 +123,9 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
+	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced.
 	 */
-	BasicBlockGraphMgr slicedBBGMgr;
+	BasicBlockGraphMgr bbgMgr;
 
 	/**
 	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
@@ -545,12 +545,12 @@ public final class SlicingEngine {
 	/**
 	 * Sets the basic block graph manager to be used during slicing.
 	 *
-	 * @param bbgMgr is the basic block graph manager for the system being sliced.
+	 * @param basicBlockGraphMgr is the basic block graph manager for the system being sliced.
 	 *
 	 * @pre bbgMgr != null
 	 */
-	public void setSlicedBBGMgr(final BasicBlockGraphMgr bbgMgr) {
-		slicedBBGMgr = bbgMgr;
+	public void setBasicBlockGraphManager(final BasicBlockGraphMgr basicBlockGraphMgr) {
+		bbgMgr = basicBlockGraphMgr;
 	}
 
 	/**
@@ -638,8 +638,8 @@ public final class SlicingEngine {
 	 *
 	 * @post result != null
 	 */
-	BasicBlockGraphMgr getSlicedBasicBlockGraphMgr() {
-		return slicedBBGMgr;
+	BasicBlockGraphMgr getBasicBlockGraphManager() {
+		return bbgMgr;
 	}
 
 	/**
@@ -935,7 +935,7 @@ public final class SlicingEngine {
 		// add exit points of callees as the slice criteria
 		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
 			final SootMethod _callee = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = slicedBBGMgr.getBasicBlockGraph(_callee);
+			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_callee);
 
 			/*
 			 * we do not want to include a dependence on return statement in java.lang.Thread.start() method
@@ -1397,6 +1397,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.66  2004/01/31 01:50:21  venku
+   - logging.
+
    Revision 1.65  2004/01/30 18:25:58  venku
    - logging.
 

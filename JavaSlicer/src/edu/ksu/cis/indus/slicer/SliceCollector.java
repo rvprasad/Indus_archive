@@ -245,7 +245,7 @@ public final class SliceCollector {
 			_gotoProcessor = new CompleteSliceGotoProcessor(this);
 		}
 
-		final BasicBlockGraphMgr _bbgMgr = engine.getSlicedBasicBlockGraphMgr();
+		final BasicBlockGraphMgr _bbgMgr = engine.getBasicBlockGraphManager();
 		_gotoProcessor.process(taggedMethods, _bbgMgr);
 	}
 
@@ -281,6 +281,9 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/25 08:56:00  venku
+   - formatting and coding convention.
+
    Revision 1.6  2004/01/24 01:48:58  venku
    - added logic to track tagged class
    - added method to retrieve tagged classes
