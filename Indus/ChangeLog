@@ -1,0 +1,4 @@
+2005-02-25  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/common/soot/BasicBlockGraph.java: A basic block graph containing a self-looping basic block lead to
+	infinite loops during basic block creation.  FIXED. 
