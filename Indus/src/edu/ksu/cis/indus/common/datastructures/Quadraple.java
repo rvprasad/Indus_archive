@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * This class represents a quadraple of objects.  The hashcode/stringized rep. of this object is derived from it's
@@ -33,9 +30,9 @@ import java.util.List;
  * 
  * <p>
  * The above feature of this class can lead to a situation where the hashcode of an instance obtained via
- * <code>hashCode()</code> in optimized mode is not equal to the hashcode of the instance if calculated on the fly.  This is
- * not a serious ramification as this will not affect the equality test of instances rather only the preformance of
- * container classes using these instances as keys.
+ * <code>hashCode()</code> in optimized mode is not equal to the hashcode of the instance if calculated on the fly.  This
+ * will not affect the equality test of instances rather only the preformance of container classes using these instances as
+ * keys.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -116,101 +113,6 @@ public final class Quadraple
 		this.third = thirdParam;
 		this.fourth = fourthParam;
 		optimize();
-	}
-
-	/**
-	 * This class manages a collection of quadraples.  This realizes the <i>flyweight</i> pattern for quadraples.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$
-	 */
-	public static final class QuadrapleManager {
-		/**
-		 * This is the id of this service.
-		 */
-		public static final String ID = "Quadraple management service";
-
-		/**
-		 * The collection of managed quadraples.
-		 */
-		private final List quadraples = new ArrayList();
-
-		/**
-		 * The scratch pad quadraple object to be used for does-it-manage check.
-		 */
-		private final Quadraple quadrapleCache = new Quadraple(null, null, null, null, false);
-
-		/**
-		 * Provides an optimized quadraple containing 3 given objects in the given order.
-		 *
-		 * @param firstParam first element of the requested quadraple.
-		 * @param secondParam second element of the requested quadraple.
-		 * @param thirdParam third element of the requested quadraple.
-		 * @param fourthParam fourth element of the requested quadraple.
-		 *
-		 * @return the optimized quadraple containing the given objects.
-		 *
-		 * @post result != null
-		 */
-		public Quadraple getOptimizedQuadraple(final Object firstParam, final Object secondParam, final Object thirdParam,
-			final Object fourthParam) {
-			return getQuadraple(firstParam, secondParam, thirdParam, fourthParam, true);
-		}
-
-		/**
-		 * Provides an unoptimized quadraple containing 3 given objects in the given order.
-		 *
-		 * @param firstParam first element of the requested quadraple.
-		 * @param secondParam second element of the requested quadraple.
-		 * @param thirdParam third element of the requested quadraple.
-		 * @param fourthParam fourth element of the requested quadraple.
-		 *
-		 * @return the unoptimized quadraple containing the given objects.
-		 *
-		 * @post result != null
-		 */
-		public Quadraple getUnOptimizedQuadraple(final Object firstParam, final Object secondParam, final Object thirdParam,
-			final Object fourthParam) {
-			return getQuadraple(firstParam, secondParam, thirdParam, fourthParam, true);
-		}
-
-		/**
-		 * Forgets about all managed quadraples.
-		 */
-		public void reset() {
-			quadraples.clear();
-		}
-
-		/**
-		 * Provides a pair containing 3 given objects in the given order.
-		 *
-		 * @param firstParam first element of the requested quadraple.
-		 * @param secondParam second element of the requested quadraple.
-		 * @param thirdParam thrid element of the  requested quadraple
-		 * @param fourthParam fourth element of the requested quadraple.
-		 * @param optimized <code>true</code> indicates that the stringized representation and the hashcode of this object
-		 * 		  should be calculated and cached for the rest of it's lifetime. <code>false</code> indicates that these
-		 * 		  values should be calculated on the fly upon request.
-		 *
-		 * @return the quadraple containing the given objects.
-		 *
-		 * @post result != null
-		 */
-		private Quadraple getQuadraple(final Object firstParam, final Object secondParam, final Object thirdParam,
-			final Object fourthParam, final boolean optimized) {
-			Quadraple _result;
-			quadrapleCache.first = firstParam;
-			quadrapleCache.second = secondParam;
-
-			if (quadraples.contains(quadrapleCache)) {
-				_result = (Quadraple) quadraples.get(quadraples.indexOf(quadrapleCache));
-			} else {
-				_result = new Quadraple(firstParam, secondParam, thirdParam, fourthParam, optimized);
-				quadraples.add(0, _result);
-			}
-			return _result;
-		}
 	}
 
 	/**
@@ -406,6 +308,8 @@ public final class Quadraple
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/25 15:39:20  venku
+   - when the elements were null, a NPE could occur. FIXED.
    Revision 1.1  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
