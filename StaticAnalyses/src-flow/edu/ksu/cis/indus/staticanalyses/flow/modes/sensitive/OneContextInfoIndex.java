@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,25 +30,23 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive;
 
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 
 /**
- * <p>
  * This class represents an index which can be differentiated based on a context of unit size.  We consider any peice of
  * information which can be used to divide summary sets, as context information.  So, a context can be made up of many such
  * peices of information.  This class can encapsulate only one such peice of context information.  For example, an instance
  * can encapsulate either the  calling stack or the program point as the context information, but not both.
- * </p>
+ * 
+ * <p>
  * Created: Fri Jan 25 13:11:19 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -56,110 +54,90 @@ import org.apache.log4j.Logger;
 public class OneContextInfoIndex
   implements IIndex {
 	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger LOGGER = LogManager.getLogger(OneContextInfoIndex.class);
-
-	/**
-	 * <p>
 	 * The context in which <code>value</code> needs to be differentiated.
-	 * </p>
 	 */
 	private final Object contextInfo;
 
 	/**
-	 * <p>
 	 * This index is used in association with <code>value</code>.  This value is not available for retrieval, but rather adds
 	 * to improve the performance of <code>hashCode()</code> and <code>equals(Object)</code>.
-	 * </p>
 	 */
-	private final Object value;
+	private final Object v;
 
 	/**
-	 * Cached stringified representation of this object.
-	 */
-	private final String str;
-
-	/**
-	 * Cached hash code of this object.
-	 */
-	private final int hashcode;
-
-	/**
-	 * <p>
 	 * Creates a new <code>OneContextInfoIndex</code> instance.
-	 * </p>
 	 *
 	 * @param value the value whose variant is identified by this index.
 	 * @param c the context in which <code>value</code>'s variant is identified by this index.
 	 */
-	public OneContextInfoIndex(Object value, Object c) {
-		this.value = value;
+	public OneContextInfoIndex(final Object value, final Object c) {
+		this.v = value;
 		this.contextInfo = c;
-		str = value + " " + c;
-		hashcode = str.hashCode();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Value: " + value + "  Context: " + contextInfo);
-		}
 	}
 
 	/**
-	 * <p>
 	 * Compares this index with a given index.  The objects are equal when the <code>value</code> and <code>context</code>
 	 * are equal.
-	 * </p>
 	 *
 	 * @param index the index to be compared with.
 	 *
 	 * @return <code>true</code> if this index is equal to <code>index</code>; <code>false</code> otherwise.
 	 */
-	public boolean equals(Object index) {
-		boolean temp = false;
+	public boolean equals(final Object index) {
+		boolean result = false;
 
-		if (index instanceof OneContextInfoIndex) {
+		if (index != null && index instanceof OneContextInfoIndex) {
 			OneContextInfoIndex d = (OneContextInfoIndex) index;
-			temp = d.value.equals(value);
 
-			if (contextInfo != null) {
-				temp = temp && contextInfo.equals(d.contextInfo);
+			if (v != null) {
+				result = v.equals(d.v);
+			} else {
+				result = v == d.v;
+			}
+
+			if (result) {
+				if (contextInfo != null) {
+					result = contextInfo.equals(d.contextInfo);
+				} else {
+					result = contextInfo == d.contextInfo;
+				}
 			}
 		}
-		return temp;
+		return result;
 	}
 
 	/**
-	 * <p>
 	 * Generates a hash code for this object.
-	 * </p>
 	 *
 	 * @return the hash code for this object.
 	 */
 	public int hashCode() {
-		return hashcode;
+		int result = 17;
+		result = 37 * result + v.hashCode();
+		result = 37 * result + contextInfo.hashCode();
+		return result;
 	}
 
 	/**
-	 * <p>
 	 * Returns the stringized form of this object.
-	 * </p>
 	 *
 	 * @return returns the stringized form of this object.
 	 */
 	public String toString() {
-		return str;
+		return v + " " + contextInfo;
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 1.8  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
+   $Log$
 
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
 
-*****/
+   Revision 1.8  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */
