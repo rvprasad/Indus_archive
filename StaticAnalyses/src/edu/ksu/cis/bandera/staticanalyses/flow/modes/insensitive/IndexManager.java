@@ -29,6 +29,10 @@ public class IndexManager extends AbstractIndexManager {
 		return new IndexManager();
 	}
 
+	public Object prototype(Object o) {
+		throw new UnsupportedOperationException("Single parameter prototype() is not supported.");
+	}
+
 	class DummyIndex implements Index {
 		Object o;
 
