@@ -1,5 +1,5 @@
 <binding>
-	<mapping name="slicerConfiguration"	class="edu.ksu.cis.indus.tools.CompositeToolConfiguration">
+	<mapping name="compositeConfiguration"	class="edu.ksu.cis.indus.tools.CompositeToolConfiguration">
 		<collection field="configurations" item-type="edu.ksu.cis.indus.tools.slicer.SlicerConfiguration" 
 			factory="edu.ksu.cis.indus.tools.CompositeToolConfiguration.createConfigurations"
 			set-method="setConfigurations"/>

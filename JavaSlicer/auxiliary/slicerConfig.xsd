@@ -10,7 +10,7 @@
         schemaLocation="analysesConfigTypes.xsd"/>
     <xsd:include id="slicerConfigTypes" schemaLocation="slicerConfigTypes.xsd"/>
 
-    <xsd:element id="slicerConfiguration" name="slicerConfiguration">
+    <xsd:element id="compositeConfiguration" name="compositeConfiguration">
       <xsd:annotation>
         <xsd:appinfo>
           Slicer configuration
