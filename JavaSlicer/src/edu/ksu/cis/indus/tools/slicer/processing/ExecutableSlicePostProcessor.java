@@ -243,7 +243,10 @@ public final class ExecutableSlicePostProcessor
 
 				if (collector.hasBeenCollected(_stmt)) {
 					for (final Iterator _k = TrapManager.getTrapsAt(_stmt, _body).iterator(); _k.hasNext();) {
-						collector.includeInSlice(((Trap) _k.next()).getHandlerUnit());
+						final Stmt _handlerUnit = (Stmt)((Trap) _k.next()).getHandlerUnit();
+                        collector.includeInSlice(_handlerUnit);
+                        collector.includeInSlice(((IdentityStmt)_handlerUnit).getLeftOpBox());
+                        collector.includeInSlice(((IdentityStmt)_handlerUnit).getRightOpBox());
 					}
 				}
 			}
@@ -258,6 +261,14 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/13 10:15:24  venku
+   - In terms of post processing we need to do so only when we
+     require executable slice and the processing is the same
+     independent of the direction of the slice.  Hence, we have just
+     one processor instead of 3.  Now we can have specializing
+     post processor if we wanted to but I need more application
+     information before I decide on this.
+
    Revision 1.1  2004/01/13 07:53:51  venku
    - as post processing beyond retention of semantics of slice is
      particular to the application or the tool.  Hence, moved the
