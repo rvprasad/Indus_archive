@@ -115,7 +115,7 @@ public class IdentifierBasedDataDA
 				}
 			} else {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Now dependence information available for " + method);
+					LOGGER.warn("No dependence information available for " + stmt + " in " + method);
 				}
 			}
 		} else if (programPoint instanceof Pair) {
@@ -306,6 +306,9 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/11/28 21:45:44  venku
+   - logging and error condition handling.
+
    Revision 1.23  2003/11/12 05:00:36  venku
    - documentation.
    Revision 1.22  2003/11/12 01:04:54  venku
