@@ -116,17 +116,17 @@ public interface IDirectedGraph {
 	boolean isReachable(final INode src, final INode dest, final boolean forward);
 
 	/**
-	 * Returns a collection of strongly-connected components in this graph.
+	 * Returns a sequence of strongly-connected components in this graph.
 	 *
 	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
 	 * 		  indicates bottom-up.
 	 *
-	 * @return a collection of <code>List</code> of <code>INode</code>s that form SCCs in this graph.
+	 * @return a sequence of <code>List</code> of <code>INode</code>s that form SCCs in this graph.
 	 *
-	 * @post result != null and result.isOclKindOf(Collection(Sequence(INode)))
+	 * @post result != null and result.isOclKindOf(Sequence(Sequence(INode)))
 	 * @post result->forall(o | getNodes().containsAll(o))
 	 */
-	Collection getSCCs(final boolean topDown);
+	List getSCCs(final boolean topDown);
 
 	/**
 	 * Retrieves the succession information as it occurs in this graph's spanning tree.  The returned map maps a node to a
@@ -165,8 +165,10 @@ public interface IDirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/31 10:43:08  venku
+   - size() was unused in IDirectedGraph, hence, removed it.
+     Ripple effect.
    Revision 1.1  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
  */

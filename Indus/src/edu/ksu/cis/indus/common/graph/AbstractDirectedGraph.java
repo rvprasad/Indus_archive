@@ -297,18 +297,10 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Returns a collection of strongly-connected components in this graph.
-	 *
-	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
-	 * 		  indicates bottom-up.
-	 *
-	 * @return a collection of <code>List</code> of <code>INode</code>s that form SCCs in this graph.
-	 *
-	 * @post result != null and result.isOclKindOf(Collection(Sequence(INode)))
-	 * @post result->forall(o | getNodes().containsAll(o))
+	 * @see IDirectedGraph#getSCCs(boolean)
 	 */
-	public final Collection getSCCs(final boolean topDown) {
-		final Collection _result;
+	public final List getSCCs(final boolean topDown) {
+		final List _result;
 		final List _nodes = getNodes();
 		final Map _finishTime2node = new HashMap();
 		final Collection _processed = new HashSet();
@@ -647,18 +639,17 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/06 00:53:35  venku
+   - coding conventions.
    Revision 1.5  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.4  2003/12/31 10:43:08  venku
    - size() was unused in IDirectedGraph, hence, removed it.
      Ripple effect.
-
    Revision 1.3  2003/12/31 08:47:01  venku
    - getCycles() was broken. FIXED.
-
    Revision 1.2  2003/12/30 09:11:28  venku
    - formatting
    - concretized size() based on getNodes().

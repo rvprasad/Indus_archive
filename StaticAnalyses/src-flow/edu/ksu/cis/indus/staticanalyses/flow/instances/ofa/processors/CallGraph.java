@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -96,25 +96,11 @@ public class CallGraph
 	private final Collection heads = new HashSet();
 
 	/**
-	 * The collection of SCCs in this call graph in top-down direction.
-	 *
-	 * @invariant bottomUpSCC.oclIsKindOf(Set(Collection(SootMethod)))
-	 */
-	private Collection bottomUpSCC;
-
-	/**
 	 * The collection of methods that are reachble in the system.
 	 *
 	 * @invariant reachables.oclIsKindOf(Set(SootMethod))
 	 */
 	private Collection reachables = new HashSet();
-
-	/**
-	 * The collection of SCCs in this call graph in top-down direction.
-	 *
-	 * @invariant topDownSCC.oclIsKindOf(Set(Collection(SootMethod)))
-	 */
-	private Collection topDownSCC;
 
 	/**
 	 * The FA instance which implements object flow analysis.  This instance is used to calculate call graphCache
@@ -123,6 +109,20 @@ public class CallGraph
 	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
 	private IValueAnalyzer analyzer;
+
+	/**
+	 * The collection of SCCs in this call graph in bottom-up direction.
+	 *
+	 * @invariant bottomUpSCC.oclIsKindOf(Sequence(Collection(SootMethod)))
+	 */
+	private List bottomUpSCC;
+
+	/**
+	 * The collection of SCCs in this call graph in top-down direction.
+	 *
+	 * @invariant topDownSCC.oclIsKindOf(Sequence(Collection(SootMethod)))
+	 */
+	private List topDownSCC;
 
 	/**
 	 * This maps callees to callers.
@@ -310,49 +310,28 @@ public class CallGraph
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getSCCs(boolean)
 	 */
-	public Collection getSCCs(final boolean topDown) {
-		Collection result = new HashSet();
-		Collection temp;
+	public List getSCCs(final boolean topDown) {
+		if (topDownSCC == null) {
+			topDownSCC = new ArrayList();
 
-		if (topDown) {
-			if (topDownSCC == null) {
-				topDownSCC = new HashSet();
-				temp = graphCache.getSCCs(true);
+			final List _temp = graphCache.getSCCs(topDown);
 
-				for (Iterator i = temp.iterator(); i.hasNext();) {
-					Collection scc = (Collection) i.next();
-					java.util.List l = new ArrayList();
+			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+				Collection _scc = (Collection) _i.next();
+				final List _l = new ArrayList();
 
-					for (Iterator j = scc.iterator(); j.hasNext();) {
-						l.add(((SimpleNode) j.next()).getObject());
-					}
-					topDownSCC.add(l);
+				for (Iterator j = _scc.iterator(); j.hasNext();) {
+					_l.add(((SimpleNode) j.next()).getObject());
 				}
+				topDownSCC.add(Collections.unmodifiableList(_l));
 			}
-			temp = topDownSCC;
-		} else {
-			if (bottomUpSCC == null) {
-				bottomUpSCC = new HashSet();
-				temp = graphCache.getSCCs(false);
-
-				for (Iterator i = temp.iterator(); i.hasNext();) {
-					Collection scc = (Collection) i.next();
-					java.util.List l = new ArrayList();
-
-					for (Iterator j = scc.iterator(); j.hasNext();) {
-						l.add(((SimpleNode) j.next()).getObject());
-					}
-					bottomUpSCC.add(l);
-				}
-			}
-			temp = bottomUpSCC;
+			topDownSCC = Collections.unmodifiableList(topDownSCC);
+			bottomUpSCC = new ArrayList(topDownSCC);
+			Collections.reverse(bottomUpSCC);
+			bottomUpSCC = Collections.unmodifiableList(bottomUpSCC);
 		}
-
-		for (Iterator i = temp.iterator(); i.hasNext();) {
-			java.util.List scc = (java.util.List) i.next();
-			result.add(Collections.unmodifiableList(scc));
-		}
-		return result;
+		return topDown ? topDownSCC
+					   : bottomUpSCC;
 	}
 
 	/**
@@ -672,15 +651,15 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/01/06 01:12:43  venku
+   - coding conventions.
    Revision 1.45  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.44  2003/12/31 06:09:34  venku
    - <clinit>s are ignored as heads when the did not
      call any methods.  FIXED.
-
    Revision 1.43  2003/12/16 00:19:25  venku
    - specialinvoke was handled incorrectly.  FIXED
      It behaves like virtual in cases when a non-instance

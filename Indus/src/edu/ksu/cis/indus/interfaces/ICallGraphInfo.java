@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
+import java.util.List;
 
 import soot.SootMethod;
 
@@ -194,24 +195,27 @@ public interface ICallGraphInfo
 	Collection getReachableMethods();
 
 	/**
-	 * Returns a collection of strongly connected components in the given call graph.
+	 * Returns a sequence of strongly connected components in the given call graph.
 	 *
 	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
 	 * 		  indicates bottom-up.
 	 *
-	 * @return a collection of collection of methods.
+	 * @return a sequence of sequence of methods.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(Collection(soot.SootMethod)))
+	 * @post result != null and result.oclIsKindOf(Sequence(Sequence(soot.SootMethod)))
 	 */
-	Collection getSCCs(boolean topDown);
+	List getSCCs(boolean topDown);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.4  2003/12/30 09:16:33  venku
    - CallTriple/NewExprTriple are optimized after creation.
-
    Revision 1.3  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.
