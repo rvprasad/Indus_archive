@@ -27,7 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import soot.Body;
 import soot.SootMethod;
+import soot.Trap;
 
 import soot.jimple.Stmt;
 
@@ -86,7 +88,15 @@ public abstract class AbstractSliceGotoProcessor {
 
 		final Collection _processed = new HashSet();
 		final UnitGraph _unitGraph = bbg.getStmtGraph();
-		final List _units = new ArrayList(_unitGraph.getBody().getUnits());
+		final Body _body = _unitGraph.getBody();
+		final List _units = new ArrayList(_body.getUnits());
+		final Collection _handlerStmts = new ArrayList();
+
+        // collect the handler statements in the traps
+		for (final Iterator _i = _body.getTraps().iterator(); _i.hasNext();) {
+			final Trap _trap = (Trap) _i.next();
+			_handlerStmts.add(_trap.getHandlerUnit());
+		}
 
 		while (workBag.hasWork()) {
 			final BasicBlock _bb = (BasicBlock) workBag.getWork();
@@ -94,12 +104,18 @@ public abstract class AbstractSliceGotoProcessor {
 
 			final Stmt _leader = _bb.getLeaderStmt();
 			final int _lind = _units.indexOf(_leader);
+			final boolean _flag = _handlerStmts.contains(_leader);
 
 			if (_lind > 0) {
 				final Stmt _predStmtOfLeader = (Stmt) _units.get(_lind - 1);
 				final List _succsOfPred = _unitGraph.getSuccsOf(_predStmtOfLeader);
 
-				if (!_succsOfPred.contains(_leader)) {
+                /*
+                 *  if the leader is not a successor of the statement that preceeds it in the sequence of byte codes or
+                 *     if it is a successor and it is also a trap handler then include the preceeding statement in the 
+                 *     slice.
+                 */
+				if (!_succsOfPred.contains(_leader) || (_succsOfPred.contains(_leader) && _flag)) {
 					sliceCollector.includeInSlice(_predStmtOfLeader);
 				}
 			}
@@ -141,19 +157,17 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/01/27 00:41:34  venku
+   - coding convention.
    Revision 1.7  2004/01/26 23:54:13  venku
    - coding convention.
-
    Revision 1.6  2004/01/22 01:01:40  venku
    - coding convention.
-
    Revision 1.5  2004/01/14 11:18:17  venku
    - subtle bug in which local variable overrode the field.  FIXED.
-
    Revision 1.4  2004/01/13 23:34:54  venku
    - fixed the processing of intra basicblock jumps and
      inter basic block jumps.
-
    Revision 1.3  2004/01/13 08:39:07  venku
    - moved the GotoProcessors back into the slicer core as these
      classes home the logic required for slice creation.
