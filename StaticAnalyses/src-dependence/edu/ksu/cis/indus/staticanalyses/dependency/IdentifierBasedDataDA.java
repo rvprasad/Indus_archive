@@ -61,9 +61,10 @@ import java.util.Map;
 
 
 /**
- * This class provides data dependency information independent of aliasing.  Local variables in a method enable such
- * dependence. Hence, information about field/array access via primaries which are local variables is not provided by this
- * class. Please refer to {@link AliasedDataDA AliasedDataDA} for such information.
+ * This class provides data dependency information based on identifiers.  Local variables in a method enable such dependence.
+ * Given a def site, the use site is tracked based on the id being defined and used. Hence, information about field/array
+ * access via primaries which are local variables is inaccurate in such a setting, hence, it is not  provided by this class.
+ * Please refer to {@link ReferenceBasedDataDA ReferenceBasedDataDA} for such information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -74,7 +75,7 @@ import java.util.Map;
  * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Map(ValueBox, Set(ca.mcgill. sable.soot.jimple.Stmt)))))
  * @invariant dependeeMap.entrySet()->forall(o | o.getValue().size() = o.getKey().getBody(Jimple.v()).getStmtList().size())
  */
-public class NonAliasedDataDA
+public class IdentifierBasedDataDA
   extends DependencyAnalysis {
 	/*
 	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
@@ -232,9 +233,10 @@ public class NonAliasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/18 11:07:16  venku
+   Tightened specification.
    Revision 1.3  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.2  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.1  2003/08/09 23:29:09  venku

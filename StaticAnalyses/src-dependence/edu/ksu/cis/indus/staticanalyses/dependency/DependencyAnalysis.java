@@ -64,7 +64,7 @@ public abstract class DependencyAnalysis
 	/**
 	 * This identifies class-level data dependency analysis.
 	 */
-	public static final Object CLASS_DATA_DA = "CLASS_DATA_DA";
+	public static final Object REFERENCE_BASED_DATA_DA = "REFERENCE_BASED_DATA_DA";
 
 	/**
 	 * This identifies control dependency analysis.
@@ -82,9 +82,9 @@ public abstract class DependencyAnalysis
 	public static final Object INTERFERENCE_DA = "INTERFERENCE_DA";
 
 	/**
-	 * This identifies method local data dependency analysis.
+	 * This identifies identifier based data dependency analysis.
 	 */
-	public static final Object METHOD_LOCAL_DATA_DA = "METHOD_LOCAL_DATA_DA";
+	public static final Object IDENTIFIER_BASED_DATA_DA = "IDENTIFIER_BASED_DATA_DA";
 
 	/**
 	 * This identifies ready dependency analysis.
@@ -153,6 +153,9 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/25 08:43:51  venku
+   Moved XXX_DA constants from SimpleController to here.
+
    Revision 1.5  2003/08/16 02:41:37  venku
    Renamed AController to AbstractController.
    Renamed AAnalysis to AbstractAnalysis.

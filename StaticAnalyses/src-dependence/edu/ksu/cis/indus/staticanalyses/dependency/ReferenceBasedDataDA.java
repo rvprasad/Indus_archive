@@ -47,14 +47,14 @@ import java.util.Collection;
 
 
 /**
- * This class provides data dependence information which considers the effects of aliasing. It is an adapter for an
- * interprocedural use-def analysis which considers the effects of aliasing.
+ * This class provides data dependence information which considers references and hence the effects of aliasing. It is an
+ * adapter for an interprocedural use-def analysis which considers the effects of aliasing.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public class AliasedDataDA
+public class ReferenceBasedDataDA
   extends DependencyAnalysis {
 	/**
 	 * This provides inter-procedural use-def information which considers the effects of aliasing.
@@ -136,9 +136,10 @@ public class AliasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/20 18:14:38  venku
+   Log4j was used instead of logging.  That is fixed.
    Revision 1.3  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.2  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.1  2003/08/09 23:29:09  venku
