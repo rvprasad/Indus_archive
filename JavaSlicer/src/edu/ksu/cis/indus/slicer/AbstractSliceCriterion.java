@@ -47,9 +47,15 @@ abstract class AbstractSliceCriterion
 	private boolean considerExecution;
 
 	/**
-	 * @see ISliceCriterion#setConsiderExecution(boolean)
+	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
+	 *
+	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
+	 * 		  considered while slicing.  This also means all the subexpressions of the associated expression are also
+	 * 		  considered as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching
+	 * 		  this criterion should be considered while slicing.  This means none of the subexpressions of the associated
+	 * 		  expression are considered as slice criteria.
 	 */
-	public final void setConsiderExecution(final boolean shouldConsiderExecution) {
+	final void setConsiderExecution(final boolean shouldConsiderExecution) {
 		considerExecution = shouldConsiderExecution;
 	}
 
@@ -139,6 +145,9 @@ abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/07/01 00:40:13  venku
+   - added setConsiderExecution(boolean) to the public interface of SliceCriterion.
+
    Revision 1.16  2004/06/26 10:16:35  venku
    - bug #389. FIXED.
    Revision 1.15  2004/06/24 06:53:53  venku

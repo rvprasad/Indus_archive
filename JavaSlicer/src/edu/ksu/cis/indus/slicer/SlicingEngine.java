@@ -941,10 +941,8 @@ public final class SlicingEngine {
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
 		if (!collector.hasBeenCollected(valueBox)) {
-			final SliceExpr _sliceCriterion = SliceExpr.getSliceExpr();
-			_sliceCriterion.initialize(method, stmt, valueBox);
-			_sliceCriterion.setConsiderExecution(considerExecution);
-			workbag.addWorkNoDuplicates(_sliceCriterion);
+		    final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriterion(method, stmt, valueBox, considerExecution);
+			workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding expr [" + considerExecution + "] " + valueBox.getValue() + " at " + stmt + " in "
@@ -974,10 +972,8 @@ public final class SlicingEngine {
 	 */
 	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
 		if (!collector.hasBeenCollected(stmt)) {
-			final SliceStmt _sliceCriterion = SliceStmt.getSliceStmt();
-			_sliceCriterion.initialize(method, stmt);
-			_sliceCriterion.setConsiderExecution(considerExecution);
-			workbag.addWorkNoDuplicates(_sliceCriterion);
+		    final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriterion(method, stmt, considerExecution);
+			workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " to workbag.");
@@ -1283,6 +1279,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.82  2004/07/08 11:08:13  venku
+   - refactoring to remove redundance.
+
    Revision 1.81  2004/06/26 10:16:35  venku
    - bug #389. FIXED.
    Revision 1.80  2004/06/14 04:32:11  venku

@@ -16,14 +16,9 @@
 package edu.ksu.cis.indus.slicer;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import soot.Body;
 import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
@@ -58,24 +53,59 @@ import soot.jimple.Stmt;
  * 
  * <p>
  * As we are interested in meaningful slices, inclusive expression-level slice criterion is the same as inclusive
- * statement-level slice criterion which  refers to the statement that contains the expression.
- * </p>
- *
- * <p>
- * Please note that <code>ISliceCriterion</code> extends <code>IPoolable</code>.  This means that all criteria that were 
- * created should be returned to the pool.  Hence, the user is responsible to call <code>returnToPool()</code> on all the 
- * criterion created via <code>getCriterion()</code> methods in this class. 
+ * statement-level slice criterion which refers to the statement that contains the expression.
  * </p>
  * 
+ * <p>
+ * When an expression/statement is specified as a criteria, does this mean that
+ * 
+ * <ul>
+ * <li>
+ * the value of the expression should be preserved (the expression is executed), or
+ * </li>
+ * <li>
+ * the control reaching the expression should be preserved (the expression is not executed)?
+ * </li>
+ * </ul>
+ * 
+ * To enable the user to specify this information, each factory method includes a <code>considerExecution</code> parameter
+ * that incides if the execution of the expression/statement should be captured or not.  If you think that this is  overly
+ * fine, I would be interested in a discussion.
+ * </p>
+ * 
+ * <p>
+ * Please note that <code>ISliceCriterion</code> extends <code>IPoolable</code>.  This means that all criteria that were
+ * created should be returned to the pool.  Hence, the user is responsible to call <code>returnToPool()</code> on all the
+ * criterion created via <code>getCriterion()</code> methods in this class.
+ * </p>
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public final class SliceCriteriaFactory {
 	/**
-	 * The logger used by instances of this class to log messages.
+	 * This stores a reference to the factory object.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SliceCriteriaFactory.class);
+	private static final SliceCriteriaFactory singleton = new SliceCriteriaFactory();
+
+	///CLOVER:OFF
+	/**
+	 * Creates a new SliceCriteriaFactory object.
+	 */
+	private SliceCriteriaFactory() {
+	}
+	///CLOVER:ON
+	
+	/**
+	 * Retrieves the factory object.
+	 *
+	 * @return the factory object.
+	 * @post result != null
+	 */
+	public static final SliceCriteriaFactory getFactory() {
+		return singleton;
+	}
 
 	/**
 	 * Creates slice criteria from the given value.  This is equivalent to <code>getCriterion(method, stmt, expression,
@@ -84,14 +114,18 @@ public final class SliceCriteriaFactory {
 	 * @param method in which the criterion occurs.
 	 * @param stmt in which the criterion occurs.
 	 * @param expression is the criterion.
+	 * @param considerExecution <code>true</code> indicates the result of executing the criterion or the control reaching the
+	 * 		  end of criterion is required; <code>false</code> indicates the result of the control reaching the  criterion
+	 * 		  is required.
 	 *
 	 * @return a collection of slice criterion objects corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null and expression != null
 	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expression) {
-		return getCriterion(method, stmt, expression, false);
+	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expression,
+		final boolean considerExecution) {
+		return getCriterion(method, stmt, expression, false, considerExecution);
 	}
 
 	/**
@@ -103,16 +137,21 @@ public final class SliceCriteriaFactory {
 	 * @param expr is the criterion.
 	 * @param descend <code>true</code> indicates if a criterion should be generated for each use site in the expresion;
 	 * 		  <code>false</code>, otherwise.
+	 * @param considerExecution <code>true</code> indicates the result of executing the criterion or the control reaching the
+	 * 		  end of criterion is required; <code>false</code> indicates the result of the control reaching the  criterion
+	 * 		  is required.
 	 *
 	 * @return a collection of slice criterion objects corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null and expr != null
 	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expr, final boolean descend) {
+	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox expr, final boolean descend,
+		final boolean considerExecution) {
 		final Collection _result = new HashSet();
 		final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
 		_exprCriterion.initialize(method, stmt, expr);
+		_exprCriterion.setConsiderExecution(considerExecution);
 		_result.add(_exprCriterion);
 
 		if (descend) {
@@ -120,6 +159,7 @@ public final class SliceCriteriaFactory {
 				final ValueBox _useBox = (ValueBox) _i.next();
 				final SliceExpr _temp = SliceExpr.getSliceExpr();
 				_temp.initialize(method, stmt, _useBox);
+				_temp.setConsiderExecution(considerExecution);
 				_result.add(_temp);
 			}
 		}
@@ -137,14 +177,17 @@ public final class SliceCriteriaFactory {
 	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt is the criterion.
+	 * @param considerExecution <code>true</code> indicates the result of executing the criterion or the control reaching the
+	 * 		  end of criterion is required; <code>false</code> indicates the result of the control reaching the  criterion
+	 * 		  is required.
 	 *
 	 * @return a collection of slice criterion corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt) {
-		return getCriterion(method, stmt, false);
+	public Collection getCriterion(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
+		return getCriterion(method, stmt, false, considerExecution);
 	}
 
 	/**
@@ -155,17 +198,22 @@ public final class SliceCriteriaFactory {
 	 * @param stmt is the criterion.
 	 * @param descend <code>true</code> indicates if a criterion should be generated for each def/use site in the statement;
 	 * 		  <code>false</code>, otherwise.
+	 * @param considerExecution <code>true</code> indicates the result of executing the criterion or the control reaching the
+	 * 		  end of criterion is required; <code>false</code> indicates the result of the control reaching the  criterion
+	 * 		  is required.
 	 *
 	 * @return a collection of slice criterion corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null
 	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Stmt stmt, final boolean descend) {
+	public Collection getCriterion(final SootMethod method, final Stmt stmt, final boolean descend,
+		final boolean considerExecution) {
 		final Collection _result = new HashSet();
 
 		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();
 		_stmtCriterion.initialize(method, stmt);
+		_stmtCriterion.setConsiderExecution(considerExecution);
 		_result.add(_stmtCriterion);
 
 		if (descend) {
@@ -173,6 +221,7 @@ public final class SliceCriteriaFactory {
 				final ValueBox _vBox = (ValueBox) _i.next();
 				final SliceExpr _temp = SliceExpr.getSliceExpr();
 				_temp.initialize(method, stmt, _vBox);
+				_temp.setConsiderExecution(considerExecution);
 				_result.add(_temp);
 			}
 		}
@@ -181,38 +230,39 @@ public final class SliceCriteriaFactory {
 	}
 
 	/**
-	 * Returns a collection of criteria which include all occurrences of the given local in the given method.
+	 * Returns a collection of criteria which include all occurrences of the given local in the given collection of
+	 * statements.
 	 *
-	 * @param method in which the <code>local</code> occurs.
 	 * @param local is the local variable whose all occurrences in <code>method</code> should be captured as slice criterion
+	 * @param stmts in which the occurrences of the <code>local</code> should be captured.
+	 * @param method in which the given statements occur.
+	 * @param considerExecution <code>true</code> indicates the result of executing the criterion or the control reaching the
+	 * 		  end of criterion is required; <code>false</code> indicates the result of the control reaching the  criterion
+	 * 		  is required.
 	 *
 	 * @return a collection of slice criteria.
 	 *
-	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 * @pre stmts != null and local != null and method != null
+	 * @pre stmt.oclIsKindOf(Collection(Stmt)) and method.retrieveActiveBody().getUnits().containsAll(stmts)
+	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	public Collection getCriterion(final SootMethod method, final Local local) {
-		Collection _result = Collections.EMPTY_LIST;
+	public Collection getCriterion(final Local local, final Collection stmts, final SootMethod method,
+		final boolean considerExecution) {
+		final Collection _result = new HashSet();
 
-		final Body _body = method.getActiveBody();
+		for (final Iterator _i = stmts.iterator(); _i.hasNext();) {
+			final Stmt _stmt = (Stmt) _i.next();
 
-		if (_body != null) {
-			_result = new HashSet();
+			for (final Iterator _j = _stmt.getUseAndDefBoxes().iterator(); _j.hasNext();) {
+				final ValueBox _vBox = (ValueBox) _j.next();
 
-			for (final Iterator _i = _body.getUnits().iterator(); _i.hasNext();) {
-				final Stmt _stmt = (Stmt) _i.next();
-
-				for (final Iterator _j = _stmt.getUseAndDefBoxes().iterator(); _j.hasNext();) {
-					final ValueBox _vBox = (ValueBox) _j.next();
-
-					if (_vBox.getValue().equals(local)) {
-						final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
-						_exprCriterion.initialize(method, _stmt, _vBox);
-						_result.add(_exprCriterion);
-					}
+				if (_vBox.getValue().equals(local)) {
+					final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
+					_exprCriterion.initialize(method, _stmt, _vBox);
+					_exprCriterion.setConsiderExecution(considerExecution);
+					_result.add(_exprCriterion);
 				}
 			}
-		} else {
-			LOGGER.error(method.getSignature() + " does not have a body.");
 		}
 
 		return _result;
@@ -238,13 +288,14 @@ public final class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/06/26 09:53:15  venku
+   - documentation.
    Revision 1.7  2004/05/10 08:12:03  venku
    - streamlined the names of tags that are used.
    - deleted SlicingTag class.  NamedTag is used instead.
    - ripple effect.
    - SliceCriteriaFactory's interface is enhanced to generate individual
      slice criterion as well as criteria set for all nodes in the given AST chunk.
-
    Revision 1.6  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
@@ -266,28 +317,28 @@ public final class SliceCriteriaFactory {
      the slicing algorithm to drill down into the expr/stmt
      for more criteria.
    Revision 1.1  2003/10/13 00:58:04  venku
- *** empty log message ***
-                         Revision 1.11  2003/09/27 22:38:30  venku
-                         - package documentation.
-                         - formatting.
-                         Revision 1.10  2003/09/15 08:09:17  venku
-                         - fixed param dependency.  However, this needs to be addressed
-                           in a generic setting.  Also, the theoretics concerned to inclusion
-                           should be dealt appropriately.
-                         Revision 1.9  2003/08/21 09:31:52  venku
-                         If the SliceExpr was created based on a Def Box, it would not have
-                         included the statement.  This was fixed.
-                         Revision 1.8  2003/08/20 18:31:22  venku
-                         Documentation errors fixed.
-                         Revision 1.7  2003/08/18 12:14:13  venku
-                         Well, to start with the slicer implementation is complete.
-                         Although not necessarily bug free, hoping to stabilize it quickly.
-                         Revision 1.6  2003/08/18 05:01:45  venku
-                         Committing package name change in source after they were moved.
-                         Revision 1.5  2003/08/18 04:56:47  venku
-                         Spruced up Documentation and specification.
-                         But committing before moving slicer under transformation umbrella of Indus.
-                         Revision 1.4  2003/05/22 22:23:49  venku
-                         Changed interface names to start with a "I".
-                         Formatting.
+   - empty log message
+   Revision 1.11  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
+   Revision 1.10  2003/09/15 08:09:17  venku
+   - fixed param dependency.  However, this needs to be addressed
+     in a generic setting.  Also, the theoretics concerned to inclusion
+     should be dealt appropriately.
+   Revision 1.9  2003/08/21 09:31:52  venku
+   - If the SliceExpr was created based on a Def Box, it would not have
+     included the statement.  This was fixed.
+   Revision 1.8  2003/08/20 18:31:22  venku
+   - Documentation errors fixed.
+   Revision 1.7  2003/08/18 12:14:13  venku
+   - Well, to start with the slicer implementation is complete.
+     Although not necessarily bug free, hoping to stabilize it quickly.
+   Revision 1.6  2003/08/18 05:01:45  venku
+   - Committing package name change in source after they were moved.
+   Revision 1.5  2003/08/18 04:56:47  venku
+   - Spruced up Documentation and specification.
+     But committing before moving slicer under transformation umbrella of Indus.
+   Revision 1.4  2003/05/22 22:23:49  venku
+   - Changed interface names to start with a "I".
+     Formatting.
  */

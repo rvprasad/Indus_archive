@@ -62,7 +62,7 @@ final class SliceCriterionSpec
 	/**
 	 * The singleton slice criteria factory.
 	 */
-	private static final SliceCriteriaFactory CRITERIA_FACTORY = new SliceCriteriaFactory();
+	private static final SliceCriteriaFactory CRITERIA_FACTORY = SliceCriteriaFactory.getFactory();
 
 	/**
 	 * The sequence of names of parameter types of the method immediately enclosing the criterion.
@@ -167,16 +167,13 @@ final class SliceCriterionSpec
 		final Stmt _stmt = (Stmt) _stmts.get(stmtIndex);
 
 		if (exprIndex == -1) {
-			_result = CRITERIA_FACTORY.getCriterion(_sm, _stmt, considerEntireStmt);
+			_result = CRITERIA_FACTORY.getCriterion(_sm, _stmt, considerEntireStmt, considerExecution);
 		} else {
-			_result = CRITERIA_FACTORY.getCriterion(_sm, _stmt, (ValueBox) _stmt.getUseAndDefBoxes().get(exprIndex));
+			_result =
+				CRITERIA_FACTORY.getCriterion(_sm, _stmt, (ValueBox) _stmt.getUseAndDefBoxes().get(exprIndex),
+					considerExecution);
 		}
 
-		if (considerExecution) {
-			for (final Iterator _i = _result.iterator(); _i.hasNext();) {
-				((ISliceCriterion) _i.next()).setConsiderExecution(true);
-			}
-		}
 		return _result;
 	}
 
@@ -296,7 +293,8 @@ final class SliceCriterionSpec
 	/**
 	 * Tests if the expression index is valid in this spec. This is used to serialize/deserialize.
 	 *
-	 * @return <code>true</code> if an element capturing the expression index should be output; <code>false</code>, otherwise.
+	 * @return <code>true</code> if an element capturing the expression index should be output; <code>false</code>,
+	 * 		   otherwise.
 	 */
 	private boolean testExpr() {
 		return exprIndex != -1;
@@ -332,6 +330,9 @@ final class SliceCriterionSpec
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/07/03 00:14:45  venku
+   - optional structures are not fully supported in JiBX.  Hence, a "solution"
+     to handle this situation was coded in.
    Revision 1.1  2004/07/02 09:00:08  venku
    - added support to serialize/deserialize slice criteria. (feature #397)
    - used the above support in SliceXMLizerCLI.

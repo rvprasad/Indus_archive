@@ -322,7 +322,7 @@ public final class SlicerTool
 		// create the <init> call to new expr mapper
 		initMapper = new NewExpr2InitMapper();
 
-		criteriaFactory = new SliceCriteriaFactory();
+		criteriaFactory = SliceCriteriaFactory.getFactory();
 	}
 
 	/**
@@ -683,20 +683,20 @@ public final class SlicerTool
 				final BasicBlock _head = _bbg.getHead();
 
 				if (_head != null) {
-					_temp.addAll(criteriaFactory.getCriterion(_method, _head.getLeaderStmt()));
+					_temp.addAll(criteriaFactory.getCriterion(_method, _head.getLeaderStmt(), false));
 
 					for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
 						final BasicBlock _bb = (BasicBlock) _j.next();
 						final Stmt _stmt = _bb.getTrailerStmt();
-						_temp.addAll(criteriaFactory.getCriterion(_method, _stmt));
+						_temp.addAll(criteriaFactory.getCriterion(_method, _stmt, false));
 					}
 				} else {
 					LOGGER.error("Skipping slicing criteria generation for " + _method + " as it has 0 or more than 1 head.");
 				}
 			} else {
-				Collection _criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst(), true);
+				Collection _criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst(), true, true);
 				_temp.addAll(_criteria);
-				_criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond(), true);
+				_criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond(), true, true);
 				_temp.addAll(_criteria);
 			}
 			criteria.addAll(_temp);
@@ -882,6 +882,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.92  2004/07/04 11:09:00  venku
+   - headless and multiple headed methods cause issue with statement graphs and basic blocks.  FIXED.
+
    Revision 1.91  2004/06/26 10:15:13  venku
    - documentation.
    Revision 1.90  2004/06/26 06:52:49  venku
