@@ -101,6 +101,7 @@ final class CallGraphXMLizer
 					final SootMethod _callee = (SootMethod) _j.next();
 					_xmlWriter.startTag("callee");
 					_xmlWriter.attribute("id", getIdGenerator().getIdForMethod(_callee));
+					_xmlWriter.endTag();
 				}
 
 				_temp.clear();
@@ -114,10 +115,12 @@ final class CallGraphXMLizer
 					final SootMethod _caller = (SootMethod) _j.next();
 					_xmlWriter.startTag("caller");
 					_xmlWriter.attribute("id", getIdGenerator().getIdForMethod(_caller));
+					_xmlWriter.endTag();
 				}
 
 				_xmlWriter.endTag();
 			}
+			_xmlWriter.endTag();
 			_xmlWriter.close();
 			_xmlWriter.endDocument();
 			_writer.flush();
@@ -131,6 +134,8 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/03/05 11:59:45  venku
+   - documentation.
    Revision 1.10  2004/02/11 10:00:16  venku
    - added a new custom xml outputter class.
    Revision 1.9  2004/02/11 09:37:18  venku
