@@ -139,7 +139,7 @@ public class StmtSwitch extends AbstractStmtSwitch {
 	 */
 	public void caseReturnStmt(ReturnStmt stmt) {
 		rexpr.process(stmt.getReturnValueBox());
-		((FGNode)rexpr.getResult()).addSucc(method.getReturnNode());
+		((FGNode)rexpr.getResult()).addSucc(method.queryReturnNode());
 	}
 
 	/**

@@ -11,6 +11,7 @@ import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.jimple.FieldRef;
 import ca.mcgill.sable.soot.jimple.NullConstant;
 import ca.mcgill.sable.soot.jimple.Value;
+import ca.mcgill.sable.soot.jimple.ValueBox;
 
 import java.util.Iterator;
 
@@ -52,14 +53,14 @@ public class FieldAccessExprWork extends  AbstractAccessExprWork {
 	 * <p>Creates a new <code>FieldAccessExprWork</code> instance.</p>
 	 *
 	 * @param caller the method in which the access occurs.
-	 * @param accessExpr the field access expression.
+	 * @param accessExprBox the field access expression program point.
 	 * @param context the context in which the access occurs.
 	 * @param ast the flow graph node associated with the access expression.
 	 * @param connector the connector to use to connect the ast node to the non-ast node.
 	 */
-	public FieldAccessExprWork (MethodVariant caller, FieldRef accessExpr, Context context, FGNode ast,
+	public FieldAccessExprWork (MethodVariant caller, ValueBox accessExprBox, Context context, FGNode ast,
 								FGNodeConnector connector) {
-		super(caller, accessExpr, context);
+		super(caller, accessExprBox, context);
 		this.ast = ast;
 		this.connector = connector;
 	}
@@ -69,9 +70,9 @@ public class FieldAccessExprWork extends  AbstractAccessExprWork {
 	 *
 	 */
 	public synchronized void execute() {
-		SootField sf = ((FieldRef)accessExpr).getField();
+		SootField sf = ((FieldRef)accessExprBox.getValue()).getField();
 		BFA bfa = caller.bfa;
-		logger.debug(values + " values arrived at base node of " + accessExpr);
+		logger.debug(values + " values arrived at base node of " + accessExprBox.getValue());
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			 Value v = (Value)i.next();
 
@@ -80,7 +81,7 @@ public class FieldAccessExprWork extends  AbstractAccessExprWork {
 			 } // end of if (v instanceof NullConstant)
 
 			 context.setAllocationSite(v);
-			 FGNode nonast = bfa.getFieldVariant(sf, context).getFGNode();
+			 FGNode nonast = bfa.queryFieldVariant(sf, context).getFGNode();
 			 connector.connect(ast, nonast);
 		} // end of for (Iterator i = values.iterator(); i.hasNext();)
 	}

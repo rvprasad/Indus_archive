@@ -116,7 +116,7 @@ public class MethodVariant implements Variant {
 		context = (Context)bfa.analyzer.context.clone();
 		context.callNewMethod(sm);
 
-		logger.debug("Method:" + sm + context + "\n" + astvm.getClass());
+		logger.debug(">> Method:" + sm + context + "\n" + astvm.getClass());
 
 		bfa.classManager.process(sm);
 
@@ -148,18 +148,18 @@ public class MethodVariant implements Variant {
 
 		if (sm.isBodyStored(bodyrep)) {
 			stmt = bfa.getStmt(this);
-			logger.debug("Starting processing statements of " + sm);
+			logger.debug(">>>> Starting processing statements of " + sm);
 			StmtList list = ((StmtBody)sm.getBody(bodyrep)).getStmtList();
 			defs = new SimpleLocalDefs(new CompleteStmtGraph(list));
 			for (Iterator i = list.iterator(); i.hasNext();) {
 				stmt.process((Stmt)i.next());
 			} // end of for (Iterator i = list.iterator(); i.hasNext();)
-			logger.debug("Finished processing statements of " + sm);
+			logger.debug("<<<< Finished processing statements of " + sm);
 		} else {
 			stmt = null;
 			defs = null;
 		} // end of else
-
+		logger.debug("<< Method:" + sm + context + "\n");
 	}
 
 	/**
@@ -167,47 +167,85 @@ public class MethodVariant implements Variant {
 	 * <code>this.context</code>.</p>
 	 *
 	 * @param v the AST node whose associted flow graph node is to be returned.
-	 * @return the flow graph node associated with <code>v</code> in the context <code>this.context</code>.  If none exists,
-	 * <code>null</code> is returned.
+	 * @return the flow graph node associated with <code>v</code> in the context <code>this.context</code>.
 	 */
 	public final FGNode getASTNode(Value v) {
-		return getASTVariant(v).getFGNode();
+		return getASTVariant(v, context).getFGNode();
 	}
 
 	/**
-	 * <p>Returns the flow graph node associated with the given AST node in the given context.</p>
+	 * <p>Returns the flow graph node associated with the given AST node in the given context.  Creates a new one if none
+	 * exists. </p>
 	 *
 	 * @param v the AST node whose associted flow graph node is to be returned.
 	 * @param c the context in which the flow graph node was associated with <code>v</code>.
-	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.  If none exists,
-	 * <code>null</code> is returned.
+	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.
 	 */
 	public final FGNode getASTNode(Value v, Context c) {
 		return getASTVariant(v, c).getFGNode();
 	}
 
 	/**
-	 * <p>Returns the variant associated with the given AST node in the context defined by <code>this.context</code>.</p>
+	 * <p>Returns the variant associated with the given AST node in the context defined by <code>this.context</code>.  Creates
+	 * a new one if none exists.</p>
 	 *
 	 * @param v the AST node whose associted variant is to be returned.
-	 * @return the variant associated with <code>v</code> in the context <code>this.context</code>.  If none exists,
-	 * <code>null</code> is returned.
+	 * @return the variant associated with <code>v</code> in the context <code>this.context</code>.
 	 */
 	public final ASTVariant getASTVariant(Value v) {
 		return (ASTVariant)astvm.select(v, context);
 	}
 
 	/**
-	 * <p>Returns the variant associated with the given AST node in the given context.</p>
+	 * <p>Returns the variant associated with the given AST node in the given context.  Creates a new one if none
+	 * exists.</p>
 	 *
 	 * @param v the AST node whose associated variant is to be returned.
 	 * @param context the context in which the variant was associated with <code>v</code>.
-	 * @return the variant associated with <code>v</code> in the context <code>c</code>.  If none exists, <code>null</code> is
-	 * returned.
+	 * @return the variant associated with <code>v</code> in the context <code>c</code>.
 	 */
 	public final ASTVariant getASTVariant(Value v, Context context) {
-		logger.debug(context.getCurrentMethod() + "\n" + context + ((ASTVariant)astvm.select(v, context)).hashCode());
 		return (ASTVariant)astvm.select(v, context);
+	}
+
+	/**
+	 * <p>Same as <code>getASTNode</code>, except <code>null</code> is returned if none exists.</p>
+	 *
+	 * @param v the AST node whose associted variant is to be returned.
+	 * @return the flow graph node associated with <code>v</code> in context <code>c</code>.  If none exists,
+	 * <code>null</code> is returned.
+	 */
+	public final FGNode queryASTNode(Value v) {
+		return queryASTNode(v, context);
+	}
+
+	/**
+	 * <p>Same as <code>getASTNode</code>, except <code>null</code> is returned if none exists.</p>
+	 *
+	 * @param v the AST node whose associated variant is to be returned.
+	 * @param c the context in which the variant was associated with <code>v</code>.
+	 * @return  the flow graph node associated with <code>v</code> in context <code>c</code>.  If none exists,
+	 * <code>null</code> is returned.
+	 */
+	public final FGNode queryASTNode(Value v, Context c) {
+		ASTVariant var = queryASTVariant(v, c);
+		FGNode temp = null;
+		if (var != null) {
+			temp = var.getFGNode();
+		} // end of if (v != null)
+		return temp;
+	}
+
+	/**
+	 * <p>Same as <code>getASTNode</code>, except <code>null</code> is returned if none exists.</p>
+	 *
+	 * @param v the AST node whose associated variant is to be returned.
+	 * @param c a <code>Context</code> value
+	 * @return the variant associated with <code>v</code> in the context <code>c</code>.  If none exists,
+	 * <code>null</code> is returned.
+	 */
+	public final ASTVariant queryASTVariant(Value v, Context c) {
+		return (ASTVariant)astvm.query(v, c);
 	}
 
 	/**
@@ -217,7 +255,7 @@ public class MethodVariant implements Variant {
 	 * @return the flow graph node associated with the <code>index</code>th parameter in the parameter list of the associated
 	 * method.  It returns <code>null</code> if the method has no parameters.
 	 */
-	public final FGNode getParameterNode(int index) {
+	public final FGNode queryParameterNode(int index) {
 		FGNode temp = null;
 		if (index >= 0 && index <= sm.getParameterCount())
 			temp = parameters[index];
@@ -228,8 +266,9 @@ public class MethodVariant implements Variant {
 	 * <p>Returns the flow graph node that represents an abstract single return point of the associated method.</p>
 	 *
 	 * @return the flow graph node that represents an abstract single return point of the associated method.
+	 * <code>null</code> if the corresponding method does not return a value.
 	 */
-	public final FGNode getReturnNode() {
+	public final FGNode queryReturnNode() {
 		return returnVar;
 	}
 
@@ -237,8 +276,9 @@ public class MethodVariant implements Variant {
 	 * <p>Returns the flow graph node associated with the <code>this</code> variable of the associated method.</p>
 	 *
 	 * @return Returns the flow graph node associated with the <code>this</code> variable of the associated method.
+	 * <code>null</code> if the corresponding method is <code>static</code>.
 	 */
-	public final FGNode getThisNode() {
+	public final FGNode queryThisNode() {
 		return thisVar;
 	}
 

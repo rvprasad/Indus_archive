@@ -1,6 +1,12 @@
 package edu.ksu.cis.bandera.bfa;
 
 
+import ca.mcgill.sable.soot.SootMethod;
+import ca.mcgill.sable.soot.VoidType;
+import ca.mcgill.sable.soot.jimple.AbstractJimpleValueSwitch;
+import ca.mcgill.sable.soot.jimple.Value;
+import ca.mcgill.sable.soot.jimple.ValueBox;
+
 import edu.ksu.cis.bandera.jext.BanderaExprSwitch;
 import edu.ksu.cis.bandera.jext.ChooseExpr;
 import edu.ksu.cis.bandera.jext.ComplementExpr;
@@ -11,11 +17,7 @@ import edu.ksu.cis.bandera.jext.LogicalAndExpr;
 import edu.ksu.cis.bandera.jext.LogicalOrExpr;
 import edu.ksu.cis.bandera.jext.ThreadExpr;
 
-import ca.mcgill.sable.soot.SootMethod;
-import ca.mcgill.sable.soot.VoidType;
-import ca.mcgill.sable.soot.jimple.AbstractJimpleValueSwitch;
-import ca.mcgill.sable.soot.jimple.Value;
-import ca.mcgill.sable.soot.jimple.ValueBox;
+import java.util.Stack;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -58,6 +60,13 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	 *
 	 */
 	protected final Context context;
+
+
+	/**
+	 * <p>This stores the program points as expressions are recursively processed.</p>
+	 *
+	 */
+	private final Stack programPoints = new Stack();
 
 	/**
 	 * <p>The object used to connect flow graph nodes corresponding to AST and non-AST entities.  This provides the
@@ -203,8 +212,19 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	 */
 	public void process(ValueBox v) {
 		logger.debug("Started to process expression: " + v.getValue());
+		programPoints.push(v);
 		v.getValue().apply(this);
+		programPoints.pop();
 		logger.debug("Finished processing expression: " + v.getValue() + "\n" + getResult());
+	}
+
+	/**
+	 * <p>Returns the current program point.</p>
+	 *
+	 * @return Returns the current program point.
+	 */
+	public final ValueBox getCurrentProgramPoint() {
+		return (ValueBox)programPoints.peek();
 	}
 
 	/**

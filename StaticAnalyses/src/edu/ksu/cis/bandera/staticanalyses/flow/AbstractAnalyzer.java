@@ -1,6 +1,5 @@
 package edu.ksu.cis.bandera.bfa;
 
-
 import ca.mcgill.sable.soot.ArrayType;
 import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootField;
@@ -11,6 +10,7 @@ import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
  * Created: Fri Jan 25 14:49:45 2002
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$ 
+ * @version $Revision$
  */
 
 public abstract class AbstractAnalyzer {
@@ -56,6 +56,8 @@ public abstract class AbstractAnalyzer {
 	 *
 	 */
 	protected boolean active;
+
+	private final static Collection unmodifiableEmptyCollection = Collections.unmodifiableCollection(new HashSet());
 
 	/**
 	 * <p>Creates a new <code>AbstractAnalyzer</code> instance.</p>
@@ -130,7 +132,12 @@ public abstract class AbstractAnalyzer {
 	 * @return the collection of values associated with <code>a</code> in <code>this.context</code>.
 	 */
 	public final Collection getValues(ArrayType a) {
-		return bfa.getArrayVariant(a).getFGNode().getValues();
+		ArrayVariant v = bfa.queryArrayVariant(a);
+		Collection temp = unmodifiableEmptyCollection;
+		if (v != null) {
+			temp = v.getFGNode().getValues();
+		} // end of if (v != null)
+		return temp;
 	}
 
 	/**
@@ -141,8 +148,12 @@ public abstract class AbstractAnalyzer {
 	 * @return the collection of values associated with <code>p</code> in <code>this.context</code>.
 	 */
 	public final Collection getValues(ParameterRef p) {
-		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod());
-		return mv.getParameterNode(p.getIndex()).getValues();
+		MethodVariant mv = bfa.queryMethodVariant((SootMethod)context.getCurrentMethod());
+		Collection temp = unmodifiableEmptyCollection;
+		if (mv != null) {
+			temp = mv.queryParameterNode(p.getIndex()).getValues();
+		} // end of if (v != null)
+		return temp;
 	}
 
 	/**
@@ -152,7 +163,12 @@ public abstract class AbstractAnalyzer {
 	 * @return the collection of values associated with <code>sf</code> in <code>this.context</code>.
 	 */
 	public final Collection getValues(SootField sf) {
-		return ((FieldVariant)bfa.getFieldVariant(sf)).getValues();
+		FieldVariant fv = bfa.queryFieldVariant(sf);
+		Collection temp = unmodifiableEmptyCollection;
+		if (fv != null) {
+			temp = fv.getValues();
+		} // end of if (v != null)
+		return temp;
 	}
 
 	/**
@@ -163,8 +179,12 @@ public abstract class AbstractAnalyzer {
 	 * @return the collection of values associated with <code>sf</code> in <code>this.context</code>.
 	 */
 	public final Collection getValues(ThisRef t) {
-		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod());
-		return mv.getThisNode().getValues();
+		MethodVariant mv = bfa.queryMethodVariant((SootMethod)context.getCurrentMethod());
+		Collection temp = unmodifiableEmptyCollection;
+		if (mv != null) {
+			temp = mv.queryThisNode().getValues();
+		} // end of if (v != null)
+		return temp;
 	}
 
 	/**
@@ -176,10 +196,16 @@ public abstract class AbstractAnalyzer {
 	public final Collection getValues(Value v) {
 		logger.debug(context.getCurrentMethod() + "\n" + context);
 		//ValueBox temp = context.setProgramPoint(null);
-		MethodVariant mv = bfa.getMethodVariant((SootMethod)context.getCurrentMethod());
+		MethodVariant mv = bfa.queryMethodVariant((SootMethod)context.getCurrentMethod());
 		//context.setProgramPoint(temp);
-		ASTVariant astv = mv.getASTVariant(v, context);
-		return astv.getFGNode().getValues();
+		Collection temp = unmodifiableEmptyCollection;
+		if (mv != null) {
+			 ASTVariant astv = mv.getASTVariant(v, context);
+			 if (astv != null) {
+				  temp = astv.getFGNode().getValues();
+			 } // end of if (astv != null)
+		}
+		return temp;
 	}
 
 	/**

@@ -95,7 +95,7 @@ public class ExprSwitch extends AbstractExprSwitch {
 		logger.debug(e.getBaseBox());
 		FGNode baseNode = (FGNode)getResult();
 		FGNode ast = method.getASTNode(e);
-		AbstractWork work = new ArrayAccessExprWork(method, e, context, ast, connector);
+		AbstractWork work = new ArrayAccessExprWork(method, getCurrentProgramPoint(), context, ast, connector);
 		FGAccessNode temp = new FGAccessNode(work, getWorkList());
 		baseNode.addSucc(temp);
 		work.setFGNode(temp);
@@ -151,7 +151,7 @@ public class ExprSwitch extends AbstractExprSwitch {
 		process(e.getBaseBox());
 		FGNode baseNode = (FGNode)getResult();
 		FGNode ast = method.getASTNode(e);
-		AbstractWork work = new FieldAccessExprWork(method, e, context, ast, connector);
+		AbstractWork work = new FieldAccessExprWork(method, getCurrentProgramPoint(), context, ast, connector);
 		FGAccessNode temp = new FGAccessNode(work, getWorkList());
 		baseNode.addSucc(temp);
 		work.setFGNode(temp);
@@ -280,7 +280,7 @@ public class ExprSwitch extends AbstractExprSwitch {
 	 * @param e the expression to be processed.
 	 */
 	public void caseParameterRef(ParameterRef e) {
-		setResult(method.getParameterNode(e.getIndex()));
+		setResult(method.queryParameterNode(e.getIndex()));
 	}
 
 	/**
@@ -317,12 +317,12 @@ public class ExprSwitch extends AbstractExprSwitch {
 		for (int i = 0; i < e.getArgCount(); i++) {
 			process(e.getArgBox(i));
 			argNode = (FGNode)getResult();
-			argNode.addSucc(callee.getParameterNode(i));
+			argNode.addSucc(callee.queryParameterNode(i));
 		}
 
 		if (isNonVoid(e.getMethod())) {
 			FGNode ast = method.getASTNode(e);
-			callee.getReturnNode().addSucc(ast);
+			callee.queryReturnNode().addSucc(ast);
 			setResult(ast);
 		} else {
 			setResult(null);
@@ -347,7 +347,7 @@ public class ExprSwitch extends AbstractExprSwitch {
 	 * @param e the expression to be processed.
 	 */
 	public void caseThisRef(ThisRef e) {
-		setResult(method.getThisNode());
+		setResult(method.queryThisNode());
 	}
 
 	/**
@@ -391,11 +391,6 @@ public class ExprSwitch extends AbstractExprSwitch {
 		process(e.getBaseBox());
 		FGNode temp = (FGNode)getResult();
 
-		AbstractWork work = new InvokeExprWork(method, e, (Context)context.clone(), this);
-		FGAccessNode baseNode = new FGAccessNode(work, getWorkList());
-		work.setFGNode(baseNode);
-		temp.addSucc(baseNode);
-
 		for (int i = 0; i < e.getArgCount(); i++) {
 			process(e.getArgBox(i));
 		} // end of for (int i = 0; i < e.getArgCount(); i++)
@@ -405,6 +400,12 @@ public class ExprSwitch extends AbstractExprSwitch {
 		} else {
 			setResult(null);
 		} // end of else
+
+		AbstractWork work = new InvokeExprWork(method, getCurrentProgramPoint(), (Context)context.clone(), this);
+		FGAccessNode baseNode = new FGAccessNode(work, getWorkList());
+		work.setFGNode(baseNode);
+		temp.addSucc(baseNode);
+
 	}
 
 	/**

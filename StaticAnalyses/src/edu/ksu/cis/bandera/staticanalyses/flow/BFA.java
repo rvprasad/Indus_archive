@@ -128,7 +128,8 @@ public class BFA {
 	}
 
 	/**
-	 * <p>Returns the variant associated with the given array type in the context captured by <code>analyzer</code>.</p>
+	 * <p>Returns the variant associated with the given array type in the context captured by <code>analyzer</code>.  If none
+	 * exists, a new variant is greated</p>
 	 *
 	 * @param a the array type whose variant is to be returned.
 	 * @return the variant corresponding to <code>a</code> in the context captured by <code>analyzer</code>.
@@ -138,7 +139,8 @@ public class BFA {
 	}
 
 	/**
-	 * <p>Returns the variant associated with the given array type in the given context.</p>
+	 * <p>Returns the variant associated with the given array type in the given context.  If none exists, a new variant is
+	 * created.</p>
 	 *
 	 * @param a the array type whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
@@ -173,7 +175,8 @@ public class BFA {
 	}
 
 	/**
-	 * <p>Returns the variant associated with the given field in the context captured by <code>analyzer</code>.</p>
+	 * <p>Returns the variant associated with the given field in the context captured by <code>analyzer</code>.  If none
+	 * exists, a new variant is created.</p>
 	 *
 	 * @param sf the field whose variant is to be returned.
 	 * @return the variant associated with the given field in the context captured by <code>analyzer</code>.
@@ -183,7 +186,8 @@ public class BFA {
 	}
 
 	/**
-	 * <p>Returns the variant associated with the given field in the given context.</p>
+	 * <p>Returns the variant associated with the given field in the given context.  If none exists, a new variant is
+	 * created.</p>
 	 *
 	 * @param sf the field whose variant is to be returned.
 	 * @param context the context corresponding to which the variant is requested.
@@ -219,7 +223,8 @@ public class BFA {
 	}
 
 	/**
-	 * <p>Returns a method variant correpsoding to the given method in the context <code>analyzer.context</code>.</p>
+	 * <p>Returns a method variant correpsoding to the given method in the context <code>analyzer.context</code>.  If none
+	 * exists, a new variant is created.</p>
 	 *
 	 * @param sm the method corresponding to which the variant is requested.
 	 * @return a variant of <code>sm</code> in the context <code>analyzer.context</code>.
@@ -229,7 +234,8 @@ public class BFA {
 	}
 
 	/**
-	 * <p>Returns a method variant corresponding to the given method in the given context.</p>
+	 * <p>Returns a method variant corresponding to the given method in the given context.  If none exists, a new variant is
+	 * created.</p>
 	 *
 	 * @param sm the method corresponding to which the variant is requested.
 	 * @param context the context of the requested variant.
@@ -266,6 +272,77 @@ public class BFA {
 	 */
 	public final AbstractStmtSwitch getStmt(MethodVariant e) {
 		return modeFactory.getStmt(e);
+	}
+
+	/**
+	 * <p>Returns the variant associated with the given array type in the context captured by <code>analyzer</code>.</p>
+	 *
+	 * @param a the array type whose variant is to be returned.
+	 * @return the variant corresponding to <code>a</code> in the context captured by <code>analyzer</code>. <code>null</code>
+	 * if none exist.
+	 */
+	public final ArrayVariant queryArrayVariant(ArrayType a) {
+		return queryArrayVariant(a, analyzer.context);
+	}
+
+	/**
+	 * <p>Returns the variant associated with the given array type in the given context.</p>
+	 *
+	 * @param a the array type whose variant is to be returned.
+	 * @param context the context corresponding to which the variant is requested.
+	 * @return the variant corresponding to <code>a</code> in context <code>context</code>. <code>null</code> if none exist.
+	 */
+	public final ArrayVariant queryArrayVariant(ArrayType a, Context context) {
+		return (ArrayVariant)arrayManager.query(a, context);
+	}
+
+	/**
+	 * <p>Returns the variant associated with the given field in the context captured by <code>analyzer</code>. </p>
+	 *
+	 * @param sf the field whose variant is to be returned.
+	 * @return the variant associated with the given field in the context captured by <code>analyzer</code>.<code>null</code>
+	 * if none exists.
+	 */
+	public final FieldVariant queryFieldVariant(SootField sf) {
+		return queryFieldVariant(sf, analyzer.context);
+	}
+
+	/**
+	 * <p>Returns the variant associated with the given field in the given context.</p>
+	 *
+	 * @param sf the field whose variant is to be returned.
+	 * @param context the context corresponding to which the variant is requested.
+	 * @return the variant associated with the given field in the given context.  <code>null</code> if none exists.
+	 */
+	public final FieldVariant queryFieldVariant(SootField sf, Context context) {
+		Variant temp = null;
+		if (Modifier.isStatic(sf.getModifiers())) {
+			temp = staticFieldManager.query(sf, context);
+		} else {
+			temp = instanceFieldManager.query(sf, context);
+		} // end of else
+		return (FieldVariant)temp;
+	}
+
+	/**
+	 * <p>Returns a method variant correpsoding to the given method in the context <code>analyzer.context</code>.</p>
+	 *
+	 * @param sm the method corresponding to which the variant is requested.
+	 * @return a variant of <code>sm</code> in the context <code>analyzer.context</code>. <code>null</code> if none exist.
+	 */
+	public final MethodVariant queryMethodVariant(SootMethod sm) {
+		return queryMethodVariant(sm, analyzer.context);
+	}
+
+	/**
+	 * <p>Returns a method variant corresponding to the given method in the given context.</p>
+	 *
+	 * @param sm the method corresponding to which the variant is requested.
+	 * @param context the context of the requested variant.
+	 * @return the variant corresonding to <code>sm</code> in the given context.  <code>null</code> if none exist.
+	 */
+	public final MethodVariant queryMethodVariant(SootMethod sm, Context context) {
+		return (MethodVariant)methodManager.query(sm, context);
 	}
 
 	/**

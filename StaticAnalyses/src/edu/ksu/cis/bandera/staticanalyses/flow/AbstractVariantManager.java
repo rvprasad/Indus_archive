@@ -66,6 +66,17 @@ public abstract class AbstractVariantManager {
 	protected abstract Variant getNewVariant(Object o);
 
 	/**
+	 * <p>Returns the variant corresponding to the given entity in the given context, if one exists.</p>
+	 *
+	 * @param o the entity whose variant is to be returned.
+	 * @param context the context corresponding to which the variant is requested.
+	 * @return the variant correponding to the entity in the given context, if one exists.  <code>null</code> if none exist.
+	 */
+	public final Variant query(Object o, Context context) {
+		return (Variant)index2variant.get(indexManager.getIndex(o, context));
+	}
+
+	/**
 	 * <p>Returns the variant corresponding to the given entity in the given context.  If a variant does not exist, a new one
 	 * is created.  If one exists, it shall be returned.</p>
 	 *

@@ -1,15 +1,16 @@
 package edu.ksu.cis.bandera.bfa.analysis.ofa.fs;
 
 
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.FGNodeConnector;
+
 
 import ca.mcgill.sable.soot.jimple.DefinitionStmt;
 import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 import ca.mcgill.sable.util.Iterator;
-
+import ca.mcgill.sable.util.List;
+import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.bfa.FGNode;
+import edu.ksu.cis.bandera.bfa.FGNodeConnector;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -20,7 +21,7 @@ import org.apache.log4j.Logger;
  * Created: Sun Jan 27 14:29:14 2002
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$ 
+ * @version $Revision$
  */
 
 public class RHSExprSwitch extends ExprSwitch {
@@ -50,15 +51,18 @@ public class RHSExprSwitch extends ExprSwitch {
 	public void caseLocal(Local e) {
 		FGNode ast = method.getASTNode(e);
 		logger.debug("Local:" + e + "\n" + ast);
-		ValueBox temp = context.getProgramPoint();
-		for (Iterator i = method.defs.getDefsOfAt(e, stmt.getStmt()).iterator(); i.hasNext();) {
-			DefinitionStmt defStmt = (DefinitionStmt)i.next();
-			context.setProgramPoint(defStmt.getLeftOpBox());
-			FGNode defNode = method.getASTNode(defStmt.getLeftOp());
-			logger.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
-			defNode.addSucc(ast);
-		} // end of for (Iterator i = defs.getDefsOfAt(e, stmt.stmt).iterator(); i.hasNext();)
-		context.setProgramPoint(temp);
+		List l = method.defs.getDefsOfAt(e, stmt.getStmt());
+		if (l != null) {
+			ValueBox temp = context.getProgramPoint();
+			for (Iterator i = l.iterator(); i.hasNext();) {
+				DefinitionStmt defStmt = (DefinitionStmt)i.next();
+				context.setProgramPoint(defStmt.getLeftOpBox());
+				FGNode defNode = method.getASTNode(defStmt.getLeftOp());
+				logger.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
+				defNode.addSucc(ast);
+			} // end of for (Iterator i = defs.getDefsOfAt(e, stmt.stmt).iterator(); i.hasNext();)
+			context.setProgramPoint(temp);
+		} // end of if (l != null)
 		setResult(ast);
 	}
 
@@ -66,7 +70,7 @@ public class RHSExprSwitch extends ExprSwitch {
 	 * <p>Returns a new instance of this class.</p>
 	 *
 	 * @param o the statement visitor which shall use the created visitor instance.  This is of type
-	 * <code>AbstractStmtSwitch</code>. 
+	 * <code>AbstractStmtSwitch</code>.
 	 * @return the new visitor instance.
 	 */
 	public Object prototype(Object o) {

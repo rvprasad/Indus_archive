@@ -11,6 +11,7 @@ import ca.mcgill.sable.soot.ArrayType;
 import ca.mcgill.sable.soot.jimple.ArrayRef;
 import ca.mcgill.sable.soot.jimple.NullConstant;
 import ca.mcgill.sable.soot.jimple.Value;
+import ca.mcgill.sable.soot.jimple.ValueBox;
 
 import java.util.Iterator;
 
@@ -53,14 +54,14 @@ public class ArrayAccessExprWork extends AbstractAccessExprWork {
 	 * <p>Creates a new <code>ArrayAccessExprWork</code> instance.</p>
 	 *
 	 * @param caller the method in which the access occurs.
-	 * @param accessExpr the array access expression.
+	 * @param accessExprBox the array access expression program point.
 	 * @param context the context in which the access occurs.
 	 * @param ast the flow graph node associated with the access expression.
 	 * @param connector the connector to use to connect the ast node to the non-ast node.
 	 */
-	public ArrayAccessExprWork (MethodVariant caller, ArrayRef accessExpr, Context context, FGNode ast,
+	public ArrayAccessExprWork (MethodVariant caller, ValueBox accessExprBox, Context context, FGNode ast,
 								FGNodeConnector connector){
-		super(caller, accessExpr, context);
+		super(caller, accessExprBox, context);
 		this.ast = ast;
 		this.connector = connector;
 		logger.debug(String.valueOf(hashCode()));
@@ -71,10 +72,11 @@ public class ArrayAccessExprWork extends AbstractAccessExprWork {
 	 *
 	 */
 	public synchronized void execute() {
-		ArrayType atype = (ArrayType)((ArrayRef)accessExpr).getBase().getType();
+		ArrayType atype = (ArrayType)((ArrayRef)accessExprBox.getValue()).getBase().getType();
 		BFA bfa = caller.bfa;
 
-		logger.debug(values + " values arrived at base node of " + accessExpr + " of type " + atype + " in " + context);
+		logger.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype + " in " +
+					 context); 
 
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			 Value v = (Value)i.next();
@@ -84,7 +86,7 @@ public class ArrayAccessExprWork extends AbstractAccessExprWork {
 			 } // end of if (v instanceof NullConstant)
 
 			 context.setAllocationSite(v);
-			 FGNode nonast = bfa.getArrayVariant(atype, context).getFGNode();
+			 FGNode nonast = bfa.queryArrayVariant(atype, context).getFGNode();
 			 connector.connect(ast, nonast);
 			 logger.debug(nonast + " " + context);
 		} // end of for (Iterator i = values.iterator(); i.hasNext();)

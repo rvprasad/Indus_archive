@@ -1,14 +1,6 @@
 package edu.ksu.cis.bandera.bfa.analysis.ofa;
 
 
-import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.BFA;
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.FGNode;
-import edu.ksu.cis.bandera.bfa.MethodVariant;
-import edu.ksu.cis.bandera.bfa.MethodVariantManager;
-import edu.ksu.cis.bandera.bfa.Util;
-
 import ca.mcgill.sable.soot.Modifier;
 import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
@@ -22,9 +14,18 @@ import ca.mcgill.sable.soot.jimple.NonStaticInvokeExpr;
 import ca.mcgill.sable.soot.jimple.NullConstant;
 import ca.mcgill.sable.soot.jimple.SpecialInvokeExpr;
 import ca.mcgill.sable.soot.jimple.Value;
+import ca.mcgill.sable.soot.jimple.ValueBox;
 import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 import ca.mcgill.sable.util.List;
 import ca.mcgill.sable.util.VectorList;
+
+import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
+import edu.ksu.cis.bandera.bfa.BFA;
+import edu.ksu.cis.bandera.bfa.Context;
+import edu.ksu.cis.bandera.bfa.FGNode;
+import edu.ksu.cis.bandera.bfa.MethodVariant;
+import edu.ksu.cis.bandera.bfa.MethodVariantManager;
+import edu.ksu.cis.bandera.bfa.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,7 +51,7 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
 	 */
-	private static final Logger logger = LogManager.getLogger(InvokeExprWork.class.getName());
+	private static final Logger logger = LogManager.getLogger(InvokeExprWork.class);
 
 	/**
 	 * <p>A collection of predefined call sequence similar to Thread.start() and Thread.run() pair.  It usually contains
@@ -92,9 +93,13 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 	 * @param context the context in which the invocation occurs.
 	 * @param exprSwitch the expression visitor to be used for visiting expressions.
 	 */
-	public InvokeExprWork (MethodVariant caller, NonStaticInvokeExpr accessExpr, Context context,
+	public InvokeExprWork (MethodVariant caller, ValueBox accessExprBox, Context context,
 						   AbstractExprSwitch exprSwitch) {
-		super(caller, accessExpr, context);
+		super(caller, accessExprBox, context);
+		if (!(accessExprBox.getValue() instanceof NonStaticInvokeExpr)) {
+			throw new IllegalArgumentException("accessExprBox has contain a NonStaticInvokeExpr object as value.");
+		} // end of if (!(accessExprBox.getValue() instanceof NonStaticInvokeExpr))
+
 		this.exprSwitch = exprSwitch;
 	}
 
@@ -105,13 +110,14 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 	 *
 	 */
 	public synchronized void execute() {
-		NonStaticInvokeExpr e = (NonStaticInvokeExpr)accessExpr;
+		NonStaticInvokeExpr e = (NonStaticInvokeExpr)accessExprBox.getValue();
 		SootMethod sm = e.getMethod();
 		BFA bfa = caller.bfa;
 		SootClass sc;
 		SootClassManager scm = bfa.getSootClassManager();
 
-		logger.debug("Expr:" + accessExpr + "   Values:" + values + "   Method:" + sm);
+		logger.debug("Expr:" + e + "   Values:" + values + "   Method:" + sm);
+		ValueBox vb = context.getProgramPoint();
 
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			 Value v = (Value)i.next();
@@ -132,20 +138,22 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 
 			 if (!installedVariants.contains(mv)) {
 				 FGNode param, arg;
-
 				 for (int j = 0; j < sm.getParameterCount(); j++) {
-					 param = mv.getParameterNode(j);
-					 arg = caller.getASTNode(e.getArg(j), context);
+					 param = mv.queryParameterNode(j);
+					 context.setProgramPoint(e.getArgBox(j));
+					 arg = caller.queryASTNode(e.getArg(j), context);
 					 arg.addSucc(param);
 				 } // end of for (int i = 0; i < sm.getArgCount(); i++)
 
-				 param = mv.getThisNode();
-				 arg = caller.getASTNode(e.getBase(), context);
+				 param = mv.queryThisNode();
+				 context.setProgramPoint(e.getBaseBox());
+				 arg = caller.queryASTNode(e.getBase(), context);
 				 arg.addSucc(param);
 
 				 if (AbstractExprSwitch.isNonVoid(sm)) {
-					 arg = mv.getReturnNode();
-					 param = caller.getASTNode(e, context);
+					 arg = mv.queryReturnNode();
+					 context.setProgramPoint(accessExprBox);
+					 param = caller.queryASTNode(e, context);
 					 arg.addSucc(param);
 				 } // end of if (isNonVoid(sm))
 
@@ -159,11 +167,25 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 				 if (temp.isThisTheMethod(sm)) {
 					 SootMethod methodToCall = temp.getMethod(scm.getClass(e.getBase().getType().toString()));
 					 VirtualInvokeExpr v1 = jimple.newVirtualInvokeExpr((Local)e.getBase(), methodToCall, new VectorList());
-					 exprSwitch.caseVirtualInvokeExpr(v1);
+					 exprSwitch.process(jimple.newInvokeExprBox(v1));
+					 context.setProgramPoint(e.getBaseBox());
+					 FGNode src = caller.queryASTNode(e.getBase(), context);
+					 context.setProgramPoint(v1.getBaseBox());
+					 src.addSucc(caller.queryASTNode(v1.getBase(), context));
 					 logger.debug("Plugging a call to run method of class" + e.getBase().getType().toString() + ".");
 				 } // end of for (Iterator j = values.iterator(); j.hasNext();)
 			 } // end of if
 		} // end of for (Iterator i = knownCallChains.iterator(); i.hasNext();)
+		context.setProgramPoint(vb);
+	}
+
+	/**
+	 * <p>Returns a stringized representation of this object.</p>
+	 *
+	 * @return the stringized representation of this object.
+	 */
+	public String toString() {
+		return "InvokeExprWork: " + caller.sm + "@" + accessExprBox.getValue();
 	}
 
 	/**
