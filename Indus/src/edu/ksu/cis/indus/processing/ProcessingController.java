@@ -1024,6 +1024,20 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Clears internal data structures.  It does not reset values set via set methods. 
+	 */
+	public final void reset() {
+		class2processors.clear();
+		interfaceProcessors.clear();
+		processStmts = false;
+		processValues = false;
+		context.setStmt(null);
+		context.setProgramPoint(null);
+		context.setRootMethod(null);
+		context.returnFromCurrentMethod();
+	}
+
+	/**
 	 * Unregisters the processor.  It indicates that the processor is no longer interested in processing AST chunk of type
 	 * <code>interest</code>.
 	 *
@@ -1196,6 +1210,8 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/12/05 15:34:17  venku
+   - logging and optimization.
    Revision 1.23  2003/12/05 03:10:07  venku
    - iteration in the wrong direction. FIXED.
    Revision 1.22  2003/12/05 03:08:56  venku
