@@ -105,7 +105,7 @@ final class MethodContext
 		method = sm;
 		argAliasSets = new ArrayList(argASs);
 
-		if (AliasSet.canHaveAliasSet(sm.getReturnType())) {
+		if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(sm.getReturnType())) {
 			ret = retAS;
 		}
 
@@ -164,9 +164,14 @@ final class MethodContext
 			final Map _clonee2clone = new HashMap();
 			_clone.set = null;
 
+			/*
+			 * map from the representative to the clone. The clone is always the representative element, but this is not
+			 * true for the clonee.
+			 */
+			
 			if (thisAS != null) {
 				_clone.thisAS = (AliasSet) thisAS.clone();
-				_clonee2clone.put(thisAS, _clone.thisAS);
+				_clonee2clone.put(thisAS.find(), _clone.thisAS);
 			}
 			_clone.argAliasSets = new ArrayList();
 
@@ -176,7 +181,7 @@ final class MethodContext
 				if (_tmp != null) {
 					final AliasSet _o = (AliasSet) _tmp.clone();
 					_clone.argAliasSets.add(_o);
-					_clonee2clone.put(_tmp, _o);
+					_clonee2clone.put(_tmp.find(), _o);
 				} else {
 					_clone.argAliasSets.add(null);
 				}
@@ -184,12 +189,11 @@ final class MethodContext
 
 			if (ret != null) {
 				_clone.ret = (AliasSet) ret.clone();
-				_clonee2clone.put(ret, _clone.ret);
+				_clonee2clone.put(ret.find(), _clone.ret);
 			}
 			_clone.thrown = (AliasSet) thrown.clone();
-			_clonee2clone.put(thrown, _clone.thrown);
+			_clonee2clone.put(thrown.find(), _clone.thrown);
 			AliasSet.fixUpFieldMapsOfClone(_clonee2clone);
-			unionclones(_clonee2clone);
 		}
 		return _clone;
 	}
@@ -274,71 +278,71 @@ final class MethodContext
 	}
 
 	/**
-	 * Marks all reachable alias sets as being accessed in multiple threads.
+	 * Marks all reachable alias sets as being crossing thread boundary, i.e, visible in multiple threads..
 	 */
-	void markMultiThreadAccess() {
+	void markAsCrossingThreadBoundary() {
 		if (find() != this) {
-			((MethodContext) find()).markMultiThreadAccess();
+			((MethodContext) find()).markAsCrossingThreadBoundary();
 		} else {
 			if (ret != null) {
-				ret.markMultiThreadAccess();
+				ret.markAsCrossingThreadBoundary();
 			}
 
 			if (thrown != null) {
-				thrown.markMultiThreadAccess();
+				thrown.markAsCrossingThreadBoundary();
 			}
 
 			if (thisAS != null) {
-				thisAS.markMultiThreadAccess();
+				thisAS.markAsCrossingThreadBoundary();
 			}
 
 			for (final Iterator _i = argAliasSets.iterator(); _i.hasNext();) {
 				final AliasSet _argAS = (AliasSet) _i.next();
 
 				if (_argAS != null) {
-					_argAS.markMultiThreadAccess();
+					_argAS.markAsCrossingThreadBoundary();
 				}
 			}
 		}
 	}
 
 	/**
-	 * Propogates the information from this context to the given context.  Please refer to the  {@link #unify(MethodContext)
-	 * unify(MethodContext)} for important information.
+	 * Propogates the information from the srouce context to the destination context.  Please refer to the   {@link
+	 * #unifyMethodContext(MethodContext) unify(MethodContext)} for important information.
 	 *
-	 * @param mc is the destination of the information transfer.
+	 * @param from is the source of the information transfer.
+	 * @param to is the destination of the information transfer.
+	 *
+	 * @pre from != null and to != null
 	 */
-	void propogateInfoFromTo(final MethodContext mc) {
-		final MethodContext _methodContext1 = (MethodContext) find();
-		final MethodContext _methodContext2 = (MethodContext) mc.find();
+	static void propogateInfoFromTo(final MethodContext from, final MethodContext to) {
+		final MethodContext _fromRep = (MethodContext) from.find();
+		final MethodContext _toRep = (MethodContext) to.find();
 
-		AliasSet _temp1;
-		AliasSet _temp2;
-
-		final int _paramCount = method.getParameterCount();
+		final int _paramCount = _fromRep.method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
-			if (AliasSet.canHaveAliasSet(method.getParameterType(_i))) {
-				_temp1 = (AliasSet) _methodContext1.argAliasSets.get(_i);
-				_temp2 = (AliasSet) _methodContext2.argAliasSets.get(_i);
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_fromRep.method.getParameterType(_i))) {
+				final AliasSet _temp1 = (AliasSet) _fromRep.argAliasSets.get(_i);
+				final AliasSet _temp2 = (AliasSet) _toRep.argAliasSets.get(_i);
 
 				if (_temp1 != null && _temp2 != null) {
-					_temp1.propogateInfoFromTo(_temp2);
+					AliasSet.propogateInfoFromTo(_temp1, _temp2);
 				}
 			}
 		}
 
-		_temp1 = _methodContext1.ret;
+		final AliasSet _retAS = _fromRep.ret;
 
-		if (_temp1 != null) {
-			_temp1.propogateInfoFromTo(_methodContext2.ret);
+		if (_retAS != null) {
+			AliasSet.propogateInfoFromTo(_retAS, _toRep.ret);
 		}
-		_methodContext1.thrown.propogateInfoFromTo(_methodContext2.thrown);
+		AliasSet.propogateInfoFromTo(_fromRep.thrown, _toRep.thrown);
 
-		_temp1 = _methodContext1.thisAS;
+		final AliasSet _thisAS = _fromRep.thisAS;
 
-		if (_temp1 != null) {
-			_temp1.propogateInfoFromTo(_methodContext2.thisAS);
+		if (_thisAS != null) {
+			AliasSet.propogateInfoFromTo(_thisAS, _toRep.thisAS);
 		}
 	}
 
@@ -350,7 +354,7 @@ final class MethodContext
 		final int _paramCount = method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
-			if (AliasSet.canHaveAliasSet(method.getParameterType(_i))) {
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
 				((AliasSet) _methodContext.argAliasSets.get(_i)).selfUnify();
 			}
 		}
@@ -383,32 +387,21 @@ final class MethodContext
 	 *
 	 * @param p is the context with which the unification should occur.
 	 */
-	void unify(final MethodContext p) {
+	void unifyMethodContext(final MethodContext p) {
 		if (p == null) {
 			LOGGER.error("Unification with null requested.");
 		}
 
-		MethodContext _m = (MethodContext) find();
-		MethodContext _n = (MethodContext) p.find();
+		final MethodContext _m = (MethodContext) find();
+		final MethodContext _n = (MethodContext) p.find();
 
-		if (_m == _n) {
-			return;
+		if (_m != _n) {
+			unifyParameters(_m, _n);
+			unifyAliasSets(_m.ret, _n.ret);
+			unifyAliasSets(_m.thrown, _n.thrown);
+			unifyAliasSets(_m.thisAS, _n.thisAS);
+			_m.union(_n);
 		}
-
-		_m.union(_n);
-
-		final MethodContext _temp = (MethodContext) _m.find();
-
-		if (_temp != _m) {
-			_n = _m;
-			_m = _temp;
-		}
-
-		unifyParameters(_m, _n);
-
-		unifyAliasSets(_m.ret, _n.ret);
-		unifyAliasSets(_m.thrown, _n.thrown);
-		unifyAliasSets(_m.thisAS, _n.thisAS);
 	}
 
 	/**
@@ -425,7 +418,7 @@ final class MethodContext
 				LOGGER.warn("Incompatible method contexts being unified - return value - " + aliasSet1 + " " + aliasSet2);
 			}
 		} else if (aliasSet1 != null) {
-			aliasSet1.unify(aliasSet2);
+			aliasSet1.unifyAliasSet(aliasSet2);
 		}
 	}
 
@@ -441,7 +434,7 @@ final class MethodContext
 		final int _paramCount = method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
-			if (AliasSet.canHaveAliasSet(method.getParameterType(_i))) {
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
 				final AliasSet _mAS = (AliasSet) methodContext1.argAliasSets.get(_i);
 				final AliasSet _nAS = (AliasSet) methodContext2.argAliasSets.get(_i);
 
@@ -451,31 +444,7 @@ final class MethodContext
 							+ _nAS + " " + method.getSignature());
 					}
 				} else if (_mAS != null) {
-					_mAS.unify(_nAS);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Unions (fast-find union operation) the clone alias sets if their corresponding clonee alias sets are unioned.  This is
-	 * required to maintain the relation between alias sets upon cloning the method context.
-	 *
-	 * @param clonee2clone maps the clonee alias sets to the clone alias sets.
-	 *
-	 * @invariant clonee2clone.oclIsKindOf(Map(AliasSet, AliasSet))
-	 */
-	private void unionclones(final Map clonee2clone) {
-		for (final Iterator _i = clonee2clone.keySet().iterator(); _i.hasNext();) {
-			final FastUnionFindElement _k1 = (FastUnionFindElement) _i.next();
-
-			for (final Iterator _j = clonee2clone.keySet().iterator(); _j.hasNext();) {
-				final FastUnionFindElement _k2 = (FastUnionFindElement) _j.next();
-
-				if (_k1 != _k2 && _k1.find() == _k2.find()) {
-					final FastUnionFindElement _v1 = (FastUnionFindElement) clonee2clone.get(_k1);
-					final FastUnionFindElement _v2 = (FastUnionFindElement) clonee2clone.get(_k2);
-					_v1.union(_v2);
+					_mAS.unifyAliasSet(_nAS);
 				}
 			}
 		}
@@ -485,6 +454,8 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/07/30 07:47:35  venku
+   - there was a bug in escape analysis cloning and union algorithm.  FIXED.
    Revision 1.17  2004/07/17 19:37:18  venku
    - ECBA was incorrect for the following reasons.
      - it fails if the start sites are not in the same method.

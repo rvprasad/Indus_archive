@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,8 +30,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import soot.ArrayType;
-import soot.RefType;
 import soot.Type;
 
 
@@ -106,11 +105,6 @@ final class AliasSet
 	private boolean notifies;
 
 	/** 
-	 * This is used to handle cycles while propogating information in phase 3.
-	 */
-	private boolean propogating;
-
-	/** 
 	 * This indicates if the associated variable was read from.
 	 */
 	private boolean read;
@@ -148,26 +142,12 @@ final class AliasSet
 		shared = false;
 		accessed = false;
 		global = false;
-		propogating = false;
 		readyEntities = null;
 		read = false;
 		written = false;
 		shareEntities = null;
 		markingMultiThreadAccess = false;
 		multiThreadAccess = false;
-	}
-
-	/**
-	 * Checks if the given type can contribute to aliasing.  Only reference and array types can lead to aliasing.
-	 *
-	 * @param type to be checked for aliasing support.
-	 *
-	 * @return <code>true</code> if <code>type</code> can contribute aliasing; <code>false</code>, otherwise.
-	 *
-	 * @pre type != null
-	 */
-	public static boolean canHaveAliasSet(final Type type) {
-		return type instanceof RefType || type instanceof ArrayType;
 	}
 
 	/**
@@ -181,7 +161,7 @@ final class AliasSet
 	 */
 	public Object clone()
 	  throws CloneNotSupportedException {
-		Object _result;
+		final Object _result;
 
 		if (isGlobal()) {
 			//optimization
@@ -190,11 +170,12 @@ final class AliasSet
 			//just work on the representative of the class
 			_result = (AliasSet) ((AliasSet) find()).clone();
 		} else {
-			final AliasSet _temp = (AliasSet) super.clone();
+			final AliasSet _clone = (AliasSet) super.clone();
 
-			_temp.fieldMap = (Map) ((HashMap) fieldMap).clone();
+			_clone.fieldMap = (Map) ((HashMap) fieldMap).clone();
+			_clone.set = null;
 
-			_result = _temp;
+			_result = _clone;
 		}
 
 		return _result;
@@ -210,7 +191,7 @@ final class AliasSet
 			_result = ((AliasSet) find()).toString();
 		} else {
 			if (stringifying) {
-				_result = String.valueOf(hashCode());
+				_result = String.valueOf(Integer.toHexString(hashCode()));
 			} else {
 				stringifying = true;
 				_result =
@@ -220,7 +201,7 @@ final class AliasSet
 											   .append("multiThreadAccess", this.multiThreadAccess)
 											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
 											   .append("notifies", this.notifies).append("read", this.read)
-											   .append("fieldMap", fieldMap).toString();
+											   .append("fieldMap", fieldMap).append("\n").toString();
 				stringifying = false;
 			}
 		}
@@ -240,7 +221,7 @@ final class AliasSet
 	static AliasSet getASForType(final Type type) {
 		AliasSet _result = null;
 
-		if (canHaveAliasSet(type)) {
+		if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(type)) {
 			_result = new AliasSet();
 		}
 
@@ -251,7 +232,8 @@ final class AliasSet
 	 * Fixes up the field maps of the alias sets in the given map.  When alias sets are cloned, the field maps are cloned.
 	 * Hence, they are shallow copied.  This method clones the relation between the alias sets among their clones.
 	 *
-	 * @param clonee2clone maps an alias set to it's clone.
+	 * @param clonee2clone maps an representative alias set to it's clone.  This is also an out parameter that will contain
+	 * new mappings.
 	 *
 	 * @throws CloneNotSupportedException when <code>clone()</code> fails.
 	 */
@@ -271,16 +253,35 @@ final class AliasSet
 
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final Object _field = _i.next();
-				final Object _cloneeFieldAS = _cloneeFieldMap.get(_field);
-				final Object _cloneFieldAS = clonee2clone.get(_cloneeFieldAS);
+				/*
+				 * We use the representative alias set as it is possible that a field may have 2 alias sets in different
+				 * contexts but the same representative alias set in both contexts.  We don't do the same for clones as they
+				 * are representation until they are unified, which happens in the following block. 
+				 */
+				final Object _cloneeFieldAS = (AliasSet) ((AliasSet) _cloneeFieldMap.get(_field)).find();
+				Object _cloneFieldAS = clonee2clone.get(_cloneeFieldAS);
 
-				if (_cloneFieldAS != null) {
-					_clone.fieldMap.put(_field, _cloneFieldAS);
-				} else {
-					final AliasSet _temp = (AliasSet) ((AliasSet) _cloneeFieldAS).clone();
-					clonee2clone.put(_cloneeFieldAS, _temp);
+				if (_cloneFieldAS == null) {
+					_cloneFieldAS = (AliasSet) ((AliasSet) _cloneeFieldAS).clone();
+					clonee2clone.put(_cloneeFieldAS, _cloneFieldAS);
 				}
+				_clone.fieldMap.put(_field, _cloneFieldAS);
 				_wb.addWork(_cloneeFieldAS);
+			}
+		}
+
+		// Unify the clones to reflect the relation between their originators.
+		for (final Iterator _i = clonee2clone.keySet().iterator(); _i.hasNext();) {
+			final AliasSet _k1 = (AliasSet) _i.next();
+
+			for (final Iterator _j = clonee2clone.keySet().iterator(); _j.hasNext();) {
+				final AliasSet _k2 = (AliasSet) _j.next();
+
+				if (_k1.find() == _k2.find()) {
+					final AliasSet _v1 = (AliasSet) clonee2clone.get(_k1);
+					final AliasSet _v2 = (AliasSet) clonee2clone.get(_k2);
+					unifyAliasSetHelper(_v1, _v2, false);
+				}
 			}
 		}
 	}
@@ -364,7 +365,7 @@ final class AliasSet
 	 *
 	 * @post result == self.find().readyEntity
 	 */
-	Collection getReadyEntity() {
+	Collection getReadyEntities() {
 		return ((AliasSet) find()).readyEntities;
 	}
 
@@ -429,11 +430,11 @@ final class AliasSet
 	}
 
 	/**
-	 * Marks this alias set and all reachable alias sets as being accessed in multiple threads.
+	 * Marks all reachable alias sets as being crossing thread boundary, i.e, visible in multiple threads.
 	 */
-	void markMultiThreadAccess() {
+	void markAsCrossingThreadBoundary() {
 		if (find() != this) {
-			((AliasSet) find()).markMultiThreadAccess();
+			((AliasSet) find()).markAsCrossingThreadBoundary();
 		} else {
 			if (markingMultiThreadAccess) {
 				return;
@@ -442,64 +443,66 @@ final class AliasSet
 			multiThreadAccess = true;
 
 			for (final Iterator _i = fieldMap.values().iterator(); _i.hasNext();) {
-				((AliasSet) _i.next()).markMultiThreadAccess();
+				((AliasSet) _i.next()).markAsCrossingThreadBoundary();
 			}
 			markingMultiThreadAccess = false;
 		}
 	}
 
 	/**
-	 * Propogates the information from this alias set to the given alias set.
+	 * Propogates the information from the source alias set to the destination alias set.
 	 *
-	 * @param as is the destination of the information transfer.
+	 * @param from is the source of the information transfer.
+	 * @param to is the destination of the information transfer.
 	 *
-	 * @post as.isShared() == (isShared() or as.isShared())
-	 * @post as.getEntity() == getEntity()
+	 * @post to.isShared() == (from.isShared() or from.isShared())
+	 * @post to.getReadyEntities().containsAll(from.getReadyEntities())
+	 * @post to.getShareEntities().containsAll(from.getShareEntities())
 	 */
-	void propogateInfoFromTo(final AliasSet as) {
-		final AliasSet _rep1 = (AliasSet) find();
-		final AliasSet _rep2 = (AliasSet) as.find();
+	static void propogateInfoFromTo(final AliasSet from, final AliasSet to) {
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
+		_wb.addWork(new Pair(from, to, false));
 
-		if (propogating || _rep1 == _rep2) {
-			return;
-		}
+		while (_wb.hasWork()) {
+			final Pair _pair = (Pair) _wb.getWork();
+			final AliasSet _fromRep = (AliasSet) ((AliasSet) _pair.getFirst()).find();
+			final AliasSet _toRep = (AliasSet) ((AliasSet) _pair.getSecond()).find();
 
-		propogating = true;
+			if (_fromRep != _toRep) {
+				_toRep.shared |= _fromRep.shared;
 
-		_rep2.shared |= _rep1.shared;
+				/*
+				 * This is tricky.  A constructor can be called to construct 2 instances in which one is used in
+				 * wait/notify but not the other.  This means on top-down propogation of alias set in ECBA, the 2 alias
+				 * set of the primary of the <init> method will be rep1 and one may provide a non-null ready entity to rep2
+				 * and the other may come and erase it if the check is not made.
+				 */
+				if (_fromRep.readyEntities != null) {
+					if (_toRep.readyEntities == null) {
+						_toRep.readyEntities = new HashSet();
+					}
+					_toRep.readyEntities.addAll(_fromRep.readyEntities);
+				}
 
-		/*
-		 * This is tricky.  A constructor can be called to construct 2 instances in which one is used in
-		 * wait/notify but not the other.  This means on top-down propogation of alias set in ECBA, the 2 alias
-		 * set of the primary of the <init> method will be rep1 and one may provide a non-null ready entity to rep2
-		 * and the other may come and erase it if the check is not made.
-		 */
-		if (_rep1.readyEntities != null) {
-			if (_rep2.readyEntities == null) {
-				_rep2.readyEntities = new HashSet();
+				if (_fromRep.shareEntities != null) {
+					if (_toRep.shareEntities == null) {
+						_toRep.shareEntities = new HashSet();
+					}
+
+					_toRep.shareEntities.addAll(_fromRep.shareEntities);
+				}
 			}
-			_rep2.readyEntities.addAll(_rep1.readyEntities);
-		}
 
-		if (_rep1.shareEntities != null) {
-			if (_rep2.shareEntities == null) {
-				_rep2.shareEntities = new HashSet();
-			}
+			for (final Iterator _i = _toRep.fieldMap.keySet().iterator(); _i.hasNext();) {
+				final Object _key = _i.next();
+				final AliasSet _to = (AliasSet) _toRep.fieldMap.get(_key);
+				final AliasSet _from = (AliasSet) _fromRep.fieldMap.get(_key);
 
-			_rep2.shareEntities.addAll(_rep1.shareEntities);
-		}
-
-		for (final Iterator _i = _rep2.fieldMap.keySet().iterator(); _i.hasNext();) {
-			final Object _key = _i.next();
-			final AliasSet _to = (AliasSet) _rep2.fieldMap.get(_key);
-			final AliasSet _from = (AliasSet) _rep1.fieldMap.get(_key);
-
-			if ((_to != null) && (_from != null)) {
-				_from.propogateInfoFromTo(_to);
+				if ((_to != null) && (_from != null)) {
+					_wb.addWork(new Pair(_from, _to, false));
+				}
 			}
 		}
-
-		propogating = false;
 	}
 
 	/**
@@ -565,42 +568,8 @@ final class AliasSet
 	 *
 	 * @pre a != null
 	 */
-	void unify(final AliasSet a) {
-		final AliasSet _m = (AliasSet) find();
-		final AliasSet _n = (AliasSet) a.find();
-
-		if (_m == _n) {
-			return;
-		}
-
-		_m.union(_n);
-
-		final AliasSet _rep1 = (AliasSet) _m.find();
-		final AliasSet _rep2;
-
-		if (_rep1 == _m) {
-			_rep2 = _n;
-		} else {
-			_rep2 = _m;
-		}
-
-		_rep1.waits |= _rep2.waits;
-		_rep1.notifies |= _rep2.notifies;
-		_rep1.accessed |= _rep2.accessed;
-		_rep1.read |= _rep2.read;
-		_rep1.written |= _rep2.written;
-		_rep1.multiThreadAccess |= _rep2.multiThreadAccess;
-		_rep1.shared |= _rep2.shared;
-
-		if (_rep1.multiThreadAccess) {
-			unifyEscapeInfo(_rep1, _rep2);
-		}
-
-		_rep1.unifyFields(_rep2);
-
-		if (_rep1.global || _rep2.global) {
-			_rep1.setGlobal();
-		}
+	void unifyAliasSet(final AliasSet a) {
+		unifyAliasSetHelper(this, a, true);
 	}
 
 	/**
@@ -626,26 +595,72 @@ final class AliasSet
 	}
 
 	/**
+	 * Unifies the given alias sets.
+	 *
+	 * @param as1 obviously.
+	 * @param as2 obviously.
+	 * @param unifyAll <code>true</code> indicates that unification should be multi-thread access sensitive;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @pre as1 != null and as2 != null
+	 */
+	private static void unifyAliasSetHelper(final AliasSet as1, final AliasSet as2, final boolean unifyAll) {
+		final AliasSet _m = (AliasSet) as1.find();
+		final AliasSet _n = (AliasSet) as2.find();
+
+		if (_m != _n) {
+		    _m.union(_n);
+		    
+			final AliasSet _rep1 = (AliasSet) _m.find();
+			final AliasSet _rep2;
+
+			if (_rep1 == _m) {
+				_rep2 = _n;
+			} else {
+				_rep2 = _m;
+			}
+
+			_rep1.waits |= _rep2.waits;
+			_rep1.notifies |= _rep2.notifies;
+			_rep1.accessed |= _rep2.accessed;
+			_rep1.read |= _rep2.read;
+			_rep1.written |= _rep2.written;
+			_rep1.multiThreadAccess |= _rep2.multiThreadAccess;
+			_rep1.shared |= _rep2.shared;
+
+			if (unifyAll && _rep1.multiThreadAccess) {
+				unifyEscapeInfo(_rep1, _rep2);
+			}
+
+			_rep1.unifyFields(_rep2, unifyAll);
+
+			if (_rep1.global || _rep2.global) {
+				_rep1.setGlobal();
+			}
+		}
+	}
+
+	/**
 	 * Unify escape and sharing information in the given alias set.
 	 *
 	 * @param reprAliasSet is one of the alias set involved in the unification.
 	 * @param aliasSet is the other alias set involved in the unification.
 	 */
-	private void unifyEscapeInfo(final AliasSet reprAliasSet, final AliasSet aliasSet) {
+	private static void unifyEscapeInfo(final AliasSet reprAliasSet, final AliasSet aliasSet) {
 		reprAliasSet.shared |= (reprAliasSet.accessed && aliasSet.accessed);
 
 		if ((reprAliasSet.waits && aliasSet.notifies) || (reprAliasSet.notifies && aliasSet.waits)) {
 			if (reprAliasSet.readyEntities == null) {
 				reprAliasSet.readyEntities = new HashSet();
 			}
-			reprAliasSet.readyEntities.add(getNewReadyEntity());
+			reprAliasSet.readyEntities.add(aliasSet.getNewReadyEntity());
 		}
 
 		if ((reprAliasSet.read && aliasSet.written) || (reprAliasSet.written && aliasSet.read)) {
 			if (reprAliasSet.shareEntities == null) {
 				reprAliasSet.shareEntities = new HashSet();
 			}
-			reprAliasSet.shareEntities.add(getNewShareEntity());
+			reprAliasSet.shareEntities.add(aliasSet.getNewShareEntity());
 		}
 	}
 
@@ -653,10 +668,12 @@ final class AliasSet
 	 * Unify the fields of the given alias sets with that of this alias set.
 	 *
 	 * @param aliasSet is the other alias set involved in the unification.
+	 * @param unifyAll <code>true</code> indicates that unification should be multi-thread access sensitive;
+	 * 		  <code>false</code>, otherwise.
 	 *
 	 * @pre aliasSet != null
 	 */
-	private void unifyFields(final AliasSet aliasSet) {
+	private void unifyFields(final AliasSet aliasSet, final boolean unifyAll) {
 		for (final Iterator _i = aliasSet.fieldMap.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final Object _key = _entry.getKey();
@@ -665,7 +682,7 @@ final class AliasSet
 			final AliasSet _givenFieldAS = (AliasSet) _value;
 
 			if (_fieldASInThis != null) {
-				_fieldASInThis.unify(_givenFieldAS);
+				unifyAliasSetHelper(_fieldASInThis, _givenFieldAS, unifyAll);
 			} else {
 				fieldMap.put(_key, _value);
 			}
@@ -676,6 +693,8 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/07/30 07:47:35  venku
+   - there was a bug in escape analysis cloning and union algorithm.  FIXED.
    Revision 1.18  2004/07/17 19:37:18  venku
    - ECBA was incorrect for the following reasons.
      - it fails if the start sites are not in the same method.

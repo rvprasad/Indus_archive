@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
-import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -27,7 +26,6 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -51,10 +49,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.ArrayType;
 import soot.Local;
 import soot.Modifier;
+import soot.RefType;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 
 import soot.jimple.AbstractJimpleValueSwitch;
@@ -143,11 +144,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final ICallGraphInfo cgi;
 
 	/** 
-	 * This provides thread-graph information.
-	 */
-	final IThreadGraphInfo tgi;
-
-	/** 
 	 * This maps global/static fields to their alias sets.
 	 *
 	 * @invariant globalASs->forall(o | o.oclIsKindOf(AliasSet))
@@ -192,26 +188,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	MethodContext methodCtxtCache;
 
-	/** 
-	 * This maps a site context to a corresponding to method context.  This is used to collect contexts corresponding to
-	 * start call-sites for delayed processing.
-	 */
-	private Map delayedSet = new HashMap();
-
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
 	 * @param callgraph provides call-graph information.
-	 * @param tgiPrm provides thread-graph information.
 	 * @param basicBlockGraphMgr provides basic block graphs required by this analysis.
 	 *
 	 * @pre scene != null and callgraph != null and tgi != null
 	 */
-	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph, final IThreadGraphInfo tgiPrm,
+	public EquivalenceClassBasedEscapeAnalysis(final ICallGraphInfo callgraph,
 		final BasicBlockGraphMgr basicBlockGraphMgr) {
-		this.cgi = callgraph;
-		this.tgi = tgiPrm;
-
+		cgi = callgraph;
 		globalASs = new HashMap();
 		method2Triple = new HashMap();
 		stmtProcessor = new StmtProcessor();
@@ -255,7 +242,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
 			if ((_r != null) && (_l != null)) {
-				_l.unify(_r);
+				_l.unifyAliasSet(_r);
 			}
 		}
 
@@ -291,7 +278,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
 			if ((_r != null) && (_l != null)) {
-				_l.unify(_r);
+				_l.unifyAliasSet(_r);
 			}
 		}
 
@@ -311,7 +298,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
 			if (_l != null) {
-				methodCtxtCache.getReturnAS().unify(_l);
+				methodCtxtCache.getReturnAS().unifyAliasSet(_l);
 			}
 		}
 
@@ -324,7 +311,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
 			if (_l != null) {
-				methodCtxtCache.getThrownAS().unify(_l);
+				methodCtxtCache.getThrownAS().unifyAliasSet(_l);
 			}
 		}
 
@@ -583,7 +570,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					final Value _val = v.getArg(_i);
 					Object _temp = null;
 
-					if (AliasSet.canHaveAliasSet(_val.getType())) {
+					if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_val.getType())) {
 						process(v.getArg(_i));
 						_temp = valueProcessor.getResult();
 					}
@@ -621,7 +608,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					continue;
 				}
 
-				final boolean _delayUnification = processNotifyStartWait(primaryAliasSet, _callee);
+				final boolean _isThreadBoundary = processNotifyStartWait(primaryAliasSet, _callee);
 
 				// retrieve the method context of the callee
 				MethodContext _mc = (MethodContext) _triple.getFirst();
@@ -640,12 +627,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					}
 				}
 
-				if (_delayUnification) {
-					_mc.markMultiThreadAccess();
-					addToDelayedUnificationSet(siteContext, _mc);
-				} else {
-					siteContext.unify(_mc);
+				if (_isThreadBoundary) {
+					_mc.markAsCrossingThreadBoundary();
 				}
+				siteContext.unifyMethodContext(_mc);
+				
+				// It would suffice to unify the site context with it self in the case of loop enclosure
+				// as this is more semantically close to what happens during execution.
+				if (Util.isStartMethod(_callee) && cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
+					siteContext.selfUnify();
+				}
+
 			}
 		}
 
@@ -750,10 +742,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
 		 */
 		public void callback(final SootMethod sm) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Update method2Triple for " + sm);
-			}
-
 			method2Triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
 		}
 
@@ -843,8 +831,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final AliasSet _as1 = (AliasSet) ((Map) _trp1.getSecond()).get(_wTemp.getBase());
 				final AliasSet _as2 = (AliasSet) ((Map) _trp2.getSecond()).get(_nTemp.getBase());
 
-				if ((_as1.getReadyEntity() != null) && (_as2.getReadyEntity() != null)) {
-					_result = CollectionUtils.containsAny(_as1.getReadyEntity(), _as2.getReadyEntity());
+				if ((_as1.getReadyEntities() != null) && (_as2.getReadyEntities() != null)) {
+					_result = CollectionUtils.containsAny(_as1.getReadyEntities(), _as2.getReadyEntities());
 				} else {
 					/*
 					 * This is the case where a start site has wait and notify called on a reference.
@@ -881,16 +869,19 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		try {
 			// check if given value has an alias set and if so, check if the enclosing method executes only in threads created
 			// allocation sites which are executed only once. 
-			if (AliasSet.canHaveAliasSet(v.getType())) {
-				// Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
-				// information. But this is untrue, as all the data that can be shared across threads have been exposed and 
-				// marked rightly so at allocation sites.  By equivalence class-based unification guarantees that the 
-				// corresponding alias set at the caller side is unified atleast twice in case these threads are started at 
-				// different sites.  In case the threads are started at the same site, then the processing of call-site during
-				// phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
-				// structure and the language semantics along with the rules above ensure that the escape information is 
-				// polluted (pessimistic) only when necessary.
-				_result = getAliasSetFor(v, sm).escapes();
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
+				/*
+				 *  Ruf's analysis mandates that the allocation sites that are executed multiple times pollute escape 
+				 * information. But this is untrue, as all the data that can be shared across threads have been exposed and 
+				 * marked rightly so at allocation sites.  By equivalence class-based unification guarantees that the 
+				 * corresponding alias set at the caller side is unified atleast twice in case these threads are started at 
+				 * different sites.  In case the threads are started at the same site, then the processing of call-site during
+				 * phase 2 (bottom-up) will ensure that the alias sets are unified with themselves.  Hence, the program 
+				 * structure and the language semantics along with the rules above ensure that the escape information is 
+				 * polluted (pessimistic) only when necessary.
+				 */
+			    _result = getAliasSetFor(v, sm).escapes();
+			
 			} else {
 				_result = false;
 			}
@@ -1024,11 +1015,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final Map _local2AS = (Map) _trp.getSecond();
 		AliasSet _result = null;
 
-		if (AliasSet.canHaveAliasSet(v.getType())) {
+		if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
 			if (v instanceof InstanceFieldRef) {
 				final InstanceFieldRef _i = (InstanceFieldRef) v;
 				final AliasSet _temp = (AliasSet) _local2AS.get(_i.getBase());
-				_result = _temp.getASForField(((FieldRef) v).getField().getSignature());
+				_result = _temp.getASForField(_i.getField().getSignature());
 			} else if (v instanceof StaticFieldRef) {
 				_result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
 			} else if (v instanceof ArrayRef) {
@@ -1056,7 +1047,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		boolean _result = true;
 
 		try {
-			if (AliasSet.canHaveAliasSet(v.getType())) {
+			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(v.getType())) {
 				_result = getAliasSetFor(v, sm).isGlobal();
 			} else {
 				_result = false;
@@ -1069,19 +1060,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		return _result;
-	}
-
-	/**
-	 * Adds the given contexts to the set of contexts to be processed later on.  This is called by the tree walker.
-	 *
-	 * @param siteContext is the context associated with the site.
-	 * @param methodContext is the context associated with the method.
-	 *
-	 * @pre siteContext != null and MethodContext != null
-	 * @post delayedSet.get(siteContext) == MethodContext
-	 */
-	void addToDelayedUnificationSet(final MethodContext siteContext, final MethodContext methodContext) {
-		CollectionsUtilities.putIntoSetInMap(delayedSet, siteContext, methodContext);
 	}
 
 	/**
@@ -1113,34 +1091,15 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			for (final Iterator _i = scCache.entrySet().iterator(); _i.hasNext();) {
 				final Map.Entry _entry = (Map.Entry) _i.next();
 				final MethodContext _mc = (MethodContext) _entry.getValue();
-				final FastUnionFindElement _mcRep = _mc.find();
+				final MethodContext _mcRep = (MethodContext) _mc.find();
 
 				if (_mcRep != _mc) {
 					_entry.setValue(_mcRep);
-				} else {
-					_mc.discardReferentialAliasSets();
 				}
+				_mcRep.discardReferentialAliasSets();
 			}
 		}
 		method2Triple.put(method, new Triple(methodCtxtCache, localASsCache, scCache));
-	}
-
-	/**
-	 * Performs the unification of contexts occurring at start call-sites as collected via
-	 * <code>addToDelayedUnificationSet</code>.
-	 *
-	 * @post delayedSet.isEmpty()
-	 */
-	private void performDelayedUnification() {
-		for (final Iterator _i = delayedSet.keySet().iterator(); _i.hasNext();) {
-			final MethodContext _siteContext = (MethodContext) _i.next();
-
-			for (final Iterator _j = ((Collection) delayedSet.get(_siteContext)).iterator(); _j.hasNext();) {
-				final MethodContext _methodContext = (MethodContext) _j.next();
-				_siteContext.unify(_methodContext);
-			}
-		}
-		delayedSet.clear();
 	}
 
 	/**
@@ -1198,14 +1157,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					}
 				}
 
-				// unify the contexts at start call-sites.
-				performDelayedUnification();
-
 				// discard alias sets that serve as a mere indirection level. 
 				discardReferentialAliasSets(_sm);
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("LocalASsCache: " + _triple.getSecond());
+					LOGGER.debug("LocalASsCache: " + _sm + "\n" + CollectionsUtilities.prettyPrint((Map) _triple.getSecond()));
 				}
 			}
 		}
@@ -1226,8 +1182,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 
 			final Collection _callees = cgi.getCallees(_caller);
-			Triple _triple = (Triple) method2Triple.get(_caller);
-			final Map _ctrp2sc = (Map) _triple.getThird();
+			final Triple _callerTriple = (Triple) method2Triple.get(_caller);
+			final Map _ctrp2sc = (Map) _callerTriple.getThird();
 
 			for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
 				final CallTriple _ctrp = (CallTriple) _i.next();
@@ -1237,13 +1193,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					LOGGER.debug("Top-down processing : CALLEE : " + _callee);
 				}
 
-				_triple = (Triple) method2Triple.get(_callee);
+				final Triple _calleeTriple = (Triple) method2Triple.get(_callee);
 
 				/*
 				 * NOTE: This is an anomaly which results from how an open system is closed.  Refer to MethodVariant.java for
 				 * more info.
 				 */
-				if (_triple == null) {
+				if (_calleeTriple == null) {
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("NO CALLEE TRIPLE: " + _callee.getSignature());
 					}
@@ -1251,17 +1207,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					continue;
 				}
 
-				final MethodContext _mc = (MethodContext) (_triple.getFirst());
+				final MethodContext _mc = (MethodContext) (_calleeTriple.getFirst());
+				
 				final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
 				final MethodContext _sc = (MethodContext) _ctrp2sc.get(_callerTrp);
-
-				// It would suffice to unify the site context with it self in the case of loop enclosure
-				// as this is more semantically close to what happens during execution.
-				if (Util.isStartMethod(_callee) && cfgAnalysis.executedMultipleTimes(_ctrp.getStmt(), _caller)) {
-					_sc.selfUnify();
-				}
-
-				_sc.propogateInfoFromTo(_mc);
+				MethodContext.propogateInfoFromTo(_sc, _mc);
 			}
 		}
 
@@ -1272,11 +1222,27 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			method2Triple.put(_sm, new Triple(_triple.getFirst(), _triple.getSecond(), null));
 		}
 	}
+
+    /**
+     * Checks if the given type can contribute to aliasing.  Only reference and array types can lead to aliasing.
+     *
+     * @param type to be checked for aliasing support.
+     *
+     * @return <code>true</code> if <code>type</code> can contribute aliasing; <code>false</code>, otherwise.
+     *
+     * @pre type != null
+     */
+    public static boolean canHaveAliasSet(final Type type) {
+    	return type instanceof RefType || type instanceof ArrayType;
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.62  2004/07/30 07:47:35  venku
+   - there was a bug in escape analysis cloning and union algorithm.  FIXED.
+
    Revision 1.61  2004/07/28 07:32:52  venku
    - logging and toString() implementation.
    Revision 1.60  2004/07/27 07:08:25  venku
