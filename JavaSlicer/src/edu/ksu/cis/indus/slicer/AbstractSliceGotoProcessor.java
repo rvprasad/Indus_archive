@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections.Predicate;
 
 import soot.SootMethod;
 import soot.Trap;
@@ -48,17 +49,27 @@ import soot.toolkits.graph.UnitGraph;
  */
 public abstract class AbstractSliceGotoProcessor
   implements ISliceGotoProcessor {
-	/**
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	public static final Predicate GOTO_STMT_PREDICATE =
+		new Predicate() {
+			public boolean evaluate(final Object object) {
+				return object instanceof GotoStmt;
+			}
+		};
+
+	/** 
 	 * A workbag.
 	 */
 	protected final IWorkBag workBag = new LIFOWorkBag();
 
-	/**
+	/** 
 	 * The slice collector.
 	 */
 	protected final SliceCollector sliceCollector;
 
-	/**
+	/** 
 	 * The method being processed.
 	 */
 	protected SootMethod method;
@@ -149,13 +160,6 @@ public abstract class AbstractSliceGotoProcessor
 					  || _handlerStmts.contains(_leader)
 					  || (_succsOfPred.contains(_leader) && _predStmtOfLeader instanceof GotoStmt)) {
 					sliceCollector.includeInSlice(_predStmtOfLeader);
-
-					final BasicBlock _predBB = bbg.getEnclosingBlock(_predStmtOfLeader);
-
-					if (!_temp.contains(_predBB)) {
-						processForIntraBasicBlockGotos(_predBB);
-						workBag.addWorkNoDuplicates(_predBB);
-					}
 				}
 			}
 		}
@@ -179,6 +183,10 @@ public abstract class AbstractSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/06/16 07:59:35  venku
+   - goto processing was skewed. FIXED.
+   - note that we should just use specialization in executable case.
+   - refactoring.
    Revision 1.14  2004/06/15 10:36:51  venku
    - used units from the graph rather than the body to determine the reachable units.
    Revision 1.13  2004/06/12 06:47:28  venku

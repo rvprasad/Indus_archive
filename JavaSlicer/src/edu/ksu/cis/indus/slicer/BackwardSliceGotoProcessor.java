@@ -22,7 +22,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import soot.jimple.GotoStmt;
+import org.apache.commons.collections.CollectionUtils;
+
 import soot.jimple.Stmt;
 
 
@@ -66,17 +67,16 @@ public class BackwardSliceGotoProcessor
 	 * {@inheritDoc}
 	 */
 	protected final void processForIntraBasicBlockGotos(final BasicBlock bb) {
-		final String _tagName = sliceCollector.getTagName();
-		boolean _tagged = false;
-
-		for (final Iterator _i = getStmtsOfForProcessing(bb).iterator(); _i.hasNext();) {
+		for (final Iterator _i = bb.getStmtsOf().iterator(); _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
 
-			if (_stmt.getTag(_tagName) != null) {
-				_tagged = true;
+			if (sliceCollector.hasBeenCollected(_stmt)) {
 				workBag.addWorkNoDuplicates(bb);
-			} else if (_stmt instanceof GotoStmt && _tagged) {
-				sliceCollector.includeInSlice(_stmt);
+
+				final List _stmtsOf = new ArrayList(bb.getStmtsOf());
+				CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
+				sliceCollector.includeInSlice(_stmtsOf);
+				break;
 			}
 		}
 	}
@@ -85,6 +85,10 @@ public class BackwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/06/16 07:59:35  venku
+   - goto processing was skewed. FIXED.
+   - note that we should just use specialization in executable case.
+   - refactoring.
    Revision 1.9  2004/05/31 21:38:10  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
