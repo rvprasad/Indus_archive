@@ -459,7 +459,7 @@ public final class Util {
 		if (_i == -1) {
 			_result = getPrimitiveTypeFor(typeName, scene);
 		} else {
-			_result = ArrayType.v(getPrimitiveTypeFor(typeName.substring(0, _i), scene), typeName.length() - _i + 1);
+			_result = ArrayType.v(getPrimitiveTypeFor(typeName.substring(0, _i), scene), typeName.length() - _i);
 		}
 		return _result;
 	}
@@ -651,6 +651,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/07/02 05:15:17  venku
+   - added a new method to retrieve type objects based on names.
+
    Revision 1.26  2004/06/14 04:31:17  venku
    - added method to check tags on a collection of hosts in Util.
    - ripple effect.
