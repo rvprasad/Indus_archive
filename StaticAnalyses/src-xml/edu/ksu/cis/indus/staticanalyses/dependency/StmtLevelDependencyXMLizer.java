@@ -142,7 +142,7 @@ final class StmtLevelDependencyXMLizer
 					    _eid = idGenerator.getIdForStmt((Stmt) _o, _method);
 					}
 					if (_eid != null) {
-						writer.startTag("dependent");
+						writer.startTag("dependee");
 						writer.attribute("eid", _eid);
 						writer.endTag();
 						}
@@ -256,6 +256,9 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/05/10 09:39:35  venku
+   - another one of the early tag close errors. FIXED.
+
    Revision 1.9  2004/05/09 08:24:08  venku
    - all xmlizers use xmlenc to write xml data.
 
