@@ -161,9 +161,14 @@ public abstract class AbstractXMLBasedTest
 		try {
 			final Reader _current = new FileReader(new File(_outfileName));
 			final Reader _previous = new FileReader(new File(xmlControlDir + File.separator + getFileName()));
+			
 			final Diff _diff = new Diff(_previous, _current);
 			_diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
-			assertTrue(_diff.toString(), _diff.similar());
+			final boolean _verdict = _diff.similar();
+			final String _difference = _diff.toString();
+			_current.close();
+			_previous.close();
+			assertTrue(_difference, _verdict);
 		} catch (IOException _e) {
 			LOGGER.error("Failed to read the xml file " + _outfileName, _e);
 			fail(_e.getMessage());
@@ -249,6 +254,11 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/05/13 03:30:03  venku
+   - coding convention.
+   - documentation.
+   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
+
    Revision 1.18  2004/04/25 21:18:39  venku
    - refactoring.
      - created new classes from previously embedded classes.
