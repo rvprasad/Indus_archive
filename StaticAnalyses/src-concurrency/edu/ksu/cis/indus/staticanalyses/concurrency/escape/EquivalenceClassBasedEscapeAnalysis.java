@@ -367,8 +367,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 	/**
 	 * This class encapsulates the logic to process the expressions during escape analysis.  Alias sets are created as
-	 * required.  The class relies on <code>AliasSet</code> to decide if alias set needs to be created for a type of
-	 * value.
+	 * required.  The class relies on <code>AliasSet</code> to decide if alias set needs to be created for a type of value.
 	 * 
 	 * <p>
 	 * The arguments to any of the overridden methods cannot be <code>null</code>.
@@ -542,8 +541,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
-		 * Creates an alias set if <code>o</code> is of type <code>Value</code>.  It uses <code>AliasSet</code> to decide
-		 * if the given type requires an alias set.  If not, <code>null</code> is provided   as the alias set.  This is also
+		 * Creates an alias set if <code>o</code> is of type <code>Value</code>.  It uses <code>AliasSet</code> to decide if
+		 * the given type requires an alias set.  If not, <code>null</code> is provided   as the alias set.  This is also
 		 * the  case when <code>o</code> is not of type <code>Value</code>.
 		 *
 		 * @param o is a piece of IR to be processed.
@@ -928,7 +927,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	public void reset() {
 		globalASs.clear();
 		method2Triple.clear();
-
 		waitMethods.clear();
 		notifyMethods.clear();
 	}
@@ -961,7 +959,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				// polluted (pessimistic) only when necessary.
 				final Collection _o1 = getAliasSetFor(v1, sm1).getShareEntities();
 				final Collection _o2 = getAliasSetFor(v2, sm2).getShareEntities();
-				_result = (_o1 != null) && (_o2 != null) && !(CollectionUtils.intersection(_o1, _o2).isEmpty());
+				containmentPredicate.setContainer(_o2);
+				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.exists(_o1, containmentPredicate);
+				containmentPredicate.setContainer(null);
 			} catch (final NullPointerException _e) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
@@ -1226,12 +1226,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				// discard alias sets that serve as a mere indirection level. 
 				discardReferentialAliasSetv2s(_sm);
-				
+
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("LocalASsCache: " + _triple.getSecond());
 				}
-
-
 			}
 		}
 	}
@@ -1296,19 +1294,27 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_wb.addWorkNoDuplicates(_callee);
 			}
 		}
+
+		// delete references to site caches as they will not be used hereon.
+		for (final Iterator _i = _processed.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final Triple _triple = (Triple) method2Triple.get(_sm);
+			method2Triple.put(_sm, new Triple(_triple.getFirst(), _triple.getSecond(), null));
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.54  2004/07/17 20:21:35  venku
+   -  removed rogue printlns.
    Revision 1.53  2004/07/17 19:37:18  venku
    - ECBA was incorrect for the following reasons.
      - it fails if the start sites are not in the same method.
      - it fails if the access in the threads occur in methods other than the
        one in which the new thread is started.
      - The above issues were addressed.
-
    Revision 1.51  2004/07/17 06:05:47  venku
    - coding conventions.
    Revision 1.50  2004/07/11 14:17:40  venku
