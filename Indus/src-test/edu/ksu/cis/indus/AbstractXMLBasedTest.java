@@ -17,6 +17,7 @@ package edu.ksu.cis.indus;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
 import java.io.FileReader;
@@ -160,18 +161,24 @@ public abstract class AbstractXMLBasedTest
 	}
 
 	/**
-	 * Retrieves the name of the file that contains the test data.
+	 * Retrieves the name of the file that contains the test data.  The default implementation constructs a name from the
+	 * xmlizer.
 	 *
 	 * @return the name of the file.
 	 */
-	protected abstract String getFileName();
+	protected String getFileName() {
+		return xmlizer.getFileName(getName());
+	}
 
 	/**
-	 * Retrieve the id generator to use during xmlizing.
+	 * Retrieve the id generator to use during xmlizing. The default implementation returns a
+	 * <code>UniqueJimpleIDGenerator</code> instance.
 	 *
 	 * @return the id generator.
 	 */
-	protected abstract IJimpleIDGenerator getIDGenerator();
+	protected IJimpleIDGenerator getIDGenerator() {
+		return new UniqueJimpleIDGenerator();
+	}
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
@@ -195,10 +202,15 @@ public abstract class AbstractXMLBasedTest
 	protected abstract AbstractXMLizer getXMLizer();
 
 	/**
-	 * Local test setup to be provided by subclasses.
+	 * Local test setup to be provided by subclasses.  Default implementation will add the name obtained via
+	 * <code>getName()</code> into the map against the key <i>FILE_NAME_ID</i>.
+	 *
+	 * @throws Exception DOCUMENT ME!
 	 */
-	protected abstract void localSetup()
-	  throws Exception;
+	protected void localSetup()
+	  throws Exception {
+		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
+	}
 
 	/**
 	 * @see junit.framework.TestCase#runTest()
@@ -214,6 +226,8 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/03/07 20:29:53  venku
+   - refactoring.  Moved xmlizing support into this class.
    Revision 1.7  2004/03/05 11:59:40  venku
    - documentation.
    Revision 1.6  2004/02/14 23:16:49  venku

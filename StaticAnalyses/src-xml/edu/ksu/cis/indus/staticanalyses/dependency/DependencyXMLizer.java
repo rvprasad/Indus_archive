@@ -24,7 +24,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
-import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
@@ -42,7 +41,6 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 
 /**
  * This class provides the logic to xmlize dependence information.
@@ -94,9 +92,11 @@ final class DependencyXMLizer
 	final Collection filenames = new ArrayList();
 
 	/**
-	 * The id generator use during xmlization.
+	 * Creates a new DependencyXMLizer object.
 	 */
-	private final IJimpleIDGenerator idGenerator = new UniqueJimpleIDGenerator();
+	public DependencyXMLizer() {
+		setGenerator(new UniqueJimpleIDGenerator());
+	}
 
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#getFileName(java.lang.String)
@@ -224,7 +224,7 @@ final class DependencyXMLizer
 		final String _temp = PROPERTIES.getProperty(_xmlizerId);
 
 		if (_temp.equals(DependencyXMLizer.STMT_LEVEL_DEPENDENCY)) {
-			_result = new StmtLevelDependencyXMLizer(writer, idGenerator, da);
+			_result = new StmtLevelDependencyXMLizer(writer, getIdGenerator(), da);
 		} else {
 			LOGGER.error("Unknown dependency xmlizer type requested.  Bailing on this.");
 		}
@@ -235,6 +235,8 @@ final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/03/05 11:59:45  venku
+   - documentation.
    Revision 1.8  2004/02/25 23:34:29  venku
    - classes that should not be visible should be invisible :-)
    Revision 1.7  2004/02/09 17:40:53  venku

@@ -22,9 +22,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFATest;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
-import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
-import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
-
 
 /**
  * This is a XML based test for value flow analysis.
@@ -55,13 +52,6 @@ public abstract class AbstractXMLBasedValueAnalysisTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getFileName()
-	 */
-	protected String getFileName() {
-		return xmlizer.getFileName(getName());
-	}
-
-	/**
 	 * @see AbstractXMLBasedTest#localSetup()
 	 */
 	protected final void localSetup()
@@ -69,18 +59,16 @@ public abstract class AbstractXMLBasedValueAnalysisTest
 		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
 		info.put(IValueAnalyzer.TAG_ID, nameOfTheTag);
 	}
-
-	/**
-	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getIDGenerator()
-	 */
-	protected IJimpleIDGenerator getIDGenerator() {
-		return new UniqueJimpleIDGenerator();
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/07 20:27:54  venku
+   - refactoring! refactoring!
+   - generalized OFA Test base to be applicable to any value flow
+     analysis built on top of FA.
+
    Revision 1.2  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.1  2004/02/11 09:37:18  venku

@@ -40,7 +40,7 @@ import junit.framework.TestSuite;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class ValueAnalysisTestSetup
+public class ValueAnalysisTestSetup
   extends FATestSetup {
 	/**
 	 * The call graph implementation to be tested.
@@ -50,7 +50,7 @@ public final class ValueAnalysisTestSetup
 	/**
 	 * @see FATestSetup#FATestSetup(TestSuite,String,String)
 	 */
-	ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
+	public ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test, theNameOfClasses, classpath);
 	}
 
@@ -94,6 +94,11 @@ public final class ValueAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/07 20:27:54  venku
+   - refactoring! refactoring!
+   - generalized OFA Test base to be applicable to any value flow
+     analysis built on top of FA.
+
    Revision 1.6  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.
