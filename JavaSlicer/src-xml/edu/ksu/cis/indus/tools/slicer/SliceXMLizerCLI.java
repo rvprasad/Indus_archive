@@ -264,9 +264,9 @@ public class SliceXMLizerCLI
 				final String _criteriaSpec = _result;
 				_criteria.addAll(SliceCriteriaParser.deserialize(_criteriaSpec, scene));
 
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Criteria specification before slicing: \n" + _result);
-					LOGGER.debug("Criteria before slicing: \n" + _criteria);
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("Criteria specification before slicing: \n" + _result);
+					LOGGER.info("Criteria before slicing: \n" + _criteria);
 				}
 			} catch (final IOException _e) {
 				if (LOGGER.isWarnEnabled()) {
@@ -288,16 +288,11 @@ public class SliceXMLizerCLI
 			});
 		slicer.run(Phase.STARTING_PHASE, true);
 
-		if (LOGGER.isDebugEnabled()) {
+		if (LOGGER.isInfoEnabled()) {
 			try {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Criteria specification after slicing: \n"
-						+ SliceCriteriaParser.serialize(slicer.getCriteria()));
-				}
+				LOGGER.info("Criteria specification after slicing: \n" + SliceCriteriaParser.serialize(slicer.getCriteria()));
 			} catch (final JiBXException _e) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("JiBX faild during serialization.", _e);
-				}
+				LOGGER.info("JiBX faild during serialization.", _e);
 			}
 		}
 
@@ -761,6 +756,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.52  2004/08/13 16:53:57  venku
+   - logging and error handling based on erraticness of Soot.
    Revision 1.51  2004/08/12 03:35:52  venku
    - exercised the event listening interface and implementation.
    Revision 1.50  2004/08/04 02:11:26  venku
