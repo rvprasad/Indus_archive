@@ -263,7 +263,7 @@ public class RufsEscapeAnalysis
 		stmtProcessor = new StmtProcessor();
 		valueProcessor = new ValueProcessor();
 		context = new Context();
-        cfg = new CFGAnalysis(scm, cgi);
+        cfg = new CFGAnalysis(cgi, new BasicBlockGraphMgr());
 	}
 
 	/**
@@ -1532,6 +1532,7 @@ public class RufsEscapeAnalysis
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
+        ppc.register(this);
 	}
 
 	/**
@@ -1540,6 +1541,7 @@ public class RufsEscapeAnalysis
 	 */
 	public void unhook(ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
+        ppc.unregister(this);
 	}
 
 	/**
@@ -1769,6 +1771,9 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/01 11:57:30  venku
+   - Ripple effect of changes in CFGAnalysis.
+
    Revision 1.2  2003/08/24 12:42:33  venku
    Removed occursInCycle() method from DirectedGraph.
    Installed occursInCycle() method in CFGAnalysis.

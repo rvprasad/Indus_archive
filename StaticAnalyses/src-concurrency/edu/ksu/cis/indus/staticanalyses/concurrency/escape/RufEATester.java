@@ -44,12 +44,14 @@ import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
 
+import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 
 import org.apache.commons.logging.Log;
@@ -138,7 +140,7 @@ public final class RufEATester
 		CallGraph cg = new CallGraph();
 		cg.hookup(ppc);
 
-		ThreadGraph tg = new ThreadGraph(cg);
+		ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, new BasicBlockGraphMgr()));
 		tg.hookup(ppc);
 
 		RufsEscapeAnalysis ea1 = new RufsEscapeAnalysis(scm, cg, tg);
@@ -225,6 +227,12 @@ public final class RufEATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/21 01:24:25  venku
+    - Renamed src-escape to src-concurrency to as to group all concurrency
+      issue related analyses into a package.
+    - Renamed escape package to concurrency.escape.
+    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+
    Revision 1.4  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
