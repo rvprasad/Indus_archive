@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-
-import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -37,16 +35,11 @@ import soot.tagkit.Tag;
 /**
  * This class manages class related primitive information and processing such as the processing of <code>&lt;
  * clinit&gt;</code> methods of classes being analyzed.
- * 
- * <p>
- * Created: Fri Mar  8 14:10:27 2002.
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class ClassManager
-  implements IPrototype {
+public class ClassManager {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -78,36 +71,10 @@ public class ClassManager
 	 *
 	 * @pre theAnalysis != null
 	 */
-	public ClassManager(final FA theAnalysis) {
+	ClassManager(final FA theAnalysis) {
 		classes = new HashSet();
 		this.fa = theAnalysis;
 		context = new Context();
-	}
-
-	/**
-	 * Creates a concrete object of the same class as this object but parameterized by <code>o</code>.
-	 *
-	 * @param o the instance of the analysis for which this object shall process information.  The actual type of
-	 * 		  <code>o</code> needs to be <code>FA</code>.
-	 *
-	 * @return an instance of <code>ClassManager</code> object parameterized by <code>o</code>.
-	 *
-	 * @pre o != null
-	 * @post result != null
-	 */
-	public Object getClone(final Object o) {
-		return new ClassManager((FA) o);
-	}
-
-	/**
-	 * This method is not supported by this class.
-	 *
-	 * @return (This method raises an exception.)
-	 *
-	 * @throws UnsupportedOperationException this method is not supported by this class.
-	 */
-	public Object getClone() {
-		throw new UnsupportedOperationException("Parameterless prototype() method not supported.");
 	}
 
 	/**
