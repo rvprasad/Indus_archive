@@ -6,20 +6,25 @@
 
   <p>Project Manager
   <ul>
-      <li><a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Ranganath</a>, Kansas State University
+      <li><a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Ranganath</a> (KSU) - Indus</li>
    </ul>
    </p>
    
-   <p>Grad Students
+   <p>M.S. Students
    <ul>
-       <li><a href="http://www.cis.ksu.edu/~ganeshan">Ganeshan Jayaraman</a></li>
+       <li><a href="http://www.cis.ksu.edu/~ganeshan">Ganeshan Jayaraman</a> (KSU) - Kaveri</li>
    </ul>
    </p>
+
+	<p> Alumini
+	<ul>
+	    <li>Jason Weber, Kansas State University<br>(KSU) - Indus website management</li>
+	<ul>
+	</p>
   
   <p>Acknowledgments
   <ul>
     <li>Ben Dolezal, Kansas State University<br>(Indus logo design)</li>
-    <li>Jason Weber, Kansas State University<br>(Indus website management)</li>
   </ul>
 
 <!--#include virtual="/footer.shtml" -->
