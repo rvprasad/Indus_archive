@@ -226,37 +226,46 @@ public class ControlDA
 			Collection succs = (Collection) dagBlock.getSecond();
 			BitSet[] currCD = cd[currIndex];
 			BitSet currResult = new BitSet();
-			int count = 0;
-			boolean manySuccs = succs.size() > 1;
 
-			for (Iterator i = succs.iterator(); i.hasNext();) {
-				int succIndex = NODES.indexOf(i.next());
+			for (Iterator j = processed.iterator(); j.hasNext();) {
+				Object o = j.next();
+				int pIndex = NODES.indexOf(o);
+				int pSuccs = ((Collection) ((Pair) dag.get(o)).getSecond()).size();
+				BitSet pCD = currCD[pIndex];
 
-				for (Iterator j = processed.iterator(); j.hasNext();) {
-					Object o = j.next();
-					int pIndex = NODES.indexOf(o);
-					int pSuccs = ((Collection) ((Pair) dag.get(o)).getSecond()).size();
-					BitSet pCD = currCD[pIndex];
+				if (pCD != null) {
+					boolean assignFlag = pCD.cardinality() == pSuccs;
 
-					if (pCD != null) {
-						if (pCD.cardinality() == pSuccs) {
-							cd[succIndex][pIndex] = pCD;
+					if (assignFlag) {
+						currCD[pIndex] = null;
+					} else {
+						currResult.set(pIndex);
+					}
+
+					for (Iterator i = succs.iterator(); i.hasNext();) {
+						int succIndex = NODES.indexOf(i.next());
+						BitSet[] succCDs = cd[succIndex];
+
+						if (assignFlag) {
+							succCDs[pIndex] = pCD;
 						} else {
-							BitSet succCD = cd[succIndex][pIndex];
+							BitSet succCD = succCDs[pIndex];
 
 							if (succCD == null) {
 								succCD = new BitSet();
-								cd[succIndex][pIndex] = succCD;
+								succCDs[pIndex] = succCD;
 							}
 							succCD.or(pCD);
-
-							// setup the result for the current basic block
-							currResult.set(pIndex);
 						}
 					}
 				}
+			}
 
-				if (manySuccs) {
+			if (succs.size() > 1) {
+				int count = 0;
+
+				for (Iterator i = succs.iterator(); i.hasNext();) {
+					int succIndex = NODES.indexOf(i.next());
 					BitSet succCD = cd[succIndex][currIndex];
 
 					if (succCD == null) {
@@ -267,11 +276,22 @@ public class ControlDA
 					succCD.set(count++);
 				}
 			}
+
 			result[currIndex] = currResult;
 			// Add the successors of the node 
 			wb.addAllWorkNoDuplicates(succs);
 			processed.add(bb);
 		}
+
+		for (int i = 0; i < NUM_OF_NODES; i++) {
+			for (int j = 0; j < NUM_OF_NODES; j++) {
+				if (cd[i][j] != null) {
+					System.out.println(i + "," + j + " " + cd[i][j]);
+				}
+			}
+			System.out.println(i + " " + result[i] + " " + ((BasicBlock) NODES.get(i)).getStmtsOf());
+		}
+
 		return result;
 	}
 
@@ -339,6 +359,11 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/14 23:24:26  venku
+   - alas a working control DA. However, I have not been able
+     to compile a program such that the basic block has two CD points.
+     This is possible when the else branch of the enclosed and enclosing
+     if's are identical.
    Revision 1.7  2003/09/13 05:56:34  venku
    - an early commit to a (hopefully) working solution.
    - need to document it still.
