@@ -277,6 +277,24 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Checks if OFA is being used for interference dependence calculation.
+	 *
+	 * @return <code>true</code> if OFA is used for interference dependence; <code>false</code>, otherwise.
+	 */
+	public boolean isOFAUsedForInterference() {
+		return ((Boolean) properties.get(USE_OFA_FOR_INTERFERENCE_DA)).booleanValue();
+	}
+
+	/**
+	 * Checks if OFA is being used for ready dependence calculation.
+	 *
+	 * @return <code>true</code> if OFA is used for ready dependence; <code>false</code>, otherwise.
+	 */
+	public boolean isOFAUsedForReady() {
+		return ((Boolean) properties.get(USE_OFA_FOR_READY_DA)).booleanValue();
+	}
+
+	/**
 	 * Checks if ready dependence analysis is enabled in this configuration.
 	 *
 	 * @return <code>true</code> if the use of ready dependence analysis enabled; <code>false</code>, otherwise.
@@ -394,30 +412,12 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Checks if OFA is being used for interference dependence calculation.
-	 *
-	 * @return <code>true</code> if OFA is used for interference dependence; <code>false</code>, otherwise.
-	 */
-	public boolean getUseOFAForInterference() {
-		return ((Boolean) properties.get(USE_OFA_FOR_INTERFERENCE_DA)).booleanValue();
-	}
-
-	/**
 	 * Sets if OFA should be used during ready dependence calculation.
 	 *
 	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
 	 */
 	public void setUseOFAForReady(final boolean use) {
 		processPropertyHelper(USE_OFA_FOR_READY_DA, use);
-	}
-
-	/**
-	 * Checks if OFA is being used for ready dependence calculation.
-	 *
-	 * @return <code>true</code> if OFA is used for ready dependence; <code>false</code>, otherwise.
-	 */
-	public boolean getUseOFAForReady() {
-		return ((Boolean) properties.get(USE_OFA_FOR_READY_DA)).booleanValue();
 	}
 
 	/**
@@ -789,12 +789,16 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/05/14 09:02:57  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
    Revision 1.32  2004/05/14 06:27:20  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.31  2004/05/10 07:24:45  venku
    - Slicer cannot be programmatically configured via SliceConfiguration.  FIXED.
-
    Revision 1.30  2004/03/21 20:25:49  venku
    - naming of auto generated configurations were inconsistent. FIXED.
    Revision 1.29  2004/02/13 08:40:04  venku

@@ -23,7 +23,7 @@
 				set-method="setNatureOfInterferenceDepAnalysis" 
                 get-method="getNatureOfInterferenceDepAnalysis"/>
             <value style="attribute" name="useOFA" type="boolean" set-method="setUseOFAForInterference"
-                get-method="getUseOFAForInterference"/>    
+                get-method="isOFAUsedForInterference"/>    
 		</structure>
 		<structure name="divergence">
 			<value style="attribute" name="active" type="boolean" set-method="useDivergenceDepAnalysis" 
@@ -46,7 +46,7 @@
 			<value style="attribute" name="rule4" type="boolean" 
 				set-method="useReadyRule4" get-method="isReadyRule4Used"/>	
 			<value style="attribute" name="useOFA" type="boolean" set-method="setUseOFAForReady"
-                get-method="getUseOFAForReady"/> 	
+                get-method="isOFAUsedForReady"/> 	
 		</structure>		
 	</mapping>
 </binding>
