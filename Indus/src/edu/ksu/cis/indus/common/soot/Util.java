@@ -194,23 +194,28 @@ public final class Util {
 		if (_flag) {
 			final SootClass _declClass = scm.getSootClass("java.lang.Thread");
 			final SootMethod _sm = _declClass.getMethodByName("start");
-            _declClass.setApplicationClass();
-			_sm.setModifiers(_sm.getModifiers() ^ Modifier.NATIVE);
 
-			final Jimple _jimple = Jimple.v();
-			final JimpleBody _threadStartBody = _jimple.newBody(_sm);
-			final PatchingChain _sl = _threadStartBody.getUnits();
-			final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
-			_threadStartBody.getLocals().add(_thisRef);
-			// adds $this := @this;
-			_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
+			if (!_sm.isConcrete()) {
+				_declClass.setApplicationClass();
+				_declClass.setPhantom(false);
+				_sm.setModifiers(_sm.getModifiers() & ~Modifier.NATIVE);
+				_sm.setPhantom(false);
 
-			// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
-			final VirtualInvokeExpr _ve =
-				_jimple.newVirtualInvokeExpr(_thisRef, _declClass.getMethodByName("run"), Collections.EMPTY_LIST);
-			_sl.addLast(_jimple.newInvokeStmt(_ve));
-			_sl.addLast(_jimple.newReturnVoidStmt());
-			_sm.setActiveBody(_threadStartBody);
+				final Jimple _jimple = Jimple.v();
+				final JimpleBody _threadStartBody = _jimple.newBody(_sm);
+				final PatchingChain _sl = _threadStartBody.getUnits();
+				final Local _thisRef = _jimple.newLocal("$this", RefType.v(_declClass.getName()));
+				_threadStartBody.getLocals().add(_thisRef);
+				// adds $this := @this;
+				_sl.addFirst(_jimple.newIdentityStmt(_thisRef, _jimple.newThisRef(RefType.v(_declClass))));
+
+				// adds $this.virtualinvoke[java.lang.Thread.run()]:void;
+				final VirtualInvokeExpr _ve =
+					_jimple.newVirtualInvokeExpr(_thisRef, _declClass.getMethodByName("run"), Collections.EMPTY_LIST);
+				_sl.addLast(_jimple.newInvokeStmt(_ve));
+				_sl.addLast(_jimple.newReturnVoidStmt());
+				_sm.setActiveBody(_threadStartBody);
+			}
 		}
 	}
 
@@ -242,9 +247,11 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/31 10:05:08  venku
+   - only application classes can be modified. So,
+     we shall make Thread one.
    Revision 1.6  2003/12/31 10:01:16  venku
    - removed unused code.
-
    Revision 1.5  2003/12/31 09:52:20  venku
    - removed unused code.
    Revision 1.4  2003/12/31 09:34:22  venku
