@@ -139,7 +139,7 @@ public final class Quadraple
 		/**
 		 * The scratch pad quadraple object to be used for does-it-manage check.
 		 */
-		private final Quadraple quadraple = new Quadraple(null, null, null, null, false);
+		private final Quadraple quadrapleCache = new Quadraple(null, null, null, null, false);
 
 		/**
 		 * Provides an optimized quadraple containing 3 given objects in the given order.
@@ -200,11 +200,11 @@ public final class Quadraple
 		private Quadraple getQuadraple(final Object firstParam, final Object secondParam, final Object thirdParam,
 			final Object fourthParam, final boolean optimized) {
 			Quadraple _result;
-			quadraple.first = firstParam;
-			quadraple.second = secondParam;
+			quadrapleCache.first = firstParam;
+			quadrapleCache.second = secondParam;
 
-			if (quadraples.contains(quadraple)) {
-				_result = (Quadraple) quadraples.get(quadraples.indexOf(quadraple));
+			if (quadraples.contains(quadrapleCache)) {
+				_result = (Quadraple) quadraples.get(quadraples.indexOf(quadrapleCache));
 			} else {
 				_result = new Quadraple(firstParam, secondParam, thirdParam, fourthParam, optimized);
 				quadraples.add(0, _result);
@@ -390,6 +390,10 @@ public final class Quadraple
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

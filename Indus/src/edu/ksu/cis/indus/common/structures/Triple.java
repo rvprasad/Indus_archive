@@ -129,7 +129,7 @@ public class Triple
 		/**
 		 * The scratch pad triple object to be used for does-it-manage check.
 		 */
-		private final Triple triple = new Triple(null, null, null, false);
+		private final Triple tripleCache = new Triple(null, null, null, false);
 
 		/**
 		 * Provides an optimized triple containing 3 given objects in the given order.
@@ -185,11 +185,11 @@ public class Triple
 		private Triple getTriple(final Object firstParam, final Object secondParam, final Object thirdParam,
 			final boolean optimized) {
 			Triple _result;
-			triple.first = firstParam;
-			triple.second = secondParam;
+			tripleCache.first = firstParam;
+			tripleCache.second = secondParam;
 
-			if (triples.contains(triple)) {
-				_result = (Triple) triples.get(triples.indexOf(triple));
+			if (triples.contains(tripleCache)) {
+				_result = (Triple) triples.get(triples.indexOf(tripleCache));
 			} else {
 				_result = new Triple(firstParam, secondParam, thirdParam, optimized);
 				triples.add(0, _result);
@@ -356,6 +356,10 @@ public class Triple
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
