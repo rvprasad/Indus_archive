@@ -79,9 +79,19 @@ public abstract class AbstractProcessor
 	 */
 	public void consolidate() {
 	}
+
+	/**
+	 * Does nothing.
+	 *
+	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
+	 */
+	public void processingBegins() {
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/10 03:12:23  venku
+   - added an abstract implementation of IProcessor.
  */

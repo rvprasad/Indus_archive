@@ -84,26 +84,32 @@ public interface IProcessor {
 	void callback(SootField field);
 
 	/**
-	 * This gives the post processors to consolidate before the information is available to the user.  This <i>should</i> be
-	 * called before the post processors are queried for the results of the processing.
+	 * This gives the  processors to consolidate before the information is available to the user.  This <i>should</i> be
+	 * called before the  processors are queried for the results of the processing.
 	 */
 	void consolidate();
 
 	/**
-	 * This method will be called by the application.  The post processor should register it's interest with the controller
-	 * via this method.
+	 * This method will be called by the application.  The  processor should register it's interest with the controller via
+	 * this method.
 	 *
-	 * @param ppc is the post processing controller.
+	 * @param ppc is the  processing controller.
 	 *
 	 * @pre ppc != null
 	 */
 	void hookup(ProcessingController ppc);
 
 	/**
-	 * This method will be called by the application.  The post processor should unregister it's interest with the controller
-	 * via this method after it has participated in post-processing.
+	 * This method indicates to the processors that the processing will begin.  Implementation can suitably initialize in
+	 * this method.
+	 */
+	void processingBegins();
+
+	/**
+	 * This method will be called by the application.  The  processor should unregister it's interest with the controller via
+	 * this method after it has participated in processing.
 	 *
-	 * @param ppc is the post processing controller.
+	 * @param ppc is the  processing controller.
 	 *
 	 * @pre ppc != null
 	 */
@@ -113,17 +119,19 @@ public interface IProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 05:31:08  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
    Revision 1.1  2003/11/06 05:15:06  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.3  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
