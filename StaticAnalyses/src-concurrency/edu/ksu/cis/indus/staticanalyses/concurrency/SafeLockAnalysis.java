@@ -25,7 +25,9 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * DOCUMENT ME!
+ * 
  * <p></p>
+ * TODO: Implement this.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -33,18 +35,24 @@ import org.apache.commons.logging.LogFactory;
  */
 public class SafeLockAnalysis
   extends AbstractAnalysis {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SafeLockAnalysis.class);
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	IMonitorInfo monitorInfo;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private boolean stable;
 
@@ -88,30 +96,29 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 *
+	 * DOCUMENT ME! <p></p>
 	 */
 	private void processNoLockingOfUnsafeLocks() {
-		// TODO: Auto-generated method stub
 	}
 
 	/**
-	 *
+	 * DOCUMENT ME! <p></p>
 	 */
 	private void processNoWaitFreeLoops() {
-		// TODO: Auto-generated method stub
 	}
 
 	/**
-	 *
+	 * DOCUMENT ME! <p></p>
 	 */
 	private void processNoWaitOnOtherLocks() {
-		// TODO: Auto-generated method stub
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/12 23:21:15  venku
+   - committing to avoid annoyance.
    Revision 1.1  2003/09/12 23:15:40  venku
    - committing to avoid annoyance.
  */
