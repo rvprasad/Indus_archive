@@ -291,7 +291,7 @@ final class SliceCriterionSpec
 	}
 
 	/**
-	 * Tests if the expression index is valid in this spec. This is used to serialize/deserialize.
+	 * Tests if the expression index is valid in this spec. <b>This is used to serialize/deserialize.</b>
 	 *
 	 * @return <code>true</code> if an element capturing the expression index should be output; <code>false</code>,
 	 * 		   otherwise.
@@ -330,6 +330,11 @@ final class SliceCriterionSpec
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/21 06:28:06  venku
+   - changed the signature of methods in SliceCriteriaFactory.
+   - When creating expression-based criteria the criteria for the enclosing statement
+     is not generated.
+
    Revision 1.3  2004/07/09 05:05:24  venku
    - refactored the code to enable the criteria creation to be completely hidden
      from the user.
