@@ -162,9 +162,7 @@ public final class BasicBlockGraph
 		/**
 		 * Retrieves the statement at the leader position.
 		 *
-		 * @return the leader statement.
-		 *
-		 * @post result != null
+		 * @return the leader statement.  <code>null</code> if no leader statement exists.
 		 */
 		public Stmt getLeaderStmt() {
 			return getStmtAt(leader);
@@ -231,9 +229,7 @@ public final class BasicBlockGraph
 		/**
 		 * Returns the trailer statement of this basic block.
 		 *
-		 * @return the trailer statement
-		 *
-		 * @post result != null
+		 * @return the trailer statement. <code>null</code> if no leader statement exists.
 		 */
 		public Stmt getTrailerStmt() {
 			return getStmtAt(trailer);
@@ -285,8 +281,9 @@ public final class BasicBlockGraph
 	 * @return the head node
 	 */
 	public BasicBlock getHead() {
-        final Collection _heads = getHeads();
-		return _heads.isEmpty() ? null : (BasicBlock) _heads.iterator().next();
+		final Collection _heads = getHeads();
+		return _heads.isEmpty() ? null
+								: (BasicBlock) _heads.iterator().next();
 	}
 
 	/**
@@ -405,9 +402,11 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/22 09:00:54  venku
+   - getHead assumed that the basic block graph had some nodes.
+     This is not true for native methods. FIXED.
    Revision 1.10  2004/01/19 13:30:06  venku
    - simplified the logic in getStmtsFromTo().
-
    Revision 1.9  2004/01/19 13:06:12  venku
    - in getStmtsFrom() it retrieved the next statement if start == end. FIXED.
    Revision 1.8  2004/01/17 00:38:13  venku
