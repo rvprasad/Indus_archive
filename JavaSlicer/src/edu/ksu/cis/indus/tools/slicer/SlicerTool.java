@@ -39,7 +39,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -531,12 +530,12 @@ public final class SlicerTool
 				} else {
 					for (Iterator j = graph.getTails().iterator(); j.hasNext();) {
 						Stmt stmt = (Stmt) j.next();
-						criteria.addAll(criteriaFactory.getCriterion(method, stmt, true, true));
+						criteria.addAll(criteriaFactory.getCriterion(method, stmt, true));
 					}
 				}
 			} else {
-				criteria.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst(), true, true));
-				criteria.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond(), true, true));
+				criteria.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst(), true));
+				criteria.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond(), true));
 			}
 		}
 	}
@@ -545,6 +544,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/03 08:14:17  venku
+   - fixed processing for equivalence class based escape analysis.
+
    Revision 1.16  2003/11/03 08:05:34  venku
    - lots of changes
      - changes to get the configuration working with JiBX
