@@ -13,3 +13,4 @@ slicer.jar
 slicer-src.jar
 .clover
 temp
+*.tgz
