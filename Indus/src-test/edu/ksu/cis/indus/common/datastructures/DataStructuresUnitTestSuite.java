@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import edu.ksu.cis.indus.TestHelper;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -70,6 +71,7 @@ public final class DataStructuresUnitTestSuite {
 		_suite.addTestSuite(QuadrapleTest.class);
         _suite.addTestSuite(MarkerTest.class);
 		//$JUnit-END$
+        TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		return _suite;
 	}
 }
@@ -77,6 +79,9 @@ public final class DataStructuresUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 20:58:58  venku
+   - class loading during testing was fixed.
+
    Revision 1.2  2004/02/08 20:52:22  venku
    - changed the way unit test suites can be run as applications.
    - renamed GraphUnitestSuite to GraphUnitTestSuite.

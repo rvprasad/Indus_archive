@@ -95,10 +95,10 @@ public final class TestHelper {
 
 			if (_test instanceof IndusTestCase) {
 				final IndusTestCase _t = (IndusTestCase) _test;
-				_t.setTestName(suite.getName() + ":" + _t.getName());
+				_t.setTestName(suite.getName() + "\n  " + _t.getName());
 			} else if (_test instanceof TestSuite) {
 				final TestSuite _t = (TestSuite) _test;
-				_t.setName(suite.getName() + ":" + _t.getName());
+				_t.setName(suite.getName() + "\n  " + _t.getName());
 
 				if (recursive) {
 					appendSuiteNameToTestsIn((TestSuite) _test, recursive);
@@ -111,6 +111,13 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
    Revision 1.2  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

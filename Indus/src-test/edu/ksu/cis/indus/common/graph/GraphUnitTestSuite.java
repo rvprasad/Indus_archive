@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.TestHelper;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -69,6 +70,7 @@ public final class GraphUnitTestSuite {
         _suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
 		_suite.addTestSuite(JavacBasedDirectedAndSimpleNodeGraphTest.class);
 		//$JUnit-END$
+        TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		return _suite;
 	}
 }
@@ -76,6 +78,9 @@ public final class GraphUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 20:58:58  venku
+   - class loading during testing was fixed.
+
    Revision 1.1  2004/02/08 20:52:21  venku
    - changed the way unit test suites can be run as applications.
    - renamed GraphUnitestSuite to GraphUnitTestSuite.

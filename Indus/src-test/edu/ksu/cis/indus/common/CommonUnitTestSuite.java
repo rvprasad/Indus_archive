@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common;
 
+import edu.ksu.cis.indus.TestHelper;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -63,6 +64,7 @@ public final class CommonUnitTestSuite {
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(CollectionsModifierTest.class);
 		//$JUnit-END$
+        TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		return _suite;
 	}
 }
@@ -70,6 +72,10 @@ public final class CommonUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 20:52:22  venku
+   - changed the way unit test suites can be run as applications.
+   - renamed GraphUnitestSuite to GraphUnitTestSuite.
+
    Revision 1.1  2004/02/08 03:34:30  venku
    - renamed NoArgTestSuite to UnitTestSuite
    Revision 1.1  2004/02/08 01:04:13  venku

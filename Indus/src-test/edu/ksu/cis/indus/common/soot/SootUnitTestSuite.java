@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.TestHelper;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -66,6 +67,7 @@ public final class SootUnitTestSuite {
 		_suite.addTestSuite(UnitGraphFactoryTest.class);
 		_suite.addTestSuite(NamedTagTest.class);
 		//$JUnit-END$
+        TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		return _suite;
 	}
 }
@@ -73,6 +75,9 @@ public final class SootUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 20:58:58  venku
+   - class loading during testing was fixed.
+
    Revision 1.2  2004/02/08 20:52:22  venku
    - changed the way unit test suites can be run as applications.
    - renamed GraphUnitestSuite to GraphUnitTestSuite.
