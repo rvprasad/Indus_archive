@@ -44,10 +44,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -815,6 +814,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 		performPhase3();
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("analyze() - " + toString());
+		}
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
@@ -1007,7 +1010,21 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return new ToStringBuilder(this).append("method2Triple", this.method2Triple).toString();
+		final StringBuffer _result = new StringBuffer("\n");
+		final Set _entrySet1 = method2Triple.entrySet();
+		final Iterator _i = _entrySet1.iterator();
+		final int _iEnd = _entrySet1.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Map.Entry _entry1 = (Map.Entry) _i.next();
+			_result.append(_entry1.getKey());
+			_result.append(":\n");
+
+			final Map _local2AS = (Map) ((Triple) _entry1.getValue()).getSecond();
+			_result.append(_local2AS.toString());
+			_result.append("\n");
+		}
+		return _result.toString();
 	}
 
 	/**
@@ -1299,13 +1316,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.60  2004/07/27 07:08:25  venku
+   - revamped IMonitorInfo interface.
+   - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
+   - deleted WaitNotifyAnalysis
+   - ripple effect in EquivalenceClassBasedEscapeAnalysis.
    Revision 1.59  2004/07/24 10:06:19  venku
    - moved methods from WaitNotifyAnalysis to SafeLockAnalysis - ripple effect.
-
    Revision 1.58  2004/07/24 10:02:46  venku
    - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
      preprocessor hierarchy tree.
-
    Revision 1.57  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
@@ -1314,7 +1334,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
      - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
      - ripple effect.
      - Implemented safelock analysis to handle intraprocedural processing.
-
    Revision 1.56  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
