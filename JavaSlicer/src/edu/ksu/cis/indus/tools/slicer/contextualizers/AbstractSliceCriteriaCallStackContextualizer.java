@@ -155,7 +155,7 @@ public abstract class AbstractSliceCriteriaCallStackContextualizer
 
 				if (_callStack == null) {
 					addCriteriaWithGivenCallStackToResult(_temp, null, _result);
-				} else if (_cgi.getCallers(_temp.getOccurringMethod()).contains(_callStack.peek())) {
+				} else if (!_callStack.isEmpty() && _cgi.getCallers(_temp.getOccurringMethod()).contains(_callStack.peek())) {
                     addCriteriaWithGivenCallStackToResult(_temp, (Stack) _callStack.clone(), _result);
                 }
 			}
