@@ -18,6 +18,8 @@ package edu.ksu.cis.indus.staticanalyses.support;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import junit.swingui.TestRunner;
+
 
 /**
  * This is the test suite for <code>DirectedGraph</code> and <code>SimpleNodeGraph</code>.  Any new test cases should add to
@@ -32,6 +34,19 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 	 * Creates a new DirectedAndSimpleNodeGraphTestSuite object.
 	 */
 	private DirectedAndSimpleNodeGraphTestSuite() {
+	}
+
+	/**
+	 * Executes the test case.
+	 *
+	 * @param s is ignored.
+	 */
+	public static void main(final String[] s) {
+		TestRunner runner = new TestRunner();
+		runner.setLoading(false);
+		runner.start(new String[0]);
+		runner.startTest(suite());
+		runner.runSuite();
 	}
 
 	/**
@@ -56,12 +71,13 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/10 03:40:50  venku
+   - renamed DirectedAndSimpleNodeGraphTest1 to
+     DirectedAndSimpleNodeGraphTest.
    Revision 1.3  2003/11/10 03:39:53  venku
    - renamed test2 and test3 to JikesBased and JavacBased tests.
-
    Revision 1.2  2003/09/28 23:19:36  venku
-   *** empty log message ***
-
+ *** empty log message ***
    Revision 1.1  2003/09/11 02:37:12  venku
    - added a test case for javac compilation of Divergent04 test.
    - created test suite to test directed and simple node graph.
