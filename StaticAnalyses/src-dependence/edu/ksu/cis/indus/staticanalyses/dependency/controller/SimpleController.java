@@ -35,7 +35,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.controller;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.AController;
+import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ import java.util.Map;
 
 
 /**
- * An naive implementation of AController. This implementation will run the analyses in the order following order:
+ * An naive implementation of AbstractController. This implementation will run the analyses in the order following order:
  * IntraProcedural Data dependency analysis, Control dependency analysis, Synchronization dependency analysis,  Interference
  * dependency analysis, Ready dependency analysis, Divergence dependency analysis
  *
@@ -56,7 +56,7 @@ import java.util.Map;
  * @invariant participatingAnalyses.values()->forall(o | o.oclIsKindOf(DependencyAnalysis))
  */
 public class SimpleController
-  extends AController {
+  extends AbstractController {
 	/**
 	 * This identifies class-level data dependency analysis.
 	 */
@@ -117,6 +117,9 @@ public class SimpleController
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/11 08:52:56  venku
+   Moved an invariant from constructor to type level.
+
    Revision 1.4  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 06:31:55  venku

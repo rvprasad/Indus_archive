@@ -35,7 +35,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.AAnalysis;
+import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -60,7 +60,7 @@ import java.util.Map;
  * @invariant getPreProcessing() != null implies doesPreProcessing()
  */
 public abstract class DependencyAnalysis
-  extends AAnalysis {
+  extends AbstractAnalysis {
 	/**
 	 * This can used to store dependent->dependee direction of dependence information.  Hence, it is recommended that the
 	 * subclass use this store dependence information.
@@ -118,6 +118,9 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.3  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.2  2003/08/09 23:29:52  venku

@@ -64,11 +64,11 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AController {
+public abstract class AbstractController {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AController.class);
+	private static final Log LOGGER = LogFactory.getLog(AbstractController.class);
 
 	/**
 	 * The collection of names used to identify various analyses.  This is just a collection of the above defined constants.
@@ -127,7 +127,7 @@ public abstract class AController {
 	 *
 	 * @pre pc != null;
 	 */
-	public AController(final Map infoPrm, final ProcessingController pc) {
+	public AbstractController(final Map infoPrm, final ProcessingController pc) {
 		participatingAnalyses = new HashMap();
 		method2cmpltStmtGraph = new HashMap();
 		preprocessors = new HashSet();
@@ -142,8 +142,8 @@ public abstract class AController {
 	 *
 	 * @return the implementation registered for the given purpose.  <code>null</code>, if there is no registered analysis.
 	 */
-	public final AAnalysis getAnalysis(final String name) {
-		return (AAnalysis) participatingAnalyses.get(name);
+	public final AbstractAnalysis getAnalysis(final String name) {
+		return (AbstractAnalysis) participatingAnalyses.get(name);
 	}
 
 	/**
@@ -181,7 +181,7 @@ public abstract class AController {
 
 			for (Iterator i = participatingAnalysesNames.iterator(); i.hasNext();) {
 				String daName = (String) i.next();
-				AAnalysis temp = (AAnalysis) participatingAnalyses.get(daName);
+				AbstractAnalysis temp = (AbstractAnalysis) participatingAnalyses.get(daName);
 
 				if (temp != null && !done.contains(temp)) {
 					boolean t = temp.analyze();
@@ -219,7 +219,7 @@ public abstract class AController {
 
 		for (Iterator k = participatingAnalyses.keySet().iterator(); k.hasNext();) {
 			Object key = k.next();
-			AAnalysis da = (AAnalysis) participatingAnalyses.get(key);
+			AbstractAnalysis da = (AbstractAnalysis) participatingAnalyses.get(key);
 
 			try {
 				da.initialize(method2cmpltStmtGraph, info);
@@ -238,13 +238,13 @@ public abstract class AController {
 
 	/**
 	 * Resets the internal data structures of the controller.  This resets the participating analyses.  This does not reset
-	 * the Object Flow AAnalysis instance.
+	 * the Object Flow AbstractAnalysis instance.
 	 */
 	public void reset() {
 		preprocessors.clear();
 
 		for (Iterator i = participatingAnalyses.values().iterator(); i.hasNext();) {
-			AAnalysis element = (DependencyAnalysis) i.next();
+			AbstractAnalysis element = (DependencyAnalysis) i.next();
 			element.reset();
 		}
 		participatingAnalyses.clear();
@@ -261,7 +261,7 @@ public abstract class AController {
 	 *
 	 * @pre name != null and analysis != null
 	 */
-	protected final void setDAnalysis(final String name, final AAnalysis analysis) {
+	protected final void setDAnalysis(final String name, final AbstractAnalysis analysis) {
 		if (!participatingAnalysesNames.contains(name)) {
 			throw new IllegalArgumentException("name argument has to be one of the XXXX_DA.");
 		}
@@ -278,6 +278,9 @@ public abstract class AController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/15 08:23:09  venku
+   Renamed getDAnalysis to getAnalysis.
+
    Revision 1.3  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.

@@ -56,7 +56,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AAnalysis {
+public abstract class AbstractAnalysis {
 	/**
 	 * This maps the methods being analyzed to their control graphs.
 	 *
@@ -214,6 +214,10 @@ public abstract class AAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 07:46:09  venku
+   Finalized the parameters.
+   Spruced up Documentation and Specification.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
