@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2002, 2003, 2004.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.escape;
 
 import soot.Local;
 import soot.Modifier;
@@ -71,21 +71,21 @@ import soot.jimple.VirtualInvokeExpr;
 
 import soot.toolkits.graph.CompleteUnitGraph;
 
-import edu.ksu.cis.bandera.staticanalyses.Context;
-import edu.ksu.cis.bandera.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.bandera.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph.SimpleNode;
-import edu.ksu.cis.bandera.staticanalyses.support.Triple;
-import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
+import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -103,8 +103,8 @@ import java.util.Map;
 
 /**
  * This class represents Equivalence Class-based analysis to calculate escape information of objects.  Escape information is
- * provided in terms of share-ability of the object bound to a given value in a given method.  This analysis calculates
- * Ready dependency too.
+ * provided in terms of share-ability of the object bound to a given value in a given method.  This analysis is overloaded
+ * as  a symbolic analysis to calculate information that can be used to prune ready-dependence edges.
  * 
  * <p>
  * The implementation is based on the techreport <a
@@ -683,8 +683,7 @@ public class EquivalenceClassBasedAnalysis
 	 * @pre exitStmt != null and exitMethod != null and enterStmt != null and enterMethod != null
 	 */
 	public boolean isReadyDependent(final ExitMonitorStmt exitStmt, final SootMethod exitMethod,
-		final EnterMonitorStmt enterStmt, final SootMethod enterMethod)
-	  throws IllegalArgumentException {
+		final EnterMonitorStmt enterStmt, final SootMethod enterMethod) {
 		Triple trp1 = (Triple) method2Triple.get(exitMethod);
 
 		if (trp1 == null) {
@@ -737,8 +736,8 @@ public class EquivalenceClassBasedAnalysis
 	 *
 	 * @pre value != null and context != null
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback( soot.jimple.Value,
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback( soot.jimple.Value,
+	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
 	 */
 	public void callback(final Value value, final Context contextParam) {
 		if (value instanceof NewExpr && cgi.isReachable(contextParam.getCurrentMethod())) {
@@ -756,7 +755,7 @@ public class EquivalenceClassBasedAnalysis
 	/**
 	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(SootField)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootField)
 	 */
 	public void callback(final SootField sf) {
 		if (Modifier.isStatic(sf.getModifiers())) {
@@ -772,7 +771,7 @@ public class EquivalenceClassBasedAnalysis
 	/**
 	 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(SootMethod)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootMethod)
 	 */
 	public void callback(final SootMethod sm) {
 		if (LOGGER.isDebugEnabled()) {
@@ -785,7 +784,7 @@ public class EquivalenceClassBasedAnalysis
 	 * Performs phase1 operation as mentioned in the technial report.  This should be called after the call graph information
 	 * has been consolidated.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#consolidate()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#consolidate()
 	 */
 	public void consolidate() {
 		if (LOGGER.isInfoEnabled()) {
@@ -898,7 +897,7 @@ public class EquivalenceClassBasedAnalysis
 					valueProcessor.accessed = true;
 				}
 
-				while (!wb.isEmpty()) {
+				while (wb.hasWork()) {
 					BasicBlock bb = (BasicBlock) wb.getWork();
 					processed.add(bb);
 
@@ -938,7 +937,7 @@ public class EquivalenceClassBasedAnalysis
 				}
 				processed.clear();
 
-				while (!wb.isEmpty()) {
+				while (wb.hasWork()) {
 					AliasSet as = (AliasSet) ((AliasSet) wb.getWork()).find();
 
 					if (processed.contains(as)) {
@@ -962,7 +961,7 @@ public class EquivalenceClassBasedAnalysis
 		Collection processed = new HashSet();
 		wb.addAllWork(cgi.getHeads());
 
-		while (!wb.isEmpty()) {
+		while (wb.hasWork()) {
 			SootMethod caller = (SootMethod) wb.getWork();
 			Collection callees = cgi.getCallees(caller);
 			Triple triple = (Triple) method2Triple.get(caller);
@@ -1007,16 +1006,16 @@ public class EquivalenceClassBasedAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#hookup(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
+	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#unhook(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
+	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
@@ -1035,8 +1034,7 @@ public class EquivalenceClassBasedAnalysis
 	 * @pre v.isOclKindOf(Local) or v.isOclKindOf(ArrayRef) or v.isOclKindOf(FieldRef) or v.isOclKindOf(ArrayRef) or
 	 * 		v.isOclKindOf(InstanceFieldRef) implies v.getBase().isOclKindOf(Local)
 	 */
-	private AliasSet getAliasSetFor(final Value v, final SootMethod sm)
-	  throws IllegalArgumentException {
+	private AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
 		Triple trp = (Triple) method2Triple.get(sm);
 
 		if (trp == null) {

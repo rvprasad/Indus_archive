@@ -33,12 +33,12 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.escape;
 
 import soot.RefLikeType;
 import soot.Type;
 
-import edu.ksu.cis.bandera.staticanalyses.support.FastUnionFindElement;
+import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -456,5 +456,9 @@ final class AliasSet
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/07/27 20:52:39  venku
+First of the many refactoring while building towards slicer release.
+This is the escape analysis refactored and implemented as per to tech report.
+
 
 *****/

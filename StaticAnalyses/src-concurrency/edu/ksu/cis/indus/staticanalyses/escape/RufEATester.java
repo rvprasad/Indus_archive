@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.escape;
 
 import soot.Local;
 import soot.Modifier;
@@ -44,13 +44,13 @@ import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.CallGraph;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.bandera.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.support.Tester;
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.Tester;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -226,6 +226,10 @@ public final class RufEATester
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/07/30 08:30:31  venku
+Refactoring ripple.
+Also fixed a subtle bug in isShared() which caused wrong results.
+
 Revision 1.2  2003/07/27 21:15:22  venku
 Minor:
  - arg name changes.

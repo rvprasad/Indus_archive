@@ -33,12 +33,12 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.escape;
 
 import soot.SootMethod;
 import soot.Type;
 
-import edu.ksu.cis.bandera.staticanalyses.support.FastUnionFindElement;
+import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -292,8 +292,7 @@ class MethodContext
 	 *
 	 * @throws IllegalStateException in case the corresponding alias sets in the contexts do not match.
 	 */
-	void unify(final MethodContext p, final boolean unifyAll)
-	  throws IllegalStateException {
+	void unify(final MethodContext p, final boolean unifyAll) {
 		if (p == null) {
 			LOGGER.warn("Unification with null requested.");
 		}
@@ -419,6 +418,10 @@ class MethodContext
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/07/27 21:22:14  venku
+Minor:
+ - removed unnecessary casts.
+
 Revision 1.1  2003/07/27 20:52:39  venku
 First of the many refactoring while building towards slicer release.
 This is the escape analysis refactored and implemented as per to tech report.

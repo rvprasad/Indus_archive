@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.escape;
 
 import soot.ArrayType;
 import soot.Local;
@@ -75,21 +75,21 @@ import soot.jimple.VirtualInvokeExpr;
 
 import soot.toolkits.graph.CompleteUnitGraph;
 
-import edu.ksu.cis.bandera.staticanalyses.Context;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.bandera.staticanalyses.processing.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.bandera.staticanalyses.support.FastUnionFindElement;
-import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph.SimpleNode;
-import edu.ksu.cis.bandera.staticanalyses.support.Triple;
-import edu.ksu.cis.bandera.staticanalyses.support.Util;
-import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
+import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
+import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1340,21 +1340,21 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.IEscapeAnalysis#isMethodEscaping( soot.jimple.NewExpr)
+	 * @see edu.ksu.cis.indus.staticanalyses.escape.IEscapeAnalysis#isMethodEscaping( soot.jimple.NewExpr)
 	 */
 	public boolean isMethodEscaping(NewExpr allocSite) {
 		return true;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.IEscapeAnalysis#isSingleThreadSynchronized( soot.jimple.Stmt)
+	 * @see edu.ksu.cis.indus.staticanalyses.escape.IEscapeAnalysis#isSingleThreadSynchronized( soot.jimple.Stmt)
 	 */
 	public boolean isSingleThreadSynchronized(Stmt stmt) {
 		return false;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.IEscapeAnalysis#isThreadEscaping( soot.jimple.NewExpr)
+	 * @see edu.ksu.cis.indus.staticanalyses.escape.IEscapeAnalysis#isThreadEscaping( soot.jimple.NewExpr)
 	 */
 	public boolean isThreadEscaping(NewExpr allocSite) {
 		return false;
@@ -1368,8 +1368,8 @@ public class RufsEscapeAnalysis
 	 *
 	 * @pre value.isOclKindOf(NewExpr)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback( soot.jimple.Value,
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback( soot.jimple.Value,
+	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
 		if (value instanceof NewExpr) {
@@ -1380,7 +1380,7 @@ public class RufsEscapeAnalysis
 	/**
 	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(SootField)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootField)
 	 */
 	public void callback(SootField sf) {
 		if (Modifier.isStatic(sf.getModifiers())) {
@@ -1399,7 +1399,7 @@ public class RufsEscapeAnalysis
 	/**
 	 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#callback(SootMethod)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootMethod)
 	 */
 	public void callback(SootMethod sm) {
 		methodCtxt2triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
@@ -1409,7 +1409,7 @@ public class RufsEscapeAnalysis
 	 * Performs phase1 (condition 2 and 3) operation here.  This should be called after the call graph information has been
 	 * consolidated.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#consolidate()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#consolidate()
 	 */
 	public void consolidate() {
 		Collection tassBak = new HashSet(threadAllocSitesSingle);
@@ -1500,7 +1500,7 @@ public class RufsEscapeAnalysis
 		Collection processed = new HashSet();
 		wb.addAllWork(cgi.getHeads());
 
-		while (!wb.isEmpty()) {
+		while (wb.hasWork()) {
 			SootMethod caller = (SootMethod) wb.getWork();
 			Collection callees = cgi.getCallees(caller);
 			Triple triple = (Triple) methodCtxt2triple.get(caller);
@@ -1525,16 +1525,16 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#hookup(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
+	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.IProcessor#unhook(
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
+	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
 	 */
 	public void unhook(ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
@@ -1766,6 +1766,10 @@ main_control:
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/07/30 08:30:31  venku
+Refactoring ripple.
+Also fixed a subtle bug in isShared() which caused wrong results.
+
 Revision 1.2  2003/07/27 21:22:14  venku
 Minor:
  - removed unnecessary casts.

@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.escape;
 
 import soot.Local;
 import soot.Scene;
@@ -42,15 +42,14 @@ import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.CallGraph;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.bandera.staticanalyses.processing.CGBasedProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.support.Tester;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.Tester;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -59,7 +58,6 @@ import org.apache.commons.logging.LogFactory;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 
 /**
  * This class drives escape analysis and displays the calculated information.
@@ -220,5 +218,9 @@ public final class EADriver
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/07/30 08:27:03  venku
+Renamed IATester to EADriver.
+Also, staged various analyses.
+
 
 *****/
