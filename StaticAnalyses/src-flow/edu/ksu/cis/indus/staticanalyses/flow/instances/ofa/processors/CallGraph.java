@@ -380,7 +380,7 @@ public class CallGraph
 					Object o = workbag.getWork();
 
 					if (o instanceof Marker) {
-						Object temp = ((Marker) o)._CONTENT;
+						Object temp = ((Marker) o)._content;
 
 						for (Object obj = callStack.pop(); !temp.equals(obj); obj = callStack.pop()) {
 							;
@@ -720,6 +720,9 @@ public class CallGraph
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/09 21:54:00  venku
+Leveraging getInvokeExpr() in Stmt class in getMethodsReachableFrom()
+
 Revision 1.1  2003/08/07 06:40:24  venku
 Major:
  - Moved the package under indus umbrella.

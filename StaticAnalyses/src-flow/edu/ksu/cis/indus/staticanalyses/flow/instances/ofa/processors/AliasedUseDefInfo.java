@@ -255,8 +255,8 @@ public class AliasedUseDefInfo
 								defs = new HashSet();
 								stmt2defs.setValue(defs);
 							}
-							defs.add(PairMgr.getPair(defStmt, defMethod));
-							uses.add(PairMgr.getPair(useStmt, useMethod));
+							defs.add(PairMgr.getOptimizedPair(defStmt, defMethod));
+							uses.add(PairMgr.getOptimizedPair(useStmt, useMethod));
 						}
 					}
 				}
@@ -290,5 +290,12 @@ public class AliasedUseDefInfo
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/09 23:26:20  venku
+- Added an interface to provide use-def information.
+- Added an implementation to the above interface.
+- Extended call graph processor to retrieve call tree information rooted at arbitrary node.
+- Modified IValueAnalyzer interface such that only generic queries are possible.
+  If required, this can be extended in the future.
+
 
 *****/

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2002, 2003, 2004.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
@@ -128,8 +128,10 @@ public class ThreadGraph
 	 */
 	private final Map thread2methods = new HashMap();
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private OFAnalyzer analyzer;
 
@@ -150,12 +152,14 @@ public class ThreadGraph
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param valueAnalyzer DOCUMENT ME!
 	 */
 	public void setAnalyzer(IValueAnalyzer valueAnalyzer) {
-		analyzer = (OFAnalyzer)valueAnalyzer;
+		analyzer = (OFAnalyzer) valueAnalyzer;
 	}
 
 	/**
@@ -218,17 +222,19 @@ public class ThreadGraph
 			NewExpr ne = (NewExpr) value;
 			SootClass clazz = env.getClass(ne.getBaseType().getClassName());
 
-			try {
-				// collect the new expressions which create Thread objects.
-				if (Util.isDescendentOf(clazz, "java.lang.Thread")
-					  && Util.getDeclaringClass(clazz, "start", Collections.EMPTY_LIST, VoidType.v()).getName().equals("java.lang.Thread")) {
+			// collect the new expressions which create Thread objects.
+			if (Util.isDescendentOf(clazz, "java.lang.Thread")) {
+				SootClass temp = Util.getDeclaringClass(clazz, "start", Collections.EMPTY_LIST, VoidType.v());
+
+				if (temp != null && temp.getName().equals("java.lang.Thread")) {
 					newThreadExprs.add(new NewExprTriple(context.getCurrentMethod(), context.getStmt(), ne));
+				} else {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("How can there be a descendent of java.lang.Thread without access to start() method.");
+					}
+					throw new RuntimeException("start() method is unavailable via " + clazz
+						+ " even though it is a descendent of java.lang.Thread.");
 				}
-			} catch (NoSuchMethodException e) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("How can there be a child class of java.lang.Thread without access to start() method.");
-				}
-				throw new RuntimeException(e);
 			}
 		} else if (value instanceof VirtualInvokeExpr) {
 			VirtualInvokeExpr ve = (VirtualInvokeExpr) value;
@@ -237,27 +243,26 @@ public class ThreadGraph
 
 			if (rlt instanceof RefType) {
 				clazz = env.getClass(((RefType) rlt).getClassName());
-			} else if (rlt instanceof ArrayType) {
-				clazz = env.getClass("java.lang.Object");
-			} else {
-				throw new RuntimeException("Illegal type " + rlt + " arrived at call-site.");
-			}
 
-			SootMethod method = ve.getMethod();
+				SootMethod method = ve.getMethod();
 
-			try {
 				if (Util.isDescendentOf(clazz, "java.lang.Thread")
 					  && method.getName().equals("start")
 					  && method.getReturnType() instanceof VoidType
-					  && method.getParameterCount() == 0
-					  && Util.getDeclaringClass(clazz, "start", Collections.EMPTY_LIST, VoidType.v()).getName().equals("java.lang.Thread")) {
-					startSites.add(new CallTriple(context.getCurrentMethod(), context.getStmt(), ve));
+					  && method.getParameterCount() == 0) {
+					SootClass temp = Util.getDeclaringClass(clazz, "start", Collections.EMPTY_LIST, VoidType.v());
+
+					if (temp != null && temp.getName().equals("java.lang.Thread")) {
+						startSites.add(new CallTriple(context.getCurrentMethod(), context.getStmt(), ve));
+					} else {
+						if (LOGGER.isWarnEnabled()) {
+							LOGGER.warn(
+								"How can there be a descendent class of java.lang.Thread without access to start() method.");
+						}
+						throw new RuntimeException("start() method is unavailable via " + clazz
+							+ " even though it is a descendent of java.lang.Thread.");
+					}
 				}
-			} catch (NoSuchMethodException e) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("How can there be a child class of java.lang.Thread without access to start() method.");
-				}
-				throw new RuntimeException(e);
 			}
 		}
 	}
@@ -293,14 +298,16 @@ public class ThreadGraph
 			if (!class2runCallees.containsKey(sc)) {
 				boolean flag = false;
 
-				try {
-					SootClass scTemp = Util.getDeclaringClass(sc, "run", Collections.EMPTY_LIST, VoidType.v());
+				SootClass scTemp = Util.getDeclaringClass(sc, "run", Collections.EMPTY_LIST, VoidType.v());
+
+				if (scTemp != null) {
 					flag = scTemp.getName().equals("java.lang.Thread");
-				} catch (NoSuchMethodException e) {
+				} else {
 					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("How can there be a child class of java.lang.Thread without access to start() method.");
+						LOGGER.warn("How can there be a descendent class of java.lang.Thread without access to run() method.");
 					}
-					throw new RuntimeException(e);
+					throw new RuntimeException("run() method is unavailable via " + sc
+						+ " even though it is a descendent of java.lang.Thread.");
 				}
 
 				if (flag) {
@@ -313,7 +320,7 @@ public class ThreadGraph
 					// object 
 					for (Iterator j = analyzer.getValues(threadClass.getField("target"), t).iterator(); j.hasNext();) {
 						NewExpr temp = (NewExpr) j.next();
-						SootClass scTemp = env.getClass((temp.getBaseType()).getClassName());
+						scTemp = env.getClass((temp.getBaseType()).getClassName());
 						methods.addAll(transitiveThreadCallClosure(scTemp.getMethod("run", Collections.EMPTY_LIST,
 									VoidType.v())));
 					}
@@ -369,15 +376,18 @@ public class ThreadGraph
 			}
 		}
 
-        // prune the startSites such that it only contains reachable start sites.
-        Collection temp = new HashSet();
-        Collection reachables = cgi.getReachableMethods();
-        for (Iterator i = startSites.iterator(); i.hasNext();) {
-            CallTriple ctrp = (CallTriple) i.next();
-            if (!reachables.contains(ctrp.getMethod()))
-                temp.add(ctrp);
-        }
-        startSites.removeAll(temp);
+		// prune the startSites such that it only contains reachable start sites.
+		Collection temp = new HashSet();
+		Collection reachables = cgi.getReachableMethods();
+
+		for (Iterator i = startSites.iterator(); i.hasNext();) {
+			CallTriple ctrp = (CallTriple) i.next();
+
+			if (!reachables.contains(ctrp.getMethod())) {
+				temp.add(ctrp);
+			}
+		}
+		startSites.removeAll(temp);
 
 		long stop = System.currentTimeMillis();
 
@@ -501,9 +511,10 @@ public class ThreadGraph
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:40:25  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */
