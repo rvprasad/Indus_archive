@@ -87,6 +87,11 @@ public class SootBasedDriver {
 	protected List classNames;
 
 	/**
+	 * This traps the root methods.
+	 */
+	protected RootMethodTrapper rootMethodTrapper;
+
+	/**
 	 * The scene that contains the classes of the system.
 	 */
 	protected Scene scene;
@@ -103,11 +108,6 @@ public class SootBasedDriver {
 	 * @invariant times.oclIsTypeOf(Map(String, Long))
 	 */
 	private final Map times = new LinkedHashMap();
-
-	/**
-	 * This traps the root methods.
-	 */
-	protected RootMethodTrapper rootMethodTrapper;
 
 	/**
 	 * The class path that should be added.
@@ -378,10 +378,11 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/28 01:08:04  venku
+   - exposed rootMethodTrapper to children classes.
    Revision 1.4  2003/12/28 01:07:33  venku
    - refactoring: added a new class that traps the root methods.
    - class path now uses java.class.path instead of JVM dependent hacks.
-
    Revision 1.3  2003/12/14 16:49:15  venku
    - marks given classes as application classes after they
      are loaded.
