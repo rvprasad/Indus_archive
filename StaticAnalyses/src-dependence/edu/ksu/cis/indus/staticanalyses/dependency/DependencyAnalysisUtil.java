@@ -53,16 +53,12 @@ public final class DependencyAnalysisUtil {
 	}
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This retrieves should be used if the result of the dependence query is statements. 
 	 */
 	public static final IDependenceRetriever STMT_RESULT_DEPENDENCE_RETRIEVER = new StmtRetriever();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This retrieves should be used if the result of the dependence query is pair consiting of a statement and method.
 	 */
 	public static final IDependenceRetriever PAIR_RESULT_DEPENDENCE_RETRIEVER = new PairRetriever();
 
@@ -231,6 +227,9 @@ public final class DependencyAnalysisUtil {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/07/21 02:11:43  venku
+   - added facility to extract indirect dependence from direct dependence.
+
    Revision 1.2  2004/05/21 22:30:53  venku
    - documentation.
    Revision 1.1  2004/05/14 09:02:57  venku
