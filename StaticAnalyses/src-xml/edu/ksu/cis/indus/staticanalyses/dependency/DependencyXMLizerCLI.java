@@ -233,7 +233,7 @@ public class DependencyXMLizerCLI
 			}
 			_cli.setClassNames(_classNames);
 
-			if (_cl.hasOption(_dasOptions[3][0].toString())) {
+			if (_cl.hasOption(_dasOptions[5][0].toString())) {
 				_cli.das.add(_ncda);
 				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _ncda.getId(), _ncda,
 					CollectionsUtilities.HASH_SET_FACTORY);

@@ -141,6 +141,11 @@ public class ExitControlDA
 
 		final Collection _temp = (Collection) info.get(IDependencyAnalysis.CONTROL_DA);
 
+		if (_temp == null) {
+			throw new InitializationException(IDependencyAnalysis.CONTROL_DA
+				+ " was not provided or none of the provided control dependences were backward in direction.");
+		}
+
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
 
@@ -151,7 +156,8 @@ public class ExitControlDA
 		}
 
 		if (entryControlDA == null) {
-			throw new InitializationException(IDependencyAnalysis.CONTROL_DA
+			throw new InitializationException(IDependencyAnalysis.CONTROL_DA + " with direction "
+				+ IDependencyAnalysis.BACKWARD_DIRECTION
 				+ " was not provided or none of the provided control dependences were backward in direction.");
 		}
 	}
