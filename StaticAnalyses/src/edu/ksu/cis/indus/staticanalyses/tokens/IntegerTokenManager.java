@@ -38,9 +38,7 @@ import java.util.Map;
 public class IntegerTokenManager
   extends AbstractTokenManager {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The number of values that can be managed by using int-based bit-encoding.
 	 */
 	static final int NO_OF_BITS_IN_AN_INTEGER = 31;
 
@@ -55,7 +53,7 @@ public class IntegerTokenManager
 	/**
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
 	 *
-	 * @invariant type2tokens.oclIsKindOf(Map(IType, Integer))
+	 * @invariant type2tokens.oclIsKindOf(Map(IType, MutableInteger))
 	 */
 	final Map type2tokens = new HashMap();
 
@@ -100,8 +98,65 @@ public class IntegerTokenManager
 		 */
 		public ITokens filter(final ITokens tokens) {
 			final IntegerTokens _result = new IntegerTokens(IntegerTokenManager.this);
-			_result.integer = ((IntegerTokens) tokens).integer & (((Integer) type2tokens.get(filterType)).intValue());
+			_result.integer |= ((IntegerTokens) tokens).integer;
+
+			final MutableInteger _tokens =
+				(MutableInteger) CollectionsModifier.getFromMap(type2tokens, filterType, new MutableInteger());
+			_result.integer &= _tokens.intValue();
 			return _result;
+		}
+	}
+
+
+	/**
+	 * This class is the mutable counterpart of <code>java.lang.Integer</code>.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public static class MutableInteger
+	  extends Number {
+		/**
+		 * The value of this integer.
+		 */
+		private int value;
+
+		/**
+		 * Set the value of this integer to the given value.
+		 *
+		 * @param newValue is the new value.
+		 */
+		public void setValue(int newValue) {
+			value = newValue;
+		}
+
+		/**
+		 * @see java.lang.Number#doubleValue()
+		 */
+		public double doubleValue() {
+			return value;
+		}
+
+		/**
+		 * @see java.lang.Number#floatValue()
+		 */
+		public float floatValue() {
+			return value;
+		}
+
+		/**
+		 * @see java.lang.Number#intValue()
+		 */
+		public int intValue() {
+			return value;
+		}
+
+		/**
+		 * @see java.lang.Number#longValue()
+		 */
+		public long longValue() {
+			return value;
 		}
 	}
 
@@ -214,14 +269,16 @@ public class IntegerTokenManager
 				valueList.add(_value);
 
 				final int _newIndex = valueList.indexOf(_value);
-				_result.integer |= 1 << _newIndex;
+				final int _newValueRep = 1 << _newIndex;
+				_result.integer |= _newValueRep;
 
 				final Collection _types = typeMgr.getAllTypes(_value);
 
 				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
-					final Integer _integer = (Integer) CollectionsModifier.getFromMap(type2tokens, _type, new Integer(0));
-					type2tokens.put(_type, new Integer(_integer.intValue() | _newIndex));
+					final MutableInteger _integer =
+						(MutableInteger) CollectionsModifier.getFromMap(type2tokens, _type, new MutableInteger());
+					_integer.setValue(_integer.intValue() | _newValueRep);
 				}
 			}
 		}
@@ -248,4 +305,9 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
  */
