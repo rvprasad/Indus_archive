@@ -17,9 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,58 +41,7 @@ import java.util.Map;
  * @invariant getPreProcessing() != null implies doesPreProcessing()
  */
 public abstract class AbstractDependencyAnalysis
-  extends AbstractAnalysis {
-	/**
-	 * This identifies class-level data dependency analysis.
-	 */
-	public static final Object REFERENCE_BASED_DATA_DA = "REFERENCE_BASED_DATA_DA";
-
-	/**
-	 * This identifies control dependency analysis.
-	 */
-	public static final Object CONTROL_DA = "CONTROL_DA";
-
-	/**
-	 * This identifies divergence dependency analysis.
-	 */
-	public static final Object DIVERGENCE_DA = "DIVERGENCE_DA";
-
-	/**
-	 * This identifies inteference dependency analysis.
-	 */
-	public static final Object INTERFERENCE_DA = "INTERFERENCE_DA";
-
-	/**
-	 * This identifies identifier based data dependency analysis.
-	 */
-	public static final Object IDENTIFIER_BASED_DATA_DA = "IDENTIFIER_BASED_DATA_DA";
-
-	/**
-	 * This identifies ready dependency analysis.
-	 */
-	public static final Object READY_DA = "READY_DA";
-
-	/**
-	 * This identifies synchronization dependency analysis.
-	 */
-	public static final Object SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
-
-	/**
-	 * This is the collection of dependency ids.
-	 */
-	public static final Collection ids;
-
-	static {
-		final Collection _ids = new ArrayList();
-		_ids.add(SYNCHRONIZATION_DA);
-		_ids.add(CONTROL_DA);
-		_ids.add(REFERENCE_BASED_DATA_DA);
-		_ids.add(DIVERGENCE_DA);
-		_ids.add(INTERFERENCE_DA);
-		_ids.add(IDENTIFIER_BASED_DATA_DA);
-		_ids.add(READY_DA);
-		ids = Collections.unmodifiableCollection(_ids);
-	}
+  extends AbstractAnalysis implements IDependencyAnalysis {	
 
 	/**
 	 * This is similar to <code>dependent2dependee</code> except the direction is dependee->dependent. Hence, it is
@@ -174,6 +121,9 @@ public abstract class AbstractDependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/14 06:27:24  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.17  2004/03/03 10:11:40  venku
    - formatting.
 

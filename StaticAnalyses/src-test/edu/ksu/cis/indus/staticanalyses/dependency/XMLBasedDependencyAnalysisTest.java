@@ -39,7 +39,7 @@ public class XMLBasedDependencyAnalysisTest
 	/**
 	 * The instance of the analysis being tested.
 	 */
-	private AbstractDependencyAnalysis da;
+	private IDependencyAnalysis da;
 
 	/**
 	 * The instance of the xmlizer used to generate the test data.
@@ -64,7 +64,7 @@ public class XMLBasedDependencyAnalysisTest
 	 *
 	 * @pre depXMLizer != null and theDA != null
 	 */
-	public XMLBasedDependencyAnalysisTest(final AbstractDependencyAnalysis theDA, final DependencyXMLizer depXMLizer) {
+	public XMLBasedDependencyAnalysisTest(final IDependencyAnalysis theDA, final DependencyXMLizer depXMLizer) {
 		da = theDA;
 		xmlizer = depXMLizer;
 		setName("testXMLSimilarity");
@@ -83,7 +83,7 @@ public class XMLBasedDependencyAnalysisTest
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysisTest#getDA()
 	 */
-	public AbstractDependencyAnalysis getDA() {
+	public IDependencyAnalysis getDA() {
 		return da;
 	}
 
@@ -128,6 +128,9 @@ public class XMLBasedDependencyAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/05/14 06:27:25  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.5  2004/05/13 03:30:03  venku
    - coding convention.
    - documentation.

@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.XMLBasedDependencyAnalysisTest;
 
 import java.io.BufferedReader;
@@ -111,7 +112,7 @@ public class SlicerTestSetup
 		final IEnvironment _environment = driver.slicer.getEnvironment();
 
 		for (final Iterator _i = driver.slicer.getDAs().iterator(); _i.hasNext();) {
-			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
+			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
 			final XMLBasedDependencyAnalysisTest _test = new XMLBasedDependencyAnalysisTest(_da, _xmlizer);
 			_test.setCallGraph(_cgiImpl);
 			_test.setEnvironment(_environment);
@@ -146,7 +147,7 @@ public class SlicerTestSetup
 		driver.slicer.reset();
 
 		for (final Iterator _iter = driver.slicer.getDAs().iterator(); _iter.hasNext();) {
-			((AbstractDependencyAnalysis) _iter.next()).reset();
+			((IDependencyAnalysis) _iter.next()).reset();
 		}
 		driver = null;
 		super.tearDown();
@@ -195,6 +196,9 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/05/14 06:27:21  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.14  2004/05/14 04:44:17  venku
    - enhanced tearDown() method.
 

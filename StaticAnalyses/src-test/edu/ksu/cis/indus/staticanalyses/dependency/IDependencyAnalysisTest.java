@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import junit.framework.Test;
+
 
 /**
  * This is the interface of unit tests that test instances of dependency analysis.
@@ -25,13 +27,14 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
  * @author $Author$
  * @version $Revision$
  */
-public interface IDependencyAnalysisTest {
+interface IDependencyAnalysisTest
+  extends Test {
 	/**
 	 * Retrieves the analysis instance being tested.
 	 *
 	 * @return the instance of the analysis.
 	 */
-	AbstractDependencyAnalysis getDA();
+	IDependencyAnalysis getDA();
 
 	/**
 	 * Retrieves the environment which the analysis analyzed.
@@ -44,6 +47,8 @@ public interface IDependencyAnalysisTest {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/14 06:27:24  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.3  2004/04/25 21:18:38  venku
    - refactoring.
      - created new classes from previously embedded classes.

@@ -24,7 +24,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
 import java.io.IOException;
-import java.io.Writer;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -48,17 +47,17 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class StmtLevelDependencyXMLizer
+final class StmtAndMethodBasedDependencyXMLizer
   extends AbstractProcessor {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(StmtLevelDependencyXMLizer.class);
+	private static final Log LOGGER = LogFactory.getLog(StmtAndMethodBasedDependencyXMLizer.class);
 
 	/**
 	 * This is the dependency analysis whose information should be xmlized.
 	 */
-	private AbstractDependencyAnalysis analysis;
+	private IDependencyAnalysis analysis;
 
 	/**
 	 * This is used to generate id's for xml elements.
@@ -86,7 +85,7 @@ final class StmtLevelDependencyXMLizer
 	private int totalDependences;
 
 	/**
-	 * Creates a new StmtLevelDependencyXMLizer object.
+	 * Creates a new StmtAndMethodBasedDependencyXMLizer object.
 	 *
 	 * @param out is the writer to be used to write xml data.
 	 * @param generator to be used to generate id's.
@@ -94,8 +93,8 @@ final class StmtLevelDependencyXMLizer
 	 *
 	 * @pre out != null and generator != null and depAnalysis != null
 	 */
-	public StmtLevelDependencyXMLizer(final XMLOutputter out, final IJimpleIDGenerator generator,
-		final AbstractDependencyAnalysis depAnalysis) {
+	public StmtAndMethodBasedDependencyXMLizer(final XMLOutputter out, final IJimpleIDGenerator generator,
+		final IDependencyAnalysis depAnalysis) {
 		writer = out;
 		idGenerator = generator;
 		analysis = depAnalysis;
@@ -256,6 +255,9 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/05/14 06:27:23  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.15  2004/05/13 07:34:25  venku
    - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
 

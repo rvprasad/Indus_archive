@@ -15,11 +15,10 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.IndusTestCase;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.Iterator;
-
-import junit.framework.TestCase;
 
 import soot.SootClass;
 import soot.SootMethod;
@@ -36,15 +35,15 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-abstract class AbstractDependencyAnalysisTest
-  extends TestCase
+public abstract class AbstractDependencyAnalysisTest
+  extends IndusTestCase
   implements IDependencyAnalysisTest {
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private AbstractDependencyAnalysis da;
+	private IDependencyAnalysis da;
 
 	/**
 	 * <p>
@@ -54,11 +53,21 @@ abstract class AbstractDependencyAnalysisTest
 	private IEnvironment env;
 
 	/**
-	 * Creates a new AbstractDependencyAnalysisTest object.
+	 * DOCUMENT ME!
+	 */
+	protected AbstractDependencyAnalysisTest() {
+		super();
+		setName("testDependencyAnalysis");
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param analysis DOCUMENT ME!
 	 */
-	public AbstractDependencyAnalysisTest(final AbstractDependencyAnalysis analysis) {
+	public final void setDA(final IDependencyAnalysis analysis) {
 		da = analysis;
 	}
 
@@ -77,7 +86,7 @@ abstract class AbstractDependencyAnalysisTest
 				if (_sm.isConcrete()) {
 					for (final Iterator _k = _sm.retrieveActiveBody().getUnits().iterator(); _k.hasNext();) {
 						final Stmt _unit = (Stmt) _k.next();
-						verifyDAFor(_unit, _sm, _sc);
+						verifyDAFor(_unit, _sm);
 					}
 				}
 			}
@@ -87,7 +96,7 @@ abstract class AbstractDependencyAnalysisTest
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysisTest#getDA()
 	 */
-	public AbstractDependencyAnalysis getDA() {
+	public IDependencyAnalysis getDA() {
 		return da;
 	}
 
@@ -99,17 +108,6 @@ abstract class AbstractDependencyAnalysisTest
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param _unit DOCUMENT ME!
-	 * @param _sm DOCUMENT ME!
-	 * @param _sc DOCUMENT ME!
-	 */
-	protected abstract void verifyDAFor(Stmt _unit, SootMethod _sm, SootClass _sc);
-
-	/**
 	 * @see TestCase#tearDown()
 	 */
 	protected void tearDown()
@@ -118,9 +116,34 @@ abstract class AbstractDependencyAnalysisTest
 		env = null;
 		super.tearDown();
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param unit DOCUMENT ME!
+	 * @param sm DOCUMENT ME!
+	 *
+	 * @throws IllegalStateException DOCUMENT ME!
+	 */
+	protected abstract void verifyDAFor(final Stmt unit, final SootMethod sm);
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	protected final IDependencyAnalysis getDa() {
+		return da;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/14 06:28:25  venku
+   - added a new class AbstractDependencyAnalysisTest to perform unit
+     tests on dependency analysis.
+   - refactored IDependencyAnalysisTest.
  */

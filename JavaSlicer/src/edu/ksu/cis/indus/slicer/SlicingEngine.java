@@ -33,6 +33,7 @@ import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 
 import java.util.ArrayList;
@@ -269,10 +270,10 @@ public final class SlicingEngine {
 		 * @pre analysis != null and analysis.oclIsKindOf(AbstractDependencyAnalysis)
 		 */
 		public final void execute(final Object analysis) {
-			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) analysis;
+			final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
 			final Collection _criteria = getCriteria(_da);
 
-			if (_da.getId().equals(AbstractDependencyAnalysis.READY_DA)) {
+			if (_da.getId().equals(IDependencyAnalysis.READY_DA)) {
 				final Collection _specials = ((ReadyDAv1) _da).getSynchronizedMethodEntryExitPoints(_criteria);
 				falseCriteria.addAll(_specials);
 				_criteria.removeAll(_specials);
@@ -301,7 +302,7 @@ public final class SlicingEngine {
 		 * @pre analysis != null
 		 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
 		 */
-		protected abstract Collection getCriteria(final AbstractDependencyAnalysis analysis);
+		protected abstract Collection getCriteria(final IDependencyAnalysis analysis);
 
 		/**
 		 * Retrieves the criteria mapping truth values (true/false indicating the execution effect of the criteria is
@@ -344,7 +345,7 @@ public final class SlicingEngine {
 		/**
 		 * @see AbstractCriteriaClosure#getCriteria(AbstractDependencyAnalysis)
 		 */
-		protected Collection getCriteria(final AbstractDependencyAnalysis da) {
+		protected Collection getCriteria(final IDependencyAnalysis da) {
 			return new HashSet(da.getDependees(stmt, method));
 		}
 	}
@@ -362,7 +363,7 @@ public final class SlicingEngine {
 		/**
 		 * @see AbstractCriteriaClosure#getCriteria(AbstractDependencyAnalysis)
 		 */
-		protected Collection getCriteria(final AbstractDependencyAnalysis da) {
+		protected Collection getCriteria(final IDependencyAnalysis da) {
 			final Collection _result = new HashSet();
 			_result.addAll(da.getDependees(stmt, method));
 			_result.addAll(da.getDependents(stmt, method));
@@ -383,7 +384,7 @@ public final class SlicingEngine {
 		/**
 		 * @see AbstractCriteriaClosure#getCriteria(AbstractDependencyAnalysis)
 		 */
-		protected Collection getCriteria(final AbstractDependencyAnalysis da) {
+		protected Collection getCriteria(final IDependencyAnalysis da) {
 			return new HashSet(da.getDependents(stmt, method));
 		}
 	}
@@ -406,15 +407,15 @@ public final class SlicingEngine {
 		for (final Iterator _i = dependencies.iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 
-			if (_id.equals(AbstractDependencyAnalysis.CONTROL_DA)
-				  || _id.equals(AbstractDependencyAnalysis.SYNCHRONIZATION_DA)
-				  || _id.equals(AbstractDependencyAnalysis.DIVERGENCE_DA)) {
+			if (_id.equals(IDependencyAnalysis.CONTROL_DA)
+				  || _id.equals(IDependencyAnalysis.SYNCHRONIZATION_DA)
+				  || _id.equals(IDependencyAnalysis.DIVERGENCE_DA)) {
 				controlflowBasedDAs.addAll(controller.getAnalyses(_id));
 			}
 		}
 
-		if (dependenciesToUse.contains(AbstractDependencyAnalysis.READY_DA)) {
-			controlflowBasedDAs.addAll(controller.getAnalyses(AbstractDependencyAnalysis.READY_DA));
+		if (dependenciesToUse.contains(IDependencyAnalysis.READY_DA)) {
+			controlflowBasedDAs.addAll(controller.getAnalyses(IDependencyAnalysis.READY_DA));
 		}
 	}
 
@@ -1162,7 +1163,7 @@ public final class SlicingEngine {
 
 		final Collection _types = new HashSet();
 		final Collection _das = new ArrayList();
-		_das.addAll(controller.getAnalyses(AbstractDependencyAnalysis.IDENTIFIER_BASED_DATA_DA));
+		_das.addAll(controller.getAnalyses(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA));
 
 		for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
 			final ValueBox _vBox = (ValueBox) _i.next();
@@ -1176,8 +1177,8 @@ public final class SlicingEngine {
 					generateNewCriteriaForParam(_vBox, method);
 					generateNewCriteriaForTheCallToMethod(method);
 				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
-					_das.addAll(controller.getAnalyses(AbstractDependencyAnalysis.REFERENCE_BASED_DATA_DA));
-					_das.addAll(controller.getAnalyses(AbstractDependencyAnalysis.INTERFERENCE_DA));
+					_das.addAll(controller.getAnalyses(IDependencyAnalysis.REFERENCE_BASED_DATA_DA));
+					_das.addAll(controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
 
 					if (_value instanceof FieldRef) {
 						final SootField _field = ((FieldRef) _vBox.getValue()).getField();
@@ -1234,8 +1235,8 @@ public final class SlicingEngine {
 			if (_value instanceof InvokeExpr) {
 				generateNewCriteriaForInvocation(_stmt, _method, _considerExecution);
 			} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
-				generateNewCriteriaBasedOnDependence(_stmt, _method, AbstractDependencyAnalysis.INTERFERENCE_DA);
-				generateNewCriteriaBasedOnDependence(_stmt, _method, AbstractDependencyAnalysis.REFERENCE_BASED_DATA_DA);
+				generateNewCriteriaBasedOnDependence(_stmt, _method, IDependencyAnalysis.INTERFERENCE_DA);
+				generateNewCriteriaBasedOnDependence(_stmt, _method, IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 			}
 		}
 
@@ -1274,10 +1275,10 @@ public final class SlicingEngine {
 			if (stmt.containsInvokeExpr()) {
 				generateNewCriteriaForInvocation(stmt, method, considerExecution);
 			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
-				generateNewCriteriaBasedOnDependence(stmt, method, AbstractDependencyAnalysis.INTERFERENCE_DA);
-				generateNewCriteriaBasedOnDependence(stmt, method, AbstractDependencyAnalysis.REFERENCE_BASED_DATA_DA);
+				generateNewCriteriaBasedOnDependence(stmt, method, IDependencyAnalysis.INTERFERENCE_DA);
+				generateNewCriteriaBasedOnDependence(stmt, method, IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 			} else if (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt) {
-				generateNewCriteriaBasedOnDependence(stmt, method, AbstractDependencyAnalysis.SYNCHRONIZATION_DA);
+				generateNewCriteriaBasedOnDependence(stmt, method, IDependencyAnalysis.SYNCHRONIZATION_DA);
 			}
 		}
 
@@ -1297,6 +1298,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.74  2004/05/14 06:27:21  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.73  2004/03/03 10:09:41  venku
    - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
 

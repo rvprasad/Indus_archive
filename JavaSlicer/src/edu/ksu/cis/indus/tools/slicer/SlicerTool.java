@@ -43,6 +43,7 @@ import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -802,7 +803,7 @@ public final class SlicerTool
 		}
 
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
-		final Collection _das = _slicerConfig.getDependenceAnalysis(AbstractDependencyAnalysis.SYNCHRONIZATION_DA);
+		final Collection _das = _slicerConfig.getDependenceAnalysis(IDependencyAnalysis.SYNCHRONIZATION_DA);
 		IMonitorInfo _im = null;
 
 		for (final Iterator _i = _das.iterator(); _i.hasNext();) {
@@ -897,6 +898,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.85  2004/05/14 06:27:21  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.84  2004/05/14 04:43:56  venku
    - enhanced reset() method.
 

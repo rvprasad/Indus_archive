@@ -150,7 +150,7 @@ public final class DependencyXMLizer
 	 * @pre da != null
 	 * @post result != null
 	 */
-	String getDAPartOfFileName(final AbstractDependencyAnalysis da) {
+	String getDAPartOfFileName(final IDependencyAnalysis da) {
 		return da.getId() + ":" + da.getClass().getName();
 	}
 
@@ -165,15 +165,15 @@ public final class DependencyXMLizer
 	 * @pre writer != null and da != null
 	 * @post result != null
 	 */
-	private StmtLevelDependencyXMLizer getXMLizerFor(final Writer writer, final AbstractDependencyAnalysis da) {
-		StmtLevelDependencyXMLizer _result = null;
+	private StmtAndMethodBasedDependencyXMLizer getXMLizerFor(final Writer writer, final IDependencyAnalysis da) {
+		StmtAndMethodBasedDependencyXMLizer _result = null;
 		final String _xmlizerId = da.getId().toString();
 
 		final String _temp = PROPERTIES.getProperty(_xmlizerId);
 
 		if (_temp.equals(DependencyXMLizer.STMT_LEVEL_DEPENDENCY)) {
 			try {
-				_result = new StmtLevelDependencyXMLizer(new CustomXMLOutputter(writer), getIdGenerator(), da);
+				_result = new StmtAndMethodBasedDependencyXMLizer(new CustomXMLOutputter(writer), getIdGenerator(), da);
 			} catch (final UnsupportedEncodingException _e) {
 				LOGGER.error("UTF-8 encoding is unsupported.  Now, this contradicts the documentation!!", _e);
 			}
@@ -195,7 +195,7 @@ public final class DependencyXMLizer
 	 * @throws IllegalStateException when output directory is unspecified.
 	 *
 	 * @pre rootname != null and ctrl != null
-	 * @post result != null and result.oclIsKindOf(Map(StmtLevelDependencyXMLizer, Writer))
+	 * @post result != null and result.oclIsKindOf(Map(StmtAndMethodBasedDependencyXMLizer, Writer))
 	 */
 	private Map initXMLizers(final Map info, final ProcessingController ctrl) {
 		final Map _result = new HashMap();
@@ -205,13 +205,13 @@ public final class DependencyXMLizer
 			throw new IllegalStateException("Please specify an output directory while using the xmlizer.");
 		}
 
-		for (final Iterator _i = AbstractDependencyAnalysis.ids.iterator(); _i.hasNext();) {
+		for (final Iterator _i = DependencyAnalysisUtil.IDENTIFIERS.iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 			final Collection _col = (Collection) info.get(_id);
 
 			if (_col != null) {
 				for (final Iterator _j = _col.iterator(); _j.hasNext();) {
-					final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _j.next();
+					final IDependencyAnalysis _da = (IDependencyAnalysis) _j.next();
 					String _providedFileName = (String) info.get(FILE_NAME_ID);
 
 					if (_providedFileName == null) {
@@ -225,7 +225,7 @@ public final class DependencyXMLizer
 
 					try {
 						final FileWriter _writer = new FileWriter(_f);
-						final StmtLevelDependencyXMLizer _xmlizer = getXMLizerFor(_writer, _da);
+						final StmtAndMethodBasedDependencyXMLizer _xmlizer = getXMLizerFor(_writer, _da);
 
 						if (_xmlizer == null) {
 							LOGGER.error("No xmlizer specified for dependency calculated by " + _da.getClass()
@@ -248,6 +248,9 @@ public final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/05/14 06:27:23  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.19  2004/05/13 03:32:03  venku
    - documentation.  refactoring of getFileName() in IXMLizer.
 

@@ -32,9 +32,7 @@ import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,15 +61,39 @@ import org.apache.commons.logging.LogFactory;
 public class DependencyAnalysisRegressionTestSuite
   extends TestCase {
 	/**
+	 * This is the property via which the ofa test accepts input.  Refer to DepedencyAnalysisTest.properties for format.
+	 */
+	public static final String DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE =
+		"indus.staticanalyses.dependency.DependencyAnalysisTest.properties.file";
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DependencyAnalysisRegressionTestSuite.class);
 
 	/**
-	 * This is the property via which the ofa test accepts input.  Refer to DepedencyAnalysisTest.properties for format.
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	public static final String DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE =
-		"indus.staticanalyses.dependency.DependencyAnalysisTest.properties.file";
+	private static final Properties TEST_CLASSES_PROPERTIES = new Properties();
+
+	static {
+		String _propFileName = System.getProperty("indus.dependencyxmlizer.properties.file");
+
+		if (_propFileName == null) {
+			_propFileName = "edu/ksu/cis/indus/staticanalyses/dependency/DependencyAnalysisTestClasses.properties";
+		}
+
+		final InputStream _stream = ClassLoader.getSystemResourceAsStream(_propFileName);
+
+		try {
+			TEST_CLASSES_PROPERTIES.load(_stream);
+		} catch (IOException _e) {
+			System.err.println("Well, error loading property file.  Bailing.");
+			throw new RuntimeException(_e);
+		}
+	}
 
 	///CLOVER:OFF
 
@@ -118,30 +140,29 @@ public class DependencyAnalysisRegressionTestSuite
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	private static Test getDATestFor(final AbstractDependencyAnalysis analysis) {
-		final String _daTestClassName = analysis.getClass().getName() + "Test";
+	private static Test getDATestFor(final IDependencyAnalysis analysis) {
 		Test _result = null;
 
-		try {
-			final Class _daTestClass = Class.forName(_daTestClassName);
-			final Class[] _constructorArgs = { Class.forName(AbstractDependencyAnalysis.class.getName()) };
-			final Constructor _daTestClassConstructor = _daTestClass.getDeclaredConstructor(_constructorArgs);
-			final Object[] _newArgs = { analysis };
-			final AbstractDependencyAnalysisTest _daTest =
-				(AbstractDependencyAnalysisTest) _daTestClassConstructor.newInstance(_newArgs);
-			_result = _daTest;
-		} catch (final InstantiationException _e1) {
-			LOGGER.error("Error while creating an object of type. " + _daTestClassName, _e1);
-		} catch (final IllegalAccessException _e1) {
-			LOGGER.error("Error while accessing the constructor of type. " + _daTestClassName, _e1);
-		} catch (final InvocationTargetException _e1) {
-			LOGGER.error("Error while invoking the constructor of type. " + _daTestClassName, _e1);
-		} catch (final ClassNotFoundException _e1) {
-			LOGGER.error("Error while finding type. " + _daTestClassName, _e1);
-		} catch (final SecurityException _e1) {
-			LOGGER.error("Security violation while accessing the constructor of type. " + _daTestClassName, _e1);
-		} catch (final NoSuchMethodException _e1) {
-			LOGGER.error("Could not find the required constructor of type. " + _daTestClassName, _e1);
+		final String _daClassName = analysis.getClass().getName();
+		final String _daTestClassName = TEST_CLASSES_PROPERTIES.getProperty(_daClassName);
+
+		if (_daTestClassName == null) {
+			LOGGER.error("How can the test class for a dependency analysis be undefined? " + _daClassName);
+		} else {
+			try {
+				final Class _daTestClass = Class.forName(_daTestClassName);
+				final IDependencyAnalysisTest _daTest = (AbstractDependencyAnalysisTest) _daTestClass.newInstance();
+				((AbstractDependencyAnalysisTest) _daTest).setDA(analysis);
+				_result = _daTest;
+			} catch (final InstantiationException _e1) {
+				LOGGER.error("Error while creating an object of type. " + _daTestClassName, _e1);
+			} catch (final IllegalAccessException _e1) {
+				LOGGER.error("Error while accessing the constructor of type. " + _daTestClassName, _e1);
+			} catch (final ClassNotFoundException _e1) {
+				LOGGER.error("Error while finding type. " + _daTestClassName, _e1);
+			} catch (final SecurityException _e1) {
+				LOGGER.error("Security violation while accessing the constructor of type. " + _daTestClassName, _e1);
+			}
 		}
 		return _result;
 	}
@@ -212,10 +233,10 @@ public class DependencyAnalysisRegressionTestSuite
 
 							if (!Pattern.matches(_ignoreDARegex, _da.getClass().getName())) {
 								final XMLBasedDependencyAnalysisTest _xmlTest =
-									new XMLBasedDependencyAnalysisTest((AbstractDependencyAnalysis) _da, _xmlizer);
+									new XMLBasedDependencyAnalysisTest((IDependencyAnalysis) _da, _xmlizer);
 								_temp.addTest(_xmlTest);
 
-								final Test _test = getDATestFor((AbstractDependencyAnalysis) _da);
+								final Test _test = getDATestFor((IDependencyAnalysis) _da);
 
 								if (_test != null) {
 									_temp.addTest(_test);
@@ -250,6 +271,8 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/05/14 06:27:26  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.9  2004/04/25 21:18:38  venku
    - refactoring.
      - created new classes from previously embedded classes.
