@@ -115,6 +115,10 @@ public class ClassManager
 		if (!classes.contains(sc)) {
 			classes.add(sc);
 
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("considered " + sc.getName());
+			}
+
 			if (sc.declaresMethod("<clinit>")) {
 				context.setRootMethod(sc.getMethod("<clinit>"));
 				fa.getMethodVariant(sc.getMethod("<clinit>"), context);
@@ -124,6 +128,15 @@ public class ClassManager
 
 			while (temp.hasSuperclass()) {
 				temp = temp.getSuperclass();
+
+				if (classes.contains(temp)) {
+					break;
+				}
+				classes.add(temp);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("considered " + temp.getName());
+				}
 
 				if (temp.declaresMethod("<clinit>")) {
 					context.setRootMethod(temp.getMethod("<clinit>"));
@@ -148,10 +161,15 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.9  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.8  2003/08/30 23:15:17  venku
    Added support to display statistics in managers.
    Revision 1.7  2003/08/30 22:39:20  venku
