@@ -117,8 +117,6 @@ public final class CollectionsUtilities {
 	private CollectionsUtilities() {
 	}
 
-	///CLOVER:ON
-
 	/**
 	 * Retrieves an element at the given index in the list.  If the value at the given index is <code>null</code> then the
 	 * null value is replaced by the <code>defaultValue</code> and the same is returned. If the index does not occur in the
@@ -329,6 +327,60 @@ public final class CollectionsUtilities {
 		return _result;
 	}
 
+	///CLOVER:ON
+
+	/**
+	 * Returns a pretty print representation of the given collection.
+	 *
+	 * @param collection to be pretty printed.
+	 *
+	 * @return pretty print representation.
+	 *
+	 * @pre collection != null
+	 * @post result != null
+	 */
+	public static String prettyPrint(final Collection collection) {
+		final StringBuffer _sb = new StringBuffer();
+		_sb.append("-----------------------Collection: " + collection.getClass().getName() + " / " + collection.hashCode());
+
+		final Iterator _i = collection.iterator();
+		final int _iEnd = collection.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Object _element = _i.next();
+			_sb.append("\n");
+			_sb.append(_element.toString());
+		}
+		_sb.append("\n=====================================================");
+		return _sb.toString();
+	}
+
+	/**
+	 * Returns a pretty print representation of the given map.
+	 *
+	 * @param map to be pretty printed.
+	 *
+	 * @return pretty print representation.
+	 *
+	 * @pre map != null
+	 * @post result != null
+	 */
+	public static String prettyPrint(final Map map) {
+		final StringBuffer _sb = new StringBuffer();
+		_sb.append("-----------------------Collection: " + map.getClass().getName() + " / " + map.hashCode());
+
+		final Iterator _i = map.entrySet().iterator();
+		final int _iEnd = map.entrySet().size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			_sb.append("\n");
+			_sb.append(_entry.getKey() + " --> " + _entry.getValue());
+		}
+		_sb.append("\n=====================================================");
+		return _sb.toString();
+	}
+
 	/**
 	 * Puts all values in <code>values</code> into the value of the given key in the given map .  If no collection exists
 	 * against the  given key, the given collection is installed as the value for the given key and the values are loaded
@@ -443,6 +495,13 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/07/21 11:36:27  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
    Revision 1.9  2004/07/17 23:32:19  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
