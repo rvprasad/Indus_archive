@@ -442,7 +442,6 @@ public class ReadyDAv1
 		waits.clear();
 		notifies.clear();
 		monitorMethods.clear();
-		super.reset();
 	}
 
 	/**
@@ -840,6 +839,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/09/29 06:35:48  venku
+   - using null as values in maps and then to resolve during information
+     request is cheaper.  FIXED.
+
    Revision 1.19  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
