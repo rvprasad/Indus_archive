@@ -16,8 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -578,8 +578,7 @@ public class ReadyDAv1
 	public String toString() {
 		final StringBuffer _result =
 			new StringBuffer("Statistics for Ready dependence as calculated by " + getClass().getName() + "\n");
-		int _edgeCount = 0;
-
+		int _edgeCount1 = 0;
 		final StringBuffer _temp = new StringBuffer();
 
 		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
@@ -610,10 +609,10 @@ public class ReadyDAv1
 				_result.append("] there are " + _localEdgeCount + " Ready dependence edges.\n");
 				_result.append(_temp);
 				_temp.delete(0, _temp.length());
-				_edgeCount += _localEdgeCount;
+				_edgeCount1 += _localEdgeCount;
 			}
 		}
-		_result.append("A total of " + _edgeCount + " Ready dependence edges exist.");
+		_result.append("A total of " + _edgeCount1 + " Ready dependence edges exist.");
 		return _result.toString();
 	}
 
@@ -1157,8 +1156,8 @@ public class ReadyDAv1
 	 * site or synchronized block in a method, the dependency is calculated for all dominated statements in the same method.
 	 */
 	private void processRule1And3() {
-		final IWorkBag _workbag = new LIFOWorkBag();
 		final Collection _processed = new HashSet();
+	    final IWorkBag _workbag = new HistoryAwareLIFOWorkBag(_processed);
 		final Map _method2dependeeMap = collectDependeesInMethods();
 
 		if ((waits.size() == 0 ^ notifies.size() == 0) && LOGGER.isWarnEnabled()) {
@@ -1196,10 +1195,9 @@ public class ReadyDAv1
 							recordDependent2DependeeInfo(_dependents, _method, _dependees, _dents2dees, _bb.getStmtsOf(),
 								_pair);
 
-						if (!_processed.contains(_bb) && _shouldContinue) {
+						if (_shouldContinue) {
 							_workbag.addAllWork(directionSensInfo.getFollowersOfBB(_bb));
 						}
-						_processed.add(_bb);
 					}
 				}
 
@@ -1389,6 +1387,11 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.70  2004/08/15 08:37:26  venku
+   - REFACTORING pertaining to feature request #426
+     - refactored dependence retriever interface.
+     - refactored direction sensitive dependence information creation.
+
    Revision 1.69  2004/08/11 08:52:04  venku
    - massive changes.
      - Changed the way threads were represented in ThreadGraph.
