@@ -110,13 +110,14 @@ class MethodLevelSliceCriterion
 		boolean _result = false;
 
 		if (o instanceof MethodLevelSliceCriterion) {
-			_result = ((MethodLevelSliceCriterion) o).method.equals(method);
+			final MethodLevelSliceCriterion _methodLevelSliceCriterion = (MethodLevelSliceCriterion) o;
+			_result = _methodLevelSliceCriterion.method.equals(method);
 
 			if (_result) {
 				if (callStack != null) {
-					_result = callStack.equals(((MethodLevelSliceCriterion) o).callStack);
+					_result = callStack.equals(_methodLevelSliceCriterion.callStack);
 				} else {
-					_result = callStack == ((MethodLevelSliceCriterion) o).callStack;
+					_result = callStack == _methodLevelSliceCriterion.callStack;
 				}
 			}
 		}
