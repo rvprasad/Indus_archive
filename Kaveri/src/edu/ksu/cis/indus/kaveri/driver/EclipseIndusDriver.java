@@ -490,6 +490,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
 
         slicer.setCriteria(criteria);
         slicer.run(Phase.STARTING_PHASE, true); // changed from true
+        
         if (_sscg != null) {
             slicer.removeCriteriaGenerator(_sscg);
         }       
