@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 
 import java.io.File;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -131,6 +132,17 @@ public abstract class SootBasedDriver {
 	 */
 	public void setClassNames(final String[] s) {
 		classNames = Arrays.asList(s);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param s DOCUMENT ME!
+	 */
+	public void setClassNames(final Collection s) {
+		classNames = new ArrayList(s);
 	}
 
 	/**
@@ -297,10 +309,12 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/14 21:12:00  venku
+   - exposed initialize() as a public method.
+
    Revision 1.5  2003/11/12 10:45:36  venku
    - soot class path can be set in SootBasedDriver.
    - dependency tests are xmlunit based.
-
    Revision 1.4  2003/11/12 09:24:15  venku
    - soot class path was being injected at a wrong location. FIXED.
    Revision 1.3  2003/11/12 09:19:41  venku
