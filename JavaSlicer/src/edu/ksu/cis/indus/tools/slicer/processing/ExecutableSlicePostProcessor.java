@@ -51,7 +51,10 @@ import soot.TrapManager;
 import soot.Type;
 import soot.Value;
 
+import soot.jimple.AssignStmt;
+import soot.jimple.CastExpr;
 import soot.jimple.IdentityStmt;
+import soot.jimple.InstanceOfExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
@@ -410,6 +413,37 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
+	 * Process assignment statements to include the classes of the types appearing in them.
+	 *
+	 * @param assignStmt to be processed.
+	 *
+	 * @pre assignStmt != null
+	 */
+	private void processAssignmentsForTypes(final Stmt assignStmt) {
+		final Value _rightOp = ((AssignStmt) assignStmt).getRightOp();
+		Type _type = null;
+
+		if (_rightOp instanceof CastExpr) {
+			final CastExpr _v = (CastExpr) _rightOp;
+			_type = _v.getCastType();
+		} else if (_rightOp instanceof InstanceOfExpr) {
+			final InstanceOfExpr _v = (InstanceOfExpr) _rightOp;
+			_type = _v.getCheckType();
+		}
+
+		if (_type != null) {
+			if (_type instanceof ArrayType) {
+				_type = ((ArrayType) _type).baseType;
+			}
+
+			if (_type instanceof RefType) {
+				final SootClass _sootClass = ((RefType) _type).getSootClass();
+				collector.includeInSlice(_sootClass);
+			}
+		}
+	}
+
+	/**
 	 * Marks the traps to be included in the slice.
 	 *
 	 * @param method in which the traps are to be marked.
@@ -535,6 +569,8 @@ public final class ExecutableSlicePostProcessor
 					}
 				} else if (_stmt instanceof ThrowStmt) {
 					processThrowStmt((ThrowStmt) _stmt);
+				} else if (_stmt instanceof AssignStmt) {
+					processAssignmentsForTypes(_stmt);
 				}
 				processHandlers(method, _stmt);
 				stmtCollected = true;
@@ -565,12 +601,12 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/08/13 01:58:06  venku
+   - changed logging level
    Revision 1.30  2004/08/10 00:05:46  venku
    - minor addition.
-
    Revision 1.29  2004/08/06 13:29:00  venku
    - minor changes.
-
    Revision 1.28  2004/08/02 04:45:05  venku
    - logging.
    - pseudo tail were not considered properly in pickRandomReturnPoints(). FIXED.

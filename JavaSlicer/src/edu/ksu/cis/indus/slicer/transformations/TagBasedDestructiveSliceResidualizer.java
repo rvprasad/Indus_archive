@@ -48,7 +48,6 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.ArrayType;
 import soot.Body;
 import soot.Local;
 import soot.RefType;
@@ -65,10 +64,8 @@ import soot.VoidType;
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
-import soot.jimple.CastExpr;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
-import soot.jimple.InstanceOfExpr;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
@@ -522,26 +519,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	private final class ValueResidualizer
 	  extends AbstractJimpleValueSwitch {
 		/**
-		 * @see soot.jimple.ExprSwitch#caseCastExpr(soot.jimple.CastExpr)
-		 */
-		public void caseCastExpr(final CastExpr v) {
-			residualize(v.getOpBox());
-
-			final Type _type = v.getCastType();
-			processType(_type);
-		}
-
-		/**
-		 * @see soot.jimple.ExprSwitch#caseInstanceOfExpr(soot.jimple.InstanceOfExpr)
-		 */
-		public void caseInstanceOfExpr(final InstanceOfExpr v) {
-			residualize(v.getOpBox());
-
-			final Type _type = v.getCheckType();
-			processType(_type);
-		}
-
-		/**
 		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 		 */
 		public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
@@ -598,28 +575,6 @@ public final class TagBasedDestructiveSliceResidualizer
 				vBox.setValue(Util.getDefaultValueFor(_value.getType()));
 			} else {
 				_value.apply(this);
-			}
-		}
-
-		/**
-		 * Processes the given type for including the appropriate class in the slice.
-		 *
-		 * @param type to be processed.
-		 *
-		 * @pre type != null
-		 */
-		private void processType(final Type type) {
-		    final Type _type; 
-			if (type instanceof ArrayType) {
-				_type = ((ArrayType) type).baseType;
-			} else {
-			    _type = type;
-			}
-
-			if (_type instanceof RefType) {
-				final SootClass _sootClass = ((RefType) _type).getSootClass();
-				_sootClass.addTag(tagToResidualize);
-				classesToKill.remove(_sootClass);
 			}
 		}
 
@@ -1107,6 +1062,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/08/13 16:56:01  venku
+   - classes of types used in cast and instanceof expressions
+     were being ignored during residualization.  FIXED.
    Revision 1.22  2004/08/08 10:11:37  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.
