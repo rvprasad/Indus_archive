@@ -159,6 +159,11 @@ public class SliceXMLizerCLI
 	private boolean preResXMLJimpleDump;
 
 	/**
+	 * This indicates if the slice should be residualized.
+	 */
+	private boolean residualize;
+
+	/**
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
@@ -189,15 +194,8 @@ public class SliceXMLizerCLI
 			LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
 		}
 
-		if (_xmlizer.preResXMLJimpleDump) {
-			_xmlizer.dumpJimpleAsXML("unsliced");
-		}
 		_xmlizer.writeXML();
 		_xmlizer.residualize();
-
-		if (_xmlizer.postResXMLJimpleDump) {
-			_xmlizer.dumpJimpleAsXML("sliced");
-		}
 	}
 
 	/**
@@ -405,6 +403,10 @@ public class SliceXMLizerCLI
 		_o.setArgs(1);
 		_o.setArgName("crit-spec-file");
 		_o.setOptionalArg(false);
+		_o = new Option("r", "residualize", false, "Residualize after slicing.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+
 		_options.addOption(_o);
 
 		CommandLine _cl = null;
@@ -455,7 +457,20 @@ public class SliceXMLizerCLI
 			xmlizer.setSliceCriteriaSpecFile(_cl.getOptionValue('s'));
 		}
 
+		if (_cl.hasOption('r')) {
+			xmlizer.setResidulization(true);
+		}
+
 		xmlizer.setClassNames(_cl.getArgList());
+	}
+
+	/**
+	 * Sets if the slice should be residualized.
+	 *
+	 * @param flag <code>true</code> indicates the slice should be residualized; <code>false</code>, otherwise.
+	 */
+	private void setResidulization(final boolean flag) {
+		residualize = flag;
 	}
 
 	/**
@@ -626,14 +641,24 @@ public class SliceXMLizerCLI
 	 * Residualize the slice as jimple files in the output directory.
 	 */
 	private void residualize() {
+		if (preResXMLJimpleDump) {
+			dumpJimpleAsXML("unsliced");
+		}
+
 		if (preResJimpleDump) {
 			dumpJimple("_preRes", false);
 		}
 
-		destructivelyUpdateJimple();
+		if (residualize) {
+			destructivelyUpdateJimple();
+		}
 
 		if (postResJimpleDump) {
 			dumpJimple("_postRes", true);
+		}
+
+		if (postResXMLJimpleDump) {
+			dumpJimpleAsXML("sliced");
 		}
 	}
 
@@ -711,14 +736,14 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/07/03 00:07:56  venku
+   - incorrect message.
    Revision 1.43  2004/07/02 10:08:25  venku
    - logging.
-
    Revision 1.42  2004/07/02 09:00:08  venku
    - added support to serialize/deserialize slice criteria. (feature #397)
    - used the above support in SliceXMLizerCLI.
    - used Jakarta Commons IO library.
-
    Revision 1.41  2004/06/26 10:16:35  venku
    - bug #389. FIXED.
    Revision 1.40  2004/06/14 08:39:29  venku
