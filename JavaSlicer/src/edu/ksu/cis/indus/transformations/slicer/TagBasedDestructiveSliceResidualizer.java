@@ -59,7 +59,10 @@ import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
 
+import soot.jimple.toolkits.scalar.ConditionalBranchFolder;
 import soot.jimple.toolkits.scalar.NopEliminator;
+import soot.jimple.toolkits.scalar.UnconditionalBranchFolder;
+import soot.jimple.toolkits.scalar.UnreachableCodeEliminator;
 
 import soot.tagkit.Host;
 
@@ -470,11 +473,15 @@ public final class TagBasedDestructiveSliceResidualizer
 			}
 
 			oldStmt2newStmt.clear();
-			_body.validateLocals();
+            NopEliminator.v().transform(_body);
+            UnconditionalBranchFolder.v().transform(_body);
+            ConditionalBranchFolder.v().transform(_body);
+            UnreachableCodeEliminator.v().transform(_body);
+
+            _body.validateLocals();
 			_body.validateTraps();
 			_body.validateUnitBoxes();
 			_body.validateUses();
-			NopEliminator.v().transform(_body);
 
 			/*
 			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
@@ -601,6 +608,10 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/02/23 04:43:39  venku
+   - jumps were not fixed properly when old statements were
+     replaced with new statements.
+
    Revision 1.18  2004/02/04 04:33:41  venku
    - locals in empty methods need to be removed as well. FIXED.
    Revision 1.17  2004/01/31 01:48:18  venku
