@@ -113,7 +113,7 @@ public abstract class AbstractSliceCriteriaContextualizer
 	 * @param stack to be injected.
 	 * @param result into which <code>criterion</code> needs to be added.
 	 *
-	 * @pre criterion != null and stack != null and result != null
+	 * @pre criterion != null and result != null
 	 * @invariant contexts.oclIsKindOf(Collection(Stack(CallTriple)))
 	 * @post result.containsAll(result$pre)
 	 * @post stack.equals(stack$pre)
