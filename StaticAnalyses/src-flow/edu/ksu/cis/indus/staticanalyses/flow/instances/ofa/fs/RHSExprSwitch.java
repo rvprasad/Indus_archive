@@ -71,13 +71,13 @@ public class RHSExprSwitch
 	/**
 	 * Creates a new <code>RHSExprSwitch</code> instance.
 	 *
-	 * @param stmtSwitch the statement visitor which uses this instance of expression visitor.
+	 * @param stmtSwitchParam the statement visitor which uses this instance of expression visitor.
 	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
 	 *
 	 * @pre stmtSwitch != null and nodeConnector != null
 	 */
-	public RHSExprSwitch(final AbstractStmtSwitch stmtSwitch, final IFGNodeConnector nodeConnector) {
-		super(stmtSwitch, nodeConnector);
+	public RHSExprSwitch(final AbstractStmtSwitch stmtSwitchParam, final IFGNodeConnector nodeConnector) {
+		super(stmtSwitchParam, nodeConnector);
 	}
 
 	/**
@@ -88,8 +88,8 @@ public class RHSExprSwitch
 	 *
 	 * @return the new visitor instance.
 	 *
-	 * @pre o != null
-	 * @post result.oclIsKindOf(AbstractExprSwitch)
+	 * @pre o != null and o.oclIsKindOf(AbstractStmtSwitch)
+	 * @post result != null and result.oclIsKindOf(AbstractExprSwitch)
 	 */
 	public Object getClone(final Object o) {
 		return new RHSExprSwitch((AbstractStmtSwitch) o, connector);
@@ -110,7 +110,7 @@ public class RHSExprSwitch
 			LOGGER.debug("Local:" + e + "\n" + ast);
 		}
 
-		List l = method.getDefsOfAt(e, stmt.getStmt());
+		List l = method.getDefsOfAt(e, stmtSwitch.getCurrentStmt());
 
 		if (l != null) {
 			ValueBox temp = context.getProgramPoint();
@@ -135,6 +135,9 @@ public class RHSExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/13 08:58:04  venku
+   Spruced up documentation and specification.
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

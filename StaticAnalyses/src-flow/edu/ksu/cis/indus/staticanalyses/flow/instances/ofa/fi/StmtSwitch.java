@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
@@ -58,11 +58,12 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
+ * This is used to process statements in object flow analysis. This class in turn uses a expression visitor to process
+ * expressions that occur in a statement.
+ * 
  * <p>
- * This is the statement visitor class.  It is used by the method variant to process statements in object flow analysis. This
- * class in turn uses a expression visitor process expressions that occur in a statement.
- * </p>
  * Created: Sun Jan 27 13:28:32 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -70,45 +71,44 @@ import org.apache.commons.logging.LogFactory;
 public class StmtSwitch
   extends AbstractStmtSwitch {
 	/**
-	 * <p>
 	 * The logger used by instances of this class to log messages.
-	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(StmtSwitch.class);
 
 	/**
-	 * <p>
 	 * Creates a new <code>StmtSwitch</code> instance.
-	 * </p>
 	 *
 	 * @param m the <code>MethodVariant</code> which uses this object.
+	 *
+	 * @pre m != null
 	 */
-	public StmtSwitch(MethodVariant m) {
+	public StmtSwitch(final MethodVariant m) {
 		super(m);
 	}
 
 	/**
-	 * <p>
 	 * Returns a new instance of this class.
-	 * </p>
 	 *
 	 * @param o the method variant which uses this object.  This is of type <code>MethodVariant</code>.
 	 *
 	 * @return the new instance of this class.
+	 *
+	 * @pre o != null and o.oclIsKindOf(MethodVariant)
+     * @post result != null and result.oclIsKindOf(StmtSwitch)
 	 */
-	public Object getClone(Object o) {
+	public Object getClone(final Object o) {
 		return new StmtSwitch((MethodVariant) o);
 	}
 
 	/**
-	 * <p>
 	 * Processes the assignment statement.  It processes the rhs expression and the lhs expression and connects the flow
 	 * graph nodes corresponding to these expressions.
-	 * </p>
 	 *
 	 * @param stmt the assignment statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseAssignStmt(AssignStmt stmt) {
+	public void caseAssignStmt(final AssignStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -125,13 +125,13 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the enter monitor statement.  Current implementation visits the monitor expression.
-	 * </p>
 	 *
 	 * @param stmt the enter monitor statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
+	public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -140,13 +140,13 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the exit monitor statement.  Current implementation visits the monitor expression.
-	 * </p>
 	 *
 	 * @param stmt the exit monitor statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
+	public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -155,14 +155,14 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the identity statement.  It processes the rhs expression and the lhs expression and connects the flow graph
 	 * nodes corresponding to these expressions.
-	 * </p>
 	 *
 	 * @param stmt the identity statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseIdentityStmt(IdentityStmt stmt) {
+	public void caseIdentityStmt(final IdentityStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -179,13 +179,13 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the if statement.  Current implementation visits the condition expression.
-	 * </p>
 	 *
 	 * @param stmt the if statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseIfStmt(IfStmt stmt) {
+	public void caseIfStmt(final IfStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -194,13 +194,13 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the invoke statement.  Current implementation visits the invoke expression.
-	 * </p>
 	 *
 	 * @param stmt the invoke statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseInvokeStmt(InvokeStmt stmt) {
+	public void caseInvokeStmt(final InvokeStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: processing " + stmt);
 		}
@@ -213,13 +213,13 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the lookup switch statement.  Current implementation visits the switch expression.
-	 * </p>
 	 *
 	 * @param stmt the lookup switch  statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
+	public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -228,13 +228,13 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the return statement.  Current implementation visits the address expression.
-	 * </p>
 	 *
 	 * @param stmt the return statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseRetStmt(RetStmt stmt) {
+	public void caseRetStmt(final RetStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -243,14 +243,14 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the return statement.  Current implementation visits the return value expression and connects it to node
 	 * corresponding to the return node of the enclosing method variant.
-	 * </p>
 	 *
 	 * @param stmt the return statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseReturnStmt(ReturnStmt stmt) {
+	public void caseReturnStmt(final ReturnStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: processing " + stmt);
 		}
@@ -266,13 +266,13 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the table switch statement.  Current implementation visits the switch expression.
-	 * </p>
 	 *
 	 * @param stmt the table switch  statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseTableSwitchStmt(TableSwitchStmt stmt) {
+	public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -281,13 +281,13 @@ public class StmtSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the throw statement.  Current implementation visits the throw expression.
-	 * </p>
 	 *
 	 * @param stmt the throw statement to be processed.
+	 *
+	 * @pre stmt != null
 	 */
-	public void caseThrowStmt(ThrowStmt stmt) {
+	public void caseThrowStmt(final ThrowStmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Processing statement: " + stmt);
 		}
@@ -296,9 +296,12 @@ public class StmtSwitch
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
+   $Log$
 
-*****/
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */

@@ -79,7 +79,7 @@ public abstract class AbstractExprSwitch
 	 * This visitor is used by <code>stmt</code> to walk the embedded expressions.
 	 * </p>
 	 */
-	protected final AbstractStmtSwitch stmt;
+	protected final AbstractStmtSwitch stmtSwitch;
 
 	/**
 	 * <p>
@@ -127,13 +127,13 @@ public abstract class AbstractExprSwitch
 	 *           to AST and non-AST entities.
 	 */
 	protected AbstractExprSwitch(AbstractStmtSwitch stmtHandler, IFGNodeConnector connectorToUse) {
-		this.stmt = stmtHandler;
+		this.stmtSwitch = stmtHandler;
 		this.connector = connectorToUse;
 
-		if (stmt != null) {
-			context = stmt.context;
-			method = stmt.method;
-			bfa = stmt.method._BFA;
+		if (stmtSwitch != null) {
+			context = stmtSwitch.context;
+			method = stmtSwitch.method;
+			bfa = stmtSwitch.method._BFA;
 		} else {
 			context = null;
 			method = null;
@@ -230,6 +230,9 @@ public abstract class AbstractExprSwitch
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/12 18:39:56  venku
+Ripple effect of moving IPrototype to Indus.
+
 Revision 1.1  2003/08/07 06:40:24  venku
 Major:
  - Moved the package under indus umbrella.

@@ -68,13 +68,13 @@ public class ExprSwitch
 	/**
 	 * Creates a new <code>ExprSwitch</code> instance.
 	 *
-	 * @param stmtSwitch the statement visitor which uses this instance of expression visitor.
+	 * @param stmtSwitchParam the statement visitor which uses this instance of expression visitor.
 	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
 	 *
-	 * @pre stmtSwitch != null and nodeConnector != null
+	 * @pre stmtSwitchParam != null and nodeConnector != null
 	 */
-	public ExprSwitch(final AbstractStmtSwitch stmtSwitch, final IFGNodeConnector nodeConnector) {
-		super(stmtSwitch, nodeConnector);
+	public ExprSwitch(final AbstractStmtSwitch stmtSwitchParam, final IFGNodeConnector nodeConnector) {
+		super(stmtSwitchParam, nodeConnector);
 	}
 
 	/**
@@ -84,8 +84,8 @@ public class ExprSwitch
 	 *
 	 * @return the new visitor instance.
 	 *
-	 * @pre o != null
-	 * @post result.oclIsKindOf(AbstractExprSwitch)
+	 * @pre o != null and o.oclIsKindOf(AbstractStmtSwitch)
+	 * @post result != null and result.oclIsKindOf(AbstractExprSwitch)
 	 */
 	public Object getClone(final Object o) {
 		return new ExprSwitch((AbstractStmtSwitch) o, connector);
@@ -144,7 +144,7 @@ public class ExprSwitch
 		ValueBox backup = context.setProgramPoint(e);
 		IFGNode localNode = method.getASTNode(l);
 
-		for (Iterator i = method.getDefsOfAt(l, stmt.getStmt()).iterator(); i.hasNext();) {
+		for (Iterator i = method.getDefsOfAt(l, stmtSwitch.getCurrentStmt()).iterator(); i.hasNext();) {
 			DefinitionStmt defStmt = (DefinitionStmt) i.next();
 			context.setProgramPoint(defStmt.getLeftOpBox());
 
@@ -165,6 +165,9 @@ public class ExprSwitch
    ChangeLog:
 
    $Log$
+   Revision 1.3  2003/08/13 08:58:25  venku
+   Formatted with Jalopy.
+
    Revision 1.2  2003/08/13 08:58:04  venku
    Spruced up documentation and specification.
 

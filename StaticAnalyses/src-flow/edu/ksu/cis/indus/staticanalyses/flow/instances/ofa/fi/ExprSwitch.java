@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
@@ -98,11 +98,11 @@ public class ExprSwitch
 	/**
 	 * Creates a new <code>ExprSwitch</code> instance.
 	 *
-	 * @param stmt the statement visitor which uses this object.
-	 * @param connector the connector to be used to connect ast and non-ast flow graph node.
+	 * @param stmtSwitchParam the statement visitor which uses this object.
+	 * @param nodeConnector the connector to be used to connect ast and non-ast flow graph node.
 	 */
-	public ExprSwitch(AbstractStmtSwitch stmt, IFGNodeConnector connector) {
-		super(stmt, connector);
+	public ExprSwitch(final AbstractStmtSwitch stmtSwitchParam, final IFGNodeConnector nodeConnector) {
+		super(stmtSwitchParam, nodeConnector);
 	}
 
 	/**
@@ -111,8 +111,11 @@ public class ExprSwitch
 	 * @param o the statement visitor which uses the new instance.
 	 *
 	 * @return the new instance of this class.
+	 *
+	 * @pre o != null and o.oclIsKindOf(StmtSwitch)
+	 * @post result != null and result.oclIsKindOf(ExprSwitch)
 	 */
-	public Object getClone(Object o) {
+	public Object getClone(final Object o) {
 		return new ExprSwitch((StmtSwitch) o, connector);
 	}
 
@@ -121,8 +124,10 @@ public class ExprSwitch
 	 * the primary to a <code>FGAccessNode</code> which monitors this access expressions for new values in the primary.
 	 *
 	 * @param e the array access expressions.
+	 *
+	 * @pre e != null
 	 */
-	public void caseArrayRef(ArrayRef e) {
+	public void caseArrayRef(final ArrayRef e) {
 		process(e.getBaseBox());
 
 		if (LOGGER.isDebugEnabled()) {
@@ -143,8 +148,10 @@ public class ExprSwitch
 	 * Processes the cast expression. Current implementation processes the expression being cast.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseCastExpr(CastExpr e) {
+	public void caseCastExpr(final CastExpr e) {
 		process(e.getOpBox());
 
 		Type t = e.getCastType();
@@ -164,8 +171,10 @@ public class ExprSwitch
 	 * Processes the given exception reference expression.  This is required to thread the flow of exception in the system.
 	 *
 	 * @param e is the caught exception reference.
+	 *
+	 * @pre e != null
 	 */
-	public void caseCaughtExceptionRef(CaughtExceptionRef e) {
+	public void caseCaughtExceptionRef(final CaughtExceptionRef e) {
 		IFGNode node = method.getASTNode(e);
 		setResult(node);
 	}
@@ -174,8 +183,10 @@ public class ExprSwitch
 	 * Processes the field expression in a fashion similar to array access expressions.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseInstanceFieldRef(InstanceFieldRef e) {
+	public void caseInstanceFieldRef(final InstanceFieldRef e) {
 		process(e.getBaseBox());
 
 		IFGNode baseNode = (IFGNode) getResult();
@@ -191,8 +202,10 @@ public class ExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseInstanceOfExpr(InstanceOfExpr e) {
+	public void caseInstanceOfExpr(final InstanceOfExpr e) {
 		process(e.getOpBox());
 	}
 
@@ -200,8 +213,10 @@ public class ExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseInterfaceInvokeExpr(InterfaceInvokeExpr e) {
+	public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr e) {
 		processInstanceInvokeExpr(e);
 	}
 
@@ -209,8 +224,10 @@ public class ExprSwitch
 	 * Processes the local expression.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre != null
 	 */
-	public void caseLocal(Local e) {
+	public void caseLocal(final Local e) {
 		IFGNode node = method.getASTNode(e);
 		setResult(node);
 	}
@@ -219,8 +236,10 @@ public class ExprSwitch
 	 * Processes the new array expression.  This injects a value into the flow graph.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseNewArrayExpr(NewArrayExpr e) {
+	public void caseNewArrayExpr(final NewArrayExpr e) {
 		process(e.getSizeBox());
 
 		IFGNode ast = method.getASTNode(e);
@@ -233,8 +252,10 @@ public class ExprSwitch
 	 * Processes the new expression.  This injects a value into the flow graph.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseNewExpr(NewExpr e) {
+	public void caseNewExpr(final NewExpr e) {
 		IFGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
@@ -245,8 +266,10 @@ public class ExprSwitch
 	 * specified.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseNewMultiArrayExpr(NewMultiArrayExpr e) {
+	public void caseNewMultiArrayExpr(final NewMultiArrayExpr e) {
 		ArrayType arrayType = e.getBaseType();
 		Type baseType = arrayType.baseType;
 		int sizes = e.getSizeCount();
@@ -270,8 +293,10 @@ public class ExprSwitch
 	 * Processes <code>null</code>.  This injects a value into the flow graph.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseNullConstant(NullConstant e) {
+	public void caseNullConstant(final NullConstant e) {
 		IFGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
@@ -281,8 +306,10 @@ public class ExprSwitch
 	 * Processes parameter reference expressions.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseParameterRef(ParameterRef e) {
+	public void caseParameterRef(final ParameterRef e) {
 		setResult(method.queryParameterNode(e.getIndex()));
 	}
 
@@ -291,7 +318,7 @@ public class ExprSwitch
 	 *
 	 * @param e the expression to be processed.
 	 */
-	public void caseSpecialInvokeExpr(SpecialInvokeExpr e) {
+	public void caseSpecialInvokeExpr(final SpecialInvokeExpr e) {
 		processInstanceInvokeExpr(e);
 	}
 
@@ -299,8 +326,10 @@ public class ExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseStaticFieldRef(StaticFieldRef e) {
+	public void caseStaticFieldRef(final StaticFieldRef e) {
 		SootField field = e.getField();
 		IFGNode ast = method.getASTNode(e);
 		IFGNode nonast = bfa.getFieldVariant(field).getFGNode();
@@ -312,8 +341,10 @@ public class ExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseStaticInvokeExpr(StaticInvokeExpr e) {
+	public void caseStaticInvokeExpr(final StaticInvokeExpr e) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: processing " + e);
 		}
@@ -344,8 +375,10 @@ public class ExprSwitch
 	 * Processes a string constant.  This injects a value into the flow graph.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseStringConstant(StringConstant e) {
+	public void caseStringConstant(final StringConstant e) {
 		IFGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
@@ -356,8 +389,10 @@ public class ExprSwitch
 	 * method.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseThisRef(ThisRef e) {
+	public void caseThisRef(final ThisRef e) {
 		setResult(method.queryThisNode());
 	}
 
@@ -365,8 +400,10 @@ public class ExprSwitch
 	 * Processes the embedded expressions.
 	 *
 	 * @param e the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void caseVirtualInvokeExpr(VirtualInvokeExpr e) {
+	public void caseVirtualInvokeExpr(final VirtualInvokeExpr e) {
 		processInstanceInvokeExpr(e);
 	}
 
@@ -374,8 +411,10 @@ public class ExprSwitch
 	 * Processes cases which are not dealt by this visitor methods or delegates to suitable methods depending on the type.
 	 *
 	 * @param o the expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	public void defaultCase(Object o) {
+	public void defaultCase(final Object o) {
 		Value v = (Value) o;
 
 		if (v instanceof BinopExpr) {
@@ -395,8 +434,10 @@ public class ExprSwitch
 	 * available to be connected when new method implementations are plugged in.
 	 *
 	 * @param e the invoke expression to be processed.
+	 *
+	 * @pre e != null
 	 */
-	protected void processInstanceInvokeExpr(InstanceInvokeExpr e) {
+	protected void processInstanceInvokeExpr(final InstanceInvokeExpr e) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: processing " + e);
 		}
@@ -425,9 +466,12 @@ public class ExprSwitch
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */

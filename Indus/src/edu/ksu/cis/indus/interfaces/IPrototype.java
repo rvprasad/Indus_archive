@@ -38,9 +38,11 @@ package edu.ksu.cis.indus.interfaces;
 /**
  * This interface helps realize the <i>IPrototype</i> design pattern as defined in the Gang of Four book. It provides the
  * methods via which concrete object can be created from a prototype object.  The default implementation for these methods
- * should raise <code>UnsupportedOperationException</code>. 
+ * should raise <code>UnsupportedOperationException</code>.
  * 
- * <p>Created: Sun Jan 27 18:04:58 2002</p>
+ * <p>
+ * Created: Sun Jan 27 18:04:58 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -60,19 +62,24 @@ public interface IPrototype {
 	 * @param o object containing the information to parameterize the concrete object.
 	 *
 	 * @return concrete object based on this prototype object.
+	 *
+	 * @pre o != null
 	 */
 	Object getClone(Object o);
 }
 
 /*
    ChangeLog:
-   
+
    $Log$
-   
+   Revision 1.1  2003/08/12 18:33:41  venku
+   Created an umbrella project to host generic interfaces related to design patterns.
+   Moving prototype pattern interface under this umbrella.
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 1.1  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
