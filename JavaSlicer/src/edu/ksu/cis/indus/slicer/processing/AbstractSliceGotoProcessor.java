@@ -20,6 +20,8 @@ import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.Collection;
@@ -36,8 +38,8 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class processes the given slice  to include goto statements such that it realizes the control as in the original
- * program but as required in the slice.
+ * This class provides most of the logic required to process the given slice in order to include goto statements such that it
+ * realizes the control as in the original program but as required in the slice.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -76,8 +78,50 @@ public abstract class AbstractSliceGotoProcessor {
 	}
 
 	/**
-	 * Retrieve the last statements and the successors basic blocks containing the statements following these statements.
-	 * The subclass determine how the statements and the successors are picked.  This information is returned as pair of
+	 * Preprocess the current method's body for goto-based control flow retention.
+	 *
+	 * @param theMethod to be processed.
+	 * @param bbg is the basic block graph of <code>theMethod</code>.
+	 *
+	 * @pre theMethod != null
+	 * @pre bbg != null
+	 */
+	public final void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
+		method = theMethod;
+		taggedBB.clear();
+
+		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
+			final BasicBlock _bb = (BasicBlock) _j.next();
+			processBasicBlock(_bb);
+		}
+		postprocess();
+	}
+
+	/**
+	 * Process the given methods.
+	 *
+	 * @param methods to be processed.
+	 * @param bbgMgr provides the basic block required to process the methods.
+	 *
+	 * @pre methods != null and bbgMgr != null
+	 * @pre methods.oclIsKindOf(Collection(SootMethod))
+	 */
+	public void process(final Collection methods, final BasicBlockGraphMgr bbgMgr) {
+		// include all gotos required to recreate the control flow of the system.
+		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_sm);
+
+			if (_bbg == null) {
+				continue;
+			}
+			process(_sm, _bbg);
+		}
+	}
+
+	/**
+	 * Retrieve the last statements and the successors basic blocks containing the statements following these statements. The
+	 * subclass determine how the statements and the successors are picked.  This information is returned as pair of
 	 * <code>Stmt</code> and <code>Collection</code> of successors.
 	 *
 	 * @param bb is the basic block.
@@ -101,25 +145,6 @@ public abstract class AbstractSliceGotoProcessor {
 	 * @post result != null and result.oclIsKindOf(Sequence(Stmt))
 	 */
 	protected abstract List getStmtsOfForProcessing(final BasicBlock bb);
-
-	/**
-	 * Preprocess the current method's body for goto-based control flow retention.
-	 *
-	 * @param theMethod to be processed.
-	 * @param bbg DOCUMENT ME!
-	 *
-	 * @pre theMethod != null
-	 */
-	public final void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
-		method = theMethod;
-		taggedBB.clear();
-
-		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
-			final BasicBlock _bb = (BasicBlock) _j.next();
-			processBasicBlock(_bb);
-		}
-		postprocess();
-	}
 
 	/**
 	 * Postprocess the current method's body for goto-based control flow retention.
@@ -188,18 +213,18 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/13 04:39:29  venku
+   - method and class visibility.
    Revision 1.1  2004/01/13 04:35:08  venku
    - added a new package called "processing" and it will house
      all processing done on the slice to ensure the slice satisfies
      certain properties such as executability.
    - Moved GotoProcessors into processing package.
-
    Revision 1.1  2004/01/11 03:44:25  venku
    - Deleted IGotoProcessor and SliceGotoProcessor.
    - Moved the logic of SliceGotoProcessor into
      AbstractSliceGotoProcessor.
    - Different slices are handled by different processor classes.
-
    Revision 1.11  2004/01/11 00:01:23  venku
    - formatting and coding convention.
    Revision 1.10  2004/01/06 00:17:05  venku

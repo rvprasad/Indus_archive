@@ -13,13 +13,14 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.slicer.processing;
+package edu.ksu.cis.indus.tools.slicer.processing;
 
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+
 import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.Collection;
@@ -249,10 +250,11 @@ public final class BackwardSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/13 04:39:29  venku
+   - method and class visibility.
    Revision 1.1  2004/01/13 04:35:08  venku
    - added a new package called "processing" and it will house
      all processing done on the slice to ensure the slice satisfies
      certain properties such as executability.
    - Moved GotoProcessors into processing package.
-
  */
