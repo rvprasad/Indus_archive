@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.transformations.slicer;
 
-import soot.Local;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
@@ -28,6 +27,9 @@ import soot.tagkit.StringTag;
 
 import edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,6 +66,11 @@ public class TagBasedSlicingTransformer
 	private static final String SLICING_TAG = "Slicing Tag";
 
 	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(TagBasedSlicingTransformer.class);
+
+	/**
 	 * The system to be transformed.
 	 */
 	protected Scene system;
@@ -73,8 +80,10 @@ public class TagBasedSlicingTransformer
 	 */
 	private final Map method2locals = new HashMap();
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private Object sliceType;
 
@@ -86,10 +95,12 @@ public class TagBasedSlicingTransformer
 	/**
 	 * The tag to be used during transformation.
 	 */
-	private StringTag tag;
+	private StringTag tag = new StringTag(SLICING_TAG);
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private boolean executable;
 
@@ -103,8 +114,6 @@ public class TagBasedSlicingTransformer
 		if (theTagName != null) {
 			tag = new StringTag(theTagName);
 			tagName = theTagName;
-		} else {
-			tag = new StringTag(tagName);
 		}
 	}
 
@@ -145,6 +154,20 @@ public class TagBasedSlicingTransformer
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.ValueBox, soot.jimple.Stmt,
+	 * 		soot.SootMethod)
+	 */
+	public ValueBox getTransformed(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
+		ValueBox result = null;
+		Stmt transformed = getTransformed(stmt, method);
+
+		if (transformed != null && vBox.getTag(tagName) != null) {
+			result = vBox;
+		}
+		return result;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedClasses()
 	 */
 	public Collection getTransformedClasses() {
@@ -159,22 +182,6 @@ public class TagBasedSlicingTransformer
 		}
 		return result.isEmpty() ? Collections.EMPTY_LIST
 								: result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedLocal(soot.Local, soot.SootMethod)
-	 */
-	public Local getTransformedLocal(final Local local, final SootMethod method) {
-		Local result = null;
-
-		if (method.getTag(tagName) != null) {
-			Collection locals = (Collection) method2locals.get(method);
-
-			if (locals != null && locals.contains(local)) {
-				result = local;
-			}
-		}
-		return result;
 	}
 
 	/**
@@ -221,8 +228,6 @@ public class TagBasedSlicingTransformer
 	/**
 	 * {@inheritDoc}  This implementation can handle all slice types defined in <code>SlicingEngine</code> be it executable
 	 * or non-executable.
-	 *
-	 * @see edu.ksu.cis.indus.slicer.ISlicingBasedTransformer#canHandleSliceType(java.lang.Object, boolean)
 	 */
 	public boolean handleSliceType(final Object theSliceType, final boolean executableSlice) {
 		sliceType = theSliceType;
@@ -265,21 +270,29 @@ public class TagBasedSlicingTransformer
 	 */
 	public void transform(final Stmt stmt, final SootMethod method) {
 		Collection temp = stmt.getUseAndDefBoxes();
+		boolean flag = false;
 
 		for (Iterator i = temp.iterator(); i.hasNext();) {
 			ValueBox vb = (ValueBox) i.next();
 
 			if (vb.getTag(tagName) == null) {
 				vb.addTag(tag);
+				flag = true;
 			}
 		}
 
-		if (stmt.getTag(tagName) == null) {
-			stmt.addTag(tag);
+		if (flag) {
+			if (stmt.getTag(tagName) == null) {
+				stmt.addTag(tag);
+			}
+
+			if (method.getTag(tagName) == null) {
+				method.addTag(tag);
+			}
 		}
 
-		if (method.getTag(tagName) == null) {
-			method.addTag(tag);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Tagged statement: " + stmt + " | " + method.getSignature());
 		}
 	}
 
@@ -289,14 +302,18 @@ public class TagBasedSlicingTransformer
 	public void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
 		if (vBox.getTag(tagName) == null) {
 			vBox.addTag(tag);
+
+			if (stmt.getTag(tagName) == null) {
+				stmt.addTag(tag);
+			}
+
+			if (method.getTag(tagName) == null) {
+				method.addTag(tag);
+			}
 		}
 
-		if (stmt.getTag(tagName) == null) {
-			stmt.addTag(tag);
-		}
-
-		if (method.getTag(tagName) == null) {
-			method.addTag(tag);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Tagged value: " + vBox.getValue() + " | " + stmt + " | " + method.getSignature());
 		}
 	}
 }
@@ -304,6 +321,14 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/10/21 06:00:19  venku
+   - Split slicing type into 2 sets:
+        b/w, f/w, and complete
+        executable and non-executable.
+   - Extended transformer classes to handle these
+     classification.
+   - Added a new class to house the logic for fixing
+     return statements in case of backward executable slice.
    Revision 1.9  2003/10/13 01:00:09  venku
    - Split transformations.slicer into 2 packages
       - transformations.slicer
