@@ -36,11 +36,6 @@ public abstract class AbstractWork {
 	protected final Collection values = new HashSet();
 
 	/**
-	 * The flow graph node associated with this work.
-	 */
-	protected IFGNode node;
-
-	/**
 	 * Creates a new <code>AbstractWork</code> instance.
 	 */
 	protected AbstractWork() {
@@ -51,16 +46,6 @@ public abstract class AbstractWork {
 	 */
 	public abstract void execute();
 
-	/**
-	 * Associates a flow graph node with this work.
-	 *
-	 * @param flowNode the flow graph node to be associated.
-	 *
-	 * @pre flowNode != null
-	 */
-	public final void setFGNode(final IFGNode flowNode) {
-		this.node = flowNode;
-	}
 
 	/**
 	 * Adds a value to the collection of values associated with this work.
@@ -94,6 +79,10 @@ public abstract class AbstractWork {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.6  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
