@@ -99,6 +99,11 @@ public class SynchronizationDA
 	final Collection pointsOfInterest = new HashSet();
 
 	/**
+	 * This indicates if the analysis has stabilized.  If so, it is safe to query this object for information.
+	 */
+	private boolean stable;
+
+	/**
 	 * Creates a new SynchronizationDA object.
 	 */
 	public SynchronizationDA() {
@@ -200,6 +205,13 @@ public class SynchronizationDA
 	 */
 	public Collection getMonitorTriples() {
 		return Collections.unmodifiableCollection(monitorTriples);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
+	 */
+	public boolean isStable() {
+		return stable;
 	}
 
 	/**
@@ -309,9 +321,11 @@ public class SynchronizationDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/11 08:49:34  venku
+   Javadoc documentation errors were fixed.
+   Some classes were documented.
    Revision 1.4  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.3  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.2  2003/08/09 23:29:52  venku
