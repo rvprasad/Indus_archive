@@ -60,7 +60,7 @@ public class ExitControlDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA#computeControlDependency(DirectedGraph)
 	 */
 	protected BitSet[] computeControlDependency(final DirectedGraph graph) {
-		// TODO: Auto-generated method stub
+		// TODO: Implement this.
 		return super.computeControlDependency(graph);
 	}
 }
@@ -68,4 +68,10 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/25 17:51:23  venku
+   - split control dependence into 2 classes.
+     EntryControlDA handled control DA as required for backward slicing.
+     ExitControlDA handles control DA as required for forward slicing.
+   - ripple effect.
+
  */

@@ -305,9 +305,9 @@ public class DivergenceDA
 			}
 
 			/*
-			 * Pass 2.3: Prune the information in cycles from the pre-divergent point of the cycle to the next pre-divergent
-			 * point in the cycle.
-			 * TODO:
+			 * TODO: Pass 2.3: Prune the information in cycles from the pre-divergent point of the cycle to the next 
+             * pre-divergent point in the cycle.
+			 * 
 			 */
 		}
 
@@ -573,6 +573,10 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/12 01:04:54  venku
+   - each analysis implementation has to identify itself as
+     belonging to a analysis category via an id.
+
    Revision 1.20  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
