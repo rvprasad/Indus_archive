@@ -155,7 +155,7 @@ public class DirectedAndSimpleNodeGraphTest
 	/**
 	 * Tests <code>getNodes()</code> method.
 	 */
-	public final void testGetNodes() {
+	public void testGetNodes() {
 		List nodes1 = dg.getNodes();
 
 		// check for bidirectional containment to establish equality.
@@ -305,7 +305,7 @@ public class DirectedAndSimpleNodeGraphTest
 	/**
 	 * Tests <code>size()</code> method.
 	 */
-	public final void testSize() {
+	public void testSize() {
 		assertTrue(name2node.values().size() == dg.getNodes().size());
 	}
 
@@ -453,6 +453,10 @@ public class DirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 09:42:34  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.1  2003/11/10 03:40:50  venku
    - renamed DirectedAndSimpleNodeGraphTest1 to
      DirectedAndSimpleNodeGraphTest.
