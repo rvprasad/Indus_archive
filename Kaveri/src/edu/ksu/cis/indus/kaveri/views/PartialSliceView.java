@@ -504,6 +504,7 @@ public class PartialSliceView extends ViewPart {
                         addToCriteria(_index, false);
                         crtList.put(_stmt, new Boolean(false));
                         viewer.refresh();
+                        KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
                     }
                 }
             }
@@ -537,6 +538,7 @@ public class PartialSliceView extends ViewPart {
                                 true);
                         crtList.put(_stmt, new Boolean(true));
                         viewer.refresh();
+                        KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
                     }
                 }
             }
@@ -597,8 +599,9 @@ public class PartialSliceView extends ViewPart {
                             crtList.put(_stmt, new Boolean(false));                            
                         }
 
-                    }
+                    }                    
                     viewer.refresh();
+                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
                 }
             }
         };
@@ -629,6 +632,7 @@ public class PartialSliceView extends ViewPart {
 
                     }
                     viewer.refresh();
+                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
                 }                
             }
         };
