@@ -26,21 +26,17 @@ import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Body;
 import soot.Local;
-import soot.SootClass;
 import soot.SootMethod;
 import soot.Trap;
 import soot.TrapManager;
-import soot.Type;
 import soot.Value;
 import soot.ValueBox;
 
@@ -408,6 +404,9 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/19 11:38:06  venku
+   - moved findMethodInSuperClasses into Util.
+
    Revision 1.4  2004/01/17 00:35:35  venku
    - post process of statements was optimized.
    - handler processing was fixed.
