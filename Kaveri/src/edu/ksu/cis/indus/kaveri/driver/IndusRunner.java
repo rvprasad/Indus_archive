@@ -211,9 +211,8 @@ public class IndusRunner implements IRunnableWithProgress {
 
         
         driver.execute();
-        if (opCancelled) {   
-            return;
-            //throw new InterruptedException("Slice was stopped");
+        if (opCancelled) {              
+           throw new InterruptedException("Slice was stopped");
         }
 
         //KaveriPlugin.getDefault().getIndusConfiguration().setLineNumbers(driver.getAnnotationLineNumbers());
