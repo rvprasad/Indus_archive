@@ -41,7 +41,7 @@ public class CompleteUnitGraphFactory
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getUnitGraph(soot.SootMethod)
 	 */
-	public UnitGraph getUnitGraph(SootMethod method) {
+	public UnitGraph getUnitGraph(final SootMethod method) {
 		WeakReference ref = (WeakReference) method2UnitGraph.get(method);
 		UnitGraph result = null;
 
@@ -60,6 +60,9 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/01 23:51:57  venku
+   - documentation.
+
    Revision 1.4  2003/09/28 23:14:03  venku
    - documentation
 
