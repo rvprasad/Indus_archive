@@ -271,11 +271,12 @@ public final class TagBasedDestructiveSliceResidualizer
 		 */
 		private void residualizeDefStmt(final DefinitionStmt stmt) {
 			if (!((Host) stmt.getLeftOpBox()).hasTag(tagToResidualize)) {
+				final ValueBox _rightOpBox = stmt.getRightOpBox();
+
 				/*
-				 * If the definition statement is marked and the lhs is unmarked then the rhs should be an invoke expr
-				 * that is marked.  If rhs is not an invoke expr then the slice is incorrect.
+				 * If the definition statement is marked and the lhs is unmarked then the rhs should be a marked invoke expr.
 				 */
-				if (!stmt.containsInvokeExpr()) {
+				if (_rightOpBox.hasTag(tagToResidualize) && !stmt.containsInvokeExpr()) {
 					final String _message =
 						"Incorrect slice.  "
 						+ "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt;
@@ -284,10 +285,15 @@ public final class TagBasedDestructiveSliceResidualizer
 				}
 
 				final Jimple _jimple = Jimple.v();
-				final Value _expr = stmt.getRightOp();
-				final Stmt _stmt = _jimple.newInvokeStmt(_expr);
-				valueProcessor.residualize(stmt.getRightOpBox());
-				setResult(_stmt);
+
+				if (stmt.containsInvokeExpr()) {
+					final Value _expr = stmt.getRightOp();
+					final Stmt _stmt = _jimple.newInvokeStmt(_expr);
+					valueProcessor.residualize(stmt.getRightOpBox());
+					setResult(_stmt);
+				} else {
+					setResult(_jimple.newNopStmt());
+				}
 			} else {
 				valueProcessor.residualize(stmt.getRightOpBox());
 			}
@@ -425,76 +431,78 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @post currMethod = null
 	 */
 	public void consolidateMethod() {
-		if (currMethod != null) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("BEGIN: Finishing method " + currMethod + "[concrete: " + currMethod.isConcrete() + "]");
-			}
-
-			if (currMethod.isConcrete()) {
-				// replace statements marked as nop statements with nop statements.
-				final JimpleBody _body = (JimpleBody) currMethod.getActiveBody();
-				final Chain _ch = _body.getUnits();
-				final Jimple _jimple = Jimple.v();
-
-				for (final Iterator _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
-					final Stmt _stmt = (Stmt) _i.next();
-					final Object _pred = _ch.getPredOf(_stmt);
-					_ch.remove(_stmt);
-
-					final Stmt _newStmt = _jimple.newNopStmt();
-
-					if (_pred == null) {
-						_ch.addFirst(_newStmt);
-					} else {
-						_ch.insertAfter(_newStmt, _pred);
-					}
-				}
-				stmtsToBeNOPed.clear();
-
-				// replace statements with new statements as recorded earlier.
-				for (final Iterator _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
-					final Entry _entry = (Entry) _i.next();
-					final Stmt _oldStmt = (Stmt) _entry.getKey();
-					final Object _pred = _ch.getPredOf(_oldStmt);
-					_ch.remove(_oldStmt);
-
-					final Object _newStmt = _entry.getValue();
-
-					if (_pred == null) {
-						_ch.addFirst(_newStmt);
-					} else {
-						_ch.insertAfter(_newStmt, _pred);
-					}
-				}
-
-				oldStmt2newStmt.clear();
-				_body.validateLocals();
-				_body.validateTraps();
-				_body.validateUnitBoxes();
-				_body.validateUses();
-				NopEliminator.v().transform(_body);
-
-				/*
-				 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
-				 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to executable.
-				 */
-				if (_body.getUnits().isEmpty()) {
-					final Chain _temp = _body.getUnits();
-					final Type _retType = currMethod.getReturnType();
-
-					if (_retType.equals(VoidType.v())) {
-						_temp.add(_jimple.newReturnVoidStmt());
-					} else {
-						_temp.add(_jimple.newReturnStmt(Util.getDefaultValueFor(_retType)));
-					}
-				}
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("END: Finishing method " + currMethod);
-			}
-			currMethod = null;
+		if (currMethod == null) {
+			return;
 		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Finishing method " + currMethod + "[concrete: " + currMethod.isConcrete() + "]");
+		}
+
+		if (currMethod.isConcrete()) {
+			// replace statements marked as nop statements with nop statements.
+			final JimpleBody _body = (JimpleBody) currMethod.getActiveBody();
+			final Chain _ch = _body.getUnits();
+			final Jimple _jimple = Jimple.v();
+
+			for (final Iterator _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
+				final Stmt _stmt = (Stmt) _i.next();
+				final Object _pred = _ch.getPredOf(_stmt);
+				_ch.remove(_stmt);
+
+				final Stmt _newStmt = _jimple.newNopStmt();
+
+				if (_pred == null) {
+					_ch.addFirst(_newStmt);
+				} else {
+					_ch.insertAfter(_newStmt, _pred);
+				}
+			}
+			stmtsToBeNOPed.clear();
+
+			// replace statements with new statements as recorded earlier.
+			for (final Iterator _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
+				final Entry _entry = (Entry) _i.next();
+				final Stmt _oldStmt = (Stmt) _entry.getKey();
+				final Object _pred = _ch.getPredOf(_oldStmt);
+				_ch.remove(_oldStmt);
+
+				final Object _newStmt = _entry.getValue();
+
+				if (_pred == null) {
+					_ch.addFirst(_newStmt);
+				} else {
+					_ch.insertAfter(_newStmt, _pred);
+				}
+			}
+
+			oldStmt2newStmt.clear();
+			_body.validateLocals();
+			_body.validateTraps();
+			_body.validateUnitBoxes();
+			_body.validateUses();
+			NopEliminator.v().transform(_body);
+
+			/*
+			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
+			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to executable.
+			 */
+			if (_body.getUnits().isEmpty()) {
+				final Chain _temp = _body.getUnits();
+				final Type _retType = currMethod.getReturnType();
+
+				if (_retType instanceof VoidType) {
+					_temp.add(_jimple.newReturnVoidStmt());
+				} else {
+					_temp.add(_jimple.newReturnStmt(Util.getDefaultValueFor(_retType)));
+				}
+			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Finishing method " + currMethod);
+		}
+		currMethod = null;
 	}
 
 	/**
@@ -595,6 +603,8 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/01/24 01:43:40  venku
+   - moved getDefaultValueFor() to Util.
    Revision 1.13  2004/01/22 01:07:00  venku
    - coding convention.
    Revision 1.12  2004/01/22 01:06:13  venku

@@ -29,6 +29,7 @@ import edu.ksu.cis.indus.slicer.SliceCollector;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,7 +51,6 @@ import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.IdentityStmt;
-import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
@@ -202,8 +202,9 @@ public final class ExecutableSlicePostProcessor
 				_processed.add(_sc);
 
 				final INode _sn = _sng.getNode(_sc);
+				final Collection _temp = CollectionUtils.intersection(_sc.getInterfaces(), classes);
 
-				for (final Iterator _i = CollectionUtils.subtract(_sc.getInterfaces(), classes).iterator(); _i.hasNext();) {
+				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 					final SootClass _interface = (SootClass) _i.next();
 					_sng.addEdgeFromTo(_sng.getNode(_interface), _sn);
 
@@ -261,23 +262,31 @@ public final class ExecutableSlicePostProcessor
 		final Map _class2abstractMethods = new HashMap();
 		final Collection _methods = new HashSet();
 		final Collection _temp = new HashSet();
-		final Collection _topologicallyOrderedClasses =
-			getClassesInTopologicallySortedTopDownOrder(collector.getClassesInSlice());
+		final Collection _classesInSlice = collector.getClassesInSlice();
+		final Collection _topologicallyOrderedClasses = getClassesInTopologicallySortedTopDownOrder(_classesInSlice);
 
 		// fixup methods in to respect the class hierarchy  
 		for (final Iterator _i = _topologicallyOrderedClasses.iterator(); _i.hasNext();) {
-			SootClass _sc = (SootClass) _i.next();
+			final SootClass _sc = (SootClass) _i.next();
 			_methods.clear();
 
 			// gather collected abstract methods from super interfaces and classes.
 			for (final Iterator _j = _sc.getInterfaces().iterator(); _j.hasNext();) {
 				final SootClass _interface = (SootClass) _j.next();
-				_methods.addAll(((Collection) _class2abstractMethods.get(_interface)));
+
+				if (collector.hasBeenCollected(_interface)) {
+					final Collection _abstractMethods = (Collection) _class2abstractMethods.get(_interface);
+					_methods.addAll(_abstractMethods);
+				}
 			}
 
 			if (_sc.hasSuperclass()) {
-				final Collection _col = ((Collection) _class2abstractMethods.get(_sc.getSuperclass()));
-				_methods.addAll(_col);
+				final SootClass _superClass = _sc.getSuperclass();
+
+				if (collector.hasBeenCollected(_superClass)) {
+					final Collection _abstractMethods = ((Collection) _class2abstractMethods.get(_superClass));
+					_methods.addAll(_abstractMethods);
+				}
 			}
 
 			// remove all abstract methods which are overridden by collected methods of this class.
@@ -303,7 +312,11 @@ public final class ExecutableSlicePostProcessor
 			}
 
 			// record the abstract methods
-			_class2abstractMethods.put(_sc, new ArrayList(_methods));
+			if (_methods.isEmpty()) {
+				_class2abstractMethods.put(_sc, Collections.EMPTY_SET);
+			} else {
+				_class2abstractMethods.put(_sc, new ArrayList(_methods));
+			}
 		}
 	}
 
@@ -452,21 +465,19 @@ public final class ExecutableSlicePostProcessor
 			if (collector.hasBeenCollected(_stmt)) {
 				if (_stmt instanceof IdentityStmt) {
 					processIdentityStmt(method, (IdentityStmt) _stmt);
-				} else if (_stmt.containsInvokeExpr() && collector.hasBeenCollected(_stmt)) {
+				} else if (_stmt.containsInvokeExpr()
+					  && collector.hasBeenCollected(_stmt)
+					  && !(_stmt.getInvokeExpr() instanceof StaticInvokeExpr)) {
 					/*
 					 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
 					 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
 					 * This can be fixed by sucking all the method definitions that need to make the system verifiable
 					 * and empty bodies will be substituted for such methods.
 					 */
-					final InvokeExpr _expr = _stmt.getInvokeExpr();
+					processMethods(_stmt.getInvokeExpr().getMethod());
 
-					if (!(_expr instanceof StaticInvokeExpr)) {
-						processMethods(_expr.getMethod());
-
-						if (LOGGER.isDebugEnabled()) {
-							LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
-						}
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
 					}
 				}
 				processHandlers(method, _stmt);
@@ -523,6 +534,9 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/24 02:03:55  venku
+   - added logic to fix up class hierarchy when
+     abstract methods are included in the slice.
    Revision 1.9  2004/01/22 12:30:58  venku
    - Considers pseudo tails during processing.
    Revision 1.8  2004/01/20 17:12:57  venku
