@@ -17,20 +17,6 @@ package edu.ksu.cis.indus.toolkits.bandera;
 
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
-import edu.ksu.cis.indus.staticanalyses.dependency.ControlDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
-import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
-import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
 
 /**
  * DOCUMENT ME!
@@ -44,48 +30,6 @@ import java.util.Map;
 public class SlicerConfigurationView
   implements ToolConfigurationView,
 	  ToolIconView {
-	/**
-	 * The collection of ids of the dependences to be considered for slicing.
-     * @invariant dependencesToUse.oclIsKindOf(String)
-	 */
-	final Collection dependencesToUse = new HashSet();
-
-	/**
-	 * This maps IDs to dependency analyses.
-	 *
-	 * @invariant id2dependencyAnalysis.oclIsKindOf(Map(Object, DependencyAnalysis))
-	 */
-	Map id2dependencyAnalysis = new HashMap();
-
-	/**
-	 * This indicates if interprocedual divergence dependence should be used.
-	 */
-	boolean interProceduralDivergenceDA = false;
-
-	/**
-	 * This indicates if interprocedual ready dependence should be used.
-	 */
-	boolean interProceduralReadyDA = false;
-
-	/**
-	 * This indicates which rules should be used for ready dependence calculation.
-	 */
-	int readyDARules = ReadyDAv1.RULE_1 | ReadyDAv1.RULE_2 | ReadyDAv1.RULE_3 | ReadyDAv1.RULE_4;
-
-	/**
-	 * Creates a new SlicerConfigurationView object.
-	 */
-	SlicerConfigurationView() {
-		id2dependencyAnalysis = new HashMap();
-		id2dependencyAnalysis.put(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA, new IdentifierBasedDataDA());
-		id2dependencyAnalysis.put(DependencyAnalysis.SYNCHRONIZATION_DA, new SynchronizationDA());
-		id2dependencyAnalysis.put(DependencyAnalysis.READY_DA, new ReadyDAv1());
-		id2dependencyAnalysis.put(DependencyAnalysis.INTERFERENCE_DA, new InterferenceDAv1());
-		id2dependencyAnalysis.put(DependencyAnalysis.CONTROL_DA, new ControlDA());
-		id2dependencyAnalysis.put(DependencyAnalysis.DIVERGENCE_DA, new DivergenceDA());
-		id2dependencyAnalysis.put(DependencyAnalysis.REFERENCE_BASED_DATA_DA, new ReferenceBasedDataDA());
-		dependencesToUse.addAll(id2dependencyAnalysis.keySet());
-	}
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.ToolIconView#getActiveIcon()
@@ -123,7 +67,7 @@ public class SlicerConfigurationView
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.ToolConfigurationView#configure()
+	 * @see edu.ksu.cis.bandera.tool.ToolConfigurator#configure()
 	 */
 	public void configure() {
 	}
@@ -154,6 +98,12 @@ public class SlicerConfigurationView
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/24 01:43:45  venku
+   - Renamed edu.ksu.cis.indus.tools to edu.ksu.cis.indus.toolkits.
+     This package is to house adaptation of each tools for each toolkits.
+   - Retained edu.ksu.cis.indus.tools to contain API/interface to expose
+     the implementation as a tool.
+
    Revision 1.2  2003/09/16 07:52:25  venku
    - coding convention.
 
@@ -161,7 +111,7 @@ public class SlicerConfigurationView
    - Well, the SlicerTool is still a mess in my opinion as it needs
      to be implemented as required by Bandera.  It needs to be
      much richer than it is to drive the slicer.
-   - SlicerConfigurationView is supposed to bridge the above gap.
+   - SlicerConfigurator is supposed to bridge the above gap.
      I doubt it.
 
  */

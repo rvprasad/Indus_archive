@@ -115,128 +115,11 @@ public class SlicerTool
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
 
-	/**
-	 * This controls dependency analysis.
-	 */
-	private AnalysesController daController;
-
-	/**
-	 * This manages the basic block graphs for the methods being transformed.
-	 */
-	private final BasicBlockGraphMgr bbgMgr;
-
-	/**
-	 * This provides the call graph.
-	 */
-	private final CallGraph callGraph;
-
-	/**
-	 * The slicing criteria.
-	 *
-	 * @invariant criteria.oclIsKindOf(Collection(AbstractSliceCriterion))
-	 */
-	private final Collection criteria;
-
-	/**
-	 * The entry point methods.
-	 *
-	 * @invariant rootMethods.oclIsKindOf(Collection(SootMethod))
-	 */
-	private final Collection rootMethods;
-
-	/**
-	 * This provides object flow anlaysis.
-	 */
-	private final OFAnalyzer ofa;
-
-	/**
-	 * This controls the processing of callgraph.
-	 */
-	private final ProcessingController cgPreProcessCtrl;
-
-	/**
-	 * This provides thread graph.
-	 */
-	private final ThreadGraph threadGraph;
-
-	/**
-	 * The scene to be sliced.
-	 */
-	private Scene theScene;
-
-	/**
-	 * This is the slicing engine that identifies the slice.
-	 */
-	private final SlicingEngine engine;
-
-	/**
-	 * The tag name to be used to identify the slicing tags.
-	 */
-	private String tagName;
-
-	/**
-	 * This is the tagging style slice transformer.
-	 */
-	private final TagBasedSlicingTransformer transformer;
-
-	/**
-	 * This is a call-graph based pre processing controller.
-	 */
-	private ProcessingController cgBasedPreProcessCtrl;
-
-	/**
-	 * The configuration view that can be used to configure the slicer.
-	 */
-	private final SlicerConfigurationView configuration;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private SliceCriteriaFactory criteriaFactory = new SliceCriteriaFactory();
 
 	/**
 	 * Creates a new SlicerTool object.
 	 */
 	public SlicerTool() {
-		rootMethods = new HashSet();
-		criteria = new HashSet();
-
-		// create the flow analysis.
-		ofa = OFAnalyzer.getFSOSAnalyzer();
-
-		// create the pre processor for call graph construction.
-		cgPreProcessCtrl = new ProcessingController();
-		cgPreProcessCtrl.setAnalyzer(ofa);
-
-		// create the call graph.
-		callGraph = new CallGraph();
-
-		// create the pre processor for thread graph construction.
-		cgBasedPreProcessCtrl = new CGBasedProcessingController(callGraph);
-
-		bbgMgr = new BasicBlockGraphMgr();
-		// create the thread graph.
-		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
-
-		// set up data required for dependency analysis.
-		Map info = new HashMap();
-		info.put(ICallGraphInfo.ID, callGraph);
-		info.put(IThreadGraphInfo.ID, threadGraph);
-		info.put(IEnvironment.ID, ofa.getEnvironment());
-		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(ofa));
-		info.put(Pair.PairManager.ID, new Pair.PairManager());
-
-		// create dependency analyses controller 
-		daController = new AnalysesController(info, cgBasedPreProcessCtrl);
-
-		// create the slicing objects.
-		transformer = new TagBasedSlicingTransformer();
-		engine = new SlicingEngine();
-
-		// create the configuration object that maintains the configuration info.
-		configuration = new SlicerConfigurationView();
 	}
 
 	/**
@@ -352,84 +235,22 @@ public class SlicerTool
 	public void quit()
 	  throws Exception {
 	}
-
-	/**
-	 * @see edu.ksu.cis.bandera.tool.Tool#run()
-	 */
-	public void run() {
-		// do the flow analyses
-		bbgMgr.reset();
-		ofa.reset();
-		ofa.analyze(theScene, rootMethods);
-
-		// process flow information into a more meaningful call graph
-		callGraph.reset();
-		callGraph.hookup(cgPreProcessCtrl);
-		cgPreProcessCtrl.process();
-		callGraph.unhook(cgPreProcessCtrl);
-
-		// process flow information into a more meaningful thread graph
-		threadGraph.reset();
-		threadGraph.hookup(cgBasedPreProcessCtrl);
-		cgBasedPreProcessCtrl.process();
-		threadGraph.unhook(cgBasedPreProcessCtrl);
-
-		// perform dependency analyses
-		daController.reset();
-
-		for (Iterator i = configuration.dependencesToUse.iterator(); i.hasNext();) {
-			Object id = i.next();
-			daController.setAnalysis(id, (DependencyAnalysis) configuration.id2dependencyAnalysis.get(id));
-		}
-		daController.initialize(callGraph.getReachableMethods());
-		daController.execute();
-
-		// perform slicing
-		transformer.reset();
-		engine.reset();
-		transformer.initialize(theScene, tagName);
-
-		if (criteria.isEmpty()) {
-			populateDeadlockCriteria();
-		}
-		engine.setSliceCriteria(criteria, daController, callGraph, transformer, configuration.dependencesToUse);
-		engine.slice(SlicingEngine.BACKWARD_SLICE);
-	}
-
-	/**
-	 * Creates criterion based on synchronization constructs and populates <code>criteria</code>.
-	 */
-	private void populateDeadlockCriteria() {
-		IMonitorInfo im = (IMonitorInfo) configuration.id2dependencyAnalysis.get(DependencyAnalysis.SYNCHRONIZATION_DA);
-
-		for (Iterator i = im.getMonitorTriples().iterator(); i.hasNext();) {
-			Triple mTriple = (Triple) i.next();
-			SootMethod method = (SootMethod) mTriple.getThird();
-
-			if (mTriple.getFirst() == null) {
-				// add all return points (including throws) of the method as the criteria
-				UnitGraph graph = daController.getStmtGraph(method);
-
-				for (Iterator j = graph.getTails().iterator(); j.hasNext();) {
-					Stmt stmt = (Stmt) j.next();
-					criteria.add(criteriaFactory.getCriterion(method, stmt, true, true));
-				}
-			} else {
-				criteria.add(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst(), true, true));
-				criteria.add(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond(), true, true));
-			}
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/24 01:43:45  venku
+   - Renamed edu.ksu.cis.indus.tools to edu.ksu.cis.indus.toolkits.
+     This package is to house adaptation of each tools for each toolkits.
+   - Retained edu.ksu.cis.indus.tools to contain API/interface to expose
+     the implementation as a tool.
+
    Revision 1.1  2003/09/15 08:55:23  venku
    - Well, the SlicerTool is still a mess in my opinion as it needs
      to be implemented as required by Bandera.  It needs to be
      much richer than it is to drive the slicer.
-   - SlicerConfigurationView is supposed to bridge the above gap.
+   - SlicerConfigurator is supposed to bridge the above gap.
      I doubt it.
 
  */
