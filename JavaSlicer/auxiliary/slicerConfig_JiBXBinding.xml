@@ -1,4 +1,4 @@
-<binding>
+<binding package="edu.ksu.cis.indus.tools.slicer">
     <namespace uri="http://indus.projects.cis.ksu.edu/indus" prefix="indus"/>
     <namespace uri="http://indus.projects.cis.ksu.edu/slicer" prefix="slicer" default="all"/>
 	<mapping name="compositeConfiguration" class="edu.ksu.cis.indus.tools.CompositeToolConfiguration"
