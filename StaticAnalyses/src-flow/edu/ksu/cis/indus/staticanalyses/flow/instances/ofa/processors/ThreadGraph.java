@@ -347,7 +347,13 @@ public class ThreadGraph
 		}
 
 		for (final Iterator _i = _values.iterator(); _i.hasNext();) {
-			final NewExpr _value = (NewExpr) _i.next();
+			final Object _o = _i.next();
+
+			if (!(_o instanceof NewExpr)) {
+				continue;
+			}
+
+			final NewExpr _value = (NewExpr) _o;
 			final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
 			Collection _methods;
 
@@ -681,9 +687,10 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/02/25 00:04:02  venku
+   - documenation.
    Revision 1.26  2004/01/25 15:12:03  venku
    - formatting and coding convention.
-
    Revision 1.25  2004/01/21 13:30:40  venku
    - log formatting.
    Revision 1.24  2004/01/21 01:34:56  venku
