@@ -146,6 +146,12 @@ public class CallGraph
 	private Map caller2callees = new HashMap();
 
 	/**
+	 * This maps methods to classes which need to be initialized before or during the execution of the method.
+     * @invariant caller2clinitClasses.oclIsKindOf(Map(SootMethod, Collection(SootClass)))  
+	 */
+	private Map caller2clinitClasses = new HashMap();
+
+	/**
 	 * This caches a traversable graphCache representation of the call graphCache.
 	 */
 	private SimpleNodeGraph graphCache;
@@ -442,6 +448,10 @@ public class CallGraph
 			InvokeExpr invokeExpr = (InvokeExpr) value;
 			callee = invokeExpr.getMethod();
 
+			if (callee.getName().equals("<init>") || invokeExpr instanceof StaticInvokeExpr) {
+				processForClassInitializer(callee.getDeclaringClass(), caller);
+			}
+
 			if (caller2callees.containsKey(caller)) {
 				callees = (Set) caller2callees.get(caller);
 			} else {
@@ -503,6 +513,15 @@ public class CallGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
+	 */
+	public void callback(final Stmt stmt, final Context context) {
+		if (stmt.containsFieldRef()) {
+			processForClassInitializer(stmt.getFieldRef().getField().getDeclaringClass(), context.getCurrentMethod());
+		}
+	}
+
+	/**
 	 * This calculates information such as heads, tails, recursion roots, and such.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
@@ -522,18 +541,32 @@ public class CallGraph
 		// calculate reachables.
 		IWorkBag wb = new FIFOWorkBag();
 		wb.addAllWork(heads);
-		reachables.addAll(heads);
 
 		while (wb.hasWork()) {
 			SootMethod sm = (SootMethod) wb.getWork();
 
-			for (Iterator i = getCallees(sm).iterator(); i.hasNext();) {
-				CallTriple ctrp = (CallTriple) i.next();
-				SootMethod callee = ctrp.getMethod();
+			if (!reachables.contains(sm)) {
+				reachables.add(sm);
 
-				if (!reachables.contains(callee)) {
-					wb.addWork(callee);
-					reachables.add(callee);
+				// handle the <clinit> methods that are reachable
+				Collection clinitClasses = (Collection) caller2clinitClasses.get(sm);
+
+				if (clinitClasses != null) {
+					for (Iterator i = clinitClasses.iterator(); i.hasNext();) {
+						SootMethod head = ((SootClass) i.next()).getMethodByName("<clinit>");
+						heads.add(head);
+						wb.addWorkNoDuplicates(head);
+					}
+				}
+
+				for (Iterator i = getCallees(sm).iterator(); i.hasNext();) {
+					CallTriple ctrp = (CallTriple) i.next();
+					SootMethod callee = ctrp.getMethod();
+
+					if (!reachables.contains(callee)) {
+						wb.addWorkNoDuplicates(callee);
+						reachables.add(callee);
+					}
 				}
 			}
 		}
@@ -708,6 +741,7 @@ public class CallGraph
 		cycles.clear();
 		reachables.clear();
 		heads.clear();
+		caller2clinitClasses.clear();
 	}
 
 	/**
@@ -769,11 +803,32 @@ public class CallGraph
 		}
 		return result;
 	}
+
+	/**
+	 * Collects the classes whose initializers should be included into the call graph.
+	 *
+	 * @param clazz is the class whose initializer should be invoked as a result of <code>caller</code>.
+	 * @param caller requires <code>clazz</code> to be initialized.
+     * @pre clazz != null and caller != null
+	 */
+	private void processForClassInitializer(final SootClass clazz, final SootMethod caller) {
+		if (clazz.declaresMethodByName("<clinit>")) {
+			Collection clinitClasses = (Collection) caller2clinitClasses.get(caller);
+
+			if (clinitClasses == null) {
+				clinitClasses = new HashSet();
+				caller2clinitClasses.put(caller, clinitClasses);
+			}
+			clinitClasses.add(clazz);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/11/17 15:42:46  venku
+   - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.25  2003/11/10 03:17:19  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    - ripple effect.
