@@ -131,7 +131,7 @@ public class ExitControlDA
 	 *
 	 * @pre info.get(IDependencyAnalysis.CONTROL_DA) != null
 	 * @pre info.get(IDependencyAnalysis.ID).oclIsTypeOf(IDependencyAnalysis)
-	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTION)
+	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
