@@ -278,6 +278,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @param stmt to be residualized.
 		 *
 		 * @pre stmt != null
+         * @throws IllegalStateException when the rhs is included in the slice and the lhs is not included in the slice.
 		 */
 		private void residualizeDefStmt(final DefinitionStmt stmt) {
 			if (!((Host) stmt.getLeftOpBox()).hasTag(tagToResidualize)) {
@@ -286,8 +287,10 @@ public final class TagBasedDestructiveSliceResidualizer
 				 * that is marked.  If rhs is not an invoke expr then the slice is incorrect.
 				 */
 				if (!stmt.containsInvokeExpr()) {
-					stmtResidualizerLogger.error("Incorrect slice.  "
-						+ "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt);
+                    final String _message = "Incorrect slice.  "
+                        + "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt;
+					stmtResidualizerLogger.error(_message);
+                    throw new IllegalStateException(_message);
 				}
 
 				final Jimple _jimple = Jimple.v();
@@ -638,6 +641,11 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/01/13 10:59:42  venku
+   - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
+     It was deleted.
+   - ripple effect.
+
    Revision 1.8  2004/01/11 03:38:03  venku
    - entire method bodies may be deleted or not included in the
      first place (due to inheritance).  If so, a suitable return
