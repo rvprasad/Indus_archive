@@ -362,7 +362,17 @@ public class SliceXMLizer
 			xmlizer.destructiveJimpleUpdate = true;
 		}
 
-		final String _outputDir = _cl.getOptionValue("o");
+		final String _outputDir;
+
+		if (_cl.hasOption('o')) {
+			_outputDir = _cl.getOptionValue("o");
+		} else {
+			_outputDir = ".";
+
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Using current directory to output artifacts.");
+			}
+		}
 
 		try {
 			xmlizer.xmlizedJimpleWriter = new FileWriter(new File(_outputDir + File.separator + "jimple.xml"));
@@ -553,19 +563,18 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/22 01:06:32  venku
+   - coding convention.
    Revision 1.4  2004/01/17 23:52:04  venku
    - minor command line fix.
-
    Revision 1.3  2004/01/13 10:59:42  venku
    - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
      It was deleted.
    - ripple effect.
-
    Revision 1.2  2004/01/09 23:13:42  venku
    - formatting
    - coding convention
    - logging
-
    Revision 1.1  2004/01/09 07:02:11  venku
    - Made -o mandatory in SliceDriver.
    - all information is dumped into directory specified via -o.
