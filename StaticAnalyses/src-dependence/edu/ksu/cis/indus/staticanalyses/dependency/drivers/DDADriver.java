@@ -56,7 +56,7 @@ public class DDADriver
 	 */
 	protected DDADriver(final String[] args) {
 		super(args);
-        ecbaRequired = false;
+		ecbaRequired = false;
 	}
 
 	/**
@@ -73,6 +73,10 @@ public class DDADriver
 	 */
 	protected void initialize() {
 		das = new ArrayList();
+
+		DivergenceDA dda = new DivergenceDA();
+		dda.setConsiderCallSites(true);
+		das.add(dda);
 		das.add(new DivergenceDA());
 	}
 }
@@ -80,4 +84,6 @@ public class DDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/02 12:28:41  venku
+   - Installing drivers for all dependence analyses.
  */
