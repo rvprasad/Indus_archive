@@ -213,11 +213,6 @@ public final class SlicingEngine {
 	private SliceCollector collector;
 
 	/**
-	 * This indicates if ready dependence should be used.
-	 */
-	private boolean useReady;
-
-	/**
 	 * Creates a new SlicingEngine object.
 	 */
 	public SlicingEngine() {
@@ -250,9 +245,7 @@ public final class SlicingEngine {
 		}
 
 		if (dependenciesToUse.contains(DependencyAnalysis.READY_DA)) {
-			useReady = true;
-		} else {
-			useReady = false;
+			controlflowBasedDAs.addAll(controller.getAnalyses(DependencyAnalysis.READY_DA));
 		}
 	}
 
@@ -672,10 +665,6 @@ public final class SlicingEngine {
 			generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method);
 		}
 
-		if (useReady) {
-			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
-		}
-
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for invocation expressions (caller-callee)");
 		}
@@ -1068,7 +1057,17 @@ public final class SlicingEngine {
 	 */
 	private void transformAndGenerateCriteriaForVBoxes(final Collection vBoxes, final Stmt stmt, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming value boxes" + vBoxes);
+			final StringBuffer _sb = new StringBuffer();
+			_sb.append("BEGIN: Transforming value boxes [");
+
+			for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
+				ValueBox _vBox = (ValueBox) _i.next();
+				_sb.append(_vBox.getValue());
+				_sb.append("[" + _vBox + "]");
+                _sb.append(", ");
+			}
+			_sb.append("]");
+			LOGGER.debug(_sb.toString());
 		}
 
 		final Collection _types = new HashSet();
@@ -1183,8 +1182,6 @@ public final class SlicingEngine {
 			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
-			} else if (useReady && (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt)) {
-				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
 			}
 		}
 
@@ -1204,6 +1201,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.56  2004/01/20 00:46:36  venku
+   - criteria are sorted in SlicingEngine instead of SlicerTool.
+   - formatting and logging.
    Revision 1.55  2004/01/19 23:54:21  venku
    - coding convention.
    Revision 1.54  2004/01/19 23:53:44  venku
