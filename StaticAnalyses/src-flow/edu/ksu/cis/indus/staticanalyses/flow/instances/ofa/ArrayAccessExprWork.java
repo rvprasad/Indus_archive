@@ -22,16 +22,9 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 
-import java.util.Iterator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import soot.ArrayType;
-import soot.Value;
 
 import soot.jimple.ArrayRef;
-import soot.jimple.NullConstant;
 
 
 /**
@@ -45,28 +38,8 @@ import soot.jimple.NullConstant;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class ArrayAccessExprWork
-  extends AbstractAccessExprWork {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(ArrayAccessExprWork.class);
-
-	/**
-	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
-	 * primary.
-	 *
-	 * @invariant ast != null
-	 */
-	protected final IFGNode ast;
-
-	/**
-	 * The connector to be used to connect the ast and non-ast node.
-	 *
-	 * @invariant connector != null
-	 */
-	protected final IFGNodeConnector connector;
-
+class ArrayAccessExprWork
+  extends AbstractMemberDataAccessExprWork {
 	/**
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
 	 *
@@ -80,52 +53,33 @@ public class ArrayAccessExprWork
 	 */
 	public ArrayAccessExprWork(final MethodVariant callerMethod, final Context accessContext, final IFGNode accessNode,
 		final IFGNodeConnector connectorToUse) {
-		super(callerMethod, accessContext);
-		this.ast = accessNode;
-		this.connector = connectorToUse;
+		super(callerMethod, accessContext, accessNode, connectorToUse);
 	}
 
 	/**
-	 * Connects non-ast nodes to ast nodes when new values arrive at the primary of the array access expression.
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.AbstractMemberDataAccessExprWork#getFGNode()
 	 */
-	public synchronized void execute() {
-		ArrayType atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
-		FA fa = caller.getFA();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype
-				+ " in " + context);
-		}
-
-		for (Iterator i = values.iterator(); i.hasNext();) {
-			Value v = (Value) i.next();
-
-			if (v instanceof NullConstant) {
-				continue;
-			}
-
-			context.setAllocationSite(v);
-
-			IFGNode nonast = fa.getArrayVariant(atype, context).getFGNode();
-			connector.connect(ast, nonast);
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug(nonast + " " + context);
-			}
-		}
+	protected IFGNode getFGNode() {
+		final ArrayType _atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
+		final FA _fa = caller.getFA();
+		return _fa.getArrayVariant(_atype, context).getFGNode();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
    Revision 1.9  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()
        getCurrentStmt()
    - context holds current information and only it must be used
      to retrieve this information.  No auxiliary arguments. FIXED.
-
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

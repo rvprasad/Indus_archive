@@ -23,7 +23,9 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariantManager;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,6 +41,7 @@ import soot.ValueBox;
 
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.Jimple;
+import soot.jimple.JimpleValueSwitch;
 import soot.jimple.NullConstant;
 
 
@@ -53,12 +56,12 @@ import soot.jimple.NullConstant;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class InvokeExprWork
+class InvokeExprWork
   extends AbstractAccessExprWork {
-    /**
-     * This instance is used to create new virtual invoke ast nodes.
-     */
-    protected static final Jimple JIMPLE = Jimple.v();
+	/**
+	 * This instance is used to create new virtual invoke ast nodes.
+	 */
+	protected static final Jimple JIMPLE = Jimple.v();
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -70,7 +73,7 @@ public class InvokeExprWork
 	 *
 	 * @invariant exprSwitch != null
 	 */
-	protected AbstractExprSwitch exprSwitch;
+	protected JimpleValueSwitch exprSwitch;
 
 	/**
 	 * Indicates if the method represented by this object returns a value of with reference-like type.
@@ -78,6 +81,14 @@ public class InvokeExprWork
 	 * @invariant returnsRefLikeType != null
 	 */
 	protected final boolean returnsRefLikeType;
+
+	/**
+	 * The collection of variants already processed/installed at the given access expression.  We do not want to process
+	 * variants again and again.
+	 *
+	 * @invariant installedVariants != null
+	 */
+	private final Set installedVariants = new HashSet();
 
 	/**
 	 * Creates a new <code>InvokeExprWork</code> instance.
@@ -113,7 +124,6 @@ public class InvokeExprWork
 	 */
 	public synchronized void execute() {
 		final InstanceInvokeExpr _e = (InstanceInvokeExpr) accessExprBox.getValue();
-		final FA _fa = caller.getFA();
 		final ValueBox _vb = context.getProgramPoint();
 
 		if (LOGGER.isDebugEnabled()) {
@@ -131,56 +141,11 @@ public class InvokeExprWork
 				continue;
 			}
 
-			final Type _t = _v.getType();
-			final SootClass _sc;
-			if (_t instanceof RefType) {
-				_sc = _fa.getClass(((RefType) _v.getType()).getClassName());
-			} else if (_t instanceof ArrayType) {
-				_sc = _fa.getClass("java.lang.Object");
-			} else {
-                final RuntimeException _excp = new RuntimeException("Non-reference/array type flowing into invocation site.");
-				if (LOGGER.isErrorEnabled()) {
-					LOGGER.error( _e);
-				}
-				context.setProgramPoint(_vb);
-				throw _excp;
-			}
-
-            final SootMethod _sm;
 			try {
-				_sm = MethodVariantManager.findDeclaringMethod(_sc, _e.getMethod());
+				processExprAgainstValue(_e, _v);
 			} catch (final IllegalStateException _excp) {
-				LOGGER.error(_sc + ":" + context.getCurrentMethod() + "@" + _e, _excp);
 				context.setProgramPoint(_vb);
 				throw _excp;
-			}
-
-			final MethodVariant _mv = _fa.getMethodVariant(_sm, context);
-
-			if (!installedVariants.contains(_mv)) {
-				IFGNode _param;
-				IFGNode _arg;
-
-				for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
-					if (_sm.getParameterType(_j) instanceof RefLikeType) {
-						_param = _mv.queryParameterNode(_j);
-						context.setProgramPoint(_e.getArgBox(_j));
-						_arg = caller.queryASTNode(_e.getArg(_j), context);
-						_arg.addSucc(_param);
-					}
-				}
-				_param = _mv.queryThisNode();
-				context.setProgramPoint(_e.getBaseBox());
-				_arg = caller.queryASTNode(_e.getBase(), context);
-				_arg.addSucc(_param);
-
-				if (returnsRefLikeType) {
-					_arg = _mv.queryReturnNode();
-					context.setProgramPoint(accessExprBox);
-					_param = caller.queryASTNode(_e, context);
-					_arg.addSucc(_param);
-				}
-				installedVariants.add(_mv);
 			}
 		}
 		context.setProgramPoint(_vb);
@@ -196,14 +161,81 @@ public class InvokeExprWork
 	public String toString() {
 		return "InvokeExprWork: " + caller.getMethod() + "@" + accessExprBox.getValue();
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param expr DOCUMENT ME!
+	 * @param value DOCUMENT ME!
+	 */
+	private void processExprAgainstValue(final InstanceInvokeExpr expr, final Value value) {
+		final Type _t = value.getType();
+		final SootClass _sc;
+		final FA _fa = caller.getFA();
+
+		if (_t instanceof RefType) {
+			_sc = _fa.getClass(((RefType) value.getType()).getClassName());
+		} else if (_t instanceof ArrayType) {
+			_sc = _fa.getClass("java.lang.Object");
+		} else {
+			final IllegalStateException _excp =
+				new IllegalStateException("Non-reference/array type flowing into invocation site.");
+
+			if (LOGGER.isErrorEnabled()) {
+				LOGGER.error(expr);
+			}
+			throw _excp;
+		}
+
+		final SootMethod _sm;
+
+		try {
+			_sm = MethodVariantManager.findDeclaringMethod(_sc, expr.getMethod());
+		} catch (final IllegalStateException _excp) {
+			LOGGER.error(_sc + ":" + context.getCurrentMethod() + "@" + expr, _excp);
+			throw _excp;
+		}
+
+		final MethodVariant _mv = _fa.getMethodVariant(_sm, context);
+
+		if (!installedVariants.contains(_mv)) {
+			IFGNode _param;
+			IFGNode _arg;
+
+			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
+				if (_sm.getParameterType(_j) instanceof RefLikeType) {
+					_param = _mv.queryParameterNode(_j);
+					context.setProgramPoint(expr.getArgBox(_j));
+					_arg = caller.queryASTNode(expr.getArg(_j), context);
+					_arg.addSucc(_param);
+				}
+			}
+			_param = _mv.queryThisNode();
+			context.setProgramPoint(expr.getBaseBox());
+			_arg = caller.queryASTNode(expr.getBase(), context);
+			_arg.addSucc(_param);
+
+			if (returnsRefLikeType) {
+				_arg = _mv.queryReturnNode();
+				context.setProgramPoint(accessExprBox);
+				_param = caller.queryASTNode(expr, context);
+				_arg.addSucc(_param);
+			}
+			installedVariants.add(_mv);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
    Revision 1.13  2003/12/07 05:02:34  venku
    - formatting.
-
    Revision 1.12  2003/12/05 21:13:56  venku
    - special invokes are treated just like virtual invoke.
    Revision 1.11  2003/12/05 02:27:20  venku

@@ -18,14 +18,8 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import soot.ValueBox;
 
@@ -40,7 +34,7 @@ import soot.ValueBox;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public abstract class AbstractAccessExprWork
+abstract class AbstractAccessExprWork
   extends AbstractWork {
 	/**
 	 * The context in which the access occurs.
@@ -55,14 +49,6 @@ public abstract class AbstractAccessExprWork
 	 * @invariant caller != null
 	 */
 	protected final MethodVariant caller;
-
-	/**
-	 * The collection of variants already processed/installed at the given access expression.  We do not want to process
-	 * variants again and again.
-	 *
-	 * @invariant installedVariants != null
-	 */
-	protected final Set installedVariants = new HashSet();
 
 	/**
 	 * The program point at which the entity occurs.
@@ -80,35 +66,22 @@ public abstract class AbstractAccessExprWork
 	 * @pre callerMethod != null and accessExpr != null and accessContext != null
 	 */
 	protected AbstractAccessExprWork(final MethodVariant callerMethod, final Context accessContext) {
-		this(null, new ArrayList(), callerMethod, accessContext.getProgramPoint(), (Context) accessContext.clone());
-	}
-
-	/**
-	 * Creates a new <code>AbstractAccessExprWork</code> instance.
-	 *
-	 * @param accessNode the node associated with the access expression.
-	 * @param arrivingValues the values arriving at <code>node</code>.
-	 * @param callerMethod the method in which the access expression occurs.
-	 * @param accessExpr the access expression program point.  This is usually <code>ValueBox</code> containing
-	 * 		  <code>FieldRef</code>, <code>ArrayRef</code>, or <code>NonStaticInvokeExpr</code>.
-	 * @param accessContext the context in which the access occurs.
-	 *
-	 * @pre accessNode != null and arrivingValues != null and callerMethod != null and accessExpr != null and accessContext
-	 * 		!= null
-	 */
-	protected AbstractAccessExprWork(final IFGNode accessNode, final Collection arrivingValues,
-		final MethodVariant callerMethod, final ValueBox accessExpr, final Context accessContext) {
-		this.accessExprBox = accessExpr;
-		this.caller = callerMethod;
-		this.context = (AllocationContext) accessContext.clone();
-		setFGNode(accessNode);
-		addValues(arrivingValues);
+		accessExprBox = accessContext.getProgramPoint();
+        caller = callerMethod;
+        context = (AllocationContext) accessContext.clone();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
+
    Revision 1.6  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

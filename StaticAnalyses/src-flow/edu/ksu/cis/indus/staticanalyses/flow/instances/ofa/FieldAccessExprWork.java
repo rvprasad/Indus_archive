@@ -22,16 +22,9 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 
-import java.util.Iterator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import soot.SootField;
-import soot.Value;
 
 import soot.jimple.FieldRef;
-import soot.jimple.NullConstant;
 
 
 /**
@@ -44,28 +37,8 @@ import soot.jimple.NullConstant;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class FieldAccessExprWork
-  extends AbstractAccessExprWork {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(FieldAccessExprWork.class);
-
-	/**
-	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
-	 * primary.
-	 *
-	 * @invariant ast != null
-	 */
-	protected final IFGNode ast;
-
-	/**
-	 * The connector to be used to connect the ast and non-ast node.
-	 *
-	 * @invariant connector != null
-	 */
-	protected final IFGNodeConnector connector;
-
+class FieldAccessExprWork
+  extends AbstractMemberDataAccessExprWork {
 	/**
 	 * Creates a new <code>FieldAccessExprWork</code> instance.
 	 *
@@ -79,39 +52,27 @@ public class FieldAccessExprWork
 	 */
 	public FieldAccessExprWork(final MethodVariant callerMethod, final Context accessContext, final IFGNode accessNode,
 		final IFGNodeConnector connectorToBeUsed) {
-		super(callerMethod, accessContext);
-		this.ast = accessNode;
-		this.connector = connectorToBeUsed;
+		super(callerMethod, accessContext, accessNode, connectorToBeUsed);
 	}
 
 	/**
-	 * Connects non-ast nodes to ast nodes when new values arrive at the primary of the field access expression.
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.AbstractMemberDataAccessExprWork#getFGNode()
 	 */
-	public synchronized void execute() {
+	protected IFGNode getFGNode() {
 		final SootField _sf = ((FieldRef) accessExprBox.getValue()).getField();
 		final FA _fa = caller.getFA();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
-		}
-
-		for (final Iterator _i = values.iterator(); _i.hasNext();) {
-			final Value _v = (Value) _i.next();
-
-			if (_v instanceof NullConstant) {
-				continue;
-			}
-			context.setAllocationSite(_v);
-
-			final IFGNode _nonast = _fa.getFieldVariant(_sf, context).getFGNode();
-			connector.connect(ast, _nonast);
-		}
+		return _fa.getFieldVariant(_sf, context).getFGNode();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
    Revision 1.9  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()

@@ -49,7 +49,7 @@ import soot.jimple.ThrowStmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class StmtSwitch
+class StmtSwitch
   extends AbstractStmtSwitch {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -187,8 +187,8 @@ public class StmtSwitch
 		if (Util.isReferenceType(stmt.getOp().getType())) {
 			rexpr.process(stmt.getOpBox());
 
-			IFGNode retNode = (IFGNode) rexpr.getResult();
-			retNode.addSucc(method.queryReturnNode());
+			final IFGNode _retNode = (IFGNode) rexpr.getResult();
+			_retNode.addSucc(method.queryReturnNode());
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -252,6 +252,12 @@ public class StmtSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
+
    Revision 1.8  2004/02/26 08:31:21  venku
    - refactoring - moved OFAnalyzer.isReferenceType() to Util.
    Revision 1.7  2003/12/07 09:59:50  venku

@@ -38,7 +38,7 @@ import soot.jimple.Stmt;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Date$
  */
-public class FlowSensitiveExprSwitch
+class FlowSensitiveExprSwitch
   extends edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -108,6 +108,12 @@ public class FlowSensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
+
    Revision 1.9  2003/12/05 15:31:41  venku
    - deleted method as it contained redundant logic.
    Revision 1.8  2003/12/05 02:27:20  venku

@@ -34,7 +34,7 @@ import java.util.Iterator;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class OFAFGNode
+class OFAFGNode
   extends AbstractFGNode {
 	/**
 	 * Creates a new <code>OFAFGNode</code> instance.
@@ -132,6 +132,12 @@ public class OFAFGNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
+
    Revision 1.9  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

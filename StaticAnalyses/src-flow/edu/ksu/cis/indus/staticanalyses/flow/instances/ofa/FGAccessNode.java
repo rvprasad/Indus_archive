@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class FGAccessNode
+class FGAccessNode
   extends OFAFGNode {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -99,6 +99,9 @@ public class FGAccessNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/26 09:25:59  venku
+   - documenation.
+
    Revision 1.5  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

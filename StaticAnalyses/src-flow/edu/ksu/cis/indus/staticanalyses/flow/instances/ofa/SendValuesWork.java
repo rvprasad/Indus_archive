@@ -36,7 +36,7 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class SendValuesWork
+class SendValuesWork
   extends AbstractWork {
 	/**
 	 * This is the work pool of work peices that will be reused upon request..
@@ -59,6 +59,11 @@ public class SendValuesWork
 	private static final Log LOGGER = LogFactory.getLog(SendValuesWork.class);
 
 	/**
+	 * The flow graph node associated with this work.
+	 */
+	private IFGNode node;
+
+	/**
 	 * Injects the values into the associated node.
 	 */
 	public final void execute() {
@@ -72,12 +77,13 @@ public class SendValuesWork
 	 */
 	protected void finished() {
 		try {
+			node = null;
 			POOL.returnObject(this);
-		} catch (Exception e) {
+		} catch (final Exception _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", e);
+				LOGGER.warn("How can this happen?", _e);
 			}
-			throw new RuntimeException(e);
+			throw new RuntimeException(_e);
 		}
 	}
 
@@ -93,11 +99,10 @@ public class SendValuesWork
 	 * @pre toNode != null and valueToBeSent != null
 	 */
 	static final SendValuesWork getWork(final IFGNode toNode, final Object valueToBeSent) {
-		SendValuesWork result = getWork();
-
-		result.setFGNode(toNode);
-		result.addValue(valueToBeSent);
-		return result;
+		final SendValuesWork _result = getWork();
+		_result.node = toNode;
+		_result.addValue(valueToBeSent);
+		return _result;
 	}
 
 	/**
@@ -112,10 +117,10 @@ public class SendValuesWork
 	 * @pre toNode != null and valuesToBeSent != null
 	 */
 	static final SendValuesWork getWork(final IFGNode toNode, final Collection valuesToBeSent) {
-		SendValuesWork result = getWork();
-		result.setFGNode(toNode);
-		result.addValues(valuesToBeSent);
-		return result;
+		final SendValuesWork _result = getWork();
+		_result.node = toNode;
+		_result.addValues(valuesToBeSent);
+		return _result;
 	}
 
 	/**
@@ -126,24 +131,27 @@ public class SendValuesWork
 	 * @throws RuntimeException if the work peice could not be retrieved.
 	 */
 	private static SendValuesWork getWork() {
-		SendValuesWork result;
+		final SendValuesWork _result;
 
 		try {
-			result = (SendValuesWork) POOL.borrowObject();
-			result.values.clear();
-		} catch (Exception e) {
+			_result = (SendValuesWork) POOL.borrowObject();
+			_result.values.clear();
+			return _result;
+		} catch (final Exception _e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("How can this happen?", e);
+				LOGGER.warn("How can this happen?", _e);
 			}
-			throw new RuntimeException(e);
+			throw new RuntimeException(_e);
 		}
-		return result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

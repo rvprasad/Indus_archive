@@ -65,7 +65,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class FlowInsensitiveExprSwitch
+class FlowInsensitiveExprSwitch
   extends AbstractExprSwitch {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -116,7 +116,6 @@ public class FlowInsensitiveExprSwitch
 		final AbstractWork _work = new ArrayAccessExprWork(method, context, _ast, connector);
 		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList());
 		_baseNode.addSucc(_temp);
-		_work.setFGNode(_temp);
 		process(e.getIndexBox());
 		setResult(_ast);
 	}
@@ -169,7 +168,6 @@ public class FlowInsensitiveExprSwitch
 		final AbstractWork _work = new FieldAccessExprWork(method, context, _ast, connector);
 		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList());
 		_baseNode.addSucc(_temp);
-		_work.setFGNode(_temp);
 		setResult(_ast);
 	}
 
@@ -247,15 +245,15 @@ public class FlowInsensitiveExprSwitch
 	public void caseNewMultiArrayExpr(final NewMultiArrayExpr e) {
 		ArrayType _arrayType = e.getBaseType();
 		final Type _baseType = _arrayType.baseType;
-		int sizes = e.getSizeCount();
+		int _sizes = e.getSizeCount();
 
-		for (int _i = _arrayType.numDimensions; _i > 0; _i--, sizes--) {
+		for (int _i = _arrayType.numDimensions; _i > 0; _i--, _sizes--) {
 			_arrayType = ArrayType.v(_baseType, _i);
 
-			ArrayVariant array = fa.getArrayVariant(_arrayType, context);
+			final ArrayVariant _array = fa.getArrayVariant(_arrayType, context);
 
-			if (sizes > 0) {
-				array.getFGNode().addValue(e);
+			if (_sizes > 0) {
+				_array.getFGNode().addValue(e);
 			}
 		}
 
@@ -417,7 +415,6 @@ public class FlowInsensitiveExprSwitch
 
 		final AbstractWork _work = new InvokeExprWork(method, context, this);
 		final FGAccessNode _baseNode = new FGAccessNode(_work, getWorkList());
-		_work.setFGNode(_baseNode);
 		_temp.addSucc(_baseNode);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -475,6 +472,12 @@ public class FlowInsensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
+
    Revision 1.14  2004/02/26 08:31:21  venku
    - refactoring - moved OFAnalyzer.isReferenceType() to Util.
    Revision 1.13  2003/12/16 00:19:25  venku
