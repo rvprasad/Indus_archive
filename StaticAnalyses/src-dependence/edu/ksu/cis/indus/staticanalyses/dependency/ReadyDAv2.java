@@ -16,10 +16,12 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import soot.SootMethod;
+import soot.Value;
 
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.InvokeStmt;
+import soot.jimple.VirtualInvokeExpr;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -30,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * This class uses symbolic-analysis as calculated by <code>EquivalenceClassBasedEscapeAnalysis</code> to prune the ready
+ * This class uses escape-analysis as calculated by <code>EquivalenceClassBasedEscapeAnalysis</code> to prune the ready
  * dependency information calculated by it's parent class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -53,7 +55,8 @@ public class ReadyDAv2
 
 	/**
 	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
-	 * results of a {@link edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
+	 * results of escape analysis info calculated {@link
+	 * edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
 	 * EquivalenceClassBasedEscapeAnalysis} analysis is used to determine the dependence.
 	 *
 	 * @param enterPair is the enter monitor statement.
@@ -66,16 +69,17 @@ public class ReadyDAv2
 	 * @see ReadyDAv1#ifDependentOnByRule2(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
-		EnterMonitorStmt enter = (EnterMonitorStmt) enterPair.getFirst();
-		ExitMonitorStmt exit = (ExitMonitorStmt) exitPair.getFirst();
+		Value enter = ((EnterMonitorStmt) enterPair.getFirst()).getOp();
+		Value exit = ((ExitMonitorStmt) exitPair.getFirst()).getOp();
 		SootMethod enterMethod = (SootMethod) enterPair.getSecond();
 		SootMethod exitMethod = (SootMethod) exitPair.getSecond();
-		return ecba.isReadyDependent(exit, exitMethod, enter, enterMethod);
+		return ecba.escapes(enter, enterMethod) && ecba.escapes(exit, exitMethod);
 	}
 
 	/**
 	 * Checks if the given <code>wait()</code> call-site is dependent on the <code>notifyXX()</code> call-site according to
-	 * rule 2.  The results of a <code>EquivalenceClassbasedAnalysis</code>analysis is used to determine the dependence.
+	 * rule 2.  The results of escape analysis info calculated by <code>EquivalenceClassbasedAnalysis</code>analysis is used
+	 * to determine the dependence.
 	 *
 	 * @param wPair is the statement in which <code>java.lang.Object.wait()</code> is invoked.
 	 * @param nPair is the statement in which <code>java.lang.Object.notifyXX()</code> is invoked.
@@ -87,11 +91,11 @@ public class ReadyDAv2
 	 * @see ReadyDAv1#ifDependentOnByRule4(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule4(final Pair wPair, final Pair nPair) {
-		InvokeStmt notify = (InvokeStmt) nPair.getFirst();
-		InvokeStmt wait = (InvokeStmt) wPair.getFirst();
+		Value notify = ((VirtualInvokeExpr) ((InvokeStmt) nPair.getFirst()).getInvokeExpr()).getBase();
+		Value wait = ((VirtualInvokeExpr) ((InvokeStmt) wPair.getFirst()).getInvokeExpr()).getBase();
 		SootMethod wMethod = (SootMethod) wPair.getSecond();
 		SootMethod nMethod = (SootMethod) nPair.getSecond();
-		return ecba.isReadyDependent(wait, wMethod, notify, nMethod);
+		return ecba.escapes(notify, nMethod) && ecba.escapes(wait, wMethod);
 	}
 
 	/**
@@ -118,6 +122,8 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/03 07:54:29  venku
+   - deleted comments.
    Revision 1.10  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
