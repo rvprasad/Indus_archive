@@ -22,6 +22,9 @@ import soot.toolkits.graph.UnitGraph;
 
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.lang.ref.WeakReference;
 
 
@@ -35,6 +38,11 @@ import java.lang.ref.WeakReference;
 public class CompleteUnitGraphFactory
   extends AbstractUnitGraphFactory {
 	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(CompleteUnitGraphFactory.class);
+
+	/**
 	 * {@inheritDoc}
 	 *
 	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
@@ -46,10 +54,14 @@ public class CompleteUnitGraphFactory
 		UnitGraph result = null;
 
 		if (ref == null || ref.get() == null) {
-            if (method.isConcrete()) {
-                result = new CompleteUnitGraph(method.retrieveActiveBody());
-                method2UnitGraph.put(method, new WeakReference(result));
-            }
+			if (method.isConcrete()) {
+				result = new CompleteUnitGraph(method.retrieveActiveBody());
+				method2UnitGraph.put(method, new WeakReference(result));
+			} else {
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("Method " + method + " is not concrete.");
+				}
+			}
 		} else if (ref != null) {
 			result = (CompleteUnitGraph) ref.get();
 		}
@@ -60,21 +72,18 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/26 06:26:25  venku
+   - coding convention.
    Revision 1.5  2003/11/01 23:51:57  venku
    - documentation.
-
    Revision 1.4  2003/09/28 23:14:03  venku
    - documentation
-
    Revision 1.3  2003/09/28 07:34:04  venku
    - ensured that null graph is returned if the method does not
      have a body.
-
    Revision 1.2  2003/09/28 06:52:22  venku
-   *** empty log message ***
-
+ *** empty log message ***
    Revision 1.1  2003/09/28 06:22:54  venku
    - Added support to plug unit graphs from the environment when
      requested by the implementations.
-
  */
