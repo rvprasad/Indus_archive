@@ -86,14 +86,32 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 		
 	}
 
-	/** (non-Javadoc)
+	/** Runs the dependence analysis action.
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
 		if(tSelection != null) {
 			//removeDependenceAnnotation(editor);
-			final String _text = tSelection.getText();
+			
             final int _nSelLine = tSelection.getEndLine() + 1;
+            String _text = "";
+            	try {
+            		final IRegion _region =
+				editor.getDocumentProvider().getDocument(editor.getEditorInput()).
+				getLineInformation(_nSelLine - 1);																	
+				
+				_text =
+					editor.getDocumentProvider().getDocument(editor.getEditorInput()).get(_region.getOffset(),
+						_region.getLength());
+				_text = _text.trim();
+            	} catch(BadLocationException _ble) {
+            		SECommons.handleException(_ble);
+            		return;
+            	}
+				
+			
+            
+            
             final IFile _inpfile = ((IFileEditorInput) editor.getEditorInput()).getFile();           
     		final IProject _project = KaveriPlugin.getDefault().getIndusConfiguration()
     		.getSliceProject();
@@ -226,7 +244,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 			return;
 		}
 		final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
-		try {
+		try {			
 		_file.deleteMarkers("edu.ksu.cis.indus.kaveri.cimarker", false, IResource.DEPTH_INFINITE);
 		} catch (CoreException _ce) {}
 		final IAnnotationModel _model = editor.getDocumentProvider().getAnnotationModel(editor.getEditorInput());
@@ -291,7 +309,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                 			KaveriPlugin.getDefault().getIndusConfiguration().
 								getDepHistory().getHistory().size() == 0) {
                 		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().reset();
-                		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().setElemHistoryLink("");
+                		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().setElemHistoryLink("Starting Point");
                 		removeDependenceAnnotation(editor);
                 	}                	
                 	//_dset.clear();
@@ -300,9 +318,10 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                 	_dsd.setFile((IFile) triple.getFirst());
                 	_dsd.setStatement(triple.getSecond().toString());
                 	_dsd.setLineNo(((Integer) triple.getThird()).intValue());
-                	AnnotationPreferenceLookup apl = new AnnotationPreferenceLookup();
+                	
+                	/*AnnotationPreferenceLookup apl = new AnnotationPreferenceLookup();
                 	final RGB _rgb = apl.getAnnotationPreference(getDependenceAnnotationKey()).getColorPreferenceValue();
-                	_dsd.setDepColor(_rgb);
+                	_dsd.setDepColor(_rgb);*/
                 	Pair _pair = new Pair(_dsd, _link, false, true);
                 	KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().setElemHistoryLink(getDependenceInfo());
                 	KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(_pair);
@@ -320,15 +339,15 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 							if (_nLine != -1) {
 								final Integer _it = new Integer(_nLine);							
 								if (_dset.contains(_it)) {
+									/*
 									final String _markerID = "edu.ksu.cis.indus.kaveri.cimarker";
-									try {
-									//final IMarker _marker = _file.createMarker(_markerID);
+									try {								
 									final Map _attMap = new HashMap();
 									_attMap.put(IMarker.MESSAGE, "Multiple Dependencies Present");										
 									_attMap.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_NORMAL));
 									_attMap.put(IMarker.LINE_NUMBER, new Integer(_nLine));										
 									MarkerUtilities.createMarker(_file, _attMap, _markerID);
-									} catch (CoreException _ce) {}
+									} catch (CoreException _ce) {}*/
 								} else {
 									_newLineSet.add(_it);
 								}	

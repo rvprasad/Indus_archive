@@ -374,7 +374,9 @@ public class IndusConfigurationDialog
 					final Object _res[] =_sld.getResult();
 					if (_res != null && _res.length > 0) {
 						String _scopeSpec = "<?xml version=\"1.0\"?>\n";
-						_scopeSpec += "<scopeSpec  xmlns=\"http://indus.projects.cis.ksu.edu/indus\">\n";												
+						_scopeSpec += "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+							"xmlns:indus=\"http://indus.projects.cis.ksu.edu/indus\"" +
+							"indus:specName=\"scope_spec\">\n";												
 						for (int i = 0; i < _res.length; i++) {
 							final IMethod _method = (IMethod) _res[i];
 							_scopeSpec += "\n<methodSpec>\n";

@@ -34,7 +34,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -150,22 +149,27 @@ public class IndusRunner
 		driver.setNameOfSliceTag(_stag);
 		driver.getSlicer().addToolProgressListener(
 				new IToolProgressListener() {
-					int _ctr = 1; long _currTime = System.currentTimeMillis();
+					int _ctr = 1; long _currTime;
+					String _newMsg = null;
 					public void toolProgess(final ToolProgressEvent arg0) {						
 						_ctr++;						
-						if (!monitor.isCanceled()) {
-							final long _newTime = (System.currentTimeMillis() - _currTime);
-							_currTime = System.currentTimeMillis();
+						if (!monitor.isCanceled()) {							
 							monitor.worked(_ctr);
-							
-							Display.getDefault().asyncExec(
-									new Runnable() {
-										public void run() {
-											bar.addSliceMessage(arg0.getMsg() + " Time: " + _newTime + " ms");				
+							if (_newMsg == null) {
+								_newMsg = arg0.getMsg();
+								_currTime = System.currentTimeMillis();
+							} else {
+								final long _newTimeDelta  = System.currentTimeMillis() - _currTime; 
+								_currTime = _newTimeDelta + _currTime;
+								Display.getDefault().asyncExec(
+										new Runnable() {
+											public void run() {
+												bar.addSliceMessage(_newMsg + " Time: " + _newTimeDelta + " ms");				
+											}
 										}
-									}
-									);
-							
+										);								
+								_newMsg = arg0.getMsg();
+							}
 							//System.out.println(arg0.getMsg());
 						}						
 						else {

@@ -34,7 +34,6 @@ import java.util.List;
 import org.eclipse.jface.action.IAction;
 
 
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 
 import org.eclipse.jface.viewers.ISelection;
 

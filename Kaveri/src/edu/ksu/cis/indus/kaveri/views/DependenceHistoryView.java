@@ -34,7 +34,8 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -46,7 +47,6 @@ import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
@@ -340,7 +340,7 @@ public class DependenceHistoryView
 	 */
 	class DependenceHistoryViewLabelProvider
 	  extends LabelProvider
-	  implements ITableLabelProvider, IColorProvider {
+	  implements ITableLabelProvider /*, IColorProvider*/ {
 		
 		/**
 		 * Get the image label for the given column.
@@ -365,18 +365,26 @@ public class DependenceHistoryView
 			String _retString = "";
 			
 			if (element instanceof TreeParent) {
-				if (index == 0)
+				switch(index) {
+				case 0:
 					_retString = element.toString();
-				else
-					_retString  = "";
+					break;
+				case 1:
+					_retString = ((TreeParent) element).getChildren()[0].getFile().getName();
+					break;
+				case 2:
+					_retString = _retString =  ((TreeParent) element).getChildren()[0].getLineNumber() + "";
+					break;
+				default:
+						_retString = "";
+				}										
+				
 			} else 
 			if (element instanceof TreeObject) {
 				switch (index) {				 
-				case 1:
-						_retString = ((TreeObject) element).getFile().getName();
+				case 1:						
 						break;
-				case 2:
-						_retString =  ((TreeObject) element).getLineNumber() + "";
+				case 2:						
 						break;
 				case 3:
 						_retString =  ((TreeObject) element).getDependencyTracked();
@@ -398,17 +406,12 @@ public class DependenceHistoryView
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
-		 */
-		public Color getForeground(Object element) {
+/*		public Color getForeground(Object element) {
 		
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
-		 */
+	
 		public Color getBackground(Object element) {
 			Color _retColor = null;
 			if (element instanceof TreeObject) {
@@ -419,7 +422,7 @@ public class DependenceHistoryView
 			}
 			return _retColor;
 		}
-
+*/
 	}
 
 	/**
@@ -450,14 +453,20 @@ public class DependenceHistoryView
 				new ControlAdapter() {														
 					public void controlResized(ControlEvent e)
 					{
-						TableColumn _col1 = _table.getColumn(0);
+						final TableColumn _columns[] = _table.getColumns();
+						for (int i = 0; i < _columns.length; i++) {
+							_columns[i].pack();
+						}
+						
+						/*TableColumn _col1 = _table.getColumn(0);
 						_col1.setWidth(parent.getSize().x / 4 );
 						_col1 = _table.getColumn(1);
 						_col1.setWidth(parent.getSize().x / 4);
 						_col1 = _table.getColumn(2);
 						_col1.setWidth(parent.getSize().x / 6);
 						_col1 = _table.getColumn(3);
-						_col1.setWidth(parent.getSize().x / 3);											
+						_col1.setWidth(parent.getSize().x / 3);
+						*/											
 					}
 				}
 				);							
@@ -468,6 +477,7 @@ public class DependenceHistoryView
 		fillToolBar(_manager);	
 		makeActions();
 		hookContextMenu();
+		hookDoubleClickAction();
 	}
 
 	/**
@@ -510,50 +520,70 @@ public class DependenceHistoryView
 	}
 
 	/**
+	 * Run the double click action 
+	 */
+	private void hookDoubleClickAction() {
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				doubleClickAction.run();
+			}
+		});
+	}
+	
+	/**
 	 * Creates the popup menu actions.
 	 *
 	 */
 	private void makeActions() {
 		action1 = new Action() {
 			public void run()  {
-				final ISelection _sel = viewer.getSelection();
-				if (_sel != null && _sel instanceof IStructuredSelection) {
-					IStructuredSelection _ssel = (IStructuredSelection) _sel;
-					final Object _obj =_ssel.getFirstElement();
-					IJavaElement _elem = null;
-					int nlineno = -1;
-					if (_obj != null && _obj instanceof TreeParent) {
-						final TreeParent _tp = (TreeParent) _obj;
-						final TreeObject _to = (TreeObject) _tp.getChildren()[0];
-						final IFile _file = _to.getFile(); 																			
-						 _elem = JavaCore.create(_file);
-						 nlineno = _to.getLineNumber();
-					} else if (_obj != null && _obj instanceof TreeObject) {
-						final TreeObject _to = (TreeObject) _obj;
-						final IFile _file = _to.getFile();
-						_elem =	JavaCore.create(_file);
-						nlineno = _to.getLineNumber();
-					}
-					if (_elem != null) {
-						try {
-							final CompilationUnitEditor _editor = (CompilationUnitEditor) JavaUI.openInEditor(_elem);							
-								final IRegion _region =
-									_editor.getDocumentProvider().getDocument(_editor.getEditorInput()).
-									getLineInformation(nlineno - 1);
-								_editor.selectAndReveal(_region.getOffset(), _region.getLength());
-						} 
-						catch (PartInitException e) {							
-							SECommons.handleException(e);
-						} catch (JavaModelException e) {
-							SECommons.handleException(e);
-						} catch (org.eclipse.jface.text.BadLocationException e) {							
-							SECommons.handleException(e);
-						} 
-					}
-				}
+				highlightSource();
 			}
 		};
 		action1.setText("Goto Source");
+		doubleClickAction = new Action() {
+			public void run() {
+				highlightSource();
+			}
+		};
+	}
+	
+	private void highlightSource() {
+		final ISelection _sel = viewer.getSelection();
+		if (_sel != null && _sel instanceof IStructuredSelection) {
+			IStructuredSelection _ssel = (IStructuredSelection) _sel;
+			final Object _obj =_ssel.getFirstElement();
+			IJavaElement _elem = null;
+			int nlineno = -1;
+			if (_obj != null && _obj instanceof TreeParent) {
+				final TreeParent _tp = (TreeParent) _obj;
+				final TreeObject _to = (TreeObject) _tp.getChildren()[0];
+				final IFile _file = _to.getFile(); 																			
+				 _elem = JavaCore.create(_file);
+				 nlineno = _to.getLineNumber();
+			} else if (_obj != null && _obj instanceof TreeObject) {
+				final TreeObject _to = (TreeObject) _obj;
+				final IFile _file = _to.getFile();
+				_elem =	JavaCore.create(_file);
+				nlineno = _to.getLineNumber();
+			}
+			if (_elem != null) {
+				try {
+					final CompilationUnitEditor _editor = (CompilationUnitEditor) JavaUI.openInEditor(_elem);							
+						final IRegion _region =
+							_editor.getDocumentProvider().getDocument(_editor.getEditorInput()).
+							getLineInformation(nlineno - 1);
+						_editor.selectAndReveal(_region.getOffset(), _region.getLength());
+				} 
+				catch (PartInitException e) {							
+					SECommons.handleException(e);
+				} catch (JavaModelException e) {
+					SECommons.handleException(e);
+				} catch (org.eclipse.jface.text.BadLocationException e) {							
+					SECommons.handleException(e);
+				} 
+			}
+		}
 	}
 	
 	private void hookContextMenu() {		
