@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -55,13 +55,6 @@ public final class BitSetTokenManager
 	 * @invariant valueList->forall( o | valueList->remove(o)->forall(p | p != o))
 	 */
 	final List valueList = new ArrayList();
-
-	/** 
-	 * The mapping between types to the type based filter.
-	 *
-	 * @invariant type2filter.oclIsKindOf(Map(IType, ITokenFilter))
-	 */
-	private final Map type2filter = new HashMap();
 
 	/** 
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
@@ -250,37 +243,33 @@ public final class BitSetTokenManager
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeBasedFilter(IType)
-	 */
-	public ITokenFilter getTypeBasedFilter(final IType type) {
-		final BitSet _mask =
-			(BitSet) CollectionsUtilities.getFromMap(type2tokens, type, CollectionsUtilities.BIT_SET_FACTORY);
-		ITokenFilter _result = (ITokenFilter) type2filter.get(type);
-
-		if (_result == null) {
-			_result = new BitSetTokenFilter(_mask);
-			type2filter.put(type, _result);
-		}
-
-		return _result;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#reset()
 	 */
 	public void reset() {
+		super.reset();
 		valueList.clear();
 		type2tokens.clear();
+	}
+
+	/**
+	 * @see AbstractTokenManager#getNewFilterForType(edu.ksu.cis.indus.staticanalyses.tokens.IType)
+	 */
+	protected ITokenFilter getNewFilterForType(final IType type) {
+		final BitSet _mask =
+			(BitSet) CollectionsUtilities.getFromMap(type2tokens, type, CollectionsUtilities.BIT_SET_FACTORY);
+
+		return new BitSetTokenFilter(_mask);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/08/09 03:31:09  venku
+   - type cast error. FIXED.
    Revision 1.9  2004/08/09 03:11:49  venku
    - each type-based filter is dependent on the values of that type.  As these do
      not change in an analysis, it is wise to cache these filters for reuse.
-
    Revision 1.8  2004/08/08 10:11:35  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.

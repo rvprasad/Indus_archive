@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -60,13 +60,6 @@ public class IntegerTokenManager
 	 * @invariant type2tokens.oclIsKindOf(Map(IType, MutableInteger))
 	 */
 	final Map type2tokens = new HashMap(Constants.getNumOfClassesInApplication());
-
-	/** 
-	 * The mapping between types to the type based filter.
-	 *
-	 * @invariant type2filter.oclIsKindOf(Map(IType, ITokenFilter))
-	 */
-	private final Map type2filter = new HashMap();
 
 	/**
 	 * Creates an instacne of this class.
@@ -318,31 +311,28 @@ public class IntegerTokenManager
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeBasedFilter(IType)
-	 */
-	public ITokenFilter getTypeBasedFilter(final IType type) {
-		ITokenFilter _result = (ITokenFilter) type2filter.get(type);
-
-		if (_result == null) {
-			_result = new IntegerTokenFilter(type);
-			type2filter.put(type, _result);
-		}
-
-		return _result;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#reset()
 	 */
 	public void reset() {
+		super.reset();
 		type2tokens.clear();
 		valueList.clear();
+	}
+
+	/**
+	 * @see AbstractTokenManager#getNewFilterForType(edu.ksu.cis.indus.staticanalyses.tokens.IType)
+	 */
+	protected ITokenFilter getNewFilterForType(final IType type) {
+		return new IntegerTokenFilter(type);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/08/09 03:11:49  venku
+   - each type-based filter is dependent on the values of that type.  As these do
+     not change in an analysis, it is wise to cache these filters for reuse.
    Revision 1.9  2004/08/08 10:11:35  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.

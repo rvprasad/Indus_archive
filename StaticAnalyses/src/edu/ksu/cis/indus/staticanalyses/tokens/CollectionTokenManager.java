@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -20,10 +20,8 @@ import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -44,13 +42,6 @@ public final class CollectionTokenManager
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(CollectionTokenManager.class);
-
-	/** 
-	 * The mapping between types to the type based filter.
-	 *
-	 * @invariant type2filter.oclIsKindOf(Map(IType, ITokenFilter))
-	 */
-	private final Map type2filter = new HashMap();
 
 	/**
 	 * Creates an instacne of this class.
@@ -192,29 +183,19 @@ public final class CollectionTokenManager
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#getTypeBasedFilter(IType)
+	 * @see AbstractTokenManager#getNewFilterForType(edu.ksu.cis.indus.staticanalyses.tokens.IType)
 	 */
-	public ITokenFilter getTypeBasedFilter(final IType type) {
-		ITokenFilter _result = (ITokenFilter) type2filter.get(type);
-
-		if (_result == null) {
-			_result = new CollectionTokenFilter(type);
-			type2filter.put(type, _result);
-		}
-
-		return _result;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager#reset()
-	 */
-	public void reset() {
+	protected ITokenFilter getNewFilterForType(final IType type) {
+		return new CollectionTokenFilter(type);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/08/09 03:11:49  venku
+   - each type-based filter is dependent on the values of that type.  As these do
+     not change in an analysis, it is wise to cache these filters for reuse.
    Revision 1.2  2004/05/20 07:29:41  venku
    - optimized the token set to be optimal when created.
    - added new method to retrieve empty token sets (getNewTokenSet()).
