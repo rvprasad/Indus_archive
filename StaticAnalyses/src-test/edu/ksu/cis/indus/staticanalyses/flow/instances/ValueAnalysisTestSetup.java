@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.ICallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
@@ -77,7 +76,7 @@ public class ValueAnalysisTestSetup
         cgiImpl.createCallGraphInfo(_ofaci.getCallInfoProvider());
 
 		final Collection _temp =
-			new ArrayList(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class));
+			new ArrayList(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), ICallGraphTest.class));
 		_temp.addAll(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedCallGraphTest.class));
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
