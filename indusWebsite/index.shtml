@@ -40,19 +40,37 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
 	pruning interference and ready dependence edges.  The extensions are in the form of seamless addition of value
 	equivalence to the analysis to improve the detection of conflicting field reads/writes occurring in different threads
 	beyond just using type equality of the primaries of the access expressions. The analysis also uses object-flow
-	information orthogonally to further improve precision.</p></li>
+	information orthogonally to further improve precision.</p> </li>
 
 	<li><p><u>Dependence Analyses</u> is a collection of dependence analyses: entry-based control, exit-based control,
 	identifier-based data, reference-based data, interference, ready, synchronization, and divergence, required by
 	analyses/transformations such program slicing and partial evaluation.  Interference and Ready dependence analyses
 	depend on the previous escape analysis while reference-based data and synchronization dependence analyses depend on
 	object-flow information and the calculated call-graph information. Some analyses have varying levels of precision
-	which can be varied via a well defined interface.</p>
-      </ul>
+	which can be varied via a well defined interface.</p></li>
+
+	<li><p><u>Side-Effect Analysis</u> provides method-level side-effect information. The user can query if any of the 
+	arguments/parameters to a call-site/method will be affected either directly (immediate members) or indirectly (recursively 
+	reachable members). Similarly, the user can provide a data access path rooted at arguments/parameters to a call-site/method 
+	and query if end point of the data access path is affected by the call/method.</p></li>
+
+	<li><p><u>Monitor Anlaysis</u> is a simple analysis that provides monitor/lock graph information for the given system.</p></li>
+	
+	<li><p><u>Safe Lock Analysis</u> is an analysis that conservatively discovers if a lock (monitors) will not be held indefinitely.  
+	This information is used in conjunction with temporal dependences steming for <i>Object.wait()</i> and <i>Object.notify()/
+	Object.notifyAll()</i> as it is done in <i>ready dependence</i>.</p></li>
+	
+	<li><p><u>Atomicity Analysis</u> provides information about atomicity in the given system.  Current implementation relies on 
+	escape analysis to predict if a statement can be executed atomically.  This information is used to detect atomic region of codes.  
+	This information is useful in applications such as model checking to reduce the the size of the state space, hence, improve 
+	performance.</p></li>
+	
+    </ul>
+      
       <p>Some analyses may be large enough to constitute module on their own and such analyses will be hosted as different
       modules in Indus rather than being consumed by this module.</p></li>
 
-<li><p><b>Java Program Slicer</b> module contains the core implementation of Java program slicer along with adapters that
+	<li><p><b>Java Program Slicer</b> module contains the core implementation of Java program slicer along with adapters that
       deliver the slicer in other applications such as Bandera and Eclipse.  The implementation is architected as a library
       rather than as an application to facilitate the reuse of it's subparts.  The core is independent of the application;
       Each application's requirement of the slice can be satisfied by coding up implementations of post-processing interfaces
@@ -60,7 +78,19 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
       <p>This module relies heavily on the information provided by dependence analyses and also the call-graph provided by
       OFA via well-defined interfaces that enables external implementations to be used for slicing.</p>
       <p>This implementation of slicer is delivered to Eclipse with an intuitive UI via 
-      <a href="/projects/kaveri.shtml">Kaveri</a> plugin.</li>
+      <a href="/projects/kaveri.shtml">Kaveri</a> plugin.</p>
+      
+     <p><u>Features:</u> 
+      	<ul>
+      		<li><p>Backward and Forward slice generation. Complete slices (union of backward and forward slices starting from the same
+		      	slice criteria) can be generated.</p></li>
+    	  	<li><p>Support to residualize (appropriate) slices into executable class files. </p></li>
+      		<li><p>Support for context-sensitive slicing via context rich slice criteria specification.</p></li>
+	      	<li><p>Support to restrict the slice to a particular part of the system by scope specifications.</p></li>
+    	  	<li><p>Support to serialize slice criteria, slicer configurations, and slices.</p></li>
+	      </ul>
+	   </p>  
+      </li>
 </ul>
 </p>
 
