@@ -131,16 +131,30 @@ public class FATester
 			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
 
-				if (fa.queryMethodVariant(_sm) != null) {
-					assertTrue(_sm.hasTag(TAG_NAME));
+				if (_sm.hasTag(TAG_NAME)) {
+					assertTrue(fa.queryMethodVariant(_sm) != null);
 					flag = true;
 				} else {
-					assertFalse(_sm.hasTag(TAG_NAME));
+					assertFalse(fa.queryMethodVariant(_sm) != null);
 				}
 			}
 
 			if (flag) {
 				assertTrue(_sc.hasTag(TAG_NAME));
+			}
+		}
+
+		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+
+			if (!_sc.hasTag(TAG_NAME)) {
+				for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
+					assertFalse(((SootField) _j.next()).hasTag(TAG_NAME));
+				}
+
+				for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+					assertFalse(((SootMethod) _j.next()).hasTag(TAG_NAME));
+				}
 			}
 		}
 	}
@@ -170,6 +184,13 @@ public class FATester
 			SootClass _sc = (SootClass) wb.getWork();
 			assertTrue(_sc.hasTag(TAG_NAME));
 			assertTrue(processedClasses.contains(_sc));
+
+			if (_sc.hasTag(TAG_NAME)) {
+				if (_sc.hasSuperclass()) {
+					wb.addWorkNoDuplicates(_sc.getSuperclass());
+				}
+				wb.addAllWorkNoDuplicates(_sc.getInterfaces());
+			}
 		}
 	}
 
@@ -235,6 +256,9 @@ public class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/07 03:32:21  venku
+   - added new tests.
+   - formatting.
    Revision 1.2  2003/12/05 21:34:01  venku
    - formatting.
    - more tests.
