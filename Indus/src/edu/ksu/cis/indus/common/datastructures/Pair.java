@@ -125,7 +125,7 @@ public final class Pair {
 		/** 
 		 * This is the id of this service.
 		 */
-		public static final String ID = "Pair management service";
+		public static final Object ID = "Pair management service";
 
 		/** 
 		 * The collection of managed pairs.

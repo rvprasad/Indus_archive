@@ -32,7 +32,7 @@ public interface IEscapeInfo
   extends IIdentification,
 	  IStatus {
 	/** 
-	 * This is the unique string identifier that can be used to identify an instance of this class.
+	 * This is the unique identifier that can be used to identify an instance of this class.
 	 */
 	Object ID = "Escape Information";
 

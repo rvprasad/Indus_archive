@@ -43,7 +43,7 @@ public interface IThreadGraphInfo
 	/** 
 	 * The id of this interface.
 	 */
-	String ID = "Threadgraph Information";
+	Object ID = "Threadgraph Information";
 
 	/**
 	 * Returns a collection of thread allocation sites in the system.

@@ -19,13 +19,18 @@ import soot.jimple.Stmt;
 
 
 /**
- * This interface exposes atomicity information. 
- * 
- * @version $Revision$ 
+ * This interface exposes atomicity information.
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IAtomicityInfo {
+	/** 
+	 * This is the unique identifier that can be used to identify an instance of this class.
+	 */
+	Object ID = "Class Hierarchy Analysis";
+
 	/**
 	 * Checks if the statement is atomic.
 	 *

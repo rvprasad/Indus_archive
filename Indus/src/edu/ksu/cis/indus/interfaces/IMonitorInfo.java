@@ -44,7 +44,7 @@ public interface IMonitorInfo
 	/** 
 	 * The id of this interface.
 	 */
-	String ID = "Monitor Information";
+	Object ID = "Monitor Information";
 
 	/**
 	 * This is the interface to monitor graphs.

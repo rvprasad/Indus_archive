@@ -32,7 +32,7 @@ public interface IEnvironment {
 	/** 
 	 * The id of this interface.
 	 */
-	String ID = "The Environment";
+	Object ID = "The Environment";
 
 	/**
 	 * Returns the Jimple representation of the given class.

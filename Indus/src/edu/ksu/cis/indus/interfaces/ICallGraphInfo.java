@@ -47,7 +47,7 @@ public interface ICallGraphInfo
 	/** 
 	 * The id of this interface.
 	 */
-	String ID = "Callgraph Information";
+	Object ID = "Callgraph Information";
 
 	/**
 	 * This class captures in the information pertaining to a call relation.  It provides the expression, statement, and the

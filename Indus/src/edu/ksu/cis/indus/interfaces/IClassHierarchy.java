@@ -28,6 +28,11 @@ import soot.SootClass;
  * @version $Revision$
  */
 public interface IClassHierarchy {
+	/** 
+	 * This is the unique identifier that can be used to identify an instance of this class.
+	 */
+	Object ID = "Class Hierarchy Analysis";
+
 	/**
 	 * Retrieves the classes in the hierarchy.
 	 *
