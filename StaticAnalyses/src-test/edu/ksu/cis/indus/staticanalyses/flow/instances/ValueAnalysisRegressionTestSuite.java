@@ -62,7 +62,7 @@ public final class ValueAnalysisRegressionTestSuite
 	 */
 	public static void main(final String[] args) {
 		final TestRunner _runner = new TestRunner();
-		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalysis.flow.instances.ValueAnalysisRegressionTestSuite" };
+		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalyses.flow.instances.ValueAnalysisRegressionTestSuite" };
 		_runner.setLoading(false);
 		_runner.start(_suiteName);
 	}
@@ -156,6 +156,15 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.2  2004/03/08 03:09:09  venku
    - documentation.
    Revision 1.1  2004/03/07 20:27:54  venku
