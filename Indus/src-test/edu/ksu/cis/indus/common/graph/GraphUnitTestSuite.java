@@ -66,6 +66,7 @@ public final class GraphUnitTestSuite {
 		_suite.addTestSuite(SimpleNodeGraphTest.class);
 		_suite.addTestSuite(SimpleNodeGraphNoCycleTest.class);
 		_suite.addTestSuite(SimpleNodeGraphTest2.class);
+		_suite.addTestSuite(SimpleNodeGraphTest3.class);
 		_suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
 		_suite.addTestSuite(JavacBasedDirectedAndSimpleNodeGraphTest.class);
 		//$JUnit-END$
