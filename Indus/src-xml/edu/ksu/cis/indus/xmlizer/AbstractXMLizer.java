@@ -189,7 +189,7 @@ public abstract class AbstractXMLizer
 	 * @pre string != null
 	 * @post result != null
 	 */
-	public final String xmlizeString(final String string) {
+	public static final String xmlizeString(final String string) {
 		if (string == null) {
 			return "";
 		}
@@ -268,6 +268,8 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/04/01 22:34:19  venku
+   - changed xmlization logic.
    Revision 1.15  2004/03/26 07:15:49  venku
    - documentation.
    Revision 1.14  2004/03/05 11:59:40  venku

@@ -52,7 +52,7 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class DependencyXMLizer
+public final class DependencyXMLizer
   extends AbstractXMLizer {
 	/**
 	 * This is used to identify statement level dependence producing analysis.
@@ -250,6 +250,10 @@ final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/03/29 09:32:25  venku
+   - documentation.
+   - formatting.
+
    Revision 1.12  2004/03/29 09:31:01  venku
    - adds .xml to the retrieved filename.
    - always defaults to a non-empty DA based file name.

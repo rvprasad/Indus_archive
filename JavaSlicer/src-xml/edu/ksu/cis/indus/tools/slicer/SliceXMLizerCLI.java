@@ -15,12 +15,13 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
-import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
@@ -30,6 +31,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.tools.Phase;
 
+import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -49,8 +51,10 @@ import java.io.Writer;
 import java.net.URL;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -107,6 +111,11 @@ public class SliceXMLizerCLI
 	SlicerTool slicer;
 
 	/**
+	 * This is the writer used to write the xmlized Jimple.
+	 */
+	Writer xmlizedJimpleWriter;
+
+	/**
 	 * The id generator used during xmlization.
 	 */
 	private IJimpleIDGenerator idGenerator;
@@ -115,11 +124,6 @@ public class SliceXMLizerCLI
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
 	private final String nameOfSliceTag = "SliceXMLizerCLI";
-
-	/**
-	 * This is the writer used to write the xmlized Jimple.
-	 */
-	private Writer xmlizedJimpleWriter;
 
 	/**
 	 * This indicates if jimple should be destructively updated to reflect the slice and dumped.
@@ -155,16 +159,15 @@ public class SliceXMLizerCLI
 
 			_driver.initialize();
 
-			long _startTime = System.currentTimeMillis();
+			final long _startTime = System.currentTimeMillis();
 			_driver.execute();
 
-			long _stopTime = System.currentTimeMillis();
+			final long _stopTime = System.currentTimeMillis();
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
 			}
 
-			// serialize the output of the slicer
 			_driver.writeXML();
 			_driver.residualize();
 		} catch (Throwable _e) {
@@ -210,7 +213,7 @@ public class SliceXMLizerCLI
 		try {
 			final Writer _out =
 				new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
-			_result = new TagBasedSliceXMLizer(_out, nameOfSliceTag, idGenerator);
+			_result = new TagBasedSliceXMLizer(nameOfSliceTag, idGenerator);
 		} catch (IOException _e) {
 			LOGGER.error("Exception while opening file to write xml information.", _e);
 			throw new RuntimeException(_e);
@@ -231,16 +234,30 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Writes the slice and dependency information in XML.
+	 * DOCUMENT ME!
 	 */
-	final void writeXML() {
+	void writeXML() {
+		dumpJimple();
+
+		// serialize the output of the slicer
+		final Map _info = new HashMap();
+		_info.put(IEnvironment.ID, slicer.getEnvironment());
+		_info.put(IStmtGraphFactory.ID, slicer.getStmtGraphFactory());
+
+		final AbstractXMLizer _xmlizer = getXMLizer();
+		_xmlizer.setXmlOutputDir(outputDirectory);
+		_xmlizer.writeXML(_info);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private void dumpJimple() {
 		final ICallGraphInfo _cgi = slicer.getCallGraph();
 		final ProcessingController _ctrl = new ProcessingController();
 		_ctrl.setStmtGraphFactory(getStmtGraphFactory());
 		_ctrl.setEnvironment(slicer.getEnvironment());
 		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
-
-		final TagBasedSliceXMLizer _sliceIP = getXMLizer();
 
 		JimpleXMLizer _jimpler = null;
 
@@ -262,12 +279,6 @@ public class SliceXMLizerCLI
 				LOGGER.error("Failed to close the xml file based for jimple representation.", _e);
 			}
 		}
-
-		_ctrl.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
-		_sliceIP.hookup(_ctrl);
-		_ctrl.process();
-		_sliceIP.unhook(_ctrl);
-		_sliceIP.flush();
 	}
 
 	/**
@@ -394,7 +405,7 @@ public class SliceXMLizerCLI
 			try {
 				xmlizer.xmlizedJimpleWriter = new FileWriter(new File(_outputDir + File.separator + "jimple.xml"));
 			} catch (IOException _e) {
-				LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
+				LOGGER.fatal("IO error while creating jimple dump file.  Aborting", _e);
 				System.exit(1);
 			}
 		}
@@ -567,6 +578,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/16 20:10:41  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
    Revision 1.8  2004/03/29 01:55:08  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

@@ -135,7 +135,7 @@ public final class TestHelper {
 		_f = new File(xmlTestDir);
 
 		if (!_f.exists() || !_f.canWrite()) {
-			_sb.append("Test directory " + xmlControlDir + " does not exists. Bailing on " + configuration);
+			_sb.append("Test directory " + xmlTestDir + " does not exists. Bailing on " + configuration);
 		}
 		return _sb.toString();
 	}
@@ -144,6 +144,11 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/17 23:35:43  venku
+   - failures due to unavailable resources were not flagged. FIXED
+     - added a new class which always errs.
+     - this new class is used to setup a test case for cases where an error should occur.
+     - ripple effect.
    Revision 1.10  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

@@ -153,7 +153,7 @@ public abstract class AbstractXMLBasedTest
 			_diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 			assertXMLEqual(_diff, true);
 		} catch (IOException _e) {
-			LOGGER.error("Failed to read/write the xml file " + _outfileName, _e);
+			LOGGER.error("Failed to read the xml file " + _outfileName, _e);
 			fail(_e.getMessage());
 		} catch (SAXException _e) {
 			LOGGER.error("Exception while parsing XML", _e);
@@ -234,8 +234,11 @@ public abstract class AbstractXMLBasedTest
 	protected void tearDown()
 	  throws Exception {
 		info.clear();
-		stmtGraphFactory.reset();
-		stmtGraphFactory = null;
+
+		if (stmtGraphFactory != null) {
+			stmtGraphFactory.reset();
+			stmtGraphFactory = null;
+		}
 		xmlizer = null;
 		super.tearDown();
 	}
@@ -244,6 +247,8 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/18 02:05:19  venku
+   - memory leak fixes.
    Revision 1.12  2004/04/17 22:07:37  venku
    - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
    - ripple effect in interfaces, classes, and property files.

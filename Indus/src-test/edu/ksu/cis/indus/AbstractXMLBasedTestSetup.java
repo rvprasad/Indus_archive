@@ -58,24 +58,6 @@ public class AbstractXMLBasedTestSetup
 	}
 
 	/**
-	 * Retrieves the directory from which one of the xml-based testing input is read from.
-	 *
-	 * @return directory in which one of the xml-based testing input is read from.
-	 */
-	public String getFirstXmlInputDir() {
-		return xmlFirstInputDir;
-	}
-
-	/**
-	 * Retrieves the directory from which the other xml-based testing input is read from.
-	 *
-	 * @return directory in which the other xml-based testing input is read from.
-	 */
-	public String getSecondXmlInputDir() {
-		return xmlSecondInputDir;
-	}
-
-	/**
 	 * Sets the CFG factory to be used during testing.
 	 *
 	 * @param cfgFactory is the factory to be used.
@@ -101,10 +83,28 @@ public class AbstractXMLBasedTestSetup
 	}
 
 	/**
+	 * Retrieves the directory from which one of the xml-based testing input is read from.
+	 *
+	 * @return directory in which one of the xml-based testing input is read from.
+	 */
+	public String getXMLControlDir() {
+		return xmlFirstInputDir;
+	}
+
+	/**
 	 * @see IXMLBasedTest#setXMLTestDir(String)
 	 */
 	public void setXMLTestDir(final String xmlInDir) {
 		xmlSecondInputDir = xmlInDir;
+	}
+
+	/**
+	 * Retrieves the directory from which the other xml-based testing input is read from.
+	 *
+	 * @return directory in which the other xml-based testing input is read from.
+	 */
+	public String getXMLTestDir() {
+		return xmlSecondInputDir;
 	}
 
 	/**
@@ -136,6 +136,8 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/18 02:05:19  venku
+   - memory leak fixes.
    Revision 1.8  2004/04/18 00:42:55  venku
    - references to objects had leaked after test. FIXED.
    Revision 1.7  2004/04/17 22:07:37  venku
