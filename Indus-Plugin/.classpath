@@ -17,8 +17,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/log4jconfig.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/commons-io-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/indus.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slicer.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/staticanalyses.jar"/>
