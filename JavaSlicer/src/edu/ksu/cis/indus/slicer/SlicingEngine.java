@@ -729,7 +729,8 @@ public final class SlicingEngine {
 	private void generateNewCriteriaBasedOnMethodExit(final Stmt invocationStmt, final SootMethod caller,
 		final boolean considerReturnValue, final SootMethod callee, final BasicBlockGraph calleeBasicBlockGraph) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Generating criteria for method called at " + invocationStmt + " in " + caller);
+			LOGGER.debug("BEGIN: Generating criteria for method called at " + invocationStmt + " in " + caller + "[" 
+			        + considerReturnValue + "]");
 		}
 
 		// check if a criteria to consider the exit points of the method should be generated.
@@ -764,6 +765,9 @@ public final class SlicingEngine {
 					generateSliceExprCriterion(_invokeExpr.getArgBox(_j), invocationStmt, caller, true);
 				}
 			}
+		}
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating criteria for method called at " + invocationStmt + " in " + caller);
 		}
 	}
 
@@ -972,7 +976,7 @@ public final class SlicingEngine {
 				 * invoke expressions are handled differently.
 				 */
 				generateSliceStmtCriterion(_stmt, _caller, false);
-				generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, true);
+				collector.includeInSlice(_stmt.getInvokeExprBox());
 
 				if (_notStatic) {
 					final ValueBox _vBox = ((InstanceInvokeExpr) _stmt.getInvokeExpr()).getBaseBox();
@@ -1040,7 +1044,19 @@ public final class SlicingEngine {
 			}
 		} else {
 			if (considerExecution) {
-				for (final Iterator _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext();) {
+			    final Collection _temp = new HashSet(stmt.getUseAndDefBoxes());
+
+				// if it contains an invocation expression, we do not want to include the arguments/sub-expressions.
+				if (stmt.containsInvokeExpr()) {
+					final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
+					_temp.removeAll(_invokeExpr.getUseBoxes());
+
+					// in case of instance invocation, we do want to include the receiver position expression.
+					if (_invokeExpr instanceof InstanceInvokeExpr) {
+						_temp.add(((InstanceInvokeExpr) _invokeExpr).getBaseBox());
+					}
+				}
+				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 					final ValueBox _valueBox = (ValueBox) _i.next();
 					generateSliceExprCriterion(_valueBox, stmt, method, considerExecution);
 				}
@@ -1258,6 +1274,10 @@ public final class SlicingEngine {
 				}
 			}
 			transformAndGenerateToConsiderExecution(stmt, method, _temp);
+			
+			if (stmt.containsInvokeExpr()) {
+				generateNewCriteriaForInvokeExprIn(stmt, method,  stmt instanceof AssignStmt);
+			}
 		}
 
 		// generate new slice criteria
@@ -1336,9 +1356,9 @@ public final class SlicingEngine {
 
 		// create new criteria based on program point level dependence (identifier based dependence).
 		generateNewCriteriaForLocal(_locals, stmt, method);
-
-		if (stmt.containsInvokeExpr()) {
-			generateNewCriteriaForInvokeExprIn(stmt, method, true);
+		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Transforming value boxes");
 		}
 	}
 }
@@ -1346,6 +1366,15 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.86  2004/07/23 13:10:06  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
+
    Revision 1.85  2004/07/21 07:26:56  venku
    - statements were not tagged due to execution consideration. FIXED.
    Revision 1.84  2004/07/20 07:04:36  venku
