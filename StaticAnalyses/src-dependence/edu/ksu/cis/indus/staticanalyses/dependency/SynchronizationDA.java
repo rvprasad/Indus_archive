@@ -66,8 +66,8 @@ import java.util.Stack;
 
 /**
  * This class provides synchronization dependency information.  This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program with
- * JVM Concurrency Primitives"</a>.
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
+ * with JVM Concurrency Primitives"</a>.
  * 
  * <p>
  * <i>Synchronization dependence</i>: All non-monitor statement in a method are synchronization dependent on the immediately
@@ -170,7 +170,7 @@ public class SynchronizationDA
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
 			ppc.register(ExitMonitorStmt.class, this);
-            ppc.register(this);
+			ppc.register(this);
 		}
 
 		/**
@@ -179,7 +179,7 @@ public class SynchronizationDA
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
 			ppc.unregister(ExitMonitorStmt.class, this);
-            ppc.unregister(this);
+			ppc.unregister(this);
 		}
 	}
 
@@ -511,15 +511,15 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/10 11:49:31  venku
+   - documentation change.
    Revision 1.8  2003/09/08 02:25:04  venku
    - Ripple effect of changes to ProcessingController.
-
    Revision 1.7  2003/09/07 09:02:13  venku
    - Synchronization dependence now handles exception based
      sync dep edges.  This requires a Value Flow analysis which can
      provides value binding information for a local at a program point.
    - Ripple effect of the above change.
-
    Revision 1.6  2003/08/21 03:56:18  venku
    Ripple effect of adding IStatus.
    Revision 1.5  2003/08/11 08:49:34  venku
