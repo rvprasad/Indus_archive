@@ -42,7 +42,7 @@ public final class CompositeToolConfiguration
 	/**
 	 * The list of constituent configuration.
 	 */
-	protected final ArrayList configurations = new ArrayList();
+	final ArrayList configurations = new ArrayList();
 
 	/**
 	 * The active constituent configuration.
@@ -201,6 +201,11 @@ public final class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/10/14 05:39:25  venku
+   - well, jibx doesnot support abstract types for fields even with
+     factories or I do not know how to tell it to use the factory.
+     Right now, the fix is to use concrete types.
+
    Revision 1.7  2003/09/27 01:27:47  venku
    - documentation.
 
