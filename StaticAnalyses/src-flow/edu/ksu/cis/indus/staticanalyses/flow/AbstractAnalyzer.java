@@ -45,13 +45,12 @@ import soot.Value;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 
-import edu.ksu.cis.indus.staticanalyses.*;
+import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 
 
@@ -68,15 +67,10 @@ public abstract class AbstractAnalyzer
   implements IValueAnalyzer {
 	/**
 	 * The instance of the framework performing the analysis and is being represented by this analyzer object.
+	 *
+	 * @invariant bfa != null
 	 */
 	protected BFA bfa;
-
-	/**
-	 * The collection of methods from which the analysis of the system starts.
-	 *
-	 * @invariant rootMethods->forall(o | o.isOclKind(SootMethod))
-	 */
-	//protected Collection rootMethods;
 
 	/**
 	 * The context to be used when analysis information is requested and a context is not provided.
@@ -93,37 +87,21 @@ public abstract class AbstractAnalyzer
 	 *
 	 * @param theContext the context to be used by this analysis instance.
 	 */
-	protected AbstractAnalyzer(Context theContext) {
+	protected AbstractAnalyzer(final Context theContext) {
 		this.context = theContext;
 		bfa = new BFA(this);
 		active = false;
-		//rootMethods = new HashSet();
 	}
 
-	/**
-	 * Returns the classes of the system that were analyzed/accessed by this analysis.
-	 *
-	 * @return a collection of classes.
-	 *
-	 * @post result->forall(o | o.oclType = soot.SootClass)     public Collection getClasses() { return bfa.getClasses();
-	 * 		 }
-	 */
 	/**
 	 * Returns the environment in which the analysis occurred.
 	 *
 	 * @return the environment in which the analysis occurred.
+	 *
+	 * @post result != null
 	 */
 	public IEnvironment getEnvironment() {
 		return (IEnvironment) bfa;
-	}
-
-	/**
-	 * Returns the methods from which the analysis started.
-	 *
-	 * @return a collection of <code>SootMethod</code>s.
-	 *
-	public final Collection getRoots() {
-		return Collections.unmodifiableCollection(rootMethods);
 	}
 
 	/**
@@ -133,8 +111,11 @@ public abstract class AbstractAnalyzer
 	 * @param exception is the class of the exception thrown by this expression.
 	 *
 	 * @return the collection of values associated with given exception class and and invoke expression.
+	 *
+	 * @pre e != null and exception != null
+	 * @post result != null
 	 */
-	public final Collection getThrowValues(InvokeExpr e, SootClass exception) {
+	public final Collection getThrowValues(final InvokeExpr e, final SootClass exception) {
 		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
@@ -143,79 +124,6 @@ public abstract class AbstractAnalyzer
 
 			if (iv != null) {
 				temp = iv.queryThrowNode(exception).getValues();
-			}
-		}
-		return temp;
-	}
-
-	/**
-	 * Returns the set of values associated with the given array type in the context given by <code>this.context</code>.
-	 *
-	 * @param a the array type for which the values are requested.
-	 *
-	 * @return the collection of values associated with <code>a</code> in <code>this.context</code>.
-	 */
-	protected final Collection getValues(ArrayType a) {
-		ArrayVariant v = bfa.queryArrayVariant(a);
-		Collection temp = Collections.EMPTY_SET;
-
-		if (v != null) {
-			temp = v.getFGNode().getValues();
-		}
-		return temp;
-	}
-
-	/**
-	 * Returns the set of values associated with the given parameter reference in the context given by
-	 * <code>this.context</code>.
-	 *
-	 * @param p the parameter reference for which the values are requested.
-	 *
-	 * @return the collection of values associated with <code>p</code> in <code>this.context</code>.
-	 */
-	protected final Collection getValues(ParameterRef p) {
-		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
-		Collection temp = Collections.EMPTY_SET;
-
-		if (mv != null) {
-			temp = mv.queryParameterNode(p.getIndex()).getValues();
-		}
-		return temp;
-	}
-
-	/**
-	 * Returns the set of values associated with the given field in the context given by <code>this.context</code>.
-	 *
-	 * @param sf the field for which the values are requested.
-	 *
-	 * @return the collection of values associated with <code>sf</code> in <code>this.context</code>.
-	 */
-	protected final Collection getValues(SootField sf) {
-		FieldVariant fv = bfa.queryFieldVariant(sf);
-		Collection temp = Collections.EMPTY_SET;
-
-		if (fv != null) {
-			temp = fv.getValues();
-		}
-		return temp;
-	}
-
-	/**
-	 * Returns the set of values associated with the given AST node in the context given by <code>this.context</code>.
-	 *
-	 * @param v the AST node for which the values are requested.
-	 *
-	 * @return the collection of values associted with <code>v</code> in <code>this.context</code>.
-	 */
-	protected final Collection getValues(Value v) {
-		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
-		Collection temp = Collections.EMPTY_SET;
-
-		if (mv != null) {
-			ASTVariant astv = mv.queryASTVariant(v, context);
-
-			if (astv != null) {
-				temp = astv.getFGNode().getValues();
 			}
 		}
 		return temp;
@@ -232,9 +140,11 @@ public abstract class AbstractAnalyzer
 	 *
 	 * @throws IllegalArgumentException when <code>astChunk</code> is not of type <code>Value</code>, <code>SootField</code>,
 	 * 		   <code>ParameterRef</code>, or <code>ArrayType</code>.
+	 *
+	 * @pre astChunk != null and ctxt != null
+	 * @post result != null
 	 */
-	public final Collection getValues(Object astChunk, Context ctxt)
-	  throws IllegalArgumentException {
+	public final Collection getValues(final Object astChunk, final Context ctxt) {
 		Context tmpCtxt = context;
 		context = ctxt;
 
@@ -262,8 +172,11 @@ public abstract class AbstractAnalyzer
 	 * 		  the interested <code>this</code> variable should be the current method in the call string of this context.
 	 *
 	 * @return the collection of values associated with <code>this</code> in <code>context</code>.
+	 *
+	 * @pre ctxt != null
+	 * @post result != null
 	 */
-	public final Collection getValuesForThis(Context ctxt) {
+	public final Collection getValuesForThis(final Context ctxt) {
 		Context tmpCtxt = context;
 		context = ctxt;
 
@@ -285,10 +198,9 @@ public abstract class AbstractAnalyzer
 	 *
 	 * @throws IllegalStateException when root == <code>null</code>
 	 *
-	 * @pre root != null
+	 * @pre scm != null root != null
 	 */
-	public final void analyze(Scene scm, SootMethod root)
-	  throws IllegalStateException {
+	public final void analyze(final Scene scm, final SootMethod root) {
 		if (root == null) {
 			throw new IllegalStateException("Root method cannot be null.");
 		}
@@ -309,10 +221,9 @@ public abstract class AbstractAnalyzer
 	 *
 	 * @throws IllegalStateException wen roots is <code>null</code> or roots is empty.
 	 *
-	 * @pre roots != null and not roots.isEmpty()
+	 * @pre scm != null and roots != null and not roots.isEmpty()
 	 */
-	public final void analyze(Scene scm, Collection roots)
-	  throws IllegalStateException {
+	public final void analyze(final Scene scm, final Collection roots) {
 		if (roots == null || roots.isEmpty()) {
 			throw new IllegalStateException("There must be at least one root method to analyze.");
 		}
@@ -337,11 +248,98 @@ public abstract class AbstractAnalyzer
 	}
 
 	/**
+	 * Returns the set of values associated with the given array type in the context given by <code>this.context</code>.
+	 *
+	 * @param a the array type for which the values are requested.
+	 *
+	 * @return the collection of values associated with <code>a</code> in <code>this.context</code>.
+	 *
+	 * @pre a != null
+	 * @post result != null
+	 */
+	protected final Collection getValues(final ArrayType a) {
+		ArrayVariant v = bfa.queryArrayVariant(a);
+		Collection temp = Collections.EMPTY_SET;
+
+		if (v != null) {
+			temp = v.getFGNode().getValues();
+		}
+		return temp;
+	}
+
+	/**
+	 * Returns the set of values associated with the given parameter reference in the context given by
+	 * <code>this.context</code>.
+	 *
+	 * @param p the parameter reference for which the values are requested.
+	 *
+	 * @return the collection of values associated with <code>p</code> in <code>this.context</code>.
+	 *
+	 * @pre p != null
+	 * @post result != null
+	 */
+	protected final Collection getValues(final ParameterRef p) {
+		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
+		Collection temp = Collections.EMPTY_SET;
+
+		if (mv != null) {
+			temp = mv.queryParameterNode(p.getIndex()).getValues();
+		}
+		return temp;
+	}
+
+	/**
+	 * Returns the set of values associated with the given field in the context given by <code>this.context</code>.
+	 *
+	 * @param sf the field for which the values are requested.
+	 *
+	 * @return the collection of values associated with <code>sf</code> in <code>this.context</code>.
+	 *
+	 * @pre sf != null
+	 * @post result != null
+	 */
+	protected final Collection getValues(final SootField sf) {
+		FieldVariant fv = bfa.queryFieldVariant(sf);
+		Collection temp = Collections.EMPTY_SET;
+
+		if (fv != null) {
+			temp = fv.getValues();
+		}
+		return temp;
+	}
+
+	/**
+	 * Returns the set of values associated with the given AST node in the context given by <code>this.context</code>.
+	 *
+	 * @param v the AST node for which the values are requested.
+	 *
+	 * @return the collection of values associted with <code>v</code> in <code>this.context</code>.
+	 *
+	 * @pre v != null
+	 * @post result != null
+	 */
+	protected final Collection getValues(final Value v) {
+		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
+		Collection temp = Collections.EMPTY_SET;
+
+		if (mv != null) {
+			ValuedVariant astv = mv.queryASTVariant(v, context);
+
+			if (astv != null) {
+				temp = astv.getFGNode().getValues();
+			}
+		}
+		return temp;
+	}
+
+	/**
 	 * Sets the mode factory on the underlaying framework object.  Refer to <code>ModeFactory</code> for more details.
 	 *
 	 * @param mf is the mode factory which provides the entities that dictate the mode of the analysis.
+	 *
+	 * @pre mf != null
 	 */
-	protected void setModeFactory(ModeFactory mf) {
+	protected void setModeFactory(final ModeFactory mf) {
 		bfa.setModeFactory(mf);
 	}
 
@@ -353,12 +351,19 @@ public abstract class AbstractAnalyzer
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/07 06:40:24  venku
-Major:
- - Moved the package under indus umbrella.
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.2  2003/08/11 07:11:47  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+   Moved getRoots() into the environment.
+   Added support to inject new roots in BFA.
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */

@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,27 +30,25 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.interfaces.*;
-import edu.ksu.cis.indus.staticanalyses.*;
-import edu.ksu.cis.indus.staticanalyses.*;
 import soot.jimple.Stmt;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import edu.ksu.cis.indus.interfaces.IPrototype;
+import edu.ksu.cis.indus.staticanalyses.Context;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
- * <p>
  * The statement visitor class.  This class provides the default implementation for all the statements that need to be dealt
  * at Jimple level in Bandera framework.  The class is tagged as <code>abstract</code> to force the users to extend the
  * class as required.  It extends <code>AbstractJimpleStmtSwitch</code>.
- * </p>
- *
+ * 
  * <p>
  * Created: Sun Jan 27 13:28:32 2002
  * </p>
@@ -62,113 +60,72 @@ public abstract class AbstractStmtSwitch
   extends soot.jimple.AbstractStmtSwitch
   implements IPrototype {
 	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(AbstractStmtSwitch.class.getName());
+	private static final Log LOGGER = LogFactory.getLog(AbstractStmtSwitch.class);
 
 	/**
-	 * <p>
 	 * The LHS expression visitor used to this object to process LHS expressions.
-	 * </p>
+	 *
+	 * @invariant lexpr != null
 	 */
 	protected final AbstractExprSwitch lexpr;
 
 	/**
-	 * <p>
 	 * The RHS expression visitor used to this object to process RHS expressions.
-	 * </p>
+	 *
+	 * @invariant rexpr != null
 	 */
 	protected final AbstractExprSwitch rexpr;
 
 	/**
-	 * <p>
 	 * The context in which this object should process statements.  It is possible for this object to alter the context, but
 	 * it should restore it back to it's initial state before returning from it's methods.
-	 * </p>
+	 *
+	 * @invariant context != null
 	 */
 	protected final Context context;
 
 	/**
-	 * <p>
 	 * The method variant in which this visitor is used.
-	 * </p>
+	 *
+	 * @invariant method != null
 	 */
 	protected final MethodVariant method;
 
 	/**
-	 * <p>
 	 * The current statement this visitor is visiting.
-	 * </p>
 	 */
-	protected Stmt stmt;
+	protected Stmt currentStmt;
 
 	/**
-	 * <p>
 	 * Creates a new <code>AbstractStmtSwitch</code> instance.
-	 * </p>
 	 *
 	 * @param m the method variant in which this visitor is used.
+	 *
+	 * @pre m != null
 	 */
-	protected AbstractStmtSwitch(MethodVariant m) {
+	protected AbstractStmtSwitch(final MethodVariant m) {
 		method = m;
 
-		if (m == null) {
-			context = null;
-			lexpr = null;
-			rexpr = null;
-		} else {
-			context = m._CONTEXT;
-			lexpr = m._BFA.getLHSExpr(this);
-			rexpr = m._BFA.getRHSExpr(this);
-		}
-
-		// end of if (m == null) else
+		context = m._context;
+		lexpr = m._bfa.getLHSExpr(this);
+		rexpr = m._bfa.getRHSExpr(this);
 	}
 
 	/**
-	 * <p>
-	 * Returns the current statement being visited.
-	 * </p>
-	 *
-	 * @return the current statement being visited.
-	 */
-	public Stmt getStmt() {
-		return stmt;
-	}
-
-	/**
-	 * <p>
-	 * Handles situations when alien statement types are visited, i.e., there are no instructions available on how to handle
-	 * a particular statement type.
-	 * </p>
-	 *
-	 * @param o the statement to be visited.
-	 */
-	public void defaultCase(Object o) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(o + " is not handled.");
-		}
-	}
-
-	/**
-	 * <p>
-	 * This method is not supproted.
-	 * </p>
+	 * This method is not supproted. To be implemented by subclasses.
 	 *
 	 * @return (This method will raise an exception.)
 	 *
 	 * @throws UnsupportedOperationException as the operation is not supported.
 	 */
-	public Object getClone() throws UnsupportedOperationException {
+	public Object getClone() {
 		throw new UnsupportedOperationException("prototype() is not supported.");
 	}
 
 	/**
-	 * <p>
-	 * This method is not supproted.
-	 * </p>
+	 * This method is not supproted. To be implemented by subclasses.
 	 *
 	 * @param o is ignored.
 	 *
@@ -176,34 +133,59 @@ public abstract class AbstractStmtSwitch
 	 *
 	 * @throws UnsupportedOperationException as the operation is not supported.
 	 */
-	public Object getClone(Object o) throws UnsupportedOperationException {
+	public Object getClone(final Object o) {
 		throw new UnsupportedOperationException("prototype(Object) is not supported.");
 	}
 
 	/**
-	 * <p>
+	 * Returns the current statement being visited.
+	 *
+	 * @return the current statement being visited.
+	 */
+	public Stmt getCurrentStmt() {
+		return currentStmt;
+	}
+
+	/**
+	 * Handles situations when alien statement types are visited, i.e., there are no instructions available on how to handle
+	 * a particular statement type.
+	 *
+	 * @param o the statement to be visited.
+	 *
+	 * @pre o != null
+	 */
+	public void defaultCase(final Object o) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(o + " is not handled.");
+		}
+	}
+
+	/**
 	 * Process the given statement.  The usual implementation would be visit the expressions in the statement.
-	 * </p>
 	 *
 	 * @param stmtToProcess the statement being visited or to be processed.
+	 *
+	 * @pre stmtToProcess != null
 	 */
-	protected void process(Stmt stmtToProcess) {
-		this.stmt = stmtToProcess;
-		stmt.apply(this);
+	protected void process(final Stmt stmtToProcess) {
+		this.currentStmt = stmtToProcess;
+		currentStmt.apply(this);
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/07 06:40:24  venku
-Major:
- - Moved the package under indus umbrella.
-
-Revision 0.10  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.2  2003/08/12 18:40:11  venku
+   Ripple effect of moving IPrototype to Indus.
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 0.10  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

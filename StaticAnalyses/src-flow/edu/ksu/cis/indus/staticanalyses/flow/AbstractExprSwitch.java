@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,110 +30,96 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.interfaces.*;
-import edu.ksu.cis.indus.staticanalyses.*;
-import edu.ksu.cis.indus.staticanalyses.*;
 import soot.SootMethod;
+import soot.Value;
+import soot.ValueBox;
 import soot.VoidType;
 
 import soot.jimple.AbstractJimpleValueSwitch;
-import soot.Value;
-import soot.ValueBox;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import edu.ksu.cis.indus.interfaces.IPrototype;
+import edu.ksu.cis.indus.staticanalyses.Context;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Stack;
 
 
 /**
- * <p>
  * The expression visitor class.  This class provides the default method implementations for all the expressions that need to
  * be dealt at Jimple level in Bandera framework.  The class is tagged as <code>abstract</code> to force the users to extend
  * the class as required.  It patches the inheritance hierarchy to inject the new constructs declared in
  * <code>BanderaExprSwitch</code> into the visitor provided in <code>AbstractJimpleValueSwitch</code>.
- * </p>
+ * 
+ * <p>
  * Created: Sun Jan 27 14:29:14 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
 public abstract class AbstractExprSwitch
   extends AbstractJimpleValueSwitch
-  implements /*BanderaExprSwitch,*/
-	  IPrototype {
+  implements IPrototype {
 	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(AbstractExprSwitch.class);
+	private static final Log LOGGER = LogFactory.getLog(AbstractExprSwitch.class);
 
 	/**
-	 * <p>
 	 * This visitor is used by <code>stmt</code> to walk the embedded expressions.
-	 * </p>
 	 */
 	protected final AbstractStmtSwitch stmtSwitch;
 
 	/**
-	 * <p>
 	 * The instance of the framework in which this visitor exists.
-	 * </p>
 	 */
 	protected final BFA bfa;
 
 	/**
-	 * <p>
 	 * This visitor works in the context given by <code>context</code>.
-	 * </p>
 	 */
 	protected final Context context;
 
 	/**
-	 * <p>
 	 * The object used to connect flow graph nodes corresponding to AST and non-AST entities.  This provides the flexibility
 	 * to use the same implementation of the visitor with different connectors to process LHS and RHS entities.
-	 * </p>
 	 */
 	protected final IFGNodeConnector connector;
 
 	/**
-	 * <p>
 	 * This visitor is used to visit the expressions in the <code>method</code> variant.
-	 * </p>
 	 */
 	protected final MethodVariant method;
 
 	/**
-	 * <p>
-	 * This stores the program points as expressions are recursively processed.
-	 * </p>
+	 * This stores the program points as expressions are recursively descended into and processed.
 	 */
 	private final Stack programPoints = new Stack();
 
 	/**
-	 * <p>
 	 * Creates a new <code>AbstractExprSwitch</code> instance.
-	 * </p>
 	 *
-	 * @param stmtHandler the statement visitor which shall use this expression visitor.
-	 * @param connectorToUse the connector to be used by this expression visitor to connect flow graph nodes corresponding
-	 *           to AST and non-AST entities.
+	 * @param stmtVisitor the statement visitor which shall use this expression visitor.
+	 * @param connectorToUse the connector to be used by this expression visitor to connect flow graph nodes corresponding to
+	 * 		  AST and non-AST entities.
+	 *
+	 * @pre connectorToUse != null
 	 */
-	protected AbstractExprSwitch(AbstractStmtSwitch stmtHandler, IFGNodeConnector connectorToUse) {
-		this.stmtSwitch = stmtHandler;
+	protected AbstractExprSwitch(final AbstractStmtSwitch stmtVisitor, final IFGNodeConnector connectorToUse) {
+		this.stmtSwitch = stmtVisitor;
 		this.connector = connectorToUse;
 
 		if (stmtSwitch != null) {
 			context = stmtSwitch.context;
 			method = stmtSwitch.method;
-			bfa = stmtSwitch.method._BFA;
+			bfa = stmtSwitch.method._bfa;
 		} else {
 			context = null;
 			method = null;
@@ -142,48 +128,47 @@ public abstract class AbstractExprSwitch
 	}
 
 	/**
-	 * <p>
 	 * Checks if the return type of the given method is <code>void</code>.
-	 * </p>
 	 *
 	 * @param sm the method whose return type is to be checked for voidness.
 	 *
 	 * @return <code>true</code> if <code>sm</code>'s return type is <code>void</code>; <code>false</code> otherwise.
+	 *
+	 * @pre sm != null
 	 */
-	public static final boolean isNonVoid(SootMethod sm) {
+	public static final boolean isNonVoid(final SootMethod sm) {
 		return !(sm.getReturnType() instanceof VoidType);
 	}
 
 	/**
-	 * <p>
-	 * Returns the current program point.
-	 * </p>
+	 * This method will throw <code>UnsupportedOperationException</code>.
 	 *
-	 * @return Returns the current program point.
+	 * @return (This method raises an exception.)
+	 *
+	 * @throws UnsupportedOperationException as this method is not supported.
 	 */
-	public final ValueBox getCurrentProgramPoint() {
-		return (ValueBox) programPoints.peek();
+	public final Object getClone() {
+		throw new UnsupportedOperationException("Parameterless prototype method is not supported.");
 	}
 
 	/**
-	 * <p>
 	 * Returns the <code>WorkList</code> associated with this visitor.
-	 * </p>
 	 *
 	 * @return the <code>WorkList</code> associated with this visitor.
+	 *
+	 * @post result != null
 	 */
 	public final WorkList getWorkList() {
 		return bfa.worklist;
 	}
 
 	/**
-	 * <p>
-	 * Provides the default implementation when any expression is not handled by the visitor.
-	 * </p>
+	 * Provides the default implementation when any expression is not handled by the visitor.  It sets the flow node
+	 * associated with the AST as the result.
 	 *
 	 * @param o the expression which is not handled by the visitor.
 	 */
-	public void defaultCase(Object o) {
+	public void defaultCase(final Object o) {
 		setResult(method.getASTNode((Value) o));
 
 		if (LOGGER.isDebugEnabled()) {
@@ -192,13 +177,13 @@ public abstract class AbstractExprSwitch
 	}
 
 	/**
-	 * <p>
 	 * Processes the expression at the given program point, <code>v</code>.
-	 * </p>
 	 *
 	 * @param v the program point at which the to-be-processed expression occurs.
+	 *
+	 * @pre v != null
 	 */
-	public void process(ValueBox v) {
+	public void process(final ValueBox v) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Started to process expression: " + v.getValue());
 		}
@@ -212,34 +197,35 @@ public abstract class AbstractExprSwitch
 	}
 
 	/**
-	 * <p>
-	 * This method will throw <code>UnsupportedOperationException</code>.
-	 * </p>
+	 * Returns the current program point.
 	 *
-	 * @return (This method raises an exception.)
+	 * @return Returns the current program point.
 	 *
-	 * @throws UnsupportedOperationException as this method is not supported.
+	 * @post result != null
 	 */
-	public final Object getClone()
-	  throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Parameterless prototype method is not supported.");
+	protected final ValueBox getCurrentProgramPoint() {
+		return (ValueBox) programPoints.peek();
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.2  2003/08/12 18:39:56  venku
-Ripple effect of moving IPrototype to Indus.
-
-Revision 1.1  2003/08/07 06:40:24  venku
-Major:
- - Moved the package under indus umbrella.
-
-Revision 0.12  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.3  2003/08/15 02:54:06  venku
+   Spruced up specification and documentation for flow-insensitive classes.
+   Changed names in AbstractExprSwitch.
+   Ripple effect of above change.
+   Formatting changes to IPrototype.
+   
+   Revision 1.2  2003/08/12 18:39:56  venku
+   Ripple effect of moving IPrototype to Indus.
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+   Revision 0.12  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

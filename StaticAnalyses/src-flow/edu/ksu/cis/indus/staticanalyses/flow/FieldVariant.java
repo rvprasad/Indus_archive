@@ -39,7 +39,7 @@ import soot.SootField;
 
 
 /**
- * The variant that represents a field.
+ * This class represents variants of fields.
  * 
  * <p>
  * Created: Fri Jan 25 14:29:09 2002
@@ -75,6 +75,12 @@ public class FieldVariant
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/16 21:50:51  venku
+   Removed ASTVariant as it did not contain any data that was used.
+   Concretized AbstractValuedVariant and renamed it to ValuedVariant.
+   Ripple effect of the above change in some.
+   Spruced up documentation and specification.
+
    Revision 1.2  2003/08/16 03:01:49  venku
    Spruced up documentation and specification.
 

@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,25 +30,22 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.interfaces.*;
-import edu.ksu.cis.indus.staticanalyses.*;
-import edu.ksu.cis.indus.staticanalyses.*;
+import edu.ksu.cis.indus.interfaces.IPrototype;
+import edu.ksu.cis.indus.staticanalyses.Context;
 
 import java.util.HashSet;
 import java.util.Set;
 
 
 /**
- * <p>
  * This class encapsulates the index creation logic.  It is abstract and it provides an interface through which new indices
  * can be obtained.  The sub classes should provide the logic for the actual creation of the indices.
- * </p>
- *
+ * 
  * <p>
  * Created: Tue Jan 22 04:54:38 2002
  * </p>
@@ -59,29 +56,25 @@ import java.util.Set;
 public abstract class AbstractIndexManager
   implements IPrototype {
 	/**
-	 * <p>
 	 * The collection of indices managed by this object.
-	 * </p>
+	 *
+	 * @pre indices != null
 	 */
-	protected Set indices = new HashSet();
+	protected final Set indices = new HashSet();
 
 	/**
-	 * <p>
 	 * This operation is unsupported.
-	 * </p>
 	 *
 	 * @return (This method will raise an exception.)
 	 *
 	 * @throws UnsupportedOperationException if the operation is not supported.
 	 */
-	public Object getClone() throws UnsupportedOperationException {
+	public Object getClone() {
 		throw new UnsupportedOperationException("prototype() is not supported.");
 	}
 
 	/**
-	 * <p>
 	 * This operation is unsupported.
-	 * </p>
 	 *
 	 * @param o is ignored.
 	 *
@@ -89,66 +82,62 @@ public abstract class AbstractIndexManager
 	 *
 	 * @throws UnsupportedOperationException if the operation is not supported.
 	 */
-	public Object getClone(Object o) throws UnsupportedOperationException {
+	public Object getClone(final Object o) {
 		throw new UnsupportedOperationException("prototype(Object) is not supported.");
 	}
 
 	/**
-	 * <p>
 	 * Returns the index corresponding to the given entity in the given context, if one exists.  If none exist, a new index
 	 * is created and returned.
-	 * </p>
 	 *
 	 * @param o the entity whose index is to be returned.
 	 * @param c the context in which the entity's index is requested.
 	 *
 	 * @return the index corresponding to the entity in the given context.
+	 *
+	 * @pre o != null and c != null
+	 * @post result != null
 	 */
-	protected abstract IIndex getIndex(Object o, Context c);
+	protected abstract IIndex getIndex(final Object o, final Context c);
 
 	/**
-	 * <p>
 	 * Returns the index corresponding to the given entity in the given context, if one exists.  If none exist, it returns
 	 * <code>null</code>.
-	 * </p>
 	 *
 	 * @param o the entity whose index is to be returned.
 	 * @param c the context in which the entity's index is requested.
 	 *
 	 * @return the index corresponding to the entity in the given context, if one exists; <code>null</code> otherwise.
+	 *
+	 * @pre o != null and c != null
 	 */
-	final IIndex queryIndex(Object o, Context c) {
+	final IIndex queryIndex(final Object o, final Context c) {
 		IIndex temp = getIndex(o, c);
 
 		if (!indices.contains(temp)) {
 			indices.add(temp);
 		}
 
-		// end of if (sm2indices.containsKey(sm)) else
 		return temp;
 	}
 
 	/**
-	 * <p>
 	 * Reset the manager.  Flush all the internal data structures to enable a new session.
-	 * </p>
 	 */
 	void reset() {
 		indices.clear();
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/07 06:40:24  venku
-Major:
- - Moved the package under indus umbrella.
-
-Revision 0.10  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.2  2003/08/12 18:39:56  venku
+   Ripple effect of moving IPrototype to Indus.
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+   Revision 0.10  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -39,8 +39,8 @@ import soot.ArrayType;
 
 
 /**
- * IVariant representing arrays.
- *
+ * This class represents variants of arrays.
+ * 
  * <p>
  * Created: Fri Jan 25 16:05:27 2002
  * </p>
@@ -49,35 +49,38 @@ import soot.ArrayType;
  * @version $Revision$
  */
 public class ArrayVariant
-  extends AbstractValuedVariant {
+  extends ValuedVariant {
 	/**
-	 * <p>
 	 * The array type being represented by this variant.
-	 * </p>
+	 *
+	 * @pre _type != null
 	 */
-	public final ArrayType _TYPE;
+	public final ArrayType _type;
 
 	/**
-	 * <p>
 	 * Creates a new <code>ArrayVariant</code> instance.
-	 * </p>
 	 *
 	 * @param a the array type to which this variant corresonds to.
-	 * @param node the flow graph node corresponding to this variant.
+	 * @param flowNode the flow graph node corresponding to this variant.
+	 *
+	 * @pre a != null and flowNode != null
 	 */
-	protected ArrayVariant(ArrayType a, IFGNode node) {
-		super(node);
-		this._TYPE = a;
+	protected ArrayVariant(final ArrayType a, final IFGNode flowNode) {
+		super(flowNode);
+		this._type = a;
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 0.8  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
+   $Log$
 
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
 
-*****/
+   Revision 0.8  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */
