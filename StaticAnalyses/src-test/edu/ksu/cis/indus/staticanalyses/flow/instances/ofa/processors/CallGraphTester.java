@@ -17,11 +17,13 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+
 import edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest;
 import edu.ksu.cis.indus.support.DirectedGraph;
 import edu.ksu.cis.indus.support.SimpleNodeGraph;
@@ -334,7 +336,7 @@ public class CallGraphTester
 	 */
 	public final void testGetCallGraph()
 	  throws Throwable {
-		assertTrue(cgi.getCallGraph() != null);
+		assertNotNull(cgi.getCallGraph());
 	}
 
 	/**
@@ -388,7 +390,7 @@ public class CallGraphTester
 		for (Iterator i = cgi.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod callee = (SootMethod) i.next();
 			Collection callers = cgi.getCallers(callee);
-			assertTrue(callers != null);
+			assertNotNull(callers);
 
 			if (callers.isEmpty()) {
 				assertTrue(heads.contains(callee));
@@ -427,7 +429,7 @@ public class CallGraphTester
 	 */
 	public final void testGetHeads() {
 		Collection heads = cgi.getHeads();
-		assertTrue(heads != null);
+		assertNotNull(heads);
 
 		for (Iterator i = heads.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
@@ -443,7 +445,7 @@ public class CallGraphTester
 	 */
 	public final void testGetReachableMethods() {
 		Collection reachables = cgi.getReachableMethods();
-		assertTrue(reachables != null);
+		assertNotNull(reachables);
 
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
 			assertTrue(i.next() instanceof SootMethod);
@@ -458,11 +460,11 @@ public class CallGraphTester
 	public final void testGetSCCs() {
 		Collection sccs = cgi.getSCCs(true);
 		Collection reachables = cgi.getReachableMethods();
-		assertTrue(sccs != null);
+		assertNotNull(sccs);
 
 		for (Iterator i = sccs.iterator(); i.hasNext();) {
 			Collection scc1 = (Collection) i.next();
-			assertTrue(scc1 != null);
+			assertNotNull(scc1);
 			assertTrue(reachables.containsAll(scc1));
 
 			for (Iterator j = sccs.iterator(); j.hasNext();) {
@@ -485,12 +487,14 @@ public class CallGraphTester
 		Collection heads = cgi.getHeads();
 		SimpleNodeGraph cg = (SimpleNodeGraph) cgi.getCallGraph();
 
+		System.out.println(reachables);
+
 		for (Iterator i = scene.getClasses().iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
 
 			for (Iterator j = sc.getMethods().iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
-				assertTrue(cgi.isReachable(sm) == reachables.contains(sm));
+				assertEquals(cgi.isReachable(sm), reachables.contains(sm));
 
 				if (cgi.isReachable(sm)) {
 					boolean t = false;
@@ -498,7 +502,7 @@ public class CallGraphTester
 					for (Iterator k = heads.iterator(); k.hasNext();) {
 						t |= cg.isReachable(cg.getNode(k.next()), cg.getNode(sm), true);
 					}
-					assertTrue(t == cgi.isReachable(sm) || heads.contains(sm));
+					assertTrue(t || heads.contains(sm));
 				}
 			}
 		}
@@ -512,7 +516,7 @@ public class CallGraphTester
 	public final void testTagsOnReachableMethods() {
 		Context ctxt = new Context();
 		Collection reachables = cgi.getReachableMethods();
-		assertTrue(reachables != null);
+		assertNotNull(reachables);
 
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod o = (SootMethod) i.next();
@@ -521,7 +525,7 @@ public class CallGraphTester
 
 			if (!o.isStatic()) {
 				ctxt.setRootMethod(o);
-				assertTrue(ofa.getValuesForThis(ctxt) != null);
+				assertNotNull(ofa.getValuesForThis(ctxt));
 			}
 		}
 
@@ -534,8 +538,10 @@ public class CallGraphTester
 
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
-			System.out.println(_sm);
-			assertFalse(_sm.hasTag(tagName));
+
+			if (!_sm.isAbstract()) {
+				assertFalse(_sm.hasTag(tagName));
+			}
 		}
 	}
 }
@@ -543,16 +549,17 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
    Revision 1.12  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.11  2003/12/07 14:04:43  venku
    - made FATester command-line compatible.
    - made use of DirectedAndSimpleNodeGraphTest in
      CallGraphTester to test the constructed call graphs.
-
    Revision 1.10  2003/12/05 21:34:01  venku
    - formatting.
    - more tests.

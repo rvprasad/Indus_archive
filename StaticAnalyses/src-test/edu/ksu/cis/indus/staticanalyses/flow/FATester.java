@@ -212,14 +212,14 @@ public class FATester
 				final SootMethod _sm = (SootMethod) _j.next();
 
 				if (_sm.hasTag(TAG_NAME)) {
-					assertTrue(fa.queryMethodVariant(_sm) != null);
+					assertNotNull(fa.queryMethodVariant(_sm));
 					flag = true;
 
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("TAGGED Method: " + _sm);
 					}
 				} else {
-					assertFalse(fa.queryMethodVariant(_sm) != null);
+					assertNull(fa.queryMethodVariant(_sm));
 				}
 			}
 
@@ -301,6 +301,11 @@ public class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/08 12:15:57  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.5  2003/12/07 14:04:43  venku
    - made FATester command-line compatible.
    - made use of DirectedAndSimpleNodeGraphTest in
