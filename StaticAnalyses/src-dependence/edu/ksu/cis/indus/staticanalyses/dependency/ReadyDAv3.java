@@ -56,7 +56,7 @@ public class ReadyDAv3
 		final InvokeStmt _wait = (InvokeStmt) wPair.getFirst();
 		final SootMethod _wMethod = (SootMethod) wPair.getSecond();
 		final SootMethod _nMethod = (SootMethod) nPair.getSecond();
-		boolean _result = ecba.isReadyDependent(_wait, _wMethod, _notify, _nMethod);
+		boolean _result = ecba.areWaitAndNotifyCoupled(_wait, _wMethod, _notify, _nMethod);
 
 		if (_result && getUseOFA()) {
 			_result = ifDependentOnBasedOnOFAByRule4(wPair, nPair);
@@ -68,6 +68,8 @@ public class ReadyDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/25 15:32:41  venku
+   - enabled ready and interference dependences to be OFA aware.
    Revision 1.6  2004/01/21 13:44:09  venku
    - made ready dependence to consider synchronized methods as well.
    - ReadyDAv2 uses escape information for both sorts of inter-thread

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import edu.ksu.cis.indus.common.graph.IDirectedGraph;
+
 import java.util.Collection;
 
 import soot.SootMethod;
@@ -86,6 +88,20 @@ public interface IMonitorInfo
 	Collection getEnclosingMonitors(final Stmt stmt, final SootMethod method, final boolean transitive);
 
 	/**
+	 * Retrieves the monitor graph based on the shape of the call graph and the monitors in the method.  Each monitor triple
+	 * is represented as a node.  An outgoing edges indicates that the monitor represented by the destination node is
+	 * reachable from within the monitor represented by the source node.
+	 *
+	 * @param callgraphInfo to be used to generate an interprocedural graph.  If this parameter is <code>null</code>,
+	 * 		  intraprocedural monitor graph is generated.
+	 *
+	 * @return a graph
+	 *
+	 * @post result != null
+	 */
+	IDirectedGraph getMonitorGraph(final ICallGraphInfo callgraphInfo);
+
+	/**
 	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
 	 * <code>SootMethod</code> in the system. The third element is the method in which the monitor occurs.  In case the
 	 * first  and the second element of the triple are <code>null</code> then this means the method is a synchronized.
@@ -138,6 +154,9 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/07/22 07:18:47  venku
+   - extended interface to query for enclosed statements in sychronized methods.
+   - provided suitable implementation in SychronizationDA.
    Revision 1.6  2004/07/22 06:59:26  venku
    - loosened the specification to extract enclosed statements of synced methods.
    Revision 1.5  2004/07/21 02:09:44  venku

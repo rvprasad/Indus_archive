@@ -52,6 +52,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
+import soot.Local;
 import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
@@ -741,7 +742,7 @@ public final class SlicingEngine {
 					final Stmt _trailer = _bb.getTrailerStmt();
 
 					// TODO: we are considering both throws and returns as return points. This should change when we consider 
-					// ip control-flow based on exceptions.
+					// if control-flow based on exceptions.
 					generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
 				}
 			} else {
@@ -803,6 +804,49 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Generates criteria for locals based on identifier based data dependence.
+	 *
+	 * @param locals for which criteria should be generated.
+	 * @param stmt in which <code>locals</code> occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre locals != null and locals.oclIsKindOf(Collection(Local))
+	 * @pre stmt != null and method != null
+	 */
+	private void generateNewCriteriaForLocal(final Collection locals, final Stmt stmt, final SootMethod method) {
+		final Collection _analyses = controller.getAnalyses(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
+
+		if (_analyses.size() > 0) {
+			final Collection _temp = new HashSet();
+			final IDependencyAnalysis _analysis = (IDependencyAnalysis) _analyses.iterator().next();
+			final Iterator _k = locals.iterator();
+			final int _kEnd = locals.size();
+
+			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+				final Local _local = (Local) _k.next();
+				final Pair _pair = new Pair(stmt, _local);
+
+				if (sliceType.equals(BACKWARD_SLICE)) {
+					_temp.addAll(_analysis.getDependees(_pair, method));
+				} else if (sliceType.equals(FORWARD_SLICE)) {
+					_temp.addAll(_analysis.getDependents(_pair, method));
+				} else if (sliceType.equals(COMPLETE_SLICE)) {
+					_temp.addAll(_analysis.getDependees(_pair, method));
+					_temp.addAll(_analysis.getDependents(_pair, method));
+				}
+			}
+
+			final Iterator _j = _temp.iterator();
+			final int _jEnd = _temp.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final Stmt _stmt = (Stmt) _j.next();
+				generateSliceStmtCriterion(_stmt, method, true);
+			}
+		}
+	}
+
+	/**
 	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
 	 *
 	 * @param pBox is the parameter reference to be sliced on.
@@ -839,7 +883,6 @@ public final class SlicingEngine {
 			final CallTriple _ctrp = (CallTriple) _i.next();
 			final SootMethod _caller = _ctrp.getMethod();
 			final Stmt _stmt = _ctrp.getStmt();
-
 			final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
 
 			generateSliceExprCriterion(_argBox, _stmt, _caller, true);
@@ -924,10 +967,12 @@ public final class SlicingEngine {
 				 * _stmt may be an assignment statement.  Hence, we want the control to reach the statement but not leave
 				 * it.  However, the execution of the invoke expression should be considered as it is requied to reach the
 				 * callee.  Likewise, we want to include the expression but not all arguments.  We rely on the reachable
-				 * parameters to suck in the arguments.
+				 * parameters to suck in the arguments.  So, we generate criteria only for the invocation expression and
+				 * not the arguments.  Refer to transformAndGenerateToNewCriteriaForXXXX for information about how
+				 * invoke expressions are handled differently.
 				 */
 				generateSliceStmtCriterion(_stmt, _caller, false);
-				generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, false);
+				generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, true);
 
 				if (_notStatic) {
 					final ValueBox _vBox = ((InstanceInvokeExpr) _stmt.getInvokeExpr()).getBaseBox();
@@ -1157,19 +1202,28 @@ public final class SlicingEngine {
 
 		// generate new slice criteria
 		if (_considerExecution) {
-			final Collection _temp = new HashSet(_value.getUseBoxes());
+			final Collection _temp = new HashSet();
 			_temp.add(_vBox);
+
+			// if it is an invocation expression, we do not want to include the arguments/sub-expressions. 
+			// in case of instance invocation, we do want to include the receiver position expression.
+			if (!(_value instanceof InvokeExpr)) {
+				_temp.addAll(_value.getUseBoxes());
+			} else if (_value instanceof InstanceInvokeExpr) {
+				_temp.add(((InstanceInvokeExpr) _value).getBaseBox());
+			}
+
 			// include any sub expressions and generate criteria from them
 			transformAndGenerateToConsiderExecution(_stmt, _method, _temp);
 		}
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
 		}
 	}
 
 	/**
-	 * Transforms the given statement and generates new criteria.  The given statement is only collected if 
+	 * Transforms the given statement and generates new criteria.  The given statement is only collected if
 	 * <code>considerExecution</code> is <code>true</code>.
 	 *
 	 * @param stmt is the statement-level slice criterion.
@@ -1190,9 +1244,22 @@ public final class SlicingEngine {
 		if (considerExecution) {
 			// generate new slice criteria
 			processForNewExpr(stmt, method);
-			transformAndGenerateToConsiderExecution(stmt, method, stmt.getUseAndDefBoxes());
+
+			final Collection _temp = new HashSet(stmt.getUseAndDefBoxes());
+
+			// if it contains an invocation expression, we do not want to include the arguments/sub-expressions.
+			if (stmt.containsInvokeExpr()) {
+				final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
+				_temp.removeAll(_invokeExpr.getUseBoxes());
+
+				// in case of instance invocation, we do want to include the receiver position expression.
+				if (_invokeExpr instanceof InstanceInvokeExpr) {
+					_temp.add(((InstanceInvokeExpr) _invokeExpr).getBaseBox());
+				}
+			}
+			transformAndGenerateToConsiderExecution(stmt, method, _temp);
 		}
-		
+
 		// generate new slice criteria
 		generateNewCriteriaForTheCallToMethod(method);
 		generateNewCriteria(stmt, method, controlflowBasedDAs);
@@ -1234,7 +1301,7 @@ public final class SlicingEngine {
 
 		final Collection _types = new HashSet();
 		final Collection _das = new ArrayList();
-		_das.addAll(controller.getAnalyses(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA));
+		final Collection _locals = new HashSet();
 
 		for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
 			final ValueBox _vBox = (ValueBox) _i.next();
@@ -1256,14 +1323,19 @@ public final class SlicingEngine {
 						collector.includeInSlice(_field);
 						includeClassInSlice(_field.getDeclaringClass());
 					}
+				} else if (_value instanceof Local) {
+					_locals.add(_value);
 				}
 				_types.add(_value.getType());
 			}
 		}
 		includeTypesInSlice(_types);
 
-		// create new slice criteria
+		// create new slice criteria based on statement level dependence.
 		generateNewCriteria(stmt, method, _das);
+
+		// create new criteria based on program point level dependence (identifier based dependence).
+		generateNewCriteriaForLocal(_locals, stmt, method);
 
 		if (stmt.containsInvokeExpr()) {
 			generateNewCriteriaForInvokeExprIn(stmt, method, true);
@@ -1274,9 +1346,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.85  2004/07/21 07:26:56  venku
+   - statements were not tagged due to execution consideration. FIXED.
    Revision 1.84  2004/07/20 07:04:36  venku
    - changes to accomodate changes to directions of dependence analyses.
-
    Revision 1.83  2004/07/09 05:05:25  venku
    - refactored the code to enable the criteria creation to be completely hidden
      from the user.

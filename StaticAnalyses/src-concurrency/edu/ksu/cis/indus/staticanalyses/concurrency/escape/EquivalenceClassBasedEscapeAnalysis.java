@@ -32,6 +32,8 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.WaitNotifyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
 import java.util.ArrayList;
@@ -52,7 +54,6 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.Local;
 import soot.Modifier;
-import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
@@ -105,7 +106,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$
  */
 public final class EquivalenceClassBasedEscapeAnalysis
-  extends AbstractValueAnalyzerBasedProcessor {
+  extends AbstractAnalysis {
 	/*
 	 * xxxCache variables do not capture state of the object.  Rather they are used cache values across method calls.  Hence,
 	 * any subclasses of this class should  not reply on these variables as they may be removed in the future.
@@ -134,12 +135,14 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/** 
 	 * This is the collection of notify methods in the system that can lead to ready dependences.
 	 */
-	final Collection notifyMethods = new HashSet();
+
+	//final Collection notifyMethods = new HashSet();
 
 	/** 
 	 * This is the collection of wait methods in the system that can lead to ready dependences.
 	 */
-	final Collection waitMethods = new HashSet();
+
+	//final Collection waitMethods = new HashSet();
 
 	/** 
 	 * This provides context information pertaining to caller-callee relation across method calls.  The method stored in the
@@ -230,6 +233,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		bbm = basicBlockGraphMgr;
 		context = new Context();
 		cfgAnalysis = new CFGAnalysis(cgi, bbm);
+		preprocessor = new PreProcessor();
 	}
 
 	/**
@@ -619,15 +623,15 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 *
 		 * @param callees is the collection of methods called.
 		 * @param caller is the calling method.
-		 * @param primaryAliasSetv2 is the alias set of the primary in the invocation expression.
+		 * @param primaryAliasSet is the alias set of the primary in the invocation expression.
 		 * @param siteContext corresponding to the invocation expression.
 		 *
 		 * @throws RuntimeException when cloning fails.
 		 *
-		 * @pre callees != null and caller != null and primaryAliasSetv2 != null and MethodContext != null
+		 * @pre callees != null and caller != null and primaryAliasSet != null and MethodContext != null
 		 * @pre callees.oclIsKindOf(Collection(SootMethod))
 		 */
-		private void processCallees(final Collection callees, final SootMethod caller, final AliasSet primaryAliasSetv2,
+		private void processCallees(final Collection callees, final SootMethod caller, final AliasSet primaryAliasSet,
 			final MethodContext siteContext) {
 			for (final Iterator _i = callees.iterator(); _i.hasNext();) {
 				final SootMethod _callee = (SootMethod) _i.next();
@@ -641,7 +645,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					continue;
 				}
 
-				final boolean _delayUnification = processNotifyStartWait(primaryAliasSetv2, _callee);
+				final boolean _delayUnification = processNotifyStartWait(primaryAliasSet, _callee);
 
 				// retrieve the method context of the callee
 				MethodContext _mc = (MethodContext) _triple.getFirst();
@@ -716,14 +720,14 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * Process the called method for <code>start(), notify(), nofityAll(),</code> and variants of <code>wait</code>
 		 * methods.
 		 *
-		 * @param primaryAliasSetv2 is the alias set corresponding to the primary of the invocation expression.
+		 * @param primaryAliasSet is the alias set corresponding to the primary of the invocation expression.
 		 * @param callee being called.
 		 *
 		 * @return <code>true</code> when the called method is <code>java.lang.Thread.start()</code>.
 		 *
-		 * @pre primaryAliasSetv2 != null and callee != null
+		 * @pre primaryAliasSet != null and callee != null
 		 */
-		private boolean processNotifyStartWait(final AliasSet primaryAliasSetv2, final SootMethod callee) {
+		private boolean processNotifyStartWait(final AliasSet primaryAliasSet, final SootMethod callee) {
 			boolean _delayUnification = false;
 
 			if (callee.getName().equals("start")
@@ -732,20 +736,95 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				  && callee.getParameterCount() == 0) {
 				// unify alias sets after all statements are processed if "start" is being invoked.
 				_delayUnification = true;
-			} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")) {
-				if (waitMethods.contains(callee)) {
-					primaryAliasSetv2.setWaits();
-				} else if (notifyMethods.contains(callee)) {
-					primaryAliasSetv2.setNotifies();
-				}
+			} else if (WaitNotifyAnalysis.isWaitMethod(callee)) {
+				primaryAliasSet.setWaits();
+			} else if (WaitNotifyAnalysis.isNotifyMethod(callee)) {
+				primaryAliasSet.setNotifies();
 			}
 			return _delayUnification;
 		}
 	}
 
+
 	/**
-	 * Checks if the given statement containing a <code>wait</code> invocation is ready dependent on the given statement
-	 * containing <code>notify/All</code> invocation.
+	 * This class is used to create alias sets for global variables.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private final class PreProcessor
+	  extends AbstractValueAnalyzerBasedProcessor {
+		/**
+		 * Creates an alias set for the static fields.  This is the creation of global alias sets in Ruf's algorithm.
+		 *
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootField)
+		 */
+		public void callback(final SootField sf) {
+			if (Modifier.isStatic(sf.getModifiers())) {
+				final AliasSet _t = AliasSet.getASForType(sf.getType());
+
+				if (_t != null) {
+					_t.setGlobal();
+					globalASs.put(sf.getSignature(), _t);
+				}
+			}
+		}
+
+		/**
+		 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
+		 *
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootMethod)
+		 */
+		public void callback(final SootMethod sm) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Update method2Triple for " + sm);
+			}
+
+			method2Triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
+		 */
+		public void hookup(final ProcessingController ppc) {
+			ppc.register(this);
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
+		 */
+		public void unhook(final ProcessingController ppc) {
+			ppc.unregister(this);
+		}
+	}
+
+	/**
+	 * Executes phase 2 and 3 as mentioned in the technical report.  It processed each methods in the call-graph bottom-up
+	 * propogating the  alias set information in a collective fashion. It then propogates the information top-down in the
+	 * call-graph.
+	 */
+	public void analyze() {
+		unstable();
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
+		}
+
+		performPhase2();
+
+		performPhase3();
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
+		}
+		stable();
+	}
+
+	/**
+	 * Checks if the given statement containing a <code>wait</code> invocation is coupled to the given statement containing
+	 * <code>notify/All</code> invocation.  By coupling we mean that the notification via the given notify  invocation may
+	 * reach the given wait invocation.
 	 *
 	 * @param wait is the statement containing <code>wait</code> invocation.
 	 * @param waitMethod is the method in which <code>wait</code> occurs.
@@ -759,7 +838,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @pre wait != null and waitMethod != null and notify != null and notifyMethod != null
 	 */
-	public boolean isReadyDependent(final InvokeStmt wait, final SootMethod waitMethod, final InvokeStmt notify,
+	public boolean areWaitAndNotifyCoupled(final InvokeStmt wait, final SootMethod waitMethod, final InvokeStmt notify,
 		final SootMethod notifyMethod) {
 		final Triple _trp1 = (Triple) method2Triple.get(waitMethod);
 
@@ -783,7 +862,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final SootMethod _wSM = _wTemp.getMethod();
 			final SootMethod _nSM = _nTemp.getMethod();
 
-			if (waitMethods.contains(_wSM) && notifyMethods.contains(_nSM)) {
+			if (WaitNotifyAnalysis.isWaitMethod(_wSM) && WaitNotifyAnalysis.isNotifyMethod(_nSM)) {
 				final AliasSet _as1 = (AliasSet) ((Map) _trp1.getSecond()).get(_wTemp.getBase());
 				final AliasSet _as2 = (AliasSet) ((Map) _trp2.getSecond()).get(_nTemp.getBase());
 
@@ -799,72 +878,14 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn(
 							"There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
-							+ "wait()s that occur in different threads - " + _wTemp + "@" + _wSM + " " + _nTemp + "@" + _nSM);
+							+ "wait()s that occur in different threads - " + wait + "@" + waitMethod + " " + notify + "@"
+							+ notifyMethod);
 					}
 				}
 			}
 		}
 
 		return _result;
-	}
-
-	/**
-	 * Executes phase 2 and 3 as mentioned in the technical report.  It processed each methods in the call-graph bottom-up
-	 * propogating the  alias set information in a collective fashion. It then propogates the information top-down in the
-	 * call-graph.
-	 */
-	public void analyze() {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
-		}
-
-		performPhase2();
-
-		performPhase3();
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
-		}
-	}
-
-	/**
-	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootField)
-	 */
-	public void callback(final SootField sf) {
-		if (Modifier.isStatic(sf.getModifiers())) {
-			final AliasSet _t = AliasSet.getASForType(sf.getType());
-
-			if (_t != null) {
-				_t.setGlobal();
-				globalASs.put(sf.getSignature(), _t);
-			}
-		}
-	}
-
-	/**
-	 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootMethod)
-	 */
-	public void callback(final SootMethod sm) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Update method2Triple for " + sm);
-		}
-
-		method2Triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
-
-		final SootClass _sc = sm.getDeclaringClass();
-
-		if (_sc.getName().equals("java.lang.Object")) {
-			waitMethods.add(_sc.getMethod("void wait()"));
-			waitMethods.add(_sc.getMethod("void wait(long)"));
-			waitMethods.add(_sc.getMethod("void wait(long,int)"));
-
-			notifyMethods.add(_sc.getMethodByName("notify"));
-			notifyMethods.add(_sc.getMethodByName("notifyAll"));
-		}
 	}
 
 	/**
@@ -907,20 +928,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
-	 */
-	public void hookup(final ProcessingController ppc) {
-		ppc.register(this);
-	}
-
-	/**
 	 * Reset internal data structures.
 	 */
 	public void reset() {
 		globalASs.clear();
 		method2Triple.clear();
-		waitMethods.clear();
-		notifyMethods.clear();
 	}
 
 	/**
@@ -996,13 +1008,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public String toString() {
 		return new ToStringBuilder(this).append("method2Triple", this.method2Triple).toString();
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
-	 */
-	public void unhook(final ProcessingController ppc) {
-		ppc.unregister(this);
 	}
 
 	/**
@@ -1096,7 +1101,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @pre method != null
 	 */
-	private void discardReferentialAliasSetv2s(final SootMethod method) {
+	private void discardReferentialAliasSets(final SootMethod method) {
 		if (localASsCache.isEmpty()) {
 			localASsCache = Collections.EMPTY_MAP;
 		} else {
@@ -1215,7 +1220,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				performDelayedUnification();
 
 				// discard alias sets that serve as a mere indirection level. 
-				discardReferentialAliasSetv2s(_sm);
+				discardReferentialAliasSets(_sm);
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("LocalASsCache: " + _triple.getSecond());
@@ -1229,12 +1234,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	private void performPhase3() {
 		// Phase 3
-		final Collection _processed = new HashSet();
-		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_processed);
-		_wb.addAllWork(cgi.getHeads());
+		final List _methodsInTopologicalOrder = cgi.getMethodsInTopologicalOrder(true);
 
-		while (_wb.hasWork()) {
-			final SootMethod _caller = (SootMethod) _wb.getWork();
+		for (final Iterator _cgiIterator = _methodsInTopologicalOrder.iterator(); _cgiIterator.hasNext();) {
+			final SootMethod _caller = (SootMethod) _cgiIterator.next();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Top-down processing method : CALLER : " + _caller);
@@ -1281,12 +1284,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				}
 
 				_sc.propogateInfoFromTo(_mc);
-				_wb.addWorkNoDuplicates(_callee);
 			}
 		}
 
 		// delete references to site caches as they will not be used hereon.
-		for (final Iterator _i = _processed.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _methodsInTopologicalOrder.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
 			final Triple _triple = (Triple) method2Triple.get(_sm);
 			method2Triple.put(_sm, new Triple(_triple.getFirst(), _triple.getSecond(), null));
@@ -1297,6 +1299,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.56  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
    Revision 1.55  2004/07/18 19:22:32  venku
    - site contexts are not required after the analysis.  Hence, these are discarded
      from method2triple map at the end of performPhase3.

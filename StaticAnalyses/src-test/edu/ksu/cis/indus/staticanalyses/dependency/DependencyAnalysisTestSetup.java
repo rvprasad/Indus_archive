@@ -17,20 +17,20 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.TestHelper;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
-import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ValueAnalysisTestSetup;
@@ -41,17 +41,14 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestSuite;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -66,11 +63,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DependencyAnalysisTestSetup
   extends ValueAnalysisTestSetup {
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(DependencyAnalysisTestSetup.class);
-
 	/** 
 	 * The instance of aliased use-def info to use.
 	 */
@@ -95,6 +87,11 @@ public class DependencyAnalysisTestSetup
 	 * A map used to communicate arguments to various analyses.
 	 */
 	private Map info;
+
+	/** 
+	 * This provides monitor information.
+	 */
+	private MonitorAnalysis monitorInfo;
 
 	/** 
 	 * The thread graph to be used.
@@ -129,7 +126,7 @@ public class DependencyAnalysisTestSetup
 		tgiImpl.unhook(_pc);
 		aliasUD = new AliasedUseDefInfov2(valueAnalyzer, cgiImpl, bbgMgr);
 		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, tgiImpl, bbgMgr);
-		ecba.setAnalyzer(valueAnalyzer);
+		monitorInfo = new MonitorAnalysis();
 
 		//setup info        
 		info = new HashMap();
@@ -140,6 +137,7 @@ public class DependencyAnalysisTestSetup
 		info.put(IValueAnalyzer.ID, valueAnalyzer);
 		info.put(IUseDefInfo.ALIASED_USE_DEF_ID, aliasUD);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
+		info.put(IMonitorInfo.ID, monitorInfo);
 
 		// retrieve dependence analysis
 		das = new HashSet();
@@ -161,13 +159,22 @@ public class DependencyAnalysisTestSetup
 
 		// drive the analysis.
 		_pc.setProcessingFilter(new CGBasedProcessingFilter(cgiImpl));
-		setupDependencyAnalyses(_pc);
+		aliasUD.hookup(_pc);
+		_pc.process();
+		aliasUD.unhook(_pc);
 
-		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
-			((AbstractDependencyAnalysis) _da).analyze();
-			CollectionsUtilities.putIntoCollectionInMap(info, _da.getId(), _da, CollectionsUtilities.ARRAY_LIST_FACTORY);
+		// drive dependency analyses
+		final AnalysesController _ac = new AnalysesController(info, _pc, bbgMgr);
+		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(monitorInfo));
+		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(ecba));
+
+		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
+			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
+			_da1.reset();
+			_ac.addAnalyses(_da1.getId(), Collections.singleton(_da1));
 		}
+		_ac.initialize();
+		_ac.execute();
 	}
 
 	/**
@@ -182,6 +189,8 @@ public class DependencyAnalysisTestSetup
 		tgiImpl = null;
 		ecba.reset();
 		ecba = null;
+		monitorInfo.reset();
+		monitorInfo = null;
 		aliasUD.reset();
 		aliasUD = null;
 		info.clear();
@@ -195,55 +204,18 @@ public class DependencyAnalysisTestSetup
 		das = null;
 		super.tearDown();
 	}
-
-	/**
-	 * Sets up the dependence analyses to be driven.
-	 *
-	 * @param cgipc is the controller to be used to setup analyses.
-	 *
-	 * @pre cgipc != null and das != null
-	 */
-	private void setupDependencyAnalyses(final ProcessingController cgipc) {
-		final Collection _failed = new ArrayList();
-
-		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
-			_da.reset();
-			_da.setBasicBlockGraphManager(bbgMgr);
-
-			try {
-				_da.initialize(info);
-			} catch (InitializationException _e) {
-				LOGGER.error(_da.getClass() + " failed to initialize, hence, will not be executed.", _e);
-				_failed.add(_da);
-			}
-
-			if (!_failed.contains(_da) && _da.doesPreProcessing()) {
-				_da.getPreProcessor().hookup(cgipc);
-			}
-		}
-		das.removeAll(_failed);
-		aliasUD.hookup(cgipc);
-		ecba.hookup(cgipc);
-		cgipc.process();
-		ecba.unhook(cgipc);
-		aliasUD.unhook(cgipc);
-
-		ecba.analyze();
-
-		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
-
-			if (_da.getPreProcessor() != null) {
-				_da.getPreProcessor().unhook(cgipc);
-			}
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
    Revision 1.19  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.

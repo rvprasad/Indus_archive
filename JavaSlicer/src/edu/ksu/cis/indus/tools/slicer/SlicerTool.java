@@ -41,6 +41,7 @@ import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
@@ -265,6 +266,11 @@ public final class SlicerTool
 	private final Map info = new HashMap();
 
 	/** 
+	 * This provides monitor information.
+	 */
+	private final MonitorAnalysis monitorInfo;
+
+	/** 
 	 * This provides mapping from init invocation expression to corresponding new expression.
 	 */
 	private NewExpr2InitMapper initMapper;
@@ -309,6 +315,8 @@ public final class SlicerTool
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
 		// create equivalence class-based escape analysis.
 		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, threadGraph, bbgMgr);
+		// create monitor analysis
+		monitorInfo = new MonitorAnalysis();
 
 		// set up data required for dependency analyses.
 		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, bbgMgr);
@@ -319,6 +327,7 @@ public final class SlicerTool
 		info.put(Pair.PairManager.ID, new Pair.PairManager());
 		info.put(IValueAnalyzer.ID, ofa);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
+		info.put(IMonitorInfo.ID, monitorInfo);
 
 		// create dependency analyses controller 
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, bbgMgr);
@@ -586,6 +595,7 @@ public final class SlicerTool
 		cgPreProcessCtrl.reset();
 		initMapper.reset();
 		ecba.reset();
+		monitorInfo.reset();
 		ofa.reset();
 		engine.reset();
 		stmtGraphFactory.reset();
@@ -628,7 +638,7 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Executes dependency analyses.
+	 * Executes dependency analyses and monitor analysis.
 	 *
 	 * @param slicerConfig provides the configuration.
 	 *
@@ -653,11 +663,14 @@ public final class SlicerTool
 		}
 		CollectionsUtilities.getSetFromMap(info, IDependencyAnalysis.CONTROL_DA).addAll(_controlDAs);
 
+		// drive the analyses
 		for (final Iterator _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 			final Collection _c = slicerConfig.getDependenceAnalyses(_id);
 			daController.addAnalyses(_id, _c);
 		}
+		daController.addAnalyses(IMonitorInfo.ID, Collections.singleton(monitorInfo));
+		daController.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(ecba));
 		daController.initialize();
 		daController.execute();
 
@@ -679,60 +692,6 @@ public final class SlicerTool
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: dependence analyses phase");
-		}
-	}
-
-	/**
-	 * Generates criterion based on synchronization constructs and populates <code>criteria</code>.
-	 *
-	 * @param monitorInfo provides the monitor info in the system.
-	 *
-	 * @pre monitorInfo != null
-	 */
-	private void generateDeadlockCriteria(final IMonitorInfo monitorInfo) {
-		final Collection _temp = new HashSet();
-
-		for (final Iterator _i = monitorInfo.getMonitorTriples().iterator(); _i.hasNext();) {
-			final Triple _mTriple = (Triple) _i.next();
-			final SootMethod _method = (SootMethod) _mTriple.getThird();
-
-			if (!_method.getDeclaringClass().isApplicationClass()) {
-				continue;
-			}
-			_temp.clear();
-
-			if (_mTriple.getFirst() == null) {
-				// add all entry points and return points (including throws) of the method as the criteria
-				final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_method);
-
-				if (_bbg == null) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("Could not retrieve the basic block graph for " + _method.getSignature()
-							+ ".  Moving on.");
-					}
-					continue;
-				}
-
-				final BasicBlock _head = _bbg.getHead();
-
-				if (_head != null) {
-					_temp.addAll(criteriaFactory.getCriteria(_method, _head.getLeaderStmt(), false));
-
-					for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
-						final BasicBlock _bb = (BasicBlock) _j.next();
-						final Stmt _stmt = _bb.getTrailerStmt();
-						_temp.addAll(criteriaFactory.getCriteria(_method, _stmt, false));
-					}
-				} else {
-					LOGGER.error("Skipping slicing criteria generation for " + _method + " as it has 0 or more than 1 head.");
-				}
-			} else {
-				Collection _criteria = criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getFirst(), true, true);
-				_temp.addAll(_criteria);
-				_criteria = criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getSecond(), true, true);
-				_temp.addAll(_criteria);
-			}
-			criteria.addAll(_temp);
 		}
 	}
 
@@ -790,13 +749,11 @@ public final class SlicerTool
 
 		// process escape analyses.
 		cgBasedPreProcessCtrl.reset();
-		ecba.hookup(cgBasedPreProcessCtrl);
 		aliasUD.reset();
 		aliasUD.hookup(cgBasedPreProcessCtrl);
 		cgBasedPreProcessCtrl.process();
 		aliasUD.unhook(cgBasedPreProcessCtrl);
-		ecba.unhook(cgBasedPreProcessCtrl);
-		ecba.analyze();
+
 		phase.nextMajorPhase();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -806,35 +763,52 @@ public final class SlicerTool
 
 	/**
 	 * Creates criterion based on synchronization constructs and populates <code>criteria</code>.
-	 *
-	 * @throws IllegalStateException when none of the Synchronization dependency analyses implement <code>IMonitorInfo</code>
-	 * 		   interface.
 	 */
 	private void populateDeadlockCriteria() {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Populating deadlock criteria.");
 		}
 
-		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
-		final Collection _das = _slicerConfig.getDependenceAnalyses(IDependencyAnalysis.SYNCHRONIZATION_DA);
-		IMonitorInfo _im = null;
+		for (final Iterator _i = monitorInfo.getMonitorTriples().iterator(); _i.hasNext();) {
+			final Triple _mTriple = (Triple) _i.next();
+			final SootMethod _method = (SootMethod) _mTriple.getThird();
 
-		for (final Iterator _i = _das.iterator(); _i.hasNext();) {
-			final Object _o = _i.next();
+			if (!_method.getDeclaringClass().isApplicationClass()) {
+				continue;
+			}
 
-			if (_o instanceof IMonitorInfo) {
-				_im = (IMonitorInfo) _o;
-				break;
+			if (_mTriple.getFirst() == null) {
+				// add all entry points and return points (including throws) of the method as the criteria
+				final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_method);
+
+				if (_bbg == null) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("Could not retrieve the basic block graph for " + _method.getSignature()
+							+ ".  Moving on.");
+					}
+					continue;
+				}
+
+				final BasicBlock _head = _bbg.getHead();
+
+				if (_head != null) {
+					criteria.addAll(criteriaFactory.getCriteria(_method, _head.getLeaderStmt(), false));
+
+					for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
+						final BasicBlock _bb = (BasicBlock) _j.next();
+						final Stmt _stmt = _bb.getTrailerStmt();
+						criteria.addAll(criteriaFactory.getCriteria(_method, _stmt, false));
+					}
+				} else {
+					LOGGER.error("Skipping slicing criteria generation for " + _method + " as it has 0 or more than 1 head.");
+				}
+			} else {
+				Collection _criteria = criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getFirst(), true, true);
+				criteria.addAll(_criteria);
+				_criteria = criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getSecond(), true, true);
+				criteria.addAll(_criteria);
 			}
 		}
-
-		if (_im == null) {
-			throw new IllegalStateException(
-				"This implementation requires atleast one Synchronization dependence analysis to "
-				+ "implement IMonitorInfo interface.");
-		}
-
-		generateDeadlockCriteria(_im);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Populating deadlock criteria. - " + criteria);
@@ -915,6 +889,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.101  2004/07/21 11:36:27  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
    Revision 1.100  2004/07/21 06:28:06  venku
    - changed the signature of methods in SliceCriteriaFactory.
    - When creating expression-based criteria the criteria for the enclosing statement

@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
@@ -29,6 +30,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
@@ -287,6 +289,9 @@ public class DependencyXMLizerCLI
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, _ecba);
 
+		final IMonitorInfo _monitorInfo = new MonitorAnalysis();
+		info.put(IMonitorInfo.ID, _monitorInfo);
+
 		writeInfo("BEGIN: FA");
 
 		final long _start = System.currentTimeMillis();
@@ -312,15 +317,14 @@ public class DependencyXMLizerCLI
 		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).dumpGraph());
 
 		_aliasUD.hookup(_cgipc);
-		_ecba.hookup(_cgipc);
 		_cgipc.process();
 		_aliasUD.unhook(_cgipc);
-		_ecba.unhook(_cgipc);
-		_ecba.analyze();
 
 		writeInfo("BEGIN: dependency analyses");
 
 		final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());
+		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(_monitorInfo));
+		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
 
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
@@ -354,6 +358,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/07/21 20:32:31  venku
+   - documentation.
+   - CLI options were broken. FIXED.
    Revision 1.30  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
@@ -361,7 +368,6 @@ public class DependencyXMLizerCLI
      ECBA and AliasedUseDefInfo analysis.
    - Added new faster implementation of LocalUseDefAnalysisv2
    - Used LocalUseDefAnalysisv2
-
    Revision 1.29  2004/07/21 10:13:33  venku
    - previous refactoring disabled xml output. FIXED.
    Revision 1.28  2004/07/17 23:32:18  venku
@@ -604,6 +610,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/07/21 20:32:31  venku
+   - documentation.
+   - CLI options were broken. FIXED.
    Revision 1.30  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
@@ -611,7 +620,6 @@ public class DependencyXMLizerCLI
      ECBA and AliasedUseDefInfo analysis.
    - Added new faster implementation of LocalUseDefAnalysisv2
    - Used LocalUseDefAnalysisv2
-
    Revision 1.29  2004/07/21 10:13:33  venku
    - previous refactoring disabled xml output. FIXED.
    Revision 1.28  2004/07/17 23:32:18  venku

@@ -45,15 +45,26 @@ import soot.jimple.VirtualInvokeExpr;
  */
 public class ReadyDAv2
   extends ReadyDAv1 {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ReadyDAv2.class);
 
-	/**
+	/** 
 	 * This provides information to prune ready dependence edges.
 	 */
 	protected EquivalenceClassBasedEscapeAnalysis ecba;
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
+	 */
+	public void analyze() {
+		unstable();
+
+		if (ecba.isStable()) {
+			super.analyze();
+		}
+	}
 
 	/**
 	 * Checks if the given enter monitor statement/synchronized method  is dependent on the exit monitor
@@ -152,9 +163,10 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/02/25 00:04:02  venku
+   - documenation.
    Revision 1.19  2004/01/25 15:32:41  venku
    - enabled ready and interference dependences to be OFA aware.
-
    Revision 1.18  2004/01/21 13:44:09  venku
    - made ready dependence to consider synchronized methods as well.
    - ReadyDAv2 uses escape information for both sorts of inter-thread
