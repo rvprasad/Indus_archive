@@ -17,8 +17,11 @@ package edu.ksu.cis.indus.xmlizer;
 
 import java.io.IOException;
 
+import java.util.Collection;
+
 import org.znerd.xmlenc.XMLOutputter;
 
+import soot.Body;
 import soot.SootMethod;
 
 import soot.jimple.AbstractStmtSwitch;
@@ -62,6 +65,13 @@ final class JimpleStmtXMLizer
 	 * @invariant idGenerator != null
 	 */
 	private final IJimpleIDGenerator idGenerator;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Body currMethodBody;
 
 	/**
 	 * This is the method whose statements are being processed.
@@ -194,7 +204,9 @@ final class JimpleStmtXMLizer
 			xmlWriter.startTag("if_stmt");
 			xmlWriter.attribute("id", idGenerator.getIdForStmt(v, currMethod));
 			xmlWriter.attribute("label", String.valueOf(!v.getBoxesPointingToThis().isEmpty()));
-			xmlWriter.attribute("truTargetId", idGenerator.getIdForStmt(v.getTarget(), currMethod));
+			xmlWriter.attribute("trueTargetId", idGenerator.getIdForStmt(v.getTarget(), currMethod));
+			xmlWriter.attribute("falseTargetId",
+				idGenerator.getIdForStmt((Stmt) currMethodBody.getUnits().getSuccOf(v), currMethod));
 			xmlWriter.startTag("condition");
 			valueXMLizer.apply(v.getConditionBox());
 			xmlWriter.endTag();
@@ -351,6 +363,12 @@ final class JimpleStmtXMLizer
 	 */
 	void setMethod(final SootMethod method) {
 		currMethod = method;
+
+		if (method.isConcrete()) {
+			currMethodBody = method.retrieveActiveBody();
+		} else {
+			currMethodBody = null;
+		}
 		valueXMLizer.setMethod(method);
 	}
 
@@ -380,6 +398,8 @@ final class JimpleStmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/09 09:28:18  venku
+   - documentation.
    Revision 1.3  2004/05/09 08:24:08  venku
    - all xmlizers use xmlenc to write xml data.
    Revision 1.2  2004/05/06 09:31:00  venku
