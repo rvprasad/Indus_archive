@@ -729,8 +729,8 @@ public final class SlicingEngine {
 	private void generateNewCriteriaBasedOnMethodExit(final Stmt invocationStmt, final SootMethod caller,
 		final boolean considerReturnValue, final SootMethod callee, final BasicBlockGraph calleeBasicBlockGraph) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for method called at " + invocationStmt + " in " + caller + "[" 
-			        + considerReturnValue + "]");
+			LOGGER.debug("BEGIN: Generating criteria for method called at " + invocationStmt + " in " + caller + "["
+				+ considerReturnValue + "]");
 		}
 
 		// check if a criteria to consider the exit points of the method should be generated.
@@ -748,6 +748,13 @@ public final class SlicingEngine {
 				}
 			} else {
 				includeMethodAndDeclaringClassInSlice(callee);
+
+				// HACK: to suck in arguments to a native method.
+				final InvokeExpr _expr = invocationStmt.getInvokeExpr();
+
+				for (int _i = _expr.getArgCount() - 1; _i >= 0; _i--) {
+					generateSliceExprCriterion(_expr.getArgBox(_i), invocationStmt, caller, true);
+				}
 			}
 		} else {
 			/*
@@ -766,6 +773,7 @@ public final class SlicingEngine {
 				}
 			}
 		}
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for method called at " + invocationStmt + " in " + caller);
 		}
@@ -1044,7 +1052,7 @@ public final class SlicingEngine {
 			}
 		} else {
 			if (considerExecution) {
-			    final Collection _temp = new HashSet(stmt.getUseAndDefBoxes());
+				final Collection _temp = new HashSet(stmt.getUseAndDefBoxes());
 
 				// if it contains an invocation expression, we do not want to include the arguments/sub-expressions.
 				if (stmt.containsInvokeExpr()) {
@@ -1056,6 +1064,7 @@ public final class SlicingEngine {
 						_temp.add(((InstanceInvokeExpr) _invokeExpr).getBaseBox());
 					}
 				}
+
 				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 					final ValueBox _valueBox = (ValueBox) _i.next();
 					generateSliceExprCriterion(_valueBox, stmt, method, considerExecution);
@@ -1274,9 +1283,9 @@ public final class SlicingEngine {
 				}
 			}
 			transformAndGenerateToConsiderExecution(stmt, method, _temp);
-			
+
 			if (stmt.containsInvokeExpr()) {
-				generateNewCriteriaForInvokeExprIn(stmt, method,  stmt instanceof AssignStmt);
+				generateNewCriteriaForInvokeExprIn(stmt, method, stmt instanceof AssignStmt);
 			}
 		}
 
@@ -1356,7 +1365,7 @@ public final class SlicingEngine {
 
 		// create new criteria based on program point level dependence (identifier based dependence).
 		generateNewCriteriaForLocal(_locals, stmt, method);
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming value boxes");
 		}
@@ -1366,6 +1375,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.87  2004/07/25 01:36:44  venku
+   - changed the way invoke expression arguments are handled when transforming
+     statements and expressions while considering execution.
    Revision 1.86  2004/07/23 13:10:06  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
@@ -1374,7 +1386,6 @@ public final class SlicingEngine {
      - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
      - ripple effect.
      - Implemented safelock analysis to handle intraprocedural processing.
-
    Revision 1.85  2004/07/21 07:26:56  venku
    - statements were not tagged due to execution consideration. FIXED.
    Revision 1.84  2004/07/20 07:04:36  venku
