@@ -33,7 +33,7 @@ import soot.jimple.Stmt;
 public final class ForwardDirectionSensitiveInfo
   implements IDirectionSensitiveInfo {
 	/**
-	 * @see IDirectionSensitiveInfo#getFirstStmtInBB(BasicBlock)
+	 * @see IDirectionSensitiveInfo#getFirstStmtInBB(edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock)
 	 */
 	public Stmt getFirstStmtInBB(final BasicBlock bb) {
 		return bb.getTrailerStmt();

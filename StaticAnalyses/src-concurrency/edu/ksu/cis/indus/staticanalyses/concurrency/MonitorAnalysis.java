@@ -266,7 +266,7 @@ public final class MonitorAnalysis
 		}
 
 		/**
-		 * @see IMonitorGraph#getInterProcedurallyEnclosedStmts(Triple, boolean)
+		 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo.IMonitorGraph#getInterProcedurallyEnclosedStmts(Triple, boolean)
 		 */
 		public Map getInterProcedurallyEnclosedStmts(final Triple monitorTriple, final boolean transitive) {
 			final Map _result;
@@ -282,7 +282,8 @@ public final class MonitorAnalysis
 		}
 
 		/**
-		 * @see IMonitorGraph#getInterProcedurallyEnclosingMonitorTriples(soot.jimple.Stmt,     soot.SootMethod, boolean)
+		 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo.IMonitorGraph#getInterProcedurallyEnclosingMonitorTriples(Stmt, 
+		 * SootMethod, boolean)
 		 */
 		public Map getInterProcedurallyEnclosingMonitorTriples(final Stmt stmt, final SootMethod method,
 			final boolean transitive) {
