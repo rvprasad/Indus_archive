@@ -62,6 +62,7 @@
     <antcall target="doxydocs">
         <param name="configFile" value="Doxyfile"/>
     </antcall>
+    <antcall target="docbook-doc"/>
 </target>
 
 <target name="privatedocs" depends="init">
@@ -75,6 +76,7 @@
     <antcall target="doxydocs">
         <param name="configFile" value="privateDoxyfile"/>
     </antcall>
+    <antcall target="docbook-doc"/>
 </target>
 
 <target name="doxydocs">
@@ -100,6 +102,11 @@
              <tag name="post" description="Postcondition:" scope="constructors,methods"/>
              <tag name="invariant" description="Invariant" scope="methods,types,fields"/>
     </javadoc>
+</target>
+
+<target name="docbook-doc">
+	<ant dir="docs/ug/" antfile="../../../DocbookAnt/build.xml" target="pdf"/>
+	<ant dir="docs/ug/" antfile="../../../DocbookAnt/build.xml" target="html-single"/>
 </target>
 
 <target name="dist" depends="build, docs">
@@ -133,6 +140,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.27  2004/02/04 02:25:35  venku
+- changed ant build scripts.
+
 Revision 1.26  2004/02/01 22:25:03  venku
 - added variance to sources documented for general purpose and
   private purpose.
