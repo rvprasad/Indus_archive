@@ -72,7 +72,7 @@ public final class Util {
 		SootClass _contains = sc;
 
 		while (!_contains.declaresMethod(method, parameterTypes, returnType)) {
-			if (_contains.hasSuperclass()) {
+			if (hasSuperclass(_contains)) {
 				_contains = _contains.getSuperclass();
 			} else {
 				_contains = null;
@@ -103,7 +103,7 @@ public final class Util {
 			if (_temp.getName().equals(ancestor)) {
 				_retval = true;
 			} else {
-				if (_temp.hasSuperclass()) {
+				if (hasSuperclass(_temp)) {
 					_temp = _temp.getSuperclass();
 				} else {
 					break;
@@ -233,7 +233,7 @@ public final class Util {
 		boolean _result = false;
 		SootClass _temp = child;
 
-		while (!_result && (_temp.getInterfaceCount() > 0 || _temp.hasSuperclass())) {
+		while (!_result && (_temp.getInterfaceCount() > 0 || hasSuperclass(_temp))) {
 			if (_temp.implementsInterface(ancestor)) {
 				_result = true;
 			} else {
@@ -242,11 +242,34 @@ public final class Util {
 		}
 		return _result;
 	}
+
+	/**
+	 * Checks if the given class has a super class.  <code>java.lang.Object</code> will not have a super class, but others
+	 * will.
+	 *
+	 * @param sc is the class to  be tested.
+	 *
+	 * @return <code>true</code> if <code>sc</code> has a superclass; <code>false</code>, otherwise.
+	 *
+	 * @pre sc != null
+	 * @post sc.getName().equals("java.lang.Object") implies result = true
+	 * @post (not sc.getName().equals("java.lang.Object")) implies result = false
+	 */
+	private static boolean hasSuperclass(SootClass sc) {
+		boolean _result = false;
+
+		if (!sc.getName().equals("java.lang.Object")) {
+			_result = sc.hasSuperclass();
+		}
+		return _result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/31 10:32:26  venku
+   - safe fixing of thread method is desired.  FIXED.
    Revision 1.7  2003/12/31 10:05:08  venku
    - only application classes can be modified. So,
      we shall make Thread one.
