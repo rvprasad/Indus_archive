@@ -61,6 +61,12 @@ import soot.jimple.Stmt;
  * statement-level slice criterion which  refers to the statement that contains the expression.
  * </p>
  *
+ * <p>
+ * Please note that <code>ISliceCriterion</code> extends <code>IPoolable</code>.  This means that all criteria that were 
+ * created should be returned to the pool.  Hence, the user is responsible to call <code>returnToPool()</code> on all the 
+ * criterion created via <code>getCriterion()</code> methods in this class. 
+ * </p>
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
@@ -232,6 +238,13 @@ public final class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/05/10 08:12:03  venku
+   - streamlined the names of tags that are used.
+   - deleted SlicingTag class.  NamedTag is used instead.
+   - ripple effect.
+   - SliceCriteriaFactory's interface is enhanced to generate individual
+     slice criterion as well as criteria set for all nodes in the given AST chunk.
+
    Revision 1.6  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
