@@ -15,10 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
-import edu.ksu.cis.indus.staticanalyses.flow.WorkList;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
-import java.util.Collection;
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,52 +47,37 @@ class FGAccessNode
 	 *
 	 * @invariant work != null
 	 */
-	private final AbstractWork work;
+	private final AbstractTokenProcessingWork work;
 
 	/**
 	 * Creates a new <code>FGAccessNode</code> instance.
 	 *
 	 * @param workPeice the work peice associated with this node.
 	 * @param worklistToUse the worklist in which <code>work</code> will be placed.
+	 * @param tokenManager that manages the tokens used in the enclosing flow analysis.
 	 *
-	 * @pre workPeice != null and worklistToUse != null
+	 * @pre workPeice != null and worklistToUse != null and tokenManager != null
 	 */
-	public FGAccessNode(final AbstractWork workPeice, final WorkList worklistToUse) {
-		super(worklistToUse);
+	public FGAccessNode(final AbstractTokenProcessingWork workPeice, final IWorkBag worklistToUse,
+		final ITokenManager tokenManager) {
+		super(worklistToUse, tokenManager);
 		this.work = workPeice;
 	}
 
 	/**
-	 * Adds the given value to the work peice for processing.
+	 * Adds the given tokens to the work peice for processing.
 	 *
-	 * @param newValue the value that needs to be processed at the given node.
+	 * @param newTokens the collection of values that need to be processed at the given node.
 	 *
-	 * @pre newValue != null
+	 * @pre newTokens != null
 	 */
-	public void onNewValue(final Object newValue) {
-		super.onNewValue(newValue);
+	public void onNewTokens(final ITokens newTokens) {
+		super.onNewTokens(newTokens);
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Value: " + newValue + "\nSuccessors: " + succs);
+			LOGGER.debug("Values: " + newTokens + "\nSuccessors: " + succs);
 		}
-		work.addValue(newValue);
-		worklist.addWork(work);
-	}
-
-	/**
-	 * Adds the given values to the work peice for processing.
-	 *
-	 * @param newValues the collection of values that need to be processed at the given node.
-	 *
-	 * @pre newValues != null and newValues
-	 */
-	public void onNewValues(final Collection newValues) {
-		super.onNewValues(newValues);
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Values: " + newValues + "\nSuccessors: " + succs);
-		}
-		work.addValues(newValues);
+		work.addTokens(newTokens);
 		worklist.addWork(work);
 	}
 }
@@ -99,13 +85,15 @@ class FGAccessNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/02 21:59:54  venku
+   - refactoring.
+     - all classes except OFAnalyzer is package private.
+     - refactored work class hierarchy.
    Revision 1.6  2004/02/26 09:25:59  venku
    - documenation.
-
    Revision 1.5  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.4  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

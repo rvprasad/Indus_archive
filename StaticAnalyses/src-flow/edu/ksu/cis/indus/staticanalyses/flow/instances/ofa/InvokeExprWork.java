@@ -17,12 +17,13 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariantManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -41,7 +42,6 @@ import soot.ValueBox;
 
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.Jimple;
-import soot.jimple.JimpleValueSwitch;
 import soot.jimple.NullConstant;
 
 
@@ -69,13 +69,6 @@ class InvokeExprWork
 	private static final Log LOGGER = LogFactory.getLog(InvokeExprWork.class);
 
 	/**
-	 * The expression visitor that created this object.  This is used to plugin a new method call into the flow graph.
-	 *
-	 * @invariant exprSwitch != null
-	 */
-	protected JimpleValueSwitch exprSwitch;
-
-	/**
 	 * Indicates if the method represented by this object returns a value of with reference-like type.
 	 *
 	 * @invariant returnsRefLikeType != null
@@ -95,23 +88,21 @@ class InvokeExprWork
 	 *
 	 * @param callerMethod the method in which the call occurs.
 	 * @param callContext the context in which the invocation occurs.
-	 * @param exprSwitchParam the expression visitor to be used for visiting expressions.
+	 * @param tokenSet used to store the tokens that trigger the execution of this work peice.
 	 *
 	 * @throws IllegalArgumentException when <code>accessExprBox</code> does not wrap an <code>InstanceInvokeExpr</code>
 	 * 		   object.
 	 *
-	 * @pre callerMethod != null and invocationExpr != null and callContext != null
+	 * @pre callerMethod != null and callContext != null and tokenSet != null
 	 */
-	public InvokeExprWork(final MethodVariant callerMethod, final Context callContext,
-		final AbstractExprSwitch exprSwitchParam) {
-		super(callerMethod, callContext);
+	public InvokeExprWork(final MethodVariant callerMethod, final Context callContext, final ITokens tokenSet) {
+		super(callerMethod, callContext, tokenSet);
 
 		final ValueBox _invocationExpr = callContext.getProgramPoint();
 
 		if (!(_invocationExpr.getValue() instanceof InstanceInvokeExpr)) {
 			throw new IllegalArgumentException("accessExprBox has to contain a InstanceInvokeExpr object as value.");
 		}
-		this.exprSwitch = exprSwitchParam;
 
 		final InstanceInvokeExpr _ie = (InstanceInvokeExpr) _invocationExpr.getValue();
 		this.returnsRefLikeType = _ie.getMethod().getReturnType() instanceof RefLikeType;
@@ -125,12 +116,13 @@ class InvokeExprWork
 	public synchronized void execute() {
 		final InstanceInvokeExpr _e = (InstanceInvokeExpr) accessExprBox.getValue();
 		final ValueBox _vb = context.getProgramPoint();
+		final Collection _values = tokens.getValues();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
+			LOGGER.debug(_values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
 		}
 
-		for (final Iterator _i = values.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _values.iterator(); _i.hasNext();) {
 			final Value _v = (Value) _i.next();
 
 			if (LOGGER.isDebugEnabled()) {
@@ -142,7 +134,7 @@ class InvokeExprWork
 			}
 
 			try {
-				processExprAgainstValue(_e, _v);
+				processExprAgainstReceiver(_e, _v);
 			} catch (final IllegalStateException _excp) {
 				context.setProgramPoint(_vb);
 				throw _excp;
@@ -163,18 +155,20 @@ class InvokeExprWork
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Processes the given invoke expression for the given receiver object.
 	 *
-	 * @param expr DOCUMENT ME!
-	 * @param value DOCUMENT ME!
+	 * @param expr is the invoke expr.
+	 * @param receiver is the receiver object.
+	 *
+	 * @pre expr != null and receiver != null
 	 */
-	private void processExprAgainstValue(final InstanceInvokeExpr expr, final Value value) {
-		final Type _t = value.getType();
+	private void processExprAgainstReceiver(final InstanceInvokeExpr expr, final Value receiver) {
+		final Type _t = receiver.getType();
 		final SootClass _sc;
 		final FA _fa = caller.getFA();
 
 		if (_t instanceof RefType) {
-			_sc = _fa.getClass(((RefType) value.getType()).getClassName());
+			_sc = _fa.getClass(((RefType) receiver.getType()).getClassName());
 		} else if (_t instanceof ArrayType) {
 			_sc = _fa.getClass("java.lang.Object");
 		} else {
@@ -229,6 +223,10 @@ class InvokeExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/04/02 21:59:54  venku
+   - refactoring.
+     - all classes except OFAnalyzer is package private.
+     - refactored work class hierarchy.
    Revision 1.14  2004/04/02 09:58:28  venku
    - refactoring.
      - collapsed flow insensitive and sensitive parts into common classes.

@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.modes.insensitive.IndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationSiteSensitiveIndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.flow.FlowSensitiveIndexManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -62,12 +63,14 @@ public final class OFAnalyzer
 	 * @param lexpr the LHS expression visitor prototype.
 	 * @param rexpr the RHS expression visitor prototype.
 	 * @param stmt the statement visitor prototype.
+	 * @param tokenMgr manages the tokens for the objects in OFA.
 	 *
-	 * @pre astim != null and allocationim != null and lexpr != null and rexpr != null and stmt != null
+	 * @pre astim != null and allocationim != null and lexpr != null and rexpr != null and stmt != null and tokenMgr != null
 	 */
 	private OFAnalyzer(final String tagName, final AbstractIndexManager astim, final AbstractIndexManager allocationim,
-		final AbstractExprSwitch lexpr, final AbstractExprSwitch rexpr, final AbstractStmtSwitch stmt) {
-		super(new AllocationContext(), tagName);
+		final AbstractExprSwitch lexpr, final AbstractExprSwitch rexpr, final AbstractStmtSwitch stmt,
+		final ITokenManager tokenMgr) {
+		super(new AllocationContext(), tagName, tokenMgr);
 
 		final ModeFactory _mf = new ModeFactory();
 		_mf.setASTIndexManagerPrototype(astim);
@@ -75,7 +78,7 @@ public final class OFAnalyzer
 		_mf.setArrayIndexManagerPrototype(allocationim);
 		_mf.setMethodIndexManagerPrototype(new IndexManager());
 		_mf.setStaticFieldIndexManagerPrototype(new IndexManager());
-		_mf.setNodePrototype(new OFAFGNode(null));
+		_mf.setNodePrototype(new OFAFGNode(null, tokenMgr));
 		_mf.setStmtVisitorPrototype(stmt);
 		_mf.setLHSExprVisitorPrototype(lexpr);
 		_mf.setRHSExprVisitorPrototype(rexpr);
@@ -89,16 +92,16 @@ public final class OFAnalyzer
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
 	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
 	 * 		  detail.
+	 * @param tokenManager manages the tokens for the objects in OFA.
 	 *
 	 * @return the instance of analyzer correponding to the given name.
 	 *
-	 * @post result != null and tagName != null
+	 * @post result != null and tagName != null and tokenMgr != null
 	 */
-	public static OFAnalyzer getFIOIAnalyzer(final String tagName) {
+	public static OFAnalyzer getFIOIAnalyzer(final String tagName, final ITokenManager tokenManager) {
 		return new OFAnalyzer(tagName, new IndexManager(), new IndexManager(),
-			new FlowInsensitiveExprSwitch(null, new LHSConnector()),
-			new FlowInsensitiveExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
+			new FlowInsensitiveExprSwitch(null, new LHSConnector()), new FlowInsensitiveExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager);
 	}
 
 	/**
@@ -107,16 +110,16 @@ public final class OFAnalyzer
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
 	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
 	 * 		  detail.
+	 * @param tokenManager manages the tokens for the objects in OFA.
 	 *
 	 * @return the instance of analyzer correponding to the given name.
 	 *
-	 * @post result != null and tagName != null
+	 * @post result != null and tagName != null and tokenMgr != null
 	 */
-	public static OFAnalyzer getFIOSAnalyzer(final String tagName) {
+	public static OFAnalyzer getFIOSAnalyzer(final String tagName, final ITokenManager tokenManager) {
 		return new OFAnalyzer(tagName, new IndexManager(), new AllocationSiteSensitiveIndexManager(),
-			new FlowInsensitiveExprSwitch(null, new LHSConnector()),
-			new FlowInsensitiveExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
+			new FlowInsensitiveExprSwitch(null, new LHSConnector()), new FlowInsensitiveExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager);
 	}
 
 	/**
@@ -125,16 +128,16 @@ public final class OFAnalyzer
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
 	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
 	 * 		  detail.
+	 * @param tokenManager manages the tokens for the objects in OFA.
 	 *
 	 * @return the instance of analyzer correponding to the given name.
 	 *
-	 * @post result != null and tagName != null
+	 * @post result != null and tagName != null and tokenMgr != null
 	 */
-	public static OFAnalyzer getFSOIAnalyzer(final String tagName) {
+	public static OFAnalyzer getFSOIAnalyzer(final String tagName, final ITokenManager tokenManager) {
 		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new IndexManager(),
-			new FlowSensitiveExprSwitch(null, new LHSConnector()),
-			new FlowSensitiveExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
+			new FlowSensitiveExprSwitch(null, new LHSConnector()), new FlowSensitiveExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager);
 	}
 
 	/**
@@ -143,16 +146,16 @@ public final class OFAnalyzer
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
 	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
 	 * 		  detail.
+	 * @param tokenManager manages the tokens for the objects in OFA.
 	 *
 	 * @return the instance of analyzer correponding to the given name.
 	 *
-	 * @post result != null and tagName != null
+	 * @post result != null and tagName != null and tokenMgr != null
 	 */
-	public static OFAnalyzer getFSOSAnalyzer(final String tagName) {
+	public static OFAnalyzer getFSOSAnalyzer(final String tagName, final ITokenManager tokenManager) {
 		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
-			new FlowSensitiveExprSwitch(null, new LHSConnector()),
-			new FlowSensitiveExprSwitch(null, new RHSConnector()),
-			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null));
+			new FlowSensitiveExprSwitch(null, new LHSConnector()), new FlowSensitiveExprSwitch(null, new RHSConnector()),
+			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.StmtSwitch(null), tokenManager);
 	}
 
 	/**
@@ -192,15 +195,15 @@ public final class OFAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/04/02 09:59:46  venku
+   - coding convention.
    Revision 1.13  2004/04/02 09:58:28  venku
    - refactoring.
      - collapsed flow insensitive and sensitive parts into common classes.
      - coding convention
      - documentation.
-
    Revision 1.12  2004/04/01 19:18:29  venku
    - stmtGraphFactory was not set.
-
    Revision 1.11  2004/02/26 08:31:21  venku
    - refactoring - moved OFAnalyzer.isReferenceType() to Util.
    Revision 1.10  2003/12/13 19:38:58  venku

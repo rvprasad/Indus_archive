@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -85,12 +86,13 @@ public abstract class AbstractAnalyzer
 	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
 	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
 	 * 		  detail.
+	 * @param tokenMgr manages the tokens that participate in the analysis.
 	 *
-	 * @pre theContext != null and tagName != null
+	 * @pre theContext != null and tagName != null and tokenMgr != null
 	 */
-	protected AbstractAnalyzer(final Context theContext, final String tagName) {
+	protected AbstractAnalyzer(final Context theContext, final String tagName, final ITokenManager tokenMgr) {
 		this.context = theContext;
-		fa = new FA(this, tagName);
+		fa = new FA(this, tagName, tokenMgr);
 		stable = false;
 	}
 
@@ -102,7 +104,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	public IEnvironment getEnvironment() {
-		return (IEnvironment) fa;
+		return fa;
 	}
 
 	/**
@@ -124,17 +126,17 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	public final Collection getThrowValues(final InvokeExpr e, final SootClass exception) {
-		MethodVariant mv = fa.queryMethodVariant(context.getCurrentMethod());
-		Collection temp = Collections.EMPTY_SET;
+		final MethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		Collection _temp = Collections.EMPTY_SET;
 
-		if (mv != null) {
-			InvocationVariant iv = (InvocationVariant) mv.getASTVariant(e, context);
+		if (_mv != null) {
+			final InvocationVariant _iv = (InvocationVariant) _mv.getASTVariant(e, context);
 
-			if (iv != null) {
-				temp = iv.queryThrowNode(exception).getValues();
+			if (_iv != null) {
+				_temp = _iv.queryThrowNode(exception).getValues();
 			}
 		}
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -153,24 +155,24 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	public final Collection getValues(final Object astChunk, final Context ctxt) {
-		Context tmpCtxt = context;
+		final Context _tmpCtxt = context;
 		context = ctxt;
 
-		Collection result = Collections.EMPTY_LIST;
+		Collection _result = Collections.EMPTY_LIST;
 
 		if (astChunk instanceof Value) {
-			result = getValues((Value) astChunk);
+			_result = getValues((Value) astChunk);
 		} else if (astChunk instanceof SootField) {
-			result = getValues((SootField) astChunk);
+			_result = getValues((SootField) astChunk);
 		} else if (astChunk instanceof ParameterRef) {
-			result = getValues((ParameterRef) astChunk);
+			_result = getValues((ParameterRef) astChunk);
 		} else if (astChunk instanceof ArrayType) {
-			result = getValues((ArrayType) astChunk);
+			_result = getValues((ArrayType) astChunk);
 		} else {
 			throw new IllegalArgumentException("v has to of type Value, SootField, ParameterRef, or ArrayType.");
 		}
-		context = tmpCtxt;
-		return result;
+		context = _tmpCtxt;
+		return _result;
 	}
 
 	/**
@@ -185,17 +187,17 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	public final Collection getValuesForThis(final Context ctxt) {
-		Context tmpCtxt = context;
+		final Context _tmpCtxt = context;
 		context = ctxt;
 
-		MethodVariant mv = fa.queryMethodVariant(context.getCurrentMethod());
-		Collection temp = Collections.EMPTY_LIST;
+		final MethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		Collection _temp = Collections.EMPTY_LIST;
 
-		if (mv != null) {
-			temp = mv.queryThisNode().getValues();
+		if (_mv != null) {
+			_temp = _mv.queryThisNode().getValues();
 		}
-		context = tmpCtxt;
-		return temp;
+		context = _tmpCtxt;
+		return _temp;
 	}
 
 	/**
@@ -237,9 +239,9 @@ public abstract class AbstractAnalyzer
 
 		stable = false;
 
-		for (Iterator i = roots.iterator(); i.hasNext();) {
-			SootMethod root = (SootMethod) i.next();
-			fa.analyze(scm, root);
+		for (final Iterator _i = roots.iterator(); _i.hasNext();) {
+			final SootMethod _root = (SootMethod) _i.next();
+			fa.analyze(scm, _root);
 		}
 		stable = true;
 	}
@@ -264,17 +266,17 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final ArrayType a) {
-		ArrayVariant v = fa.queryArrayVariant(a);
-		Collection temp = Collections.EMPTY_SET;
+		final ArrayVariant _v = fa.queryArrayVariant(a);
+		Collection _temp = Collections.EMPTY_SET;
 
-		if (v != null) {
-			temp = v.getFGNode().getValues();
+		if (_v != null) {
+			_temp = _v.getFGNode().getValues();
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Values for array type " + a + " in node " + v.getFGNode() + " are " + temp);
+				LOGGER.debug("Values for array type " + a + " in node " + _v.getFGNode() + " are " + _temp);
 			}
 		}
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -289,17 +291,17 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final ParameterRef p) {
-		MethodVariant mv = fa.queryMethodVariant(context.getCurrentMethod());
-		Collection temp = Collections.EMPTY_SET;
+		final MethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		Collection _temp = Collections.EMPTY_SET;
 
-		if (mv != null) {
-			temp = mv.queryParameterNode(p.getIndex()).getValues();
+		if (_mv != null) {
+			_temp = _mv.queryParameterNode(p.getIndex()).getValues();
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Values for param " + p + " in node " + mv.queryParameterNode(p.getIndex()) + " are " + temp);
+				LOGGER.debug("Values for param " + p + " in node " + _mv.queryParameterNode(p.getIndex()) + " are " + _temp);
 			}
 		}
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -313,17 +315,17 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final SootField sf) {
-		FieldVariant fv = fa.queryFieldVariant(sf);
-		Collection temp = Collections.EMPTY_SET;
+		final FieldVariant _fv = fa.queryFieldVariant(sf);
+		Collection _temp = Collections.EMPTY_SET;
 
-		if (fv != null) {
-			temp = fv.getValues();
+		if (_fv != null) {
+			_temp = _fv.getValues();
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Values for field  " + sf + " are " + temp);
+				LOGGER.debug("Values for field  " + sf + " are " + _temp);
 			}
 		}
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -337,21 +339,21 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final Value v) {
-		MethodVariant mv = fa.queryMethodVariant(context.getCurrentMethod());
-		Collection temp = Collections.EMPTY_SET;
+		final MethodVariant _mv = fa.queryMethodVariant(context.getCurrentMethod());
+		Collection _temp = Collections.EMPTY_SET;
 
-		if (mv != null) {
-			ValuedVariant astv = mv.queryASTVariant(v, context);
+		if (_mv != null) {
+			final ValuedVariant _astv = _mv.queryASTVariant(v, context);
 
-			if (astv != null) {
-				temp = astv.getFGNode().getValues();
+			if (_astv != null) {
+				_temp = _astv.getFGNode().getValues();
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Values for ast " + v + " in node " + astv.getFGNode() + " are " + temp);
+					LOGGER.debug("Values for ast " + v + " in node " + _astv.getFGNode() + " are " + _temp);
 				}
 			}
 		}
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -376,6 +378,12 @@ public abstract class AbstractAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
    Revision 1.11  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -41,6 +41,8 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -146,7 +148,7 @@ public abstract class DADriver
 		String tagName = "DADriver:FA";
 		setClassNames(args);
 		initialize();
-		aa = OFAnalyzer.getFSOSAnalyzer(tagName);
+		aa = OFAnalyzer.getFSOSAnalyzer(tagName, new CollectionTokenManager(new SootValueTypeManager()));
 
 		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
 		Collection processors = new ArrayList();
@@ -354,6 +356,8 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/03/03 05:59:33  venku
+   - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.40  2004/03/03 02:17:46  venku
    - added a new method to ICallGraphInfo interface.
    - implemented the above method in CallGraph.

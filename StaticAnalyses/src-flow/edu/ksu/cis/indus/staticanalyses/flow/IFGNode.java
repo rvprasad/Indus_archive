@@ -17,6 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+
 import java.util.Collection;
 
 
@@ -52,12 +55,23 @@ public interface IFGNode
 	 *
 	 * @pre filter != null
 	 */
-	void setFilter(IValueFilter filter);
+	void setFilter(ITokenFilter filter);
+
+	/**
+	 * Retrieves the tokens accumulated at this node.
+	 *
+	 * @return the accumulated tokens.
+	 *
+	 * @post result != null
+	 */
+	ITokens getTokens();
 
 	/**
 	 * Returns the values in this node.
 	 *
 	 * @return the values in this node.
+	 *
+	 * @post result != null
 	 */
 	Collection getValues();
 
@@ -65,61 +79,36 @@ public interface IFGNode
 	 * Adds a successor node to this node.
 	 *
 	 * @param node the node to be added as a successor node.
+	 *
+	 * @pre node != null
 	 */
 	void addSucc(IFGNode node);
 
 	/**
-	 * Adds a set of successor nodes to this node.
+	 * Injects a value into this node.
 	 *
-	 * @param succs the set of nodes to be added as successor nodes.
+	 * @param value to be injected into this node.
+	 *
+	 * @pre value !- null
 	 */
-	void addSuccs(Collection succs);
+	void injectValue(Object value);
 
 	/**
-	 * Adds a value to this node.  This indicates a value arrived at this node.
+	 * Injects the given values into this node.
 	 *
-	 * @param value the value that arrived at this node.
+	 * @param values to be injected into this node.
 	 *
 	 * @pre values != null
 	 */
-	void addValue(Object value);
-
-	/**
-	 * Adds a set of values to this node.  This indicates a set of values arrived at this node.
-	 *
-	 * @param values the set of values that arrived at this node.
-	 *
-	 * @pre values != null
-	 */
-	void addValues(Collection values);
-
-	/**
-	 * Checks if the given value exists in this node.
-	 *
-	 * @param o the value whose presence in this node is to be tested.
-	 *
-	 * @return <code>true</code> if the node contains the value; <code>false</code> otherwise.
-	 *
-	 * @pre o != null
-	 */
-	boolean containsValue(Object o);
-
-	/**
-	 * Returns a collection containing the set difference between values in this node and the given node.  The values in this
-	 * node provide A in A \ B whereas B is provided by the <code>src</code>.
-	 *
-	 * @param src the node containing the values of set B in A \ B.
-	 *
-	 * @return a collection of values in that exist in this node and not in <code>src</code>.
-	 *
-	 * @pre src != null
-	 */
-	Collection diffValues(IFGNode src);
+	void injectValues(Collection values);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

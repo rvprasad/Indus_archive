@@ -26,6 +26,8 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -89,8 +91,7 @@ public final class CallGraphXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphXMLizerCLI ",
-					_options);
+				(new HelpFormatter()).printHelp("java " + CallGraphXMLizerCLI.class.getName(), _options);
 				System.exit(1);
 			}
 
@@ -112,8 +113,7 @@ public final class CallGraphXMLizerCLI
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphXMLizerCLI",
-				_options);
+			(new HelpFormatter()).printHelp("java " + CallGraphXMLizerCLI.class.getName(), _options);
 		}
 	}
 
@@ -129,7 +129,8 @@ public final class CallGraphXMLizerCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName);
+		final IValueAnalyzer _aa =
+			OFAnalyzer.getFSOSAnalyzer(_tagName, new CollectionTokenManager(new SootValueTypeManager()));
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
@@ -188,6 +189,14 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.4  2004/03/26 07:17:05  venku
    - documentation.
    - forced -c option as being required.

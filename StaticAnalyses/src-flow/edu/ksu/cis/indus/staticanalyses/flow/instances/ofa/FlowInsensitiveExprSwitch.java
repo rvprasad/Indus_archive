@@ -19,12 +19,14 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.ArrayVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
-import edu.ksu.cis.indus.staticanalyses.flow.TypeBasedFilter;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,8 +115,10 @@ class FlowInsensitiveExprSwitch
 
 		final IFGNode _baseNode = (IFGNode) getResult();
 		final IFGNode _ast = method.getASTNode(e);
-		final AbstractWork _work = new ArrayAccessExprWork(method, context, _ast, connector);
-		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList());
+		final ITokenManager _tokenMgr = fa.getTokenManager();
+		final AbstractTokenProcessingWork _work =
+			new ArrayAccessExprWork(method, context, _ast, connector, _tokenMgr.getTokens(Collections.EMPTY_LIST));
+		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList(), _tokenMgr);
 		_baseNode.addSucc(_temp);
 		process(e.getIndexBox());
 		setResult(_ast);
@@ -135,7 +139,10 @@ class FlowInsensitiveExprSwitch
 			// run-time.
 			final IFGNode _base = (IFGNode) getResult();
 			final IFGNode _cast = method.getASTNode(e);
-			_cast.setFilter(new TypeBasedFilter(e.getCastType(), fa));
+
+			//_cast.setFilter(new TypeBasedFilter(e.getCastType(), fa));
+			final ITokenManager _tokenMgr = fa.getTokenManager();
+			_cast.setFilter(_tokenMgr.getTypeBasedFilter(_tokenMgr.getTypeManager().getExactType(e)));
 			_base.addSucc(_cast);
 			setResult(_cast);
 		}
@@ -165,8 +172,10 @@ class FlowInsensitiveExprSwitch
 
 		final IFGNode _baseNode = (IFGNode) getResult();
 		final IFGNode _ast = method.getASTNode(e);
-		final AbstractWork _work = new FieldAccessExprWork(method, context, _ast, connector);
-		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList());
+		final ITokenManager _tokenMgr = fa.getTokenManager();
+		final AbstractTokenProcessingWork _work =
+			new FieldAccessExprWork(method, context, _ast, connector, _tokenMgr.getTokens(Collections.EMPTY_LIST));
+		final FGAccessNode _temp = new FGAccessNode(_work, getWorkList(), _tokenMgr);
 		_baseNode.addSucc(_temp);
 		setResult(_ast);
 	}
@@ -217,7 +226,8 @@ class FlowInsensitiveExprSwitch
 
 		final IFGNode _ast = method.getASTNode(e);
 		fa.getArrayVariant((ArrayType) e.getType(), context);
-		_ast.addValue(e);
+		//_ast.addValue(e);
+		_ast.injectValue(e);
 		setResult(_ast);
 	}
 
@@ -230,7 +240,9 @@ class FlowInsensitiveExprSwitch
 	 */
 	public void caseNewExpr(final NewExpr e) {
 		final IFGNode _ast = method.getASTNode(e);
-		_ast.addValue(e);
+
+		//_ast.addValue(e);
+		_ast.injectValue(e);
 		setResult(_ast);
 	}
 
@@ -253,12 +265,15 @@ class FlowInsensitiveExprSwitch
 			final ArrayVariant _array = fa.getArrayVariant(_arrayType, context);
 
 			if (_sizes > 0) {
-				_array.getFGNode().addValue(e);
+				//_array.getFGNode().addValue(e);
+				_array.getFGNode().injectValue(e);
 			}
 		}
 
 		final IFGNode _ast = method.getASTNode(e);
-		_ast.addValue(e);
+
+		//_ast.addValue(e);
+		_ast.injectValue(e);
 		setResult(_ast);
 	}
 
@@ -271,7 +286,9 @@ class FlowInsensitiveExprSwitch
 	 */
 	public void caseNullConstant(final NullConstant e) {
 		final IFGNode _ast = method.getASTNode(e);
-		_ast.addValue(e);
+
+		//_ast.addValue(e);
+		_ast.injectValue(e);
 		setResult(_ast);
 	}
 
@@ -337,7 +354,9 @@ class FlowInsensitiveExprSwitch
 	 */
 	public void caseStringConstant(final StringConstant e) {
 		final IFGNode _ast = method.getASTNode(e);
-		_ast.addValue(e);
+
+		//_ast.addValue(e);
+		_ast.injectValue(e);
 		setResult(_ast);
 	}
 
@@ -413,8 +432,10 @@ class FlowInsensitiveExprSwitch
 			setResult(null);
 		}
 
-		final AbstractWork _work = new InvokeExprWork(method, context, this);
-		final FGAccessNode _baseNode = new FGAccessNode(_work, getWorkList());
+		final ITokenManager _tokenMgr = fa.getTokenManager();
+		final AbstractTokenProcessingWork _work =
+			new InvokeExprWork(method, context, _tokenMgr.getTokens(Collections.EMPTY_LIST));
+		final FGAccessNode _baseNode = new FGAccessNode(_work, getWorkList(), _tokenMgr);
 		_temp.addSucc(_baseNode);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -472,12 +493,15 @@ class FlowInsensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/02 21:59:54  venku
+   - refactoring.
+     - all classes except OFAnalyzer is package private.
+     - refactored work class hierarchy.
    Revision 1.1  2004/04/02 09:58:28  venku
    - refactoring.
      - collapsed flow insensitive and sensitive parts into common classes.
      - coding convention
      - documentation.
-
    Revision 1.14  2004/02/26 08:31:21  venku
    - refactoring - moved OFAnalyzer.isReferenceType() to Util.
    Revision 1.13  2003/12/16 00:19:25  venku

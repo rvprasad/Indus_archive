@@ -15,8 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -29,8 +33,8 @@ import org.apache.commons.logging.LogFactory;
  * Flow graph node associated with value associated variants.  This class provides the basic behavior required by the nodes
  * in the flow graph.  It is required that the nodes be able to keep track of the successor nodes and the set of values.
  * However, an implementation may transform the existing values as new values arrive, or change successors as new successors
- * are added.  Hence, all imlementing classes are required to implement <code>IFGNode.onNewSucc, IFGNode.onNewSuccs,
- * IFGNode.onNewValue,</code> and <code>IFGNode.onNewValues</code> methods. Created: Tue Jan 22 02:57:07 2002
+ * are added.  Hence, all imlementing classes are required to implement <code>IFGNode.onNewSucc</code> and
+ * <code>IFGNode.onNewTokens</code> methods.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -51,16 +55,16 @@ public abstract class AbstractFGNode
 	protected final Set succs = new HashSet();
 
 	/**
-	 * The set of values contained in this node.  The elements in the set are of type <code>Object</code>.
-	 *
-	 * @invariant values != null
-	 */
-	protected final Set values = new HashSet();
-
-	/**
 	 * A filter that controls the outflow of values from this node.
 	 */
-	protected IValueFilter filter;
+	protected ITokenFilter filter;
+
+	/**
+	 * The set of tokens that will be used to store tokens at this node.
+	 *
+	 * @invariant tokens != null
+	 */
+	protected final ITokens tokens;
 
 	/**
 	 * The worklist associated with the enclosing instance of the framework.  This is required if subclasses will want to
@@ -68,18 +72,45 @@ public abstract class AbstractFGNode
 	 *
 	 * @invariant worklist != null
 	 */
-	protected final WorkList worklist;
+	protected final IWorkBag worklist;
 
 	/**
 	 * Creates a new <code>AbstractFGNode</code> instance.
 	 *
 	 * @param worklistToUse The worklist associated with the enclosing instance of the framework.
+	 * @param tokenSet to be used to store the tokens at this node.
 	 *
-	 * @pre worklistToUse != null
+	 * @pre worklistToUse != null and tokenSet != null
 	 */
-	protected AbstractFGNode(final WorkList worklistToUse) {
+	protected AbstractFGNode(final IWorkBag worklistToUse, final ITokens tokenSet) {
 		this.worklist = worklistToUse;
-		filter = null;
+		tokens = tokenSet;
+	}
+
+	/**
+	 * This method will throw <code>UnsupprotedOperationException</code>.
+	 *
+	 * @return (This method raises an exception.)
+	 *
+	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
+	 * 		   subclasses.
+	 */
+	public Object getClone() {
+		throw new UnsupportedOperationException("Parameterless prototype() method is not supported.");
+	}
+
+	/**
+	 * This method will throw <code>UnsupprotedOperationException</code>.
+	 *
+	 * @param param <i>ignored</i>.
+	 *
+	 * @return (This method raises an exception.)
+	 *
+	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
+	 * 		   subclasses.
+	 */
+	public Object getClone(final Object param) {
+		throw new UnsupportedOperationException("prototype(param1) method is not supported.");
 	}
 
 	/**
@@ -87,8 +118,30 @@ public abstract class AbstractFGNode
 	 *
 	 * @param filterToUse to be used by this node.
 	 */
-	public void setFilter(final IValueFilter filterToUse) {
+	public void setFilter(final ITokenFilter filterToUse) {
 		this.filter = filterToUse;
+	}
+
+	/**
+	 * Retrieves the set of tokens accumulated in this node.
+	 *
+	 * @return the set of tokens.
+	 *
+	 * @post result != null
+	 */
+	public final ITokens getTokens() {
+		return this.tokens;
+	}
+
+	/**
+	 * Retrieves the values that have accumulated at this node.
+	 *
+	 * @return the values accumulated at this node.
+	 *
+	 * @post result != null
+	 */
+	public final Collection getValues() {
+		return tokens.getValues();
 	}
 
 	/**
@@ -107,139 +160,6 @@ public abstract class AbstractFGNode
 	}
 
 	/**
-	 * Adds a set of successors to this node.
-	 *
-	 * @param successors the collection of <code>IFGNode</code>s to be added as successors to this node.
-	 *
-	 * @pre successors != null
-	 */
-	public void addSuccs(final Collection successors) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Adding " + successors + " as the successors to " + this);
-		}
-		succs.addAll(successors);
-		onNewSuccs(successors);
-	}
-
-	/**
-	 * Injects a value into the set of values associated with this node.
-	 *
-	 * @param value the value to be injected in to this node.
-	 *
-	 * @pre value != null
-	 */
-	public void addValue(final Object value) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Injecting " + value + " into " + this);
-		}
-		values.add(value);
-		onNewValue(value);
-	}
-
-	/**
-	 * Injects a set of values into the set of values associated with this node.
-	 *
-	 * @param valuesToInject the collection of <code>Object</code>s to be added as successors to this node.
-	 *
-	 * @pre valuesToInject != null
-	 */
-	public void addValues(final Collection valuesToInject) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Injecting " + valuesToInject + " into " + this);
-		}
-		values.addAll(valuesToInject);
-		onNewValues(valuesToInject);
-	}
-
-	/**
-	 * Checks if the given values exists in the set of values associated with this node.
-	 *
-	 * @param o the value to be checked for existence.
-	 *
-	 * @return <code>true</code> if <code>o</code> exists in the set of values associated with this node; <code>false</code>
-	 * 		   otherwise.
-	 *
-	 * @pre o != null
-	 */
-	public boolean containsValue(final Object o) {
-		return values.contains(o);
-	}
-
-	/**
-	 * Returns the set of values that exist in this node and not in <code>src</code> node.
-	 *
-	 * @param src the subtrahend in set difference operation.
-	 *
-	 * @return a <code>Collection</code> containing the values resulting from the set difference between the set of values
-	 * 		   associated with this node and <code>src</code>.
-	 *
-	 * @pre src != null
-	 * @post result != null
-	 */
-	public final Collection diffValues(final IFGNode src) {
-		Set temp = new HashSet();
-		Collection srcValues = src.getValues();
-
-		for (Iterator i = values.iterator(); i.hasNext();) {
-			Object t = i.next();
-
-			if (!srcValues.contains(t)) {
-				temp.add(t);
-			}
-		}
-
-		return temp.isEmpty() ? Collections.EMPTY_SET
-							  : temp;
-	}
-
-	/**
-	 * This method will throw <code>UnsupprotedOperationException</code>.
-	 *
-	 * @return (This method raises an exception.)
-	 *
-	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
-	 * 		   subclasses.
-	 */
-	public Object getClone() {
-		throw new UnsupportedOperationException("Parameterless prototype() method is not supported.");
-	}
-
-	/**
-	 * Returns the values associated with this node.
-	 *
-	 * @return a collection of values associated (injected) into this node.
-	 *
-	 * @post result != null
-	 */
-	public Collection getValues() {
-		return Collections.unmodifiableCollection(values);
-	}
-
-	/**
-	 * Performs a specific action when a successor node is added to this node.  This is a template method to be provided by
-	 * subclasses.
-	 *
-	 * @param succ the node being added as the successor to this node.
-	 *
-	 * @pre succ != null
-	 */
-	public abstract void onNewSucc(final IFGNode succ);
-
-	/**
-	 * This method will throw <code>UnsupprotedOperationException</code>.
-	 *
-	 * @param param <i>ignored</i>.
-	 *
-	 * @return (This method raises an exception.)
-	 *
-	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
-	 * 		   subclasses.
-	 */
-	public Object getClone(final Object param) {
-		throw new UnsupportedOperationException("prototype(param1) method is not supported.");
-	}
-
-	/**
 	 * Returns a stringized representation of this object.
 	 *
 	 * @return the stringized representation of this object.
@@ -251,43 +171,83 @@ public abstract class AbstractFGNode
 	}
 
 	/**
-	 * Performs specific operation when new successor nodes are added to this node.  This is a template method that can be
-	 * overridden by subclasses.
+	 * Injects a set of values into the set of values associated with this node.
 	 *
-	 * @param successors the set of <code>IFGNode</code>s being added as successors to this node.
+	 * @param newTokens the collection of<code>Object</code>s to be added as successors to this node.
 	 *
-	 * @pre successors != null
+	 * @pre values != null
 	 */
-	protected void onNewSuccs(final Collection successors) {
-		for (Iterator i = successors.iterator(); i.hasNext();) {
-			onNewSucc((IFGNode) i.next());
+	protected final void addTokens(final ITokens newTokens) {
+		final ITokens _diffTokens = newTokens.diffTokens(tokens);
+		tokens.addTokens(newTokens);
+		onNewTokens(_diffTokens);
+	}
+
+	/**
+	 * Returns a collection containing the set difference between values in this node and the given node.  The values in this
+	 * node provide A in A \ B whereas B is provided by the <code>src</code>.
+	 *
+	 * @param src the node containing the values of set B in A \ B.
+	 *
+	 * @return a collection of values in that exist in this node and not in <code>src</code>.
+	 *
+	 * @pre src != null
+	 */
+	protected ITokens diffTokens(final IFGNode src) {
+		return tokens.diffTokens(src.getTokens());
+	}
+
+	/**
+	 * Adds a new work to the worklist to propogate the values in this node to <code>succ</code>.  Only the difference values
+	 * are propogated.
+	 *
+	 * @param succ the successor node that was added to this node.
+	 *
+	 * @pre succ != null
+	 */
+	protected void onNewSucc(final IFGNode succ) {
+		ITokens _temp = diffTokens(succ);
+
+		if (filter != null) {
+			_temp = filter.filter(_temp);
+		}
+
+		if (!_temp.isEmpty()) {
+			worklist.addWork(SendTokensWork.getWork(succ, _temp));
 		}
 	}
 
 	/**
-	 * Performs a specific action when a value is added to this node.  This is a template method to be provided by
-	 * subclasses.
+	 * Adds a new work to the worklist to propogate <code>values</code> in this node to it's successor nodes.
 	 *
-	 * @param value the value being added to this node.
+	 * @param newTokens the values to be propogated to the successor node.  The collection contains object of
+	 * 		  type<code>Object</code>.
 	 *
-	 * @pre value != null
+	 * @pre newTokens != null
 	 */
-	protected abstract void onNewValue(final Object value);
+	protected void onNewTokens(final ITokens newTokens) {
+		ITokens _temp = newTokens;
 
-	/**
-	 * Performs a specific action when a set of values is added to this node.  This is a template method to be provided by
-	 * subclasses.
-	 *
-	 * @param newValues the collection of values being added to this node.
-	 *
-	 * @pre newValues != null
-	 */
-	protected abstract void onNewValues(final Collection newValues);
+		if (filter != null) {
+			_temp = filter.filter(_temp);
+		}
+
+		for (final Iterator _i = succs.iterator(); _i.hasNext();) {
+			final IFGNode _succ = (IFGNode) _i.next();
+
+			if (!diffTokens(_succ).isEmpty()) {
+				worklist.addWork(SendTokensWork.getWork(_succ, _temp));
+			}
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

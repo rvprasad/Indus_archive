@@ -13,12 +13,11 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
+package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.indus.interfaces.IPoolable;
 
-import java.util.Collection;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,18 +29,19 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 
 
 /**
- * This class represents a peice of work to inject a set of values into a flow graph node.
+ * This class represents a peice of work to inject a set of tokens into a flow graph node.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class SendValuesWork
-  extends AbstractWork {
+public class SendTokensWork
+  extends AbstractTokenProcessingWork
+  implements IPoolable {
 	/**
-	 * This is the work pool of work peices that will be reused upon request..
+	 * This is the work pool of work peices that will be reused upon request.
 	 *
-	 * @invariant POOL.borrowObject().oclIsKindOf(SendValuesWork)
+	 * @invariant POOL.borrowObject().oclIsKindOf(SendTokensWork)
 	 */
 	private static final ObjectPool POOL =
 		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
@@ -49,14 +49,14 @@ class SendValuesWork
 				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
 				 */
 				public Object makeObject() {
-					return new SendValuesWork();
+					return new SendTokensWork(null);
 				}
 			});
 
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SendValuesWork.class);
+	private static final Log LOGGER = LogFactory.getLog(SendTokensWork.class);
 
 	/**
 	 * The flow graph node associated with this work.
@@ -64,21 +64,33 @@ class SendValuesWork
 	private IFGNode node;
 
 	/**
-	 * Injects the values into the associated node.
+	 * Creates an instance of this class.
+	 *
+	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
 	 */
-	public final void execute() {
-		node.addValues(values);
+	SendTokensWork(final ITokens tokenSet) {
+		super(tokenSet);
 	}
 
 	/**
-	 * Puts back this work into the work pool to be reused.
+	 * Creates a new <code>SendTokensWork</code> instance.
 	 *
-	 * @throws RuntimeException if the return of the object to the pool failed.
+	 * @param toNode the node into which the tokens need to be injected.
+	 * @param tokensToBeSent a collection containing the tokens to be injected.
+	 *
+	 * @return a work peice with the given data embedded in it.
+	 *
+	 * @throws RuntimeException occurs when pooling fails.  This is beyond our control.
+	 *
+	 * @pre toNode != null and tokensToBeSent != null
+	 * @post result != null
 	 */
-	protected void finished() {
+	public static final SendTokensWork getWork(final IFGNode toNode, final ITokens tokensToBeSent) {
 		try {
-			node = null;
-			POOL.returnObject(this);
+			final SendTokensWork _result = (SendTokensWork) POOL.borrowObject();
+			_result.node = toNode;
+			_result.tokens = (ITokens) tokensToBeSent.getClone();
+			return _result;
 		} catch (final Exception _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("How can this happen?", _e);
@@ -88,55 +100,28 @@ class SendValuesWork
 	}
 
 	/**
-	 * Creates a new <code>SendValuesWork</code> instance.
-	 *
-	 * @param toNode the node into which the values need to be injected.
-	 * @param valueToBeSent the value to be injected.
-	 *
-	 * @return a work peice with the given data embedded in it.
-	 *
-	 * @post result != null
-	 * @pre toNode != null and valueToBeSent != null
+	 * Injects the tokens into the associated node.
 	 */
-	static final SendValuesWork getWork(final IFGNode toNode, final Object valueToBeSent) {
-		final SendValuesWork _result = getWork();
-		_result.node = toNode;
-		_result.addValue(valueToBeSent);
-		return _result;
+	public final void execute() {
+		node.injectValues(tokens.getValues());
 	}
 
 	/**
-	 * Creates a new <code>SendValuesWork</code> instance.
+	 * Ignored.
 	 *
-	 * @param toNode the node into which the values need to be injected.
-	 * @param valuesToBeSent a collection containing the values to be injected.
-	 *
-	 * @return a work peice with the given data embedded in it.
-	 *
-	 * @post result != null
-	 * @pre toNode != null and valuesToBeSent != null
+	 * @see edu.ksu.cis.indus.interfaces.IPoolable#setPool(org.apache.commons.pool.ObjectPool)
 	 */
-	static final SendValuesWork getWork(final IFGNode toNode, final Collection valuesToBeSent) {
-		final SendValuesWork _result = getWork();
-		_result.node = toNode;
-		_result.addValues(valuesToBeSent);
-		return _result;
+	public void setPool(final ObjectPool pool) {
 	}
 
 	/**
-	 * Returns a work peice from the pool.
-	 *
-	 * @return the work peice
-	 *
-	 * @throws RuntimeException if the work peice could not be retrieved.
+	 * @see edu.ksu.cis.indus.interfaces.IPoolable#returnToPool()
 	 */
-	private static SendValuesWork getWork() {
-		final SendValuesWork _result;
-
+	public void returnToPool() {
 		try {
-			_result = (SendValuesWork) POOL.borrowObject();
-			_result.values.clear();
-			return _result;
+			node = null;
+			tokens = null;
+			POOL.returnObject(this);
 		} catch (final Exception _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("How can this happen?", _e);
@@ -149,6 +134,10 @@ class SendValuesWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/02 21:59:54  venku
+   - refactoring.
+     - all classes except OFAnalyzer is package private.
+     - refactored work class hierarchy.
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
@@ -167,7 +156,7 @@ class SendValuesWork
    Revision 1.2  2003/08/18 01:01:18  venku
    Trying to fix CVS's erratic behavior.
    Revision 1.1  2003/08/17 11:19:13  venku
-   Placed the simple SendValuesWork class into a separate file.
+   Placed the simple SendTokensWork class into a separate file.
    Extended it with work pool support.
-   Amended AbstractWork and WorkList to enable work pool support.
+   Amended AbstractTokenProcessingWork and WorkList to enable work pool support.
  */

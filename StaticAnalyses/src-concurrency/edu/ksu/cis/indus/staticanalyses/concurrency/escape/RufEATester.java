@@ -16,7 +16,9 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
+
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo.NewExprTriple;
+
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -24,6 +26,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,7 +124,7 @@ public final class RufEATester
 		setClassNames(args);
 		initialize();
 
-		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer("RufEATester");
+		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer("RufEATester", new CollectionTokenManager(new SootValueTypeManager()));
 		Collection rm = new ArrayList();
 
 		for (Iterator l = rootMethods.iterator(); l.hasNext();) {
@@ -269,19 +273,19 @@ public final class RufEATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.11  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.10  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.9  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.8  2003/11/30 01:07:58  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.
@@ -307,31 +311,31 @@ public final class RufEATester
      but yet says it is out of sync.
    Revision 1.2  2003/09/08 02:23:24  venku
  *** empty log message ***
-                     Revision 1.1  2003/08/21 01:24:25  venku
-                      - Renamed src-escape to src-concurrency to as to group all concurrency
-                        issue related analyses into a package.
-                      - Renamed escape package to concurrency.escape.
-                      - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-                     Revision 1.4  2003/08/17 10:48:34  venku
-                     Renamed BFA to FA.  Also renamed bfa variables to fa.
-                     Ripple effect was huge.
-                     Revision 1.3  2003/08/11 06:29:07  venku
-                     Changed format of change log accumulation at the end of the file
-                     Revision 1.2  2003/08/10 03:43:26  venku
-                     Renamed Tester to Driver.
-                     Refactored logic to pick entry points.
-                     Provided for logging timing stats into any specified stream.
-                     Ripple effect in others.
-                     Revision 1.1  2003/08/07 06:39:07  venku
-                     Major:
-                      - Moved the package under indus umbrella.
-                     Minor:
-                      - changes to accomodate ripple effect from support package.
-                     Revision 1.3  2003/07/30 08:30:31  venku
-                     Refactoring ripple.
-                     Also fixed a subtle bug in isShared() which caused wrong results.
-                     Revision 1.2  2003/07/27 21:15:22  venku
-                     Minor:
-                      - arg name changes.
-                      - comment changes.
+                       Revision 1.1  2003/08/21 01:24:25  venku
+                        - Renamed src-escape to src-concurrency to as to group all concurrency
+                          issue related analyses into a package.
+                        - Renamed escape package to concurrency.escape.
+                        - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+                       Revision 1.4  2003/08/17 10:48:34  venku
+                       Renamed BFA to FA.  Also renamed bfa variables to fa.
+                       Ripple effect was huge.
+                       Revision 1.3  2003/08/11 06:29:07  venku
+                       Changed format of change log accumulation at the end of the file
+                       Revision 1.2  2003/08/10 03:43:26  venku
+                       Renamed Tester to Driver.
+                       Refactored logic to pick entry points.
+                       Provided for logging timing stats into any specified stream.
+                       Ripple effect in others.
+                       Revision 1.1  2003/08/07 06:39:07  venku
+                       Major:
+                        - Moved the package under indus umbrella.
+                       Minor:
+                        - changes to accomodate ripple effect from support package.
+                       Revision 1.3  2003/07/30 08:30:31  venku
+                       Refactoring ripple.
+                       Also fixed a subtle bug in isShared() which caused wrong results.
+                       Revision 1.2  2003/07/27 21:15:22  venku
+                       Minor:
+                        - arg name changes.
+                        - comment changes.
  */

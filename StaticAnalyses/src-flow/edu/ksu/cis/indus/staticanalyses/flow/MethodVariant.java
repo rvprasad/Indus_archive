@@ -19,6 +19,8 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+
 import java.lang.ref.WeakReference;
 
 import java.util.ArrayList;
@@ -164,7 +166,7 @@ public class MethodVariant
 		}
 		method = sm;
 		fa = theFA;
-		context = (Context) fa._analyzer.context.clone();
+		context = (Context) fa.getAnalyzer().context.clone();
 		context.callNewMethod(sm);
 
 		final Collection _typesToProcess = new HashSet();
@@ -194,7 +196,11 @@ public class MethodVariant
 			 * is false to assume that all such objects can be considered as receivers for all run() implementations plugged
 			 * into the run() site.
 			 */
-			thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), fa));
+
+			//thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), fa));
+			final ITokenManager _tokenMgr = fa.getTokenManager();
+			final RefType _sootType = sm.getDeclaringClass().getType();
+			thisVar.setFilter(_tokenMgr.getTypeBasedFilter(_tokenMgr.getTypeManager().getTypeForIRType(_sootType)));
 		}
 
 		if (sm.getReturnType() instanceof RefLikeType) {
@@ -551,6 +557,11 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
    Revision 1.20  2004/01/09 21:13:22  venku
    - formatting and documentation.
    Revision 1.19  2003/12/31 10:35:53  venku

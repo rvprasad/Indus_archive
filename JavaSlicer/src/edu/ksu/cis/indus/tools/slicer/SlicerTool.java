@@ -52,6 +52,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
 import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
@@ -258,24 +259,28 @@ public final class SlicerTool
 
 	/**
 	 * Creates a new SlicerTool object.
+	 *
+	 * @param tokenMgr is the token manager to be used with this instance of slicer tool.
+	 *
+	 * @pre tokenMgr != null
 	 */
-	public SlicerTool() {
+	public SlicerTool(final ITokenManager tokenMgr) {
 		phase = Phase.createPhase();
 
 		rootMethods = new HashSet();
 		criteria = new HashSet();
 
 		// create the flow analysis.
-		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME);
+		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr);
 
-        stmtGraphFactory =
-            new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
-        
+		stmtGraphFactory =
+			new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
+
 		// create the pre processor for call graph construction.
 		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgPreProcessCtrl.setAnalyzer(ofa);
 		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(FLOW_ANALYSIS_TAG_NAME));
-        cgPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
+		cgPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
 
 		// create the call graph.
 		callGraph = new CallGraph();
@@ -284,7 +289,7 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
-        cgBasedPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
+		cgBasedPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
 
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setUnitGraphFactory(getStmtGraphFactory());
@@ -406,7 +411,7 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Retrieves the statement graph (CFG) provider/factory used by the tool. 
+	 * Retrieves the statement graph (CFG) provider/factory used by the tool.
 	 *
 	 * @return the factory object.
 	 */
@@ -848,6 +853,14 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.80  2004/03/29 01:55:08  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.79  2004/03/26 00:25:07  venku
    - added a method to programmatically change the active configuration.
    - ripple effect of refactoring indus soot package.

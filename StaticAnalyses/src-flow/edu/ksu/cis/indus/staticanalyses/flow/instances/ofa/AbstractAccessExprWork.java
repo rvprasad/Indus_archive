@@ -17,9 +17,10 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import soot.ValueBox;
 
@@ -35,7 +36,7 @@ import soot.ValueBox;
  * @version $Revision$
  */
 abstract class AbstractAccessExprWork
-  extends AbstractWork {
+  extends AbstractTokenProcessingWork {
 	/**
 	 * The context in which the access occurs.
 	 *
@@ -62,26 +63,31 @@ abstract class AbstractAccessExprWork
 	 *
 	 * @param callerMethod the method in which the access expression occurs.
 	 * @param accessContext the context in which the access occurs.
+	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
 	 *
-	 * @pre callerMethod != null and accessExpr != null and accessContext != null
+	 * @pre callerMethod != null and accessContext != null and tokenSet != null
 	 */
-	protected AbstractAccessExprWork(final MethodVariant callerMethod, final Context accessContext) {
+	protected AbstractAccessExprWork(final MethodVariant callerMethod, final Context accessContext, final ITokens tokenSet) {
+		super(tokenSet);
 		accessExprBox = accessContext.getProgramPoint();
-        caller = callerMethod;
-        context = (AllocationContext) accessContext.clone();
+		caller = callerMethod;
+		context = (AllocationContext) accessContext.clone();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/02 21:59:54  venku
+   - refactoring.
+     - all classes except OFAnalyzer is package private.
+     - refactored work class hierarchy.
    Revision 1.7  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()
        getCurrentStmt()
    - context holds current information and only it must be used
      to retrieve this information.  No auxiliary arguments. FIXED.
-
    Revision 1.6  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

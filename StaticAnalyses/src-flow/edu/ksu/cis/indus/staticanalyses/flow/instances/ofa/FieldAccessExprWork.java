@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import soot.SootField;
 
@@ -46,19 +47,20 @@ class FieldAccessExprWork
 	 * @param accessContext the context in which the access occurs.
 	 * @param accessNode the flow graph node associated with the access expression.
 	 * @param connectorToBeUsed the connector to use to connect the ast node to the non-ast node.
+	 * @param tokenSet used to store the tokens that trigger the execution of this work peice.
 	 *
-	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
-	 * 		connectorToBeUsed != null
+	 * @pre callerMethod != null and accessContext != null and accessNode != null and     connectorToBeUsed != null and
+	 * 		tokenSet != null
 	 */
 	public FieldAccessExprWork(final MethodVariant callerMethod, final Context accessContext, final IFGNode accessNode,
-		final IFGNodeConnector connectorToBeUsed) {
-		super(callerMethod, accessContext, accessNode, connectorToBeUsed);
+		final IFGNodeConnector connectorToBeUsed, final ITokens tokenSet) {
+		super(callerMethod, accessContext, accessNode, connectorToBeUsed, tokenSet);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.AbstractMemberDataAccessExprWork#getFGNode()
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.AbstractMemberDataAccessExprWork#getFGNodeForMemberData()
 	 */
-	protected IFGNode getFGNode() {
+	protected IFGNode getFGNodeForMemberData() {
 		final SootField _sf = ((FieldRef) accessExprBox.getValue()).getField();
 		final FA _fa = caller.getFA();
 		return _fa.getFieldVariant(_sf, context).getFGNode();
@@ -68,6 +70,10 @@ class FieldAccessExprWork
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/02 21:59:54  venku
+   - refactoring.
+     - all classes except OFAnalyzer is package private.
+     - refactored work class hierarchy.
    Revision 1.10  2004/04/02 09:58:28  venku
    - refactoring.
      - collapsed flow insensitive and sensitive parts into common classes.

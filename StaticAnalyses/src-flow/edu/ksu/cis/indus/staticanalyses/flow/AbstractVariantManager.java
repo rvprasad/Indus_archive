@@ -102,26 +102,26 @@ public abstract class AbstractVariantManager {
 	 * @post result != null
 	 */
 	public final IVariant select(final Object o, final Context context) {
-		IIndex index = idxManager.getIndex(o, context);
-		IVariant temp = null;
+		final IIndex _index = idxManager.getIndex(o, context);
+		IVariant _temp = null;
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Entering - IIndex: " + index + "\n" + o + "\n" + context);
+			LOGGER.debug("Entering - IIndex: " + _index + "\n" + o + "\n" + context);
 		}
 
-		if (index2variant.containsKey(index)) {
-			temp = (IVariant) index2variant.get(index);
-		} else if (!fa._analyzer.isStable()) {
-			temp = getNewVariant(o);
-			index2variant.put(index, temp);
-			temp.process();
+		if (index2variant.containsKey(_index)) {
+			_temp = (IVariant) index2variant.get(_index);
+		} else if (!fa.getAnalyzer().isStable()) {
+			_temp = getNewVariant(o);
+			index2variant.put(_index, _temp);
+			_temp.process();
 		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Exiting - IIndex");
 		}
 
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -161,9 +161,10 @@ public abstract class AbstractVariantManager {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/07 09:33:08  venku
+   - logging.
    Revision 1.9  2003/12/07 09:08:20  venku
    - logging.
-
    Revision 1.8  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

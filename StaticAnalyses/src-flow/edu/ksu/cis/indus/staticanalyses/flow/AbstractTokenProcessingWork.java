@@ -15,8 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import java.util.Collection;
-import java.util.HashSet;
+import edu.ksu.cis.indus.common.datastructures.IWork;
+
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 
 /**
@@ -29,60 +30,44 @@ import java.util.HashSet;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public abstract class AbstractWork {
+public abstract class AbstractTokenProcessingWork
+  implements IWork {
 	/**
 	 * The collection of values to be processed.
 	 */
-	protected final Collection values = new HashSet();
+	protected ITokens tokens;
 
 	/**
-	 * Creates a new <code>AbstractWork</code> instance.
-	 */
-	protected AbstractWork() {
-	}
-
-	/**
-	 * The actual work that needs to be done when this work is executed should be in this method.
-	 */
-	public abstract void execute();
-
-
-	/**
-	 * Adds a value to the collection of values associated with this work.
+	 * Creates a new AbstractTokenProcessingWork object.
 	 *
-	 * @param o the value to be added.
+	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
 	 *
-	 * @pre o != null
+	 * @pre tokenSet != null
 	 */
-	public final void addValue(final Object o) {
-		values.add(o);
+	protected AbstractTokenProcessingWork(final ITokens tokenSet) {
+		tokens = tokenSet;
 	}
 
 	/**
 	 * Adds a collection of values to the collection of values associated with this work.
 	 *
-	 * @param valuesToBeProcessed the collection of values to be added for processing.
+	 * @param tokensToBeProcessed the collection of values to be added for processing.
 	 *
 	 * @pre valuesToBeProcessed != null
 	 */
-	public final void addValues(final Collection valuesToBeProcessed) {
-		this.values.addAll(valuesToBeProcessed);
-	}
-
-	/**
-	 * Perform any sort of cleanup chores. This will/should be called after the work has been executed.
-	 */
-	protected void finished() {
+	public final void addTokens(final ITokens tokensToBeProcessed) {
+		tokens.addTokens(tokensToBeProcessed);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/02 22:01:34  venku
+   - node is not integral to the work - deleted.
    Revision 1.7  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.6  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
@@ -91,9 +76,9 @@ public abstract class AbstractWork {
    Revision 1.4  2003/08/18 11:08:00  venku
    Name change for pooling support.
    Revision 1.3  2003/08/17 11:19:13  venku
-   Placed the simple SendValuesWork class into a separate file.
+   Placed the simple SendTokensWork class into a separate file.
    Extended it with work pool support.
-   Amended AbstractWork and WorkList to enable work pool support.
+   Amended AbstractTokenProcessingWork and WorkList to enable work pool support.
    Revision 1.2  2003/08/17 09:59:03  venku
    Spruced up documentation and specification.
    Documentation changes to FieldVariant.

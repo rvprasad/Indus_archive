@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 import edu.ksu.cis.indus.common.soot.Util;
+
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +38,8 @@ import soot.Value;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated
  */
 public class TypeBasedFilter
   implements IValueFilter {
@@ -133,15 +135,16 @@ public class TypeBasedFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.10  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.9  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

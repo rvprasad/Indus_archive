@@ -38,6 +38,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -172,8 +174,7 @@ public class DependencyXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer ",
-					_options);
+				(new HelpFormatter()).printHelp("java " + DependencyXMLizerCLI.class.getName(), _options);
 				System.exit(1);
 			}
 
@@ -189,7 +190,7 @@ public class DependencyXMLizerCLI
 
 			_cli.xmlizer.setXmlOutputDir(_outputDir);
 
-			String[] _classNames = _cl.getOptionValues('c');
+			final String[] _classNames = _cl.getOptionValues('c');
 
 			if (_classNames == null) {
 				throw new MissingOptionException("-c");
@@ -200,22 +201,22 @@ public class DependencyXMLizerCLI
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
 
-			boolean flag = true;
+			boolean _flag = true;
 
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
 				if (_cl.hasOption(_dasOptions[_i][0].toString())) {
 					_cli.das.add(_dasOptions[_i][3]);
-					flag = false;
+					_flag = false;
 				}
 			}
 
-			if (flag) {
+			if (_flag) {
 				throw new ParseException("Atleast one dependence analysis must be requested.");
 			}
 			_cli.execute();
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", _options);
+			(new HelpFormatter()).printHelp("java " + DependencyXMLizerCLI.class.getName(), _options);
 			System.exit(1);
 		} catch (Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
@@ -226,11 +227,11 @@ public class DependencyXMLizerCLI
 	/**
 	 * Drives the analyses.
 	 */
-	private final void execute() {
+	private void execute() {
 		setLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
-		aa = OFAnalyzer.getFSOSAnalyzer(_tagName);
+		aa = OFAnalyzer.getFSOSAnalyzer(_tagName, new CollectionTokenManager(new SootValueTypeManager()));
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
@@ -354,6 +355,14 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.5  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.4  2004/03/03 05:59:33  venku
@@ -519,6 +528,14 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.5  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.4  2004/03/03 05:59:33  venku

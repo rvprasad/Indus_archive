@@ -24,6 +24,9 @@ import edu.ksu.cis.bandera.util.BaseObservable;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
+import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
+
 import edu.ksu.cis.indus.tools.Phase;
 
 import java.util.ArrayList;
@@ -108,7 +111,7 @@ public final class SlicerTool
 	 * Creates a new SlicerTool object.
 	 */
 	public SlicerTool() {
-		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool();
+		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool(new BitSetTokenManager(new SootValueTypeManager()));
 		tool.setTagName(TAG_NAME);
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
 	}
@@ -244,9 +247,16 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/03/29 01:55:08  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.27  2004/03/03 08:04:11  venku
    - formatting.
-
    Revision 1.26  2004/02/25 23:33:41  venku
    - well package naming convention was inconsistent. FIXED.
    Revision 1.25  2004/02/06 00:33:26  venku

@@ -13,10 +13,9 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow;
+package edu.ksu.cis.indus.common.datastructures;
 
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class WorkList {
+public final class WorkList {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -45,33 +44,19 @@ public class WorkList {
 
 	/**
 	 * Creates a new <code>WorkList</code> instance.
-	 */
-	WorkList() {
-		workbag = new LIFOWorkBag();
-	}
-
-	/**
-	 * Adds a work piece into the worklist.  If <code>w</code> exists in the worklist, it will not be added.  The existence
-	 * check is done using <code>java.lang.Object.equals()</code> method.
 	 *
-	 * @param w the work to be added into the worklist.
+	 * @param container that will contain the work pieces.
 	 *
-	 * @pre w != null
+	 * @pre container != null
 	 */
-	public final void addWork(final AbstractWork w) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Added new work:" + w);
-		}
-
-		if (!workbag.addWorkNoDuplicates(w)) {
-			w.finished();
-		}
+	public WorkList(final IWorkBag container) {
+		workbag = container;
 	}
 
 	/**
 	 * Removes any work in the work list without processing them.
 	 */
-	final void clear() {
+	public void clear() {
 		workbag.clear();
 	}
 
@@ -79,15 +64,22 @@ public class WorkList {
 	 * Executes the work pieces in the worklist.  This method returns when the worklist is empty, i.e., all the work peices
 	 * have been executed.
 	 */
-	void process() {
+	public void process() {
 		while (workbag.hasWork()) {
-			AbstractWork w = (AbstractWork) workbag.getWork();
+			final Object _o = workbag.getWork();
 
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing work:" + w);
+			if (_o instanceof IWork) {
+				final IWork _w = (IWork) _o;
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Processing work:" + _w);
+				}
+				_w.execute();
 			}
-			w.execute();
-			w.finished();
+
+			if (_o instanceof IPoolable) {
+				((IPoolable) _o).returnToPool();
+			}
 		}
 	}
 }
@@ -95,6 +87,14 @@ public class WorkList {
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.15  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

@@ -15,11 +15,17 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
+import edu.ksu.cis.indus.common.datastructures.WorkList;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
+
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -60,13 +66,6 @@ public class FA
 	private static final Log LOGGER = LogFactory.getLog(FA.class);
 
 	/**
-	 * The analyzer associated with this instance of the framework.
-	 *
-	 * @invariant _analyzer != null
-	 */
-	public final AbstractAnalyzer _analyzer;
-
-	/**
 	 * This is the collection of methods that serve as entry points into the system being analyzed.
 	 *
 	 * @invariant rootMethods != null
@@ -78,7 +77,14 @@ public class FA
 	 *
 	 * @invariant worklist != null
 	 */
-	final WorkList worklist;
+	final IWorkBag worklist;
+
+	/**
+	 * The analyzer associated with this instance of the framework.
+	 *
+	 * @invariant analyzer != null
+	 */
+	private final AbstractAnalyzer analyzer;
 
 	/**
 	 * The manager of array variants.
@@ -99,6 +105,13 @@ public class FA
 	 * The manager of static field variants.
 	 */
 	private FieldVariantManager staticFieldVariantManager;
+
+	/**
+	 * The token manager that manages the tokens whose flow is instrumented by the flow analysis.
+	 *
+	 * @invariant tokenManager != null
+	 */
+	private final ITokenManager tokenManager;
 
 	/**
 	 * The manager of method variants.
@@ -123,17 +136,30 @@ public class FA
 	/**
 	 * Creates a new <code>FA</code> instance.
 	 *
-	 * @param analyzer to be associated with this instance of the framework.
+	 * @param theAnalyzer to be associated with this instance of the framework.
 	 * @param tagName is the name of the tag that will be tacked onto parts of the AST processed by this framework instance.
 	 * 		  The guarantee is that all elements so tagged were processed by the framework instance.  The inverse need not
 	 * 		  be true.
+	 * @param tokenMgr manages the tokens whose flow is instrumented by this instance of flow analysis.
 	 *
-	 * @pre analyzer != null and tagName != null
+	 * @pre analyzer != null and tagName != null and tokenMgr != null
 	 */
-	FA(final AbstractAnalyzer analyzer, final String tagName) {
-		worklist = new WorkList();
-		this._analyzer = analyzer;
+	FA(final AbstractAnalyzer theAnalyzer, final String tagName, final ITokenManager tokenMgr) {
+		worklist = new PoolAwareWorkBag(new LIFOWorkBag());
+		this.analyzer = theAnalyzer;
 		this.tag = new NamedTag(tagName);
+		this.tokenManager = tokenMgr;
+	}
+
+	/**
+	 * Retrieves the analyzer in whose context this flow analysis instance is functioning.
+	 *
+	 * @return the associated analysis.
+	 *
+	 * @post result != null
+	 */
+	public final AbstractAnalyzer getAnalyzer() {
+		return analyzer;
 	}
 
 	/**
@@ -148,7 +174,7 @@ public class FA
 	 * @post result != null
 	 */
 	public final ArrayVariant getArrayVariant(final ArrayType a) {
-		return getArrayVariant(a, _analyzer.context);
+		return getArrayVariant(a, analyzer.context);
 	}
 
 	/**
@@ -204,7 +230,7 @@ public class FA
 	 * @post result != null
 	 */
 	public final FieldVariant getFieldVariant(final SootField sf) {
-		return getFieldVariant(sf, _analyzer.context);
+		return getFieldVariant(sf, analyzer.context);
 	}
 
 	/**
@@ -219,16 +245,16 @@ public class FA
 	 * @post result != null
 	 */
 	public final FieldVariant getFieldVariant(final SootField sf, final Context context) {
-		IVariant temp = null;
+		IVariant _temp = null;
 		processClass(sf.getDeclaringClass());
 		processType(sf.getType());
 
 		if (Modifier.isStatic(sf.getModifiers())) {
-			temp = staticFieldVariantManager.select(sf, context);
+			_temp = staticFieldVariantManager.select(sf, context);
 		} else {
-			temp = instanceFieldVariantManager.select(sf, context);
+			_temp = instanceFieldVariantManager.select(sf, context);
 		}
-		return (FieldVariant) temp;
+		return (FieldVariant) _temp;
 	}
 
 	/**
@@ -256,7 +282,7 @@ public class FA
 	 * @post result != null
 	 */
 	public final MethodVariant getMethodVariant(final SootMethod sm) {
-		return getMethodVariant(sm, _analyzer.context);
+		return getMethodVariant(sm, analyzer.context);
 	}
 
 	/**
@@ -329,6 +355,17 @@ public class FA
 	}
 
 	/**
+	 * Retrieves the token manager that manages the tokens whose flow is being instrumented.
+	 *
+	 * @return the token manager.
+	 *
+	 * @post tokenManager != null
+	 */
+	public final ITokenManager getTokenManager() {
+		return tokenManager;
+	}
+
+	/**
 	 * Performs type-based processing of the given class.
 	 *
 	 * @param clazz is the class to be processed.
@@ -365,7 +402,7 @@ public class FA
 	 * @post result != null
 	 */
 	final ArrayVariant queryArrayVariant(final ArrayType a) {
-		return queryArrayVariant(a, _analyzer.context);
+		return queryArrayVariant(a, analyzer.context);
 	}
 
 	/**
@@ -395,7 +432,7 @@ public class FA
 	 * @post result != null
 	 */
 	final FieldVariant queryFieldVariant(final SootField sf) {
-		return queryFieldVariant(sf, _analyzer.context);
+		return queryFieldVariant(sf, analyzer.context);
 	}
 
 	/**
@@ -410,14 +447,14 @@ public class FA
 	 * @post result != null
 	 */
 	final FieldVariant queryFieldVariant(final SootField sf, final Context context) {
-		IVariant temp = null;
+		IVariant _temp = null;
 
 		if (Modifier.isStatic(sf.getModifiers())) {
-			temp = staticFieldVariantManager.query(sf, context);
+			_temp = staticFieldVariantManager.query(sf, context);
 		} else {
-			temp = instanceFieldVariantManager.query(sf, context);
+			_temp = instanceFieldVariantManager.query(sf, context);
 		}
-		return (FieldVariant) temp;
+		return (FieldVariant) _temp;
 	}
 
 	/**
@@ -431,7 +468,7 @@ public class FA
 	 * @post result != null
 	 */
 	final MethodVariant queryMethodVariant(final SootMethod sm) {
-		return queryMethodVariant(sm, _analyzer.context);
+		return queryMethodVariant(sm, analyzer.context);
 	}
 
 	/**
@@ -494,7 +531,8 @@ public class FA
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Starting worklist processing...");
 		}
-		worklist.process();
+
+		(new WorkList(worklist)).process();
 	}
 
 	/**
@@ -516,9 +554,11 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/12/09 04:22:10  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.15  2003/12/07 03:22:26  venku
    - exposed processClass().
-
    Revision 1.14  2003/12/05 15:29:44  venku
    - class manager was not being reset.  FIXED.
    Revision 1.13  2003/12/05 00:53:09  venku

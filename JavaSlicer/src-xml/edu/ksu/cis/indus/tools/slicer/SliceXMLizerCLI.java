@@ -25,6 +25,8 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.tools.Phase;
 
@@ -132,7 +134,7 @@ public class SliceXMLizerCLI
 	 * @pre generator != null
 	 */
 	protected SliceXMLizerCLI(final IJimpleIDGenerator generator) {
-		slicer = new SlicerTool();
+		slicer = new SlicerTool(new BitSetTokenManager(new SootValueTypeManager()));
 		cfgProvider = slicer.getStmtGraphFactory();
 		idGenerator = generator;
 	}
@@ -565,6 +567,14 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/03/29 01:55:08  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.7  2004/03/26 00:25:35  venku
    - added new options to specify an active configuration from the command line.
    Revision 1.6  2004/03/21 20:13:17  venku

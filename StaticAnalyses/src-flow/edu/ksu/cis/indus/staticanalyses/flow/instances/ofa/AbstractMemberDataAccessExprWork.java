@@ -20,7 +20,9 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -32,8 +34,8 @@ import soot.jimple.NullConstant;
 
 
 /**
- * DOCUMENT ME!
- * <p></p>
+ * This class represents a flow graph node that is associated with an expression in which a member data of the complex type
+ * will be accessed.  This is typically used in the context of array access expressions and field access expressions.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -68,13 +70,14 @@ abstract class AbstractMemberDataAccessExprWork
 	 * @param accessContext the context in which the access occurs.
 	 * @param accessNode the flow graph node associated with the access expression.
 	 * @param connectorToUse the connector to use to connect the ast node to the non-ast node.
+	 * @param tokenSet used to store the tokens that trigger the execution of this work peice.
 	 *
 	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
-	 * 		connectorToUse != null
+	 * 		connectorToUse != null and tokenSet != null
 	 */
 	public AbstractMemberDataAccessExprWork(final MethodVariant callerMethod, final Context accessContext,
-		final IFGNode accessNode, final IFGNodeConnector connectorToUse) {
-		super(callerMethod, accessContext);
+		final IFGNode accessNode, final IFGNodeConnector connectorToUse, final ITokens tokenSet) {
+		super(callerMethod, accessContext, tokenSet);
 		this.ast = accessNode;
 		this.connector = connectorToUse;
 	}
@@ -83,11 +86,13 @@ abstract class AbstractMemberDataAccessExprWork
 	 * Connects non-ast nodes to ast nodes when new values arrive at the primary of the array access expression.
 	 */
 	public synchronized void execute() {
+		final Collection _values = tokens.getValues();
+
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
+			LOGGER.debug(_values + " values arrived at base node of " + accessExprBox.getValue() + " in " + context);
 		}
 
-		for (final Iterator _i = values.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _values.iterator(); _i.hasNext();) {
 			final Value _v = (Value) _i.next();
 
 			if (_v instanceof NullConstant) {
@@ -96,20 +101,26 @@ abstract class AbstractMemberDataAccessExprWork
 
 			context.setAllocationSite(_v);
 
-			final IFGNode _nonast = getFGNode();
+			final IFGNode _nonast = getFGNodeForMemberData();
 			connector.connect(ast, _nonast);
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the flow graph node for the member data being accessed.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the flow graph node.
+	 *
+	 * @post result != null
 	 */
-	protected abstract IFGNode getFGNode();
+	protected abstract IFGNode getFGNodeForMemberData();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/02 21:59:54  venku
+   - refactoring.
+     - all classes except OFAnalyzer is package private.
+     - refactored work class hierarchy.
  */

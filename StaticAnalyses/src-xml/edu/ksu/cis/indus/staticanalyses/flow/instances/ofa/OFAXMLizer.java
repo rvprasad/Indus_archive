@@ -142,7 +142,7 @@ public final class OFAXMLizer
 					final Stmt _stmt = context.getStmt();
 					final SootMethod _method = context.getCurrentMethod();
 					xmlWriter.startTag("program_point");
-					xmlWriter.attribute("id", idGenerator.getIdForValueBox(vBox, _stmt, _method));
+					xmlWriter.attribute("id", idGenerator.getIdForValueBox(vBox, _stmt, _method) + context.getStmt());
 
 					for (final Iterator _i = (new HashSet(_temp)).iterator(); _i.hasNext();) {
 						xmlWriter.startTag("object");
@@ -168,6 +168,7 @@ public final class OFAXMLizer
 				}
 				xmlWriter.startTag("method");
 				xmlWriter.attribute("id", idGenerator.getIdForMethod(method));
+				xmlWriter.attribute("name", method.getSignature());
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
@@ -189,6 +190,7 @@ public final class OFAXMLizer
 				}
 				xmlWriter.startTag("class");
 				xmlWriter.attribute("id", idGenerator.getIdForClass(clazz));
+				xmlWriter.attribute("name", clazz.getName());
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
@@ -285,6 +287,8 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/01 22:37:53  venku
+   - changed output format.
    Revision 1.8  2004/04/01 20:57:49  venku
    - changed id attributed to xxxxID as it confused xmlunit.
    Revision 1.7  2004/03/29 01:55:03  venku

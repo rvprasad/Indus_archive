@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -22,10 +24,8 @@ import edu.ksu.cis.indus.processing.Context;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
-import soot.VoidType;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.StmtSwitch;
@@ -103,19 +103,6 @@ public abstract class AbstractExprSwitch
 	}
 
 	/**
-	 * Checks if the return type of the given method is <code>void</code>.
-	 *
-	 * @param sm the method whose return type is to be checked for voidness.
-	 *
-	 * @return <code>true</code> if <code>sm</code>'s return type is <code>void</code>; <code>false</code> otherwise.
-	 *
-	 * @pre sm != null
-	 */
-	public static final boolean isNonVoid(final SootMethod sm) {
-		return !(sm.getReturnType() instanceof VoidType);
-	}
-
-	/**
 	 * This method will throw <code>UnsupportedOperationException</code>.
 	 *
 	 * @return (This method raises an exception.)
@@ -133,7 +120,7 @@ public abstract class AbstractExprSwitch
 	 *
 	 * @post result != null
 	 */
-	public final WorkList getWorkList() {
+	public final IWorkBag getWorkList() {
 		return fa.worklist;
 	}
 
@@ -176,10 +163,14 @@ public abstract class AbstractExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
    Revision 1.10  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.9  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()

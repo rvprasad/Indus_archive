@@ -22,6 +22,8 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,6 +31,7 @@ import java.util.Iterator;
 import junit.framework.TestSuite;
 
 import soot.G;
+
 
 /**
  * This is the setup in which various tests of flow analyses are run.  The classes to be processed during the test can be
@@ -72,7 +75,7 @@ public class FATestSetup
 	 */
 	protected FATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test);
-		valueAnalyzer = OFAnalyzer.getFSOSAnalyzer(FATestSetup.TAG_NAME);
+		valueAnalyzer = OFAnalyzer.getFSOIAnalyzer(FATestSetup.TAG_NAME, new BitSetTokenManager(new SootValueTypeManager()));
 		sootClassPath = classpath;
 		classNames = theNameOfClasses;
 	}
@@ -114,6 +117,11 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/02 09:58:28  venku
+   - refactoring.
+     - collapsed flow insensitive and sensitive parts into common classes.
+     - coding convention
+     - documentation.
    Revision 1.10  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.

@@ -15,12 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractFGNode;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
-import edu.ksu.cis.indus.staticanalyses.flow.WorkList;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 
 
 /**
@@ -37,14 +39,23 @@ import java.util.Iterator;
 class OFAFGNode
   extends AbstractFGNode {
 	/**
+	 * The token manager that manages the tokens whose flow is being instrumented.
+	 *
+	 * @invariant tokenMgr != null
+	 */
+	private final ITokenManager tokenMgr;
+
+	/**
 	 * Creates a new <code>OFAFGNode</code> instance.
 	 *
 	 * @param wl the worklist associated with the instance of the framework within which this node exists.
+	 * @param tokenManager that manages the tokens whose flow is being instrumented.
 	 *
-	 * @pre wl != null
+	 * @pre wl != null and tokenManager != null
 	 */
-	public OFAFGNode(final WorkList wl) {
-		super(wl);
+	public OFAFGNode(final IWorkBag wl, final ITokenManager tokenManager) {
+		super(wl, tokenManager.getTokens(Collections.EMPTY_LIST));
+		tokenMgr = tokenManager;
 	}
 
 	/**
@@ -58,86 +69,38 @@ class OFAFGNode
 	 * @post result != null and result.oclIsKindOf(OFAFGNode)
 	 */
 	public Object getClone(final Object o) {
-		return new OFAFGNode((WorkList) o);
+		return new OFAFGNode((IWorkBag) o, tokenMgr);
 	}
 
 	/**
-	 * Adds a new work to the worklist to propogate the values in this node to <code>succ</code>.  Only the difference values
-	 * are propogated.
-	 *
-	 * @param succ the successor node that was added to this node.
-	 *
-	 * @pre succ != null
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFGNode#injectValue(java.lang.Object)
 	 */
-	public void onNewSucc(final IFGNode succ) {
-		Collection _temp = diffValues(succ);
-
-		if (filter != null) {
-			_temp = filter.filter(_temp);
-		}
-
-		if (!_temp.isEmpty()) {
-			worklist.addWork(SendValuesWork.getWork(succ, _temp));
-		}
+	public void injectValue(final Object value) {
+		final ITokens _tokens = tokenMgr.getTokens(Collections.singleton(value));
+		addTokens(_tokens);
 	}
 
 	/**
-	 * Adds a new work to the worklist to propogate <code>value</code> in this node to it's successor nodes.
-	 *
-	 * @param value the value to be propogated to the successor node.
-	 *
-	 * @pre value != null
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFGNode#injectValues(java.util.Collection)
 	 */
-	public void onNewValue(final Object value) {
-		for (final Iterator _i = succs.iterator(); _i.hasNext();) {
-			final IFGNode _succ = (IFGNode) _i.next();
-
-			boolean _filterOut = false;
-
-			if (filter != null) {
-				_filterOut = filter.filter(value);
-			}
-
-			if (!_succ.getValues().contains(value) && !_filterOut) {
-				worklist.addWork(SendValuesWork.getWork(_succ, value));
-			}
-		}
-	}
-
-	/**
-	 * Adds a new work to the worklist to propogate <code>values</code> in this node to it's successor nodes.
-	 *
-	 * @param arrivingValues the values to be propogated to the successor node.  The collection contains object of type
-	 * 		  <code>Object</code>.
-	 *
-	 * @pre arrivingValues != null
-	 */
-	public void onNewValues(final Collection arrivingValues) {
-		Collection _temp = arrivingValues;
-
-		if (filter != null) {
-			_temp = filter.filter(_temp);
-		}
-
-		for (final Iterator _i = succs.iterator(); _i.hasNext();) {
-			final IFGNode _succ = (IFGNode) _i.next();
-
-			if (!diffValues(_succ).isEmpty()) {
-				worklist.addWork(SendValuesWork.getWork(_succ, _temp));
-			}
-		}
+	public void injectValues(final Collection values) {
+		final ITokens _tokens = tokenMgr.getTokens(values);
+		addTokens(_tokens);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/02 21:59:54  venku
+   - refactoring.
+     - all classes except OFAnalyzer is package private.
+     - refactored work class hierarchy.
    Revision 1.10  2004/04/02 09:58:28  venku
    - refactoring.
      - collapsed flow insensitive and sensitive parts into common classes.
      - coding convention
      - documentation.
-
    Revision 1.9  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
@@ -155,9 +118,9 @@ class OFAFGNode
    Revision 1.5  2003/08/17 11:54:19  venku
    Formatting and documentation.
    Revision 1.4  2003/08/17 11:19:13  venku
-   Placed the simple SendValuesWork class into a separate file.
+   Placed the simple SendTokensWork class into a separate file.
    Extended it with work pool support.
-   Amended AbstractWork and WorkList to enable work pool support.
+   Amended AbstractTokenProcessingWork and WorkList to enable work pool support.
    Revision 1.3  2003/08/17 10:33:03  venku
    WorkList does not inherit from IWorkBag rather contains an instance of IWorkBag.
    Ripple effect of the above change.
