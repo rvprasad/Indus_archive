@@ -525,11 +525,12 @@ public class JimpleValueXMLizer
 	 */
 	public final void caseStringConstant(final StringConstant v) {
 		try {
-			//String _temp = v.value.replaceAll("[^\\p{Print}]", "");
-			//_temp = _temp.toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll("\\\"", "&quot;");
 			xmlWriter.startTag("string");
 			xmlWriter.attribute("id", newId.toString());
-			xmlWriter.attribute("value", String.valueOf(v.value));
+			xmlWriter.startTag("value");
+			xmlWriter.cdata(String.valueOf(v.value));
+			xmlWriter.endTag();
+			//xmlWriter.attribute("value", String.valueOf(v.value));
 			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
@@ -794,6 +795,9 @@ public class JimpleValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/09 09:28:18  venku
+   - documentation.
+
    Revision 1.3  2004/05/09 08:24:08  venku
    - all xmlizers use xmlenc to write xml data.
    Revision 1.2  2004/05/06 09:31:01  venku
