@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.CollectionsModifier;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -189,14 +190,14 @@ public class ThreadGraph
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getExecutedMethods(NewExpr,Context)
 	 */
 	public Collection getExecutedMethods(final NewExpr ne, final Context ctxt) {
-		Set result = (Set) thread2methods.get(new NewExprTriple(ctxt.getCurrentMethod(), ctxt.getStmt(), ne));
+		Set _result = (Set) thread2methods.get(new NewExprTriple(ctxt.getCurrentMethod(), ctxt.getStmt(), ne));
 
-		if (result == null) {
-			result = Collections.EMPTY_SET;
+		if (_result == null) {
+			_result = Collections.EMPTY_SET;
 		} else {
-			result = Collections.unmodifiableSet(result);
+			_result = Collections.unmodifiableSet(_result);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -214,14 +215,14 @@ public class ThreadGraph
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getExecutionThreads(SootMethod)
 	 */
 	public Collection getExecutionThreads(final SootMethod sm) {
-		Set result = (Set) method2threads.get(sm);
+		Set _result = (Set) method2threads.get(sm);
 
-		if (result == null) {
-			result = Collections.EMPTY_SET;
+		if (_result == null) {
+			_result = Collections.EMPTY_SET;
 		} else {
-			result = Collections.unmodifiableSet(result);
+			_result = Collections.unmodifiableSet(_result);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -257,60 +258,60 @@ public class ThreadGraph
 	 * @pre value != null and context != null
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
-		IEnvironment env = analyzer.getEnvironment();
-		Value value = vBox.getValue();
+		final IEnvironment _env = analyzer.getEnvironment();
+		final Value _value = vBox.getValue();
 
-		if (value instanceof NewExpr) {
-			NewExpr ne = (NewExpr) value;
-			SootClass clazz = env.getClass(ne.getBaseType().getClassName());
+		if (_value instanceof NewExpr) {
+			final NewExpr _ne = (NewExpr) _value;
+			final SootClass _clazz = _env.getClass(_ne.getBaseType().getClassName());
 
 			// collect the new expressions which create Thread objects.
-			if (Util.isDescendentOf(clazz, "java.lang.Thread")) {
-				SootClass temp = Util.getDeclaringClass(clazz, "start", Collections.EMPTY_LIST, VoidType.v());
+			if (Util.isDescendentOf(_clazz, "java.lang.Thread")) {
+				final SootClass _temp = Util.getDeclaringClass(_clazz, "start", Collections.EMPTY_LIST, VoidType.v());
 
-				if (temp != null && temp.getName().equals("java.lang.Thread")) {
-					Stmt stmt = context.getStmt();
-					SootMethod sm = context.getCurrentMethod();
-					NewExprTriple o = new NewExprTriple(sm, stmt, ne);
-					newThreadExprs.add(o);
+				if (_temp != null && _temp.getName().equals("java.lang.Thread")) {
+					final Stmt _stmt = context.getStmt();
+					final SootMethod _sm = context.getCurrentMethod();
+					final NewExprTriple _o = new NewExprTriple(_sm, _stmt, _ne);
+					newThreadExprs.add(_o);
 
-					if (cfgAnalysis.checkForLoopEnclosedNewExpr(stmt, sm)) {
-						threadAllocSitesMulti.add(o);
+					if (cfgAnalysis.checkForLoopEnclosedNewExpr(_stmt, _sm)) {
+						threadAllocSitesMulti.add(_o);
 					} else {
-						threadAllocSitesSingle.add(o);
+						threadAllocSitesSingle.add(_o);
 					}
 				} else {
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn("How can there be a descendent of java.lang.Thread without access to start() method.");
 					}
-					throw new RuntimeException("start() method is unavailable via " + clazz
+					throw new RuntimeException("start() method is unavailable via " + _clazz
 						+ " even though it is a descendent of java.lang.Thread.");
 				}
 			}
-		} else if (value instanceof VirtualInvokeExpr) {
-			VirtualInvokeExpr ve = (VirtualInvokeExpr) value;
-			RefLikeType rlt = (RefLikeType) ve.getBase().getType();
-			SootClass clazz = null;
+		} else if (_value instanceof VirtualInvokeExpr) {
+			final VirtualInvokeExpr _ve = (VirtualInvokeExpr) _value;
+			final RefLikeType _rlt = (RefLikeType) _ve.getBase().getType();
+			SootClass _clazz = null;
 
-			if (rlt instanceof RefType) {
-				clazz = env.getClass(((RefType) rlt).getClassName());
+			if (_rlt instanceof RefType) {
+				_clazz = _env.getClass(((RefType) _rlt).getClassName());
 
-				SootMethod method = ve.getMethod();
+				final SootMethod _method = _ve.getMethod();
 
-				if (Util.isDescendentOf(clazz, "java.lang.Thread")
-					  && method.getName().equals("start")
-					  && method.getReturnType() instanceof VoidType
-					  && method.getParameterCount() == 0) {
-					SootClass temp = Util.getDeclaringClass(clazz, "start", Collections.EMPTY_LIST, VoidType.v());
+				if (Util.isDescendentOf(_clazz, "java.lang.Thread")
+					  && _method.getName().equals("start")
+					  && _method.getReturnType() instanceof VoidType
+					  && _method.getParameterCount() == 0) {
+					final SootClass _temp = Util.getDeclaringClass(_clazz, "start", Collections.EMPTY_LIST, VoidType.v());
 
-					if (temp != null && temp.getName().equals("java.lang.Thread")) {
-						startSites.add(new CallTriple(context.getCurrentMethod(), context.getStmt(), ve));
+					if (_temp != null && _temp.getName().equals("java.lang.Thread")) {
+						startSites.add(new CallTriple(context.getCurrentMethod(), context.getStmt(), _ve));
 					} else {
 						if (LOGGER.isWarnEnabled()) {
 							LOGGER.warn(
 								"How can there be a descendent class of java.lang.Thread without access to start() method.");
 						}
-						throw new RuntimeException("start() method is unavailable via " + clazz
+						throw new RuntimeException("start() method is unavailable via " + _clazz
 							+ " even though it is a descendent of java.lang.Thread.");
 					}
 				}
@@ -328,88 +329,83 @@ public class ThreadGraph
 			LOGGER.info("BEGIN: thread graph consolidation");
 		}
 
-		long start = System.currentTimeMillis();
+		final long _start = System.currentTimeMillis();
 
 		// capture the run call-site in Thread.start method
-		IEnvironment env = analyzer.getEnvironment();
-		SootClass threadClass = env.getClass("java.lang.Thread");
+		final IEnvironment _env = analyzer.getEnvironment();
+		final SootClass _threadClass = _env.getClass("java.lang.Thread");
 
-		SootMethod startMethod = threadClass.getMethodByName("start");
-		Context ctxt = new Context();
-		ctxt.setRootMethod(startMethod);
+		final SootMethod _startMethod = _threadClass.getMethodByName("start");
+		final Context _ctxt = new Context();
+		_ctxt.setRootMethod(_startMethod);
 
-		Collection values = analyzer.getValuesForThis(ctxt);
-		Map class2runCallees = new HashMap();
+		final Collection _values = analyzer.getValuesForThis(_ctxt);
+		final Map _class2runCallees = new HashMap();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("New thread expressions are: " + values);
+			LOGGER.debug("New thread expressions are: " + _values);
 		}
 
-		for (Iterator i = values.iterator(); i.hasNext();) {
-			NewExpr value = (NewExpr) i.next();
-			SootClass sc = env.getClass(value.getBaseType().getClassName());
-			Collection methods;
+		for (final Iterator _i = _values.iterator(); _i.hasNext();) {
+			final NewExpr _value = (NewExpr) _i.next();
+			final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
+			Collection _methods;
 
-			if (!class2runCallees.containsKey(sc)) {
-				boolean flag = false;
+			if (!_class2runCallees.containsKey(_sc)) {
+				boolean _flag = false;
 
-				SootClass scTemp = Util.getDeclaringClass(sc, "run", Collections.EMPTY_LIST, VoidType.v());
+				SootClass _scTemp = Util.getDeclaringClass(_sc, "run", Collections.EMPTY_LIST, VoidType.v());
 
-				if (scTemp != null) {
-					flag = scTemp.getName().equals("java.lang.Thread");
+				if (_scTemp != null) {
+					_flag = _scTemp.getName().equals("java.lang.Thread");
 				} else {
 					LOGGER.error("How can there be a descendent of java.lang.Thread without access to run() method.");
-					throw new RuntimeException("run() method is unavailable via " + sc
+					throw new RuntimeException("run() method is unavailable via " + _sc
 						+ " even though it is a descendent of java.lang.Thread.");
 				}
 
-				if (flag) {
+				if (_flag) {
 					// Here we use the knowledge of only one target object is associated with a thread object.
-					Collection t = new ArrayList();
-					t.add(value);
-					methods = new HashSet();
+					final Collection _t = new ArrayList();
+					_t.add(_value);
+					_methods = new HashSet();
 
 					// It is possible that the same thread allocation site(loop enclosed) be associated with multiple target 
 					// object 
-					for (Iterator j = analyzer.getValues(threadClass.getFieldByName("target"), t).iterator(); j.hasNext();) {
-						Object obj = j.next();
+					for (final Iterator _j = analyzer.getValues(_threadClass.getFieldByName("target"), _t).iterator();
+						  _j.hasNext();) {
+						final Object _obj = _j.next();
 
-						if (t instanceof NewExpr) {
-							NewExpr temp = (NewExpr) obj;
-							scTemp = env.getClass((temp.getBaseType()).getClassName());
-							methods.addAll(transitiveThreadCallClosure(scTemp.getMethod("run", Collections.EMPTY_LIST,
+						if (_t instanceof NewExpr) {
+							NewExpr temp = (NewExpr) _obj;
+							_scTemp = _env.getClass((temp.getBaseType()).getClassName());
+							_methods.addAll(transitiveThreadCallClosure(_scTemp.getMethod("run", Collections.EMPTY_LIST,
 										VoidType.v())));
 						}
 					}
 				} else {
-					methods = transitiveThreadCallClosure(sc.getMethod("run", Collections.EMPTY_LIST, VoidType.v()));
+					_methods = transitiveThreadCallClosure(_sc.getMethod("run", Collections.EMPTY_LIST, VoidType.v()));
 				}
 
-				class2runCallees.put(sc, methods);
+				_class2runCallees.put(_sc, _methods);
 			}
 
-			NewExprTriple thread = extractNewExprTripleFor(value);
+			final NewExprTriple _thread = extractNewExprTripleFor(_value);
 
-			if (thread == null) {
+			if (_thread == null) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("thread cannot be null. This can happen if there are not "
-						+ "threads other than the main thread in the system. [" + value + "]");
+						+ "threads other than the main thread in the system. [" + _value + "]");
 				}
 				continue;
 			}
 
-			methods = (Collection) class2runCallees.get(sc);
-			thread2methods.put(thread, methods);
+			_methods = (Collection) _class2runCallees.get(_sc);
+			thread2methods.put(_thread, _methods);
 
-			for (Iterator j = methods.iterator(); j.hasNext();) {
-				SootMethod sm = (SootMethod) j.next();
-				Collection threads = (Collection) method2threads.get(sm);
-
-				if (threads == null) {
-					threads = new HashSet();
-					method2threads.put(sm, threads);
-				}
-				threads.add(thread);
+			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
+				final SootMethod _sm = (SootMethod) _j.next();
+				CollectionsModifier.putIntoCollectionInMap(method2threads, _sm, _value, new HashSet());
 			}
 		}
 
@@ -427,52 +423,46 @@ public class ThreadGraph
 		 * the first approach of one dedicated thread executes all intializers in the VM.  Hence, all <clinit> methods are
 		 * associated with an "ClassInitThread:".
 		 */
-		Collection heads = cgi.getHeads();
-		int mainThreadCount = 1;
-		NewExprTriple classInitThread =
+		final Collection _heads = cgi.getHeads();
+		int _mainThreadCount = 1;
+		final NewExprTriple _classInitThread =
 			new NewExprTriple(null, null, Jimple.v().newNewExpr(RefType.v("ClassInitThread:1:_jvm_")));
 
-		for (Iterator i = heads.iterator(); i.hasNext();) {
-			SootMethod head = (SootMethod) i.next();
-			NewExprTriple thread = null;
+		for (final Iterator _i = _heads.iterator(); _i.hasNext();) {
+			final SootMethod _head = (SootMethod) _i.next();
+			NewExprTriple _thread = null;
 
-			if (head.getName().equals("<clinit>")) {
-				thread = classInitThread;
+			if (_head.getName().equals("<clinit>")) {
+				_thread = _classInitThread;
 			} else {
-				thread =
+				_thread =
 					new NewExprTriple(null, null,
-						Jimple.v().newNewExpr(RefType.v("MainThread:" + mainThreadCount++ + ":" + head.getSignature())));
+						Jimple.v().newNewExpr(RefType.v("MainThread:" + _mainThreadCount++ + ":" + _head.getSignature())));
 			}
 
-			newThreadExprs.add(thread);
+			newThreadExprs.add(_thread);
 
-			Collection methods = transitiveThreadCallClosure(head);
-			thread2methods.put(thread, methods);
+			Collection methods = transitiveThreadCallClosure(_head);
+			thread2methods.put(_thread, methods);
 
-			for (Iterator j = methods.iterator(); j.hasNext();) {
-				SootMethod sm = (SootMethod) j.next();
-				Collection threads = (Collection) method2threads.get(sm);
-
-				if (threads == null) {
-					threads = new HashSet();
-					method2threads.put(sm, threads);
-				}
-				threads.add(thread);
+			for (final Iterator _j = methods.iterator(); _j.hasNext();) {
+				final SootMethod _sm = (SootMethod) _j.next();
+				CollectionsModifier.putIntoCollectionInMap(method2threads, _sm, _thread, new HashSet());
 			}
 		}
 
 		// prune the startSites such that it only contains reachable start sites.
-		Collection temp = new HashSet();
-		Collection reachables = cgi.getReachableMethods();
+		final Collection _temp = new HashSet();
+		final Collection _reachables = cgi.getReachableMethods();
 
-		for (Iterator i = startSites.iterator(); i.hasNext();) {
-			CallTriple ctrp = (CallTriple) i.next();
+		for (final Iterator _i = startSites.iterator(); _i.hasNext();) {
+			final CallTriple _ctrp = (CallTriple) _i.next();
 
-			if (!reachables.contains(ctrp.getMethod())) {
-				temp.add(ctrp);
+			if (!_reachables.contains(_ctrp.getMethod())) {
+				_temp.add(_ctrp);
 			}
 		}
-		startSites.removeAll(temp);
+		startSites.removeAll(_temp);
 
 		// Consolidate information pertaining to execution frequency of thread allocation sites.
 		if (LOGGER.isInfoEnabled()) {
@@ -483,37 +473,37 @@ public class ThreadGraph
 
 		// Mark any thread allocation site that will be executed multiple times via a loop or call graph SCC 
 		// as creating multiple threads.  The execution considers entire call chain to the entry method.
-		for (Iterator i = tassBak.iterator(); i.hasNext();) {
-			NewExprTriple trp = (NewExprTriple) i.next();
-			SootMethod encloser = trp.getMethod();
+		for (final Iterator _i = tassBak.iterator(); _i.hasNext();) {
+			final NewExprTriple _trp = (NewExprTriple) _i.next();
+			final SootMethod _encloser = _trp.getMethod();
 
-			if (cfgAnalysis.executedMultipleTimes(encloser)) {
-				threadAllocSitesSingle.remove(trp);
-				threadAllocSitesMulti.add(trp);
+			if (cfgAnalysis.executedMultipleTimes(_encloser)) {
+				threadAllocSitesSingle.remove(_trp);
+				threadAllocSitesMulti.add(_trp);
 			}
 		}
 
-		Collection multiExecMethods = new HashSet();
+		final Collection _multiExecMethods = new HashSet();
 
 		// Collect methods executed in threads which are created at sites that create more than one thread.  These methods 
 		// will be executed multiple times.
-		for (Iterator i = threadAllocSitesMulti.iterator(); i.hasNext();) {
-			NewExprTriple ntrp = (NewExprTriple) i.next();
-			ctxt.setRootMethod(ntrp.getMethod());
-			ctxt.setStmt(ntrp.getStmt());
-			multiExecMethods.addAll(getExecutedMethods(ntrp.getExpr(), ctxt));
+		for (final Iterator _i = threadAllocSitesMulti.iterator(); _i.hasNext();) {
+			final NewExprTriple _ntrp = (NewExprTriple) _i.next();
+			_ctxt.setRootMethod(_ntrp.getMethod());
+			_ctxt.setStmt(_ntrp.getStmt());
+			_multiExecMethods.addAll(getExecutedMethods(_ntrp.getExpr(), _ctxt));
 		}
 		tassBak.clear();
 		tassBak.addAll(threadAllocSitesSingle);
 
 		// filter the thread allocation site sets based on multiExecMethods.
-		for (Iterator i = tassBak.iterator(); i.hasNext();) {
-			NewExprTriple trp = (NewExprTriple) i.next();
-			SootMethod encloser = trp.getMethod();
+		for (final Iterator _i = tassBak.iterator(); _i.hasNext();) {
+			final NewExprTriple _trp = (NewExprTriple) _i.next();
+			final SootMethod _encloser = _trp.getMethod();
 
-			if (multiExecMethods.contains(encloser)) {
-				threadAllocSitesSingle.remove(trp);
-				threadAllocSitesMulti.add(trp);
+			if (_multiExecMethods.contains(_encloser)) {
+				threadAllocSitesSingle.remove(_trp);
+				threadAllocSitesMulti.add(_trp);
 			}
 		}
 
@@ -521,11 +511,11 @@ public class ThreadGraph
 			LOGGER.info("END: equivalence class based escape analysis consolidation");
 		}
 
-		long stop = System.currentTimeMillis();
+		final long _stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: thread graph consolidation");
-			LOGGER.info("TIMING: thread graph consolidation took " + (stop - start) + "ms.");
+			LOGGER.info("TIMING: thread graph consolidation took " + (_stop - _start) + "ms.");
 		}
 	}
 
@@ -535,60 +525,60 @@ public class ThreadGraph
 	 * @return stringized representation of the thread graph.
 	 */
 	public String dumpGraph() {
-		StringBuffer result = new StringBuffer();
-		List l = new ArrayList();
+		final StringBuffer _result = new StringBuffer();
+		final List _l = new ArrayList();
 
-		result.append("Total number of threads: " + thread2methods.size() + "\n");
+		_result.append("Total number of threads: " + thread2methods.size() + "\n");
 
 		final List _temp1 = new ArrayList();
 		_temp1.addAll(thread2methods.keySet());
 		Collections.sort(_temp1,
 			new Comparator() {
 				public int compare(Object o1, Object o2) {
-					NewExprTriple ne = (NewExprTriple) o1;
-					String _s1 = ne.getStmt() + "@" + ne.getMethod() + "->" + ne.getExpr();
-					ne = (NewExprTriple) o2;
-					return _s1.compareTo(ne.getStmt() + "@" + ne.getMethod() + "->" + ne.getExpr());
+					NewExprTriple _ne = (NewExprTriple) o1;
+					final String _s1 = _ne.getStmt() + "@" + _ne.getMethod() + "->" + _ne.getExpr();
+					_ne = (NewExprTriple) o2;
+					return _s1.compareTo(_ne.getStmt() + "@" + _ne.getMethod() + "->" + _ne.getExpr());
 				}
 			});
 
-		for (Iterator i = _temp1.iterator(); i.hasNext();) {
-			NewExprTriple net = (NewExprTriple) i.next();
+		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
+			final NewExprTriple _net = (NewExprTriple) _i.next();
 
-			if (net.getMethod() == null) {
-				result.append("\n" + net.getExpr().getType() + "\n");
+			if (_net.getMethod() == null) {
+				_result.append("\n" + _net.getExpr().getType() + "\n");
 			} else {
-				result.append("\n" + net.getStmt() + "@" + net.getMethod() + "->" + net.getExpr() + "\n");
+				_result.append("\n" + _net.getStmt() + "@" + _net.getMethod() + "->" + _net.getExpr() + "\n");
 			}
 
-			l.clear();
+			_l.clear();
 
-			for (Iterator j = ((Collection) thread2methods.get(net)).iterator(); j.hasNext();) {
-				SootMethod sm = (SootMethod) j.next();
-				l.add(sm.getSignature());
+			for (final Iterator _j = ((Collection) thread2methods.get(_net)).iterator(); _j.hasNext();) {
+				final SootMethod _sm = (SootMethod) _j.next();
+				_l.add(_sm.getSignature());
 			}
-			Collections.sort(l);
+			Collections.sort(_l);
 
-			for (Iterator j = l.iterator(); j.hasNext();) {
-				result.append("\t" + j.next() + "\n");
+			for (final Iterator _j = _l.iterator(); _j.hasNext();) {
+				_result.append("\t" + _j.next() + "\n");
 			}
 		}
 
 		int _count = 1;
-		result.append("\nThread mapping:");
+		_result.append("\nThread mapping:\n");
 
 		for (final Iterator _j = getAllocationSites().iterator(); _j.hasNext();) {
 			final NewExprTriple _element = (NewExprTriple) _j.next();
 			final String _tid = "T" + _count++;
 
 			if (_element.getMethod() == null) {
-				result.append(_tid + " -> " + _element.getExpr().getType() + "\n");
+				_result.append(_tid + " -> " + _element.getExpr().getType() + "\n");
 			} else {
-				result.append(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod() + "\n");
+				_result.append(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod() + "\n");
 			}
 		}
 
-		return result.toString();
+		return _result.toString();
 	}
 
 	/**
@@ -632,17 +622,17 @@ public class ThreadGraph
 	 * @pre ne != null
 	 */
 	private NewExprTriple extractNewExprTripleFor(final NewExpr ne) {
-		NewExprTriple result = null;
+		NewExprTriple _result = null;
 
-		for (Iterator i = newThreadExprs.iterator(); i.hasNext();) {
-			NewExprTriple ntrp = (NewExprTriple) i.next();
+		for (final Iterator _i = newThreadExprs.iterator(); _i.hasNext();) {
+			final NewExprTriple _ntrp = (NewExprTriple) _i.next();
 
-			if (ntrp.getExpr() == ne) {
-				result = ntrp;
+			if (_ntrp.getExpr() == ne) {
+				_result = _ntrp;
 				break;
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -657,43 +647,44 @@ public class ThreadGraph
 	 * @post result != null and result.isOclKindOf(Collection(SootMethod))
 	 */
 	private Collection transitiveThreadCallClosure(final SootMethod starterMethod) {
-		Collection result = new HashSet();
-		IWorkBag wb = new FIFOWorkBag();
-		wb.addWork(starterMethod);
-		result.add(starterMethod);
+		final Collection _result = new HashSet();
+		final IWorkBag _wb = new FIFOWorkBag();
+		_wb.addWork(starterMethod);
+		_result.add(starterMethod);
 
-		while (wb.hasWork()) {
-			SootMethod sm = (SootMethod) wb.getWork();
+		while (_wb.hasWork()) {
+			final SootMethod _sm = (SootMethod) _wb.getWork();
 
-			if (sm.getName().equals("start")
-				  && sm.getDeclaringClass().getName().equals("java.lang.Thread")
-				  && sm.getParameterCount() == 0
-				  && sm.getReturnType().equals(VoidType.v())) {
+			if (_sm.getName().equals("start")
+				  && _sm.getDeclaringClass().getName().equals("java.lang.Thread")
+				  && _sm.getParameterCount() == 0
+				  && _sm.getReturnType().equals(VoidType.v())) {
 				continue;
 			}
 
-			Collection callees = cgi.getCallees(sm);
+			final Collection _callees = cgi.getCallees(_sm);
 
-			for (Iterator i = callees.iterator(); i.hasNext();) {
-				CallTriple ctrp = (CallTriple) i.next();
-				SootMethod temp = ctrp.getMethod();
+			for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = (CallTriple) _i.next();
+				final SootMethod _temp = _ctrp.getMethod();
 
-				if (!result.contains(temp)) {
-					result.add(temp);
-					wb.addWorkNoDuplicates(temp);
+				if (!_result.contains(_temp)) {
+					_result.add(_temp);
+					_wb.addWorkNoDuplicates(_temp);
 				}
 			}
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/01/21 13:30:40  venku
+   - log formatting.
    Revision 1.24  2004/01/21 01:34:56  venku
    - logging.
-
    Revision 1.23  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
