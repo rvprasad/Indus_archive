@@ -67,6 +67,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import soot.Printer;
 import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -150,7 +151,16 @@ public class SliceXMLizerCLI
 			parseCommandLine(args, _driver);
 
 			_driver.initialize();
+
+			long _startTime = System.currentTimeMillis();
 			_driver.execute();
+
+			long _stopTime = System.currentTimeMillis();
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
+			}
+
 			// serialize the output of the slicer
 			_driver.writeXML();
 			_driver.residualize();
@@ -268,13 +278,22 @@ public class SliceXMLizerCLI
 		// create options
 		final Options _options = new Options();
 		Option _o =
-			new Option("c", "config-file", false,
+			new Option("c", "config-file", true,
 				"The configuration file to use.  If unspecified, uses default configuration file.");
 		_o.setArgs(1);
 		_o.setArgName("path");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("o", "output-dir", false,
+
+		_o = new Option("a", "active-config", true,
+				"The alternate configuration to use instead of the one specified in the configuration.");
+		_o.setArgs(1);
+		_o.setArgName("config");
+		_o.setLongOpt("active-config");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+
+		_o = new Option("o", "output-dir", true,
 				"The output directory to dump the generated info.  If unspecified, defaults to current directory.");
 		_o.setArgs(1);
 		_o.setArgName("path");
@@ -283,7 +302,7 @@ public class SliceXMLizerCLI
 		_o = new Option("g", "gui-config", false, "Display gui for configuration.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
+		_o = new Option("p", "soot-classpath", true, "Prepend this to soot class path.");
 		_o.setArgs(1);
 		_o.setArgName("classpath");
 		_o.setOptionalArg(false);
@@ -321,35 +340,11 @@ public class SliceXMLizerCLI
 			}
 		}
 		xmlizer.setConfiguration(processCommandLineForConfiguration(_cl));
+		xmlizer.destructiveJimpleUpdate = _cl.hasOption('d');
+		setupOutputOptions(_cl, xmlizer);
 
-		if (_cl.hasOption('d')) {
-			xmlizer.destructiveJimpleUpdate = true;
-		}
-
-		final String _outputDir;
-
-		if (_cl.hasOption('o')) {
-			_outputDir = _cl.getOptionValue("o");
-		} else {
-			_outputDir = ".";
-
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Using current directory to output artifacts.");
-			}
-		}
-
-		try {
-			xmlizer.xmlizedJimpleWriter = new FileWriter(new File(_outputDir + File.separator + "jimple.xml"));
-		} catch (IOException _e) {
-			LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
-			System.exit(1);
-		}
-		xmlizer.setOutputDirectory(_outputDir);
-
-		final String _classpath = _cl.getOptionValue("p");
-
-		if (_classpath != null) {
-			xmlizer.addToSootClassPath(_classpath);
+		if (_cl.hasOption('p')) {
+			xmlizer.addToSootClassPath(_cl.getOptionValue('p'));
 		}
 
 		final List _result = _cl.getArgList();
@@ -363,7 +358,54 @@ public class SliceXMLizerCLI
 			xmlizer.showGUI();
 		}
 
+		if (_cl.hasOption('a')) {
+			xmlizer.setConfigName(_cl.getOptionValue('a'));
+		}
+
 		xmlizer.setClassNames(_cl.getArgList());
+	}
+
+	/**
+	 * Sets up the output options according to the command line args.
+	 *
+	 * @param cl contains the command line.
+	 * @param xmlizer that needs to be configured.
+	 *
+	 * @pre cl != null and xmlizer != null
+	 */
+	private static void setupOutputOptions(final CommandLine cl, final SliceXMLizerCLI xmlizer) {
+		final String _outputDir;
+
+		if (cl.hasOption('o')) {
+			_outputDir = cl.getOptionValue("o");
+		} else {
+			_outputDir = ".";
+
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Using current directory to output artifacts.");
+			}
+		}
+
+		if (cl.hasOption('j')) {
+			try {
+				xmlizer.xmlizedJimpleWriter = new FileWriter(new File(_outputDir + File.separator + "jimple.xml"));
+			} catch (IOException _e) {
+				LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
+				System.exit(1);
+			}
+		}
+		xmlizer.setOutputDirectory(_outputDir);
+	}
+
+	/**
+	 * Changes the active configuration to use.
+	 *
+	 * @param configID is the id of the active configuration.
+	 *
+	 * @pre configName != null
+	 */
+	private void setConfigName(final String configID) {
+		slicer.setActiveConfiguration(configID);
 	}
 
 	/**
@@ -454,8 +496,18 @@ public class SliceXMLizerCLI
 
 			try {
 				final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
+
+				for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+					final SootMethod _sm = (SootMethod) _j.next();
+
+					if (_sm.isConcrete()) {
+						_sm.retrieveActiveBody();
+					}
+				}
 				_writer = new PrintWriter(new FileWriter(_file));
+				// write .jimple file
 				_printer.printTo(_sc, _writer);
+				// write .class file
 				_printer.write(_sc, outputDirectory);
 			} catch (final IOException _e) {
 				LOGGER.error("Error while writing " + _sc, _e);
@@ -492,7 +544,7 @@ public class SliceXMLizerCLI
 			if (configFileName != null) {
 				final BufferedWriter _configFile = new BufferedWriter(new FileWriter(configFileName));
 				_configFile.write(slicer.stringizeConfiguration());
-                _configFile.close();
+				_configFile.close();
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("Configuration file name is unspecified.  Printing to console.");
@@ -511,9 +563,10 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/21 20:13:17  venku
+   - many file handles are left open. FIXED.
    Revision 1.5  2004/03/04 14:02:09  venku
    - removed a redundant exception check.
-
    Revision 1.4  2004/03/03 10:09:42  venku
    - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
    Revision 1.3  2004/03/03 08:07:52  venku
