@@ -125,7 +125,7 @@ public class SlicerTestSetup
 		// write XMLized Jimple data
 		if (dumpLocation != null) {
 			driver.jimpleXMLDumpDir = dumpLocation;
-			driver.dumpJimpleAsXML();
+			driver.dumpJimpleAsXML("");
 		}
 		
 		// We do not destructively update Jimple as this would invalidate any information 
@@ -194,6 +194,10 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/05/11 11:52:48  venku
+   - We do not destructively updated Jimple as Jimple is xmlized based on tag.
+     Also, such update may invalidate previously calculated information.
+
    Revision 1.10  2004/05/10 09:40:16  venku
    - changed the way jimple is dumped.
 

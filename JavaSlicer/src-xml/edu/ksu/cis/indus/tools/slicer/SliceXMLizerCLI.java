@@ -24,11 +24,9 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
-import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.tools.Phase;
@@ -37,6 +35,7 @@ import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -155,8 +154,10 @@ public class SliceXMLizerCLI
 			LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
 		}
 
+		_driver.dumpJimpleAsXML("unsliced");
 		_driver.writeXML();
 		_driver.residualize();
+		_driver.dumpJimpleAsXML("sliced");
 	}
 
 	/**
@@ -217,8 +218,10 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Dump xmlized jimple
+	 *
+	 * @param name
 	 */
-	void dumpJimpleAsXML() {
+	void dumpJimpleAsXML(final String name) {
 		final IXMLizer _xmlizer = getXMLizer();
 
 		if (jimpleXMLDumpDir != null) {
@@ -227,34 +230,16 @@ public class SliceXMLizerCLI
 			}
 
 			final ProcessingController _ctrl = new ProcessingController();
+			final IProcessingFilter _filter = new XMLizingProcessingFilter();
 			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
 			_ctrl.setEnvironment(new Environment(scene));
-
-			final IProcessingFilter _filter = new CGBasedXMLizingProcessingFilter(slicer.getCallGraph());
-			_filter.chain(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
 			_ctrl.setProcessingFilter(_filter);
-			((AbstractXMLizer) _xmlizer).dumpJimple("", jimpleXMLDumpDir, _ctrl);
+			((AbstractXMLizer) _xmlizer).dumpJimple(name, jimpleXMLDumpDir, _ctrl);
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("END: Dumping XMLized Jimple");
 			}
 		}
-	}
-
-	/**
-	 * Write the slice as XML document.
-	 */
-	void writeXML() {
-		dumpJimpleAsXML();
-
-		final IXMLizer _xmlizer = getXMLizer();
-
-		// serialize the output of the slicer
-		final Map _info = new HashMap();
-		_info.put(IEnvironment.ID, slicer.getEnvironment());
-		_info.put(IStmtGraphFactory.ID, slicer.getStmtGraphFactory());
-		_xmlizer.setXmlOutputDir(outputDirectory);
-		_xmlizer.writeXML(_info);
 	}
 
 	/**
@@ -549,11 +534,27 @@ public class SliceXMLizerCLI
 			System.out.println(slicer.stringizeConfiguration());
 		}
 	}
+
+	/**
+	 * Write the slice as XML document.
+	 */
+	private void writeXML() {
+		final IXMLizer _xmlizer = getXMLizer();
+
+		// serialize the output of the slicer
+		final Map _info = new HashMap();
+		_info.put(IEnvironment.ID, slicer.getEnvironment());
+		_info.put(IStmtGraphFactory.ID, slicer.getStmtGraphFactory());
+		_xmlizer.setXmlOutputDir(outputDirectory);
+		_xmlizer.writeXML(_info);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/05/11 11:59:48  venku
+   - privatized destructivelyUpdateJimple.
    Revision 1.30  2004/05/10 12:07:45  venku
    - on thinking it seems better to dump jimple as a post-slice artifact as
      it is possible to generate the jimple for the original files rather easily.
