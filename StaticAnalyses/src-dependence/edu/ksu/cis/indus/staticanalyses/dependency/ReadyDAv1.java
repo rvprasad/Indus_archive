@@ -884,13 +884,13 @@ public class ReadyDAv1
 	 * @pre stmt != null and caller != null and stmt.containsInvokeExpr() == true
 	 */
 	private boolean callsReadyMethod(final Stmt stmt, final SootMethod caller) {
-		boolean _result = false;
+		final boolean _result;
 
 		if (considerCallSites && stmt.containsInvokeExpr()) {
-			if (!CollectionUtils.intersection(readyMethods, callgraph.getMethodsReachableFrom(stmt, caller)).isEmpty()) {
-				_result = true;
-			}
-		}
+            _result = callgraph.areAnyMethodsReachableFrom(readyMethods, stmt, caller);
+		} else {
+		    _result = false;
+        }
 		return _result;
 	}
 

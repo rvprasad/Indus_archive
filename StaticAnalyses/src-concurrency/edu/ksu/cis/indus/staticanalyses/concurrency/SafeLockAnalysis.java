@@ -351,9 +351,7 @@ public class SafeLockAnalysis
 					SootPredicatesAndTransformers.INVOKE_EXPR_PREDICATE);
 
 			for (final Iterator _k = _filteredIterator; _k.hasNext() && _cycleIsUnsafe;) {
-				final Stmt _stmt = (Stmt) _k.next();
-				_cycleIsUnsafe =
-					!CollectionUtils.containsAny(callgraphInfo.getMethodsReachableFrom(_stmt, method), waitMethods);
+				_cycleIsUnsafe = !callgraphInfo.areAnyMethodsReachableFrom(waitMethods, (Stmt) _k.next(), method);
 			}
 			_result &= !_cycleIsUnsafe;
 		}
