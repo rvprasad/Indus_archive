@@ -52,6 +52,7 @@ import org.znerd.xmlenc.XMLOutputter;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.ValueBox;
+
 import soot.jimple.Stmt;
 
 
@@ -133,19 +134,25 @@ public final class OFAXMLizer
 			for (final Iterator _i = ofa.getValues(vBox.getValue(), context).iterator(); _i.hasNext();) {
 				_temp.add(_i.next().toString());
 			}
-			Collections.sort(_temp);
 
-			try {
-                final Stmt _stmt = context.getStmt();
-                final SootMethod _method = context.getCurrentMethod();
-				for (final Iterator _i = (new HashSet(_temp)).iterator(); _i.hasNext();) {
-					xmlWriter.startTag("instance");
-					xmlWriter.attribute("instId", idGenerator.getIdForValueBox(vBox, _stmt, _method));
-					xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
+			if (!_temp.isEmpty()) {
+				Collections.sort(_temp);
+
+				try {
+					final Stmt _stmt = context.getStmt();
+					final SootMethod _method = context.getCurrentMethod();
+					xmlWriter.startTag("program_point");
+					xmlWriter.attribute("id", idGenerator.getIdForValueBox(vBox, _stmt, _method));
+
+					for (final Iterator _i = (new HashSet(_temp)).iterator(); _i.hasNext();) {
+						xmlWriter.startTag("object");
+						xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
+						xmlWriter.endTag();
+					}
 					xmlWriter.endTag();
+				} catch (final IOException _e) {
+					LOGGER.error("Error while xmlizing OFA information ", _e);
 				}
-			} catch (final IOException _e) {
-				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
 		}
 
@@ -278,6 +285,8 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/01 20:57:49  venku
+   - changed id attributed to xxxxID as it confused xmlunit.
    Revision 1.7  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -286,7 +295,6 @@ public final class OFAXMLizer
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.6  2004/03/07 20:28:55  venku
    - made the class public due to other refactoring.
    Revision 1.5  2004/03/05 11:59:45  venku
