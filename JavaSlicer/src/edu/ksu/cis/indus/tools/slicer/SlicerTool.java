@@ -627,6 +627,10 @@ public final class SlicerTool
 		for (final Iterator _i = _im.getMonitorTriples().iterator(); _i.hasNext();) {
 			final Triple _mTriple = (Triple) _i.next();
 			final SootMethod _method = (SootMethod) _mTriple.getThird();
+
+			if (!_method.getDeclaringClass().isApplicationClass()) {
+				continue;
+			}
 			_temp.clear();
 
 			if (_mTriple.getFirst() == null) {
@@ -660,10 +664,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.48  2003/12/13 19:52:41  venku
+   - renamed Init2NewExprMapper to NewExpr2InitMapper.
+   - ripple effect.
    Revision 1.47  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.46  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
