@@ -255,7 +255,8 @@ class MethodContext
 	}
 
 	/**
-	 * Propogates the information from this context to the given context.
+	 * Propogates the information from this context to the given context.  Please refer to the {@link
+	 * unify(MethodContext,boolean) unify} for important information.
 	 *
 	 * @param mc is the destination of the information transfer.
 	 */
@@ -263,37 +264,53 @@ class MethodContext
 		MethodContext rep1 = (MethodContext) find();
 		MethodContext rep2 = (MethodContext) mc.find();
 
+		AliasSet temp1;
+		AliasSet temp2;
+
 		for (int i = method.getParameterCount() - 1; i >= 0; i--) {
 			if (AliasSet.canHaveAliasSet(method.getParameterType(i))) {
-				((AliasSet) rep1.argAliasSets.get(i)).propogateInfoFromTo((AliasSet) rep2.argAliasSets.get(i));
+				temp1 = (AliasSet) rep1.argAliasSets.get(i);
+				temp2 = (AliasSet) rep2.argAliasSets.get(i);
+
+				if (temp1 != null && temp2 != null) {
+					temp1.propogateInfoFromTo(temp2);
+				}
 			}
 		}
 
-		AliasSet temp = rep1.ret;
+		temp1 = rep1.ret;
+		temp2 = rep2.ret;
 
-		if (temp != null) {
-			temp.propogateInfoFromTo(rep2.ret);
+		if (temp1 != null && temp2 != null) {
+			temp1.propogateInfoFromTo(temp2);
 		}
 		rep1.thrown.propogateInfoFromTo(rep2.thrown);
 
-		temp = rep1.thisAS;
+		temp1 = rep1.thisAS;
 
-		if (temp != null) {
-			temp.propogateInfoFromTo(rep2.thisAS);
+		if (temp1 != null) {
+			temp1.propogateInfoFromTo(rep2.thisAS);
 		}
 	}
 
 	/**
 	 * Unifies this context with the given context.
+	 * 
+	 * <p>
+	 * There is asymmetry in alias sets in case of contexts.  It is possible that this context may not have alias set for an
+	 * argument location where as <code>p</code> may have one.  This happens in cases where this context corresponds to a
+	 * site-context where <code>null</code> is being passed, hence, that arg position does not require an alias set whereas
+	 * <code>p</code> being the context of the method being called requires alias set as there may be sites where the
+	 * non-null argument may be provided. In such cases, we safely warn and continue. However, this cannot happen for thrown
+	 * exception, this, or return references.  associated with call sites and methods.
+	 * </p>
 	 *
 	 * @param p is the context with which the unification should occur.
 	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
-	 *
-	 * @throws IllegalStateException in case the corresponding alias sets in the contexts do not match.
 	 */
 	void unify(final MethodContext p, final boolean unifyAll) {
 		if (p == null) {
-			LOGGER.warn("Unification with null requested.");
+			LOGGER.error("Unification with null requested.");
 		}
 
 		MethodContext m = (MethodContext) find();
@@ -309,7 +326,9 @@ class MethodContext
 				AliasSet nAS = n.getParamAS(i);
 
 				if (mAS == null && nAS != null || mAS != null && nAS == null) {
-					throw new IllegalStateException("Incompatible method contexts being unified - argument " + i + ".");
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("Incompatible method contexts being unified - argument[" + i + "] - " + mAS + " " + nAS);
+					}
 				} else {
 					mAS.unify(nAS, unifyAll);
 				}
@@ -320,10 +339,10 @@ class MethodContext
 		AliasSet nRet = n.getReturnAS();
 
 		if ((mRet == null && nRet != null) || (mRet != null && nRet == null)) {
-			throw new IllegalStateException("Incompatible method contexts being unified - return value.");
-		}
-
-		if (mRet != null) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Incompatible method contexts being unified - return value - " + mRet + " " + nRet);
+			}
+		} else if (mRet != null) {
 			mRet.unify(nRet, unifyAll);
 		}
 		m.getThrownAS().unify(n.getThrownAS(), unifyAll);
@@ -332,10 +351,10 @@ class MethodContext
 		AliasSet nThis = n.getThisAS();
 
 		if ((mThis == null && nThis != null) || (mThis != null && nThis == null)) {
-			throw new IllegalStateException("Incompatible method contexts being unified - staticness");
-		}
-
-		if (mThis != null) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Incompatible method contexts being unified - staticness - " + mThis + " " + nThis);
+			}
+		} else if (mThis != null) {
 			mThis.unify(nThis, unifyAll);
 		}
 		m.union(n);
@@ -416,9 +435,13 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/21 01:24:25  venku
+    - Renamed src-escape to src-concurrency to as to group all concurrency
+      issue related analyses into a package.
+    - Renamed escape package to concurrency.escape.
+    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
    Revision 1.3  2003/08/11 06:29:07  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.
