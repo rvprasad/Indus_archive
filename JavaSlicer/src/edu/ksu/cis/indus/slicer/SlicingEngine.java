@@ -417,8 +417,8 @@ public class SlicingEngine {
         */
 
 		//collector.processSeedCriteria(criteria);
-		workbag.addAllWorkNoDuplicates(criteria);
-
+	    workbag.addAllWorkNoDuplicates(criteria);
+        
 		// we are assuming the mapping will capture the past-processed information to prevent processed criteria from 
 		// reappearing.  
 		while (workbag.hasWork()) {
@@ -759,10 +759,11 @@ public class SlicingEngine {
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
 		if (!collector.isTransformed(valueBox)) {
-			SliceExpr critExpr = SliceExpr.getSliceExpr();
-			critExpr.initialize(method, stmt, valueBox);
-			critExpr.setConsiderExecution(considerExecution);
-			workbag.addWorkNoDuplicates(critExpr);
+			SliceExpr sliceCriterion = SliceExpr.getSliceExpr();
+			sliceCriterion.initialize(method, stmt, valueBox);
+			sliceCriterion.setConsiderExecution(considerExecution);
+			if (!workbag.addWorkNoDuplicates(sliceCriterion))
+                sliceCriterion.finished();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding expr " + valueBox.getValue() + " at " + stmt + " in " + method.getSignature()
@@ -787,6 +788,8 @@ public class SlicingEngine {
 			sliceCriterion.initialize(unslicedMethod, unslicedStmt);
 			sliceCriterion.setConsiderExecution(considerExecution);
 			workbag.addWorkNoDuplicates(sliceCriterion);
+            if (!workbag.addWorkNoDuplicates(sliceCriterion))
+                sliceCriterion.finished();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding " + unslicedStmt + " in " + unslicedMethod.getSignature() + " to workbag.");
@@ -975,6 +978,9 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/01 12:22:09  venku
+   - lots of changes to get it working.  Not yet there, but getting there.
+
    Revision 1.21  2003/11/30 13:24:30  venku
    - amidst changes.
     - control da is used while slicing statements only.
