@@ -20,12 +20,15 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
+
+import edu.ksu.cis.indus.transformations.slicer.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
@@ -39,12 +42,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 
 import java.net.URL;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +67,11 @@ import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+
+import soot.Printer;
+import soot.SootClass;
+import soot.SootField;
+import soot.SootMethod;
 
 
 /**
@@ -106,12 +116,17 @@ public class SlicerDriver
 	/**
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
-	private String tagName = "SlicingTag";
+	private final String tagName = "SlicerDriver";
 
 	/**
-	 * This is the writer used to write the xml data.
+	 * This is the writer used to write the xmlized Jimple.
 	 */
-	private Writer jimpleWriter;
+	private Writer xmlizedJimpleWriter;
+
+	/**
+	 * This indicates if jimple should be destructively updated to reflect the slice and dumped.
+	 */
+	private boolean destructiveJimpleUpdate;
 
 	/**
 	 * Creates an instance of this class.
@@ -167,6 +182,7 @@ public class SlicerDriver
 			_driver.execute();
 			// serialize the output of the slicer
 			_driver.writeXML();
+			_driver.residualize();
 		} catch (Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
 			throw new RuntimeException(_e);
@@ -246,31 +262,34 @@ public class SlicerDriver
 		_dep.setClassNames(rootMethods);
 		_dep.setGenerator(idGenerator);
 		_dep.populateDAs();
-		_sliceIP.hookup(_ctrl);
 
 		JimpleXMLizer _jimpler = null;
 
-		if (jimpleWriter != null) {
+		if (xmlizedJimpleWriter != null) {
 			_jimpler = new JimpleXMLizer(idGenerator);
-			_jimpler.setWriter(jimpleWriter);
+			_jimpler.setWriter(xmlizedJimpleWriter);
 			_jimpler.hookup(_ctrl);
 		}
 
 		final Map _xmlizers = _dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, _ctrl);
 		_ctrl.process();
-		_sliceIP.unhook(_ctrl);
 
 		if (_jimpler != null) {
 			_jimpler.unhook(_ctrl);
 
 			try {
-				jimpleWriter.flush();
-				jimpleWriter.close();
+				xmlizedJimpleWriter.flush();
+				xmlizedJimpleWriter.close();
 			} catch (IOException _e) {
 				LOGGER.error("Failed to close the xml file based for jimple representation.", _e);
 			}
 		}
 		_dep.flushXMLizers(_xmlizers, _ctrl);
+
+		_ctrl.setProcessingFilter(new TagBasedProcessingFilter(tagName));
+		_sliceIP.hookup(_ctrl);
+		_ctrl.process();
+		_sliceIP.unhook(_ctrl);
 		_sliceIP.flush();
 	}
 
@@ -315,6 +334,9 @@ public class SlicerDriver
 		_o.setArgName("path");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
+		_o = new Option("d", "destructive-jimple-update", false, "Destructive update jimple and dump it.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
 
 		CommandLine _cl = null;
 
@@ -332,47 +354,50 @@ public class SlicerDriver
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
 				_options, true);
 			System.exit(0);
-		} else {
-			xmlizer.setConfiguration(processCommandLineForConfiguration(_cl));
+		}
+		xmlizer.setConfiguration(processCommandLineForConfiguration(_cl));
 
-			String _outputDir = _cl.getOptionValue("o");
+		String _outputDir = _cl.getOptionValue("o");
 
-			if (_outputDir == null) {
-				LOGGER.warn("Using the currennt directory to dump slicing artifacts.");
-				_outputDir = ".";
-			}
-			xmlizer.setOutputDirectory(_outputDir);
+		if (_outputDir == null) {
+			LOGGER.warn("Using the currennt directory to dump slicing artifacts.");
+			_outputDir = ".";
+		}
+		xmlizer.setOutputDirectory(_outputDir);
 
-			final String _classpath = _cl.getOptionValue("p");
+		final String _classpath = _cl.getOptionValue("p");
 
-			if (_classpath != null) {
-				xmlizer.addToSootClassPath(_classpath);
-			}
+		if (_classpath != null) {
+			xmlizer.addToSootClassPath(_classpath);
+		}
 
-			final List _result = _cl.getArgList();
+		final List _result = _cl.getArgList();
 
-			if (_result.isEmpty()) {
-				LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
+		if (_result.isEmpty()) {
+			LOGGER.fatal("Please specify atleast one class that contains an entry method into the system to be sliced.");
+			System.exit(1);
+		}
+
+		final String _jimpleOutDir = _cl.getOptionValue("j");
+
+		if (_jimpleOutDir != null) {
+			try {
+				xmlizer.xmlizedJimpleWriter = new FileWriter(new File(_jimpleOutDir + File.separator + "jimple.xml"));
+			} catch (IOException _e) {
+				LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
 				System.exit(1);
 			}
-
-			final String _jimpleOutDir = _cl.getOptionValue("j");
-
-			if (_jimpleOutDir != null) {
-				try {
-					xmlizer.jimpleWriter = new FileWriter(new File(_jimpleOutDir + File.separator + "jimple.xml"));
-				} catch (IOException _e) {
-					LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
-					System.exit(1);
-				}
-			}
-
-			if (_cl.hasOption('g')) {
-				xmlizer.showGUI();
-			}
-
-			xmlizer.setClassNames(_cl.getArgList());
 		}
+
+		if (_cl.hasOption('g')) {
+			xmlizer.showGUI();
+		}
+
+		if (_cl.hasOption('d')) {
+			xmlizer.destructiveJimpleUpdate = true;
+		}
+
+		xmlizer.setClassNames(_cl.getArgList());
 	}
 
 	/**
@@ -437,6 +462,51 @@ public class SlicerDriver
 	}
 
 	/**
+	 * Residualize the slice as jimple files in the output directory.
+	 */
+	private void residualize() {
+		if (destructiveJimpleUpdate) {
+			final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+			_residualizer.setTagToResidualize(tagName);
+			_residualizer.residualizeSystem(scene);
+
+			final Printer _printer = Printer.v();
+
+			for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
+				final SootClass _sc = (SootClass) _i.next();
+				PrintWriter _writer = null;
+
+				try {
+					_writer =
+						new PrintWriter(new FileWriter(new File(outputDirectory + File.separator + _sc.getName() + ".jimple")));
+
+					_writer.println(_sc.getFields());
+					_writer.println(_sc.getMethods());
+
+					for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
+						final SootField _sf = (SootField) _j.next();
+
+						_writer.println(_sf.getSignature());
+					}
+
+					for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+						final SootMethod _sm = (SootMethod) _j.next();
+
+						_printer.printTo(_sm.getActiveBody(), _writer);
+					}
+				} catch (IOException _e) {
+					LOGGER.error("Error while writing info of " + _sc, _e);
+				} finally {
+					if (_writer != null) {
+						_writer.flush();
+						_writer.close();
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Displays the tool configuration GUI.
 	 */
 	private void showGUI() {
@@ -478,6 +548,8 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/12/15 02:11:11  venku
+   - added exception handling at outer most level.
    Revision 1.26  2003/12/13 19:46:45  venku
    - documentation.
    Revision 1.25  2003/12/13 02:29:16  venku
