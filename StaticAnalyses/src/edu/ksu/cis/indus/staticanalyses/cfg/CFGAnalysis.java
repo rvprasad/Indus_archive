@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.support.BasicBlockGraph;
 import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
@@ -180,19 +180,16 @@ main_control:
 		}
 		return result;
 	}
-
-	/**
-	 * Retrieves the basic block graph for the requested method.
-	 *
-	 * @post result != null     private BasicBlockGraph getBasicBlockGraph(final SootMethod method) { BasicBlockGraph result
-	 * 		 = bbm.getBasicBlockGraph(method); if (result == null) {     result = bbm.getBasicBlockGraph(new
-	 * 		 CompleteUnitGraph(method.retrieveActiveBody())); } return result;     }
-	 */
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/08 12:16:00  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.11  2003/12/07 08:41:45  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.
