@@ -41,7 +41,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.transformations.slicer.*;
+import edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -673,6 +673,15 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
+
    Revision 1.11  2003/11/22 00:43:34  venku
    - split initialize() into many setter methods.
    - initialize() now just does sanity check on the runtime configuration
