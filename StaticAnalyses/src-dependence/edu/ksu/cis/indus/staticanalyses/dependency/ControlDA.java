@@ -22,7 +22,6 @@ import soot.jimple.Stmt;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
-import edu.ksu.cis.indus.staticanalyses.support.INode;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
@@ -33,8 +32,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +82,7 @@ public class ControlDA
 		Collection result = Collections.EMPTY_LIST;
 		List list = (List) dependeeMap.get(method);
 
-		if (!list.equals(Collections.EMPTY_LIST)) {
+		if (list != null) {
 			int index = getStmtList((SootMethod) method).indexOf(dependentStmt);
 
 			if (list.get(index) != null) {
@@ -111,12 +108,12 @@ public class ControlDA
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
-		List list = (List) dependeeMap.get(method);
+		List list = (List) dependentMap.get(method);
 
-		if (!list.equals(Collections.EMPTY_LIST)) {
+		if (list != null) {
 			int index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
 
-			if (!list.get(index).equals(Collections.EMPTY_LIST)) {
+			if (list.get(index) != null) {
 				result = Collections.unmodifiableCollection((Collection) list.get(index));
 			}
 		}
@@ -168,6 +165,10 @@ public class ControlDA
 			List cd = (List) entry.getValue();
 
 			for (int j = 0; j < stmts.size(); j++) {
+				if (cd == null) {
+					continue;
+				}
+
 				Stmt de = (Stmt) cd.get(j);
 
 				if (de != null) {
@@ -188,105 +189,6 @@ public class ControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param graph DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	protected BitSet[] computeControlDependency(final DirectedGraph graph) {
-		final List NODES = graph.getNodes();
-		final int NUM_OF_NODES = NODES.size();
-		BitSet[][] cd = new BitSet[NUM_OF_NODES][NUM_OF_NODES];
-
-		// calculate the successors and predecessors in the graph disregarding backedges.
-		// dag : Map(Pair(Sequence(BasicBlock), (BasicBlock)))
-		Map dag = getDAG(graph);
-		WorkBag wb = new WorkBag(WorkBag.FIFO);
-		wb.addAllWorkNoDuplicates(graph.getHeads());
-
-		Collection processed = new HashSet();
-
-		while (wb.hasWork()) {
-			BasicBlock bb = (BasicBlock) wb.getWork();
-			Pair dagBlock = (Pair) dag.get(bb);
-
-			if (!processed.containsAll((Collection) dagBlock.getFirst())) {
-				wb.addWorkNoDuplicates(bb);
-				System.out.println("continuing \n" + bb + "\n" + processed);
-				continue;
-			}
-
-			// propogate data to the successors   
-			int currIndex = NODES.indexOf(bb);
-			Collection succs = (Collection) dagBlock.getSecond();
-			BitSet[] currCD = cd[currIndex];
-
-			for (int index = NUM_OF_NODES - 1; index >= 0; index--) {
-				if (currCD[index] != null) {
-					for (Iterator i = succs.iterator(); i.hasNext();) {
-						int succIndex = NODES.indexOf(i.next());
-						BitSet succCD = cd[succIndex][index];
-
-						if (succCD == null) {
-							succCD = new BitSet();
-							cd[succIndex][index] = succCD;
-						}
-						succCD.or(currCD[index]);
-					}
-				}
-			}
-
-			// inject new information into the successors if there are more than one successors.
-			if (succs.size() > 1) {
-				int count = 0;
-
-				for (Iterator i = succs.iterator(); i.hasNext();) {
-					Object succ = i.next();
-					BitSet succCDS = cd[NODES.indexOf(succ)][currIndex];
-
-					if (succCDS == null) {
-						succCDS = new BitSet();
-						cd[NODES.indexOf(succ)][currIndex] = succCDS;
-					}
-					succCDS.set(count++);
-				}
-			}
-
-			// Add the successors of the node 
-			wb.addAllWorkNoDuplicates(succs);
-			processed.add(bb);
-		}
-
-		// compute the idom        
-		BitSet[] result = new BitSet[NUM_OF_NODES];
-
-		for (int i = NUM_OF_NODES - 1; i >= 0; i--) {
-			result[i] = new BitSet();
-
-			for (int j = NUM_OF_NODES - 1; j >= 0; j--) {
-				if (j != i) {
-					int noOfSuccs = ((Collection) ((Pair) dag.get(NODES.get(j))).getSecond()).size();
-					BitSet temp = cd[i][j];
-					System.out.println(i + " " + j + " " + cd[i][j] + "  " + noOfSuccs);
-
-					if (temp != null && temp.cardinality() != noOfSuccs) {
-						result[i].set(j);
-					}
-				}
-			}
-		}
-
-		for (int i = 0; i < result.length; i++) {
-			System.out.println("CDS: " + result[i] + " " + ((BasicBlock) NODES.get(i)).getStmtsOf());
-		}
-
-		return result;
-	}
-
-	/**
 	 * Calculates the control dependency from a directed graph.  This calculates the dependence information in terms of nodes
 	 * in the graph.  This is later translated to statement level information by {@link #fixupMaps fixupMaps}.
 	 *
@@ -300,120 +202,77 @@ public class ControlDA
 	 * @post result.oclIsTypeOf(Sequence(BitSet)) and result->size() == graph.getNodes().size()
 	 * @post result->forall(o | o.size() == graph.getNodes().size())
 	 */
-	protected BitSet[] computeControlDependencyOld(final DirectedGraph graph) {
-		BitSet[] preds = graph.getAllPredsAsBitSet();
-		BitSet[] succs = graph.getAllSuccsAsBitSet();
-		int size = graph.size();
-		BitSet[] cds = new BitSet[size];
+	protected BitSet[] computeControlDependency(final DirectedGraph graph) {
+		Map dag = graph.getDAG();
+		final List NODES = graph.getNodes();
+		final int NUM_OF_NODES = NODES.size();
+		BitSet[][] cd = new BitSet[NUM_OF_NODES][NUM_OF_NODES];
+		BitSet[] result = new BitSet[NUM_OF_NODES];
+		Collection processed = new ArrayList();
+		WorkBag wb = new WorkBag(WorkBag.FIFO);
+		wb.addAllWorkNoDuplicates(graph.getHeads());
 
-		for (int i = cds.length - 1; i >= 0; i--) {
-			cds[i] = new BitSet(size);
-		}
+		while (wb.hasWork()) {
+			BasicBlock bb = (BasicBlock) wb.getWork();
+			Pair dagBlock = (Pair) dag.get(bb);
 
-		List nodes = graph.getNodes();
-		WorkBag workbag = new WorkBag(WorkBag.LIFO);
-		workbag.addAllWork(graph.getHeads());
+			if (!processed.containsAll((Collection) dagBlock.getFirst())) {
+				wb.addWorkNoDuplicates(bb);
+				continue;
+			}
 
-		BitSet testSet = new BitSet(size);
+			// propogate data to the successors   
+			int currIndex = NODES.indexOf(bb);
+			Collection succs = (Collection) dagBlock.getSecond();
+			BitSet[] currCD = cd[currIndex];
+			BitSet currResult = new BitSet();
+			int count = 0;
+			boolean manySuccs = succs.size() > 1;
 
-		System.out.println("HEADS:" + graph.getHeads());
-		System.out.println("NODES:" + graph.getNodes());
+			for (Iterator i = succs.iterator(); i.hasNext();) {
+				int succIndex = NODES.indexOf(i.next());
 
-		while (true) {
-			while (workbag.hasWork()) {
-				INode node = (INode) workbag.getWork();
-				int currIndex = nodes.indexOf(node);
-				BitSet currSuccs = succs[currIndex];
-				int noOfSuccs = currSuccs.cardinality();
-				BitSet currPreds = preds[currIndex];
-				int noOfPreds = currPreds.cardinality();
-				System.out.println("CURRSUCCS: " + currIndex + " " + ((BasicBlock) node).getStmtsOf() + "  " + currSuccs);
+				for (Iterator j = processed.iterator(); j.hasNext();) {
+					Object o = j.next();
+					int pIndex = NODES.indexOf(o);
+					int pSuccs = ((Collection) ((Pair) dag.get(o)).getSecond()).size();
+					BitSet pCD = currCD[pIndex];
 
-				if (noOfPreds > 1) {
-					BitSet posCD = new BitSet(size);
+					if (pCD != null) {
+						if (pCD.cardinality() == pSuccs) {
+							cd[succIndex][pIndex] = pCD;
+						} else {
+							BitSet succCD = cd[succIndex][pIndex];
 
-					for (int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
-						System.out.println(i + " " + succs[i]);
-
-						if (succs[i].cardinality() > 1) {
-							posCD.set(i);
-						}
-					}
-
-					BitSet j = new BitSet();
-					System.out.println("noOFPREDS>1: " + posCD);
-
-					for (int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
-						if (succs[i].cardinality() == 1) {
-							j.clear();
-							j.or(cds[i]);
-							j.and(posCD);
-
-							if (j.cardinality() > 0) {
-								cds[currIndex].clear(i);
+							if (succCD == null) {
+								succCD = new BitSet();
+								cd[succIndex][pIndex] = succCD;
 							}
-							System.out.println("J: " + j + " " + cds[currIndex]);
+							succCD.or(pCD);
+
+							// setup the result for the current basic block
+							currResult.set(pIndex);
 						}
 					}
 				}
 
-				if (noOfSuccs > 1) {
-					/*
-					 * If there is more than one successor then it is possible that the successors are control dependent on
-					 * the current statement.  Hence, capture this in cds and hoist the successor for processing.
-					 */
-					for (int i = currSuccs.nextSetBit(0); i >= 0; i = currSuccs.nextSetBit(i + 1)) {
-						cds[i].set(currIndex);
-						workbag.addWork(nodes.get(i));
+				if (manySuccs) {
+					BitSet succCD = cd[succIndex][currIndex];
+
+					if (succCD == null) {
+						succCD = new BitSet();
+						cd[succIndex][currIndex] = succCD;
 					}
-				} else if (noOfSuccs == 1) {
-					/*
-					 * If there is just one successor then the successor may be control dependent on the same node as the
-					 * current node.  Record this info and hoist the successor for processing.
-					 */
-					int succIndex = currSuccs.nextSetBit(0);
-					workbag.addWork(nodes.get(succIndex));
 
-					/*
-					 * For the sake of termination, sever the successor relation of the current node with it's predecessor
-					 * nodes.
-					 *
-					                       for (int i = currPreds.nextSetBit(0); i >= 0; i = currPreds.nextSetBit(i + 1)) {
-					                           succs[i].clear(currIndex);
-					                       }*/
-					// copy the control dependency info from the current node to the successor. 
-					cds[succIndex].or(cds[currIndex]);
-				}
-
-				for (int i = 0; i < size; i++) {
-					System.out.println(i + " " + cds[i] + " " + succs[i] + " " + preds[i]);
+					succCD.set(count++);
 				}
 			}
-
-			boolean flag = false;
-
-			for (int i = 0; i < size; i++) {
-				if (cds[i].cardinality() > 1) {
-					flag = true;
-				}
-			}
-			System.out.println("TESTSET: " + testSet);
-
-			if (flag) {
-				for (int i = 0; i < size; i++) {
-					if (preds[i].nextSetBit(0) >= 0) {
-						workbag.addWork(nodes.get(i));
-					}
-				}
-			} else {
-				break;
-			}
+			result[currIndex] = currResult;
+			// Add the successors of the node 
+			wb.addAllWorkNoDuplicates(succs);
+			processed.add(bb);
 		}
-
-		for (int i = size - 1; i >= 0; i--) {
-			System.out.println(i + ") " + cds[i] + " " + ((BasicBlock) nodes.get(i)).getStmtsOf());
-		}
-		return cds;
+		return result;
 	}
 
 	/**
@@ -439,29 +298,31 @@ public class ControlDA
 
 		for (int i = sl.size(); i > 0; i--) {
 			mDependee.add(null);
-			mDependent.add(Collections.EMPTY_LIST);
+			mDependent.add(null);
 		}
 
 		boolean flag = false;
 
 		for (Iterator i = sl.iterator(); i.hasNext();) {
-			Stmt j = (Stmt) i.next();
-			BasicBlock bb = graph.getEnclosingBlock(j);
-			int l = bbCDBitSets[nodes.indexOf(bb)].nextSetBit(0);
+			Stmt stmt = (Stmt) i.next();
+			BasicBlock bb = graph.getEnclosingBlock(stmt);
+			BitSet t = bbCDBitSets[nodes.indexOf(bb)];
 
-			if (l != -1) {
-				flag = true;
+			if (t != null) {
+				flag |= t.nextSetBit(0) != -1;
 
-				BasicBlock bb2 = graph.getEnclosingBlock((Stmt) sl.get(l));
-				mDependee.set(sl.indexOf(j), sl.get(bb2._trailer));
+				for (int j = t.nextSetBit(0); j >= 0; j = t.nextSetBit(j + 1)) {
+					BasicBlock bb2 = graph.getEnclosingBlock((Stmt) sl.get(j));
+					mDependee.set(sl.indexOf(stmt), sl.get(bb2._trailer));
 
-				List dependents = (List) mDependent.get(bb2._trailer);
+					List dependents = (List) mDependent.get(bb2._trailer);
 
-				if (dependents.equals(Collections.EMPTY_LIST)) {
-					dependents = new ArrayList();
-					mDependent.set(bb2._trailer, dependents);
+					if (dependents == null) {
+						dependents = new ArrayList();
+						mDependent.set(bb2._trailer, dependents);
+					}
+					dependents.add(stmt);
 				}
-				dependents.add(j);
 			}
 		}
 
@@ -469,91 +330,18 @@ public class ControlDA
 			dependentMap.put(method, new ArrayList(mDependent));
 			dependeeMap.put(method, new ArrayList(mDependee));
 		} else {
-			dependentMap.put(method, Collections.EMPTY_LIST);
-			dependeeMap.put(method, Collections.EMPTY_LIST);
+			dependentMap.put(method, null);
+			dependeeMap.put(method, null);
 		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param c DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	private Map getDAG(final DirectedGraph c) {
-		Map result = new HashMap();
-		Map srcdestBackEdges = mapify(c.getBackEdges(), true);
-		Map destsrcBackEdges = mapify(c.getBackEdges(), false);
-
-		Collection succs = new HashSet();
-		Collection preds = new HashSet();
-
-		for (Iterator i = c.getNodes().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
-			Collection backSuccessors = (Collection) srcdestBackEdges.get(node);
-			succs.clear();
-			succs.addAll(node.getSuccsOf());
-
-			if (backSuccessors != null) {
-				succs.removeAll(backSuccessors);
-			}
-
-			backSuccessors = (Collection) destsrcBackEdges.get(node);
-			preds.clear();
-			preds.addAll(node.getPredsOf());
-
-			if (backSuccessors != null) {
-				preds.removeAll(backSuccessors);
-			}
-			result.put(node, new Pair(new ArrayList(preds), new ArrayList(succs)));
-		}
-		return result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param pairs DOCUMENT ME!
-	 * @param forward DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	private Map mapify(final Collection pairs, final boolean forward) {
-		Map result = new HashMap();
-
-		for (Iterator i = pairs.iterator(); i.hasNext();) {
-			Pair pair = (Pair) i.next();
-			Object key;
-			Object value;
-
-			if (forward) {
-				key = pair.getFirst();
-				value = pair.getSecond();
-			} else {
-				key = pair.getSecond();
-				value = pair.getFirst();
-			}
-
-			Collection c = (Collection) result.get(key);
-
-			if (c == null) {
-				c = new ArrayList();
-				result.put(key, c);
-			}
-			c.add(value);
-		}
-		return result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/13 05:56:34  venku
+   - an early commit to a (hopefully) working solution.
+   - need to document it still.
    Revision 1.6  2003/09/12 23:49:46  venku
    - another one of those unsuccessful solutions.  Checking in to start over.
    Revision 1.5  2003/08/11 06:34:52  venku
