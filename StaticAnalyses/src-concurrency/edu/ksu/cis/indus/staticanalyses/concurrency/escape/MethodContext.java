@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -46,12 +48,12 @@ import soot.Type;
 final class MethodContext
   extends FastUnionFindElement
   implements Cloneable {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(MethodContext.class);
 
-	/**
+	/** 
 	 * The alias set associated with the return value of the associated method.
 	 *
 	 * @invariant AliasSet.canHaveAliasSet(method.getReturnType()) implies ret != null
@@ -59,7 +61,7 @@ final class MethodContext
 	 */
 	AliasSet ret;
 
-	/**
+	/** 
 	 * The alias set associated with the <code>this</code> variable of the associated method.
 	 *
 	 * @invariant method.isStatic() implies thisAS == null
@@ -67,19 +69,19 @@ final class MethodContext
 	 */
 	AliasSet thisAS;
 
-	/**
+	/** 
 	 * The alias set associated with the exceptions thrown by  the associated method.
 	 *
 	 * @invariant thrown != null
 	 */
 	AliasSet thrown;
 
-	/**
+	/** 
 	 * The associated method.
 	 */
 	SootMethod method;
 
-	/**
+	/** 
 	 * The alias sets associated with the arguments to the associated method.
 	 *
 	 * @invariant method.getParameterTypes()->forall(o | AliasSet.canHaveAliasSet(o) implies
@@ -194,6 +196,15 @@ final class MethodContext
 	}
 
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).append("thrown", this.thrown).append("argAliasSets", this.argAliasSets)
+										  .append("ret", this.ret).append("thisAS", this.thisAS).append("method", this.method)
+										  .toString();
+	}
+
+	/**
 	 * Retrieves the alias set corresponding to the parameter occuring at position <code>index</code> in the method
 	 * interface.
 	 *
@@ -253,19 +264,48 @@ final class MethodContext
 		if (argAliasSets != null && !argAliasSets.isEmpty()) {
 			final int _size = argAliasSets.size();
 
-			for (int i = 0; i < _size; i++) {
-				final Object _temp = argAliasSets.get(i);
+			for (int _i = 0; _i < _size; _i++) {
+				final Object _temp = argAliasSets.get(_i);
 
 				if (_temp != null) {
-					argAliasSets.set(i, ((AliasSet) _temp).find());
+					argAliasSets.set(_i, ((AliasSet) _temp).find());
 				}
 			}
 		}
 	}
 
 	/**
-	 * Propogates the information from this context to the given context.  Please refer to the {@link
-	 * unify(MethodContext,boolean) #unify} for important information.
+	 * Marks all reachable alias sets as being accessed in multiple threads.
+	 */
+	void markMultiThreadAccess() {
+		if (find() != this) {
+			((MethodContext) find()).markMultiThreadAccess();
+		} else {
+			if (ret != null) {
+				ret.markMultiThreadAccess();
+			}
+
+			if (thrown != null) {
+				thrown.markMultiThreadAccess();
+			}
+
+			if (thisAS != null) {
+				thisAS.markMultiThreadAccess();
+			}
+
+			for (final Iterator _i = argAliasSets.iterator(); _i.hasNext();) {
+				final AliasSet _argAS = (AliasSet) _i.next();
+
+				if (_argAS != null) {
+					_argAS.markMultiThreadAccess();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Propogates the information from this context to the given context.  Please refer to the  {@link #unify(MethodContext)
+	 * unify(MethodContext)} for important information.
 	 *
 	 * @param mc is the destination of the information transfer.
 	 */
@@ -305,30 +345,28 @@ final class MethodContext
 
 	/**
 	 * Unifies this object with itself.  This is required while dealing with call-sites which may be executed multiple times.
-	 *
-	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
 	 */
-	void selfUnify(final boolean unifyAll) {
+	void selfUnify() {
 		final MethodContext _methodContext = (MethodContext) find();
 		final int _paramCount = method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
 			if (AliasSet.canHaveAliasSet(method.getParameterType(_i))) {
-				((AliasSet) _methodContext.argAliasSets.get(_i)).selfUnify(unifyAll);
+				((AliasSet) _methodContext.argAliasSets.get(_i)).selfUnify();
 			}
 		}
 
 		final AliasSet _mRet = _methodContext.ret;
 
 		if (_mRet != null) {
-			_mRet.selfUnify(unifyAll);
+			_mRet.selfUnify();
 		}
-		_methodContext.thrown.selfUnify(unifyAll);
+		_methodContext.thrown.selfUnify();
 
 		final AliasSet _mThis = _methodContext.thisAS;
 
 		if (_mThis != null) {
-			_mThis.selfUnify(unifyAll);
+			_mThis.selfUnify();
 		}
 	}
 
@@ -345,9 +383,8 @@ final class MethodContext
 	 * </p>
 	 *
 	 * @param p is the context with which the unification should occur.
-	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
 	 */
-	void unify(final MethodContext p, final boolean unifyAll) {
+	void unify(final MethodContext p) {
 		if (p == null) {
 			LOGGER.error("Unification with null requested.");
 		}
@@ -368,11 +405,11 @@ final class MethodContext
 			_m = _temp;
 		}
 
-		unifyParameters(unifyAll, _m, _n);
+		unifyParameters(_m, _n);
 
-		unifyAliasSets(unifyAll, _m.ret, _n.ret);
-		unifyAliasSets(unifyAll, _m.thrown, _n.thrown);
-		unifyAliasSets(unifyAll, _m.thisAS, _n.thisAS);
+		unifyAliasSets(_m.ret, _n.ret);
+		unifyAliasSets(_m.thrown, _n.thrown);
+		unifyAliasSets(_m.thisAS, _n.thisAS);
 	}
 
 	/**
@@ -414,33 +451,30 @@ final class MethodContext
 	/**
 	 * Unifies the given alias sets.
 	 *
-	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
 	 * @param aliasSet1 is one of the alias set to be unified.
 	 * @param aliasSet2 is the other alias set to be unified.
 	 *
 	 * @pre aliasSet1 != null and aliasSet2 != null
 	 */
-	private void unifyAliasSets(final boolean unifyAll, final AliasSet aliasSet1, final AliasSet aliasSet2) {
+	private void unifyAliasSets(final AliasSet aliasSet1, final AliasSet aliasSet2) {
 		if ((aliasSet1 == null && aliasSet2 != null) || (aliasSet1 != null && aliasSet2 == null)) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Incompatible method contexts being unified - return value - " + aliasSet1 + " " + aliasSet2);
 			}
 		} else if (aliasSet1 != null) {
-			aliasSet1.unify(aliasSet2, unifyAll);
+			aliasSet1.unify(aliasSet2);
 		}
 	}
 
 	/**
 	 * Unify the alias sets of the parameters in the given method contexts.
 	 *
-	 * @param unifyAll is the <code>unifyAll</code> argument for the unification of the contained alias sets.
 	 * @param methodContext1 is one of the method context that contains the parameter alias sets to be unified.
 	 * @param methodContext2 is the other method context that contains the parameter alias sets to be unified.
 	 *
 	 * @pre methodContext1 != null and methodContext2 != null
 	 */
-	private void unifyParameters(final boolean unifyAll, final MethodContext methodContext1,
-		final MethodContext methodContext2) {
+	private void unifyParameters(final MethodContext methodContext1, final MethodContext methodContext2) {
 		final int _paramCount = method.getParameterCount();
 
 		for (int _i = 0; _i < _paramCount; _i++) {
@@ -454,7 +488,7 @@ final class MethodContext
 							+ _nAS + " " + method.getSignature());
 					}
 				} else if (_mAS != null) {
-					_mAS.unify(_nAS, unifyAll);
+					_mAS.unify(_nAS);
 				}
 			}
 		}
@@ -499,6 +533,8 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/04/22 09:49:46  venku
+   - added logic to discard fast-union-find elements which serve as levels of indirections.
    Revision 1.15  2004/01/21 09:58:16  venku
    - throw alias sets were being unified via AliasSet.unify().  Used
      unifyAliasSets() instead.

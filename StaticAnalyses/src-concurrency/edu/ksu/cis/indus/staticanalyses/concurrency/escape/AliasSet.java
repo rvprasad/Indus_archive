@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import soot.ArrayType;
 import soot.RefType;
 import soot.Type;
@@ -43,94 +45,109 @@ import soot.Type;
 final class AliasSet
   extends FastUnionFindElement
   implements Cloneable {
-	/**
-	 * This is used to generate unique ready entities.
-	 */
-	static long readyEntityCount;
-
-	/**
+	/** 
 	 * This constant identifies the cells of an array in the field map of it's alias set.
 	 */
 	static final String ARRAY_FIELD = "$ELT";
 
-	/**
+	/** 
+	 * This is used to generate unique ready entities.
+	 */
+	private static long readyEntityCount;
+
+	/** 
 	 * This is used to generate unique share entities.
 	 */
 	private static int shareEntityCount;
 
-	/**
+	/** 
 	 * This represents if the variable associated with alias set was accessed (read/written).
 	 */
 	boolean accessed;
 
-	/**
+	/** 
 	 * This holds the reference of the clone object being created.  This is used to handle cycles during cloning.
 	 */
 	private AliasSet theClone;
 
-	/**
+	/** 
 	 * This represents the ready Entities associated with this alias set.
 	 */
 	private Collection readyEntities;
 
-	/**
+	/** 
 	 * This represents the ready Entities associated with this alias set.
 	 */
 	private Collection shareEntities;
 
-	/**
+	/** 
 	 * This maps field signatures to their alias sets.
 	 *
 	 * @invariant fieldMap.oclIsKindOf(Map(String, AliasSet))
 	 */
 	private Map fieldMap;
 
-	/**
+	/** 
 	 * This indicates if this alias set is associated with a static field.
 	 */
 	private boolean global;
 
-	/**
+	/** 
+	 * This is used to indicate that <code>multiThreadAccess</code> field is being updated.
+	 */
+	private boolean markingMultiThreadAccess;
+
+	/** 
+	 * This is used to indicate that the alias set represents an object that is accessed in multiple threads.
+	 */
+	private boolean multiThreadAccess;
+
+	/** 
 	 * This indicates if the variable associated with this alias set is the receiver of <code>notify()/notifyAll()</code>
 	 * call.
 	 */
 	private boolean notifies;
 
-	/**
+	/** 
 	 * This is used to handle cycles while propogating information in phase 3.
 	 */
 	private boolean propogating;
 
-	/**
+	/** 
 	 * This indicates if the associated variable was read from.
 	 */
 	private boolean read;
 
-	/**
+	/** 
 	 * This indicates if this object is being unified with itself.
 	 */
 	private boolean selfUnifying;
 
-	/**
+	/** 
 	 * This indicates if the variable (hence, the object referred to) associated with this alias set shared across threads.
 	 */
 	private boolean shared;
 
-	/**
+	/** 
+	 * This indicates that this object is being stringified.
+	 */
+	private boolean stringifying;
+
+	/** 
 	 * This indicates if the variable associated with this alias set is the receiver of <code>wait()</code> call.
 	 */
 	private boolean waits;
 
-	/**
+	/** 
 	 * This indicates if the assocaited variable was written into.
 	 */
 	private boolean written;
 
 	/**
-	 * Creates a new AliasSet object.
+	 * Creates a new instance of this class.
 	 */
 	private AliasSet() {
-		this.fieldMap = new HashMap();
+		fieldMap = new HashMap();
 		theClone = null;
 		shared = false;
 		accessed = false;
@@ -140,6 +157,8 @@ final class AliasSet
 		read = false;
 		written = false;
 		shareEntities = null;
+		markingMultiThreadAccess = false;
+		multiThreadAccess = false;
 	}
 
 	/**
@@ -196,6 +215,53 @@ final class AliasSet
 	}
 
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		final String _result;
+
+		if (find() != this) {
+			_result = ((AliasSet) find()).toString();
+		} else {
+			if (stringifying) {
+				_result = "Top";
+			} else {
+				stringifying = true;
+				_result =
+					new ToStringBuilder(this).append("waits", this.waits).append("written", this.written)
+											   .append("global", this.global).append("accessed", this.accessed)
+											   .append("readyEntities", this.readyEntities)
+											   .append("multiThreadAccess", this.multiThreadAccess)
+											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
+											   .append("notifies", this.notifies).append("read", this.read)
+											   .append("fieldMap", fieldMap).toString();
+				stringifying = false;
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Marks this alias set and all reachable alias sets as being accessed in multiple threads.
+	 */
+	void markMultiThreadAccess() {
+		if (find() != this) {
+			((AliasSet) find()).markMultiThreadAccess();
+		} else {
+			if (markingMultiThreadAccess) {
+				return;
+			}
+			markingMultiThreadAccess = true;
+			multiThreadAccess = true;
+
+			for (final Iterator _i = fieldMap.values().iterator(); _i.hasNext();) {
+				((AliasSet) _i.next()).markMultiThreadAccess();
+			}
+			markingMultiThreadAccess = false;
+		}
+	}
+
+	/**
 	 * Creates an alias set suitable for the given type.
 	 *
 	 * @param type is the type from which Alias set is requested.
@@ -213,6 +279,18 @@ final class AliasSet
 		}
 
 		return _result;
+	}
+
+	/**
+	 * Records the access information pertaining to the object associated with this alias set.
+	 *
+	 * @param value is the access information.  <code>true</code> indicates that the associated variable  was accessed;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @post self.find().accessed == value
+	 */
+	void setAccessedTo(final boolean value) {
+		((AliasSet) find()).accessed = value;
 	}
 
 	/**
@@ -269,6 +347,24 @@ final class AliasSet
 	}
 
 	/**
+	 * Marks this object such that it capture the action that the associated variable was read from.
+	 */
+	void setRead() {
+		((AliasSet) find()).read = true;
+	}
+
+	/**
+	 * Retrieves the ready entity object of this alias set.
+	 *
+	 * @return the associated readyentity object.
+	 *
+	 * @post result == self.find().readyEntity
+	 */
+	Collection getReadyEntity() {
+		return ((AliasSet) find()).readyEntities;
+	}
+
+	/**
 	 * Retrieves the shared entities of this object.
 	 *
 	 * @return a collection of objects.
@@ -318,36 +414,6 @@ final class AliasSet
 	}
 
 	/**
-	 * Records the access information pertaining to the object associated with this alias set.
-	 *
-	 * @param value is the access information.  <code>true</code> indicates that the associated variable  was accessed;
-	 * 		  <code>false</code>, otherwise.
-	 *
-	 * @post self.find().accessed == value
-	 */
-	void setAccessedTo(final boolean value) {
-		((AliasSet) find()).accessed = value;
-	}
-
-	/**
-	 * Marks this object such that it capture the action that the associated variable was read from.
-	 */
-	void setRead() {
-		((AliasSet) find()).read = true;
-	}
-
-	/**
-	 * Retrieves the ready entity object of this alias set.
-	 *
-	 * @return the associated readyentity object.
-	 *
-	 * @post result == self.find().readyEntity
-	 */
-	Object getReadyEntity() {
-		return ((AliasSet) find()).readyEntities;
-	}
-
-	/**
 	 * Checks if the object associated with this alias set is shared between threads.
 	 *
 	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
@@ -387,7 +453,7 @@ final class AliasSet
 			if (_rep2.readyEntities == null) {
 				_rep2.readyEntities = new HashSet();
 			}
-			_rep2.readyEntities = _rep1.readyEntities;
+			_rep2.readyEntities.addAll(_rep1.readyEntities);
 		}
 
 		if (_rep1.shareEntities != null) {
@@ -430,11 +496,8 @@ final class AliasSet
 	/**
 	 * Unifies this object with itself.  This is required when the alias set is occurs in the context of a site which is
 	 * executed multiple times, in particular, reachable from a call-site which may be executed multiple times.
-	 *
-	 * @param unifyAll indicates if all elements of the alias set should be unified. <code>true</code>, indicates all
-	 * 		  elements. <code>false</code> indicates all elements except shared and entities.
 	 */
-	void selfUnify(final boolean unifyAll) {
+	void selfUnify() {
 		if (selfUnifying) {
 			return;
 		}
@@ -442,22 +505,20 @@ final class AliasSet
 
 		final AliasSet _m = (AliasSet) find();
 
-		if (unifyAll) {
-			_m.shared |= _m.accessed;
+		_m.shared |= _m.accessed;
 
-			if (_m.waits && _m.notifies) {
-				if (_m.readyEntities == null) {
-					_m.readyEntities = new HashSet();
-				}
-				_m.readyEntities.add(getNewReadyEntity());
+		if (_m.waits && _m.notifies) {
+			if (_m.readyEntities == null) {
+				_m.readyEntities = new HashSet();
 			}
+			_m.readyEntities.add(getNewReadyEntity());
+		}
 
-			if (_m.read && _m.written) {
-				if (_m.shareEntities == null) {
-					_m.shareEntities = new HashSet();
-				}
-				_m.shareEntities.add(getNewShareEntity());
+		if (_m.read && _m.written) {
+			if (_m.shareEntities == null) {
+				_m.shareEntities = new HashSet();
 			}
+			_m.shareEntities.add(getNewShareEntity());
 		}
 
 		for (final Iterator _i = _m.fieldMap.keySet().iterator(); _i.hasNext();) {
@@ -465,7 +526,7 @@ final class AliasSet
 			final FastUnionFindElement _field = (FastUnionFindElement) _m.fieldMap.get(_fieldName);
 
 			if (_field != null) {
-				((AliasSet) _field).selfUnify(unifyAll);
+				((AliasSet) _field).selfUnify();
 			}
 		}
 		selfUnifying = false;
@@ -475,12 +536,10 @@ final class AliasSet
 	 * Unifies the given alias set with this alias set.
 	 *
 	 * @param a is the alias set to be unified with this alias set.
-	 * @param unifyAll indicates if all elements of the alias set should be unified. <code>true</code>, indicates all
-	 * 		  elements. <code>false</code> indicates all elements except shared and entities.
 	 *
 	 * @pre a != null
 	 */
-	void unify(final AliasSet a, final boolean unifyAll) {
+	void unify(final AliasSet a) {
 		final AliasSet _m = (AliasSet) find();
 		final AliasSet _n = (AliasSet) a.find();
 
@@ -491,7 +550,7 @@ final class AliasSet
 		_m.union(_n);
 
 		final AliasSet _rep1 = (AliasSet) _m.find();
-		AliasSet _rep2;
+		final AliasSet _rep2;
 
 		if (_rep1 == _m) {
 			_rep2 = _n;
@@ -499,18 +558,19 @@ final class AliasSet
 			_rep2 = _m;
 		}
 
-		if (unifyAll) {
-			unifyEscapeInfo(_rep1, _rep2);
-		} else {
-			_rep1.shared |= _rep2.shared;
-		}
 		_rep1.waits |= _rep2.waits;
 		_rep1.notifies |= _rep2.notifies;
 		_rep1.accessed |= _rep2.accessed;
 		_rep1.read |= _rep2.read;
 		_rep1.written |= _rep2.written;
+		_rep1.multiThreadAccess |= _rep2.multiThreadAccess;
+		_rep1.shared |= _rep2.shared;
 
-		unifyFields(unifyAll, _rep1, _rep2);
+		if (_rep1.multiThreadAccess) {
+			unifyEscapeInfo(_rep1, _rep2);
+		}
+
+		unifyFields(_rep1, _rep2);
 
 		if (_rep1.global || _rep2.global) {
 			_rep1.setGlobal();
@@ -542,37 +602,36 @@ final class AliasSet
 	/**
 	 * Unify escape and sharing information in the given alias set.
 	 *
-	 * @param aliasSet1 is one of the alias set involved in the unification.
-	 * @param aliasSet2 is the other alias set involved in the unification.
+	 * @param reprAliasSet is one of the alias set involved in the unification.
+	 * @param aliasSet is the other alias set involved in the unification.
 	 */
-	private void unifyEscapeInfo(final AliasSet aliasSet1, final AliasSet aliasSet2) {
-		aliasSet1.shared |= aliasSet1.accessed && aliasSet2.accessed;
+	private void unifyEscapeInfo(final AliasSet reprAliasSet, final AliasSet aliasSet) {
+		reprAliasSet.shared |= (reprAliasSet.accessed && aliasSet.accessed);
 
-		if ((aliasSet1.waits && aliasSet2.notifies) || (aliasSet1.notifies && aliasSet2.waits)) {
-			if (aliasSet1.readyEntities == null) {
-				aliasSet1.readyEntities = new HashSet();
+		if ((reprAliasSet.waits && aliasSet.notifies) || (reprAliasSet.notifies && aliasSet.waits)) {
+			if (reprAliasSet.readyEntities == null) {
+				reprAliasSet.readyEntities = new HashSet();
 			}
-			aliasSet1.readyEntities.add(getNewReadyEntity());
+			reprAliasSet.readyEntities.add(getNewReadyEntity());
 		}
 
-		if ((aliasSet1.read && aliasSet2.written) || (aliasSet1.written && aliasSet2.read)) {
-			if (aliasSet1.shareEntities == null) {
-				aliasSet1.shareEntities = new HashSet();
+		if ((reprAliasSet.read && aliasSet.written) || (reprAliasSet.written && aliasSet.read)) {
+			if (reprAliasSet.shareEntities == null) {
+				reprAliasSet.shareEntities = new HashSet();
 			}
-			aliasSet1.shareEntities.add(getNewShareEntity());
+			reprAliasSet.shareEntities.add(getNewShareEntity());
 		}
 	}
 
 	/**
 	 * Unify the fields of the given alias sets.
 	 *
-	 * @param unifyAll <code>true</code> if all parts of the alias sets need to be unified; <code>false</code>, otherwise.
 	 * @param aliasSet1 is one of the alias set involved in the unification.
 	 * @param aliasSet2 is the other alias set involved in the unification.
 	 *
 	 * @pre aliasSet1 != null and aliasSet2 != null
 	 */
-	private void unifyFields(final boolean unifyAll, final AliasSet aliasSet1, final AliasSet aliasSet2) {
+	private void unifyFields(final AliasSet aliasSet1, final AliasSet aliasSet2) {
 		final Collection _toBeProcessed = new HashSet();
 		final Collection _keySet = new ArrayList(aliasSet2.fieldMap.keySet());
 		_toBeProcessed.addAll(_keySet);
@@ -588,7 +647,7 @@ final class AliasSet
 				final FastUnionFindElement _temp = (FastUnionFindElement) aliasSet2.fieldMap.get(_fieldName);
 
 				if (_temp != null) {
-					_repAS.unify((AliasSet) _temp, unifyAll);
+					_repAS.unify((AliasSet) _temp);
 				}
 			}
 		}
@@ -604,10 +663,11 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/04/22 09:49:03  venku
+   - coding conventions.
    Revision 1.16  2004/01/09 00:59:09  venku
    - there is no point in unifying nulls and alias sets.  Hence, non-null
      alias sets are a precondition for unify() method.
-
    Revision 1.15  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

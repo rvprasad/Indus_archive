@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
@@ -325,8 +326,8 @@ public class DependencyXMLizerCLI
 		_aliasUD.hookup(_cgipc);
 		_ecba.hookup(_cgipc);
 		_cgipc.process();
-		_aliasUD.hookup(_cgipc);
-		_ecba.hookup(_cgipc);
+		_aliasUD.unhook(_cgipc);
+		_ecba.unhook(_cgipc);
 		_ecba.analyze();
 
 		writeInfo("BEGIN: dependency analyses");
@@ -359,6 +360,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/07/16 06:45:32  venku
+   - added an option to vary versions of aliased use def info.
+
    Revision 1.24  2004/07/16 06:38:47  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.
@@ -586,6 +590,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/07/16 06:45:32  venku
+   - added an option to vary versions of aliased use def info.
+
    Revision 1.24  2004/07/16 06:38:47  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.
