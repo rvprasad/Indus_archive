@@ -150,7 +150,6 @@ public abstract class AbstractTool
 			checkConfiguration();
 			childException = null;
 
-			final Object _syncObject = new Object();
 			thread =
 				new Thread() {
 						public final void run() {
@@ -165,13 +164,10 @@ public abstract class AbstractTool
 								LOGGER.fatal("Tool failed.", _e);
 								_temp = _e;
 							} finally {
-								synchronized (_syncObject) {
-									if (_temp != null) {
-										childException = _temp;
-									}
-									pause = false;
-									_syncObject.notify();
+								if (_temp != null) {
+									childException = _temp;
 								}
+								pause = false;
 							}
 						}
 					};
@@ -179,9 +175,7 @@ public abstract class AbstractTool
 
 			if (synchronous) {
 				try {
-					synchronized (_syncObject) {
-						_syncObject.wait();
-					}
+					thread.join();
 
 					if (childException != null) {
 						throw new RuntimeException(childException);
@@ -240,6 +234,9 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/02/27 09:40:45  venku
+   - documentation.
+
    Revision 1.21  2004/02/23 03:04:53  venku
    - synchronization issues in the tool.
 
