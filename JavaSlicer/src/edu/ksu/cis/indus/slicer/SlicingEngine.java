@@ -892,7 +892,8 @@ public final class SlicingEngine {
 	 * @param stmt in which <code>locals</code> occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 *
-	 * @throws IllegalStateException DOCUMENT ME!
+	 * @throws IllegalStateException when criteria from the available identifier analysis for the configured slice direction
+	 * cannot be extracted.  
 	 *
 	 * @pre locals != null and locals.oclIsKindOf(Collection(Local))
 	 * @pre stmt != null and method != null
@@ -1422,6 +1423,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.89  2004/08/16 14:26:33  venku
+   - contains changes pertaining to dependence refactoring and changes to
+     create smaller forward slices and complete slices.
+
    Revision 1.88  2004/07/28 09:05:31  venku
    - changed the way arguments to native methods were handled.
    Revision 1.87  2004/07/25 01:36:44  venku
