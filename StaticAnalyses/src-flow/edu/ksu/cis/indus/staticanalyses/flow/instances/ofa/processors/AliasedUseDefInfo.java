@@ -33,6 +33,8 @@ import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedPro
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -52,6 +54,11 @@ import java.util.Map;
 public class AliasedUseDefInfo
   extends AbstractValueAnalyzerBasedProcessor
   implements IUseDefInfo {
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AliasedUseDefInfo.class);
+
 	/**
 	 * The object flow analyzer to be used to calculate the UD info.
 	 *
@@ -158,7 +165,7 @@ public class AliasedUseDefInfo
 
 				if (stmt2ddents == null) {
 					stmt2ddents = new HashMap();
-					defsMap.put(method, stmt2ddents);
+					usesMap.put(method, stmt2ddents);
 				}
 				stmt2ddents.put(stmt, Collections.EMPTY_SET);
 			}
@@ -172,14 +179,18 @@ public class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
 	 */
 	public void consolidate() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: consolidating");
+		}
+
 		Collection uses = new HashSet();
 		Context context1 = new Context();
 		Context context2 = new Context();
 
 		for (Iterator i = usesMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry method2info1 = (Map.Entry) i.next();
-			SootMethod useMethod = (SootMethod) method2info1.getKey();
-			context1.setRootMethod(useMethod);
+			SootMethod defMethod = (SootMethod) method2info1.getKey();
+			context1.setRootMethod(defMethod);
 
 			for (Iterator j = ((Map) method2info1.getValue()).entrySet().iterator(); j.hasNext();) {
 				Map.Entry stmt2uses = (Map.Entry) j.next();
@@ -187,8 +198,8 @@ public class AliasedUseDefInfo
 
 				for (Iterator k = defsMap.entrySet().iterator(); k.hasNext();) {
 					Map.Entry method2info2 = (Map.Entry) k.next();
-					SootMethod defMethod = (SootMethod) method2info2.getKey();
-					context2.setRootMethod(defMethod);
+					SootMethod useMethod = (SootMethod) method2info2.getKey();
+					context2.setRootMethod(useMethod);
 
 					for (Iterator l = ((Map) method2info2.getValue()).entrySet().iterator(); l.hasNext();) {
 						Map.Entry stmt2defs = (Map.Entry) l.next();
@@ -199,7 +210,7 @@ public class AliasedUseDefInfo
 
 						if (defStmt.containsArrayRef()
 							  && useStmt.containsArrayRef()
-							  && defStmt.getArrayRef().equals(useStmt.getArrayRef())) {
+							  && defStmt.getArrayRef().getType().equals(useStmt.getArrayRef().getType())) {
 							context1.setStmt(useStmt);
 
 							Collection c1 = analyzer.getValues(useStmt.getArrayRef().getBase(), context1);
@@ -214,7 +225,7 @@ public class AliasedUseDefInfo
 							}
 						} else if (defStmt.containsFieldRef()
 							  && useStmt.containsFieldRef()
-							  && defStmt.getFieldRef().equals(useStmt.getFieldRef())) {
+							  && defStmt.getFieldRef().getField().equals(useStmt.getFieldRef().getField())) {
 							FieldRef fr = useStmt.getFieldRef();
 
 							// set the initial value to true assuming dependency in case of static field ref
@@ -256,6 +267,10 @@ public class AliasedUseDefInfo
 				}
 			}
 		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: consolidating");
+		}
 	}
 
 	/**
@@ -278,6 +293,9 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/12 03:51:12  venku
+   - getDefs operates on statements and
+     getUses operates on Def statements.
    Revision 1.10  2003/11/10 03:17:19  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    - ripple effect.
