@@ -807,11 +807,10 @@ public class ProcessingController {
 			Collection temp = (Collection) class2processors.get(objClass);
 
 			if (temp != null) {
-				Value value = (Value) o;
 
 				for (Iterator i = temp.iterator(); i.hasNext();) {
 					IProcessor pp = (IProcessor) i.next();
-					pp.callback(value, context);
+					pp.callback(context.getProgramPoint(), context);
 				}
 			}
 		}
@@ -1097,6 +1096,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/17 01:44:01  venku
+   - documentation.
+
    Revision 1.10  2003/11/15 21:19:36  venku
    - added methods to register/unregister for all value types.
    Revision 1.9  2003/11/10 08:09:02  venku

@@ -19,6 +19,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
@@ -37,7 +38,7 @@ public abstract class AbstractProcessor
 	 *
 	 * @see IProcessor#callback(Value, Context)
 	 */
-	public void callback(final Value value, final Context context) {
+	public void callback(final ValueBox vBox, final Context context) {
 	}
 
 	/**
@@ -92,6 +93,9 @@ public abstract class AbstractProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/10 07:53:56  venku
+   - added support to indicate the beginning of processing to the processors.
+
    Revision 1.1  2003/11/10 03:12:23  venku
    - added an abstract implementation of IProcessor.
  */

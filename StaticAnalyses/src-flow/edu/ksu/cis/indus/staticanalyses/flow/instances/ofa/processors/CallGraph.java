@@ -21,6 +21,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InterfaceInvokeExpr;
@@ -420,20 +421,21 @@ public class CallGraph
 	/**
 	 * Called by the post process controller when it walks a jimple value AST node.
 	 *
-	 * @param value is the AST node to be processed.
+	 * @param vBox is the AST node to be processed.
 	 * @param context in which value should be processed.
 	 *
 	 * @pre context != null
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Value,Context)
 	 */
-	public void callback(final Value value, final Context context) {
+	public void callback(final ValueBox vBox, final Context context) {
 		Stmt stmt = context.getStmt();
 		SootMethod caller = context.getCurrentMethod();
 		SootMethod callee = null;
 		Set callees;
 		Set callers;
 		CallTriple triple;
+		Value value = vBox.getValue();
 
 		// We treat SpecialInvokeExpr as StaticInvokeExpr as the method implementation to be invoked is known.
 		if (value instanceof StaticInvokeExpr || value instanceof SpecialInvokeExpr) {
@@ -772,11 +774,13 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/11/10 03:17:19  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
+   - ripple effect.
    Revision 1.24  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
    - fixed documentation errors.
-
    Revision 1.23  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

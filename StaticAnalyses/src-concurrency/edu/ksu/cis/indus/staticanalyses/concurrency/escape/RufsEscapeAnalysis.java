@@ -25,6 +25,7 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
@@ -1398,9 +1399,9 @@ public class RufsEscapeAnalysis
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback( soot.jimple.Value,
 	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
 	 */
-	public void callback(Value value, Context context) {
-		if (value instanceof NewExpr) {
-			processNewExpr((NewExpr) value, context);
+	public void callback(ValueBox vBox, Context context) {
+		if (vBox.getValue() instanceof NewExpr) {
+			processNewExpr((NewExpr) vBox.getValue(), context);
 		}
 	}
 
@@ -1874,6 +1875,10 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/10 03:17:19  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
+   - ripple effect.
+
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

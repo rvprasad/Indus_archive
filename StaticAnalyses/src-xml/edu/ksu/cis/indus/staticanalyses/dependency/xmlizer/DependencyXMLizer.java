@@ -645,6 +645,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/17 03:22:59  venku
+   - added junit test support for Slicing.
+   - refactored code in test for dependency to make it more
+     simple.
    Revision 1.4  2003/11/16 18:45:32  venku
    - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
    - logging.

@@ -68,20 +68,20 @@ public class StmtLevelDependencyXMLizer
 
 		try {
 			if (!dependencies.isEmpty()) {
-				writer.write("<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, method) + "\">");
+				writer.write("\t\t\t<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, method) + "\">\n");
 
 				for (Iterator i = dependencies.iterator(); i.hasNext();) {
 					Object o = i.next();
 
 					if (o instanceof Pair) {
 						Pair pair = (Pair) i.next();
-						writer.write("<dependent id=\""
-							+ idGenerator.getIdForStmt((Stmt) pair.getFirst(), (SootMethod) pair.getSecond()) + "\"/>");
+						writer.write("\t\t\t\t<dependent id=\""
+							+ idGenerator.getIdForStmt((Stmt) pair.getFirst(), (SootMethod) pair.getSecond()) + "\"/>\n");
 					} else if (o instanceof Stmt) {
-						writer.write("<dependent id=\"" + idGenerator.getIdForStmt((Stmt) o, method) + "\"/>");
+						writer.write("\t\t\t\t<dependent id=\"" + idGenerator.getIdForStmt((Stmt) o, method) + "\"/>\n");
 					}
 				}
-				writer.write("</dependency_info>\n");
+				writer.write("\t\t\t</dependency_info>\n");
 			}
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -105,47 +105,24 @@ public class StmtLevelDependencyXMLizer
 		ppc.unregisterForAllStmts(this);
 		ppc.unregister(this);
 	}
-    
-    /**
-     * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
-     */
-    public void consolidate() {
-        try {
-            writer.write("</system>");
-        } catch (IOException e) {
-            LOGGER.error("Exception while finishing up writing xml information.", e);
-        }
-    }
-    /** (non-Javadoc)
-     * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
-     */
-    public void processingBegins() {
-        try {
-            writer.write("<system>");
-        } catch (IOException e) {
-            LOGGER.error("Exception while starting up writing xml information.", e);
-        }
-        
-    }
-    
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 01:35:54  venku
+   - renamed out to writer in AbstractDependencyXMLizer
+   - added methods to spit out root element tags.
    Revision 1.2  2003/11/12 10:45:36  venku
    - soot class path can be set in SootBasedDriver.
    - dependency tests are xmlunit based.
-
    Revision 1.1  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
-
    Revision 1.3  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
    - Switched the contents of DependencyXMLizer and DependencyTest.
    - Corrected errors which emitting xml tags.
    - added a scrapbook.
-
    Revision 1.2  2003/11/10 20:05:02  venku
    - formatting.
    Revision 1.1  2003/11/10 08:26:09  venku

@@ -19,6 +19,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
@@ -93,7 +94,7 @@ class TagBasedSliceXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.Value, edu.ksu.cis.indus.processing.Context)
 	 */
-	public void callback(final Value value, final Context context) {
+	public void callback(final ValueBox vBox, final Context context) {
 		SootMethod method = context.getCurrentMethod();
 		Stmt stmt = context.getStmt();
 
@@ -101,10 +102,10 @@ class TagBasedSliceXMLizer
 			SlicingTag tag = (SlicingTag) stmt.getTag(tagName);
 
 			if (tag != null) {
-				writer.write("\t\t\t\t<value id=\"" + idGenerator.getIdForStmt(stmt, method) + "\"/>\n");
+				writer.write("\t\t\t\t<value id=\"" + idGenerator.getIdForValue(vBox, stmt, method) + "\"/>\n");
 			}
 		} catch (IOException e) {
-			LOGGER.error("Exception while writing information about " + value + " occurring in " + stmt + " and "
+			LOGGER.error("Exception while writing information about " + vBox + " occurring in " + stmt + " and "
 				+ method.getSignature(), e);
 		}
 	}
@@ -118,6 +119,7 @@ class TagBasedSliceXMLizer
 		try {
 			if (processingStmt) {
 				writer.write("\t\t\t</stmt>\n");
+				processingStmt = false;
 			}
 
 			SlicingTag tag = (SlicingTag) stmt.getTag(tagName);
@@ -164,6 +166,7 @@ class TagBasedSliceXMLizer
 
 			if (processingClass) {
 				writer.write("\t</class>\n");
+				processingClass = false;
 			}
 
 			SlicingTag tag = (SlicingTag) clazz.getTag(tagName);
@@ -197,7 +200,15 @@ class TagBasedSliceXMLizer
 	 */
 	public void consolidate() {
 		try {
-			writer.write("</system>");
+			if (processingMethod) {
+				writer.write("\t\t</method>\n");
+			}
+
+			if (processingClass) {
+				writer.write("\t</class>\n");
+			}
+
+			writer.write("</system>\n");
 		} catch (IOException e) {
 			LOGGER.error("Exception while finishing up writing xml information.", e);
 		}
@@ -208,7 +219,7 @@ class TagBasedSliceXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			writer.write("<system>");
+			writer.write("<system>\n");
 		} catch (IOException e) {
 			LOGGER.error("Exception while starting up writing xml information.", e);
 		}
@@ -218,6 +229,11 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 15:25:17  venku
+   - added new method to AbstractSliceXMLizer to flush writer.
+   - called flush on xmlizer from the driver.
+   - erroneous file name was being constructed. FIXED.
+   - added tabbing and new line to output in TagBasedSliceXMLizer.
    Revision 1.2  2003/11/17 02:23:52  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them

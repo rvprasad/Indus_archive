@@ -20,6 +20,7 @@ import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Value;
+import soot.ValueBox;
 import soot.VoidType;
 
 import soot.jimple.Jimple;
@@ -38,8 +39,8 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.Util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -243,18 +244,19 @@ public class ThreadGraph
 	 * Called by the post processing controller on encountering <code>NewExpr</code> and <code>VirtualInvokeExpr</code>
 	 * values in the system.
 	 *
-	 * @param value that was encountered and needs processing.
+	 * @param vBox that was encountered and needs processing.
 	 * @param context in which the value was encountered.
 	 *
 	 * @throws RuntimeException when there is a glitch in the system being analyzed is not type-safe.
 	 *
 	 * @pre value != null and context != null
 	 */
-	public void callback(final Value value, final Context context) {
+	public void callback(final ValueBox vBox, final Context context) {
 		IEnvironment env = analyzer.getEnvironment();
+		Value value = vBox.getValue();
 
 		if (value instanceof NewExpr) {
-			NewExpr ne = (NewExpr) value;
+			NewExpr ne = (NewExpr) vBox;
 			SootClass clazz = env.getClass(ne.getBaseType().getClassName());
 
 			// collect the new expressions which create Thread objects.
@@ -281,7 +283,7 @@ public class ThreadGraph
 				}
 			}
 		} else if (value instanceof VirtualInvokeExpr) {
-			VirtualInvokeExpr ve = (VirtualInvokeExpr) value;
+			VirtualInvokeExpr ve = (VirtualInvokeExpr) vBox;
 			RefLikeType rlt = (RefLikeType) ve.getBase().getType();
 			SootClass clazz = null;
 
@@ -502,6 +504,7 @@ public class ThreadGraph
 		List l = new ArrayList();
 
 		result.append("Total number of threads: " + thread2methods.size() + "\n");
+
 		for (Iterator i = thread2methods.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
 			NewExprTriple net = (NewExprTriple) entry.getKey();
@@ -627,22 +630,21 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/10 03:17:18  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
+   - ripple effect.
    Revision 1.12  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.11  2003/11/05 09:32:48  venku
    - ripple effect of splitting Workbag.
-
    Revision 1.10  2003/09/29 05:52:44  venku
    - added more info to the dump.
-
    Revision 1.9  2003/09/28 07:33:36  venku
    - simple optimization.
-
    Revision 1.8  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

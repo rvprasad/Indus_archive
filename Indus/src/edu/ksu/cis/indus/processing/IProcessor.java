@@ -19,6 +19,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
@@ -41,7 +42,7 @@ public interface IProcessor {
 	 *
 	 * @pre value != null
 	 */
-	void callback(Value value, Context context);
+	void callback(ValueBox vBox, Context context);
 
 	/**
 	 * This method will be called by the controlling agent upon walking a statement in the analyzed system.
@@ -119,6 +120,9 @@ public interface IProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/10 07:53:56  venku
+   - added support to indicate the beginning of processing to the processors.
+
    Revision 1.1  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.
