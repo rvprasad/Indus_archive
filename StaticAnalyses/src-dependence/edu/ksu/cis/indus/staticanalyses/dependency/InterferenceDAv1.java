@@ -614,20 +614,17 @@ public class InterferenceDAv1
 		final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
 		boolean _result = true;
 
-		// If both or atleast one of the methods is a class initialization method then we can optimize.
+		// If either one of the methods is a class initialization method then we can optimize.
 		final boolean _deci = _deMethod.getName().equals("<clinit>");
 		final boolean _dtci = _dtMethod.getName().equals("<clinit>");
 
-		if (_deci && _dtci) {
-			_result = false;
-		} else if (_deci ^ _dtci) {
+		if (_deci || _dtci) {
 			final SootClass _deClass = _deMethod.getDeclaringClass();
 			final SootClass _dtClass = _dtMethod.getDeclaringClass();
 
-			// if the classes of both the methods are related
-			if (Util.isHierarchicallyRelated(_deClass, _dtClass)) {
-				_result = false;
-			} else {
+			// if the classes of both the methods are not related
+			_result = !Util.isHierarchicallyRelated(_deClass, _dtClass);
+			if (_result) {
 				final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
 				final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
 
@@ -641,10 +638,9 @@ public class InterferenceDAv1
 					 *      dtMethod is clinit and f2 was declared in dtClass then
 					 *      the dependence is invalid and it should not be considered.
 					 */
-					_result =
-						!(_f1.equals(_f2)
+					_result = !((_f1.equals(_f2) 
 						  && ((_deci && _f1.getDeclaringClass().equals(_deClass))
-						  || (_dtci && _f1.getDeclaringClass().equals(_dtClass))));
+						  || (_dtci && _f1.getDeclaringClass().equals(_dtClass)))));
 				}
 			}
 		}
@@ -655,6 +651,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/07/07 07:26:51  venku
+   - optimization.
+
    Revision 1.38  2004/07/07 07:19:33  venku
    - coding conventions.
    Revision 1.37  2004/06/16 14:30:12  venku
