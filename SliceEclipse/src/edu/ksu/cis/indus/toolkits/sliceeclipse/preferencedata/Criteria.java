@@ -24,13 +24,13 @@ import java.util.ArrayList;
 
 
 /**
- * DOCUMENT ME!
+ * The criteria.
  *
  * @author Ganeshan
  */
 public class Criteria {
 	/** 
-	 * The list of criteria associated with the project.
+	 * The list of classname, method name, line number, index and value consideration.
 	 */
 	private ArrayList criteria;
 
