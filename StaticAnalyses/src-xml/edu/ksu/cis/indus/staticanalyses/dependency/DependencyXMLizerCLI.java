@@ -152,10 +152,10 @@ public class DependencyXMLizerCLI
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 
-		final DivergenceDA _fidda = DivergenceDA.getForwardDivergenceDA();
+		final DivergenceDA _fidda = DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION);
 		_fidda.setConsiderCallSites(true);
 
-		final DivergenceDA _bidda = DivergenceDA.getBackwardDivergenceDA();
+		final DivergenceDA _bidda = DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION);
 		_bidda.setConsiderCallSites(true);
 
 		final NonTerminationSensitiveEntryControlDA _ncda = new NonTerminationSensitiveEntryControlDA();
@@ -181,17 +181,17 @@ public class DependencyXMLizerCLI
 				{ "ida1", "Interference dependence v1", new InterferenceDAv1() },
 				{ "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "fdda", "Forward Intraprocedural Divergence dependence", DivergenceDA.getForwardDivergenceDA() },
-				{ "bdda", "Backward Intraprocedural Divergence dependence", DivergenceDA.getBackwardDivergenceDA() },
+				{ "fdda", "Forward Intraprocedural Divergence dependence", DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION) },
+				{ "bdda", "Backward Intraprocedural Divergence dependence", DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION) },
 				{ "fidda", "Forward Intra+Interprocedural Divergence dependence", _fidda },
 				{ "bidda", "Backward Intra+Interprocedural Divergence dependence", _bidda },
 				{
 					"fpidda", "Forward Interprocedural Divergence dependence",
-					InterProceduralDivergenceDA.getForwardDivergenceDA()
+					InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION)
 				},
 				{
 					"bpidda", "Backward Interprocedural Divergence dependence",
-					InterProceduralDivergenceDA.getBackwardDivergenceDA()
+					InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION)
 				},
 			};
 		_option = new Option("h", "help", false, "Display message.");

@@ -203,10 +203,10 @@ public class DependencyAnalysisRegressionTestSuite
 						suite.addTest(_temp);
 					} else {
 						_das.clear();
-						_das.add(DivergenceDA.getForwardDivergenceDA());
-						_das.add(DivergenceDA.getBackwardDivergenceDA());
-                        _das.add(InterProceduralDivergenceDA.getForwardDivergenceDA());
-                        _das.add(InterProceduralDivergenceDA.getBackwardDivergenceDA());
+						_das.add(DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
+						_das.add(DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
+                        _das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
+                        _das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
 						_das.add(new NonTerminationSensitiveEntryControlDA());
                         _das.add(new NonTerminationInsensitiveEntryControlDA());
 						_das.add(new ExitControlDA());

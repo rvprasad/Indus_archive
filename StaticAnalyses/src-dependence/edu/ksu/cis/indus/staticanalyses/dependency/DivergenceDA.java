@@ -135,17 +135,6 @@ public final class DivergenceDA
 	}
 
 	/**
-	 * Retrieves an instance of divergence dependence analysis that calculates information in backward direction.
-	 *
-	 * @return an instance of divergence dependence.
-	 *
-	 * @post result != null
-	 */
-	public static DivergenceDA getBackwardDivergenceDA() {
-		return new DivergenceDA(new BackwardDirectionSensitiveInfo(), BACKWARD_DIRECTION);
-	}
-
-	/**
 	 * Sets if the analyses should consider the effects of method calls.  This method may change the preprocessing
 	 * requirements of this analysis.  Hence, it should be called
 	 *
@@ -207,14 +196,33 @@ public final class DivergenceDA
 	}
 
 	/**
-	 * Retrieves an instance of divergence dependence analysis that calculates information in forward direction.
+	 * Retrieves an instance of divergence dependence analysis that calculates information in the specified direction.
+	 *
+	 * @param direction of the dependence information.
 	 *
 	 * @return an instance of divergence dependence.
 	 *
+	 * @throws IllegalArgumentException if direction does not satisfy the preconditions.
+	 *
 	 * @post result != null
+	 * @pre direction.equals(IDependencyAnalysis.FORWARD_DIRECTION) or
+	 * 		direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)
 	 */
-	public static DivergenceDA getForwardDivergenceDA() {
-		return new DivergenceDA(new ForwardDirectionSensitiveInfo(), FORWARD_DIRECTION);
+	public static DivergenceDA getDivergenceDA(final Object direction) {
+		final DivergenceDA _result;
+
+		if (direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)) {
+			_result = new DivergenceDA(new ForwardDirectionSensitiveInfo(), direction);
+		} else if (direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+			_result = new DivergenceDA(new BackwardDirectionSensitiveInfo(), direction);
+		} else {
+			final String _msg =
+				"Argument should be either 'IDependencyAnalysis.FORWARD_DIRECTION' or "
+				+ "'IDependencyAnalysis.BACKWARD_DIRECTION'. Provided argument was " + direction.toString();
+			LOGGER.error("getForwardDivergenceDA()");
+			throw new IllegalArgumentException(_msg);
+		}
+		return _result;
 	}
 
 	/**
@@ -426,7 +434,7 @@ public final class DivergenceDA
 				}
 			}
 
-			if ((!succsOfPreDivPoints.contains(_bb))) {
+			if (!succsOfPreDivPoints.contains(_bb)) {
 				final Collection _succs =
 					recordDepAcrossBB(method, preDivPoints, _dependees, _dependents, directionSensInfo.getFollowersOfBB(_bb));
 				_wb.addAllWorkNoDuplicates(_succs);

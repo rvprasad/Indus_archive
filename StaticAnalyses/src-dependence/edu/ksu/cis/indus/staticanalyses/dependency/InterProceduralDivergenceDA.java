@@ -118,17 +118,6 @@ public final class InterProceduralDivergenceDA
 	}
 
 	/**
-	 * Retrieves an instance of divergence dependence analysis that calculates information in backward direction.
-	 *
-	 * @return an instance of divergence dependence.
-	 *
-	 * @post result != null
-	 */
-	public static InterProceduralDivergenceDA getBackwardDivergenceDA() {
-		return new InterProceduralDivergenceDA(new BackwardDirectionSensitiveInfo(), BACKWARD_DIRECTION);
-	}
-
-	/**
 	 * Returns the statements on which the given statement depends on in the given method.
 	 *
 	 * @param dependentStmt is the statement for which dependees are requested.
@@ -179,14 +168,33 @@ public final class InterProceduralDivergenceDA
 	}
 
 	/**
-	 * Retrieves an instance of divergence dependence analysis that calculates information in forward direction.
+	 * Retrieves an instance of divergence dependence analysis that calculates information in the specified direction.
+	 *
+	 * @param direction of the dependence information.
 	 *
 	 * @return an instance of divergence dependence.
 	 *
+	 * @throws IllegalArgumentException if direction does not satisfy the preconditions.
+	 *
 	 * @post result != null
+	 * @pre direction.equals(IDependencyAnalysis.FORWARD_DIRECTION) or
+	 * 		direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)
 	 */
-	public static InterProceduralDivergenceDA getForwardDivergenceDA() {
-		return new InterProceduralDivergenceDA(new ForwardDirectionSensitiveInfo(), FORWARD_DIRECTION);
+	public static InterProceduralDivergenceDA getDivergenceDA(final Object direction) {
+		final InterProceduralDivergenceDA _result;
+
+		if (direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)) {
+			_result = new InterProceduralDivergenceDA(new ForwardDirectionSensitiveInfo(), direction);
+		} else if (direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+			_result = new InterProceduralDivergenceDA(new BackwardDirectionSensitiveInfo(), direction);
+		} else {
+			final String _msg =
+				"Argument should be either 'IDependencyAnalysis.FORWARD_DIRECTION' or "
+				+ "'IDependencyAnalysis.BACKWARD_DIRECTION'. Provided argument was " + direction.toString();
+			LOGGER.error("getForwardDivergenceDA()");
+			throw new IllegalArgumentException(_msg);
+		}
+		return _result;
 	}
 
 	/**
