@@ -86,7 +86,7 @@ INPUT                  = src/ \
                          src-xml/
 FILE_PATTERNS          = *.java
 RECURSIVE              = YES
-EXCLUDE                = *Test.java
+EXCLUDE                = *Test.java CVS
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXAMPLE_PATH           = 
