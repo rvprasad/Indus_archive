@@ -167,7 +167,7 @@ public final class SimpleNodeGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.DirectedGraph#getNodes()
+	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodes()
 	 */
 	public List getNodes() {
 		return Collections.unmodifiableList(nodes);
@@ -184,6 +184,9 @@ public final class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/25 08:59:52  venku
+   - coding convention.
+
    Revision 1.5  2004/01/24 01:41:23  venku
    - added a Commons-Collection transformer to
      extract objects from a given set of SimpleNodes.

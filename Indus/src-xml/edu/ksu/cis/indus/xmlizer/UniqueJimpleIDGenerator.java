@@ -67,7 +67,7 @@ public final class UniqueJimpleIDGenerator
 	private List classes = new ArrayList();
 
 	/**
-	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getNewClassId()
+	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForClass(SootClass)
 	 */
 	public String getIdForClass(final SootClass clazz) {
 		if (!classes.contains(clazz)) {
@@ -96,7 +96,7 @@ public final class UniqueJimpleIDGenerator
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForLocal(soot.Local)
+	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForLocal(Local, SootMethod)
 	 */
 	public String getIdForLocal(final Local v, final SootMethod method) {
 		List _locals = (List) method2locals.get(method);
@@ -115,7 +115,7 @@ public final class UniqueJimpleIDGenerator
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getNewMethodId()
+	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForMethod(SootMethod)
 	 */
 	public String getIdForMethod(final SootMethod method) {
 		final SootClass _sc = method.getDeclaringClass();
@@ -123,7 +123,7 @@ public final class UniqueJimpleIDGenerator
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForStmt(soot.jimple.Stmt)
+	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForStmt(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public String getIdForStmt(final Stmt stmt, final SootMethod method) {
 		String _result = "?";
@@ -163,7 +163,7 @@ public final class UniqueJimpleIDGenerator
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForType(ValueBox, Stmt, SootMethod)
+	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForValueBox(ValueBox, Stmt, SootMethod)
 	 */
 	public String getIdForValueBox(final ValueBox box, final Stmt stmt, final SootMethod method) {
 		final List _vBoxes = stmt.getUseAndDefBoxes();
@@ -183,6 +183,9 @@ public final class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/28 01:05:46  venku
+   - removed unnecessary object creation.
+
    Revision 1.10  2003/12/28 00:44:15  venku
    - coding convention.
    Revision 1.9  2003/12/13 02:28:53  venku

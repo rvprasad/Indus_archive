@@ -352,7 +352,7 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * @see IDirectedGraph#performmTopologicalSort(boolean)
+	 * @see IDirectedGraph#performTopologicalSort(boolean)
 	 */
 	public final List performTopologicalSort(final boolean topdown) {
 		List _result;
@@ -679,6 +679,10 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/02/05 18:17:29  venku
+   - getPseudoTails() is incorrect when the pseudo tails are mutually
+     reachable.  FIXED.
+
    Revision 1.12  2004/01/28 00:23:21  venku
    - dtails are only those that aren't tails.  FIXED.
    Revision 1.11  2004/01/25 08:58:43  venku

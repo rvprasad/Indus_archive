@@ -125,7 +125,7 @@ public final class XMLizingProcessingFilter
 	 * This implementation returns the classes in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
 	 *
-	 * @see edu.ksu.cis.indus.interfaces.IFilter#filter(java.lang.Object)
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterClasses(java.util.Collection)
 	 */
 	protected Collection localFilterClasses(final Collection classes) {
 		final List _result = new ArrayList(classes);
@@ -137,7 +137,7 @@ public final class XMLizingProcessingFilter
 	 * This implementation returns the fields in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
 	 *
-	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterFields(java.util.Collection)
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterFields(java.util.Collection)
 	 */
 	protected Collection localFilterFields(final Collection fields) {
 		final List _result = new ArrayList(fields);
@@ -149,7 +149,7 @@ public final class XMLizingProcessingFilter
 	 * This implementation returns the methods in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
 	 *
-	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
+	 * @see edu.ksu.cis.indus.processing.AbstractProcessingFilter#localFilterMethods(java.util.Collection)
 	 */
 	protected Collection localFilterMethods(final Collection methods) {
 		final List _result = new ArrayList(methods);
@@ -161,6 +161,12 @@ public final class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/11 09:37:21  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
+
    Revision 1.7  2004/02/09 07:31:21  venku
    - in cases where fields and methods from different classes are
      compared, a fixed ordering may not result. FIXED.

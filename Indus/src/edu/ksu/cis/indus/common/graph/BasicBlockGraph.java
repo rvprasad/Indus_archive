@@ -301,7 +301,7 @@ public final class BasicBlockGraph
 	 *
 	 * @post result != null
 	 *
-	 * @see edu.ksu.cis.indus.common.graph.DirectedGraph#getNodes()
+	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodes()
 	 */
 	public List getNodes() {
 		return Collections.unmodifiableList(blocks);
@@ -417,6 +417,10 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/02/23 09:09:02  venku
+   - the unit graph may not connect all units occurring in the graph.
+     Hence, care is taken while constructing the graph structure.
+
    Revision 1.13  2004/01/25 09:00:58  venku
    - coding convention.
    Revision 1.12  2004/01/25 03:20:52  venku
