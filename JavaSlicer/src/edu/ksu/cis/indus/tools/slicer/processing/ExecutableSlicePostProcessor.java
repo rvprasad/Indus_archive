@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.IteratorUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,6 +61,8 @@ import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
+
+import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -92,26 +93,11 @@ public final class ExecutableSlicePostProcessor
 	private final Collection processedMethodCache = new HashSet();
 
 	/** 
-	 * This tracks the methods processed in <code>processStmts()</code>.
-	 *
-	 * @invariant processedStmtCache != null
-	 * @invariant processedStmtCache.oclIsKindOf(Set(Stmt))
-	 */
-	private final Collection processedStmtCache = new HashSet();
-
-	/** 
 	 * This is the workbag of methods to process.
 	 *
 	 * @invariant methodWorkBag != null and methodWorkBag.getWork().oclIsKindOf(SootMethod)
 	 */
 	private final IWorkBag methodWorkBag = new HistoryAwareFIFOWorkBag(processedMethodCache);
-
-	/** 
-	 * This is the workbag of statements to process.
-	 *
-	 * @invariant stmtWorkBag != null and stmtWorkBag.getWork().oclIsKindOf(Stmt)
-	 */
-	private final IWorkBag stmtWorkBag = new HistoryAwareFIFOWorkBag(processedStmtCache);
 
 	/** 
 	 * This provides entry-based control dependency information required to include exit points.
@@ -188,7 +174,6 @@ public final class ExecutableSlicePostProcessor
 	public void reset() {
 		methodWorkBag.clear();
 		processedMethodCache.clear();
-		processedStmtCache.clear();
 	}
 
 	/**
@@ -448,10 +433,11 @@ public final class ExecutableSlicePostProcessor
 	 *
 	 * @param method in which the traps are to be marked.
 	 * @param stmt will trigger the traps to include.
+	 * @param bbg is the basic block graph of the method.
 	 *
-	 * @pre method != null and stmt != null
+	 * @pre method != null and stmt != null and bbg != null
 	 */
-	private void processHandlers(final SootMethod method, final Stmt stmt) {
+	private void processHandlers(final SootMethod method, final Stmt stmt, final BasicBlockGraph bbg) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Pruning handlers " + stmt + "@" + method);
 		}
@@ -470,14 +456,17 @@ public final class ExecutableSlicePostProcessor
 		 */
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final Trap _trap = (Trap) _i.next();
-			collector.includeInSlice(Util.getAncestors(_trap.getException()));
-
 			final IdentityStmt _handlerUnit = (IdentityStmt) _trap.getHandlerUnit();
-			collector.includeInSlice(_handlerUnit);
-			collector.includeInSlice(_handlerUnit.getLeftOpBox());
-			collector.includeInSlice(_handlerUnit.getRightOpBox());
-			collector.includeInSlice(_trap.getException());
-			stmtWorkBag.addWorkNoDuplicates(_handlerUnit);
+
+			if (bbg.getEnclosingBlock(_handlerUnit) != null) {
+				collector.includeInSlice(_handlerUnit);
+				collector.includeInSlice(_handlerUnit.getLeftOpBox());
+				collector.includeInSlice(_handlerUnit.getRightOpBox());
+
+				final SootClass _exceptionClass = _trap.getException();
+				collector.includeInSlice(Util.getAncestors(_exceptionClass));
+				collector.includeInSlice(_exceptionClass);
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -532,12 +521,12 @@ public final class ExecutableSlicePostProcessor
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Picking up identity statements and methods required in" + method);
 		}
-		stmtWorkBag.clear();
-		stmtWorkBag.addAllWork(IteratorUtils.toList(bbgMgr.getUnitGraph(method).iterator()));
-		processedStmtCache.clear();
 
-		while (stmtWorkBag.hasWork()) {
-			final Stmt _stmt = (Stmt) stmtWorkBag.getWork();
+		final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(method);
+		final UnitGraph _unitGraph = _bbg.getStmtGraph();
+
+		for (final Iterator _i = _unitGraph.iterator(); _i.hasNext();) {
+			final Stmt _stmt = (Stmt) _i.next();
 
 			if (_stmt instanceof IdentityStmt) {
 				final IdentityStmt _identityStmt = (IdentityStmt) _stmt;
@@ -551,7 +540,7 @@ public final class ExecutableSlicePostProcessor
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("Picked " + _identityStmt + " in " + method);
 					}
-					processHandlers(method, _stmt);
+					processHandlers(method, _stmt, _bbg);
 					stmtCollected = true;
 				}
 			} else if (collector.hasBeenCollected(_stmt)) {
@@ -572,7 +561,7 @@ public final class ExecutableSlicePostProcessor
 				} else if (_stmt instanceof AssignStmt) {
 					processAssignmentsForTypes(_stmt);
 				}
-				processHandlers(method, _stmt);
+				processHandlers(method, _stmt, _bbg);
 				stmtCollected = true;
 			}
 		}
@@ -601,6 +590,10 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/08/15 00:02:13  venku
+   - previous changes addressing "classes of types used in cast and instanceof expressions
+     were being ignored during residualization" is more of an executability problem.  Hence, this
+     is now handled in ExecutableSlicePostProcessing instead of TagBasedDestructiveSliceResidualizer.
    Revision 1.31  2004/08/13 01:58:06  venku
    - changed logging level
    Revision 1.30  2004/08/10 00:05:46  venku
