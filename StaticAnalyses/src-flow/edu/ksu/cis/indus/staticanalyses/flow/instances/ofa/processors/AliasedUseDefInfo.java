@@ -109,7 +109,7 @@ public class AliasedUseDefInfo
 	 *
 	 * @pre analyzer != null
 	 */
-	AliasedUseDefInfo(final IValueAnalyzer iva) {
+	public AliasedUseDefInfo(final IValueAnalyzer iva) {
 		defsMap = new HashMap();
 		usesMap = new HashMap();
 		analyzer = iva;
@@ -298,6 +298,9 @@ public class AliasedUseDefInfo
    ChangeLog:
 
    $Log$
+   Revision 1.6  2003/08/21 03:43:56  venku
+   Ripple effect of adding IStatus.
+
    Revision 1.5  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
    Revision 1.4  2003/08/13 08:51:52  venku
