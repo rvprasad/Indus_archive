@@ -22,10 +22,9 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
+import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.tools.Phase;
-
-import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -245,15 +244,14 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/02/25 23:33:41  venku
+   - well package naming convention was inconsistent. FIXED.
    Revision 1.25  2004/02/06 00:33:26  venku
    - logging.
-
    Revision 1.24  2004/02/06 00:22:09  venku
    - logging.
-
    Revision 1.23  2004/02/06 00:19:16  venku
    - logging.
-
    Revision 1.22  2003/12/14 16:40:30  venku
    - added residualization logic.
    - incorporate the residualizer in the tool.

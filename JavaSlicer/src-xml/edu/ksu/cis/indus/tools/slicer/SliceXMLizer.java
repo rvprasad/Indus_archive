@@ -22,11 +22,11 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
+
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
-
-import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
@@ -230,11 +230,11 @@ public class SliceXMLizer
 		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
 		final TagBasedSliceXMLizer _sliceIP = getXMLizer();
+
 		//final CustomDependencyXMLizer _dep = new CustomDependencyXMLizer();
 		//_dep.setXmlOutputDir(outputDirectory);
 		//_dep.setGenerator(idGenerator);
 		//_dep.populateDAs();
-
 		JimpleXMLizer _jimpler = null;
 
 		if (xmlizedJimpleWriter != null) {
@@ -256,8 +256,8 @@ public class SliceXMLizer
 				LOGGER.error("Failed to close the xml file based for jimple representation.", _e);
 			}
 		}
-		//_dep.flushXMLizers(_xmlizers, _ctrl);
 
+		//_dep.flushXMLizers(_xmlizers, _ctrl);
 		_ctrl.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
 		_sliceIP.hookup(_ctrl);
 		_ctrl.process();
@@ -536,25 +536,21 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/02/25 23:40:31  venku
+   - well package naming convention was inconsistent. FIXED.
    Revision 1.11  2004/02/09 06:54:18  venku
    - deleted dependency xmlization and test classes.
    - ripple effect.
-
    Revision 1.10  2004/02/09 06:49:27  venku
-   *** empty log message ***
-
+ *** empty log message ***
    Revision 1.9  2004/02/09 04:39:57  venku
    -
-
    Revision 1.8  2004/02/09 02:21:51  venku
    - ripple effect of refactoring xmlizing framework.
-
    Revision 1.7  2004/02/08 03:06:16  venku
    - refactoring of xmlizers in staticanalyses.
-
    Revision 1.6  2004/01/22 13:07:30  venku
    - check on output directory missing.  FIXED.
-
    Revision 1.5  2004/01/22 01:06:32  venku
    - coding convention.
    Revision 1.4  2004/01/17 23:52:04  venku
