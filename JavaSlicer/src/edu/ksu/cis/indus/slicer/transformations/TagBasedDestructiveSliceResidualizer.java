@@ -221,6 +221,11 @@ public final class TagBasedDestructiveSliceResidualizer
 				}
 			};
 
+		/** 
+		 * This is used to create new AST chunks.
+		 */
+		private final Jimple jimple = Jimple.v();
+
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
@@ -239,7 +244,11 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 		 */
 		public void caseInvokeStmt(final InvokeStmt stmt) {
-			valueProcessor.residualize(stmt.getInvokeExprBox());
+			if (stmt.getInvokeExprBox().hasTag(theNameOfTagToResidualize)) {
+				valueProcessor.residualize(stmt.getInvokeExprBox());
+			} else {
+				setResult(jimple.newNopStmt());
+			}
 		}
 
 		/**
@@ -453,15 +462,13 @@ public final class TagBasedDestructiveSliceResidualizer
 					throw new IllegalStateException(_message);
 				}
 
-				final Jimple _jimple = Jimple.v();
-
 				if (stmt.containsInvokeExpr()) {
 					final Value _expr = stmt.getRightOp();
-					final Stmt _stmt = _jimple.newInvokeStmt(_expr);
+					final Stmt _stmt = jimple.newInvokeStmt(_expr);
 					valueProcessor.residualize(stmt.getRightOpBox());
 					setResult(_stmt);
 				} else {
-					setResult(_jimple.newNopStmt());
+					setResult(jimple.newNopStmt());
 				}
 			} else {
 				valueProcessor.residualize(stmt.getRightOpBox());
@@ -502,7 +509,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final Value _value = vBox.getValue();
 
 			if (!((Host) vBox).hasTag(theNameOfTagToResidualize)) {
-				vBox.setValue(Util.getDefaultValueFor(_value.getType()));
+					vBox.setValue(Util.getDefaultValueFor(_value.getType()));
 			} else {
 				_value.apply(this);
 			}
@@ -904,6 +911,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/07/17 23:32:19  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
    Revision 1.15  2004/07/10 00:52:44  venku
    - throw statements need to suck in the class of the exception that is thrown. FIXED.
    Revision 1.14  2004/07/09 09:15:35  venku
