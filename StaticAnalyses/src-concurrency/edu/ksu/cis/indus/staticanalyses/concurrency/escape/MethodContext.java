@@ -206,9 +206,9 @@ final class MethodContext
 	}
 
 	/**
-	 * Retrieves the alias set in this method context that corresponds to the given alias set in the given method context.
+	 * Retrieves the alias set in the given method context that corresponds to the given alias set in this method context.
 	 *
-	 * @param ref the reference alias set.
+	 * @param ref the reference alias set that occurs in this context.
 	 * @param context the context in which <code>ref</code> occurs.
 	 *
 	 * @return the alias set in this context and that corresponds to <code>ref</code>.  This will be  <code>null</code> if
@@ -216,7 +216,7 @@ final class MethodContext
 	 *
 	 * @pre ref != null and context != null
 	 */
-	AliasSet getASCorrespondingToGivenASInGivenContext(final AliasSet ref, final MethodContext context) {
+	AliasSet getImageOfRefInGivenContext(final AliasSet ref, final MethodContext context) {
 		AliasSet _result = null;
 
 		final Set _temp = new HashSet();
@@ -225,7 +225,7 @@ final class MethodContext
 
 		if (_thisAS != null && _thisAS2 != null) {
 			_temp.clear();
-			_result = _thisAS.getASReachableFromGivenASForGivenAS(_thisAS2, ref, _temp);
+			_result = _thisAS.getImageOfRefUnderRoot(_thisAS2, ref, _temp);
 		}
 
 		if (_result == null) {
@@ -235,7 +235,7 @@ final class MethodContext
 
 				if (_result != null && _paramAS != null && _paramAS2 != null) {
 					_temp.clear();
-					_result = _paramAS.getASReachableFromGivenASForGivenAS(_paramAS2, ref, _temp);
+					_result = _paramAS.getImageOfRefUnderRoot(_paramAS2, ref, _temp);
 				}
 			}
 		}
@@ -245,7 +245,7 @@ final class MethodContext
 
 		if (_result == null && _thrownAS != null && _thrownAS2 != null) {
 			_temp.clear();
-			_result = _thrownAS.getASReachableFromGivenASForGivenAS(_thrownAS2, ref, _temp);
+			_result = _thrownAS.getImageOfRefUnderRoot(_thrownAS2, ref, _temp);
 		}
 
 		final AliasSet _returnAS = getReturnAS();
@@ -253,7 +253,7 @@ final class MethodContext
 
 		if (_result == null && _returnAS != null && _returnAS2 != null) {
 			_temp.clear();
-			_result = _returnAS.getASReachableFromGivenASForGivenAS(_returnAS2, ref, _temp);
+			_result = _returnAS.getImageOfRefUnderRoot(_returnAS2, ref, _temp);
 		}
 
 		return _result;

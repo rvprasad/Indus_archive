@@ -508,21 +508,21 @@ final class AliasSet
 	}
 
 	/**
-	 * Retrieves the alias set that is reachable from this alias set and corresponds to <code>ref</code> that is reachable
-	 * from the <code>root</code> alias set. This method can be used to retrieve the alias set in the site-context
+	 * Retrieves the alias set that is reachable from <code>root</code> and that corresponds to <code>ref</code>, an alias
+	 * set reachable from this alias set. This method can be used to retrieve the alias set in the site-context
 	 * corresponding to an alias side in the callee method context.
 	 *
-	 * @param root the alias set to start point in the reference context.
-	 * @param ref the alias set in end point in the reference context.
+	 * @param root the alias set to start point in the search context.
+	 * @param ref the alias set in end point in the reference (this) context.
 	 * @param processed a collection of alias set pairs that is used during the search.  The contents of this alias set is
 	 * 		  not relevant to the caller.
 	 *
-	 * @return the alias set reachable from this alias set and that corresponds to <code>ref</code>.  This will be
+	 * @return the alias set reachable from <code>root</code> and that corresponds to <code>ref</code>.  This will be
 	 * 		   <code>null</code> if there is no such alias set.
 	 *
 	 * @pre root != null and ref != null and processed != null
 	 */
-	AliasSet getASReachableFromGivenASForGivenAS(final AliasSet root, final AliasSet ref, final Collection processed) {
+	AliasSet getImageOfRefUnderRoot(final AliasSet root, final AliasSet ref, final Collection processed) {
 		AliasSet _result = null;
 
 		// THINK: Should the following condition be ref.find() == find() && root.escapes()?
@@ -544,7 +544,7 @@ final class AliasSet
 					final Pair _pair = new Pair(_as1.find(), _as2.find());
 
 					if (!processed.contains(_pair)) {
-						_result = _as1.getASReachableFromGivenASForGivenAS(_as2, ref, processed);
+						_result = _as1.getImageOfRefUnderRoot(_as2, ref, processed);
 					}
 				}
 			}

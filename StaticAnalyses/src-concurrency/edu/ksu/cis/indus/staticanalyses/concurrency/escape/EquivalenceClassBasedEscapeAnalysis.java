@@ -1054,7 +1054,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			} else if (v instanceof Local) {
 				_result = (AliasSet) _local2AS.get(v);
 			} else if (v instanceof ThisRef) {
-			    _result = ((MethodContext) _trp.getFirst()).getThisAS();
+				_result = ((MethodContext) _trp.getFirst()).getThisAS();
 			}
 		}
 		return _result;
@@ -1074,6 +1074,27 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * Retrieves the alias set on the callee side that corresponds to the given alias set on the caller side at the given
+	 * call site in the caller.
+	 *
+	 * @param ref the reference alias set.
+	 * @param callee provides the context in which the requested reference occurs.
+	 * @param site the call site at which <code>callee</code> is called.
+	 *
+	 * @return the callee side alias set that corresponds to <code>ref</code>.  This will be <code>null</code> if there is no
+	 * 		   such alias set.
+	 *
+	 * @pre ref != null and callee != null and site != null
+	 */
+	AliasSet getCalleeSideAliasSet(final AliasSet ref, final SootMethod callee, final CallTriple site) {
+		final Triple _triple = (Triple) method2Triple.get(site.getMethod());
+		final Map _callsite2mc = (Map) _triple.getThird();
+		final MethodContext _callingContext = (MethodContext) _callsite2mc.get(site);
+		final MethodContext _calleeContext = (MethodContext) ((Triple) method2Triple.get(callee)).getFirst();
+		return _callingContext.getImageOfRefInGivenContext(ref, _calleeContext);
+	}
+
+	/**
 	 * Retrieves the alias set on the caller side that corresponds to the given alias set on the callee side at the given
 	 * call site in the caller.
 	 *
@@ -1081,7 +1102,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @param callee the method in which <code>ref</code> occurs.
 	 * @param site the call site at which <code>callee</code> is called.
 	 *
-	 * @return the caller site alias set that corresponds to <code>ref</code>.  This will be <code>null</code> if there is no
+	 * @return the caller side alias set that corresponds to <code>ref</code>.  This will be <code>null</code> if there is no
 	 * 		   such alias set.
 	 *
 	 * @pre ref != null and callee != null and site != null
@@ -1091,7 +1112,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		final Map _callsite2mc = (Map) _triple.getThird();
 		final MethodContext _callingContext = (MethodContext) _callsite2mc.get(site);
 		final MethodContext _calleeContext = (MethodContext) ((Triple) method2Triple.get(callee)).getFirst();
-		return _calleeContext.getASCorrespondingToGivenASInGivenContext(ref, _callingContext);
+		return _calleeContext.getImageOfRefInGivenContext(ref, _callingContext);
 	}
 
 	/**
