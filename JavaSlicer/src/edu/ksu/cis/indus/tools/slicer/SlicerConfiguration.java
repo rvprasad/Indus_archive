@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.InterProceduralDivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationInsensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
