@@ -12,7 +12,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/xmlenc-0.44.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlunit1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xpp3.jar"/>
-	<classpathentry exported="true" sourcepath="/home/ganeshan/Desktop/Downloads/temp/sootc/temp/soot-2.1.0-barebones.jar" kind="lib" path="lib/soot-2.1.0-modified.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/soot-2.1.0-modified.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4jconfig.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
