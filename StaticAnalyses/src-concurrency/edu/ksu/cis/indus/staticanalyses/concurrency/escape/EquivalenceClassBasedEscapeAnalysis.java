@@ -1053,6 +1053,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_result = _temp.getASForField(AliasSet.ARRAY_FIELD);
 			} else if (v instanceof Local) {
 				_result = (AliasSet) _local2AS.get(v);
+			} else if (v instanceof ThisRef) {
+			    _result = ((MethodContext) _trp.getFirst()).getThisAS();
 			}
 		}
 		return _result;
