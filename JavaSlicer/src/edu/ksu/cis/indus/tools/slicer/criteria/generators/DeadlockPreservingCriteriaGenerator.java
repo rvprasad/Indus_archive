@@ -111,7 +111,7 @@ public final class DeadlockPreservingCriteriaGenerator
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: creating deadlock criteria. - " + CollectionsUtilities.prettyPrint(_result));
+			LOGGER.debug("END: creating deadlock criteria. - " + _result);
 		}
 
 		return _result;
