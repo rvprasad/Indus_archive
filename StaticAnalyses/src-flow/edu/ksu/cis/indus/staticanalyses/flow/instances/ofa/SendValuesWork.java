@@ -88,7 +88,7 @@ public class SendValuesWork
 		if (POOL.isEmpty()) {
 			result = new SendValuesWork();
 		} else {
-			result = (SendValuesWork) POOL.get(0);
+			result = (SendValuesWork) POOL.remove(0);
 		}
 		result.setFGNode(toNode);
 		result.addValue(valueToBeSent);
@@ -112,7 +112,7 @@ public class SendValuesWork
 		if (POOL.isEmpty()) {
 			result = new SendValuesWork();
 		} else {
-			result = (SendValuesWork) POOL.get(0);
+			result = (SendValuesWork) POOL.remove(0);
 		}
 		result.setFGNode(toNode);
 		result.addValues(valuesToBeSent);
@@ -124,6 +124,9 @@ public class SendValuesWork
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/18 01:01:18  venku
+   Trying to fix CVS's erratic behavior.
+
    
    Revision 1.1  2003/08/17 11:19:13  venku
    Placed the simple SendValuesWork class into a separate file.
