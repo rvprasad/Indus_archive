@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="src" path="/StaticAnalyses"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src-xml"/>
 	<classpathentry sourcepath="JRE_SRC" kind="var" path="JRE_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
@@ -13,5 +14,8 @@
 	<classpathentry kind="var" path="LOGGING_COMMONS_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
+	<classpathentry kind="src" path="src-test"/>
+	<classpathentry kind="var" path="JAVACLASSES/junit.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
