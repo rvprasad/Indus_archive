@@ -82,8 +82,6 @@ public class IdentifierBasedDataDAv2
 	 *
 	 * @return a collection of statements on which <code>programPoint</code> depends.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
-	 *
 	 * @pre programPoint.oclIsKindOf(Pair(Stmt, Local)) implies programPoint.oclTypeOf(Pair).getFirst() != null and
 	 * 		programPoint.oclTypeOf(Pair).getSecond() != null
 	 * @pre programPoint.oclIsKindOf(Stmt) or programPoint.oclIsKindOf(Pair(Stmt, Local))
@@ -107,8 +105,6 @@ public class IdentifierBasedDataDAv2
 					LOGGER.warn("getDependees(programPoint = " + programPoint + ", method = " + method
 						+ ") - No dependents found for ");
 				}
-				throw new IllegalArgumentException(
-					"'programPoint' should be of type Pair or Stmt. The provided argument was " + programPoint);
 			}
 		} else {
 			if (LOGGER.isWarnEnabled()) {
@@ -131,36 +127,32 @@ public class IdentifierBasedDataDAv2
 	 * @return a collection of statement and program points in them which depend on the definition at
 	 * 		   <code>programPoint</code>.
 	 *
-	 * @throws IllegalArgumentException when <code>programPoint</code> is not of type <code>DefinitionStmt</code> or
-	 * 		   <code>Pair(Object, DefinitionStmt)</code>
-	 *
-	 * @pre programPoint.isOclKindOf(DefinitionStmt) or programPoint.isOclIsKindOf(Pair(DefinitionStmt, Object))
+	 * @pre programPoint.isOclKindOf(Stmt) or programPoint.isOclIsKindOf(Pair(Stmt, Object))
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
 	public final Collection getDependents(final Object programPoint, final Object method) {
 		final IUseDefInfo _useDefAnalysis = (IUseDefInfo) dependee2dependent.get(method);
-		final Collection _result;
+		Collection _result = Collections.EMPTY_LIST;
 
 		if (_useDefAnalysis != null) {
-			final DefinitionStmt _stmt;
+			final Stmt _stmt;
 
-			if (programPoint instanceof DefinitionStmt) {
-				_stmt = (DefinitionStmt) programPoint;
+			if (programPoint instanceof Stmt) {
+				_stmt = (Stmt) programPoint;
 			} else if (programPoint instanceof Pair) {
-				_stmt = (DefinitionStmt) ((Pair) programPoint).getFirst();
+				_stmt = (Stmt) ((Pair) programPoint).getFirst();
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("getDependents(entity = " + programPoint + ", method = " + method
 						+ ") - No dependents found for ");
 				}
-
-				throw new IllegalArgumentException(
-					"'programPoint' should be of type Pair or Stmt. The provided argument was " + programPoint);
+				_stmt = null;
 			}
-			_result = _useDefAnalysis.getUses(_stmt, (SootMethod) method);
-		} else {
-			_result = Collections.EMPTY_LIST;
+
+			if (_stmt != null && _stmt instanceof DefinitionStmt) {
+				_result = _useDefAnalysis.getUses((DefinitionStmt) _stmt, (SootMethod) method);
+			}
 		}
 		return _result;
 	}

@@ -104,8 +104,6 @@ public class IdentifierBasedDataDA
 	 *
 	 * @return a collection of statements on which <code>programPoint</code> depends.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
-	 *
 	 * @pre programPoint.oclIsKindOf(Pair(Stmt, Local)) implies programPoint.oclTypeOf(Pair).getFirst() != null and
 	 * 		programPoint.oclTypeOf(Pair).getSecond() != null
 	 * @pre programPoint.oclIsKindOf(Stmt) or programPoint.oclIsKindOf(Pair(Stmt, Local))
@@ -159,9 +157,6 @@ public class IdentifierBasedDataDA
 				LOGGER.warn("getDependees(programPoint = " + programPoint + ", method = " + method
 					+ ") - No dependents found for ");
 			}
-
-			throw new IllegalArgumentException("'programPoint' should be of type Pair or Stmt. The provided argument was "
-				+ programPoint);
 		}
 		return _result;
 	}
@@ -178,10 +173,7 @@ public class IdentifierBasedDataDA
 	 * @return a collection of statement and program points in them which depend on the definition at
 	 * 		   <code>programPoint</code>.
 	 *
-	 * @throws IllegalArgumentException when <code>programPoint</code> is not of type <code>DefinitionStmt</code> or
-	 * 		   <code>Pair(Object, DefinitionStmt)</code>
-	 *
-	 * @pre programPoint.isOclKindOf(DefinitionStmt) or programPoint.isOclIsKindOf(Pair(DefinitionStmt, Object))
+	 * @pre programPoint.isOclKindOf(Stmt) or programPoint.isOclIsKindOf(Pair(Stmt, Object))
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
@@ -197,20 +189,21 @@ public class IdentifierBasedDataDA
 				LOGGER.warn("getDependents(programPoint = " + programPoint + ", method = " + method
 					+ ") - No dependents found for ");
 			}
-
-			throw new IllegalArgumentException("'programPoint' should be of type Pair or Stmt. The provided argument was "
-				+ programPoint);
+			_stmt = null;
 		}
 
-		final SootMethod _sm = (SootMethod) method;
-		final List _dependents = (List) dependee2dependent.get(_sm);
 		Collection _result = Collections.EMPTY_LIST;
 
-		if (_dependents != null) {
-			final Collection _temp = (Collection) _dependents.get(getStmtList(_sm).indexOf(_stmt));
+		if (_stmt != null) {
+			final SootMethod _sm = (SootMethod) method;
+			final List _dependents = (List) dependee2dependent.get(_sm);
 
-			if (_temp != null) {
-				_result = Collections.unmodifiableCollection(_temp);
+			if (_dependents != null) {
+				final Collection _temp = (Collection) _dependents.get(getStmtList(_sm).indexOf(_stmt));
+
+				if (_temp != null) {
+					_result = Collections.unmodifiableCollection(_temp);
+				}
 			}
 		}
 		return _result;
