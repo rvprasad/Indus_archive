@@ -55,13 +55,7 @@ final class CallGraphXMLizer
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param name DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * @see AbstractXMLizer#getFileName(String)
 	 */
 	public String getFileName(final String name) {
 		return "callgraph_" + xmlizeString(name) + ".xml";
@@ -137,6 +131,8 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/02/11 10:00:16  venku
+   - added a new custom xml outputter class.
    Revision 1.9  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.

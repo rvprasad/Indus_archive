@@ -19,9 +19,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is the interface of unit tests that test instances of Flow analysis framework.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -29,31 +27,39 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
  */
 public interface IFATest {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Sets the analyzer to be tested.
 	 *
-	 * @param valueAnalyzer DOCUMENT ME!
+	 * @param valueAnalyzer will be tested.
+	 *
+	 * @pre valueAnalyzer != null
 	 */
 	void setAnalyzer(IValueAnalyzer valueAnalyzer);
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the instance of flow analyasis framework instance to be used during testing.
 	 *
-	 * @param valueAnalyzer
+	 * @param flowAnalysis will be used during testing.
+	 *
+	 * @pre flowAnalysis != null
 	 */
 	void setFA(FA flowAnalysis);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the name of the tag used by the flow analysis instance.
 	 *
-	 * @param tagName DOCUMENT ME!
+	 * @param tagName is the name of the tag.
+	 *
+	 * @pre tagName != null
 	 */
 	void setFATagName(String tagName);
-
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
  */

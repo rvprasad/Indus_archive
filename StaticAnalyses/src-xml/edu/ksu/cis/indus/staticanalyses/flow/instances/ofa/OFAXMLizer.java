@@ -55,9 +55,7 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class can be used to xmlize object flow information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -71,52 +69,46 @@ final class OFAXMLizer
 	static final Log LOGGER = LogFactory.getLog(OFAXMLizer.class);
 
 	/**
-	 * DOCUMENT ME!
+	 * This class is used by the xmlizer to xmlize OFA information.
 	 *
-	 * @author venku To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
 	 */
 	private final class OFAXMLizingProcessor
 	  implements IProcessor {
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The id generator to be used during xmlization.
 		 */
 		private final IJimpleIDGenerator idGenerator;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The OFA instance whose information should be xmlized.
 		 */
 		private OFAnalyzer ofa;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The instance used to write xml data.
 		 */
 		private XMLOutputter xmlWriter;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * This indicates if a class is being processed.
 		 */
 		private boolean processingClass;
 
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * This indicates if a method is being processed.
 		 */
 		private boolean processingMethod;
 
 		/**
-		 * DOCUMENT ME!
+		 * Creates an instance of the processor.
 		 *
-		 * @param filewriter
-		 * @param analyzer DOCUMENT ME!
+		 * @param filewriter via which the xml data will be written.
+		 * @param analyzer is the OFA instance whose information should be xmlized.
+		 *
+		 * @pre filewriter != null and analyzer != null
 		 */
 		public OFAXMLizingProcessor(final FileWriter filewriter, final OFAnalyzer analyzer) {
 			idGenerator = getIdGenerator();
@@ -258,11 +250,11 @@ final class OFAXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Writes the object flow information as xml.
 	 *
-	 * @param info DOCUMENT ME!
+	 * @param info maps well known indus interface ids to the implementation that provide these interfaces.
+	 *
+	 * @pre info != null
 	 *
 	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#writeXML(java.util.Map)
 	 */
@@ -295,6 +287,8 @@ final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/11 10:00:16  venku
+   - added a new custom xml outputter class.
    Revision 1.3  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.

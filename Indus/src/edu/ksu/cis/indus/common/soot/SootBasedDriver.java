@@ -203,9 +203,11 @@ public class SootBasedDriver {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the basic block graph manager used by the application.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the basic block graph manager.
+	 *
+	 * @post result != null
 	 */
 	public final BasicBlockGraphMgr getBbm() {
 		return this.bbm;
@@ -254,9 +256,9 @@ public class SootBasedDriver {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the scene used by the application.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the scene.
 	 */
 	public final Scene getScene() {
 		return this.scene;
@@ -408,6 +410,12 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/02/09 04:39:40  venku
+   - refactoring test classes still..
+   - need to make xmlizer classes independent of their purpose.
+     Hence, they need to be highly configurable.
+   - For each concept, test setup should be in TestSetup
+     rather than in the XMLizer.
    Revision 1.11  2004/02/09 01:18:04  venku
    - root methods can be retrieved via getRootMethods().
    Revision 1.10  2004/01/28 22:42:05  venku

@@ -33,9 +33,7 @@ import java.util.Map;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class tests call graphs based on their xmlized representation.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -45,16 +43,12 @@ public final class XMLBasedCallGraphTest
   extends AbstractXMLBasedTest
   implements IFAProcessorTest {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The map of interface id to interface implementation instances.
 	 */
 	private final Map info = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The xmlizer used to xmlize the call graph before testing.
 	 */
 	private CallGraphXMLizer xmlizer;
 
@@ -100,7 +94,7 @@ public final class XMLBasedCallGraphTest
 	protected void setUp()
 	  throws Exception {
 		xmlizer = new CallGraphXMLizer();
-		xmlizer.setXmlOutputDir(xmlOutputDir);
+		xmlizer.setXmlOutputDir(xmlSecondInputDir);
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
 		xmlizer.writeXML(info);
@@ -110,6 +104,11 @@ public final class XMLBasedCallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.8  2004/02/09 17:42:25  venku
    - refactoring.
    Revision 1.7  2004/02/09 07:34:31  venku

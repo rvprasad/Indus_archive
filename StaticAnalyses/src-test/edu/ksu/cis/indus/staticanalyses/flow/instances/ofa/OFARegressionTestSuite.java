@@ -106,19 +106,19 @@ public final class OFARegressionTestSuite
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
 				final String _classNames = _props.getProperty(_config + ".classNames");
-				final String _xmlOutputDir = _props.getProperty(_config + ".xmlOutputDir");
-				final String _xmlInputDir = _props.getProperty(_config + ".xmlInputDir");
+				final String _xmlSecondInputDir = _props.getProperty(_config + ".xmlSecondInputDir");
+				final String _xmlFirstInputDir = _props.getProperty(_config + ".xmlFirstInputDir");
 				final String _classpath = _props.getProperty(_config + ".classpath");
-				File _f = new File(_xmlInputDir);
+				File _f = new File(_xmlFirstInputDir);
 
 				if (!_f.exists() || !_f.canRead()) {
-					System.err.println("Input directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
+					System.err.println("Input directory " + _xmlFirstInputDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
-				_f = new File(_xmlOutputDir);
+				_f = new File(_xmlSecondInputDir);
 
 				if (!_f.exists() || !_f.canWrite()) {
-					System.err.println("Output directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
+					System.err.println("Output directory " + _xmlFirstInputDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
 
@@ -131,8 +131,8 @@ public final class OFARegressionTestSuite
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 					final OFATestSetup _test = new OFATestSetup(_temp, _classNames, _classpath);
-					_test.setXmlOutputDir(_xmlOutputDir);
-					_test.setXmlInputDir(_xmlInputDir);
+					_test.setSecondXmlInputDir(_xmlSecondInputDir);
+					_test.setFirstXmlInputDir(_xmlFirstInputDir);
 					suite.addTest(_test);
 				} catch (IllegalArgumentException _e) {
 					;
@@ -147,6 +147,11 @@ public final class OFARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.6  2004/02/09 06:49:02  venku
    - deleted dependency xmlization and test classes.
    Revision 1.5  2004/02/09 01:20:10  venku

@@ -31,9 +31,7 @@ import org.xml.sax.SAXException;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides abstract implementation that can be used to do xml data based testing.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -48,16 +46,14 @@ public abstract class AbstractXMLBasedTest
 	private static final Log LOGGER = LogFactory.getLog(AbstractXMLBasedTest.class);
 
 	/**
-	 * The directory in which xml-based testing input is read from.
+	 * The directory in which one of the xml-based testing input is read from.
 	 */
-	protected String xmlInputDir;
+	protected String xmlFirstInputDir;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The directory in which the other xml-based tesing input is read from.
 	 */
-	protected String xmlOutputDir;
+	protected String xmlSecondInputDir;
 
 	/**
 	 * The name of the method being run.
@@ -68,6 +64,13 @@ public abstract class AbstractXMLBasedTest
 	 * The name of the test case instance.
 	 */
 	private String testName = "";
+
+	/**
+	 * @see IXMLBasedTest#setFirstXmlInputDir(String)
+	 */
+	public void setFirstXmlInputDir(final String xmlInDir) {
+		xmlFirstInputDir = xmlInDir;
+	}
 
 	/**
 	 * @see junit.framework.TestCase#setName(java.lang.String)
@@ -88,6 +91,13 @@ public abstract class AbstractXMLBasedTest
 			_result = testMethodName;
 		}
 		return _result;
+	}
+
+	/**
+	 * @see IXMLBasedTest#setSecondXmlInputDir(String)
+	 */
+	public void setSecondXmlInputDir(final String xmlInDir) {
+		xmlSecondInputDir = xmlInDir;
 	}
 
 	/**
@@ -112,32 +122,14 @@ public abstract class AbstractXMLBasedTest
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param xmlInDir ME!
-	 */
-	public void setXmlInputDir(final String xmlInDir) {
-		xmlInputDir = xmlInDir;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param xmlOutDir DOCUMENT ME!
-	 */
-	public void setXmlOutputDir(final String xmlOutDir) {
-		xmlOutputDir = xmlOutDir;
-	}
-
-	/**
 	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
 	 */
 	public void testXMLSimilarity() {
-		final String _outfileName = xmlOutputDir + File.separator + getFileName();
+		final String _outfileName = xmlSecondInputDir + File.separator + getFileName();
 
 		try {
 			final Reader _current = new FileReader(new File(_outfileName));
-			final Reader _previous = new FileReader(new File(xmlInputDir + File.separator + getFileName()));
+			final Reader _previous = new FileReader(new File(xmlFirstInputDir + File.separator + getFileName()));
 			assertXMLEqual(_previous, _current);
 		} catch (IOException _e) {
 			LOGGER.error("Failed to read/write the xml file " + _outfileName, _e);
@@ -152,11 +144,9 @@ public abstract class AbstractXMLBasedTest
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the name of the file that contains the test data.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the name of the file.
 	 */
 	protected abstract String getFileName();
 
@@ -174,10 +164,11 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/14 23:16:49  venku
+   - coding convention.
    Revision 1.5  2004/02/09 07:32:41  venku
    - added support to differentiate test method name and test name.
    - added logic to change name of AbstractXMLBasedTest tests as well.
-
    Revision 1.4  2004/02/09 06:49:05  venku
    - deleted dependency xmlization and test classes.
    Revision 1.3  2004/02/09 04:39:40  venku

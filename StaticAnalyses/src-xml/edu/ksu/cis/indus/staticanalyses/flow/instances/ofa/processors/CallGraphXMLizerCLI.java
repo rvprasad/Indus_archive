@@ -49,9 +49,7 @@ import soot.SootMethod;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides the command line interface to xmlize call graphs.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -119,8 +117,10 @@ public final class CallGraphXMLizerCLI
 	/**
 	 * Xmlize the given system.
 	 *
-	 * @param xmlizer DOCUMENT ME!
-	 * @param dumpJimple DOCUMENT ME!
+	 * @param xmlizer to be used for xmlizing the call graph.
+	 * @param dumpJimple <code>true</code> indicates xmlized jimple should be dumped; <code>false</code>, otherwise.
+	 *
+	 * @pre xmlizer != null
 	 */
 	private void execute(final AbstractXMLizer xmlizer, final boolean dumpJimple) {
 		setLogger(LOGGER);
@@ -181,11 +181,15 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.1  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.
      - Each information type has a xmlizer (XMLizer)
      - Each information type has a xmlizer driver (XMLizerCLI)
      - Tests use the XMLizer.
-
  */

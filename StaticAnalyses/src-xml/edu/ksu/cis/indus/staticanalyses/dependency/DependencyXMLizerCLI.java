@@ -97,9 +97,7 @@ public class DependencyXMLizerCLI
 	private AliasedUseDefInfo aliasUD;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The xmlizer used to xmlize dependence information.
 	 */
 	private final DependencyXMLizer xmlizer = new DependencyXMLizer();
 
@@ -353,21 +351,20 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/03 05:59:33  venku
+   - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.3  2004/03/03 02:17:46  venku
    - added a new method to ICallGraphInfo interface.
    - implemented the above method in CallGraph.
    - made aliased use-def call-graph sensitive.
-
    Revision 1.2  2004/02/25 23:34:29  venku
    - classes that should not be visible should be invisible :-)
-
    Revision 1.1  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.
      - Each information type has a xmlizer (XMLizer)
      - Each information type has a xmlizer driver (XMLizerCLI)
      - Tests use the XMLizer.
-
    Revision 1.4  2004/02/09 04:39:36  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.
@@ -517,19 +514,18 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/03 05:59:33  venku
+   - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.3  2004/03/03 02:17:46  venku
    - added a new method to ICallGraphInfo interface.
    - implemented the above method in CallGraph.
    - made aliased use-def call-graph sensitive.
-
    Revision 1.2  2004/02/25 23:34:29  venku
    - classes that should not be visible should be invisible :-)
-
    Revision 1.1  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.
      - Each information type has a xmlizer (XMLizer)
      - Each information type has a xmlizer driver (XMLizerCLI)
      - Tests use the XMLizer.
-
  */

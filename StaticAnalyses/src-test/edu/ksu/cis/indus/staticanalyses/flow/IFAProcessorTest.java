@@ -19,9 +19,7 @@ import edu.ksu.cis.indus.processing.IProcessor;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is the common interface to be implemented by unit tests that test pre/post processors of flow analysis information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -30,9 +28,11 @@ import edu.ksu.cis.indus.processing.IProcessor;
 public interface IFAProcessorTest
   extends IFATest {
 	/**
-	 * DOCUMENT ME!
+	 * Set the processor being tested.
 	 *
-	 * @param processor
+	 * @param processor is to be tested.
+	 *
+	 * @pre processor != null
 	 */
 	void setProcessor(IProcessor processor);
 }
@@ -40,6 +40,11 @@ public interface IFAProcessorTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.3  2004/02/08 21:31:41  venku
    - test refactoring to enable same test case to be used as
      unit test case and regression test case

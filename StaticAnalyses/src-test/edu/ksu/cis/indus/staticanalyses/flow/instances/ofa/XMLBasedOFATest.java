@@ -43,21 +43,17 @@ public final class XMLBasedOFATest
   extends AbstractXMLBasedTest
   implements IFAProcessorTest {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The map of interface id to interface implementation instances.
 	 */
 	private final Map info = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The xmlizer used to xmlize the call graph before testing.
 	 */
 	private OFAXMLizer xmlizer;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * The name of the tag used to mark the parts of the system visited during OFA.
 	 */
 	private String nameOfTheTag;
 
@@ -104,7 +100,7 @@ public final class XMLBasedOFATest
 	protected void setUp()
 	  throws Exception {
 		xmlizer = new OFAXMLizer();
-		xmlizer.setXmlOutputDir(xmlOutputDir);
+		xmlizer.setXmlOutputDir(xmlSecondInputDir);
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
 		info.put(IValueAnalyzer.TAG_ID, nameOfTheTag);
@@ -115,6 +111,11 @@ public final class XMLBasedOFATest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
    Revision 1.8  2004/02/09 17:42:25  venku
    - refactoring.
    Revision 1.7  2004/02/09 07:34:31  venku

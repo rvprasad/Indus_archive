@@ -131,13 +131,14 @@ public abstract class AbstractXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the a name based on the given name for the file into which the xml data will be written into.
 	 *
-	 * @param name DOCUMENT ME!
+	 * @param name to be considered when coming up with the file name.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the name of the file.
+	 *
+	 * @pre name != null
+	 * @post result != null
 	 */
 	public abstract String getFileName(final String name);
 
@@ -179,23 +180,27 @@ public abstract class AbstractXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Normalizes the given string into a form that is a valid xml identifier.
 	 *
-	 * @param name DOCUMENT ME!
+	 * @param string to be normalized.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return normalized string.
+	 *
+	 * @pre string != null
+	 * @post result != null
 	 */
-	public final String xmlizeString(final String name) {
-		return name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "");
+	public final String xmlizeString(final String string) {
+		return string.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "");
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/02/14 23:16:49  venku
+   - coding convention.
    Revision 1.12  2004/02/11 10:00:20  venku
    - added a new custom xml outputter class.
-
    Revision 1.11  2004/02/11 09:37:21  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.

@@ -28,9 +28,7 @@ import soot.toolkits.graph.UnitGraph;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides <code>ExceptionFlowSensitiveUnitGraph</code>s.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -44,16 +42,15 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(ExceptionFlowSensitiveUnitGraphFactory.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The names of the exceptions via which the control flow should be ignored.
+	 *
+	 * @invariant exceptionToIgnore.oclIsKindOf(Collection(String))
 	 */
 	private Collection exceptionsToIgnore = new ArrayList();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This flag indicates if the unit graph should be like complete unit graph or like trap unit graph in terms considering
+	 * control from the statement before the try block.
 	 */
 	private final boolean flag;
 
@@ -106,6 +103,9 @@ public class ExceptionFlowSensitiveUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/04 11:56:48  venku
+   - renamed a method.
+   - added a valid empty body into native methods.
    Revision 1.2  2004/02/23 08:27:21  venku
    - the graphs were created as complete unit graphs. FIXED.
    Revision 1.1  2004/02/17 05:59:15  venku

@@ -19,9 +19,7 @@ import junit.framework.Test;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a common interface implemented by tests that are based on xml data.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -30,23 +28,32 @@ import junit.framework.Test;
 public interface IXMLBasedTest
   extends Test {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Sets the directory from which to read the first xml test input.
 	 *
-	 * @param xmlInputDir DOCUMENT ME!
+	 * @param xmlInDir is the directory to read the xml test input from.
+	 *
+	 * @pre xmlInDir != null
 	 */
-	void setXmlInputDir(String xmlInputDir);
+	void setFirstXmlInputDir(String xmlInputDir);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Sets the directory from which to read the second xml test input.
 	 *
-	 * @param xmlOutputDir DOCUMENT ME!
+	 * @param xmlInDir is the directory to read the xml test input from.
+	 *
+	 * @pre xmlInDir != null
 	 */
-	void setXmlOutputDir(String xmlOutputDir);
+	void setSecondXmlInputDir(String xmlInputDir);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 01:20:06  venku
+   - coding convention.
+   - added a new abstract class contain the logic required for xml-based
+     testing.  (AbstractXMLBasedTest)
+   - added a new xml-based call graph testing class.
    Revision 1.2  2004/02/08 19:08:03  venku
    - documentation
    Revision 1.1  2004/02/08 04:53:14  venku

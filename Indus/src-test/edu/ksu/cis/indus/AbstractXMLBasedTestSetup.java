@@ -24,9 +24,7 @@ import junit.framework.TestSuite;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class is a test setup class that is used in conjunction with xml data-based testing.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -35,15 +33,15 @@ import junit.framework.TestSuite;
 public class AbstractXMLBasedTestSetup
   extends TestSetup
   implements IXMLBasedTest {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * The directory in which one of the xml-based testing input is read from.
 	 */
-	private String xmlInputDir;
+	private String xmlFirstInputDir;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * The directory in which the other xml-based testing input is read from.
 	 */
-	private String xmlOutputDir;
+	private String xmlSecondInputDir;
 
 	/**
 	 * @see TestSetup#TestSetup(TestSuite)
@@ -53,39 +51,35 @@ public class AbstractXMLBasedTestSetup
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param xmlInDir DOCUMENT ME!
+	 * @see IXMLBasedTest#setFirstXmlInputDir(String)
 	 */
-	public void setXmlInputDir(final String xmlInDir) {
-		xmlInputDir = xmlInDir;
+	public void setFirstXmlInputDir(final String xmlInDir) {
+		xmlFirstInputDir = xmlInDir;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the directory from which one of the xml-based testing input is read from.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return directory in which one of the xml-based testing input is read from.
 	 */
-	public String getXmlInputDir() {
-		return xmlInputDir;
+	public String getFirstXmlInputDir() {
+		return xmlFirstInputDir;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param xmlOutDir DOCUMENT ME!
+	 * @see IXMLBasedTest#setSecondXmlInputDir(String)
 	 */
-	public void setXmlOutputDir(final String xmlOutDir) {
-		xmlOutputDir = xmlOutDir;
+	public void setSecondXmlInputDir(final String xmlInDir) {
+		xmlSecondInputDir = xmlInDir;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the directory from which the other xml-based testing input is read from.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return directory in which the other xml-based testing input is read from.
 	 */
-	public String getXmlOutputDir() {
-		return xmlOutputDir;
+	public String getSecondXmlInputDir() {
+		return xmlSecondInputDir;
 	}
 
 	/**
@@ -97,8 +91,8 @@ public class AbstractXMLBasedTestSetup
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IXMLBasedTest _tester = (IXMLBasedTest) _i.next();
-			_tester.setXmlOutputDir(xmlOutputDir);
-			_tester.setXmlInputDir(xmlInputDir);
+			_tester.setSecondXmlInputDir(xmlSecondInputDir);
+			_tester.setFirstXmlInputDir(xmlFirstInputDir);
 		}
 	}
 }
@@ -106,13 +100,14 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/14 23:16:49  venku
+   - coding convention.
    Revision 1.3  2004/02/09 04:39:40  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.
      Hence, they need to be highly configurable.
    - For each concept, test setup should be in TestSetup
      rather than in the XMLizer.
-
    Revision 1.2  2004/02/09 01:20:06  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based
