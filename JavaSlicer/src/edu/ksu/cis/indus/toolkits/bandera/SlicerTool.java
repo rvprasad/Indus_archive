@@ -116,7 +116,7 @@ public class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#setConfiguration(java.lang.String)
+	 * @see edu.ksu.cis.bandera.tool.Tool#setConfiguration(java.lang.String)
 	 */
 	public void setConfiguration(final String configStr)
 	  throws Exception {
@@ -124,7 +124,7 @@ public class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#getConfiguration()
+	 * @see edu.ksu.cis.bandera.tool.Tool#getConfiguration()
 	 */
 	public String getConfiguration() {
 		return tool.stringizeConfiguration();
@@ -184,14 +184,14 @@ public class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#getInputParameterList()
+	 * @see edu.ksu.cis.bandera.tool.Tool#getInputParameterList()
 	 */
 	public List getInputParameterList() {
 		return Collections.unmodifiableList(IN_ARGUMENTS_IDS);
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#getOutputMap()
+	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputMap()
 	 */
 	public Map getOutputMap() {
 		Map outputMap = new HashMap();
@@ -200,14 +200,14 @@ public class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#getOutputParameterList()
+	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputParameterList()
 	 */
 	public List getOutputParameterList() {
 		return Collections.unmodifiableList(OUT_ARGUMENTS_IDS);
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#getToolConfigurationView()
+	 * @see edu.ksu.cis.bandera.tool.Tool#getToolConfigurationView()
 	 */
 	public ToolConfigurationView getToolConfigurationView() {
 		return configurationView;
@@ -221,14 +221,14 @@ public class SlicerTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#quit()
+	 * @see edu.ksu.cis.bandera.tool.Tool#quit()
 	 */
 	public void quit()
 	  throws Exception {
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractTool#run()
+	 * @see edu.ksu.cis.bandera.tool.Tool#run()
 	 */
 	public void run()
 	  throws Exception {
@@ -239,6 +239,10 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
+
    Revision 1.6  2003/09/27 01:27:46  venku
    - documentation.
    Revision 1.5  2003/09/27 01:09:35  venku

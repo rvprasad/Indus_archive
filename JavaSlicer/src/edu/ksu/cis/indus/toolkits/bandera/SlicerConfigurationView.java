@@ -110,7 +110,7 @@ public class SlicerConfigurationView
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.AbstractToolConfigurator#configure()
+	 * @see edu.ksu.cis.bandera.tool.ToolConfigurationView#configure()
 	 */
 	public void configure() {
 		if (shell == null) {
@@ -124,6 +124,10 @@ public class SlicerConfigurationView
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
+
    Revision 1.4  2003/09/27 01:09:35  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.

@@ -39,7 +39,7 @@ public class TrapUnitGraphFactory
 	 *
 	 * @post method.isConcret() implies result != null and result.oclIsKindOf(TrapUnitGraph)
 	 *
-	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getStmtGraph(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getUnitGraph(soot.SootMethod)
 	 */
 	public UnitGraph getUnitGraph(SootMethod method) {
 		WeakReference ref = (WeakReference) method2UnitGraph.get(method);
@@ -59,4 +59,7 @@ public class TrapUnitGraphFactory
 
 /*
    ChangeLog:
-   $Log$ */
+   $Log$
+   Revision 1.1  2003/09/28 11:36:27  venku
+   - Added a TrapUnitGraph factory.
+ */
