@@ -290,7 +290,7 @@ public class InterferenceDAv1
 				for (Iterator k = dtMap.keySet().iterator(); k.hasNext();) {
 					Pair de = (Pair) k.next();
 
-					if (isDependentOn(dt, de)) {
+					if (considerClassInitializers(dt, de) && isDependentOn(dt, de)) {
 						Collection t = (Collection) deMap.get(dt);
 
 						if (t.equals(Collections.EMPTY_LIST)) {
@@ -403,22 +403,20 @@ public class InterferenceDAv1
 	 * @pre dependent != null and dependee != null
 	 */
 	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
-		boolean result = considerClassInitializers(dependent, dependee);
+		boolean result = true;
+		Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+		Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
 
-		if (result) {
-			Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-			Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
-
-			if (de instanceof ArrayRef && dt instanceof ArrayRef) {
-				Type t1 = ((ArrayRef) de).getBase().getType();
-				Type t2 = ((ArrayRef) dt).getBase().getType();
-				result = t1.equals(t2);
-			} else if (dt instanceof InstanceFieldRef && de instanceof InstanceFieldRef) {
-				SootField f1 = ((InstanceFieldRef) de).getField();
-				SootField f2 = ((InstanceFieldRef) dt).getField();
-				result = f1.equals(f2);
-			}
+		if (de instanceof ArrayRef && dt instanceof ArrayRef) {
+			Type t1 = ((ArrayRef) de).getBase().getType();
+			Type t2 = ((ArrayRef) dt).getBase().getType();
+			result = t1.equals(t2);
+		} else if (dt instanceof InstanceFieldRef && de instanceof InstanceFieldRef) {
+			SootField f1 = ((InstanceFieldRef) de).getField();
+			SootField f2 = ((InstanceFieldRef) dt).getField();
+			result = f1.equals(f2);
 		}
+
 		return result;
 	}
 
@@ -496,6 +494,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.23  2003/11/26 09:16:26  venku
    - structure via which information is stored is different
      from the structure assumed while querying.  FIXED.
