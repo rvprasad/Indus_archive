@@ -112,6 +112,9 @@ public abstract class AbstractTool
 	}
 
 	/**
+	 * This implementation will breakdown the topmost composite configuration but any embedded configurations are returned as
+	 * is.
+	 *
 	 * @see ITool#getConfigurations()
 	 */
 	public Collection getConfigurations() {
@@ -344,6 +347,9 @@ public abstract class AbstractTool
 
 /*
  * ChangeLog: $Log$
+ * ChangeLog: Revision 1.29  2004/08/17 02:21:19  venku
+ * ChangeLog: - added a new method, getConfigurations(), to retrieve the available configurations in a tool.
+ * ChangeLog:
  * ChangeLog: Revision 1.28  2004/08/13 01:24:51  venku
  * ChangeLog: - coding conventions and documentation.
  * ChangeLog: Revision 1.27 2004/08/12 03:34:56 venku - notification was missing for the waits()
