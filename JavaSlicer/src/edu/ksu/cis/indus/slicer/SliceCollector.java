@@ -31,9 +31,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.SootClass;
-import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
+
+import soot.jimple.Stmt;
 
 import soot.tagkit.Host;
 
@@ -264,19 +265,33 @@ public final class SliceCollector {
 			final SootClass _sc = (SootClass) _i.next();
 			_pw.println("Class: " + _sc);
 
+			_pw.println("  Fields:");
+
 			for (final Iterator _j = getCollected(_sc.getFields()).iterator(); _j.hasNext();) {
-				final SootField _field = (SootField) _j.next();
-				_pw.println("Fields:");
-				_pw.println("\t" + _field);
+				_pw.println("    " + _j.next());
 			}
+
+			_pw.println("  Methods:");
 
 			for (final Iterator _j = getCollected(_sc.getMethods()).iterator(); _j.hasNext();) {
 				final SootMethod _method = (SootMethod) _j.next();
-				_pw.println("Methods:");
-				_pw.println("\t" + _method);
+				_pw.println("    " + _method);
+
+				if (_method.hasActiveBody()) {
+					for (final Iterator _k = getCollected(_method.getActiveBody().getUnits()).iterator(); _k.hasNext();) {
+						final Stmt _stmt = (Stmt) _k.next();
+						_pw.println("      " + _stmt);
+
+						for (final Iterator _l = getCollected(_stmt.getUseAndDefBoxes()).iterator(); _l.hasNext();) {
+							_pw.println("        " + ((ValueBox) _l.next()).getValue());
+						}
+					}
+				}
 			}
 		}
-		return _pw.toString();
+		_pw.flush();
+		_pw.close();
+		return _sw.getBuffer().toString();
 	}
 
 	/**
@@ -311,6 +326,8 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/24 07:48:26  venku
+   - added toString() method for convenience.
    Revision 1.8  2004/02/01 22:16:16  venku
    - renamed set/getSlicedBBGMgr to set/getBasicBlockGraphManager
      in SlicingEngine.
