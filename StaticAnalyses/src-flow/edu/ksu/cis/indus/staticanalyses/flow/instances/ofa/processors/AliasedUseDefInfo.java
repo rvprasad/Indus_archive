@@ -18,9 +18,11 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
+import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
 import java.util.Collection;
@@ -112,11 +114,14 @@ public class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getDefs(AssignStmt, Context)
 	 */
 	public Collection getDefs(final Stmt useStmt, final Context context) {
-		Map stmt2defs = (Map) defsMap.get(context.getCurrentMethod());
 		Collection result = null;
 
-		if (stmt2defs != null) {
-			result = (Collection) stmt2defs.get(useStmt);
+		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
+			Map stmt2defs = (Map) defsMap.get(context.getCurrentMethod());
+
+			if (stmt2defs != null) {
+				result = (Collection) stmt2defs.get(useStmt);
+			}
 		}
 
 		return result == null ? Collections.EMPTY_SET
@@ -134,11 +139,14 @@ public class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
 	 */
 	public Collection getUses(final DefinitionStmt defStmt, final Context context) {
-		Map stmt2uses = (Map) usesMap.get(context.getCurrentMethod());
 		Collection result = null;
 
-		if (stmt2uses != null) {
-			result = (Collection) stmt2uses.get(defStmt);
+		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
+			Map stmt2uses = (Map) usesMap.get(context.getCurrentMethod());
+
+			if (stmt2uses != null) {
+				result = (Collection) stmt2uses.get(defStmt);
+			}
 		}
 
 		return result == null ? Collections.EMPTY_SET
@@ -305,6 +313,9 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.14  2003/12/01 13:33:53  venku
    - program point was not set before querying the analyzer. FIXED.
    Revision 1.13  2003/11/26 08:15:06  venku
