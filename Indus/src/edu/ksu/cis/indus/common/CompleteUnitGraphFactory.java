@@ -49,9 +49,9 @@ public class CompleteUnitGraphFactory
 	 */
 	public final UnitGraph getUnitGraph(final SootMethod method) {
 		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
-		UnitGraph result = null;
+		UnitGraph result = (UnitGraph) _ref.get();
 
-		if (_ref == null || _ref.get() == null) {
+		if (_ref == null || result == null) {
 			if (method.isConcrete()) {
 				result = new CompleteUnitGraph(method.retrieveActiveBody());
 				method2UnitGraph.put(method, new WeakReference(result));
@@ -60,8 +60,6 @@ public class CompleteUnitGraphFactory
 					LOGGER.info("Method " + method + " is not concrete.");
 				}
 			}
-		} else if (_ref != null) {
-			result = (CompleteUnitGraph) _ref.get();
 		}
 		return result;
 	}
@@ -70,6 +68,9 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.8  2003/12/02 01:30:59  venku
    - coding conventions and formatting.
    Revision 1.7  2003/11/28 22:00:20  venku
@@ -85,7 +86,7 @@ public class CompleteUnitGraphFactory
      have a body.
    Revision 1.2  2003/09/28 06:52:22  venku
  *** empty log message ***
-               Revision 1.1  2003/09/28 06:22:54  venku
-               - Added support to plug unit graphs from the environment when
-                 requested by the implementations.
+                 Revision 1.1  2003/09/28 06:22:54  venku
+                 - Added support to plug unit graphs from the environment when
+                   requested by the implementations.
  */

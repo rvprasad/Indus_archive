@@ -43,21 +43,15 @@ public class TrapUnitGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(TrapUnitGraphFactory.class);
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param method DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * {@inheritDoc}
 	 *
 	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(TrapUnitGraph)
-	 *
-	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getUnitGraph(soot.SootMethod)
 	 */
 	public final UnitGraph getUnitGraph(final SootMethod method) {
 		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
-		UnitGraph result = null;
+		UnitGraph result = (UnitGraph) _ref.get();
 
-		if (_ref == null || _ref.get() == null) {
+		if (_ref == null || result == null) {
 			if (method.isConcrete()) {
 				result = new TrapUnitGraph(method.retrieveActiveBody());
 				method2UnitGraph.put(method, new WeakReference(result));
@@ -66,8 +60,6 @@ public class TrapUnitGraphFactory
 					LOGGER.info("Method " + method + " is not concrete.");
 				}
 			}
-		} else if (_ref != null) {
-			result = (TrapUnitGraph) _ref.get();
 		}
 		return result;
 	}
@@ -76,6 +68,9 @@ public class TrapUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.6  2003/12/02 01:30:59  venku
    - coding conventions and formatting.
    Revision 1.5  2003/11/28 22:00:20  venku
