@@ -60,8 +60,7 @@ import java.util.Map;
  * 
  * <p>
  * Things get twisted here. When we say "untransformed" version of a method we refer to the method before slicing.  Hence,
- * when we say "transformed" version of the method we refer to the method after slicing.  Just trying to keep it with
- * english like in "This is the slice of the mango transformed earlier."
+ * when we say "transformed" version of the method we refer to the method after slicing.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -305,6 +304,9 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/08/20 18:31:22  venku
+   Documentation errors fixed.
+
    Revision 1.15  2003/08/19 12:46:07  venku
    Documentation changes.
 
