@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.CustomToStringStyle;
+
 import edu.ksu.cis.indus.interfaces.AbstractPoolable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -88,8 +90,8 @@ public abstract class AbstractSliceCriterion
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return new ToStringBuilder(this).append("considerExecution", this.considerExecution)
-										  .append("method", this.method).toString();
+		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).append("considerExecution",
+			this.considerExecution).append("method", this.method).toString();
 	}
 
 	/**
@@ -134,6 +136,8 @@ public abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/19 08:27:03  venku
+   - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.9  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.CustomToStringStyle;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import org.apache.commons.logging.Log;
@@ -97,7 +99,8 @@ class SliceExpr
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return new ToStringBuilder(this).appendSuper(super.toString()).append("expr", this.expr).toString();
+		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
+																				  .append("expr", this.expr).toString();
 	}
 
 	/**
@@ -163,6 +166,8 @@ class SliceExpr
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/19 08:27:03  venku
+   - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.9  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
