@@ -42,8 +42,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$
  */
-public class Triple
-  implements Cloneable {
+public class Triple {
 	/**
 	 * The first object in this triple.
 	 */
@@ -109,18 +108,6 @@ public class Triple
 	 */
 	public final Object getThird() {
 		return third;
-	}
-
-	/**
-	 * Clones this object.  The contents are cloned based on shallow-copying semantics.
-	 *
-	 * @return a cloned copy of this triple.
-	 *
-	 * @throws CloneNotSupportedException if <code>super.clone()</code> fails.
-	 */
-	public Object clone()
-	  throws CloneNotSupportedException {
-		return (Triple) super.clone();
 	}
 
 	/**
@@ -242,6 +229,11 @@ public class Triple
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/30 09:15:57  venku
+   - deleted TripleManager.
+   - deleted unnecessary constructor.
+   - all triples are created in unoptimized state.
+
    Revision 1.3  2003/12/28 03:07:04  venku
    - renamed field triple/quadraple to tripleCache/quadrapleCache.
 

@@ -46,8 +46,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public final class Pair
-  implements Cloneable {
+public final class Pair {
 	/**
 	 * The first element of this pair.
 	 */
@@ -362,6 +361,10 @@ public final class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/30 09:14:38  venku
+   - deleted clone().
+   - deleted unnecessary else branch in equals().
+
    Revision 1.3  2003/12/28 02:58:02  venku
    - renamed field pair to pairCache.
 
