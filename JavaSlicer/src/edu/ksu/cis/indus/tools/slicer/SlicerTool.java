@@ -30,7 +30,6 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.slicer.AbstractSliceCriterion;
 import edu.ksu.cis.indus.slicer.BackwardSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.CompleteSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.ForwardSliceGotoProcessor;
@@ -376,7 +375,7 @@ public final class SlicerTool
 	public Collection getDAs() {
 		final Collection _result = new LinkedHashSet();
 		final SlicerConfiguration _config = ((SlicerConfiguration) getActiveConfiguration());
-		final List _daNames = new ArrayList(_config.getNamesOfDAsToUse());
+		final List _daNames = new ArrayList(_config.getIDsOfDAsToUse());
 		Collections.sort(_daNames);
 
 		for (final Iterator _i = _daNames.iterator(); _i.hasNext();) {
@@ -616,21 +615,6 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Sets execution consideration criteria on all of the given criteria to the given flag.
-	 *
-	 * @param sliceCriteria is the collection of criteria to be changed.
-	 * @param flag is to be set on the criteria.
-	 *
-	 * @pre sliceCriteria != null and sliceCriteria.oclIsKindOf(Collection(AbstractSliceCriterion))
-	 */
-	private void setConsiderExecution(final Collection sliceCriteria, final boolean flag) {
-		for (final Iterator _k = sliceCriteria.iterator(); _k.hasNext();) {
-			final AbstractSliceCriterion _criterion = (AbstractSliceCriterion) _k.next();
-			_criterion.setConsiderExecution(flag);
-		}
-	}
-
-	/**
 	 * Executes dependency analyses.
 	 *
 	 * @param slicerConfig provides the configuration.
@@ -645,7 +629,7 @@ public final class SlicerTool
 		// perform dependency analyses
 		daController.reset();
 
-		for (final Iterator _i = slicerConfig.getNamesOfDAsToUse().iterator(); _i.hasNext();) {
+		for (final Iterator _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 			final Collection _c = slicerConfig.getDependenceAnalysis(_id);
 			daController.setAnalyses(_id, _c);
@@ -702,11 +686,9 @@ public final class SlicerTool
 					}
 				}
 			} else {
-				Collection _criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst());
-				setConsiderExecution(_criteria, true);
+				Collection _criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst(), true);
 				_temp.addAll(_criteria);
-				_criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond());
-				setConsiderExecution(_criteria, true);
+				_criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond(), true);
 				_temp.addAll(_criteria);
 			}
 			criteria.addAll(_temp);
@@ -865,7 +847,7 @@ public final class SlicerTool
 			engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
 			engine.setInitMapper(initMapper);
 			engine.setBasicBlockGraphManager(bbgMgr);
-			engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getNamesOfDAsToUse());
+			engine.setAnalysesControllerAndDependenciesToUse(daController, slicerConfig.getIDsOfDAsToUse());
 			engine.setSliceCriteria(criteria);
 			engine.initialize();
 			engine.slice();
@@ -888,6 +870,11 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.88  2004/06/12 06:47:27  venku
+   - documentation.
+   - refactoring.
+   - coding conventions.
+   - catered feature request 384, 385, and 386.
    Revision 1.87  2004/05/31 21:38:11  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.

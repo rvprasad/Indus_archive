@@ -31,7 +31,7 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractSliceCriterion
+abstract class AbstractSliceCriterion
   extends AbstractPoolable
   implements ISliceCriterion {
 	/**
@@ -44,19 +44,6 @@ public abstract class AbstractSliceCriterion
 	 * value <code>false</code> to indicate execution should not be considered.
 	 */
 	private boolean considerExecution;
-
-	/**
-	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
-	 *
-	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
-	 * 		  considered while slicing.  This means all the subexpressions of the associated expression are also considered
-	 * 		  as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching this
-	 * 		  criterion should be considered while slicing.  This means none of the subexpressions of the associated
-	 * 		  expression are considered as slice criteria.
-	 */
-	public final void setConsiderExecution(final boolean shouldConsiderExecution) {
-		considerExecution = shouldConsiderExecution;
-	}
 
 	/**
 	 * Checks if the given object is "equal" to this object.
@@ -115,6 +102,19 @@ public abstract class AbstractSliceCriterion
 	}
 
 	/**
+	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
+	 *
+	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
+	 * 		  considered while slicing.  This means all the subexpressions of the associated expression are also considered
+	 * 		  as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching this
+	 * 		  criterion should be considered while slicing.  This means none of the subexpressions of the associated
+	 * 		  expression are considered as slice criteria.
+	 */
+	final void setConsiderExecution(final boolean shouldConsiderExecution) {
+		considerExecution = shouldConsiderExecution;
+	}
+
+	/**
 	 * Returns the stored criterion object.
 	 *
 	 * @return Object representing the criterion.
@@ -136,6 +136,8 @@ public abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/02/25 23:43:46  venku
+   - build and check for compilation errors before committing.
    Revision 1.12  2004/01/22 11:43:38  venku
    - while checking for equality we can rely on instanceof for null check.
      null instanceof <anything> is always false.
@@ -143,7 +145,6 @@ public abstract class AbstractSliceCriterion
      can be equal to a SliceStmt object if they are equal in terms of SliceStmt
      fields.  Hence, the slicestmt object may not be added to the
      workbag when an identical sliceexpr object exists in the workbag. FIXED.
-
    Revision 1.11  2004/01/20 00:35:14  venku
    - use the new custom to string style defined in indus.
    Revision 1.10  2004/01/19 08:27:03  venku

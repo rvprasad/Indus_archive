@@ -570,34 +570,7 @@ public final class SlicerConfiguration
 		boolean _result = true;
 
 		if (value instanceof Boolean) {
-			final Boolean _val = (Boolean) value;
-
-			if (propertyID.equals(USE_READYDA)) {
-				processUseProperty(_val, IDependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv3()));
-			} else if (propertyID.equals(USE_DIVERGENCEDA)) {
-				processUseProperty(_val, IDependencyAnalysis.DIVERGENCE_DA, Collections.singleton(new DivergenceDA()));
-			} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
-				processInterProceduralDivergenceDAProperty();
-			} else if (propertyID.equals(SLICE_FOR_DEADLOCK)) {
-				sliceForDeadlock = _val.booleanValue();
-			} else if (propertyID.equals(EXECUTABLE_SLICE)) {
-				executableSlice = _val.booleanValue();
-			} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
-				for (final Iterator _i =
-						((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
-					  _i.hasNext();) {
-					final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
-					_ida.setUseOFA(_val.booleanValue());
-				}
-			} else if (propertyID.equals(USE_OFA_FOR_READY_DA)) {
-				for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA)).iterator();
-					  _i.hasNext();) {
-					final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
-					_rda.setUseOFA(_val.booleanValue());
-				}
-			} else {
-				processRDARuleProperties(propertyID);
-			}
+			processBooleanProperty(propertyID, (Boolean) value);
 		} else if (propertyID.equals(SLICE_TYPE)) {
 			if (!SlicingEngine.SLICE_TYPES.contains(value)) {
 				_result = false;
@@ -662,7 +635,7 @@ public final class SlicerConfiguration
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(String))
 	 */
-	Collection getNamesOfDAsToUse() {
+	Collection getIDsOfDAsToUse() {
 		return Collections.unmodifiableCollection(dependencesToUse);
 	}
 
@@ -682,6 +655,42 @@ public final class SlicerConfiguration
 		}
 
 		return _result;
+	}
+
+	/**
+	 * Processes boolean property.
+	 *
+	 * @param propertyID is the id of the property to be set based on <code>booleanValue</code>.
+	 * @param booleanValue is the value  that decides the value of the property identified by <code>propertyID</code>.
+	 *
+	 * @pre propertyID != null and booleanValue != null
+	 */
+	private void processBooleanProperty(final Object propertyID, final Boolean booleanValue) {
+		if (propertyID.equals(USE_READYDA)) {
+			processUseProperty(booleanValue, IDependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv3()));
+		} else if (propertyID.equals(USE_DIVERGENCEDA)) {
+			processUseProperty(booleanValue, IDependencyAnalysis.DIVERGENCE_DA, Collections.singleton(new DivergenceDA()));
+		} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
+			processInterProceduralDivergenceDAProperty();
+		} else if (propertyID.equals(SLICE_FOR_DEADLOCK)) {
+			sliceForDeadlock = booleanValue.booleanValue();
+		} else if (propertyID.equals(EXECUTABLE_SLICE)) {
+			executableSlice = booleanValue.booleanValue();
+		} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
+			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
+				  _i.hasNext();) {
+				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();
+				_ida.setUseOFA(booleanValue.booleanValue());
+			}
+		} else if (propertyID.equals(USE_OFA_FOR_READY_DA)) {
+			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA)).iterator();
+				  _i.hasNext();) {
+				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
+				_rda.setUseOFA(booleanValue.booleanValue());
+			}
+		} else {
+			processRDARuleProperties(propertyID);
+		}
 	}
 
 	/**
@@ -819,12 +828,13 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/06/15 10:27:29  venku
+   - moved to IdentifierBasedDataDAv2.
    Revision 1.36  2004/06/12 06:47:27  venku
    - documentation.
    - refactoring.
    - coding conventions.
    - catered feature request 384, 385, and 386.
-
    Revision 1.35  2004/06/03 21:41:55  venku
    - added equals() method to compare two configurations based on content.
      This means the attributes of the configuration such as name are not considered
