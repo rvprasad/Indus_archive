@@ -46,10 +46,8 @@ public final class GraphUnitTestSuite {
 	 * @param s is ignored.
 	 */
 	public static void main(final String[] s) {
-		final TestRunner _runner = new TestRunner();
 		final String[] _suiteName = { GraphUnitTestSuite.class.getName() };
-		_runner.setLoading(false);
-		_runner.start(_suiteName);
+		TestRunner.main(_suiteName);
 	}
 
 	///CLOVER:ON
@@ -80,6 +78,9 @@ public final class GraphUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/05 22:26:30  venku
+   - used textui.TestRunner instead of swingui.TestRunner.
+
    Revision 1.5  2004/04/01 22:33:45  venku
    - test suite name was incorrect.
 

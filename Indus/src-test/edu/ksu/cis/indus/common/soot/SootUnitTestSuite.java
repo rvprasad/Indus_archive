@@ -45,10 +45,8 @@ public final class SootUnitTestSuite {
 	 * @param s is ignored.
 	 */
 	public static void main(final String[] s) {
-		final TestRunner _runner = new TestRunner();
 		final String[] _suiteName = { SootUnitTestSuite.class.getName() };
-		_runner.setLoading(false);
-		_runner.start(_suiteName);
+		TestRunner.main(_suiteName);
 	}
 
 	///CLOVER:ON
@@ -77,6 +75,9 @@ public final class SootUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/05 22:26:30  venku
+   - used textui.TestRunner instead of swingui.TestRunner.
+
    Revision 1.6  2004/04/01 22:33:45  venku
    - test suite name was incorrect.
 

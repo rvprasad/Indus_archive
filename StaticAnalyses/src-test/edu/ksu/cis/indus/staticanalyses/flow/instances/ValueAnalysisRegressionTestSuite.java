@@ -61,10 +61,8 @@ public final class ValueAnalysisRegressionTestSuite
 	 * @param args are ignored.
 	 */
 	public static void main(final String[] args) {
-		final TestRunner _runner = new TestRunner();
 		final String[] _suiteName = { ValueAnalysisRegressionTestSuite.class.getName() };
-		_runner.setLoading(false);
-		_runner.start(_suiteName);
+		TestRunner.main(_suiteName);
 	}
 
 	///CLOVER:ON
@@ -156,6 +154,9 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/05 22:26:48  venku
+   - used textui.TestRunner instead of swingui.TestRunner.
+
    Revision 1.5  2004/04/01 22:33:49  venku
    - test suite name was incorrect.
 

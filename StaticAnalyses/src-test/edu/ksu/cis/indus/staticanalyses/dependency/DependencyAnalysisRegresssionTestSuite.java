@@ -64,10 +64,8 @@ public class DependencyAnalysisRegresssionTestSuite {
 	 * @param args are ignored.
 	 */
 	public static void main(String[] args) {
-		final TestRunner _runner = new TestRunner();
 		final String[] _suiteName = { DependencyAnalysisRegresssionTestSuite.class.getName() };
-		_runner.setLoading(false);
-		_runner.start(_suiteName);
+		TestRunner.main(_suiteName);
 	}
 
 	///CLOVER:ON
@@ -192,6 +190,9 @@ public class DependencyAnalysisRegresssionTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/04/05 22:26:48  venku
+   - used textui.TestRunner instead of swingui.TestRunner.
+
    Revision 1.4  2004/04/01 22:33:49  venku
    - test suite name was incorrect.
 
