@@ -76,8 +76,10 @@ public final class AliasedUseDefInfov2
 	 * {@inheritDoc}
 	 *
 	 * @param cg is the call graph to use.
+	 * @param tg is the thread graph to use.  If this parameter is <code>null</code> then it is assumed all methods execute
+	 * in the same thread. 
 	 *
-	 * @pre iva != null and cg != null tg != null and bbgManager != null and pairManager != null
+	 * @pre iva != null and cg != null and bbgManager != null and pairManager != null
 	 */
 	public AliasedUseDefInfov2(final IValueAnalyzer iva, final ICallGraphInfo cg, final IThreadGraphInfo tg,
 		final BasicBlockGraphMgr bbgManager, final PairManager pairManager) {
@@ -96,12 +98,14 @@ public final class AliasedUseDefInfov2
 	}
 
 	/**
-	 * {@inheritDoc} This implementation actually checks if the use site is reachable from the def site.  However, it does
-	 * not check for the existence of any overriding definitions.
+	 * {@inheritDoc} 
+	 * 
+	 * <p>This implementation actually checks if the use site is reachable from the def site via control flow.
+	 * However, it does not check for the existence of any overriding definitions alike strong updates.</p>
 	 *
 	 * @pre defMethod != null and defStmt != null and useMethod != null and useStmt != null
 	 */
-	protected boolean isReachableViaInterProceduralFlow(final SootMethod defMethod, final Stmt defStmt,
+	protected boolean isReachableViaInterProceduralControlFlow(final SootMethod defMethod, final Stmt defStmt,
 		final SootMethod useMethod, final Stmt useStmt) {
 		boolean _result = occurInSameThread(defMethod, useMethod);
 
@@ -259,7 +263,7 @@ public final class AliasedUseDefInfov2
 		if (tgi != null) {
 			_result = CollectionUtils.containsAny(tgi.getExecutionThreads(defMethod), tgi.getExecutionThreads(useMethod));
 		} else {
-			_result = false;
+			_result = true;
 		}
 		return _result;
 	}
@@ -268,6 +272,8 @@ public final class AliasedUseDefInfov2
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/08/06 07:37:33  venku
+   - thread-graph based optimization.
    Revision 1.3  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.
