@@ -901,6 +901,11 @@ public final class SlicingEngine {
 			}
 		}
 
+		// capture control flow based dependences.
+		if (!collector.hasBeenCollected(stmt)) {
+		    generateStmtMethodCriteria(stmt, method, controlflowBasedDAs);
+		}
+		
 		// generate new slice criteria
 		generateCriteriaForTheCallToMethod(method);
 
@@ -970,9 +975,8 @@ public final class SlicingEngine {
 		includeTypesInSlice(_types);
 
 		// create new slice criteria based on statement level dependence.
-		if (!collector.hasBeenCollected(stmt)) {
-			_das.addAll(controlflowBasedDAs);
-			generateStmtMethodCriteria(stmt, method, _das);
+		if (!_das.isEmpty()) {
+		    generateStmtMethodCriteria(stmt, method, _das);
 		}
 
 		// create new criteria based on program point level dependence (identifier based dependence).
