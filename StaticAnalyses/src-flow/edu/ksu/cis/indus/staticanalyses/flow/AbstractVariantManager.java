@@ -118,7 +118,7 @@ public abstract class AbstractVariantManager {
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Exiting - IIndex: " + index + "\n" + o + "\n" + context + "\n" + fa._analyzer.isStable());
+			LOGGER.debug("Exiting - IIndex");
 		}
 
 		return temp;
@@ -161,6 +161,9 @@ public abstract class AbstractVariantManager {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/07 09:08:20  venku
+   - logging.
+
    Revision 1.8  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
