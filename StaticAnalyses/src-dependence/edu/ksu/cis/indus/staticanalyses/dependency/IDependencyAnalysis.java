@@ -29,7 +29,7 @@ public interface IDependencyAnalysis {
 	/**
 	 * This identifies backward directional analaysis.
 	 */
-	Object BACKWARD_DIRECTIONAL = "BACKWARD_DIRECTION";
+	Object BACKWARD_DIRECTION = "BACKWARD_DIRECTION";
 
 	/**
 	 * This identifies bidirectional analaysis.
@@ -49,7 +49,7 @@ public interface IDependencyAnalysis {
 	/**
 	 * This identifies forward directional analaysis.
 	 */
-	Object FORWARD_DIRECTIONAL = "FORWARD_DIRECTION";
+	Object FORWARD_DIRECTION = "FORWARD_DIRECTION";
 
 	/**
 	 * This identifies identifier based data dependency analysis.
@@ -136,6 +136,11 @@ public interface IDependencyAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
+
    Revision 1.2  2004/05/21 22:30:53  venku
    - documentation.
    Revision 1.1  2004/05/14 09:02:57  venku

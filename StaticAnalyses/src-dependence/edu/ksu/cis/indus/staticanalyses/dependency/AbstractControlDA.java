@@ -168,7 +168,7 @@ public abstract class AbstractControlDA
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo)
 	 * @pre info.get(IDependencyAnalysis.CONTROL_DA) != null
 	 * @pre info.get(IDependencyAnalysis.ID).oclIsTypeOf(IDependencyAnalysis)
-	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTIONAL)
+	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTION)
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
@@ -188,4 +188,7 @@ public abstract class AbstractControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/11 11:20:50  venku
+   - refactored code to simplify control dependence implementation.
+
  */
