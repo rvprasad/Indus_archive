@@ -11,7 +11,7 @@
 	<classpathentry exported="true" sourcepath="JAVACLASSES/src/common-pool.jar" kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry exported="true" kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry exported="true" sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.0.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
-	<classpathentry exported="true" kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
+	<classpathentry exported="true" sourcepath="JAVACLASSES/src/common-logging.jar" kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry exported="true" sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry exported="true" sourcepath="JAVACLASSES/src/common-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry exported="true" sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>
