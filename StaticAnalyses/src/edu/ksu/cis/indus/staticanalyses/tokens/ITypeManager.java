@@ -28,38 +28,40 @@ import java.util.Observer;
  */
 public interface ITypeManager {
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This is a wrapper class that is used in conjunction with observer pattern.  Instances of this class indicate the
+	 * creation of a new type.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public static final class NewTypeCreated {
+	final class NewTypeCreated {
 		/** 
-		 * <p>DOCUMENT ME! </p>
+		 * The new type that was created.
 		 */
 		private final IType type;
 
 		/**
-		 * DOCUMENT ME!
+		 * Creates an instance of this method.
 		 *
-		 * @param theType DOCUMENT ME!
+		 * @param theType that was created.
+		 *
+		 * @pre theType != null
 		 */
 		public NewTypeCreated(final IType theType) {
 			type = theType;
 		}
-        
-        /**
-         * Retrieves the created type.
-         * 
-         * @return the new type that was created.
-         * 
-         */
-        public IType getCreatedType() {
-            return type;
-        }
+
+		/**
+		 * Retrieves the created type.
+		 *
+		 * @return the new type that was created.
+		 *
+		 * @post result != null
+		 */
+		public IType getCreatedType() {
+			return type;
+		}
 	}
 
 	/**
@@ -112,16 +114,20 @@ public interface ITypeManager {
 	IType getTokenTypeForRepType(Object type);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Adds an observer.
 	 *
-	 * @param observer DOCUMENT ME!
+	 * @param observer to be added.
+	 *
+	 * @pre observer != null
 	 */
 	void addObserver(Observer observer);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Deletes an observer.
 	 *
-	 * @param observer DOCUMENT ME!
+	 * @param observer to be deleted.
+	 *
+	 * @pre observer != null
 	 */
 	void deleteObserver(Observer observer);
 

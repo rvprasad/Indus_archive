@@ -102,9 +102,9 @@ public abstract class AbstractTokenManager
 	/** 
      * {@inheritDoc}
      */
-    public void update(final Observable observer, final Object value) {
-		if (value instanceof NewTypeCreated && onlineTokenTypeRelationEvalutator != null) {
-            final IType _type = ((NewTypeCreated) value).getCreatedType();
+    public final void update(final Observable observer, final Object arg) {
+		if (arg instanceof NewTypeCreated && onlineTokenTypeRelationEvalutator != null) {
+            final IType _type = ((NewTypeCreated) arg).getCreatedType();
 			final Collection _values = onlineTokenTypeRelationEvalutator.getValuesConformingTo(getValues(), _type);
             if (!_values.isEmpty()) {
                 recordNewTokenTypeRelations(_values, _type);
@@ -113,9 +113,11 @@ public abstract class AbstractTokenManager
 	}
 
 	/**
-     * DOCUMENT ME!
+     * Retrieves the values being managed by this manager.  This implementation returns an empty collection.
      * 
-     * @return DOCUMENT ME!
+     * This is used to update value-token-type relation on-the-fly. 
+     * 
+     * @return the values being managed by this manager.
      */
     protected Collection getValues() {
         return Collections.EMPTY_SET;
@@ -134,7 +136,7 @@ public abstract class AbstractTokenManager
 
 	/**
 	 * Records the new token-type relations.  This implementation does nothing. This method will be called only be called if 
-     * there are new token type relations
+     * new token-type relations are discovered on-the-fly.
 	 *
 	 * @param values whose type has been incrementally changed. This is guaranteed to be the objects in the collection
 	 * 		  <code>values</code> provided to <code>fixupTokenTypeRelation</code> method.

@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
 /**
  * This is a simple implementation of <code>java.util.Set</code> that supports equality-based element retrieval.  The user
  * can provide an element to <code>get(Object)</code> and retrieve the element in the set that is equal to the given
- * element. <code>add(), clear(), contains(), </code> and <code>remove()</code> are optimized based on the internal data 
+ * element. <code>add(), clear(), contains(), </code> and <code>remove()</code> are optimized based on the internal data
  * structures.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -40,13 +40,7 @@ public final class RetrievableSet
 	 * @invariant map->entrySet()->forall(o | o.getKey() == o.getValue())
 	 */
 	private final Map map = new HashMap();
-    
-    /** 
-     * @see java.util.Collection#clear()
-     */
-    public void clear() {
-        map.clear();
-    }
+
 	/**
 	 * @see java.util.Collection#add(java.lang.Object)
 	 */
@@ -60,6 +54,13 @@ public final class RetrievableSet
 	}
 
 	/**
+	 * @see java.util.Collection#clear()
+	 */
+	public void clear() {
+		map.clear();
+	}
+
+	/**
 	 * @see java.util.Collection#contains(java.lang.Object)
 	 */
 	public boolean contains(final Object o) {
@@ -67,15 +68,16 @@ public final class RetrievableSet
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the element in this set that is equal to <code>o</code>.
 	 *
-	 * @param o DOCUMENT ME!
+	 * @param o is the element used to select the element from this set.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the element equal to <code>o</code>.
 	 *
-	 * @throws NoSuchElementException DOCUMENT ME!
+	 * @throws NoSuchElementException when no element in this set is equal to <code>o</code>.
+	 *
+	 * @pre o != null
+	 * @post result != null and result.equals(o)
 	 */
 	public Object get(final Object o) {
 		final Object _result;
