@@ -44,6 +44,9 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.text.Document;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 import soot.Scene;
 import soot.SootMethod;
@@ -342,8 +345,14 @@ public final class SECommons {
         final PrintWriter _pw = new PrintWriter(_sw);
         exception.printStackTrace(_pw);
         exception.printStackTrace();
-        final ExceptionDialog _ed = new ExceptionDialog(Display.getDefault()
-                .getActiveShell(), _sw.getBuffer().toString());
+        final IWorkbenchWindow _iww = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        Shell _shell = null;
+        if (_iww != null) {
+            _shell = _iww.getShell();
+        } else {
+            _shell = Display.getDefault().getActiveShell();
+        }
+        final ExceptionDialog _ed = new ExceptionDialog(_shell, _sw.getBuffer().toString());
         _ed.open();
     }
 

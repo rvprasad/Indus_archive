@@ -24,7 +24,8 @@ import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
-import edu.ksu.cis.indus.kaveri.driver.IndusRunner;
+import edu.ksu.cis.indus.kaveri.driver.J2BIndusRunner;
+import edu.ksu.cis.indus.kaveri.driver.KaveriIndusRunner;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -34,7 +35,6 @@ import org.eclipse.jface.action.IAction;
 
 import org.eclipse.jface.viewers.ISelection;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import org.eclipse.ui.IObjectActionDelegate;
@@ -53,6 +53,11 @@ public class RunIndus extends BasicSliceFunctions implements
      * The java file.
      */
     ISelection selection;
+    
+    /**
+     * The parent of this action.
+     */
+    private IWorkbenchPart targetPart;
 
     /**
      * (non-Javadoc).
@@ -62,6 +67,7 @@ public class RunIndus extends BasicSliceFunctions implements
      */
     public void setActivePart(final IAction action,
             final IWorkbenchPart targetPart) {
+        this.targetPart = targetPart;
     }
 
     /**
@@ -71,15 +77,62 @@ public class RunIndus extends BasicSliceFunctions implements
      */
     public void run(final IAction action) {
         List _fileList = null;
-        _fileList = preRunProcessing(selection);
+        final Shell _parentShell = targetPart.getSite().getShell();
+        _fileList = preRunProcessing(selection, _parentShell);
 
         if (_fileList != null && _fileList.size() > 0) {
-            KaveriPlugin.getDefault().getIndusConfiguration().reset();
+            KaveriPlugin.getDefault().getIndusConfiguration().reset();            
+            //final SliceProgressBar _dialog = new SliceProgressBar(_parentShell);
+            if (!KaveriPlugin.getDefault().getIndusConfiguration().isDoResidualize()) {
+              performNormalSlice(_parentShell, _fileList);                
+            } else {
+                performJ2BSlice(_parentShell, _fileList);
+            }
+        }
+    }
+    
+    /**
+     * Perform the J2B slice.
+     * @param parentShell
+     * @param fileList
+     */
+    private void performJ2BSlice(Shell parentShell, List fileList) {
+        final SliceProgressBar _dialog = new SliceProgressBar(parentShell);
+        final J2BIndusRunner _runner = new J2BIndusRunner(fileList, _dialog);
 
-            final Display _display = Display.getCurrent();
-            final Shell _shell = new Shell();
-            final SliceProgressBar _dialog = new SliceProgressBar(_shell);
-            final IndusRunner _runner = new IndusRunner(_fileList, _dialog);
+        if (!_runner.doWork()) {
+            return;
+        }
+
+        try {
+            _dialog.run(true, true, _runner);
+            KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().update();
+            performNormalSlice(parentShell, fileList);
+            KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().update();
+        } catch (InvocationTargetException _ie) {
+            KaveriErrorLog.logException("Invocation Target Exception", _ie);
+            SECommons.handleException(_ie);
+            G.reset();
+            KaveriPlugin.getDefault().getIndusConfiguration().reset();
+            KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
+        } catch (InterruptedException _ie) {
+            KaveriErrorLog.logException("Interrupted Exception", _ie);
+            SECommons.handleException(_ie);
+            G.reset();
+            KaveriPlugin.getDefault().getIndusConfiguration().reset();
+            KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
+        }       
+        
+    }
+
+    /**
+     * Perform the normal slice.
+     * @param parentShell The parent shell
+     * @param fileList The list of files to slice.
+     */
+        private void performNormalSlice(final Shell parentShell, final List fileList) {
+            final SliceProgressBar _dialog = new SliceProgressBar(parentShell);
+            final KaveriIndusRunner _runner = new KaveriIndusRunner(fileList, _dialog);
 
             if (!_runner.doWork()) {
                 return;
@@ -101,7 +154,7 @@ public class RunIndus extends BasicSliceFunctions implements
                 KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
             }
         }
-    }
+    
 
     //	/**
     //	 * Opens the file in an editor.

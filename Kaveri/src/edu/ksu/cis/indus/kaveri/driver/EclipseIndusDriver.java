@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.kaveri.presentation.AnnotationData;
 
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
+import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -371,6 +372,18 @@ public class EclipseIndusDriver extends SootBasedDriver {
 
     }
 
+    /**
+     * Residualize the Scence.
+     *
+     */
+    public void residualize() {
+        final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+		_residualizer.setTagToResidualize(nameOfSliceTag);
+		_residualizer.setBasicBlockGraphMgr(slicer.getBasicBlockGraphManager());
+		_residualizer.residualizeSystem(slicer.getSystem());
+    }
+    
+    
     /**
      * <p>
      * Sets the criteria used for slicing.

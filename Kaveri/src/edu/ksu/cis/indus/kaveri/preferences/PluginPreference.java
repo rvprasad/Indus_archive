@@ -52,6 +52,8 @@ import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -109,6 +111,16 @@ public class PluginPreference extends PreferencePage implements
      * Indicates whether the exception list was modified.
      */
     private boolean isExceptionStateDirty;
+    
+    /**
+     * The SB slice configuration combo.
+     */
+    private Combo cmbBackSliceConfig;
+    
+    /**
+     * The SF slice configuration combo.
+     */
+    private Combo cmbFwdSliceConfig;
     
     /**
      * The exception store.
@@ -171,10 +183,29 @@ public class PluginPreference extends PreferencePage implements
                 KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());            
         }
         
+        storeSliceActionConfigurations();
         
         KaveriPlugin.getDefault().storeConfiguration();
         KaveriPlugin.getDefault().savePluginPreferences();
         return super.performOk();
+    }
+
+    /**
+     * Store the slice button configurations. 
+     */
+    private void storeSliceActionConfigurations() {        
+        final IPreferenceStore _ps = KaveriPlugin.getDefault()
+        .getPreferenceStore();
+        final String _sbConfigKey = "edu.ksu.cis.indus.kaveri.sbConfig";
+        final String _sfConfigKey = "edu.ksu.cis.indus.kaveri.sfConfig";
+        
+        final String _bckConfig = cmbBackSliceConfig.getText();
+        final String _fwdConfig = cmbFwdSliceConfig.getText();
+        if (!_bckConfig.equals("") &&  !(_fwdConfig.equals(""))) {
+            _ps.setValue(_sbConfigKey, _bckConfig);
+            _ps.setValue(_sfConfigKey, _fwdConfig);
+        }
+                 
     }
 
     /**
@@ -389,7 +420,7 @@ public class PluginPreference extends PreferencePage implements
 
         }
         KaveriPlugin.getDefault().storeConfiguration();
-        KaveriPlugin.getDefault().savePluginPreferences();
+        storeSliceActionConfigurations();
         if (exceptionStore != null && isExceptionStateDirty) {
             final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
             final XStream _xstream = new XStream();
@@ -399,6 +430,9 @@ public class PluginPreference extends PreferencePage implements
                     _exceptionKey, _val);            
                 KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());            
         }
+        
+        KaveriPlugin.getDefault().savePluginPreferences();
+        
         super.performApply();
     }
 
@@ -422,7 +456,7 @@ public class PluginPreference extends PreferencePage implements
      */
     private Control createSliceButtonConfig(final TabFolder folder) {
         //KaveriPlugin.getDefault().setupDefaultColors();
-        final Composite _comp = new Composite(folder, SWT.NONE);
+        final Composite _comp = new Composite(folder, SWT.NONE);        
         final GridLayout _layout = new GridLayout();
         _layout.numColumns = 1;
         _comp.setLayout(_layout);
@@ -446,13 +480,13 @@ public class PluginPreference extends PreferencePage implements
             _gd.horizontalSpan = 1;
             _lblBackwardSlice.setLayoutData(_gd);
 
-            final Combo _cmbBckCombo = new Combo(_grp1, SWT.DROP_DOWN
+            cmbBackSliceConfig = new Combo(_grp1, SWT.DROP_DOWN
                     | SWT.READ_ONLY);
             _gd = new GridData(GridData.FILL_HORIZONTAL);
             _gd.horizontalSpan = 1;
             _gd.grabExcessHorizontalSpace = true;
-            _cmbBckCombo.setLayoutData(_gd);
-            initializeConfigs(_cmbBckCombo, false);
+            cmbBackSliceConfig.setLayoutData(_gd);
+            initializeConfigs(cmbBackSliceConfig, false);
 
             final Label _lblForwardSlice = new Label(_grp1, SWT.LEFT);
             _lblForwardSlice.setText("SF Slice Configuration");
@@ -460,33 +494,31 @@ public class PluginPreference extends PreferencePage implements
             _gd.horizontalSpan = 1;
             _lblForwardSlice.setLayoutData(_gd);
 
-            final Combo _cmbFwdCombo = new Combo(_grp1, SWT.DROP_DOWN
+           cmbFwdSliceConfig = new Combo(_grp1, SWT.DROP_DOWN
                     | SWT.READ_ONLY);
             _gd = new GridData(GridData.FILL_HORIZONTAL);
             _gd.horizontalSpan = 1;
             _gd.grabExcessHorizontalSpace = true;
-            _cmbFwdCombo.setLayoutData(_gd);
-            initializeConfigs(_cmbFwdCombo, true);
+            cmbFwdSliceConfig.setLayoutData(_gd);
+            initializeConfigs(cmbFwdSliceConfig, true);
 
-            final IPreferenceStore _ps = KaveriPlugin.getDefault()
-                    .getPreferenceStore();
-            final String _sbConfigKey = "edu.ksu.cis.indus.kaveri.sbConfig";
-            final String _sfConfigKey = "edu.ksu.cis.indus.kaveri.sfConfig";
+            
 
-            _cmbBckCombo.addSelectionListener(new SelectionAdapter() {
-                public void widgetSelected(SelectionEvent e) {
-                    final String _newConfig = _cmbBckCombo.getText();
-                    _ps.setValue(_sbConfigKey, _newConfig);
-                }
-            });
+            _comp.addPaintListener(
+                    new PaintListener() {
 
-            _cmbFwdCombo.addSelectionListener(new SelectionAdapter() {
-                public void widgetSelected(SelectionEvent e) {
-                    final String _newConfig = _cmbFwdCombo.getText();
-                    _ps.setValue(_sfConfigKey, _newConfig);
+                        public void paintControl(PaintEvent e) {
+                            cmbBackSliceConfig.removeAll();
+                            cmbFwdSliceConfig.removeAll();
+                            initializeConfigs(cmbBackSliceConfig, false);
+                            initializeConfigs(cmbFwdSliceConfig, true);
+                            
+                        }
+                        
+                    }
+                    );                        
 
-                }
-            });
+            
 
         } catch (IllegalArgumentException _ile) {
             KaveriErrorLog.logException("Illega Argument Exception", _ile);

@@ -120,6 +120,11 @@ public class IndusConfiguration {
     private ContextRepository ctxRepository;
 
     /**
+     * Residualize the scene.
+     */
+    private boolean doResidualize;
+    
+    /**
      * The dependence history.
      */
     private DependenceHistoryData depHistory;
@@ -513,5 +518,17 @@ public class IndusConfiguration {
      */
     public void addToChosenContext(final Collection myChosenContext) {
         chosenContext.addAll(myChosenContext);
+    }
+    /**
+     * @return Returns the doResidualize.
+     */
+    public boolean isDoResidualize() {
+        return doResidualize;
+    }
+    /**
+     * @param doResidualize The doResidualize to set.
+     */
+    public void setDoResidualize(boolean doResidualize) {
+        this.doResidualize = doResidualize;
     }
 }

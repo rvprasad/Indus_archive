@@ -144,6 +144,11 @@ public class IndusConfigurationDialog2 extends Dialog {
      */
     private IJavaProject project;
 
+    /**
+     * The id for the j2b interface.
+     */
+    private static final int J2B_ID = 1337;
+
     
     
     /**
@@ -242,6 +247,9 @@ public class IndusConfigurationDialog2 extends Dialog {
     protected void createButtonsForButtonBar(final Composite parent) {
         createButton(parent, IDialogConstants.OK_ID, Messages
                 .getString("IndusConfigurationDialog.29"), true);
+        
+        createButton(parent, IndusConfigurationDialog2.J2B_ID, "Run J2B", false);
+        
         createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
     }
@@ -329,6 +337,8 @@ public class IndusConfigurationDialog2 extends Dialog {
         // Reset the scope string
         KaveriPlugin.getDefault().getIndusConfiguration()
                 .setScopeSpecification("");
+        KaveriPlugin.getDefault().getIndusConfiguration()
+        		.setDoResidualize(false);
         /*
          * KaveriPlugin.getDefault().getIndusConfiguration().resetChosenContext();
          */
@@ -1076,6 +1086,16 @@ public class IndusConfigurationDialog2 extends Dialog {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
+     */
+    protected void buttonPressed(int buttonId) {       
+        super.buttonPressed(buttonId);
+        if (buttonId == IndusConfigurationDialog2.J2B_ID) {
+            KaveriPlugin.getDefault().getIndusConfiguration().setDoResidualize(true);
+            okPressed();
+        }
+    }
 }
 
 class CriteriaViewLabelProvider extends LabelProvider implements ITableLabelProvider {

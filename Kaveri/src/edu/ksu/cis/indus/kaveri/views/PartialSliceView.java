@@ -482,19 +482,22 @@ public class PartialSliceView extends ViewPart {
 
         Action _actionAddCriteriaTop = new Action() {
             public void run() {
-                if (viewer.getTable().getSelectionIndex() != -1
-                        && partialData != null
+                if (partialData != null
                         && partialData.getClassName() != null) {
                     final List _stmtList = partialData.getStmtList().subList(2,
                             partialData.getStmtList().size());
-                    final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable()
-                            .getSelectionIndex());
+
+                    if (_stmtList.size() == 0) return;
+                    int _index = 0;
+                    if (viewer.getTable().getSelectionIndex() != -1) {
+                        _index = viewer.getTable().getSelectionIndex();
+                    }
+                    final Stmt _stmt = (Stmt) _stmtList.get(_index);
                     if (crtList.containsKey(_stmt)) {
                         MessageDialog.openError(null, "Error",
                                 "Duplicate Criteria are not allowed!");
                     } else {
-                        addToCriteria(viewer.getTable().getSelectionIndex(),
-                                false);
+                        addToCriteria(_index, false);
                         crtList.put(_stmt, new Boolean(false));
                         viewer.refresh();
                     }
@@ -512,18 +515,21 @@ public class PartialSliceView extends ViewPart {
 
         Action _actionAddCriteriaBottom = new Action() {
             public void run() {
-                if (viewer.getTable().getSelectionIndex() != -1
-                        && partialData != null
-                        && partialData.getClassName() != null) {
+                if (partialData != null
+                        && partialData.getClassName() != null) {                    
                     final List _stmtList = partialData.getStmtList().subList(2,
                             partialData.getStmtList().size());
-                    final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable()
-                            .getSelectionIndex());
+                    if (_stmtList.size() == 0) return;
+                    int _index = _stmtList.size() - 1;
+                    if (viewer.getTable().getSelectionIndex() != -1) {
+                        _index = viewer.getTable().getSelectionIndex();
+                    }
+                    final Stmt _stmt = (Stmt) _stmtList.get(_index);
                     if (crtList.containsKey(_stmt)) {
                         MessageDialog.openError(null, "Error",
                                 "Duplicate Criteria are not allowed!");
                     } else {
-                        addToCriteria(viewer.getTable().getSelectionIndex(),
+                        addToCriteria(_index,
                                 true);
                         crtList.put(_stmt, new Boolean(true));
                         viewer.refresh();

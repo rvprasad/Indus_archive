@@ -19,7 +19,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.jibx.runtime.JiBXException;
@@ -42,7 +42,9 @@ public class ScopePopupAction implements IObjectActionDelegate {
     private String scopePreferenceId = "edu.ksu.cis.indus.kaveri.scope";
 
     private ISelection selection;
-
+    
+    private IWorkbenchPart targetPart;
+    
     /**
      * (non-Javadoc)
      * 
@@ -50,7 +52,7 @@ public class ScopePopupAction implements IObjectActionDelegate {
      *      org.eclipse.ui.IWorkbenchPart)
      */
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-
+        this.targetPart = targetPart;
     }
 
     /**
@@ -65,6 +67,7 @@ public class ScopePopupAction implements IObjectActionDelegate {
 
             String _scopeSpec = KaveriPlugin.getDefault().getPreferenceStore()
                     .getString(scopePreferenceId);
+            final Shell _parentShell = targetPart.getSite().getShell();
 
             if (_scopeSpec.equals("")) {
                 _scopeSpec = "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
@@ -79,7 +82,7 @@ public class ScopePopupAction implements IObjectActionDelegate {
                 if (_retObj instanceof IMethod) {
                     final IMethod _method = (IMethod) _retObj;
                     final ScopePropertiesSelectionDialog _spsd = new ScopePropertiesSelectionDialog(
-                            Display.getCurrent().getActiveShell(),
+                            _parentShell,
                             IScopeDialogMorphConstants.SCOPE_NAME_ONLY,
                             "Method_" + _method.getElementName());
                     if (_spsd.open() == IDialogConstants.OK_ID) {
@@ -96,7 +99,7 @@ public class ScopePopupAction implements IObjectActionDelegate {
                 if (_retObj instanceof IField) {
                     final IField _field = (IField) _retObj;
                     final ScopePropertiesSelectionDialog _spsd = new ScopePropertiesSelectionDialog(
-                            Display.getCurrent().getActiveShell(),
+                            _parentShell,
                             IScopeDialogMorphConstants.SCOPE_NAME_ONLY,
                             "Field_" + _field.getElementName());
                     if (_spsd.open() == IDialogConstants.OK_ID) {
@@ -113,7 +116,7 @@ public class ScopePopupAction implements IObjectActionDelegate {
                 if (_retObj instanceof IType) {
                     final IType _type = (IType) _retObj;
                     final ScopePropertiesSelectionDialog _spsd = new ScopePropertiesSelectionDialog(
-                            Display.getCurrent().getActiveShell(),
+                            _parentShell,
                             IScopeDialogMorphConstants.SCOPE_NAME_REGEX,
                             "Class_" + _type.getElementName());
                     _spsd.setStrDefaultClassName(_type.getFullyQualifiedName());
@@ -185,6 +188,8 @@ public class ScopePopupAction implements IObjectActionDelegate {
         FieldSpecification _fs = new FieldSpecification();
         _fs.setInclusion(true);
         _fs.setName(strScopeName);
+        _fs.setFieldNameSpec(field.getElementName());
+        
         final TypeSpecification _declClassSpec = new TypeSpecification();
         _declClassSpec.setNamePattern(PrettySignature.getSignature(field
                 .getParent()));
@@ -192,8 +197,12 @@ public class ScopePopupAction implements IObjectActionDelegate {
         _fs.setDeclaringClassSpec(_declClassSpec);
 
         final TypeSpecification _fieldTypeSpec = new TypeSpecification();
-        _fieldTypeSpec.setNamePattern(field.getElementName());
+        final String _retTypeString;
         try {
+            _retTypeString = field.getTypeSignature();
+        
+        _fieldTypeSpec.setNamePattern(JavaModelUtil.getResolvedTypeName(
+                _retTypeString, field.getDeclaringType()));        
             final int _retType = Signature.getTypeSignatureKind(field
                     .getTypeSignature());
             String _scopeDefinition = "";
@@ -204,9 +213,15 @@ public class ScopePopupAction implements IObjectActionDelegate {
                 _scopeDefinition = "IDENTITY";
             }
             _fieldTypeSpec.setScopeExtension(_scopeDefinition);
-            _fs.setFieldTypeSpec(_fieldTypeSpec);
+            
+            _fs.setFieldTypeSpec(_fieldTypeSpec);           
         } catch (JavaModelException _jme) {
             _fs = null;
+        }
+         catch (IllegalArgumentException e) {
+           _fs = null;
+            SECommons.handleException(e);
+            KaveriErrorLog.logException("Illegal Argument Exception", e);
         }
         return _fs;
     }
@@ -230,6 +245,7 @@ public class ScopePopupAction implements IObjectActionDelegate {
 
             // Return type specification.
             final TypeSpecification _ts = new TypeSpecification();
+            
             final String _retTypeString = Signature.getReturnType(method
                     .getSignature());
             String _scopeDefinition = "";

@@ -20,6 +20,8 @@
 package edu.ksu.cis.indus.kaveri.sliceactions;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
-import org.eclipse.swt.widgets.Display;
+
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IFileEditorInput;
 
@@ -55,9 +57,10 @@ import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.dialogs.IndusConfigurationDialog2;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
-import edu.ksu.cis.indus.kaveri.driver.IndusRunner;
+import edu.ksu.cis.indus.kaveri.driver.KaveriIndusRunner;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
@@ -75,9 +78,10 @@ abstract public class BasicSliceFunctions {
      * 
      * @param selection
      *            The chosen element.
+     * @param parentShell The parent shell
      * @return List The list of java files.
      */
-    protected List preRunProcessing(ISelection selection) {
+    protected List preRunProcessing(ISelection selection, Shell parentShell) {
         List _filelst = new LinkedList();
         IJavaProject _jproject = null;
         IResource _resource = null;
@@ -118,7 +122,7 @@ abstract public class BasicSliceFunctions {
                     return null;
                 }
                 final IndusConfigurationDialog2 _indusDialog = new IndusConfigurationDialog2(
-                        new Shell(), _jproject);
+                        parentShell, _jproject);
                 KaveriPlugin.getDefault().getIndusConfiguration().getCriteria()
                         .clear();                
                 KaveriPlugin.getDefault().getIndusConfiguration().getChosenContext().clear();
@@ -162,9 +166,10 @@ abstract public class BasicSliceFunctions {
      * @param textSelection
      *            The selected text
      * @param postExec Whether post execution is enabled.
+     * @param parentShell The parent shell
      */
     protected void runSlice(final String sliceType,
-            final CompilationUnitEditor editor, ISelection textSelection, final boolean postExec) {
+            final CompilationUnitEditor editor, ISelection textSelection, final boolean postExec, Shell parentShell) {
         final ITextSelection _tselection = (ITextSelection) textSelection;
         final String _text = _tselection.getText();
         final int _nSelLine = _tselection.getEndLine() + 1; // Havent figured
@@ -198,8 +203,9 @@ abstract public class BasicSliceFunctions {
                     _c.setBConsiderValue(postExec);
 
                     KaveriPlugin.getDefault().getIndusConfiguration()
-                            .setAdditive(false);
+                            .setAdditive(false);                    
                     KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                    KaveriPlugin.getDefault().getIndusConfiguration().setDoResidualize(false);
                     KaveriPlugin.getDefault().getIndusConfiguration()
                             .resetChosenContext();
                     KaveriPlugin.getDefault().getIndusConfiguration()
@@ -218,12 +224,10 @@ abstract public class BasicSliceFunctions {
 
                     //					 Changed to my progress monitor dialog.
 
-                    final Display _display = Display.getCurrent();
-                    final Shell _shell = new Shell();
-
+                  
                     final SliceProgressBar _dialog = new SliceProgressBar(
-                            _shell);
-                    final IndusRunner _runner = new IndusRunner(_lst, _dialog);
+                            parentShell);
+                    final KaveriIndusRunner _runner = new KaveriIndusRunner(_lst, _dialog);
                     _runner.setEditor(editor);
 
                     if (!_runner.doWork()) {
@@ -270,5 +274,28 @@ abstract public class BasicSliceFunctions {
             _hasNature = false;
         }
         return _hasNature;
+    }
+    
+    /**
+     * Validates the given configuration name
+     * @param configName The name of the configuration.
+     * @return boolean True if the configuration is present
+     */
+    protected boolean validateConfiguration(final String configName) {
+        boolean _result = false;
+        final SlicerTool _sTool = KaveriPlugin.getDefault().getSlicerTool();
+        if (_sTool.getCurrentConfiguration() == null) {
+            KaveriPlugin.getDefault().loadConfigurations();
+        }
+        final Collection _configColl = KaveriPlugin.getDefault().getSlicerTool().getConfigurations();
+        for (Iterator iter = _configColl.iterator(); iter.hasNext();) {
+            final IToolConfiguration _config = (IToolConfiguration) iter.next();
+            if (_config.getConfigName().equals(configName)) {
+                _result = true;
+                break;
+            }
+            
+        }
+        return _result;
     }
 }

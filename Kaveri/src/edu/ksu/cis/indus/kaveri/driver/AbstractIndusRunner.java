@@ -68,16 +68,12 @@ import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.callgraph.MethodCallContext;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
 import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
 import edu.ksu.cis.indus.kaveri.rootmethodtrapper.RootMethodCollection;
-import edu.ksu.cis.indus.kaveri.sliceactions.Messages;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
-import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
-import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -88,13 +84,13 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
  * 
  * @author Ganeshan
  */
-public class IndusRunner implements IRunnableWithProgress {
+public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     /**
      * Java Editor instance.
      */
     CompilationUnitEditor editor;
 
-    private boolean opCancelled;
+    protected boolean opCancelled;
 
     /**
      * <p>
@@ -121,19 +117,27 @@ public class IndusRunner implements IRunnableWithProgress {
     boolean reachableWarningGiven = false;
     
     /**
+     * Residualize the scene. 
+     * The entity that does this is resposible for 
+     * restoring the changes.
+     * 
+     */
+    boolean residualize = false;
+    
+    /**
      * All the java files in the given project.
      */
     List completeFileList;
 
     /**
-     * Creates a new IndusRunner object.
+     * Creates a new KaveriIndusRunner object.
      * 
      * @param filesList
      *            The file pointing to the java file being sliced
      * @param bar
      *            The slice progress bar to which to report the messages.
      */
-    public IndusRunner(final List filesList, SliceProgressBar bar) {
+    public AbstractIndusRunner(final List filesList, SliceProgressBar bar) {
         this.fileList = filesList;
         driver = KaveriPlugin.getDefault().getIndusConfiguration()
                 .getEclipseIndusDriver();
@@ -168,93 +172,8 @@ public class IndusRunner implements IRunnableWithProgress {
      * 
      * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void run(final IProgressMonitor monitor)
-            throws InvocationTargetException, InterruptedException {
-        monitor.beginTask(Messages.getString("IndusRunner.1"), 100); //$NON-NLS-1$
-        final Collection _ctx = KaveriPlugin.getDefault()
-                .getIndusConfiguration().getChosenContext();
-        if (_ctx.size() > 0) {
-            processContexts(_ctx);
-        }
-        String _stag = "EclipseIndusTag";
-        _stag = _stag + System.currentTimeMillis();
-        final String _oldTag = driver.getNameOfSliceTag();
-        driver.setNameOfSliceTag(_stag);
-        
-        driver.getSlicer().addToolProgressListener(new IToolProgressListener() {
-            int _ctr = 1;
-
-            long _currTime;
-
-            String _newMsg = null;
-           
-            public void toolProgess(final ToolProgressEvent arg0) {
-                _ctr++;
-                if (!monitor.isCanceled()) {
-                    monitor.worked(_ctr);
-                    if (_newMsg == null) {
-                        _newMsg = arg0.getMsg();
-                        _currTime = System.currentTimeMillis();
-                    } else {
-                        final long _newTimeDelta = System.currentTimeMillis()
-                                - _currTime;
-                        _currTime = _newTimeDelta + _currTime;
-                        Display.getDefault().asyncExec(new Runnable() {
-                            public void run() {
-                                bar.addSliceMessage(_newMsg + " Time: "
-                                        + _newTimeDelta + " ms");
-                            }
-                        });
-                        _newMsg = arg0.getMsg();
-                    }
-                    //System.out.println(arg0.getMsg());
-                } else {                    
-                    opCancelled = true;                                       
-                }
-            }
-
-        });
-
-        
-        driver.execute();
-        if (opCancelled) {              
-           throw new InterruptedException("Slice was stopped");
-        }
-
-        //KaveriPlugin.getDefault().getIndusConfiguration().setLineNumbers(driver.getAnnotationLineNumbers());
-
-        final IndusDecorator _decorator = IndusDecorator.getIndusDecorator();
-        if (fileList.size() > 0) {
-            final IFile _file = (IFile) fileList.get(0);
-            final IProject _pr = _file.getProject();
-            KaveriPlugin.getDefault().getIndusConfiguration().setSliceProject(
-                    _pr);
-            final IJavaProject _jp = JavaCore.create(_pr);
-            final List _flist = completeFileList;
-            if (_flist != null) {
-                KaveriPlugin.getDefault().getIndusConfiguration()
-                        .setSliceFileList(_flist);
-            }
-            completeFileList = _flist;
-        }
-
-        if (_decorator != null) {
-            _decorator.refesh();
-        }
-
-        if (editor != null) {
-            highlightEditor();
-        }
-          
-        returnCriteriaToPool();
-        monitor.done();      
-        KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().update();
-        if (!_oldTag.equals("")) {
-            final SootIndusTagCleaner _job = new SootIndusTagCleaner(
-                    "Clean Soot Indus tags", _oldTag);
-            _job.schedule(10000);
-        }
-    }
+    public abstract void run(final IProgressMonitor monitor)
+            throws InvocationTargetException, InterruptedException ;
 
     /**
      * Process the contexts.
@@ -263,7 +182,7 @@ public class IndusRunner implements IRunnableWithProgress {
      *            The collection of contexts.
      * @pre ctx.oclIsKindOf(Collection(MethodCallContext))
      */
-    private void processContexts(Collection ctx) throws InterruptedException {
+    protected void processContexts(Collection ctx) throws InterruptedException {
         final EclipseIndusDriver _driver = KaveriPlugin.getDefault()
                 .getIndusConfiguration().getEclipseIndusDriver();
         for (Iterator iter = ctx.iterator(); iter.hasNext();) {
@@ -361,14 +280,14 @@ public class IndusRunner implements IRunnableWithProgress {
         try {
             String _sootClassPath = ""; //$NON-NLS-1$
             IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
-                    .getString("IndusRunner.5")); //$NON-NLS-1$
+                    .getString("AbstractIndusRunner.5")); //$NON-NLS-1$
             _jreclasspath = JavaCore.getClasspathVariable(Messages
-                    .getString("IndusRunner.6")); //$NON-NLS-1$		
+                    .getString("AbstractIndusRunner.6")); //$NON-NLS-1$		
 
             final String _pathseparator = System.getProperty(Messages
-                    .getString("IndusRunner.7")); //$NON-NLS-1$
+                    .getString("AbstractIndusRunner.7")); //$NON-NLS-1$
             final String _fileseparator = System.getProperty(Messages
-                    .getString("IndusRunner.8")); //$NON-NLS-1$
+                    .getString("AbstractIndusRunner.8")); //$NON-NLS-1$
 
             if (_jreclasspath != null) {
                 _sootClassPath = _jreclasspath.toOSString();
@@ -414,8 +333,8 @@ public class IndusRunner implements IRunnableWithProgress {
             } else {
                 _indusRun = false;
                 MessageDialog.openError(null, Messages
-                        .getString("IndusRunner.9"), Messages
-                        .getString("IndusRunner.12"));
+                        .getString("AbstractIndusRunner.9"), Messages
+                        .getString("AbstractIndusRunner.12"));
             }
         } catch (JavaModelException _jme) {
             SECommons.handleException(_jme);
@@ -520,7 +439,7 @@ public class IndusRunner implements IRunnableWithProgress {
                                 .get(1);
                         final Stmt _stmt = (Stmt) _stmtlist.get(2 + stindex);
                         driver.setCriteria(_sootmethod, _stmt, considerVal);
-                        //	System.out.println(Messages.getString("IndusRunner.15")
+                        //	System.out.println(Messages.getString("AbstractIndusRunner.15")
                         // + _stmt); //$NON-NLS-1$
                     }
                     break;
@@ -561,7 +480,7 @@ public class IndusRunner implements IRunnableWithProgress {
      * Highlights the editor with annotations. Used only with backward or
      * forward slicing.
      */
-    private void highlightEditor() {
+    protected void highlightEditor() {
         final Map _map = KaveriPlugin.getDefault().getIndusConfiguration()
                 .getLineNumbers();
         final AddIndusAnnotation _manager = KaveriPlugin.getDefault()
@@ -633,7 +552,7 @@ public class IndusRunner implements IRunnableWithProgress {
     /**
      * Returns the criteria to the pool.
      */
-    private void returnCriteriaToPool() {
+    protected void returnCriteriaToPool() {
         final Collection _coll = driver.getSlicer().getCriteria();
         final Iterator _it = _coll.iterator();
         
