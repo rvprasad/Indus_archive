@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections.Predicate;
 
 
 /**
@@ -440,13 +442,18 @@ public abstract class AbstractDirectedGraph
 			}
 		} else {
 			final Collection _considered = new HashSet();
+			final Collection _temp = new HashSet(nodes);
+			final Predicate _predicate =
+				new Predicate() {
+					public boolean evaluate(final Object object) {
+						return !_considered.contains(object);
+					}
+				};
 
-			for (final Iterator _i = nodes.iterator(); _i.hasNext();) {
+			for (final Iterator _i = IteratorUtils.filteredIterator(nodes.iterator(), _predicate); _i.hasNext();) {
 				final INode _root = (INode) _i.next();
-
-				if (!_considered.contains(_root)) {
-					findCyclesStartingFrom(nodes, _result, _considered, _root);
-				}
+				_temp.removeAll(_considered);
+				findCyclesStartingFrom(_temp, _result, _considered, _root);
 			}
 		}
 		return _result;
@@ -516,9 +523,10 @@ public abstract class AbstractDirectedGraph
 
 				if (!cycles.contains(_cycle)) {
 					cycles.add(new ArrayList(_cycle));
-					consideredNodes.addAll(_cycle);
 				}
 			} else {
+				consideredNodes.add(_o);
+
 				final INode _node = (INode) _o;
 				final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), nodes);
 
@@ -816,6 +824,8 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/07/25 10:26:35  venku
+   - generalized findCycles() to a given set of nodes (not just a SCC).
    Revision 1.20  2004/07/11 13:42:05  venku
    - optimization.
    Revision 1.19  2004/07/07 10:07:36  venku
