@@ -33,7 +33,6 @@ import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
-import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -533,6 +532,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/04/23 01:00:49  venku
+   - trying to resolve issues with canonicalization of Jimple.
+
    Revision 1.17  2004/04/23 00:42:37  venku
    - trying to get canonical xmlized Jimple representation.
    Revision 1.16  2004/04/22 23:32:32  venku
