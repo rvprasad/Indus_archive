@@ -293,7 +293,7 @@ public class IndusConfigurationDialog
 						final Criteria _c = (Criteria) _lst.get(_i);
 						final ArrayList _list = _c.getCriteria();
 						final String _disp = _list.get(1).toString() + ":"
-								+ _list.get(2).toString();
+								+ "line:" + _list.get(2).toString() + ":index:" + _list.get(3).toString();
 						criteriasList.add(_disp);
 					}
 				}
