@@ -1,42 +1,26 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -283,6 +267,48 @@ public class Pair
 	}
 
 	/**
+	 * Mapifies a given collection of pairs.
+	 *
+	 * @param pairs is a collection of <code>Pair</code> objects.
+	 * @param forward <code>true</code> indicates that the map should map the first element to the second elements in the
+	 * 		  pair; <code>false</code>, indicates the reverse direction.
+	 *
+	 * @return an object to collection map.
+	 *
+	 * @pre pairs != null and not pairs->includes(null)
+	 * @pre pairs.oclIsKindOf(Collection(edu.ksu.cis.indus.staticanalyses.support.Pair))
+	 * @post result.oclIsKindOf(Map(Object, Collection(Object)))
+	 * @post result->entrySet()->forall(o | o.getValue()->forall(p | pairs->includes(Pair(o.getKey(), p))))
+	 * @post pairs->forall(o | result.get(o.getFirst())->includes(o.getSecond()))
+	 */
+	public static final Map mapify(final Collection pairs, final boolean forward) {
+		Map result = new HashMap();
+
+		for (Iterator i = pairs.iterator(); i.hasNext();) {
+			Pair pair = (Pair) i.next();
+			Object key;
+			Object value;
+
+			if (forward) {
+				key = pair.getFirst();
+				value = pair.getSecond();
+			} else {
+				key = pair.getSecond();
+				value = pair.getFirst();
+			}
+
+			Collection c = (Collection) result.get(key);
+
+			if (c == null) {
+				c = new ArrayList();
+				result.put(key, c);
+			}
+			c.add(value);
+		}
+		return result;
+	}
+
+	/**
 	 * Optimizes this object with regard to hashCode and stringized representation retrival.  It (re)calculates the hashcode
 	 * and the stringized representation of this object and caches the new values.
 	 *
@@ -351,17 +377,22 @@ public class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 08:12:26  venku
+   Major changes in equals() method of Context, Pair, Marker, and Triple.
+   Similar changes in hashCode()
+   Spruced up Documentation and Specification.
+   Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-     Revision 1.2  2003/08/11 04:20:19  venku
-     - Pair and Triple were changed to work in optimized and unoptimized mode.
-     - Ripple effect of the previous change.
-     - Documentation and specification of other classes.
-     Revision 1.1  2003/08/07 06:42:16  venku
-     Major:
-      - Moved the package under indus umbrella.
-      - Renamed isEmpty() to hasWork() in WorkBag.
-     Revision 1.4  2003/05/22 22:18:31  venku
-     All the interfaces were renamed to start with an "I".
-     Optimizing changes related Strings were made.
+         Revision 1.2  2003/08/11 04:20:19  venku
+         - Pair and Triple were changed to work in optimized and unoptimized mode.
+         - Ripple effect of the previous change.
+         - Documentation and specification of other classes.
+         Revision 1.1  2003/08/07 06:42:16  venku
+         Major:
+          - Moved the package under indus umbrella.
+          - Renamed isEmpty() to hasWork() in WorkBag.
+         Revision 1.4  2003/05/22 22:18:31  venku
+         All the interfaces were renamed to start with an "I".
+         Optimizing changes related Strings were made.
  */
