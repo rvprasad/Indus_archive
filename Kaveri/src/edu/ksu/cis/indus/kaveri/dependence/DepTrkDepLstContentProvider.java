@@ -48,7 +48,6 @@ import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
