@@ -23,7 +23,8 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import soot.SootMethod;
 import soot.Value;
 
-import soot.jimple.AssignStmt;
+import soot.jimple.ArrayRef;
+import soot.jimple.InstanceFieldRef;
 
 
 /**
@@ -46,27 +47,34 @@ public class InterferenceDAv3
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
-	 * Checks if the given array/field access expression is dependent on the given array/field definition expression.
-	 *
-	 * @param dependent is the array/field read access site.
-	 * @param dependee is the array/field write access site.
-	 *
-	 * @return <code>true</code> if <code>dependent</code> is dependent on <code>dependee</code>; <code>false</code>,
-	 * 		   otherwise.
-	 *
-	 * @pre dependee.getFirst() != null and dependee.getSecond() != null
-	 * @pre dependee.getFirst().oclIsTypeOf(AssignStmt) and dependee.getSecond().oclIsTypeOf(SootMethod)
-	 * @pre dependent.getFirst() != null and dependent.getSecond() != null
-	 * @pre dependent.getFirst().oclIsTypeOf(AssignStmt) and dependent.getSecond().oclIsTypeOf(SootMethod)
+	 * @see InterferenceDAv1#isArrayDependentOn(Pair, Pair, ArrayRef, ArrayRef)
 	 */
-	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
-		boolean _result = super.isDependentOn(dependent, dependee);
+	protected boolean isArrayDependentOn(final Pair dependent, final Pair dependee, final ArrayRef dependentArrayRef,
+		final ArrayRef dependeeArrayRef) {
+		boolean _result = super.isArrayDependentOn(dependent, dependee, dependentArrayRef, dependeeArrayRef);
 
 		if (_result) {
 			final SootMethod _deMethod = (SootMethod) dependee.getSecond();
 			final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
-			final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-			final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+			final Value _de = dependeeArrayRef.getBase();
+			final Value _dt = dependentArrayRef.getBase();
+			_result = ecba.shared(_de, _deMethod, _dt, _dtMethod);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see InterferenceDAv1#isFieldDependentOn(Pair, Pair, InstanceFieldRef, InstanceFieldRef)
+	 */
+	protected boolean isFieldDependentOn(final Pair dependent, final Pair dependee, final InstanceFieldRef dependentFieldRef,
+		final InstanceFieldRef dependeeFieldRef) {
+		boolean _result = super.isFieldDependentOn(dependent, dependee, dependentFieldRef, dependeeFieldRef);
+
+		if (_result) {
+			final SootMethod _deMethod = (SootMethod) dependee.getSecond();
+			final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
+			final Value _de = dependeeFieldRef.getBase();
+			final Value _dt = dependentFieldRef.getBase();
 			_result = ecba.shared(_de, _deMethod, _dt, _dtMethod);
 		}
 		return _result;
@@ -96,6 +104,8 @@ public class InterferenceDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/01/25 15:32:41  venku
+   - enabled ready and interference dependences to be OFA aware.
    Revision 1.7  2004/01/21 14:01:21  venku
    - documentation.
    Revision 1.6  2004/01/06 00:17:00  venku
@@ -121,30 +131,30 @@ public class InterferenceDAv3
    - ripple effect of the above.
    Revision 1.12  2003/09/29 13:37:25  venku
  *** empty log message ***
-       Revision 1.11  2003/09/28 03:16:48  venku
-       - I don't know.  cvs indicates that there are no differences,
-         but yet says it is out of sync.
-       Revision 1.10  2003/09/08 02:28:02  venku
-       - ifDependentOn() was changed to isDependentOn().
-       Revision 1.9  2003/08/21 03:56:08  venku
-       Formatting.
-       Revision 1.8  2003/08/21 01:25:21  venku
-        - Renamed src-escape to src-concurrency to as to group all concurrency
-          issue related analyses into a package.
-        - Renamed escape package to concurrency.escape.
-        - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-       Changes due to the ripple effect of the above changes are being committed.
-       Revision 1.7  2003/08/14 05:10:29  venku
-       Fixed documentation links.
-       Revision 1.6  2003/08/11 06:34:52  venku
-       Changed format of change log accumulation at the end of the file
-       Revision 1.5  2003/08/11 06:31:55  venku
-       Changed format of change log accumulation at the end of the file
-       Revision 1.4  2003/08/09 23:52:54  venku
-       - import reorganization
-       Revision 1.3  2003/08/09 23:46:11  venku
-       Well if the read and write access points are marked as shared, then pessimistically
-       they occur in different threads.  In such situation, sequential path between
-       these points does not bear any effect unless the escape analysis is thread and
-       call-tree sensitive.
+           Revision 1.11  2003/09/28 03:16:48  venku
+           - I don't know.  cvs indicates that there are no differences,
+             but yet says it is out of sync.
+           Revision 1.10  2003/09/08 02:28:02  venku
+           - ifDependentOn() was changed to isDependentOn().
+           Revision 1.9  2003/08/21 03:56:08  venku
+           Formatting.
+           Revision 1.8  2003/08/21 01:25:21  venku
+            - Renamed src-escape to src-concurrency to as to group all concurrency
+              issue related analyses into a package.
+            - Renamed escape package to concurrency.escape.
+            - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+           Changes due to the ripple effect of the above changes are being committed.
+           Revision 1.7  2003/08/14 05:10:29  venku
+           Fixed documentation links.
+           Revision 1.6  2003/08/11 06:34:52  venku
+           Changed format of change log accumulation at the end of the file
+           Revision 1.5  2003/08/11 06:31:55  venku
+           Changed format of change log accumulation at the end of the file
+           Revision 1.4  2003/08/09 23:52:54  venku
+           - import reorganization
+           Revision 1.3  2003/08/09 23:46:11  venku
+           Well if the read and write access points are marked as shared, then pessimistically
+           they occur in different threads.  In such situation, sequential path between
+           these points does not bear any effect unless the escape analysis is thread and
+           call-tree sensitive.
  */
