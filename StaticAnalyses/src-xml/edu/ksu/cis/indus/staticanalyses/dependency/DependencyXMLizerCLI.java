@@ -31,6 +31,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
@@ -290,6 +291,9 @@ public class DependencyXMLizerCLI
 
 		final IMonitorInfo _monitorInfo = new MonitorAnalysis();
 		info.put(IMonitorInfo.ID, _monitorInfo);
+		
+		final SafeLockAnalysis _sla = new SafeLockAnalysis();
+		info.put(SafeLockAnalysis.ID, _sla);
 
 		writeInfo("BEGIN: FA");
 
@@ -324,6 +328,7 @@ public class DependencyXMLizerCLI
 		final AnalysesController _ac = new AnalysesController(info, _cgipc, getBbm());
 		_ac.addAnalyses(IMonitorInfo.ID, Collections.singleton(_monitorInfo));
 		_ac.addAnalyses(EquivalenceClassBasedEscapeAnalysis.ID, Collections.singleton(_ecba));
+		_ac.addAnalyses(SafeLockAnalysis.ID, Collections.singleton(_sla));
 
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
@@ -357,6 +362,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/07/25 00:08:15  venku
+   - command line options.
+
    Revision 1.32  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
@@ -618,6 +626,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/07/25 00:08:15  venku
+   - command line options.
+
    Revision 1.32  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
