@@ -166,8 +166,7 @@ public class DependencyXMLizerCLI
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option("", "aliasedUseDefv1", false, "Use version 1 of aliased use-def info.");
-		_option.setOptionalArg(false);
+		_option = new Option(" ", "aliased-use-def-v1", false, "Use version 1 of aliased use-def info.");
 		_options.addOption(_option);
 
 		for (int _i = 0; _i < _dasOptions.length; _i++) {
@@ -177,7 +176,7 @@ public class DependencyXMLizerCLI
 			_option = new Option(_shortOption, _longOption, false, _description);
 			_options.addOption(_option);
 		}
-
+		
 		final PosixParser _parser = new PosixParser();
 
 		try {
@@ -358,6 +357,15 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/07/23 13:09:44  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
+
    Revision 1.31  2004/07/21 20:32:31  venku
    - documentation.
    - CLI options were broken. FIXED.
@@ -610,6 +618,15 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/07/23 13:09:44  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
+
    Revision 1.31  2004/07/21 20:32:31  venku
    - documentation.
    - CLI options were broken. FIXED.
