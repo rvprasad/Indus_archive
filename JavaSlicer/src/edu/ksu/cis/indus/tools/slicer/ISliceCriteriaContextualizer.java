@@ -39,7 +39,7 @@ public interface ISliceCriteriaContextualizer {
 			public void setSlicerTool(final SlicerTool slicer) {
 			}
 
-			public void processCriteriaBasedOnProgramPoint(final Context context, final Collection baseCriteria) {
+			public void processCriteriaBasedOnProgramPoint(final Context programPoint, final Collection baseCriteria) {
 			}
 
 			public void processCriteriaBasedOnThis(final SootMethod method, final Collection baseCriteria) {
@@ -56,21 +56,21 @@ public interface ISliceCriteriaContextualizer {
 	/**
 	 * Injects context into the given criteria based on the program point defined by <code>context</code>.
 	 *
-	 * @param context that defines the program point as the basis of the context that will be injected.
-	 * @param baseCriteria is a collection of criteria to be injected with context.  Implementations should dispose the  base
-	 * 		  criteria and populate this collection with contextualized criteria upon return.
+	 * @param programPoint that defines the program point as the basis of the context that will be injected.
+	 * @param baseCriteria is a collection of criteria to be injected with context.  Implementations should populate this 
+     * collection with contextualized criteria upon return.  The implementations may reuse or dispose the provided criteria.
 	 *
-	 * @pre context != null and baseCriteria != null
+	 * @pre programPoint != null and baseCriteria != null
 	 * @pre baseCriteria.oclIsKindOf(Collection(ISliceCriterion))
 	 */
-	void processCriteriaBasedOnProgramPoint(Context context, Collection baseCriteria);
+	void processCriteriaBasedOnProgramPoint(Context programPoint, Collection baseCriteria);
 
 	/**
 	 * Injects context into the given criteria based on the context provided by <code>method</code>.
 	 *
 	 * @param method that defines the enclosing context as the basis of the context that will be injected.
-	 * @param baseCriteria is a collection of criteria to be injected with context. Implementations should dispose the  base
-	 * 		  criteria and populate this collection with contextualized criteria upon return.
+	 * @param baseCriteria is a collection of criteria to be injected with context. Implementations should populate this 
+     * collection with contextualized criteria upon return.  The implementations may reuse or dispose the provided criteria.
 	 *
 	 * @pre method != null and baseCriteria != null
 	 * @pre baseCriteria.oclIsKindOf(Collection(ISliceCriterion))
