@@ -169,7 +169,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @param configs DOCUMENT ME!
 	 */
-	protected void setConfigurations(List configs) {
+	protected void setConfigurations(final List configs) {
 		configurations.clear();
 		configurations.addAll(configs);
 	}
@@ -183,7 +183,7 @@ public class CompositeToolConfiguration
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	protected final ToolConfiguration getToolConfiguration(String name) {
+	protected final ToolConfiguration getToolConfiguration(final String name) {
 		ToolConfiguration result = null;
 
 		for (Iterator i = configurations.iterator(); i.hasNext();) {
@@ -201,7 +201,7 @@ public class CompositeToolConfiguration
 	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#processProperty(edu.ksu.cis.indus.tools.ToolConfiguration.PropertyIdentifier,
 	 * 		java.lang.Object)
 	 */
-	protected final boolean processProperty(PropertyIdentifier propertyID, Object value) {
+	protected final boolean processProperty(final PropertyIdentifier propertyID, final Object value) {
 		return getActiveToolConfiguration().processProperty(propertyID, value);
 	}
 }
@@ -209,6 +209,9 @@ public class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/26 15:05:01  venku
+   - binding related errors fixed.
+
    Revision 1.2  2003/09/26 15:00:01  venku
    - The configuration of tools in Indus has been placed in this package.
    - Formatting.
