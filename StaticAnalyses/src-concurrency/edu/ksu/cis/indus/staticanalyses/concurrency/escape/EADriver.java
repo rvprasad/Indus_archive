@@ -19,7 +19,11 @@ import soot.Local;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Value;
+import soot.ValueBox;
 
+import soot.jimple.ArrayRef;
+import soot.jimple.FieldRef;
 import soot.jimple.JimpleBody;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -39,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -177,6 +182,9 @@ public final class EADriver
 				}
 			}
 
+			Collection abstractObjects = new HashSet();
+			int accessSites = 0;
+
 			for (int i = 0; i < args.length; i++) {
 				SootClass sc = scm.getSootClass(args[i]);
 				System.out.println("Info for class " + sc.getName() + "\n");
@@ -194,6 +202,27 @@ public final class EADriver
 							System.out.println(" Local " + local + ":" + local.getType() + " escapes -> "
 								+ analysis.escapes(local, sm));
 						}
+
+						for (Iterator k = body.getUseAndDefBoxes().iterator(); k.hasNext();) {
+							ValueBox box = (ValueBox) k.next();
+							Value v = box.getValue();
+
+							if (v instanceof ArrayRef || v instanceof FieldRef) {
+								Object as = analysis.getAliasSetFor(v, sm);
+
+								if (as != null) {
+									as = ((AliasSet) as).find();
+
+									if (!abstractObjects.contains(as)) {
+										abstractObjects.add(as);
+									}
+								}
+
+								if (analysis.escapes(v, sm)) {
+									accessSites++;
+								}
+							}
+						}
 					} else {
 						if (LOGGER.isInfoEnabled()) {
 							LOGGER.info(sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
@@ -201,6 +230,8 @@ public final class EADriver
 					}
 				}
 			}
+			System.out.println("Total number of abstract objects are " + abstractObjects.size());
+			System.out.println("Total number of shared accesses based on escape information are " + accessSites);
 			System.out.println("Total classes loaded: " + scm.getClasses().size());
 			printTimingStats(System.out);
 		}
@@ -210,6 +241,9 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/10/05 06:31:35  venku
+   - Things work.  The bug was the order in which the
+     parameter alias sets were being accessed.  FIXED.
    Revision 1.10  2003/09/29 14:55:03  venku
    - don't use "use-orignal-names" option with Jimple.
      The variables referring to objects need to be unique if the

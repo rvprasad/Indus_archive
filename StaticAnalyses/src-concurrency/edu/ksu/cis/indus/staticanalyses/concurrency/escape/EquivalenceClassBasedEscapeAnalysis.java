@@ -1019,7 +1019,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * @pre v.isOclKindOf(Local) or v.isOclKindOf(ArrayRef) or v.isOclKindOf(FieldRef) or v.isOclKindOf(ArrayRef) or
 	 * 		v.isOclKindOf(InstanceFieldRef) implies v.getBase().isOclKindOf(Local)
 	 */
-	private AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
+	AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
 		Triple trp = (Triple) method2Triple.get(sm);
 
 		if (trp == null) {
@@ -1049,6 +1049,12 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/10/05 16:22:25  venku
+   - Interference dependence is now symbol based.
+   - Both interference and ready dependence consider
+     loop information in a more sound manner.
+   - ripple effect of the above.
+
    Revision 1.16  2003/10/05 06:31:35  venku
    - Things work.  The bug was the order in which the
      parameter alias sets were being accessed.  FIXED.
