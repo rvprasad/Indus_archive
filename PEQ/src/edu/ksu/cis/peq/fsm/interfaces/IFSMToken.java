@@ -51,4 +51,12 @@ public interface IFSMToken {
      * @return IFSMTokem The parent toke, if present else null
      */
     IFSMToken getParent();
+
+    /**    
+     * Set the parent token for this token.
+     * @param parent The parent token
+     * @pre parent != null
+     * @post this.parent != null
+     */
+    void setParent(final IFSMToken parent);
 }

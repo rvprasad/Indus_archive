@@ -197,7 +197,7 @@ public class ExistentialQueryEngine$v1 extends AbstractQueryEngine {
                 // Create the path to the root node token
                 IFSMToken _currToken = _rtoken;                
                 while (_currToken.getParent() != null) {
-                    _lstResult.add(_currToken);
+                    _lstResult.add(_currToken.getParent());
                     _currToken = _currToken.getParent();                    
                 }        
                 // This is ok because it runs in linear time, the time complexity
