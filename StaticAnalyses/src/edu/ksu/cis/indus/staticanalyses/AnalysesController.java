@@ -40,6 +40,7 @@ import soot.SootMethod;
 import soot.toolkits.graph.CompleteUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
+import edu.ksu.cis.indus.interfaces.ISystemInfo;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
@@ -64,7 +65,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractController {
+public abstract class AbstractController implements ISystemInfo {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -252,7 +253,7 @@ public abstract class AbstractController {
 	 *
 	 * @pre name != null and analysis != null
 	 */
-	protected final void setDAnalysis(final String name, final AbstractAnalysis analysis) {
+	protected final void setAnalysis(final String name, final AbstractAnalysis analysis) {
 		if (!participatingAnalysesNames.contains(name)) {
 			throw new IllegalArgumentException("name argument has to be one of the XXXX_DA.");
 		}
@@ -269,6 +270,9 @@ public abstract class AbstractController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/08/18 04:10:10  venku
+   Documentation change.
+
    Revision 1.8  2003/08/18 04:08:22  venku
    Removed unnecessary method.
 
