@@ -96,28 +96,11 @@ public class DependencyXMLizerCLI
 	 */
 	protected final Map info = new HashMap();
 
-	/** 
-	 * This provides use-def info based on aliasing.
-	 */
-
-	//private AliasedUseDefInfo aliasUD;
 
 	/** 
 	 * The xmlizer used to xmlize dependence information.
 	 */
 	private final DependencyXMLizer xmlizer = new DependencyXMLizer();
-
-	/** 
-	 * This provides equivalence class based escape analysis.
-	 */
-
-	//private EquivalenceClassBasedEscapeAnalysis ecba;
-
-	/** 
-	 * This provides call-graph based processing controller.
-	 */
-
-	//private ValueAnalyzerBasedProcessingController cgipc;
 
 	/** 
 	 * This flag indicates if jimple should be dumped.
@@ -350,6 +333,12 @@ public class DependencyXMLizerCLI
 		final long _stop1 = System.currentTimeMillis();
 		addTimeLog("Dependency preprocessing", _stop1 - _start1);
 		writeInfo("END: dependency analyses");
+		
+		// write xml
+		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
+			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
+			CollectionsUtilities.putIntoListInMap(info, _da1.getId(), _da1);
+		}
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 		xmlizer.writeXML(info);
 
@@ -364,6 +353,10 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
+
    Revision 1.27  2004/07/17 19:37:38  venku
    - coding conventions.
    Revision 1.26  2004/07/17 19:37:18  venku
@@ -601,6 +594,10 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
+
    Revision 1.27  2004/07/17 19:37:38  venku
    - coding conventions.
    Revision 1.26  2004/07/17 19:37:18  venku
