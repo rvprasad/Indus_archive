@@ -637,36 +637,34 @@ public abstract class AbstractDirectedGraph
 	 * Calculates reachability information for this graph.
 	 */
 	private void calculateReachabilityInfo() {
-		if (!reachability) {
-			final List _nodes = getNodes();
-			final int _noOfNodes = _nodes.size();
-			forwardReachabilityMatrix = new boolean[_noOfNodes][_noOfNodes];
-			backwardReachabilityMatrix = new boolean[_noOfNodes][_noOfNodes];
+		final List _nodes = getNodes();
+		final int _noOfNodes = _nodes.size();
+		forwardReachabilityMatrix = new boolean[_noOfNodes][_noOfNodes];
+		backwardReachabilityMatrix = new boolean[_noOfNodes][_noOfNodes];
 
-			for (int _iIndex = 0; _iIndex < _noOfNodes; _iIndex++) {
-				final INode _node = (INode) _nodes.get(_iIndex);
-				final Iterator _j = _node.getSuccsOf().iterator();
-				final int _jEnd = _node.getSuccsOf().size();
+		for (int _iIndex = 0; _iIndex < _noOfNodes; _iIndex++) {
+			final INode _node = (INode) _nodes.get(_iIndex);
+			final Iterator _j = _node.getSuccsOf().iterator();
+			final int _jEnd = _node.getSuccsOf().size();
 
-				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final INode _succ = (INode) _j.next();
-					forwardReachabilityMatrix[_iIndex][_nodes.indexOf(_succ)] = true;
-					backwardReachabilityMatrix[_nodes.indexOf(_succ)][_iIndex] = true;
-				}
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final INode _succ = (INode) _j.next();
+				forwardReachabilityMatrix[_iIndex][_nodes.indexOf(_succ)] = true;
+				backwardReachabilityMatrix[_nodes.indexOf(_succ)][_iIndex] = true;
 			}
+		}
 
-			for (int _j = 0; _j < _noOfNodes; _j++) {
-				for (int _k = 0; _k < _noOfNodes; _k++) {
-					for (int _l = 0; _l < _noOfNodes; _l++) {
-						if (forwardReachabilityMatrix[_k][_j] && forwardReachabilityMatrix[_j][_l]) {
-							forwardReachabilityMatrix[_k][_l] = true;
-							backwardReachabilityMatrix[_l][_k] = true;
-						}
+		for (int _j = 0; _j < _noOfNodes; _j++) {
+			for (int _k = 0; _k < _noOfNodes; _k++) {
+				for (int _l = 0; _l < _noOfNodes; _l++) {
+					if (forwardReachabilityMatrix[_k][_j] && forwardReachabilityMatrix[_j][_l]) {
+						forwardReachabilityMatrix[_k][_l] = true;
+						backwardReachabilityMatrix[_l][_k] = true;
 					}
 				}
 			}
-			reachability = true;
 		}
+		reachability = true;		
 	}
 
 	/**
@@ -824,6 +822,10 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/08/02 07:33:47  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
+
    Revision 1.22  2004/07/26 08:27:34  venku
    - optimization.
 
