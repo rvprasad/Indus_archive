@@ -1,0 +1,21 @@
+<!--#set var="menuItem" value="Documentation.ScreenShots" -->
+<!--#set var="title" value="Screen Shots" -->
+<!--#set var="description" value="Screen Shots of Indus" -->
+
+<!--#include virtual="/header.shtml" -->
+<p>Screen shots will be posted shortly.</p>
+<!--
+<table width ="80%" border="0" cellspacing="14" align="center">
+<td> <a href="/images/screen-shots/cadenaTextualViewSS.gif"><img src="/images/screen-shots/cadenaTextViewSmall.gif" border="1"> </a><div align="left"><small>IDL3 Editor View</small></div></td>
+<td> <a href="/images/screen-shots/cadenaFormViewSS.gif"><img src="/images/screen-shots/cadenaFormViewSmall.gif" border="1"> </a><div align="left"><small>Form View</small></div></td>
+<tr>
+<td> <a href="/images/screen-shots/cadenaGraphicalViewSS.gif"><img src="/images/screen-shots/cadenaGraphicalViewSmall.gif" border="1"> </a><div align="left"><small>Graphical View</small></div></td>
+<td> <a href="/images/screen-shots/graphicalAnalysisSS.gif"><img src="/images/screen-shots/graphicalAnalysisSmall.gif" border="1"> </a><div align="left"><small>Analysis from the Graphical View</small></div></td>
+<tr>
+<td> <a href="/images/screen-shots/ccm-idl-lazyActiveSS.gif"><img src="/images/screen-shots/ccm-idl-lazyActiveSmall.gif" border="1"> </a><div align="left"><small>LazyActive Component in IDL Editor</small></div></td>
+<td> <a href="/images/screen-shots/mode-based-popupSS.gif"><img src="/images/screen-shots/mode-based-popupSmall.gif" border="1"> </a><div align="left"><small>Changing Modes from the Graphical View</small></div></td>
+<tr>
+<td> <a href="/images/screen-shots/form-based-viewSS.gif"><img src="/images/screen-shots/form-based-viewSmall.gif" border="1"> </a><div align="left"><small>Editing from the Form-based View</small></div></td>
+</table>
+-->
+<!--#include virtual="/footer.shtml" -->
