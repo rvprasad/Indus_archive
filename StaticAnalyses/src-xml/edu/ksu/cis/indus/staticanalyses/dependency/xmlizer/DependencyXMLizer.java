@@ -79,8 +79,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -738,6 +736,9 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/12/05 13:44:50  venku
+   - xmlization messed up the controller.  FIXED.
+
    Revision 1.18  2003/12/05 09:17:44  venku
    - added support xmlize the jimple.
    Revision 1.17  2003/12/02 09:42:35  venku
