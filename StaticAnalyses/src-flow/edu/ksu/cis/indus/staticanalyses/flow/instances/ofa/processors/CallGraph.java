@@ -49,7 +49,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.Transformer;
 
 import org.apache.commons.collections.collection.CompositeCollection;
 
@@ -173,11 +172,6 @@ public class CallGraph
 	 */
 	private SimpleNodeGraph graphCache;
 
-	/** 
-	 * This is used to retrieve nodes from the graph cache.
-	 */
-	private Transformer nodeRetrievingTransformer;
-
 	/**
 	 * Creates a new CallGraph object.
 	 *
@@ -220,7 +214,6 @@ public class CallGraph
 		heads.clear();
 		reachables.clear();
 		graphCache = null;
-		nodeRetrievingTransformer = null;
 	}
 
 	/**
@@ -233,14 +226,14 @@ public class CallGraph
 		if (_rp.evaluate(caller)) {
 			final InvokeExpr _ie = stmt.getInvokeExpr();
 			final Context _context = new Context();
-			_context.setStmt(stmt);
 			_context.setRootMethod(caller);
 
-			final Collection _callees = getCallees(_ie, _context);
-			_result = CollectionUtils.exists(CollectionUtils.collect(_callees, nodeRetrievingTransformer), _rp);
+			final Collection _methodsThatMayCallCallee = getCallees(_ie, _context);
+			_result = _methodsThatMayCallCallee.contains(callee) || CollectionUtils.exists(_methodsThatMayCallCallee, _rp);
 		} else {
 			_result = false;
 		}
+
 		return _result;
 	}
 
@@ -337,8 +330,8 @@ public class CallGraph
 	/**
 	 * @see ICallGraphInfo#getCommonMethodsReachableFrom(soot.SootMethod, boolean, soot.SootMethod, boolean)
 	 */
-	public Collection getCommonMethodsReachableFrom(final SootMethod method1, final boolean forward1, 
-            final SootMethod method2, final boolean forward2) {
+	public Collection getCommonMethodsReachableFrom(final SootMethod method1, final boolean forward1,
+		final SootMethod method2, final boolean forward2) {
 		final Collection _result =
 			graphCache.getCommonReachablesFrom(graphCache.queryNode(method1), forward1, graphCache.queryNode(method2),
 				forward2);
@@ -479,13 +472,13 @@ public class CallGraph
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#areAnyMethodsReachableFrom(java.util.Collection, soot.SootMethod)
 	 */
 	public boolean areAnyMethodsReachableFrom(final Collection methods, final SootMethod caller) {
-        final Predicate _pred =
-            new Predicate() {
-                public boolean evaluate(final Object object) {
-                    return isCalleeReachableFromCaller((SootMethod) object, caller);
-                }
-            };
-        return CollectionUtils.exists(methods, _pred);
+		final Predicate _pred =
+			new Predicate() {
+				public boolean evaluate(final Object object) {
+					return isCalleeReachableFromCaller((SootMethod) object, caller);
+				}
+			};
+		return CollectionUtils.exists(methods, _pred);
 	}
 
 	/**
@@ -588,7 +581,6 @@ public class CallGraph
 				}
 			}
 		}
-		nodeRetrievingTransformer = new IObjectDirectedGraph.NodeRetrievingTransformer(graphCache);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: call graph consolidation");
@@ -616,7 +608,6 @@ public class CallGraph
 		callee2callers.clear();
 		analyzer = null;
 		graphCache = null;
-		nodeRetrievingTransformer = null;
 		topDownSCC = null;
 		bottomUpSCC = null;
 		reachables.clear();
