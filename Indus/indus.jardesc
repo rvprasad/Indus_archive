@@ -8,7 +8,7 @@
             <packagesToUnSeal/>
         </sealing>
     </manifest>
-    <selectedElements exportClassFiles="true" exportOutputFolder="false" exportJavaFiles="false">
+    <selectedElements exportClassFiles="false" exportOutputFolder="true" exportJavaFiles="false">
         <javaElement handleIdentifier="=Indus/src"/>
         <javaElement handleIdentifier="=Indus/src-test"/>
         <javaElement handleIdentifier="=Indus/src-xml"/>
