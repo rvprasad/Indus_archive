@@ -543,7 +543,6 @@ public abstract class AbstractDirectedGraph
 			final INode _succ = (INode) _i.next();
 
 			if (!nodes.contains(_succ) || edgesNotToUse.contains(new Pair(node, _succ))) {
-				System.out.println("Removing " + _succ);
 				_i.remove();
 			}
 		}
