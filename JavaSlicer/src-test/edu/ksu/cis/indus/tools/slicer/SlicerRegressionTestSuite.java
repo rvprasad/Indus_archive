@@ -48,7 +48,7 @@ public final class SlicerRegressionTestSuite
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private static final String SLICER_TEST_PROPERTIES_FILE = "indus.XMLBasedSlicerTest.properties.file";
+	private static final String SLICER_TEST_PROPERTIES_FILE = "indus.slicer.XMLBasedSlicerTest.properties.file";
 
 	///CLOVER:OFF
 
@@ -142,4 +142,7 @@ public final class SlicerRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/18 08:59:00  venku
+   - enabled test support for slicer.
+
  */
