@@ -53,7 +53,7 @@ public interface IValueFilter {
 	 *
 	 * @return a collection of values without the values that were filtered.
 	 */
-	public abstract Collection filter(final Collection values);
+	Collection filter(final Collection values);
 
 	/**
 	 * Checks if the given value should be filtered out.
@@ -62,28 +62,29 @@ public interface IValueFilter {
 	 *
 	 * @return <code>true</code> indicates the given value should be filtered out; <code>false</code>, otherwise.
 	 */
-	public abstract boolean filter(final Object value);
+	boolean filter(final Object value);
 }
 
 /*
    ChangeLog:
-   
+
    $Log$
    
+   Revision 1.1  2003/08/16 02:33:50  venku
+   Renamed AValueFilter to IValueFilter.
+
    Revision 1.2  2003/08/15 04:07:56  venku
    Spruced up documentation and specification.
    - Important change is that previously all types of retype and nullconstant were let through.
      This is incorrect as there is not type filtering happening.  This has been fixed.  We now
      only let those that are not of the monitored type.
-
    Revision 1.1  2003/08/15 03:41:35  venku
    Renamed ValueFilter to IValueFilter as it is an abstract class.
 
-   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 1.2  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
