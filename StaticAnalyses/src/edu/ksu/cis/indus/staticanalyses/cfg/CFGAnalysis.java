@@ -94,6 +94,7 @@ public class CFGAnalysis {
 	 * @param scmParam manages the classes being analyzed.
 	 * @param cgiParam provides the call-graph information.
 	 * @param bbmParam manages the basic block graphs of the methods being analyzed.
+     * @pre scmParam != null and cgiParam != null and bbmParam != null
 	 */
 	public CFGAnalysis(final Scene scmParam, final ICallGraphInfo cgiParam, final BasicBlockGraphMgr bbmParam) {
 		this.scm = scmParam;
@@ -108,6 +109,7 @@ public class CFGAnalysis {
 	 * @param context in which <code>ne</code> occurs.
 	 *
 	 * @return <code>true</code> if the given allocation site is loop enclosed; <code>false</code>, otherwise.
+     * @pre ne != null and context != null and context.getCurrentMethod() != null
 	 */
 	public boolean checkForLoopEnclosedNewExpr(final NewExpr ne, final Context context) {
 		String classname = ne.getBaseType().getClassName();
@@ -132,6 +134,7 @@ public class CFGAnalysis {
 	 *
 	 * @return <code>true</code> if the given method or any of it's ancestors in the call tree have multiple or
 	 * 		   multiply-executed call sites; <code>false</code>, otherwise.
+     * @pre caller != null
 	 */
 	public boolean executedMultipleTimes(final SootMethod caller) {
 		boolean result = false;
@@ -168,7 +171,8 @@ main_control:
 	 * @param m is one of the methods. 
 	 * @param p is another method.
 	 *
-	 * @return <code>true</code> if the given methods occur in the same SCC; <code>false</code>, otherwise.  
+	 * @return <code>true</code> if the given methods occur in the same SCC; <code>false</code>, otherwise.
+     * @pre m != null and p != null  
 	 */
 	public boolean notInSameSCC(final SootMethod m, final SootMethod p) {
 		boolean result = true;
@@ -194,6 +198,10 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 08:49:34  venku
+   Javadoc documentation errors were fixed.
+   Some classes were documented.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
