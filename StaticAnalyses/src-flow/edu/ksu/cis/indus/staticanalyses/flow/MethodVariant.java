@@ -227,7 +227,7 @@ public class MethodVariant
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: preprocessed of " + sm);
+			LOGGER.debug("END: preprocessed " + sm);
 		}
 	}
 
@@ -512,6 +512,11 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/08 12:15:58  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.14  2003/12/07 05:02:18  venku
    - formatting.
 
