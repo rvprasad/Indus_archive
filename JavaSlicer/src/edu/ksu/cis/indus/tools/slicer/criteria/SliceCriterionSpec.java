@@ -54,54 +54,54 @@ import soot.jimple.Stmt;
  */
 final class SliceCriterionSpec
   implements Cloneable {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceCriterionSpec.class);
 
-	/**
+	/** 
 	 * The singleton slice criteria factory.
 	 */
 	private static final SliceCriteriaFactory CRITERIA_FACTORY = SliceCriteriaFactory.getFactory();
 
-	/**
+	/** 
 	 * The sequence of names of parameter types of the method immediately enclosing the criterion.
 	 *
 	 * @invariant parameterTypeNames.oclIsKindOf(Sequence(String))
 	 */
 	private List parameterTypeNames;
 
-	/**
+	/** 
 	 * The name of the class immediately enclosing the criterion.
 	 */
 	private String className;
 
-	/**
+	/** 
 	 * The name of the method immediately enclosing the criterion.
 	 */
 	private String methodName;
 
-	/**
+	/** 
 	 * The name of the return type of the method  immediately enclosing the criterion.
 	 */
 	private String returnTypeName;
 
-	/**
+	/** 
 	 * This indicates if all expressions in the statement should be considered as slice criterion.
 	 */
 	private boolean considerEntireStmt;
 
-	/**
+	/** 
 	 * This indicates if the execution of the statement should be considered as slice criterion.
 	 */
 	private boolean considerExecution;
 
-	/**
+	/** 
 	 * The index of the use or def value box, in the statement, that is the slice criterion.
 	 */
 	private int exprIndex = -1;  // Initialization is required due to a limitation of JiBX (known problem 3 on JiBX site)
 
-	/**
+	/** 
 	 * The index of the statement, in the method body, in which the slice criterion occurs.
 	 */
 	private int stmtIndex;
@@ -224,7 +224,17 @@ final class SliceCriterionSpec
 	static Collection getCriterionSpec(final ISliceCriterion criterion) {
 		final SootMethod _method = CriteriaSpecHelper.getOccurringMethod(criterion);
 
-		final String _className = _method.getDeclaringClass().getJavaStyleName();
+		final SootClass _declaringClass = _method.getDeclaringClass();
+		final String _prefix = _declaringClass.getPackageName();
+		final String _shortJavaStyleName = _declaringClass.getShortJavaStyleName();
+		final String _className;
+
+		if (_prefix.length() != 0) {
+			_className = _prefix + "." + _shortJavaStyleName;
+		} else {
+			_className = _shortJavaStyleName;
+		}
+
 		final String _methodName = _method.getName();
 		final Body _body = _method.retrieveActiveBody();
 
@@ -330,17 +340,17 @@ final class SliceCriterionSpec
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/22 21:32:23  venku
+   - documentation.
    Revision 1.4  2004/07/21 06:28:06  venku
    - changed the signature of methods in SliceCriteriaFactory.
    - When creating expression-based criteria the criteria for the enclosing statement
      is not generated.
-
    Revision 1.3  2004/07/09 05:05:24  venku
    - refactored the code to enable the criteria creation to be completely hidden
      from the user.
    - exposed the setting of the considerExecution flag of the criteria in the factory.
    - made SliceCriteriaFactory a singleton.
-
    Revision 1.2  2004/07/03 00:14:45  venku
    - optional structures are not fully supported in JiBX.  Hence, a "solution"
      to handle this situation was coded in.
