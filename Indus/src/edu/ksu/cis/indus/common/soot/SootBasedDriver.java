@@ -172,7 +172,7 @@ public class SootBasedDriver {
 			if (rootClasses != null) {
 				_result = rootClasses.matcher(sc.getName()).matches();
 			} else if (theClassNames != null) {
-				_result = theClassNames.contains(sc);
+				_result = theClassNames.contains(sc.getName());
 			}
 			return _result;
 		}
@@ -220,10 +220,6 @@ public class SootBasedDriver {
 	 */
 	public final void setClassNames(final Collection s) {
 		classNames = new ArrayList(s);
-
-		if (rootMethodTrapper != null) {
-			rootMethodTrapper.theClassNames = Collections.unmodifiableCollection(classNames);
-		}
 	}
 
 	/**
@@ -355,6 +351,7 @@ public class SootBasedDriver {
 
 		if (_rmt == null) {
 			_rmt = new RootMethodTrapper();
+            _rmt.theClassNames = Collections.unmodifiableCollection(classNames);
 		}
 
 		for (final Iterator _i = _mc.iterator(); _i.hasNext();) {
@@ -380,6 +377,10 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/28 02:08:29  venku
+   - the specified rootclasses overrides the selection of
+     root methods from application classes.
+
    Revision 1.6  2003/12/28 01:32:21  venku
    - coding convention.
    Revision 1.5  2003/12/28 01:08:04  venku
