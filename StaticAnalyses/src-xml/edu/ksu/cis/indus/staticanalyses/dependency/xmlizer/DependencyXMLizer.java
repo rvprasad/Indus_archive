@@ -52,7 +52,7 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
-import edu.ksu.cis.indus.xmlizer.UniqueIDGenerator;
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -222,13 +222,14 @@ public class DependencyXMLizer
 			String outputDir = cl.getOptionValue('o');
 
 			if (outputDir == null) {
-                if (LOGGER.isWarnEnabled())
-                    LOGGER.warn("Defaulting to current directory for output.");
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Defaulting to current directory for output.");
+				}
 				outputDir = ".";
 			}
 			xmlizer.setXMLOutputDir(outputDir);
 			xmlizer.setClassNames(cl.getOptionValues('c'));
-			xmlizer.setGenerator(new UniqueIDGenerator());
+			xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 			xmlizer.populateDAs();
 			xmlizer.initialize();
 			xmlizer.execute();
@@ -238,6 +239,26 @@ public class DependencyXMLizer
 			LOGGER.error("Error while parsing command line.", e);
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", options);
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param xmlOutputDir DOCUMENT ME!
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 */
+	public void setXMLOutputDir(final String xmlOutputDir) {
+		if (xmlOutputDir != null) {
+			File f = new File(xmlOutputDir);
+
+			if (f == null || !f.exists() | !f.canWrite()) {
+				throw new IllegalArgumentException("XML output directory should exists with proper permissions.");
+			}
+		}
+		xmlOutDir = xmlOutputDir;
 	}
 
 	/**
@@ -339,6 +360,76 @@ public class DependencyXMLizer
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
+	 *
+	 * @param xmlizers DOCUMENT ME!
+	 * @param ctrl DOCUMENT ME!
+	 */
+	public final void flushXMLizers(final Map xmlizers, final ProcessingController ctrl) {
+		for (Iterator i = xmlizers.keySet().iterator(); i.hasNext();) {
+			IProcessor p = (IProcessor) i.next();
+			p.unhook(ctrl);
+
+			try {
+				FileWriter f = (FileWriter) xmlizers.get(p);
+				f.flush();
+				f.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+				LOGGER.error("Failed to close the xml file based on " + p.getClass(), e);
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param root DOCUMENT ME!
+	 * @param ctrl DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public final Map initXMLizers(final String root, final ProcessingController ctrl) {
+		Map result = new HashMap();
+
+		if (xmlOutDir == null) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Defaulting to current directory for xml output.");
+			}
+			xmlOutDir = ".";
+		}
+
+		for (Iterator iter = das.iterator(); iter.hasNext();) {
+			DependencyAnalysis da = (DependencyAnalysis) iter.next();
+
+			File f =
+				new File(xmlOutDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
+					+ root.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
+
+			try {
+				FileWriter writer = new FileWriter(f);
+				AbstractDependencyXMLizer xmlizer = getXMLizerFor(writer, da);
+
+				if (xmlizer == null) {
+					LOGGER.error("No xmlizer specified for dependency calculated by " + da.getClass()
+						+ ".  No xml file written.");
+					writer.close();
+				} else {
+					xmlizer.hookup(ctrl);
+					result.put(xmlizer, writer);
+				}
+			} catch (IOException e) {
+				LOGGER.error("Failed to write the xml file based on " + da.getClass() + " for system rooted at " + root, e);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	public void reset() {
 		das.clear();
@@ -355,7 +446,7 @@ public class DependencyXMLizer
 	 *
 	 * @param generator DOCUMENT ME!
 	 */
-	protected void setGenerator(final IJimpleIDGenerator generator) {
+	public void setGenerator(final IJimpleIDGenerator generator) {
 		idGenerator = generator;
 	}
 
@@ -368,26 +459,6 @@ public class DependencyXMLizer
 	 */
 	protected void setProperties(final Properties props) {
 		properties = props;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param xmlOutputDir DOCUMENT ME!
-	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
-	 */
-	protected void setXMLOutputDir(final String xmlOutputDir) {
-		if (xmlOutputDir == null) {
-			File f = new File(xmlOutputDir);
-
-			if (f == null || !f.exists() | !f.canWrite()) {
-				throw new IllegalArgumentException("XML output directory should exists with proper permissions.");
-			}
-		}
-		xmlOutDir = xmlOutputDir;
 	}
 
 	/**
@@ -423,46 +494,9 @@ public class DependencyXMLizer
 		ProcessingController ctrl = new CGBasedXMLizingController(cgi);
 		ctrl.setEnvironment(new Environment(scene));
 
-		Map xmlizers = new HashMap();
-
-		for (Iterator iter = das.iterator(); iter.hasNext();) {
-			DependencyAnalysis da = (DependencyAnalysis) iter.next();
-
-			File f =
-				new File(xmlOutDir + File.separator + da.getId() + "_" + das.indexOf(da) + "_"
-					+ root.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
-
-			try {
-				FileWriter writer = new FileWriter(f);
-				AbstractDependencyXMLizer xmlizer = getXMLizerFor(writer, da);
-
-				if (xmlizer == null) {
-					LOGGER.error("No xmlizer specified for dependency calculated by " + da.getClass()
-						+ ".  No xml file written.");
-					writer.close();
-				} else {
-					xmlizer.hookup(ctrl);
-					xmlizers.put(xmlizer, writer);
-				}
-			} catch (IOException e) {
-				LOGGER.error("Failed to write the xml file based on " + da.getClass() + " for system rooted at " + root, e);
-			}
-		}
+		Map xmlizers = initXMLizers(root, ctrl);
 		ctrl.process();
-
-		for (Iterator i = xmlizers.keySet().iterator(); i.hasNext();) {
-			IProcessor p = (IProcessor) i.next();
-			p.unhook(ctrl);
-
-			try {
-				FileWriter f = (FileWriter) xmlizers.get(p);
-				f.flush();
-				f.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				LOGGER.error("Failed to close the xml file based on " + p.getClass(), e);
-			}
-		}
+		flushXMLizers(xmlizers, ctrl);
 	}
 
 	/**
@@ -577,10 +611,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/15 21:27:49  venku
+   - added logging.
    Revision 1.2  2003/11/12 10:45:36  venku
    - soot class path can be set in SootBasedDriver.
    - dependency tests are xmlunit based.
-
    Revision 1.1  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
    Revision 1.3  2003/11/12 05:08:10  venku
