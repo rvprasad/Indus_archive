@@ -192,11 +192,11 @@ public class EntryControlDA
 			final BitSet[] _bbCDBitSets = computeControlDependency(_bbGraph);
 			fixupMaps(_bbGraph, _bbCDBitSets, _currMethod);
 		}
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
 		}
-		
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Control Dependence processing");
 		}
@@ -281,28 +281,33 @@ public class EntryControlDA
 	 * Processes the given node.  Basically, it propagates the tokens to it's successors and returns the successors whose
 	 * token sets were modified.
 	 *
-	 * @param node to be processed.
-	 * @param tokenSets is the collection of token sets of the nodes in the graph.
+	 * @param parentNode to be processed.
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.  The first subscript is the index of the
+	 * 		  dependent  basic block in the sequence of basic blocks.  The second subscript is the index of the control
+	 * 		  point  basic block in the sequence of basic blocks.  The bit set at these subscript indicate the number of
+	 * 		  tokens (corresponding to the  successors of the control point) that have been accumulated at the dependent
+	 * 		  basic block.
 	 *
 	 * @return the collection of nodes whose token sets were modified.
 	 *
-	 * @pre node != null and tokenSets != null
+	 * @pre parentNodeode != null and tokenSets != null
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post node.getSuccsOf().containsAll(result)
+	 * @post parentNode.getSuccsOf().containsAll(result)
 	 */
-	protected Collection processNode(final INode node, final BitSet[][] tokenSets) {
+	protected Collection processNode(final INode parentNode, final BitSet[][] tokenSets) {
 		final Collection _result = new HashSet();
-		final int _parentIndex = nodesCache.indexOf(node);
+		final int _parentIndex = nodesCache.indexOf(parentNode);
 		final Iterator _i = nodesWithChildrenCache.iterator();
 		final int _iEnd = nodesWithChildrenCache.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final INode _ancestor = (INode) _i.next();
 			final int _ancIndex = nodesCache.indexOf(_ancestor);
-			final BitSet _parentAndAncestorTokenSet = tokenSets[_parentIndex][_ancIndex];
+			final BitSet _parentsAncestorTokenSet = tokenSets[_parentIndex][_ancIndex];
 
-			if (_parentAndAncestorTokenSet != null) {
-				_result.addAll(propagateTokensIntoNodes(_parentAndAncestorTokenSet, node.getSuccsOf(), _ancIndex, tokenSets));
+			if (_parentsAncestorTokenSet != null && _parentIndex != _ancIndex) {
+				_result.addAll(propagateTokensIntoNodes(_parentsAncestorTokenSet, parentNode.getSuccsOf(), _ancIndex,
+						tokenSets));
 			}
 		}
 		return _result;
@@ -570,15 +575,15 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/06/22 01:01:37  venku
+   - BitSet(1) creates an empty bitset.  Instead we use BitSet() to create a
+     bit set that contains a long array of length 1.
    Revision 1.23  2004/06/16 14:30:12  venku
    - logging.
-
    Revision 1.22  2004/06/13 22:32:38  venku
    - deleted a logging message.
-
    Revision 1.21  2004/06/06 08:33:45  venku
    - completed documentation.
-
    Revision 1.20  2004/06/06 02:28:25  venku
    - completed implementation of indirect control dependence calculation.
    Revision 1.19  2004/06/05 09:52:24  venku
