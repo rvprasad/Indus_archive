@@ -1,4 +1,4 @@
-package edu.ksu.cis.bandera.bfa.modes.sensitive.objectcreationsite;
+package edu.ksu.cis.bandera.bfa.modes.sensitive.allocationsite;
 
 
 import edu.ksu.cis.bandera.bfa.Context;
