@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="src" path="/Indus"/>
+	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry excluding=".cono" kind="src" path="src"/>
 	<classpathentry excluding=".cono" kind="src" path="src-flow"/>
 	<classpathentry excluding=".cono" kind="src" path="src-dependence"/>
@@ -11,7 +11,8 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
-	<classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
+	<classpathentry kind="var" path="LOGGING_COMMONS_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
