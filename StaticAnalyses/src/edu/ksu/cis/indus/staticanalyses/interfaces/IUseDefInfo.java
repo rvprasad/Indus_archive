@@ -35,15 +35,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import soot.ArrayType;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootField;
-import soot.SootMethod;
-import soot.Value;
-
-import soot.jimple.InvokeExpr;
-import soot.jimple.ParameterRef;
+import soot.jimple.AssignStmt;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
 
@@ -52,90 +44,42 @@ import java.util.Collection;
 
 /**
  * DOCUMENT ME!
- * 
  * <p></p>
- *
+ * 
+ * @version $Revision$ 
  * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
- * @version $Revision$
  */
-public interface IValueAnalyzer {
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
+public interface IUseDefInfo {
+	/** 
+	 * <p>DOCUMENT ME! </p>
 	 */
-	public IEnvironment getEnvironment();
+	String ID = "Aliased Use-Def Information";
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * DOCUMENT ME! <p></p>
 	 *
-	 * @return DOCUMENT ME!
-	 */
-	public Collection getRoots();
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param value DOCUMENT ME!
+	 * @param useStmt DOCUMENT ME!
 	 * @param context DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public Collection getValues(final Object value, final Context context);
+	Collection getDefs(AssignStmt useStmt, Context context);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * DOCUMENT ME! <p></p>
 	 *
+	 * @param defStmt DOCUMENT ME!
 	 * @param context DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public Collection getValuesForThis(final Context context);
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param scm DOCUMENT ME!
-	 * @param classes DOCUMENT ME!
-	 */
-	public void analyze(final Scene scm, final Collection classes);
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param scm DOCUMENT ME!
-	 * @param entry DOCUMENT ME!
-	 */
-	public void analyze(final Scene scm, final SootMethod entry);
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	public void reset();
+	Collection getUses(AssignStmt defStmt, Context context);
 }
 
 /*****
  ChangeLog:
 
 $Log$
-Revision 1.1  2003/08/07 06:42:16  venku
-Major:
- - Moved the package under indus umbrella.
- - Renamed isEmpty() to hasWork() in WorkBag.
 
 *****/

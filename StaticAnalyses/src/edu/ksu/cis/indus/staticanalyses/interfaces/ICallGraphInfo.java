@@ -137,10 +137,10 @@ public interface ICallGraphInfo {
 	 * @param root in which the method invocation occurs.
 	 *
 	 * @return a collection of reachable methods.
-     * @pre stmt != null and root != null
+     * @pre stmt != null and root != null and stmt.containsInvokeExpr() == true
      * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
-	Collection getMethodsReachableFrom(InvokeStmt stmt, SootMethod root);
+	Collection getMethodsReachableFrom(Stmt stmt, SootMethod root);
 
 	/**
 	 * Returns the set of methods called in <code>caller</code>.
@@ -236,5 +236,10 @@ public interface ICallGraphInfo {
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:42:16  venku
+Major:
+ - Moved the package under indus umbrella.
+ - Renamed isEmpty() to hasWork() in WorkBag.
+
 
 *****/
