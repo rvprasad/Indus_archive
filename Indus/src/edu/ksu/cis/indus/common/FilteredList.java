@@ -30,12 +30,12 @@ import org.apache.commons.collections.list.AbstractListDecorator;
 /**
  * This class provides a filtered updatable view of a list.  Like <code>FilteredCollection</code>, all operations are
  * filtered.
- * 
- * @see FilteredCollection
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ *
+ * @see FilteredCollection
  */
 public final class FilteredList
   extends AbstractListDecorator {
@@ -48,6 +48,7 @@ public final class FilteredList
 
 	/**
 	 * The predicate that defines the filtering criterion.
+	 *
 	 * @invariant predicate != null
 	 */
 	private final Predicate predicate;
@@ -73,12 +74,26 @@ public final class FilteredList
 	}
 
 	/**
+	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#add(java.lang.Object)
+	 */
+	public boolean add(Object o) {
+		return filteredCollection.add(o);
+	}
+
+	/**
 	 * @see java.util.List#add(int, java.lang.Object)
 	 */
 	public void add(final int index, final Object object) {
 		if (predicate.evaluate(object)) {
 			super.add(index, object);
 		}
+	}
+
+	/**
+	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#addAll(java.util.Collection)
+	 */
+	public boolean addAll(Collection c) {
+		return filteredCollection.addAll(c);
 	}
 
 	/**
@@ -91,6 +106,13 @@ public final class FilteredList
 			super.add(_temp++, _i.next());
 		}
 		return _temp != index;
+	}
+
+	/**
+	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#clear()
+	 */
+	public void clear() {
+		filteredCollection.clear();
 	}
 
 	/**
@@ -179,6 +201,27 @@ public final class FilteredList
 	}
 
 	/**
+	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#remove(java.lang.Object)
+	 */
+	public boolean remove(Object o) {
+		return filteredCollection.remove(o);
+	}
+
+	/**
+	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#removeAll(java.util.Collection)
+	 */
+	public boolean removeAll(Collection c) {
+		return filteredCollection.removeAll(c);
+	}
+
+	/**
+	 * @see org.apache.commons.collections.collection.AbstractCollectionDecorator#retainAll(java.util.Collection)
+	 */
+	public boolean retainAll(Collection c) {
+		return filteredCollection.retainAll(c);
+	}
+
+	/**
 	 * @see java.util.List#set(int, java.lang.Object)
 	 */
 	public Object set(final int index, final Object object) {
@@ -229,7 +272,8 @@ public final class FilteredList
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/28 15:53:30  venku
+   - documentation.
    Revision 1.1  2004/06/28 08:08:27  venku
    - new collections classes for filtered access and update.
-
  */
