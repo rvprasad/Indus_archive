@@ -43,19 +43,18 @@ public class FastUnionFindElement {
 	protected Object type;
 
 	/**
-	 * Checks if this element has any children.  This implementation has none, hence, always returns <code>true</code>.
+	 * Checks if this element has any children. 
 	 *
-	 * @return <code>true</code>.
+	 * @return <code>true</code> if it has children; <code>false</code>, otherwise.
 	 */
 	public final boolean isAtomic() {
 		return children == null || children.size() == 0;
 	}
 
 	/**
-	 * Checks if this element is bound to a type.  This implementation does not deal with types, hence, always returns
-	 * <code>false</code>.
+	 * Checks if this element is bound to a type.  
 	 *
-	 * @return <code>false</code>
+	 * @return <code>true</code> if it is bound to a type; <code>false</code>, otherwise. 
 	 */
 	public final boolean isBound() {
 		return type != null;
@@ -180,6 +179,11 @@ public class FastUnionFindElement {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.2  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.
@@ -200,16 +204,16 @@ public class FastUnionFindElement {
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
    Revision 1.3  2003/08/11 07:13:58  venku
- *** empty log message ***
-       Revision 1.2  2003/08/11 04:20:19  venku
-       - Pair and Triple were changed to work in optimized and unoptimized mode.
-       - Ripple effect of the previous change.
-       - Documentation and specification of other classes.
-       Revision 1.1  2003/08/07 06:42:16  venku
-       Major:
-        - Moved the package under indus umbrella.
-        - Renamed isEmpty() to hasWork() in IWorkBag.
-       Revision 1.4  2003/05/22 22:18:31  venku
-       All the interfaces were renamed to start with an "I".
-       Optimizing changes related Strings were made.
+    empty log message 
+   Revision 1.2  2003/08/11 04:20:19  venku
+   - Pair and Triple were changed to work in optimized and unoptimized mode.
+   - Ripple effect of the previous change.
+   - Documentation and specification of other classes.
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in IWorkBag.
+   Revision 1.4  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
  */
