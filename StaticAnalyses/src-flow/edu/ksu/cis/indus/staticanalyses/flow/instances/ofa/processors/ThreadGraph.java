@@ -210,7 +210,7 @@ public class ThreadGraph
 	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getExecutionThreads(SootMethod)
 	 */
 	public Collection getExecutionThreads(final SootMethod sm) {
-	    Collection _result = (Collection) method2threads.get(sm);
+		Collection _result = (Collection) method2threads.get(sm);
 
 		if (_result == null) {
 			_result = Collections.EMPTY_SET;
@@ -437,23 +437,20 @@ public class ThreadGraph
 				}
 
 				if (_flag) {
-					// Here we use the knowledge of only one target object is associated with a thread object.
+					// Here we use the knowledge that all threads a dispatched via target field of Thread class.
 					final Collection _t = new ArrayList();
 					_t.add(_value);
 					_methods = new HashSet();
 
 					// It is possible that the same thread allocation site(loop enclosed) be associated with multiple target 
 					// object 
-					for (final Iterator _j = analyzer.getValues(_threadClass.getFieldByName("target"), _t).iterator();
-						  _j.hasNext();) {
-						final Object _obj = _j.next();
+					final Iterator _iterator = analyzer.getValues(_threadClass.getFieldByName("target"), _t).iterator();
 
-						if (_t instanceof NewExpr) {
-							final NewExpr _temp = (NewExpr) _obj;
-							_scTemp = _env.getClass((_temp.getBaseType()).getClassName());
-							_methods.addAll(transitiveThreadCallClosure(_scTemp.getMethod("run", Collections.EMPTY_LIST,
-										VoidType.v())));
-						}
+					for (final Iterator _j = IteratorUtils.filteredIterator(_iterator, _pred); _j.hasNext();) {
+						final NewExpr _temp = (NewExpr) _j.next();
+						_scTemp = _env.getClass((_temp.getBaseType()).getClassName());
+						_methods.addAll(transitiveThreadCallClosure(_scTemp.getMethod("run", Collections.EMPTY_LIST,
+									VoidType.v())));
 					}
 				} else {
 					_methods = transitiveThreadCallClosure(_sc.getMethod("run", Collections.EMPTY_LIST, VoidType.v()));
@@ -712,20 +709,15 @@ public class ThreadGraph
 		while (_wb.hasWork()) {
 			final SootMethod _sm = (SootMethod) _wb.getWork();
 
-			if (_sm.getName().equals("start")
-				  && _sm.getDeclaringClass().getName().equals("java.lang.Thread")
-				  && _sm.getParameterCount() == 0
-				  && _sm.getReturnType().equals(VoidType.v())) {
-				continue;
-			}
+			if (!Util.isStartMethod(_sm)) {
+				final Collection _callees = cgi.getCallees(_sm);
 
-			final Collection _callees = cgi.getCallees(_sm);
+				for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
+					final CallTriple _ctrp = (CallTriple) _i.next();
+					final SootMethod _temp = _ctrp.getMethod();
 
-			for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
-				final CallTriple _ctrp = (CallTriple) _i.next();
-				final SootMethod _temp = _ctrp.getMethod();
-
-				_wb.addWorkNoDuplicates(_temp);
+					_wb.addWorkNoDuplicates(_temp);
+				}
 			}
 		}
 		return _result;
@@ -735,6 +727,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/08/01 21:07:16  venku
+   - renamed dumpGraph() as toString()
+   - refactored ThreadGraph.
    Revision 1.34  2004/08/01 20:34:18  venku
    - renamed dumpGraph() as toString()
    Revision 1.33  2004/07/17 23:32:18  venku
