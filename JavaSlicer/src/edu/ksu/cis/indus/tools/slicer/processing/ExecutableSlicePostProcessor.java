@@ -17,12 +17,10 @@ package edu.ksu.cis.indus.tools.slicer.processing;
 
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.graph.INode;
-import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
@@ -35,10 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -194,60 +189,6 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
-	 * Retreives the class in the topologically sorted top-down order.
-	 *
-	 * @param classes to be ordered.
-	 *
-	 * @return a sequence of classes ordered in topological order based on hierarcy relation.
-	 *
-	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
-	 * @post result != null
-	 * @post result->forall(o | result->subSequence(1, result.indexOf(o))->includes(o.getSuperClass()) and
-	 * 		 result->subSequence(1, result.indexOf(o))->includesAll(o.getInterfaces())
-	 * @post result->forall(o | result->subSequence(result.indexOf(o), result->size())->excludes(o.getSuperClass()) and
-	 * 		 result->subSequence(result.indexOf(o) result->size())->excludesAll(o.getInterfaces())
-	 */
-	private List getClassesInTopologicallySortedTopDownOrder(final Collection classes) {
-		final SimpleNodeGraph _sng = new SimpleNodeGraph();
-		final IWorkBag _wb = new LIFOWorkBag();
-		final Collection _processed = new HashSet();
-		_wb.addAllWork(classes);
-
-		while (_wb.hasWork()) {
-			final SootClass _sc = (SootClass) _wb.getWork();
-
-			if (!_processed.contains(_sc)) {
-				_processed.add(_sc);
-
-				final INode _sn = _sng.getNode(_sc);
-				final Collection _temp = CollectionUtils.intersection(_sc.getInterfaces(), classes);
-
-				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-					final SootClass _interface = (SootClass) _i.next();
-					_sng.addEdgeFromTo(_sng.getNode(_interface), _sn);
-
-					if (!_processed.contains(_interface)) {
-						_wb.addWorkNoDuplicates(_interface);
-					}
-				}
-
-				if (_sc.hasSuperclass()) {
-					final SootClass _superClass = _sc.getSuperclass();
-					_sng.addEdgeFromTo(_sng.getNode(_superClass), _sn);
-
-					if (!_processed.contains(_superClass)) {
-						_wb.addWorkNoDuplicates(_superClass);
-					}
-				}
-			}
-		}
-
-		final List _tsch = _sng.performTopologicalSort(true);
-		CollectionUtils.transform(_tsch, SimpleNodeGraph.OBJECT_EXTRACTOR);
-		return _tsch;
-	}
-
-	/**
 	 * Adds the given method to <code>methodWorkBag</code> if it was not processed earlier.
 	 *
 	 * @param method to be added.
@@ -281,9 +222,14 @@ public final class ExecutableSlicePostProcessor
 		final Collection _methods = new HashSet();
 		final Collection _temp = new HashSet();
 		final Collection _classesInSlice = collector.getClassesInSlice();
-		final Collection _topologicallyOrderedClasses = getClassesInTopologicallySortedTopDownOrder(_classesInSlice);
+		final Collection _topologicallyOrderedClasses = Util.getClassesInTopologicallySortedOrder(_classesInSlice, true);
 
-		// fixup methods in to respect the class hierarchy  
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Fixing Class Hierarchy");
+			LOGGER.debug("Topological Sort: " + _topologicallyOrderedClasses);
+		}
+
+		// fixup methods with respect the class hierarchy  
 		for (final Iterator _i = _topologicallyOrderedClasses.iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 			_methods.clear();
@@ -319,7 +265,9 @@ public final class ExecutableSlicePostProcessor
 			Util.removeMethodsWithSameSignature(_methods, _temp);
 
 			// gather collected abstract methods in this class/interface
-			if (_sc.isAbstract() || _sc.isInterface()) {
+			if (_sc.isInterface()) {
+				_methods.addAll(_sc.getMethods());
+			} else if (_sc.isAbstract()) {
 				for (final Iterator _j = collector.getCollected(_sc.getMethods()).iterator(); _j.hasNext();) {
 					final SootMethod _sm = (SootMethod) _j.next();
 
@@ -336,6 +284,11 @@ public final class ExecutableSlicePostProcessor
 				_class2abstractMethods.put(_sc, new ArrayList(_methods));
 			}
 		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Class -> abstract Method mapping:\n" + _class2abstractMethods);
+			LOGGER.debug("END: Fixing Class Hierarchy");
+		}
 	}
 
 	/**
@@ -347,7 +300,7 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private void pickReturnPoints(final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Picking up return points in " + method);
+			LOGGER.debug("BEGIN: Picking return points in " + method);
 		}
 
 		// pick all return/throw points in the methods.
@@ -379,6 +332,10 @@ public final class ExecutableSlicePostProcessor
 				}
 			}
 		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Picking return points in " + method);
+		}
 	}
 
 	/**
@@ -391,7 +348,7 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private void processHandlers(final SootMethod method, final Stmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Pruning handlers in " + method);
+			LOGGER.debug("BEGIN: Pruning handlers " + stmt + "@" + method);
 		}
 
 		final Body _body = method.retrieveActiveBody();
@@ -418,6 +375,10 @@ public final class ExecutableSlicePostProcessor
 			addToStmtWorkBag(_handlerUnit);
 		}
 		trapsToRetain.addAll(_temp);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Pruning handlers " + stmt + "@" + method);
+		}
 	}
 
 	/**
@@ -566,6 +527,8 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/02/04 04:33:15  venku
+   - logging.
    Revision 1.14  2004/01/31 01:49:49  venku
    - control dependence information is incorrectly used. FIXED.
    Revision 1.13  2004/01/30 23:59:00  venku

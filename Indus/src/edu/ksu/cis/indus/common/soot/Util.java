@@ -18,6 +18,8 @@ package edu.ksu.cis.indus.common.soot;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
@@ -26,6 +28,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -116,6 +120,61 @@ public final class Util {
 			}
 		}
 		return _result;
+	}
+
+	/**
+	 * Retreives the class in the topologically sorted top-down order.
+	 *
+	 * @param classes to be ordered.
+	 * @param topDown indicates if the sorting needs to be done top down(<code>true</code>)or bottom up(<code>false</code>).
+	 *
+	 * @return a sequence of classes ordered in topological order based on hierarcy relation.
+	 *
+	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
+	 * @post result != null
+	 * @post result->forall(o | result->subSequence(1, result.indexOf(o))->includes(o.getSuperClass()) and
+	 * 		 result->subSequence(1, result.indexOf(o))->includesAll(o.getInterfaces())
+	 * @post result->forall(o | result->subSequence(result.indexOf(o), result->size())->excludes(o.getSuperClass()) and
+	 * 		 result->subSequence(result.indexOf(o) result->size())->excludesAll(o.getInterfaces())
+	 */
+	public static List getClassesInTopologicallySortedOrder(final Collection classes, final boolean topDown) {
+		final SimpleNodeGraph _sng = new SimpleNodeGraph();
+		final IWorkBag _wb = new LIFOWorkBag();
+		final Collection _processed = new HashSet();
+		_wb.addAllWork(classes);
+
+		while (_wb.hasWork()) {
+			final SootClass _sc = (SootClass) _wb.getWork();
+
+			if (!_processed.contains(_sc)) {
+				_processed.add(_sc);
+
+				final INode _sn = _sng.getNode(_sc);
+				final Collection _temp = CollectionUtils.intersection(_sc.getInterfaces(), classes);
+
+				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+					final SootClass _interface = (SootClass) _i.next();
+					_sng.addEdgeFromTo(_sng.getNode(_interface), _sn);
+
+					if (!_processed.contains(_interface)) {
+						_wb.addWorkNoDuplicates(_interface);
+					}
+				}
+
+				if (_sc.hasSuperclass()) {
+					final SootClass _superClass = _sc.getSuperclass();
+					_sng.addEdgeFromTo(_sng.getNode(_superClass), _sn);
+
+					if (!_processed.contains(_superClass)) {
+						_wb.addWorkNoDuplicates(_superClass);
+					}
+				}
+			}
+		}
+
+		final List _tsch = _sng.performTopologicalSort(topDown);
+		CollectionUtils.transform(_tsch, SimpleNodeGraph.OBJECT_EXTRACTOR);
+		return _tsch;
 	}
 
 	/**
@@ -440,8 +499,8 @@ public final class Util {
 			for (final Iterator _k = methodsToRetain.iterator(); _k.hasNext();) {
 				final SootMethod _method = (SootMethod) _k.next();
 
-				if (_abstractMethod.getBytecodeSignature().equals(_method.getBytecodeSignature())) {
-					_retainSet.add(_method);
+				if (_abstractMethod.getSubSignature().equals(_method.getSubSignature())) {
+					_retainSet.add(_abstractMethod);
 				}
 			}
 		}
@@ -473,6 +532,8 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/01/25 09:02:46  venku
+   - coding convention.
    Revision 1.13  2004/01/24 01:42:50  venku
    - added methods to filter graphs based on identical-ness
      of signature.
