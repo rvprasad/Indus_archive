@@ -70,9 +70,7 @@ public abstract class SliceCriterion {
 	 * </p>
 	 *
 	 * @return Object representing the criterion.
-	 */
-
-	/*!
+	 *
 	 * @post result != null
 	 */
 	public abstract Object getCriterion();
@@ -89,11 +87,13 @@ public abstract class SliceCriterion {
 	}
 
 	/**
-	 * <p>Checks if the given object is "equal" to this object.</p>
+	 * <p>
+	 * Checks if the given object is "equal" to this object.
+	 * </p>
 	 *
 	 * @param o is the object to be compared.
 	 *
-	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise. 
+	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
 	public boolean equals(Object o) {
 		boolean result = false;
@@ -105,7 +105,9 @@ public abstract class SliceCriterion {
 	}
 
 	/**
-	 * <p>Returns the hashcode for this object.</p>
+	 * <p>
+	 * Returns the hashcode for this object.
+	 * </p>
 	 *
 	 * @return the hashcode for this object.
 	 */
@@ -125,6 +127,9 @@ public abstract class SliceCriterion {
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/18 00:18:49  venku
+*** empty log message ***
+
 Revision 1.1.1.1  2003/02/17 23:59:51  venku
 Placing JavaSlicer under version control.
 

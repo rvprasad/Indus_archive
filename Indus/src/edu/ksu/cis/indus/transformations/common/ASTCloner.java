@@ -107,7 +107,7 @@ public class ASTCloner
 	 * The static reference to the singleton object used to create Jimple AST chunks.
 	 * </p>
 	 */
-	private static final Jimple jimple = Jimple.v();
+	private static final Jimple JIMPLE = Jimple.v();
 
 	/**
 	 * <p>
@@ -183,7 +183,7 @@ public class ASTCloner
 		 *
 		 * @return the clone of <code>method</code>.
 		 */
-		public SootMethod getCloneOf(SootMethod method);
+		SootMethod getCloneOf(SootMethod method);
 
 		/**
 		 * <p>
@@ -194,7 +194,7 @@ public class ASTCloner
 		 *
 		 * @return the clone of <code>field</code>.
 		 */
-		public SootField getCloneOf(SootField field);
+		SootField getCloneOf(SootField field);
 
 		/**
 		 * <p>
@@ -205,7 +205,7 @@ public class ASTCloner
 		 *
 		 * @return the clone of <code>clazz</code>.
 		 */
-		public SootClass getCloneOf(SootClass clazz);
+		SootClass getCloneOf(SootClass clazz);
 
 		/**
 		 * <p>
@@ -216,18 +216,17 @@ public class ASTCloner
 		 *
 		 * @return the clone of a class named <code>clazz</code>.
 		 */
-		public SootClass getCloneOf(String clazz);
+		SootClass getCloneOf(String clazz);
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
+		 * Returns the local corresponding to the given local identifier in the given method.
 		 *
-		 * @param name DOCUMENT ME!
-		 * @param method DOCUMENT ME!
-		 * @return DOCUMENT ME!
+		 * @param identifier of the requested local.
+		 * @param method in which the local occurs.
+		 *
+		 * @return the corresponding local.
 		 */
-		public Local getLocal(String name, SootMethod method);
+		Local getLocal(String identifier, SootMethod method);
 	}
 
 	/**
@@ -238,7 +237,7 @@ public class ASTCloner
 
 		Value base = resValue;
 		v.getIndex().apply(this);
-		resValue = jimple.newArrayRef(base, resValue);
+		resValue = JIMPLE.newArrayRef(base, resValue);
 	}
 
 	/**
@@ -251,14 +250,14 @@ public class ASTCloner
 		stmt.getRightOp().apply(this);
 
 		Value right = resValue;
-		resStmt = jimple.newAssignStmt(left, right);
+		resStmt = JIMPLE.newAssignStmt(left, right);
 	}
 
 	/**
 	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseBreakpointStmt(ca.mcgill.sable.soot.jimple.BreakpointStmt)
 	 */
 	public void caseBreakpointStmt(BreakpointStmt stmt) {
-		resStmt = jimple.newBreakpointStmt();
+		resStmt = JIMPLE.newBreakpointStmt();
 	}
 
 	/**
@@ -266,14 +265,14 @@ public class ASTCloner
 	 */
 	public void caseCastExpr(CastExpr v) {
 		v.getOp().apply(this);
-		resValue = jimple.newCastExpr(resValue, v.getType());
+		resValue = JIMPLE.newCastExpr(resValue, v.getType());
 	}
 
 	/**
 	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseCaughtExceptionRef(ca.mcgill.sable.soot.jimple.CaughtExceptionRef)
 	 */
 	public void caseCaughtExceptionRef(CaughtExceptionRef v) {
-		resValue = jimple.newCaughtExceptionRef((JimpleBody) method.getBody(jimple));
+		resValue = JIMPLE.newCaughtExceptionRef((JimpleBody) method.getBody(JIMPLE));
 	}
 
 	/**
@@ -288,7 +287,7 @@ public class ASTCloner
 	 */
 	public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
 		stmt.getOp().apply(this);
-		resStmt = jimple.newEnterMonitorStmt(resValue);
+		resStmt = JIMPLE.newEnterMonitorStmt(resValue);
 	}
 
 	/**
@@ -296,7 +295,7 @@ public class ASTCloner
 	 */
 	public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
 		stmt.getOp().apply(this);
-		resStmt = jimple.newExitMonitorStmt(resValue);
+		resStmt = JIMPLE.newExitMonitorStmt(resValue);
 	}
 
 	/**
@@ -310,7 +309,7 @@ public class ASTCloner
 	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseGotoStmt(ca.mcgill.sable.soot.jimple.GotoStmt)
 	 */
 	public void caseGotoStmt(GotoStmt stmt) {
-		resStmt = jimple.newGotoStmt(stmt.getTarget());
+		resStmt = JIMPLE.newGotoStmt(stmt.getTarget());
 	}
 
 	/**
@@ -323,7 +322,7 @@ public class ASTCloner
 		stmt.getRightOp().apply(this);
 
 		Value right = resValue;
-		resStmt = jimple.newIdentityStmt(left, right);
+		resStmt = JIMPLE.newIdentityStmt(left, right);
 	}
 
 	/**
@@ -331,7 +330,7 @@ public class ASTCloner
 	 */
 	public void caseIfStmt(IfStmt stmt) {
 		stmt.getCondition().apply(this);
-		resStmt = jimple.newIfStmt(resValue, stmt.getTarget());
+		resStmt = JIMPLE.newIfStmt(resValue, stmt.getTarget());
 	}
 
 	/**
@@ -339,7 +338,7 @@ public class ASTCloner
 	 */
 	public void caseInstanceFieldRef(InstanceFieldRef v) {
 		v.getBase().apply(this);
-		resValue = jimple.newInstanceFieldRef(resValue, v.getField());
+		resValue = JIMPLE.newInstanceFieldRef(resValue, v.getField());
 	}
 
 	/**
@@ -347,7 +346,7 @@ public class ASTCloner
 	 */
 	public void caseInstanceOfExpr(InstanceOfExpr v) {
 		v.getOp().apply(this);
-		resValue = jimple.newInstanceOfExpr(resValue, v.getCheckType());
+		resValue = JIMPLE.newInstanceOfExpr(resValue, v.getCheckType());
 	}
 
 	/**
@@ -364,7 +363,7 @@ public class ASTCloner
 		v.getBase().apply(this);
 
 		Local base = (Local) resValue;
-		resValue = jimple.newInterfaceInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		resValue = JIMPLE.newInterfaceInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -372,7 +371,7 @@ public class ASTCloner
 	 */
 	public void caseInvokeStmt(InvokeStmt stmt) {
 		stmt.getInvokeExpr().apply(this);
-		resStmt = jimple.newInvokeStmt(resValue);
+		resStmt = JIMPLE.newInvokeStmt(resValue);
 	}
 
 	/**
@@ -380,7 +379,7 @@ public class ASTCloner
 	 */
 	public void caseLengthExpr(LengthExpr v) {
 		v.getOp().apply(this);
-		resValue = jimple.newLengthExpr(resValue);
+		resValue = JIMPLE.newLengthExpr(resValue);
 	}
 
 	/**
@@ -402,7 +401,7 @@ public class ASTCloner
 	 */
 	public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
 		stmt.getKey().apply(this);
-		resStmt = jimple.newLookupSwitchStmt(resValue, stmt.getLookupValues(), stmt.getTargets(), stmt.getDefaultTarget());
+		resStmt = JIMPLE.newLookupSwitchStmt(resValue, stmt.getLookupValues(), stmt.getTargets(), stmt.getDefaultTarget());
 	}
 
 	/**
@@ -410,14 +409,14 @@ public class ASTCloner
 	 */
 	public void caseNewArrayExpr(NewArrayExpr v) {
 		v.getSize().apply(this);
-		resValue = jimple.newNewArrayExpr(v.getBaseType(), resValue);
+		resValue = JIMPLE.newNewArrayExpr(v.getBaseType(), resValue);
 	}
 
 	/**
 	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewExpr(ca.mcgill.sable.soot.jimple.NewExpr)
 	 */
 	public void caseNewExpr(NewExpr v) {
-		resValue = jimple.newNewExpr(v.getBaseType());
+		resValue = JIMPLE.newNewExpr(v.getBaseType());
 	}
 
 	/**
@@ -438,14 +437,14 @@ public class ASTCloner
 			v.getSize(i).apply(this);
 			sizes.add(i, resValue);
 		}
-		resValue = jimple.newNewMultiArrayExpr(v.getBaseType(), sizes);
+		resValue = JIMPLE.newNewMultiArrayExpr(v.getBaseType(), sizes);
 	}
 
 	/**
 	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseNopStmt(ca.mcgill.sable.soot.jimple.NopStmt)
 	 */
 	public void caseNopStmt(NopStmt stmt) {
-		resStmt = jimple.newNopStmt();
+		resStmt = JIMPLE.newNopStmt();
 	}
 
 	/**
@@ -459,7 +458,7 @@ public class ASTCloner
 	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseParameterRef(ca.mcgill.sable.soot.jimple.ParameterRef)
 	 */
 	public void caseParameterRef(ParameterRef v) {
-		resValue = jimple.newParameterRef(helper.getCloneOf(v.getMethod()), v.getIndex());
+		resValue = JIMPLE.newParameterRef(helper.getCloneOf(v.getMethod()), v.getIndex());
 	}
 
 	/**
@@ -467,7 +466,7 @@ public class ASTCloner
 	 */
 	public void caseRetStmt(RetStmt stmt) {
 		stmt.getStmtAddress().apply(this);
-		resStmt = jimple.newRetStmt(resValue);
+		resStmt = JIMPLE.newRetStmt(resValue);
 	}
 
 	/**
@@ -475,14 +474,14 @@ public class ASTCloner
 	 */
 	public void caseReturnStmt(ReturnStmt stmt) {
 		stmt.getReturnValue().apply(this);
-		resStmt = jimple.newReturnStmt(resValue);
+		resStmt = JIMPLE.newReturnStmt(resValue);
 	}
 
 	/**
 	 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseReturnVoidStmt(ca.mcgill.sable.soot.jimple.ReturnVoidStmt)
 	 */
 	public void caseReturnVoidStmt(ReturnVoidStmt stmt) {
-		resStmt = jimple.newReturnVoidStmt();
+		resStmt = JIMPLE.newReturnVoidStmt();
 	}
 
 	/**
@@ -492,21 +491,21 @@ public class ASTCloner
 		v.getBase().apply(this);
 
 		Local base = (Local) resValue;
-		resValue = jimple.newSpecialInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
+		resValue = JIMPLE.newSpecialInvokeExpr(base, helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
 	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseStaticFieldRef(ca.mcgill.sable.soot.jimple.StaticFieldRef)
 	 */
 	public void caseStaticFieldRef(StaticFieldRef v) {
-		resValue = jimple.newStaticFieldRef(helper.getCloneOf(v.getField()));
+		resValue = JIMPLE.newStaticFieldRef(helper.getCloneOf(v.getField()));
 	}
 
 	/**
 	 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseStaticInvokeExpr(ca.mcgill.sable.soot.jimple.StaticInvokeExpr)
 	 */
 	public void caseStaticInvokeExpr(StaticInvokeExpr v) {
-		resValue = jimple.newStaticInvokeExpr(helper.getCloneOf(v.getMethod()), getArgs(v));
+		resValue = JIMPLE.newStaticInvokeExpr(helper.getCloneOf(v.getMethod()), getArgs(v));
 	}
 
 	/**
@@ -522,7 +521,7 @@ public class ASTCloner
 	public void caseTableSwitchStmt(TableSwitchStmt stmt) {
 		stmt.getKey().apply(this);
 		resStmt =
-			jimple.newTableSwitchStmt(resValue, stmt.getLowIndex(), stmt.getHighIndex(), stmt.getTargets(),
+			JIMPLE.newTableSwitchStmt(resValue, stmt.getLowIndex(), stmt.getHighIndex(), stmt.getTargets(),
 				stmt.getDefaultTarget());
 	}
 
@@ -530,7 +529,7 @@ public class ASTCloner
 	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseThisRef(ca.mcgill.sable.soot.jimple.ThisRef)
 	 */
 	public void caseThisRef(ThisRef v) {
-		resValue = jimple.newThisRef(helper.getCloneOf(((RefType) v.getType()).className));
+		resValue = JIMPLE.newThisRef(helper.getCloneOf(((RefType) v.getType()).className));
 	}
 
 	/**
@@ -538,7 +537,7 @@ public class ASTCloner
 	 */
 	public void caseThrowStmt(ThrowStmt stmt) {
 		stmt.getOp().apply(this);
-		resStmt = jimple.newThrowStmt(resValue);
+		resStmt = JIMPLE.newThrowStmt(resValue);
 	}
 
 	/**
@@ -608,5 +607,7 @@ public class ASTCloner
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/03/14 08:42:30  venku
+AST creation for local was broken - fixed.
 
 *****/

@@ -126,23 +126,26 @@ public class SliceMap {
 	}
 
 	/**
-	 * Correct invalid mappings.  Mappings may be invalidated when transformations external to slicer are applied to 
-	 * the slice.  This methods detects such mappings and corrects them.
+	 * Correct invalid mappings.  Mappings may be invalidated when transformations external to slicer are applied to  the
+	 * slice.  This methods detects such mappings and corrects them.
 	 */
 	protected void cleanup() {
-		for (Iterator i = sliceMethod2stmtMap.keySet().iterator(); i.hasNext();) {
+		for(Iterator i = sliceMethod2stmtMap.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			SootMethod sliceMethod = slicer.getCloneOf(method);
-			if (sliceMethod == null) {
+
+			if(sliceMethod == null) {
 				method2stmtMap.put(method, null);
 			} else {
-				Map sliced = (Map)method2stmtMap.get(method);
-				Map slice = (Map)sliceMethod2stmtMap.get(sliceMethod);
-				StmtList slicedSl = ((JimpleBody)method.getBody(Jimple.v())).getStmtList();
-				StmtList sliceSl = ((JimpleBody)sliceMethod.getBody(Jimple.v())).getStmtList();
-				for (ca.mcgill.sable.util.Iterator j = slicedSl.iterator(); j.hasNext();) {
+				Map sliced = (Map) method2stmtMap.get(method);
+				Map slice = (Map) sliceMethod2stmtMap.get(sliceMethod);
+				StmtList slicedSl = ((JimpleBody) method.getBody(Jimple.v())).getStmtList();
+				StmtList sliceSl = ((JimpleBody) sliceMethod.getBody(Jimple.v())).getStmtList();
+
+				for(ca.mcgill.sable.util.Iterator j = slicedSl.iterator(); j.hasNext();) {
 					Stmt stmt = (Stmt) j.next();
-					if (!sliceSl.contains(sliced.get(stmt))) {
+
+					if(!sliceSl.contains(sliced.get(stmt))) {
 						slice.remove(sliced.get(stmt));
 						sliced.remove(stmt);
 					}
@@ -178,5 +181,8 @@ public class SliceMap {
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/03/14 08:43:21  venku
+Some mappings get invalidated after code clean up occurs.
+These mappings are removed in cleanup().
 
 *****/

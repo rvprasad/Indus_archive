@@ -85,9 +85,7 @@ public class SliceCriteriaFactory {
 	 * </p>
 	 *
 	 * @param classManager that provides the classes that will be sliced.
-	 */
-
-	/*!
+	 *
 	 * @pre classManager != null
 	 */
 	protected SliceCriteriaFactory(SootClassManager classManager) {
@@ -107,9 +105,7 @@ public class SliceCriteriaFactory {
 	 * 		  otherwise.
 	 *
 	 * @return a collection of <code>SliceCriterion</code> objects corresponding to the given criterion.
-	 */
-
-	/*!
+	 *
 	 * @pre method != null and stmt != null and vBox != null
 	 * @post (result.size() > 1) implies (inclusive = true)
 	 */
@@ -145,9 +141,7 @@ public class SliceCriteriaFactory {
 	 * 		  otherwise.
 	 *
 	 * @return a collection of <code>SliceCriterion</code> objects corresponding to the given criterion.
-	 */
-
-	/*!
+	 *
 	 * @pre method != null and stmt != null
 	 * @post (result.size() > 1) implies (inclusive = true)
 	 */
@@ -170,7 +164,9 @@ public class SliceCriteriaFactory {
 	}
 
 	/**
-	 * <p>Returns a collection of criteria which include all occurrences of the given local in the given method.</p>
+	 * <p>
+	 * Returns a collection of criteria which include all occurrences of the given local in the given method.
+	 * </p>
 	 *
 	 * @param method in which the <code>local</code> occurs.
 	 * @param local is the local variable whose all occurrences in <code>method</code> should be captured as slice criterion
@@ -208,6 +204,9 @@ public class SliceCriteriaFactory {
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/18 00:18:49  venku
+*** empty log message ***
+
 Revision 1.1.1.1  2003/02/17 23:59:51  venku
 Placing JavaSlicer under version control.
 

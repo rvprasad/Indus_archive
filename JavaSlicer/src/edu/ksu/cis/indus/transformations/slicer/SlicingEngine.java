@@ -66,8 +66,8 @@ import ca.mcgill.sable.soot.jimple.ValueBox;
 import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.bandera.staticanalyses.dependency.controller.Controller;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
@@ -121,11 +121,11 @@ public class Slicer
 	 * @invariant sliceTypes.contains(FORWARD_SLICE) and sliceTypes.contains(BACKWARD_SLICE) and sliceTypes.contains
 	 * 			  (COMPLETE_SLICE)
 	 */
-	private static final Collection sliceTypes = new HashSet();
+	private static final Collection SLICE_TYPES = new HashSet();
 
 	static {
-		sliceTypes.add(BACKWARD_SLICE);
-		sliceTypes.add(COMPLETE_SLICE);
+		SLICE_TYPES.add(BACKWARD_SLICE);
+		SLICE_TYPES.add(COMPLETE_SLICE);
 	}
 
 	/**
@@ -232,7 +232,10 @@ public class Slicer
 		Type type = field.getType();
 
 		if(!clazz.declaresField(name, type)) {
-			clazz.addField(new SootField(name, type, field.getModifiers()));
+			clazz.addField(new SootField(
+					name,
+					type,
+					field.getModifiers()));
 		}
 		return clazz.getField(name, type);
 	}
@@ -248,11 +251,17 @@ public class Slicer
 	public SootMethod getCloneOf(SootMethod slicedMethod) {
 		SootClass sc = getCloneOf(slicedMethod.getDeclaringClass());
 		SootMethod result =
-			sc.getMethod(slicedMethod.getName(), slicedMethod.getParameterTypes(), slicedMethod.getReturnType());
+			sc.getMethod(
+				slicedMethod.getName(),
+				slicedMethod.getParameterTypes(),
+				slicedMethod.getReturnType());
 
 		if(result == null) {
 			result =
-				new SootMethod(slicedMethod.getName(), slicedMethod.getParameterTypes(), slicedMethod.getReturnType(),
+				new SootMethod(
+					slicedMethod.getName(),
+					slicedMethod.getParameterTypes(),
+					slicedMethod.getReturnType(),
 					slicedMethod.getModifiers());
 
 			for(ca.mcgill.sable.util.Iterator i = slicedMethod.getExceptions().iterator(); i.hasNext();) {
@@ -366,7 +375,7 @@ public class Slicer
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
 
-		if(!sliceTypes.contains(sliceType)) {
+		if(!SLICE_TYPES.contains(sliceType)) {
 			throw new IllegalArgumentException("sliceType is not one of XXX_SLICE values defined in this class.");
 		}
 		this.sliceType = sliceType;
@@ -419,7 +428,9 @@ public class Slicer
 	 * @return the clone of <code>clazz</code>.
 	 */
 	private SootClass clone(SootClass clazz) {
-		SootClass result = new SootClass(clazz.getName(), clazz.getModifiers());
+		SootClass result = new SootClass(
+				clazz.getName(),
+				clazz.getModifiers());
 
 		if(clazz.hasSuperClass()) {
 			SootClass superClass = getCloneOf(clazz.getSuperClass());
@@ -444,7 +455,9 @@ public class Slicer
 	 */
 	private void fixupExceptionList(SootMethod sm, StmtList sl) {
 		Set thrownInBody = new HashSet();
-		Set thrownAtInterface = (Set) Util.convert("java.util.HashSet", sm.getExceptions());
+		Set thrownAtInterface = (Set) Util.convert(
+				"java.util.HashSet",
+				sm.getExceptions());
 
 		for(ca.mcgill.sable.util.Iterator i = sl.iterator(); i.hasNext();) {
 			Stmt stmt = (Stmt) i.next();
@@ -461,7 +474,9 @@ public class Slicer
 				}
 
 				if(expr != null) {
-					thrownInBody.addAll(Util.convert("java.util.ArrayList", expr.getMethod().getExceptions()));
+					thrownInBody.addAll(Util.convert(
+							"java.util.ArrayList",
+							expr.getMethod().getExceptions()));
 				}
 			}
 		}
@@ -544,7 +559,10 @@ public class Slicer
 			for(ca.mcgill.sable.util.Iterator j = cloneClass.getMethods().iterator(); j.hasNext();) {
 				SootMethod cloneMethod = (SootMethod) j.next();
 				SootMethod clonedMethod =
-					clonedClass.getMethod(cloneMethod.getName(), cloneMethod.getParameterTypes(), cloneMethod.getReturnType());
+					clonedClass.getMethod(
+						cloneMethod.getName(),
+						cloneMethod.getParameterTypes(),
+						cloneMethod.getReturnType());
 				JimpleBody clonedBody = (JimpleBody) clonedMethod.getBody(jimple);
 				StmtList clonedSl = clonedBody.getStmtList();
 				JimpleBody cloneBody = (JimpleBody) cloneMethod.getBody(jimple);
@@ -558,7 +576,11 @@ public class Slicer
 
 					for(int l = begin; l < end; l++) {
 						if(!(cloneSl.get(l) instanceof NopStmt)) {
-							cloneBody.addTrap(jimple.newTrap(trap.getException(), trap.getBeginUnit(), trap.getEndUnit(),
+							cloneBody.addTrap(
+								jimple.newTrap(
+									trap.getException(),
+									trap.getBeginUnit(),
+									trap.getEndUnit(),
 									trap.getHandlerUnit()));
 							break;
 						}
@@ -575,6 +597,7 @@ public class Slicer
 					if(stmt instanceof GotoStmt) {
 						int index = clonedSl.indexOf(stmt);
 						cloneSl.remove(index);
+
 						Stmt slicedStmt = cloner.cloneASTFragment(stmt, cloneMethod);
 						cloneSl.add(index, slicedStmt);
 						slicemap.put(stmt, slicedStmt, clonedMethod);
@@ -601,10 +624,16 @@ public class Slicer
 	 */
 	private void sliceArray(ValueBox vBox, Stmt stmt, SootMethod method) {
 		ArrayRef value = (ArrayRef) vBox.getValue();
-		sliceLocal(value.getBaseBox(), stmt, method);
+		sliceLocal(
+			value.getBaseBox(),
+			stmt,
+			method);
 
 		if(value.getIndex() instanceof Local) {
-			sliceLocal(value.getIndexBox(), stmt, method);
+			sliceLocal(
+				value.getIndexBox(),
+				stmt,
+				method);
 		}
 
 		DependencyAnalysis da = controller.getDAnalysis(Controller.INTERFERENCE_DA);
@@ -662,7 +691,10 @@ public class Slicer
 		FieldRef value = (FieldRef) vBox.getValue();
 
 		if(value instanceof InstanceFieldRef) {
-			sliceLocal(((InstanceFieldRef) value).getBaseBox(), stmt, method);
+			sliceLocal(
+				((InstanceFieldRef) value).getBaseBox(),
+				stmt,
+				method);
 		}
 
 		DependencyAnalysis da = controller.getDAnalysis(Controller.INTERFERENCE_DA);
@@ -678,7 +710,9 @@ public class Slicer
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param slices DOCUMENT ME!
 	 * @param method DOCUMENT ME!
@@ -693,7 +727,9 @@ public class Slicer
 
 			if(slicemap.getSliceStmt(unsliced, method) == null) {
 				Stmt slice = cloner.cloneASTFragment(unsliced, method);
-				sliceSL.add(slicedSL.indexOf(unsliced), slice);
+				sliceSL.add(
+					slicedSL.indexOf(unsliced),
+					slice);
 				slicemap.put(unsliced, slice, method);
 				workbag.addWorkNoDuplicates(new SliceStmt((SootMethod) pair.getSecond(), unsliced, true));
 			}
@@ -718,15 +754,21 @@ public class Slicer
 		String lName = local.getName();
 
 		if(body.getLocal(lName) == null) {
-			body.addLocal(jimple.newLocal(lName, local.getType()));
+			body.addLocal(jimple.newLocal(
+					lName,
+					local.getType()));
 		}
 
 		// slice
 		if(sliceType.equals(COMPLETE_SLICE)) {
 			slices.addAll(da.getDependents(stmt, method));
-			slices.addAll(da.getDependees(new Pair(stmt, vBox), method));
+			slices.addAll(da.getDependees(
+					new Pair(stmt, vBox),
+					method));
 		} else if(sliceType.equals(BACKWARD_SLICE)) {
-			slices.addAll(da.getDependees(new Pair(stmt, vBox), method));
+			slices.addAll(da.getDependees(
+					new Pair(stmt, vBox),
+					method));
 		}
 
 		// update the workbag
@@ -774,7 +816,7 @@ public class Slicer
 
 					for(Iterator j = bbg.getTails().iterator(); j.hasNext();) {
 						BasicBlock bb = (BasicBlock) j.next();
-						workbag.addWorkNoDuplicates(new SliceStmt(callee, (Stmt) sl.get(bb.trailer), true));
+						workbag.addWorkNoDuplicates(new SliceStmt(callee, (Stmt) sl.get(bb._TRAILER), true));
 					}
 				}
 			}
@@ -801,7 +843,7 @@ public class Slicer
 
 		Collection slices = new HashSet();
 
-		DependencyAnalysis da[] = new DependencyAnalysis[3];
+		DependencyAnalysis[] da = new DependencyAnalysis[3];
 		da[0] = controller.getDAnalysis(Controller.CONTROL_DA);
 		da[1] = controller.getDAnalysis(Controller.SYNCHRONIZATION_DA);
 		da[2] = controller.getDAnalysis(Controller.DIVERGENCE_DA);
@@ -823,7 +865,9 @@ public class Slicer
 
 			if(slicemap.getSliceStmt(unsliced, method) == null) {
 				Stmt slice = cloner.cloneASTFragment(unsliced, method);
-				sliceSL.add(slicedSL.indexOf(unsliced), slice);
+				sliceSL.add(
+					slicedSL.indexOf(unsliced),
+					slice);
 				slicemap.put(unsliced, slice, method);
 				workbag.addWorkNoDuplicates(new SliceStmt(method, unsliced, true));
 			}
@@ -835,5 +879,7 @@ public class Slicer
  ChangeLog:
 
 $Log$
+Revision 1.4  2003/03/14 08:44:13  venku
+Writing of code to reconstruct the slice is in progress.
 
 *****/
