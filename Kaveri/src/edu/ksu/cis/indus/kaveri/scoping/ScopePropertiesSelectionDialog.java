@@ -197,7 +197,7 @@ public class ScopePropertiesSelectionDialog extends Dialog {
         //createScopeNameOnly(comp);
         
         final Group _grp = new Group(comp, SWT.BORDER);
-		_grp.setText("Pick the scope around the specified type");
+		_grp.setText("Scope around the specified type");
 		_grp.setLayout(new RowLayout(SWT.VERTICAL));		
 		
 		GridData _gd = new GridData();
@@ -282,7 +282,7 @@ public class ScopePropertiesSelectionDialog extends Dialog {
      */	
     private void createScopeNameOnly(Composite comp) {        
         final Group _grp = new Group(comp, SWT.BORDER);
-		_grp.setText("Enter the name for the scope");
+		_grp.setText("Scope Name");
 		_grp.setLayout(new GridLayout(1, true));		
 		
 		GridData _gd = new GridData();

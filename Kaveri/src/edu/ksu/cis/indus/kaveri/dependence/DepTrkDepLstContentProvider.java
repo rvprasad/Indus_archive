@@ -32,6 +32,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.TreeItem;
 
 import soot.SootMethod;
 import soot.jimple.AssignStmt;
@@ -162,7 +163,11 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         if (tvRight != null && isActive) {
             initialize();
             tvRight.refresh();
-            tvRight.expandToLevel(3);
+            tvRight.expandToLevel(3);  
+            final TreeItem items[] =  tvRight.getTree().getItems();
+            if (items != null && items.length > 0) {
+            	tvRight.getTree().showItem(items[0]);
+            }
         }
     }
 
@@ -547,7 +552,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
 	public List handleDependees(SootMethod _method, Stmt _stmt, final Object dependenceType) {		
 		final EclipseIndusDriver _driver = KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver();
 		final SlicerTool _stool = _driver.getSlicer();
-		if (_stool == null) {
+		if (_stool == null || _stmt == null || _method == null) {
 		    return new LinkedList();
 		}
 		final SlicerConfiguration _config = (SlicerConfiguration) _stool.getActiveConfiguration();

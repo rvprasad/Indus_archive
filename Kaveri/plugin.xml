@@ -31,7 +31,7 @@
       <import plugin="org.eclipse.jdt.launching"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="edu.ksu.cis.indus" version="0.3.0" match="greaterOrEqual"/>
+      <import plugin="edu.ksu.cis.indus"/>
    </requires>
 
 <!-- The document -->

@@ -478,7 +478,7 @@ public class DependenceHistoryView
 	 * @param parent The parent control
 	 */
 	public void createPartControl(final Composite parent) {		
-		viewer = new TableTreeViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+		viewer = new TableTreeViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		viewer.getTableTree().getTable().setLinesVisible(true);
 		viewer.getTableTree().getTable().setHeaderVisible(true);
 		final Table _table = viewer.getTableTree().getTable();

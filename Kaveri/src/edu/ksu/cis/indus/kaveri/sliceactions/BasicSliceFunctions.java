@@ -163,7 +163,7 @@ abstract public class BasicSliceFunctions {
 					KaveriPlugin.getDefault().loadConfigurations();
 					KaveriPlugin.getDefault().getIndusConfiguration().setCurrentConfiguration(sliceType);
 					KaveriPlugin.getDefault().getIndusConfiguration().setCriteria(_c);
-
+					KaveriPlugin.getDefault().getIndusConfiguration().setScopeSpecification("");
 					final List _lst = SECommons.checkForRootMethods(_file);
 
 //					 Changed to my progress monitor dialog.

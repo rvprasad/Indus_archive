@@ -122,7 +122,7 @@ public class DependenceTrackingView extends ViewPart {
 
     private Action synchFilterActionFwd, synchFilterActionBck;
 
-    private Action expandAll, contractAll;
+    private Action expandAll, contractAll, normalMode;
 
     /**
      * Whether this view is active.
@@ -248,6 +248,13 @@ public class DependenceTrackingView extends ViewPart {
                 tvRight.collapseAll();
             }
         };
+        
+        normalMode = new Action() {
+        	public void run() {
+        		tvRight.expandToLevel(3);
+        	}
+        };
+        normalMode.setText("Normal Mode");
         contractAll.setText("Collapse All");
     }
 
@@ -548,7 +555,8 @@ public class DependenceTrackingView extends ViewPart {
         _popMenuMangager.addMenuListener(new IMenuListener() {
             public void menuAboutToShow(IMenuManager manager) {
                 manager.add(expandAll);
-                manager.add(contractAll);
+                manager.add(normalMode);
+                manager.add(contractAll);                				
                 manager.add(new Separator(
                         IWorkbenchActionConstants.MB_ADDITIONS));
             }

@@ -57,7 +57,7 @@ public class AddToContext implements IViewActionDelegate {
     public void run(IAction action) {
         if (sSel != null) {
             if (sSel.getFirstElement() instanceof MethodWrapper) {
-                MethodWrapper _mw = (MethodWrapper) (sSel.getFirstElement());
+                MethodWrapper _mw = (MethodWrapper) (sSel.getFirstElement());                
                 final IJavaElement _method = (IJavaElement) _mw.getAdapter(IJavaElement.class);
                 if (_method != null && _method.getElementType() == IJavaElement.METHOD) {
                     final IMethod _jmethod = (IMethod) _method;

@@ -147,7 +147,8 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
      * Initialize the tree model.
      */
     private void initialize() {
-        if (invisibleRoot != null && psd.getSelectedStatement() != null) {
+        if (invisibleRoot != null && psd.getSelectedStatement() != null
+        		&& psd.getStmtList() != null) {
             invisibleRoot.removeAllChildren();
             final String _mainHeading = psd.getSelectedStatement() + " ("
                     + psd.getJavaFile().getName() + ")";
