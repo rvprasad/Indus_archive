@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 // LHSConnector.java
 /**
  * <p>This class encapsulates the logic to connect ast flow graph nodes with non-ast flow graph nodes when the ast nodes
- * correspond to l-values.
+ * correspond to l-values.</p>
  *
  * Created: Wed Jan 30 15:19:44 2002
  *

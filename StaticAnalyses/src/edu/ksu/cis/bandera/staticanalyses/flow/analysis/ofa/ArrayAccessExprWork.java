@@ -19,7 +19,8 @@ import org.apache.log4j.Logger;
 
 // ArrayAccessExprWork.java
 /**
- *
+ * <p>This class is the counter part of <code>FieldAccessExprWork</code>.  It encapsulates the logic to instrument the flow
+ * values through array components.</p>
  *
  * Created: Wed Mar  6 12:31:07 2002.
  *
