@@ -27,9 +27,9 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
+import edu.ksu.cis.indus.staticanalyses.support.PoolAwareFIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -62,6 +62,9 @@ import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
+
+import soot.tagkit.AbstractHost;
+import soot.tagkit.Host;
 
 
 /**
@@ -182,7 +185,7 @@ public final class SlicingEngine {
 	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
 	 * @invariant workbag->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
 	 */
-	private final IWorkBag workbag = new FIFOWorkBag();
+	private final IWorkBag workbag = new PoolAwareFIFOWorkBag();
 
 	/**
 	 * <p>
@@ -440,6 +443,11 @@ public final class SlicingEngine {
 		}
 
 		collector.completeTransformation();
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Required methods: " + required);
+			LOGGER.debug("Invoked methods: " + invoked);
+		}
 	}
 
 	/**
@@ -453,15 +461,38 @@ public final class SlicingEngine {
 
 	/**
 	 * DOCUMENT ME!
+	 *
+	 * @param host1 DOCUMENT ME!
+	 * @param host2 DOCUMENT ME!
+	 */
+	private void collect(final Host host1, final Host host2) {
+		collector.collect(host1);
+
+		if (host1 instanceof SootMethod && !marked((SootMethod) host1)) {
+			invoked.add(host1);
+		}
+		collector.collect(host2);
+
+		if (host2 instanceof SootMethod && !marked((SootMethod) host2)) {
+			invoked.add(host2);
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
 	 *
 	 * @param callee DOCUMENT ME!
 	 * @param caller DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
+	 *
+	 * @throws RuntimeException DOCUMENT ME!
 	 */
-	private boolean generateEnteringInterProceduralSlicingCriteria(final SootMethod callee, final SootMethod caller, final Stmt stmt) {
+	private boolean considerMethodEntranceForCriteriaGeneration(final SootMethod callee, final SootMethod caller,
+		final Stmt stmt) {
 		boolean result = false;
 
 		if (markedAsRequired(callee)) {
@@ -469,10 +500,11 @@ public final class SlicingEngine {
 			required.add(caller);
 			result = true;
 		} else {
-            if (invoked.contains(callee))
-                result = marked(caller) && collector.isTransformed(stmt.getInvokeExprBox());
-            else
-                throw new RuntimeException("How can this happen?");
+			if (invoked.contains(callee)) {
+				result = marked(caller) && collector.isTransformed(stmt.getInvokeExprBox());
+			} else {
+				throw new RuntimeException("How can this happen?" + callee + " was unmarked but was being processed.");
+			}
 		}
 		return result;
 	}
@@ -483,11 +515,10 @@ public final class SlicingEngine {
 	 * <p></p>
 	 *
 	 * @param callee DOCUMENT ME!
-	 * @param caller DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	private boolean generateExitingInterProceduralSlicingCriteria(final SootMethod callee, final SootMethod caller) {
+	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee) {
 		boolean result = false;
 
 		if (!marked(callee)) {
@@ -532,19 +563,25 @@ public final class SlicingEngine {
 
 		for (final Iterator _i = _newCriteria.iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
-			Stmt unslicedStmt;
-			SootMethod unslicedMethod;
+			Stmt stmtToBeIncluded;
+			SootMethod methodToBeIncluded;
 
 			if (_o instanceof Pair) {
 				final Pair _pair = (Pair) _o;
-				unslicedStmt = (Stmt) _pair.getFirst();
-				unslicedMethod = (SootMethod) _pair.getSecond();
+				stmtToBeIncluded = (Stmt) _pair.getFirst();
+				methodToBeIncluded = (SootMethod) _pair.getSecond();
 			} else {
-				unslicedStmt = (Stmt) _o;
-				unslicedMethod = method;
+				stmtToBeIncluded = (Stmt) _o;
+				methodToBeIncluded = method;
 			}
 
-			generateSliceStmtCriterion(unslicedStmt, unslicedMethod, true);
+			/*
+			   if (!markedAsRequired(methodToBeIncluded)) {
+			       invoked.remove(methodToBeIncluded);
+			       required.add(methodToBeIncluded);
+			   }
+			 */
+			generateSliceStmtCriterion(stmtToBeIncluded, methodToBeIncluded, true);
 		}
 	}
 
@@ -638,16 +675,22 @@ public final class SlicingEngine {
 		BitSet params = (BitSet) method2params.get(callee);
 
 		if (params == null) {
-			params = new BitSet();
+			final int _maxArguments = 8;
+			params = new BitSet(_maxArguments);
 			method2params.put(callee, params);
 		}
 		params.set(_param.getIndex());
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Parameters required for " + callee + " are " + params);
+		}
+
 		for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
 			final CallTriple _ctrp = (CallTriple) _i.next();
 			final SootMethod _caller = _ctrp.getMethod();
-            final Stmt _stmt = _ctrp.getStmt();
-			if (generateEnteringInterProceduralSlicingCriteria(callee, _caller, _stmt)) {
+			final Stmt _stmt = _ctrp.getStmt();
+
+			if (considerMethodEntranceForCriteriaGeneration(callee, _caller, _stmt)) {
 				final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
 
 				generateSliceExprCriterion(_argBox, _stmt, _caller, true);
@@ -699,8 +742,9 @@ public final class SlicingEngine {
 				continue;
 			}
 
-            final BitSet _params = (BitSet) method2params.get(_callee);
-			if (generateExitingInterProceduralSlicingCriteria(_callee, caller) || _params == null) {
+			final BitSet _params = (BitSet) method2params.get(_callee);
+
+			if (considerMethodExitForCriteriaGeneration(_callee) || _params == null) {
 				processReturnStmtInInit(_callee, _bbg);
 
 				for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
@@ -709,6 +753,8 @@ public final class SlicingEngine {
 					generateSliceStmtCriterion(_trailer, _callee, _considerReturnValue);
 				}
 			} else if (_callee.getParameterCount() > 0) {
+				System.err.println("------" + _params + " ---- " + caller);
+
 				for (int i = _params.nextSetBit(0); i >= 0; i = _params.nextSetBit(i + 1)) {
 					generateSliceExprCriterion(_expr.getArgBox(i), stmt, caller, true);
 				}
@@ -734,8 +780,7 @@ public final class SlicingEngine {
 
 		// generate criteria to include invocation sites only if the method has not been collected.
 		if (!collector.isTransformed(callee)) {
-			collector.collect(callee);
-			collector.collect(callee.getDeclaringClass());
+			collect(callee, callee.getDeclaringClass());
 
 			final boolean _notStatic = !callee.isStatic();
 
@@ -744,7 +789,7 @@ public final class SlicingEngine {
 				final SootMethod _caller = _ctrp.getMethod();
 				final Stmt _stmt = _ctrp.getStmt();
 
-				if (generateEnteringInterProceduralSlicingCriteria(callee, _caller, _stmt)) {
+				if (considerMethodEntranceForCriteriaGeneration(callee, _caller, _stmt)) {
 					generateSliceStmtCriterion(_stmt, _caller, false);
 					generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, false);
 
@@ -773,11 +818,14 @@ public final class SlicingEngine {
 	 */
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
+		if (!marked(method)) {
+			invoked.add(method);
+		}
+
 		if (!collector.isTransformed(valueBox)) {
 			final SliceExpr _sliceCriterion = SliceExpr.getSliceExpr();
 			_sliceCriterion.initialize(method, stmt, valueBox);
 			_sliceCriterion.setConsiderExecution(considerExecution);
-
 			workbag.addWorkNoDuplicates(_sliceCriterion);
 
 			if (LOGGER.isDebugEnabled()) {
@@ -792,21 +840,23 @@ public final class SlicingEngine {
 	 * 
 	 * <p></p>
 	 *
-	 * @param unslicedStmt DOCUMENT ME!
-	 * @param unslicedMethod DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
 	 * @param considerExecution DOCUMENT ME!
 	 */
-	private void generateSliceStmtCriterion(final Stmt unslicedStmt, final SootMethod unslicedMethod,
-		final boolean considerExecution) {
-		if (!collector.isTransformed(unslicedStmt)) {
-			final SliceStmt _sliceCriterion = SliceStmt.getSliceStmt();
-			_sliceCriterion.initialize(unslicedMethod, unslicedStmt);
-			_sliceCriterion.setConsiderExecution(considerExecution);
+	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
+		if (!marked(method)) {
+			invoked.add(method);
+		}
 
+		if (!collector.isTransformed(stmt)) {
+			final SliceStmt _sliceCriterion = SliceStmt.getSliceStmt();
+			_sliceCriterion.initialize(method, stmt);
+			_sliceCriterion.setConsiderExecution(considerExecution);
 			workbag.addWorkNoDuplicates(_sliceCriterion);
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Adding " + unslicedStmt + " in " + unslicedMethod.getSignature() + " to workbag.");
+				LOGGER.debug("Adding " + stmt + " in " + method.getSignature() + " to workbag.");
 			}
 		}
 	}
@@ -887,19 +937,26 @@ public final class SlicingEngine {
 		 * if we are sucking in an init we better suck in the super <init> invoke expression as well. By JLS, this has to
 		 * be the first statement in the constructor.  However, if it accepts arguments, the arguments will be set up
 		 * before the call.  Hence, it is safe to suck in the first <init> invoke expression in the <init> method being
-		 * sucked in.  As we process invocation expressions, we are bound to suck in any other required <init>'s from
-		 * other higher super classes.
+		 * sucked in.  However, care must be taken to suck in the first <init> invocation that is invokes <init> from the same
+		 * class as the enclosing <init> method. As we process invocation expressions, we are bound to suck in any other
+		 * required <init>'s from other higher super classes.
 		 */
 		if (callee.getName().equals("<init>")) {
+			final SootClass _sc1 = callee.getDeclaringClass();
+
 			for (final Iterator _j = bbg.getHead().getStmtsOf().iterator(); _j.hasNext();) {
 				final Stmt _stmt = (Stmt) _j.next();
 
 				if (_stmt instanceof InvokeStmt) {
-					final InvokeExpr _expr = _stmt.getInvokeExpr();
+					final SootMethod _invokedMethod = _stmt.getInvokeExpr().getMethod();
 
-					if (_expr.getMethod().getName().equals("<init>")) {
-						generateSliceStmtCriterion(_stmt, callee, true);
-						break;
+					if (_invokedMethod.getName().equals("<init>")) {
+						final SootClass _sc2 = _invokedMethod.getDeclaringClass();
+
+						if (_sc1 == _sc2 || (_sc1.hasSuperclass() && _sc1.getSuperclass() == _sc2)) {
+							generateSliceStmtCriterion(_stmt, callee, true);
+                            break;
+						}
 					}
 				}
 			}
@@ -942,7 +999,7 @@ public final class SlicingEngine {
 
 					if (_value instanceof FieldRef) {
 						final SootField _field = ((FieldRef) _vBox.getValue()).getField();
-						collector.collect(_field);
+						collect(_field, _field.getDeclaringClass());
 					}
 				}
 			}
@@ -975,7 +1032,7 @@ public final class SlicingEngine {
 		}
 
 		// collect the expresssion
-		collector.collect(_vBox);
+		collect(_vBox, _method);
 
 		// include any sub expressions and generate criteria from them
 		transformAndGenerateCriteriaForVBoxes(_value.getUseBoxes(), _stmt, _method);
@@ -1016,7 +1073,7 @@ public final class SlicingEngine {
 		}
 
 		// collect the statement
-		collector.collect(stmt);
+		collect(stmt, method);
 
 		// transform the statement
 		if (considerExecution) {
@@ -1048,6 +1105,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/04 12:10:12  venku
+   - changes that take a stab at interprocedural slicing.
    Revision 1.25  2003/12/02 09:42:17  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
