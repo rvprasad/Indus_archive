@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -62,7 +63,7 @@ public class ExitControlDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
 	 */
 	public Object getDirection() {
-		return FORWARD_DIRECTIONAL;
+		return FORWARD_DIRECTION;
 	}
 
 	/**
@@ -100,7 +101,10 @@ public class ExitControlDA
 			final SootMethod _sm = (SootMethod) _i.next();
 			final BasicBlockGraph _bbg = getBasicBlockGraph(_sm);
 			final Collection _dependeeBBs = calculateDependeesOfSinksIn(_bbg, _sm);
-			calculateDependenceForStmts(calculateDependenceForBBs(_bbg, _dependeeBBs), _sm);
+
+			if (!_dependeeBBs.isEmpty()) {
+				calculateDependenceForStmts(calculateDependenceForBBs(_bbg, _dependeeBBs), _sm);
+			}
 		}
 
 		if (LOGGER.isInfoEnabled()) {
@@ -117,7 +121,7 @@ public class ExitControlDA
 	 *
 	 * @pre info.get(IDependencyAnalysis.CONTROL_DA) != null
 	 * @pre info.get(IDependencyAnalysis.ID).oclIsTypeOf(IDependencyAnalysis)
-	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTIONAL)
+	 * @pre info.get(IDependencyAnalysis.ID).getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTION)
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
@@ -125,14 +129,21 @@ public class ExitControlDA
 	  throws InitializationException {
 		super.setup();
 
-		final IDependencyAnalysis _temp = (IDependencyAnalysis) info.get(IDependencyAnalysis.CONTROL_DA);
+		final Collection _temp = (Collection) info.get(IDependencyAnalysis.CONTROL_DA);
 
-		if (_temp == null) {
-			throw new InitializationException(IDependencyAnalysis.CONTROL_DA + " was not provided.");
-		} else if (!_temp.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTIONAL)) {
-			throw new InitializationException("Provided control dependence  is not backward directional.");
+		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
+
+			if (_da.getId().equals(IDependencyAnalysis.CONTROL_DA)
+				  && _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+				entryControlDA = _da;
+			}
 		}
-		entryControlDA = _temp;
+
+		if (entryControlDA == null) {
+			throw new InitializationException(IDependencyAnalysis.CONTROL_DA
+				+ " was not provided or none of the provided control dependences were backward in direction.");
+		}
 	}
 
 	/**
@@ -144,21 +155,27 @@ public class ExitControlDA
 	 * @return DOCUMENT ME!
 	 */
 	private Collection calculateDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
-		final Collection _result = new HashSet();
+		final Collection _result;
 		final Collection _sinks = new ArrayList();
 		_sinks.addAll(bbg.getTails());
 		_sinks.addAll(bbg.getPseudoTails());
 
-		for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
-			final BasicBlock _sink = (BasicBlock) _i.next();
-			final Stmt _stmt = _sink.getLeaderStmt();
-			final Collection _dependees = entryControlDA.getDependees(_stmt, method);
+		if (_sinks.size() == 1) {
+			_result = new HashSet();
 
-			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
-				final Stmt _dependee = (Stmt) _j.next();
-				final BasicBlock _dependeeBB = bbg.getEnclosingBlock(_dependee);
-				_result.add(_dependeeBB);
+			for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
+				final BasicBlock _sink = (BasicBlock) _i.next();
+				final Stmt _stmt = _sink.getLeaderStmt();
+				final Collection _dependees = entryControlDA.getDependees(_stmt, method);
+
+				for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
+					final Stmt _dependee = (Stmt) _j.next();
+					final BasicBlock _dependeeBB = bbg.getEnclosingBlock(_dependee);
+					_result.add(_dependeeBB);
+				}
 			}
+		} else {
+			_result = Collections.EMPTY_SET;
 		}
 		return _result;
 	}
@@ -232,6 +249,8 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/07/11 11:20:50  venku
+   - refactored code to simplify control dependence implementation.
    Revision 1.13  2004/07/11 11:06:54  venku
    - Added implementation.
    Revision 1.12  2004/07/11 09:42:13  venku
