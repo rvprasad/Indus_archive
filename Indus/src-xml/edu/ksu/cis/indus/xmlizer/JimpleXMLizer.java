@@ -253,10 +253,7 @@ public class JimpleXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void hookup(ProcessingController ppc) {
-		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
-			ppc.register((Class) i.next(), this);
-		}
-
+		ppc.registerForAllStmts(this);
 		ppc.register(this);
 	}
 
@@ -266,9 +263,7 @@ public class JimpleXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public final void unhook(ProcessingController ppc) {
-		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
-			ppc.unregister((Class) i.next(), this);
-		}
+		ppc.unregisterForAllStmts(this);
 		ppc.unregister(this);
 	}
 }
@@ -276,6 +271,10 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/07 11:14:44  venku
+   - Added generator class for xmlizing purpose.
+   - XMLizing of Jimple works, but takes long.
+     Probably, reachable method dump should fix it.  Another rainy day problem.
    Revision 1.1  2003/11/07 06:27:03  venku
    - Made the XMLizer classes concrete by moving out the
      id generation logic outside.
