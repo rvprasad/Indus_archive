@@ -279,7 +279,7 @@ public class DependencyXMLizerCLI
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
 		final ICallGraphInfo _cgi = new CallGraph(_pairManager);
-		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()));
+		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
 
@@ -380,6 +380,12 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/08/08 08:50:03  venku
+   - aspectized profiling/statistics logic.
+   - used a cache in CallGraph for reachable methods.
+   - required a pair manager in Call graph. Ripple effect.
+   - used a first-element based lookup followed by pair search algorithm in PairManager.
+
    Revision 1.43  2004/08/08 08:28:05  venku
    - aspectized outputting of statistics.
    Revision 1.42  2004/08/02 07:33:45  venku
@@ -669,6 +675,12 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/08/08 08:50:03  venku
+   - aspectized profiling/statistics logic.
+   - used a cache in CallGraph for reachable methods.
+   - required a pair manager in Call graph. Ripple effect.
+   - used a first-element based lookup followed by pair search algorithm in PairManager.
+
    Revision 1.43  2004/08/08 08:28:05  venku
    - aspectized outputting of statistics.
    Revision 1.42  2004/08/02 07:33:45  venku

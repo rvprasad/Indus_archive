@@ -169,7 +169,7 @@ public class InterferenceDAv1
 			}
 
 			// we do not hookup if there are no threads in the system.
-			if (tgi.getStartSites().size() != 0) {
+			if (!tgi.getCreationSites().isEmpty()) {
 				ppc.register(AssignStmt.class, this);
 			}
 		}
@@ -183,7 +183,7 @@ public class InterferenceDAv1
 			}
 
 			// we do not unhook if there are no threads in the system.
-			if (tgi.getStartSites().size() != 0) {
+			if (!tgi.getCreationSites().isEmpty()) {
 				ppc.unregister(AssignStmt.class, this);
 			}
 		}
@@ -294,7 +294,7 @@ public class InterferenceDAv1
 		}
 
 		// we return immediately if there are no start sites in the system.
-		if (tgi.getStartSites().size() == 0) {
+		if (tgi.getCreationSites().isEmpty()) {
 			stable();
 			return;
 		}
@@ -519,14 +519,19 @@ public class InterferenceDAv1
 	 * @pre dependent.oclIsKindOf(Pair(Stmt, SootMethod)) and dependee.oclIsKindOf(Pair(Stmt, SootMethod))
 	 */
 	private boolean isDependentOn(final Pair dependent, final Pair dependee) {
-		boolean _result = true;
-		final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-		final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+		final SootMethod _deMethod = (SootMethod) dependee.getSecond();
+		final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
+		boolean _result = !tgi.mustOccurInSameThread(_deMethod, _dtMethod);
 
-		if (_de instanceof ArrayRef && _dt instanceof ArrayRef) {
-			_result = isArrayDependentOn(dependent, dependee, (ArrayRef) _dt, (ArrayRef) _de);
-		} else if (_dt instanceof InstanceFieldRef && _de instanceof InstanceFieldRef) {
-			_result = isFieldDependentOn(dependent, dependee, (InstanceFieldRef) _dt, (InstanceFieldRef) _de);
+		if (_result) {
+			final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+			final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+
+			if (_de instanceof ArrayRef && _dt instanceof ArrayRef) {
+				_result = isArrayDependentOn(dependent, dependee, (ArrayRef) _dt, (ArrayRef) _de);
+			} else if (_dt instanceof InstanceFieldRef && _de instanceof InstanceFieldRef) {
+				_result = isFieldDependentOn(dependent, dependee, (InstanceFieldRef) _dt, (InstanceFieldRef) _de);
+			}
 		}
 
 		return _result;
@@ -625,6 +630,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
    Revision 1.45  2004/08/01 22:59:23  venku
    - used CollectionsUtilities.
    Revision 1.44  2004/07/30 07:47:06  venku

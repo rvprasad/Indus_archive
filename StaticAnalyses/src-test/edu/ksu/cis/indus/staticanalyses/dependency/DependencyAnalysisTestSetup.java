@@ -120,12 +120,12 @@ public class DependencyAnalysisTestSetup
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
 		_pc.setStmtGraphFactory(getStmtGraphFactory());
-		tgiImpl = new ThreadGraph(cgiImpl, new CFGAnalysis(cgiImpl, bbgMgr));
+
+		final PairManager _pairManager = new PairManager(false, true);
+		tgiImpl = new ThreadGraph(cgiImpl, new CFGAnalysis(cgiImpl, bbgMgr), _pairManager);
 		tgiImpl.hookup(_pc);
 		_pc.process();
 		tgiImpl.unhook(_pc);
-
-		final PairManager _pairManager = new PairManager(false, true);
 		aliasUD = new AliasedUseDefInfov2(valueAnalyzer, cgiImpl, tgiImpl, bbgMgr, _pairManager);
 		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, bbgMgr);
 		monitorInfo = new MonitorAnalysis();
@@ -211,6 +211,10 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
+
    Revision 1.23  2004/08/01 21:30:15  venku
    - ECBA was made independent of ThreadGraph Analysis.
    Revision 1.22  2004/07/28 09:09:27  venku

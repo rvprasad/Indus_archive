@@ -323,7 +323,7 @@ public final class SlicerTool
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setUnitGraphFactory(getStmtGraphFactory());
 		// create the thread graph.
-		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
+		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr), pairMgr);
 		// create equivalence class-based escape analysis.
 		ecba = new EquivalenceClassBasedEscapeAnalysis(callGraph, bbgMgr);
 		// create monitor analysis
@@ -912,6 +912,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.112  2004/08/08 08:50:04  venku
+   - aspectized profiling/statistics logic.
+   - used a cache in CallGraph for reachable methods.
+   - required a pair manager in Call graph. Ripple effect.
+   - used a first-element based lookup followed by pair search algorithm in PairManager.
+
    Revision 1.111  2004/08/02 07:33:46  venku
    - small but significant change to the pair manager.
    - ripple effect.

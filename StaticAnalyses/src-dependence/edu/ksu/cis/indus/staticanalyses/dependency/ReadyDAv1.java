@@ -462,7 +462,7 @@ public class ReadyDAv1
 				LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + " processing");
 			}
 
-			if (!threadgraph.getStartSites().isEmpty()) {
+			if (!threadgraph.getCreationSites().isEmpty()) {
 				final boolean _syncedMethodsExist = processMonitorInfo();
 
 				if (_syncedMethodsExist && (rules & (RULE_1 | RULE_3)) != 0) {
@@ -1312,6 +1312,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.68  2004/08/09 04:56:22  venku
+   - we assumed that monitor objects were non-array types. This was a bug.  FIXED.
+
    Revision 1.67  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.

@@ -15,16 +15,13 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.common.datastructures.Triple;
-
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
 
 import soot.SootMethod;
 
-import soot.jimple.NewExpr;
-import soot.jimple.Stmt;
+import soot.jimple.InvokeStmt;
 
 
 /**
@@ -43,138 +40,92 @@ import soot.jimple.Stmt;
 public interface IThreadGraphInfo
   extends IStatus,
 	  IIdentification {
-	/**
+	/** 
 	 * The id of this interface.
 	 */
 	String ID = "Threadgraph Information";
 
 	/**
-	 * This class captures in the information pertaining to object allocation.  It provides the expression, statement, and
-	 * the method in which the allocation happens.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$
-	 */
-	public final class NewExprTriple
-	  extends Triple {
-		/**
-		 * Creates a new NewExprTriple object.  Allocation sites that do not occur in the source code of the system can be
-		 * represented via a non-null <code>expr</code> coupled with a null method and statement. It is assumed that none of
-		 * the components of this triple will not change their state  in ways that will affect equality test or hash code
-		 * value of the component.
-		 *
-		 * @param method in which the object is created.
-		 * @param stmt in which the allocation occurs.
-		 * @param expr is the allocation site.
-		 *
-		 * @pre expr != null and stmt != null and method != null
-		 */
-		public NewExprTriple(final SootMethod method, final Stmt stmt, final NewExpr expr) {
-			super(expr, stmt, method);
-			optimize();
-		}
-
-		/**
-		 * Returns the allocation site.
-		 *
-		 * @return the allocation site.
-		 */
-		public NewExpr getExpr() {
-			return (NewExpr) getFirst();
-		}
-
-		/**
-		 * Returns the allocating method.
-		 *
-		 * @return the allocating method.
-		 */
-		public SootMethod getMethod() {
-			return (SootMethod) getThird();
-		}
-
-		/**
-		 * Returns the allocating statement.
-		 *
-		 * @return the allocating statement.
-		 */
-		public Stmt getStmt() {
-			return (Stmt) getSecond();
-		}
-	}
-
-	/**
 	 * Returns a collection of thread allocation sites in the system.
 	 *
-	 * @return a collection of <code>NewExprTriple</code>s.
+	 * @return a collection of pairs of creation statements and their enclosing methods. The returned pairs consists of a
+	 * 		   statement and the method in which it occurs.  However, system threads are represented as pairs of simple
+	 * 		   objects. So, the caller is adviced to check for the types of the Pair before using them.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(NewExprTriple))
+	 * @post result != null and result.oclIsKindOf(Collection(Pair)
 	 */
 	Collection getAllocationSites();
 
 	/**
-	 * Returns the methods called executed in the <code>Thread</code> object created by the given <code>ne</code> expression
-	 * in the given context <code>ctxt</code>.
+	 * Returns the sites which create new threads, i.e., <code>java.lang.Thread.start()</code> call-sites.
 	 *
-	 * @param ne is the expression in which the thread is created.
+	 * @return a collection of call-sites which captures the start sites for threads.  The returned pairs consists of a
+	 * 		   invocation statement and the method in which it occurs.  However, system threads are represented as pairs of
+	 * 		   simple objects. So, the caller is adviced to check for the types of the Pair before using them.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(Pair)
+	 */
+	Collection getCreationSites();
+
+	/**
+	 * Returns the methods executed in the <code>Thread</code> created at the given <code>startStmt</code> in the given
+	 * context <code>ctxt</code>.
+	 *
+	 * @param startStmt is the statement in which the thread is created.
 	 * @param ctxt is the context in which <code>ne</code> occurs.
 	 *
 	 * @return a collection of methods executed in this thread.
 	 *
-	 * @pre ne != null and ctxt != null
+	 * @pre startStmt != null and ctxt != null
+	 * @pre ctxt.getCurrentMethod() != null
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
-	Collection getExecutedMethods(NewExpr ne, Context ctxt);
+	Collection getExecutedMethods(InvokeStmt startStmt, Context ctxt);
 
 	/**
 	 * Returns the threads in which the given method is executed.
 	 *
 	 * @param sm is the method which is executed.
 	 *
-	 * @return a collection of allocation sites which capture the creation of the executing thread.
+	 * @return a collection of thread creation sites (invocation statement and method) along with the class that provided
+	 * 		   that body of the thread in which the given method executes is returned.
 	 *
 	 * @pre sm != null
-	 * @post result != null and result.oclIsKindOf(Collection(NewExprTriple))
+	 * @post result != null and result.oclIsKindOf(Collection(Triple(InvokeStmt, SootMethod, SootClass)))
 	 */
 	Collection getExecutionThreads(SootMethod sm);
 
 	/**
-	 * Returns the thread allocations sites which are executed multiple times.  Sites are considered to be executed multiple
-	 * times if they are
-	 * 
-	 * <ul>
-	 * <li>
-	 * loop enclosed,
-	 * </li>
-	 * <li>
-	 * reachable from a method with multiple call-sites, and
-	 * </li>
-	 * <li>
-	 * reachable from a method that occurs in a call graph SCC (recursion loop),
-	 * </li>
-	 * </ul>
-	 * 
+	 * Checks if the methods will always occur in the different threads.
 	 *
-	 * @return a collectio of thread allocation sites.
+	 * @param methodOne obviously contains the definition.
+	 * @param methodTwo obviously contains the use.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(NewExprTriple))
-	 * @post getAllocationSites().containsAll(result)
+	 * @return <code>true</code> if the given methods will only occur in different threads; <code>false</code>,  otherwise.
+	 *
+	 * @pre methodOne != null and methodTwo != null
 	 */
-	Collection getMultiThreadAllocSites();
+	boolean mustOccurInDifferentThread(final SootMethod methodOne, final SootMethod methodTwo);
 
 	/**
-	 * Returns the sites which start new threads, i.e., <code>java.lang.Thread.start()</code> call-sites.
+	 * Checks if the methods will only occur in the same thread.
 	 *
-	 * @return a collection of call-sites which captures the start sites for threads.
+	 * @param methodOne obviously contains the definition.
+	 * @param methodTwo obviously contains the use.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(CallTriple))
+	 * @return <code>true</code> if the given methods will only occur in the same thread; <code>false</code>,  otherwise.
+	 *
+	 * @pre methodOne != null and methodTwo != null
 	 */
-	Collection getStartSites();
+	boolean mustOccurInSameThread(final SootMethod methodOne, final SootMethod methodTwo);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/07/11 14:17:41  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.5  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

@@ -19,6 +19,9 @@ import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.Constants;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -44,7 +47,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
@@ -58,7 +63,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
 
-import soot.jimple.Jimple;
+import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
@@ -69,12 +74,28 @@ import soot.jimple.VirtualInvokeExpr;
  * possible threads in the system and the methods invoked in these threads.
  * 
  * <p>
- * Main threads do not have allocation sites.  This is addressed by associating each main thread with a
- * <code>NewExprTriple</code> with <code>null</code> for statement and method, but  a <code>NewExpr</code> which creates a
- * type with the name that starts with "MainThread:".  The rest of the name is a number followed by the signature of the
- * starting method in the thread. For example, "MainThread:2:[signature]" represents the second mainthread with the run
- * method given by signature.  Likewise, we assume that all class initializers are executed by a dedicated thread whose type
- * name would start with "ClassInitThread:".
+ * Each thread is associated with a start() call-site which we refer to as <i>thread creation site</i>.  A thread  creation
+ * site is represented as a pair of object allocating statement with the method enclosing the statement. A thread  is
+ * represented as a triple of the invocation statement, method enclosing the invocation statement, and the class  providing
+ * the run() method that is executed in the thread.
+ * </p>
+ * 
+ * <p>
+ * Each thread object is associated with an object allocation site which we refer to as <i>thread allocation site</i>. A
+ * thread  allocation site is represented as a pair of object allocating statement with the method enclosing the statement.
+ * </p>
+ * 
+ * <p>
+ * As for the syntactically non-existent threads, we assume an imaginary method creates the non-existent threads.  We refer
+ * to this as the <i>system creator method</i>.  We assume all class initializers are executed by the same dedicated thread.
+ * We refer to this as <i>class initializign thread</i>.  <code>CLASS_INIT_THREAD_CREATION_SITE</code>,
+ * <code>CLASS_INIT_THREAD_ALLOCATION_SITE</code>, and <code>CLASS_INIT_THREAD</code> represent the creation site,
+ * allocation site, and the class initializing thread.
+ * </p>
+ * 
+ * <p>
+ * For main/system threads, we use the main classes as the classes providing the implementation along with the system creator
+ * method as the creation method along with an imaginary object indicating the invocation site.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -84,6 +105,31 @@ import soot.jimple.VirtualInvokeExpr;
 public class ThreadGraph
   extends AbstractValueAnalyzerBasedProcessor
   implements IThreadGraphInfo {
+	/** 
+	 * This represents the site at which the "class initializing" thread is created.  We assume that all classes are
+	 * initialized by a dedicated thread.  This conforms to the JVM spec.
+	 */
+	public static final Pair CLASS_INIT_THREAD_CREATION_SITE =
+		new Pair("CLASS_INIT_THREAD_CREATION_STMT", "CLASS_INIT_THREAD_CREATTION_METHOD");
+
+	/** 
+	 * This represents the site at which the "class initializing" thread is allocated.  We assume that all classes are
+	 * initialized by a dedicated thread.
+	 */
+	public static final Pair CLASS_INIT_THREAD_ALLOCATION_SITE =
+		new Pair("CLASS_INIT_THREAD_ALLOCATION_STMT", "CLASS_INIT_THREAD_ALLOCATION_METHOD");
+
+	/** 
+	 * This represents the method in which the system threads are created.
+	 */
+	public static final Object SYSTEM_CREATOR_METHOD = "SYSTEM_CREATOR_METHOD";
+
+	/** 
+	 * This represents the thread "class initializing" thread.
+	 */
+	public static final Triple CLASS_INIT_THREAD =
+		new Triple("CLASS_INIT_THREAD_CREATION_STMT", "CLASS_INIT_THREAD_CREATTION_METHOD", "CLASS_INIT_THREAD_CLASS");
+
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -114,7 +160,7 @@ public class ThreadGraph
 	 *
 	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
 	 */
-	private final Collection threadAllocSitesMulti;
+	private final Collection threadCreationSitesMulti;
 
 	/** 
 	 * A collection of thread allocation sites which are not executed from within a loop or a SCC in the call graph.  This
@@ -123,7 +169,7 @@ public class ThreadGraph
 	 *
 	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
 	 */
-	private final Collection threadAllocSitesSingle;
+	private final Collection threadCreationSitesSingle;
 
 	/** 
 	 * This provides call graph information pertaining to the system.
@@ -151,16 +197,25 @@ public class ThreadGraph
 	 */
 	private OFAnalyzer analyzer;
 
+	/** 
+	 * This manages pair objects.
+	 */
+	private PairManager pairMgr;
+
 	/**
 	 * Creates a new ThreadGraph object.
 	 *
 	 * @param callGraph provides call graph information.
 	 * @param cfa provides control-flow information.
+	 * @param pairManager to be used.
+	 *
+	 * @pre callGraph != null and cfa != null and pairManager != null
 	 */
-	public ThreadGraph(final ICallGraphInfo callGraph, final CFGAnalysis cfa) {
-		this.cgi = callGraph;
-		threadAllocSitesSingle = new HashSet();
-		threadAllocSitesMulti = new HashSet();
+	public ThreadGraph(final ICallGraphInfo callGraph, final CFGAnalysis cfa, final PairManager pairManager) {
+		cgi = callGraph;
+		pairMgr = pairManager;
+		threadCreationSitesSingle = new HashSet();
+		threadCreationSitesMulti = new HashSet();
 		cfgAnalysis = cfa;
 	}
 
@@ -183,42 +238,28 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getExecutedMethods(NewExpr,Context)
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getCreationSites()
 	 */
-	public Collection getExecutedMethods(final NewExpr ne, final Context ctxt) {
-		Collection _result = (Collection) thread2methods.get(new NewExprTriple(ctxt.getCurrentMethod(), ctxt.getStmt(), ne));
-
-		if (_result == null) {
-			_result = Collections.EMPTY_SET;
-		} else {
-			_result = Collections.unmodifiableCollection(_result);
-		}
-		return _result;
+	public Collection getCreationSites() {
+		return Collections.unmodifiableCollection(startSites);
 	}
 
 	/**
-	 * Please refer to class documentation for important information.
-	 *
-	 * @param sm is the method of interest.
-	 *
-	 * @return a collection of threads in which <code>sm</code> executes.
-	 *
-	 * @pre sm != null
-	 * @post result->forall(o | o.getExpr().getType().getClassName().indexOf("MainThread") == 0 implies (o.getStmt() = null
-	 * 		 and o.getSootMethod() = null))
-	 * @post result.oclIsKindOf(Collection(NewExprTriple))
-	 *
-	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getExecutionThreads(SootMethod)
+	 * @see IThreadGraphInfo#getExecutedMethods(InvokeStmt,Context)
+	 */
+	public Collection getExecutedMethods(final InvokeStmt startStmt, final Context ctxt) {
+		final Collection _result =
+			(Collection) MapUtils.getObject(thread2methods, pairMgr.getPair(startStmt, ctxt.getCurrentMethod()),
+				Collections.EMPTY_SET);
+		return Collections.unmodifiableCollection(_result);
+	}
+
+	/**
+	 * @see IThreadGraphInfo#getExecutionThreads(SootMethod)
 	 */
 	public Collection getExecutionThreads(final SootMethod sm) {
-		Collection _result = (Collection) method2threads.get(sm);
-
-		if (_result == null) {
-			_result = Collections.EMPTY_SET;
-		} else {
-			_result = Collections.unmodifiableCollection(_result);
-		}
-		return _result;
+		final Collection _result = (Collection) MapUtils.getObject(method2threads, sm, Collections.EMPTY_SET);
+		return Collections.unmodifiableCollection(_result);
 	}
 
 	/**
@@ -226,20 +267,6 @@ public class ThreadGraph
 	 */
 	public Object getId() {
 		return IThreadGraphInfo.ID;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getMultiThreadAllocSites()
-	 */
-	public Collection getMultiThreadAllocSites() {
-		return Collections.unmodifiableCollection(threadAllocSitesMulti);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getStartSites()
-	 */
-	public Collection getStartSites() {
-		return Collections.unmodifiableCollection(startSites);
 	}
 
 	/**
@@ -260,7 +287,7 @@ public class ThreadGraph
 			processNewExpr(context, _env, _ne);
 		} else if (_value instanceof VirtualInvokeExpr) {
 			final VirtualInvokeExpr _ve = (VirtualInvokeExpr) _value;
-			processVirtualInvokeExpr(context, _env, _ve);
+			processVirtualInvokeExpr(context, _ve);
 		}
 	}
 
@@ -309,6 +336,24 @@ public class ThreadGraph
 	}
 
 	/**
+	 * @see IThreadGraphInfo#mustOccurInDifferentThread(SootMethod, SootMethod)
+	 */
+	public boolean mustOccurInDifferentThread(final SootMethod methodOne, final SootMethod methodTwo) {
+		final Collection _t1 = getExecutionThreads(methodOne);
+		final Collection _t2 = getExecutionThreads(methodTwo);
+		return !CollectionUtils.containsAny(_t1, _t2);
+	}
+
+	/**
+	 * @see IThreadGraphInfo#mustOccurInSameThread(SootMethod, SootMethod)
+	 */
+	public boolean mustOccurInSameThread(final SootMethod methodOne, final SootMethod methodTwo) {
+		final Collection _t1 = getExecutionThreads(methodOne);
+		final Collection _t2 = getExecutionThreads(methodTwo);
+		return _t1.size() == 1 && _t1.size() == _t2.size() && threadCreationSitesSingle.containsAll(_t1);
+	}
+
+	/**
 	 * Resets all internal data structure and forgets all info from the previous run.
 	 */
 	public void reset() {
@@ -317,8 +362,8 @@ public class ThreadGraph
 		analyzer = null;
 		startSites.clear();
 		newThreadExprs.clear();
-		threadAllocSitesMulti.clear();
-		threadAllocSitesSingle.clear();
+		threadCreationSitesMulti.clear();
+		threadCreationSitesSingle.clear();
 		unstable();
 	}
 
@@ -336,25 +381,19 @@ public class ThreadGraph
 		Collections.sort(_temp1,
 			new Comparator() {
 				public int compare(final Object o1, final Object o2) {
-					NewExprTriple _ne = (NewExprTriple) o1;
-					final String _s1 = _ne.getStmt() + "@" + _ne.getMethod() + "->" + _ne.getExpr();
-					_ne = (NewExprTriple) o2;
-					return _s1.compareTo(_ne.getStmt() + "@" + _ne.getMethod() + "->" + _ne.getExpr());
+					Triple _ne = (Triple) o1;
+					final String _s1 = _ne.getFirst() + "@" + _ne.getSecond() + "#" + _ne.getThird();
+					_ne = (Triple) o2;
+					return _s1.compareTo(_ne.getFirst() + "@" + _ne.getSecond() + "#" + _ne.getThird());
 				}
 			});
 
 		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
-			final NewExprTriple _net = (NewExprTriple) _i.next();
-
-			if (_net.getMethod() == null) {
-				_result.append("\n" + _net.getExpr().getType() + "\n");
-			} else {
-				_result.append("\n" + _net.getStmt() + "@" + _net.getMethod() + "->" + _net.getExpr() + "\n");
-			}
-
+			final Triple _triple = (Triple) _i.next();
+			_result.append("\n" + _triple.getFirst() + "@" + _triple.getSecond() + "#" + _triple.getThird() + "\n");
 			_l.clear();
 
-			for (final Iterator _j = ((Collection) thread2methods.get(_net)).iterator(); _j.hasNext();) {
+			for (final Iterator _j = ((Collection) thread2methods.get(_triple)).iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
 				_l.add(_sm.getSignature());
 			}
@@ -369,14 +408,10 @@ public class ThreadGraph
 		_result.append("\nThread mapping:\n");
 
 		for (final Iterator _j = getAllocationSites().iterator(); _j.hasNext();) {
-			final NewExprTriple _element = (NewExprTriple) _j.next();
+			final Pair _element = (Pair) _j.next();
 			final String _tid = "T" + _count++;
 
-			if (_element.getMethod() == null) {
-				_result.append(_tid + " -> " + _element.getExpr().getType() + "\n");
-			} else {
-				_result.append(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod() + "\n");
-			}
+			_result.append(_tid + " -> " + _element.getFirst() + "@" + _element.getSecond() + "\n");
 		}
 
 		return _result.toString();
@@ -394,7 +429,7 @@ public class ThreadGraph
 	/**
 	 * Calculates thread call graph.
 	 *
-	 * @throws RuntimeException when there is a glitch in the system being analyzed is not type-safe.
+	 * @throws RuntimeException when the system being analyzed is not type-safe.
 	 */
 	private void calculateThreadCallGraph()
 	  throws RuntimeException {
@@ -459,23 +494,37 @@ public class ThreadGraph
 
 				_class2runCallees.put(_sc, _methods);
 			}
+		}
 
-			final NewExprTriple _thread = extractNewExprTripleFor(_value);
+		final Collection _callTriples = cgi.getCallers(_startMethod);
+		final Iterator _i = _callTriples.iterator();
+		final int _iEnd = _callTriples.size();
 
-			if (_thread == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("thread cannot be null. This can happen if there are no "
-						+ "threads other than the main thread in the system. [" + _value + "]");
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final CallTriple _ctrp = (CallTriple) _i.next();
+			final SootMethod _caller = _ctrp.getMethod();
+			_ctxt.setRootMethod(_caller);
+
+			final Stmt _callStmt = _ctrp.getStmt();
+			_ctxt.setStmt(_callStmt);
+
+			final VirtualInvokeExpr _virtualInvokeExpr = (VirtualInvokeExpr) _callStmt.getInvokeExpr();
+			_ctxt.setProgramPoint(_virtualInvokeExpr.getBaseBox());
+
+			final Collection _baseValues = analyzer.getValues(_virtualInvokeExpr.getBase(), _ctxt);
+
+			for (final Iterator _j = IteratorUtils.filteredIterator(_baseValues.iterator(), _pred); _j.hasNext();) {
+				final NewExpr _value = (NewExpr) _j.next();
+				final SootClass _sc = _env.getClass(_value.getBaseType().getClassName());
+
+				final Collection _methods = (Collection) _class2runCallees.get(_sc);
+				final Triple _thread = new Triple(_callStmt, _caller, _sc);
+				thread2methods.put(_thread, _methods);
+
+				for (final Iterator _k = _methods.iterator(); _k.hasNext();) {
+					final SootMethod _sm = (SootMethod) _k.next();
+					CollectionsUtilities.putIntoSetInMap(method2threads, _sm, _thread);
 				}
-				continue;
-			}
-
-			_methods = (Collection) _class2runCallees.get(_sc);
-			thread2methods.put(_thread, _methods);
-
-			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
-				final SootMethod _sm = (SootMethod) _j.next();
-				CollectionsUtilities.putIntoSetInMap(method2threads, _sm, _value);
 			}
 		}
 	}
@@ -484,18 +533,22 @@ public class ThreadGraph
 	 * Considers the property that a thread allocation site may be executed multiple times.
 	 */
 	private void considerMultipleExecutions() {
-		final Collection _tassBak = new HashSet(threadAllocSitesSingle);
+		final Collection _tassBak = new HashSet(threadCreationSitesSingle);
 		final Context _ctxt = new Context();
 
 		// Mark any thread allocation site that will be executed multiple times via a loop or call graph SCC 
 		// as creating multiple threads.  The execution considers entire call chain to the entry method.
 		for (final Iterator _i = _tassBak.iterator(); _i.hasNext();) {
-			final NewExprTriple _trp = (NewExprTriple) _i.next();
-			final SootMethod _encloser = _trp.getMethod();
+			final Pair _pair = (Pair) _i.next();
+			final Object _o = _pair.getSecond();
 
-			if (cfgAnalysis.executedMultipleTimes(_encloser)) {
-				threadAllocSitesSingle.remove(_trp);
-				threadAllocSitesMulti.add(_trp);
+			if (_o instanceof SootMethod) {
+				final SootMethod _encloser = (SootMethod) _o;
+
+				if (cfgAnalysis.executedMultipleTimes(_encloser)) {
+					threadCreationSitesSingle.remove(_pair);
+					threadCreationSitesMulti.add(_pair);
+				}
 			}
 		}
 
@@ -503,48 +556,29 @@ public class ThreadGraph
 
 		// Collect methods executed in threads which are created at sites that create more than one thread.  These methods 
 		// will be executed multiple times.
-		for (final Iterator _i = threadAllocSitesMulti.iterator(); _i.hasNext();) {
-			final NewExprTriple _ntrp = (NewExprTriple) _i.next();
-			_ctxt.setRootMethod(_ntrp.getMethod());
-			_ctxt.setStmt(_ntrp.getStmt());
-			_multiExecMethods.addAll(getExecutedMethods(_ntrp.getExpr(), _ctxt));
+		for (final Iterator _i = threadCreationSitesMulti.iterator(); _i.hasNext();) {
+			final Pair _pair = (Pair) _i.next();
+			final Object _o = _pair.getSecond();
+
+			if (_o instanceof SootMethod) {
+				_ctxt.setRootMethod((SootMethod) _o);
+				System.out.println(_pair.getFirst().getClass());
+				_multiExecMethods.addAll(getExecutedMethods((InvokeStmt) _pair.getFirst(), _ctxt));
+			}
 		}
 		_tassBak.clear();
-		_tassBak.addAll(threadAllocSitesSingle);
+		_tassBak.addAll(threadCreationSitesSingle);
 
 		// filter the thread allocation site sets based on multiExecMethods.
 		for (final Iterator _i = _tassBak.iterator(); _i.hasNext();) {
-			final NewExprTriple _trp = (NewExprTriple) _i.next();
-			final SootMethod _encloser = _trp.getMethod();
+			final Pair _pair = (Pair) _i.next();
+			final Object _encloser = _pair.getSecond();
 
 			if (_multiExecMethods.contains(_encloser)) {
-				threadAllocSitesSingle.remove(_trp);
-				threadAllocSitesMulti.add(_trp);
+				threadCreationSitesSingle.remove(_pair);
+				threadCreationSitesMulti.add(_pair);
 			}
 		}
-	}
-
-	/**
-	 * Given an allocation expression it returns the corresponding <code>NewExprTriple</code> object for it.
-	 *
-	 * @param ne is the allocation expression.
-	 *
-	 * @return the triple corresponding to the allocation expression.
-	 *
-	 * @pre ne != null
-	 */
-	private NewExprTriple extractNewExprTripleFor(final NewExpr ne) {
-		NewExprTriple _result = null;
-
-		for (final Iterator _i = newThreadExprs.iterator(); _i.hasNext();) {
-			final NewExprTriple _ntrp = (NewExprTriple) _i.next();
-
-			if (_ntrp.getExpr() == ne) {
-				_result = _ntrp;
-				break;
-			}
-		}
-		return _result;
 	}
 
 	/**
@@ -565,24 +599,25 @@ public class ThreadGraph
 		 * the first approach of one dedicated thread executes all intializers in the VM.  Hence, all <clinit> methods are
 		 * associated with an "ClassInitThread:".
 		 */
-		final Collection _heads = cgi.getHeads();
-		int _mainThreadCount = 1;
-		final NewExprTriple _classInitThread =
-			new NewExprTriple(null, null, Jimple.v().newNewExpr(RefType.v("ClassInitThread:1:_jvm_")));
-
-		for (final Iterator _i = _heads.iterator(); _i.hasNext();) {
+		for (final Iterator _i = cgi.getHeads().iterator(); _i.hasNext();) {
 			final SootMethod _head = (SootMethod) _i.next();
-			NewExprTriple _thread = null;
+			final Pair _threadCreationSite;
+			final Pair _threadAllocationSite;
+			final Triple _thread;
 
 			if (_head.getName().equals("<clinit>")) {
-				_thread = _classInitThread;
+				_threadCreationSite = CLASS_INIT_THREAD_CREATION_SITE;
+				_threadAllocationSite = CLASS_INIT_THREAD_ALLOCATION_SITE;
+				_thread = CLASS_INIT_THREAD;
 			} else {
-				_thread =
-					new NewExprTriple(null, null,
-						Jimple.v().newNewExpr(RefType.v("MainThread:" + _mainThreadCount++ + ":" + _head.getSignature())));
+				final SootClass _mainClass = _head.getDeclaringClass();
+				_threadCreationSite = new Pair("MAIN_THREAD_CREATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD);
+				_threadAllocationSite = new Pair("MAIN_THREAD_ALLOCATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD);
+				_thread = new Triple("MAIN_THREAD_CREATION_STMT:" + _mainClass, SYSTEM_CREATOR_METHOD, _mainClass);
 			}
 
-			newThreadExprs.add(_thread);
+			newThreadExprs.add(_threadAllocationSite);
+			threadCreationSitesSingle.add(_threadCreationSite);
 
 			final Collection _methods = transitiveThreadCallClosure(_head);
 			thread2methods.put(_thread, _methods);
@@ -618,14 +653,7 @@ public class ThreadGraph
 			if (_temp != null && _temp.getName().equals("java.lang.Thread")) {
 				final Stmt _stmt = context.getStmt();
 				final SootMethod _sm = context.getCurrentMethod();
-				final NewExprTriple _o = new NewExprTriple(_sm, _stmt, newExpr);
-				newThreadExprs.add(_o);
-
-				if (cfgAnalysis.checkForLoopEnclosedNewExpr(_stmt, _sm)) {
-					threadAllocSitesMulti.add(_o);
-				} else {
-					threadAllocSitesSingle.add(_o);
-				}
+				newThreadExprs.add(pairMgr.getPair(_stmt, _sm));
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("How can there be a descendent of java.lang.Thread without access to start() method.");
@@ -640,33 +668,38 @@ public class ThreadGraph
 	 * Processes invocation expressoins.
 	 *
 	 * @param context in which the new expression occurs.
-	 * @param env to be used.
 	 * @param invokeExpr to be processed.
-	 *
-	 * @throws RuntimeException when there is a glitch in the system being analyzed is not type-safe.
 	 *
 	 * @pre context != null and env != null and invokeExpr != null
 	 * @pre context.getStmt() != null and context.getCurrentMethod() != null
 	 */
-	private void processVirtualInvokeExpr(final Context context, final IEnvironment env, final VirtualInvokeExpr invokeExpr)
-	  throws RuntimeException {
+	private void processVirtualInvokeExpr(final Context context, final VirtualInvokeExpr invokeExpr) {
 		final RefLikeType _rlt = (RefLikeType) invokeExpr.getBase().getType();
-		SootClass _clazz = null;
 
 		if (_rlt instanceof RefType) {
-			_clazz = env.getClass(((RefType) _rlt).getClassName());
-
 			final SootMethod _method = invokeExpr.getMethod();
 
-			if (Util.isDescendentOf(_clazz, "java.lang.Thread") && Util.isStartMethod(_method)) {
-				final SootClass _temp = Util.getDeclaringClass(_clazz, "start", Collections.EMPTY_LIST, VoidType.v());
+			if (Util.isStartMethod(_method)) {
+				final SootMethod _caller = context.getCurrentMethod();
+				final Stmt _callStmt = context.getStmt();
+				final Collection _callees = cgi.getCallees(invokeExpr, context);
+				final Iterator _i = _callees.iterator();
+				final int _iEnd = _callees.size();
 
-				if (_temp != null && _temp.getName().equals("java.lang.Thread")) {
-					startSites.add(new CallTriple(context.getCurrentMethod(), context.getStmt(), invokeExpr));
-				} else {
-					LOGGER.warn("How can there be a descendent class of java.lang.Thread without access to start() method.");
-					throw new RuntimeException("start() method is unavailable via " + _clazz
-						+ " even though it is a descendent of java.lang.Thread.");
+				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+					final SootMethod _callee = (SootMethod) _i.next();
+
+					if (Util.isStartMethod(_callee)) {
+						final Pair _callPair = pairMgr.getPair(_callStmt, _caller);
+						startSites.add(_callPair);
+
+						if (cfgAnalysis.checkForLoopEnclosedNewExpr(_callStmt, _caller)) {
+							threadCreationSitesMulti.add(_callPair);
+						} else {
+							threadCreationSitesSingle.add(_callPair);
+						}
+						break;
+					}
 				}
 			}
 		}
@@ -681,10 +714,10 @@ public class ThreadGraph
 		final Collection _reachables = cgi.getReachableMethods();
 
 		for (final Iterator _i = startSites.iterator(); _i.hasNext();) {
-			final CallTriple _ctrp = (CallTriple) _i.next();
+			final Pair _callPair = (Pair) _i.next();
 
-			if (!_reachables.contains(_ctrp.getMethod())) {
-				_temp.add(_ctrp);
+			if (!_reachables.contains(_callPair.getSecond())) {
+				_temp.add(_callPair);
 			}
 		}
 		startSites.removeAll(_temp);
@@ -728,9 +761,11 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/08/08 10:11:35  venku
+   - added a new class to configure constants used when creating data structures.
+   - ripple effect.
    Revision 1.36  2004/08/01 21:25:29  venku
    - a subtle error when considering thread allocation sites was FIXED.
-
    Revision 1.35  2004/08/01 21:07:16  venku
    - renamed dumpGraph() as toString()
    - refactored ThreadGraph.
