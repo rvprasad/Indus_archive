@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.TestHelper;
 import edu.ksu.cis.indus.common.CollectionsModifier;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -114,7 +114,7 @@ public class DependencyAnalysisTestSetup
 	  throws Exception {
 		super.setUp();
 		bbgMgr = new BasicBlockGraphMgr();
-		bbgMgr.setUnitGraphFactory(new ExceptionFlowSensitiveUnitGraphFactory());
+		bbgMgr.setUnitGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true));
 
 		// setup level 1 analysis here.
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
@@ -225,4 +225,7 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/09 19:10:40  venku
+   - preliminary commit of test setup for dependency analyses.
+
  */

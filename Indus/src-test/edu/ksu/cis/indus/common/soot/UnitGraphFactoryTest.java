@@ -59,11 +59,11 @@ public class UnitGraphFactoryTest
 		final SootClass _sc = scene.loadClassAndSupport("java.lang.Object");
 		final SootMethod _notify = _sc.getMethodByName("notify");
 
-		final IUnitGraphFactory _ugf1 = new CompleteUnitGraphFactory();
-		final UnitGraph _cmpltg1 = _ugf1.getUnitGraph(_notify);
+		final IStmtGraphFactory _ugf1 = new CompleteStmtGraphFactory();
+		final UnitGraph _cmpltg1 = _ugf1.getStmtGraph(_notify);
 		_ugf1.reset();
 
-		final UnitGraph _cmpltg3 = _ugf1.getUnitGraph(_notify);
+		final UnitGraph _cmpltg3 = _ugf1.getStmtGraph(_notify);
 		assertNotSame(_cmpltg1, _cmpltg3);
 	}
 
@@ -91,26 +91,30 @@ public class UnitGraphFactoryTest
 	 * @pre method != null
 	 */
 	private void localTestGetUnitGraph(final SootMethod method) {
-		final IUnitGraphFactory _ugf1 = new CompleteUnitGraphFactory();
-		final UnitGraph _cmpltg1 = _ugf1.getUnitGraph(method);
+		final IStmtGraphFactory _ugf1 = new CompleteStmtGraphFactory();
+		final UnitGraph _cmpltg1 = _ugf1.getStmtGraph(method);
 		assertNotNull(_cmpltg1);
 		assertTrue(_cmpltg1 instanceof CompleteUnitGraph);
 
-		final IUnitGraphFactory _ugf2 = new TrapUnitGraphFactory();
-		final UnitGraph _cmpltg2 = _ugf2.getUnitGraph(method);
+		final IStmtGraphFactory _ugf2 = new TrapStmtGraphFactory();
+		final UnitGraph _cmpltg2 = _ugf2.getStmtGraph(method);
 		assertNotNull(_cmpltg2);
 		assertTrue(_cmpltg2 instanceof TrapUnitGraph);
 
-		final IUnitGraphFactory _ugf3 = new ExceptionFlowSensitiveUnitGraphFactory();
-		final UnitGraph _cmpltg3 = _ugf3.getUnitGraph(method);
+		final IStmtGraphFactory _ugf3 = new ExceptionFlowSensitiveStmtGraphFactory();
+		final UnitGraph _cmpltg3 = _ugf3.getStmtGraph(method);
 		assertNotNull(_cmpltg3);
-		assertTrue(_cmpltg3 instanceof ExceptionFlowSensitiveUnitGraph);
+		assertTrue(_cmpltg3 instanceof ExceptionFlowSensitiveStmtGraph);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/17 05:59:15  venku
+   - renamed ExceptionFlowSensitiveStmtGraphXXXX to
+     ExceptionFlowSensitiveUnitGraph.
+
    Revision 1.3  2004/02/17 05:48:45  venku
    - added test for ExceptionFlowSensitiveUnitGraph.
 
