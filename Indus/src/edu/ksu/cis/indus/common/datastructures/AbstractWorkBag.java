@@ -15,12 +15,11 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.set.ListOrderedSet;
 
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -36,7 +35,7 @@ public abstract class AbstractWorkBag
 	/**
 	 * This contains the work pieces put into the work bag.
 	 */
-	protected List container = new ArrayList();
+	protected final ListOrderedSet container = new ListOrderedSet();
 
 	/**
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#getWork()
@@ -103,6 +102,9 @@ public abstract class AbstractWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/08/09 01:33:33  venku
+   - optimization.
+
    Revision 1.4  2004/06/06 02:27:27  venku
    - added toString().
 
