@@ -98,6 +98,11 @@ public class AliasedUseDefInfo
 	private final PairManager pairMgr = new PairManager();
 
 	/**
+	 * This indicates if the analysis has stabilized.  If so, it is safe to query this object for information.
+	 */
+	private boolean stable;
+
+	/**
 	 * Creates a new AliasedUseDefInfo object.
 	 *
 	 * @param iva is the object flow analyzer to be used in the analysis.
@@ -123,6 +128,13 @@ public class AliasedUseDefInfo
 
 		return result == null ? Collections.EMPTY_SET
 							  : result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
+	 */
+	public boolean isStable() {
+		return stable;
 	}
 
 	/**
@@ -269,6 +281,7 @@ public class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
+        stable = false;
 		ppc.register(AssignStmt.class, this);
 	}
 
@@ -277,26 +290,27 @@ public class AliasedUseDefInfo
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(AssignStmt.class, this);
+        stable = true;
 	}
 }
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.5  2003/08/20 18:14:38  venku
+   Log4j was used instead of logging.  That is fixed.
    Revision 1.4  2003/08/13 08:51:52  venku
    Fixed Checkstyle formatting errors.
-
    Revision 1.3  2003/08/13 08:49:10  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosed later on in implementaions.
 
-   
    Revision 1.2  2003/08/11 04:27:33  venku
    - Ripple effect of changes to Pair
    - Ripple effect of changes to _content in Marker
    - Changes of how thread start sites are tracked in ThreadGraphInfo
-   
+
    Revision 1.1  2003/08/09 23:26:20  venku
    - Added an interface to provide use-def information.
    - Added an implementation to the above interface.

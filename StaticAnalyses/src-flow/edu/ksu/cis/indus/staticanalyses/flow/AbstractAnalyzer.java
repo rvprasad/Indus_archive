@@ -66,6 +66,11 @@ import java.util.Iterator;
 public abstract class AbstractAnalyzer
   implements IValueAnalyzer {
 	/**
+	 * The context to be used when analysis information is requested and a context is not provided.
+	 */
+	protected Context context;
+
+	/**
 	 * The instance of the framework performing the analysis and is being represented by this analyzer object.
 	 *
 	 * @invariant fa != null
@@ -73,14 +78,9 @@ public abstract class AbstractAnalyzer
 	protected FA fa;
 
 	/**
-	 * The context to be used when analysis information is requested and a context is not provided.
+	 * This field indicates if the analysis has stablized.
 	 */
-	protected Context context;
-
-	/**
-	 * This field indicates if the analysis is progress or otherwise.
-	 */
-	protected boolean active;
+	private boolean stable;
 
 	/**
 	 * Creates a new <code>AbstractAnalyzer</code> instance.
@@ -90,7 +90,7 @@ public abstract class AbstractAnalyzer
 	protected AbstractAnalyzer(final Context theContext) {
 		this.context = theContext;
 		fa = new FA(this);
-		active = false;
+		stable = false;
 	}
 
 	/**
@@ -102,6 +102,13 @@ public abstract class AbstractAnalyzer
 	 */
 	public IEnvironment getEnvironment() {
 		return (IEnvironment) fa;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
+	 */
+	public boolean isStable() {
+		return stable;
 	}
 
 	/**
@@ -204,9 +211,9 @@ public abstract class AbstractAnalyzer
 		if (root == null) {
 			throw new IllegalStateException("Root method cannot be null.");
 		}
-		active = true;
+		stable = false;
 		fa.analyze(scm, root);
-		active = false;
+		stable = true;
 	}
 
 	/**
@@ -227,13 +234,13 @@ public abstract class AbstractAnalyzer
 			throw new IllegalStateException("There must be at least one root method to analyze.");
 		}
 
-		active = true;
+		stable = false;
 
 		for (Iterator i = roots.iterator(); i.hasNext();) {
 			SootMethod root = (SootMethod) i.next();
 			fa.analyze(scm, root);
 		}
-		active = false;
+		stable = true;
 	}
 
 	/**
@@ -351,24 +358,25 @@ public abstract class AbstractAnalyzer
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.5  2003/08/17 10:48:33  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
    Revision 1.4  2003/08/17 10:37:08  venku
    Fixed holes in documentation.
    Removed addRooMethods in FA and added the equivalent logic into analyze() methods.
-
    Revision 1.3  2003/08/17 09:59:03  venku
    Spruced up documentation and specification.
    Documentation changes to FieldVariant.
 
-   
    Revision 1.2  2003/08/11 07:11:47  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.
    Formatted source.
    Moved getRoots() into the environment.
    Added support to inject new roots in FA.
-   
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

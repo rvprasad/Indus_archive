@@ -97,6 +97,13 @@ public class CallGraph
 	private static final Log LOGGER = LogFactory.getLog(CallGraph.class);
 
 	/**
+	 * This indicates if the processor has stabilized.  If so, it is safe to query this object for information. By default,
+	 * this field is initialized to indicate that the processor is in a stable state.  The subclasses will need to toggle it
+	 * suitably.
+	 */
+	protected boolean stable = true;
+
+	/**
 	 * The collection of methods from which the system can be started.  Although an instance of a class can be created and a
 	 * method can be invoked on it from the environment, this method will not be considered as a <i>head method</i>.
 	 * However, our definition of head methods are those methods(excluding those in invoked via <code>invokespecial</code>
@@ -423,6 +430,13 @@ public class CallGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
+	 */
+	public boolean isStable() {
+		return stable;
+	}
+
+	/**
 	 * Called by the post process controller when it walks a jimple value AST node.
 	 *
 	 * @param value is the AST node to be processed.
@@ -640,6 +654,7 @@ public class CallGraph
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
+		stable = false;
 		ppc.register(VirtualInvokeExpr.class, this);
 		ppc.register(InterfaceInvokeExpr.class, this);
 		ppc.register(StaticInvokeExpr.class, this);
@@ -654,6 +669,7 @@ public class CallGraph
 		ppc.unregister(InterfaceInvokeExpr.class, this);
 		ppc.unregister(StaticInvokeExpr.class, this);
 		ppc.unregister(SpecialInvokeExpr.class, this);
+		stable = true;
 	}
 
 	/**
@@ -708,36 +724,29 @@ public class CallGraph
 
 /*
    ChangeLog:
-
    $Log$
+   Revision 1.10  2003/08/17 11:54:25  venku
+   Formatting and documentation.
    Revision 1.9  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
-   
    Revision 1.8  2003/08/15 23:23:32  venku
    Removed redundant "implement IProcessor".
-   
    Revision 1.7  2003/08/14 05:10:29  venku
    Fixed documentation links.
-   
    Revision 1.6  2003/08/13 08:49:10  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosed later on in implementaions.
-   
    Revision 1.5  2003/08/13 08:29:40  venku
    Spruced up documentation and specification.
-
    Revision 1.4  2003/08/12 18:20:43  venku
    Ripple effect of changing the analyzer and the environment.
-
    Revision 1.3  2003/08/11 04:27:34  venku
    - Ripple effect of changes to Pair
    - Ripple effect of changes to _content in Marker
    - Changes of how thread start sites are tracked in ThreadGraphInfo
-
    Revision 1.2  2003/08/09 21:54:00  venku
    Leveraging getInvokeExpr() in Stmt class in getMethodsReachableFrom()
-
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

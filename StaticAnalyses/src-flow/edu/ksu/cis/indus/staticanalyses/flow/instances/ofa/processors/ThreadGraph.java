@@ -97,6 +97,13 @@ public class ThreadGraph
 	private static final Log LOGGER = LogFactory.getLog(ThreadGraph.class);
 
 	/**
+	 * This indicates if the processor has stabilized.  If so, it is safe to query this object for information. By default,
+	 * this field is initialized to indicate that the processor is in a stable state.  The subclasses will need to toggle it
+	 * suitably.
+	 */
+	protected boolean stable = true;
+
+	/**
 	 * The collection of thread allocation sites.
 	 *
 	 * @invariant newThreadExprs != null and newThreadExprs.oclIsKindOf(Collection(NewExprTriple))
@@ -200,6 +207,13 @@ public class ThreadGraph
 			result = Collections.unmodifiableSet(result);
 		}
 		return result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
+	 */
+	public boolean isStable() {
+		return stable;
 	}
 
 	/**
@@ -440,6 +454,7 @@ public class ThreadGraph
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
+		stable = false;
 		ppc.register(NewExpr.class, this);
 		ppc.register(VirtualInvokeExpr.class, this);
 	}
@@ -449,6 +464,8 @@ public class ThreadGraph
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
+		ppc.register(VirtualInvokeExpr.class, this);
+		stable = true;
 	}
 
 	/**
@@ -520,6 +537,8 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/13 08:29:40  venku
+   Spruced up documentation and specification.
    Revision 1.2  2003/08/11 04:27:33  venku
    - Ripple effect of changes to Pair
    - Ripple effect of changes to _content in Marker
