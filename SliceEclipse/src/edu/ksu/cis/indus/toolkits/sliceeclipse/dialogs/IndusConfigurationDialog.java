@@ -42,6 +42,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -414,4 +415,14 @@ public class IndusConfigurationDialog
 		}
 
 	}
+	
+	/** Created the ok and cancel buttons.
+	 * @see org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse.swt.widgets.Composite)
+	 */
+	protected void createButtonsForButtonBar(final Composite parent) {
+		createButton(parent, IDialogConstants.OK_ID, Messages.getString("IndusConfigurationDialog.29"),
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+		}
 }
