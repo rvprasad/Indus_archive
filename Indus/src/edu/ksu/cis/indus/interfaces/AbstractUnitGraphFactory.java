@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import soot.PatchingChain;
 import soot.SootMethod;
 
 import soot.toolkits.graph.UnitGraph;
@@ -75,6 +74,9 @@ public abstract class AbstractUnitGraphFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/28 06:54:17  venku
+   - one more small change to the interface.
+
    Revision 1.1  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
  */

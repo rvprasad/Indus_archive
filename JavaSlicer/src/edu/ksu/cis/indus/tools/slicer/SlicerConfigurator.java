@@ -58,7 +58,7 @@ public final class SlicerConfigurator
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#displayTemplateMethod(edu.ksu.cis.indus.tools.AbstractToolConfiguration)
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#displayTemplateMethod(AbstractToolConfiguration)
 	 */
 	protected void displayTemplateMethod(final AbstractToolConfiguration config) {
 		configuration = (SlicerConfiguration) config;
@@ -218,6 +218,10 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
+
    Revision 1.6  2003/09/27 01:09:35  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.

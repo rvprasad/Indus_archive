@@ -30,7 +30,6 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTripl
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -201,6 +200,10 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/28 07:32:30  venku
+   - many basic block graphs were being constructed. Now, there
+     is only one that will be used.
+
    Revision 1.4  2003/09/28 06:20:39  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
