@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.common.collections;
 
-import edu.ksu.cis.indus.common.collections.FilteredMap;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

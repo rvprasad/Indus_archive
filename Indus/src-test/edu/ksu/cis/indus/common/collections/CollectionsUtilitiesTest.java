@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.common.collections;
 
 import edu.ksu.cis.indus.IndusTestCase;
-import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 
 import java.util.ArrayList;
 import java.util.Collection;
