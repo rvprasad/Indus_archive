@@ -359,7 +359,6 @@ public class SliceXMLizerCLI
 		_o.setArgName("path");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-
 		_o = new Option("a", "active-config", true,
 				"The alternate configuration to use instead of the one specified in the configuration.");
 		_o.setArgs(1);
@@ -367,7 +366,6 @@ public class SliceXMLizerCLI
 		_o.setLongOpt("active-config");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-
 		_o = new Option("o", "output-dir", true,
 				"The output directory to dump the generated info.  If unspecified, picks a temporary directory.");
 		_o.setArgs(1);
@@ -390,23 +388,23 @@ public class SliceXMLizerCLI
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 		_o = new Option("j", "output-xml-jimple-after-res", false,
-				"Output xml representation of the jimple AFTER residualization.");
+				"Output xml representation of the jimple AFTER residualization. This only works with -r option.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 		_o = new Option("I", "output-jimple-before-res", false, "Output jimple BEFORE residualization.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("J", "output-jimple-after-res", false, "Output jimple AFTER residualization.");
+		_o = new Option("J", "output-jimple-after-res", false,
+				"Output jimple AFTER residualization. This only works with -r option.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 		_o = new Option("s", "criteria-spec-file", true, "Use the slice criteria specified in this file.");
 		_o.setArgs(1);
 		_o.setArgName("crit-spec-file");
 		_o.setOptionalArg(false);
-		_o = new Option("r", "residualize", false, "Residualize after slicing.");
+		_o = new Option("r", "residualize", false,
+				"Residualize after slicing. This will also dump the class files for the residualized classes.");
 		_o.setOptionalArg(false);
-		_options.addOption(_o);
-
 		_options.addOption(_o);
 
 		CommandLine _cl = null;
@@ -565,9 +563,9 @@ public class SliceXMLizerCLI
 		}
 
 		xmlizer.preResXMLJimpleDump = cl.hasOption('i');
-		xmlizer.postResXMLJimpleDump = cl.hasOption('j');
+		xmlizer.postResXMLJimpleDump = cl.hasOption('j') && cl.hasOption('r');
 		xmlizer.preResJimpleDump = cl.hasOption('I');
-		xmlizer.postResJimpleDump = cl.hasOption('J');
+		xmlizer.postResJimpleDump = cl.hasOption('J') && cl.hasOption('r');
 
 		if (xmlizer.preResXMLJimpleDump
 			  || xmlizer.postResXMLJimpleDump
@@ -594,9 +592,11 @@ public class SliceXMLizerCLI
 	 * Dumps jimple for the classes in the scene.  The jimple file names will end with the given suffix.
 	 *
 	 * @param suffix to be appended to the file name.
+	 * @param jimpleFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>,
+	 * 		  otherwise.
 	 * @param classFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>, otherwise.
 	 */
-	private void dumpJimple(final String suffix, final boolean classFile) {
+	private void dumpJimple(final String suffix, final boolean jimpleFile, final boolean classFile) {
 		final Printer _printer = Printer.v();
 
 		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
@@ -617,10 +617,12 @@ public class SliceXMLizerCLI
 			PrintWriter _writer = null;
 
 			try {
-				final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple" + suffix);
-				_writer = new PrintWriter(new FileWriter(_file));
 				// write .jimple file
-				_printer.printTo(_sc, _writer);
+				if (jimpleFile) {
+					final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple" + suffix);
+					_writer = new PrintWriter(new FileWriter(_file));
+					_printer.printTo(_sc, _writer);
+				}
 
 				// write .class file
 				if (classFile) {
@@ -646,15 +648,16 @@ public class SliceXMLizerCLI
 		}
 
 		if (preResJimpleDump) {
-			dumpJimple("_preRes", false);
+			dumpJimple("_preRes", true, false);
 		}
 
 		if (residualize) {
 			destructivelyUpdateJimple();
+			dumpJimple("", false, true);
 		}
 
 		if (postResJimpleDump) {
-			dumpJimple("_postRes", true);
+			dumpJimple("_postRes", true, false);
 		}
 
 		if (postResXMLJimpleDump) {
@@ -736,6 +739,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/07/04 12:17:58  venku
+   - added cli option to control residualization.
    Revision 1.44  2004/07/03 00:07:56  venku
    - incorrect message.
    Revision 1.43  2004/07/02 10:08:25  venku
