@@ -15,11 +15,8 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
-
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.io.BufferedWriter;
@@ -31,20 +28,12 @@ import java.io.Writer;
 
 import java.util.Iterator;
 
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.Body;
 import soot.Local;
 import soot.Modifier;
-import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -416,6 +405,13 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/04/25 21:18:39  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.32  2004/04/22 23:32:31  venku
    - xml file name were setup incorrectly.  FIXED.
    Revision 1.31  2004/04/22 22:12:09  venku

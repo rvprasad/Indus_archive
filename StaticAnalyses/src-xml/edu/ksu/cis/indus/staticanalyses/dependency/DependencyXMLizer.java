@@ -78,7 +78,7 @@ public final class DependencyXMLizer
 		try {
 			PROPERTIES.load(_stream);
 		} catch (IOException _e) {
-			System.out.println("Well, error loading property file.  Bailing.");
+			System.err.println("Well, error loading property file.  Bailing.");
 			throw new RuntimeException(_e);
 		}
 	}
@@ -108,7 +108,7 @@ public final class DependencyXMLizer
 	 *
 	 * @pre xmlizers != null and ctrl != null
 	 */
-	public final void flushXMLizers(final Map xmlizers, final ProcessingController ctrl) {
+	public void flushXMLizers(final Map xmlizers, final ProcessingController ctrl) {
 		for (final Iterator _i = xmlizers.keySet().iterator(); _i.hasNext();) {
 			final IProcessor _p = (IProcessor) _i.next();
 			_p.unhook(ctrl);
@@ -127,7 +127,7 @@ public final class DependencyXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#writeXML(java.util.Map)
 	 */
-	public final void writeXML(final Map info) {
+	public void writeXML(final Map info) {
 		final ProcessingController _ctrl = new ProcessingController();
 		_ctrl.setEnvironment((IEnvironment) info.get(IEnvironment.ID));
 		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
@@ -166,7 +166,7 @@ public final class DependencyXMLizer
 	 * @pre rootname != null and ctrl != null
 	 * @post result != null and result.oclIsKindOf(Map(StmtLevelDependencyXMLizer, Writer))
 	 */
-	private final Map initXMLizers(final Map info, final ProcessingController ctrl) {
+	private Map initXMLizers(final Map info, final ProcessingController ctrl) {
 		final Map _result = new HashMap();
 
 		if (getXmlOutputDir() == null) {
@@ -242,6 +242,13 @@ public final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.14  2004/04/18 08:58:58  venku
    - enabled test support for slicer.
    Revision 1.13  2004/03/29 09:32:25  venku

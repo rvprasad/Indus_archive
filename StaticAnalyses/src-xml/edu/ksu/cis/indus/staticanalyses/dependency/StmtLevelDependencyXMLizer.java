@@ -159,7 +159,7 @@ final class StmtLevelDependencyXMLizer
 			} else {
 				processingClass = true;
 			}
-			writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\"name=" + clazz.getName() + "\">\n");
+			writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
 			processingMethod = false;
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -248,6 +248,13 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.6  2004/03/29 09:33:37  venku
    - using a "id" attrirbute can mess things up during xml comparison.
      Hence, use it only if it is approriate. FIXED.

@@ -24,7 +24,6 @@ import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.ArrayRef;
-import soot.jimple.AssignStmt;
 import soot.jimple.InstanceFieldRef;
 
 
@@ -105,6 +104,10 @@ public class InterferenceDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/02/12 21:32:21  venku
+   - refactored the code to test the escaping/sharing status of the
+     base rather than the field/array location (bummer).
+
    Revision 1.18  2004/01/25 15:32:41  venku
    - enabled ready and interference dependences to be OFA aware.
    Revision 1.17  2004/01/06 00:17:00  venku

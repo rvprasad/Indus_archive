@@ -23,7 +23,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
@@ -188,6 +187,13 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.8  2004/04/22 23:32:30  venku
    - xml file name were setup incorrectly.  FIXED.
 

@@ -18,14 +18,9 @@ package edu.ksu.cis.indus.xmlizer;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.znerd.xmlenc.LineBreak;
-import org.znerd.xmlenc.XMLOutputter;
 
 
 /**
@@ -121,7 +116,7 @@ public abstract class AbstractXMLizer
 	 * Dumps the jimple into a file.
 	 *
 	 * @param name is the basis of the name of the files into which jimple should be dumped.
-     * @param dumpDir is the directory into which the files should be dumped.
+	 * @param dumpDir is the directory into which the files should be dumped.
 	 * @param xmlcgipc is the processing controller to be used to control the dumping operation.  The user can use this
 	 * 		  controller to control the methods and classes to be included in the dump.  This controller sholuld be able to
 	 * 		  have deterministic behavior over a given set of class files.
@@ -243,16 +238,19 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/04/25 21:18:39  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
    Revision 1.20  2004/04/22 23:32:31  venku
    - xml file name were setup incorrectly.  FIXED.
-
    Revision 1.19  2004/04/22 23:02:49  venku
    - moved writeXML into IXMLizer.
-
    Revision 1.18  2004/04/22 22:12:09  venku
    - made changes to jimple xmlizer to dump each class into a separate file.
    - ripple effect.
-
    Revision 1.17  2004/04/18 08:59:02  venku
    - enabled test support for slicer.
    Revision 1.16  2004/04/01 22:34:19  venku

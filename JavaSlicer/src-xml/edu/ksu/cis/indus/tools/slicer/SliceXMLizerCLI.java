@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
@@ -533,6 +532,13 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/04/25 21:18:41  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.19  2004/04/23 01:01:10  venku
    - coding conventions.
 

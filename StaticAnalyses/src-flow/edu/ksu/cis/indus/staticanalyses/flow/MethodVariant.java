@@ -543,20 +543,26 @@ public class MethodVariant
 	 * Returns the variant associated with the given AST node in the given context.  Creates a new one if none exists.
 	 *
 	 * @param v the AST node whose associated variant is to be returned.
-	 * @param context the context in which the variant was associated with <code>v</code>.
+	 * @param ctxt the context in which the variant was associated with <code>v</code>.
 	 *
 	 * @return the variant associated with <code>v</code> in the context <code>c</code>.
 	 *
-	 * @pre v != null and context != null
+	 * @pre v != null and ctxt != null
 	 */
-	final ValuedVariant getASTVariant(final Value v, final Context context) {
-		return (ValuedVariant) astvm.select(v, context);
+	final ValuedVariant getASTVariant(final Value v, final Context ctxt) {
+		return (ValuedVariant) astvm.select(v, ctxt);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.21  2004/04/02 09:58:28  venku
    - refactoring.
      - collapsed flow insensitive and sensitive parts into common classes.

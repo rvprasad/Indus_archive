@@ -25,7 +25,6 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
-import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizerCLI;
 
 import java.util.Collection;
@@ -126,6 +125,13 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.19  2004/04/22 22:12:06  venku
    - made changes to jimple xmlizer to dump each class into a separate file.
    - ripple effect.
