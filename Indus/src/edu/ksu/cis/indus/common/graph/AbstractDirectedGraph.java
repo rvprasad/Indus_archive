@@ -396,21 +396,22 @@ public abstract class AbstractDirectedGraph
 		if (destinations.isEmpty()) {
 			_result.addAll(sources);
 		} else {
+            final Collection _temp = new HashSet(destinations);
 			for (final Iterator _i = sources.iterator(); _i.hasNext();) {
 				final INode _src = (INode) _i.next();
 				boolean flag = true;
-				int count = 0;
 
-				for (final Iterator _k = destinations.iterator(); _k.hasNext() && flag;) {
+                _temp.remove(_src);
+				for (final Iterator _k = _temp.iterator(); _k.hasNext() && flag;) {
 					final INode _dest = (INode) _k.next();
 
 					if (_src != _dest) {
 						flag &= !isReachable(_src, _dest, forward);
-						count++;
 					}
 				}
+                _temp.add(_src);
 
-				if (flag && count > 0) {
+				if (flag) {
 					_result.add(_src);
 				}
 			}
@@ -663,6 +664,12 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/01/22 08:15:55  venku
+   - added a new method to calculated pseudo tails.
+   - added a new method that can be used to indicate the
+     graph has changed shape, hence, marking any cached
+     data as stale.
+
    Revision 1.8  2004/01/22 00:53:32  venku
    - formatting and coding convention.
    Revision 1.7  2004/01/20 21:23:18  venku
