@@ -117,7 +117,7 @@ public class SynchronizationDA
 		/**
 		 * Preprocesses the given method.  It records if the method is synchronized.
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.SootMethod)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootMethod)
 		 */
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
@@ -134,24 +134,21 @@ public class SynchronizationDA
 		 * @pre stmt.isOclTypeOf(EnterMonitorStmt)
 		 * @pre context.getCurrentMethod() != null
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.jimple.Stmt,
-		 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Stmt,Context)
 		 */
 		public void callback(final Stmt stmt, final Context context) {
 			pointsOfInterest.add(new Pair(stmt, context.getCurrentMethod()));
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
-		 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
-		 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
@@ -312,6 +309,9 @@ public class SynchronizationDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.3  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.2  2003/08/09 23:29:52  venku

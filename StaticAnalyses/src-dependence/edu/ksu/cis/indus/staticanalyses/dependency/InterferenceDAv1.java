@@ -113,8 +113,7 @@ public class InterferenceDAv1
 		 * @pre stmt.isOclKindOf(AssignStmt)
 		 * @pre context.getCurrentMethod() != null
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.jimple.Stmt,
-		 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Stmt,Context)
 		 */
 		public void callback(final Stmt stmt, final Context context) {
 			SootMethod method = context.getCurrentMethod();
@@ -149,16 +148,14 @@ public class InterferenceDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
-		 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(AssignStmt.class, this);
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
-		 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(AssignStmt.class, this);
@@ -396,6 +393,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.4  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 04:20:19  venku

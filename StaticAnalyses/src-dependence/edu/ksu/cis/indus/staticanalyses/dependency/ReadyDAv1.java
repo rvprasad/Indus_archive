@@ -312,8 +312,7 @@ public class ReadyDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
-		 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
@@ -322,8 +321,7 @@ public class ReadyDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
-		 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
@@ -343,8 +341,7 @@ public class ReadyDAv1
 	 * @pre dependentStmt.isOclKindOf(Stmt)
 	 * @post result->forall(o | o.isOclKindOf(Collection(Stmt)))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.
-	 * 		Object)
+	 * @see DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object context) {
 		Collection result = (Collection) dependeeMap.get(dependentStmt);
@@ -906,6 +903,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.4  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 04:20:19  venku

@@ -171,7 +171,7 @@ public class WorkBag {
 	 *
 	 * @invariant self.oclIsTypeOf(Collection(Object))
 	 *
-	 * @see ICollectionWrapper
+	 * @see WorkBag.ICollectionWrapper
 	 */
 	protected abstract class AbstractCollectionWrapper
 	  implements ICollectionWrapper {
@@ -258,7 +258,7 @@ public class WorkBag {
 	 *
 	 * @invariant self.oclIsTypeOf(Sequence(Object))
 	 *
-	 * @see AbstractCollectionWrapper
+	 * @see WorkBag.AbstractCollectionWrapper
 	 */
 	private class CWQueue
 	  extends AbstractCollectionWrapper {
@@ -308,7 +308,7 @@ public class WorkBag {
 	 *
 	 * @invariant self.oclIsTypeOf(Sequence(Object))
 	 *
-	 * @see AbstractCollectionWrapper
+	 * @see WorkBag.AbstractCollectionWrapper
 	 */
 	private class CWStack
 	  extends AbstractCollectionWrapper {
@@ -460,6 +460,11 @@ public class WorkBag {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 06:40:54  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.

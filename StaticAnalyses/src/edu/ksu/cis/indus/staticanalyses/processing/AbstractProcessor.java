@@ -59,8 +59,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#setAnalyzer(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer)
+	 * @see IProcessor#setAnalyzer(IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer analyzer) {
 	}
@@ -68,8 +67,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.jimple.Value,
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+	 * @see IProcessor#callback(Value, Context)
 	 */
 	public void callback(final Value value, final Context context) {
 	}
@@ -77,8 +75,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.jimple.Stmt,
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+	 * @see IProcessor#callback(Stmt, Context)
 	 */
 	public void callback(final Stmt stmt, final Context context) {
 	}
@@ -86,7 +83,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.SootMethod)
+	 * @see IProcessor#callback(SootMethod)
 	 */
 	public void callback(final SootMethod method) {
 	}
@@ -94,7 +91,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.SootClass)
+	 * @see IProcessor#callback(SootClass)
 	 */
 	public void callback(final SootClass clazz) {
 	}
@@ -102,7 +99,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(SootField)
+	 * @see IProcessor#callback(SootField)
 	 */
 	public void callback(final SootField field) {
 	}
@@ -110,7 +107,7 @@ public abstract class AbstractProcessor
 	/**
 	 * Does nothing.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#consolidate()
+	 * @see IProcessor#consolidate()
 	 */
 	public void consolidate() {
 	}
@@ -119,6 +116,9 @@ public abstract class AbstractProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 07:15:57  venku
+   Finalized the parameters.
+
    Revision 1.2  2003/08/11 06:38:25  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.

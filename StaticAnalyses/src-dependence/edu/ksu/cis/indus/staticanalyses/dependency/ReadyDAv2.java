@@ -82,8 +82,7 @@ public class ReadyDAv2
 	 *
 	 * @pre enterPair.getSecond() != null and exitPair.getSecond() != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1#ifRelatedByRule2(
-	 * 		edu.ksu.cis.indus.staticanalyses.support.Pair,  edu.ksu.cis.indus.staticanalyses.support.Pair)
+	 * @see ReadyDAv1#ifDependentOnByRule2(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule2(final Pair enterPair, final Pair exitPair) {
 		EnterMonitorStmt enter = (EnterMonitorStmt) enterPair.getFirst();
@@ -104,8 +103,7 @@ public class ReadyDAv2
 	 *
 	 * @pre wPair.getSecond() != null and nPair.getSecond() != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1#ifRelatedByRule4(
-	 * 		edu.ksu.cis.indus.staticanalyses.support.Pair, edu.ksu.cis.indus.staticanalyses.support.Pair)
+	 * @see ReadyDAv1#ifDependentOnByRule4(Pair, Pair)
 	 */
 	protected boolean ifDependentOnByRule4(final Pair wPair, final Pair nPair) {
 		InvokeStmt notify = (InvokeStmt) nPair.getFirst();
@@ -233,6 +231,9 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.3  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.2  2003/08/09 23:33:30  venku

@@ -422,7 +422,7 @@ public class EquivalenceClassBasedAnalysis
 		}
 
 		/**
-		 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.jimple.Local)
+		 * @see soot.jimple.JimpleValueSwitch#caseLocal(Local)
 		 */
 		public void caseLocal(final Local v) {
 			AliasSet s = (AliasSet) localASsCache.get(v);
@@ -736,8 +736,7 @@ public class EquivalenceClassBasedAnalysis
 	 *
 	 * @pre value != null and context != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback( soot.jimple.Value,
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Value, Context)
 	 */
 	public void callback(final Value value, final Context contextParam) {
 		if (value instanceof NewExpr && cgi.isReachable(contextParam.getCurrentMethod())) {
@@ -1006,16 +1005,14 @@ public class EquivalenceClassBasedAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
@@ -1064,6 +1061,9 @@ public class EquivalenceClassBasedAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 06:29:07  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.1  2003/08/07 06:39:07  venku
    Major:
     - Moved the package under indus umbrella.

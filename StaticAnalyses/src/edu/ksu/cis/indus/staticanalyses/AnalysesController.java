@@ -171,8 +171,6 @@ public abstract class AController {
 
 	/**
 	 * Executes the analyses in the registered order.
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AController#execute()
 	 */
 	public void execute() {
 		boolean analyzing;
@@ -280,6 +278,10 @@ public abstract class AController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 07:46:09  venku
+   Finalized the parameters.
+   Spruced up Documentation and Specification.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

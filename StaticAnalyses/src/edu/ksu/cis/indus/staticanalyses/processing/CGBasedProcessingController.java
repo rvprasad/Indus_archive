@@ -69,7 +69,7 @@ public class CGBasedProcessingController
 	/**
 	 * Processes only those methods which are reachable in the given system.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.ProcessingController#processMethods(java.util.Collection)
+	 * @see ProcessingController#processMethods(Collection)
 	 */
 	protected void processMethods(final Collection methods) {
 		super.processMethods(CollectionUtils.intersection(methods, cgi.getReachableMethods()));
@@ -79,6 +79,11 @@ public class CGBasedProcessingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 06:38:25  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
