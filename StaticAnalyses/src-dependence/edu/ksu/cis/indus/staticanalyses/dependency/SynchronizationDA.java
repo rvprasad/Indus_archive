@@ -641,6 +641,9 @@ public final class SynchronizationDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/06/03 20:23:23  venku
+   - MAJOR CHANGE - Reworked the impl as it was missing some dependencies.
+
    Revision 1.40  2004/06/01 06:29:57  venku
    - added new methods to CollectionUtilities.
    - ripple effect.
