@@ -114,15 +114,6 @@ public class AnalysesController {
 	 */
 	public final void setAnalyses(final Object id, final Collection analyses) {
 		participatingAnalyses.put(id, analyses);
-
-		for (Iterator i = analyses.iterator(); i.hasNext();) {
-			AbstractAnalysis analysis = (AbstractAnalysis) i.next();
-
-			if (analysis.doesPreProcessing()) {
-				IValueAnalyzerBasedProcessor p = analysis.getPreProcessor();
-				p.hookup(preprocessController);
-			}
-		}
 	}
 
 	/**
@@ -190,6 +181,11 @@ public class AnalysesController {
 			for (Iterator j = c.iterator(); j.hasNext();) {
 				AbstractAnalysis analysis = (AbstractAnalysis) j.next();
 
+				if (analysis.doesPreProcessing()) {
+					IValueAnalyzerBasedProcessor p = analysis.getPreProcessor();
+					p.hookup(preprocessController);
+				}
+
 				try {
 					analysis.initialize(info);
 				} catch (InitializationException e) {
@@ -229,18 +225,17 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/12/13 19:38:57  venku
+   - removed unnecessary imports.
    Revision 1.28  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.27  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.26  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.25  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
