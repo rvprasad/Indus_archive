@@ -48,13 +48,13 @@
     <mkdir dir="${docs}/javadocs"/>
     <javadoc packagenames="${package}.*"
              destdir="${docs}/javadocs" access="private" use="true"
-             author="true">
+             author="true" additionalparam="-breakiterator">
              <sourcepath refid="src"/>
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
              <tag name="pre" description="Precondition:" scope="constructors,methods"/>
              <tag name="post" description="Postcondition:" scope="constructors,methods"/>
-             <tag name="invariant" description="Invariant" scope="types,fields"/>
+             <tag name="invariant" description="Invariant" scope="methods,types,fields"/>
     </javadoc>
 </target>
 
@@ -85,6 +85,12 @@
 ChangeLog:
 
 $Log$
+Revision 1.7  2003/08/11 04:31:14  venku
+*** empty log message ***
+
+Revision 1.3  2003/08/11 04:30:44  venku
+*** empty log message ***
+
 Revision 1.2  2003/08/10 03:47:59  venku
 *** empty log message ***
 
