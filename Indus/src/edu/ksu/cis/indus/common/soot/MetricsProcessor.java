@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 import soot.Body;
 import soot.SootClass;
@@ -146,8 +147,8 @@ public final class MetricsProcessor
 	 */
 	public Map getStatistics() {
 		final Map _result = new HashMap();
-		_result.put(APPLICATION_STATISTICS, new TObjectIntHashMapDecorator(applicationStatistics));
-		_result.put(LIBRARY_STATISTICS, new TObjectIntHashMapDecorator(libraryStatistics));
+        _result.put(APPLICATION_STATISTICS, new TreeMap(new TObjectIntHashMapDecorator(applicationStatistics)));
+		_result.put(LIBRARY_STATISTICS, new TreeMap(new TObjectIntHashMapDecorator(libraryStatistics)));
 		return _result;
 	}
 
