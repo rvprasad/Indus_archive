@@ -35,7 +35,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import soot.RefLikeType;
+import soot.ArrayType;
+import soot.RefType;
 import soot.Type;
 
 import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
@@ -142,7 +143,7 @@ final class AliasSet
 	}
 
 	/**
-	 * Checks if the given type can contribute to aliasing.  Only reference types can lead to aliasing.
+	 * Checks if the given type can contribute to aliasing.  Only reference and array types can lead to aliasing.
 	 *
 	 * @param type to be checked for aliasing support.
 	 *
@@ -151,7 +152,7 @@ final class AliasSet
 	 * @pre type != null
 	 */
 	public static boolean canHaveAliasSet(final Type type) {
-		return type instanceof RefLikeType;
+		return type instanceof RefType || type instanceof ArrayType;
 	}
 
 	/**
@@ -355,9 +356,14 @@ final class AliasSet
 
 		for (Iterator i = rep2.fieldMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
-			AliasSet to = (AliasSet) ((AliasSet) rep2.fieldMap.get(entry.getKey())).find();
-			AliasSet from = (AliasSet) ((AliasSet) rep1.fieldMap.get(entry.getKey())).find();
-			from.propogateInfoFromTo(to);
+			AliasSet to = (AliasSet) rep2.fieldMap.get(entry.getKey());
+			AliasSet from = (AliasSet) rep1.fieldMap.get(entry.getKey());
+
+			if (to != null && from != null) {
+				to = (AliasSet) to.find();
+				from = (AliasSet) from.find();
+				from.propogateInfoFromTo(to);
+			}
 		}
 
 		propogating = false;
@@ -457,6 +463,9 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/27 12:10:15  venku
+   waits and notifies were not being propogated upon unification.
+   This will not cause the wait/notify info to raise to the start site.  FIXED.
    Revision 1.1  2003/08/21 01:24:25  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.
