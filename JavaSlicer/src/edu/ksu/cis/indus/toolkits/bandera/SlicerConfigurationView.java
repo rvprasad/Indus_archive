@@ -43,11 +43,6 @@ public final class SlicerConfigurationView
 	private final IToolConfigurator configurator;
 
 	/**
-	 * The window in which the configuration interface of the slicer will be displayed.
-	 */
-	private Shell shell;
-
-	/**
 	 * Creates a new SlicerConfigurationView object.
 	 *
 	 * @param theConfigurator is used to configure the slicer.
@@ -97,23 +92,23 @@ public final class SlicerConfigurationView
 	 * @see edu.ksu.cis.bandera.tool.ToolConfigurationView#configure()
 	 */
 	public void configure() {
-		if (shell == null) {
-			shell = new Shell();
-			shell.setText("Configure Slicer");
-		}
-		configurator.initialize(shell);
-		shell.pack();
-		shell.open();
+		final Shell _shell = new Shell();
+		_shell.setText("Configure Slicer");
+		configurator.initialize(_shell);
+		_shell.pack();
+		_shell.open();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.10  2003/12/02 11:32:01  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
-
    Revision 1.9  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

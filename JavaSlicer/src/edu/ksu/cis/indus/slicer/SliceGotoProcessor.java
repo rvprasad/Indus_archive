@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -158,14 +158,16 @@ public class SliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/01/06 00:17:05  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.9  2003/12/13 19:46:33  venku
    - documentation of TaggingBasedSliceCollector.
    - renamed collect() to includeInSlice().
-
    Revision 1.8  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.7  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

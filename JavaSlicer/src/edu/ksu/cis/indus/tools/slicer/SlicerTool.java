@@ -15,11 +15,11 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 import edu.ksu.cis.indus.common.soot.TrapUnitGraphFactory;
-import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -111,6 +111,11 @@ public final class SlicerTool
 	 */
 	public static final Object SLICE_MAJOR_PHASE;
 
+    /**
+     * The tag used to identify the parts touched by flow analysis.
+     */
+    public static final String FLOW_ANALYSIS_TAG_NAME = "SlicerTool:FA";
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -120,11 +125,6 @@ public final class SlicerTool
 	 * This is the indentation step to be used during stringization of the configuration.
 	 */
 	private static final int INDENT = 4;
-
-	/** 
-	 * The tag used to identify the parts touched by flow analysis.
-	 */
-	public static final String FLOW_ANALYSIS_TAG_NAME = "SlicerTool:FA";
 
 	/**
 	 * This controls dependency analysis.
@@ -666,15 +666,16 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.53  2004/01/06 00:17:05  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.52  2004/01/03 19:02:34  venku
    - formatting and coding conventions.
-
    Revision 1.51  2003/12/31 10:31:19  venku
    - slicer should just slice, not fix the system. FIXED.
-
    Revision 1.50  2003/12/16 12:44:12  venku
    - exposed the flow analysis tag name.
-
    Revision 1.49  2003/12/14 16:48:27  venku
    - retrieves sync points only from application classes.
    Revision 1.48  2003/12/13 19:52:41  venku
