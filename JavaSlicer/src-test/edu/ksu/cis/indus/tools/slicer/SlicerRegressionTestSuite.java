@@ -33,9 +33,7 @@ import junit.textui.TestRunner;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is the test suite used to run slicer related tests using JUnit's text interface to the runner.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -44,9 +42,7 @@ import junit.textui.TestRunner;
 public final class SlicerRegressionTestSuite
   extends TestCase {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The properties file containing the test configuration is specified via this property.
 	 */
 	private static final String SLICER_TEST_PROPERTIES_FILE = "indus.slicer.XMLBasedSlicerTest.properties.file";
 
@@ -142,10 +138,10 @@ public final class SlicerRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/20 05:27:13  venku
+   - renamed checkExecutability() to checkXMLBasedTestExecutability().
    Revision 1.2  2004/04/18 09:08:18  venku
    - changed property name.
-
    Revision 1.1  2004/04/18 08:59:00  venku
    - enabled test support for slicer.
-
  */

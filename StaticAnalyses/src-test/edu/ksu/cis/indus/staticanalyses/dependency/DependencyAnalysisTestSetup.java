@@ -50,8 +50,8 @@ import junit.framework.TestSuite;
 
 
 /**
- * This is the setup in which various tests of flow analyses are run.  The classes to be processed during the test can be
- * configured via the command line or via specifying
+ * This is the setup in which various tests of dependence analyses are run.  The classes to be processed during the test can
+ * be configured via the command line or via specifying
  * <code>DepedencyAnalysisRegressionTestSuite.DEPENDENCYANALYSIS_TEST_PROPERTIES_FILE</code> system property. The syntax for
  * both these options is a space separated list of class names.
  *
@@ -72,9 +72,7 @@ public class DependencyAnalysisTestSetup
 	private BasicBlockGraphMgr bbgMgr;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of dependency analyses being tested.
 	 */
 	private Collection das;
 
@@ -233,6 +231,8 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/19 05:10:26  venku
+   - NPE's in test setup caused by unchecked reseting.
    Revision 1.8  2004/04/18 02:05:18  venku
    - memory leak fixes.
    Revision 1.7  2004/04/18 00:42:56  venku

@@ -138,10 +138,12 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Writes the jimple in the scene via the writer.
 	 *
-	 * @param scene
-	 * @param writer DOCUMENT ME!
+	 * @param scene in which the jimple to be dumped resides.
+	 * @param writer with which jimple is dumped.
+	 *
+	 * @pre scene != null and writer != null
 	 */
 	public static void writeJimpleAsXML(final Scene scene, final Writer writer) {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
@@ -400,6 +402,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/04/18 00:02:18  venku
+   - added support to dump jimple.xml while testing.
    Revision 1.28  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

@@ -69,7 +69,7 @@ public class AbstractXMLBasedTestSetup
 	/**
 	 * Retrieves the CFG factory used during testing.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the cfg factory
 	 */
 	public IStmtGraphFactory getStmtGraphFactory() {
 		return stmtGraphFactory;
@@ -138,6 +138,9 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/19 05:10:27  venku
+   - NPE's in test setup caused by unchecked reseting.
+
    Revision 1.10  2004/04/18 08:59:02  venku
    - enabled test support for slicer.
    Revision 1.9  2004/04/18 02:05:19  venku

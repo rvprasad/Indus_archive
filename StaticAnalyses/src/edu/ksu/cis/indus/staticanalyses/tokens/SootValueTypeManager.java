@@ -31,9 +31,7 @@ import soot.Value;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class manages Soot value types and the corresponding types in user's type system.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -42,21 +40,11 @@ import soot.Value;
 public class SootValueTypeManager
   implements ITypeManager {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps soot types to user's type.
 	 */
 	private final Map sootType2Type = new HashMap();
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param value DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	 * @post result->forall(o | o.oclIsKindOf(IType))
-	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getAllTypes(java.lang.Object)
 	 */
 	public Collection getAllTypes(final Object value) {
@@ -85,13 +73,7 @@ public class SootValueTypeManager
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param sootType DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getTypeForIRType(soot.Type)
 	 */
 	public IType getTypeForIRType(final Type sootType) {
 		IType _result = (IType) sootType2Type.get(sootType);
@@ -106,9 +88,7 @@ public class SootValueTypeManager
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Resets the manager.
 	 */
 	public void reset() {
 		sootType2Type.clear();
@@ -118,4 +98,9 @@ public class SootValueTypeManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
  */

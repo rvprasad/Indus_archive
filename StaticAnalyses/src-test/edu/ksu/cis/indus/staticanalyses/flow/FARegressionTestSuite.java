@@ -31,7 +31,7 @@ import junit.textui.TestRunner;
 
 
 /**
- * This is the test suite used to run FA related tests using JUnit's swing interface to the runner.
+ * This is the test suite used to run FA related tests using JUnit's text interface to the runner.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -122,6 +122,9 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/05 23:16:33  venku
+   - textui.TestRunner cannot be run via start(). FIXED.
+
    Revision 1.7  2004/04/05 22:26:48  venku
    - used textui.TestRunner instead of swingui.TestRunner.
 

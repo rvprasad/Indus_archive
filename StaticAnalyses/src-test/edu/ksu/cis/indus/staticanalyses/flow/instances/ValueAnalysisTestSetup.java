@@ -56,7 +56,7 @@ public class ValueAnalysisTestSetup
 	public ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath,
 		final String jimpleDumpLocation) {
 		super(test, theNameOfClasses, classpath);
-		dumpJimpleXML(jimpleDumpLocation);
+		setJimpleXMLDumpLocation(jimpleDumpLocation);
 	}
 
 	/**
@@ -100,6 +100,9 @@ public class ValueAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/18 02:05:18  venku
+   - memory leak fixes.
+
    Revision 1.6  2004/04/18 00:42:56  venku
    - references to objects had leaked after test. FIXED.
 

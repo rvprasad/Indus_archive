@@ -49,9 +49,9 @@ import soot.G;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is the setup in which various tests of the slicer are run.  The classes to be processed during the test can be
+ * configured via the command line or via specifying <code>SlicerRegressionTestSuite.SLICER_TEST_PROPERTIES_FILE</code>
+ * system property. The syntax for both these options is a space separated list of class names.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -73,12 +73,13 @@ public class SlicerTestSetup
 	 * Creates a new instance of this class.
 	 *
 	 * @param suite is the slicer driver.
-	 * @param classNames DOCUMENT ME!
-	 * @param xmlTestDirectory DOCUMENT ME!
-	 * @param xmlControlDirectory DOCUMENT ME!
-	 * @param sootClasspath DOCUMENT ME!
+	 * @param classNames is the classes that provide the basis for the system to be sliced.
+	 * @param xmlTestDirectory is the directory to store the test data.
+	 * @param xmlControlDirectory is the directory containing the test control data.
+	 * @param sootClasspath is the soot class path used during slicing.
 	 *
-	 * @pre driver != null and xmlInputDir != null
+	 * @pre suite != null and classNames != null and xmlTestDirectory != null and xmlControlDirectory != null and
+	 * 		sootClasspath != null
 	 */
 	public SlicerTestSetup(final TestSuite suite, final String[] classNames, final String xmlTestDirectory,
 		final String xmlControlDirectory, final String sootClasspath) {
@@ -151,11 +152,11 @@ public class SlicerTestSetup
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the default slicer configuration.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the configuration as a string.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when an error occurs when operating on the default configuration file.
 	 */
 	private String stringizeConfig() {
 		Reader _reader = null;
@@ -193,4 +194,6 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/18 08:59:00  venku
+   - enabled test support for slicer.
  */

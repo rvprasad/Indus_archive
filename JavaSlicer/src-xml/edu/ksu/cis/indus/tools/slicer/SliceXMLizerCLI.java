@@ -221,7 +221,7 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Write the slice as XML document.
 	 */
 	void writeXML() {
 		dumpJimple();
@@ -237,7 +237,7 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Write Jimple representation of the system as XML document.
 	 */
 	private void dumpJimple() {
 		final ICallGraphInfo _cgi = slicer.getCallGraph();
@@ -557,6 +557,10 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/20 00:43:40  venku
+   - The processing during residualization was driven by a graph.  This
+     caused errors when the graph did not cover all of the statements.
+     Hence, during residualization we will visit all parts of a method.
    Revision 1.11  2004/04/19 19:10:32  venku
    - We should not have a situation of body not found if we slice right.
      Commented the block that does this refitting.

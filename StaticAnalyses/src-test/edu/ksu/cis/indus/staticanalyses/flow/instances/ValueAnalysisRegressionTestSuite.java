@@ -41,7 +41,7 @@ import junit.textui.TestRunner;
 
 
 /**
- * This is the test suite used to run FA based value analysis related tests using JUnit's swing interface to the runner.
+ * This is the test suite used to run FA based value analysis related tests using JUnit's text interface to the runner.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -151,6 +151,9 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/20 05:27:14  venku
+   - renamed checkExecutability() to checkXMLBasedTestExecutability().
+
    Revision 1.10  2004/04/18 00:17:20  venku
    - added support to dump jimple.xml while testing. (bug fix)
 

@@ -16,9 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class tests <code>BitSetTokenManager</code> class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$

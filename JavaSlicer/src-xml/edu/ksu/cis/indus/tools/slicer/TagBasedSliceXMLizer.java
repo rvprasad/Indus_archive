@@ -62,18 +62,18 @@ final class TagBasedSliceXMLizer
 	static final Log LOGGER = LogFactory.getLog(TagBasedSliceXMLizer.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The name of the tag to residualize.
+	 *
+	 * @invariant tagName != null
 	 */
 	final String tagName;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The processor used while xmlization.
+	 *
+	 * @invariant processor != null
 	 */
-	private TagBasedSliceProcessor processor;
+	private final TagBasedSliceProcessor processor;
 
 	/**
 	 * Creates an instance of this class.
@@ -89,9 +89,7 @@ final class TagBasedSliceXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This class processes the system during xmlization.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -107,7 +105,7 @@ final class TagBasedSliceXMLizer
 		/**
 		 * This generates ids for jimple entities.
 		 */
-		private IJimpleIDGenerator idGenerator;
+		private final IJimpleIDGenerator idGenerator;
 
 		/**
 		 * This indicates if classes are being processed.
@@ -125,9 +123,11 @@ final class TagBasedSliceXMLizer
 		private boolean processingStmt;
 
 		/**
-		 * DOCUMENT ME!
+		 * Creates an instance of this class.
 		 *
-		 * @param generator DOCUMENT ME!
+		 * @param generator used to generate the id's for AST fragments during xmlization.
+		 *
+		 * @pre generator != null
 		 */
 		public TagBasedSliceProcessor(final IJimpleIDGenerator generator) {
 			idGenerator = generator;
@@ -318,9 +318,12 @@ final class TagBasedSliceXMLizer
 	}
 
 	/**
-	 * Writes the slice and dependency information in XML.
+	 * Writes the slice as XML document.
 	 *
-	 * @param info DOCUMENT ME!
+	 * @param info maps various ids to their implementations as required by this xmlizer.
+	 *
+	 * @pre info != null
+	 * @pre info.containsKey(IStmtGraphFactory.ID) and info.containsKey(IEnvironment.ID) and info.containsKey(FILE_NAME_ID)
 	 */
 	public final void writeXML(final Map info) {
 		final ProcessingController _ctrl = new ProcessingController();
@@ -352,6 +355,8 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/04/18 08:59:00  venku
+   - enabled test support for slicer.
    Revision 1.14  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.

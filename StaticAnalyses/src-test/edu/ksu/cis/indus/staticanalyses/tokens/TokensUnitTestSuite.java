@@ -29,9 +29,7 @@ import soot.Scene;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This tests classes in tokens package in Indus module.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -94,4 +92,6 @@ public final class TokensUnitTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/18 00:17:58  venku
+   - added testcases for token manager logic.
  */

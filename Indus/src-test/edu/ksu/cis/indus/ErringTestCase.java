@@ -17,9 +17,9 @@ package edu.ksu.cis.indus;
 
 import junit.framework.TestCase;
 
+
 /**
- * DOCUMENT ME!
- * <p></p>
+ * This is a test case which will always cause an error via an exception.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -27,29 +27,34 @@ import junit.framework.TestCase;
  */
 public final class ErringTestCase
   extends TestCase {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * The exception to be thrown.
 	 */
-	final String msg;
+	final RuntimeException exception;
 
 	/**
 	 * Creates a new ErringTestCase object.
 	 *
-	 * @param message DOCUMENT ME!
+	 * @param message to be embedded in the exception to be thrown.
 	 */
 	public ErringTestCase(final String message) {
-		msg = message;
+		exception = new RuntimeException(message);
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * This is the erring test.
 	 */
-	public void testFail() {
-		throw new IllegalStateException(msg);
+	public void testError() {
+		throw exception;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/17 23:35:43  venku
+   - failures due to unavailable resources were not flagged. FIXED
+     - added a new class which always errs.
+     - this new class is used to setup a test case for cases where an error should occur.
+     - ripple effect.
  */

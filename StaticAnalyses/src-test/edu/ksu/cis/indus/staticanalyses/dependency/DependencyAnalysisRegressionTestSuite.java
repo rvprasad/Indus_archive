@@ -46,7 +46,7 @@ import junit.textui.TestRunner;
 
 
 /**
- * This is the test suite used to run dependency analyses related tests using JUnit's swing interface to the runner.
+ * This is the test suite used to run dependency analyses related tests using JUnit's text interface to the runner.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -191,6 +191,9 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/04/20 05:27:14  venku
+   - renamed checkExecutability() to checkXMLBasedTestExecutability().
+
    Revision 1.3  2004/04/20 00:40:34  venku
    - coding conventions.
 

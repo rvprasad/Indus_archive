@@ -70,9 +70,7 @@ public class FATestSetup
 	private final String sootClassPath;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the location where the jimple xml should be dumpled.
 	 */
 	private String dumpLocation;
 
@@ -90,6 +88,17 @@ public class FATestSetup
 		valueAnalyzer = OFAnalyzer.getFSOIAnalyzer(FATestSetup.TAG_NAME, new BitSetTokenManager(new SootValueTypeManager()));
 		sootClassPath = classpath;
 		classNames = theNameOfClasses;
+	}
+
+	/**
+	 * Sets the location where jimple xml should be dumped.
+	 *
+	 * @param location to dump jimple xml.
+	 *
+	 * @pre location != null
+	 */
+	protected final void setJimpleXMLDumpLocation(final String location) {
+		dumpLocation = location;
 	}
 
 	/**
@@ -121,17 +130,6 @@ public class FATestSetup
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param location DOCUMENT ME!
-	 */
-	protected final void dumpJimpleXML(final String location) {
-		dumpLocation = location;
-	}
-
-	/**
 	 * @see TestCase#teardown()
 	 */
 	protected void tearDown()
@@ -146,6 +144,8 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/04/19 05:10:26  venku
+   - NPE's in test setup caused by unchecked reseting.
    Revision 1.15  2004/04/18 02:05:18  venku
    - memory leak fixes.
    Revision 1.14  2004/04/18 00:42:56  venku

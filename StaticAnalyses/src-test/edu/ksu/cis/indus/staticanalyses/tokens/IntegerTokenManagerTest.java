@@ -18,9 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.tokens;
 import soot.jimple.StringConstant;
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class tests <code>IntegerTokenManager</code> class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$

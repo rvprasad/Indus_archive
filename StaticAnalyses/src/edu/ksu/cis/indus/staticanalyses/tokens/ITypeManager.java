@@ -38,6 +38,7 @@ public interface ITypeManager {
 	 *
 	 * @pre value != null
 	 * @post result != null
+     * @post result->forall(o | o.oclIsKindOf(IType))
 	 */
 	Collection getAllTypes(Object value);
 
@@ -77,4 +78,10 @@ public interface ITypeManager {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
  */

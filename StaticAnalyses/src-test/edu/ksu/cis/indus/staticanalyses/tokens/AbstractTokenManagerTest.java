@@ -27,9 +27,8 @@ import soot.jimple.StringConstant;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides implementation to test any implementations of <code>ITokenManagers</code>.  So, specific test cases
+ * for each such implementations should inherit from this class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -38,35 +37,27 @@ import soot.jimple.StringConstant;
 public abstract class AbstractTokenManagerTest
   extends IndusTestCase {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of values used to test token manager.
 	 */
 	protected Collection values = new HashSet();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The token manager to test.
 	 */
 	protected ITokenManager tokenManager;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Tests <code>getTokens</code>.
 	 */
 	public void testGetTokens() {
 		final ITokens _tokens = tokenManager.getTokens(values);
 		assertNotNull(_tokens);
 		assertTrue(_tokens.getValues().containsAll(values));
-        assertTrue(values.containsAll(_tokens.getValues()));
+		assertTrue(values.containsAll(_tokens.getValues()));
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Tests <code>getTypeBasedFilter</code>.
 	 */
 	public final void testGetTypeBasedFilter() {
 		final ITypeManager _typeMgr = tokenManager.getTypeManager();
@@ -74,15 +65,14 @@ public abstract class AbstractTokenManagerTest
 		assertNotNull(_filter);
 
 		final ITokens _falseTokens = tokenManager.getTokens(Collections.singleton(IntConstant.v(1)));
-        assertTrue(_filter.filter(_falseTokens).isEmpty());
-        final ITokens _trueTokens = tokenManager.getTokens(Collections.singleton(StringConstant.v("string")));
-        assertFalse(_filter.filter(_trueTokens).isEmpty());
+		assertTrue(_filter.filter(_falseTokens).isEmpty());
+
+		final ITokens _trueTokens = tokenManager.getTokens(Collections.singleton(StringConstant.v("string")));
+		assertFalse(_filter.filter(_trueTokens).isEmpty());
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Tests <code>getTypeManager</code>.
 	 */
 	public final void testGetTypeManager() {
 		final ITypeManager _typeMgr = tokenManager.getTypeManager();
@@ -117,4 +107,6 @@ public abstract class AbstractTokenManagerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/18 00:17:58  venku
+   - added testcases for token manager logic.
  */
