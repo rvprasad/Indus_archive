@@ -101,7 +101,7 @@ public class StmtXMLizer
 	 */
 	public final void caseAssignStmt(AssignStmt v) {
 		try {
-			out.write("\t\t\t<assign_stmt  id=\"" + newId + "\">\n");
+			out.write("\t\t\t<assign_stmt  id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<lhs>\n");
 			valueXMLizer.apply(v.getLeftOpBox());
 			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
@@ -118,7 +118,8 @@ public class StmtXMLizer
 	 */
 	public final void caseBreakpointStmt(BreakpointStmt v) {
 		try {
-			out.write("\t\t\t<breakpoint_stmt id=\"" + newId + "\"/>\n");
+			out.write("\t\t\t<breakpoint_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
+				+ "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -129,7 +130,8 @@ public class StmtXMLizer
 	 */
 	public final void caseEnterMonitorStmt(EnterMonitorStmt v) {
 		try {
-			out.write("\t\t\t<entermonitor_stmt id=\"" + newId + "\">\n");
+			out.write("\t\t\t<entermonitor_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
+				+ "\">\n");
 			valueXMLizer.apply(v.getOpBox());
 			out.write("\t\t\t</entermonitor_stmt>\n");
 		} catch (IOException e) {
@@ -142,7 +144,8 @@ public class StmtXMLizer
 	 */
 	public final void caseExitMonitorStmt(ExitMonitorStmt v) {
 		try {
-			out.write("\t\t\t<exitmonitor_stmt id=\"" + newId + "\">\n");
+			out.write("\t\t\t<exitmonitor_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
+				+ "\">\n");
 			valueXMLizer.apply(v.getOpBox());
 			out.write("\t\t\t</exitmonitor_stmt>\n");
 		} catch (IOException e) {
@@ -156,7 +159,8 @@ public class StmtXMLizer
 	public final void caseGotoStmt(GotoStmt v) {
 		try {
 			out.write("\t\t\t<goto_stmt id=\"" + newId + "\" target=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getTarget(), currMethod) + "\"/>\n");
+				+ idGenerator.getIdForStmt((Stmt) v.getTarget(), currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -167,7 +171,8 @@ public class StmtXMLizer
 	 */
 	public final void caseIdentityStmt(IdentityStmt v) {
 		try {
-			out.write("\t\t\t<identity_stmt id=\"" + newId + "\">\n");
+			out.write("\t\t\t<identity_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
+				+ "\">\n");
 			out.write("\t\t\t\t<lhs>\n");
 			valueXMLizer.apply(v.getLeftOpBox());
 			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
@@ -184,8 +189,9 @@ public class StmtXMLizer
 	 */
 	public final void caseIfStmt(IfStmt v) {
 		try {
-			out.write("\t\t\t<if_stmt id=\"" + newId + "\" trueTargetId=\"" + idGenerator.getIdForStmt(v.getTarget(), currMethod)
-				+ "\">\n");
+			out.write("\t\t\t<if_stmt id=\"" + newId + "\" trueTargetId=\""
+				+ idGenerator.getIdForStmt(v.getTarget(), currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<condition>\n");
 			valueXMLizer.apply(v.getConditionBox());
 			out.write("\t\t\t\t</condition>\n");
@@ -200,7 +206,7 @@ public class StmtXMLizer
 	 */
 	public final void caseInvokeStmt(InvokeStmt v) {
 		try {
-			out.write("\t\t\t<invoke_stmt id=\"" + newId + "\">\n");
+			out.write("\t\t\t<invoke_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getInvokeExprBox());
 			out.write("\t\t\t</invoke_stmt>\n");
 		} catch (IOException e) {
@@ -214,7 +220,8 @@ public class StmtXMLizer
 	public final void caseLookupSwitchStmt(LookupSwitchStmt v) {
 		try {
 			out.write("\t\t\t<lookupswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\">\n");
+				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<key>\n");
 			valueXMLizer.apply(v.getKeyBox());
 			out.write("\t\t\t\t</key>\n");
@@ -234,7 +241,7 @@ public class StmtXMLizer
 	 */
 	public final void caseNopStmt(NopStmt v) {
 		try {
-			out.write("\t\t\t<nop_stmt id=\"" + newId + "\"/>\n");
+			out.write("\t\t\t<nop_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -245,7 +252,7 @@ public class StmtXMLizer
 	 */
 	public final void caseRetStmt(RetStmt v) {
 		try {
-			out.write("\t\t\t<ret_stmt id=\"" + newId + "\">\n");
+			out.write("\t\t\t<ret_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getStmtAddressBox());
 			out.write("\t\t\t</ret_stmt>\n");
 		} catch (IOException e) {
@@ -258,7 +265,7 @@ public class StmtXMLizer
 	 */
 	public final void caseReturnStmt(ReturnStmt v) {
 		try {
-			out.write("\t\t\t<return_stmt id=\"" + newId + "\">\n");
+			out.write("\t\t\t<return_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
 			out.write("\t\t\t</return_stmt>\n");
 		} catch (IOException e) {
@@ -271,7 +278,8 @@ public class StmtXMLizer
 	 */
 	public final void caseReturnVoidStmt(ReturnVoidStmt v) {
 		try {
-			out.write("\t\t\t<returnvoid_stmt id=\"" + newId + "\"/>\n");
+			out.write("\t\t\t<returnvoid_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
+				+ "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -283,7 +291,8 @@ public class StmtXMLizer
 	public final void caseTableSwitchStmt(TableSwitchStmt v) {
 		try {
 			out.write("\t\t\t<tableswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\"\n");
+				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\" label=\""
+				+ (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<key>\n");
 			valueXMLizer.apply(v.getKeyBox());
 			out.write("\t\t\t\t</key>\n");
@@ -303,7 +312,7 @@ public class StmtXMLizer
 	 */
 	public final void caseThrowStmt(ThrowStmt v) {
 		try {
-			out.write("\t\t\t<throw_stmt id=\"" + newId + "\">\n");
+			out.write("\t\t\t<throw_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
 			out.write("\t\t\t</throw_stmt>\n");
 		} catch (IOException e) {
@@ -352,16 +361,15 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/24 06:45:23  venku
+   - corrected xml encoding errors along with tag name emission errors.
    Revision 1.5  2003/11/24 06:27:18  venku
    - closing tag of assign element was incorrent. FIXED.
-
    Revision 1.4  2003/11/24 01:20:27  venku
    - enhanced output formatting.
-
    Revision 1.3  2003/11/17 15:57:03  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
-
    Revision 1.2  2003/11/07 11:14:44  venku
    - Added generator class for xmlizing purpose.
    - XMLizing of Jimple works, but takes long.
