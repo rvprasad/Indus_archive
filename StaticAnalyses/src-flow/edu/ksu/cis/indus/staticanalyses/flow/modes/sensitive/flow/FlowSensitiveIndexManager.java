@@ -65,7 +65,7 @@ public class FlowSensitiveIndexManager
 	 *
 	 * @pre o != null and c != null
 	 */
-	protected IIndex getIndex(final Object o, final Context c) {
+	protected IIndex createIndex(final Object o, final Context c) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Getting index for " + o + " in " + c);
 		}

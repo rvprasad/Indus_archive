@@ -60,8 +60,7 @@ public class MethodVariantManager
 	 *
 	 * @pre theAnalysis != null and indexManager != null and astIndexManagerPrototype != null
 	 */
-	MethodVariantManager(final FA theAnalysis, final AbstractIndexManager indexManager,
-		final IPrototype astIndexManagerPrototype) {
+	MethodVariantManager(final FA theAnalysis, final IIndexManager indexManager, final IPrototype astIndexManagerPrototype) {
 		super(theAnalysis, indexManager);
 		this.astIMPrototype = astIndexManagerPrototype;
 	}

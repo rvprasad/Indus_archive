@@ -19,9 +19,9 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
+import edu.ksu.cis.indus.staticanalyses.flow.ITokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.ValuedVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
@@ -111,7 +111,7 @@ class FlowInsensitiveExprSwitch
 		final IFGNode _baseNode = (IFGNode) getResult();
 		final IFGNode _ast = method.getASTNode(e);
 		final ITokenManager _tokenMgr = fa.getTokenManager();
-		final AbstractTokenProcessingWork _work =
+		final ITokenProcessingWork _work =
 			new ArrayAccessExprWork(method, context, _ast, connector, _tokenMgr.getNewTokenSet());
 		final FGAccessNode _temp = new FGAccessNode(_work, fa, _tokenMgr);
 		_baseNode.addSucc(_temp);
@@ -166,7 +166,7 @@ class FlowInsensitiveExprSwitch
 		final IFGNode _baseNode = (IFGNode) getResult();
 		final IFGNode _ast = method.getASTNode(e);
 		final ITokenManager _tokenMgr = fa.getTokenManager();
-		final AbstractTokenProcessingWork _work =
+		final ITokenProcessingWork _work =
 			new FieldAccessExprWork(method, context, _ast, connector, _tokenMgr.getNewTokenSet());
 		final FGAccessNode _temp = new FGAccessNode(_work, fa, _tokenMgr);
 		_baseNode.addSucc(_temp);
@@ -431,7 +431,7 @@ class FlowInsensitiveExprSwitch
 		}
 
 		final ITokenManager _tokenMgr = fa.getTokenManager();
-		final AbstractTokenProcessingWork _work = new InvokeExprWork(method, context, _tokenMgr.getNewTokenSet());
+		final ITokenProcessingWork _work = new InvokeExprWork(method, context, _tokenMgr.getNewTokenSet());
 		final FGAccessNode _baseNode = new FGAccessNode(_work, fa, _tokenMgr);
 		_temp.addSucc(_baseNode);
 

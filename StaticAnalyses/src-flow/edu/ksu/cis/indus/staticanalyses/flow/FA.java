@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
 import java.util.Collection;
@@ -74,7 +75,7 @@ public class FA
 	 *
 	 * @invariant analyzer != null
 	 */
-	private final AbstractAnalyzer analyzer;
+	private final IAnalyzer analyzer;
 
 	/** 
 	 * The token manager that manages the tokens whose flow is instrumented by the flow analysis.
@@ -144,7 +145,7 @@ public class FA
 	 *
 	 * @pre analyzer != null and tagName != null and tokenMgr != null
 	 */
-	FA(final AbstractAnalyzer theAnalyzer, final String tagName, final ITokenManager tokenMgr) {
+	FA(final IAnalyzer theAnalyzer, final String tagName, final ITokenManager tokenMgr) {
 		workBags = new IWorkBag[2];
 		workBags[0] = new PoolAwareWorkBag(new LIFOWorkBag());
 		workBags[1] = new PoolAwareWorkBag(new LIFOWorkBag());
@@ -161,7 +162,7 @@ public class FA
 	 *
 	 * @post result != null
 	 */
-	public final AbstractAnalyzer getAnalyzer() {
+	public final IAnalyzer getAnalyzer() {
 		return analyzer;
 	}
 
@@ -177,7 +178,7 @@ public class FA
 	 * @post result != null
 	 */
 	public final ValuedVariant getArrayVariant(final ArrayType a) {
-		return getArrayVariant(a, analyzer.context);
+		return getArrayVariant(a, analyzer.getContext());
 	}
 
 	/**
@@ -233,7 +234,7 @@ public class FA
 	 * @post result != null
 	 */
 	public final ValuedVariant getFieldVariant(final SootField sf) {
-		return getFieldVariant(sf, analyzer.context);
+		return getFieldVariant(sf, analyzer.getContext());
 	}
 
 	/**
@@ -269,7 +270,7 @@ public class FA
 	 *
 	 * @pre e != null
 	 */
-	public final AbstractExprSwitch getLHSExpr(final AbstractStmtSwitch e) {
+	public final IExprSwitch getLHSExpr(final IStmtSwitch e) {
 		return modeFactory.getLHSExprVisitor(e);
 	}
 
@@ -285,7 +286,7 @@ public class FA
 	 * @post result != null
 	 */
 	public final MethodVariant getMethodVariant(final SootMethod sm) {
-		return getMethodVariant(sm, analyzer.context);
+		return getMethodVariant(sm, analyzer.getContext());
 	}
 
 	/**
@@ -322,7 +323,7 @@ public class FA
 	 *
 	 * @pre e != null
 	 */
-	public final AbstractExprSwitch getRHSExpr(final AbstractStmtSwitch e) {
+	public final IExprSwitch getRHSExpr(final IStmtSwitch e) {
 		return modeFactory.getRHSExprVisitor(e);
 	}
 
@@ -353,7 +354,7 @@ public class FA
 	 *
 	 * @pre e != null
 	 */
-	public final AbstractStmtSwitch getStmt(final MethodVariant e) {
+	public final IStmtSwitch getStmt(final MethodVariant e) {
 		return modeFactory.getStmtVisitor(e);
 	}
 
@@ -420,7 +421,7 @@ public class FA
 	 * @post result != null
 	 */
 	final ValuedVariant queryArrayVariant(final ArrayType a) {
-		return queryArrayVariant(a, analyzer.context);
+		return queryArrayVariant(a, analyzer.getContext());
 	}
 
 	/**
@@ -450,7 +451,7 @@ public class FA
 	 * @post result != null
 	 */
 	final ValuedVariant queryFieldVariant(final SootField sf) {
-		return queryFieldVariant(sf, analyzer.context);
+		return queryFieldVariant(sf, analyzer.getContext());
 	}
 
 	/**
@@ -486,7 +487,7 @@ public class FA
 	 * @post result != null
 	 */
 	final MethodVariant queryMethodVariant(final SootMethod sm) {
-		return queryMethodVariant(sm, analyzer.context);
+		return queryMethodVariant(sm, analyzer.getContext());
 	}
 
 	/**
@@ -514,7 +515,7 @@ public class FA
 		this.classManager = mf.getClassManager(this);
 		arrayVariantManager = new ValuedVariantManager(this, mf.getArrayIndexManager());
 		instanceFieldVariantManager = new ValuedVariantManager(this, mf.getInstanceFieldIndexManager());
-		methodVariantManager = new MethodVariantManager(this, mf.getMethodIndexManager(), modeFactory.getASTIndexManager());
+		methodVariantManager = new MethodVariantManager(this, mf.getMethodIndexManager(), mf.getASTIndexManager());
 		staticFieldVariantManager = new ValuedVariantManager(this, mf.getStaticFieldIndexManager());
 	}
 

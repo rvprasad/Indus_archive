@@ -35,7 +35,7 @@ public class ValuedVariantManager
 	 *
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ValuedVariantManager(final FA theAnalysis, final AbstractIndexManager indexManager) {
+	ValuedVariantManager(final FA theAnalysis, final IIndexManager indexManager) {
 		super(theAnalysis, indexManager);
 	}
 

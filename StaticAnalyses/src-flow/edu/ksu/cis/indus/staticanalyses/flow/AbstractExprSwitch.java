@@ -40,11 +40,13 @@ import soot.jimple.StmtSwitch;
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author $Author$
  * @version $Revision$
  */
 public abstract class AbstractExprSwitch
   extends AbstractJimpleValueSwitch
-  implements IPrototype {
+  implements IPrototype,
+	  IExprSwitch {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */

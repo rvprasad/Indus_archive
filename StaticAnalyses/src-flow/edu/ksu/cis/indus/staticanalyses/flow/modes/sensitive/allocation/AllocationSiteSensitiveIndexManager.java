@@ -60,7 +60,7 @@ public class AllocationSiteSensitiveIndexManager
 	 * @pre o != null and c != null and
 	 * 		c.oclIsTypeOf(edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext)
 	 */
-	protected IIndex getIndex(final Object o, final Context c) {
+	protected IIndex createIndex(final Object o, final Context c) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Getting index for " + o + " in " + c);
 		}

@@ -35,7 +35,8 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public abstract class AbstractVariantManager {
+public abstract class AbstractVariantManager
+  implements IVariantManager {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -53,7 +54,7 @@ public abstract class AbstractVariantManager {
 	 *
 	 * @invariant indexManager != null
 	 */
-	private final AbstractIndexManager idxManager;
+	private final IIndexManager idxManager;
 
 	/** 
 	 * A map from indices to variants.
@@ -70,7 +71,7 @@ public abstract class AbstractVariantManager {
 	 *
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	AbstractVariantManager(final FA theAnalysis, final AbstractIndexManager indexManager) {
+	AbstractVariantManager(final FA theAnalysis, final IIndexManager indexManager) {
 		this.fa = theAnalysis;
 		this.idxManager = indexManager;
 	}
@@ -125,6 +126,17 @@ public abstract class AbstractVariantManager {
 	}
 
 	/**
+	 * Resets the manager.  All internal data structures are reset to enable a new session of usage.
+	 */
+	public void reset() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("IVariant manager being reset.");
+		}
+		index2variant.clear();
+		idxManager.reset();
+	}
+
+	/**
 	 * Returns the new variant correponding to the given object. This is a template method to be provided by concrete
 	 * implementations.
 	 *
@@ -144,17 +156,6 @@ public abstract class AbstractVariantManager {
 	 */
 	protected int auxGetVariantCount() {
 		return index2variant.values().size();
-	}
-
-	/**
-	 * Resets the manager.  All internal data structures are reset to enable a new session of usage.
-	 */
-	void reset() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("IVariant manager being reset.");
-		}
-		index2variant.clear();
-		idxManager.reset();
 	}
 }
 

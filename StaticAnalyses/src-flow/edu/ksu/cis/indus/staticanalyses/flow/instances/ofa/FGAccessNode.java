@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
+import edu.ksu.cis.indus.staticanalyses.flow.ITokenProcessingWork;
 import edu.ksu.cis.indus.staticanalyses.flow.IWorkBagProvider;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
@@ -46,7 +46,7 @@ class FGAccessNode
 	 *
 	 * @invariant work != null
 	 */
-	private final AbstractTokenProcessingWork work;
+	private final ITokenProcessingWork work;
 
 	/**
 	 * Creates a new <code>FGAccessNode</code> instance.
@@ -57,7 +57,7 @@ class FGAccessNode
 	 *
 	 * @pre workPeice != null and provider != null and tokenManager != null
 	 */
-	public FGAccessNode(final AbstractTokenProcessingWork workPeice, final IWorkBagProvider provider,
+	public FGAccessNode(final ITokenProcessingWork workPeice, final IWorkBagProvider provider,
 		final ITokenManager tokenManager) {
 		super(provider, tokenManager);
 		this.work = workPeice;

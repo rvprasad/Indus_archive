@@ -87,8 +87,8 @@ public class ModeFactory {
 	 *
 	 * @return an index manager related to AST nodes.
 	 */
-	public final AbstractIndexManager getASTIndexManager() {
-		return (AbstractIndexManager) astIdxMgrPrototype.getClone();
+	public final IIndexManager getASTIndexManager() {
+		return (IIndexManager) astIdxMgrPrototype.getClone();
 	}
 
 	/**
@@ -98,8 +98,8 @@ public class ModeFactory {
 	 *
 	 * @post result != null
 	 */
-	public final AbstractIndexManager getArrayIndexManager() {
-		return (AbstractIndexManager) arrayIdxMgrPrototype.getClone();
+	public final IIndexManager getArrayIndexManager() {
+		return (IIndexManager) arrayIdxMgrPrototype.getClone();
 	}
 
 	/**
@@ -156,8 +156,8 @@ public class ModeFactory {
 	 *
 	 * @return a flow graph node parameterized by <code>o</code>.
 	 */
-	public final AbstractFGNode getFGNode(final Object o) {
-		return (AbstractFGNode) theNodePrototype.getClone(o);
+	public final IFGNode getFGNode(final Object o) {
+		return (IFGNode) theNodePrototype.getClone(o);
 	}
 
 	/**
@@ -165,8 +165,8 @@ public class ModeFactory {
 	 *
 	 * @return an index manager related to instance field variables.
 	 */
-	public final AbstractIndexManager getInstanceFieldIndexManager() {
-		return (AbstractIndexManager) instanceFieldIdxMgrPrototype.getClone();
+	public final IIndexManager getInstanceFieldIndexManager() {
+		return (IIndexManager) instanceFieldIdxMgrPrototype.getClone();
 	}
 
 	/**
@@ -188,8 +188,8 @@ public class ModeFactory {
 	 *
 	 * @return a LHS expression visitor parameterizec by <code>s</code>.
 	 */
-	public final AbstractExprSwitch getLHSExprVisitor(final AbstractStmtSwitch s) {
-		return (AbstractExprSwitch) lhsExprPrototype.getClone(s);
+	public final IExprSwitch getLHSExprVisitor(final IStmtSwitch s) {
+		return (IExprSwitch) lhsExprPrototype.getClone(s);
 	}
 
 	/**
@@ -209,8 +209,8 @@ public class ModeFactory {
 	 *
 	 * @return an index manager related to methods.
 	 */
-	public final AbstractIndexManager getMethodIndexManager() {
-		return (AbstractIndexManager) methodIdxMgrPrototype.getClone();
+	public final IIndexManager getMethodIndexManager() {
+		return (IIndexManager) methodIdxMgrPrototype.getClone();
 	}
 
 	/**
@@ -244,8 +244,8 @@ public class ModeFactory {
 	 *
 	 * @return a LHS expression visitor parameterizec by <code>s</code>.
 	 */
-	public final AbstractExprSwitch getRHSExprVisitor(final AbstractStmtSwitch s) {
-		return (AbstractExprSwitch) rhsExprPrototype.getClone(s);
+	public final IExprSwitch getRHSExprVisitor(final IStmtSwitch s) {
+		return (IExprSwitch) rhsExprPrototype.getClone(s);
 	}
 
 	/**
@@ -263,8 +263,8 @@ public class ModeFactory {
 	 *
 	 * @return an index manager related to static field variables.
 	 */
-	public final AbstractIndexManager getStaticFieldIndexManager() {
-		return (AbstractIndexManager) staticFieldIdxMgrPrototype.getClone();
+	public final IIndexManager getStaticFieldIndexManager() {
+		return (IIndexManager) staticFieldIdxMgrPrototype.getClone();
 	}
 
 	/**
@@ -286,8 +286,8 @@ public class ModeFactory {
 	 *
 	 * @return a LHS expression visitor parameterizec by <code>m</code>.
 	 */
-	public final AbstractStmtSwitch getStmtVisitor(final MethodVariant m) {
-		return (AbstractStmtSwitch) stmtPrototype.getClone(m);
+	public final IStmtSwitch getStmtVisitor(final MethodVariant m) {
+		return (IStmtSwitch) stmtPrototype.getClone(m);
 	}
 
 	/**

@@ -15,12 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.interfaces.IPrototype;
-
 import edu.ksu.cis.indus.processing.Context;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.commons.collections.set.ListOrderedSet;
 
 
 /**
@@ -35,13 +32,13 @@ import java.util.Set;
  * @version $Revision$
  */
 public abstract class AbstractIndexManager
-  implements IPrototype {
+  implements IIndexManager {
 	/** 
 	 * The collection of indices managed by this object.
 	 *
 	 * @invariant indices != null
 	 */
-	protected final Set indices = new HashSet();
+	protected final ListOrderedSet indices = new ListOrderedSet();
 
 	/**
 	 * This operation is unsupported.
@@ -79,35 +76,38 @@ public abstract class AbstractIndexManager
 	 * @pre o != null and c != null
 	 * @post result != null
 	 */
-	protected abstract IIndex getIndex(final Object o, final Context c);
+	public final IIndex getIndex(final Object o, final Context c) {
+		final IIndex _temp = createIndex(o, c);
+		final IIndex _result;
+
+		if (indices.contains(_temp)) {
+			_result = (IIndex) indices.get(indices.indexOf(_temp));
+		} else {
+			_result = _temp;
+			indices.add(_temp);
+		}
+		return _result;
+	}
 
 	/**
-	 * Returns the index corresponding to the given entity in the given context, if one exists.  If none exist, it returns
-	 * <code>null</code>.
+	 * @see IIndexManager#reset()
+	 */
+	public void reset() {
+		indices.clear();
+	}
+
+	/**
+	 * Creates a new index corresponding to the given entity in the given context.
 	 *
 	 * @param o the entity whose index is to be returned.
 	 * @param c the context in which the entity's index is requested.
 	 *
-	 * @return the index corresponding to the entity in the given context, if one exists; <code>null</code> otherwise.
+	 * @return the index corresponding to the entity in the given context.
 	 *
 	 * @pre o != null and c != null
+	 * @post result != null
 	 */
-	final IIndex queryIndex(final Object o, final Context c) {
-		final IIndex _temp = getIndex(o, c);
-
-		if (!indices.contains(_temp)) {
-			indices.add(_temp);
-		}
-
-		return _temp;
-	}
-
-	/**
-	 * Reset the manager.  Flush all the internal data structures to enable a new session.
-	 */
-	void reset() {
-		indices.clear();
-	}
+	protected abstract IIndex createIndex(final Object o, final Context c);
 }
 
 // End of File

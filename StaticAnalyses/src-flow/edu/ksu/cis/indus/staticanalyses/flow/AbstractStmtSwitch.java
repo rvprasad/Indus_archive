@@ -39,27 +39,28 @@ import soot.jimple.Stmt;
  */
 public abstract class AbstractStmtSwitch
   extends soot.jimple.AbstractStmtSwitch
-  implements IPrototype {
+  implements IPrototype,
+	  IStmtSwitch {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractStmtSwitch.class);
 
 	/** 
-	 * The LHS expression visitor used to this object to process LHS expressions.
-	 */
-	protected final AbstractExprSwitch lexpr;
-
-	/** 
-	 * The RHS expression visitor used to this object to process RHS expressions.
-	 */
-	protected final AbstractExprSwitch rexpr;
-
-	/** 
 	 * The context in which this object should process statements.  It is possible for this object to alter the context, but
 	 * it should restore it back to it's initial state before returning from it's methods.
 	 */
 	protected final Context context;
+
+	/** 
+	 * The LHS expression visitor used to this object to process LHS expressions.
+	 */
+	protected final IExprSwitch lexpr;
+
+	/** 
+	 * The RHS expression visitor used to this object to process RHS expressions.
+	 */
+	protected final IExprSwitch rexpr;
 
 	/** 
 	 * The method variant in which this visitor is used.
@@ -130,7 +131,7 @@ public abstract class AbstractStmtSwitch
 	 *
 	 * @pre stmtToProcess != null
 	 */
-	protected void process(final Stmt stmtToProcess) {
+	public void process(final Stmt stmtToProcess) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: processing " + stmtToProcess);
 		}

@@ -64,9 +64,9 @@ public class OneContextInfoIndex
 	 * @return <code>true</code> if this index is equal to <code>index</code>; <code>false</code> otherwise.
 	 */
 	public boolean equals(final Object index) {
-		boolean _result = false;
+		boolean _result = index == this;
 
-		if (index != null && index instanceof OneContextInfoIndex) {
+		if (!_result && index != null && index instanceof OneContextInfoIndex) {
 			final OneContextInfoIndex _d = (OneContextInfoIndex) index;
 
 			if (value != null) {

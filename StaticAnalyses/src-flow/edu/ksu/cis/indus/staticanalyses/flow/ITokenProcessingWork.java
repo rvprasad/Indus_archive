@@ -15,39 +15,17 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.common.datastructures.IWork;
-
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 
 /**
- * A piece of work that can be processed by <code>WorkList</code>.
+ * This interface is provided by a work piece that processes tokens.  
  * 
- * <p>
- * Created: Tue Jan 22 02:54:57 2002
- * </p>
- *
+ * @version $Revision$ 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$
+ * @author $Author$
  */
-public abstract class AbstractTokenProcessingWork
-  implements IWork, ITokenProcessingWork {
-	/** 
-	 * The collection of values to be processed.
-	 */
-	protected ITokens tokens;
-
-	/**
-	 * Creates a new AbstractTokenProcessingWork object.
-	 *
-	 * @param tokenSet to be used by this work object to store the tokens whose flow should be instrumented.
-	 *
-	 * @pre tokenSet != null
-	 */
-	protected AbstractTokenProcessingWork(final ITokens tokenSet) {
-		tokens = tokenSet;
-	}
-
+public interface ITokenProcessingWork {
 	/**
 	 * Adds a collection of values to the collection of values associated with this work.
 	 *
@@ -55,9 +33,7 @@ public abstract class AbstractTokenProcessingWork
 	 *
 	 * @pre valuesToBeProcessed != null
 	 */
-	public final void addTokens(final ITokens tokensToBeProcessed) {
-		tokens.addTokens(tokensToBeProcessed);
-	}
+	void addTokens(final ITokens tokensToBeProcessed);
 }
 
 // End of File

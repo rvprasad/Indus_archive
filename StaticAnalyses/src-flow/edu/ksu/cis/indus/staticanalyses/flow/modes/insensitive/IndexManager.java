@@ -62,9 +62,9 @@ public class IndexManager
 		 * @return <code>true</code> if <code>object</code> is the same as this object; <code>false</code> otherwise.
 		 */
 		public boolean equals(final Object o) {
-			boolean _result = false;
+			boolean _result = o == this;
 
-			if (o != null && o instanceof DummyIndex) {
+			if (!_result && o != null && o instanceof DummyIndex) {
 				final DummyIndex _di = (DummyIndex) o;
 
 				if (object != null) {
@@ -130,7 +130,7 @@ public class IndexManager
 	 *
 	 * @return the index that uniquely identifies <code>o</code>.
 	 */
-	protected IIndex getIndex(final Object o, final Context c) {
+	protected IIndex createIndex(final Object o, final Context c) {
 		return new DummyIndex(o);
 	}
 }

@@ -72,21 +72,6 @@ public class MethodVariant
 	private static final Log LOGGER = LogFactory.getLog(MethodVariant.class);
 
 	/** 
-	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
-	 * locations in the AST as it serves the purpose of AST representation.
-	 *
-	 * @invariant astvm != null
-	 */
-	protected final AbstractVariantManager astvm;
-
-	/** 
-	 * The statement visitor used to process in the statement in the correpsonding method.
-	 *
-	 * @invariant stmt != null
-	 */
-	protected AbstractStmtSwitch stmt;
-
-	/** 
 	 * The flow graph node associated with an abstract single return point of the corresponding method.  This will be
 	 * <code>null</code>, if the associated method's return type is any non-ref type.
 	 *
@@ -103,6 +88,21 @@ public class MethodVariant
 	 * @invariant not _method.isStatic() implies thisVar != null
 	 */
 	protected final IFGNode thisVar;
+
+	/** 
+	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
+	 * locations in the AST as it serves the purpose of AST representation.
+	 *
+	 * @invariant astvm != null
+	 */
+	protected final IVariantManager astvm;
+
+	/** 
+	 * The statement visitor used to process in the statement in the correpsonding method.
+	 *
+	 * @invariant stmt != null
+	 */
+	protected IStmtSwitch stmt;
 
 	/** 
 	 * The array of flow graph nodes associated with the parameters of thec corresponding method.
@@ -160,13 +160,13 @@ public class MethodVariant
 	 *
 	 * @pre sm != null and astvm != null and theFA != null
 	 */
-	protected MethodVariant(final SootMethod sm, final AbstractVariantManager astVariantManager, final FA theFA) {
+	protected MethodVariant(final SootMethod sm, final IVariantManager astVariantManager, final FA theFA) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: preprocessing of " + sm);
 		}
 		method = sm;
 		fa = theFA;
-		context = (Context) fa.getAnalyzer().context.clone();
+		context = (Context) fa.getAnalyzer().getContext().clone();
 		context.callNewMethod(sm);
 
 		final Collection _typesToProcess = new HashSet();

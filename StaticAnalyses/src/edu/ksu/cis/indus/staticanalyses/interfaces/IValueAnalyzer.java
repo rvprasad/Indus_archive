@@ -15,14 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IStatus;
 
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
-
-import soot.SootMethod;
 
 
 /**
@@ -34,7 +31,8 @@ import soot.SootMethod;
  * @version $Revision$
  */
 public interface IValueAnalyzer
-  extends IStatus {
+  extends IStatus,
+	  IAnalyzer {
 	/** 
 	 * The id of this interface.
 	 */
@@ -44,13 +42,6 @@ public interface IValueAnalyzer
 	 * The id of the tag used by the underlying flow analysis.
 	 */
 	Object TAG_ID = "id of tag used by flow analysis";
-
-	/**
-	 * Retrieves the enviroment in which the analysis operates.
-	 *
-	 * @return the enviroment.
-	 */
-	IEnvironment getEnvironment();
 
 	/**
 	 * Retrieves the values associated with the given entity in the given context.
@@ -78,33 +69,6 @@ public interface IValueAnalyzer
 	 * @post result != null
 	 */
 	Collection getValuesForThis(Context context);
-
-	/**
-	 * Analyzes the system represented by the given classes and and scene.
-	 *
-	 * @param env is the environment of classes to be analyzed.
-	 * @param classes which were mentioned by the user as being part of the system.  This generally serves as the starting
-	 * 		  point to discover other constituents of the system.  These may serve as the classes in which to explore for
-	 * 		  the  entry point of the system.
-	 *
-	 * @pre env != null and classes != null and classes.size() != 0
-	 */
-	void analyze(IEnvironment env, Collection classes);
-
-	/**
-	 * Analyzes the system represented by the given classes starting at the given entry point.
-	 *
-	 * @param env is the environment of classes to be analyzed.
-	 * @param entry point into the system being analyzed.
-	 *
-	 * @pre env != null and entry != null
-	 */
-	void analyze(IEnvironment env, SootMethod entry);
-
-	/**
-	 * Resets the analyzer.
-	 */
-	void reset();
 }
 
 // End of File

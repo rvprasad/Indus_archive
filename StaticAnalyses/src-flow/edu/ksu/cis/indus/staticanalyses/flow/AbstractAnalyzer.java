@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
@@ -55,7 +56,8 @@ import soot.jimple.ParameterRef;
  */
 public abstract class AbstractAnalyzer
   extends AbstractStatus
-  implements IValueAnalyzer {
+  implements IValueAnalyzer,
+	  IAnalyzer {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -87,6 +89,13 @@ public abstract class AbstractAnalyzer
 	protected AbstractAnalyzer(final Context theContext, final String tagName, final ITokenManager tokenMgr) {
 		this.context = theContext;
 		fa = new FA(this, tagName, tokenMgr);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer#getContext()
+	 */
+	public Context getContext() {
+		return context;
 	}
 
 	/**
