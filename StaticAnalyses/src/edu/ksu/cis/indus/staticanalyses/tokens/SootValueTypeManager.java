@@ -67,13 +67,6 @@ public class SootValueTypeManager
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getExactType(java.lang.Object)
-	 */
-	public IType getExactType(final Object value) {
-		return getTypeForIRType(((Value) value).getType());
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.tokens.ITypeManager#getTypeForIRType(soot.Type)
 	 */
 	public IType getTypeForIRType(final Type sootType) {
