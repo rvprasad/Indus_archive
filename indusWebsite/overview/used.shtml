@@ -20,7 +20,6 @@
     <li><a href="http://www.eclipse.org">SWT</a></li>
     <li><a href="http://xmlenc.sourceforge.net/">xmlenc</a></li>
     <li><a href="http://xmlunit.sourceforge.net/">XMLUnit</a></li>
-    <li><a href="http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/">MXP1: Xml Pull Parser 3rd Edition (XPP3)</a></li>
     <li><a href="http://junit.org">JUnit</a></li>
   </ul>
   </p>
@@ -35,6 +34,8 @@
       <li><a href="http://statcvs.sourceforge.net/">StatCVS</a></li>
       <li><a href="http://www.clarkware.com/software/JDepend.html">JDepend</a></li>
       <li><a href="http://www.kclee.com/clemens/java/javancss/">JavaNCSS</a></li>
+      <li><a href="http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/">MXP1: Xml Pull Parser 3rd Edition (XPP3)</a></li>
+      
   </ul>
   </p>
 
