@@ -1020,7 +1020,7 @@ public class ProcessingController {
 		processClasses(env.getClasses());
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debub("END: processing classes");
+			LOGGER.debug("END: processing classes");
 			LOGGER.debug("BEGIN: consolidation");
 		}
 
@@ -1291,6 +1291,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/05/03 22:39:00  venku
+   Changed info level logging to debug level logging.
+
    Revision 1.33  2004/04/20 00:42:23  venku
    - Processing required a stmtGraphFactory to detect locally reachable statements
      However, this will fail in certain case.  Instead, one should be able to use this
