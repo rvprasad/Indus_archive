@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -190,9 +189,28 @@ public final class SlicingEngine {
 
 	/**
 	 * The collection of control Dependence analysis to be used during slicing.
-     * @invariant controlDAs->forall(o | o.oclIsKindOf(DependencyAnalysis) and o.getId().equals(DependencyAnalysis.CONTROL_DA)) 
+	 *
+	 * @invariant controlDAs->forall(o | o.oclIsKindOf(DependencyAnalysis) and
+	 * 			  o.getId().equals(DependencyAnalysis.CONTROL_DA))
 	 */
 	private Collection controlDAs = new ArrayList();
+
+	/**
+	 * This is the set of methods that were included in the slice due to invocation.  Refer to <code>required</code> for more
+	 * information.
+	 *
+	 * @invariant invoked->forall(o | o.oclIsKindOf(SootMethod))
+	 */
+	private Collection invoked = new HashSet();
+
+	/**
+	 * This is the set of methods that were required to be included in the slice.  For example, all methods in a  path in the
+	 * call graph from the entry point of the system to the method containing the slice criterion will occur in this set.
+	 * All methods that are entered and exited on these paths occur in <code>invoked</code>.
+	 *
+	 * @invariant required->forall(o | o.oclIsKindOf(SootMethod))
+	 */
+	private Collection required = new HashSet();
 
 	/**
 	 * This provides the call graph information in the system being sliced.
@@ -200,30 +218,18 @@ public final class SlicingEngine {
 	private ICallGraphInfo cgi;
 
 	/**
+	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the
+	 * slice.
+	 *
+	 * @invariant method2params.oclIsKindOf(Map(SootMethod, BitSet))
+	 * @invariant method2params->forall(o | o.getValue().size() = o.getKey().getParameterCount())
+	 */
+	private final Map method2params = new HashMap();
+
+	/**
 	 * This maps new expressions to corresponding init call sites.
 	 */
 	private NewExpr2InitMapper initMapper;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private Map method2params = new HashMap();
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private Set invoked = new HashSet();
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private Set required = new HashSet();
 
 	/**
 	 * This collects the parts of the system that make up the slice.
@@ -298,11 +304,11 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the object that maps new expressions to corresponding init invocation sites.
 	 *
-	 * @param mapper DOCUMENT ME!
+	 * @param mapper maps new expressions to corresponding init invocation sites.
+	 *
+	 * @pre mapper != null
 	 */
 	public void setInitMapper(final NewExpr2InitMapper mapper) {
 		initMapper = mapper;
@@ -347,10 +353,16 @@ public final class SlicingEngine {
 	 * @param theSliceType is the type of slice requested.  This has to be one of<code>XXX_SLICE</code> values defined in
 	 * 		  this class.
 	 *
+	 * @throws IllegalArgumentException when the given slice type is illegal.
+	 *
 	 * @pre theSliceType != null
 	 * @pre SLICE_TYPES.contains(theSliceType)
 	 */
 	public void setSliceType(final Object theSliceType) {
+		if (!SLICE_TYPES.contains(sliceType)) {
+			throw new IllegalArgumentException("The given slice type is not one of XXX_SLICE values defined in this class.");
+		}
+
 		sliceType = theSliceType;
 	}
 
@@ -359,33 +371,27 @@ public final class SlicingEngine {
 	 *
 	 * @param bbgMgr is the basic block graph manager for the system being sliced.
 	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
-	 *
 	 * @pre bbgMgr != null
 	 */
 	public void setSlicedBBGMgr(final BasicBlockGraphMgr bbgMgr) {
-		if (!SLICE_TYPES.contains(sliceType)) {
-			throw new IllegalArgumentException("The given slice type is not one of XXX_SLICE values defined in this class.");
-		}
-
 		slicedBBGMgr = bbgMgr;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the name of the tag to be used identify the elements of the AST belonging to the slice.
 	 *
-	 * @param tagName DOCUMENT ME!
+	 * @param tagName is the name of the tag
+	 *
+	 * @pre tagName != null
 	 */
 	public void setTagName(final String tagName) {
 		collector.setTagName(tagName);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Initializes the slicing engine.
 	 *
-	 * @throws IllegalStateException DOCUMENT ME!
+	 * @throws IllegalStateException when the tag name is not set.
 	 */
 	public void initialize() {
 		if (collector.getTagName() == null) {
@@ -449,45 +455,30 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the basic block graph manager used in the engine.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the basic block graph manager.
+	 *
+	 * @post result != null
 	 */
 	BasicBlockGraphMgr getSlicedBasicBlockGraphMgr() {
 		return slicedBBGMgr;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given called method's interface (entrance) should be considered to generate new slice criterion. The
+	 * callee should be marked as invoked or required before calling this method.
 	 *
-	 * @param host1 DOCUMENT ME!
-	 * @param host2 DOCUMENT ME!
-	 */
-	private void collect(final Host host1, final Host host2) {
-		collector.includeInSlice(host1);
-
-		if (host1 instanceof SootMethod && !marked((SootMethod) host1)) {
-			invoked.add(host1);
-		}
-		collector.includeInSlice(host2);
-
-		if (host2 instanceof SootMethod && !marked((SootMethod) host2)) {
-			invoked.add(host2);
-		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * @param callee is the method in question.
+	 * @param caller calls callee.
+	 * @param stmt is the statement in which <code>caller</code> calls <code>callee</code>.
 	 *
-	 * @param callee DOCUMENT ME!
-	 * @param caller DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
+	 * @return <code>true</code> if method's interface of callee should be considered to generate new slice criterion;
+	 * 		   <code>false</code>, otherwise.
 	 *
-	 * @return DOCUMENT ME!
+	 * @throws IllegalStateException when the called method does not occur in invoked or required.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @pre callee != null and caller != null and stmt != null
 	 */
 	private boolean considerMethodEntranceForCriteriaGeneration(final SootMethod callee, final SootMethod caller,
 		final Stmt stmt) {
@@ -501,20 +492,20 @@ public final class SlicingEngine {
 			if (invoked.contains(callee)) {
 				_result = marked(caller) && collector.hasBeenCollected(stmt.getInvokeExprBox());
 			} else {
-				throw new RuntimeException("How can this happen?" + callee + " was unmarked but was being processed.");
+				throw new IllegalStateException("How can this happen?" + callee + " was unmarked but was being processed.");
 			}
 		}
 		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the given called method's return points should be considered to generate new slice criterion. The callee
+	 * should be marked as invoked or required before calling this method.
 	 *
-	 * @param callee DOCUMENT ME!
+	 * @param callee is the method in question.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if method's return points of callee should be considered to generate new slice criterion;
+	 * 		   <code>false</code>, otherwise.
 	 */
 	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee) {
 		boolean _result = false;
@@ -602,38 +593,43 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Generates new slice criteria for return points of the method called at the given expression.
 	 *
-	 * @param invocationStmt DOCUMENT ME!
-	 * @param caller DOCUMENT ME!
-	 * @param considerReturnValue DOCUMENT ME!
-	 * @param invokeExpr DOCUMENT ME!
-	 * @param callee DOCUMENT ME!
-	 * @param calleeBasicBlockGraph DOCUMENT ME!
+	 * @param invocationStmt is the statment containing the invocation.
+	 * @param caller is the method in which <code>invocationStmt</code> occurs.
+	 * @param considerReturnValue indicates if the return value of the statement should be considered to generate slice
+	 * 		  criterion.
+	 * @param callee is the method being invoked.
+	 * @param calleeBasicBlockGraph is the basic block graph of the callee.
+	 *
+	 * @pre invocationStmt !=  null and caller != null and callee != null and calleeBasicBlockGraph != null
 	 */
 	private void generateNewCriteriaBasedOnMethodExit(final Stmt invocationStmt, final SootMethod caller,
-		final boolean considerReturnValue, final InvokeExpr invokeExpr, final SootMethod callee,
-		final BasicBlockGraph calleeBasicBlockGraph) {
+		final boolean considerReturnValue, final SootMethod callee, final BasicBlockGraph calleeBasicBlockGraph) {
 		final BitSet _params = (BitSet) method2params.get(callee);
+		final InvokeExpr _invokeExpr = invocationStmt.getInvokeExpr();
 
 		if (considerMethodExitForCriteriaGeneration(callee) || _params == null) {
-			processReturnStmtInInit(callee, calleeBasicBlockGraph);
+			processSuperInitInInit(callee, calleeBasicBlockGraph);
 
 			for (final Iterator _j = calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
 				final BasicBlock _bb = (BasicBlock) _j.next();
 				final Stmt _trailer = _bb.getTrailerStmt();
+
+				// TODO: we are considering both throws and returns as return points. This should change when we consider 
+				// ip control-flow based on exceptions.
 				generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
 			}
 		} else if (callee.getParameterCount() > 0) {
 			for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
-				generateSliceExprCriterion(invokeExpr.getArgBox(_j), invocationStmt, caller, true);
+				generateSliceExprCriterion(_invokeExpr.getArgBox(_j), invocationStmt, caller, true);
 			}
 		}
 	}
 
 	/**
-	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression.  By nature of
-	 * Jimple, only one invoke expression can occur in a statement, hence, the arguments.
+	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression (caller-callee).  By
+	 * nature of Jimple, only one invoke expression can occur in a statement, hence, the arguments.
 	 *
 	 * @param stmt in which the field occurs.
 	 * @param method in which <code>stmt</code> occurs.
@@ -724,18 +720,17 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Generates new slice criterion for the return points of methods.
 	 *
-	 * @param callees DOCUMENT ME!
-	 * @param invocationStmt DOCUMENT ME!
-	 * @param caller DOCUMENT ME!
+	 * @param callees are the set of methods being called at <code>invocationStmt</code>.
+	 * @param invocationStmt contains the invocation site.
+	 * @param caller contains <code>invocationStmt</code>.
+	 *
+	 * @pre callees != null and invocationStmt != null and caller != null
 	 */
 	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees, final Stmt invocationStmt,
 		final SootMethod caller) {
 		final boolean _considerReturnValue = !(invocationStmt instanceof InvokeStmt);
-		final InvokeExpr _expr = invocationStmt.getInvokeExpr();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating criteria for return points " + _considerReturnValue);
@@ -764,7 +759,7 @@ public final class SlicingEngine {
 				continue;
 			}
 
-			generateNewCriteriaBasedOnMethodExit(invocationStmt, caller, _considerReturnValue, _expr, _callee, _bbg);
+			generateNewCriteriaBasedOnMethodExit(invocationStmt, caller, _considerReturnValue, _callee, _bbg);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -773,11 +768,11 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Generates new slice criterion that captures the sites that invoke the given method.
 	 *
-	 * @param callee DOCUMENT ME!
+	 * @param callee is the method whose calling sites needs to be included in the slice.
+	 *
+	 * @pre callee != null
 	 */
 	private void generateNewCriteriaForTheCallToEnclosingMethod(final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
@@ -786,7 +781,7 @@ public final class SlicingEngine {
 
 		// generate criteria to include invocation sites only if the method has not been collected.
 		if (!collector.hasBeenCollected(callee)) {
-			collect(callee, callee.getDeclaringClass());
+			includeInSlice(callee, callee.getDeclaringClass());
 
 			final boolean _notStatic = !callee.isStatic();
 
@@ -813,14 +808,15 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Generates slice criterion for teh given program point.
 	 *
-	 * @param valueBox DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param considerExecution DOCUMENT ME!
+	 * @param valueBox is the program point for which slice criterion should be generated.
+	 * @param stmt is the statement containing <code>valueBox</code>.
+	 * @param method is the method containing <code>stmt</code>.
+	 * @param considerExecution indicates if the execution of the program point should be considered or just the control
+	 * 		  reaching it.
+	 *
+	 * @pre valueBox != null and stmt != null and method != null
 	 */
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
@@ -842,13 +838,14 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Generates slice criterion for the given statement.
 	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param considerExecution DOCUMENT ME!
+	 * @param stmt is the statement.
+	 * @param method is the method containing <code>stmt</code>.
+	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching
+	 * 		  it.
+	 *
+	 * @pre stmt != null and method != null
 	 */
 	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
 		if (!marked(method)) {
@@ -868,38 +865,59 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Includes the given elements into the slice.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param host1 is one of the element to be included in the slice.
+	 * @param host2 is the other element to be included in the slice.
 	 *
-	 * @return DOCUMENT ME!
+	 * @pre host1 != null and host2 != null
+	 */
+	private void includeInSlice(final Host host1, final Host host2) {
+		collector.includeInSlice(host1);
+
+		if (host1 instanceof SootMethod && !marked((SootMethod) host1)) {
+			invoked.add(host1);
+		}
+		collector.includeInSlice(host2);
+
+		if (host2 instanceof SootMethod && !marked((SootMethod) host2)) {
+			invoked.add(host2);
+		}
+	}
+
+	/**
+	 * Check if the method is marked as required or invoked.
+	 *
+	 * @param method to be checked for marking.
+	 *
+	 * @return <code>true</code> if <code>method</code> is marked; <code>false</code>,  otherwise.
+	 *
+	 * @pre method != null
 	 */
 	private boolean marked(final SootMethod method) {
 		return required.contains(method) || invoked.contains(method);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Check if the method is marked as required.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method to be checked for marking.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if <code>method</code> is marked as required; <code>false</code>,  otherwise.
+	 *
+	 * @pre method != null
 	 */
 	private boolean markedAsRequired(final SootMethod method) {
 		return required.contains(method);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes new expressions to include corresponding init statements into the slice.
 	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param stmt is the statement containing the new expression.
+	 * @param method contains <code>stmt</code>.
+	 *
+	 * @pre stmt != null and method != null
 	 */
 	private void processForNewExpr(final Stmt stmt, final SootMethod method) {
 		if (LOGGER.isDebugEnabled()) {
@@ -933,12 +951,14 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Processes the init call to the super class inside init method.
 	 *
-	 * @param callee DOCUMENT ME!
-	 * @param bbg DOCUMENT ME!
+	 * @param callee is the init method.
+	 * @param bbg is the basic block graph of <code>callee</code>.
+	 *
+	 * @pre callee != null and bbg != null
 	 */
-	private void processReturnStmtInInit(final SootMethod callee, final BasicBlockGraph bbg) {
+	private void processSuperInitInInit(final SootMethod callee, final BasicBlockGraph bbg) {
 		/*
 		 * if we are sucking in an init we better suck in the super <init> invoke expression as well. By JLS, this has to
 		 * be the first statement in the constructor.  However, if it accepts arguments, the arguments will be set up
@@ -1002,7 +1022,7 @@ public final class SlicingEngine {
 
 					if (_value instanceof FieldRef) {
 						final SootField _field = ((FieldRef) _vBox.getValue()).getField();
-						collect(_field, _field.getDeclaringClass());
+						includeInSlice(_field, _field.getDeclaringClass());
 					}
 				}
 			}
@@ -1110,14 +1130,15 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2003/12/13 19:52:41  venku
+   - renamed Init2NewExprMapper to NewExpr2InitMapper.
+   - ripple effect.
    Revision 1.34  2003/12/13 19:46:33  venku
    - documentation of TaggingBasedSliceCollector.
    - renamed collect() to includeInSlice().
-
    Revision 1.33  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.32  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
