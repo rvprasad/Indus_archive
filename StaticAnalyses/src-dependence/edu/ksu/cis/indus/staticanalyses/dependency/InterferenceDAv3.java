@@ -26,7 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 
 /**
- * This class uses escape-analysis information as calculated by {@link
+ * This class uses symbolic- and escape-analysis information as calculated by {@link
  * edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
  * EquivalenceClassBasedEscapeAnalysis} to prune the interference dependence edges as calculated by it's parent class.  This
  * can be further spruced by symbolic-analysis.
@@ -90,6 +90,12 @@ public class InterferenceDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/10/05 16:22:25  venku
+   - Interference dependence is now symbol based.
+   - Both interference and ready dependence consider
+     loop information in a more sound manner.
+   - ripple effect of the above.
+
    Revision 1.12  2003/09/29 13:37:25  venku
    *** empty log message ***
 
