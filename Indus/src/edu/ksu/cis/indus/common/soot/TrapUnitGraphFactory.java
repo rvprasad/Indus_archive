@@ -47,12 +47,9 @@ public final class TrapUnitGraphFactory
 		if (method.isConcrete()) {
 			_result = new TrapUnitGraph(method.retrieveActiveBody());
 		} else {
-			///CLOVER:OFF
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Method " + method + " is not concrete.");
 			}
-
-			///CLOVER:ON
 		}
 		return _result;
 	}
@@ -61,6 +58,9 @@ public final class TrapUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/31 09:52:30  venku
+   - clover directives.
+
    Revision 1.5  2003/12/31 09:21:32  venku
    - logging level.
    Revision 1.4  2003/12/15 02:07:08  venku
