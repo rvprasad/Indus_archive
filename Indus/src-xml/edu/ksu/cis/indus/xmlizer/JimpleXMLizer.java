@@ -145,17 +145,6 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public final String getXMLizedForm() {
-		return xmlizedSystem.toString();
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
 	public final void callback(Stmt stmt, Context context) {
@@ -290,6 +279,10 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/17 15:57:03  venku
+   - removed support to retrieve new statement ids.
+   - added support to retrieve id for value boxes.
+
    Revision 1.11  2003/11/16 18:37:42  venku
    - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
 
