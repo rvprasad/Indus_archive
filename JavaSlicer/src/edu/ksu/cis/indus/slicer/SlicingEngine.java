@@ -15,8 +15,10 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import soot.Body;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Trap;
 import soot.Value;
 import soot.ValueBox;
 
@@ -53,6 +55,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -123,56 +126,9 @@ public class SlicingEngine {
 	}
 
 	/**
-	 * The controller used to access the dependency analysis info during slicing.
-	 */
-	private AnalysesController controller;
-
-	/**
-	 * The collection of slice criteria.
-	 *
-	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
-	 */
-	private Collection criteria = new HashSet();
-
-	/**
-	 * The work bag used during slicing.
-	 *
-	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
-	 * @invariant workbag->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
-	 */
-	private final IWorkBag workbag = new FIFOWorkBag();
-
-	/**
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
 	 */
 	BasicBlockGraphMgr slicedBBGMgr;
-
-	/**
-	 * The ids of the dependencies to be considered for slicing.
-	 */
-	private final Collection dependencies = new HashSet();
-
-	/**
-	 * The dependency analyses to be considered for intra-procedural slicing.
-	 */
-	private final Collection intraProceduralDependencies = new ArrayList();
-
-	/**
-	 * This provides the call graph information in the system being sliced.
-	 */
-	private ICallGraphInfo cgi;
-
-	/**
-	 * This transforms the system based on the slicing decision of this object.
-	 */
-	private TaggingBasedSliceCollector transformer;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private Init2NewExprMapper initMapper;
 
 	/**
 	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
@@ -185,6 +141,53 @@ public class SlicingEngine {
 	 * This indicates if executable slices should be generated.
 	 */
 	boolean executableSlice;
+
+	/**
+	 * The controller used to access the dependency analysis info during slicing.
+	 */
+	private AnalysesController controller;
+
+	/**
+	 * The collection of slice criteria.
+	 *
+	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
+	 */
+	private Collection criteria = new HashSet();
+
+	/**
+	 * The ids of the dependencies to be considered for slicing.
+	 */
+	private final Collection dependencies = new HashSet();
+
+	/**
+	 * The dependency analyses to be considered for intra-procedural slicing.
+	 */
+	private final Collection intraProceduralDependencies = new ArrayList();
+
+	/**
+	 * The work bag used during slicing.
+	 *
+	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
+	 * @invariant workbag->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
+	 */
+	private final IWorkBag workbag = new FIFOWorkBag();
+
+	/**
+	 * This provides the call graph information in the system being sliced.
+	 */
+	private ICallGraphInfo cgi;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Init2NewExprMapper initMapper;
+
+	/**
+	 * This transforms the system based on the slicing decision of this object.
+	 */
+	private TaggingBasedSliceCollector transformer;
 
 	/**
 	 * This indicates if ready dependence should be used.
@@ -323,6 +326,15 @@ public class SlicingEngine {
 		}
 
 		slicedBBGMgr = bbgMgr;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param tagName
+	 */
+	public void setTagName(final String tagName) {
+		transformer.setTagName(tagName);
 	}
 
 	/**
@@ -567,6 +579,38 @@ public class SlicingEngine {
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 */
+	private void generateNewCriteriaToConsiderException(final Stmt stmt, final SootMethod method) {
+		/*
+		 *  TODO: check if the stmt is enclosed in a try-catch block.  If so,
+		 *   - stmt throws an checked exception?
+		 *     generate a criteria for the first statment of catch clause for that exception during backward slicing when
+		 *     execution should be considered.
+		 *   - stmt throws an unchecked exception?
+		 *     generate a criteria for the first statment of catch clauses declared for all unchecked exception during
+		 *     backward slicing when execution should be considered.
+		 *   - stmt is enclosed in a Throwable catch clause
+		 *     generate a criteria for the first statment of catch clause declared for Throwable type during backward slicing
+		 *     when execution should be considered.
+		 */
+		Body body = method.retrieveActiveBody();
+		List sl = body.getAllUnitBoxes();
+		int index = sl.indexOf(stmt);
+
+		for (Iterator i = body.getTraps().iterator(); i.hasNext();) {
+			Trap trap = (Trap) i.next();
+
+			if (sl.indexOf(trap.getBeginUnit()) <= index && index < sl.indexOf(trap.getEndUnit())) {
+				;
+			}
+		}
+	}
+
+	/**
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
@@ -681,6 +725,7 @@ public class SlicingEngine {
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
 			}
 			generateNewCriteriaForTheCallToThisMethod(method);
+			generateNewCriteriaToConsiderException(stmt, method);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -690,25 +735,19 @@ public class SlicingEngine {
 		// create new slice criteria
 		generateNewCriteria(stmt, method, intraProceduralDependencies);
 	}
-
-    /**
-     * @param tagName
-     * @return
-     */
-    public void setTagName(String tagName) {
-        transformer.setTagName(tagName);
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/24 16:46:15  venku
+   - exposed certain variables which are part of the package
+     rather than the class.
    Revision 1.15  2003/11/24 10:11:32  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.
    - architectural change. The slicer is hard-wired wrt to
      slice collection.  Residualization is outside the slicer.
-
    Revision 1.14  2003/11/24 09:46:49  venku
    - moved ISliceCollector and TaggingBasedSliceCollector
      into slicer package.
