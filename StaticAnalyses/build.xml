@@ -16,18 +16,22 @@
 <property name="package" value="edu.ksu.cis.indus"/>
 <property name="remote_jdklink" value="http://java.sun.com/j2se/1.4.2/docs/api/"/>
 <property name="remote_sootlink" value="http://www.sable.mcgill.ca/soot/doc/index.html"/>
-<property name="local_jdklink" value="http://127.0.0.1/docs/1.4.2/docs/api/"/>
-<property name="local_sootlink" value="http://127.0.0.1/docs/compilers/soot/soot-2.0-api"/>
+<property name="local_jdklink" value="http://127.0.0.1/docs/java/jdk-1.4.2/api/"/>
+<property name="local_sootlink" value="http://127.0.0.1/docs/compilers/soot-2.0-api"/>
 
 <path id="srcpath">
 	<pathelement location="src"/>
 	<pathelement location="src-flow"/>
 	<pathelement location="src-dependence"/>
-	<pathelement location="src-escape"/>
+	<pathelement location="src-concurrency"/>
 </path>
 
 <path id="classpath">
 	<pathelement location="../Indus/build/"/>
+    <pathelement location="/usr/local/javaclasses/sootclasses-2.0.1.jar"/>
+    <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
+    <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
+    <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
 </path>
 
 <target name="init">
@@ -45,8 +49,8 @@
 <target name="docs">
 	<antcall target="javadocs">
         <param name="access" value="protected"/>
-        <param name="sootlink" value="remote_sootlink"/>
-        <param name="jdklink" value="remote_jdklink"/>
+        <param name="sootlink" value="${remote_sootlink}"/>
+        <param name="jdklink" value="${remote_jdklink}"/>
     </antcall>
     <antcall target="doxydocs">
         <param name="configFile" value="Doxyfile"/>
@@ -56,8 +60,8 @@
 <target name="privatedocs">
 	<antcall target="javadocs">
         <param name="access" value="private"/>
-        <param name="sootlink" value="local_sootlink"/>
-        <param name="jdklink" value="local_jdklink"/>
+        <param name="sootlink" value="${local_sootlink}"/>
+        <param name="jdklink" value="${local_jdklink}"/>
     </antcall>
     <antcall target="doxydocs">
         <param name="configFile" value="privateDoxyfile"/>
@@ -65,14 +69,17 @@
 </target>
 
 <target name="doxydocs">
+    <delete dir="${docs}/doxydocs"/>
     <mkdir dir="${docs}/doxydocs"/>
     <doxygen configfile="${configFile}"/>
 </target>
 
 <target name="javadocs">
+    <delete dir="${docs}/javadocs"/>
     <mkdir dir="${docs}/javadocs"/>
     <javadoc packagenames="${package}.*" destdir="${docs}/javadocs" access="${access}" use="true"
              author="true" additionalparam="-breakiterator">
+             <classpath refid="classpath"/>
              <sourcepath refid="srcpath"/>
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
@@ -111,6 +118,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.9  2003/08/17 10:49:04  venku
+Spruced up build.xml to generate private and public documentation.
+
 Revision 1.8  2003/08/12 19:49:14  venku
 *** empty log message ***
 

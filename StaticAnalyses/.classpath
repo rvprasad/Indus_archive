@@ -3,13 +3,13 @@
     <classpathentry excluding=".cono" kind="src" path="src"/>
     <classpathentry excluding=".cono" kind="src" path="src-flow"/>
     <classpathentry excluding=".cono" kind="src" path="src-dependence"/>
-    <classpathentry excluding=".cono" kind="src" path="src-escape"/>
+    <classpathentry excluding=".cono" kind="src" path="src-concurrency"/>
     <classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.apache.logging/log4j-logging-logkit.jar"/>
-    <classpathentry kind="lib" path="/usr/local/javaclasses/commons-collections.jar"/>
-    <classpathentry kind="lib" path="/usr/local/javaclasses/sootclasses-2.0.1.jar"/>
     <classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
     <classpathentry kind="src" path="/Indus"/>
     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
     <classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
+    <classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
+    <classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
     <classpathentry kind="output" path="build"/>
 </classpath>
