@@ -445,7 +445,7 @@ public final class SlicerTool
 			IBindingFactory bfact = BindingDirectory.getFactory(CompositeToolConfiguration.class);
 			IMarshallingContext mctx = bfact.createMarshallingContext();
 			mctx.setIndent(4);
-			mctx.marshalDocument(this, "UTF-8", null, result);
+			mctx.marshalDocument(configurationInfo, "UTF-8", null, result);
 		} catch (JiBXException e) {
 			LOGGER.error("Error while marshalling Slicer configurationCollection.");
 			throw new RuntimeException(e);
@@ -483,6 +483,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/10/13 01:01:45  venku
+   - Split transformations.slicer into 2 packages
+      - transformations.slicer
+      - slicer
+   - Ripple effect of the above changes.
+
    Revision 1.10  2003/09/28 06:54:17  venku
    - one more small change to the interface.
 
