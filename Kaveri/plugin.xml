@@ -134,6 +134,7 @@
                      path="additons"
                      id="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu">
                   <separator name="group1"/>
+                  <separator name="group2"/>
                </menu>
                <action
                      enablesFor="+"
@@ -149,14 +150,26 @@
                      style="push"
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CriteriaSelectionAction"/>
+               <menu
+                     label="Dependence"
+                     path="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
+                     id="dependenceMenu">
+                  <groupMarker name="group1"/>
+               </menu>            
                <action
                      enablesFor="+"
-                     label="Control Dependees"
-                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.DependencyTracker"
+                     label="Control Successor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.ControlSuccessor"
                      style="push"
-                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
-                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.DependenceChaseAction"/>
-                     
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CSAction"/>
+               <action
+                     enablesFor="+"
+                     label="Control Predecessor"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.ControlPredecessor"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CPAction"/>
                
             </viewerContribution>      
    </extension>
