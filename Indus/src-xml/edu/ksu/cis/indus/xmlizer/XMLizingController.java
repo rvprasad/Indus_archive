@@ -47,7 +47,7 @@ public class XMLizingController
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	public final class LexographicalClassComparator
+	public static final class LexographicalClassComparator
 	  implements Comparator {
 		/**
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
@@ -69,7 +69,7 @@ public class XMLizingController
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	public final class LexographicalMethodComparator
+	public static final class LexographicalMethodComparator
 	  implements Comparator {
 		/**
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
@@ -109,6 +109,8 @@ public class XMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/07 11:13:06  venku
+   - used class comparator instead of method comparator. FIXED.
    Revision 1.1  2003/11/06 10:01:25  venku
    - created support for xmlizing Jimple in a customizable manner.
  */
