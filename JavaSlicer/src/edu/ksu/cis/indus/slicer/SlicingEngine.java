@@ -987,7 +987,7 @@ public final class SlicingEngine {
 	 * @pre method != null
 	 */
 	private void generateMethodLevelSliceCriteria(final SootMethod method) {
-		boolean _generateCriteria = shouldMethodLevelCriteriaBeGenerated(method);
+		final boolean _generateCriteria = shouldMethodLevelCriteriaBeGenerated(method);
 
 		if (_generateCriteria) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
@@ -1090,71 +1090,88 @@ public final class SlicingEngine {
 		boolean _result = isNotIncludedInSlice(method);
 
 		if (!_result) {
-			//TODO: check if the method is in collectedAllInvocationSites collection . If so, delete the method from the map and 
-			// return false.  Check if callStackCache is null, if so, delete the map from the method, add it to 
-			// collectedAllInvocationSites, and return true.  If not, then proceed with the following code. 
-			_result = true;
 
-			final Collection _col = CollectionsUtilities.getSetFromMap(method2callStacks, method);
-			final Iterator _i = _col.iterator();
-			final int _iEnd = _col.size();
-			final List _t = callStackCache;
-			final int _tSize = _t.size();
-			final Collection _toBeRemoved = new ArrayList();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final List _c = (List) _i.next();
-				final int _cSize = _c.size();
-				final int _max;
-				final int _min;
-				final List _long;
-				final List _short;
-
-				if (_tSize > _cSize) {
-					_max = _tSize;
-					_min = _tSize - _cSize;
-					_long = _t;
-					_short = _c;
-				} else {
-					_max = _cSize;
-					_min = _cSize - _tSize;
-					_long = _c;
-					_short = _t;
-				}
-
-				boolean _equal = true;
-				int _j = _max - 1;
-
-				for (; _j >= 0 && _equal; _j--) {
-					final Object _longObj = _long.get(_j);
-					final Object _shortObj = _short.get(_j - _min);
-					_equal = _longObj.equals(_shortObj);
-				}
-
-				if (_equal) {
-					/*
-					 *  if the call stacks match then
-					 *    if they are not of equal size and the shorter one does not belong to the collection of
-					 *      call stacks for the method then we need to add remove the call stack from the collection
-					 *      and replace it with the given call stack.
-					 *    else
-					 *      we don't need to consider the current call stack.
-					 */
-					if (_min != 0 && _short != _c) {
-						_toBeRemoved.add(_c);
-					} else {
-						_result = false;
-						break;
-					}
-				}
-			}
-			_col.remove(_toBeRemoved);
-
-			if (_result || _iEnd == 0) {
-				_col.add(callStackCache.clone());
+			if (collectedAllInvocationSites.contains(method)) {
+				method2callStacks.remove(method);
+            } else if (callStackCache == null) {
+                method2callStacks.remove(method);
+				collectedAllInvocationSites.add(method);
+                _result = true;
+			} else {
+				_result = shouldTheCallStackBeConsidered(method);
 			}
 		}
 
+		return _result;
+	}
+
+	/**
+	 * Checks if the current call stack for the given method be considered.
+	 *
+	 * @param method of interest
+	 *
+	 * @return <code>true</code> if the call stack should be considered; <code>false</code>, otherwise.
+	 */
+	private boolean shouldTheCallStackBeConsidered(final SootMethod method) {
+		boolean _result = true;
+		final Collection _col = CollectionsUtilities.getSetFromMap(method2callStacks, method);
+		final Iterator _i = _col.iterator();
+		final int _iEnd = _col.size();
+		final List _t = callStackCache;
+		final int _tSize = _t.size();
+		final Collection _toBeRemoved = new ArrayList();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final List _c = (List) _i.next();
+			final int _cSize = _c.size();
+			final int _max;
+			final int _min;
+			final List _long;
+			final List _short;
+
+			if (_tSize > _cSize) {
+				_max = _tSize;
+				_min = _tSize - _cSize;
+				_long = _t;
+				_short = _c;
+			} else {
+				_max = _cSize;
+				_min = _cSize - _tSize;
+				_long = _c;
+				_short = _t;
+			}
+
+			boolean _equal = true;
+			int _j = _max - 1;
+
+			for (; _j >= 0 && _equal; _j--) {
+				final Object _longObj = _long.get(_j);
+				final Object _shortObj = _short.get(_j - _min);
+				_equal = _longObj.equals(_shortObj);
+			}
+
+			if (_equal) {
+				/*
+				 *  if the call stacks match then
+				 *    if they are not of equal size and the shorter one does not belong to the collection of
+				 *      call stacks for the method then we need to add remove the call stack from the collection
+				 *      and replace it with the given call stack.
+				 *    else
+				 *      we don't need to consider the current call stack.
+				 */
+				if (_min != 0 && _short != _c) {
+					_toBeRemoved.add(_c);
+				} else {
+					_result = false;
+					break;
+				}
+			}
+		}
+		_col.remove(_toBeRemoved);
+
+		if (_result || _iEnd == 0) {
+			_col.add(callStackCache.clone());
+		}
 		return _result;
 	}
 
