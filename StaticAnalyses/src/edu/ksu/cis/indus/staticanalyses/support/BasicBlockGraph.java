@@ -57,7 +57,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public class BasicBlockGraph
-  extends DirectedGraph {
+  extends MutableDirectedGraph {
 	/**
 	 * The list of statements in the method being represented by this graph.
 	 *
@@ -164,8 +164,7 @@ public class BasicBlockGraph
 			for (Iterator j = stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
 				Stmt nStmt = (Stmt) j.next();
 				BasicBlock nBlock = getEnclosingBlock(nStmt);
-				block.addSuccessors(nBlock);
-				nBlock.addPredecessors(block);
+				addEdgeFromTo(block, nBlock);
 			}
 		}
 
@@ -186,7 +185,7 @@ public class BasicBlockGraph
 	 * @version $Revision$
 	 */
 	public class BasicBlock
-	  extends SimpleNodeGraph.SimpleNode {
+	  extends MutableDirectedGraph.MutableNode {
 		/**
 		 * An index into the statement list of the method.  It is the index of the leader statement of this block.
 		 */
@@ -214,7 +213,7 @@ public class BasicBlockGraph
 		 * @pre leader >= 0 && leader &lt; stmtList.size() && trailer >= leader && trailer &lt; stmtList.size();
 		 */
 		BasicBlock(final int leader, final int trailer, final List stmtsParam) {
-			super(null);
+            super(new HashSet(), new HashSet());
 			this._leader = leader;
 			this._trailer = trailer;
 			this.stmts = new ArrayList(stmtsParam);
@@ -335,6 +334,13 @@ public class BasicBlockGraph
 	}
 
 	/**
+	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.staticanalyses.support.INode)
+	 */
+	protected boolean containsNodes(final INode node) {
+		return blocks.contains(node);
+	}
+
+	/**
 	 * Retrieves the statement occurring at the given index in the body associated with this basic block graph.
 	 *
 	 * @param index at which the requested statement occurs.
@@ -349,6 +355,8 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/15 08:24:19  venku
+   Added a convenience method to retrieve trailer statement of a basic block.
    Revision 1.3  2003/08/11 06:40:54  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.

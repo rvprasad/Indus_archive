@@ -39,13 +39,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -56,7 +54,7 @@ import java.util.Set;
  * @version $Revision$
  */
 public class SimpleNodeGraph
-  extends DirectedGraph {
+  extends MutableDirectedGraph {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -83,22 +81,12 @@ public class SimpleNodeGraph
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public static class SimpleNode
-	  implements INode {
+	public class SimpleNode
+	  extends MutableDirectedGraph.MutableNode {
 		/**
 		 * The object being represetned by this node.
 		 */
 		public final Object _object;
-
-		/**
-		 * The collection of nodes which precede this node in the graph.
-		 */
-		private final Set predecessors = new HashSet();
-
-		/**
-		 * The collection of nodes which succeed this node in the graph.
-		 */
-		private final Set successors = new HashSet();
 
 		/**
 		 * Creates a new SimpleNode object.
@@ -106,70 +94,19 @@ public class SimpleNodeGraph
 		 * @param o is the object to be represented by this node.
 		 */
 		SimpleNode(final Object o) {
+			super(new HashSet(), new HashSet());
 			this._object = o;
 		}
 
 		/**
-		 * Returns the immediate predecessors of this node.
+		 * Returns the stringized representation of this object.
 		 *
-		 * @return the immediate predecessors of this node.
+		 * @return stringized representation.
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getPredsOf()
+		 * @post result != null
 		 */
-		public final Collection getPredsOf() {
-			return Collections.unmodifiableCollection(predecessors);
-		}
-
-		/**
-		 * Returns the nodes immediately reachable from this node by following the edges as indicated by
-		 * <code>forward</code>.
-		 *
-		 * @param forward <code>true</code> indicates following outgoing edges.  <code>false</code> indicates following
-		 * 		  incoming edges.
-		 *
-		 * @return the collection of successor nodes(<code>BasicBlock</code>) of this node.
-		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getSuccsNodesInDirection(boolean)
-		 */
-		public final Collection getSuccsNodesInDirection(final boolean forward) {
-			if (forward) {
-				return getSuccsOf();
-			} else {
-				return getPredsOf();
-			}
-		}
-
-		/**
-		 * Returns the immediate successors of this node.
-		 *
-		 * @return the immediate successors of this node.
-		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getSuccsOf()
-		 */
-		public final Collection getSuccsOf() {
-			return Collections.unmodifiableCollection(successors);
-		}
-
-		/**
-		 * Adds a predecessor to this node.
-		 *
-		 * @param node is the node to be added as the predecessor.
-		 *
-		 * @post self.getPredsOf()->includes(node)
-		 */
-		public final void addPredecessors(final INode node) {
-			predecessors.add(node);
-		}
-
-		/**
-		 * Adds a successor to this node.
-		 *
-		 * @param node is the node to be added as the successor.
-		 *
-		 * @post self.getSuccsOf()->includes(node)
-		 */
-		public final void addSuccessors(final INode node) {
-			successors.add(node);
+		public String toString() {
+			return _object.toString();
 		}
 	}
 
@@ -188,7 +125,7 @@ public class SimpleNodeGraph
 	 * 		 object2nodes.get(o) == result
 	 * @post result != null
 	 */
-	public INode getNode(final Object o) {
+	public MutableNode getNode(final Object o) {
 		if (o == null) {
 			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("object to be represented cannot be null.");
@@ -196,7 +133,7 @@ public class SimpleNodeGraph
 			throw new NullPointerException("object to be represented cannot be null.");
 		}
 
-		INode result = (INode) object2nodes.get(o);
+		MutableNode result = (MutableNode) object2nodes.get(o);
 
 		if (result == null) {
 			result = new SimpleNode(o);
@@ -216,42 +153,27 @@ public class SimpleNodeGraph
 	}
 
 	/**
-	 * Adds a directed edge between the given nodes.  Both the nodes should have been obtained by calling
-	 * <code>getNode()</code> on this object.
-	 *
-	 * @param src is the source of the edge.
-	 * @param dest is the destination of the edge.
-	 *
-	 * @return <code>true</code> if an edge was added; <code>false</code>, otherwise.
-	 *
-	 * @pre src != null and dest != null
-	 * @post src.getSuccsOf()->includes(dest) and dest.getPredsOf()->includes(src)
-	 */
-	public boolean addEdgeFromTo(final INode src, final INode dest) {
-		boolean result = false;
-
-		if (nodes.contains(src) && nodes.contains(dest)) {
-			((SimpleNode) src).addSuccessors(dest);
-			((SimpleNode) dest).addPredecessors(src);
-			tails.remove(src);
-			heads.remove(dest);
-			result = true;
-		}
-
-		return result;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph#size()
 	 */
 	public int size() {
 		return nodes.size();
+	}
+
+	/**
+	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.staticanalyses.support.INode)
+	 */
+	protected boolean containsNodes(final INode node) {
+		return nodes.contains(node);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 06:40:54  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.

@@ -58,8 +58,8 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.INode;
 import edu.ksu.cis.indus.staticanalyses.support.Marker;
+import edu.ksu.cis.indus.staticanalyses.support.MutableDirectedGraph.MutableNode;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
@@ -564,12 +564,12 @@ public class CallGraph
 			Collection temp = (Collection) caller2callees.get(sm);
 
 			if (temp != null) {
-				INode callerNode = graphCache.getNode(sm);
+				MutableNode callerNode = graphCache.getNode(sm);
 
 				for (Iterator j = temp.iterator(); j.hasNext();) {
 					CallTriple ctrp = (CallTriple) j.next();
 					SootMethod method = ctrp.getMethod();
-					INode calleeNode = graphCache.getNode(method);
+					MutableNode calleeNode = graphCache.getNode(method);
 
 					graphCache.addEdgeFromTo(callerNode, calleeNode);
 				}
@@ -725,6 +725,8 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/08/21 03:43:56  venku
+   Ripple effect of adding IStatus.
    Revision 1.10  2003/08/17 11:54:25  venku
    Formatting and documentation.
    Revision 1.9  2003/08/17 10:48:34  venku
