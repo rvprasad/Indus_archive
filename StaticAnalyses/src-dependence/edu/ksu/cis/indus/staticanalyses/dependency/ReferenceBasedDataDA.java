@@ -23,6 +23,9 @@ import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Collection;
 
 
@@ -36,6 +39,11 @@ import java.util.Collection;
  */
 public class ReferenceBasedDataDA
   extends DependencyAnalysis {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ReferenceBasedDataDA.class);
+
 	/**
 	 * This provides inter-procedural use-def information which considers the effects of aliasing.
 	 */
@@ -95,6 +103,13 @@ public class ReferenceBasedDataDA
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
 	 */
 	public void analyze() {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Reference Based Data Dependence processing");
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Reference Based Data Dependence processing");
+		}
 	}
 
 	/**
@@ -122,6 +137,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.7  2003/09/14 23:29:32  venku
    - deferred status changes to contained AliasedUseDefInfo analysis.
    Revision 1.6  2003/09/12 22:33:09  venku

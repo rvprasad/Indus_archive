@@ -167,7 +167,7 @@ public class IdentifierBasedDataDA
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: processing");
+			LOGGER.info("BEGIN: Identifier Based Data Dependence processing");
 		}
 
 		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
@@ -225,7 +225,7 @@ public class IdentifierBasedDataDA
 		stable = true;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: processing");
+			LOGGER.info("END:  Identifier Based Data Dependence processing");
 		}
 	}
 
@@ -292,6 +292,8 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/05 00:36:16  venku
+   - changed the way dependence information was stored.
    Revision 1.18  2003/11/05 00:23:04  venku
    - documentation.
    Revision 1.17  2003/11/03 07:54:01  venku

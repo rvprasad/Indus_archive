@@ -229,7 +229,7 @@ public class SynchronizationDA
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: processing");
+			LOGGER.info("BEGIN: Synchronization Dependence processing");
 		}
 
 		WorkBag workbag = new WorkBag(WorkBag.LIFO);
@@ -383,7 +383,7 @@ nextBasicBlock:
 		stable = true;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: processing");
+			LOGGER.info("END: Synchronization Dependence processing");
 		}
 	}
 
@@ -499,6 +499,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/03 07:54:56  venku
+   - added logging.
+
    Revision 1.12  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

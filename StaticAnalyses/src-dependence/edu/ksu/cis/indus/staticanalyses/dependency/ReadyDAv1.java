@@ -412,6 +412,10 @@ public class ReadyDAv1
 	public void analyze() {
 		stable = false;
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Ready Dependence processing");
+		}
+
 		if (!threadgraph.getStartSites().isEmpty()) {
 			if (!monitorMethods.isEmpty() && (rules & (RULE_1 | RULE_3)) != 0) {
 				processRule1And3();
@@ -427,6 +431,11 @@ public class ReadyDAv1
 				}
 			}
 		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Ready Dependence processing");
+		}
+
 		stable = true;
 	}
 
@@ -839,14 +848,14 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/09/29 06:40:51  venku
+   - redundant call to super.reset was deleted.
    Revision 1.20  2003/09/29 06:35:48  venku
    - using null as values in maps and then to resolve during information
      request is cheaper.  FIXED.
-
    Revision 1.19  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.18  2003/09/24 15:52:53  venku
    - documentation.
    Revision 1.17  2003/09/24 15:41:33  venku

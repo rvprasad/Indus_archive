@@ -35,6 +35,9 @@ import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,6 +63,11 @@ import java.util.Set;
  */
 public class InterferenceDAv1
   extends DependencyAnalysis {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(InterferenceDAv1.class);
+
 	/**
 	 * This provides threading information pertaining to the system being analyzed.
 	 */
@@ -225,6 +233,10 @@ public class InterferenceDAv1
 	public void analyze() {
 		stable = false;
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Interference Dependence processing");
+		}
+
 		// we return immediately if there are no start sites in the system.
 		if (tgi.getStartSites().size() == 0) {
 			stable = true;
@@ -265,6 +277,11 @@ public class InterferenceDAv1
 				}
 			}
 		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Interference Dependence processing");
+		}
+
 		stable = true;
 	}
 
@@ -396,6 +413,8 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/10/05 16:23:34  venku
+   - formatting.
    Revision 1.13  2003/10/05 16:20:58  venku
    - made dependence type-based.
    Revision 1.12  2003/09/29 06:40:35  venku

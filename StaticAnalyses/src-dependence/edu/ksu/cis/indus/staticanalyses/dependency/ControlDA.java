@@ -170,7 +170,7 @@ public class ControlDA
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: processing");
+			LOGGER.info("BEGIN: Control Dependence processing");
 		}
 
 		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
@@ -187,7 +187,7 @@ public class ControlDA
 		}
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: processing");
+			LOGGER.info("END: Control Dependence processing");
 		}
 		stable = true;
 	}
@@ -480,6 +480,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/03 07:56:04  venku
+   - added logging.
+
    Revision 1.16  2003/10/31 01:00:58  venku
    - added support to switch direction.  However, forward
      slicing can be viewed in two interesting ways and

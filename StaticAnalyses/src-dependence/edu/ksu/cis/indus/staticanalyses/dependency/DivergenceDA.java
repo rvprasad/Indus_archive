@@ -163,6 +163,10 @@ public class DivergenceDA
 	public void analyze() {
 		stable = false;
 
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Divergence Dependence processing");
+		}
+
 		Map method2preDivPoints = new HashMap();
 		findPreDivPoints(method2preDivPoints);
 
@@ -297,6 +301,10 @@ public class DivergenceDA
 			 * point in the cycle.
 			 * TODO:
 			 */
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Divergence Dependence processing");
 		}
 		stable = true;
 	}
@@ -557,6 +565,10 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/09/28 06:20:38  venku
+   - made the core independent of hard code used to create unit graphs.
+     The core depends on the environment to provide a factory that creates
+     these unit graphs.
    Revision 1.16  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
