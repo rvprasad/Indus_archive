@@ -446,7 +446,7 @@ public class TagBasedSlicingTransformer
 	 * @see edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer#transformSeed(soot.ValueBox, soot.jimple.Stmt,
 	 * 		soot.SootMethod)
 	 */
-	protected void transformSeed(ValueBox vBox, Stmt stmt, SootMethod method) {
+	protected void transformSeed(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
 		tagValueBox(vBox, stmt, method, seedTag);
 	}
 
@@ -522,6 +522,11 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/16 22:55:31  venku
+   - added new methods to support processing of seed criteria.
+     This is not same as slicing seed criteria of which we do not
+     make any distinction.
+
    Revision 1.14  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
