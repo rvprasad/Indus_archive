@@ -103,7 +103,7 @@ public class AnalysesController
 	 *
 	 * @param id of the requested analyses.  This has to be one of the names(XXX_DA) defined in this class.
 	 *
-	 * @return the implementation registered for the given purpose.
+	 * @return the implementation registered for the given purpose.  Changes to this collection is visible to the controller.
 	 *
 	 * @post result != null and result->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
 	 */
@@ -241,6 +241,10 @@ public class AnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/07/11 14:46:18  venku
+   - coding conventions.
+   - timing information via logging.
+
    Revision 1.36  2004/07/11 14:34:37  venku
    - coding conventions.
    Revision 1.35  2004/07/11 14:17:39  venku
