@@ -117,9 +117,7 @@ public class DependencyXMLizerCLI
 	private boolean useAliasedUseDefv1;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if safe lock should be used.
 	 */
 	private boolean useSafeLockAnalysis;
 
@@ -393,6 +391,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/07/28 09:09:27  venku
+   - changed aliased use def analysis to consider thread.
+   - also fixed a bug in the same analysis.
+   - ripple effect.
+   - deleted entry control dependence and renamed direct entry control da as
+     entry control da.
+
    Revision 1.37  2004/07/27 11:38:31  venku
    - tweaked command line options.
 
@@ -666,6 +671,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/07/28 09:09:27  venku
+   - changed aliased use def analysis to consider thread.
+   - also fixed a bug in the same analysis.
+   - ripple effect.
+   - deleted entry control dependence and renamed direct entry control da as
+     entry control da.
+
    Revision 1.37  2004/07/27 11:38:31  venku
    - tweaked command line options.
 

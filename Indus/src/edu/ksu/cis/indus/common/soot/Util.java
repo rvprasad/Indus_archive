@@ -741,16 +741,16 @@ public final class Util {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * This is a helper method to check if <code>invokedMethod</code> is called at the site in the given statement
+	 * and method in the given callgraph.
 	 * 
-	 * <p></p>
+	 * @param invokedMethod is the target method.
+	 * @param stmt containing the invocation site.
+	 * @param method containing <code>stmt</code>.
+	 * @param cgi to be used for method resolution.
 	 *
-	 * @param invokedMethod DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param cgi DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if <code> invokedMethod</code> is invoked; <code>false</code>, otherwise.
+	 * @pre invokedMethod != null and stmt != null and method != null and cgi != null
 	 */
 	private static boolean wasMethodInvocationHelper(final SootMethod invokedMethod, final InvokeStmt stmt,
 		final SootMethod method, final ICallGraphInfo cgi) {
@@ -774,6 +774,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/07/30 05:16:43  venku
+   - moved the methods to check for wait(), notify(), and start() invocations into Util.
+
    Revision 1.28  2004/07/20 06:12:07  venku
    - error while getting array types. FIXED.
    Revision 1.27  2004/07/02 05:15:17  venku
