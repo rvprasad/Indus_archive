@@ -21,6 +21,7 @@ import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Trap;
+import soot.Type;
 import soot.Value;
 
 import soot.jimple.CaughtExceptionRef;
@@ -201,6 +202,8 @@ public class MethodVariant
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
 		}
+        
+        sm.addTag(_fa.getTag());
 	}
 
 	/**
@@ -229,21 +232,6 @@ public class MethodVariant
 	 */
 	public final IFGNode getASTNode(final Value v, final Context c) {
 		return getASTVariant(v, c).getFGNode();
-	}
-
-	/**
-	 * Returns the variant associated with the given AST node in the given context.  Creates a new one if none exists.
-	 *
-	 * @param v the AST node whose associated variant is to be returned.
-	 * @param context the context in which the variant was associated with <code>v</code>.
-	 *
-	 * @return the variant associated with <code>v</code> in the context <code>c</code>.
-	 *
-	 * @pre v != null and context != null
-	 */
-	final ValuedVariant getASTVariant(final Value v, final Context context) {
-		_fa.processType(v.getType());
-		return (ValuedVariant) astvm.select(v, context);
 	}
 
 	/**
@@ -278,11 +266,19 @@ public class MethodVariant
 		if (_method.isConcrete()) {
 			jb = (JimpleBody) _method.retrieveActiveBody();
 
-			List list = new ArrayList(_method.retrieveActiveBody().getUnits());
+			for (Iterator i = jb.getLocals().iterator(); i.hasNext();) {
+				Type localType = ((Local) i.next()).getType();
+
+				if (localType instanceof RefLikeType) {
+					_fa.processType(localType);
+				}
+			}
+
+			List stmtList = new ArrayList(_method.retrieveActiveBody().getUnits());
 			defs = new SimpleLocalDefs(new CompleteUnitGraph(_method.retrieveActiveBody()));
 			stmt = _fa.getStmt(this);
 
-			for (Iterator i = list.iterator(); i.hasNext();) {
+			for (Iterator i = stmtList.iterator(); i.hasNext();) {
 				stmt.process((Stmt) i.next());
 			}
 
@@ -300,8 +296,8 @@ public class MethodVariant
 				CaughtExceptionRef catchRef = (CaughtExceptionRef) ((IdentityStmt) trap.getHandlerUnit()).getRightOp();
 				SootClass exception = trap.getException();
 
-				for (int j = list.indexOf(begin), k = list.indexOf(end); j < k; j++) {
-					Stmt tmp = (Stmt) list.get(j);
+				for (int j = stmtList.indexOf(begin), k = stmtList.indexOf(end); j < k; j++) {
+					Stmt tmp = (Stmt) stmtList.get(j);
 
 					if (tmp instanceof ThrowStmt) {
 						ThrowStmt ts = (ThrowStmt) tmp;
@@ -471,16 +467,31 @@ public class MethodVariant
 		}
 		return temp;
 	}
+
+	/**
+	 * Returns the variant associated with the given AST node in the given context.  Creates a new one if none exists.
+	 *
+	 * @param v the AST node whose associated variant is to be returned.
+	 * @param context the context in which the variant was associated with <code>v</code>.
+	 *
+	 * @return the variant associated with <code>v</code> in the context <code>c</code>.
+	 *
+	 * @pre v != null and context != null
+	 */
+	final ValuedVariant getASTVariant(final Value v, final Context context) {
+		return (ValuedVariant) astvm.select(v, context);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/25 23:04:51  venku
+   - local variable access is faster than fields.  FIXED.
    Revision 1.8  2003/11/25 23:03:54  venku
    - removed a variant of getASTvariant() as it was not being used.
    - added call to _fa.processClass() in getASTVariant().
    - logging and name change to used field variable.
-
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
