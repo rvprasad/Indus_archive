@@ -1,0 +1,31 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Running Kaveri</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s06.html" title="Setup"><link rel="next" href="ar01s08.html" title="Features"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Running Kaveri</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s06.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s08.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Running"></a>Running Kaveri</h2></div></div><div></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e329"></a>Steps</h3></div></div><div></div></div><div class="variablelist"><dl><dt><span class="term">Step 1</span></dt><dd><p>Right click the Java file or Java project in the <span class="emphasis"><em>navigator</em></span> or <span class="emphasis"><em>package explorer</em></span> window in Eclipse and choose either <span class="bold"><b>Indus -&gt; Slice Java file</b></span> or <span class="bold"><b>Indus -&gt; Slice  project</b></span> from the context menu. The difference is that in the former only the specified file is sliced while in the latter all the files present in the Java project are sliced. </p></dd><dt><span class="term">Step 2</span></dt><dd><p>
+							In the slice configuration dialog that appears, pick the 
+							<span class="emphasis"><em>slice configuration</em></span>
+							 and the 
+							<span class="emphasis"><em>criteria</em></span>
+							 for slicing. Note that you can add multiple criteria by selection them from the list of criteria. The 
+							<span class="bold"><b>Additive slice display </b></span>
+							 check box indicates that the new slice should be added onto the display of the previous slice. This displays the slice as the union of the previous and the new slice. Press the 
+							<span class="bold"><b>Run</b></span>
+							 button to start the slicing. A progress dialog indicates the progress of the slicing. 
+							</p><div class="figure"><a name="sliceparameters"></a><p class="title"><b>Figure&nbsp;4.&nbsp;Running the slicer</b></p><div><img src="images/sliceconfig.png" width="479" height="317" alt="Running the slicer"></div></div><p>
+						</p></dd><dt><span class="term">Step 3</span></dt><dd><p>
+							After the slice is completed, open the Java file if it is not currently open. If the 
+							<span class="emphasis"><em>Kaveri decorator</em></span>
+							 is enabled (Refer to 
+							<a href="ar01s08.html#decoration">Figure 7</a>
+							 ) the slice is automatically highlighted. Else press the 
+							<span class="emphasis"><em>Slice Toggle</em></span>
+							 button 
+							<span class="emphasis"><em>(Refer to <a href="ar01s08.html#toolbars">Figure 6</a>) </em></span>
+							 to highlight the slice in the editor. There are two types of highlighting that are displayed. Java statements for which all the corresponding Jimple statements have the slice tag are highlighted in once color while those in which only a part of the Jimple statements have the slice tag are highlighted in a different color. To change the color for the slice highlighting go to 
+							<span class="bold"><b>Window -&gt; Preferences -&gt; Workbench -&gt; Editors -&gt; Annotations</b></span>
+							 from the Eclipse menu and change the color for the ' 
+							<span class="bold"><b>IndusSliceAnnotation</b></span>
+							 for the complete slice element highlight annotation and 
+							<span class="bold"><b>IndusPartialSliceAnnotation</b></span>
+							 for the partial slice element highlight annotation. You may have to reopen the file in the editor and toggle the slice highlight for the change in color to be updated. 
+							</p><div class="figure"><a name="viewslice"></a><p class="title"><b>Figure&nbsp;5.&nbsp;Viewing the slice</b></p><div><img src="images/slice.png" width="576" height="395.00000000000006" alt="Viewing the slice"></div></div><p>
+						</p></dd></dl></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s06.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s08.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Setup&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Features</td></tr></table></div></body></html>

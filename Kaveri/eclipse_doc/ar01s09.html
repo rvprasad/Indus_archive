@@ -1,0 +1,54 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Appendix - How to pick criteria</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s08.html" title="Features"><link rel="next" href="ar01s10.html" title="Appendix - Performance"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Appendix - How to pick criteria</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s08.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s10.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Appendix-1"></a>Appendix - How to pick criteria</h2></div></div><div></div></div><p>As mentioned before, the criteria for slicing is a Jimple statement. When a Java statement is picked, the user is allowed to select one of the corresponding Jimple statements as the criteria. The following examples show how to choose the correct Jimple statement depending on the requirement.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e490"></a>Examples of picking Jimple criteria</h3></div></div><div></div></div><div class="example"><a name="d0e493"></a><p class="title"><b>Example&nbsp;3.&nbsp;Setting up criteria for an assignment statement</b></p><p>
+					Consider the simple statement : 
+					<tt class="code">nw++</tt>
+					, where nw is a integer. The equivalent Jimple for this statement consists of the following: 
+					</p><div class="itemizedlist"><ul type="disc"><li><p>
+								<tt class="code">$i2 = r0.&lt;myPackage.Monitor: int nw&gt;</tt>
+							</p></li><li><p>
+								<tt class="code">$i3 = $i2 + 1</tt>
+							</p></li><li><p>
+								<tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; = $i3</tt>
+							</p></li></ul></div><p>
+					Here 
+					<tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; </tt>
+					corresponds to the variable nw. So to pick 
+					<tt class="code">nw = nw + 1 </tt>
+					as a criteria you would pick the last statement 
+					<tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; = $i3</tt>
+					as in that statement the final value of nw is assigned. 
+				</p></div><div class="example"><a name="d0e530"></a><p class="title"><b>Example&nbsp;4.&nbsp;Setting up criteria for a function call</b></p><p>
+					Consider the expression 
+					<tt class="code">monitor.start_write()</tt>
+					. The Jimple for this consists of two statements: 
+					</p><div class="itemizedlist"><ul type="disc"><li><tt class="code">r1 = r0.&lt;myPackage.Writers: myPackage.Monitor mon&gt;</tt></li><li><tt class="code">virtualinvoke r1.&lt;myPackage.Monitor: void start_write()&gt;()</tt></li></ul></div><p>
+					To pick the function call, the second statement 
+					<tt class="code">virtualinvoke r1.&lt;myPackage.Monitor: void start_write()&gt;()</tt>
+					is to be selected as it involves the call to the function 
+					<tt class="code">start_write()</tt>
+					in the 
+					<tt class="code">Monitor</tt>
+					class. 
+				</p></div><div class="example"><a name="d0e555"></a><p class="title"><b>Example&nbsp;5.&nbsp;Setting up criteria for a conditional</b></p><p>
+					Consider the expression: 
+					<tt class="code">if (!empty(Clist))</tt>
+					. The equivalent Jimple for this statement is: 
+					</p><div class="itemizedlist"><ul type="disc"><li><p>
+								<tt class="code">$r4 = r0.&lt;temp.DiskScheduler:java.util.LinkedList Clist&gt;</tt>
+							</p></li><li><p>
+								<tt class="code">$z0 = virtualinvoke r0.&lt;temp.DiskScheduler: boolean empty(java.util.LinkedList)&gt;($r4)</tt>
+							</p></li><li><p>
+								<tt class="code">if $z0 != 0 goto $r7 = r0.&lt;temp.DiskScheduler:java.util.LinkedList NList&gt;</tt>
+							</p></li></ul></div><p>
+					To pick the function call 
+					<tt class="code">empty(Clist) </tt>
+					you would choose the second statement 
+					<tt class="code">$z0 = virtualinvoke r0.&lt;temp.DiskScheduler: boolean empty(java.util.LinkedList)&gt; </tt>
+					as it invokes the 
+					<tt class="code">empty()</tt>
+					method. On the other hand if you wanted to choose the 
+					<tt class="code">if </tt>
+					conditional you would choose the last line 
+					<tt class="code">if $z0 != 0 goto $r7 = r0.&lt;temp.DiskScheduler:java.util.LinkedList NList&gt;</tt>
+				</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s08.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s10.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Features&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Appendix - Performance</td></tr></table></div></body></html>

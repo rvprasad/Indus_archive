@@ -1,0 +1,37 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Setup</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s05.html" title="Concepts"><link rel="next" href="ar01s07.html" title="Running Kaveri"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Setup</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s05.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s07.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Setup"></a>Setup</h2></div></div><div></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e206"></a>Setting up Kaveri</h3></div></div><div></div></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e209"></a>Preferences</h4></div></div><div></div></div><div class="sect4" lang="en"><div class="titlepage"><div><div><h5 class="title"><a name="d0e212"></a>Indus Preferences</h5></div></div><div></div></div><p>
+						Before using Kaveri the user needs to define a set of configurations to use with the slicer. To do so open 
+						<span class="bold"><b>Window -&gt; Preferences -&gt; Indus Preferences </b></span>
+						 from the Eclipse menu. A default configuration is provided. ( 
+						<span class="emphasis"><em>Refer to <a href="ar01s06.html#sliceconfigurationpreference">Figure 1</a> </em></span>
+						 ). From the Configuration tab you can manage the set of slicer configurations. Be sure to press the 
+						<span class="bold"><b>Apply</b></span>
+						 button after any changes to preserve the settings immediately. Please ignore the tabs marked 
+						<span class="emphasis"><em>Colors</em></span>
+						 and 
+						<span class="emphasis"><em>View</em></span>
+						 as their usage is reserved for the next version. Using them produces no effect currently. 
+						</p><div class="figure"><a name="sliceconfigurationpreference"></a><p class="title"><b>Figure&nbsp;1.&nbsp;Slicer Configuration Preferences</b></p><div><img src="images/configpreferences.png" width="580" height="488" alt="Slicer Configuration Preferences"></div></div><p>
+						</p><div class="figure"><a name="sliceconfiguration"></a><p class="title"><b>Figure&nbsp;2.&nbsp;Editing the configuration</b></p><div><img src="images/configuration1.png" width="376" height="494" alt="Editing the configuration"></div></div><p>
+						<span class="bold"><b>Buttons:</b></span>
+ 						</p><div class="variablelist"><dl><dt><span class="term"><span class="bold"><b>Create</b></span> </span></dt><dd><p>Enables you to create a new slicer configuration. Be sure to enter a descriptive name for the configuration in the <span class="bold"><b>Indus configuration editor</b></span> dialog. </p></dd><dt><span class="term"><span class="bold"><b>Import</b></span> </span></dt><dd><p>Allows you to import a slicer configuration from an existing file.</p></dd><dt><span class="term"><span class="bold"><b>Export</b></span> </span></dt><dd><p>Allows you to export a configuration to a file for later use.</p></dd><dt><span class="term"><span class="bold"><b>Delete</b></span> </span></dt><dd><p>Deletes the chosen configuration.</p></dd><dt><span class="term"><span class="bold"><b>Edit</b></span> </span></dt><dd><p>Allows you to edit an existing configuration.</p></dd></dl></div><p>
+					</p></div></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e293"></a>Setting up the criteria</h4></div></div><div></div></div><p>
+					A Java project can be associated with a set of 
+					<span class="emphasis"><em>slicing criteria</em></span>
+					 pertaining to the Java files included in the project. Kaveri currently allows you to add Java statements as criteria for slicing. To add a Java statement as a criteria, select the statement in the editor and choose 
+					<span class="bold"><b>Indus -&gt; Add to Criteria</b></span>
+					 from the context menu. If the equivalent Jimple statements for the statement are found, the 
+					<span class="bold"><b>Criteria Statement Selector</b></span>
+					 dialog pops up allowing you to pick the Jimple statement closest in meaning to the required criteria. Enable or disable the checkbox marked 
+					<span class="bold"><b>"Consider the execution"</b></span>
+					 to slice using 
+					<span class="emphasis"><em>value of the expression</em></span>
+					 or with the 
+					<span class="emphasis"><em>control</em></span>
+					 reaching the statement respectively. Click 
+					<span class="bold"><b>OK </b></span>
+					 to add the selected Jimple statement to the set of available criteria. Note that Kaveri checks the criteria for duplicates, so only unique criteria can be added. 
+					
+					</p><div class="figure"><a name="criteriapicker"></a><p class="title"><b>Figure&nbsp;3.&nbsp;Criteria Picker</b></p><div><img src="images/criteriaselection.png" width="420" height="206.99999999999997" alt="Criteria Picker"></div></div><p>
+				</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s05.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s07.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Concepts&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Running Kaveri</td></tr></table></div></body></html>
