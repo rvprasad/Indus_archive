@@ -147,7 +147,7 @@ public final class CompositeToolConfigurator
 		_newConfig.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					final IToolConfiguration _atc = toolConfigFactory.createToolConfiguration();
-					_atc.setConfigName("slicer_configuration_" + compositeConfiguration.configurations.size());
+					_atc.setConfigName("too_configuration_" + compositeConfiguration.configurations.size());
 					compositeConfiguration.addToolConfiguration(_atc);
 					configCombo.add(_atc.getConfigName());
 					configCombo.select(compositeConfiguration.configurations.indexOf(_atc));
@@ -197,6 +197,10 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/28 03:08:19  venku
+   - changed the name of the unused parameter in
+     extension method to be of length one.
+
    Revision 1.12  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
