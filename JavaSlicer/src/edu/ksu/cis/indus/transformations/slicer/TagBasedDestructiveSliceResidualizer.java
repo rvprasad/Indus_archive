@@ -58,6 +58,7 @@ import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
+
 import soot.jimple.toolkits.scalar.NopEliminator;
 
 import soot.tagkit.Host;
@@ -476,19 +477,22 @@ public final class TagBasedDestructiveSliceResidualizer
 			}
 
 			oldStmt2newStmt.clear();
-            _body.validateLocals();
+			_body.validateLocals();
 			_body.validateTraps();
 			_body.validateUnitBoxes();
 			_body.validateUses();
-            NopEliminator.v().transform(_body);
-        
+			NopEliminator.v().transform(_body);
+
 			/*
 			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
 			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to be executable.
 			 */
 			if (_body.getUnits().isEmpty()) {
-                // remove all traps 
-                _body.getTraps().clear();
+				// remove all traps 
+				_body.getTraps().clear();
+				// remove all locals
+				_body.getLocals().clear();
+
 				final Chain _temp = _body.getUnits();
 				final Type _retType = currMethod.getReturnType();
 
@@ -604,11 +608,13 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/01/31 01:48:18  venku
+   - for odd reasons, various transformers provided in SOOT fail,
+     hence, they are not used anymore.
    Revision 1.16  2004/01/30 23:57:11  venku
    - uses various body transformers to optimize the body.
    - uses entry control DA to pick only the required exit
      points while making the slice executable.
-
    Revision 1.15  2004/01/25 07:50:20  venku
    - changes to accomodate class hierarchy fixup and handling of
      statements which are marked as true but in which none of the
