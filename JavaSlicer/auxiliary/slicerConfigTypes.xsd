@@ -1,0 +1,77 @@
+<xsd:schema id="slicerConfigTypes" version="1.0" xml:lang="en"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
+    targetNamespace="http://indus.projects.cis.ksu.edu/slicer"
+    elementFormDefault="qualified"
+    blockDefault="#all"
+    finalDefault="#all">
+
+  <xsd:complexType id="configuration" name="configuration">
+    <xsd:annotation>
+      <xsd:appinfo>
+        Slicer configuration
+      </xsd:appinfo>
+      <xsd:documentation>
+        This is a configuration of the Slicer.
+      </xsd:documentation>
+    </xsd:annotation>
+      <xsd:sequence>
+        <xsd:element name="interference" type="slicer:interference" block=""/>
+        <xsd:element name="divergence" type="slicer:divergence" block=""/>
+        <xsd:element name="ready" type="slicer:ready" block=""/>
+      </xsd:sequence>
+      <xsd:attribute name="slicetype" type="slicer:slicingType" default="backward slice"/>
+      <xsd:attribute name="analysis" type="xsd:ID" use="required"/>
+      <xsd:attribute name="sliceForDeadlock" type="xsd:boolean" use="required"/>
+      <xsd:attribute name="name" type="xsd:ID" use="required"/>
+    </xsd:complexType>
+
+    <xsd:simpleType id="slicingType" name="slicingType">
+      <xsd:annotation>
+        <xsd:documentation>
+          This captures the type of the slice based on the direction of the slice.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:token">
+        <xsd:enumeration value="backward slice"/>
+        <xsd:enumeration value="complete slice"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+
+   <xsd:attribute name="equivalenceClassBased" type="xsd:boolean" default="true"/> 
+   <xsd:attribute name="active" type="xsd:boolean" default="false"/> 
+
+    <xsd:complexType id="divergence" name="divergence">
+     <xsd:annotation>
+       <xsd:documentation>
+         This captures divergence dependence information.
+       </xsd:documentation>
+     </xsd:annotation>
+     <xsd:attribute name="interprocedural" use="required" type="xsd:boolean" default="false"/>
+     <xsd:attribute ref="slicer:active" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType id="interference" name="interference">
+     <xsd:annotation>
+       <xsd:documentation>
+         This captures interference dependence information.
+       </xsd:documentation>
+     </xsd:annotation>
+     <xsd:attribute ref="slicer:equivalenceClassBased" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType id="ready" name="ready">
+     <xsd:annotation>
+       <xsd:documentation>
+         This captures ready dependence information.
+       </xsd:documentation>
+     </xsd:annotation>
+     <xsd:attribute id="rule1" name="rule1" use="required" type="xsd:boolean" default="true"/>
+     <xsd:attribute id="rule2" name="rule2" use="required" type="xsd:boolean" default="true"/>
+     <xsd:attribute id="rule3" name="rule3" use="required" type="xsd:boolean" default="true"/>
+     <xsd:attribute id="rule4" name="rule4" use="required" type="xsd:boolean" default="true"/>
+     <xsd:attribute ref="slicer:active" use="required"/>
+     <xsd:attribute ref="slicer:equivalenceClassBased" use="required"/>
+    </xsd:complexType>
+
+</xsd:schema>

@@ -1,0 +1,30 @@
+<xsd:schema id="slicerConfig" version="1.0" xml:lang="en"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
+    targetNamespace="http://indus.projects.cis.ksu.edu/slicer"
+    elementFormDefault="qualified"
+    blockDefault="#all"
+    finalDefault="#all">
+
+    <xsd:import id="analysesConfigTypes" namespace="http://indus.projects.cis.ksu.edu/analyses" 
+        schemaLocation="analysesConfigTypes.xsd"/>
+    <xsd:include id="slicerConfigTypes" schemaLocation="slicerConfigTypes.xsd"/>
+
+    <xsd:element id="slicerConfiguration" name="slicerConfiguration">
+      <xsd:annotation>
+        <xsd:appinfo>
+          Slicer configuration
+        </xsd:appinfo>
+        <xsd:documentation>
+          This is a set of slicer configurations.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="configurationInfo" type="slicer:configuration" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="activeConfiguration" type="xsd:IDREF" use="required"/>
+      </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

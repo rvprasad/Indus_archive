@@ -1,0 +1,41 @@
+<binding>
+	<mapping name="slicerConfiguration"	class="edu.ksu.cis.indus.tools.ToolConfigurationCollection">
+		<collection field="configurations" item-type="edu.ksu.cis.indus.tools.slicer.SlicerConfiguration" 
+			factory="edu.ksu.cis.indus.tools.ToolConfigurationCollection.createConfigurations"
+			set-method="setConfigurations"/>
+		<value style="attribute" name="activeConfiguration" set-method="setActiveToolConfigurationID" 
+			get-method="getActiveToolConfigurationID"/>
+	</mapping>
+	<mapping name="configurationInfo" class="edu.ksu.cis.indus.tools.slicer.SlicerConfiguration">
+		<value style="attribute" name="slicetype" set-method="setSliceType" type="java.lang.String" 
+			get-method="getSliceType"/>
+		<value style="attribute" name="sliceForDeadLock" type="boolean" field="sliceForDeadlock"/>
+		<value style="attribute" name="name" type="java.lang.String" field="NAME"/>
+		<structure name="divergence">
+			<value style="attribute" name="active" type="boolean" set-method="useDivergenceDepAnalysis" 
+				get-method="isDivergenceDepAnalysisUsed"/>
+			<value style="attribute" name="interprocedural" type="boolean" 
+				set-method="useInterproceduralDivergenceDepAnalysis" 
+				get-method="isInterproceduralDivergenceDepAnalysisUsed"/>
+		</structure> 
+		<structure name="interference">
+			<value style="attribute" name="equivalenceClassBased" type="boolean" 
+				set-method="useECBasedInterferenceDepAnalysis" 
+				get-method="isECBasedInterferenceDepAnalysisUsed"/>
+		</structure>
+		<structure name="ready">
+			<value style="attribute" name="active" type="boolean" 
+				set-method="useReadyDepAnalysis" get-method="isReadyDepAnalysisUsed"/>
+			<value style="attribute" name="equivalenceClassBased" type="boolean" 
+				set-method="useECBasedReadyDepAnalysis" get-method="isECBasedReadyDepAnalysisUsed"/>
+			<value style="attribute" name="rule1" type="boolean" 
+				set-method="useReadyRule1" get-method="isReadyRule1Used"/>
+			<value style="attribute" name="rule2" type="boolean" 
+				set-method="useReadyRule2" get-method="isReadyRule2Used"/>			
+			<value style="attribute" name="rule3" type="boolean" 
+				set-method="useReadyRule3" get-method="isReadyRule3Used" />
+			<value style="attribute" name="rule4" type="boolean" 
+				set-method="useReadyRule4" get-method="isReadyRule4Used"/>		
+		</structure>		
+	</mapping>
+</binding>
