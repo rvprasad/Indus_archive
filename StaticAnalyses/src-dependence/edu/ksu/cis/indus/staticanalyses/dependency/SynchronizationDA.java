@@ -94,6 +94,16 @@ public final class SynchronizationDA
 	static final Log LOGGER = LogFactory.getLog(SynchronizationDA.class);
 
 	/** 
+	 * A predicate used to filter <code>EnterMonitorStmt</code>.
+	 */
+	private static final Predicate ENTER_MONITOR_STMT_PREDICATE =
+		new Predicate() {
+			public boolean evaluate(final Object obj) {
+				return obj instanceof EnterMonitorStmt;
+			}
+		};
+
+	/** 
 	 * This is collection of monitor triples that occur in the analyzed system.  The elements of the triple are of type
 	 * <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and <code>SootMethod</code>, respectively.
 	 *
@@ -231,24 +241,6 @@ public final class SynchronizationDA
 	}
 
 	/**
-	 * Retrieves the statements in <code>method</code> that are synchronization dependent on the entry/exit points of
-	 * <code>method</code>.
-	 *
-	 * @param method for which the dependent are requested.
-	 *
-	 * @return a collection of dependent statements.
-	 *
-	 * @pre method != null
-	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
-	 */
-	public Collection getDependentsOnSyncMethod(final SootMethod method) {
-		if (!syncedMethods.isEmpty()) {
-			processSyncedMethods();
-		}
-		return (Collection) MapUtils.getObject(syncedMethod2dependents, method, Collections.EMPTY_LIST);
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosedStmts(soot.jimple.Stmt, SootMethod, boolean)
 	 */
 	public Collection getEnclosedStmts(final Stmt monitorStmt, final SootMethod method, final boolean transitive) {
@@ -270,6 +262,34 @@ public final class SynchronizationDA
 			final Triple _triple = (Triple) _i.next();
 			_result.remove(_triple.getFirst());
 			_result.remove(_triple.getSecond());
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IMonitorInfo#getEnclosedStmts(SootMethod,boolean)
+	 */
+	public Collection getEnclosedStmts(final SootMethod method, final boolean transitive) {
+		if (!syncedMethods.isEmpty()) {
+			processSyncedMethods();
+		}
+
+		final Collection _result = new HashSet();
+		_result.addAll((Collection) MapUtils.getObject(syncedMethod2dependents, method, Collections.EMPTY_LIST));
+
+		if (transitive) {
+			final Collection _temp = new HashSet();
+			_temp.addAll(_result);
+			CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
+
+			final Iterator _i = _temp.iterator();
+			final int _iEnd = _temp.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Stmt _monitorStmt = (Stmt) _i.next();
+				_result.addAll(DependencyAnalysisUtil.getDependentTransitiveClosureOf(_monitorStmt, method, this,
+						DependencyAnalysisUtil.STMT_RESULT_DEPENDENCE_RETRIEVER));
+			}
 		}
 		return _result;
 	}
@@ -741,12 +761,6 @@ outerloop:
 	private void processSyncedMethods() {
 		final Collection _dependees = new ArrayList();
 		final Collection _temp = new HashSet();
-		final Predicate _predicate =
-			new Predicate() {
-				public boolean evaluate(final Object obj) {
-					return obj instanceof EnterMonitorStmt;
-				}
-			};
 
 		for (final Iterator _i = syncedMethods.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -755,7 +769,7 @@ outerloop:
 				final Stmt _stmt = (Stmt) _j.next();
 				_dependees.clear();
 				_dependees.addAll(getDependees(_stmt, _sm));
-				CollectionUtils.filter(_dependees, _predicate);
+				CollectionUtils.filter(_dependees, ENTER_MONITOR_STMT_PREDICATE);
 
 				final int _size;
 
@@ -823,6 +837,9 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.51  2004/07/21 02:07:35  venku
+   - spruced up IMonitorInfo interface with method to extract more information.
+   - updated SynchronizationDA to provide the methods introduced in IMonitorInfo.
    Revision 1.50  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
