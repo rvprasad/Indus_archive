@@ -463,23 +463,6 @@ public class SliceXMLizerCLI
 				try {
 					final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
 					_writer = new PrintWriter(new FileWriter(_file));
-
-					for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
-						final SootMethod _sm = (SootMethod) _j.next();
-
-						// REMOVE: begin
-						if (LOGGER.isDebugEnabled()) {
-							final StringBuffer _sb = new StringBuffer();
-							_sb.append("Method: " + _sm + "   " + _sm.isConcrete() + "\nTags:");
-
-							for (final Iterator _k = _sm.getTags().iterator(); _k.hasNext();) {
-								_sb.append("\t" + ((Tag) _k.next()).getName() + "\n");
-							}
-							LOGGER.debug(_sb.toString());
-						}
-
-						// REMOVE: end
-					}
 					_printer.printTo(_sc, _writer);
 					_printer.write(_sc, outputDirectory);
 				} catch (IOException _e) {
@@ -536,6 +519,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/03 08:06:17  venku
+   - renamed SliceXMLizer to SliceXMLizerCLI.
+
    Revision 1.13  2004/03/03 08:03:52  venku
    - formatting.
 
