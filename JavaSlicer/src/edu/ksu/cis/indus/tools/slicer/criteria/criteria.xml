@@ -1,0 +1,30 @@
+<slicer:criteria 
+    xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+    <slicer:criterion slicer:considerExecution="false">
+        <slicer:className>
+            Control14
+        </slicer:className>    
+        
+        <slicer:method>
+            <slicer:methodName>
+                main
+            </slicer:methodName>
+            
+            <slicer:returnTypeName>
+                void
+            </slicer:returnTypeName>
+            
+            <slicer:parameters>
+                <slicer:typeName>
+                    java.lang.String[
+                </slicer:typeName>
+            </slicer:parameters>
+        </slicer:method>    
+        
+        <slicer:stmt slicer:index="9" slicer:considerEntireStmt="true"/>
+
+    </slicer:criterion>
+
+</slicer:criteria>
