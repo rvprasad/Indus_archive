@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,11 +71,9 @@ public final class CollectionsUtilities {
 		}
 
 		if (index > list.size()) {
-			list.addAll(Collections.nCopies(index - list.size(), null));
-			list.add(defaultValue);
-		}
-
-		if (list.get(index) == null) {
+		    ensureSize(list, index, null);
+		    list.set(index, defaultValue);
+		} else if (list.get(index) == null) {
 			list.set(index, defaultValue);
 		}
 		return list.get(index);
@@ -207,6 +204,29 @@ public final class CollectionsUtilities {
 	}
 
 	/**
+	 * Ensures that <code>list.size()</code> returns <code>finalSize</code>. This is achieved by appending
+	 * <code>defaultValue</code> appropriate number of times to <code>list</code>.
+	 *
+	 * @param list to be modified.
+	 * @param finalSize of <code>list</code>
+	 * @param defaultValue to be injected into the list, if required, to ensure it's size.
+	 *
+	 * @pre list != null
+	 * @post list.size() = finalSize
+	 * @post list$pre.size() &lt; finalSize implies list.contains(defaultValue)
+	 * @post list$pre.size() &gt;= finalSize implies list$pre.equals(list)
+	 */
+	public static void ensureSize(final List list, final int finalSize, final Object defaultValue) {
+		final int _size = list.size();
+
+		if (finalSize > _size) {
+			for (int _i = finalSize - _size; _i > 0; _i--) {
+				list.add(defaultValue);
+			}
+		}
+	}
+
+	/**
 	 * Puts all values in <code>values</code> into the value of the given key in the given map .  If no collection exists
 	 * against the  given key, the given collection is installed as the value for the given key and the values are loaded
 	 * into it.
@@ -320,6 +340,8 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/06/27 09:10:58  venku
+   - added a new method to retrieve values from a list.
    Revision 1.4  2004/06/01 06:29:58  venku
    - added new methods to CollectionUtilities.
    - ripple effect.
