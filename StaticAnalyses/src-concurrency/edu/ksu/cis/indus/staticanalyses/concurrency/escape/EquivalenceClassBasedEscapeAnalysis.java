@@ -236,16 +236,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
 		public void caseAssignStmt(final AssignStmt stmt) {
-			boolean _temp = valueProcessor.read;
-			valueProcessor.read = true;
+			boolean _temp = valueProcessor.rhs;
+			valueProcessor.rhs = true;
 			valueProcessor.process(stmt.getRightOp());
-			valueProcessor.read = _temp;
+			valueProcessor.rhs = _temp;
 
 			final AliasSet _r = (AliasSet) valueProcessor.getResult();
-			_temp = valueProcessor.read;
-			valueProcessor.read = false;
+			_temp = valueProcessor.rhs;
+			valueProcessor.rhs = false;
 			valueProcessor.process(stmt.getLeftOp());
-			valueProcessor.read = _temp;
+			valueProcessor.rhs = _temp;
 
 			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
@@ -272,16 +272,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 		 */
 		public void caseIdentityStmt(final IdentityStmt stmt) {
-			boolean _temp = valueProcessor.read;
-			valueProcessor.read = true;
+			boolean _temp = valueProcessor.rhs;
+			valueProcessor.rhs = true;
 			valueProcessor.process(stmt.getRightOp());
-			valueProcessor.read = _temp;
+			valueProcessor.rhs = _temp;
 
 			final AliasSet _r = (AliasSet) valueProcessor.getResult();
-			_temp = valueProcessor.read;
-			valueProcessor.read = false;
+			_temp = valueProcessor.rhs;
+			valueProcessor.rhs = false;
 			valueProcessor.process(stmt.getLeftOp());
-			valueProcessor.read = _temp;
+			valueProcessor.rhs = _temp;
 
 			final AliasSet _l = (AliasSet) valueProcessor.getResult();
 
@@ -354,11 +354,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final class ValueProcessor
 	  extends AbstractJimpleValueSwitch {
 		/** 
-		 * This indicates if the value should be marked as being read or written.  <code>true</code> indicates that the
-		 * values should be marked as being read from.  <code>false</code> indicates that the values should be marked as
-		 * being written into.
+		 * This indicates if the value occurs as a rhs-value or a lhs-value in an assignment statement. <code>true</code>
+		 * indicates that it value occurs as a rhs-value in an assignment statement.  <code>false</code> indicates that the
+		 * value occurs as a lhs-value in an assignment statement.  This is used to mark alias sets of primaries in access
+		 * expressions in a manner appropriate to the analysis.  For example, in side-effect analysis, the primaries of
+		 * array  expressions are read as rhs-value and are written to as lhs-value.
 		 */
-		boolean read = true;
+		boolean rhs = true;
 
 		/**
 		 * Provides the alias set associated with the array element being referred.  All elements in a dimension of an array
@@ -367,10 +369,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.RefSwitch#caseArrayRef(soot.jimple.ArrayRef)
 		 */
 		public void caseArrayRef(final ArrayRef v) {
-			boolean _temp = read;
-			read = true;
+			boolean _temp = rhs;
+			rhs = true;
 			process(v.getBase());
-			read = _temp;
+			rhs = _temp;
 
 			final AliasSet _base = (AliasSet) getResult();
 			AliasSet _elt = _base.getASForField(ARRAY_FIELD);
@@ -388,6 +390,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				setReadOrWritten(_elt);
 			}
 
+			if (!rhs) {
+				_base.setSideAffected();
+			}
+
 			setResult(_elt);
 		}
 
@@ -402,10 +408,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.RefSwitch#caseInstanceFieldRef(soot.jimple.InstanceFieldRef)
 		 */
 		public void caseInstanceFieldRef(final InstanceFieldRef v) {
-			boolean _temp = read;
-			read = true;
+			boolean _temp = rhs;
+			rhs = true;
 			process(v.getBase());
-			read = _temp;
+			rhs = _temp;
 
 			final AliasSet _base = (AliasSet) getResult();
 			final String _fieldSig = v.getField().getSignature();
@@ -422,6 +428,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			if (_field != null) {
 				_field.setAccessedTo(true);
 				setReadOrWritten(_field);
+			}
+
+			if (!rhs) {
+				_base.setSideAffected();
 			}
 
 			setResult(_field);
@@ -541,7 +551,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		private void setReadOrWritten(final AliasSet as) {
 			if (as != null) {
-				if (read) {
+				if (rhs) {
 					as.setRead();
 				} else {
 					as.setWritten();
@@ -770,6 +780,78 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * @see ISideEffectInfo#isArgumentBasedAccessPathSideAffected(ICallGraphInfo.CallTriple, int, String[],     boolean)
+	 */
+	public boolean isArgumentBasedAccessPathSideAffected(final CallTriple callerTriple, final int argPos,
+		final String[] accesspath, final boolean recurse) {
+		final SootMethod _callee = callerTriple.getExpr().getMethod();
+
+		if (argPos >= _callee.getParameterCount()) {
+			throw new IllegalArgumentException(_callee + " has " + _callee.getParameterCount() + " arguments, but " + argPos
+				+ " was provided.");
+		}
+
+		final SootMethod _caller = callerTriple.getMethod();
+		final Triple _triple = (Triple) method2Triple.get(_caller);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			final AliasSet _endPoint = _ctxt.getParamAS(argPos).getAccessPathEndPoint(accesspath);
+
+			if (_endPoint == null) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("isParameterBasedAccessPathSideAffected(callerTriple = " + callerTriple + ", argPos = "
+						+ argPos + ", accesspath = " + Arrays.asList(accesspath) + ") - The given access path could not be "
+						+ "discovered.  Hence, returning optimistic (false) info.");
+				}
+				_result = false;
+			} else {
+				_result = AliasSet.isSideAffected(_endPoint, recurse);
+			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see ISideEffectInfo#isArgumentSideAffected(ICallGraphInfo.CallTriple, int)
+	 */
+	public boolean isArgumentSideAffected(final CallTriple callerTriple, final int argPos) {
+		final SootMethod _callee = callerTriple.getExpr().getMethod();
+
+		if (argPos >= _callee.getParameterCount()) {
+			throw new IllegalArgumentException(_callee + " has " + _callee.getParameterCount() + " arguments, but " + argPos
+				+ " was provided.");
+		}
+
+		final boolean _result;
+
+		if (_callee.getParameterType(argPos) instanceof RefType) {
+			final SootMethod _caller = callerTriple.getMethod();
+			final Triple _triple = (Triple) method2Triple.get(_caller);
+
+			if (_triple != null) {
+				final MethodContext _ctxt = (MethodContext) ((Map) _triple.getThird()).get(callerTriple);
+				_result = AliasSet.isSideAffected(_ctxt.getParamAS(argPos), true);
+			} else {
+				_result = true;
+
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("No recorded information for " + _caller
+						+ " is available.  Returning pessimistic (true) info.");
+				}
+			}
+		} else {
+			_result = false;
+		}
+		return _result;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
 	 */
 	public Collection getIds() {
@@ -815,45 +897,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see ISideEffectInfo#isArgumentBasedAccessPathSideAffected(ICallGraphInfo.CallTriple, int, String[],
-	 * 		boolean)
-	 */
-	public boolean isArgumentBasedAccessPathSideAffected(final CallTriple callerTriple, final int argPos,
-		final String[] accesspath, final boolean recurse) {
-		final SootMethod _callee = callerTriple.getExpr().getMethod();
-
-		if (argPos >= _callee.getParameterCount()) {
-			throw new IllegalArgumentException(_callee + " has " + _callee.getParameterCount() + " arguments, but " + argPos
-				+ " was provided.");
-		}
-
-		final SootMethod _caller = callerTriple.getMethod();
-		final Triple _triple = (Triple) method2Triple.get(_caller);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			final AliasSet _endPoint = _ctxt.getParamAS(argPos).getAccessPathEndPoint(accesspath);
-
-			if (_endPoint == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("isParameterBasedAccessPathSideAffected(callerTriple = " + callerTriple + ", argPos = "
-						+ argPos + ", accesspath = " + Arrays.asList(accesspath) + ") - The given access path could not be "
-						+ "discovered.  Hence, returning optimistic (false) info.");
-				}
-				_result = false;
-			} else {
-				_result = AliasSet.isSideAffected(_endPoint, recurse);
-			}
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
-	}
-
-	/**
 	 * @see ISideEffectInfo#isParameterSideAffected(SootMethod, int)
 	 */
 	public boolean isParameterSideAffected(final SootMethod method, final int argPos) {
@@ -862,75 +905,24 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				+ " was provided.");
 		}
 
-		final Triple _triple = (Triple) method2Triple.get(method);
-		boolean _result = true;
+		final boolean _result;
 
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			_result = AliasSet.isSideAffected(_ctxt.getParamAS(argPos), true);
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
-	}
+		if (method.getParameterType(argPos) instanceof RefType) {
+			final Triple _triple = (Triple) method2Triple.get(method);
 
-	/**
-	 * @see ISideEffectInfo#isArgumentSideAffected(ICallGraphInfo.CallTriple, int)
-	 */
-	public boolean isArgumentSideAffected(final CallTriple callerTriple, final int argPos) {
-		final SootMethod _callee = callerTriple.getExpr().getMethod();
-
-		if (argPos >= _callee.getParameterCount()) {
-			throw new IllegalArgumentException(_callee + " has " + _callee.getParameterCount() + " arguments, but " + argPos
-				+ " was provided.");
-		}
-
-		final SootMethod _caller = callerTriple.getMethod();
-		final Triple _triple = (Triple) method2Triple.get(_caller);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) ((Map) _triple.getThird()).get(callerTriple);
-			_result = AliasSet.isSideAffected(_ctxt.getParamAS(argPos), true);
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * @see ISideEffectInfo#isThisBasedAccessPathSideAffected(SootMethod, String[], boolean)
-	 */
-	public boolean isThisBasedAccessPathSideAffected(final SootMethod method, final String[] accesspath, final boolean recurse) {
-		if (method.isStatic()) {
-			throw new IllegalArgumentException("The provided method should be non-static.");
-		}
-
-		final Triple _triple = (Triple) method2Triple.get(method);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			final AliasSet _endPoint = _ctxt.thisAS.getAccessPathEndPoint(accesspath);
-
-			if (_endPoint == null) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("isParameterBasedAccessPathSideAffected(method = " + method + ", accesspath = "
-						+ Arrays.asList(accesspath) + ") - The given access path could not be  "
-						+ "discovered.  Hence, returning optimistic (false) info.");
-				}
-				_result = false;
+			if (_triple != null) {
+				final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+				_result = AliasSet.isSideAffected(_ctxt.getParamAS(argPos), true);
 			} else {
-				_result = AliasSet.isSideAffected(_endPoint, recurse);
+				_result = true;
+
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("No recorded information for " + method
+						+ " is available.  Returning pessimistic (true) info.");
+				}
 			}
 		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
-			}
+			_result = false;
 		}
 		return _result;
 	}
@@ -971,28 +963,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see ISideEffectInfo#isThisSideAffected(SootMethod)
-	 */
-	public boolean isThisSideAffected(final SootMethod method) {
-		if (method.isStatic()) {
-			throw new IllegalArgumentException("The provided method should be non-static.");
-		}
-
-		final Triple _triple = (Triple) method2Triple.get(method);
-		boolean _result = true;
-
-		if (_triple != null) {
-			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
-			_result = AliasSet.isSideAffected(_ctxt.thisAS, true);
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
-			}
-		}
-		return _result;
-	}
-
-	/**
 	 * @see ISideEffectInfo#isReceiverSideAffected(ICallGraphInfo.CallTriple)
 	 */
 	public boolean isReceiverSideAffected(final CallTriple callerTriple) {
@@ -1010,6 +980,61 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		} else {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see ISideEffectInfo#isThisBasedAccessPathSideAffected(SootMethod, String[], boolean)
+	 */
+	public boolean isThisBasedAccessPathSideAffected(final SootMethod method, final String[] accesspath, final boolean deep) {
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The provided method should be non-static.");
+		}
+
+		final Triple _triple = (Triple) method2Triple.get(method);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			final AliasSet _endPoint = _ctxt.thisAS.getAccessPathEndPoint(accesspath);
+
+			if (_endPoint == null) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("isParameterBasedAccessPathSideAffected(method = " + method + ", accesspath = "
+						+ Arrays.asList(accesspath) + ") - The given access path could not be  "
+						+ "discovered.  Hence, returning optimistic (false) info.");
+				}
+				_result = false;
+			} else {
+				_result = AliasSet.isSideAffected(_endPoint, deep);
+			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see ISideEffectInfo#isThisSideAffected(SootMethod)
+	 */
+	public boolean isThisSideAffected(final SootMethod method) {
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The provided method should be non-static.");
+		}
+
+		final Triple _triple = (Triple) method2Triple.get(method);
+		boolean _result = true;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			_result = AliasSet.isSideAffected(_ctxt.thisAS, true);
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
 			}
 		}
 		return _result;

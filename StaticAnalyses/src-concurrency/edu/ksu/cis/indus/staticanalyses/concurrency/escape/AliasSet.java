@@ -108,6 +108,11 @@ final class AliasSet
 	private boolean shared;
 
 	/** 
+	 * This indicates if the associated object was side-affected.
+	 */
+	private boolean sideAffected;
+
+	/** 
 	 * This indicates that this object is being stringified.
 	 */
 	private boolean stringifying;
@@ -388,6 +393,13 @@ final class AliasSet
 	}
 
 	/**
+	 * Marks the object associated with this alias set is side affected.
+	 */
+	void setSideAffected() {
+		((AliasSet) find()).sideAffected = true;
+	}
+
+	/**
 	 * Marks the object associated with this alias set as appearing in a <code>wait()</code> call.
 	 *
 	 * @post find().waits == true
@@ -638,6 +650,7 @@ final class AliasSet
 			_representative.multiThreadAccessibility |= _represented.multiThreadAccessibility;
 			_representative.shared |= _represented.shared;
 			_representative.global |= _represented.global;
+			_representative.sideAffected |= _represented.sideAffected;
 
 			if (_represented.readyEntities != null) {
 				if (_representative.readyEntities == null) {
@@ -714,18 +727,29 @@ final class AliasSet
 
 			for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
 				final AliasSet _fieldAS = (AliasSet) _i.next();
-				_result |= _fieldAS.written;
-				visitedASs.add(_fieldAS);
+				_result |= _fieldAS.isSideAffected();
+				visitedASs.add(_fieldAS.find());
 			}
 
 			if (!_result && recurse) {
+				final Iterator _j = _fieldASs.iterator();
+
 				for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
-					final AliasSet _fieldAS = (AliasSet) _i.next();
+					final AliasSet _fieldAS = (AliasSet) _j.next();
 					_result |= _fieldAS.isSideAffected(visitedASs, recurse);
 				}
 			}
 		}
 		return _result;
+	}
+
+	/**
+	 * Returns the value of <code>sideAffected</code>.
+	 *
+	 * @return the value of <code>sideAffected</code>.
+	 */
+	private boolean isSideAffected() {
+		return ((AliasSet) find()).sideAffected;
 	}
 
 	/**
