@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import soot.ArrayType;
-import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
@@ -28,7 +26,6 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.NewExpr;
-import soot.jimple.NullConstant;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
@@ -42,11 +39,9 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Marker;
 import edu.ksu.cis.indus.staticanalyses.support.MutableDirectedGraph.MutableNode;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -61,7 +56,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 
 /**
@@ -215,6 +209,7 @@ public class CallGraph
 	 *
 	 * @pre invokeExpr != null and context != null
 	 * @pre context.getCurrentMethod() != null
+	 * @pre contet.getStmt() != null
 	 * @post result.oclIsKindOf(Collection(SootMethod))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallees(InvokeExpr,Context)
@@ -222,30 +217,22 @@ public class CallGraph
 	public Collection getCallees(final InvokeExpr invokeExpr, final Context context) {
 		Collection result;
 
-		if (invokeExpr instanceof StaticInvokeExpr || invokeExpr instanceof SpecialInvokeExpr) {
-			result = Collections.singletonList(invokeExpr.getMethod());
-		} else {
-			Collection newExprs = analyzer.getValues(((InstanceInvokeExpr) invokeExpr).getBase(), context);
-			result = new HashSet();
+		Collection temp = (Collection) caller2callees.get(context.getCurrentMethod());
 
-			for (Iterator i = newExprs.iterator(); i.hasNext();) {
-				Object o = i.next();
-				SootClass sc = null;
+		if (temp != null && !temp.isEmpty()) {
+			result = new ArrayList();
 
-				if (o instanceof NullConstant) {
-					continue;
-				} else {
-					Type t = ((Value) o).getType();
+			for (Iterator i = temp.iterator(); i.hasNext();) {
+				CallTriple ctrp = (CallTriple) i.next();
 
-					if (t instanceof RefType) {
-						sc = analyzer.getEnvironment().getClass(((RefType) t).getClassName());
-					} else if (t instanceof ArrayType) {
-						sc = analyzer.getEnvironment().getClass("java.lang.Object");
-					}
+				if (ctrp.getExpr().equals(invokeExpr)) {
+					result.add(ctrp.getMethod());
 				}
-				result.add(findMethodImplementation(sc, invokeExpr.getMethod()));
 			}
+		} else {
+			result = Collections.EMPTY_LIST;
 		}
+
 		return result;
 	}
 
@@ -349,61 +336,6 @@ public class CallGraph
 	 */
 	public Collection getReachableMethods() {
 		return Collections.unmodifiableCollection(reachables);
-	}
-
-	/**
-	 * Returns the methods which are the heads of recursion cycles.
-	 *
-	 * @return a colleciton of methods.
-	 *
-	 * @post result.oclIsKindOf(Collection(SootMethod))
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getRecursionRoots()
-	 */
-	public Collection getRecursionRoots() {
-		if (recursionRoots == null) {
-			recursionRoots = new HashSet();
-
-			Context context = new Context();
-			Stack callStack = new Stack();
-			IWorkBag workbag = new FIFOWorkBag();
-
-			for (Iterator i = heads.iterator(); i.hasNext();) {
-				SootMethod sm = (SootMethod) i.next();
-				workbag.addWork(new Triple(sm, null, null));
-
-				while (workbag.hasWork()) {
-					Object o = workbag.getWork();
-
-					if (o instanceof Marker) {
-						Object temp = ((Marker) o)._content;
-
-						for (Object obj = callStack.pop(); !temp.equals(obj);) {
-							obj = callStack.pop();
-						}
-					} else {
-						Triple triple = (Triple) o;
-						SootMethod callee = (SootMethod) triple.getFirst();
-
-						if (callStack.contains(callee)) {
-							recursionRoots.add(callee);
-						} else {
-							context.setRootMethod(callee);
-
-							Collection callees = getCallees(callee);
-
-							if (!callees.isEmpty()) {
-								callStack.push(callee);
-								workbag.addWork(new Marker(callee));
-								workbag.addAllWork(callees);
-							}
-						}
-					}
-				}
-				context.returnFromCurrentMethod();
-			}
-		}
-		return Collections.unmodifiableCollection(recursionRoots);
 	}
 
 	/**
@@ -584,6 +516,26 @@ public class CallGraph
 		Collection unreachables = new HashSet(caller2callees.keySet());
 		unreachables.addAll(callee2callers.keySet());
 		unreachables.removeAll(reachables);
+
+		for (Iterator i = unreachables.iterator(); i.hasNext();) {
+			SootMethod sm = (SootMethod) i.next();
+			temp.clear();
+			temp.addAll(getCallees(sm));
+
+			for (Iterator j = temp.iterator(); j.hasNext();) {
+				CallTriple ctrp = (CallTriple) j.next();
+				CallTriple dup = new CallTriple(sm, ctrp.getStmt(), ctrp.getExpr());
+				((Collection) callee2callers.get(ctrp.getMethod())).remove(dup);
+			}
+			temp.clear();
+			temp.addAll(getCallers(sm));
+
+			for (Iterator j = temp.iterator(); j.hasNext();) {
+				CallTriple ctrp = (CallTriple) j.next();
+				CallTriple dup = new CallTriple(sm, ctrp.getStmt(), ctrp.getExpr());
+				((Collection) caller2callees.get(ctrp.getMethod())).remove(dup);
+			}
+		}
 		callee2callers.keySet().removeAll(unreachables);
 		caller2callees.keySet().removeAll(unreachables);
 		heads.removeAll(unreachables);
@@ -823,6 +775,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/11/28 22:10:34  venku
+   - formatting.
+   - simple and faster pruning algorithm.
    Revision 1.29  2003/11/26 06:14:54  venku
    - formatting and coding convention.
    Revision 1.28  2003/11/26 02:55:45  venku

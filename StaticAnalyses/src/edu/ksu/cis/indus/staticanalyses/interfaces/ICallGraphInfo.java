@@ -212,15 +212,6 @@ public interface ICallGraphInfo
 	Collection getReachableMethods();
 
 	/**
-	 * Returns a collection of methods that are recursion roots in the analyzed system.
-	 *
-	 * @return a collection of methods.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-	 */
-	Collection getRecursionRoots();
-
-	/**
 	 * Returns a collection of strongly connected components in the given call graph.
 	 *
 	 * @return a collection of collection of methods.
@@ -234,6 +225,13 @@ public interface ICallGraphInfo
    ChangeLog:
 
    $Log$
+   Revision 1.8  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.7  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
