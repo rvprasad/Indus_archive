@@ -193,7 +193,7 @@ public final class OFAXMLizerCLI
 	 * @pre options != null
 	 */
 	private static void printUsage(final Options options) {
-		final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName() + " <options> <classnames>";
+		final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName() + " <options> <classnames>";
 		(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are: ", options, "");
 	}
 
