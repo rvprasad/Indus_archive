@@ -162,15 +162,10 @@ public final class SlicerConfiguration
 	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
 
 	/**
-	 * This indicates if executable slice should be generated.
-	 */
-	protected boolean executableSlice = true;
-
-	/**
 	 * This indicates if the tool should criteria that ensure the deadlock behavior of the slice is same as that of the
 	 * original program.
 	 */
-	protected boolean sliceForDeadlock;
+	boolean sliceForDeadlock;
 
 	/**
 	 * The collection of ids of the dependences to be considered for slicing.
@@ -185,6 +180,11 @@ public final class SlicerConfiguration
 	 * @invariant id2dependencyAnalyses.oclIsKindOf(Map(Object, Collection(AbstractDependencyAnalysis)))
 	 */
 	private final Map id2dependencyAnalyses = new HashMap();
+
+	/**
+	 * This indicates if executable slice should be generated.
+	 */
+	private boolean executableSlice = true;
 
 	/**
 	 * Creates a new SlicerConfiguration object.
@@ -828,10 +828,11 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/06/26 06:45:43  venku
+   - documentation.
    Revision 1.39  2004/06/24 07:05:44  venku
    - addressed feature request 391.
      - made getIDOfDAToUse() and getDependencyAnalyses() public.
-
    Revision 1.38  2004/06/24 06:53:53  venku
    - refactored SliceConfiguration
      - added processBooleanProperty()
