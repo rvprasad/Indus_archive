@@ -59,15 +59,20 @@ public class FATestSetup
 	 */
 	public static final String TAG_NAME = "FATestSetup:TestTag";
 
-	/** 
+	/**
 	 * The value analyzer used during testing.
 	 */
 	protected IValueAnalyzer valueAnalyzer;
 
-	/** 
+	/**
 	 * The scene used during testing.
 	 */
 	protected Scene scene;
+
+	/**
+	 * The names of the class to analyze.
+	 */
+	protected final String classNames;
 
 	/**
 	 * Creates a new FATestSetup object.
@@ -80,6 +85,24 @@ public class FATestSetup
 		super(test);
 		valueAnalyzer = OFAnalyzer.getFSOSAnalyzer(FATestSetup.TAG_NAME);
 		scene = Scene.v();
+		classNames = null;
+	}
+
+	/**
+	 * Creates a new FATestSetup object.
+	 *
+	 * @param test is the test to run in this setup.
+	 * @param theNameOfClasses is the list of classes.
+     * @param classpath to be used to find the classes.
+	 *
+	 * @pre test != null and theNameOfClasses != null
+	 */
+	protected FATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
+		super(test);
+		valueAnalyzer = OFAnalyzer.getFSOSAnalyzer(FATestSetup.TAG_NAME);
+		scene = Scene.v();
+        scene.setSootClassPath(classpath);
+		classNames = theNameOfClasses;
 	}
 
 	/**
@@ -137,18 +160,19 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 01:10:33  venku
+   - renamed TestSuite classes to ArgTestSuite classes.
+   - added DependencyArgTestSuite.
    Revision 1.2  2004/01/03 19:52:54  venku
    - renamed CallGraphInfoTest to CallGraphTest
    - all tests of a kind have to be exposed via a suite like
      FATestSuite or OFAProcessorArgTestSuite.  This is to enable
      automated testing.
    - all properties should start with indus and not edu.ksu.cis.indus...
-
    Revision 1.1  2003/12/31 08:48:59  venku
    - Refactoring.
    - Setup classes setup each tests by data created by a common setup.
    - Tests and Setups are structured such that if test A requires
      data that can be tested by test B then testSetup B can
      be used to drive test A as well.
-
  */
