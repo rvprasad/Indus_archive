@@ -52,6 +52,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
@@ -225,6 +226,7 @@ public abstract class DADriver
 
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
+        info.put(IValueAnalyzer.ID, aa);
 
 		setupDependencyAnalyses();
 
@@ -381,6 +383,9 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/02 11:30:56  venku
+   - Enabled toggling ECBA instance.
+
    Revision 1.7  2003/08/25 11:47:37  venku
    Fixed minor glitches.
    Revision 1.6  2003/08/21 01:25:21  venku
