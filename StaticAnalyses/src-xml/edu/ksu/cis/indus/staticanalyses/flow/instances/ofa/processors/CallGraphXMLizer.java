@@ -118,46 +118,6 @@ public class CallGraphXMLizer
 	}
 
 	/**
-	 * Writes the call graph in XML.
-	 *
-	 * @param rootname is the name of the root method
-	 * @param info is a map of id's to implementation that satisfies the interface associated with the id.
-	 *
-	 * @pre rootname != null and info != null
-	 * @pre info.oclIsKindOf(Map(Object, Object))
-	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
-	 */
-	protected final void writeXML(final String rootname, final Map info) {
-		final File _f =
-			new File(getXmlOutputDir() + File.separator + rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
-		final FileWriter _writer;
-
-		try {
-			_writer = new FileWriter(_f);
-
-			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
-
-			_writer.write("<callgraph>\n");
-
-			for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
-				final SootMethod _caller = (SootMethod) _i.next();
-				_writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\">\n");
-
-				for (final Iterator _j = _cgi.getCallees(_caller).iterator(); _j.hasNext();) {
-					final SootMethod _callee = (SootMethod) _j.next();
-					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\">\n");
-				}
-				_writer.write("\t</caller>\n");
-			}
-			_writer.write("</callgraph>\n");
-			_writer.flush();
-			_writer.close();
-		} catch (IOException _e) {
-			_e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Xmlize the given system.
 	 */
 	public void execute() {
@@ -209,22 +169,63 @@ public class CallGraphXMLizer
 			writeXML(_rootname, _info);
 		}
 	}
+
+	/**
+	 * Writes the call graph in XML.
+	 *
+	 * @param rootname is the name of the root method
+	 * @param info is a map of id's to implementation that satisfies the interface associated with the id.
+	 *
+	 * @pre rootname != null and info != null
+	 * @pre info.oclIsKindOf(Map(Object, Object))
+	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
+	 */
+	protected final void writeXML(final String rootname, final Map info) {
+		final File _f =
+			new File(getXmlOutputDir() + File.separator + "callgraph_"
+				+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
+		final FileWriter _writer;
+
+		try {
+			_writer = new FileWriter(_f);
+
+			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
+
+			_writer.write("<callgraph>\n");
+
+			for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
+				final SootMethod _caller = (SootMethod) _i.next();
+				_writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\">\n");
+
+				for (final Iterator _j = _cgi.getCallees(_caller).iterator(); _j.hasNext();) {
+					final SootMethod _callee = (SootMethod) _j.next();
+					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\">\n");
+				}
+				_writer.write("\t</caller>\n");
+			}
+			_writer.write("</callgraph>\n");
+			_writer.flush();
+			_writer.close();
+		} catch (IOException _e) {
+			_e.printStackTrace();
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 02:00:14  venku
+   - changed AbstractXMLizer.
+   - ripple effect.
    Revision 1.2  2004/02/09 01:21:03  venku
    - publicized execute() to be used in regression testing.
-
    Revision 1.1  2004/02/08 03:05:46  venku
    - renamed xmlizer packages to be in par with the packages
      that contain the classes whose data is being xmlized.
-
    Revision 1.5  2003/12/27 20:07:40  venku
    - fixed xmlizers/driver to not throw exception
      when -h is specified
-
    Revision 1.4  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -17,12 +17,23 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.AbstractXMLBasedTest;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+
+import edu.ksu.cis.indus.processing.IProcessor;
+
+import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+
+import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -31,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.xml.sax.SAXException;
 
+import soot.Scene;
 import soot.SootMethod;
 
 
@@ -44,7 +56,8 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public class XMLBasedCallGraphTest
-  extends AbstractXMLBasedTest {
+  extends AbstractXMLBasedTest
+  implements IFAProcessorTest {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -56,14 +69,47 @@ public class XMLBasedCallGraphTest
 	private CallGraphXMLizer xmlizer;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private ICallGraphInfo cgi;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final Map info = new HashMap();
+
+	/**
 	 * Creates a new XMLBasedCallGraphTest object.
-	 *
-	 * @param xmlInputDir is the directory in which the base test data of regression test exists.
 	 *
 	 * @pre xmlInputDir != null
 	 */
 	public XMLBasedCallGraphTest() {
 		xmlizer = new CallGraphXMLizer();
+		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setFA(edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer)
+	 */
+	public void setFA(IValueAnalyzer valueAnalyzer) {
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setProcessor(edu.ksu.cis.indus.processing.IProcessor)
+	 */
+	public void setProcessor(IProcessor processor) {
+		cgi = (ICallGraphInfo) processor;
+		info.put(ICallGraphInfo.ID, cgi);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setScene(soot.Scene)
+	 */
+	public void setScene(Scene scene) {
 	}
 
 	/**
@@ -71,9 +117,9 @@ public class XMLBasedCallGraphTest
 	 */
 	public void testDA() {
 		final String _xmlOutDir = getXmlOutputDir();
-        final String _xmlInDir = getXmlInputDir();
+		final String _xmlInDir = getXmlInputDir();
 
-		for (final Iterator _i = xmlizer.getRootMethods().iterator(); _i.hasNext();) {
+		for (final Iterator _i = cgi.getHeads().iterator(); _i.hasNext();) {
 			final SootMethod _root = (SootMethod) _i.next();
 			final String _rootName = _root.getSignature();
 
@@ -102,18 +148,24 @@ public class XMLBasedCallGraphTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		xmlizer.initialize();
-		xmlizer.execute();
+		xmlizer.setXmlOutputDir(getXmlOutputDir());
+
+		for (final Iterator _i = cgi.getHeads().iterator(); _i.hasNext();) {
+			SootMethod _rootname = (SootMethod) _i.next();
+			xmlizer.writeXML(_rootname.getSignature(), info);
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 02:00:14  venku
+   - changed AbstractXMLizer.
+   - ripple effect.
    Revision 1.1  2004/02/09 01:20:10  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based
      testing.  (AbstractXMLBasedTest)
    - added a new xml-based call graph testing class.
-
  */
