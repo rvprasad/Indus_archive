@@ -211,25 +211,15 @@ public final class OFAnalyzer
 		return retValues.isEmpty() ? Collections.EMPTY_SET
 								   : retValues;
 	}
-
-	/**
-	 * Checks if the <code>method</code> was analyzed in the <code>context</code> in this analysis.
-	 *
-	 * @param method to be checked if it was analyzed.
-	 * @param ctxt in which the method was analyzed.
-	 *
-	 * @return <code>true</code> if <code>method</code> was analyzed; <code>false</code>, otherwise.
-	 *
-	 * @pre method != null and ctxt != null
-	 */
-	public boolean wasAnalyzed(final SootMethod method, final AllocationContext ctxt) {
-		return fa.queryMethodVariant(method, ctxt) != null;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.7  2003/11/30 01:07:57  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.

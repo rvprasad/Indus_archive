@@ -339,7 +339,7 @@ public class FA
 	 * @pre a != null
 	 * @post result != null
 	 */
-	public final ArrayVariant queryArrayVariant(final ArrayType a) {
+	final ArrayVariant queryArrayVariant(final ArrayType a) {
 		return queryArrayVariant(a, _analyzer.context);
 	}
 
@@ -354,7 +354,7 @@ public class FA
 	 * @pre a != null and context != null
 	 * @post result != null
 	 */
-	public final ArrayVariant queryArrayVariant(final ArrayType a, final Context context) {
+	final ArrayVariant queryArrayVariant(final ArrayType a, final Context context) {
 		return (ArrayVariant) arrayVariantManager.query(a, context);
 	}
 
@@ -369,7 +369,7 @@ public class FA
 	 * @pre sf != null
 	 * @post result != null
 	 */
-	public final FieldVariant queryFieldVariant(final SootField sf) {
+	final FieldVariant queryFieldVariant(final SootField sf) {
 		return queryFieldVariant(sf, _analyzer.context);
 	}
 
@@ -384,7 +384,7 @@ public class FA
 	 * @pre sf != null and context != null
 	 * @post result != null
 	 */
-	public final FieldVariant queryFieldVariant(final SootField sf, final Context context) {
+	final FieldVariant queryFieldVariant(final SootField sf, final Context context) {
 		IVariant temp = null;
 
 		if (Modifier.isStatic(sf.getModifiers())) {
@@ -405,7 +405,7 @@ public class FA
 	 * @pre sm != null
 	 * @post result != null
 	 */
-	public final MethodVariant queryMethodVariant(final SootMethod sm) {
+	final MethodVariant queryMethodVariant(final SootMethod sm) {
 		return queryMethodVariant(sm, _analyzer.context);
 	}
 
@@ -420,7 +420,7 @@ public class FA
 	 * @pre sm != null and context != null
 	 * @post result != null
 	 */
-	public final MethodVariant queryMethodVariant(final SootMethod sm, final Context context) {
+	final MethodVariant queryMethodVariant(final SootMethod sm, final Context context) {
 		return (MethodVariant) methodVariantManager.query(sm, context);
 	}
 
@@ -515,6 +515,10 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.11  2003/11/30 01:39:34  venku
    - changed access level of getTag.
    Revision 1.10  2003/11/30 01:09:42  venku
