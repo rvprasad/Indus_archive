@@ -30,7 +30,6 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
@@ -360,6 +359,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/07/17 19:37:18  venku
+   - ECBA was incorrect for the following reasons.
+     - it fails if the start sites are not in the same method.
+     - it fails if the access in the threads occur in methods other than the
+       one in which the new thread is started.
+     - The above issues were addressed.
+
    Revision 1.25  2004/07/16 06:45:32  venku
    - added an option to vary versions of aliased use def info.
 
@@ -590,6 +596,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/07/17 19:37:18  venku
+   - ECBA was incorrect for the following reasons.
+     - it fails if the start sites are not in the same method.
+     - it fails if the access in the threads occur in methods other than the
+       one in which the new thread is started.
+     - The above issues were addressed.
+
    Revision 1.25  2004/07/16 06:45:32  venku
    - added an option to vary versions of aliased use def info.
 
