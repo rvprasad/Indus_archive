@@ -13,9 +13,9 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
 
 
 /**
@@ -66,7 +66,7 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestIsAncestorOf()
+	 * @see edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest#localtestIsAncestorOf()
 	 */
 	protected void localtestIsAncestorOf() {
 		assertTrue(dg.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("a")));
@@ -75,7 +75,7 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestIsReachable()
+	 * @see edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest#localtestIsReachable()
 	 */
 	protected void localtestIsReachable() {
 		assertTrue(dg.isReachable((INode) name2node.get("a"), (INode) name2node.get("e"), true));
@@ -88,6 +88,10 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:34  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.2  2003/11/10 03:40:50  venku
    - renamed DirectedAndSimpleNodeGraphTest1 to
      DirectedAndSimpleNodeGraphTest.

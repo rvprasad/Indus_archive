@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.support.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -512,6 +512,9 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/07 05:02:18  venku
+   - formatting.
+
    Revision 1.13  2003/12/05 21:22:15  venku
    - delayed construction of local use-def info
    - process all types known at the interface of the method

@@ -17,10 +17,10 @@ package edu.ksu.cis.indus.staticanalyses.cfg;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.support.DirectedGraph;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -193,6 +193,11 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/07 08:41:45  venku
+   - deleted getCallGraph() from ICallGraphInfo interface.
+   - made getSCCs() direction sensitive.
+   - ripple effect.
+
    Revision 1.10  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

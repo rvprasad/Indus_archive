@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
 
 import soot.SootMethod;
 
@@ -57,6 +57,10 @@ interface IGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.1  2003/11/25 00:00:45  venku
    - added support to include gotos in the slice.
    - added logic to include all tail points in the slice after slicing

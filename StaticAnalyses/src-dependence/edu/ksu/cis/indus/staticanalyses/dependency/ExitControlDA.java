@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
+import edu.ksu.cis.indus.support.DirectedGraph;
 
 import java.util.BitSet;
 
@@ -69,6 +69,10 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.2  2003/11/25 19:12:59  venku
    - documentation.
    Revision 1.1  2003/11/25 17:51:23  venku

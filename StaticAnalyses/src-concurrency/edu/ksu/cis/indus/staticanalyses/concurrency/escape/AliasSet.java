@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
+import edu.ksu.cis.indus.support.FastUnionFindElement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -662,6 +662,10 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.9  2003/10/05 16:22:25  venku
    - Interference dependence is now symbol based.
    - Both interference and ready dependence consider

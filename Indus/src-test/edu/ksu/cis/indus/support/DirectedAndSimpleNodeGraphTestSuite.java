@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -57,7 +57,7 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 	 * @post result != null
 	 */
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.support");
+		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.support");
 
 		//$JUnit-BEGIN$
 		suite.addTestSuite(DirectedAndSimpleNodeGraphTest.class);
@@ -71,6 +71,10 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:34  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.5  2003/11/29 08:13:38  venku
    - added support to execute the test suite from command line.
    Revision 1.4  2003/11/10 03:40:50  venku

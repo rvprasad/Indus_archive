@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
+import edu.ksu.cis.indus.support.Pair.PairManager;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -320,6 +320,9 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/12/08 09:45:04  venku
+   - added reset method.
+
    Revision 1.18  2003/12/05 15:32:29  venku
    - coding convention.
    Revision 1.17  2003/12/05 02:19:01  venku

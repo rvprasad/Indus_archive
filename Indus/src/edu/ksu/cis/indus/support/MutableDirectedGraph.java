@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -69,7 +69,7 @@ public abstract class MutableDirectedGraph
 		 *
 		 * @return the immediate predecessors of this node.
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getPredsOf()
+		 * @see edu.ksu.cis.indus.support.INode#getPredsOf()
 		 */
 		public final Collection getPredsOf() {
 			return Collections.unmodifiableCollection(predecessors);
@@ -84,7 +84,7 @@ public abstract class MutableDirectedGraph
 		 *
 		 * @return the collection of successor nodes(<code>BasicBlock</code>) of this node.
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getSuccsNodesInDirection(boolean)
+		 * @see edu.ksu.cis.indus.support.INode#getSuccsNodesInDirection(boolean)
 		 */
 		public final Collection getSuccsNodesInDirection(final boolean forward) {
 			if (forward) {
@@ -99,7 +99,7 @@ public abstract class MutableDirectedGraph
 		 *
 		 * @return the immediate successors of this node.
 		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getSuccsOf()
+		 * @see edu.ksu.cis.indus.support.INode#getSuccsOf()
 		 */
 		public final Collection getSuccsOf() {
 			return Collections.unmodifiableCollection(successors);
@@ -169,6 +169,10 @@ public abstract class MutableDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.3  2003/10/20 00:43:05  venku
     - coding convention.
    Revision 1.2  2003/09/28 03:16:20  venku

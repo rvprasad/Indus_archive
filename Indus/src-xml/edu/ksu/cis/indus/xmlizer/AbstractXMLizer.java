@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.xmlizer;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
+import edu.ksu.cis.indus.support.SootBasedDriver;
 
 
 import java.io.File;
@@ -177,9 +177,25 @@ public abstract class AbstractXMLizer
 			processor.unhook(pc);
 		}
 	}
+    /**
+     * DOCUMENT ME!
+     * @return DOCUMENT ME!
+     * 
+     */
+    public final IJimpleIDGenerator getIdGenerator() {
+        return idGenerator;
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 11:59:44  venku
+   - added a new class AbstractXMLizer which will host
+     primary logic to xmlize analyses information.
+   - DependencyXMLizer inherits from this new class.
+   - added a new class CallGraphXMLizer to xmlize
+     call graph information.  The logic to write out the call
+     graph is empty.
+
  */

@@ -25,16 +25,16 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.support.FastUnionFindElement;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.LIFOWorkBag;
+import edu.ksu.cis.indus.support.SimpleNodeGraph;
+import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.support.Triple;
+import edu.ksu.cis.indus.support.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1881,6 +1881,11 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/08 10:26:30  venku
+   - ensured bbg's are returned when the method has concrete implementation.
+   - removed a method whose logic is now dependent on the factory.
+   - ripple effect.
+
    Revision 1.12  2003/12/07 08:41:32  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.

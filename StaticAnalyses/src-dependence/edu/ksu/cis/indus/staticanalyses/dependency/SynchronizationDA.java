@@ -22,13 +22,13 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.Quadraple;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.LIFOWorkBag;
+import edu.ksu.cis.indus.support.Pair;
+import edu.ksu.cis.indus.support.Quadraple;
+import edu.ksu.cis.indus.support.Triple;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -508,6 +508,10 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.20  2003/11/17 01:40:40  venku
    - documentation.
    Revision 1.19  2003/11/12 01:04:54  venku

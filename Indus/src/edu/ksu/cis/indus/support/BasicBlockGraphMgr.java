@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
@@ -153,6 +153,11 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/08 10:26:30  venku
+   - ensured bbg's are returned when the method has concrete implementation.
+   - removed a method whose logic is now dependent on the factory.
+   - ripple effect.
+
    Revision 1.11  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.10  2003/09/28 07:31:28  venku

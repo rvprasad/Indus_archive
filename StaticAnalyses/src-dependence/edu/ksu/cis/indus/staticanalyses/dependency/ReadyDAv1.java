@@ -24,13 +24,13 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.LIFOWorkBag;
+import edu.ksu.cis.indus.support.Pair;
+import edu.ksu.cis.indus.support.Pair.PairManager;
+import edu.ksu.cis.indus.support.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -859,6 +859,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.29  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.

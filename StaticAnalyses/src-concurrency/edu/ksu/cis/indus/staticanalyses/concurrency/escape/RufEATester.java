@@ -23,7 +23,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTripl
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
+import edu.ksu.cis.indus.support.SootBasedDriver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -269,6 +269,10 @@ public final class RufEATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.8  2003/11/30 01:07:58  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.

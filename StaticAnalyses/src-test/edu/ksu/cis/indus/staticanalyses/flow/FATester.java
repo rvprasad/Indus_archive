@@ -16,8 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
+import edu.ksu.cis.indus.support.FIFOWorkBag;
+import edu.ksu.cis.indus.support.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -301,6 +301,11 @@ public class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/07 14:04:43  venku
+   - made FATester command-line compatible.
+   - made use of DirectedAndSimpleNodeGraphTest in
+     CallGraphTester to test the constructed call graphs.
+
    Revision 1.4  2003/12/07 08:39:23  venku
    - added more tests.
    Revision 1.3  2003/12/07 03:32:21  venku

@@ -49,7 +49,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
+import edu.ksu.cis.indus.support.Pair.PairManager;
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
@@ -187,21 +187,7 @@ public class DependencyXMLizer
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private IJimpleIDGenerator idGenerator;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
 	private Properties properties;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private boolean dumpXMLizedJimple;
 
 	/**
 	 * Creates a new DependencyXMLizer object.
@@ -590,7 +576,7 @@ public class DependencyXMLizer
 		String temp = properties.getProperty(xmlizerId);
 
 		if (temp.equals(STMT_LEVEL_DEPENDENCY)) {
-			result = new StmtLevelDependencyXMLizer(f, idGenerator, da);
+			result = new StmtLevelDependencyXMLizer(f, getIdGenerator(), da);
 		} else {
 			LOGGER.error("Unknown dependency xmlizer type requested.  Bailing on this.");
 		}
@@ -669,6 +655,14 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/12/08 11:59:47  venku
+   - added a new class AbstractXMLizer which will host
+     primary logic to xmlize analyses information.
+   - DependencyXMLizer inherits from this new class.
+   - added a new class CallGraphXMLizer to xmlize
+     call graph information.  The logic to write out the call
+     graph is empty.
+
    Revision 1.23  2003/12/08 11:53:25  venku
    - formatting.
    Revision 1.22  2003/12/08 10:58:52  venku

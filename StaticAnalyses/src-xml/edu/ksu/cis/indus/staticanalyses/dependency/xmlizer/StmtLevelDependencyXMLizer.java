@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
+import edu.ksu.cis.indus.support.Pair;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
@@ -125,6 +125,9 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/08 10:57:59  venku
+   - outputs count and id of dependences.
+
    Revision 1.6  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

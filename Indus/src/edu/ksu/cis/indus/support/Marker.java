@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 /**
  * This class serves as a marker in sequences of data.  The stringized representation of this object is dependent on  the
@@ -91,6 +91,10 @@ public class Marker {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.6  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.5  2003/09/28 03:16:20  venku

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 
@@ -206,6 +206,10 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.11  2003/11/11 10:10:29  venku
    - moved run() and initialize() into Driver.
    Revision 1.10  2003/11/06 05:04:01  venku

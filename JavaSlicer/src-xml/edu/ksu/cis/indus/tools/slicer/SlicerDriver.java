@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
+import edu.ksu.cis.indus.support.SootBasedDriver;
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
@@ -466,6 +466,10 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.17  2003/12/01 04:20:10  venku
    - tag name should be provided for the engine before execution.
    Revision 1.16  2003/11/30 09:02:01  venku

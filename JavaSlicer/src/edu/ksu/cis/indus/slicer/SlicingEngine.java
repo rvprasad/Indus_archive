@@ -24,12 +24,12 @@ import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.Init2NewExprMapper;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.PoolAwareFIFOWorkBag;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.Pair;
+import edu.ksu.cis.indus.support.PoolAwareFIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -1100,6 +1100,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/12/07 22:13:12  venku
+   - renamed methods in TaggingBasedSliceCollector.
+
    Revision 1.28  2003/12/07 15:16:01  venku
    - the order of collecting the slice had an impact on the
      generation of the slice (due to optimization).  For this

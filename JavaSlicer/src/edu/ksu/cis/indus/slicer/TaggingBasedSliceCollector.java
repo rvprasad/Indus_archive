@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -295,6 +295,9 @@ final class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/07 22:13:12  venku
+   - renamed methods in TaggingBasedSliceCollector.
+
    Revision 1.9  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
 

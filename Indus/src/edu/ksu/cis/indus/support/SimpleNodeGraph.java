@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,21 +127,21 @@ public class SimpleNodeGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph#getNodes()
+	 * @see edu.ksu.cis.indus.support.DirectedGraph#getNodes()
 	 */
 	public List getNodes() {
 		return Collections.unmodifiableList(nodes);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph#size()
+	 * @see edu.ksu.cis.indus.support.DirectedGraph#size()
 	 */
 	public int size() {
 		return nodes.size();
 	}
 
 	/**
-	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.staticanalyses.support.INode)
+	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.support.INode)
 	 */
 	protected boolean containsNodes(final INode node) {
 		return nodes.contains(node);
@@ -151,6 +151,10 @@ public class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.7  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.6  2003/09/28 03:16:20  venku

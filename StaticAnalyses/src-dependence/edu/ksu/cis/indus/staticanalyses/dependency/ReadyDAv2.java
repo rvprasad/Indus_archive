@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
+import edu.ksu.cis.indus.support.Pair;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -132,6 +132,10 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.13  2003/11/06 03:12:02  venku
    - it was possible for escaping values of classes in different
      branches of the class hierarchy to be declared as ready dependent

@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.interfaces.IStatus;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.support.Triple;
 
 import java.util.Collection;
 
@@ -209,6 +209,11 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/07 08:41:32  venku
+   - deleted getCallGraph() from ICallGraphInfo interface.
+   - made getSCCs() direction sensitive.
+   - ripple effect.
+
    Revision 1.10  2003/11/29 09:34:59  venku
    - removed getCycles() method as it was not being used.
    Revision 1.9  2003/11/29 09:30:37  venku

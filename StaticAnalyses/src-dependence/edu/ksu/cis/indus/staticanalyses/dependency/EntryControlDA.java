@@ -17,12 +17,12 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
-import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.DirectedGraph;
+import edu.ksu.cis.indus.support.FIFOWorkBag;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.Pair;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -440,6 +440,10 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.2  2003/12/01 11:28:48  venku
    - control da calculation was erroneous when the support
      for direction switch was removed.  FIXED.

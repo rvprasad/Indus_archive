@@ -21,9 +21,9 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.support.Pair;
+import edu.ksu.cis.indus.support.Pair.PairManager;
+import edu.ksu.cis.indus.support.Util;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -494,6 +494,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/08 09:37:23  venku
+   - use class initialization optimization by default.
+
    Revision 1.24  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

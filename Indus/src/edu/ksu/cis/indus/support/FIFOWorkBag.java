@@ -13,66 +13,103 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 
 
 /**
- * This is a Last-in-First-out implementation of the workbag.
+ * This is a First-in-First-out implementation of the workbag.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class LIFOWorkBag
-  extends FIFOWorkBag {
+public class FIFOWorkBag
+  implements IWorkBag {
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addAllWork(java.util.Collection)
+	 * This contains the work pieces put into the work bag.
 	 */
-	public void addAllWork(final Collection c) {
-		container.addAll(0, c);
+	protected List container = new ArrayList();
+
+	/**
+	 * @see edu.ksu.cis.indus.support.IWorkBag#getWork()
+	 */
+	public Object getWork() {
+		return container.remove(0);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
+	 * @see edu.ksu.cis.indus.support.IWorkBag#addAllWork(java.util.Collection)
+	 */
+	public void addAllWork(final Collection c) {
+		container.addAll(c);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.support.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
 	public Collection addAllWorkNoDuplicates(final Collection c) {
 		Collection result = CollectionUtils.intersection(c, container);
-		container.addAll(0, CollectionUtils.subtract(c, container));
+		container.addAll(CollectionUtils.subtract(c, container));
 		return result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addWork(java.lang.Object)
+	 * @see edu.ksu.cis.indus.support.IWorkBag#addWork(java.lang.Object)
 	 */
 	public void addWork(final Object o) {
-		container.add(0, o);
+		container.add(o);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addWorkNoDuplicates(java.lang.Object)
+	 * @see edu.ksu.cis.indus.support.IWorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
 	public boolean addWorkNoDuplicates(final Object o) {
 		boolean result = !container.contains(o);
 
 		if (result) {
-			container.add(0, o);
+			container.add(o);
 		}
 		return result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.support.IWorkBag#clear()
+	 */
+	public void clear() {
+		container.clear();
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.support.IWorkBag#hasWork()
+	 */
+	public boolean hasWork() {
+		return !container.isEmpty();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
-   Revision 1.5  2003/12/01 13:42:02  venku
+   Revision 1.8  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
+   Revision 1.7  2003/12/01 13:42:02  venku
    - added support to provide information about which work peices
      were added to the bag and which weren't.
-   Revision 1.4  2003/11/16 19:09:42  venku
+   Revision 1.6  2003/11/16 19:11:57  venku
    - documentation.
+   Revision 1.5  2003/11/16 19:09:42  venku
+   - documentation.
+   Revision 1.4  2003/11/06 06:50:53  venku
+   - subtle error of using get() instead of remove() on
+     the container.
    Revision 1.3  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.2  2003/11/06 05:01:57  venku

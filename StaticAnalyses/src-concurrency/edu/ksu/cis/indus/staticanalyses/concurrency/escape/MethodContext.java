@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
+import edu.ksu.cis.indus.support.FastUnionFindElement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -503,6 +503,10 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.8  2003/11/06 05:31:08  venku
    - moved IProcessor to processing package from interfaces.
    - ripple effect.

@@ -19,8 +19,8 @@ import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
+import edu.ksu.cis.indus.support.FIFOWorkBag;
+import edu.ksu.cis.indus.support.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -203,6 +203,9 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/07 09:37:10  venku
+   - changed the logic to handle super classes and their <clinit>s.
+
    Revision 1.16  2003/12/07 03:22:48  venku
    - processing logic did not consider interfaces.  FIXED.
    Revision 1.15  2003/12/02 09:42:35  venku

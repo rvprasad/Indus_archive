@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.support.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -133,6 +133,10 @@ public class TypeBasedFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

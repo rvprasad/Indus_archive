@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -358,7 +358,7 @@ public class BasicBlockGraph
 	 *
 	 * @post result != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph#getNodes()
+	 * @see edu.ksu.cis.indus.support.DirectedGraph#getNodes()
 	 */
 	public List getNodes() {
 		return Collections.unmodifiableList(blocks);
@@ -374,7 +374,7 @@ public class BasicBlockGraph
 	}
 
 	/**
-	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.staticanalyses.support.INode)
+	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.support.INode)
 	 */
 	protected boolean containsNodes(final INode node) {
 		return blocks.contains(node);
@@ -395,6 +395,9 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/12/04 08:35:22  venku
+   - formatting.
+
    Revision 1.15  2003/12/04 08:34:52  venku
    - as methods in language such as Java have one entry point,
      it makes sense to have a getHead() method in basic block graph.

@@ -23,12 +23,12 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.support.FIFOWorkBag;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.Triple;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -920,7 +920,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 						}
 					}
 				}
-
+LOGGER.debug("LocalASsCache: " + localASsCache);
 				// unify the contexts at start call-sites.
 				performDelayedUnification();
 			}
@@ -1153,6 +1153,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2003/12/08 10:46:45  venku
+   - added logging support when processing statements and values.
+   - accessed field of valueProcessor is true independent of
+     the method as such setting can lead to incorrect results.
+   - only Object.wait() was being considered and other variants
+     were not being considered. FIXED.
+
    Revision 1.32  2003/12/07 08:41:32  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import java.util.Collection;
 
@@ -108,6 +108,10 @@ public interface IWorkBag {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.2  2003/12/01 13:42:02  venku
    - added support to provide information about which work peices
      were added to the bag and which weren't.

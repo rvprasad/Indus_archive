@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -404,6 +404,10 @@ public class Quadraple
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.1  2003/09/02 12:29:59  venku
    - Installed a new component to represent tuples of size 4.
  */

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -276,7 +276,7 @@ public class Pair
 	 * @return an object to collection map.
 	 *
 	 * @pre pairs != null and not pairs->includes(null)
-	 * @pre pairs.oclIsKindOf(Collection(edu.ksu.cis.indus.staticanalyses.support.Pair))
+	 * @pre pairs.oclIsKindOf(Collection(edu.ksu.cis.indus.support.Pair))
 	 * @post result.oclIsKindOf(Map(Object, Collection(Object)))
 	 * @post result->entrySet()->forall(o | o.getValue()->forall(p | pairs->includes(Pair(o.getKey(), p))))
 	 * @post pairs->forall(o | result.get(o.getFirst())->includes(o.getSecond()))
@@ -377,6 +377,10 @@ public class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.8  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.7  2003/11/05 00:35:33  venku

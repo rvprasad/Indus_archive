@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.LIFOWorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,6 +95,10 @@ public class WorkList {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.11  2003/12/02 01:30:54  venku
    - coding conventions and formatting.
    Revision 1.10  2003/12/01 13:49:38  venku

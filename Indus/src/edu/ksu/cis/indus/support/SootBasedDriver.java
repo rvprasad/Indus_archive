@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 
@@ -314,6 +314,10 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.12  2003/11/26 01:49:34  venku
    - minor logical error. FIXED.
    Revision 1.11  2003/11/20 07:28:40  venku

@@ -27,6 +27,10 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.xmlizer.*;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,6 +52,7 @@ import soot.SootMethod;
 
 /**
  * DOCUMENT ME!
+ * 
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -61,13 +66,17 @@ public class CallGraphXMLizer
 	 */
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	protected IValueAnalyzer aa;
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param s DOCUMENT ME!
 	 */
@@ -122,7 +131,32 @@ public class CallGraphXMLizer
 	 * @param info
 	 */
 	protected final void writeXML(final String rootname, final Map info) {
-		// TODO: Auto-generated method stub
+		File f = new File(getXmlOutDir() + File.separator + rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
+		FileWriter writer;
+
+		try {
+			writer = new FileWriter(f);
+
+			ICallGraphInfo cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
+
+			writer.write("<callgraph>\n");
+
+			for (final Iterator i = cgi.getReachableMethods().iterator(); i.hasNext();) {
+				SootMethod caller = (SootMethod) i.next();
+				writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(caller) + "\">\n");
+
+				for (final Iterator j = cgi.getCallees(caller).iterator(); j.hasNext();) {
+					SootMethod callee = (SootMethod) j.next();
+					writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(callee) + "\">\n");
+				}
+				writer.write("\t</caller>\n");
+			}
+			writer.write("</callgraph>\n");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -182,4 +216,11 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 11:59:47  venku
+   - added a new class AbstractXMLizer which will host
+     primary logic to xmlize analyses information.
+   - DependencyXMLizer inherits from this new class.
+   - added a new class CallGraphXMLizer to xmlize
+     call graph information.  The logic to write out the call
+     graph is empty.
  */

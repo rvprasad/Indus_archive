@@ -41,7 +41,7 @@ public interface IMonitorInfo
 	 *
 	 * @return collection of monitors in the analyzed system.
 	 *
-	 * @post result.oclIsKindOf(Collection(edu.ksu.cis.indus.staticanalyses.support.Triple(soot.jimple.EnterMonitorStmt,
+	 * @post result.oclIsKindOf(Collection(edu.ksu.cis.indus.support.Triple(soot.jimple.EnterMonitorStmt,
 	 * 		 soot.jimple.ExitMonitorStmt, soot.SootMethod)))
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
@@ -51,6 +51,10 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.5  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

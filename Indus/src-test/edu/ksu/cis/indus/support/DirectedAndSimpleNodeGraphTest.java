@@ -13,11 +13,11 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import junit.framework.TestCase;
 
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,8 +40,8 @@ import org.apache.commons.collections.CollectionUtils;
  * @author $Author$
  * @version $Revision$ $Date$
  *
- * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph
- * @see edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph
+ * @see edu.ksu.cis.indus.support.DirectedGraph
+ * @see edu.ksu.cis.indus.support.SimpleNodeGraph
  */
 public class DirectedAndSimpleNodeGraphTest
   extends TestCase {
@@ -453,6 +453,10 @@ public class DirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/07 04:49:11  venku
+   - exposed a couple of methods as they needed to be overridden
+     for call graph testing.
+
    Revision 1.2  2003/12/02 09:42:34  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

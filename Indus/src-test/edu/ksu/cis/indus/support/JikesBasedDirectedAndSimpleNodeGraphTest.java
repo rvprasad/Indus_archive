@@ -13,9 +13,9 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
 
 
 /**
@@ -45,7 +45,7 @@ import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 public class JikesBasedDirectedAndSimpleNodeGraphTest
   extends DirectedAndSimpleNodeGraphTest {
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#testAddEdgeFromTo()
+	 * @see edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest#testAddEdgeFromTo()
 	 */
 	public void localtestAddEdgeFromTo() {
 		// we do nothing here as we do not want to change the graph.
@@ -76,21 +76,21 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestGetHeads()
+	 * @see edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest#localtestGetHeads()
 	 */
 	protected void localtestGetHeads() {
 		assertFalse(dg.getHeads().isEmpty());
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestGraphGetTails()
+	 * @see edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest#localtestGraphGetTails()
 	 */
 	protected void localtestGraphGetTails() {
 		assertFalse(dg.getTails().isEmpty());
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestIsAncestorOf()
+	 * @see edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest#localtestIsAncestorOf()
 	 */
 	protected void localtestIsAncestorOf() {
 		assertTrue(dg.isAncestorOf((INode) name2node.get("a"), (INode) name2node.get("a")));
@@ -99,7 +99,7 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest#localtestIsReachable()
+	 * @see edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest#localtestIsReachable()
 	 */
 	protected void localtestIsReachable() {
 		assertTrue(dg.isReachable((INode) name2node.get("b"), (INode) name2node.get("d"), false));
@@ -112,6 +112,10 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:34  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.2  2003/11/10 03:40:50  venku
    - renamed DirectedAndSimpleNodeGraphTest1 to
      DirectedAndSimpleNodeGraphTest.

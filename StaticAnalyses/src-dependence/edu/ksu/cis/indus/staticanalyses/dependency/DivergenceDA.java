@@ -18,11 +18,11 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
+import edu.ksu.cis.indus.support.BasicBlockGraph;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.LIFOWorkBag;
+import edu.ksu.cis.indus.support.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -573,6 +573,10 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.23  2003/11/26 10:11:42  venku
    - redundant check eliminated.
    Revision 1.22  2003/11/25 19:12:26  venku

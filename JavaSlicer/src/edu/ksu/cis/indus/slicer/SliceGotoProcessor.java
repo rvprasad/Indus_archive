@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
+import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.LIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -164,6 +164,9 @@ public class SliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/04 12:10:12  venku
+   - changes that take a stab at interprocedural slicing.
+
    Revision 1.4  2003/12/02 19:20:50  venku
    - coding convention and formatting.
    Revision 1.3  2003/12/02 09:42:18  venku

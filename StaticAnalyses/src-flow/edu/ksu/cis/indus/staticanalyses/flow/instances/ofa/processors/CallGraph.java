@@ -22,12 +22,12 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
-import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.MutableDirectedGraph.MutableNode;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.support.DirectedGraph;
+import edu.ksu.cis.indus.support.FIFOWorkBag;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.MutableDirectedGraph.MutableNode;
+import edu.ksu.cis.indus.support.SimpleNodeGraph;
+import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -661,6 +661,17 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2003/12/07 14:02:45  venku
+   MAJOR CHANGE:
+    - We previously assumed that there may be parts of the
+      system that the flow analysis can suck in.  This is untrue.
+      So, we assume all methods marked/tagged via the flow analysis
+      as reachables.  All <clinits> and roots as head.
+      However, if the flow analysis marks abstract super class methods
+      when marking concrete method implementations, then we will
+      need to inject back the pruning logic.  As I don't need it
+      now I am getting rid of it.
+
    Revision 1.35  2003/12/07 08:41:32  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.

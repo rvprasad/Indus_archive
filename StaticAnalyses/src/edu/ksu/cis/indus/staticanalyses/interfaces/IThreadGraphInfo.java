@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.interfaces.IStatus;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.support.Triple;
 
 import java.util.Collection;
 
@@ -168,6 +168,10 @@ public interface IThreadGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.9  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

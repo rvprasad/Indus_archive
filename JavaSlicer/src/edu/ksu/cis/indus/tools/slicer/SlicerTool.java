@@ -42,10 +42,10 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.support.Pair;
+import edu.ksu.cis.indus.support.Triple;
+import edu.ksu.cis.indus.support.Util;
 
 import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
@@ -658,6 +658,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2003/12/02 11:32:01  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
+
    Revision 1.42  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

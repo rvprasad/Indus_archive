@@ -22,10 +22,10 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest;
-import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest;
+import edu.ksu.cis.indus.support.DirectedGraph;
+import edu.ksu.cis.indus.support.SimpleNodeGraph;
+import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -543,6 +543,11 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/07 14:04:43  venku
+   - made FATester command-line compatible.
+   - made use of DirectedAndSimpleNodeGraphTest in
+     CallGraphTester to test the constructed call graphs.
+
    Revision 1.10  2003/12/05 21:34:01  venku
    - formatting.
    - more tests.

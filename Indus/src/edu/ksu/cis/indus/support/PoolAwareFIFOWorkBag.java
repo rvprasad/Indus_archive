@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.support;
+package edu.ksu.cis.indus.support;
 
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
@@ -72,4 +72,7 @@ public final class PoolAwareFIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/04 09:43:13  venku
+   - extended FIFOWorkBag to return poolable objects to their pool.
+
  */

@@ -27,9 +27,9 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.support.FIFOWorkBag;
+import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.support.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -663,6 +663,10 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.16  2003/11/26 02:55:45  venku
    - now handles clinit in a more robust way.
    Revision 1.15  2003/11/17 16:47:50  venku

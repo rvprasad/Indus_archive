@@ -38,8 +38,8 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.Driver;
-import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
+import edu.ksu.cis.indus.support.Driver;
+import edu.ksu.cis.indus.support.Pair.PairManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -358,6 +358,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.32  2003/11/30 01:39:11  venku
    - incorporated tag based filtering during CG construction.
    Revision 1.31  2003/11/30 01:07:57  venku
