@@ -170,7 +170,7 @@ public class KaveriPlugin
 			}
 			final String _configuration = _userConfiguration.toString();			
 			final boolean _result = slicerTool.destringizeConfiguration(_configuration);
-			if (_result) {
+			if (!_result) {
 				throw new IllegalArgumentException("Slicer Tool passed illegal configuration");
 			}
 		

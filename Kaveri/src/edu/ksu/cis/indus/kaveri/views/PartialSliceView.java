@@ -30,7 +30,12 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -59,7 +64,11 @@ public class PartialSliceView
 	 * </p>
 	 */
 	private TableViewer viewer;
-
+	/**
+	 * <p>The text label for the statement </p> 
+	 */
+	Text txt;
+	
 	/**
 	 * The constructor.
 	 */
@@ -91,7 +100,7 @@ public class PartialSliceView
 			if (_lst != null) {
 				_retObj =  _lst.toArray();
 			} else {
-				_retObj = new String[] { "No slice view present" }; 
+				_retObj = new String[] { " ", " ", " ", " ", " ", " ", " ", " ", " " }; 
 			}
 			return _retObj;
 		}
@@ -129,6 +138,10 @@ public class PartialSliceView
 		public void propertyChanged() {
 			if (viewer != null) {
 				viewer.refresh();
+				final TableColumn _cols[] = viewer.getTable().getColumns();
+				for (int _i = 0; _i < _cols.length; _i++) {
+					_cols[_i].pack();
+				}
 			}
 		}
 	}
@@ -171,7 +184,7 @@ public class PartialSliceView
 				if (obj instanceof Stmt) {					
 					_retString = "" + isSliceTagPresent((Stmt) obj);
 				}
-			}
+			}			
 			return _retString;
 		}
 
@@ -220,33 +233,51 @@ public class PartialSliceView
 	public void createPartControl(final Composite parent) {
 		final Composite _comp = new Composite(parent, SWT.NONE);
 		final GridLayout _layout = new GridLayout();
-		_layout.numColumns = 2;
+		_layout.numColumns = 2;		
+		_layout.horizontalSpacing = 10;
+		_layout.marginWidth = 10;
 		_comp.setLayout(_layout);
 		
-		final Composite _cp = new Composite(_comp, SWT.NONE);
-		GridData _data = new GridData();
-		_data.horizontalSpan = 2;
-		_cp.setLayoutData(_data);
-		final RowLayout _rr = new RowLayout(SWT.HORIZONTAL);
-		_cp.setLayout(_rr);
-		final Label _lbl = new Label(_cp, SWT.LEFT);
-		_lbl.setText("Statement:");
-		final Text _txt = new Text(_cp, SWT.CENTER);
-		_txt.setText("           ");
-		_txt.setEditable(false);
 		
-		//final Table _table = createTable(parent);
+		final Label _lbl = new Label(_comp, SWT.LEFT);
+		_lbl.setText("Statement: ");
+		final GridData _data1 = new GridData();
+		_data1.horizontalSpan = 1;
+		_lbl.setLayoutData(_data1);
 		
-		viewer = new TableViewer(_comp);
-		final Table _table = viewer.getTable();
-		_data = new GridData();
+		txt = new Text(_comp, SWT.LEFT);		
+		final GridData _data2 = new GridData();
+		_data2.horizontalSpan = 1;		
+		_data2.grabExcessHorizontalSpace = true;
+		txt.setLayoutData(_data2);
+		
+		final Table _table = createTable(_comp);
+		final GridData _data = new GridData();		
 		_data.horizontalSpan = 2;
+		_data.grabExcessHorizontalSpace = true;
+		//_data.grabExcessVerticalSpace = true;
 		_table.setLayoutData(_data);
-		updateTable(_table);
+		
+		_comp.addControlListener(
+				new ControlAdapter() {
+					public void controlResized(ControlEvent e)
+					{
+						TableColumn _col1 = _table.getColumn(0);
+						_col1.setWidth(_comp.getSize().x * 2 /3);
+						_col1 = _table.getColumn(1);
+						_col1.setWidth(_comp.getSize().x /3);
+					}
+				}
+				);
+		
+		viewer = new TableViewer(_table);								
+								
+		
 		//viewer = new CheckboxTableViewer(_table);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList());
+		 
 	}
 
 	/**
@@ -258,13 +289,11 @@ public class PartialSliceView
 
 		final TableColumn _col1 = new TableColumn(_table, SWT.NONE);
 		_col1.setText("Statement");
-		final int _stmtWidth = 400;
-		final int  _infoWidth = 100;
-		_col1.setWidth(_stmtWidth);
-
+		
 		final TableColumn _col2 = new TableColumn(_table, SWT.NONE);
 		_col2.setText("Part of Slice");
-		_col2.setWidth(_infoWidth);		
+		_col1.pack();
+		_col2.pack();
 	}
 
 	/**
@@ -278,17 +307,15 @@ public class PartialSliceView
 		final Table _table = new Table(parent, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL 
 				| SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
 		_table.setLinesVisible(true);
-		_table.setHeaderVisible(true);
-
+		_table.setHeaderVisible(true);				
+		
 		final TableColumn _col1 = new TableColumn(_table, SWT.NONE);
 		_col1.setText("Statement");
-		final int _stmtWidth = 400;
-		final int  _infoWidth = 100;
-		_col1.setWidth(_stmtWidth);
-
+		
+		
 		final TableColumn _col2 = new TableColumn(_table, SWT.NONE);
-		_col2.setText("Part of Slice");
-		_col2.setWidth(_infoWidth);
+		_col2.setText("Part of Slice");		
+		
 		return _table;
 	}
 }

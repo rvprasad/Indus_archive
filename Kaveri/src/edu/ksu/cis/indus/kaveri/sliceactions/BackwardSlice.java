@@ -70,7 +70,7 @@ public class BackwardSlice
 	public void run(final IAction action) {
 		Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					runSlice("backward-executable", editor, textSelection);
+					runSlice("backward-executable-deadlock", editor, textSelection);
 				}
 			});
 	}

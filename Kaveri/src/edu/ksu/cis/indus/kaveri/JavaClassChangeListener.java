@@ -33,7 +33,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
 
-import soot.G;
+
 import soot.Scene;
 import soot.SootClass;
 
@@ -170,7 +170,7 @@ class ResourceChangeProcessor implements Runnable {
 				try {
 				final SootClass _sc = _scene.getSootClass(_className);
 				if (_sc != null) {
-					_scene.removeClass(_sc);
+					_scene.removeClass(_sc);					
 				}
 				} catch (RuntimeException _rme) {
 					
