@@ -140,40 +140,13 @@ public abstract class AbstractDirectedGraph
 	 */
 	public final Collection getCycles() {
 		Collection _result = new ArrayList();
-		final IWorkBag _wb = new LIFOWorkBag();
-		final Stack _dfsPath = new Stack();
 
 		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
 			final INode _head = (INode) _i.next();
-			_wb.clear();
-			_wb.addWork(_head);
-			_dfsPath.clear();
+			final Collection _temp = findCycles(_head);
 
-			while (_wb.hasWork()) {
-				final Object _o = _wb.getWork();
-
-				if (_o instanceof Marker) {
-					final Object _temp = ((Marker) _o).getContent();
-					Object _obj = _dfsPath.pop();
-
-					while (!_temp.equals(_obj)) {
-						_obj = _dfsPath.pop();
-					}
-				} else if (_dfsPath.contains(_o)) {
-					findCycle(_result, _dfsPath, (INode) _o);
-				} else {
-					final INode _node = (INode) _o;
-					final Collection _succs = _node.getSuccsOf();
-
-					if (!_succs.isEmpty()) {
-						_dfsPath.push(_node);
-
-						if (_succs.size() > 1) {
-							_wb.addWork(new Marker(_node));
-						}
-						_wb.addAllWork(_succs);
-					}
-				}
+			if (!_temp.isEmpty()) {
+				_result.addAll(_temp);
 			}
 		}
 
@@ -576,32 +549,60 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Finds a cycle if it exists and starts from the given node.
+	 * Finds cycles reachable from the given head node.
 	 *
-	 * @param cycles is the collection of cycles that will be updated if a new cycle is found.
-	 * @param dfsPath is the path in the dfs which needs to be checked for cycles.
-	 * @param node which may start a cycle.
+	 * @param head is the node from below which the cycles need to be searched for.
 	 *
-	 * @pre cycles != null and dfsPath != null and node != null
-	 * @post cycles.containsAll(cycles$pre)
-	 * @post dfsPath.containsAll(dfsPath$pre) and dfsPath$pre.containsAll(dfsPath)
+	 * @return a collection of cycles. Each cycle is represented as a sequence in which the first element starts the cycle.
+	 *
+	 * @pre head != null
+	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
 	 */
-	private void findCycle(final Collection cycles, final Stack dfsPath, final INode node) {
-		final List _temp = new ArrayList(dfsPath.subList(dfsPath.indexOf(node), dfsPath.size()));
-		boolean _flag = true;
+	private Collection findCycles(final INode head) {
+		final Collection _result = new ArrayList();
+		final IWorkBag _wb = new LIFOWorkBag();
+		final Stack _dfsPath = new Stack();
+		_wb.clear();
+		_wb.addWork(head);
+		_dfsPath.clear();
 
-		for (final Iterator _j = cycles.iterator(); _j.hasNext();) {
-			final Collection _cycle = (Collection) _j.next();
+		while (_wb.hasWork()) {
+			final Object _o = _wb.getWork();
 
-			if (_cycle.containsAll(_temp) && _temp.containsAll(_cycle)) {
-				_flag = false;
-				break;
+			if (_o instanceof Marker) {
+				final Object _temp = ((Marker) _o).getContent();
+
+				while (!_temp.equals(_dfsPath.peek())) {
+					_dfsPath.pop();
+				}
+			} else if (_dfsPath.contains(_o)) {
+				final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_o), _dfsPath.size());
+
+				if (!_result.contains(_cycle)) {
+					_result.add(new ArrayList(_cycle));
+				}
+			} else {
+				final INode _node = (INode) _o;
+				final Collection _succs = _node.getSuccsOf();
+
+				if (!_succs.isEmpty()) {
+					_dfsPath.push(_node);
+
+					if (_succs.size() > 1) {
+						final Marker _marker = new Marker(_node);
+
+						for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
+							final Object _ele = _j.next();
+							_wb.addWork(_marker);
+							_wb.addWork(_ele);
+						}
+					} else {
+						_wb.addWork(_succs.iterator().next());
+					}
+				}
 			}
 		}
-
-		if (_flag) {
-			cycles.add(_temp);
-		}
+		return _result;
 	}
 
 	/**
@@ -655,6 +656,9 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/30 09:11:28  venku
+   - formatting
+   - concretized size() based on getNodes().
    Revision 1.1  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
@@ -711,6 +715,8 @@ public abstract class AbstractDirectedGraph
     - Moved the package under indus umbrella.
     - Renamed isEmpty() to hasWork() in IWorkBag.
    Revision 1.6  2003/05/22 22:18:31  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
+   - All the interfaces were renamed to start with an "I".
+   - Optimizing changes related Strings were made.
+   - Ripple effect of the previous change.
+   - Documentation and specification of other classes.
  */
