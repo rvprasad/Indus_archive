@@ -172,7 +172,7 @@ public class DependencyAnalysisRegresssionTestSuite
 						TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 						final DependencyAnalysisTestSetup _test =
-							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath);
+							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath, _xmlTestDir);
 						_test.setStmtGraphFactory(stmtGraphFactory);
 						_test.setXMLTestDir(_xmlTestDir);
 						_test.setXMLControlDir(_xmlControlDir);
@@ -191,6 +191,12 @@ public class DependencyAnalysisRegresssionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/17 23:35:42  venku
+   - failures due to unavailable resources were not flagged. FIXED
+     - added a new class which always errs.
+     - this new class is used to setup a test case for cases where an error should occur.
+     - ripple effect.
+
    Revision 1.7  2004/04/17 22:07:34  venku
    - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
    - ripple effect in interfaces, classes, and property files.
