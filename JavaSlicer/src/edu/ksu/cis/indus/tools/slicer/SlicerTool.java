@@ -35,7 +35,6 @@ import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-import edu.ksu.cis.indus.slicer.processing.*;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -90,6 +89,35 @@ import soot.toolkits.graph.UnitGraph;
 /**
  * This is a facade that exposes the slicer as a tool.  This is recommended interface to interact with the slicer if the
  * slicer is being used as a tool in a tool chain.
+ * 
+ * <p>
+ * The term "immediate slice" in the context of this file implies the slice containing only entities on which the given term
+ * depends on, not the transitive closure.
+ * </p>
+ * 
+ * <p>
+ * There are 3 types of slices: forward, backward, and complete(forward and backward).  Also, there are 2  flavours of
+ * slices: executable and non-executable.
+ * </p>
+ * 
+ * <p>
+ * Backward slicing is inclusion of anything that leads to the slice criterion from the given entry points to the system.
+ * This can provide a executable system which will  simulate the given system along all paths from the entry points leading
+ * to the slice criterion independent of the input. In case the input causes a divergence in this path then the simulation
+ * ends there.
+ * </p>
+ * 
+ * <p>
+ * However, in case of forward slicing, one would include everything that is affected by the slice criterion.  This  will
+ * never lead to an semantically meaningful executable slice as the part of the system that leads to the slice criterion is
+ * not captured. Rather a more meaningful notion is that of a complete slice. This includes everything that affects the
+ * given slice criterion and  everything affected by the slice criterion.
+ * </p>
+ * 
+ * <p>
+ * Due to the above view we only support non-executable slices of all types and only executable slices of backward and
+ * complete type.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -588,6 +616,21 @@ public final class SlicerTool
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws IllegalStateException if forward executable slice is requested.
+	 */
+	protected void checkConfiguration() {
+		final IToolConfiguration _slicerConf = getActiveConfiguration();
+
+		if (((Boolean) _slicerConf.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()
+			  && _slicerConf.getProperty(SlicerConfiguration.SLICE_TYPE).equals(SlicingEngine.FORWARD_SLICE)) {
+			LOGGER.error("Forward Executable slice is unsupported.");
+			throw new IllegalStateException("Forward Executable slice is unsupported.");
+		}
+	}
+
+	/**
 	 * Returns the call graph used by the slicer.
 	 *
 	 * @return the call graph used by the slicer.
@@ -670,28 +713,28 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Process the slice to massage it as per properties such as executability.
+	 * Process the slice to ensure control flow due to unstructured bytecode processing and also enforce properties such
+	 * executability.
 	 */
 	private void postProcessSlice() {
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
 		final Object _sliceType = _slicerConfig.getSliceType();
-		ISlicePostProcessor _postProcessor = null;
+		final SliceCollector _collector = engine.getCollector();
+		final Collection _methods = _collector.getMethodsInSlice();
 		AbstractSliceGotoProcessor _gotoProcessor = null;
-		SliceCollector _collector = engine.getCollector();
 
-		if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			_postProcessor = new BackwardSlicePostProcessor();
-			_gotoProcessor = new BackwardSliceGotoProcessor(_collector);
-		} else if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-			_postProcessor = new ForwardSlicePostProcessor();
+		if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
 			_gotoProcessor = new ForwardSliceGotoProcessor(_collector);
+		} else if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+			_gotoProcessor = new BackwardSliceGotoProcessor(_collector);
 		} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-			_postProcessor = new CompleteSlicePostProcessor();
 			_gotoProcessor = new CompleteSliceGotoProcessor(_collector);
 		}
 
-		final Collection _methods = _collector.getMethodsInSlice();
-		_postProcessor.process(_methods, bbgMgr, _collector);
+		if (((Boolean) _slicerConfig.getProperty(SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()) {
+			ISlicePostProcessor _postProcessor = new ExecutableSlicePostProcessor();
+			_postProcessor.process(_methods, bbgMgr, _collector);
+		}
 		_gotoProcessor.process(_methods, bbgMgr);
 	}
 }
@@ -699,6 +742,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.56  2004/01/13 08:37:55  venku
+   - implemented  postProcessSlice().
    Revision 1.55  2004/01/13 04:36:22  venku
    - Now the slicing engine just generates the slice.  The application
      should later on massage the slice for it's needs.  This is triggered
