@@ -15,6 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.textui.TestRunner;
+
 import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
@@ -26,6 +32,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
+
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
@@ -33,12 +40,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.util.Properties;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.textui.TestRunner;
 
 
 /**
@@ -108,9 +109,7 @@ public final class ValueAnalysisRegressionTestSuite
 			_props.load(new FileInputStream(new File(propFileName)));
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
-			final IStmtGraphFactory stmtGraphFactory =
-				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
-					true);
+			final IStmtGraphFactory stmtGraphFactory = ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory();
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
@@ -156,6 +155,12 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
    Revision 1.15  2004/04/22 10:03:58  venku
    - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
    Revision 1.14  2004/04/22 08:00:19  venku

@@ -154,9 +154,7 @@ public final class JimpleXMLizerCLI {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(jimpleIDGenerator);
 		final Environment _env = new Environment(scene);
 		final ProcessingController _pc = new ProcessingController();
-		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(
-				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
-				true));
+		_pc.setStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory());
 		_pc.setEnvironment(_env);
 
 		final XMLizingProcessingFilter _xmlFilter = new XMLizingProcessingFilter();
@@ -175,6 +173,11 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/05/13 03:30:03  venku
+   - coding convention.
+   - documentation.
+   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
+
    Revision 1.5  2004/05/12 18:09:59  venku
    - coding convention.
    Revision 1.4  2004/05/11 21:58:51  venku

@@ -352,8 +352,7 @@ public class SootBasedDriver {
 	 * @post return != null
 	 */
 	public IStmtGraphFactory getStmtGraphFactory() {
-		final IStmtGraphFactory _result =
-			new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS, true);
+		final IStmtGraphFactory _result = ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory();
 		return _result;
 	}
 
@@ -498,6 +497,8 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/05/19 10:00:44  venku
+   - added feature to control methods which should be considered as root methods.
    Revision 1.23  2004/05/13 03:30:03  venku
    - coding convention.
    - documentation.

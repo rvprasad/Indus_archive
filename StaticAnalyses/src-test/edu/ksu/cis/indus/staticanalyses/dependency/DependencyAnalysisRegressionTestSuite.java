@@ -15,6 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.textui.TestRunner;
+
 import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
@@ -40,12 +46,6 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import java.util.regex.Pattern;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -135,6 +135,7 @@ public class DependencyAnalysisRegressionTestSuite
 	 * @param analysis is the instance whose output should be tested.
 	 *
 	 * @return the test instance.
+	 *
 	 * @pre analysis != null
 	 */
 	private static Test getDATestFor(final IDependencyAnalysis analysis) {
@@ -182,9 +183,7 @@ public class DependencyAnalysisRegressionTestSuite
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
 			final Collection _das = new ArrayList();
-			final IStmtGraphFactory _stmtGraphFactory =
-				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
-					true);
+			final IStmtGraphFactory _stmtGraphFactory = ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory();
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
@@ -268,13 +267,14 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/21 22:30:54  venku
+   - documentation.
    Revision 1.11  2004/05/14 09:02:56  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is
        available via a utility class, DependencyAnalysisUtil.
      - DependencyAnalysis will have a sanity check via Unit Tests.
    - ripple effect.
-
    Revision 1.10  2004/05/14 06:27:26  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.9  2004/04/25 21:18:38  venku

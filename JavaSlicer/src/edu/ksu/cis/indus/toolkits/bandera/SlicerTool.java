@@ -115,8 +115,7 @@ public final class SlicerTool
 	public SlicerTool() {
 		tool =
 			new edu.ksu.cis.indus.tools.slicer.SlicerTool(new BitSetTokenManager(new SootValueTypeManager()),
-				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
-					true));
+				ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory());
 		tool.setTagName(TAG_NAME);
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
 	}
@@ -252,6 +251,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/05/09 11:09:46  venku
+   - the client can now specify the statement graph factory to use during slicing.
    Revision 1.30  2004/04/20 00:43:40  venku
    - The processing during residualization was driven by a graph.  This
      caused errors when the graph did not cover all of the statements.

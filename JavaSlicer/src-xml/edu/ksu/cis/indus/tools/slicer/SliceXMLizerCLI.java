@@ -134,10 +134,7 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
-		slicer =
-			new SlicerTool(TokenUtil.getTokenManager(),
-				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
-					true));
+		slicer = new SlicerTool(TokenUtil.getTokenManager(), ExceptionFlowSensitiveStmtGraphFactory.getDefaultFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 
@@ -232,6 +229,19 @@ public class SliceXMLizerCLI
 	}
 
 	/**
+	 * Updates jimple destructively.
+	 */
+	void destructivelyUpdateJimple() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Residualizing");
+		}
+
+		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+		_residualizer.setTagToResidualize(nameOfSliceTag);
+		_residualizer.residualizeSystem(scene);
+	}
+
+	/**
 	 * Dump xmlized jimple
 	 *
 	 * @param name
@@ -255,19 +265,6 @@ public class SliceXMLizerCLI
 				LOGGER.info("END: Dumping XMLized Jimple");
 			}
 		}
-	}
-
-	/**
-	 * Updates jimple destructively.
-	 */
-	void destructivelyUpdateJimple() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Residualizing");
-		}
-
-		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
-		_residualizer.setTagToResidualize(nameOfSliceTag);
-		_residualizer.residualizeSystem(scene);
 	}
 
 	/**
@@ -576,11 +573,12 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/05/25 19:09:39  venku
+   - changed command line options.
    Revision 1.34  2004/05/14 03:10:41  venku
    - The destructively updated jimple can be dumped during tearDown() as
      by then all tests would have completed, hence, not impacting the id
      generation.
-
    Revision 1.33  2004/05/11 22:21:44  venku
    - added options to control pre/post residualization jimple dumps.
    Revision 1.32  2004/05/11 22:17:16  venku
