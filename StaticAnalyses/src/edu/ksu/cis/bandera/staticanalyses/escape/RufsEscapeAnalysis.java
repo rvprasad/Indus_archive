@@ -245,7 +245,7 @@ public class RufsEscapeAnalysis
 	private OFAnalyzer ofa;
 
 	/**
-	 * Creates a new RufsEscapeAnalysis object.
+	 * Creates a new EquivalenceClassBasedAnalysis object.
 	 *
 	 * @param scm DOCUMENT ME!
 	 * @param cgi DOCUMENT ME!
@@ -1280,12 +1280,7 @@ public class RufsEscapeAnalysis
 				callees.add(sm);
 			} else if(v instanceof InterfaceInvokeExpr || v instanceof VirtualInvokeExpr) {
 				context.setProgramPoint(((NonStaticInvokeExpr) v).getBaseBox());
-
-				Collection temp = cgi.getCallees(v, context);
-
-				for(Iterator i = temp.iterator(); i.hasNext();) {
-					callees.add((SootMethod) i.next());
-				}
+				callees.addAll(cgi.getCallees(v, context));
 			}
 
 			for(Iterator i = callees.iterator(); i.hasNext();) {
@@ -1694,10 +1689,18 @@ public class RufsEscapeAnalysis
 	private boolean executedMultipleTimes(SootMethod caller) {
 		boolean result = false;
 		Collection callers = cgi.getCallers(caller);
-
+main_control:
 		if(callers.size() > 1) {
 			result = true;
 		} else if(callers.size() == 1) {
+			for(Iterator i = cgi.getSCCs().iterator(); i.hasNext();) {
+							Collection scc = (Collection) i.next();
+
+							if(scc.contains(caller)) {
+								result = true;
+								break main_control;
+							}
+						}
 			CallTriple ctrp = (CallTriple) callers.iterator().next();
 			SootMethod caller2 = ctrp.getMethod();
 			BasicBlockGraph bbg =
@@ -1740,6 +1743,9 @@ public class RufsEscapeAnalysis
  ChangeLog:
 
 $Log$
+Revision 1.4  2003/02/21 07:22:22  venku
+Changed \@pre to $pre in the ocl constraints specified in Javadoc.
+
 Revision 1.3  2003/02/20 19:19:09  venku
 Affected by the refactoring processing and controlling logic.
 
