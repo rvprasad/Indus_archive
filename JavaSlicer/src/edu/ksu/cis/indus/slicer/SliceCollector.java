@@ -17,6 +17,9 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.SootClass;
+import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
 
@@ -54,7 +58,7 @@ public final class SliceCollector {
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceCollector.class);
 
-	/** 
+	/**
 	 * The collection of classes that were tagged.
 	 */
 	private final Collection taggedClasses = new HashSet();
@@ -250,6 +254,32 @@ public final class SliceCollector {
 	}
 
 	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		final StringWriter _sw = new StringWriter();
+		final PrintWriter _pw = new PrintWriter(_sw);
+
+		for (final Iterator _i = taggedClasses.iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+			_pw.println("Class: " + _sc);
+
+			for (final Iterator _j = getCollected(_sc.getFields()).iterator(); _j.hasNext();) {
+				final SootField _field = (SootField) _j.next();
+				_pw.println("Fields:");
+				_pw.println("\t" + _field);
+			}
+
+			for (final Iterator _j = getCollected(_sc.getMethods()).iterator(); _j.hasNext();) {
+				final SootMethod _method = (SootMethod) _j.next();
+				_pw.println("Methods:");
+				_pw.println("\t" + _method);
+			}
+		}
+		return _pw.toString();
+	}
+
+	/**
 	 * Set the tag name to be used.
 	 *
 	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
@@ -281,9 +311,12 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/01 22:16:16  venku
+   - renamed set/getSlicedBBGMgr to set/getBasicBlockGraphManager
+     in SlicingEngine.
+   - ripple effect.
    Revision 1.7  2004/01/25 08:56:00  venku
    - formatting and coding convention.
-
    Revision 1.6  2004/01/24 01:48:58  venku
    - added logic to track tagged class
    - added method to retrieve tagged classes
