@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
@@ -135,76 +115,6 @@ public class ReadyDAv1
 	 * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	static Collection waitMethods;
-
-	/**
-	 * Fixes inter-method ready dependencies.  All statements in a caller which are pre-dominated by a call site which leads
-	 * to a <code>Object.wait</code> call or a synchronized block are recorded as ready dependent on the call site.
-	 */
-
-	/*
-	   private void fixupInterMethodReadyDA() {
-	       Collection methodsToProcess = new HashSet();
-	       if ((rules & (RULE_3 | RULE_4)) != 0) {
-	           methodsToProcess.addAll(waits.keySet());
-	       }
-	       if ((rules & (RULE_1 | RULE_2)) != 0) {
-	           for (Iterator i = monitorMethods.iterator(); i.hasNext();) {
-	               methodsToProcess.add(i.next());
-	           }
-	       }
-	       WorkBag progPoints = new WorkBag(WorkBag.FIFO);
-	       for (Iterator i = methodsToProcess.iterator(); i.hasNext();) {
-	           SootMethod method = (SootMethod) i.next();
-	           progPoints.addAllWork(callgraph.getCallers(method));
-	       }
-	       WorkBag workbag = new WorkBag(WorkBag.LIFO);
-	       Collection temp = new HashSet();
-	       Collection processed = new HashSet();
-	       Collection col = new ArrayList();
-	       while (progPoints.hasWork()) {
-	           CallTriple progPoint = (CallTriple) progPoints.getWork();
-	           processed.add(progPoint);
-	           SootMethod caller = progPoint.getMethod();
-	           Stmt dependee = progPoint.getStmt();
-	           BasicBlockGraph bbGraph = getBasicBlockGraph(caller);
-	           BasicBlock bb = bbGraph.getEnclosingBlock(dependee);
-	           col.clear();
-	           col.addAll(bb.getStmtFrom(getStmtList(caller).indexOf(dependee)));
-	           col.remove(dependee);
-	           for (Iterator i = col.iterator(); i.hasNext();) {
-	               dependeeMap.put(i.next(), dependee);
-	           }
-	           Collection dependents = (Collection) dependentMap.get(dependee);
-	           if (dependents == null) {
-	               dependents = new ArrayList();
-	           }
-	           dependents.addAll(col);
-	           workbag.addAllWork(bb.getSuccsOf());
-	           temp.clear();
-	           while (workbag.hasWork()) {
-	               bb = (BasicBlock) workbag.getWork();
-	               Collection stmts = bb.getStmtsOf();
-	               for (Iterator i = stmts.iterator(); i.hasNext();) {
-	                   dependeeMap.put(i.next(), dependee);
-	               }
-	               col.addAll(stmts);
-	               temp.add(bb);
-	               for (Iterator i = bb.getSuccsOf().iterator(); i.hasNext();) {
-	                   BasicBlock block = (BasicBlock) i.next();
-	                   if (!temp.contains(block)) {
-	                       workbag.addWork(block);
-	                   }
-	               }
-	           }
-	           for (Iterator i = callgraph.getCallers(caller).iterator(); i.hasNext();) {
-	               Object pp = i.next();
-	               if (!processed.contains(pp)) {
-	                   progPoints.addWork(pp);
-	               }
-	           }
-	       }
-	   }
-	 */
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -486,11 +396,11 @@ public class ReadyDAv1
 	 * Calculates ready dependency for the methods provided at initialization.  It considers only the rules specified by via
 	 * <code>setRules</code> method. By default, all rules are considered for the analysis.
 	 *
-	 * @return <code>true</code> as this analysis completes in a single run.
-	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
-	public boolean analyze() {
+	public void analyze() {
+		stable = false;
+
 		if (!threadgraph.getStartSites().isEmpty()) {
 			if (!monitorMethods.isEmpty() && (rules & (RULE_1 | RULE_3)) != 0) {
 				processRule1And3();
@@ -506,13 +416,16 @@ public class ReadyDAv1
 				}
 			}
 		}
-		return true;
+		stable = true;
 	}
 
 	/**
-	 * Resets the internal data structures.  <i>The rules are not reset.</i>
+	 * Resets internal data structures. <i>The rules are not reset.</i>  Also, the data acquired at setup time is not erased.
+	 *
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#reset()
 	 */
 	public void reset() {
+		super.reset();
 		enterMonitors.clear();
 		exitMonitors.clear();
 		waits.clear();
@@ -633,13 +546,11 @@ public class ReadyDAv1
 				}
 			}
 		}
-
 		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
 		if (callgraph == null) {
 			throw new InitializationException(ICallGraphInfo.ID + " was not provided in info.");
 		}
-
 		threadgraph = (IThreadGraphInfo) info.get(IThreadGraphInfo.ID);
 
 		if (threadgraph == null) {
@@ -923,6 +834,8 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/09/10 11:50:23  venku
+   - formatting.
    Revision 1.14  2003/09/10 11:49:30  venku
    - documentation change.
    Revision 1.13  2003/09/08 02:25:25  venku

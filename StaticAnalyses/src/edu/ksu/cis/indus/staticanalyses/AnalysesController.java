@@ -184,7 +184,8 @@ public class AnalysesController
 				AbstractAnalysis temp = (AbstractAnalysis) participatingAnalyses.get(daName);
 
 				if (temp != null && !done.contains(temp)) {
-					boolean t = temp.analyze();
+					temp.analyze();
+                    boolean t = temp.isStable();
 
 					if (t) {
 						done.add(temp);
@@ -253,6 +254,9 @@ public class AnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/09/12 01:22:17  venku
+   - coding conventions.
+
    Revision 1.16  2003/09/09 00:44:33  venku
    - removed unnecessay field.
 

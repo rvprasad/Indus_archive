@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
@@ -39,6 +19,7 @@ import soot.SootMethod;
 
 import soot.toolkits.graph.UnitGraph;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
@@ -56,7 +37,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractAnalysis {
+public abstract class AbstractAnalysis implements IStatus {
 	/**
 	 * This maps the methods being analyzed to their control graphs.
 	 *
@@ -84,11 +65,8 @@ public abstract class AbstractAnalysis {
 
 	/**
 	 * Analyzes the given methods and classes for "some" information.
-	 *
-	 * @return <code>true</code> if the analysis completed; <code>false</code>, otherwise.  This is useful if the analysis
-	 * 		   will proceed in stages/phases.
 	 */
-	public abstract boolean analyze();
+	public abstract void analyze();
 
 	/**
 	 * Returns the pre-processor.
@@ -162,8 +140,8 @@ public abstract class AbstractAnalysis {
 	}
 
 	/**
-	 * Returns the basic block graph constructed from the given control flow graph.  This will also remember the association 
-     * between the given method and graph.
+	 * Returns the basic block graph constructed from the given control flow graph.  This will also remember the association
+	 * between the given method and graph.
 	 *
 	 * @param stmtGraph is a control flow graph.
 	 *
@@ -173,12 +151,12 @@ public abstract class AbstractAnalysis {
 	 * @post result != null
 	 */
 	protected BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
-        method2stmtGraph.put(stmtGraph.getBody().getMethod(), stmtGraph);
-        return graphManager.getBasicBlockGraph(stmtGraph);
+		method2stmtGraph.put(stmtGraph.getBody().getMethod(), stmtGraph);
+		return graphManager.getBasicBlockGraph(stmtGraph);
 	}
 
 	/**
-	 * Returns the basic block graph for the given method, if one exists. 
+	 * Returns the basic block graph for the given method, if one exists.
 	 *
 	 * @param method for which the basic block graph is requested.
 	 *
@@ -224,13 +202,13 @@ public abstract class AbstractAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/12 01:21:30  venku
+   - documentation changes.
    Revision 1.8  2003/09/10 10:52:44  venku
    - new basic block graphs can be added.
-
    Revision 1.7  2003/09/09 01:13:58  venku
    - made basic block graph manager configurable in AbstractAnalysis
    - ripple effect of the above change in DADriver.  This should also affect Slicer.
-
    Revision 1.6  2003/08/21 01:35:05  venku
    Documentation changes.
    reset() is not called in initialize.  The user needs to do this.
