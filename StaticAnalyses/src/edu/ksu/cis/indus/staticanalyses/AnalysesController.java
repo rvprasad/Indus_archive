@@ -65,11 +65,11 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractController implements ISystemInfo {
+public abstract class AbstractAnalysesController implements ISystemInfo {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractController.class);
+	private static final Log LOGGER = LogFactory.getLog(AbstractAnalysesController.class);
 
 	/**
 	 * The collection of names used to identify various analyses.  This is just a collection of the above defined constants.
@@ -120,7 +120,7 @@ public abstract class AbstractController implements ISystemInfo {
 	private Map info;
 
 	/**
-	 * Creates a new AController object.
+	 * Creates a new AbstractAnalysesController object.
 	 *
 	 * @param infoPrm is a map of name to objects which provide information that maybe used by analyses, but is of no use to
 	 * 		  the controller.
@@ -128,7 +128,7 @@ public abstract class AbstractController implements ISystemInfo {
 	 *
 	 * @pre pc != null;
 	 */
-	public AbstractController(final Map infoPrm, final ProcessingController pc) {
+	public AbstractAnalysesController(final Map infoPrm, final ProcessingController pc) {
 		participatingAnalyses = new HashMap();
 		method2cmpltStmtGraph = new HashMap();
 		preprocessors = new HashSet();
@@ -270,6 +270,11 @@ public abstract class AbstractController implements ISystemInfo {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/08/18 04:44:35  venku
+   Established an interface which will provide the information about the underlying system as required by transformations.
+   It is called ISystemInfo.
+   Ripple effect of the above change.
+
    Revision 1.9  2003/08/18 04:10:10  venku
    Documentation change.
 

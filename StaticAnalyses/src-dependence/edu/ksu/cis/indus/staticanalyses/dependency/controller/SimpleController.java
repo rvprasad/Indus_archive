@@ -35,7 +35,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.controller;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractController;
+import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysesController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 
 import java.util.ArrayList;
@@ -45,9 +45,9 @@ import java.util.Map;
 
 
 /**
- * An naive implementation of AbstractController. This implementation will run the analyses in the order following order:
- * IntraProcedural Data dependency analysis, Control dependency analysis, Synchronization dependency analysis,  Interference
- * dependency analysis, Ready dependency analysis, Divergence dependency analysis
+ * An naive implementation of AbstractAnalysesController. This implementation will run the analyses in the order following
+ * order: IntraProcedural Data dependency analysis, Control dependency analysis, Synchronization dependency analysis,
+ * Interference dependency analysis, Ready dependency analysis, Divergence dependency analysis
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -56,7 +56,7 @@ import java.util.Map;
  * @invariant participatingAnalyses.values()->forall(o | o.oclIsKindOf(DependencyAnalysis))
  */
 public class SimpleController
-  extends AbstractController {
+  extends AbstractAnalysesController {
 	/**
 	 * This identifies class-level data dependency analysis.
 	 */
@@ -117,13 +117,14 @@ public class SimpleController
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/08/18 00:59:11  venku
+   Changed the type of the IDs to java.lang.Object to provide extensibility.
+   Ripple effect of that happens in AbstractController.
    Revision 1.6  2003/08/16 02:41:37  venku
    Renamed AController to AbstractController.
    Renamed AAnalysis to AbstractAnalysis.
-
    Revision 1.5  2003/08/11 08:52:56  venku
    Moved an invariant from constructor to type level.
-
    Revision 1.4  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 06:31:55  venku
