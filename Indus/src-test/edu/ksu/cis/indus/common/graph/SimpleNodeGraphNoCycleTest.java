@@ -102,6 +102,7 @@ public class SimpleNodeGraphNoCycleTest
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestIsReachable()
 	 */
 	protected void localtestIsReachable() {
+	    assertFalse(sng.isReachable((INode) name2node.get("a"), (INode) name2node.get("a"), true));
 		assertTrue(sng.isReachable((INode) name2node.get("a"), (INode) name2node.get("e"), true));
 		assertTrue(sng.isReachable((INode) name2node.get("e"), (INode) name2node.get("a"), false));
 		assertTrue(sng.isReachable((INode) name2node.get("b"), (INode) name2node.get("e"), true));
@@ -112,6 +113,10 @@ public class SimpleNodeGraphNoCycleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/06/14 04:55:04  venku
+   - documentation.
+   - coding conventions.
+
    Revision 1.8  2004/02/08 19:32:13  venku
    - test refactoring for regression testing.
 
