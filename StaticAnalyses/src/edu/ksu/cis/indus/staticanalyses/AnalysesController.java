@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.staticanalyses.interfaces;
+package edu.ksu.cis.indus.staticanalyses;
 
 import soot.SootMethod;
 
@@ -41,8 +41,9 @@ import soot.toolkits.graph.CompleteUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
 import edu.ksu.cis.indus.interfaces.ISystemInfo;
-import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 
 import org.apache.commons.logging.Log;
@@ -65,12 +66,12 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractAnalysesController
+public class AnalysesController
   implements ISystemInfo {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractAnalysesController.class);
+	private static final Log LOGGER = LogFactory.getLog(AnalysesController.class);
 
 	/**
 	 * The collection of analysis which want to preprocess the system.
@@ -122,7 +123,7 @@ public abstract class AbstractAnalysesController
 	 *
 	 * @pre pc != null;
 	 */
-	public AbstractAnalysesController(final Map infoPrm, final ProcessingController pc) {
+	public AnalysesController(final Map infoPrm, final ProcessingController pc) {
 		participatingAnalyses = new HashMap();
 		method2cmpltStmtGraph = new HashMap();
 		preprocessors = new HashSet();
@@ -264,6 +265,9 @@ public abstract class AbstractAnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/08/25 08:40:47  venku
+   Formatting.
+
    Revision 1.13  2003/08/25 08:39:58  venku
    Well, it does not make sense to specify a set of IDs and expect only
    analyses of these IDs to be controlled.  This is more like application
