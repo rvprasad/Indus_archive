@@ -641,9 +641,13 @@ public class CallGraph
 	public String dumpGraph() {
 		StringBuffer result = new StringBuffer();
 
-        result.append("Reachable methods in the system: " + getReachableMethods().size() + "\n");
-        result.append("Strongly Connected components in the system: " + getSCCs().size() + "\n");
-        
+		result.append("Root of the system: \n");
+
+		for (Iterator i = getHeads().iterator(); i.hasNext();) {
+			result.append("\t" + ((SootMethod) i.next()).getSignature());
+		}
+		result.append("Reachable methods in the system: " + getReachableMethods().size() + "\n");
+		result.append("Strongly Connected components in the system: " + getSCCs().size() + "\n");
 		result.append("top-down\n");
 
 		for (Iterator i = caller2callees.entrySet().iterator(); i.hasNext();) {
@@ -767,10 +771,11 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/09/29 05:52:44  venku
+   - added more info to the dump.
    Revision 1.18  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.17  2003/09/25 03:30:19  venku
    - coding convention.
    Revision 1.16  2003/09/13 04:24:42  venku
