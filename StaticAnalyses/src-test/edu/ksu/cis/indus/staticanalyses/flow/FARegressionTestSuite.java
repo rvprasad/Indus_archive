@@ -109,7 +109,7 @@ public class FARegressionTestSuite
 					_temp.addTestSuite(FATest.class);
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
-					FATestSetup _test = new FATestSetup(_temp, _classNames, _classpath);
+					final FATestSetup _test = new FATestSetup(_temp, _classNames, _classpath);
 					suite.addTest(_test);
 				} catch (IllegalArgumentException _e) {
 					;
@@ -124,6 +124,10 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/09 00:32:16  venku
+   - all test cases in indus extends IndusTestCase.
+   - RegressionTestSuites alter the name of the test instances
+     via appendSuiteTestName().
    Revision 1.3  2004/02/08 21:31:41  venku
    - test refactoring to enable same test case to be used as
      unit test case and regression test case

@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.TestHelper;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -131,13 +132,14 @@ public final class OFARegressionTestSuite
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
+                    _temp.addTestSuite(XMLBasedCallGraphTest.class);
 					_temp.addTestSuite(CallGraphTest.class);
 					_temp.addTestSuite(FATest.class);
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
-					OFATestSetup _test = new OFATestSetup(_temp, _classNames, _classpath);
-					_test.setXMLOutputDir(_xmlOutputDir);
-					_test.setXMLInputDir(_xmlInputDir);
+					final OFATestSetup _test = new OFATestSetup(_temp, _classNames, _classpath);
+					_test.setXmlOutputDir(_xmlOutputDir);
+					_test.setXmlInputDir(_xmlInputDir);
 					suite.addTest(_test);
 				} catch (IllegalArgumentException _e) {
 					;
@@ -152,6 +154,10 @@ public final class OFARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/09 00:32:16  venku
+   - all test cases in indus extends IndusTestCase.
+   - RegressionTestSuites alter the name of the test instances
+     via appendSuiteTestName().
    Revision 1.3  2004/02/08 21:31:41  venku
    - test refactoring to enable same test case to be used as
      unit test case and regression test case

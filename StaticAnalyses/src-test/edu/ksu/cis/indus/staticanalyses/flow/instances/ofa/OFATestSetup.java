@@ -23,8 +23,10 @@ import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -70,8 +72,10 @@ public final class OFATestSetup
 		_pc.process();
 		cgiImpl.unhook(_pc);
 
-		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class);
 		final Scene _scene = Scene.v();
+		final Collection _temp =
+			new ArrayList(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class));
+		_temp.addAll(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedCallGraphTest.class));
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IFAProcessorTest _tester = (IFAProcessorTest) _i.next();
@@ -94,6 +98,9 @@ public final class OFATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/08 21:31:41  venku
+   - test refactoring to enable same test case to be used as
+     unit test case and regression test case
    Revision 1.3  2004/02/08 19:53:31  venku
    - it should be tearDown and not teardown. FIXED.
    Revision 1.2  2004/02/08 19:17:19  venku

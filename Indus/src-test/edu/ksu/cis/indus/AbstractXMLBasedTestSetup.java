@@ -25,51 +25,67 @@ import junit.framework.TestSuite;
 
 /**
  * DOCUMENT ME!
+ * 
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractXMLBasedTestSetup
-  extends TestSetup {
+public class AbstractXMLBasedTestSetup
+  extends TestSetup
+  implements IXMLBasedTest {
 	/**
-	 * The directory in which xml-based testing input is read from.
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	private String xmlInputDir;
-
-	/**
-	 * The directory in which xml-based testing output is dumped.
-	 */
-	private String xmlOutputDir;
+	private final AbstractXMLBasedTest xmlBasedTest;
 
 	/**
 	 * @see TestSetup#TestSetup(TestSuite)
 	 */
 	public AbstractXMLBasedTestSetup(TestSuite test) {
 		super(test);
+		xmlBasedTest = new AbstractXMLBasedTest() {
+					;
+				};
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
 	 *
-	 * @param dir DOCUMENT ME!
+	 * @param xmlInDir
 	 */
-	public void setXMLInputDir(final String dir) {
-		xmlInputDir = dir;
+	public void setXmlInputDir(String xmlInDir) {
+		xmlBasedTest.setXmlInputDir(xmlInDir);
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
 	 *
-	 * @param dir DOCUMENT ME!
+	 * @return
 	 */
-	public void setXMLOutputDir(final String dir) {
-		xmlOutputDir = dir;
+	public String getXmlInputDir() {
+		return xmlBasedTest.getXmlInputDir();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param xmlOutDir
+	 */
+	public void setXmlOutputDir(String xmlOutDir) {
+		xmlBasedTest.setXmlOutputDir(xmlOutDir);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return
+	 */
+	public String getXmlOutputDir() {
+		return xmlBasedTest.getXmlOutputDir();
 	}
 
 	/**
@@ -81,8 +97,8 @@ public abstract class AbstractXMLBasedTestSetup
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IXMLBasedTest _tester = (IXMLBasedTest) _i.next();
-			_tester.setXMLOutputDir(xmlOutputDir);
-			_tester.setXMLInputDir(xmlInputDir);
+			_tester.setXmlOutputDir(xmlBasedTest.getXmlOutputDir());
+			_tester.setXmlInputDir(xmlBasedTest.getXmlInputDir());
 		}
 	}
 }
@@ -90,4 +106,11 @@ public abstract class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 04:53:14  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
  */

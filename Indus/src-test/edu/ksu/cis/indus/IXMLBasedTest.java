@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus;
 
+import junit.framework.Test;
+
+
 /**
  * DOCUMENT ME!
  * 
@@ -24,25 +27,28 @@ package edu.ksu.cis.indus;
  * @author $Author$
  * @version $Revision$
  */
-public interface IXMLBasedTest {
+public interface IXMLBasedTest
+  extends Test {
 	/**
-	 * DOCUMENT ME!
+	 * DOCUMENT ME! <p></p>
 	 *
-	 * @param xmlInputDir
+	 * @param xmlInputDir DOCUMENT ME!
 	 */
-	void setXMLInputDir(String xmlInputDir);
+	void setXmlInputDir(String xmlInputDir);
 
 	/**
-	 * DOCUMENT ME!
+	 * DOCUMENT ME! <p></p>
 	 *
-	 * @param xmlOutputDir
+	 * @param xmlOutputDir DOCUMENT ME!
 	 */
-	void setXMLOutputDir(String xmlOutputDir);
+	void setXmlOutputDir(String xmlOutputDir);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 19:08:03  venku
+   - documentation
    Revision 1.1  2004/02/08 04:53:14  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.
