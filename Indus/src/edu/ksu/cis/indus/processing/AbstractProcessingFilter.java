@@ -19,9 +19,8 @@ import java.util.Collection;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is an abstract implementation of <code>IProcessingFilter</code> which just returns the given set of classes and 
+ * methods without filtering.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -47,4 +46,11 @@ public abstract class AbstractProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/30 00:10:17  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
  */

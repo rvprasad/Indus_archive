@@ -19,29 +19,36 @@ import java.util.Collection;
 
 
 /**
- * DOCUMENT ME!
- * <p></p>
- * 
- * @version $Revision$ 
+ * This is the interface via which class and method filtering will occur in <code>ProcessingController</code>.
+ *
  * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IProcessingFilter {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Filter out classes from the given collection of classes.
 	 *
-	 * @param classes DOCUMENT ME!
+	 * @param classes is the collection to be filtered.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of classes that were not filtered.
+	 *
+	 * @pre classes.oclIsKindOf(Collection(soot.SootClass)
+	 * @post result.oclIsKinfOf(Collection(soot.SootClass))
+	 * @post result->forall(o | classes.contains(o))
 	 */
 	Collection filterClasses(Collection classes);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Filter out methods from the given collection of methods.
 	 *
-	 * @param methods DOCUMENT ME!
+	 * @param methods is the collection to be filtered.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of methods that were not filtered.
+	 *
+	 * @pre methods.oclIsKindOf(Collection(soot.SootMethod)
+	 * @post result.oclIsKinfOf(Collection(soot.SootMethod))
+	 * @post result->forall(o | methods.contains(o))
 	 */
 	Collection filterMethods(Collection methods);
 }
@@ -49,4 +56,10 @@ public interface IProcessingFilter {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/30 00:10:17  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
  */
