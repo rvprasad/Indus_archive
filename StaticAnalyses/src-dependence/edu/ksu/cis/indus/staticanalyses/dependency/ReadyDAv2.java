@@ -65,6 +65,13 @@ public class ReadyDAv2
 	private EquivalenceClassBasedAnalysis ecba;
 
 	/**
+	 * @see ReadyDAv1
+	 */
+	public ReadyDAv2(final boolean acrossMethodCalls) {
+		super(acrossMethodCalls);
+	}
+
+	/**
 	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
 	 * results of a <code>EquivalenceClassbasedAnalysis</code>analysis is used to determine the dependence.
 	 *

@@ -199,10 +199,22 @@ public class ReadyDAv1
 	private PairManager pairMgr;
 
 	/**
-	 * Creates a new ReadyDAv1 object.
+	 * This indicates if dependence should be considered across call-sites.  Depending on the application, one may choose to
+	 * ignore ready dependence across call-sites and rely on other dependence analysis to include the call-site.  This only
+	 * affects how rule 1 and 3 are interpreted.
 	 */
-	public ReadyDAv1() {
+	private final boolean interProcedural;
+
+	/**
+	 * Creates a new ReadyDAv1 object.
+	 *
+	 * @param acrossMethodCalls <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor
+	 * 		  statement should be considered as a ready dependeee; <code>false</code>, otherwise. This only affects how rule
+	 * 		  1 and 3 are interpreted.
+	 */
+	public ReadyDAv1(final boolean acrossMethodCalls) {
 		preprocessor = new PreProcessor();
+		interProcedural = acrossMethodCalls;
 	}
 
 	/**
@@ -263,7 +275,7 @@ public class ReadyDAv1
 				InvokeExpr expr = null;
 
 				if (stmt instanceof InvokeStmt) {
-					expr = ((InvokeStmt) stmt).getInvokeExpr();
+					expr = stmt.getInvokeExpr();
 				}
 
 				if (expr != null && expr instanceof VirtualInvokeExpr) {
@@ -502,7 +514,7 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * Extracts information as provided by environment at initialization time.
+	 * Extracts information provided by environment at initialization time.
 	 *
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
 	 * 		   <code>info</code> member.
@@ -512,6 +524,8 @@ public class ReadyDAv1
 	 */
 	protected void setup()
 	  throws InitializationException {
+		super.setup();
+
 		if (waitMethod == null) {
 			for (Iterator i = env.getClasses().iterator(); i.hasNext();) {
 				SootClass sc = (SootClass) i.next();
@@ -567,13 +581,14 @@ public class ReadyDAv1
 	 *
 	 * @return <code>true</code> if <code>stmt</code> results in the invocation of a ready-method via a call-chain;
 	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre stmt != null and caller != null and stmt.containsInvokeExpr() == true
 	 */
 	private boolean callsReadyMethod(final Stmt stmt, final SootMethod caller) {
 		boolean result = false;
 
-		if (stmt instanceof InvokeStmt) {
-			if (!CollectionUtils.intersection(readyMethods, callgraph.getMethodsReachableFrom((InvokeStmt) stmt, caller))
-								  .isEmpty()) {
+		if (interProcedural && stmt.containsInvokeExpr()) {
+			if (!CollectionUtils.intersection(readyMethods, callgraph.getMethodsReachableFrom(stmt, caller)).isEmpty()) {
 				result = true;
 			}
 		}
