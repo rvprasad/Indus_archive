@@ -26,7 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXML
 
 import edu.ksu.cis.indus.tools.Phase;
 
-import edu.ksu.cis.indus.transformations.slicer.TagBasedDestructiveSliceResidualizer;
+import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
@@ -536,6 +536,10 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/02/09 06:54:18  venku
+   - deleted dependency xmlization and test classes.
+   - ripple effect.
+
    Revision 1.10  2004/02/09 06:49:27  venku
    *** empty log message ***
 
