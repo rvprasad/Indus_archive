@@ -290,12 +290,14 @@ public class JimpleXMLizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 	 */
 	public final void consolidate() {
-		try {
-			writer.endDocument();
-			writer.getWriter().close();
-		} catch (final IOException _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing xmlized jimple info.", _e);
+		if (writer != null) {
+			try {
+				writer.endDocument();
+				writer.getWriter().close();
+			} catch (final IOException _e) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Error while writing xmlized jimple info.", _e);
+				}
 			}
 		}
 	}
