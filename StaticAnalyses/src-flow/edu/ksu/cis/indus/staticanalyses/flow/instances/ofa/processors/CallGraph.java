@@ -55,7 +55,6 @@ import soot.jimple.VirtualInvokeExpr;
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
@@ -91,8 +90,7 @@ import java.util.Stack;
  */
 public class CallGraph
   extends AbstractProcessor
-  implements ICallGraphInfo,
-	  IProcessor {
+  implements ICallGraphInfo {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -703,6 +701,9 @@ public class CallGraph
    ChangeLog:
    
    $Log$
+   Revision 1.7  2003/08/14 05:10:29  venku
+   Fixed documentation links.
+
    Revision 1.6  2003/08/13 08:49:10  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosed later on in implementaions.
