@@ -137,7 +137,7 @@ public class OFAFGNode
 			IFGNode succ = (IFGNode) i.next();
 
 			if (!diffValues(succ).isEmpty()) {
-				worklist.addWork(SendValuesWork.getWork(succ, arrivingValues));
+				worklist.addWork(SendValuesWork.getWork(succ, temp));
 			}
 		}
 	}
@@ -147,6 +147,9 @@ public class OFAFGNode
    ChangeLog:
 
    $Log$
+   Revision 1.5  2003/08/17 11:54:19  venku
+   Formatting and documentation.
+
    Revision 1.4  2003/08/17 11:19:13  venku
    Placed the simple SendValuesWork class into a separate file.
    Extended it with work pool support.
