@@ -10,6 +10,7 @@
 #       TAG += value [value, ...]
 # Values that contain spaces should be placed between quotes (" ")
 
+# $Revision$ $Name$
 #---------------------------------------------------------------------------
 # General configuration options
 #---------------------------------------------------------------------------
