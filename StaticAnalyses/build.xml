@@ -2,143 +2,153 @@
 <!-- $Revision$ -->
 <project name="indus.staticanalyses" default="build" basedir=".">
 
-<import file="prelocalbuild.xml"/>
+	<import file="prelocalbuild.xml" />
 
-<target name="init">
-    <tstamp/>
-    <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${doxygen.jar}"/>
-</target>
+	<property name="docbook.base" value="../../../" />
 
-<target name="localbuild" depends="init">
-    <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" debug="on" debuglevel="${debuglevel}" includes="**/*.java">
-        <src refid="${srcpath}"/>
-        <classpath refid="${classpath}"/>
-    </javac>
-    <copy todir="${build.dir}">
-        <fileset dir="." includes="src*/**/*.properties"/>
-        <mapper type="regexp" from="^(src[^/]*/)(.+)properties" to="\2properties"/>
-    </copy>
-    <copy todir="${build.dir}">
-        <fileset dir="." includes="src*/**/*.xml"/>
-        <mapper type="regexp" from="^(src[^/]*/)(.+)xml" to="\2xml"/>
-    </copy>
-</target>
+	<target name="init">
+		<tstamp />
+		<taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${doxygen.jar}" />
+	</target>
 
-<target name="build" depends="init">
-    <mkdir dir="${build.dir}"/>
-    <antcall target="localbuild">
-       <param name="srcpath" value="${ant.project.name}.docsrcpath"/> 
-       <param name="classpath" value="${ant.project.name}.classpath"/> 
-       <param name="debuglevel" value="lines"/>
-    </antcall>
-	<antcall target="executeCustomBuild"/>
-</target>
+	<target name="localbuild" depends="init">
+		<mkdir dir="${build.dir}" />
+		<javac destdir="${build.dir}" debug="on" debuglevel="${debuglevel}" includes="**/*.java">
+			<src refid="${srcpath}" />
+			<classpath refid="${classpath}" />
+		</javac>
+		<copy todir="${build.dir}">
+			<fileset dir="." includes="src*/**/*.properties" />
+			<mapper type="regexp" from="^(src[^/]*/)(.+)properties" to="\2properties" />
+		</copy>
+		<copy todir="${build.dir}">
+			<fileset dir="." includes="src*/**/*.xml" />
+			<mapper type="regexp" from="^(src[^/]*/)(.+)xml" to="\2xml" />
+		</copy>
+	</target>
 
-<target name="debugBuild" depends="init">
-    <mkdir dir="${build.dir}"/>
-    <antcall target="localbuild">
-       <param name="srcpath" value="${ant.project.name}.srcpath"/> 
-       <param name="classpath" value="${ant.project.name}.classpath"/> 
-       <param name="debuglevel" value="lines,vars,source"/>
-    </antcall>
-	<antcall target="executeCustomBuild"/>
-</target>
+	<target name="build" depends="init">
+		<mkdir dir="${build.dir}" />
+		<antcall target="localbuild">
+			<param name="srcpath" value="${ant.project.name}.docsrcpath" />
+			<param name="classpath" value="${ant.project.name}.classpath" />
+			<param name="debuglevel" value="lines" />
+		</antcall>
+		<antcall target="executeCustomBuild" />
+	</target>
 
-<target name="executeCustomBuild" if="custombuild.exists">
-	<antcall target="custombuild"/>
-</target>
+	<target name="debugBuild" depends="init">
+		<mkdir dir="${build.dir}" />
+		<antcall target="localbuild">
+			<param name="srcpath" value="${ant.project.name}.srcpath" />
+			<param name="classpath" value="${ant.project.name}.classpath" />
+			<param name="debuglevel" value="lines,vars,source" />
+		</antcall>
+		<antcall target="executeCustomBuild" />
+	</target>
 
-<target name="jar" depends="init">
-	<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*"/>
-</target>
+	<target name="executeCustomBuild" if="custombuild.exists">
+		<antcall target="custombuild" />
+	</target>
 
-<target name="buildAndJar" depends="build">
-	<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*"/>
-</target>
+	<target name="jar" depends="init">
+		<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*" />
+	</target>
 
-<target name="docs" depends="init">
-	<antcall target="javadocs">
-        <param name="access" value="protected"/>
-        <param name="sootlink" value="${remote_sootlink}"/>
-        <param name="jdklink" value="${remote_jdklink}"/>
-		<param name="srcpath" value="${ant.project.name}.docsrcpath"/>
-        <param name="exclude" value="yes"/>
-    </antcall>
-    <antcall target="doxydocs">
-        <param name="configFile" value="Doxyfile"/>
-    </antcall>
-    <antcall target="docbook-doc"/>
-</target>
+	<target name="buildAndJar" depends="build">
+		<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*" />
+	</target>
 
-<target name="privatedocs" depends="init">
-	<antcall target="javadocs">
-        <param name="access" value="private"/>
-        <param name="sootlink" value="${local_sootlink}"/>
-        <param name="jdklink" value="${local_jdklink}"/>
-		<param name="srcpath" value="${ant.project.name}.srcpath"/>
-        <param name="exclude" value="no"/>
-    </antcall>
-    <antcall target="doxydocs">
-        <param name="configFile" value="privateDoxyfile"/>
-    </antcall>
-    <antcall target="docbook-doc"/>
-</target>
+	<target name="docs" depends="init">
+		<antcall target="javadocs">
+			<param name="access" value="protected" />
+			<param name="sootlink" value="${remote_sootlink}" />
+			<param name="jdklink" value="${remote_jdklink}" />
+			<param name="srcpath" value="${ant.project.name}.docsrcpath" />
+			<param name="exclude" value="yes" />
+		</antcall>
+		<antcall target="doxydocs">
+			<param name="configFile" value="Doxyfile" />
+		</antcall>
+		<antcall target="docbook-doc" />
+	</target>
 
-<target name="doxydocs">
-    <delete dir="${docs}/doxydocs"/>
-    <mkdir dir="${docs}/doxydocs"/>
-    <doxygen configfile="${configFile}"/>
-</target>
+	<target name="privatedocs" depends="init">
+		<antcall target="javadocs">
+			<param name="access" value="private" />
+			<param name="sootlink" value="${local_sootlink}" />
+			<param name="jdklink" value="${local_jdklink}" />
+			<param name="srcpath" value="${ant.project.name}.srcpath" />
+			<param name="exclude" value="no" />
+		</antcall>
+		<antcall target="doxydocs">
+			<param name="configFile" value="privateDoxyfile" />
+		</antcall>
+		<antcall target="docbook-doc" />
+	</target>
 
-<target name="javadocs">
-    <delete dir="${docs}/javadocs"/>
-    <mkdir dir="${docs}/javadocs"/>
-    <javadoc packagenames="${package}.*" destdir="${docs}/javadocs" access="${access}" use="true"
-             author="true" additionalparam="-breakiterator" defaultexcludes="${exclude}"
-             header="&lt;b> &lt;a href='http://indus.projects.cis.ksu.edu'>Indus &lt;/a>, a &lt;a href='http://www.cis.ksu.edu/santos'>SAnToS laboratory &lt;/a> project.&lt;/b>"
-             doctitle="&lt;b>Indus, a toolkit to customize and adapt Java programs.&lt;/b>"
-             overview="src/overview.html">
-             <classpath refid="${ant.project.name}.classpath"/>
-             <sourcepath refid="${srcpath}"/>
-             <link href="${sootlink}"/>
-             <link href="${jdklink}"/>
-             <link href="../../../Indus/docs/javadocs"/>
-             <tag name="pre" description="Precondition:" scope="constructors,methods"/>
-             <tag name="post" description="Postcondition:" scope="constructors,methods"/>
-             <tag name="invariant" description="Invariant" scope="methods,types,fields"/>
-    </javadoc>
-</target>
+	<target name="doxydocs">
+		<delete dir="${docs}/doxydocs" />
+		<mkdir dir="${docs}/doxydocs" />
+		<doxygen configfile="${configFile}" />
+	</target>
 
-<target name="docbook-doc">
-	<ant dir="docs/ug/" antfile="../../../DocbookAnt/build.xml" target="pdf"/>
-	<ant dir="docs/ug/" antfile="../../../DocbookAnt/build.xml" target="html-single"/>
-</target>
+	<target name="javadocs">
+		<delete dir="${docs}/javadocs" />
+		<mkdir dir="${docs}/javadocs" />
+		<javadoc packagenames="${package}.*"
+		         destdir="${docs}/javadocs"
+		         access="${access}"
+		         use="true"
+		         author="true"
+		         additionalparam="-breakiterator"
+		         defaultexcludes="${exclude}"
+		         header="&lt;b> &lt;a href='http://indus.projects.cis.ksu.edu'>Indus &lt;/a>, a &lt;a href='http://www.cis.ksu.edu/santos'>SAnToS laboratory &lt;/a> project.&lt;/b>"
+		         doctitle="&lt;b>Indus, a toolkit to customize and adapt Java programs.&lt;/b>"
+		         overview="src/overview.html"
+		>
+			<classpath refid="${ant.project.name}.classpath" />
+			<sourcepath refid="${srcpath}" />
+			<link href="${sootlink}" />
+			<link href="${jdklink}" />
+			<link href="../../../Indus/docs/javadocs" />
+			<tag name="pre" description="Precondition:" scope="constructors,methods" />
+			<tag name="post" description="Postcondition:" scope="constructors,methods" />
+			<tag name="invariant" description="Invariant" scope="methods,types,fields" />
+		</javadoc>
+	</target>
 
-<target name="dist" depends="build, docs">
-   <antcall target="backup"/>
-</target>
+	<target name="docbook-doc">
+		<ant dir="docs/ug/" antfile="${docbook.base}/DocbookAnt/build.xml" target="pdf" />
+		<ant dir="docs/ug/" antfile="${docbook.base}/DocbookAnt/build.xml" target="html-single" />
+	</target>
 
-<target name="privatebuild" depends="build, privatedocs"/>
+	<target name="dist" depends="build, docs">
+		<antcall target="backup" />
+	</target>
 
-<target name="backup" depends="init">
-    <mkdir dir="${dist}"/>
-    <property name="filename" value="${dist}/${ant.project.name}-${DSTAMP}"/>
-    <jar jarfile="${filename}.jar" basedir="${build.dir}" excludes="*.jar, *.tar, *.tgz"/>
-    <tar tarfile="${filename}.tar" basedir="."
-         excludes="**/\..*, **/rational/html/**"
-         includes="src*/, ${filename}.jar, ${docs}/**, temp/, build.xml"/>
-    <gzip src="${filename}.tar" zipfile="${filename}.tgz"/>
-    <delete file="${filename}.tar"/>
-</target>
+	<target name="privatebuild" depends="build, privatedocs" />
 
-<target name="clean" depends="init">
-    <delete includeEmptyDirs="true" quiet="true">
-	    <fileset dir="${build.dir}" includes="**/*.class"/>
-    </delete>
-    <delete dir="${docs}/javadocs" quiet="true"/>
-    <delete dir="${docs}/doxydocs" quiet="true"/>
-</target>
+	<target name="backup" depends="init">
+		<mkdir dir="${dist}" />
+		<property name="filename" value="${dist}/${ant.project.name}-${DSTAMP}" />
+		<jar jarfile="${filename}.jar" basedir="${build.dir}" excludes="*.jar, *.tar, *.tgz" />
+		<tar tarfile="${filename}.tar"
+		     basedir="."
+		     excludes="**/\..*, **/rational/html/**"
+		     includes="src*/, ${filename}.jar, ${docs}/**, temp/, build.xml"
+		/>
+		<gzip src="${filename}.tar" zipfile="${filename}.tgz" />
+		<delete file="${filename}.tar" />
+	</target>
+
+	<target name="clean" depends="init">
+		<delete includeEmptyDirs="true" quiet="true">
+			<fileset dir="${build.dir}" includes="**/*.class" />
+		</delete>
+		<delete dir="${docs}/javadocs" quiet="true" />
+		<delete dir="${docs}/doxydocs" quiet="true" />
+	</target>
 
 </project>
 
@@ -146,6 +156,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.35  2004/05/19 23:24:22  venku
+- removed dtd declaration.
+
 Revision 1.34  2004/05/19 21:05:10  venku
 Added support to vary the location of jar files required by the project.
 Put it all in one location and provide it as "jars.dir" via localbuild.properties.
