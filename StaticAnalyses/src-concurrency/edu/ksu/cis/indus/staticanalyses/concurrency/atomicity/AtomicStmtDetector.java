@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.apache.commons.collections.IteratorUtils;
@@ -89,6 +90,13 @@ public class AtomicStmtDetector
 	 */
 	public final void setEscapeAnalysis(final EquivalenceClassBasedEscapeAnalysis analysis) {
 		ecba = analysis;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getIds()
+	 */
+	public Collection getIds() {
+		return Collections.singleton(ID);
 	}
 
 	/**
