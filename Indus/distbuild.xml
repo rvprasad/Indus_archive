@@ -59,6 +59,7 @@
             <fileset dir="${projects.dir}">
                 <include name="*/*.jar"/>
                 <exclude name="*/*src*.jar"/>
+                <exclude name="Indus/dist/*.jar"/>
             </fileset>
         </copy>
 
