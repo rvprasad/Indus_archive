@@ -21,7 +21,10 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+
+import edu.ksu.cis.indus.processing.Context;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,6 +64,8 @@ import soot.VoidType;
 import soot.jimple.DoubleConstant;
 import soot.jimple.FloatConstant;
 import soot.jimple.IntConstant;
+import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.LongConstant;
@@ -77,7 +82,7 @@ import soot.tagkit.Host;
  * @version $Revision$
  */
 public final class Util {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(Util.class);
@@ -342,6 +347,43 @@ public final class Util {
 	}
 
 	/**
+	 * Checks if the method invoked at the invocation site is one of the <code>notify</code> methods in
+	 * <code>java.lang.Object</code> class based  on the given call graph.
+	 *
+	 * @param stmt in which the invocation occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param cgi to be used in the check.
+	 *
+	 * @return <code>true</code> if the method invoked at the invocation site is one of the <code>notify</code> methods in
+	 * 		   <code>java.lang.Object</code> class; <code>false</code>, otherwise.
+	 */
+	public static boolean isNotifyInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
+		final InvokeExpr _expr = stmt.getInvokeExpr();
+		final SootMethod _sm = _expr.getMethod();
+		boolean _result = isNotifyMethod(_sm);
+
+		if (_result && method != null && cgi != null) {
+			_result = wasMethodInvocationHelper(_sm, stmt, method, cgi);
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the given method is one of the <code>notify</code> methods in <code>java.lang.Object</code> class.
+	 *
+	 * @param method to be checked.
+	 *
+	 * @return <code>true</code> if the method is <code>notify</code> methods in <code>java.lang.Object</code> class;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre method != null
+	 */
+	public static boolean isNotifyMethod(final SootMethod method) {
+		return method.getDeclaringClass().getName().equals("java.lang.Object")
+		  && (method.getName().equals("notify") || method.getName().equals("notifyAll"));
+	}
+
+	/**
 	 * Retrieves the type object for the given primitive (non-array) type in the given scene.
 	 *
 	 * @param typeName is the name of the type.
@@ -443,6 +485,21 @@ public final class Util {
 	}
 
 	/**
+	 * Checks if the given method is <code>java.lang.Thread.start()</code> method.
+	 *
+	 * @param method to be checked.
+	 *
+	 * @return <code>true</code> if the method is <code>java.lang.Thread.start()</code> method; <code>false</code>,
+	 * 		   otherwise.
+	 *
+	 * @pre method != null
+	 */
+	public static boolean isStartMethod(final SootMethod method) {
+		return method.getName().equals("start") && method.getDeclaringClass().getName().equals("java.lang.Thread")
+		  && method.getReturnType() instanceof VoidType && method.getParameterCount() == 0;
+	}
+
+	/**
 	 * Retrieves the type object for the given type in the given scene.
 	 *
 	 * @param typeName is the name of the type.
@@ -462,6 +519,42 @@ public final class Util {
 			_result = ArrayType.v(getPrimitiveTypeFor(typeName.substring(0, _i), scene), typeName.length() - _i);
 		}
 		return _result;
+	}
+
+	/**
+	 * Checks if the method invoked at the invocation site is one of the <code>wait</code> methods in
+	 * <code>java.lang.Object</code> class based  on the given call graph.
+	 *
+	 * @param stmt in which the invocation occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param cgi to be used in the check.
+	 *
+	 * @return <code>true</code> if the method invoked at the invocation site is one of the <code>wait</code> methods in
+	 * 		   <code>java.lang.Object</code> class; <code>false</code>, otherwise.
+	 */
+	public static boolean isWaitInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
+		final InvokeExpr _expr = stmt.getInvokeExpr();
+		final SootMethod _sm = _expr.getMethod();
+		boolean _result = isWaitMethod(_sm);
+
+		if (_result && method != null && cgi != null) {
+			_result = wasMethodInvocationHelper(_sm, stmt, method, cgi);
+		}
+		return _result;
+	}
+
+	/**
+	 * Checks if the given method is one of the <code>wait</code> methods in <code>java.lang.Object</code> class.
+	 *
+	 * @param method to be checked.
+	 *
+	 * @return <code>true</code> if the method is <code>wait</code> methods in <code>java.lang.Object</code> class;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre method != null
+	 */
+	public static boolean isWaitMethod(final SootMethod method) {
+		return method.getDeclaringClass().getName().equals("java.lang.Object") && method.getName().equals("wait");
 	}
 
 	/**
@@ -646,14 +739,45 @@ public final class Util {
 		}
 		methods.retainAll(_retainSet);
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param invokedMethod DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 * @param cgi DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private static boolean wasMethodInvocationHelper(final SootMethod invokedMethod, final InvokeStmt stmt,
+		final SootMethod method, final ICallGraphInfo cgi) {
+		final Context _context = new Context();
+		_context.setRootMethod(method);
+		_context.setStmt(stmt);
+
+		boolean _result = false;
+		final Collection _callees = cgi.getCallees(stmt.getInvokeExpr(), _context);
+		final Iterator _iter = _callees.iterator();
+		final int _iterEnd = _callees.size();
+
+		for (int _iterIndex = 0; _iterIndex < _iterEnd && !_result; _iterIndex++) {
+			final SootMethod _callee = (SootMethod) _iter.next();
+			_result |= _callee.equals(invokedMethod);
+		}
+		return _result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/07/20 06:12:07  venku
+   - error while getting array types. FIXED.
    Revision 1.27  2004/07/02 05:15:17  venku
    - added a new method to retrieve type objects based on names.
-
    Revision 1.26  2004/06/14 04:31:17  venku
    - added method to check tags on a collection of hosts in Util.
    - ripple effect.

@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph.IObjectNode;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -57,7 +58,6 @@ import org.apache.commons.logging.LogFactory;
 import soot.SootMethod;
 
 import soot.jimple.EnterMonitorStmt;
-import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
@@ -189,7 +189,7 @@ public class SafeLockAnalysis
 		public void callback(final Stmt stmt, final Context context) {
 			final SootMethod _currentMethod = context.getCurrentMethod();
 
-			if (SafeLockAnalysis.isWaitInvocation((InvokeStmt) stmt, _currentMethod, callgraphInfo)) {
+			if (Util.isWaitInvocation((InvokeStmt) stmt, _currentMethod, callgraphInfo)) {
 				waits.add(pairMgr.getOptimizedPair(stmt, _currentMethod));
 			}
 		}
@@ -207,77 +207,6 @@ public class SafeLockAnalysis
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(InvokeStmt.class, this);
 		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param cgi DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public static boolean isNotifyInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
-		final InvokeExpr _expr = stmt.getInvokeExpr();
-		final SootMethod _sm = _expr.getMethod();
-		boolean _result = SafeLockAnalysis.isNotifyMethod(_sm);
-
-		if (_result && method != null && cgi != null) {
-			_result = wasMethodInvocationHelper(_sm, stmt, method, cgi);
-		}
-		return _result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param method DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public static boolean isNotifyMethod(final SootMethod method) {
-		return method.getDeclaringClass().getName().equals("java.lang.Object")
-		  && (method.getName().equals("notify") || method.getName().equals("notifyAll"));
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param cgi DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public static boolean isWaitInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
-		final InvokeExpr _expr = stmt.getInvokeExpr();
-		final SootMethod _sm = _expr.getMethod();
-		boolean _result = SafeLockAnalysis.isWaitMethod(_sm);
-
-		if (_result && method != null && cgi != null) {
-			_result = wasMethodInvocationHelper(_sm, stmt, method, cgi);
-		}
-		return _result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param method DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public static boolean isWaitMethod(final SootMethod method) {
-		return method.getDeclaringClass().getName().equals("java.lang.Object") && method.getName().equals("wait");
 	}
 
 	/**
@@ -461,36 +390,6 @@ public class SafeLockAnalysis
 				}
 			}
 		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param invokedMethod DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param cgi DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	private static boolean wasMethodInvocationHelper(final SootMethod invokedMethod, final InvokeStmt stmt,
-		final SootMethod method, final ICallGraphInfo cgi) {
-		final Context _context = new Context();
-		_context.setRootMethod(method);
-		_context.setStmt(stmt);
-
-		boolean _result = false;
-		final Collection _callees = cgi.getCallees(stmt.getInvokeExpr(), _context);
-		final Iterator _iter = _callees.iterator();
-		final int _iterEnd = _callees.size();
-
-		for (int _iterIndex = 0; _iterIndex < _iterEnd && !_result; _iterIndex++) {
-			final SootMethod _callee = (SootMethod) _iter.next();
-			_result |= _callee.equals(invokedMethod);
-		}
-		return _result;
 	}
 
 	/**
@@ -831,6 +730,9 @@ public class SafeLockAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/07/27 11:07:20  venku
+   - updated project to use safe lock analysis.
+
    Revision 1.12  2004/07/27 07:08:25  venku
    - revamped IMonitorInfo interface.
    - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
