@@ -68,11 +68,6 @@ final class JimpleStmtXMLizer
 	 */
 	private SootMethod currMethod;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
-	 */
-	private final String nameOfTag;
-
 	/**
 	 * The instance used to write xml data.
 	 */
@@ -87,20 +82,8 @@ final class JimpleStmtXMLizer
 	 * @pre theValueXMLizer != null and generator != null
 	 */
 	JimpleStmtXMLizer(final JimpleValueXMLizer theValueXMLizer, final IJimpleIDGenerator generator) {
-		this(theValueXMLizer, generator, null);
-	}
-
-	/**
-	 * Creates a new JimpleStmtXMLizer object.
-	 *
-	 * @param theValueXMLizer to be used for value xmlization.
-	 * @param generator to be used for id generation.
-	 * @param tagName DOCUMENT ME!
-	 */
-	JimpleStmtXMLizer(final JimpleValueXMLizer theValueXMLizer, final IJimpleIDGenerator generator, final String tagName) {
 		valueXMLizer = theValueXMLizer;
 		idGenerator = generator;
-		nameOfTag = tagName;
 	}
 
 	/**
@@ -397,6 +380,8 @@ final class JimpleStmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/05/09 08:24:08  venku
+   - all xmlizers use xmlenc to write xml data.
    Revision 1.2  2004/05/06 09:31:00  venku
    - used xmlenc library to write xml instead of manual tag generation.
    Revision 1.1  2003/12/13 02:28:53  venku

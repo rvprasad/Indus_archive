@@ -382,9 +382,11 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Xmlizes traps and locals in the given method.
 	 *
-	 * @param method
+	 * @param method in which to xmlize.
+	 *
+	 * @pre method != null
 	 */
 	private void xmlizeTrapListAndLocals(final SootMethod method) {
 		final Body _body = method.retrieveActiveBody();
@@ -428,6 +430,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/05/09 08:24:08  venku
+   - all xmlizers use xmlenc to write xml data.
    Revision 1.35  2004/05/06 09:31:01  venku
    - used xmlenc library to write xml instead of manual tag generation.
    Revision 1.34  2004/04/25 23:18:21  venku
