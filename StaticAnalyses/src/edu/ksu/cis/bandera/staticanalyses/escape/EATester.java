@@ -49,10 +49,10 @@ import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.util.Iterator;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.postprocessors.CallGraph;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.postprocessors.ThreadGraph;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.CallGraph;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.Tester;
 
@@ -111,7 +111,7 @@ public class EATester
 		AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer("EATester");
 		aa.analyze(scm, rootMethods);
 
-		PostProcessingController ppc = new PostProcessingController();
+		ProcessingController ppc = new ProcessingController();
 		ppc.setAnalyzer(aa);
 
 		CallGraph cg = new CallGraph();
@@ -195,5 +195,8 @@ public class EATester
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 17:31:10  venku
+Things are in flux.  Stabilizing them with CVS.
+
 
 *****/

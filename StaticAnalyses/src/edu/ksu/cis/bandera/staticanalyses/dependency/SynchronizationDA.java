@@ -41,9 +41,10 @@ import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.jimple.EnterMonitorStmt;
 import ca.mcgill.sable.soot.jimple.ExitMonitorStmt;
 import ca.mcgill.sable.soot.jimple.Stmt;
-import ca.mcgill.sable.soot.jimple.StmtGraph;
-import ca.mcgill.sable.soot.jimple.StmtList;
 
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.MonitorInfo;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
@@ -85,14 +86,65 @@ public class SynchronizationDA
 	 *
 	 * @invariant monitorTriples->forall(o | o.oclIsKindOf(Triple(EnterMonitorStmt, EnterMonitorStmt, SootMethod))
 	 */
-	private Collection monitorTriples = new HashSet();
+	Collection monitorTriples = new HashSet();
 
 	/**
 	 * This collects the enter-monitor statements while preprocessing the system.  This is used during analysis.
 	 *
 	 * @invariant pointsOfInterest->forall(o | o.oclType = EnterMonitorStmt))
 	 */
-	private Collection pointsOfInterest = new HashSet();
+	Collection pointsOfInterest = new HashSet();
+
+	/**
+	 * Creates a new SynchronizationDA object.
+	 */
+	public SynchronizationDA() {
+		preprocessor = new PreProcessor();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * <p></p>
+	 *
+	 * @version $Revision$
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 */
+	class PreProcessor
+	  extends AbstractProcessor {
+		/**
+		 * Preprocesses the given method.  This implementation records if the method is synchronized.
+		 *
+		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.SootMethod)
+		 */
+		public void callback(SootMethod method) {
+			if((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED) {
+				monitorTriples.add(new Triple(null, null, method));
+			}
+		}
+
+		/**
+		 * Preprocesses the given stmt.  This implementation records if the <code>stmt</code> is an enter-monitor statement.
+		 *
+		 * @param stmt DOCUMENT ME!
+		 * @param context DOCUMENT ME!
+		 *
+		 * @pre stmt.oclType = EnterMonitorStmt
+		 *
+		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
+		 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+		 */
+		public void callback(Stmt stmt, Context context) {
+			pointsOfInterest.add(new Pair(stmt, context.getCurrentMethod()));
+		}
+
+		/**
+		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 */
+		public void hookup(ProcessingController ppc) {
+			ppc.register(EnterMonitorStmt.class, this);
+		}
+	}
 
 	/**
 	 * Returns the statements which depend on the given statement in the given method.
@@ -241,27 +293,6 @@ public class SynchronizationDA
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Preprocesses the given method.  This implementation records occurrences of enter monitor statement.
-	 *
-	 * @param method in which <code>stmt</code> occurs.
-	 */
-	protected void preprocess(SootMethod method) {
-		if((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED) {
-			monitorTriples.add(new Triple(null, null, method));
-		}
-
-		StmtList sl = ((StmtGraph) method2stmtGraph.get(method)).getBody().getStmtList();
-
-		for(ca.mcgill.sable.util.Iterator i = sl.iterator(); i.hasNext();) {
-			Stmt stmt = (Stmt) i.next();
-
-			if(stmt instanceof EnterMonitorStmt) {
-				pointsOfInterest.add(new Pair(stmt, method));
-			}
-		}
 	}
 }
 

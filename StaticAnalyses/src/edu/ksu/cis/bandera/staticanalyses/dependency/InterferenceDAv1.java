@@ -36,11 +36,14 @@ package edu.ksu.cis.bandera.staticanalyses.dependency;
 
 import edu.ksu.cis.bandera.staticanalyses.InitializationException;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair.PairManager;
 
 import ca.mcgill.sable.soot.SootField;
+import ca.mcgill.sable.soot.jimple.AssignStmt;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +56,7 @@ import java.util.Set;
  *
  * @author venku
  */
-public class InterferenceDA extends DependencyAnalysis {
+public class InterferenceDAv1 extends DependencyAnalysis {
 	/**
 	 * This provide call graph information about the analyzed system.  This is required by the analysis.
 	 */
@@ -63,7 +66,20 @@ public class InterferenceDA extends DependencyAnalysis {
 	 * This manages pairs.  This is used to implement <i>flyweight</i> pattern to conserve memory.
 	 */
 	private PairManager pairMgr;
+	
+	public InterferenceDAv1() {
+		preprocessor = new PreProcessor();
+	}
 
+	class PreProcessor extends AbstractProcessor {
+		
+		/**
+		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 */
+		public void hookup(ProcessingController ppc) {
+			ppc.register(AssignStmt.class, this);
+		}
+	}
 	/**
 	 * Returns the map for containing dependee information pertaining to the given field.
 	 *
@@ -201,6 +217,9 @@ public class InterferenceDA extends DependencyAnalysis {
 ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/20 18:01:15  venku
+Committing before changing name to InterferenceDAv1.
+
 Revision 1.1  2003/02/19 17:33:24  venku
 This will provide naive type based interference dependency info.
 

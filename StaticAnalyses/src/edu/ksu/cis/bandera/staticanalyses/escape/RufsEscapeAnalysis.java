@@ -76,9 +76,9 @@ import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.postprocessors.AbstractPostProcessor;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo;
@@ -114,7 +114,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public class RufsEscapeAnalysis
-  extends AbstractPostProcessor
+  extends AbstractProcessor
   implements EscapeAnalysis {
 	/**
 	 * <p>
@@ -1318,7 +1318,7 @@ public class RufsEscapeAnalysis
 	 *
 	 * @pre analyzer.oclType = edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer analyzer) {
 		this.ofa = (OFAnalyzer) analyzer;
@@ -1353,7 +1353,7 @@ public class RufsEscapeAnalysis
 	 *
 	 * @pre value.oclType = NewExpr
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(ca.mcgill.sable.soot.jimple.Value,
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Value,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
@@ -1365,7 +1365,7 @@ public class RufsEscapeAnalysis
 	/**
 	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(SootField)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(SootField)
 	 */
 	public void callback(SootField sf) {
 		if(Modifier.isStatic(sf.getModifiers())) {
@@ -1384,7 +1384,7 @@ public class RufsEscapeAnalysis
 	/**
 	 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#callback(SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(SootMethod)
 	 */
 	public void callback(SootMethod sm) {
 		methodCtxt2triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
@@ -1394,7 +1394,7 @@ public class RufsEscapeAnalysis
 	 * Performs phase1 (condition 2 and 3) operation here.  This should be called after the call graph information has been
 	 * consolidated.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#consolidate()
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#consolidate()
 	 */
 	public void consolidate() {
 		Collection tassBak = new HashSet(threadAllocSitesSingle);
@@ -1516,9 +1516,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.PostProcessor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
-	public void hookup(PostProcessingController ppc) {
+	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
 	}
 
@@ -1740,5 +1740,8 @@ public class RufsEscapeAnalysis
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 17:31:10  venku
+Things are in flux.  Stabilizing them with CVS.
+
 
 *****/

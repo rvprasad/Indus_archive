@@ -41,6 +41,7 @@ import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.StmtGraph;
 import ca.mcgill.sable.soot.jimple.StmtList;
 
+import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
 
@@ -61,6 +62,9 @@ import java.util.Map;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @invariant doesPreProcessing() implies getPreProcessor() != null
+ * @invariant getPreProcessing() != null implies doesPreProcessing()
  */
 public abstract class DependencyAnalysis {
 	/**
@@ -88,6 +92,11 @@ public abstract class DependencyAnalysis {
 	 * @invariant info.oclIsKindOf(Map(String, Object))
 	 */
 	protected Map info = new HashMap();
+
+	/**
+	 * The pre-processor for this analysis, if one exists.
+	 */
+	protected Processor preprocessor = null;
 
 	/**
 	 * This manages the basic block graphs of methods.
@@ -128,6 +137,26 @@ public abstract class DependencyAnalysis {
 	 * 		   will proceed in stages/phases.
 	 */
 	public abstract boolean analyze();
+
+	/**
+	 * Returns the pre-processor.
+	 *
+	 * @return the pre-processor.
+	 */
+	public Processor getPreProcessor() {
+		return preprocessor;
+	}
+
+	/**
+	 * Checks if this analysis does any preprocessing.  Subclasses need not override this method.  Rather they can set
+	 * <code>preprocessor</code> field to a preprocessor and this method will use that to provide the correct information to
+	 * the caller.
+	 *
+	 * @return <code>true</code> if the analysis will preprocess; <code>false</code>, otherwise.
+	 */
+	public boolean doesPreProcessing() {
+		return preprocessor != null;
+	}
 
 	/**
 	 * Initializes the dependency analyzer with the information from the system to perform the analysis. This also resets
