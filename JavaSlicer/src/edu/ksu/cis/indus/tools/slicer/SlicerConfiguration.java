@@ -163,7 +163,7 @@ public class SlicerConfiguration
 	 *
 	 * @invariant id2dependencyAnalyses.oclIsKindOf(Map(Object, Collection(DependencyAnalysis)))
 	 */
-	private Map id2dependencyAnalyses = new HashMap();
+	private final Map id2dependencyAnalyses = new HashMap();
 
 	/**
 	 * Creates a new SlicerConfiguration object.
@@ -202,13 +202,6 @@ public class SlicerConfiguration
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
-		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
-		setProperty(USE_READYDA, Boolean.FALSE);
-		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
-		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
-		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
-		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
-
 		// default required fixed dependency analyses
 		dependencesToUse.add(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		id2dependencyAnalyses.put(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
@@ -220,6 +213,14 @@ public class SlicerConfiguration
 		id2dependencyAnalyses.put(DependencyAnalysis.SYNCHRONIZATION_DA, Collections.singleton(new SynchronizationDA()));
 		dependencesToUse.add(DependencyAnalysis.INTERFERENCE_DA);
 		dependencesToUse.add(DependencyAnalysis.CONTROL_DA);
+        
+        // set default values for certain properties
+        setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
+        setProperty(USE_READYDA, Boolean.FALSE);
+        setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
+        setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
+        setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
+        setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
 	}
 
 	/**
@@ -653,6 +654,12 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/25 17:51:26  venku
+   - split control dependence into 2 classes.
+     EntryControlDA handled control DA as required for backward slicing.
+     ExitControlDA handles control DA as required for forward slicing.
+   - ripple effect.
+
    Revision 1.19  2003/11/16 18:33:01  venku
    - fixed an error while returning the DAs.
 
