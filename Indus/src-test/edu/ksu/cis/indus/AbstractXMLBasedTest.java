@@ -67,14 +67,14 @@ public abstract class AbstractXMLBasedTest
 	protected final Map info = new HashMap();
 
 	/**
-	 * The directory in which one of the xml-based testing input is read from.
+	 * The directory in which the test control input is read from.
 	 */
-	protected String xmlFirstInputDir;
+	protected String xmlControlDir;
 
 	/**
-	 * The directory in which the other xml-based tesing input is read from.
+	 * The directory in which the test input is read from.
 	 */
-	protected String xmlSecondInputDir;
+	protected String xmlTestDir;
 
 	/**
 	 * The statement graph (CFG) factory used during testing.
@@ -92,10 +92,10 @@ public abstract class AbstractXMLBasedTest
 	private String testName = "";
 
 	/**
-	 * @see IXMLBasedTest#setFirstXmlInputDir(String)
+	 * @see IXMLBasedTest#setXMLControlDir(String)
 	 */
-	public void setFirstXmlInputDir(final String xmlInDir) {
-		xmlFirstInputDir = xmlInDir;
+	public void setXMLControlDir(final String xmlInDir) {
+		xmlControlDir = xmlInDir;
 	}
 
 	/**
@@ -113,10 +113,10 @@ public abstract class AbstractXMLBasedTest
 	}
 
 	/**
-	 * @see IXMLBasedTest#setSecondXmlInputDir(String)
+	 * @see IXMLBasedTest#setXMLTestDir(String)
 	 */
-	public void setSecondXmlInputDir(final String xmlInDir) {
-		xmlSecondInputDir = xmlInDir;
+	public void setXMLTestDir(final String xmlInDir) {
+		xmlTestDir = xmlInDir;
 	}
 
 	/**
@@ -144,11 +144,11 @@ public abstract class AbstractXMLBasedTest
 	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
 	 */
 	public void testXMLSimilarity() {
-		final String _outfileName = xmlSecondInputDir + File.separator + getFileName();
+		final String _outfileName = xmlTestDir + File.separator + getFileName();
 
 		try {
 			final Reader _current = new FileReader(new File(_outfileName));
-			final Reader _previous = new FileReader(new File(xmlFirstInputDir + File.separator + getFileName()));
+			final Reader _previous = new FileReader(new File(xmlControlDir + File.separator + getFileName()));
 			final Diff _diff = new Diff(_previous, _current);
 			_diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 			assertXMLEqual(_diff, true);
@@ -190,7 +190,7 @@ public abstract class AbstractXMLBasedTest
 	protected final void setUp()
 	  throws Exception {
 		xmlizer = getXMLizer();
-		xmlizer.setXmlOutputDir(xmlSecondInputDir);
+		xmlizer.setXmlOutputDir(xmlTestDir);
 		xmlizer.setGenerator(getIDGenerator());
 		localSetup();
 		xmlizer.writeXML(info);
@@ -232,6 +232,10 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/03/29 09:29:41  venku
+   - uses name/attribute based selection scheme to pick elements for
+     comparison.
+
    Revision 1.10  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

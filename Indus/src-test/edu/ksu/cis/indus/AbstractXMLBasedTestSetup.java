@@ -58,9 +58,9 @@ public class AbstractXMLBasedTestSetup
 	}
 
 	/**
-	 * @see IXMLBasedTest#setFirstXmlInputDir(String)
+	 * @see IXMLBasedTest#setXMLControlDir(String)
 	 */
-	public void setFirstXmlInputDir(final String xmlInDir) {
+	public void setXMLControlDir(final String xmlInDir) {
 		xmlFirstInputDir = xmlInDir;
 	}
 
@@ -74,9 +74,9 @@ public class AbstractXMLBasedTestSetup
 	}
 
 	/**
-	 * @see IXMLBasedTest#setSecondXmlInputDir(String)
+	 * @see IXMLBasedTest#setXMLTestDir(String)
 	 */
-	public void setSecondXmlInputDir(final String xmlInDir) {
+	public void setXMLTestDir(final String xmlInDir) {
 		xmlSecondInputDir = xmlInDir;
 	}
 
@@ -116,8 +116,8 @@ public class AbstractXMLBasedTestSetup
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IXMLBasedTest _tester = (IXMLBasedTest) _i.next();
-			_tester.setSecondXmlInputDir(xmlSecondInputDir);
-			_tester.setFirstXmlInputDir(xmlFirstInputDir);
+			_tester.setXMLTestDir(xmlSecondInputDir);
+			_tester.setXMLControlDir(xmlFirstInputDir);
 			_tester.setStmtGraphFactory(stmtGraphFactory);
 		}
 	}
@@ -126,6 +126,15 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.5  2004/03/05 11:59:40  venku
    - documentation.
    Revision 1.4  2004/02/14 23:16:49  venku

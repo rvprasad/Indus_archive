@@ -30,34 +30,46 @@ import junit.framework.Test;
 public interface IXMLBasedTest
   extends Test {
 	/**
-	 * Sets the directory from which to read the first xml test input.
-	 *
-	 * @param xmlInputDir is the directory to read the xml test input from.
-	 *
-	 * @pre xmlInputDir != null
+	 * The property suffix that can be used in property file to specify the control input directory.
 	 */
-	void setFirstXmlInputDir(String xmlInputDir);
+	String XML_CONTROL_DIR_PROP_SUFFIX = ".xmlControlDir";
 
 	/**
-	 * Sets the directory from which to read the second xml test input.
-	 *
-	 * @param xmlInputDir is the directory to read the xml test input from.
-	 *
-	 * @pre xmlInputDir != null
+	 * The property suffix that can be used in property file to specify the test input directory.
 	 */
-	void setSecondXmlInputDir(String xmlInputDir);
+	String XML_TEST_DIR_PROP_SUFFIX = ".xmlTestDir";
 
 	/**
 	 * Sets the factory to be used to obtain statement graphs (CFGs) during testing.
-	 * 
+	 *
 	 * @param cfgFactory is the factory to be used.
 	 */
 	void setStmtGraphFactory(IStmtGraphFactory cfgFactory);
+
+	/**
+	 * Sets the directory from which to read the test control input.
+	 *
+	 * @param xmlControlDir is the directory to read the test control input.
+	 *
+	 * @pre xmlControlDir != null
+	 */
+	void setXMLControlDir(String xmlControlDir);
+
+	/**
+	 * Sets the directory from which to read the test input.
+	 *
+	 * @param xmlTestDir is the directory to read the test input from.
+	 *
+	 * @pre xmlTestDir != null
+	 */
+	void setXMLTestDir(String xmlTestDir);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/04/05 22:32:07  venku
+   - documentation.
    Revision 1.5  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -66,7 +78,6 @@ public interface IXMLBasedTest
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.4  2004/03/05 11:59:40  venku
    - documentation.
    Revision 1.3  2004/02/09 01:20:06  venku

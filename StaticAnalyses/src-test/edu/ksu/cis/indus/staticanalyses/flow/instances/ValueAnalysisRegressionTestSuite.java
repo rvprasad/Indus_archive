@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
+import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
@@ -112,19 +113,19 @@ public final class ValueAnalysisRegressionTestSuite
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
 				final String _classNames = _props.getProperty(_config + ".classNames");
-				final String _xmlSecondInputDir = _props.getProperty(_config + ".xmlSecondInputDir");
-				final String _xmlFirstInputDir = _props.getProperty(_config + ".xmlFirstInputDir");
-				final String _classpath = _props.getProperty(_config + ".classpath");
-				File _f = new File(_xmlFirstInputDir);
+                final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
+                final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
+                				final String _classpath = _props.getProperty(_config + ".classpath");
+				File _f = new File(_xmlControlDir);
 
 				if (!_f.exists() || !_f.canRead()) {
-					System.err.println("Input directory " + _xmlFirstInputDir + " does not exists. Bailing on " + _config);
+					System.err.println("Input directory " + _xmlControlDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
-				_f = new File(_xmlSecondInputDir);
+				_f = new File(_xmlTestDir);
 
 				if (!_f.exists() || !_f.canWrite()) {
-					System.err.println("Output directory " + _xmlFirstInputDir + " does not exists. Bailing on " + _config);
+					System.err.println("Output directory " + _xmlControlDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
 
@@ -138,8 +139,8 @@ public final class ValueAnalysisRegressionTestSuite
 
 					final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
 					_test.setStmtGraphFactory(stmtGraphFactory);
-					_test.setSecondXmlInputDir(_xmlSecondInputDir);
-					_test.setFirstXmlInputDir(_xmlFirstInputDir);
+					_test.setXMLTestDir(_xmlTestDir);
+					_test.setXMLControlDir(_xmlControlDir);
 					suite.addTest(_test);
 				} catch (IllegalArgumentException _e) {
 					;
@@ -154,6 +155,9 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/05 23:16:33  venku
+   - textui.TestRunner cannot be run via start(). FIXED.
+
    Revision 1.6  2004/04/05 22:26:48  venku
    - used textui.TestRunner instead of swingui.TestRunner.
 
