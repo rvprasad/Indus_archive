@@ -19,9 +19,7 @@ import edu.ksu.cis.indus.common.NamedTag;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a marker class for the purpose of slicing.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -30,38 +28,24 @@ import edu.ksu.cis.indus.common.NamedTag;
 public class SlicingTag
   extends NamedTag {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private final boolean seed;
-
-	/**
 	 * Creates a new SlicingTag object.
 	 *
 	 * @param theName DOCUMENT ME!
 	 * @param isSeed DOCUMENT ME!
 	 */
-	public SlicingTag(final String theName, final boolean isSeed) {
+	public SlicingTag(final String theName) {
 		super(theName);
-		seed = isSeed;
 	}
 
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public boolean isSeed() {
-		return seed;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:17  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.2  2003/11/30 00:47:01  venku
    - added a new tag which can be identified by name.
    - ripple effect.

@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool.ObjectPool;
+import edu.ksu.cis.indus.interfaces.AbstractPoolable;
+
+import soot.SootMethod;
 
 
 /**
@@ -27,16 +27,12 @@ import org.apache.commons.pool.ObjectPool;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractSliceCriterion {
+public abstract class AbstractSliceCriterion
+  extends AbstractPoolable {
 	/**
-	 * The logger used by instances of this class to log messages.
+	 * The method in which <code>stmt</code> occurs.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractSliceCriterion.class);
-
-	/**
-	 * The pool to which this object belongs to.
-	 */
-	protected ObjectPool pool;
+	protected SootMethod method;
 
 	/**
 	 * This indicates if the effect of executing the criterion should be considered for slicing.  By default it takes on  the
@@ -68,7 +64,9 @@ public abstract class AbstractSliceCriterion {
 		boolean result = false;
 
 		if (o != null && o instanceof AbstractSliceCriterion) {
-			result = ((AbstractSliceCriterion) o).considerExecution == considerExecution;
+			result =
+				((AbstractSliceCriterion) o).method == method
+				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution;
 		}
 		return result;
 	}
@@ -79,7 +77,28 @@ public abstract class AbstractSliceCriterion {
 	public int hashCode() {
 		int hash = 17;
 		hash = hash * 37 + Boolean.valueOf(considerExecution).hashCode();
+		hash = hash * 37 + method.hashCode();
 		return hash;
+	}
+
+	/**
+	 * Initializes this object.
+	 *
+	 * @param occurringMethod in which the slice criterion occurs.
+	 */
+	protected final void initialize(final SootMethod occurringMethod) {
+		method = occurringMethod;
+	}
+
+	/**
+	 * Provides the method in which criterion occurs.
+	 *
+	 * @return the method in which the slice statement occurs.
+	 *
+	 * @post result != null
+	 */
+	protected final SootMethod getOccurringMethod() {
+		return method;
 	}
 
 	/**
@@ -99,30 +118,13 @@ public abstract class AbstractSliceCriterion {
 	final boolean isConsiderExecution() {
 		return considerExecution;
 	}
-
-	/**
-	 * Performs cleanup.  This will/should be called after this object has been used as slice criterion or it has been
-	 * decided  that is no longer required as a slice criterion.
-	 *
-	 * @throws RuntimeException if the returning of the object to it's pool failed.
-	 */
-	final void finished() {
-		if (pool != null) {
-			try {
-				pool.returnObject(this);
-			} catch (Exception e) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("How can this happen?", e);
-				}
-				throw new RuntimeException(e);
-			}
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 19:20:50  venku
+   - coding convention and formatting.
    Revision 1.6  2003/12/02 09:42:17  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

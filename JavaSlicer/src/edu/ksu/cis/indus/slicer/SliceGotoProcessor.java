@@ -59,6 +59,11 @@ public class SliceGotoProcessor
 	 */
 	private Collection taggedBB = new HashSet();
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private final IWorkBag workBag = new LIFOWorkBag();
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -89,12 +94,10 @@ public class SliceGotoProcessor
 	 */
 	public final void postprocess() {
 		final String _tagName = sliceCollector.getTagName();
-
-		final IWorkBag _workBag = new LIFOWorkBag();
 		final Collection _processed = new HashSet();
 
-		while (_workBag.hasWork()) {
-			final BasicBlock _bb = (BasicBlock) _workBag.getWork();
+		while (workBag.hasWork()) {
+			final BasicBlock _bb = (BasicBlock) workBag.getWork();
 			_processed.add(_bb);
 
 			Stmt trailer;
@@ -116,10 +119,11 @@ public class SliceGotoProcessor
 				process(_bb);
 
 				if (!_processed.contains(_bb)) {
-					_workBag.addWorkNoDuplicates(_bb);
+					workBag.addWorkNoDuplicates(_bb);
 				}
 			}
 		}
+		workBag.clear();
 	}
 
 	/**
@@ -153,16 +157,18 @@ public class SliceGotoProcessor
 				sliceCollector.collect(method);
 			}
 		}
+		workBag.addWork(bb);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/02 19:20:50  venku
+   - coding convention and formatting.
    Revision 1.3  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.2  2003/12/01 12:21:25  venku
    - methods in collector underwent a lot of change to minimize them.
    - ripple effect.

@@ -50,7 +50,7 @@ class SliceExpr
 				 */
 				public final Object makeObject() {
 					final SliceExpr _result = new SliceExpr();
-					_result.pool = EXPR_POOL;
+					_result.setPool(EXPR_POOL);
 					return _result;
 				}
 			});
@@ -156,6 +156,9 @@ class SliceExpr
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 19:20:50  venku
+   - coding convention and formatting.
+
    Revision 1.6  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

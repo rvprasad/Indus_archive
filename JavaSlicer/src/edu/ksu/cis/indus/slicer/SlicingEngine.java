@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.interfaces.IPoolable;
+
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
@@ -30,24 +32,24 @@ import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.Body;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Trap;
 import soot.Value;
 import soot.ValueBox;
+import soot.VoidType;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
@@ -98,12 +100,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  */
-public class SlicingEngine {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(SlicingEngine.class);
-
+public final class SlicingEngine {
 	/**
 	 * Backward slice request.
 	 */
@@ -127,20 +124,18 @@ public class SlicingEngine {
 	 */
 	public static final Collection SLICE_TYPES;
 
-	static {
-		Collection c = new HashSet();
-		c.add(BACKWARD_SLICE);
-		c.add(FORWARD_SLICE);
-		c.add(COMPLETE_SLICE);
-		SLICE_TYPES = Collections.unmodifiableCollection(c);
-	}
-
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The logger used by instances of this class to log messages.
 	 */
-	private static final int CAPACITY = 30;
+	private static final Log LOGGER = LogFactory.getLog(SlicingEngine.class);
+
+	static {
+		final Collection _c = new HashSet();
+		_c.add(BACKWARD_SLICE);
+		_c.add(FORWARD_SLICE);
+		_c.add(COMPLETE_SLICE);
+		SLICE_TYPES = Collections.unmodifiableCollection(_c);
+	}
 
 	/**
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
@@ -213,12 +208,21 @@ public class SlicingEngine {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private Map method2body =
-		new LinkedHashMap(CAPACITY, 0.7f, true) {
-			protected boolean removeEldestEntry(final Map.Entry eldest) {
-				return size() > CAPACITY;
-			}
-		};
+	private Map method2params = new HashMap();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Set invoked = new HashSet();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Set required = new HashSet();
 
 	/**
 	 * This collects the parts of the system that make up the slice.
@@ -253,15 +257,15 @@ public class SlicingEngine {
 		intraProceduralDependencies.clear();
 		controlDAs.clear();
 
-		for (Iterator i = dependencies.iterator(); i.hasNext();) {
-			Object id = i.next();
+		for (final Iterator _i = dependencies.iterator(); _i.hasNext();) {
+			final Object _id = _i.next();
 
-			if (id.equals(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA)
-				  || id.equals(DependencyAnalysis.SYNCHRONIZATION_DA)
-				  || id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
-				intraProceduralDependencies.addAll(controller.getAnalyses(id));
-			} else if (id.equals(DependencyAnalysis.CONTROL_DA)) {
-				controlDAs.addAll(controller.getAnalyses(id));
+			if (_id.equals(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA)
+				  || _id.equals(DependencyAnalysis.SYNCHRONIZATION_DA)
+				  || _id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
+				intraProceduralDependencies.addAll(controller.getAnalyses(_id));
+			} else if (_id.equals(DependencyAnalysis.CONTROL_DA)) {
+				controlDAs.addAll(controller.getAnalyses(_id));
 			}
 		}
 
@@ -325,12 +329,12 @@ public class SlicingEngine {
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
 
-		for (Iterator i = sliceCriteria.iterator(); i.hasNext();) {
-			Object o = i.next();
+		for (final Iterator _i = sliceCriteria.iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
 
-			if (!SliceCriteriaFactory.isSlicingCriterion(o)) {
-				LOGGER.error("The work piece is not a subtype of AbstractSliceCriterion" + o);
-				throw new IllegalStateException("The work piece is not a subtype of AbstractSliceCriterion" + o);
+			if (!SliceCriteriaFactory.isSlicingCriterion(_o)) {
+				LOGGER.error("The work piece is not a subtype of AbstractSliceCriterion" + _o);
+				throw new IllegalStateException("The work piece is not a subtype of AbstractSliceCriterion" + _o);
 			}
 		}
 		criteria.addAll(sliceCriteria);
@@ -384,9 +388,9 @@ public class SlicingEngine {
 	 */
 	public void initialize() {
 		if (collector.getTagName() == null) {
-			String temp = "Please set the tag name before executing the engine.";
-			LOGGER.fatal(temp);
-			throw new IllegalStateException(temp);
+			final String _temp = "Please set the tag name before executing the engine.";
+			LOGGER.fatal(_temp);
+			throw new IllegalStateException(_temp);
 		}
 	}
 
@@ -399,11 +403,14 @@ public class SlicingEngine {
 		cgi = null;
 		collector.reset();
 		criteria.clear();
+		method2params.clear();
+		required.clear();
+		invoked.clear();
 
 		// clear the work bag of slice criterion
 		while (workbag.hasWork()) {
-			AbstractSliceCriterion work = (AbstractSliceCriterion) workbag.getWork();
-			work.finished();
+			final Object _work = workbag.getWork();
+			((IPoolable) _work).returnToPool();
 		}
 	}
 
@@ -411,28 +418,25 @@ public class SlicingEngine {
 	 * Slices the system provided at initialization for the initialized criteria to generate the given type of slice..
 	 */
 	public void slice() {
-		/* set the slice type on the seed criteria
-		   for (Iterator i = criteria.iterator(); i.hasNext();) {
-		       ((AbstractSliceCriterion) i.next()).setSliceType(sliceType);
-		   }
-		 */
-
-		//collector.processSeedCriteria(criteria);
-		workbag.addAllWorkNoDuplicates(criteria);
+		for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
+			final Object _crit = _i.next();
+			required.add(((AbstractSliceCriterion) _crit).getOccurringMethod());
+			workbag.addWorkNoDuplicates(_crit);
+		}
 
 		// we are assuming the mapping will capture the past-processed information to prevent processed criteria from 
 		// reappearing.  
 		while (workbag.hasWork()) {
-			AbstractSliceCriterion work = (AbstractSliceCriterion) workbag.getWork();
+			final Object _work = workbag.getWork();
 
-			if (work instanceof SliceExpr) {
-				transformAndGenerateNewCriteriaForExpr((SliceExpr) work);
-			} else if (work instanceof SliceStmt) {
-				SliceStmt temp = (SliceStmt) work;
-				SootMethod sm = temp.getOccurringMethod();
-				transformAndGenerateNewCriteriaForStmt((Stmt) temp.getCriterion(), sm, temp.isConsiderExecution());
+			if (_work instanceof SliceExpr) {
+				transformAndGenerateNewCriteriaForExpr((SliceExpr) _work);
+			} else if (_work instanceof SliceStmt) {
+				final SliceStmt _temp = (SliceStmt) _work;
+				final SootMethod _sm = _temp.getOccurringMethod();
+				transformAndGenerateNewCriteriaForStmt((Stmt) _temp.getCriterion(), _sm, _temp.isConsiderExecution());
 			}
-			work.finished();
+			((IPoolable) _work).returnToPool();
 		}
 
 		collector.completeTransformation();
@@ -449,21 +453,46 @@ public class SlicingEngine {
 
 	/**
 	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param callee DOCUMENT ME!
+	 * @param caller DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	private Body getStmtListFor(final SootMethod method) {
-		Body result;
-		result = (Body) method2body.get(method);
+	private boolean generateEnteringInterProceduralSlicingCriteria(final SootMethod callee, final SootMethod caller, final Stmt stmt) {
+		boolean result = false;
 
-		if (result == null) {
-			result = method.getActiveBody();
+		if (markedAsRequired(callee)) {
+			invoked.remove(caller);
+			required.add(caller);
+			result = true;
+		} else {
+            if (invoked.contains(callee))
+                result = marked(caller) && collector.isTransformed(stmt.getInvokeExprBox());
+            else
+                throw new RuntimeException("How can this happen?");
+		}
+		return result;
+	}
 
-			if (result != null) {
-				method2body.put(method, result);
-			}
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param callee DOCUMENT ME!
+	 * @param caller DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private boolean generateExitingInterProceduralSlicingCriteria(final SootMethod callee, final SootMethod caller) {
+		boolean result = false;
+
+		if (!marked(callee)) {
+			invoked.add(callee);
+			result = true;
 		}
 		return result;
 	}
@@ -481,37 +510,37 @@ public class SlicingEngine {
 	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
 	 */
 	private void generateNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
-		Collection newCriteria = new HashSet();
+		final Collection _newCriteria = new HashSet();
 
 		if (sliceType.equals(COMPLETE_SLICE)) {
-			for (Iterator i = das.iterator(); i.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) i.next();
-				newCriteria.addAll(da.getDependents(stmt, method));
-				newCriteria.addAll(da.getDependees(stmt, method));
+			for (final Iterator _i = das.iterator(); _i.hasNext();) {
+				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+				_newCriteria.addAll(_da.getDependents(stmt, method));
+				_newCriteria.addAll(_da.getDependees(stmt, method));
 			}
 		} else if (sliceType.equals(BACKWARD_SLICE)) {
-			for (Iterator i = das.iterator(); i.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) i.next();
-				newCriteria.addAll(da.getDependees(stmt, method));
+			for (final Iterator _i = das.iterator(); _i.hasNext();) {
+				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+				_newCriteria.addAll(_da.getDependees(stmt, method));
 			}
 		} else if (sliceType.equals(FORWARD_SLICE)) {
-			for (Iterator i = das.iterator(); i.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) i.next();
-				newCriteria.addAll(da.getDependents(stmt, method));
+			for (final Iterator _i = das.iterator(); _i.hasNext();) {
+				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+				_newCriteria.addAll(_da.getDependents(stmt, method));
 			}
 		}
 
-		for (Iterator i = newCriteria.iterator(); i.hasNext();) {
-			Object o = i.next();
+		for (final Iterator _i = _newCriteria.iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
 			Stmt unslicedStmt;
 			SootMethod unslicedMethod;
 
-			if (o instanceof Pair) {
-				Pair pair = (Pair) o;
-				unslicedStmt = (Stmt) pair.getFirst();
-				unslicedMethod = (SootMethod) pair.getSecond();
+			if (_o instanceof Pair) {
+				final Pair _pair = (Pair) _o;
+				unslicedStmt = (Stmt) _pair.getFirst();
+				unslicedMethod = (SootMethod) _pair.getSecond();
 			} else {
-				unslicedStmt = (Stmt) o;
+				unslicedStmt = (Stmt) _o;
 				unslicedMethod = method;
 			}
 
@@ -533,10 +562,10 @@ public class SlicingEngine {
 			LOGGER.debug("BEGIN: Generating criteria for based on dependence:" + dependenceId);
 		}
 
-		Collection das = controller.getAnalyses(dependenceId);
+		final Collection _das = controller.getAnalyses(dependenceId);
 
-		if (!das.isEmpty()) {
-			generateNewCriteria(stmt, method, das);
+		if (!_das.isEmpty()) {
+			generateNewCriteria(stmt, method, _das);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -559,24 +588,24 @@ public class SlicingEngine {
 			LOGGER.debug("BEGIN: Generating criteria for invocation expressions (caller-callee)");
 		}
 
-		InvokeExpr expr = stmt.getInvokeExpr();
-		Context context = new Context();
-		context.setRootMethod(method);
-		context.setStmt(stmt);
+		final InvokeExpr _expr = stmt.getInvokeExpr();
+		final Context _context = new Context();
+		_context.setRootMethod(method);
+		_context.setStmt(stmt);
 
-		Collection callees = cgi.getCallees(expr, context);
-		Collection temp = new HashSet(callees);
+		final Collection _callees = cgi.getCallees(_expr, _context);
+		final Collection _temp = new HashSet(_callees);
 
-		for (Iterator i = callees.iterator(); i.hasNext();) {
-			SootMethod sm = (SootMethod) i.next();
-			SootClass sc = sm.getDeclaringClass();
+		for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final SootClass _sc = _sm.getDeclaringClass();
 
-			if (sc.declaresMethodByName("<clinit>") && !collector.isTransformed(sc.getMethodByName("<clinit>"))) {
-				temp.add(sc.getMethodByName("<clinit>"));
+			if (_sc.declaresMethodByName("<clinit>") && !collector.isTransformed(_sc.getMethodByName("<clinit>"))) {
+				_temp.add(_sc.getMethodByName("<clinit>"));
 			}
 		}
 
-		generateNewCriteriaForReturnPointOfMethods(callees, !(stmt instanceof InvokeStmt));
+		generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method);
 
 		if (useReady) {
 			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
@@ -591,11 +620,11 @@ public class SlicingEngine {
 	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
 	 *
 	 * @param pBox is the parameter reference to be sliced on.
-	 * @param method in which <code>pBox</code> occurs.
+	 * @param callee in which<code>pBox</code> occurs.
 	 *
 	 * @pre pBox != null and method != null
 	 */
-	private void generateNewCriteriaForParam(final ValueBox pBox, final SootMethod method) {
+	private void generateNewCriteriaForParam(final ValueBox pBox, final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating criteria for parameters");
 		}
@@ -603,15 +632,26 @@ public class SlicingEngine {
 		/*
 		 * Note that this will cause us to include all caller sites as slicing criteria and this is not desired.
 		 */
-		ParameterRef param = (ParameterRef) pBox.getValue();
-		int index = param.getIndex();
+		final ParameterRef _param = (ParameterRef) pBox.getValue();
+		final int _index = _param.getIndex();
 
-		for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
-			CallTriple ctrp = (CallTriple) i.next();
-			SootMethod caller = ctrp.getMethod();
-			Stmt stmt = ctrp.getStmt();
-			ValueBox argBox = ctrp.getExpr().getArgBox(index);
-			generateSliceExprCriterion(argBox, stmt, caller, true);
+		BitSet params = (BitSet) method2params.get(callee);
+
+		if (params == null) {
+			params = new BitSet();
+			method2params.put(callee, params);
+		}
+		params.set(_param.getIndex());
+
+		for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
+			final CallTriple _ctrp = (CallTriple) _i.next();
+			final SootMethod _caller = _ctrp.getMethod();
+            final Stmt _stmt = _ctrp.getStmt();
+			if (generateEnteringInterProceduralSlicingCriteria(callee, _caller, _stmt)) {
+				final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
+
+				generateSliceExprCriterion(_argBox, _stmt, _caller, true);
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -625,38 +665,53 @@ public class SlicingEngine {
 	 * <p></p>
 	 *
 	 * @param callees DOCUMENT ME!
-	 * @param considerReturnValue DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
+	 * @param caller DOCUMENT ME!
 	 */
-	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees, final boolean considerReturnValue) {
-		/*
-		 * THINK: The criteria occur in
-		 */
+	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees, final Stmt stmt, final SootMethod caller) {
+		final boolean _considerReturnValue = !(stmt instanceof InvokeStmt);
+		final InvokeExpr _expr = stmt.getInvokeExpr();
+
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for return points " + considerReturnValue);
+			LOGGER.debug("BEGIN: Generating criteria for return points " + _considerReturnValue);
 		}
 
 		// add exit points of callees as the slice criteria
-		for (Iterator i = callees.iterator(); i.hasNext();) {
-			SootMethod callee = (SootMethod) i.next();
-			BasicBlockGraph bbg = slicedBBGMgr.getBasicBlockGraph(callee);
+		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
+			final SootMethod _callee = (SootMethod) _i.next();
+			final BasicBlockGraph _bbg = slicedBBGMgr.getBasicBlockGraph(_callee);
 
-			// we do not want to include a dependence on return statement on java.lang.Thread.start() method
-			// as it will occur in a different thread and cannot affect the sequential flow of control in the current thread.
-			if (callee.getName().equals("start") && callee.getDeclaringClass().getName().equals("java.lang.Thread")) {
+			/*
+			 * we do not want to include a dependence on return statement in java.lang.Thread.start() method
+			 * as it will occur in a different thread and cannot affect the sequential flow of control in the current thread.
+			 */
+			if (_callee.getName().equals("start")
+				  && _callee.getDeclaringClass().getName().equals("java.lang.Thread")
+				  && _callee.getReturnType().equals(VoidType.v())
+				  && _callee.getParameterCount() == 0) {
 				continue;
 			}
 
-			if (bbg == null) {
+			if (_bbg == null) {
 				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("No basic block graph available for " + callee.getSignature() + ". Moving on.");
+					LOGGER.info("No basic block graph available for " + _callee.getSignature() + ". Moving on.");
 				}
 				continue;
 			}
 
-			for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
-				BasicBlock bb = (BasicBlock) j.next();
-				Stmt trailer = bb.getTrailerStmt();
-				generateSliceStmtCriterion(trailer, callee, considerReturnValue);
+            final BitSet _params = (BitSet) method2params.get(_callee);
+			if (generateExitingInterProceduralSlicingCriteria(_callee, caller) || _params == null) {
+				processReturnStmtInInit(_callee, _bbg);
+
+				for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
+					final BasicBlock _bb = (BasicBlock) _j.next();
+					final Stmt _trailer = _bb.getTrailerStmt();
+					generateSliceStmtCriterion(_trailer, _callee, _considerReturnValue);
+				}
+			} else if (_callee.getParameterCount() > 0) {
+				for (int i = _params.nextSetBit(0); i >= 0; i = _params.nextSetBit(i + 1)) {
+					generateSliceExprCriterion(_expr.getArgBox(i), stmt, caller, true);
+				}
 			}
 		}
 
@@ -670,80 +725,39 @@ public class SlicingEngine {
 	 * 
 	 * <p></p>
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param callee DOCUMENT ME!
 	 */
-	private void generateNewCriteriaForTheCallToEnclosingMethod(final SootMethod method) {
+	private void generateNewCriteriaForTheCallToEnclosingMethod(final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller)");
 		}
 
 		// generate criteria to include invocation sites only if the method has not been collected.
-		if (!collector.isTransformed(method)) {
-			collector.collect(method);
-			collector.collect(method.getDeclaringClass());
+		if (!collector.isTransformed(callee)) {
+			collector.collect(callee);
+			collector.collect(callee.getDeclaringClass());
 
-			boolean notStatic = !method.isStatic();
+			final boolean _notStatic = !callee.isStatic();
 
-			for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
-				CallTriple ctrp = (CallTriple) i.next();
-				SootMethod caller = ctrp.getMethod();
-				Stmt stmt = ctrp.getStmt();
+			for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = (CallTriple) _i.next();
+				final SootMethod _caller = _ctrp.getMethod();
+				final Stmt _stmt = _ctrp.getStmt();
 
-				generateSliceStmtCriterion(stmt, caller, false);
-				generateSliceExprCriterion(stmt.getInvokeExprBox(), stmt, caller, false);
+				if (generateEnteringInterProceduralSlicingCriteria(callee, _caller, _stmt)) {
+					generateSliceStmtCriterion(_stmt, _caller, false);
+					generateSliceExprCriterion(_stmt.getInvokeExprBox(), _stmt, _caller, false);
 
-				if (notStatic) {
-					ValueBox vBox = ((InstanceInvokeExpr) stmt.getInvokeExpr()).getBaseBox();
-					generateSliceExprCriterion(vBox, stmt, caller, true);
+					if (_notStatic) {
+						final ValueBox _vBox = ((InstanceInvokeExpr) _stmt.getInvokeExpr()).getBaseBox();
+						generateSliceExprCriterion(_vBox, _stmt, _caller, true);
+					}
 				}
 			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for call-sites (callee-caller)");
-		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 */
-	private void generateNewCriteriaToConsiderException(final Stmt stmt, final SootMethod method) {
-		// THINK: Should this feature be in post processing for backward slices?
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for exception");
-		}
-
-		/*
-		 * check if the stmt is enclosed in a try-catch block.  If so, generate a criteria for the first statment of catch
-		 * clause for that exception
-		 */
-		Body body = getStmtListFor(method);
-
-		if (body != null) {
-			List sl = body.getAllUnitBoxes();
-			int index = sl.indexOf(stmt);
-
-			for (Iterator i = body.getTraps().iterator(); i.hasNext();) {
-				Trap trap = (Trap) i.next();
-
-				if (sl.indexOf(trap.getBeginUnit()) <= index && index < sl.indexOf(trap.getEndUnit())) {
-					collector.collect(trap.getHandlerUnit());
-					collector.collect(method);
-				}
-			}
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Could not get body for method " + method.getSignature());
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating criteria for exception");
 		}
 	}
 
@@ -760,13 +774,11 @@ public class SlicingEngine {
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
 		if (!collector.isTransformed(valueBox)) {
-			SliceExpr sliceCriterion = SliceExpr.getSliceExpr();
-			sliceCriterion.initialize(method, stmt, valueBox);
-			sliceCriterion.setConsiderExecution(considerExecution);
+			final SliceExpr _sliceCriterion = SliceExpr.getSliceExpr();
+			_sliceCriterion.initialize(method, stmt, valueBox);
+			_sliceCriterion.setConsiderExecution(considerExecution);
 
-			if (!workbag.addWorkNoDuplicates(sliceCriterion)) {
-				sliceCriterion.finished();
-			}
+			workbag.addWorkNoDuplicates(_sliceCriterion);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding expr " + valueBox.getValue() + " at " + stmt + " in " + method.getSignature()
@@ -787,19 +799,42 @@ public class SlicingEngine {
 	private void generateSliceStmtCriterion(final Stmt unslicedStmt, final SootMethod unslicedMethod,
 		final boolean considerExecution) {
 		if (!collector.isTransformed(unslicedStmt)) {
-			SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
-			sliceCriterion.initialize(unslicedMethod, unslicedStmt);
-			sliceCriterion.setConsiderExecution(considerExecution);
-			workbag.addWorkNoDuplicates(sliceCriterion);
+			final SliceStmt _sliceCriterion = SliceStmt.getSliceStmt();
+			_sliceCriterion.initialize(unslicedMethod, unslicedStmt);
+			_sliceCriterion.setConsiderExecution(considerExecution);
 
-			if (!workbag.addWorkNoDuplicates(sliceCriterion)) {
-				sliceCriterion.finished();
-			}
+			workbag.addWorkNoDuplicates(_sliceCriterion);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding " + unslicedStmt + " in " + unslicedMethod.getSignature() + " to workbag.");
 			}
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param method DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private boolean marked(final SootMethod method) {
+		return required.contains(method) || invoked.contains(method);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param method DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private boolean markedAsRequired(final SootMethod method) {
+		return required.contains(method);
 	}
 
 	/**
@@ -828,16 +863,46 @@ public class SlicingEngine {
 		 *
 		 */
 		if (stmt instanceof AssignStmt) {
-			AssignStmt as = (AssignStmt) stmt;
+			final AssignStmt _as = (AssignStmt) stmt;
 
-			if (as.getRightOp() instanceof NewExpr) {
-				Stmt def = initMapper.getInitCallStmtForNewExprStmt(stmt, method);
-				transformAndGenerateNewCriteriaForStmt(def, method, true);
+			if (_as.getRightOp() instanceof NewExpr) {
+				final Stmt _def = initMapper.getInitCallStmtForNewExprStmt(stmt, method);
+				transformAndGenerateNewCriteriaForStmt(_def, method, true);
 			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Processing for new expr");
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param callee DOCUMENT ME!
+	 * @param bbg DOCUMENT ME!
+	 */
+	private void processReturnStmtInInit(final SootMethod callee, final BasicBlockGraph bbg) {
+		/*
+		 * if we are sucking in an init we better suck in the super <init> invoke expression as well. By JLS, this has to
+		 * be the first statement in the constructor.  However, if it accepts arguments, the arguments will be set up
+		 * before the call.  Hence, it is safe to suck in the first <init> invoke expression in the <init> method being
+		 * sucked in.  As we process invocation expressions, we are bound to suck in any other required <init>'s from
+		 * other higher super classes.
+		 */
+		if (callee.getName().equals("<init>")) {
+			for (final Iterator _j = bbg.getHead().getStmtsOf().iterator(); _j.hasNext();) {
+				final Stmt _stmt = (Stmt) _j.next();
+
+				if (_stmt instanceof InvokeStmt) {
+					final InvokeExpr _expr = _stmt.getInvokeExpr();
+
+					if (_expr.getMethod().getName().equals("<init>")) {
+						generateSliceStmtCriterion(_stmt, callee, true);
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -857,34 +922,34 @@ public class SlicingEngine {
 			LOGGER.debug("BEGIN: Transforming value boxes" + vBoxes);
 		}
 
-		Collection das = new ArrayList();
-		das.addAll(controller.getAnalyses(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA));
+		final Collection _das = new ArrayList();
+		_das.addAll(controller.getAnalyses(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA));
 
-		for (Iterator i = vBoxes.iterator(); i.hasNext();) {
-			ValueBox vBox = (ValueBox) i.next();
+		for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
+			final ValueBox _vBox = (ValueBox) _i.next();
 
-			if (!collector.isTransformed(vBox)) {
-				collector.collect(vBox);
+			if (!collector.isTransformed(_vBox)) {
+				collector.collect(_vBox);
 
-				Value value = vBox.getValue();
+				final Value _value = _vBox.getValue();
 
-				if (value instanceof ParameterRef) {
-					generateNewCriteriaForParam(vBox, method);
+				if (_value instanceof ParameterRef) {
+					generateNewCriteriaForParam(_vBox, method);
 					generateNewCriteriaForTheCallToEnclosingMethod(method);
-				} else if (value instanceof FieldRef || value instanceof ArrayRef) {
-					das.addAll(controller.getAnalyses(DependencyAnalysis.REFERENCE_BASED_DATA_DA));
-					das.addAll(controller.getAnalyses(DependencyAnalysis.INTERFERENCE_DA));
+				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
+					_das.addAll(controller.getAnalyses(DependencyAnalysis.REFERENCE_BASED_DATA_DA));
+					_das.addAll(controller.getAnalyses(DependencyAnalysis.INTERFERENCE_DA));
 
-					if (value instanceof FieldRef) {
-						SootField field = ((FieldRef) vBox.getValue()).getField();
-						collector.collect(field);
+					if (_value instanceof FieldRef) {
+						final SootField _field = ((FieldRef) _vBox.getValue()).getField();
+						collector.collect(_field);
 					}
 				}
 			}
 		}
 
 		// create new slice criteria
-		generateNewCriteria(stmt, method, das);
+		generateNewCriteria(stmt, method, _das);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming value boxes");
@@ -900,36 +965,36 @@ public class SlicingEngine {
 	 * @pre sExpr.getCriterion() != null and sExpr.getCriterion().oclIsKindOf(ValueBox)
 	 */
 	private void transformAndGenerateNewCriteriaForExpr(final SliceExpr sExpr) {
-		Stmt stmt = sExpr.getOccurringStmt();
-		SootMethod method = sExpr.getOccurringMethod();
-		ValueBox vBox = (ValueBox) sExpr.getCriterion();
-		Value value = vBox.getValue();
+		final Stmt _stmt = sExpr.getOccurringStmt();
+		final SootMethod _method = sExpr.getOccurringMethod();
+		final ValueBox _vBox = (ValueBox) sExpr.getCriterion();
+		final Value _value = _vBox.getValue();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming expr criteria: " + vBox + " at " + stmt + " in " + method);
+			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox + " at " + _stmt + " in " + _method);
 		}
 
 		// collect the expresssion
-		collector.collect(vBox);
+		collector.collect(_vBox);
 
 		// include any sub expressions and generate criteria from them
-		transformAndGenerateCriteriaForVBoxes(value.getUseBoxes(), stmt, method);
+		transformAndGenerateCriteriaForVBoxes(_value.getUseBoxes(), _stmt, _method);
 
 		// include the statement to capture control dependency and generate criteria from it
-		transformAndGenerateNewCriteriaForStmt(stmt, method, false);
+		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
 
 		// generate new slice criteria
 		if (sExpr.isConsiderExecution()) {
-			if (value instanceof InvokeExpr) {
-				generateNewCriteriaForInvocation(stmt, method);
-			} else if (value instanceof FieldRef || value instanceof ArrayRef) {
-				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
-				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
+			if (_value instanceof InvokeExpr) {
+				generateNewCriteriaForInvocation(_stmt, _method);
+			} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
+				generateNewCriteriaBasedOnDependence(_stmt, _method, DependencyAnalysis.INTERFERENCE_DA);
+				generateNewCriteriaBasedOnDependence(_stmt, _method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
 			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Transforming expr criteria: " + vBox + " at " + stmt + " in " + method);
+			LOGGER.debug("END: Transforming expr criteria: " + _vBox + " at " + _stmt + " in " + _method);
 		}
 	}
 
@@ -983,6 +1048,9 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/02 09:42:17  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.24  2003/12/02 01:30:50  venku
    - coding conventions and formatting.
    Revision 1.23  2003/12/01 13:52:21  venku

@@ -26,12 +26,17 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Body;
 import soot.SootMethod;
+import soot.Trap;
+import soot.TrapManager;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
 import soot.tagkit.Host;
+
+import soot.util.Chain;
 
 
 /**
@@ -48,7 +53,7 @@ import soot.tagkit.Host;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class TaggingBasedSliceCollector {
+final class TaggingBasedSliceCollector {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
@@ -72,13 +77,6 @@ class TaggingBasedSliceCollector {
 	 * </p>
 	 */
 	private SlicingEngine engine;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private SlicingTag seedTag;
 
 	/**
 	 * The tag to be used during transformation.
@@ -109,8 +107,8 @@ class TaggingBasedSliceCollector {
 	 * @return DOCUMENT ME!
 	 */
 	protected boolean isTransformed(final Host host) {
-		SlicingTag temp = (SlicingTag) host.getTag(tagName);
-		return temp != null && !temp.isSeed();
+		final SlicingTag _temp = (SlicingTag) host.getTag(tagName);
+		return _temp != null;
 	}
 
 	/**
@@ -126,36 +124,6 @@ class TaggingBasedSliceCollector {
 	}
 
 	/**
-	 * Marks the given criteria as included in the slice.  {@inheritDoc}
-	 *
-	 * @param seedcriteria DOCUMENT ME!
-	 *
-	 * @see edu.ksu.cis.indus.slicer.ISliceCollector#processSeedCriteria(java.util.Collection)
-	 */
-	protected void processSeedCriteria(final Collection seedcriteria) {
-		Collection temp = new HashSet();
-
-		for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
-			AbstractSliceCriterion crit = (AbstractSliceCriterion) i.next();
-
-			if (crit instanceof SliceExpr) {
-				SliceExpr expr = (SliceExpr) crit;
-				temp.add(expr.getCriterion());
-				temp.add(expr.getOccurringStmt());
-				temp.add(expr.getOccurringMethod());
-			} else if (crit instanceof SliceStmt) {
-				SliceStmt stmt = (SliceStmt) crit;
-				temp.add(stmt.getCriterion());
-				temp.add(stmt.getOccurringMethod());
-			}
-		}
-
-		for (Iterator i = temp.iterator(); i.hasNext();) {
-			collectSeedCriteria(((Host) i.next()));
-		}
-	}
-
-	/**
 	 * Set the tag name to be used.
 	 *
 	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
@@ -163,8 +131,7 @@ class TaggingBasedSliceCollector {
 	 */
 	void setTagName(final String theTagName) {
 		if (theTagName != null) {
-			seedTag = new SlicingTag(theTagName, true);
-			tag = new SlicingTag(theTagName, false);
+			tag = new SlicingTag(theTagName);
 			tagName = theTagName;
 		}
 	}
@@ -188,18 +155,7 @@ class TaggingBasedSliceCollector {
 	 * @param host DOCUMENT ME!
 	 */
 	void collect(final Host host) {
-		tagHost(host, false);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param host DOCUMENT ME!
-	 */
-	void collectSeedCriteria(final Host host) {
-		tagHost(host, true);
+		tagHost(host);
 	}
 
 	/**
@@ -215,23 +171,51 @@ class TaggingBasedSliceCollector {
 	 * <p></p>
 	 */
 	private void makeBackwardSliceExecutable() {
-		BasicBlockGraphMgr bbgMgr = engine.getSlicedBasicBlockGraphMgr();
+		final BasicBlockGraphMgr _bbgMgr = engine.getSlicedBasicBlockGraphMgr();
 
 		// pick all return/throw points in the methods.
-		for (Iterator i = taggedMethods.iterator(); i.hasNext();) {
-			SootMethod method = (SootMethod) i.next();
-			BasicBlockGraph bbg = bbgMgr.getBasicBlockGraph(method);
-			Collection tails = bbg.getTails();
+		for (final Iterator _i = taggedMethods.iterator(); _i.hasNext();) {
+			final SootMethod _method = (SootMethod) _i.next();
+			final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_method);
+			final Collection _tails = _bbg.getTails();
 
-			for (Iterator j = tails.iterator(); j.hasNext();) {
-				BasicBlock bb = (BasicBlock) j.next();
-				Stmt stmt = bb.getTrailerStmt();
+			for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
+				final BasicBlock _bb = (BasicBlock) _j.next();
+				final Stmt _stmt = _bb.getTrailerStmt();
 
-				if (stmt.getTag(tagName) == null) {
+				if (_stmt.getTag(tagName) == null) {
 					//collect(stmt, method);
-					collect(stmt);
-					collect(method);
+					collect(_stmt);
+					collect(_method);
 				}
+			}
+
+			/*
+			 * Include the first statement of the handler for all traps which cover atleast one statement included in the
+			 * slice
+			 */
+			final Body _body = _method.getActiveBody();
+
+			if (_body != null) {
+				final Chain _sl = _body.getUnits();
+
+				for (final Iterator _j = _sl.iterator(); _j.hasNext();) {
+					final Stmt _stmt = (Stmt) _j.next();
+
+					if (isTransformed(_stmt)) {
+						for (final Iterator _k = TrapManager.getTrapsAt(_stmt, _body).iterator(); _k.hasNext();) {
+							collect(((Trap) _k.next()).getHandlerUnit());
+						}
+					}
+				}
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Could not get body for method " + _method.getSignature());
+				}
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("END: Generating criteria for exception");
 			}
 		}
 	}
@@ -252,21 +236,21 @@ class TaggingBasedSliceCollector {
 			gotoProcessor = new CompleteSliceGotoProcessor(this);
 		}
 
-		BasicBlockGraphMgr bbgMgr = engine.getSlicedBasicBlockGraphMgr();
+		final BasicBlockGraphMgr _bbgMgr = engine.getSlicedBasicBlockGraphMgr();
 
 		// include all gotos required to recreate the control flow of the system.
-		for (Iterator i = taggedMethods.iterator(); i.hasNext();) {
-			SootMethod sm = (SootMethod) i.next();
-			BasicBlockGraph bbg = bbgMgr.getBasicBlockGraph(sm);
+		for (final Iterator _i = taggedMethods.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_sm);
 
-			if (bbg == null) {
+			if (_bbg == null) {
 				continue;
 			}
-			gotoProcessor.preprocess(sm);
+			gotoProcessor.preprocess(_sm);
 
-			for (Iterator j = bbg.getNodes().iterator(); j.hasNext();) {
-				BasicBlock bb = (BasicBlock) j.next();
-				gotoProcessor.process(bb);
+			for (final Iterator _j = _bbg.getNodes().iterator(); _j.hasNext();) {
+				final BasicBlock _bb = (BasicBlock) _j.next();
+				gotoProcessor.process(_bb);
 			}
 			gotoProcessor.postprocess();
 		}
@@ -278,24 +262,23 @@ class TaggingBasedSliceCollector {
 	 * <p></p>
 	 *
 	 * @param host DOCUMENT ME!
-	 * @param seed DOCUMENT ME!
 	 */
-	private void tagHost(final Host host, final boolean seed) {
+	private void tagHost(final Host host) {
 		SlicingTag theTag;
 
-		if (seed) {
-			theTag = seedTag;
-		} else {
-			theTag = tag;
-		}
+		theTag = tag;
 
-		SlicingTag hostTag = (SlicingTag) host.getTag(tagName);
+		final SlicingTag _hostTag = (SlicingTag) host.getTag(tagName);
 
-		if (hostTag == null || (!seed && hostTag.isSeed())) {
+		if (_hostTag == null) {
 			if (host.getTag(tagName) != null) {
 				host.removeTag(tagName);
 			}
 			host.addTag(theTag);
+
+			if (host instanceof SootMethod) {
+				taggedMethods.add(host);
+			}
 
 			if (LOGGER.isDebugEnabled()) {
 				Object o = host;
@@ -312,6 +295,9 @@ class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 09:42:17  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.7  2003/12/01 12:21:25  venku
    - methods in collector underwent a lot of change to minimize them.
    - ripple effect.

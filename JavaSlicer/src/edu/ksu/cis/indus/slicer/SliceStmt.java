@@ -37,40 +37,34 @@ import soot.jimple.Stmt;
  */
 class SliceStmt
   extends AbstractSliceCriterion {
-    /**
-     * A pool of <code>SliceStmt</code> criterion objects.
-     *
-     * @invariant STMT_POOL.borrowObject().oclIsKindOf(SliceStmt)
-     */
-    static final ObjectPool STMT_POOL =
-    new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
-        /**
-         * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
-         */
-        public final Object makeObject() {
-            final SliceStmt _result = new SliceStmt();
-            _result.pool = STMT_POOL;
-            return _result;
-        }
-    });
+	/**
+	 * A pool of <code>SliceStmt</code> criterion objects.
+	 *
+	 * @invariant STMT_POOL.borrowObject().oclIsKindOf(SliceStmt)
+	 */
+	static final ObjectPool STMT_POOL =
+		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
+				/**
+				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
+				 */
+				public final Object makeObject() {
+					final SliceStmt _result = new SliceStmt();
+					_result.setPool(STMT_POOL);
+					return _result;
+				}
+			});
 
-    
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceStmt.class);
 
 	/**
-	 * The method in which <code>stmt</code> occurs.
-	 */
-	protected SootMethod method;
-
-	/**
 	 * The statement associated with this criterion.
 	 */
-	protected Stmt stmt;    
-    
-    /**
+	protected Stmt stmt;
+
+	/**
 	 * Checks if the given object is "equal" to this object.
 	 *
 	 * @param o is the object to be compared.
@@ -80,9 +74,9 @@ class SliceStmt
 	public boolean equals(final Object o) {
 		boolean result = false;
 
-		if (o != null && o instanceof SliceStmt) {
+		if (o != null && super.equals(o) && o instanceof SliceStmt) {
 			final SliceStmt _temp = (SliceStmt) o;
-			result = _temp.stmt == stmt && _temp.method == method && super.equals(_temp);
+			result = _temp.stmt == stmt;
 		}
 		return result;
 	}
@@ -93,7 +87,6 @@ class SliceStmt
 	public int hashCode() {
 		int hash = super.hashCode();
 		hash = 37 * hash + stmt.hashCode();
-		hash = 37 * hash + method.hashCode();
 		return hash;
 	}
 
@@ -108,17 +101,6 @@ class SliceStmt
 	 */
 	protected Object getCriterion() {
 		return stmt;
-	}
-
-	/**
-	 * Provides the method in which criterion occurs.
-	 *
-	 * @return the method in which the slice statement occurs.
-	 *
-	 * @post result != null
-	 */
-	protected SootMethod getOccurringMethod() {
-		return method;
 	}
 
 	/**
@@ -153,7 +135,7 @@ class SliceStmt
 	 * @pre method != null and stmt != null
 	 */
 	void initialize(final SootMethod occurringMethod, final Stmt criterion) {
-		this.method = occurringMethod;
+		super.initialize(occurringMethod);
 		this.stmt = criterion;
 	}
 }
@@ -161,6 +143,8 @@ class SliceStmt
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 19:20:50  venku
+   - coding convention and formatting.
    Revision 1.6  2003/12/02 09:42:17  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
