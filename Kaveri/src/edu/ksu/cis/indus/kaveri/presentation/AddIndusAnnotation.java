@@ -299,11 +299,11 @@ public class AddIndusAnnotation {
 
                         if (_data.isComplete()) {
                             _annotation = new Annotation(normalHighlightString,
-                                    false, "complete slice element");
+                                    false, "Line :" + _line);
                         } else {
                             _annotation = new Annotation(
                                     partialHighlightString, false,
-                                    "partial slice element");
+                                    "Line : " + _line);
                         }
 
                         final IAnnotationModel _model = editor

@@ -92,6 +92,7 @@ public class IndusDecorator extends LabelProvider implements
                     && _resource.getFileExtension() != null && _resource.getFileExtension().equalsIgnoreCase("java")) {
                 if (_filelst.contains(_resource)
                         && isFileOkToDecorate(_resource)) {
+                    
                     decoration.addOverlay(KaveriPlugin.getDefault()
                             .getIndusConfiguration().getSliceDecorator());
                 }

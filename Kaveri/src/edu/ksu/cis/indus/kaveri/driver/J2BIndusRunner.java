@@ -21,56 +21,28 @@
  */
 package edu.ksu.cis.indus.kaveri.driver;
 
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
-
-import edu.ksu.cis.indus.tools.IToolProgressListener;
-
-import edu.ksu.cis.j2b.J2BEclipsePlugin;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
-
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.InputDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-
 import org.eclipse.jface.operation.IRunnableWithProgress;
-
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 import soot.G;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
+import edu.ksu.cis.indus.tools.IToolProgressListener;
+import edu.ksu.cis.j2b.J2BEclipsePlugin;
 
 
 /**

@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -124,6 +127,26 @@ public class SliceAnnotate implements IEditorActionDelegate {
         }
         
         this.editor = (CompilationUnitEditor) targetEditor;
+        
+        if (editor != null) {
+            IWorkspaceRunnable _runnable = new IWorkspaceRunnable() {
+
+                public void run(IProgressMonitor monitor) throws CoreException {        
+                    final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+                    if (_file != null) {
+                        final IProject _prj = _file.getProject();
+                        KaveriPlugin.getDefault().getIndusConfiguration().setCurrentProject(_prj, _file);    
+                    }
+                    
+                }
+                
+            };
+            try {
+                ResourcesPlugin.getWorkspace().run(_runnable, null);
+            } catch (CoreException e) {
+                KaveriErrorLog.logException("Unable to update criteria view", e);
+            }
+        }
         
         Display.getCurrent().asyncExec(new Runnable() {
             public void run() {

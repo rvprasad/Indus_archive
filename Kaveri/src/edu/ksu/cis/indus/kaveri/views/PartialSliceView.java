@@ -697,6 +697,7 @@ public class PartialSliceView extends ViewPart {
                         && _c.getNLineNo() == partialData.getLineNo()
                         && _c.getNJimpleIndex() == selectionIndex) {
                     _data.getCriterias().remove(_c);
+                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
                     break;
                 }
 

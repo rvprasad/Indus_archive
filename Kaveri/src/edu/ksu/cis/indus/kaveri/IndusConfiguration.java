@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.kaveri.callgraph.MethodCallContext;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
+import edu.ksu.cis.indus.kaveri.views.CriteriaListMaintainer;
 import edu.ksu.cis.indus.kaveri.views.DependenceHistoryData;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 //import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -79,6 +81,12 @@ public class IndusConfiguration {
      */
     private String selectedStatement;
 
+    /**
+     * Maintains the listeners interested in the criteria 
+     * for a project.
+     */
+    private CriteriaListMaintainer crtMaintainer;
+    
     /**
      * The collection of chosen contexts.
      */
@@ -181,6 +189,7 @@ public class IndusConfiguration {
         ctxRepository = new ContextRepository();
         chosenContext = new ArrayList();
         nNoOfSlicesRun = 0;
+        crtMaintainer = new CriteriaListMaintainer();
     }
 
     /**
@@ -363,6 +372,10 @@ public class IndusConfiguration {
     public void setStmtList(final List stmtsList) {
         this.stmtList.setStmtList(stmtsList);
     }
+    
+    public void setCurrentProject(final IProject project, final IFile file) {
+        crtMaintainer.setProjectFile(project, file);
+    }
 
     /**
      * @return Returns the sliceProject.
@@ -530,5 +543,11 @@ public class IndusConfiguration {
      */
     public void setDoResidualize(boolean doResidualize) {
         this.doResidualize = doResidualize;
+    }
+    /**
+     * @return Returns the crtMaintainer.
+     */
+    public CriteriaListMaintainer getCrtMaintainer() {
+        return crtMaintainer;
     }
 }

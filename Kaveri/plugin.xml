@@ -244,7 +244,15 @@
          point="org.eclipse.ui.editorActions">
       <editorContribution
             targetID="org.eclipse.jdt.ui.CompilationUnitEditor"
-            id="edu.ksu.cis.indus.kaveri.editorContribution">            
+            id="edu.ksu.cis.indus.kaveri.editorContribution">
+         <action
+               toolbarPath="Normal/additions"
+               label="Reset"
+               tooltip="Reset Kaveri"
+               icon="data/icons/eraser.gif"
+               class="edu.ksu.cis.indus.kaveri.sliceactions.ResetKaveri"
+               style="push"
+               id="edu.ksu.cis.indus.kaveri.Reset"/>            
          <action
                enablesFor="+"
                toolbarPath="Normal/additions"
@@ -328,6 +336,13 @@
          category="edu.ksu.cis.indus.kaveri"
          name="Peq View"
          id="edu.ksu.cis.indus.kaveri.peq.peqview"/>
+   <view
+         allowMultiple="false"
+         icon="data/icons/sample.gif"
+         class="edu.ksu.cis.indus.kaveri.views.CriteriaView"
+         category="edu.ksu.cis.indus.kaveri"
+         name="Criteria View"
+         id="edu.ksu.cis.indus.kaveri.criteriaView"/>
 
    </extension>
    
@@ -359,6 +374,29 @@
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.annotationModelCreation">
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="Indus"
+            visible="true"
+            id="edu.ksu.cis.indus.kaveri.indusconfig">
+         <menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.kaveri.workbenchmenu">
+            <separator name="additions"/>
+            <separator name="contents"/>
+         </menu>
+         <action
+               label="Slicer Configuration"
+               icon="data/icons/sample.gif"
+               class="edu.ksu.cis.indus.kaveri.preferences.SlicerConfigurationAction"
+               tooltip="Configure the slicer"
+               style="push"
+               menubarPath="edu.ksu.cis.indus.kaveri.workbenchmenu/contents"
+               id="edu.ksu.cis.indus.kaveri.configaction"/>
+      </actionSet>
    </extension>
    <!--
    <extension

@@ -325,7 +325,7 @@ public class PEQView extends ViewPart {
      */
     private void setupTable(Table table) {
         final TableColumn _col1 = new TableColumn(table, SWT.NONE);
-        _col1.setText("Variable name");
+        _col1.setText("Parameter");
         
         final TableColumn _col2 = new TableColumn(table, SWT.NONE);
         _col2.setText("Substituition");
