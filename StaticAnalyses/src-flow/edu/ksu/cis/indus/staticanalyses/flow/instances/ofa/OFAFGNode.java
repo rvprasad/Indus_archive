@@ -40,8 +40,10 @@ import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.WorkList;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -66,45 +68,6 @@ public class OFAFGNode
 	 */
 	public OFAFGNode(final WorkList wl) {
 		super(wl);
-	}
-
-	/**
-	 * This class represents a peice of work to inject a set of values into a flow graph node.
-	 */
-	class SendValuesWork
-	  extends AbstractWork {
-		/**
-		 * Creates a new <code>SendValuesWork</code> instance.
-		 *
-		 * @param toNode the node into which the values need to be injected.
-		 * @param valuesToBeSent a collection containing the values to be injected.
-		 *
-		 * @pre toNode != null and valuesToBeSent != null
-		 */
-		SendValuesWork(final IFGNode toNode, final Collection valuesToBeSent) {
-			setFGNode(toNode);
-            addValues(valuesToBeSent);
-		}
-
-		/**
-		 * Creates a new <code>SendValuesWork</code> instance.
-		 *
-		 * @param toNode the node into which the values need to be injected.
-		 * @param valueToBeSent the value to be injected.
-		 *
-		 * @pre toNode != null and valueToBeSent != null
-		 */
-		SendValuesWork(final IFGNode toNode, final Object valueToBeSent) {
-            setFGNode(toNode);
-			addValue(valueToBeSent);
-		}
-
-		/**
-		 * Injects the values into the associated node.
-		 */
-		public final void execute() {
-			node.addValues(this.values);
-		}
 	}
 
 	/**
@@ -137,7 +100,7 @@ public class OFAFGNode
 		}
 
 		if (!temp.isEmpty()) {
-			worklist.addWork(new SendValuesWork(succ, temp));
+			worklist.addWork(SendValuesWork.getWork(succ, temp));
 		}
 	}
 
@@ -153,7 +116,7 @@ public class OFAFGNode
 			IFGNode succ = (IFGNode) i.next();
 
 			if (!succ.getValues().contains(value) && !filter.filter(value)) {
-				worklist.addWork(new SendValuesWork(succ, value));
+				worklist.addWork(SendValuesWork.getWork(succ, value));
 			}
 		}
 	}
@@ -177,7 +140,7 @@ public class OFAFGNode
 			IFGNode succ = (IFGNode) i.next();
 
 			if (!diffValues(succ).isEmpty()) {
-				worklist.addWork(new SendValuesWork(succ, temp));
+				worklist.addWork(SendValuesWork.getWork(succ, arrivingValues));
 			}
 		}
 	}
@@ -187,11 +150,15 @@ public class OFAFGNode
    ChangeLog:
 
    $Log$
+
+   Revision 1.3  2003/08/17 10:33:03  venku
+   WorkList does not inherit from WorkBag rather contains an instance of WorkBag.
+   Ripple effect of the above change.
+
    Revision 1.2  2003/08/15 03:39:53  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosened later on in implementaions.
    Renamed a few fields/parameter variables to avoid name confusion.
-
 
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

@@ -103,12 +103,22 @@ public abstract class AbstractWork {
 	public final void addValues(final Collection valuesToBeProcessed) {
 		this.values.addAll(valuesToBeProcessed);
 	}
+
+	/**
+	 * This will be called by the worklit after this work has been done.
+	 */
+	protected void doneExecuting() {
+	}
 }
 
 /*
    ChangeLog:
 
    $Log$
+
+   Revision 1.2  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
 
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

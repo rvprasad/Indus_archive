@@ -102,6 +102,7 @@ public class WorkList {
 				LOGGER.debug("Processing work:" + w);
 			}
 			w.execute();
+            w.doneExecuting();
 		}
 	}
 }
@@ -110,6 +111,10 @@ public class WorkList {
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/17 10:33:03  venku
+   WorkList does not inherit from WorkBag rather contains an instance of WorkBag.
+   Ripple effect of the above change.
+
    
    Revision 1.2  2003/08/15 04:07:56  venku
    Spruced up documentation and specification.
