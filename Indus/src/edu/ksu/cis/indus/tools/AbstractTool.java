@@ -101,7 +101,7 @@ public abstract class AbstractTool
 
 	/**
 	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running or after a run in which
-	 * the tool failed. {@inheritDoc}
+	 * the tool failed. Please refer to <code>run()</code> for more information. {@inheritDoc}
 	 *
 	 * @return <code>true</code> if the tool is not active; <code>false</code>, otherwise.
 	 */
@@ -132,14 +132,16 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Executes the tool.
+	 * Executes the tool. The tool is multithreaded.  However, the user can run it in asynchronous mode.  In asynchronous
+	 * mode, if tool fails, any subsequent calls to <code>isStable()</code> until a following call to <code>run()</code>
+	 * will return  <code>false</code>.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
 	 * @param synchronous <code>true</code> indicates that this method should behave synchronously and return only after the
 	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
 	 * 		  it's run.
 	 *
-	 * @throws IllegalStateException when this method called on a paused tool.
+	 * @throws IllegalStateException when this method is called on a paused tool.
 	 */
 	public final synchronized void run(final Object phase, final boolean synchronous) {
 		if (!pause || isNotAlive()) {
@@ -157,7 +159,7 @@ public abstract class AbstractTool
 								LOGGER.fatal("Interrupted while executing the tool.", _e);
 								_temp = _e;
 							} catch (Throwable _e) {
-								LOGGER.fatal("This is not good.", _e);
+								LOGGER.fatal("Tool failed.", _e);
 								_temp = _e;
 							} finally {
 								if (_temp != null) {
@@ -230,6 +232,12 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/01/08 23:51:34  venku
+   - exceptions in child thread were not being communicated to
+     the parent thread.  Now, the parent thread will know about
+     such exceptions while doing synchronous runs.  However,
+     on asynchronous runs, if the child thread fails, subsequent
+     calls to isStable() until a following call to run() will return false.
    Revision 1.13  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
