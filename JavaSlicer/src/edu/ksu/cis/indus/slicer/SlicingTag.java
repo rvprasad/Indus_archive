@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import soot.tagkit.Tag;
+import edu.ksu.cis.indus.common.NamedTag;
 
 
 /**
@@ -28,13 +28,7 @@ import soot.tagkit.Tag;
  * @version $Revision$ $Date$
  */
 public class SlicingTag
-  implements Tag {
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private final String name;
+  extends NamedTag {
 
 	/**
 	 * <p>
@@ -50,19 +44,8 @@ public class SlicingTag
 	 * @param isSeed DOCUMENT ME!
 	 */
 	public SlicingTag(final String theName, final boolean isSeed) {
-		name = theName;
+		super(theName);
 		seed = isSeed;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public String getName() {
-		return name;
 	}
 
 	/**
@@ -87,4 +70,10 @@ public class SlicingTag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/24 16:47:31  venku
+   - moved inner classes as external class.
+   - made TaggingBasedSliceCollector package private.
+   - removed inheritance based dependence on ITransformer
+     for TaggingBasedSliceCollector.
+
  */
