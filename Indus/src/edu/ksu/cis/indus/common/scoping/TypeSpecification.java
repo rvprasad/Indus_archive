@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.common.scoping;
 
 /**
  * DOCUMENT ME!
+ * 
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -25,17 +26,23 @@ package edu.ksu.cis.indus.common.scoping;
  */
 final class TypeSpecification {
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private String hierarchySpec;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private String namePattern;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private boolean inclusion;
 

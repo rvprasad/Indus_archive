@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * DOCUMENT ME!
+ * 
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -30,32 +31,44 @@ import java.util.regex.Pattern;
  */
 final class MethodSpecification {
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	private AccessSpecification accessSpec;
+	AccessSpecification accessSpec;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private Collection parameterTypeSpecs;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private Pattern namePattern;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private TypeSpecification declaringClassSpec;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private TypeSpecification returnTypeSpec;
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param spec DOCUMENT ME!
 	 */
@@ -64,7 +77,9 @@ final class MethodSpecification {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -73,7 +88,9 @@ final class MethodSpecification {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param spec DOCUMENT ME!
 	 */
@@ -81,7 +98,9 @@ final class MethodSpecification {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -90,7 +109,9 @@ final class MethodSpecification {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param specs DOCUMENT ME!
 	 */
@@ -99,7 +120,9 @@ final class MethodSpecification {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -108,7 +131,9 @@ final class MethodSpecification {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param spec DOCUMENT ME!
 	 */
@@ -117,12 +142,23 @@ final class MethodSpecification {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
 	TypeSpecification getReturnTypeSpec() {
 		return returnTypeSpec;
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	Collection createParameterTypeSpecContainer() {
+		return parameterTypeSpecs;
 	}
 }
 

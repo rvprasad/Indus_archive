@@ -27,17 +27,6 @@ import soot.SootMethod;
 
 /**
  * This class can be used to match classes, methods, and fields based on names and hierarchical relation.
- * 
- * <p>
- * The constructor accepts a specification with the following structure.
- * </p>
- * 
- * <ul>
- * <li>
- * <b>CLASS SPECIFICATION:</b>
- * </li>
- * </ul>
- * 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -45,17 +34,23 @@ import soot.SootMethod;
  */
 public final class SpecificationBasedScopeDefinition {
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private Collection classSpecs = new ArrayList();
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private Collection fieldSpecs = new ArrayList();
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private Collection methodSpecs = new ArrayList();
 
@@ -107,7 +102,9 @@ public final class SpecificationBasedScopeDefinition {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -116,7 +113,9 @@ public final class SpecificationBasedScopeDefinition {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -125,7 +124,9 @@ public final class SpecificationBasedScopeDefinition {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
