@@ -38,6 +38,9 @@ import org.apache.commons.logging.LogFactory;
  * This class is provides the control class for the analyses suite. The analyses progress in phases. It may be so that some
  * application require a particular sequence in which each analysis should progress. Hence, the applications provide an
  * implementation of controller interface to drive the analyses in a particular sequence of phases.
+ * 
+ * <p>This implementation will drive the given analyses such that each analysei is executed only when the anlaysis indicates
+ * that all it's prerequesites have been fulfilled.</p> 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
