@@ -245,7 +245,7 @@ public class AnalysesController {
 			}
 		}
 		participatingAnalyses.clear();
-		activePart.reset();
+		activePart.activate();
 	}
 }
 

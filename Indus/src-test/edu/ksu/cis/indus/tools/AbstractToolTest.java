@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 
 /**
- * This tests <code>AbstractTool</code>.  <i>This test case is incomplete.</i> 
+ * This tests <code>AbstractTool</code>.  <i>This test case is incomplete.</i>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -89,10 +89,58 @@ public class AbstractToolTest
 		 */
 		protected void execute(final Phase phase)
 		  throws InterruptedException {
+			Thread.sleep(600);
 			movingToNextPhase();
+			Thread.sleep(600);
 			localPH.nextMajorPhase();
 			finished = true;
 		}
+	}
+
+	/**
+	 * Tests <code>ITool.abort()</code> in asynchronous mode.
+	 */
+	public final void testAbortInAsyncMode() {
+		final Phase _ph = Phase.createPhase();
+		testTool.run(_ph, false);
+
+		if (!testTool.finished) {
+			testTool.abort();
+		}
+
+		try {
+			testTool.run(_ph, false);
+		} catch (final Exception _e) {
+			fail("This should not happen.");
+		}
+	}
+
+	/**
+	 * Tests <code>ITool.abort()</code> in synchronous mode.
+	 */
+	public final void testAbortInSyncMode() {
+		final Phase _ph = Phase.createPhase();
+		testTool.pause();
+
+		final Thread _thread =
+			new Thread(new Runnable() {
+					public void run() {
+						testTool.run(_ph, true);
+					}
+				});
+		_thread.start();
+
+		try {
+			Thread.sleep(2000);
+		} catch (final InterruptedException _e) {
+			fail("This should not happen.");
+		}
+		assertFalse(testTool.finished);
+		testTool.abort();
+
+		testTool.finished = false;
+		testTool.run(_ph, true);
+		assertTrue(testTool.finished);
 	}
 
 	/**
@@ -117,39 +165,37 @@ public class AbstractToolTest
 		}
 		assertTrue(_ph.isEarlierThan(testTool.localPH));
 	}
-    
-    /**
-     * Tests <code>pause()</code> and <code>resume()</code> in synchronous mode.
-     */
-    public final void testPauseAndResumeInSyncMode() {
-        try {
-            testTool.pause();
-        } catch (final Exception _e) {
-            fail("Should be able to pause tool that is not running.");
-        }
 
-        final Phase _ph = Phase.createPhase();
-        testTool.pause();
-        final Thread _thread = new Thread(new Runnable() {
-            public void run() {
-                testTool.run(_ph, true);       
-            }
-        });
-        try {
-            Thread.sleep(1000);
-        } catch (final InterruptedException _e) {
-            final IllegalStateException _t = new IllegalStateException();
-            _t.initCause(_e);
-            throw _t;
-        }
+	/**
+	 * Tests <code>pause()</code> and <code>resume()</code> in synchronous mode.
+	 */
+	public final void testPauseAndResumeInSyncMode() {
+		try {
+			testTool.pause();
+		} catch (final Exception _e) {
+			fail("Should be able to pause tool that is not running.");
+		}
 
-        assertTrue(_ph.equalsMajor(testTool.localPH));
-        assertTrue(_ph.equalsMinor(testTool.localPH));
-        
-        _thread.interrupt();
-        
-        
-    }
+		final Phase _ph = Phase.createPhase();
+		testTool.pause();
+
+		final Thread _thread =
+			new Thread(new Runnable() {
+					public void run() {
+						testTool.run(_ph, true);
+					}
+				});
+
+		try {
+			_thread.start();
+			Thread.sleep(1000);
+		} catch (final InterruptedException _e) {
+			fail("This should not happen.");
+		}
+
+		assertTrue(_ph.equalsMajor(testTool.localPH));
+		assertTrue(_ph.equalsMinor(testTool.localPH));
+	}
 
 	/**
 	 * @see TestCase#setUp()

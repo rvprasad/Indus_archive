@@ -461,7 +461,7 @@ public class FA
 		classManager.reset();
 		sccBasedOptimizer.reset();
 		environment = null;
-		activePart.reset();
+		activePart.activate();
 		currWorkBag = workBags[0];
 	}
 

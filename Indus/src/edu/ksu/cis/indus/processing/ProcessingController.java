@@ -1104,7 +1104,7 @@ public class ProcessingController {
 		context.setProgramPoint(null);
 		context.setRootMethod(null);
 		context.returnFromCurrentMethod();
-		activePart.reset();
+		activePart.activate();
 	}
 
 	/**

@@ -168,11 +168,13 @@ public abstract class AbstractTool
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final IActivePart _executor = (IActivePart) _i.next();
-			fireToolProgressEvent("Aborting " + _executor, null);
-			_executor.abort();
+
+			if (_executor != null) {
+				fireToolProgressEvent("Aborting " + _executor, null);
+				_executor.deactivate();
+			}
 		}
-        
-        thread.interrupt();
+        resume();
 	}
 
 	/**
@@ -226,6 +228,7 @@ public abstract class AbstractTool
 			checkConfiguration();
 			childException = null;
 			unstable();
+			activePart.activate();
 			thread =
 				new Thread() {
 						public final void run() {
@@ -386,7 +389,6 @@ public abstract class AbstractTool
 			} else if (!activePart.canProceed()) {
 				final String _string = "Tool was interrupted.";
 				fireToolProgressEvent(_string, null);
-				throw new InterruptedException(_string);
 			}
 		}
 	}
@@ -398,6 +400,23 @@ public abstract class AbstractTool
 	 */
 	private boolean isNotAlive() {
 		return thread == null || !thread.isAlive();
+	}
+
+	/**
+	 * Aborts the execution of the tool.
+	 */
+	private void activateActiveParts() {
+		final Iterator _i = activeParts.iterator();
+		final int _iEnd = activeParts.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final IActivePart _executor = (IActivePart) _i.next();
+
+			if (_executor != null) {
+				fireToolProgressEvent("Aborting " + _executor, null);
+				_executor.activate();
+			}
+		}
 	}
 }
 

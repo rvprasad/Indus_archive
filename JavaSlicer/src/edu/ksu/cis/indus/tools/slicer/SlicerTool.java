@@ -717,7 +717,7 @@ public final class SlicerTool
 		stmtGraphFactory.reset();
 		theTokenMgr.reset();
 		threadGraph.reset();
-        activePart.reset();
+        activePart.activate();
 	}
 
 	/**

@@ -516,7 +516,7 @@ public final class SlicingEngine {
 		criteria.clear();
 		collectedAllInvocationSites.clear();
 		method2callStacks.clear();
-		activePart.reset();
+		activePart.activate();
 
 		if (directionSensitiveInfo != null) {
 			directionSensitiveInfo.reset();
