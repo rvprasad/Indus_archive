@@ -51,7 +51,7 @@ public abstract class AbstractSliceCriteriaGenerator
 	private SlicerTool slicerTool;
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.slicer.criteria.generators.ISliceCriteriaGenerator#getCriteria(edu.ksu.cis.indus.tools.slicer.SlicerTool)
+	 * @see ISliceCriteriaGenerator#getCriteria(edu.ksu.cis.indus.tools.slicer.SlicerTool)
 	 */
 	public final Collection getCriteria(final SlicerTool slicer) {
 		slicerTool = slicer;
