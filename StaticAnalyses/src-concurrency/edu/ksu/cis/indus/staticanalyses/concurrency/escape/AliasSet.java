@@ -484,14 +484,20 @@ final class AliasSet
 				if (_repr.readyEntities == null) {
 					_repr.readyEntities = new HashSet();
 				}
-				_repr.readyEntities.add(getNewReadyEntity());
+
+				if (_repr.readyEntities.isEmpty()) {
+					_repr.readyEntities.add(getNewReadyEntity());
+				}
 			}
 
 			if (_repr.read && _repr.written) {
 				if (_repr.shareEntities == null) {
 					_repr.shareEntities = new HashSet();
 				}
-				_repr.shareEntities.add(getNewShareEntity());
+
+				if (_repr.shareEntities.isEmpty()) {
+					_repr.shareEntities.add(getNewShareEntity());
+				}
 			}
 
 			_wb.addAllWorkNoDuplicates(_repr.fieldMap.values());
@@ -607,14 +613,20 @@ final class AliasSet
 			if (representative.readyEntities == null) {
 				representative.readyEntities = new HashSet();
 			}
-			representative.readyEntities.add(getNewReadyEntity());
+
+			if (representative.readyEntities.isEmpty()) {
+				representative.readyEntities.add(getNewReadyEntity());
+			}
 		}
 
 		if ((representative.read && represented.written) || (representative.written && represented.read)) {
 			if (representative.shareEntities == null) {
 				representative.shareEntities = new HashSet();
 			}
-			representative.shareEntities.add(getNewShareEntity());
+
+			if (representative.shareEntities.isEmpty()) {
+				representative.shareEntities.add(getNewShareEntity());
+			}
 		}
 	}
 
@@ -646,6 +658,8 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/08/05 08:26:29  venku
+   - fixed the nagging bug in alias set cloning.
    Revision 1.24  2004/08/04 10:51:11  venku
    - INTERIM commit to enable working acorss sites.
    Revision 1.23  2004/08/02 10:30:26  venku
