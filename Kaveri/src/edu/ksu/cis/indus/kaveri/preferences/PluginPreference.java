@@ -506,18 +506,10 @@ public class PluginPreference extends PreferencePage implements
         }
 
         String _sbConfigPreference = _ps.getString(_sbfPreferenceKey);
-        if (_sbConfigPreference.equals("")) {
-            if (fwdDirection) {
-                _sbConfigPreference = "forward-deadlock";
-            } else {
-                _sbConfigPreference = "backward-executable-deadlock";
-            }
-            _ps.setValue(_sbfPreferenceKey, _sbConfigPreference);
+        if (!_sbConfigPreference.equals("")) {
+            final int _activeIndex = confsCombo.indexOf(_sbConfigPreference);
+            confsCombo.select(_activeIndex);            
         }
-
-        final int _activeIndex = confsCombo.indexOf(_sbConfigPreference);
-        confsCombo.select(_activeIndex);
-
     }
 
     /**
