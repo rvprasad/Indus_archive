@@ -15,13 +15,8 @@
 
 package edu.ksu.cis.indus.processing;
 
-import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
-
 import edu.ksu.cis.indus.interfaces.IActivePart;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,6 +52,7 @@ import soot.jimple.CaughtExceptionRef;
 import soot.jimple.CmpExpr;
 import soot.jimple.CmpgExpr;
 import soot.jimple.CmplExpr;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.DivExpr;
 import soot.jimple.DoubleConstant;
 import soot.jimple.EnterMonitorStmt;
@@ -109,8 +105,6 @@ import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
-
-import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -230,9 +224,9 @@ public class ProcessingController {
 
 	/** 
 	 * The collection of processors registered with this controller to process method local variables.  This maintains the
-     * insertion order.
-     * 
-     * @invariant localsProcessors->forall(o | o.oclIsKindOf(IProcessor))
+	 * insertion order.
+	 *
+	 * @invariant localsProcessors->forall(o | o.oclIsKindOf(IProcessor))
 	 */
 	protected final Collection localsProcessors = new ArrayList();
 
@@ -248,11 +242,6 @@ public class ProcessingController {
 	 * @invariant class2processors.oclIsKindOf(Map(Class, Set(IProcessors)))
 	 */
 	protected final Map class2processors = new HashMap();
-
-	/** 
-	 * This walks over the statements for processing.
-	 */
-	protected final StmtSwitcher stmtSwitcher = new StmtSwitcher(new ValueSwitcher());
 
 	/** 
 	 * This indicates if statements are being processed.
@@ -285,9 +274,20 @@ public class ProcessingController {
 	private IProcessingFilter processingFilter;
 
 	/** 
-	 * The factory that provides statement graphs (CFGs).  This should be set before process is called.
+	 * The object that controls the order in which the statements should be processed.  This should be set before process()
+	 * or driveProcessors() is called.
 	 */
-	private IStmtGraphFactory stmtGraphFactory;
+	private IStmtSequencesRetriever stmtSequencesRetriever;
+
+	/** 
+	 * This walks over the statements for processing.
+	 */
+	private final StmtSwitcher stmtSwitcher = new StmtSwitcher();
+
+	/** 
+	 * This walks over the value for processing.
+	 */
+	private final ValueSwitcher valueSwitcher = new ValueSwitcher();
 
 	/**
 	 * This class visits the statements of the methods and calls the call-back methods of the registered processors.
@@ -298,20 +298,6 @@ public class ProcessingController {
 	 */
 	private final class StmtSwitcher
 	  extends AbstractStmtSwitch {
-		/** 
-		 * This walks expressions in the statement.
-		 */
-		private final ValueSwitcher valueSwitcher;
-
-		/**
-		 * Creates a new StmtSwitcher object.
-		 *
-		 * @param vs is the expressions processor.
-		 */
-		StmtSwitcher(final ValueSwitcher vs) {
-			this.valueSwitcher = vs;
-		}
-
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
@@ -321,10 +307,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getLeftOpBox());
-				stmt.getLeftOp().apply(valueSwitcher);
-				context.setProgramPoint(stmt.getRightOpBox());
-				stmt.getRightOp().apply(valueSwitcher);
+				processValuesBoxesInDefStmt(stmt);
 			}
 		}
 
@@ -346,8 +329,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getOpBox());
-				stmt.getOp().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getOpBox()));
 			}
 		}
 
@@ -360,8 +342,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getOpBox());
-				stmt.getOp().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getOpBox()));
 			}
 		}
 
@@ -383,10 +364,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getLeftOpBox());
-				stmt.getLeftOp().apply(valueSwitcher);
-				context.setProgramPoint(stmt.getRightOpBox());
-				stmt.getRightOp().apply(valueSwitcher);
+				processValuesBoxesInDefStmt(stmt);
 			}
 		}
 
@@ -399,8 +377,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getConditionBox());
-				stmt.getCondition().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getConditionBox()));
 			}
 		}
 
@@ -413,8 +390,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getInvokeExprBox());
-				stmt.getInvokeExpr().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getInvokeExprBox()));
 			}
 		}
 
@@ -427,8 +403,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getKeyBox());
-				stmt.getKey().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getKeyBox()));
 			}
 		}
 
@@ -450,8 +425,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getStmtAddressBox());
-				stmt.getStmtAddress().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getStmtAddressBox()));
 			}
 		}
 
@@ -464,8 +438,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getOpBox());
-				stmt.getOp().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getOpBox()));
 			}
 		}
 
@@ -487,8 +460,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getKeyBox());
-				stmt.getKey().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getKeyBox()));
 			}
 		}
 
@@ -501,8 +473,7 @@ public class ProcessingController {
 			}
 
 			if (processValues) {
-				context.setProgramPoint(stmt.getOpBox());
-				stmt.getOp().apply(valueSwitcher);
+				processValueBoxes(Collections.singletonList(stmt.getOpBox()));
 			}
 		}
 
@@ -523,6 +494,20 @@ public class ProcessingController {
 					_pp.callback(_stmt, context);
 				}
 			}
+		}
+
+		/**
+		 * Processes the value boxes in the given definition statement.
+		 *
+		 * @param stmt to be processed.
+		 *
+		 * @pre stmt != null
+		 */
+		private void processValuesBoxesInDefStmt(final DefinitionStmt stmt) {
+			final Collection _boxes = new ArrayList();
+			_boxes.add(stmt.getLeftOpBox());
+			_boxes.add(stmt.getRightOpBox());
+			processValueBoxes(_boxes);
 		}
 	}
 
@@ -557,10 +542,11 @@ public class ProcessingController {
 		 */
 		public void caseArrayRef(final ArrayRef v) {
 			defaultCase(ArrayRef.class);
-			context.setProgramPoint(v.getBaseBox());
-			v.getBase().apply(this);
-			context.setProgramPoint(v.getIndexBox());
-			v.getIndex().apply(this);
+
+			final Collection _boxes = new ArrayList();
+			_boxes.add(v.getBaseBox());
+			_boxes.add(v.getIndexBox());
+			processValueBoxes(_boxes);
 		}
 
 		/**
@@ -568,8 +554,7 @@ public class ProcessingController {
 		 */
 		public void caseCastExpr(final CastExpr v) {
 			defaultCase(CastExpr.class);
-			context.setProgramPoint(v.getOpBox());
-			v.getOp().apply(this);
+			processValueBoxes(Collections.singletonList(v.getOpBox()));
 		}
 
 		/**
@@ -654,8 +639,7 @@ public class ProcessingController {
 		 */
 		public void caseInstanceFieldRef(final InstanceFieldRef v) {
 			defaultCase(InstanceFieldRef.class);
-			context.setProgramPoint(v.getBaseBox());
-			v.getBase().apply(this);
+			processValueBoxes(Collections.singletonList(v.getBaseBox()));
 		}
 
 		/**
@@ -663,8 +647,7 @@ public class ProcessingController {
 		 */
 		public void caseInstanceOfExpr(final InstanceOfExpr v) {
 			defaultCase(InstanceOfExpr.class);
-			context.setProgramPoint(v.getOpBox());
-			v.getOp().apply(this);
+			processValueBoxes(Collections.singletonList(v.getOpBox()));
 		}
 
 		/**
@@ -749,8 +732,7 @@ public class ProcessingController {
 		 */
 		public void caseNewArrayExpr(final NewArrayExpr v) {
 			defaultCase(NewArrayExpr.class);
-			context.setProgramPoint(v.getSizeBox());
-			v.getSize().apply(this);
+			processValueBoxes(Collections.singletonList(v.getSizeBox()));
 		}
 
 		/**
@@ -766,10 +748,12 @@ public class ProcessingController {
 		public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
 			defaultCase(NewMultiArrayExpr.class);
 
+			final Collection _boxes = new ArrayList();
+
 			for (int _i = 0; _i < v.getSizeCount(); _i++) {
-				context.setProgramPoint(v.getSizeBox(_i));
-				v.getSize(_i).apply(this);
+				_boxes.add(v.getSizeBox(_i));
 			}
+			processValueBoxes(_boxes);
 		}
 
 		/**
@@ -911,10 +895,10 @@ public class ProcessingController {
 		 * @pre v != null
 		 */
 		private void processBinaryExpr(final BinopExpr v) {
-			context.setProgramPoint(v.getOp1Box());
-			v.getOp1().apply(this);
-			context.setProgramPoint(v.getOp2Box());
-			v.getOp2().apply(this);
+			final Collection _boxes = new ArrayList();
+			_boxes.add(v.getOp1Box());
+			_boxes.add(v.getOp2Box());
+			processValueBoxes(_boxes);
 		}
 
 		/**
@@ -925,15 +909,16 @@ public class ProcessingController {
 		 * @pre v != null
 		 */
 		private void processInvokeExpr(final InvokeExpr v) {
+            final Collection _boxes = new ArrayList();
 			if (v instanceof InstanceInvokeExpr) {
-				context.setProgramPoint(((InstanceInvokeExpr) v).getBaseBox());
-				((InstanceInvokeExpr) v).getBase().apply(this);
+				_boxes.add(((InstanceInvokeExpr) v).getBaseBox());
 			}
 
 			for (int _i = 0; _i < v.getArgCount(); _i++) {
-				context.setProgramPoint(v.getArgBox(_i));
-				v.getArg(_i).apply(this);
+				_boxes.add(v.getArgBox(_i));
 			}
+            
+            processValueBoxes(_boxes);
 		}
 
 		/**
@@ -944,8 +929,7 @@ public class ProcessingController {
 		 * @pre v != null
 		 */
 		private void processUnaryExpr(final UnopExpr v) {
-			context.setProgramPoint(v.getOpBox());
-			v.getOp().apply(this);
+            processValueBoxes(Collections.singletonList(v.getOpBox()));
 		}
 	}
 
@@ -970,12 +954,15 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Sets the factory object that provides statement graphs (CFGs).
+	 * Sets the object that controls the order in which the statements are processed.  This should be called before calling
+	 * <code>process()</code> or <code>driverProcessors()</code>.
 	 *
-	 * @param cfgFactory is the factory object.
+	 * @param retriever controls the statement processing order.
+	 *
+	 * @pre retriever != null
 	 */
-	public void setStmtGraphFactory(final IStmtGraphFactory cfgFactory) {
-		stmtGraphFactory = cfgFactory;
+	public void setStmtSequencesRetriever(final IStmtSequencesRetriever retriever) {
+		stmtSequencesRetriever = retriever;
 	}
 
 	/**
@@ -1303,6 +1290,28 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Processes the given value boxes.
+	 *
+	 * @param boxes to be processed.
+	 *
+	 * @pre boxes != null and boxes.oclIsKindOf(Collection(ValueBox))
+	 */
+	void processValueBoxes(final Collection boxes) {
+		if (processingFilter != null) {
+			processingFilter.filterValueBoxes(boxes);
+		}
+
+		final Iterator _i = boxes.iterator();
+		final int _iEnd = boxes.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final ValueBox _vb = (ValueBox) _i.next();
+			context.setProgramPoint(_vb);
+			_vb.getValue().apply(valueSwitcher);
+		}
+	}
+
+	/**
 	 * Processes the method body.
 	 *
 	 * @param stmt in which the locals need to be processed.
@@ -1337,6 +1346,9 @@ public class ProcessingController {
 	 *
 	 * @param method whose body needs to be processed.
 	 *
+	 * @throws IllegalStateException when <code>setStmtSequenceRetriever()</code> is not called with a non-null argument
+	 * 		   before calling this method.
+	 *
 	 * @pre method != null
 	 */
 	private void processMethodBody(final SootMethod method) {
@@ -1344,27 +1356,34 @@ public class ProcessingController {
 			LOGGER.debug("Processing method " + method);
 		}
 
+		if (stmtSequencesRetriever == null) {
+			final String _msg =
+				"Please call setStmtSequenceRetriever() with a non-null argument before executing the controller.";
+			LOGGER.error(_msg);
+			throw new IllegalStateException(_msg);
+		}
+
 		try {
 			processedLocals.clear();
 
-			if (stmtGraphFactory == null) {
-				if (method.hasActiveBody()) {
-					for (final Iterator _i = method.getActiveBody().getUnits().iterator();
-						  _i.hasNext() && activePart.canProceed();) {
-						final Stmt _stmt = (Stmt) _i.next();
-						processLocals(_stmt, method);
-						context.setStmt(_stmt);
-						_stmt.apply(stmtSwitcher);
-					}
-				} else {
-					final StringWriter _sw = new StringWriter();
-					(new Throwable()).printStackTrace(new PrintWriter(_sw));
-					LOGGER.error("Active body was not available for " + method.getSignature() + _sw.toString());
-				}
-			} else {
-				final UnitGraph _stmtGraph = stmtGraphFactory.getStmtGraph(method);
+			final Collection _col1 = stmtSequencesRetriever.retreiveStmtSequences(method);
+            LOGGER.debug("COL: " + _col1);
+			final Iterator _j = _col1.iterator();
+			final int _jEnd = _col1.size();
 
-				for (final Iterator _i = _stmtGraph.iterator(); _i.hasNext() && activePart.canProceed();) {
+			for (int _jIndex = 0; _jIndex < _jEnd && activePart.canProceed(); _jIndex++) {
+				final Collection _seq;
+
+				if (processingFilter != null) {
+					_seq = processingFilter.filterStmts((Collection) _j.next());
+				} else {
+					_seq = (Collection) _j.next();
+				}
+                LOGGER.debug("SEQ: " + _seq);
+				final Iterator _i = _seq.iterator();
+				final int _iEnd = _seq.size();
+
+				for (int _iIndex = 0; _iIndex < _iEnd && activePart.canProceed(); _iIndex++) {
 					final Stmt _stmt = (Stmt) _i.next();
 					processLocals(_stmt, method);
 					context.setStmt(_stmt);

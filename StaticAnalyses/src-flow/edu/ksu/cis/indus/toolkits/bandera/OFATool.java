@@ -29,10 +29,12 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
@@ -320,23 +322,28 @@ public final class OFATool
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final ExceptionFlowSensitiveStmtGraphFactory _factory = new ExceptionFlowSensitiveStmtGraphFactory();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 		basicBlockGraphMgr.setStmtGraphFactory(_factory);
-		callgraph = new CallGraph(new PairManager(false, true));
+		_ssr.setBbgFactory(basicBlockGraphMgr);
+		_pc.setStmtSequencesRetriever(_ssr);
+
 		_pc.setAnalyzer(_aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
 
-		_pc.setStmtGraphFactory(_factory);
-
+		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
+		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, callgraph);
 		_aa.reset();
 		_aa.analyze(new Environment(scene), entryPoints);
-		((CallGraph) callgraph).reset();
 		_processors.clear();
-		_processors.add(callgraph);
+		_processors.add(_callGraphInfoCollector);
 		_pc.reset();
 		_pc.driveProcessors(_processors);
 		_processors.clear();
+		_cgi.reset();
+		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
+		callgraph = _cgi;
 
 		retrieveReachableClassesAndFields(_aa, _tagName);
 	}

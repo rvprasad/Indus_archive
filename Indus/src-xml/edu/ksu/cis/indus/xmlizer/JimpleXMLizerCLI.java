@@ -16,12 +16,14 @@
 package edu.ksu.cis.indus.xmlizer;
 
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.io.File;
@@ -69,6 +71,8 @@ public final class JimpleXMLizerCLI {
 	 * The entry point to execute this xmlizer from command prompt.
 	 *
 	 * @param s is the command-line arguments.
+	 *
+	 * @throws RuntimeException when jimple xmlization fails.
 	 *
 	 * @pre s != null
 	 */
@@ -148,7 +152,10 @@ public final class JimpleXMLizerCLI {
 		final JimpleXMLizer _xmlizer = new JimpleXMLizer(jimpleIDGenerator);
 		final Environment _env = new Environment(scene);
 		final ProcessingController _pc = new ProcessingController();
-		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory());
+		final IStmtGraphFactory _sgf = new ExceptionFlowSensitiveStmtGraphFactory();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(_sgf);
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setEnvironment(_env);
 
 		final XMLizingProcessingFilter _xmlFilter = new XMLizingProcessingFilter();

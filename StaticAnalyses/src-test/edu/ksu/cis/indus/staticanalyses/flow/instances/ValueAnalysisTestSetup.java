@@ -19,13 +19,14 @@ import edu.ksu.cis.indus.TestHelper;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.ICallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.XMLBasedCallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
 import java.util.ArrayList;
@@ -64,16 +65,19 @@ public class ValueAnalysisTestSetup
 		super.setUp();
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(valueAnalyzer);
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
 		cgiImpl = new CallGraphInfo(new PairManager(false, true));
-        final OFABasedCallInfoCollector _ofaci = new OFABasedCallInfoCollector();
+
+		final OFABasedCallInfoCollector _ofaci = new OFABasedCallInfoCollector();
 		_ofaci.hookup(_pc);
 		_pc.process();
 		_ofaci.unhook(_pc);
-        cgiImpl.createCallGraphInfo(_ofaci.getCallInfoProvider());
+		cgiImpl.createCallGraphInfo(_ofaci.getCallInfo());
 
 		final Collection _temp =
 			new ArrayList(TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), ICallGraphTest.class));

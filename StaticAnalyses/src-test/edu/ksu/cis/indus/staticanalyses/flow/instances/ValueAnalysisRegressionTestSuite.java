@@ -22,10 +22,10 @@ import edu.ksu.cis.indus.TestHelper;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
+import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallGraphTest;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.XMLBasedCallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
 
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
@@ -129,7 +129,7 @@ public final class ValueAnalysisRegressionTestSuite
 						suite.addTest(_temp);
 					} else {
 						_temp.addTestSuite(XMLBasedCallGraphTest.class);
-						_temp.addTestSuite(CallGraphTest.class);
+                        _temp.addTestSuite(OFABasedCallGraphTest.class);
 						_temp.addTestSuite(XMLBasedOFATest.class);
 						_temp.addTestSuite(FATest.class);
 						TestHelper.appendSuiteNameToTestsIn(_temp, true);

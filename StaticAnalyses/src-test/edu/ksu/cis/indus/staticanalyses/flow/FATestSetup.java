@@ -99,14 +99,21 @@ public class FATestSetup
 		_driver.initialize();
 		valueAnalyzer.analyze(new Environment(_driver.getScene()), _driver.getRootMethods());
 
-		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IFATest.class);
+		final Collection _temp1 = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IFATest.class);
 
-		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
 			final IFATest _test = (IFATest) _i.next();
 			_test.setAnalyzer(valueAnalyzer);
 			_test.setFATagName(TAG_NAME);
 		}
 
+        final Collection _temp2 = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), FATest.class);
+
+        for (final Iterator _i = _temp2.iterator(); _i.hasNext();) {
+            final FATest _test = (FATest) _i.next();
+            _test.setFA(((OFAnalyzer) valueAnalyzer).fa);
+        }        
+        
 		if (dumpLocation != null) {
 			JimpleXMLizerCLI.writeJimpleAsXML(_driver.getScene(), dumpLocation, null, idGenerator,
 				new TagBasedProcessingFilter(TAG_NAME));

@@ -20,6 +20,9 @@ import java.util.Collection;
 
 /**
  * This is the interface via which class and method filtering will occur in <code>ProcessingController</code>.
+ * 
+ * <p>It is assumed that ordering in the returned collection respects the ordering in the collection provided for filtering.
+ * Implementations should declare if they violate this assumption.</code>  
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -74,6 +77,32 @@ public interface IProcessingFilter {
 	 * @post result->forall(o | methods.contains(o))
 	 */
 	Collection filterMethods(Collection methods);
+
+	/**
+	 * Filter out statements from the given collection of statements.
+	 *
+	 * @param stmts is the collection to be filtered.
+	 *
+	 * @return a collection of statements that were not filtered.
+	 *
+	 * @pre stmts.oclIsKindOf(Collection(soot.jimple.Stmt)
+	 * @post result.oclIsKinfOf(Collection(soot.jimple.Stmt))
+	 * @post result->forall(o | stmts.contains(o))
+	 */
+	Collection filterStmts(Collection stmts);
+
+	/**
+	 * Filter out value boxes from the given collection of value boxes.
+	 *
+	 * @param boxes is the collection to be filtered.
+	 *
+	 * @return a collection of value boxes that were not filtered.
+	 *
+	 * @pre stmts.oclIsKindOf(Collection(soot.ValueBox)
+	 * @post result.oclIsKinfOf(Collection(soot.ValueBox))
+	 * @post result->forall(o | stmts.contains(o))
+	 */
+	Collection filterValueBoxes(Collection boxes);
 }
 
 // End of File

@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -329,7 +330,9 @@ public final class TagBasedSliceXMLizer
 	 */
 	public void writeXML(final Map info) {
 		final ProcessingController _ctrl = new ProcessingController();
-		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
+		_ctrl.setStmtSequencesRetriever(_ssr);
 		_ctrl.setEnvironment((IEnvironment) info.get(IEnvironment.ID));
 
 		final IProcessingFilter _filter = new TagBasedProcessingFilter(tagName);

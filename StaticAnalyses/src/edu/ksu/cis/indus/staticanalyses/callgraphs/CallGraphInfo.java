@@ -41,8 +41,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.collections.collection.CompositeCollection;
@@ -159,13 +161,13 @@ public final class CallGraphInfo
 	}
 
 	/**
-	 * This is the interface is used to extract call info for a system.
+	 * This is the interface is used to access call info in it's primitive form.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public static interface ICallInfoProvider {
+	public static interface ICallInfo {
 		/**
 		 * Retrieves the callee to callers map.
 		 *
@@ -183,15 +185,6 @@ public final class CallGraphInfo
 		 * @post result != null and result.oclIsKindOf(Map(CallTriple, Collection(CallTriple)))
 		 */
 		Map getCaller2CalleesMap();
-
-		/**
-		 * Retrieves the head methods (methods with to caller).
-		 *
-		 * @return a collection of head methods.
-		 *
-		 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-		 */
-		Collection getHeads();
 
 		/**
 		 * Retrieves the methods reachable in the system.
@@ -265,10 +258,7 @@ public final class CallGraphInfo
 	public Collection getCallees(final SootMethod caller) {
 		Collection _result = Collections.EMPTY_LIST;
 		final Collection _callees = (Collection) caller2callees.get(caller);
-
-		if (_callees != null) {
-			_result = Collections.unmodifiableCollection(_callees);
-		}
+		_result = Collections.unmodifiableCollection(_callees);
 		return _result;
 	}
 
@@ -292,7 +282,7 @@ public final class CallGraphInfo
 
 		final Collection _temp = (Collection) caller2callees.get(context.getCurrentMethod());
 
-		if (_temp != null && !_temp.isEmpty()) {
+		if (!_temp.isEmpty()) {
 			_result = new ArrayList();
 
 			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
@@ -324,10 +314,7 @@ public final class CallGraphInfo
 	public Collection getCallers(final SootMethod callee) {
 		Collection _result = Collections.EMPTY_LIST;
 		final Collection _callers = (Collection) callee2callers.get(callee);
-
-		if (_callers != null) {
-			_result = Collections.unmodifiableCollection(_callers);
-		}
+		_result = Collections.unmodifiableCollection(_callers);
 		return _result;
 	}
 
@@ -490,14 +477,32 @@ public final class CallGraphInfo
 	 *
 	 * @param provider provides call information to be consolidated.
 	 */
-	public void createCallGraphInfo(final ICallInfoProvider provider) {
+	public void createCallGraphInfo(final ICallInfo provider) {
 		callee2callers.putAll(provider.getCallee2CallersMap());
 		caller2callees.putAll(provider.getCaller2CalleesMap());
-		reachables.addAll(provider.getReachableMethods());
-		heads.addAll(provider.getHeads());
+        reachables.addAll(provider.getReachableMethods());
+        calculateHeads();
 		createGraph();
-		stable();
+        stable();
 	}
+    
+    /**
+     * Calculates head methods.
+     */
+    private void calculateHeads() {
+        final Set _keySet = callee2callers.keySet();
+        final Iterator _i = _keySet.iterator();
+        final int _iEnd = _keySet.size();
+        heads.addAll(reachables);
+
+        for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+            final SootMethod _method = (SootMethod) _i.next();
+
+            if (!((Collection) callee2callers.get(_method)).isEmpty()) {
+                heads.remove(_method);
+            }
+        }
+    }
 
 	/**
 	 * Resets all internal data structure and forgets all info from the previous run.
@@ -537,7 +542,7 @@ public final class CallGraphInfo
 		_result.append("top-down\n");
 
 		final List _temp2 = new ArrayList();
-        _temp1.clear();
+		_temp1.clear();
 		_temp1.addAll(caller2callees.keySet());
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
@@ -628,12 +633,12 @@ public final class CallGraphInfo
 		graphCache = new SimpleNodeGraph();
 
 		for (final Iterator _i = reachables.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-			final Collection _temp = (Collection) caller2callees.get(_sm);
-			final INode _callerNode = graphCache.getNode(_sm);
+            final SootMethod _caller = (SootMethod) _i.next();
+            final INode _callerNode = graphCache.getNode(_caller);
+            final Collection _callees = (Collection) MapUtils.getObject(caller2callees, _caller, Collections.EMPTY_SET);
 
-			if (_temp != null) {
-				for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
+			if (!_callees.isEmpty()) {
+				for (final Iterator _j = _callees.iterator(); _j.hasNext();) {
 					final CallTriple _ctrp = (CallTriple) _j.next();
 					final SootMethod _method = _ctrp.getMethod();
 

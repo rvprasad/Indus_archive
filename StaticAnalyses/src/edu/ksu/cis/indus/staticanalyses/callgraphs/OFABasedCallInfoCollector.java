@@ -27,7 +27,6 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,15 +53,16 @@ import soot.jimple.VirtualInvokeExpr;
 
 
 /**
- * This implementation of <code>CallGraphInfo.ICallInfoProvider</code> generates call info for a system based on the
- * information available from object flow information.
+ * This implementation of <code>CallGraphInfo.ICallInfo</code> generates call info for a system based on the information
+ * available from object flow information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class OFABasedCallInfoCollector
-  extends AbstractValueAnalyzerBasedProcessor {
+  extends AbstractValueAnalyzerBasedProcessor
+  implements ICallInfoCollector {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -71,7 +71,7 @@ public class OFABasedCallInfoCollector
 	/** 
 	 * This holds call information.
 	 */
-	private final CallInfoProvider callInfoHolder = new CallInfoProvider();
+	private final CallInfo callInfoHolder = new CallInfo();
 
 	/** 
 	 * The FA instance which implements object flow analysis. This instance is used to calculate call graphCache information.
@@ -94,13 +94,9 @@ public class OFABasedCallInfoCollector
 	}
 
 	/**
-	 * Retrieves the call info calculated by this class.
-	 *
-	 * @return the call info.
-	 *
-	 * @post result != null
+	 * @see ICallInfoCollector#getCallInfo()
 	 */
-	public CallGraphInfo.ICallInfoProvider getCallInfoProvider() {
+	public CallGraphInfo.ICallInfo getCallInfo() {
 		return callInfoHolder;
 	}
 
@@ -115,9 +111,9 @@ public class OFABasedCallInfoCollector
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(ValueBox,Context)
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("callback(ValueBox vBox = " + vBox + ", Context context = " + context + ") - BEGIN");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("callback(ValueBox vBox = " + vBox + ", Context context = " + context + ") - BEGIN");
+		}
 
 		final Stmt _stmt = context.getStmt();
 		final SootMethod _caller = context.getCurrentMethod();
@@ -131,22 +127,20 @@ public class OFABasedCallInfoCollector
 
 		if (_value instanceof StaticInvokeExpr
 			  || (_value instanceof SpecialInvokeExpr && (_callee.getName().equals("<init>") || _callee.isPrivate()))) {
-			final Map _caller2callees = callInfoHolder.caller2callees;
-			_callees = CollectionsUtilities.getSetFromMap(_caller2callees, _caller);
+			_callees = CollectionsUtilities.getSetFromMap(callInfoHolder.caller2callees, _caller);
 			_triple = new CallTriple(_callee, _stmt, _invokeExpr);
 			_callees.add(_triple);
 
-			final Map _callee2callers = callInfoHolder.callee2callers;
-			_callers = CollectionsUtilities.getSetFromMap(_callee2callers, _callee);
+			_callers = CollectionsUtilities.getSetFromMap(callInfoHolder.callee2callers, _callee);
 			_triple = new CallTriple(_caller, _stmt, _invokeExpr);
 			_callers.add(_triple);
 		} else {
 			callBackOnInstanceInvokeExpr(context, (InstanceInvokeExpr) _value);
 		}
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("callback() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("callback() - END");
+		}
 	}
 
 	/**
@@ -155,10 +149,6 @@ public class OFABasedCallInfoCollector
 	public void callback(final SootMethod method) {
 		// all method marked by the object flow analyses are reachable.
 		callInfoHolder.reachables.add(method);
-
-		if (method.getName().equals("<clinit>")) {
-			callInfoHolder.heads.add(method);
-		}
 	}
 
 	/**
@@ -171,19 +161,7 @@ public class OFABasedCallInfoCollector
 			LOGGER.info("BEGIN: call graph consolidation");
 		}
 
-		final Collection _heads = callInfoHolder.heads;
-		final Map _caller2callees = callInfoHolder.caller2callees;
-
-		_heads.addAll(analyzer.getEnvironment().getRoots());
-
-		// populate the caller2callees with head information in cases there are
-		// no calls in the system.
-		if (_caller2callees.isEmpty()) {
-			for (final Iterator _i = _heads.iterator(); _i.hasNext();) {
-				final Object _head = _i.next();
-				_caller2callees.put(_head, Collections.EMPTY_LIST);
-			}
-		}
+		CHABasedCallInfoCollector.fixupMethodsHavingZeroCallersAndCallees(callInfoHolder);
 	}
 
 	/**
@@ -226,10 +204,10 @@ public class OFABasedCallInfoCollector
 	 * @pre context != null and stmt != null and caller != null and expr != null
 	 */
 	private void callBackOnInstanceInvokeExpr(final Context context, final InstanceInvokeExpr expr) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("callBackOnInstanceInvokeExpr(Context context = " + context + ", InstanceInvokeExpr expr = " + expr
-                    + ") - BEGIN");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("callBackOnInstanceInvokeExpr(Context context = " + context + ", InstanceInvokeExpr expr = " + expr
+				+ ") - BEGIN");
+		}
 
 		final Stmt _stmt = context.getStmt();
 		final SootMethod _caller = context.getCurrentMethod();
@@ -239,6 +217,7 @@ public class OFABasedCallInfoCollector
 		final Collection _values = analyzer.getValues(expr.getBase(), context);
 
 		if (!_values.isEmpty()) {
+			final Map _callee2callers = callInfoHolder.callee2callers;
 			final Map _caller2callees = callInfoHolder.caller2callees;
 			final Set _callees = CollectionsUtilities.getSetFromMap(_caller2callees, _caller);
 			final CallTriple _ctrp = new CallTriple(_caller, _stmt, expr);
@@ -267,15 +246,14 @@ public class OFABasedCallInfoCollector
 				final CallTriple _triple = new CallTriple(_callee, _stmt, expr);
 				_callees.add(_triple);
 
-				final Map _callee2callers = callInfoHolder.callee2callers;
 				final Set _callers = CollectionsUtilities.getSetFromMap(_callee2callers, _callee);
 				_callers.add(_ctrp);
 			}
 		}
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("callBackOnInstanceInvokeExpr() - END");
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("callBackOnInstanceInvokeExpr() - END");
+		}
 	}
 }
 

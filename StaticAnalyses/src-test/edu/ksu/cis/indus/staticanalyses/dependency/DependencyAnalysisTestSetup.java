@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -118,10 +119,12 @@ public class DependencyAnalysisTestSetup
 
 		// setup level 1 analysis here.
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
+        final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+        _ssr.setStmtGraphFactory(getStmtGraphFactory());
+        _pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(valueAnalyzer);
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
-		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));		
 
 		final PairManager _pairManager = new PairManager(false, true);
 		tgiImpl = new ThreadGraph(cgiImpl, new CFGAnalysis(cgiImpl, bbgMgr), _pairManager);

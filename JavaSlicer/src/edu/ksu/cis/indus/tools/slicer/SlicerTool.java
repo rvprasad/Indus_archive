@@ -31,12 +31,15 @@ import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
@@ -48,7 +51,6 @@ import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationInsensitiveEntr
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.NewExpr2InitMapper;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
@@ -192,7 +194,7 @@ public final class SlicerTool
 	 *
 	 * @invariant callGraph != null
 	 */
-	private final CallGraph callGraph;
+	private final CallGraphInfo callGraph;
 
 	/** 
 	 * The slicing criteria.
@@ -333,24 +335,29 @@ public final class SlicerTool
 		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgPreProcessCtrl.setAnalyzer(ofa);
 		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(FLOW_ANALYSIS_TAG_NAME));
-		cgPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
+
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		cgPreProcessCtrl.setStmtSequencesRetriever(_ssr);
+
 		addActivePart(cgPreProcessCtrl.getActivePart());
 
 		// create pair manager
 		pairMgr = new Pair.PairManager(false, true);
 		// create the call graph.
-		callGraph = new CallGraph(pairMgr);
+		callGraph = new CallGraphInfo(pairMgr);
 
 		// create the pre processor for thread graph construction.
 		cgBasedPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
-		cgBasedPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
+		cgBasedPreProcessCtrl.setStmtSequencesRetriever(_ssr);
+
 		addActivePart(cgBasedPreProcessCtrl.getActivePart());
 
 		// create basic block graph manager
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setStmtGraphFactory(getStmtGraphFactory());
+        _ssr.setBbgFactory(bbgMgr);
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr), pairMgr);
 		// create equivalence class-based escape analysis.
@@ -876,11 +883,14 @@ public final class SlicerTool
 		fireToolProgressEvent("LOW LEVEL ANALYSES: Constructing call graph", phase);
 
 		// process flow information into a more meaningful call graph
-		callGraph.reset();
+		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
 		cgPreProcessCtrl.reset();
-		callGraph.hookup(cgPreProcessCtrl);
+		_callGraphInfoCollector.hookup(cgPreProcessCtrl);
 		cgPreProcessCtrl.process();
-		callGraph.unhook(cgPreProcessCtrl);
+		_callGraphInfoCollector.unhook(cgPreProcessCtrl);
+
+		callGraph.reset();
+		callGraph.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 		phase.nextMinorPhase();
 
 		if (LOGGER.isDebugEnabled()) {

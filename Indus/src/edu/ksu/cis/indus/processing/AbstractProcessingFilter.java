@@ -77,6 +77,30 @@ public abstract class AbstractProcessingFilter
 	}
 
 	/**
+	 * {@inheritDoc}  Default implementation returns the given stmts as is.
+	 */
+	public final Collection filterStmts(final Collection stmts) {
+		Collection _result = localFilterStmts(stmts);
+
+		if (successor != null) {
+			_result = successor.filterStmts(_result);
+		}
+		return _result;
+	}
+
+	/**
+	 * {@inheritDoc}  Default implementation returns the given value boxes as is.
+	 */
+	public final Collection filterValueBoxes(final Collection boxes) {
+		Collection _result = localFilterValueBoxes(boxes);
+
+		if (successor != null) {
+			_result = successor.filterValueBoxes(_result);
+		}
+		return _result;
+	}
+
+	/**
 	 * Filter the given classes.
 	 *
 	 * @param classes to be filtered.
@@ -119,6 +143,36 @@ public abstract class AbstractProcessingFilter
 	 */
 	protected Collection localFilterMethods(final Collection methods) {
 		return methods;
+	}
+
+	/**
+	 * Filter the given statements.
+	 *
+	 * @param stmts to be filtered.
+	 *
+	 * @return the collection of filtrate statements.
+	 *
+	 * @pre stmts != null and stmts.oclIsKindOf(Collection(soot.jimple.Stmt))
+	 * @post result != null and result.oclIsKindOf(Collection(soot.jimple.Stmt))
+	 * @post stmts.containsAll(result)
+	 */
+	protected Collection localFilterStmts(final Collection stmts) {
+		return stmts;
+	}
+
+	/**
+	 * Filter the given value boxes.
+	 *
+	 * @param boxes to be filtered.
+	 *
+	 * @return the collection of filtrate value boxes.
+	 *
+	 * @pre boxes != null and boxes.oclIsKindOf(Collection(soot.ValueBox))
+	 * @post result != null and result.oclIsKindOf(Collection(soot.ValueBox))
+	 * @post boxes.containsAll(result)
+	 */
+	protected Collection localFilterValueBoxes(final Collection boxes) {
+		return boxes;
 	}
 }
 

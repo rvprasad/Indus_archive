@@ -25,12 +25,14 @@ import edu.ksu.cis.indus.interfaces.ISideEffectInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -82,7 +84,7 @@ public class EscapeAndSideEffectCLI
 	 *
 	 * @param args command line arguments.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when escape information and side-effect information calculation fails.
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
@@ -141,16 +143,21 @@ public class EscapeAndSideEffectCLI
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
-		final ICallGraphInfo _cgi = new CallGraph(_pairManager);
+		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
+		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(_aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
+
 		_cgipc.setAnalyzer(_aa);
 		_cgipc.setProcessingFilter(new CGBasedProcessingFilter(_cgi));
-		_cgipc.setStmtGraphFactory(getStmtGraphFactory());
+		_cgipc.setStmtSequencesRetriever(_ssr);
 
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, _cgi);
@@ -162,12 +169,13 @@ public class EscapeAndSideEffectCLI
 		initialize();
 		_aa.analyze(new Environment(getScene()), getRootMethods());
 
-		((CallGraph) _cgi).reset();
 		_processors.clear();
-		_processors.add(_cgi);
+		_processors.add(_callGraphInfoCollector);
 		_pc.reset();
 		_pc.driveProcessors(_processors);
-		writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).toString());
+		_cgi.reset();
+		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
+		writeInfo("CALL GRAPH:\n" + _cgi.toString());
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();

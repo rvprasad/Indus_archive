@@ -21,9 +21,12 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 
 import edu.ksu.cis.bandera.util.BaseObservable;
 
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.util.ArrayList;
@@ -163,6 +166,10 @@ public class MetricsTool
 	  throws Exception {
 		final ProcessingController _pc = new ProcessingController();
 		final MetricsProcessor _mp = new MetricsProcessor();
+        final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+        final IStmtGraphFactory _sgf = new ExceptionFlowSensitiveStmtGraphFactory();
+        _ssr.setStmtGraphFactory(_sgf);
+        _pc.setStmtSequencesRetriever(_ssr);
 		_mp.hookup(_pc);
 		_pc.setEnvironment(new Environment(scene));
 		_pc.process();

@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.concurrency.atomicity.AtomicStmtDetector;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 import soot.Scene;
+
 import soot.util.Chain;
 
 
@@ -55,13 +57,11 @@ import soot.util.Chain;
 public final class AtomicityTool
   extends BaseObservable
   implements Tool {
-    
-    /** 
-     * This key denotes the Scene.
-     */
-    public static final String SCENE_INPUT_KEY = "scene";
+	/** 
+	 * This key denotes the Scene.
+	 */
+	public static final String SCENE_INPUT_KEY = "scene";
 
-    
 	/** 
 	 * This key denotes the call graph in the given Scene from the given entry points.
 	 */
@@ -107,10 +107,10 @@ public final class AtomicityTool
 	 */
 	private ICallGraphInfo callgraph;
 
-    /** 
-     * The Scene that holds the application to be analyzed.
-     */
-    private Scene scene;
+	/** 
+	 * The Scene that holds the application to be analyzed.
+	 */
+	private Scene scene;
 
 	/**
 	 * There is no configuration information at this time so the parameter is ignored.
@@ -156,27 +156,27 @@ public final class AtomicityTool
 			throw new IllegalArgumentException("The input Map must have at least three values.");
 		}
 
-        final Object _sceneObject = inputMap.get(SCENE_INPUT_KEY);
+		final Object _sceneObject = inputMap.get(SCENE_INPUT_KEY);
 
-        if (_sceneObject == null) {
-            throw new IllegalArgumentException("A scene is required.");
-        }
+		if (_sceneObject == null) {
+			throw new IllegalArgumentException("A scene is required.");
+		}
 
-        if (!(_sceneObject instanceof Scene)) {
-            throw new IllegalArgumentException("A scene of type soot.Scene is required.");
-        }
+		if (!(_sceneObject instanceof Scene)) {
+			throw new IllegalArgumentException("A scene of type soot.Scene is required.");
+		}
 
-        final Scene _tempScene = (Scene) _sceneObject;
-        final Chain _c = _tempScene.getClasses();
+		final Scene _tempScene = (Scene) _sceneObject;
+		final Chain _c = _tempScene.getClasses();
 
-        if (_c == null) {
-            throw new IllegalArgumentException("Cannot use an empty scene.");
-        }
+		if (_c == null) {
+			throw new IllegalArgumentException("Cannot use an empty scene.");
+		}
 
-        if (_c.size() < 1) {
-            throw new IllegalArgumentException("Cannot use an empty scene.");
-        }
-        
+		if (_c.size() < 1) {
+			throw new IllegalArgumentException("Cannot use an empty scene.");
+		}
+
 		final Object _bbgMgr = inputMap.get(BASIC_BLOCK_GRAPH_MGR_INPUT_KEY);
 
 		if (_bbgMgr == null) {
@@ -197,8 +197,8 @@ public final class AtomicityTool
 			throw new IllegalArgumentException("A call graph info of type ICallGraphInfo is required.");
 		}
 
-        scene = _tempScene;
-        basicBlockGraphMgr = (BasicBlockGraphMgr) _bbgMgr;
+		scene = _tempScene;
+		basicBlockGraphMgr = (BasicBlockGraphMgr) _bbgMgr;
 		callgraph = (ICallGraphInfo) _cgi;
 	}
 
@@ -289,17 +289,19 @@ public final class AtomicityTool
 	 */
 	public void run()
 	  throws IllegalStateException {
-        final ProcessingController _pc = new ProcessingController();
+		final ProcessingController _pc = new ProcessingController();
 		final EquivalenceClassBasedEscapeAnalysis _ecba =
 			new EquivalenceClassBasedEscapeAnalysis(callgraph, basicBlockGraphMgr);
 		final Map _info = new HashMap();
-        final AnalysesController _ac = new AnalysesController(_info, _pc, basicBlockGraphMgr);
-        _info.put(ICallGraphInfo.ID, callgraph);
-        _pc.setProcessingFilter(new CGBasedProcessingFilter(callgraph));
-        _pc.setEnvironment(new Environment(scene));
-        _ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
-        _ac.initialize();
-        _ac.execute();
+		final AnalysesController _ac = new AnalysesController(_info, _pc, basicBlockGraphMgr);
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_pc.setStmtSequencesRetriever(_ssr);
+		_pc.setProcessingFilter(new CGBasedProcessingFilter(callgraph));
+		_pc.setEnvironment(new Environment(scene));
+		_info.put(ICallGraphInfo.ID, callgraph);
+		_ac.addAnalyses(IEscapeInfo.ID, Collections.singleton(_ecba));
+		_ac.initialize();
+		_ac.execute();
 
 		final AtomicStmtDetector _atomic = new AtomicStmtDetector();
 		_atomic.setEscapeAnalysis(_ecba);
@@ -315,7 +317,7 @@ public final class AtomicityTool
 	 */
 	private static void initInputParameters() {
 		inputParameterList = new ArrayList(3);
-        inputParameterList.add(SCENE_INPUT_KEY);
+		inputParameterList.add(SCENE_INPUT_KEY);
 		inputParameterList.add(CALL_GRAPH_INPUT_KEY);
 		inputParameterList.add(BASIC_BLOCK_GRAPH_MGR_INPUT_KEY);
 	}

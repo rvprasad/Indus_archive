@@ -68,7 +68,8 @@ import soot.jimple.StaticFieldRef;
  * @version $Revision$ $Date$
  */
 public final class RTABasedCallInfoCollector
-  extends AbstractProcessor {
+  extends AbstractProcessor
+  implements ICallInfoCollector {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -77,7 +78,7 @@ public final class RTABasedCallInfoCollector
 	/** 
 	 * This holds call information.
 	 */
-	private final CallInfoProvider callInfoHolder = new CallInfoProvider();
+	private final CallInfo callInfoHolder = new CallInfo();
 
 	/** 
 	 * This holds CHA based call information.
@@ -119,13 +120,9 @@ public final class RTABasedCallInfoCollector
 	private final Map method2requiredCLInits = new HashMap();
 
 	/**
-	 * Retrieves the call info calculated by this class.
-	 *
-	 * @return the call info.
-	 *
-	 * @post result != null
+	 * @see ICallInfoCollector#getCallInfo()
 	 */
-	public CallGraphInfo.ICallInfoProvider getCallInfoProvider() {
+	public CallGraphInfo.ICallInfo getCallInfo() {
 		return callInfoHolder;
 	}
 
@@ -264,7 +261,8 @@ public final class RTABasedCallInfoCollector
 			}
 		}
 
-		CHABasedCallInfoCollector.calculateHeads(callInfoHolder);
+        CHABasedCallInfoCollector.fixupMethodsHavingZeroCallersAndCallees(callInfoHolder);
+        
 		instantiatedClasses.clear();
 		method2instantiatedClasses.clear();
 		method2requiredCLInits.clear();
@@ -378,7 +376,7 @@ public final class RTABasedCallInfoCollector
 		}
 
 		final Collection _chaCallees = new HashSet();
-		_chaCallees.addAll((Collection) MapUtils.getObject(chaCallInfo.getCallInfoProvider().getCaller2CalleesMap(), caller,
+		_chaCallees.addAll((Collection) MapUtils.getObject(chaCallInfo.getCallInfo().getCaller2CalleesMap(), caller,
 				Collections.EMPTY_SET));
 		_chaCallees.removeAll((Collection) MapUtils.getObject(callInfoHolder.getCaller2CalleesMap(), caller,
 				Collections.EMPTY_SET));
@@ -421,7 +419,7 @@ public final class RTABasedCallInfoCollector
 		}
 
 		final Collection _col = Util.getResolvedMethods(newClasses);
-		final Map _chaCallee2Callers = chaCallInfo.getCallInfoProvider().getCallee2CallersMap();
+		final Map _chaCallee2Callers = chaCallInfo.getCallInfo().getCallee2CallersMap();
 		final Collection _reachables = callInfoHolder.reachables;
 		final Iterator _j = _col.iterator();
 		final int _jEnd = _col.size();

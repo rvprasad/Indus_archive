@@ -31,6 +31,10 @@ import soot.SootMethod;
 /**
  * This is a xmlizing controller.  Two different instances of this object will process a set of classes and their methods in
  * the same order.
+ * 
+ * <p>
+ * In this implementation, the ordering in the returned collection may not respect the ordering of the given collection.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$

@@ -24,6 +24,7 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -70,6 +71,8 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ *
+ * @deprecated
  */
 public final class CallGraphXMLizerCLI
   extends SootBasedDriver {
@@ -92,6 +95,8 @@ public final class CallGraphXMLizerCLI
 	 * The entry point to the program via command line.
 	 *
 	 * @param args is the command line arguments.
+	 *
+	 * @throws RuntimeException when call graph related processing fails.
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
@@ -187,22 +192,22 @@ public final class CallGraphXMLizerCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, 
-                TokenUtil.getTokenManager(new SootValueTypeManager()));
+		final IValueAnalyzer _aa =
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final ICallGraphInfo _cgi = new CallGraph(new PairManager(false, true));
 		final Collection _rm = new ArrayList();
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
-		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
-
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
 		_pc.setAnalyzer(_aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
 		_xmlcgipc.setEnvironment(_aa.getEnvironment());
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
-		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
+		_xmlcgipc.setStmtSequencesRetriever(_ssr);
 
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, _cgi);

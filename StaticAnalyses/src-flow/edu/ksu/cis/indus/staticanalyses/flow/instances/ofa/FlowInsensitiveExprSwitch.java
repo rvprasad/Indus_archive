@@ -336,7 +336,7 @@ class FlowInsensitiveExprSwitch
 	public void caseSpecialInvokeExpr(final SpecialInvokeExpr e) {
 		final SootMethod _callee = e.getMethod();
 
-		if (_callee.getName().equals("<init>")) {
+		if (_callee.getName().equals("<init>") || _callee.isPrivate()) {
 			processInvokedMethod(e);
 		} else {
 			processInstanceInvokeExpr(e);

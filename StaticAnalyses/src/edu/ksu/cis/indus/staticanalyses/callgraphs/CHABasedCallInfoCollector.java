@@ -32,8 +32,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.MapUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -58,7 +56,8 @@ import soot.jimple.VirtualInvokeExpr;
  * @version $Revision$ $Date$
  */
 public final class CHABasedCallInfoCollector
-  extends AbstractProcessor {
+  extends AbstractProcessor
+  implements ICallInfoCollector {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -67,7 +66,7 @@ public final class CHABasedCallInfoCollector
 	/** 
 	 * This holds call information.
 	 */
-	private final CallInfoProvider callInfoHolder = new CallInfoProvider();
+	private final CallInfo callInfoHolder = new CallInfo();
 
 	/** 
 	 * The class hierarchy analysis to be used.
@@ -82,13 +81,9 @@ public final class CHABasedCallInfoCollector
 	private final Map invokedMethod2callerTriple = new HashMap();
 
 	/**
-	 * Retrieves the call info calculated by this class.
-	 *
-	 * @return the call info.
-	 *
-	 * @post result != null
+	 * @see edu.ksu.cis.indus.staticanalyses.callgraphs.ICallInfoCollector#getCallInfo()
 	 */
-	public CallGraphInfo.ICallInfoProvider getCallInfoProvider() {
+	public CallGraphInfo.ICallInfo getCallInfo() {
 		return callInfoHolder;
 	}
 
@@ -96,8 +91,6 @@ public final class CHABasedCallInfoCollector
 	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#callback(soot.SootMethod)
 	 */
 	public void callback(final SootMethod method) {
-		callInfoHolder.callee2callers.get(method);
-		callInfoHolder.caller2callees.get(method);
 		callInfoHolder.reachables.add(method);
 	}
 
@@ -186,9 +179,10 @@ public final class CHABasedCallInfoCollector
 			}
 		}
 
-		calculateHeads(callInfoHolder);
+		fixupMethodsHavingZeroCallersAndCallees(callInfoHolder);
 
 		invokedMethod2callerTriple.clear();
+
 	}
 
 	/**
@@ -232,24 +226,25 @@ public final class CHABasedCallInfoCollector
 	}
 
 	/**
-	 * Calculates head methods.
+	 * DOCUMENT ME! <p></p>
 	 *
-	 * @param callInfoHolder for which the heads need to be calculated.
-	 *
-	 * @pre callInfoHolder != null
+	 * @param callInfoHolder DOCUMENT ME!
 	 */
-	static void calculateHeads(final CallInfoProvider callInfoHolder) {
-		final Set _keySet = callInfoHolder.callee2callers.keySet();
-		final Iterator _i = _keySet.iterator();
-		final int _iEnd = _keySet.size();
-		final Collection _heads = callInfoHolder.heads;
-		_heads.addAll(callInfoHolder.reachables);
+	static void fixupMethodsHavingZeroCallersAndCallees(final CallInfo callInfoHolder) {
+		final Map _map1 = callInfoHolder.callee2callers;
+		final Map _map2 = callInfoHolder.caller2callees;
+		final Iterator _i = callInfoHolder.reachables.iterator();
+		final int _iEnd = callInfoHolder.reachables.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootMethod _method = (SootMethod) _i.next();
+			final Object _o = _i.next();
 
-			if (!((Collection) MapUtils.getObject(callInfoHolder.callee2callers, _method, Collections.EMPTY_SET)).isEmpty()) {
-				_heads.remove(_method);
+			if (_map1.get(_o) == null) {
+				_map1.put(_o, Collections.EMPTY_SET);
+			}
+
+			if (_map2.get(_o) == null) {
+				_map2.put(_o, Collections.EMPTY_SET);
 			}
 		}
 	}

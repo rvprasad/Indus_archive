@@ -21,15 +21,15 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
@@ -120,14 +120,14 @@ public final class OFAXMLizerCLI
 	 * The entry point to the program via command line.
 	 *
 	 * @param args is the command line arguments.
+	 *
+	 * @throws RuntimeException when object flow analysis fails.
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
 		Option _option = new Option("c", "cumulative", false, "Consider all root methods in the same execution.");
 		_options.addOption(_option);
-		_option =
-			new Option("o", "output", true,
-				"Directory into which xml files will be written into.");
+		_option = new Option("o", "output", true, "Directory into which xml files will be written into.");
 		_option.setArgs(1);
 		_options.addOption(_option);
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
@@ -139,7 +139,7 @@ public final class OFAXMLizerCLI
 		_option.setArgs(1);
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
-        _options.addOption(_option);
+		_options.addOption(_option);
 
 		final PosixParser _parser = new PosixParser();
 
@@ -175,8 +175,7 @@ public final class OFAXMLizerCLI
 			}
 
 			_cli.initialize();
-			_cli.execute(_cl.hasOption('j'));
-
+			_cli.execute(_cl.hasOption('j'), _cl.getOptionValue('t'));
 		} catch (final ParseException _e) {
 			LOGGER.fatal("Error while parsing command line.", _e);
 			printUsage(_options);
@@ -213,31 +212,34 @@ public final class OFAXMLizerCLI
 	 *
 	 * @param dumpJimple <code>true</code> indicates that the jimple should be xmlized as well; <code>false</code>,
 	 * 		  otherwise.
+	 * @param callGraphType of call graph analysis.
 	 */
-	private void execute(final boolean dumpJimple) {
+	private void execute(final boolean dumpJimple, final String callGraphType) {
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, 
-                TokenUtil.getTokenManager(new SootValueTypeManager()));
+		final IValueAnalyzer _aa =
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
-		final ICallGraphInfo _cgi = new CallGraph(new PairManager(false, true));
+		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
+		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
 		final Collection _rm = new ArrayList();
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
-
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(_aa);
 
 		final IProcessingFilter _tagFilter = new TagBasedProcessingFilter(_tagName);
 		_pc.setProcessingFilter(_tagFilter);
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
 		_xmlcgipc.setEnvironment(_aa.getEnvironment());
 
 		final IProcessingFilter _xmlFilter = new CGBasedXMLizingProcessingFilter(_cgi);
 		_xmlFilter.chain(_tagFilter);
 		_xmlcgipc.setProcessingFilter(_xmlFilter);
-		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
+		_xmlcgipc.setStmtSequencesRetriever(_ssr);
 
 		final Map _info = new HashMap();
 		_info.put(IValueAnalyzer.ID, _aa);
@@ -271,13 +273,16 @@ public final class OFAXMLizerCLI
 			final long _stop = System.currentTimeMillis();
 			addTimeLog("FA", _stop - _start);
 			writeInfo("END: FA");
-			((CallGraph) _cgi).reset();
+
+			_callGraphInfoCollector.reset();
 			_processors.clear();
-			_processors.add(_cgi);
+			_processors.add(_callGraphInfoCollector);
 			_processors.add(_countingProcessor);
 			_pc.reset();
 			_pc.driveProcessors(_processors);
 			_processors.clear();
+			_cgi.reset();
+			_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
 			MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));

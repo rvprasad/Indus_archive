@@ -21,9 +21,10 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.IProcessor;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.CustomXMLOutputter;
@@ -133,8 +134,10 @@ public final class DependencyXMLizer
 	 */
 	public void writeXML(final Map info) {
 		final ProcessingController _ctrl = new ProcessingController();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
+		_ctrl.setStmtSequencesRetriever(_ssr);
 		_ctrl.setEnvironment((IEnvironment) info.get(IEnvironment.ID));
-		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
 		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter((ICallGraphInfo) info.get(ICallGraphInfo.ID)));
 
 		final Map _xmlizers = initXMLizers(info, _ctrl);
@@ -153,8 +156,8 @@ public final class DependencyXMLizer
 	 * @post result != null
 	 */
 	String getDAPartOfFileName(final IDependencyAnalysis da) {
-	    final List _t = new ArrayList(da.getIds());
-	    Collections.sort(_t);
+		final List _t = new ArrayList(da.getIds());
+		Collections.sort(_t);
 		return _t + ":" + da.getDirection() + ":" + da.getClass().getName();
 	}
 
@@ -173,6 +176,7 @@ public final class DependencyXMLizer
 		StmtAndMethodBasedDependencyXMLizer _result = null;
 		final List _t = new ArrayList(da.getIds());
 		Collections.sort(_t);
+
 		final String _xmlizerId = _t.toString();
 
 		final String _temp = PROPERTIES.getProperty(_xmlizerId);

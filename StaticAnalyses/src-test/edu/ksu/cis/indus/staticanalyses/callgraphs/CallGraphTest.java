@@ -24,8 +24,6 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -208,20 +206,6 @@ public class CallGraphTest
 	 */
 	public void testSize() {
 		assertTrue(cgi.getReachableMethods().size() == dg.getNodes().size());
-	}
-
-	/**
-	 * Tests the tags on the reachable methods based on tags used during object flow analysis.
-	 */
-	public void testTagsOnReachableMethods() {
-		final Collection _reachables = cgi.getReachableMethods();
-		assertNotNull(_reachables);
-
-		for (final Iterator _i = _reachables.iterator(); _i.hasNext();) {
-			final SootMethod _o = (SootMethod) _i.next();
-			assertTrue(_o.hasTag(FATestSetup.TAG_NAME));
-			assertTrue(_o.getDeclaringClass().hasTag(FATestSetup.TAG_NAME));
-		}
 	}
 
 	/**

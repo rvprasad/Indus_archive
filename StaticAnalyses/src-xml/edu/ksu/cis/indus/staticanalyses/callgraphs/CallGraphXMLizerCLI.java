@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -118,7 +119,7 @@ public final class CallGraphXMLizerCLI
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option("t", "call-graph-type", true, "Call graph type.  This has to be one of {cha, rta, ofa }.");
+		_option = new Option("t", "call-graph-type", true, "Call graph type.  This has to be one of {cha, rta, ofa}.");
 		_option.setArgs(1);
 		_option.setArgName("type");
 		_option.setRequired(true);
@@ -203,10 +204,11 @@ public final class CallGraphXMLizerCLI
 		_info.put(ICallGraphInfo.ID, cgi);
 
 		final ProcessingController _xmlcgipc = new ProcessingController();
-		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_xmlcgipc.setStmtSequencesRetriever(_ssr);
 		_xmlcgipc.setEnvironment(env);
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
-		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
 		_info.put(AbstractXMLizer.FILE_NAME_ID, fileBaseName);
 		_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
@@ -245,7 +247,9 @@ public final class CallGraphXMLizerCLI
 	private void executeCHA(final boolean dumpJimple) {
 		final ClassHierarchy _cha = new ClassHierarchy(true);
 		final ProcessingController _pc = new ProcessingController();
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setEnvironment(new Environment(getScene()));
 		_cha.hookup(_pc);
 		_pc.process();
@@ -258,7 +262,7 @@ public final class CallGraphXMLizerCLI
 		_chaci.unhook(_pc);
 
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
-		_cgi.createCallGraphInfo(_chaci.getCallInfoProvider());
+		_cgi.createCallGraphInfo(_chaci.getCallInfo());
 
 		dumpInfo(dumpJimple, _cgi, "CHA-Based", new Environment(getScene()));
 	}
@@ -278,10 +282,12 @@ public final class CallGraphXMLizerCLI
 		final OFABasedCallInfoCollector _ofaci = new OFABasedCallInfoCollector();
 		final Collection _rm = new ArrayList();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(_aa);
 		_pc.setEnvironment(new Environment(getScene()));
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
 
 		final List _roots = new ArrayList();
 
@@ -319,7 +325,7 @@ public final class CallGraphXMLizerCLI
 			_pc.driveProcessors(_processors);
 			_processors.clear();
 			_cgi.reset();
-			_cgi.createCallGraphInfo(_ofaci.getCallInfoProvider());
+			_cgi.createCallGraphInfo(_ofaci.getCallInfo());
 
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
 			MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
@@ -337,7 +343,9 @@ public final class CallGraphXMLizerCLI
 	private void executeRTA(final boolean dumpJimple) {
 		final ClassHierarchy _cha = new ClassHierarchy(false);
 		final ProcessingController _pc = new ProcessingController();
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setEnvironment(new Environment(getScene()));
 		_cha.hookup(_pc);
 		_pc.process();
@@ -345,19 +353,19 @@ public final class CallGraphXMLizerCLI
 
 		final CHABasedCallInfoCollector _chaci = new CHABasedCallInfoCollector();
 		_chaci.initialize(_cha);
-        _chaci.hookup(_pc);
-        _pc.process();
-        _chaci.unhook(_pc);
-        
+		_chaci.hookup(_pc);
+		_pc.process();
+		_chaci.unhook(_pc);
+
 		final RTABasedCallInfoCollector _rtaci = new RTABasedCallInfoCollector();
 		_rtaci.setRootMethods(getRootMethods());
 		_rtaci.initialize(_chaci, _cha);
-        _rtaci.hookup(_pc);
+		_rtaci.hookup(_pc);
 		_pc.process();
 		_rtaci.unhook(_pc);
 
 		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
-		_cgi.createCallGraphInfo(_rtaci.getCallInfoProvider());
+		_cgi.createCallGraphInfo(_rtaci.getCallInfo());
 
 		dumpInfo(dumpJimple, _cgi, "RTA-Based", new Environment(getScene()));
 	}

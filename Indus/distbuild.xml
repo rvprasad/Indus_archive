@@ -12,10 +12,18 @@
         <pathelement path="${projects.dir}/JavaSlicer"/>
     </path>
 	
-    <target name="init" if="version">
+    <target name="init">
         <tstamp/>
+        <fail unless="version.fileid" message="specify the property version.fileid (x.y) via the command line. x and y should be numbers"/>
+        <fail unless="version.cvsid" message="specify the property version.cvsid (x_y) via the command line. x and y should be numbers"/>
     	<delete dir="${projects.dir}"/>
     	<mkdir dir="${projects.dir}"/>
+        <cvs cvsroot="${cvs.root}"
+            compression="true" compressionlevel="3"
+            package="${cvs.modules}"
+            cvsRsh="ssh"
+            dest="${projects.dir}" failonerror="true"
+            command="rtag v${version.cvsid}-${DSTAMP}-${TSTAMP}"/>
         <cvs cvsroot="${cvs.root}"
             compression="true" compressionlevel="3"
             package="${cvs.modules}"
@@ -55,7 +63,7 @@
             <fileset dir="${dist.dir}">
                 <include name="*.jar"/>
             </fileset>
-            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${version}-${DSTAMP}-${TSTAMP}.jar"/>
+            <mapper type="regexp" from="^([A-Za-z_-]*).jar$$" to="\1-${version.fileid}-${DSTAMP}-${TSTAMP}.jar"/>
         </move>
 
         <zip destfile="${examples.src.zip.filename}">

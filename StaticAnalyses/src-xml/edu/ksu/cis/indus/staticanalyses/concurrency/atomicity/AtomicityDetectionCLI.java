@@ -25,12 +25,14 @@ import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -227,21 +229,26 @@ public final class AtomicityDetectionCLI
 		setLogger(LOGGER);
 
 		final String _tagName = "AtomicityDetection:FA";
-		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, 
-                TokenUtil.getTokenManager(new SootValueTypeManager()));
+		final IValueAnalyzer _aa =
+			OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager(new SootValueTypeManager()));
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
-		final ICallGraphInfo _cgi = new CallGraph(_pairManager);
+		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
+		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
 
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(_aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
+
+		_cgipc.setStmtSequencesRetriever(_ssr);
 		_cgipc.setAnalyzer(_aa);
 		_cgipc.setProcessingFilter(new CGBasedProcessingFilter(_cgi));
-		_cgipc.setStmtGraphFactory(getStmtGraphFactory());
 
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, _cgi);
@@ -256,12 +263,14 @@ public final class AtomicityDetectionCLI
 		initialize();
 		_aa.analyze(new Environment(getScene()), getRootMethods());
 
-		((CallGraph) _cgi).reset();
+		_callGraphInfoCollector.reset();
 		_processors.clear();
-		_processors.add(_cgi);
+		_processors.add(_callGraphInfoCollector);
 		_pc.reset();
 		_pc.driveProcessors(_processors);
-		writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).toString());
+		_cgi.reset();
+		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
+		writeInfo("CALL GRAPH:\n" + _cgi.toString());
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();

@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -188,8 +189,8 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
-		slicer = new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), 
-                new ExceptionFlowSensitiveStmtGraphFactory());
+		slicer =
+			new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), new ExceptionFlowSensitiveStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 
@@ -338,9 +339,11 @@ public class SliceXMLizerCLI
 
 			final ProcessingController _ctrl = new ProcessingController();
 			final IProcessingFilter _filter = new XMLizingProcessingFilter();
-			_filter.chain(new TagBasedProcessingFilter(nameOfSliceTag));
-			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
+			final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+			_ssr.setStmtGraphFactory(getStmtGraphFactory());
+			_ctrl.setStmtSequencesRetriever(_ssr);
 			_ctrl.setEnvironment(new Environment(scene));
+			_filter.chain(new TagBasedProcessingFilter(nameOfSliceTag));
 			_ctrl.setProcessingFilter(_filter);
 			((AbstractXMLizer) _xmlizer).dumpJimple(base, jimpleXMLDumpDir, _ctrl);
 
@@ -706,8 +709,10 @@ public class SliceXMLizerCLI
 		if (LOGGER.isInfoEnabled()) {
 			final MetricsProcessor _processor = new MetricsProcessor();
 			final ProcessingController _pc = new ProcessingController();
+			final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+			_ssr.setStmtGraphFactory(getStmtGraphFactory());
+			_pc.setStmtSequencesRetriever(_ssr);
 			_pc.setEnvironment(new Environment(scene));
-			_pc.setStmtGraphFactory(getStmtGraphFactory());
 			_pc.setProcessingFilter(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
 			_processor.hookup(_pc);
 			_pc.process();
@@ -796,12 +801,14 @@ public class SliceXMLizerCLI
 			} catch (final IOException _e) {
 				final String _msg = "Error retrieved specification from " + sliceScopeSpecFileName;
 				LOGGER.error(_msg, _e);
+
 				final IllegalArgumentException _i = new IllegalArgumentException(_msg);
 				_i.initCause(_e);
 				throw _i;
 			} catch (final JiBXException _e) {
 				final String _msg = "JiBX failed during deserialization.";
 				LOGGER.error(_msg, _e);
+
 				final IllegalStateException _i = new IllegalStateException(_msg);
 				_i.initCause(_e);
 				throw _i;

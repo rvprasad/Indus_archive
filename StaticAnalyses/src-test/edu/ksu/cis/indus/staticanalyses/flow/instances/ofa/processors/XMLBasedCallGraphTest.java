@@ -32,6 +32,8 @@ import edu.ksu.cis.indus.xmlizer.IXMLizer;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * 
+ * @deprecated
  */
 public final class XMLBasedCallGraphTest
   extends AbstractXMLBasedTest {

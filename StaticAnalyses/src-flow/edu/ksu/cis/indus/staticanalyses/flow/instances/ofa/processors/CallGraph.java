@@ -80,6 +80,8 @@ import soot.jimple.VirtualInvokeExpr;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated
  */
 public class CallGraph
   extends AbstractValueAnalyzerBasedProcessor

@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.IProcessor;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -263,7 +264,9 @@ public final class OFAXMLizer
 		final OFAnalyzer _ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
 		final IEnvironment _env = _ofa.getEnvironment();
 		final IProcessingFilter _processingFilter = new TagBasedProcessingFilter((String) info.get(IValueAnalyzer.TAG_ID));
-		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
+		_ctrl.setStmtSequencesRetriever(_ssr);
 		_ctrl.setProcessingFilter(_processingFilter);
 		_ctrl.setEnvironment(_env);
 		_processingFilter.chain(new XMLizingProcessingFilter());

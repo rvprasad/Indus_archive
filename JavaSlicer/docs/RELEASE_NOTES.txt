@@ -33,7 +33,7 @@ Required software:
 
 Version 0.6
 ----------------
-	- Added support for fine grained process control.
+	- Lots of bug fixes.
 
 Version 0.5
 -----------

@@ -28,9 +28,13 @@ import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
@@ -38,8 +42,6 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.impl.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -181,8 +183,14 @@ public class DependencyXMLizerCLI
 				{ "ida1", "Interference dependence v1", new InterferenceDAv1() },
 				{ "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "fdda", "Forward Intraprocedural Divergence dependence", DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION) },
-				{ "bdda", "Backward Intraprocedural Divergence dependence", DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION) },
+				{
+					"fdda", "Forward Intraprocedural Divergence dependence",
+					DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION)
+				},
+				{
+					"bdda", "Backward Intraprocedural Divergence dependence",
+					DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION)
+				},
 				{ "fidda", "Forward Intra+Interprocedural Divergence dependence", _fidda },
 				{ "bidda", "Backward Intra+Interprocedural Divergence dependence", _bidda },
 				{
@@ -323,21 +331,25 @@ public class DependencyXMLizerCLI
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final PairManager _pairManager = new PairManager(false, true);
-		final ICallGraphInfo _cgi = new CallGraph(_pairManager);
+		final CallGraphInfo _cgi = new CallGraphInfo(new PairManager(false, true));
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()), _pairManager);
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
-
+		final OFABasedCallInfoCollector _callGraphInfoCollector = new OFABasedCallInfoCollector();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_ssr.setStmtGraphFactory(getStmtGraphFactory());
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setAnalyzer(aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
-		_pc.setStmtGraphFactory(getStmtGraphFactory());
+
 		_cgipc.setAnalyzer(aa);
 		_cgipc.setProcessingFilter(new CGBasedProcessingFilter(_cgi));
-		_cgipc.setStmtGraphFactory(getStmtGraphFactory());
+		_cgipc.setStmtSequencesRetriever(_ssr);
+
 		_xmlcgipc.setEnvironment(aa.getEnvironment());
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
-		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
+		_xmlcgipc.setStmtSequencesRetriever(_ssr);
 
 		final StaticFieldUseDefInfo _staticFieldUD = new StaticFieldUseDefInfo();
 		final AliasedUseDefInfo _aliasUD;
@@ -373,12 +385,13 @@ public class DependencyXMLizerCLI
 		initialize();
 		aa.analyze(new Environment(getScene()), getRootMethods());
 
-		((CallGraph) _cgi).reset();
+		_callGraphInfoCollector.reset();
 		_processors.clear();
-		_processors.add(_cgi);
+		_processors.add(_callGraphInfoCollector);
 		_pc.reset();
 		_pc.driveProcessors(_processors);
-		writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).toString());
+		_cgi.createCallGraphInfo(_callGraphInfoCollector.getCallInfo());
+		writeInfo("CALL GRAPH:\n" + _cgi.toString());
 
 		_processors.clear();
 		((ThreadGraph) _tgi).reset();

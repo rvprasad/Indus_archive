@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.slicer.transformations;
 
 import edu.ksu.cis.indus.Constants;
+
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -27,6 +28,7 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.OneAllStmtSequenceRetriever;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -745,6 +747,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		environment = env;
 
 		final ProcessingController _pc = new ProcessingController();
+		final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+		_pc.setStmtSequencesRetriever(_ssr);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(theNameOfTagToResidualize));
 		_pc.setEnvironment(env);
 		hookup(_pc);

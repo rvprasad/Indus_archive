@@ -64,23 +64,19 @@ public final class FATest
 	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
 	}
 
-	/**
-	 * Sets the flow analyzer instance to be tested.
-	 *
-	 * @param theFA the flow analyzer instance.
-	 *
-	 * @pre theFA != null
-	 */
-	public void setFA(final FA theFA) {
+    /**
+     * Sets the flow analyzer instance to be tested.
+     *
+     * @param theFA the flow analyzer instance.
+     *
+     * @pre theFA != null
+     */
+    public void setFA(final FA theFA) {
 		fa = theFA;
 	}
 
 	/**
-	 * Sets the tag name used by the flow analyzer.
-	 *
-	 * @param tagName is the name of the tag.
-	 *
-	 * @pre tagName != null
+	 * @see IFATest#setFATagName(String)
 	 */
 	public void setFATagName(final String tagName) {
 		faTagName = tagName;

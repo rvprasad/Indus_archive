@@ -28,6 +28,8 @@ import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * 
+ * @deprecated
  */
 public final class CGBasedXMLizingProcessingFilter
   extends CGBasedProcessingFilter {

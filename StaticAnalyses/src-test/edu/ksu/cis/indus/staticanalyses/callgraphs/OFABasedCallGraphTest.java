@@ -61,12 +61,12 @@ public final class OFABasedCallGraphTest
 		ofa = (OFAnalyzer) valueAnalyzer;
 	}
 
-	/**
+    /**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setFATagName(java.lang.String)
 	 */
 	public void setFATagName(final String tagName) {
 	}
-
+    
 	/**
 	 * Tests <code>isReachable</code>.
 	 */

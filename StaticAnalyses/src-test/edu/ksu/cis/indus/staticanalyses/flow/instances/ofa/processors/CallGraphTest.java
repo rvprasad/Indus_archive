@@ -48,6 +48,8 @@ import soot.SootMethod;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
+ * 
+ * @deprecated
  */
 public final class CallGraphTest
   extends AbstractDirectedGraphTest implements IFATest {

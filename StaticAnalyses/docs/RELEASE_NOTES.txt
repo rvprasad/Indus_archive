@@ -27,7 +27,9 @@ Required software:
 
 Version 0.6
 ----------------
-	- Added support for fine grained process control.
+	- Refactored call graph calculation logic.
+	- Added implementations of Class Hierarchy Analysis based and Rapid Type Analysis based call graph construction. [API BREAKING CHANGE]
+	
 
 Version 0.5
 ------------
