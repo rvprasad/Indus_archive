@@ -426,7 +426,7 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Registers the processor for class and method interface processing only.
+	 * Registers the processor for class, fields, and method interface processing only.
 	 *
 	 * @param processor the instance of post processor.
 	 */
@@ -588,6 +588,11 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/06 05:31:08  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
+
    Revision 1.1  2003/11/06 05:15:05  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
