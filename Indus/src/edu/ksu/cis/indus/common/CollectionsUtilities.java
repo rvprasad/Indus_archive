@@ -117,6 +117,8 @@ public final class CollectionsUtilities {
 	private CollectionsUtilities() {
 	}
 
+	///CLOVER:ON
+
 	/**
 	 * Retrieves an element at the given index in the list.  If the value at the given index is <code>null</code> then the
 	 * null value is replaced by the <code>defaultValue</code> and the same is returned. If the index does not occur in the
@@ -327,8 +329,6 @@ public final class CollectionsUtilities {
 		return _result;
 	}
 
-	///CLOVER:ON
-
 	/**
 	 * Returns a pretty print representation of the given collection.
 	 *
@@ -344,8 +344,10 @@ public final class CollectionsUtilities {
 		_sb.append("-----------------------Collection: " + collection.getClass().getName() + " / " + collection.hashCode()
 			+ " [" + collection.size() + "]");
 
-		final Iterator _i = collection.iterator();
-		final int _iEnd = collection.size();
+		final List _t = new ArrayList(collection);
+		Collections.sort(_t);
+		final Iterator _i = _t.iterator();
+		final int _iEnd = _t.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Object _element = _i.next();
