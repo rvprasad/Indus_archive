@@ -1021,132 +1021,6 @@ public class EquivalenceClassBasedAnalysis
 		ppc.unregister(NewExpr.class, this);
 	}
 
-	/*
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param sf DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	                                                       AliasSet getASForClass(SootClass sc) {
-	                                                           AliasSet result = new AliasSet();
-	                                                           for(util.Iterator i = sc.getFields().iterator(); i.hasNext();) {
-	                                                               SootField sf = (SootField) i.next();
-	                                                               if(Modifier.isStatic(sf.getModifiers())) {
-	                                                                   globalASs.put(sf.getSignature(), new AliasSet());
-	                                                               } else {
-	                                                                   result.putASForField(sf.getSignature(), new AliasSet());
-	                                                               }
-	                                                           }
-	                                                           return result;
-	                                                       }
-	                                                     /*
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param sf DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	                                                        AliasSet getASForType(Type type) {
-	                                                            AliasSet result;
-	                                                            if(type instanceof ArrayType) {
-	                                                                ArrayType at = (ArrayType) type;
-	                                                                AliasSet s = new AliasSet();
-	                                                                result = new AliasSet();
-	                                                                AliasSet st = result;
-	                                                                for(int i = at.numDimensions; i >= 1; i--) {
-	                                                                    s = new AliasSet();
-	                                                                    st.putASForField(ARRAY_FIELD, s);
-	                                                                    st = s;
-	                                                                }
-	                                                            } else if(type instanceof RefType) {
-	                                                                result = getASForClass(scm.getSootClass(((RefType) type).getClassName()));
-	                                                            } else {
-	                                                                result = new AliasSet();
-	                                                            }
-	                                                            return result;
-	                                                        }
-	                                                     /*
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param sf DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	 *
-	                                                      MethodContext getSiteContext(SootMethod sm, AliasSet thisAS, List argASs, AliasSet retAS, AliasSet thrownAS) {
-	                                                         return new MethodContext(sm, thisAS, argASs, retAS, thrownAS);
-	                                                      }
-	
-	                                                     /*
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param sf DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	                                                     String toString(SootField sf) {
-	                                                         String result;
-	                                                         if (AliasSet.canHaveAliasSet(sf.getType())) {
-	                                                             result = ((AliasSet) (FastUnionFindElement) globalASs.get(sf.getSignature())).toString("  ", false);
-	                                                         } else {
-	                                                             result = "  " + sf.getSignature() + " is not a reference type, hence, it cannot escape.";
-	                                                         }
-	                                                         return result;
-	                                                     }
-	                                                     /*
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param sm DOCUMENT ME!
-	 * @param l DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *    String toString(SootMethod sm, Local l) {
-	                                                         Triple triple = (Triple) method2Triple.get(sm);
-	                                                         // This is needed in cases when the system is not closed.
-	                                                         if (triple == null) {
-	                                                             return "";
-	                                                         }
-	                                                         Map localASs = (Map) triple.getSecond();
-	                                                         FastUnionFindElement s = (FastUnionFindElement) localASs.get(l);
-	                                                         if (s != null) {
-	                                                             return ((AliasSet) s).toString("  ", false);
-	                                                         } else {
-	                                                             return l + "  " + "is not a reference type, hence, it cannot escape.";
-	                                                         }
-	                                                     }
-	                                                     /*
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param sm DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 *
-	                                                     String toString(SootMethod sm) {
-	                                                         StringBuffer result = new StringBuffer();
-	                                                         Triple triple = (Triple) method2Triple.get(sm);
-	                                                         if (triple != null) {
-	                                                             MethodContext mc = (MethodContext) triple.getFirst();
-	                                                             result.append(mc.toString(false));
-	                                                         } else {
-	                                                             LOGGER.warn("Method " + sm + " did not have a method context.");
-	                                                         }
-	                                                         return result.toString();
-	                                                     }
-	 */
-
 	/**
 	 * Retrieves the alias set corresponding to the given value.
 	 *
@@ -1192,5 +1066,9 @@ public class EquivalenceClassBasedAnalysis
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/07/27 20:52:39  venku
+First of the many refactoring while building towards slicer release.
+This is the escape analysis refactored and implemented as per to tech report.
+
 
 *****/
