@@ -141,7 +141,7 @@ public abstract class AbstractTool
 	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
 	 * 		  it's run.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when the tool fails.
 	 * @throws IllegalStateException when this method is called on a paused tool or the tool cannot be configuraed according
 	 * 		   to the configuration.
 	 */
@@ -240,6 +240,9 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/02/23 03:04:53  venku
+   - synchronization issues in the tool.
+
    Revision 1.20  2004/02/17 05:43:57  venku
    - we do not want to catch errors but only exceptions. FIXED.
    Revision 1.19  2004/01/27 15:19:21  venku
