@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
@@ -52,20 +53,21 @@ import soot.util.Chain;
 final class ExceptionFlowSensitiveStmtGraph
   extends UnitGraph {
 	/**
-	 * The sequence of units represented in this graph.
-	 */
-	private List nodes;
-
-	/** 
 	 * A cache of the nodes for which predecessors need to be fixed after processing.
 	 */
 	private Collection predsToBeProcessedCache;
 
-	/** 
+	/**
 	 * A cache of the nodes for which successors need to be fixed after processing.
+	 *
 	 * @invariant succsToBeProcessedCache.oclIsKindOf(Collection(Stmt))
 	 */
 	private Collection succsToBeProcessedCache;
+
+	/**
+	 * The sequence of units represented in this graph.
+	 */
+	private List nodes;
 
 	/**
 	 * Creates an instance of this unit graph corresponding to the given body and options.
@@ -161,6 +163,7 @@ final class ExceptionFlowSensitiveStmtGraph
 						final SootClass _thrown = (SootClass) _l.next();
 						_retainflag |= Util.isDescendentOf(_thrown, _exception);
 					}
+					_retainflag |= Util.isDescendentOf(_exception, "java.lang.RuntimeException");
 				}
 
 				if (!_retainflag) {
@@ -216,9 +219,10 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/06/13 07:27:36  venku
+   - ensured all collections stored in unitToXXXX mapping are unmodifiable.
    Revision 1.9  2004/06/12 20:42:21  venku
    - renaming of methods.
-
    Revision 1.8  2004/06/01 06:31:04  venku
    - made ExceptionFlowSensitiveStmtGraph.iterator() return ordered statement list.
    - ProcessingController uses UnitGraph.iterator() to visit the statements of a method.
