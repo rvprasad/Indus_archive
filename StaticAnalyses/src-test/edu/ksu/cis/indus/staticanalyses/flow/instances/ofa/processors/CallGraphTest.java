@@ -28,7 +28,6 @@ import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
 import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.ArrayList;
@@ -365,6 +364,10 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/08 21:31:41  venku
+   - test refactoring to enable same test case to be used as
+     unit test case and regression test case
+
    Revision 1.6  2004/02/08 19:32:09  venku
    - test refactoring for regression testing.
    Revision 1.5  2004/02/08 04:53:10  venku
