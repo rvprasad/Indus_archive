@@ -11,7 +11,7 @@
         <pathelement path="${projects.dir}/StaticAnalyses"/>
         <pathelement path="${projects.dir}/JavaSlicer"/>
     </path>
-
+	
     <target name="init">
         <tstamp/>
     	<delete dir="${projects.dir}"/>
@@ -69,25 +69,25 @@
 
     <target name="cleanAll" depends="init">
         <subant target="clean">
-        	<property file="localbuild.properties"/>
+        	<property file="distbuild.properties"/>
             <buildpath refid="subprojects.buildfiles"/>
         </subant>
     </target>
 
     <target name="buildAllCode" depends="init">
         <subant target="build">
-	    	<property file="localbuild.properties"/>
+	    	<property file="distbuild.properties"/>
             <buildpath refid="subprojects.buildfiles"/>
         </subant>
         <subant target="jar">
-           	<property file="localbuild.properties"/>
+           	<property file="distbuild.properties"/>
             <buildpath refid="subprojects.buildfiles"/>
         </subant>
     </target>
 
     <target name="buildAllDoc" depends="init">
         <subant target="docs" inheritAll="false" inheritRefs="true">
-           	<property file="localbuild.properties"/>            	
+           	<property file="distbuild.properties"/>            	
             <buildpath refid="subprojects.buildfiles"/>
         </subant>
     </target>
