@@ -289,18 +289,16 @@ public final class SlicingEngine {
 
 			if (_da.getId().equals(DependencyAnalysis.READY_DA)) {
 				final Collection _specials = ((ReadyDAv1) _da).getSynchronizedMethodEntryExitPoints(_criteria);
-				((Collection) newCriteria.get(Boolean.FALSE)).addAll(_specials);
+				falseCriteria.addAll(_specials);
 				_criteria.removeAll(_specials);
-				((Collection) newCriteria.get(Boolean.TRUE)).addAll(_criteria);
-			} else {
-				((Collection) newCriteria.get(Boolean.TRUE)).addAll(_criteria);
 			}
+			trueCriteria.addAll(_criteria);
 
 			if (SLICE_CLOSURE_LOGGER.isDebugEnabled()) {
 				final StringBuffer _sb = new StringBuffer();
-				_sb.append("Criteria bases from " + _da.getClass() + " are :\n[");
+				_sb.append("Criteria bases for " + stmt + "@" + method + " from " + _da.getClass() + " are :\n[");
 
-				for (final Iterator _j = _criteria.iterator(); _j.hasNext();) {
+				for (final Iterator _j = getCriteria(_da).iterator(); _j.hasNext();) {
 					_sb.append("\n\t->" + _j.next());
 				}
 				_sb.append("\n]");
@@ -1403,6 +1401,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.69  2004/02/04 02:02:35  venku
+   - coding convention and formatting.
+   - the logic to include the return values in return statement was
+     being determined while generating the criteria. This is bad design. FIXED.
    Revision 1.68  2004/02/01 23:36:59  venku
    - used INewExpr2InitMapper instead of NewExpr2InitMapper
      to improve configrurability.
