@@ -30,12 +30,12 @@ public final class FastUnionFindElementTest
 	/**
 	 * One of the test element.
 	 */
-	FastUnionFindElement f1;
+	private FastUnionFindElement f1;
 
 	/**
 	 * Other test element.
 	 */
-	FastUnionFindElement f2;
+	private FastUnionFindElement f2;
 
 	/**
 	 * Tests <code>find</code> and <code>union</code>.
@@ -177,6 +177,14 @@ public final class FastUnionFindElementTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
+
    Revision 1.4  2004/01/28 00:18:45  venku
    - added unit tests for classes in data structures package.
 

@@ -149,6 +149,7 @@ public class SlicerTestSetup
 		for (final Iterator _iter = driver.slicer.getDAs().iterator(); _iter.hasNext();) {
 			((DependencyAnalysis) _iter.next()).reset();
 		}
+        driver = null;
 	}
 
 	/**
@@ -194,6 +195,9 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/20 06:53:15  venku
+   - documentation.
+
    Revision 1.1  2004/04/18 08:59:00  venku
    - enabled test support for slicer.
  */

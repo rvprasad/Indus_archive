@@ -100,6 +100,7 @@ public abstract class AbstractTokenManagerTest
 	protected void tearDown()
 	  throws Exception {
 		super.tearDown();
+        values.clear();
 		values = null;
 	}
 }
@@ -107,6 +108,9 @@ public abstract class AbstractTokenManagerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/20 06:53:17  venku
+   - documentation.
+
    Revision 1.1  2004/04/18 00:17:58  venku
    - added testcases for token manager logic.
  */

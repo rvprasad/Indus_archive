@@ -52,6 +52,7 @@ public class HistoryAwareLIFOWorkBagTest
 	 */
 	protected void tearDown()
 	  throws Exception {
+        wb.clear();
 		wb = null;
 	}
 }
@@ -59,6 +60,11 @@ public class HistoryAwareLIFOWorkBagTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/05 22:30:45  venku
+   - renamed HistoryAwareAbstractWorkBag to AbstractHistoryAwareWorkBag.
+   - ripple effect on test cases.
+   - Now PoolAwareWorkBag does not assume all work is poolable.
+
    Revision 1.1  2004/03/29 01:55:15  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

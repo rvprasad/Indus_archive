@@ -33,26 +33,26 @@ public class QuadrapleTest
 	/**
 	 * A quadraple.
 	 */
-	private Quadraple triple1;
+	private Quadraple quad1;
 
 	/**
 	 * A quadraple.
 	 */
-	private Quadraple triple2;
+	private Quadraple quad2;
 
 	/**
 	 * Tests <code>clone</code>.
 	 */
 	public final void testClone() {
 		try {
-			final Quadraple _q1 = (Quadraple) triple1.clone();
-			assertTrue(_q1 != triple1);
-			assertTrue(_q1.getFirst() == triple1.getFirst());
-			assertTrue(_q1.getSecond() == triple1.getSecond());
-			assertTrue(_q1.getThird() == triple1.getThird());
-			assertTrue(_q1.getFourth() == triple1.getFourth());
-			assertTrue(_q1.equals(triple1));
-			assertTrue(_q1.hashCode() == triple1.hashCode());
+			final Quadraple _q1 = (Quadraple) quad1.clone();
+			assertTrue(_q1 != quad1);
+			assertTrue(_q1.getFirst() == quad1.getFirst());
+			assertTrue(_q1.getSecond() == quad1.getSecond());
+			assertTrue(_q1.getThird() == quad1.getThird());
+			assertTrue(_q1.getFourth() == quad1.getFourth());
+			assertTrue(_q1.equals(quad1));
+			assertTrue(_q1.hashCode() == quad1.hashCode());
 		} catch (CloneNotSupportedException _e) {
 			fail("This is incorrect");
 		}
@@ -62,28 +62,28 @@ public class QuadrapleTest
 	 * Tests <code>getFirst</code>.
 	 */
 	public final void testGetFirst() {
-		assertTrue(triple1.getFirst().equals("first"));
+		assertTrue(quad1.getFirst().equals("first"));
 	}
 
 	/**
 	 * Tests <code>getFourth</code>.
 	 */
 	public final void testGetFourth() {
-		assertTrue(triple1.getFourth().equals("fourth"));
+		assertTrue(quad1.getFourth().equals("fourth"));
 	}
 
 	/**
 	 * Tests <code>getSecond</code>.
 	 */
 	public final void testGetSecond() {
-		assertTrue(triple1.getSecond().equals("second"));
+		assertTrue(quad1.getSecond().equals("second"));
 	}
 
 	/**
 	 * Tests <code>getThird</code>.
 	 */
 	public final void testGetThird() {
-		assertTrue(triple1.getThird().equals("third"));
+		assertTrue(quad1.getThird().equals("third"));
 	}
 
 	/**
@@ -91,10 +91,10 @@ public class QuadrapleTest
 	 */
 	public final void testHashCodeAndEquals() {
 		final Quadraple _t3 = new Quadraple("first", "second", "third", "fourth");
-		assertTrue(triple1.hashCode() != triple2.hashCode());
-		assertTrue(triple1.hashCode() == _t3.hashCode());
-		assertFalse(triple1.equals(triple2));
-		assertTrue(triple1.equals(_t3));
+		assertTrue(quad1.hashCode() != quad2.hashCode());
+		assertTrue(quad1.hashCode() == _t3.hashCode());
+		assertFalse(quad1.equals(quad2));
+		assertTrue(quad1.equals(_t3));
 
 		final Quadraple _t4 = new Quadraple(null, null, null, null);
 		final Quadraple _t5 = new Quadraple(null, null, null, null);
@@ -168,8 +168,8 @@ public class QuadrapleTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		triple1 = new Quadraple("first", "second", "third", "fourth");
-		triple2 = new Quadraple("fifth", "sixth", "seventh", "eighth");
+		quad1 = new Quadraple("first", "second", "third", "fourth");
+		quad2 = new Quadraple("fifth", "sixth", "seventh", "eighth");
 	}
 
 	/**
@@ -177,14 +177,22 @@ public class QuadrapleTest
 	 */
 	protected void tearDown()
 	  throws Exception {
-		triple1 = null;
-		triple2 = null;
+		quad1 = null;
+		quad2 = null;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 00:28:33  venku
+   - added a new class, IndusTestCase, that extends TestCase
+     to differentiate between the test method name and the
+     test instance name.
+   - all test cases in indus extends IndusTestCase.
+   - added a new method TestHelper to append container's name
+     to the test cases.
+
    Revision 1.2  2004/02/07 16:13:29  venku
    - coding conventions.
 

@@ -259,12 +259,16 @@ public class SimpleNodeGraphTest
 	  throws Exception {
 		dg = null;
 		sng = null;
+        name2node.clear();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/02/08 19:32:13  venku
+   - test refactoring for regression testing.
+
    Revision 1.10  2004/02/08 01:04:12  venku
    - renamed TestSuite classes to NoArgTestSuite classes.
    Revision 1.9  2004/02/05 18:17:29  venku

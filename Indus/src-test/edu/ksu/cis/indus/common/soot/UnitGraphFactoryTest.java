@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.IndusTestCase;
 
+import soot.G;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -80,6 +81,7 @@ public class UnitGraphFactoryTest
 	 */
 	protected void tearDown()
 	  throws Exception {
+        G.reset();
 		scene = null;
 	}
 
@@ -112,6 +114,15 @@ public class UnitGraphFactoryTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.5  2004/03/26 00:24:07  venku
    - ripple effect of refactoring soot package in Indus.
    Revision 1.4  2004/02/17 05:59:15  venku

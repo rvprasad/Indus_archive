@@ -180,6 +180,8 @@ public class DependencyAnalysisTestSetup
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			((DependencyAnalysis) _i.next()).reset();
 		}
+        das.clear();
+        das = null;
 		super.tearDown();
 	}
 
@@ -231,6 +233,9 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/20 06:53:17  venku
+   - documentation.
+
    Revision 1.9  2004/04/19 05:10:26  venku
    - NPE's in test setup caused by unchecked reseting.
    Revision 1.8  2004/04/18 02:05:18  venku
