@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import soot.SootField;
 
+import soot.tagkit.Tag;
+
 
 /**
  * This class manages field variants.  This class only provides the implementation to create new field variants.  The super
@@ -44,7 +46,8 @@ public class FieldVariantManager
 	}
 
 	/**
-	 * Returns a new variant of the field represented by <code>o</code>.
+	 * Returns a new variant of the field represented by <code>o</code>.  This will also mark the field with the flow
+	 * analysis tag.
 	 *
 	 * @param o the field whose variant is to be returned.
 	 *
@@ -53,13 +56,22 @@ public class FieldVariantManager
 	 * @pre o != null and o.oclIsKindOf(SootField)
 	 */
 	protected IVariant getNewVariant(final Object o) {
-		return new FieldVariant((SootField) o, fa.getNewFGNode());
+		final SootField _sf = (SootField) o;
+		final Tag _tag = fa.getTag();
+
+		if (!_sf.hasTag(_tag.getName())) {
+			_sf.addTag(_tag);
+		}
+		return new FieldVariant(_sf, fa.getNewFGNode());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.4  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
