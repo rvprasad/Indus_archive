@@ -77,10 +77,6 @@ public class ReferenceBasedDataDA
 			_result = Collections.EMPTY_LIST;
 		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getDependees(stmt = " + stmt + ", method = " + method + ") - _result = " + _result);
-		}
-
 		return _result;
 	}
 
@@ -108,10 +104,6 @@ public class ReferenceBasedDataDA
 			_result = aliasedUD.getUses((DefinitionStmt) stmt, (SootMethod) method);
 		} else {
 			_result = Collections.EMPTY_LIST;
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getDependents(stmt = " + stmt + ", method = " + method + ") - _result = " + _result);
 		}
 
 		return _result;
@@ -185,6 +177,10 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/07/22 09:42:40  venku
+   - altered IUseDefInfo to use tighter types.
+   - ripple effect.
+
    Revision 1.28  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
