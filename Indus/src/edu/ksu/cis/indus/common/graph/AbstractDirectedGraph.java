@@ -376,6 +376,25 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
+	 * @see Object#toString()
+	 */
+	public String toString() {
+		final StringBuffer _sb = new StringBuffer();
+		final List _nodes = getNodes();
+
+		for (final Iterator _i = _nodes.iterator(); _i.hasNext();) {
+			final INode _node = (INode) _i.next();
+			final int _nodePos = _nodes.indexOf(_node);
+
+			for (final Iterator _j = _node.getSuccsOf().iterator(); _j.hasNext();) {
+				final Object _succ = _j.next();
+				_sb.append(_nodePos).append(" -> ").append(_nodes.indexOf(_succ)).append("\n");
+			}
+		}
+		return _sb.toString();
+	}
+
+	/**
 	 * Changes the state of the graph as it's shape changed.
 	 */
 	protected void shapeChanged() {
@@ -675,6 +694,14 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.14  2004/02/24 22:25:56  venku
    - documentation
    Revision 1.13  2004/02/05 18:17:29  venku
