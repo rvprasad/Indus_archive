@@ -899,7 +899,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
+	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(this);
@@ -985,7 +985,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
+	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(this);
@@ -1237,6 +1237,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/01/21 13:35:26  venku
+   - removed isReadyDependent() variant used for enter and
+     exit monitor based ready dependence.
+   - added a new method, thisEscapes(), to check if the this
+     variable of a method is marked as escaping.
+
    Revision 1.42  2004/01/20 16:46:29  venku
    - use hashset instead of arraylist for notifyMethods and waitMethods.
    Revision 1.41  2004/01/20 16:01:46  venku

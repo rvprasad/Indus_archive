@@ -188,7 +188,7 @@ public class CallGraph
 	 * @pre caller != null
 	 * @post result.oclIsKindOf(Collection(CallTriple))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallees(SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallees(SootMethod)
 	 */
 	public Collection getCallees(final SootMethod caller) {
 		Collection result = Collections.EMPTY_LIST;
@@ -213,7 +213,7 @@ public class CallGraph
 	 * @pre contet.getStmt() != null
 	 * @post result.oclIsKindOf(Collection(SootMethod))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallees(InvokeExpr,Context)
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallees(InvokeExpr,Context)
 	 */
 	public Collection getCallees(final InvokeExpr invokeExpr, final Context context) {
 		Collection result;
@@ -247,7 +247,7 @@ public class CallGraph
 	 * @pre callee != null
 	 * @post result->forall(o | o.oclIsKindOf(CallTriple))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallers(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallers(soot.SootMethod)
 	 */
 	public Collection getCallers(final SootMethod callee) {
 		Collection result = Collections.EMPTY_LIST;
@@ -266,14 +266,14 @@ public class CallGraph
 	 *
 	 * @post result->forall(o | o.oclType = SootMethod)
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getHeads()
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getHeads()
 	 */
 	public Collection getHeads() {
 		return Collections.unmodifiableCollection(heads);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.jimple.Stmt,
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.jimple.Stmt,
 	 * 		soot.SootMethod)
 	 */
 	public Collection getMethodsReachableFrom(final Stmt stmt, final SootMethod root) {
@@ -307,7 +307,7 @@ public class CallGraph
 	 *
 	 * @pre method != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#isReachable(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#isReachable(soot.SootMethod)
 	 */
 	public boolean isReachable(final SootMethod method) {
 		return reachables.contains(method);
@@ -320,14 +320,14 @@ public class CallGraph
 	 *
 	 * @post result->forall(o | o.oclType = SootMethod)
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getReachableMethods()
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getReachableMethods()
 	 */
 	public Collection getReachableMethods() {
 		return Collections.unmodifiableCollection(reachables);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getSCCs(boolean)
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getSCCs(boolean)
 	 */
 	public List getSCCs(final boolean topDown) {
 		if (topDownSCC == null) {
@@ -368,7 +368,7 @@ public class CallGraph
 	 *
 	 * @pre context != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Value,Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(ValueBox,Context)
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
 		Stmt stmt = context.getStmt();
@@ -572,7 +572,7 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
+	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		stable = false;
@@ -598,7 +598,7 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
+	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(VirtualInvokeExpr.class, this);
@@ -671,6 +671,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.50  2004/01/23 20:13:23  venku
+   - removed no-effect code.
+
    Revision 1.49  2004/01/21 02:52:09  venku
    - the argument to getSCCs was used to create topDownSCC
      rather than just using it to select the ordered SCCs.

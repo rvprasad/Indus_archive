@@ -109,7 +109,7 @@ public final class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getDefs(AssignStmt, Context)
+	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getDefs(Stmt, Context)
 	 */
 	public Collection getDefs(final Stmt useStmt, final Context context) {
 		Collection result = null;
@@ -134,7 +134,7 @@ public final class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
+	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
 	 */
 	public Collection getUses(final DefinitionStmt defStmt, final Context context) {
 		Collection result = null;
@@ -320,6 +320,11 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/01/06 00:17:01  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.23  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

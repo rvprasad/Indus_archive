@@ -70,7 +70,7 @@ public class NewExpr2InitMapper
 	private final Map method2map = new HashMap();
 
 	/**
-	 * @see IValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
+	 * @see AbstractValueAnalyzerBasedProcessor#setAnalyzer(IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer analyzer) {
 		ofa = analyzer;
@@ -173,6 +173,10 @@ public class NewExpr2InitMapper
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/01 23:33:43  venku
+   - extracted the interface of NewExpr2InitMapper to make the
+     end analyses configurable.
+
    Revision 1.1  2003/12/13 19:52:45  venku
    - renamed Init2NewExprMapper to NewExpr2InitMapper.
    - ripple effect.

@@ -39,7 +39,7 @@ public class ExitControlDA
 	private static final Log LOGGER = LogFactory.getLog(ExitControlDA.class);
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA#computeControlDependency(DirectedGraph)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA#computeControlDependency(IDirectedGraph)
 	 */
 	protected BitSet[] computeControlDependency(final IDirectedGraph graph) {
 		// TODO: Implement this.
@@ -50,6 +50,10 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/30 23:55:18  venku
+   - added a new analyze method to analyze only the given
+     collection of methods.
+
    Revision 1.6  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

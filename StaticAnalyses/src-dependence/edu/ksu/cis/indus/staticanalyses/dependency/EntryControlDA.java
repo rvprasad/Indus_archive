@@ -229,7 +229,8 @@ public class EntryControlDA
 
 	/**
 	 * Calculates the control dependency from a directed graph.  This calculates the dependence information in terms of nodes
-	 * in the graph.  This is later translated to statement level information by {@link #fixupMaps fixupMaps}.
+	 * in the graph.  This is later translated to statement level information by {@link
+	 * EntryControlDA#fixupMaps(BasicBlockGraph, BitSet[], SootMethod) fixupMaps}.
 	 *
 	 * @param graph for which dependence info needs to be calculated.  Each node in the graph should have an unique index and
 	 * 		  the indices should start from 0.
@@ -447,13 +448,13 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/02/23 08:25:58  venku
+   - logging.
    Revision 1.11  2004/02/06 00:19:12  venku
    - logging.
-
    Revision 1.10  2004/01/30 23:55:18  venku
    - added a new analyze method to analyze only the given
      collection of methods.
-
    Revision 1.9  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

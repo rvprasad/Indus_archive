@@ -169,7 +169,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getAllocationSites()
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getAllocationSites()
 	 */
 	public Collection getAllocationSites() {
 		return Collections.unmodifiableCollection(newThreadExprs);
@@ -187,7 +187,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getExecutedMethods(NewExpr,Context)
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getExecutedMethods(NewExpr,Context)
 	 */
 	public Collection getExecutedMethods(final NewExpr ne, final Context ctxt) {
 		Set _result = (Set) thread2methods.get(new NewExprTriple(ctxt.getCurrentMethod(), ctxt.getStmt(), ne));
@@ -212,7 +212,7 @@ public class ThreadGraph
 	 * 		 and o.getSootMethod() = null))
 	 * @post result.oclIsKindOf(Collection(NewExprTriple))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getExecutionThreads(SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getExecutionThreads(SootMethod)
 	 */
 	public Collection getExecutionThreads(final SootMethod sm) {
 		Set _result = (Set) method2threads.get(sm);
@@ -226,7 +226,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getMultiThreadAllocSites()
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getMultiThreadAllocSites()
 	 */
 	public Collection getMultiThreadAllocSites() {
 		return Collections.unmodifiableCollection(threadAllocSitesMulti);
@@ -240,7 +240,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getStartSites()
+	 * @see edu.ksu.cis.indus.interfaces.IThreadGraphInfo#getStartSites()
 	 */
 	public Collection getStartSites() {
 		return Collections.unmodifiableCollection(startSites);
@@ -582,7 +582,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
+	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		stable = false;
@@ -604,7 +604,7 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
+	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
@@ -681,6 +681,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/01/25 15:12:03  venku
+   - formatting and coding convention.
+
    Revision 1.25  2004/01/21 13:30:40  venku
    - log formatting.
    Revision 1.24  2004/01/21 01:34:56  venku

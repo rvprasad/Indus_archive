@@ -134,7 +134,7 @@ public class ReadyDAv2
 	 * @throws InitializationException when call graph info, pair managing service, or environment is not available in
 	 * 		   <code>info</code> member.
 	 *
-	 * @see AbstractAnalysis#setup()
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
 	protected void setup()
 	  throws InitializationException {
@@ -152,6 +152,9 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/01/25 15:32:41  venku
+   - enabled ready and interference dependences to be OFA aware.
+
    Revision 1.18  2004/01/21 13:44:09  venku
    - made ready dependence to consider synchronized methods as well.
    - ReadyDAv2 uses escape information for both sorts of inter-thread

@@ -85,7 +85,13 @@ public final class StmtLevelDependencyXMLizer
 	private int totalDependences;
 
 	/**
-	 * @see AbstractDependencyXMLizer#AbstractDependencyXMLizer(Writer, IJimpleIDGenerator, DependencyAnalysis)
+	 * Creates a new StmtLevelDependencyXMLizer object.
+	 *
+	 * @param out is the stream into which xml data should be written
+	 * @param generator to be used to generate id's.
+	 * @param depAnalysis is the analysis whose information should be xmlized.
+	 *
+	 * @pre out != null and generator != null and depAnalysis != null
 	 */
 	public StmtLevelDependencyXMLizer(final Writer out, final IJimpleIDGenerator generator,
 		final DependencyAnalysis depAnalysis) {
@@ -241,6 +247,12 @@ public final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 17:40:53  venku
+   - dependence and call graph info serialization is done both ways.
+   - refactored the xmlization framework.
+     - Each information type has a xmlizer (XMLizer)
+     - Each information type has a xmlizer driver (XMLizerCLI)
+     - Tests use the XMLizer.
    Revision 1.2  2004/02/09 06:49:02  venku
    - deleted dependency xmlization and test classes.
    Revision 1.1  2004/02/08 03:05:46  venku

@@ -154,7 +154,7 @@ public final class SynchronizationDA
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
+		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
@@ -162,7 +162,7 @@ public final class SynchronizationDA
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
+		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
@@ -218,7 +218,7 @@ public final class SynchronizationDA
 	 *
 	 * @return a collection of <code>Triples</code>.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo#getMonitorTriples()
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getMonitorTriples()
 	 */
 	public Collection getMonitorTriples() {
 		return Collections.unmodifiableCollection(monitorTriples);
@@ -512,6 +512,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/01/21 13:56:26  venku
+   - tracking sync DA in synchronized methods is unnecessary.
+
    Revision 1.30  2004/01/21 13:52:12  venku
    - documentation.
    Revision 1.29  2004/01/19 08:57:29  venku

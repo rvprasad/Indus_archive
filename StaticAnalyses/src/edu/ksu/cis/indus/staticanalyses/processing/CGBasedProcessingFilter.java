@@ -39,7 +39,7 @@ public class CGBasedProcessingFilter
 	private ICallGraphInfo cgi;
 
 	/**
-	 * Creates a new CGBasedProcessingController object.
+	 * Creates a new CGBasedProcessingFilter object.
 	 *
 	 * @param cgiPrm provides the call graph information to drive the processing.
 	 *
@@ -52,7 +52,7 @@ public class CGBasedProcessingFilter
 	/**
 	 * Filters out methods that unreachable in the call graph provided at construction.
 	 *
-	 * @see ValueAnalyzerBasedProcessingController#filterMethods(Collection)
+	 * @see AbstractProcessingFilter#localFilterMethods(Collection)
 	 */
 	protected final Collection localFilterMethods(final Collection methods) {
 		return CollectionUtils.intersection(methods, cgi.getReachableMethods());
@@ -62,6 +62,12 @@ public class CGBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/11 09:37:18  venku
+   - large refactoring of code based  on testing :-)
+   - processing filters can now be chained.
+   - ofa xmlizer was implemented.
+   - xml-based ofa tester was implemented.
+
    Revision 1.3  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
