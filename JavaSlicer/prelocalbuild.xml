@@ -2,8 +2,11 @@
     <property file="antbuild.properties"/>
     <property name="package" value="edu.ksu.cis.indus"/>
     <property name="ant.project.name" value="indus.javaslicer"/>
-    <property name="custombuild.exists" value="true"/>
-    
+
+    <condition property="custombuild.exists">
+        <equals arg1="${ant.project.name}" arg2="indus.javaslicer"/>
+    </condition>
+
     <path id="indus.javaslicer.srcpath">
     	<pathelement location="../JavaSlicer/src"/>
     	<pathelement location="../JavaSlicer/src-xml"/>

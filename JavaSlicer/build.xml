@@ -112,10 +112,10 @@
 </target>
 
 <target name="clean" depends="init">
-    <delete includeEmptyDirs="true">
+    <delete includeEmptyDirs="true" quiet="true">
 	    <fileset dir="${build}" includes="**/*.class"/>
     </delete>
-    <delete dir="${docs}"/>
+    <delete dir="${docs}" quiet="true"/>
 </target>
 
 </project>
@@ -124,6 +124,11 @@
 ChangeLog:
 
 $Log$
+Revision 1.18  2004/01/03 21:33:23  venku
+- prelocalbuild.xml can declare "custombuild" target
+  which will be executed in build.xml if a property "custombuild.exists"
+  is set.
+
 Revision 1.17  2003/12/09 11:55:40  venku
 - deleted postlocalbuild.xml as it was not required.
 - spruced up build.xml and prelocalbuild.xml.

@@ -13,7 +13,6 @@
 
 <target name="build" depends="init">
     <mkdir dir="${build}"/>
-    <echo message="${ant.project.name}.classpath"/>
     <javac destdir="${build}" includes="**/*java">
         <src refid="${ant.project.name}.srcpath"/>
         <classpath refid="${ant.project.name}.classpath"/>
@@ -113,10 +112,10 @@
 </target>
 
 <target name="clean" depends="init">
-    <delete includeEmptyDirs="true">
+    <delete includeEmptyDirs="true" quiet="true">
 	    <fileset dir="${build}" includes="**/*.class"/>
     </delete>
-    <delete dir="${docs}"/>
+    <delete dir="${docs}" quiet="true"/>
 </target>
 
 </project>
@@ -125,6 +124,11 @@
 ChangeLog:
 
 $Log$
+Revision 1.22  2004/01/03 21:33:20  venku
+- prelocalbuild.xml can declare "custombuild" target
+  which will be executed in build.xml if a property "custombuild.exists"
+  is set.
+
 Revision 1.21  2003/12/09 11:55:48  venku
 - deleted postlocalbuild.xml as it was not required.
 - spruced up build.xml and prelocalbuild.xml.

@@ -1,10 +1,10 @@
 <project>
-    <import file="../StaticAnalyses/prelocalbuild.xml"/>
-    <import file="../JavaSlicer/prelocalbuild.xml"/>
-
     <property file="antbuild.properties"/>        
     <property name="package" value="edu.ksu.cis.indus"/>
     <property name="ant.project.name" value="indus"/>
+
+    <import file="../StaticAnalyses/prelocalbuild.xml"/>
+    <import file="../JavaSlicer/prelocalbuild.xml"/>
 
     <path id="indus.srcpath">
         <pathelement location="src"/>
