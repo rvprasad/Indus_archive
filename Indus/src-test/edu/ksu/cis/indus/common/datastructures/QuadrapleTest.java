@@ -110,7 +110,8 @@ public class QuadrapleTest
 		final Collection _second = new ArrayList();
 		_second.add("first");
 
-		final Quadraple _t1 = new Quadraple("first", _second, "third", "fourth", true);
+		final Quadraple _t1 = new Quadraple("first", _second, "third", "fourth");
+		_t1.optimize();
 
 		final int _hash1 = _t1.hashCode();
 		_second.add("second");
@@ -129,7 +130,8 @@ public class QuadrapleTest
 		final StringBuffer _second = new StringBuffer();
 		_second.append("first");
 
-		final Quadraple _t1 = new Quadraple("first", _second, "third", "fourth", true);
+		final Quadraple _t1 = new Quadraple("first", _second, "third", "fourth");
+		_t1.optimize();
 		final int _hash1 = _t1.hashCode();
 		_second.append("second");
 
@@ -147,7 +149,7 @@ public class QuadrapleTest
 		final StringBuffer _second = new StringBuffer();
 		_second.append(true);
 
-		final Quadraple _t1 = new Quadraple("first", _second, "third", "fourth", false);
+		final Quadraple _t1 = new Quadraple("first", _second, "third", "fourth");
 		_t1.optimize();
 
 		final String _str1 = _t1.toString();
@@ -185,6 +187,9 @@ public class QuadrapleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/04/21 02:24:04  venku
+   - test clean up code was added.
+
    Revision 1.3  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the
