@@ -248,7 +248,7 @@ public final class SlicerConfigurator
 			_typedIDA.setSelection(true);
 		}
 
-		final Boolean _bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE4_IN_READYDA);
+		final Boolean _bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_INTERFERENCE_DA);
 		_useOFAForInterference.setSelection(_bool.booleanValue());
 	}
 
@@ -497,6 +497,9 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/07/27 11:07:22  venku
+   - updated project to use safe lock analysis.
+
    Revision 1.26  2004/07/21 05:07:25  venku
    - button to toggle usage of OFA for ReadyDA was not being disabled when
      ready da was disabled.
