@@ -252,6 +252,7 @@ public class FA
 		IVariant _temp = null;
 		processClass(sf.getDeclaringClass());
 		processType(sf.getType());
+		sf.addTag(getTag());
 
 		if (Modifier.isStatic(sf.getModifiers())) {
 			_temp = staticFieldVariantManager.select(sf, context);
