@@ -21,8 +21,14 @@
  */
 package edu.ksu.cis.indus.toolkits.sliceeclipse.popup.actions;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.IndusConfigurationDialog;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.execute.IndusRunner;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.presentation.AddIndusAnnotation;
+
+
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +44,6 @@ import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -48,11 +53,6 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 
-import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.ExceptionDialog;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.IndusConfigurationDialog;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.execute.IndusRunner;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.presentation.AddIndusAnnotation;
 
 
 
@@ -104,24 +104,10 @@ public class RunIndus
 						_shell);
 				_dialog.run(true, false, _runner);
 			} catch (InvocationTargetException _ie) {
-				final StringWriter _sw = new StringWriter();
-				final PrintWriter _pw = new PrintWriter(_sw);
-				_ie.printStackTrace(_pw);
-				// _ie.printStackTrace();
-				final ExceptionDialog _ed = new ExceptionDialog(Display
-						.getDefault().getActiveShell(), _sw.getBuffer()
-						.toString());
-				_ed.open();
+				SECommons.handleException(_ie);
 
 			} catch (InterruptedException _ie) {
-				final StringWriter _sw = new StringWriter();
-				final PrintWriter _pw = new PrintWriter(_sw);
-				_ie.printStackTrace(_pw);
-				//_ie.printStackTrace();
-				final ExceptionDialog _ed = new ExceptionDialog(Display
-						.getDefault().getActiveShell(), _sw.getBuffer()
-						.toString());
-				_ed.open();
+				SECommons.handleException(_ie);
 			}
 		}
 	}
@@ -144,9 +130,7 @@ public class RunIndus
 					_resource = _cunit.getCorrespondingResource();
 				} catch (JavaModelException _e) {
 					_resource = null;
-					MessageDialog.openError(null, null,
-							"Couldn't get resource from selection");
-					_e.printStackTrace();
+					SECommons.handleException(_e);
 				}
 
 			} else if (_structuredSelection.getFirstElement() instanceof IFile) {
@@ -188,11 +172,10 @@ public class RunIndus
 						.getIndusConfiguration().getLineNumbers());
 			}
 		} catch (JavaModelException _e) {
-			_e.printStackTrace();
-			MessageDialog.openInformation(null, null, "Unable to open editor");			
+			SECommons.handleException(_e);			
 		} catch (PartInitException _pe) {
 			_pe.printStackTrace();
-			MessageDialog.openInformation(null, null, "Unable to open editor");			
+			SECommons.handleException(_pe);			
 		}
 	}
 

@@ -22,12 +22,10 @@ package edu.ksu.cis.indus.toolkits.sliceeclipse.popup.actions;
 
 
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.ExceptionDialog;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.IndusConfigurationDialog;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.execute.IndusRunner;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,22 +96,9 @@ public class RunIndusProject implements IObjectActionDelegate {
 						_shell);
 				_dialog.run(true, false, _runner);
 			} catch (InvocationTargetException _ie) {
-				final StringWriter _sw = new StringWriter();
-				final PrintWriter _pw = new PrintWriter(_sw);
-				_ie.printStackTrace(_pw);
-				// _ie.printStackTrace();
-				final ExceptionDialog _ed = new ExceptionDialog(Display
-						.getDefault().getActiveShell(), _sw.getBuffer()
-						.toString());
-				_ed.open();
+				SECommons.handleException(_ie);
 			} catch (InterruptedException _ie) {
-				final StringWriter _sw = new StringWriter();
-				final PrintWriter _pw = new PrintWriter(_sw);
-				_ie.printStackTrace(_pw);
-				// _ie.printStackTrace();
-				final ExceptionDialog _ed = new ExceptionDialog(Display.getDefault()
-						.getActiveShell(), _sw.getBuffer().toString());
-				_ed.open();
+				SECommons.handleException(_ie);
 			}
 		}
 	}
@@ -173,7 +158,7 @@ public class RunIndusProject implements IObjectActionDelegate {
 				}
 			}
 		} catch (JavaModelException _jme) {
-			_jme.printStackTrace();
+			SECommons.handleException(_jme);
 			_javaFileList = null;
 		}
 		return _javaFileList;

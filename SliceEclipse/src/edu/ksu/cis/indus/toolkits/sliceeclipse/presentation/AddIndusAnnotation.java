@@ -20,6 +20,9 @@
  */
 package edu.ksu.cis.indus.toolkits.sliceeclipse.presentation;
 
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
+
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -37,6 +40,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.ui.IFileEditorInput;
+
 
 
 /**
@@ -147,32 +151,7 @@ public class AddIndusAnnotation {
 		return _found;
 	}
 
-	/**
-	 * <p>
-	 * Returns the information about the slice element in the region if present
-	 * </p>
-	 * .
-	 * Not yet completed because I still have to find an efficient way of doing this matching.
-	 * @param region The region about which the information is needed
-	 *
-	 * @return String Information about the region
-	 */
-	public String getRegionInfo(final IRegion region) {
-//		String _info = null;
-//
-//		if (locationMap != null) {
-//			for (int _nCtr = 0; _nCtr < locationMap.size(); _nCtr++) {
-//				final Position _node = (Position) locationMap.get(_nCtr);
-//
-//				if (region.getOffset() >= _node.getOffset() && region.getLength() <= _node.getLength()) {
-//					_info = "IndusSliceElement";
-//					break;
-//				}
-//			}
-//		}
-//		return _info;
-		return null;
-	}
+	
 
 	/**
 	 * Adds annotations to the given lines.
@@ -224,7 +203,7 @@ public class AddIndusAnnotation {
 						_lst.add(_pos);
 					}
 				} catch (BadLocationException _e) {
-					System.out.println("Bad location exception");
+					SECommons.handleException(_e);
 					continue;
 				}
 			}
@@ -267,7 +246,7 @@ public class AddIndusAnnotation {
 					}
 				}
 			} catch (JavaModelException _e) {				
-				_e.printStackTrace();
+				SECommons.handleException(_e);
 			}
 		}
 		return _lst;

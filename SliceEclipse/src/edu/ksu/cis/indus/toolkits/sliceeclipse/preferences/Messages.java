@@ -32,7 +32,10 @@ import java.util.ResourceBundle;
 	 * </p>
 	 */
 	private static final String BUNDLE_NAME = "edu.ksu.cis.indus.toolkits.sliceeclipse.preferences.messages"; //$NON-NLS-1$
-
+	
+	/**
+	 * The Resource Bundle instance.
+	 */
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle(BUNDLE_NAME);
 

@@ -19,6 +19,7 @@
 package edu.ksu.cis.indus.toolkits.sliceeclipse.decorator;
 
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
 
 import java.util.HashMap;
 import java.util.List;
@@ -126,7 +127,7 @@ public class IndusDecorator
 				}
 			}
 		} catch (JavaModelException _jme) {
-			_isFileOk = false;
+			SECommons.handleException(_jme);
 		}
 		return _isFileOk;
 	}
@@ -165,7 +166,7 @@ public class IndusDecorator
 	/**
 	 * Fires the label provider change event causing the decoration.
 	 *
-	 * @param event DOCUMENT ME!
+	 * @param event The label provider changed event
 	 */
 	private void fireLabelEvent(final LabelProviderChangedEvent event) {
 		Display.getDefault().syncExec(new Runnable() {

@@ -15,13 +15,14 @@
 
 package edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs;
 
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * This dialog is responsible for the configuration editing.

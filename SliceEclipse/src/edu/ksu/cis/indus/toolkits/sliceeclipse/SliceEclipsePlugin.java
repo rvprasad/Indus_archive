@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.toolkits.sliceeclipse;
 
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,6 +28,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
 
 
 /**
@@ -153,7 +156,7 @@ public class SliceEclipsePlugin
 				_userConfiguration.append(_configReader.readLine());
 			}
 		} catch (IOException _ioe) {	
-			_ioe.printStackTrace();
+			SECommons.handleException(_ioe);
 		}
 		_store.setDefault("backwardConfiguration", _userConfiguration.toString());
 		
@@ -168,7 +171,7 @@ public class SliceEclipsePlugin
 				_userConfiguration.append(_configReader.readLine());
 			}
 		} catch (IOException _ioe) {	
-			_ioe.printStackTrace();
+			SECommons.handleException(_ioe);
 		}
 		_store.setDefault("forwardConfiguration", _userConfiguration.toString());
 		

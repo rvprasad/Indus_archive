@@ -18,9 +18,11 @@
  */
 package edu.ksu.cis.indus.toolkits.eclipse;
 
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
+
+
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,7 +33,6 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
-import org.eclipse.swt.widgets.Display;
 
 import soot.Body;
 import soot.Scene;
@@ -43,8 +44,7 @@ import soot.options.Options;
 import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLnPosTag;
 import soot.util.Chain;
-import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.ExceptionDialog;
+
 
 /**
  * 
@@ -67,7 +67,7 @@ public final class SootConvertor {
 	}
 
 	/**
-	 * Returns the set of jimple stmt corressponding to the given java line.
+	 * Returns the set of jimple stmt corresponding to the given java line.
 	 * @param thefile The Java file
 	 * @param theclass The JDT class
 	 * @param themethod The JDT method
@@ -116,13 +116,9 @@ public final class SootConvertor {
 				_sootclass = _scene.loadClassAndSupport(theclass
 						.getFullyQualifiedName());
 			} catch (RuntimeException _rme) {
-				final StringWriter _sw = new StringWriter();
-				final PrintWriter _pw = new PrintWriter(_sw);
-				_rme.printStackTrace(_pw);
-				final ExceptionDialog _ed = new ExceptionDialog(Display
-						.getDefault().getActiveShell(), _sw.getBuffer()
-						.toString());
-				_ed.open();
+				// Unavoidable to catch this. Soot throws 
+				// this sometimes.
+				SECommons.handleException(_rme);
 			}
 			if (_sootclass != null) {
 				_stmtlist = getStmtLine(_sootclass, themethod, theline);

@@ -16,17 +16,15 @@
 /*
  * Created on Apr 14, 2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ *
  */
 package edu.ksu.cis.indus.toolkits.sliceeclipse.execute;
 
 import edu.ksu.cis.indus.toolkits.eclipse.SootConvertor;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.ExceptionDialog;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -62,10 +60,9 @@ import org.eclipse.ui.IFileEditorInput;
 
 
 /**
- * DOCUMENT ME!
+ * Runs a forward slice on the chosen Java statement.
  *
- * @author Ganeshan TODO To change the template for this generated type comment go to Window - Preferences - Java - Code
- * 		   Generation - Code and Comments
+ * @author Ganeshan 
  */
 public class ForwardSlice
   implements IEditorActionDelegate {
@@ -133,18 +130,19 @@ public class ForwardSlice
 
 					// Format: Classname: qualified signature, method: signature, line no
 					final int _noStmts = _stmtlist.size() - 2;
-					_storeLst.add(PrettySignature.getSignature(_type));
-					_storeLst.add(PrettySignature.getSignature(_element));
-					_storeLst.add(new Integer(_nSelLine));
-					_storeLst.add(new Integer(_noStmts - 1));
-					_storeLst.add(new Boolean(true));
+					final Criteria _c = new Criteria();
+					_c.setStrClassName(PrettySignature.getSignature(_type));
+					_c.setStrMethodName(PrettySignature.getSignature(_element));
+					_c.setNLineNo(_nSelLine);
+					_c.setNJimpleIndex(_noStmts - 1);
+					_c.setBConsiderValue(true);
 					
 					final String _configuration =
 						SliceEclipsePlugin.getDefault().getPreferenceStore().getString("forwardConfiguration");
 					SliceEclipsePlugin.getDefault().getIndusConfiguration().reset();
 					SliceEclipsePlugin.getDefault().getIndusConfiguration().getCriteria().clear();
 					SliceEclipsePlugin.getDefault().getIndusConfiguration().setCurrentConfiguration(_configuration);
-					SliceEclipsePlugin.getDefault().getIndusConfiguration().setCriteria(_storeLst);
+					SliceEclipsePlugin.getDefault().getIndusConfiguration().setCriteria(_c);
 
 					final List _lst = new LinkedList();
 					_lst.add(_file);
@@ -162,28 +160,13 @@ public class ForwardSlice
 						final ProgressMonitorDialog _dialog = new ProgressMonitorDialog(_shell);
 						_dialog.run(true, false, _runner);
 					} catch (InvocationTargetException _ie) {
-						final StringWriter _sw = new StringWriter();
-						final PrintWriter _pw = new PrintWriter(_sw);
-						_ie.printStackTrace(_pw);
-
-						// _ie.printStackTrace();
-						final ExceptionDialog _ed =
-							new ExceptionDialog(Display.getDefault().getActiveShell(), _sw.getBuffer().toString());
-						_ed.open();
+						SECommons.handleException(_ie);
 					} catch (InterruptedException _ie) {
-						final StringWriter _sw = new StringWriter();
-						final PrintWriter _pw = new PrintWriter(_sw);
-						_ie.printStackTrace(_pw);
-
-						// _ie.printStackTrace();
-						final ExceptionDialog _ed =
-							new ExceptionDialog(Display.getDefault().getActiveShell(), _sw.getBuffer().toString());
-						_ed.open();
-					}
+						SECommons.handleException(_ie);					}
 				}
 			}
 		} catch (JavaModelException _jme) {
-			_jme.printStackTrace();
+			SECommons.handleException(_jme);
 		}
 	}
 }

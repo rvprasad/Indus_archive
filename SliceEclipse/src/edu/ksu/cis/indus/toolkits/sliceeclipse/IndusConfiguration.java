@@ -20,6 +20,10 @@
  */
 package edu.ksu.cis.indus.toolkits.sliceeclipse;
 
+import edu.ksu.cis.indus.toolkits.eclipse.EclipseIndusDriver;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.presentation.AddIndusAnnotation;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -29,8 +33,7 @@ import java.util.List;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import edu.ksu.cis.indus.toolkits.eclipse.EclipseIndusDriver;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.presentation.AddIndusAnnotation;
+
 
 
 /**
@@ -295,7 +298,7 @@ public class IndusConfiguration {
 	 * CriteriaList.thirdElement.kindOf(int: linenumber)
 	 * CriteriaList.fourthElement.kindOf(int: jimple index)
 	 */
-	public void setCriteria(final ArrayList criterialist) {
+	public void setCriteria(final Criteria criterialist) {
 		this.criteria.add(criterialist);
 	}
 }

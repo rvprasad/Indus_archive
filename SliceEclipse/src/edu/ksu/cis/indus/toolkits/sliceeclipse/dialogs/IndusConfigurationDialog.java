@@ -27,6 +27,7 @@ import com.thoughtworks.xstream.XStream;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.CriteriaData;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.SliceConfigurationHolder;
@@ -230,10 +231,10 @@ public class IndusConfigurationDialog
 							_resource.setPersistentProperty(_name, _xml);
 						}
 					} catch (CoreException _e) {
-						_e.printStackTrace();
+						SECommons.handleException(_e);
 					}
 				} catch (JavaModelException _e1) {
-					_e1.printStackTrace();
+					SECommons.handleException(_e1);
 				}
 			}
 		});
@@ -292,28 +293,22 @@ public class IndusConfigurationDialog
 					final ArrayList _lst = _data.getCriterias();
 					for (int _i = 0; _i < _lst.size(); _i++) {
 						final Criteria _c = (Criteria) _lst.get(_i);
-						final ArrayList _list = _c.getCriteria();
-						// Indexes into the arraylist
 						
-						final int _methodname = 1;
-						final int _lineno = 2;
-						final int _index = 3;
-						final int _value = 4;
-						final String _disp = _list.get(_methodname).toString()
+						final String _disp = _c.getStrMethodName()
 								+ ":" + "java line:"
-								+ _list.get(_lineno).toString()
+								+ _c.getNLineNo()
 								+ ":jimple index:"
-								+ _list.get(_index).toString()
-								+ ":Consider value: " + _list.get(_value);
+								+ _c.getNJimpleIndex()
+								+ ":Consider value: " + _c.isBConsiderValue();
 						criteriasList.add(_disp);
 					}
 				}
 			} catch (CoreException _e) {
-					_e.printStackTrace();
+					SECommons.handleException(_e);
 				}
 
 			} catch (JavaModelException _e1) {
-				_e1.printStackTrace();
+				SECommons.handleException(_e1);
 			}
 				}
 		/**
@@ -410,18 +405,18 @@ public class IndusConfigurationDialog
 								&& _currentsels[_i] < _lst.size(); _i++) {
 							final int _index = _currentsels[_i];
 							final Criteria _c = (Criteria) _lst.get(_index);
-							final ArrayList _clist = _c.getCriteria();
+							
 							SliceEclipsePlugin.getDefault()
 									.getIndusConfiguration()
-									.setCriteria(_clist);
+									.setCriteria(_c);
 						}
 					}
 				} catch (CoreException _e) {
-					_e.printStackTrace();
+					SECommons.handleException(_e);
 				}
 
 			} catch (JavaModelException _e1) {
-				_e1.printStackTrace();
+				SECommons.handleException(_e1);
 			}
 		}
 

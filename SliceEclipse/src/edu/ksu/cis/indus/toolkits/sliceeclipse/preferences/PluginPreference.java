@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.ConfigurationDialog;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.ViewDialog;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.SliceConfigurationHolder;
@@ -721,7 +722,7 @@ public class PluginPreference extends PreferencePage implements
 								_fw.write(_val);
 								_fw.close();
 							} catch (IOException _e1) {
-								_e1.printStackTrace();
+								SECommons.handleException(_e1);
 								return;
 							}
 						}

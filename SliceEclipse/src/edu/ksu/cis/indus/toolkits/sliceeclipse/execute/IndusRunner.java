@@ -11,6 +11,7 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
+
 /*
  * Created on Apr 5, 2004
  *
@@ -19,8 +20,16 @@
  */
 package edu.ksu.cis.indus.toolkits.sliceeclipse.execute;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
+import edu.ksu.cis.indus.toolkits.eclipse.EclipseIndusDriver;
+import edu.ksu.cis.indus.toolkits.eclipse.SootConvertor;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.IndusException;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.decorator.IndusDecorator;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.presentation.AddIndusAnnotation;
+
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -42,7 +51,6 @@ import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -50,13 +58,6 @@ import org.eclipse.ui.PlatformUI;
 
 import soot.SootMethod;
 import soot.jimple.Stmt;
-import edu.ksu.cis.indus.slicer.ISliceCriterion;
-import edu.ksu.cis.indus.toolkits.eclipse.EclipseIndusDriver;
-import edu.ksu.cis.indus.toolkits.eclipse.SootConvertor;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.decorator.IndusDecorator;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.ExceptionDialog;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.presentation.AddIndusAnnotation;
 
 /**
  * This does the bulk of the call to the eclipse indus driver.
@@ -80,7 +81,7 @@ public class IndusRunner implements IRunnableWithProgress {
 
 	/** Java Editor. */
 	CompilationUnitEditor editor;
-	
+
 	/**
 	 * The output location.
 	 */
@@ -140,8 +141,8 @@ public class IndusRunner implements IRunnableWithProgress {
 		//final Collection _coll = driver.getSlicer().getCriteria();
 		//final Iterator _it = _coll.iterator();
 		//while (_it.hasNext()) {
-		 //System.out.println(_it.next());
-		 //}
+		//System.out.println(_it.next());
+		//}
 		//dumpJimple();
 
 	}
@@ -156,7 +157,7 @@ public class IndusRunner implements IRunnableWithProgress {
 			final ISliceCriterion _crt = (ISliceCriterion) _it.next();
 			_crt.returnToPool();
 		}
-		
+
 	}
 
 	/**
@@ -177,7 +178,11 @@ public class IndusRunner implements IRunnableWithProgress {
 		final IFile _file = (IFile) fileList.get(0);
 		final String _op = _file.getLocation().removeLastSegments(1)
 				.toOSString();
-		driver.dumpJimple(_op);
+		try {
+			driver.dumpJimple(_op);
+		} catch (IndusException _ie) {
+			SECommons.handleException(_ie);
+		}
 
 	}
 
@@ -191,78 +196,74 @@ public class IndusRunner implements IRunnableWithProgress {
 		final String _configString = SliceEclipsePlugin.getDefault()
 				.getIndusConfiguration().getCurrentConfiguration();
 		boolean _indusRun = true;
-		if (_configString == null || _configString.equals("")) { //$NON-NLS-1$
-			final URL _url = SliceEclipsePlugin.getDefault().getBundle()
-					.getEntry(Messages.getString("IndusRunner.3")); //$NON-NLS-1$
-			driver.setConfiguration(_url);
-		} else {
-			driver.setConfiguration(_configString);
-		}
-		String _sootClassPath = ""; //$NON-NLS-1$
-		IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
-				.getString("IndusRunner.5")); //$NON-NLS-1$
-		_jreclasspath = JavaCore.getClasspathVariable(Messages
-				.getString("IndusRunner.6")); //$NON-NLS-1$		
-		final String _pathseparator = System.getProperty(Messages
-				.getString("IndusRunner.7")); //$NON-NLS-1$
-		final String _fileseparator = System.getProperty(Messages
-				.getString("IndusRunner.8")); //$NON-NLS-1$
-		if (_jreclasspath != null) {
-			_sootClassPath = _jreclasspath.toOSString();
-			_sootClassPath += _pathseparator;
-
-			if (fileList.size() > 0) {
-				final IFile _file = (IFile) fileList.get(0);
-				final IPath _path = _file.getProject().getLocation();
-				_sootClassPath += _path.toOSString();
-				_sootClassPath += _fileseparator + _pathseparator;
+		try {
+			if (_configString == null || _configString.equals("")) { //$NON-NLS-1$
+				final URL _url = SliceEclipsePlugin.getDefault().getBundle()
+						.getEntry(Messages.getString("IndusRunner.3"));
+				driver.setConfiguration(_url);
+			} else {
+				driver.setConfiguration(_configString);
 			}
+			String _sootClassPath = ""; //$NON-NLS-1$
+			IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
+					.getString("IndusRunner.5")); //$NON-NLS-1$
+			_jreclasspath = JavaCore.getClasspathVariable(Messages
+					.getString("IndusRunner.6")); //$NON-NLS-1$		
+			final String _pathseparator = System.getProperty(Messages
+					.getString("IndusRunner.7")); //$NON-NLS-1$
+			final String _fileseparator = System.getProperty(Messages
+					.getString("IndusRunner.8")); //$NON-NLS-1$
+			if (_jreclasspath != null) {
+				_sootClassPath = _jreclasspath.toOSString();
+				_sootClassPath += _pathseparator;
 
-			driver.addToPath(_sootClassPath);
-			final List _classNamesList = new LinkedList();
+				if (fileList.size() > 0) {
+					final IFile _file = (IFile) fileList.get(0);
+					final IPath _path = _file.getProject().getLocation();
+					_sootClassPath += _path.toOSString();
+					_sootClassPath += _fileseparator + _pathseparator;
+				}
 
-			for (int _i = 0; _i < fileList.size(); _i++) {
-				final IFile _file = (IFile) fileList.get(_i);
-				final ICompilationUnit _icunit = (ICompilationUnit) JavaCore
-						.create(_file);
-				if (_icunit != null) {
-					IType[] _types = null;
-					try {
+				driver.addToPath(_sootClassPath);
+				final List _classNamesList = new LinkedList();
+
+				for (int _i = 0; _i < fileList.size(); _i++) {
+					final IFile _file = (IFile) fileList.get(_i);
+					final ICompilationUnit _icunit = (ICompilationUnit) JavaCore
+							.create(_file);
+					if (_icunit != null) {
+						IType[] _types = null;
+
 						_types = _icunit.getAllTypes();
-					} catch (JavaModelException _e) {
-						MessageDialog.openError(null, Messages
-								.getString("IndusRunner.9"), //$NON-NLS-1$
-								Messages.getString("IndusRunner.10")); //$NON-NLS-1$
-						_e.printStackTrace();
-					}
 
-					for (int _nrun = 0; _nrun < _types.length; _nrun++) {
-						final String _elemName = _types[_nrun]
-								.getFullyQualifiedName();
-						_classNamesList.add(_elemName);
+						for (int _nrun = 0; _nrun < _types.length; _nrun++) {
+							final String _elemName = _types[_nrun]
+									.getFullyQualifiedName();
+							_classNamesList.add(_elemName);
+						}
 					}
 				}
-			}
 
-			driver.setClassNames(_classNamesList);
-			setupCriteria();
-			try {
+				driver.setClassNames(_classNamesList);
 				driver.initializeSlicer();
-			} catch (RuntimeException _rme) {
-				final StringWriter _sw = new StringWriter();
-				final PrintWriter _pw = new PrintWriter(_sw);
-				_rme.printStackTrace(_pw);
+				setupCriteria();
+			} else {
+				_indusRun = false;
+				MessageDialog.openError(null, Messages
+						.getString("IndusRunner.9"), Messages
+						.getString("IndusRunner.12")); //$NON-NLS-1$ //$NON-NLS-2$
 
-				final ExceptionDialog _ed = new ExceptionDialog(Display
-						.getDefault().getActiveShell(), _sw.getBuffer()
-						.toString());
-				_ed.open();
 			}
-		} else {
-			_indusRun = false;
-			MessageDialog.openError(null, Messages.getString("IndusRunner.9"),
-					Messages.getString("IndusRunner.12")); //$NON-NLS-1$ //$NON-NLS-2$
 
+		} catch (IndusException _ie) {
+			SECommons.handleException(_ie);
+			_indusRun = false;
+		} catch (JavaModelException _jme) {
+			SECommons.handleException(_jme);
+			_indusRun = false;
+		} catch (RuntimeException _rme) {
+			SECommons.handleException(_rme);
+			_indusRun = false;
 		}
 		return _indusRun;
 	}
@@ -300,7 +301,7 @@ public class IndusRunner implements IRunnableWithProgress {
 	/**
 	 * Sets up the criteria properly. 
 	 */
-	private void setupCriteria() {		
+	private void setupCriteria() {
 		final ArrayList _crArray = fetchCriteria();
 		if (_crArray != null) {
 			for (int _i = 0; _i < fileList.size(); _i++) {
@@ -318,10 +319,7 @@ public class IndusRunner implements IRunnableWithProgress {
 							}
 						}
 					} catch (JavaModelException _e) {
-						MessageDialog.openError(null, Messages
-								.getString("IndusRunner.9"), //$NON-NLS-1$
-								Messages.getString("IndusRunner.14")); //$NON-NLS-1$
-						_e.printStackTrace();
+						SECommons.handleException(_e);
 					}
 
 				}
@@ -338,19 +336,18 @@ public class IndusRunner implements IRunnableWithProgress {
 	private void matchAndSet(final IFile file, final IType type,
 			final ArrayList array) {
 		for (int _i = 0; _i < array.size(); _i++) {
-			final ArrayList _lst = (ArrayList) array.get(_i);
-			final int _criteriaExpSize = 5; // class, method, line number, index, value
-			if (_lst.size() == _criteriaExpSize) {
-				final String _classname = (String) _lst.get(0);
-				final String _methodname = (String) _lst.get(1);
-				final int _nLine = ((Integer) _lst.get(2)).intValue();
-				final int _stindex = ((Integer) _lst.get(3)).intValue();
-				final boolean _considerVal = ((Boolean) _lst.get(4)).booleanValue();
-				if (PrettySignature.getSignature(type).equals(_classname)) {
-					setCriteria(file, type, array, _methodname, _stindex,
-							_nLine, _considerVal);
-				}
+			final Criteria _c = (Criteria) array.get(_i);
+			final String _classname = _c.getStrClassName();
+			final String _methodname = _c.getStrMethodName();
+			final int _nLine = _c.getNLineNo();
+			final int _stindex = _c.getNJimpleIndex();
+			final boolean _considerVal = _c.isBConsiderValue();
+
+			if (PrettySignature.getSignature(type).equals(_classname)) {
+				setCriteria(file, type, array, _methodname, _stindex, _nLine,
+						_considerVal);
 			}
+
 		}
 	}
 
@@ -386,8 +383,10 @@ public class IndusRunner implements IRunnableWithProgress {
 					break;
 				}
 			}
+		} catch (IndusException _ie) {
+			SECommons.handleException(_ie);
 		} catch (JavaModelException _e) {
-			_e.printStackTrace();
+			SECommons.handleException(_e);
 		}
 
 	}
@@ -400,6 +399,7 @@ public class IndusRunner implements IRunnableWithProgress {
 		return SliceEclipsePlugin.getDefault().getIndusConfiguration()
 				.getCriteria();
 	}
+
 	/**
 	 * Sets the current editor. Used to show the highlighting.
 	 * @param ceditor The editor to set.

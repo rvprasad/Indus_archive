@@ -14,6 +14,9 @@
 
 package edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs;
 
+import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+
+
 import java.util.ArrayList;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -29,7 +32,6 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 import soot.jimple.Stmt;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
 
 /**
  * This presents a dialog allowing the user to pick a Jimple Stmt.

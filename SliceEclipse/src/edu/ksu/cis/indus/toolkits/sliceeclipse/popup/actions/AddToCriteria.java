@@ -14,6 +14,17 @@
 
 package edu.ksu.cis.indus.toolkits.sliceeclipse.popup.actions;
 
+import com.thoughtworks.xstream.XStream;
+
+import edu.ksu.cis.indus.toolkits.eclipse.SootConvertor;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.StatementResolver;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.CriteriaData;
+
+
+
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
@@ -39,13 +50,7 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
-import com.thoughtworks.xstream.XStream;
 
-import edu.ksu.cis.indus.toolkits.eclipse.SootConvertor;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs.StatementResolver;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
-import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.CriteriaData;
 
 /**
  * Adds the chosen line to the criteria.
@@ -101,7 +106,7 @@ public class AddToCriteria implements IEditorActionDelegate {
                     
                 }
             } catch (JavaModelException _e) {
-                _e.printStackTrace();
+            	SECommons.handleException(_e);
             }
         }
 
@@ -120,15 +125,19 @@ public class AddToCriteria implements IEditorActionDelegate {
         final ArrayList _stmtlist = SootConvertor.getStmtForLine(file,
                 type, (IMethod) element, nSelLine);
         if (_stmtlist != null && _stmtlist.size() >= 3) {
-
+        	final Criteria _c = new Criteria();
             final ArrayList _storeLst = new ArrayList();
             final int _noStmts = _stmtlist.size() - 2;
-            _storeLst.add(PrettySignature.getSignature(type));
-            _storeLst.add(PrettySignature.getSignature(element));
-            _storeLst.add(new Integer(nSelLine));
+            _c.setStrClassName(PrettySignature.getSignature(type));
+            _c.setStrMethodName(PrettySignature.getSignature(element));
+            //_storeLst.add(PrettySignature.getSignature(type));
+            //_storeLst.add(PrettySignature.getSignature(element));
+            _c.setNLineNo(nSelLine);
+            
+            //_storeLst.add(new Integer(nSelLine));
 
             if (_noStmts > 1) {
-            	allowUserToPickCriteria(_stmtlist, file, _storeLst);
+            	allowUserToPickCriteria(_stmtlist, file, _c);
 
 			}
 
@@ -140,9 +149,9 @@ public class AddToCriteria implements IEditorActionDelegate {
 	 * Shows the criteria selection dialog and allows the user to pick Jimple criteria.
 	 * @param stmtlist The list of Jimple Stmts
 	 * @param file The Java file in which the criteria is present.
-	 * @param storeLst The ArrayList of the criteria, format: classname, methodname, line number, index of chosen Jimple Stmt 
+	 * @param criteria The criteria the user has chosen. 
 	 */
-	private void allowUserToPickCriteria(final ArrayList stmtlist, final IFile file, final ArrayList storeLst) {
+	private void allowUserToPickCriteria(final ArrayList stmtlist, final IFile file, final Criteria criteria) {
         final ArrayList _stlist = new ArrayList();
         for (int _i = 2; _i < stmtlist.size(); _i++) {
             _stlist.add(stmtlist.get(_i));
@@ -160,13 +169,16 @@ public class AddToCriteria implements IEditorActionDelegate {
 					.getInt("edu.ksu.indus.sliceeclipse.stmtindex");
 			if (_chindex >= 0
 					&& _chindex <= _stlist.size() - 1) {
-				storeLst.add(new Integer(_chindex));
+				criteria.setNJimpleIndex(_chindex);
+				//storeLst.add(new Integer(_chindex));
 			} else {
-				storeLst.add(new Integer(0));
+				criteria.setNJimpleIndex(0);
+				//storeLst.add(new Integer(0));
 			}
 			final boolean _valuechoice = _settings.getBoolean("edu.ksu.indus.sliceeclipse.considervalue");
-			storeLst.add(new Boolean(_valuechoice));
-			addToCriteria(file, storeLst);
+			criteria.setBConsiderValue(_valuechoice);
+			//storeLst.add(new Boolean(_valuechoice));
+			addToCriteria(file, criteria);
 		}
 		
 	}
@@ -176,16 +188,11 @@ public class AddToCriteria implements IEditorActionDelegate {
 	 * 
 	 * @param file
 	 *            The file in which the criteria is present.
-	 * @param stmtlist
-	 *            Format: classname, methodname, linenumber, index of the chosen
-	 *            jimple stmt among the list of matching stmts.
+	 * @param criteria The criteria chosen.
+	 *            
 	 */
-    private void addToCriteria(final IFile file, final ArrayList stmtlist) {
-        final Criteria _criteria = new Criteria();
-        _criteria
-                .setFileName(file.getName() + "@" + System.currentTimeMillis());
-        _criteria.setCriteria(stmtlist);
-        _criteria.setDisabled(false);
+    private void addToCriteria(final IFile file, final Criteria criteria) {
+          
         final IProject _project = file.getProject();
         final IResource _resource = _project;
         final QualifiedName _name = new QualifiedName(
@@ -201,8 +208,8 @@ public class AddToCriteria implements IEditorActionDelegate {
             } else {
                 _data = (CriteriaData) _xstream.fromXML(_propVal);                
             }
-            if (isOkToAdd(_data, _criteria)) {
-				_data.getCriterias().add(_criteria);
+            if (isOkToAdd(_data, criteria)) {
+				_data.getCriterias().add(criteria);
 			} else {
 				MessageDialog.openError(null, "Duplicate",
 						"Duplicate criteria are not allowed");
@@ -210,7 +217,7 @@ public class AddToCriteria implements IEditorActionDelegate {
             final String _xml = _xstream.toXML(_data);
             _resource.setPersistentProperty(_name, _xml);
         } catch (CoreException _e) {
-            _e.printStackTrace();
+        	SECommons.handleException(_e);
         }
     }
 
@@ -223,15 +230,17 @@ public class AddToCriteria implements IEditorActionDelegate {
 	private boolean isOkToAdd(final CriteriaData data, final Criteria criteria) {
 		boolean _isOk = true;
 		final ArrayList _lst = data.getCriterias();
-		final ArrayList _clist = criteria.getCriteria();
+		
 		for (int _i = 0; _i < _lst.size(); _i++) {
-			final Criteria _tcriteria = (Criteria) _lst.get(_i);
-			final ArrayList _tlist = _tcriteria.getCriteria();
-			if (_tlist.get(0).equals(_clist.get(0))
-					&& _tlist.get(1).equals(_clist.get(1))
-					&& _tlist.get(2).equals(_clist.get(2))
-					&& _tlist.get(3).equals(_clist.get(3))
-					&& _tlist.get(4).equals(_clist.get(4))) {
+			final Criteria _tcriteria = (Criteria) _lst.get(_i);			
+			if (criteria.getStrClassName().equals(_tcriteria.getStrClassName())
+					&& criteria.getStrMethodName().equals(
+							_tcriteria.getStrMethodName())
+					&& criteria.getNLineNo() == _tcriteria.getNLineNo()
+					&& criteria.getNJimpleIndex() == _tcriteria
+							.getNJimpleIndex()
+					&& criteria.isBConsiderValue() == _tcriteria
+							.isBConsiderValue()) {
 				_isOk = false;
 				break;
 			}

@@ -33,12 +33,33 @@ public class Criteria {
 	 * The list of classname, method name, line number, index and value consideration.
 	 */
 	private ArrayList criteria;
-
-	/** 
-	 * The filename.
+	
+	/**
+	 * The class name.
 	 */
-	private String fileName;  // The java fileName
-
+	private String strClassName;
+	
+	/**
+	 * The method name.
+	 */
+	private String strMethodName;
+	
+	/**
+	 * The Java line number.
+	 */
+	private int nLineNo;
+	
+	/**
+	 * The index of the Jimple Stmt.
+	 */
+	private int nJimpleIndex;
+	
+	/**
+	 * Consider the value.
+	 */
+	private boolean bConsiderValue;
+	
+	
 	/** 
 	 * Enabled or not.
 	 */
@@ -46,7 +67,7 @@ public class Criteria {
 
 	/**
 	 * Sets the criteria.
-	 *
+	 * @deprecated
 	 * @param criterias The criteria to set.
 	 */
 	public void setCriteria(final ArrayList criterias) {
@@ -55,7 +76,7 @@ public class Criteria {
 
 	/**
 	 * Get the criteria set.
-	 *
+	 * @deprecated
 	 * @return Returns the criteria.
 	 */
 	public ArrayList getCriteria() {
@@ -80,21 +101,65 @@ public class Criteria {
 		return disabled;
 	}
 
+	
 	/**
-	 * Set the filename.
-	 *
-	 * @param javafileName The fileName to set.
+	 * @return Returns the bConsiderValue.
 	 */
-	public void setFileName(final String javafileName) {
-		fileName = javafileName;
+	public boolean isBConsiderValue() {
+		return bConsiderValue;
 	}
-
 	/**
-	 * Get the filename.
-	 *
-	 * @return Returns the fileName.
+	 * @param considerValue The bConsiderValue to set.
 	 */
-	public String getFileName() {
-		return fileName;
+	public void setBConsiderValue(final boolean considerValue) {
+		bConsiderValue = considerValue;
+	}
+	/**
+	 * @return Returns the nJimpleIndex.
+	 */
+	public int getNJimpleIndex() {
+		return nJimpleIndex;
+	}
+	/**
+	 * @param jimpleIndex The nJimpleIndex to set.
+	 */
+	public void setNJimpleIndex(final int jimpleIndex) {
+		nJimpleIndex = jimpleIndex;
+	}
+	/**
+	 * @return Returns the nLineNo.
+	 */
+	public int getNLineNo() {
+		return nLineNo;
+	}
+	/**
+	 * @param lineNo The nLineNo to set.
+	 */
+	public void setNLineNo(final int lineNo) {
+		nLineNo = lineNo;
+	}
+	/**
+	 * @return Returns the strClassName.
+	 */
+	public String getStrClassName() {
+		return strClassName;
+	}
+	/**
+	 * @param strClass The strClassName to set.
+	 */
+	public void setStrClassName(final String strClass) {
+		this.strClassName = strClass;
+	}
+	/**
+	 * @return Returns the strMethodName.
+	 */
+	public String getStrMethodName() {
+		return strMethodName;
+	}
+	/**
+	 * @param strMethod The strMethodName to set.
+	 */
+	public void setStrMethodName(final String strMethod) {
+		this.strMethodName = strMethod;
 	}
 }
