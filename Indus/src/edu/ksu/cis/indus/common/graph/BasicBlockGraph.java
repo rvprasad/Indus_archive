@@ -70,12 +70,12 @@ public final class BasicBlockGraph
 	/**
 	 * Creates a new BasicBlockGraph object.
 	 *
-	 * @param stmtGraphParam is the control flow graph being represented by this graph.
+	 * @param theStmtGraph is the control flow graph being represented by this graph.
 	 *
-	 * @pre stmtGraphParam != null
+	 * @pre theStmtGraph != null
 	 */
-	BasicBlockGraph(final UnitGraph stmtGraphParam) {
-		this.stmtGraph = stmtGraphParam;
+	BasicBlockGraph(final UnitGraph theStmtGraph) {
+		this.stmtGraph = theStmtGraph;
 		stmtList = Collections.unmodifiableList(new ArrayList(stmtGraph.getBody().getUnits()));
 
 		final int _numOfStmt = stmtList.size();
@@ -108,7 +108,6 @@ public final class BasicBlockGraph
 			_trailer = getTrailer(_stmt, _wb, _stmts);
 
 			final BasicBlock _bblock = new BasicBlock(_leader, _trailer, _stmts);
-
 			for (final Iterator _i = _stmts.iterator(); _i.hasNext();) {
 				stmt2BlockMap.put(_i.next(), _bblock);
 			}
@@ -411,6 +410,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/06 00:53:36  venku
+   - coding conventions.
+
    Revision 1.6  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
