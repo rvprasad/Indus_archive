@@ -19,13 +19,19 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -112,6 +118,78 @@ public final class SECommons {
 		}
 		return _lst;
 	}
+	
+	/**
+	 * Returns a set of strings indicating the class path.
+	 * @author Daniel Berg jdt-dev@eclipse.org.
+	 * @param jproject
+	 * @param visitedProjects
+	 * @return
+	 */
+	public static Set getClassPathForProject(final IJavaProject jproject,
+				Set visitedProjects) {
+		final Set _retSet = new HashSet();
+		final String _pathseparator = System.getProperty(Messages.getString("SootConvertor.3"));  //$NON-NLS-1$		
+		if (jproject == null || visitedProjects.contains(jproject)) return _retSet;
+		visitedProjects.add(jproject);
+		try {
+			IClasspathEntry[] entries = jproject.getResolvedClasspath(true);
+			for (int i = 0; i < entries.length; i++) {
+				if (!(entries[i].isExported() || entries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE
+						|| entries[i].getEntryKind() == IClasspathEntry.CPE_PROJECT)) {
+					continue;
+				}
+				switch(entries[i].getEntryKind()) {
+					case IClasspathEntry.CPE_SOURCE:
+						IPath _opLoc = entries[i].getOutputLocation();
+						if (_opLoc == null) {							
+							_opLoc = jproject.getOutputLocation();
+						}
+					     if (_opLoc != null)
+	                        {
+	                            if (_opLoc.segmentCount() == 1)
+	                            {
+	                                _opLoc = jproject.getProject().getLocation();
+	                            }
+	                            else
+	                            {
+	                                _opLoc = jproject.getProject().getParent().getFile(_opLoc).getLocation();
+	                            }
+
+	                            _retSet.add(_opLoc.addTrailingSeparator().toOSString() +  _pathseparator);	                            
+	                        }
+					     IPath _srcpath = entries[i].getPath();
+					     if (_srcpath.segmentCount() == 1) {
+					     	_srcpath = jproject.getProject().getLocation();
+					     } else {
+					     	_srcpath = jproject.getProject().getParent().getFile(_srcpath).getLocation();
+					     }					     
+					     _retSet.add(_srcpath.addTrailingSeparator().toOSString() + _pathseparator);
+						break;
+					case IClasspathEntry.CPE_LIBRARY:
+							final IContainer parent = jproject.getProject().getParent();
+                    		IPath _libPath = parent.getFile(entries[i].getPath()).getLocation();
+                    		if (_libPath == null)
+                    		{
+                    			_libPath = entries[i].getPath();
+                    		}
+                    		_retSet.add(_libPath.toOSString() + _pathseparator);
+                    		break;
+					case IClasspathEntry.CPE_PROJECT:
+							final IProject _dProject = ResourcesPlugin.getWorkspace().getRoot().
+								getProject(entries[i].getPath().segment(0));
+							final IJavaProject _jdproject = JavaCore.create(_dProject);
+							_retSet.addAll(getClassPathForProject(_jdproject, visitedProjects));
+						break;
+						
+				}
+			} 
+		} catch (JavaModelException _jme) {
+			SECommons.handleException(_jme);
+		}
+		return _retSet;
+	}
+	
 	
 	/**
 	 * Returns a search pattern for the IMethod corressponding to the given SootMethod.
@@ -335,11 +413,13 @@ public final class SECommons {
 		if (_jreclasspath != null) {
 			_sootClassPath = _jreclasspath.toOSString();
 			_sootClassPath += _pathseparator;
-
-			final IPath _path = jfile.getProject().getLocation();
-			_sootClassPath += _path.toOSString();
-			_sootClassPath += _fileseparator + _pathseparator;
-
+			
+			final IProject _project = jfile.getProject();
+			final IJavaProject _jproject = JavaCore.create(_project);
+			final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet());
+			for (Iterator iter = _set.iterator(); iter.hasNext();) {
+				_sootClassPath += (String) iter.next();				
+			}
 			//G.reset();
 			final Scene _scene = Scene.v();
 			Options.v().parse(Util.getSootOptions());

@@ -6,7 +6,6 @@
 package edu.ksu.cis.indus.kaveri.scoping;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +23,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 
-import com.sun.corba.se.internal.io.FVDCodeBaseImpl;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 
