@@ -251,19 +251,21 @@ public final class EADriver
 	 * @param o about which information should be written.
 	 */
 	protected void writeInfo(final Object o) {
-        if (o != null)
-            System.out.println(o.toString());
-        else
-            System.out.println("null");
+		if (o != null) {
+			System.out.println(o.toString());
+		} else {
+			System.out.println("null");
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/16 19:09:42  venku
+   - documentation.
    Revision 1.16  2003/11/12 10:50:55  venku
    - this is now based on SootBasedDriver.
-
    Revision 1.15  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
