@@ -36,7 +36,7 @@ Version 0.5
 -----------
 	- Added support to inject context into seed criteria.  This support was also used to generate context-sensitive criteria 
 	  that preserve dead locking properties of the program.
-  	- Added support to perform property-sensitive (thread locality) context-sensitive slicing.  This extends context 
+  	- Added support to perform property-aware (thread locality) context-sensitive slicing.  This extends context 
   	  injection into seed criteria.
 	- The user can now specify scope of slicing via a scope specification file.	  
 	- Feature request 232.
