@@ -5,3 +5,4 @@ build
 .checkclipse
 slicebuild.xml
 .settings
+.clover
