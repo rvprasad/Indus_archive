@@ -1227,6 +1227,8 @@ public final class SlicerConfiguration
 		final String _sliceType = getSliceType();
 
 		if (SlicingEngine.SLICE_TYPES.contains(_sliceType)) {
+            id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DA, new IdentifierBasedDAv3());
+
 			final Collection _c = CollectionsUtilities.getSetFromMap(id2dependencyAnalyses, IDependencyAnalysis.CONTROL_DA);
 
 			if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
