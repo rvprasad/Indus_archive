@@ -31,7 +31,7 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
       mentioned below.</p>
       <ul>
 	<li><p><u>Object-flow Analysis (OFA)</u> is a points-to analysis for Java.  Each allocation site in the analyzed
-	system is treated as an abstract object and it's flow through the system is tracked to infer the possible types an
+	system is treated as an abstract object and its flow through the system is tracked to infer the possible types an
 	receiver at a call-site to enable the construction of a precise call-graph.  The precision of the analysis can be
 	varied in terms of flow-sensitiveness for method local variables and object-sensitiveness for instance
 	fields.</p></li> 
