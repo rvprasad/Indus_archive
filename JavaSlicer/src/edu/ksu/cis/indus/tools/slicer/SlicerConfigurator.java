@@ -19,7 +19,7 @@ import edu.ksu.cis.indus.tools.ToolConfigurator;
 
 
 /**
- * This provides the graphical user interface via which the user can configure the slicer. 
+ * This provides the graphical user interface via which the user can configure the slicer.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -27,17 +27,17 @@ import edu.ksu.cis.indus.tools.ToolConfigurator;
  */
 public class SlicerConfigurator
   implements ToolConfigurator {
-	/** 
-	 * The configuration which can be edited via this editor. 
+	/**
+	 * The configuration which can be edited via this editor.
 	 */
-	private final SlicerConfiguration configuration;
+	private final SlicerConfigurationCollection configuration;
 
 	/**
 	 * Creates a new SlicerConfigurator object.
 	 *
 	 * @param config is the configuration that can be edited by this editor.
 	 */
-	SlicerConfigurator(final SlicerConfiguration config) {
+	SlicerConfigurator(final SlicerConfigurationCollection config) {
 		configuration = config;
 	}
 
@@ -47,6 +47,15 @@ public class SlicerConfigurator
 	 * @see edu.ksu.cis.indus.tools.ToolConfigurator#display()
 	 */
 	public void display() {
+		// TODO: Auto-generated method stub
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see edu.ksu.cis.indus.tools.ToolConfigurator#dispose()
+	 */
+	public void dispose() {
 		// TODO: Auto-generated method stub
 	}
 
@@ -63,4 +72,7 @@ public class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/24 07:32:23  venku
+   - Created an implementation of indus tool api specific to Slicer.
+     The GUI needs to be setup and bandera adapter needs to be fixed.
  */

@@ -39,12 +39,23 @@ import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.Tool;
-import edu.ksu.cis.indus.tools.ToolConfiguration;
-import edu.ksu.cis.indus.tools.ToolConfigurator;
 import edu.ksu.cis.indus.transformations.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
 import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IMarshallingContext;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
+
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,36 +73,55 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public class SlicerTool
-  implements Tool {
-	/** 
-	 * The configuration of this slicer.
-	 */
-	SlicerConfiguration configuration;
+  extends Tool {
+	static {
+		Phase i = Phase.createPhase();
+		i.nextMajorPhase();
+		DEPENDENCE_MAJOR_PHASE = (Phase) i.clone();
+		i.nextMajorPhase();
+		SLICE_MAJOR_PHASE = (Phase) i.clone();
+	}
 
-	/** 
-	 * The configurator to configure this slicer. 
+	/**
+	 * This represents the phase in which dependence analysis happens.
 	 */
-	SlicerConfigurator configurator;
+	public static final Object DEPENDENCE_MAJOR_PHASE;
+
+	/**
+	 * This represents the phase in which slicing happens.
+	 */
+	public static final Object SLICE_MAJOR_PHASE;
+
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
 
 	/**
 	 * This controls dependency analysis.
+	 *
+	 * @invariant daController != null
 	 */
 	private AnalysesController daController;
 
 	/**
 	 * This manages the basic block graphs for the methods being transformed.
+	 *
+	 * @invariant bbgMgr != null
 	 */
 	private final BasicBlockGraphMgr bbgMgr;
 
 	/**
 	 * This provides the call graph.
+	 *
+	 * @invariant callGraph != null
 	 */
 	private final CallGraph callGraph;
 
 	/**
 	 * The slicing criteria.
 	 *
-	 * @invariant criteria.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 * @invariant criteria != null and criteria.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
 	private final Collection criteria;
 
@@ -106,6 +136,11 @@ public class SlicerTool
 	 * This provides object flow anlaysis.
 	 */
 	private final OFAnalyzer ofa;
+
+	/**
+	 * The phase in which the tool's execution is in.
+	 */
+	private final Phase phase;
 
 	/**
 	 * This controls the processing of callgraph.
@@ -151,8 +186,7 @@ public class SlicerTool
 	 * Creates a new SlicerTool object.
 	 */
 	public SlicerTool() {
-		configuration = new SlicerConfiguration();
-		configurator = new SlicerConfigurator(configuration);
+		phase = Phase.createPhase();
 
 		rootMethods = new HashSet();
 		criteria = new HashSet();
@@ -174,7 +208,7 @@ public class SlicerTool
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
 
-		// set up data required for dependency analysis.
+		// set up data required for dependency analyses.
 		Map info = new HashMap();
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
@@ -191,73 +225,125 @@ public class SlicerTool
 	}
 
 	/**
-	 * Provides the configuration object used to configure the slicer.
+	 * Returns the phase in which the tool's execution.
 	 *
-	 * @return the configuration object.
-	 *
-	 * @see edu.ksu.cis.indus.tools.Tool#getConfiguration()
+	 * @return an object that represents the phase of the tool's execution.
 	 */
-	public ToolConfiguration getConfiguration() {
-		return configuration;
+	public Object getPhase() {
+		return phase;
 	}
 
 	/**
-	 * Retrieves an GUI-based configurator via which the user can configure the tool.
-	 *
-	 * @see edu.ksu.cis.indus.tools.Tool#getConfigurationEditor()
+	 * {@inheritDoc}
 	 */
-	public ToolConfigurator getConfigurationEditor() {
-		return null;
+	public void destringizeConfiguration(final String stringizedForm) {
+		try {
+			IBindingFactory bfact = BindingDirectory.getFactory(this.getClass());
+			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
+			configuration = (SlicerConfigurationCollection) uctx.unmarshalDocument(new StringReader(stringizedForm), null);
+
+			if (configurator != null) {
+				configurator.hide();
+				configurator.dispose();
+			}
+			configurator = new SlicerConfigurator((SlicerConfigurationCollection) configuration);
+		} catch (JiBXException e) {
+			LOGGER.error("Error while unmarshalling Slicer configuration.", e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.bandera.tool.Tool#run()
 	 */
-	public void execute() {
-		// do the flow analyses
-		bbgMgr.reset();
-		ofa.reset();
-		ofa.analyze(theScene, rootMethods);
+	public void execute(final Object phaseParam)
+	  throws InterruptedException {
+		Phase ph = (Phase) phaseParam;
 
-		// process flow information into a more meaningful call graph
-		callGraph.reset();
-		callGraph.hookup(cgPreProcessCtrl);
-		cgPreProcessCtrl.process();
-		callGraph.unhook(cgPreProcessCtrl);
+		if (ph.equalsMajor(Phase.STARTING_PHASE)) {
+			// do the flow analyses
+			bbgMgr.reset();
+			ofa.reset();
+			ofa.analyze(theScene, rootMethods);
+			phase.nextMinorPhase();
 
-		// process flow information into a more meaningful thread graph
-		threadGraph.reset();
-		threadGraph.hookup(cgBasedPreProcessCtrl);
-		cgBasedPreProcessCtrl.process();
-		threadGraph.unhook(cgBasedPreProcessCtrl);
+			movingToNextPhase();
 
-		// perform dependency analyses
-		daController.reset();
+			// process flow information into a more meaningful call graph
+			callGraph.reset();
+			callGraph.hookup(cgPreProcessCtrl);
+			cgPreProcessCtrl.process();
+			callGraph.unhook(cgPreProcessCtrl);
+			phase.nextMinorPhase();
 
-		for (Iterator i = configuration.dependencesToUse.iterator(); i.hasNext();) {
-			Object id = i.next();
-			daController.setAnalysis(id, (DependencyAnalysis) configuration.id2dependencyAnalysis.get(id));
+			movingToNextPhase();
+
+			// process flow information into a more meaningful thread graph
+			threadGraph.reset();
+			threadGraph.hookup(cgBasedPreProcessCtrl);
+			cgBasedPreProcessCtrl.process();
+			threadGraph.unhook(cgBasedPreProcessCtrl);
+			phase.nextMajorPhase();
 		}
-		daController.initialize(callGraph.getReachableMethods());
-		daController.execute();
 
-		// perform slicing
-		transformer.reset();
-		engine.reset();
-		transformer.initialize(theScene, tagName);
+		movingToNextPhase();
 
-		if (criteria.isEmpty()) {
-			populateDeadlockCriteria();
+		SlicerConfiguration slicerConfig = ((SlicerConfigurationCollection) configuration).getActiveConfiguration();
+
+		if (ph.equalsMajor((Phase) DEPENDENCE_MAJOR_PHASE)) {
+			// perform dependency analyses
+			daController.reset();
+
+			for (Iterator i = slicerConfig.getNamesOfDAsToUse().iterator(); i.hasNext();) {
+				Object id = i.next();
+				daController.setAnalysis(id, slicerConfig.getDependenceAnalysis(id));
+			}
+			daController.initialize(callGraph.getReachableMethods());
+			daController.execute();
+			phase.nextMajorPhase();
 		}
-		engine.setSliceCriteria(criteria, daController, callGraph, transformer, configuration.dependencesToUse);
-		engine.slice(SlicingEngine.BACKWARD_SLICE);
+
+		movingToNextPhase();
+
+		if (ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {
+			// perform slicing
+			transformer.reset();
+			engine.reset();
+			transformer.initialize(theScene, tagName);
+
+			if (slicerConfig.sliceForDeadlock) {
+				populateDeadlockCriteria();
+			}
+			engine.setSliceCriteria(criteria, daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse());
+			engine.slice(configuration.getProperty(SlicerConfiguration.SLICE_TYPE));
+		}
+		phase.finished();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String stringizeConfiguration() {
+		StringWriter result = new StringWriter();
+
+		try {
+			IBindingFactory bfact = BindingDirectory.getFactory(this.getClass());
+			IMarshallingContext mctx = bfact.createMarshallingContext();
+			mctx.setIndent(4);
+			mctx.marshalDocument(this, "UTF-8", null, result);
+		} catch (JiBXException e) {
+			LOGGER.error("Error while marshalling Slicer configuration.");
+			throw new RuntimeException(e);
+		}
+		return result.toString();
 	}
 
 	/**
 	 * Creates criterion based on synchronization constructs and populates <code>criteria</code>.
 	 */
 	private void populateDeadlockCriteria() {
-		IMonitorInfo im = (IMonitorInfo) configuration.id2dependencyAnalysis.get(DependencyAnalysis.SYNCHRONIZATION_DA);
+		IMonitorInfo im =
+			(IMonitorInfo) ((SlicerConfiguration) configuration).getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
 
 		for (Iterator i = im.getMonitorTriples().iterator(); i.hasNext();) {
 			Triple mTriple = (Triple) i.next();
@@ -282,4 +368,7 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/24 07:32:23  venku
+   - Created an implementation of indus tool api specific to Slicer.
+     The GUI needs to be setup and bandera adapter needs to be fixed.
  */
