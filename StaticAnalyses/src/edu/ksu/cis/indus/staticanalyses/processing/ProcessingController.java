@@ -67,6 +67,7 @@ import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
@@ -132,6 +133,11 @@ public class ProcessingController {
 	 * This walks over the statements for processing.
 	 */
 	protected final StmtSwitcher stmtSwitcher = new StmtSwitcher(new ValueSwitcher());
+
+	/**
+	 * This defines the environment in which the processing runs.
+	 */
+	private IEnvironment env;
 
 	/**
 	 * This class visits the statements of the methods and calls the call-back methods of the registered processors.
@@ -392,7 +398,19 @@ public class ProcessingController {
 	 * @param analyzerParam an instance of the FA.
 	 */
 	public void setAnalyzer(final IValueAnalyzer analyzerParam) {
-		this.analyzer = analyzerParam;
+		analyzer = analyzerParam;
+		env = analyzer.getEnvironment();
+	}
+
+	/**
+	 * Set the environment for this processor.
+	 *
+	 * @param environment in which the processing occurs.
+	 *
+	 * @pre environment != null
+	 */
+	public void setEnnvironment(IEnvironment environment) {
+		env = environment;
 	}
 
 	/**
@@ -407,7 +425,7 @@ public class ProcessingController {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: processing classes");
 		}
-		processClasses(analyzer.getEnvironment().getClasses());
+		processClasses(env.getClasses());
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: processing classes");
@@ -548,11 +566,13 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
    Revision 1.2  2003/08/11 06:38:25  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.
    Formatted source.
-
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
