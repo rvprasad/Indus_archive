@@ -665,7 +665,16 @@ public class EquivalenceClassBasedEscapeAnalysis
 				  && (nSM.getName().equals("notify") || nSM.getName().equals("notifyAll"))) {
 				AliasSet as1 = (AliasSet) ((Map) trp1.getSecond()).get(wTemp.getBase());
 				AliasSet as2 = (AliasSet) ((Map) trp2.getSecond()).get(nTemp.getBase());
-				result = as1.getEntity().equals(as2.getEntity());
+
+				if (as1.getEntity() != null && as2.getEntity() != null) {
+					result = as1.getEntity().equals(as2.getEntity());
+				} else {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn(
+							"There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
+							+ "wait()s that occur in different threads.");
+					}
+				}
 			}
 		}
 		return result;
@@ -1065,12 +1074,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/25 11:58:43  venku
+   Deleted a debug statement.
    Revision 1.4  2003/08/24 12:04:32  venku
    Removed occursInCycle() method from DirectedGraph.
    Installed occursInCycle() method in CFGAnalysis.
    Converted performTopologicalsort() and getFinishTimes() into instance methods.
    Ripple effect of the above changes.
-
    Revision 1.3  2003/08/24 06:06:34  venku
    logging added.
    Revision 1.2  2003/08/21 03:56:44  venku
