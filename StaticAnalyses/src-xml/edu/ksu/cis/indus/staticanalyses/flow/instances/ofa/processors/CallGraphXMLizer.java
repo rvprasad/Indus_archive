@@ -80,7 +80,9 @@ final class CallGraphXMLizer
 
 			final XMLOutputter _xmlWriter = new CustomXMLOutputter(_writer, "UTF-8");
 			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
-
+			_xmlWriter.declaration();
+			_xmlWriter.dtd("callgraph", "-//INDUS:STATICANALYSES.FLOW.INSTANCES.OFA.PROCESSORS.CALLGRAPH//DTD project//EN",
+				"callgraph.xsd");
 			_xmlWriter.startTag("callgraph");
 
 			// Control the order in which methods are processed. 
@@ -133,22 +135,20 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/05/10 11:44:26  venku
+   - incorrect attributes were being written. FIXED.
    Revision 1.15  2004/05/09 08:24:08  venku
    - all xmlizers use xmlenc to write xml data.
-
    Revision 1.14  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.13  2004/04/01 20:57:49  venku
    - changed id attributed to xxxxID as it confused xmlunit.
-
    Revision 1.12  2004/03/07 12:26:17  venku
    - format of xml output was shabby. FIXED.
-
    Revision 1.11  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.10  2004/02/11 10:00:16  venku

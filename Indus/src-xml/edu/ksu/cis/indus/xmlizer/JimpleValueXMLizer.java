@@ -527,10 +527,7 @@ public class JimpleValueXMLizer
 		try {
 			xmlWriter.startTag("string");
 			xmlWriter.attribute("id", newId.toString());
-			xmlWriter.startTag("value");
 			xmlWriter.cdata(String.valueOf(v.value));
-			xmlWriter.endTag();
-			//xmlWriter.attribute("value", String.valueOf(v.value));
 			xmlWriter.endTag();
 		} catch (IOException _e) {
 			_e.printStackTrace();
@@ -795,6 +792,9 @@ public class JimpleValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/05/12 18:18:08  venku
+   - the value of string is stored as a CDATA element rather than as a attribute.
+
    Revision 1.4  2004/05/09 09:28:18  venku
    - documentation.
 

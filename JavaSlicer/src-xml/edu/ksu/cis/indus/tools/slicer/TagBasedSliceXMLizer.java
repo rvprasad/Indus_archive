@@ -286,6 +286,8 @@ final class TagBasedSliceXMLizer
 		 */
 		public void processingBegins() {
 			try {
+			    writer.declaration();
+			    writer.dtd("system", "-//INDUS:JAVASLICER:TAGBASEDSLICE//DTD project//EN", "slice.xsd");
 				writer.startTag("system");
 			} catch (IOException _e) {
 				LOGGER.error("Exception while starting up writing xml information.", _e);
@@ -353,6 +355,13 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/05/10 08:12:03  venku
+   - streamlined the names of tags that are used.
+   - deleted SlicingTag class.  NamedTag is used instead.
+   - ripple effect.
+   - SliceCriteriaFactory's interface is enhanced to generate individual
+     slice criterion as well as criteria set for all nodes in the given AST chunk.
+
    Revision 1.21  2004/05/09 09:59:59  venku
    - closed tags prematurely.  FIXED.
    Revision 1.20  2004/05/09 08:24:38  venku

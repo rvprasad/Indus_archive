@@ -372,7 +372,8 @@ public class JimpleXMLizer
 				final File _file = new File(_filename);
 				writer = new CustomXMLOutputter(new BufferedWriter(new FileWriter(_file)), "UTF-8");
 				stmtXmlizer.setWriter(writer);
-				writer.dtd("class", "-//ANT//DTD project//EN", "jimple.dtd");
+				writer.declaration();
+				writer.dtd("class", "-//INDUS:JIMPLE//DTD project//EN", "jimple.dtd");
 			} catch (final IOException _e) {
 				LOGGER.error("Exception while trying to open " + _filename, _e);
 				throw _e;
@@ -430,6 +431,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/05/09 09:59:25  venku
+   - logical error. FIXED.
+
    Revision 1.37  2004/05/09 09:28:18  venku
    - documentation.
 

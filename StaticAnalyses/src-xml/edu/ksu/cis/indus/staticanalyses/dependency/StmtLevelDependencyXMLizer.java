@@ -233,6 +233,8 @@ final class StmtLevelDependencyXMLizer
 	 */
 	public void processingBegins() {
 		try {
+		    writer.declaration();
+		    writer.dtd("dependency", "-//INDUS:STATICANALYSES:DEPENDENCY//DTD project//EN", "dependency.xsd");
 		    writer.startTag("dependency");
 		    writer.attribute("id", String.valueOf(analysis.getId()));
 		    writer.attribute("class", analysis.getClass().getName().toString());
@@ -255,6 +257,9 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/11 12:00:03  venku
+   - deleted a completed task tag.
+
    Revision 1.11  2004/05/10 10:59:28  venku
    - incorrect tag was being written. FIXED.
 

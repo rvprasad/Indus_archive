@@ -226,6 +226,9 @@ public final class OFAXMLizer
 			processingMethod = false;
 
 			try {
+			    xmlWriter.declaration();
+			    xmlWriter.dtd("ofa", "-//INDUS:STATICANALYSES.FLOW.INSTANCES.OFA//DTD project//EN", "ofa.xsd");
+
 				xmlWriter.startTag("ofa");
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
@@ -287,6 +290,9 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/09 08:24:08  venku
+   - all xmlizers use xmlenc to write xml data.
+
    Revision 1.11  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
