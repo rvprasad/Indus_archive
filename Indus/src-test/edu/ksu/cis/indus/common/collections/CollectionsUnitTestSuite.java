@@ -13,15 +13,9 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common;
+package edu.ksu.cis.indus.common.collections;
 
 import edu.ksu.cis.indus.TestHelper;
-import edu.ksu.cis.indus.common.collections.CollectionsUtilitiesTest;
-import edu.ksu.cis.indus.common.collections.FilteredCollectionTestCase;
-import edu.ksu.cis.indus.common.collections.FilteredListIteratorTestCase;
-import edu.ksu.cis.indus.common.collections.FilteredListTestCase;
-import edu.ksu.cis.indus.common.collections.FilteredMapTest;
-import edu.ksu.cis.indus.common.collections.RetrievableSetTestCase;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -30,19 +24,19 @@ import junit.textui.TestRunner;
 
 
 /**
- * test suite to tests classes in <code>common</code> package.
+ * test suite to tests classes in <code>common.collections</code> package.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CommonUnitTestSuite {
+public final class CollectionsUnitTestSuite {
 	///CLOVER:OFF
 
 	/**
 	 * Creates a new DataStructuresUnitTestSuite object.
 	 */
-	private CommonUnitTestSuite() {
+	private CollectionsUnitTestSuite() {
 	}
 
 	/**
@@ -51,7 +45,7 @@ public final class CommonUnitTestSuite {
 	 * @param s is ignored.
 	 */
 	public static void main(final String[] s) {
-		final String[] _suiteName = { CommonUnitTestSuite.class.getName() };
+		final String[] _suiteName = { CollectionsUnitTestSuite.class.getName() };
 		TestRunner.main(_suiteName);
 	}
 
@@ -76,7 +70,7 @@ public final class CommonUnitTestSuite {
         _suite.addTestSuite(RetrievableSetTestCase.class);
 		//$JUnit-END$
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
-		_suite.setName(CommonUnitTestSuite.class.getName());
+		_suite.setName(CollectionsUnitTestSuite.class.getName());
 		return _suite;
 	}
 }
