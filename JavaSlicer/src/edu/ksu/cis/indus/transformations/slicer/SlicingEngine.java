@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.transformations.slicer;
 
 import soot.Body;
 import soot.Local;
@@ -735,6 +735,10 @@ public class Slicer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/08/18 04:56:47  venku
+   Spruced up Documentation and specification.
+   But committing before moving slicer under transformation umbrella of Indus.
+
    Revision 1.6  2003/05/22 22:23:49  venku
    Changed interface names to start with a "I".
    Formatting.

@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.transformations.slicer;
 
 /**
  * This class represents a slice criterion.
@@ -112,6 +112,10 @@ public abstract class AbstractSliceCriterion {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/17 11:56:18  venku
+   Renamed SliceCriterion to AbstractSliceCriterion.
+   Formatting, documentation, and specification.
+
    Revision 1.4  2003/05/22 22:23:50  venku
    Changed interface names to start with a "I".
    Formatting.

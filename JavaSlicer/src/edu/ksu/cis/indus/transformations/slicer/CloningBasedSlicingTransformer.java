@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.slicer;
+package edu.ksu.cis.indus.transformations.slicer;
 
 import soot.PatchingChain;
 import soot.SootMethod;
@@ -175,6 +175,9 @@ public class SliceMapImpl
    ChangeLog:
    
    $Log$
+   Revision 1.8  2003/08/18 04:49:47  venku
+   Modified SlicerMap to be an specific implementation of ITransformMap specific to the Slicer.
+
    
    Revision 1.7  2003/08/18 02:40:23  venku
    It is better to elevate the mapping interface to a Type and implement in SliceMap.
