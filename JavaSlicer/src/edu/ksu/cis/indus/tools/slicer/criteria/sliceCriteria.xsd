@@ -69,6 +69,12 @@
 				<xsd:element name="parameterTypeName" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 		</xsd:sequence>
+		<xsd:annotation>
+			<xsd:documentation>
+			As for specifying types, provide the fully-qualified names of the types as specified in the class file.  So, the name of 
+			java.lang.String array type would written as "java.lang.String[".
+			</xsd:documentation>
+		<xsd:annotation>
 	</xsd:complexType>
 
 </xsd:schema>
