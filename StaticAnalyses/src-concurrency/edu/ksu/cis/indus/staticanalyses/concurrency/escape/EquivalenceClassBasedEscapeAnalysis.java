@@ -52,7 +52,7 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
@@ -92,7 +92,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public class EquivalenceClassBasedEscapeAnalysis
-  extends AbstractProcessor {
+  extends AbstractValueAnalyzerBasedProcessor {
 	/*
 	 * xxxCache variables do not capture state of the object.  Rather they are used cache values across method calls.  Hence,
 	 * any subclasses of this class should  not reply on these variables as they may be removed in the future.
@@ -1122,6 +1122,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/11/07 12:20:36  venku
+   - added information logging.
+
    Revision 1.25  2003/11/06 05:59:17  venku
    - coding convention.
    Revision 1.24  2003/11/06 05:15:07  venku

@@ -37,7 +37,7 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Marker;
@@ -70,7 +70,7 @@ import java.util.Stack;
  * @version $Revision$
  */
 public class CallGraph
-  extends AbstractProcessor
+  extends AbstractValueAnalyzerBasedProcessor
   implements ICallGraphInfo {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -772,6 +772,11 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/11/06 05:31:08  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
+
    Revision 1.23  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

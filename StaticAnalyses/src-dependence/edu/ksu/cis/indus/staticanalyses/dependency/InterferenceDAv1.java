@@ -31,7 +31,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
@@ -93,7 +93,7 @@ public class InterferenceDAv1
 	 * @version $Revision$
 	 */
 	private class PreProcessor
-	  extends AbstractProcessor {
+	  extends AbstractValueAnalyzerBasedProcessor {
 		/**
 		 * Called by the controller when it encounters an assignment statement.  This records array access and field access
 		 * expressions.
@@ -413,6 +413,11 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/06 05:31:08  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
+
    Revision 1.16  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

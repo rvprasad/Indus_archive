@@ -26,7 +26,7 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
@@ -119,7 +119,7 @@ public class SynchronizationDA
 	 * @version $Revision$
 	 */
 	private class PreProcessor
-	  extends AbstractProcessor {
+	  extends AbstractValueAnalyzerBasedProcessor {
 		/**
 		 * Preprocesses the given method.  It records if the method is synchronized.
 		 *
@@ -502,6 +502,11 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/06 05:31:08  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
+
    Revision 1.16  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

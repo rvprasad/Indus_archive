@@ -33,7 +33,7 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
@@ -213,7 +213,7 @@ public class ReadyDAv1
 	 * @version $Revision$
 	 */
 	private class PreProcessor
-	  extends AbstractProcessor {
+	  extends AbstractValueAnalyzerBasedProcessor {
 		/**
 		 * Collects synchronized methods.
 		 *
@@ -849,6 +849,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/11/10 02:25:03  venku
+   - coding convention.
+
    Revision 1.26  2003/11/10 01:22:25  venku
    - documentation.
 

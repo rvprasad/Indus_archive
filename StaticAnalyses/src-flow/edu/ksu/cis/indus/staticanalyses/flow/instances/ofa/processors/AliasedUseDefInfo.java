@@ -28,7 +28,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -49,7 +49,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public class AliasedUseDefInfo
-  extends AbstractProcessor
+  extends AbstractValueAnalyzerBasedProcessor
   implements IUseDefInfo {
 	/**
 	 * The object flow analyzer to be used to calculate the UD info.
@@ -277,6 +277,13 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.8  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

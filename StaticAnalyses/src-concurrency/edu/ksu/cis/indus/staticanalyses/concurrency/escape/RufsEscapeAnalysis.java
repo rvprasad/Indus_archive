@@ -63,7 +63,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
@@ -99,7 +99,7 @@ import java.util.Map;
  * @deprecated This is rather a comparison implementation which will not be supported.
  */
 public class RufsEscapeAnalysis
-  extends AbstractProcessor {
+  extends AbstractValueAnalyzerBasedProcessor {
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -1874,6 +1874,13 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.7  2003/11/05 09:27:10  venku
    - Split IWorkBag into an interface and an implementation
      for the sake of performance.

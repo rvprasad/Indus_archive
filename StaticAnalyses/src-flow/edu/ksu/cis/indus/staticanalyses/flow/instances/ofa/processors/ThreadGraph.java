@@ -36,7 +36,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
@@ -72,7 +72,7 @@ import java.util.Set;
  * @version $Revision$
  */
 public class ThreadGraph
-  extends AbstractProcessor
+  extends AbstractValueAnalyzerBasedProcessor
   implements IThreadGraphInfo {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -627,6 +627,13 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.11  2003/11/05 09:32:48  venku
    - ripple effect of splitting Workbag.
 
