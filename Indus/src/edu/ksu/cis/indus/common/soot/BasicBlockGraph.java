@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import soot.Trap;
 
 import soot.jimple.Stmt;
@@ -97,9 +99,8 @@ public final class BasicBlockGraph
 		stmt2BlockMap = new HashMap(_numOfStmt);
 
 		while (_wb.hasWork()) {
-			_stmts.clear();
-
 			final Stmt _stmt = (Stmt) _wb.getWork();
+			_stmts.clear();
 			_leader = stmtList.indexOf(_stmt);
 			_trailer = getTrailer(_stmt, _wb, _stmts);
 
@@ -165,21 +166,6 @@ public final class BasicBlockGraph
 		}
 
 		/**
-		 * Retrieves the statements in this block starting from <code>start</code>.
-		 *
-		 * @param start is the index starting from which the statements are requested.  The index is relative to the
-		 * 		  statement list of the method and not the statement list of this block.
-		 *
-		 * @return a modifiable list of <code>Stmt</code>s.
-		 *
-		 * @post result != null
-		 * @post (start &lt; leader or start >= trailer) implies (result.size() = 0)
-		 */
-		public List getStmtsFrom(final int start) {
-			return getStmtFromTo(start, trailer);
-		}
-
-		/**
 		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code>. Both indices are
 		 * relative to the statement list of the method and not the statement list of this block.
 		 *
@@ -192,23 +178,29 @@ public final class BasicBlockGraph
 		 * @post ((start &lt; leader or end > trailer or start >= end)) implies (result.size() = 0)
 		 */
 		public List getStmtFromTo(final int start, final int end) {
-			List _result = Collections.EMPTY_LIST;
+			final List _result;
 
 			if (start >= leader && end <= trailer && start <= end) {
-				final UnitGraph _stmtGraph = getStmtGraph();
-				final Stmt _endStmt = getStmtAt(end);
-				Stmt _temp = getStmtAt(start);
-				List _succs = _stmtGraph.getSuccsOf(_temp);
-				_result = new ArrayList();
-				_result.add(_temp);
-
-				while (_temp != _endStmt) {
-					_temp = (Stmt) _succs.get(0);
-					_result.add(_temp);
-					_succs = _stmtGraph.getSuccsOf(_temp);
-				}
+				_result = new ArrayList(stmtList.subList(start, end + 1));
+				_result.retainAll(stmts);
+			} else {
+				_result = Collections.EMPTY_LIST;
 			}
 			return _result;
+		}
+
+		/**
+		 * Retrieves the statements in this block starting from <code>start</code>.
+		 *
+		 * @param start is the statement starting from which the statements are requested.
+		 *
+		 * @return a modifiable list of <code>Stmt</code>s.
+		 *
+		 * @post result != null
+		 * @post (start &lt; leader or start > trailer) implies (result.size() = 0)
+		 */
+		public List getStmtsFrom(final Stmt start) {
+			return getStmtFromTo(stmtList.indexOf(start), trailer);
 		}
 
 		/**
@@ -229,6 +221,14 @@ public final class BasicBlockGraph
 		 */
 		public Stmt getTrailerStmt() {
 			return getStmtAt(trailer);
+		}
+
+		/**
+		 * @see java.lang.Object#toString()
+		 */
+		public String toString() {
+			return new ToStringBuilder(this).append("stmts", this.stmts).append("leader", this.leader)
+											  .append("trailer", this.trailer).toString();
 		}
 	}
 
@@ -331,6 +331,13 @@ public final class BasicBlockGraph
 	 */
 	public UnitGraph getStmtGraph() {
 		return stmtGraph;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).append("blocks", this.blocks).toString();
 	}
 
 	/**
@@ -440,9 +447,10 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/07/04 11:52:42  venku
+   - renamed getStmtFrom() to getStmtsFrom().
    Revision 1.2  2004/07/04 11:09:01  venku
    - headless and multiple headed methods cause issue with statement graphs and basic blocks.  FIXED.
-
    Revision 1.1  2004/05/31 21:38:12  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.

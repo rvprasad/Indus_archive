@@ -591,7 +591,7 @@ outerloop:
 			Collection _currStmts = (HashSet) _work.getFourth();
 			boolean _skippingSuccs = false;
 
-			for (final Iterator _j = _bb.getStmtsFrom(_stmtList.indexOf(_leadStmt)).iterator(); _j.hasNext();) {
+			for (final Iterator _j = _bb.getStmtsFrom(_leadStmt).iterator(); _j.hasNext();) {
 				final Stmt _stmt = (Stmt) _j.next();
 
 				/*
@@ -736,6 +736,9 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/07/04 11:52:41  venku
+   - renamed getStmtFrom() to getStmtsFrom().
+
    Revision 1.45  2004/06/27 04:57:58  venku
    - a subtlety about valid enter/exit monitor patterns in the code was addressed. FIXED.
 

@@ -1031,7 +1031,7 @@ public class ReadyDAv1
 			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
 				final Stmt _dependee = (Stmt) _j.next();
 				BasicBlock _bb = _bbGraph.getEnclosingBlock(_dependee);
-				final List _sl = _bb.getStmtsFrom(_stmts.indexOf(_dependee));
+				final List _sl = _bb.getStmtsFrom(_dependee);
 				_sl.remove(0);  // remove the dependee from the list
 				_temp.clear();
 
@@ -1254,6 +1254,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.57  2004/07/04 11:52:41  venku
+   - renamed getStmtFrom() to getStmtsFrom().
+
    Revision 1.56  2004/07/04 11:09:00  venku
    - headless and multiple headed methods cause issue with statement graphs and basic blocks.  FIXED.
 
