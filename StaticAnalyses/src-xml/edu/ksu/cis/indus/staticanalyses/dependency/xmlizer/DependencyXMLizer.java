@@ -232,9 +232,14 @@ public class DependencyXMLizer
 				{ "l", "ida1", "Interference dependence v1", new InterferenceDAv1() },
 				{ "m", "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "n", "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "p", "dda", "Divergence dependence", new DivergenceDA() },
+				{ "q", "dda", "Divergence dependence", new DivergenceDA() },
 			};
 		_option = new Option("h", "help", false, "Display message.");
+		_option.setOptionalArg(false);
+		_options.addOption(_option);
+		_option = new Option("p", "soot-classpath", false, "Prepend this to soot class path.");
+		_option.setArgs(1);
+		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
 
@@ -270,23 +275,31 @@ public class DependencyXMLizer
 			_xmlizer.dumpXMLizedJimple = _cl.hasOption('j');
 
 			_xmlizer.setXMLOutputDir(_outputDir);
-            String[] _classNames = _cl.getOptionValues('c');
-            if (_classNames == null)
-                throw new MissingOptionException("-c");
+
+			String[] _classNames = _cl.getOptionValues('c');
+
+			if (_classNames == null) {
+				throw new MissingOptionException("-c");
+			}
 			_xmlizer.setClassNames(_classNames);
 			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
-            boolean flag = true;
+			if (_cl.hasOption('p')) {
+				_xmlizer.addToSootClassPath(_cl.getOptionValue('p'));
+			}
+
+			boolean flag = true;
+
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
 				if (_cl.hasOption(_dasOptions[_i][0].toString())) {
 					_xmlizer.populateDA((DependencyAnalysis) _dasOptions[_i][3]);
-                    flag = false;
+					flag = false;
 				}
 			}
-            if (flag) {
-                throw new ParseException("Atleast one dependence analysis must be requested.");
-                
-            }
+
+			if (flag) {
+				throw new ParseException("Atleast one dependence analysis must be requested.");
+			}
 			_xmlizer.initialize();
 			_xmlizer.execute();
 			_xmlizer.reset();
@@ -469,6 +482,8 @@ public class DependencyXMLizer
 	 * 		  dependence information.
 	 *
 	 * @return a map of xmlizers and the associated writers.
+	 *
+	 * @throws IllegalStateException DOCUMENT ME!
 	 *
 	 * @pre rootname != null and ctrl != null
 	 * @post result != null and result.oclIsKindOf(Map(StmtLevelDependencyXMLizer, Writer))
@@ -665,18 +680,17 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/01/09 07:27:34  venku
+   - an overriding xmlOutDir variables exists.  FIXED.
    Revision 1.37  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.36  2003/12/28 02:10:07  venku
    - handling of command line arguments was changed.
-
    Revision 1.35  2003/12/27 20:07:40  venku
    - fixed xmlizers/driver to not throw exception
      when -h is specified
-
    Revision 1.34  2003/12/16 06:54:05  venku
    - moved preprocessing of analyses after initialization.
    Revision 1.33  2003/12/16 06:15:40  venku
