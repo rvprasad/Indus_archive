@@ -56,14 +56,11 @@
          </menu>
          <action
                label="Slice Java File"
-               class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndus"
+               class="edu.ksu.cis.indus.kaveri.sliceactions.RunIndus"
                menubarPath="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu/group1"
                enablesFor="1"
                id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceNavigatorAction">
          </action>
-         <filter
-               value="org.eclipse.jdt.core.javanature"
-               name="projectNature"/>
       </objectContribution>
       <objectContribution            
             objectClass="org.eclipse.core.resources.IFile"
@@ -83,7 +80,7 @@
          </menu>
          <action
                label="Slice Java File"
-               class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndus"
+               class="edu.ksu.cis.indus.kaveri.sliceactions.RunIndus"
                menubarPath="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu/group1"
                enablesFor="1"
                id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceNavigatorAction">
@@ -101,13 +98,9 @@
                   name="group1">
             </separator>
          </menu>
-                  <filter
-               value="org.eclipse.jdt.core.javanature"
-               name="projectNature"/>
-         
          <action
                label="Slice Project"
-               class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndusProject"
+               class="edu.ksu.cis.indus.kaveri.sliceactions.RunIndus"
                menubarPath="edu.ksu.cis.indus.kaveri.popup.mainProjectPopupObject.menu/group1"
                enablesFor="1"
                id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceProjectNavigatorAction">
@@ -117,10 +110,6 @@
                   adaptable="false"
                   objectClass="org.eclipse.core.resources.IProject"
                   id="edu.ksu.cis.indus.kaveri.popup.mainResourceProjectPopupObject">
-                           <filter
-               value="org.eclipse.jdt.core.javanature"
-               name="projectNature"/>
-                  
          <menu
                label="Indus"
                path="additions"
@@ -131,7 +120,7 @@
          </menu>
          <action
                label="Slice Project"
-               class="edu.ksu.cis.indus.kaveri.popup.actions.RunIndusProject"
+               class="edu.ksu.cis.indus.kaveri.sliceactions.RunIndus"
                menubarPath="edu.ksu.cis.indus.kaveri.popup.mainProjectPopupObject.menu/group1"
                enablesFor="1"
                id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.SliceProjectNavigatorAction">
@@ -139,7 +128,7 @@
       </objectContribution>
             <viewerContribution
                   targetID="#CompilationUnitEditorContext"
-                  id="edu.ksu.cis.indus.kaveri.popup.editorPopup">                  
+                  id="edu.ksu.cis.indus.kaveri.popup.editorPopup">
                <menu
                      label="Indus"
                      path="additons"
@@ -149,14 +138,14 @@
                <action
                      enablesFor="+"
                      label="View  slice"
-                     class="edu.ksu.cis.indus.kaveri.popup.actions.PartialSlice"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.PartialSlice"
                      style="push"
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.PartialSliceViewAction"/>
                <action
                      enablesFor="+"
                      label="Add to Criteria"
-                     class="edu.ksu.cis.indus.kaveri.popup.actions.AddToCriteria"
+                     class="edu.ksu.cis.indus.kaveri.editorcontextmenu.AddToCriteria"
                      style="push"
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CriteriaSelectionAction"/>
@@ -225,7 +214,7 @@
                enablesFor="+"
                toolbarPath="Normal/additions"
                label="Forward Slice"
-               class="edu.ksu.cis.indus.kaveri.execute.ForwardSlice"
+               class="edu.ksu.cis.indus.kaveri.sliceactions.ForwardSlice"
                tooltip="Runs a forward slice on the chosen element"
                icon="data/icons/sf.gif"
                id="edu.ksu.cis.indus.kaveri.ForwardSlice">
@@ -234,7 +223,7 @@
                enablesFor="+"
                toolbarPath="Normal/additions"
                label="Backward Slice"
-               class="edu.ksu.cis.indus.kaveri.execute.BackwardSlice"
+               class="edu.ksu.cis.indus.kaveri.sliceactions.BackwardSlice"
                tooltip="Runs a backward slice on the chosen element"
                icon="data/icons/sb.gif"
                id="edu.ksu.cis.indus.kaveri.BackwardSlice">
@@ -243,7 +232,7 @@
                label="Slice Annotation"
                icon="data/icons/sa.gif"
                tooltip="Enables or disables the slice annotations"
-               class="edu.ksu.cis.indus.kaveri.execute.SliceAnnotate"
+               class="edu.ksu.cis.indus.kaveri.presentation.SliceAnnotate"
                toolbarPath="Normal/additions"
                id="edu.ksu.cis.indus.kaveri.SliceAnnotate">
          </action>
