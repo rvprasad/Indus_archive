@@ -64,7 +64,8 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * This class provides a command-line interface to xmlize dependence information.
+ * This class provides a command-line interface to xmlize dependence information.  Refer to <code>SootBasedDriver</code> for
+ * more configuration infomration.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -138,22 +139,22 @@ public class DependencyXMLizerCLI
 		final DirectEntryControlDA _dncda = new DirectEntryControlDA();
 		final Object[][] _dasOptions =
 			{
-				{ "a1", "ibdda", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
+				{ "a", "ibdda1", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
 				{ "b", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
 				{ "d", "dncda", "Direct Entry control dependence", _dncda },
 				{ "e", "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "f", "sda", "Synchronization dependence", new SynchronizationDA() },
-				{ "g1", "rda1", "Ready dependence v1", new ReadyDAv1() },
-				{ "g2", "rda2", "Ready dependence v2", new ReadyDAv2() },
-				{ "g3", "rda3", "Ready dependence v3", new ReadyDAv3() },
-				{ "l1", "ida1", "Interference dependence v1", new InterferenceDAv1() },
-				{ "l2", "ida2", "Interference dependence v2", new InterferenceDAv2() },
-				{ "l3", "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "q", "dda", "Divergence dependence", new DivergenceDA() },
+				{ "g", "rda1", "Ready dependence v1", new ReadyDAv1() },
+				{ "i", "rda2", "Ready dependence v2", new ReadyDAv2() },
+				{ "k", "rda3", "Ready dependence v3", new ReadyDAv3() },
+				{ "l", "ida1", "Interference dependence v1", new InterferenceDAv1() },
+				{ "m", "ida2", "Interference dependence v2", new InterferenceDAv2() },
+				{ "n", "ida3", "Interference dependence v3", new InterferenceDAv3() },
+				{ "o", "dda", "Divergence dependence", new DivergenceDA() },
 				{ "r", "incda", "Indirect Entry control dependence", _incda },
-				{ "a2", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
-				{ "a3", "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
-				{ "t", "ipdda", "Interprocedural Divergence dependence", _ipdda },
+				{ "s", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
+				{ "t", "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
+				{ "u", "ipdda", "Interprocedural Divergence dependence", _ipdda },
 			};
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
@@ -163,7 +164,7 @@ public class DependencyXMLizerCLI
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option("au1", "aliasedUseDefv1", false, "Use version 1 of aliased use-def info.");
+		_option = new Option("", "aliasedUseDefv1", false, "Use version 1 of aliased use-def info.");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
 
@@ -353,6 +354,14 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
+
    Revision 1.29  2004/07/21 10:13:33  venku
    - previous refactoring disabled xml output. FIXED.
    Revision 1.28  2004/07/17 23:32:18  venku
@@ -595,6 +604,14 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/07/21 11:36:26  venku
+   - Extended IUseDefInfo interface to provide both local and non-local use def info.
+   - ripple effect.
+   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
+     ECBA and AliasedUseDefInfo analysis.
+   - Added new faster implementation of LocalUseDefAnalysisv2
+   - Used LocalUseDefAnalysisv2
+
    Revision 1.29  2004/07/21 10:13:33  venku
    - previous refactoring disabled xml output. FIXED.
    Revision 1.28  2004/07/17 23:32:18  venku
