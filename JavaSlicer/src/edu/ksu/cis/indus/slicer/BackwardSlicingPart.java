@@ -15,10 +15,14 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+
+import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 
@@ -30,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+
+import org.apache.commons.collections.Closure;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +50,7 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
+import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
 
 import soot.toolkits.graph.CompleteUnitGraph;
@@ -68,6 +75,21 @@ public class BackwardSlicingPart
 	private static final Log LOGGER = LogFactory.getLog(BackwardSlicingPart.class);
 
 	/** 
+	 * The engine with which this part is a part of.
+	 */
+	final SlicingEngine engine;
+
+	/** 
+	 * This closure is used generate criteria to include the value in return statements.
+	 */
+	private final Closure returnValueInclClosure = new ReturnValueInclusionClosure();
+
+	/** 
+	 * This closure is used generate criteria to include return statements.
+	 */
+	private final Closure tailStmtInclusionClosure = new TailStmtInclusionClosure();
+
+	/** 
 	 * This is the collection of methods whose exits were transformed.
 	 */
 	private final Collection exitTransformedMethods = new HashSet();
@@ -81,11 +103,6 @@ public class BackwardSlicingPart
 	 */
 	private final Map method2params = new HashMap();
 
-	/** 
-	 * The engine with which this part is a part of.
-	 */
-	private final SlicingEngine engine;
-
 	/**
 	 * Creates an instance of this class.
 	 *
@@ -95,6 +112,54 @@ public class BackwardSlicingPart
 	 */
 	BackwardSlicingPart(final SlicingEngine theEngine) {
 		engine = theEngine;
+	}
+
+	/**
+	 * This closure contains logic to generate criteria to include the value in the return statements.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private class ReturnValueInclusionClosure
+	  implements Closure {
+		/**
+		 * {@inheritDoc}
+		 *
+		 * @pre input.oclIsKindOf(Pair(Stmt, SootMethod))
+		 */
+		public void execute(final Object input) {
+			final Pair _pair = (Pair) input;
+			final Stmt _trailer = (Stmt) _pair.getFirst();
+			final SootMethod _callee = (SootMethod) _pair.getSecond();
+
+			if (_trailer instanceof ReturnStmt) {
+				// TODO: we are considering both throws and returns as return points. This should change when we 
+				// consider if control-flow based on exceptions.
+				engine.generateSliceExprCriterion(((ReturnStmt) _trailer).getOpBox(), _trailer, _callee, true);
+			}
+		}
+	}
+
+
+	/**
+	 * This closure contains logic to generate criteria to include return statements.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private class TailStmtInclusionClosure
+	  implements Closure {
+		/**
+		 * @see org.apache.commons.collections.Closure#execute(java.lang.Object)
+		 */
+		public void execute(final Object input) {
+			final Pair _pair = (Pair) input;
+			final Stmt _stmt = (Stmt) _pair.getFirst();
+			final SootMethod _callee = (SootMethod) _pair.getSecond();
+			engine.generateSliceStmtCriterion(_stmt, _callee, false);
+		}
 	}
 
 	/**
@@ -138,22 +203,7 @@ public class BackwardSlicingPart
 	 * 		soot.SootMethod, java.util.Collection)
 	 */
 	public void generateCriteriaToIncludeCallees(final Stmt stmt, final SootMethod caller, final Collection callees) {
-		//add exit points of callees as the slice criteria
-		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
-			final SootMethod _callee = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = engine.getBasicBlockGraphManager().getBasicBlockGraph(_callee);
-
-			/*
-			 * we do not want to include a dependence on return statement in java.lang.Thread.start() method
-			 * as it will occur in a different thread and cannot affect the sequential flow of control in the current thread.
-			 */
-			if (_bbg != null) {
-				generateCriteriaForCallee(stmt, caller, stmt instanceof AssignStmt, _callee, _bbg);
-			} else if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Did not process " + _callee.getSignature() + " as it may be the start() method or it has no"
-					+ " basic block graph.");
-			}
-		}
+		processTailsOf(callees, stmt, caller, tailStmtInclusionClosure);
 	}
 
 	/**
@@ -162,6 +212,13 @@ public class BackwardSlicingPart
 	 */
 	public void processLocalAt(final ValueBox local, final Stmt stmt, final SootMethod method) {
 		engine.generateSliceStmtCriterion(stmt, method, true);
+
+		if (stmt.getDefBoxes().contains(local) && stmt.containsInvokeExpr()) {
+			final Context _ctxt = new Context();
+			_ctxt.setRootMethod(method);
+			_ctxt.setStmt(stmt);
+			processTailsOf(engine.getCgi().getCallees(stmt.getInvokeExpr(), _ctxt), stmt, method, returnValueInclClosure);
+		}
 	}
 
 	/**
@@ -327,84 +384,6 @@ public class BackwardSlicingPart
 	}
 
 	/**
-	 * Generates new slice criteria for return points of the method called at the given expression.
-	 *
-	 * @param invocationStmt is the statment containing the invocation.
-	 * @param caller is the method in which <code>invocationStmt</code> occurs.
-	 * @param considerReturnValue indicates if the return value of the statement should be considered to generate slice
-	 * 		  criterion.
-	 * @param callee is the method being invoked.
-	 * @param calleeBasicBlockGraph is the basic block graph of the callee.
-	 *
-	 * @pre invocationStmt !=  null and caller != null and callee != null and calleeBasicBlockGraph != null
-	 */
-	private void generateCriteriaForCallee(final Stmt invocationStmt, final SootMethod caller,
-		final boolean considerReturnValue, final SootMethod callee, final BasicBlockGraph calleeBasicBlockGraph) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for method called at " + invocationStmt + " in " + caller + "["
-				+ considerReturnValue + "]");
-		}
-
-		// check if a criteria to consider the exit points of the method should be generated.
-		if (considerMethodExitForCriteriaGeneration(callee)) {
-			if (callee.isConcrete()) {
-				if (engine.getCallStackCache() == null) {
-					engine.setCallStackCache(new Stack());
-				}
-
-				final Stack _callStackCache = engine.getCallStackCache();
-				_callStackCache.push(new CallTriple(caller, invocationStmt, invocationStmt.getInvokeExpr()));
-				processSuperInitInInit(callee, calleeBasicBlockGraph);
-
-				for (final Iterator _j = calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
-					final BasicBlock _bb = (BasicBlock) _j.next();
-					final Stmt _trailer = _bb.getTrailerStmt();
-
-					// TODO: we are considering both throws and returns as return points. This should change when we consider 
-					// if control-flow based on exceptions.
-					engine.generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
-				}
-				_callStackCache.pop();
-
-				if (_callStackCache.isEmpty()) {
-					engine.setCallStackCache(null);
-				}
-			} else {
-				engine.includeMethodAndDeclaringClassInSlice(callee);
-
-				// HACK: to suck in arguments to a native method.
-				final InvokeExpr _expr = invocationStmt.getInvokeExpr();
-
-				for (int _i = _expr.getArgCount() - 1; _i >= 0; _i--) {
-					engine.generateSliceExprCriterion(_expr.getArgBox(_i), invocationStmt, caller, true);
-				}
-			}
-		} else {
-			/*
-			 * if not, then check if any of the method parameters are marked as required.  If so, include them.
-			 * It is possible that the return statements are not affected by the parameters in which case _params will be
-			 * null.  On the other hand, may be the return statements have been included but not yet processed in which case
-			 * _params will be null again.  In the latter case, we postpone for callee-caller propogation to generate
-			 * criteria to consider suitable argument expressions.
-			 */
-			final BitSet _params = (BitSet) method2params.get(callee);
-			final InvokeExpr _invokeExpr = invocationStmt.getInvokeExpr();
-
-			if (_params != null && callee.getParameterCount() > 0) {
-				for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
-					engine.generateSliceExprCriterion(_invokeExpr.getArgBox(_j), invocationStmt, caller, true);
-				}
-			}
-		}
-
-		generateCriteriaForReceiver(invocationStmt, caller, callee);
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating criteria for method called at " + invocationStmt + " in " + caller);
-		}
-	}
-
-	/**
 	 * Generates criteria to include the receiver of the callee at the given invocation statement.
 	 *
 	 * @param invocationStmt at which the invocation occurs.
@@ -461,11 +440,74 @@ public class BackwardSlicingPart
 			}
 		}
 	}
+
+	/**
+	 * Processes the tails of the callees called at the given statements in the caller with the given closure.
+	 *
+	 * @param callees are the methods called at the statement.
+	 * @param stmt is the statment containing the invocation.
+	 * @param caller is the method in which <code>invocationStmt</code> occurs.
+	 * @param closure to be executed.
+	 *
+	 * @pre stmt !=  null and caller != null and callees != null and callees.oclIsKindOf(Collection(SootMethod))
+	 */
+	private void processTailsOf(final Collection callees, final Stmt stmt, final SootMethod caller, final Closure closure) {
+		final BasicBlockGraphMgr _bbgMgr = engine.getBasicBlockGraphManager();
+
+		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
+			final SootMethod _callee = (SootMethod) _i.next();
+
+			if (considerMethodExitForCriteriaGeneration(_callee)) {
+				if (_callee.isConcrete()) {
+					if (engine.getCallStackCache() == null) {
+						engine.setCallStackCache(new Stack());
+					}
+
+					final Stack _callStackCache = engine.getCallStackCache();
+					_callStackCache.push(new CallTriple(caller, stmt, stmt.getInvokeExpr()));
+
+					final BasicBlockGraph _calleeBasicBlockGraph = _bbgMgr.getBasicBlockGraph(_callee);
+					processSuperInitInInit(_callee, _calleeBasicBlockGraph);
+
+					for (final Iterator _j = _calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
+						final BasicBlock _bb = (BasicBlock) _j.next();
+						final Stmt _trailer = _bb.getTrailerStmt();
+						closure.execute(new Pair(_trailer, _callee));
+					}
+					_callStackCache.pop();
+
+					if (_callStackCache.isEmpty()) {
+						engine.setCallStackCache(null);
+					}
+				}
+			} else {
+				/*
+				 * if not, then check if any of the method parameters are marked as required.  If so, include them.
+				 * It is possible that the return statements are not affected by the parameters in which case _params will be
+				 * null.  On the other hand, may be the return statements have been included but not yet processed in which case
+				 * _params will be null again.  In the latter case, we postpone for callee-caller propogation to generate
+				 * criteria to consider suitable argument expressions.
+				 */
+				final BitSet _params = (BitSet) method2params.get(_callee);
+				final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
+
+				if (_params != null && _callee.getParameterCount() > 0) {
+					for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
+						engine.generateSliceExprCriterion(_invokeExpr.getArgBox(_j), stmt, caller, true);
+					}
+				}
+			}
+
+			generateCriteriaForReceiver(stmt, caller, _callee);
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/08/23 03:46:08  venku
+   - documentation.
    Revision 1.2  2004/08/20 02:13:05  venku
    - refactored slicer based on slicing direction.
    Revision 1.1  2004/08/18 09:54:49  venku
