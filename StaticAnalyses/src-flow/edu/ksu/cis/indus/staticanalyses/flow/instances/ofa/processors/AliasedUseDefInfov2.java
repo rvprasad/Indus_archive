@@ -52,7 +52,7 @@ import soot.jimple.Stmt;
  *
  * @see AliasedUseDefInfo
  */
-public class AliasedUseDefInfov2
+public final class AliasedUseDefInfov2
   extends AliasedUseDefInfo {
 	/** 
 	 * This provides the call graph of the system.
@@ -103,33 +103,29 @@ public class AliasedUseDefInfov2
 	 */
 	protected boolean isReachableViaInterProceduralFlow(final SootMethod defMethod, final Stmt defStmt,
 		final SootMethod useMethod, final Stmt useStmt) {
-		boolean _result;
+		boolean _result = occurInSameThread(defMethod, useMethod);
 
-		if (tgi != null) {
-			_result = CollectionUtils.containsAny(tgi.getExecutionThreads(defMethod), tgi.getExecutionThreads(useMethod));
-		} else {
-			_result = false;
-		}
+		if (_result) {
+			/*
+			 * Check if the use method is reachable from the def method. If so, check the ordering within the def method.
+			 */
+			if (cgi.getMethodsReachableFrom(defMethod, true).contains(useMethod)) {
+				_result = doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true);
+			}
 
-		/*
-		 * Check if the use method is reachable from the def method. If so, check the ordering within the def method.
-		 */
-		if (cgi.getMethodsReachableFrom(defMethod, true).contains(useMethod)) {
-			_result = doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true);
-		}
+			/*
+			 * Check if the def method is reachable from the use method. If so, check the ordering within the use method.
+			 */
+			if (!_result && cgi.getMethodsReachableFrom(useMethod, true).contains(defMethod)) {
+				_result = doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false);
+			}
 
-		/*
-		 * Check if the def method is reachable from the use method. If so, check the ordering within the use method.
-		 */
-		if (!_result && cgi.getMethodsReachableFrom(useMethod, true).contains(defMethod)) {
-			_result = doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false);
-		}
-
-		/*
-		 * Check if the control can reach from the def method to the use method across common call-graph ancestor.
-		 */
-		if (!_result) {
-			_result = doesControlPathExistsFromTo(defMethod, useMethod);
+			/*
+			 * Check if the control can reach from the def method to the use method across common call-graph ancestor.
+			 */
+			if (!_result) {
+				_result = doesControlPathExistsFromTo(defMethod, useMethod);
+			}
 		}
 		return _result;
 	}
@@ -246,11 +242,35 @@ public class AliasedUseDefInfov2
 		}
 		return _result;
 	}
+
+	/**
+	 * Checks if the data defining method and the method in which the data is used occurs in the same thread.
+	 *
+	 * @param defMethod obviously contains the definition.
+	 * @param useMethod obviously contains the use.
+	 *
+	 * @return <code>true</code> if the given methods occur in the same thread; <code>false</code>, otherwise.
+	 *
+	 * @pre defMethod != null and useMethod != null
+	 */
+	private boolean occurInSameThread(final SootMethod defMethod, final SootMethod useMethod) {
+		final boolean _result;
+
+		if (tgi != null) {
+			_result = CollectionUtils.containsAny(tgi.getExecutionThreads(defMethod), tgi.getExecutionThreads(useMethod));
+		} else {
+			_result = false;
+		}
+		return _result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
    Revision 1.2  2004/07/28 09:09:27  venku
    - changed aliased use def analysis to consider thread.
    - also fixed a bug in the same analysis.
