@@ -535,8 +535,7 @@ public final class SlicerConfigurator
 		_propertyAwareSlicingButton.setSelection(_propertyAwareSlicingProperty.booleanValue());
 
 		final SelectionListener _sl3 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
-				_propertyAwareSlicingButton, _cfg);
+			new BooleanPropertySelectionListener(SlicerConfiguration.PROPERTY_AWARE, _propertyAwareSlicingButton, _cfg);
 		_propertyAwareSlicingButton.addSelectionListener(_sl3);
 
 		final Button _assertionPreservingSliceButton = new Button(composite, SWT.CHECK);
