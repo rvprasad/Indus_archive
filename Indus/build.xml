@@ -11,20 +11,31 @@
     <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${drishti.jar}"/>
 </target>
 
-<target name="buildAll" depends="init">
+<target name="localbuild" depends="init">
     <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" debug="on">
-        <src refid="srcpath"/>
-        <classpath refid="classpath"/>
+    <javac destdir="${build.dir}" debug="${debug}" includes="**/*.java">
+        <src refid="${srcpath}"/>
+        <classpath refid="${classpath}"/>
     </javac>
 </target>
 
 <target name="build" depends="init">
     <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" includes="**/*java">
-        <src refid="${ant.project.name}.srcpath"/>
-        <classpath refid="${ant.project.name}.classpath"/>
-    </javac>
+    <antcall target="localbuild">
+       <param name="srcpath" value="${ant.project.name}.docsrcpath"/> 
+       <param name="classpath" value="${ant.project.name}.classpath"/> 
+       <param name="debug" value="off"/>
+    </antcall>
+	<antcall target="executeCustomBuild"/>
+</target>
+
+<target name="debugBuild" depends="init">
+    <mkdir dir="${build.dir}"/>
+    <antcall target="localbuild">
+       <param name="srcpath" value="${ant.project.name}.srcpath"/> 
+       <param name="classpath" value="${ant.project.name}.classpath"/> 
+       <param name="debug" value="on"/>
+    </antcall>
 	<antcall target="executeCustomBuild"/>
 </target>
 
@@ -32,14 +43,6 @@
 	<antcall target="custombuild"/>
 </target>
 
-<target name="debugBuild" depends="init">
-    <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" debug="on" includes="**/*java">
-        <src refid="${ant.project.name}.srcpath"/>
-        <classpath refid="${ant.project.name}.classpath"/>
-    </javac>
-   	<antcall target="executeCustomBuild"/>
-</target>
 
 <target name="jar" depends="init">
 	<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*"/>
@@ -131,6 +134,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.23  2004/02/01 22:24:59  venku
+- added variance to sources documented for general purpose and
+  private purpose.
+
 Revision 1.22  2004/01/14 12:14:20  venku
 *** empty log message ***
 

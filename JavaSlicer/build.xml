@@ -11,26 +11,36 @@
     <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${drishti.jar}"/>
 </target>
 
-<target name="build" depends="init">
+<target name="localbuild" depends="init">
     <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" includes="**/*java">
-        <src refid="${ant.project.name}.srcpath" />
-        <classpath refid="${ant.project.name}.classpath"/>
+    <javac destdir="${build.dir}" debug="${debug}" includes="**/*.java">
+        <src refid="${srcpath}"/>
+        <classpath refid="${classpath}"/>
     </javac>
-    <antcall target="executeCustomBuild"/>
 </target>
 
-<target name="executeCustomBuild" if="custombuild.exists">
-	<antcall target="custombuild"/>
+<target name="build" depends="init">
+    <mkdir dir="${build.dir}"/>
+    <antcall target="localbuild">
+       <param name="srcpath" value="${ant.project.name}.docsrcpath"/> 
+       <param name="classpath" value="${ant.project.name}.classpath"/> 
+       <param name="debug" value="off"/>
+    </antcall>
+	<antcall target="executeCustomBuild"/>
 </target>
 
 <target name="debugBuild" depends="init">
     <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" debug="on" includes="**/*java">
-        <src refid="${ant.project.name}.srcpath" />
-        <classpath refid="${ant.project.name}.classpath"/>
-    </javac>
-   	<antcall target="executeCustomBuild"/>
+    <antcall target="localbuild">
+       <param name="srcpath" value="${ant.project.name}.srcpath"/> 
+       <param name="classpath" value="${ant.project.name}.classpath"/> 
+       <param name="debug" value="on"/>
+    </antcall>
+	<antcall target="executeCustomBuild"/>
+</target>
+
+<target name="executeCustomBuild" if="custombuild.exists">
+	<antcall target="custombuild"/>
 </target>
 
 <target name="jar" depends="init">
@@ -123,6 +133,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.21  2004/02/01 22:19:00  venku
+- added variance to sources documented for general purpose and
+  private purpose.
+
 Revision 1.20  2004/01/06 21:23:23  venku
 *** empty log message ***
 

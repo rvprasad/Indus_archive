@@ -11,26 +11,36 @@
     <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${drishti.jar}"/>
 </target>
 
+<target name="localbuild" depends="init">
+    <mkdir dir="${build.dir}"/>
+    <javac destdir="${build.dir}" debug="${debug}" includes="**/*.java">
+        <src refid="${srcpath}"/>
+        <classpath refid="${classpath}"/>
+    </javac>
+</target>
+
 <target name="build" depends="init">
     <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" includes="**/*java">
-        <src refid="${ant.project.name}.srcpath"/>
-        <classpath refid="${ant.project.name}.classpath"/>
-    </javac>
+    <antcall target="localbuild">
+       <param name="srcpath" value="${ant.project.name}.docsrcpath"/> 
+       <param name="classpath" value="${ant.project.name}.classpath"/> 
+       <param name="debug" value="off"/>
+    </antcall>
+	<antcall target="executeCustomBuild"/>
+</target>
+
+<target name="debugBuild" depends="init">
+    <mkdir dir="${build.dir}"/>
+    <antcall target="localbuild">
+       <param name="srcpath" value="${ant.project.name}.srcpath"/> 
+       <param name="classpath" value="${ant.project.name}.classpath"/> 
+       <param name="debug" value="on"/>
+    </antcall>
 	<antcall target="executeCustomBuild"/>
 </target>
 
 <target name="executeCustomBuild" if="custombuild.exists">
 	<antcall target="custombuild"/>
-</target>
-
-<target name="debugBuild" depends="init">
-    <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" debug="on" includes="**/*java">
-        <src refid="${ant.project.name}.srcpath"/>
-        <classpath refid="${ant.project.name}.classpath"/>
-    </javac>
-	<antcall target="executeCustomBuild"/>
 </target>
 
 <target name="jar" depends="init">
@@ -123,6 +133,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.26  2004/02/01 22:25:03  venku
+- added variance to sources documented for general purpose and
+  private purpose.
+
 Revision 1.25  2004/01/30 17:11:53  venku
 - build was used when the variable name was build.dir. FIXED.
 
