@@ -352,19 +352,20 @@ public class InterferenceDAv1
 	 * @return <code>true</code>.
 	 */
 	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
-        Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-        Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
-        boolean result = false;
-        if (de instanceof ArrayRef && dt instanceof ArrayRef) {
-            Type t1 = ((ArrayRef)de).getBase().getType();
-            Type t2 = ((ArrayRef)dt).getBase().getType();
-            result = t1.equals(t2);
-        } else if (dt instanceof InstanceFieldRef && de instanceof InstanceFieldRef) {
-            SootField f1 = ((InstanceFieldRef)de).getField();
-            SootField f2 = ((InstanceFieldRef)dt).getField();
-            result = f1.equals(f2);
-        }
-        return result;
+		Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+		Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+		boolean result = false;
+
+		if (de instanceof ArrayRef && dt instanceof ArrayRef) {
+			Type t1 = ((ArrayRef) de).getBase().getType();
+			Type t2 = ((ArrayRef) dt).getBase().getType();
+			result = t1.equals(t2);
+		} else if (dt instanceof InstanceFieldRef && de instanceof InstanceFieldRef) {
+			SootField f1 = ((InstanceFieldRef) de).getField();
+			SootField f2 = ((InstanceFieldRef) dt).getField();
+			result = f1.equals(f2);
+		}
+		return result;
 	}
 
 	/**
@@ -395,13 +396,13 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/10/05 16:20:58  venku
+   - made dependence type-based.
    Revision 1.12  2003/09/29 06:40:35  venku
    - reset() was being called on an argument.  FIXED.
-
    Revision 1.11  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.10  2003/09/12 22:33:08  venku
    - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
    - Ripple effect of the above changes.
