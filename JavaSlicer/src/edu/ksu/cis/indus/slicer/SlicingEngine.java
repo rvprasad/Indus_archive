@@ -183,6 +183,13 @@ public class SlicingEngine {
 	private final IWorkBag workbag = new FIFOWorkBag();
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Collection controlDAs = new ArrayList();
+
+	/**
 	 * This provides the call graph information in the system being sliced.
 	 */
 	private ICallGraphInfo cgi;
@@ -237,15 +244,17 @@ public class SlicingEngine {
 		controller = ctrl;
 		dependencies.addAll(dependenciesToUse);
 		intraProceduralDependencies.clear();
+		controlDAs.clear();
 
 		for (Iterator i = dependencies.iterator(); i.hasNext();) {
 			Object id = i.next();
 
 			if (id.equals(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA)
 				  || id.equals(DependencyAnalysis.SYNCHRONIZATION_DA)
-				  || id.equals(DependencyAnalysis.CONTROL_DA)
 				  || id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
 				intraProceduralDependencies.addAll(controller.getAnalyses(id));
+			} else if (id.equals(DependencyAnalysis.CONTROL_DA)) {
+				controlDAs.addAll(controller.getAnalyses(id));
 			}
 		}
 
@@ -491,16 +500,7 @@ public class SlicingEngine {
 				unslicedMethod = method;
 			}
 
-			if (transformer.getTransformed(unslicedStmt, unslicedMethod) == null) {
-				// consider it as a slice criterion
-				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
-				sliceCriterion.initialize(unslicedMethod, unslicedStmt, true);
-				workbag.addWorkNoDuplicates(sliceCriterion);
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Adding " + unslicedStmt + " in " + unslicedMethod.getSignature() + " to workbag.");
-				}
-			}
+			generateSliceStmtCriterion(unslicedStmt, unslicedMethod, true);
 		}
 	}
 
@@ -533,17 +533,15 @@ public class SlicingEngine {
 	 * @pre stmt.containsInvokeExpr() == true
 	 */
 	private void generateNewCriteriaForInvocation(final Stmt stmt, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating criteria for invocation expressions (caller-callee)");
+		}
+
 		InvokeExpr expr = stmt.getInvokeExpr();
 		Collection callees = new HashSet();
 
 		if (expr instanceof SpecialInvokeExpr && expr.getMethod().getName().equals("<init>")) {
 			callees.add(expr.getMethod());
-
-			SootClass sc = expr.getMethod().getDeclaringClass();
-
-			if (sc.declaresMethodByName("<clinit>")) {
-				callees.add(sc.getMethodByName("<clinit>"));
-			}
 		} else {
 			Context context = new Context();
 			context.setRootMethod(method);
@@ -551,10 +549,25 @@ public class SlicingEngine {
 			callees.addAll(cgi.getCallees(expr, context));
 		}
 
+		Collection temp = new ArrayList(callees);
+
+		for (Iterator i = temp.iterator(); i.hasNext();) {
+			SootMethod sm = (SootMethod) i.next();
+			SootClass sc = sm.getDeclaringClass();
+
+			if (sc.declaresMethodByName("<clinit>") && !transformer.isTransformed(sc.getMethodByName("<clinit>"))) {
+				callees.add(sc.getMethodByName("<clinit>"));
+			}
+		}
+
 		generateNewCriteriaForReturnPointOfMethods(callees);
 
 		if (useReady) {
 			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating criteria for invocation expressions (caller-callee)");
 		}
 	}
 
@@ -567,6 +580,10 @@ public class SlicingEngine {
 	 * @pre pBox != null and method != null
 	 */
 	private void generateNewCriteriaForParam(final ValueBox pBox, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating criteria for parameters");
+		}
+
 		/*
 		 * Note that this will cause us to include all caller sites as slicing criteria which may not be what the user
 		 * intended.
@@ -578,18 +595,12 @@ public class SlicingEngine {
 			CallTriple ctrp = (CallTriple) i.next();
 			SootMethod caller = ctrp.getMethod();
 			Stmt stmt = ctrp.getStmt();
-			ValueBox argBox = ctrp.getStmt().getInvokeExpr().getArgBox(index);
+			ValueBox argBox = ctrp.getExpr().getArgBox(index);
+			generateSliceExprCriterion(argBox, stmt, caller, true);
+		}
 
-			if (transformer.getTransformed(argBox, stmt, method) == null) {
-				SliceExpr critExpr = SliceExpr.getSliceExpr();
-				critExpr.initialize(caller, stmt, argBox, true);
-				workbag.addWorkNoDuplicates(critExpr);
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Adding expr " + argBox.getValue() + " at " + stmt + " in " + caller.getSignature()
-						+ " to workbag.");
-				}
-			}
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating criteria for parameters");
 		}
 	}
 
@@ -601,6 +612,10 @@ public class SlicingEngine {
 	 * @param callees DOCUMENT ME!
 	 */
 	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating criteria for return points");
+		}
+
 		// add exit points of callees as the slice criteria
 		for (Iterator i = callees.iterator(); i.hasNext();) {
 			SootMethod callee = (SootMethod) i.next();
@@ -617,16 +632,12 @@ public class SlicingEngine {
 				BasicBlock bb = (BasicBlock) j.next();
 				Stmt trailer = bb.getTrailerStmt();
 
-				if (transformer.getTransformed(trailer, callee) == null) {
-					SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
-					sliceCriterion.initialize(callee, trailer, true);
-					workbag.addWorkNoDuplicates(sliceCriterion);
-
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Adding " + trailer + " in " + callee.getSignature() + " to workbag.");
-					}
-				}
+				generateSliceStmtCriterion(trailer, callee, true);
 			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating criteria for return points");
 		}
 	}
 
@@ -638,31 +649,37 @@ public class SlicingEngine {
 	 * @param method DOCUMENT ME!
 	 */
 	private void generateNewCriteriaForTheCallToThisMethod(final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller)");
+		}
+        
+        boolean notStatic = !method.isStatic();
+
 		for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
 			CallTriple ctrp = (CallTriple) i.next();
 			SootMethod caller = ctrp.getMethod();
 			Stmt stmt = ctrp.getStmt();
 
-			if (transformer.getTransformed(stmt, method) == null) {
+			if (!transformer.isTransformed(stmt, method)) {
 				SliceStmt critStmt = SliceStmt.getSliceStmt();
 				critStmt.initialize(caller, stmt, false);
 				workbag.addWorkNoDuplicates(critStmt);
 
-				if (method instanceof InstanceInvokeExpr) {
+				SliceExpr critExpr = SliceExpr.getSliceExpr();
+				critExpr.initialize(caller, stmt, stmt.getInvokeExprBox(), false);
+				workbag.addWorkNoDuplicates(critExpr);
+
+				if (notStatic) {
+                    LOGGER.debug("three");
 					ValueBox baseBox = ((InstanceInvokeExpr) stmt.getInvokeExpr()).getBaseBox();
 
-					if (transformer.getTransformed(baseBox, stmt, method) == null) {
-						SliceExpr critExpr = SliceExpr.getSliceExpr();
-						critExpr.initialize(caller, stmt, baseBox, true);
-						workbag.addWorkNoDuplicates(critExpr);
-
-						if (LOGGER.isDebugEnabled()) {
-							LOGGER.debug("Adding expr " + baseBox.getValue() + " at " + stmt + " in " + caller.getSignature()
-								+ " to workbag.");
-						}
-					}
+					generateSliceExprCriterion(baseBox, stmt, caller, true);
 				}
 			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating criteria for call-sites (callee-caller)");
 		}
 	}
 
@@ -675,6 +692,10 @@ public class SlicingEngine {
 	 * @param method DOCUMENT ME!
 	 */
 	private void generateNewCriteriaToConsiderException(final Stmt stmt, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating criteria for exception");
+		}
+
 		/*
 		 * check if the stmt is enclosed in a try-catch block.  If so, generate a criteria for the first statment of catch
 		 * clause for that exception
@@ -697,6 +718,56 @@ public class SlicingEngine {
 				LOGGER.warn("Could not get body for method " + method.getSignature());
 			}
 		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating criteria for exception");
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param valueBox DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 * @param flag DOCUMENT ME!
+	 */
+	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
+		final boolean flag) {
+		if (!transformer.isTransformed(valueBox, stmt, method)) {
+			SliceExpr critExpr = SliceExpr.getSliceExpr();
+			critExpr.initialize(method, stmt, valueBox, flag);
+			workbag.addWorkNoDuplicates(critExpr);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Adding expr " + valueBox.getValue() + " at " + stmt + " in " + method.getSignature()
+					+ " to workbag.");
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param unslicedStmt DOCUMENT ME!
+	 * @param unslicedMethod DOCUMENT ME!
+	 * @param flag DOCUMENT ME!
+	 */
+	private void generateSliceStmtCriterion(final Stmt unslicedStmt, final SootMethod unslicedMethod, final boolean flag) {
+		if (!transformer.isTransformed(unslicedStmt, unslicedMethod)) {
+			// consider it as a slice criterion
+			SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
+			sliceCriterion.initialize(unslicedMethod, unslicedStmt, flag);
+			workbag.addWorkNoDuplicates(sliceCriterion);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Adding " + unslicedStmt + " in " + unslicedMethod.getSignature() + " to workbag.");
+			}
+		}
 	}
 
 	/**
@@ -708,6 +779,10 @@ public class SlicingEngine {
 	 * @param method DOCUMENT ME!
 	 */
 	private void processForNewExpr(final Stmt stmt, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Processing for new expr");
+		}
+
 		/*
 		 * Here we make some assumptions.  new expressions will always be assigned to a variable in order to call the
 		 * constructor. Hence, they will always occur in assignment statement.  It is common practice in compilers to emit
@@ -725,12 +800,12 @@ public class SlicingEngine {
 
 			if (as.getRightOp() instanceof NewExpr) {
 				Stmt def = initMapper.getInitCallStmtForNewExprStmt(stmt, method);
-
-				// HACK: 
-				if (def != null) {
-					transformAndGenerateNewCriteriaForStmt(def, method, true);
-				}
+				transformAndGenerateNewCriteriaForStmt(def, method, true);
 			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Processing for new expr");
 		}
 	}
 
@@ -746,12 +821,16 @@ public class SlicingEngine {
 	 * @pre vBoxes.oclIsKindOf(Collection(ValueBoxes)) and stmt.getUseAndDefBoxes().containsAll(vBoxes)
 	 */
 	private void transformAndGenerateCriteriaForVBoxes(final Collection vBoxes, final Stmt stmt, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Transforming value boxes");
+		}
+
 		Collection das = controller.getAnalyses(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 
 		for (Iterator i = vBoxes.iterator(); i.hasNext();) {
 			ValueBox vBox = (ValueBox) i.next();
 
-			if (transformer.getTransformed(vBox, stmt, method) == null) {
+			if (!transformer.isTransformed(vBox, stmt, method)) {
 				transformer.transform(vBox, stmt, method);
 
 				if (vBox.getValue() instanceof ParameterRef) {
@@ -769,6 +848,10 @@ public class SlicingEngine {
 
 		// create new slice criteria
 		generateNewCriteria(stmt, method, das);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Transforming value boxes");
+		}
 	}
 
 	/**
@@ -783,8 +866,12 @@ public class SlicingEngine {
 		Stmt stmt = sExpr.getOccurringStmt();
 		SootMethod method = sExpr.getOccurringMethod();
 		ValueBox expr = (ValueBox) sExpr.getCriterion();
-
 		Value value = expr.getValue();
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Transforming expr criteria: " + expr + " at " + stmt + " in " + method);
+		}
+
 		transformAndGenerateCriteriaForVBoxes(value.getUseBoxes(), stmt, method);
 		// include the statement to capture control dependency
 		transformAndGenerateNewCriteriaForStmt(stmt, method, false);
@@ -794,6 +881,10 @@ public class SlicingEngine {
 		} else if (value instanceof FieldRef || value instanceof ArrayRef) {
 			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
 			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Transforming expr criteria: " + expr + " at " + stmt + " in " + method);
 		}
 	}
 
@@ -810,6 +901,10 @@ public class SlicingEngine {
 	 */
 	private void transformAndGenerateNewCriteriaForStmt(final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
+		}
+
 		if (considerExecution) {
 			transformAndGenerateCriteriaForVBoxes(stmt.getUseAndDefBoxes(), stmt, method);
 			processForNewExpr(stmt, method);
@@ -827,18 +922,20 @@ public class SlicingEngine {
 			generateNewCriteriaToConsiderException(stmt, method);
 		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Sliced : " + stmt + " [" + considerExecution + "] | " + method);
-		}
-
 		// create new slice criteria
-		generateNewCriteria(stmt, method, intraProceduralDependencies);
+		generateNewCriteria(stmt, method, controlDAs);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/28 18:16:58  venku
+   - a hack and an optimization.
    Revision 1.19  2003/11/26 10:14:56  venku
    - refactored method to suck in <clinit> method dependence.
    - included logic to suck in <clinit> dependences.
