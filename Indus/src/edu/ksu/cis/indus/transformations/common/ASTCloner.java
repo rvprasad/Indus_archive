@@ -461,7 +461,7 @@ public class ASTCloner
 	}
 
 	/**
-	 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.jimple.Local)
+	 * @see soot.jimple.JimpleValueSwitch#caseLocal(soot.Local)
 	 */
 	public void caseLocal(final Local l) {
 		cloneValue = helper.getLocal(l, method);
@@ -805,6 +805,11 @@ public class ASTCloner
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/08/19 12:44:39  venku
+   Changed the signature of ITransformer.getLocal()
+   Introduced reset() in ITransformer.
+   Ripple effect of the above changes.
+
    Revision 1.8  2003/08/19 11:58:53  venku
    Remove any reference to slicing from the documentation.
 
