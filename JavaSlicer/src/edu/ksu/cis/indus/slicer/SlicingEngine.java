@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -65,6 +66,12 @@ import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
 import soot.tagkit.Host;
+
+import soot.toolkits.graph.CompleteUnitGraph;
+
+import soot.toolkits.scalar.SimpleLocalDefs;
+import soot.toolkits.scalar.SimpleLocalUses;
+import soot.toolkits.scalar.UnitValueBoxPair;
 
 
 /**
@@ -194,6 +201,11 @@ public final class SlicingEngine {
 	 * 			  o.getId().equals(DependencyAnalysis.CONTROL_DA))
 	 */
 	private Collection controlDAs = new ArrayList();
+
+	/**
+	 * This is the collection of methods whose exits were transformed.
+	 */
+	private final Collection exitTransformedMethods = new HashSet();
 
 	/**
 	 * This is the set of methods that were included in the slice due to invocation.  Refer to <code>required</code> for more
@@ -413,6 +425,7 @@ public final class SlicingEngine {
 		method2params.clear();
 		required.clear();
 		invoked.clear();
+		exitTransformedMethods.clear();
 
 		// clear the work bag of slice criterion
 		while (workbag.hasWork()) {
@@ -510,8 +523,8 @@ public final class SlicingEngine {
 	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee) {
 		boolean _result = false;
 
-		if (!marked(callee)) {
-			invoked.add(callee);
+		if (!exitTransformedMethods.contains(callee)) {
+			exitTransformedMethods.add(callee);
 			_result = true;
 		}
 		return _result;
@@ -606,10 +619,11 @@ public final class SlicingEngine {
 	 */
 	private void generateNewCriteriaBasedOnMethodExit(final Stmt invocationStmt, final SootMethod caller,
 		final boolean considerReturnValue, final SootMethod callee, final BasicBlockGraph calleeBasicBlockGraph) {
-		final BitSet _params = (BitSet) method2params.get(callee);
 		final InvokeExpr _invokeExpr = invocationStmt.getInvokeExpr();
 
+		// check if criteria to consider the exit points of the method should be generated.
 		if (considerMethodExitForCriteriaGeneration(callee)) {
+			markAsInvoked(callee);
 			processSuperInitInInit(callee, calleeBasicBlockGraph);
 
 			for (final Iterator _j = calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
@@ -620,9 +634,20 @@ public final class SlicingEngine {
 				// ip control-flow based on exceptions.
 				generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
 			}
-		} else if (callee.getParameterCount() > 0) {
-			for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
-				generateSliceExprCriterion(_invokeExpr.getArgBox(_j), invocationStmt, caller, true);
+		} else {
+			/*
+			 * if not, then check if any of the method parameters are marked as required.  If so, include them.
+			 * It is possible that the return statements are not affected by the parameters in which case _params will be
+			 * null.  On the other hand, may be the return statements have been included but not yet processed in which case
+			 * _params will be null again.  In the latter case, we postpone for callee-caller propogation to generate
+			 * criteria to consider suitable argument expressions.
+			 */
+			final BitSet _params = (BitSet) method2params.get(callee);
+
+			if (_params != null && callee.getParameterCount() > 0) {
+				for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
+					generateSliceExprCriterion(_invokeExpr.getArgBox(_j), invocationStmt, caller, true);
+				}
 			}
 		}
 	}
@@ -821,7 +846,7 @@ public final class SlicingEngine {
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
 		if (!marked(method)) {
-			invoked.add(method);
+			markAsInvoked(method);
 		}
 
 		if (!collector.hasBeenCollected(valueBox)) {
@@ -849,7 +874,7 @@ public final class SlicingEngine {
 	 */
 	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
 		if (!marked(method)) {
-			invoked.add(method);
+			markAsInvoked(method);
 		}
 
 		if (!collector.hasBeenCollected(stmt)) {
@@ -876,13 +901,24 @@ public final class SlicingEngine {
 		collector.includeInSlice(host1);
 
 		if (host1 instanceof SootMethod && !marked((SootMethod) host1)) {
-			invoked.add(host1);
+			markAsInvoked((SootMethod) host1);
 		}
 		collector.includeInSlice(host2);
 
 		if (host2 instanceof SootMethod && !marked((SootMethod) host2)) {
-			invoked.add(host2);
+			markAsInvoked((SootMethod) host2);
 		}
+	}
+
+	/**
+	 * Mark the given method as invoked.
+	 *
+	 * @param method to be marked.
+	 *
+	 * @pre method != null
+	 */
+	private void markAsInvoked(final SootMethod method) {
+		invoked.add(method);
 	}
 
 	/**
@@ -968,18 +1004,20 @@ public final class SlicingEngine {
 		 * required <init>'s from other higher super classes.
 		 */
 		if (callee.getName().equals("<init>")) {
-			final SootClass _sc1 = callee.getDeclaringClass();
+			final CompleteUnitGraph _ug = new CompleteUnitGraph(callee.getActiveBody());
+			final SimpleLocalUses _sul = new SimpleLocalUses(_ug, new SimpleLocalDefs(_ug));
+			final List _uses = _sul.getUsesOf(bbg.getHead().getLeaderStmt());
 
-			for (final Iterator _j = bbg.getHead().getStmtsOf().iterator(); _j.hasNext();) {
-				final Stmt _stmt = (Stmt) _j.next();
-				final SootMethod _invokedMethod = _stmt.getInvokeExpr().getMethod();
+			for (final Iterator _i = _uses.iterator(); _i.hasNext();) {
+				final UnitValueBoxPair _ubp = (UnitValueBoxPair) _i.next();
+				final Stmt _stmt = (Stmt) _ubp.getUnit();
 
-				if (_stmt instanceof InvokeStmt && _invokedMethod.getName().equals("<init>")) {
-					final SootClass _sc2 = _invokedMethod.getDeclaringClass();
+				if (_stmt instanceof InvokeStmt) {
+					final SootMethod _called = _stmt.getInvokeExpr().getMethod();
 
-					if (_sc1 == _sc2 || (_sc1.hasSuperclass() && _sc1.getSuperclass() == _sc2)) {
+					if (_called.getName().equals("<init>")
+						  && _called.getDeclaringClass().equals(callee.getDeclaringClass().getSuperclass())) {
 						generateSliceStmtCriterion(_stmt, callee, true);
-						break;
 					}
 				}
 			}
@@ -1130,9 +1168,12 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2003/12/13 20:54:27  venku
+   - it is possible that none of the parameters are used.
+     In such cases, _params will be null in generateNewCriteriaForMethodExit()
+     which is incorrect.  FIXED.
    Revision 1.36  2003/12/13 20:52:33  venku
    - documentation.
-
    Revision 1.35  2003/12/13 19:52:41  venku
    - renamed Init2NewExprMapper to NewExpr2InitMapper.
    - ripple effect.
