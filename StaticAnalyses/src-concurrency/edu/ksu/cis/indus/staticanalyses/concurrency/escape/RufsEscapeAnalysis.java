@@ -263,6 +263,7 @@ public class RufsEscapeAnalysis
 		stmtProcessor = new StmtProcessor();
 		valueProcessor = new ValueProcessor();
 		context = new Context();
+        cfg = new CFGAnalysis(scm, cgi);
 	}
 
 	/**
@@ -1731,7 +1732,7 @@ main_control:
 			SootMethod caller2 = ctrp.getMethod();
 			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(caller2.retrieveActiveBody()));
 
-			if (CFGAnalysis.occursInCycle(bbg, bbg.getEnclosingBlock(ctrp.getStmt()))) {
+			if (cfg.occursInCycle(bbg, bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
 			} else {
 				result = executedMultipleTimes(caller2);
@@ -1740,6 +1741,8 @@ main_control:
 		return result;
 	}
 
+    private CFGAnalysis cfg;
+ 
 	/**
 	 * This checks for the first condition of phase 1 in Ruf's algorithm, i.e., "thread allocation sites occuring in loops".
 	 *
@@ -1754,7 +1757,7 @@ main_control:
 			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(sm.retrieveActiveBody()));
 			Stmt stmt = context.getStmt();
 
-			if (CFGAnalysis.occursInCycle(bbg, bbg.getEnclosingBlock(stmt))) {
+			if (bbg.isReachable(bbg.getEnclosingBlock(stmt), bbg.getEnclosingBlock(stmt), true)) {
 				threadAllocSitesMulti.add(new NewExprTriple(sm, stmt, ne));
 			} else {
 				threadAllocSitesSingle.add(new NewExprTriple(sm, stmt, ne));
@@ -1766,6 +1769,12 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/24 12:42:33  venku
+   Removed occursInCycle() method from DirectedGraph.
+   Installed occursInCycle() method in CFGAnalysis.
+   Converted performTopologicalsort() and getFinishTimes() into instance methods.
+   Ripple effect of the above changes.
+
    Revision 1.1  2003/08/21 01:24:25  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.
