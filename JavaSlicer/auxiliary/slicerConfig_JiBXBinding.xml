@@ -1,7 +1,7 @@
 <binding>
-	<mapping name="slicerConfiguration"	class="edu.ksu.cis.indus.tools.ToolConfigurationCollection">
+	<mapping name="slicerConfiguration"	class="edu.ksu.cis.indus.tools.CompositeToolConfiguration">
 		<collection field="configurations" item-type="edu.ksu.cis.indus.tools.slicer.SlicerConfiguration" 
-			factory="edu.ksu.cis.indus.tools.ToolConfigurationCollection.createConfigurations"
+			factory="edu.ksu.cis.indus.tools.CompositeToolConfiguration.createConfigurations"
 			set-method="setConfigurations"/>
 		<value style="attribute" name="activeConfiguration" set-method="setActiveToolConfigurationID" 
 			get-method="getActiveToolConfigurationID"/>
