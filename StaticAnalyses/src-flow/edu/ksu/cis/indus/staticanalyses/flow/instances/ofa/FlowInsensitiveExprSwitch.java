@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -24,9 +24,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.ArrayVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
-
-import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -108,10 +107,6 @@ class FlowInsensitiveExprSwitch
 	 */
 	public void caseArrayRef(final ArrayRef e) {
 		process(e.getBaseBox());
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(e.getBaseBox());
-		}
 
 		final IFGNode _baseNode = (IFGNode) getResult();
 		final IFGNode _ast = method.getASTNode(e);
@@ -222,10 +217,20 @@ class FlowInsensitiveExprSwitch
 	public void caseNewArrayExpr(final NewArrayExpr e) {
 		process(e.getSizeBox());
 
+		Object _temp = null;
+
+		if (context instanceof AllocationContext) {
+			_temp = ((AllocationContext) context).setAllocationSite(e);
+		}
+
 		final IFGNode _ast = method.getASTNode(e);
 		fa.getArrayVariant((ArrayType) e.getType(), context);
 		_ast.injectValue(e);
 		setResult(_ast);
+
+		if (context instanceof AllocationContext) {
+			((AllocationContext) context).setAllocationSite(_temp);
+		}
 	}
 
 	/**
@@ -252,16 +257,22 @@ class FlowInsensitiveExprSwitch
 	public void caseNewMultiArrayExpr(final NewMultiArrayExpr e) {
 		final ArrayType _arrayType = e.getBaseType();
 		final Type _baseType = _arrayType.baseType;
-		int _sizes = e.getSizeCount();
 
-		for (int _i = _arrayType.numDimensions; _i > 0; _i--, _sizes--) {
+		Object _temp = null;
+
+		if (context instanceof AllocationContext) {
+			_temp = ((AllocationContext) context).setAllocationSite(e);
+		}
+
+		for (int _i = _arrayType.numDimensions, _sizes = e.getSizeCount(); _i > 0 && _sizes > 0; _i--, _sizes--) {
 			final ArrayType _aType = ArrayType.v(_baseType, _i);
 			final ArrayVariant _array = fa.getArrayVariant(_aType, context);
-			
-			if (_sizes > 0) {
-				process(e.getSizeBox(_sizes - 1));
-				_array.getFGNode().injectValue(e);
-			}
+			process(e.getSizeBox(_sizes - 1));
+			_array.getFGNode().injectValue(e);
+		}
+
+		if (context instanceof AllocationContext) {
+			((AllocationContext) context).setAllocationSite(_temp);
 		}
 
 		final IFGNode _ast = method.getASTNode(e);
@@ -479,9 +490,10 @@ class FlowInsensitiveExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/08/20 21:24:44  venku
+   - sizes were not processed in NewMultiArrayExpr.  FIXED.
    Revision 1.7  2004/08/17 16:59:52  venku
    - code cleanup.
-
    Revision 1.6  2004/05/20 07:29:42  venku
    - optimized the token set to be optimal when created.
    - added new method to retrieve empty token sets (getNewTokenSet()).
