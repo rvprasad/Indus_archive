@@ -20,6 +20,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -110,11 +111,11 @@ public final class CompositeToolConfigurator
 	public void disposeTemplateMethod() {
 		composite = null;
 		configCombo = null;
-		shell.dispose();
-		shell = null;
 		configurationCollection = null;
 		childConfigurator.dispose();
 		childConfigurator = null;
+		shell.dispose();
+		shell = null;
 	}
 
 	/**
@@ -198,12 +199,26 @@ public final class CompositeToolConfigurator
 				}
 			});
 		composite = new Composite(shell, SWT.NONE);
+
+		Button ok = new Button(shell, SWT.PUSH);
+		ok.addSelectionListener(new SelectionListener() {
+				public void widgetSelected(SelectionEvent evt) {
+					hide();
+				}
+
+				public void widgetDefaultSelected(SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			});
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/26 15:00:01  venku
+   - The configuration of tools in Indus has been placed in this package.
+   - Formatting.
    Revision 1.1  2003/09/26 13:58:43  venku
    - checkpoint commit.
    - Renamed ToolConfigurationCollection to CompositeToolConfiguration
