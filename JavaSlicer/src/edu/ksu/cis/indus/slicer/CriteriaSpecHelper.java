@@ -49,7 +49,7 @@ public final class CriteriaSpecHelper {
 	 * @pre criterion != null
 	 */
 	public static boolean isConsiderExecution(final ISliceCriterion criterion) {
-		return ((AbstractSliceCriterion) criterion).isConsiderExecution();
+		return ((AbstractProgramPointLevelSliceCriterion) criterion).isConsiderExecution();
 	}
 
 	/**
@@ -64,8 +64,8 @@ public final class CriteriaSpecHelper {
 	public static ValueBox getOccurringExpr(final ISliceCriterion criterion) {
 		final ValueBox _result;
 
-		if (criterion instanceof SliceExpr) {
-			_result = (ValueBox) ((SliceExpr) criterion).getCriterion();
+		if (criterion instanceof ExprLevelSliceCriterion) {
+			_result = (ValueBox) ((ExprLevelSliceCriterion) criterion).getCriterion();
 		} else {
 			_result = null;
 		}
@@ -83,7 +83,7 @@ public final class CriteriaSpecHelper {
 	 * @post result != null
 	 */
 	public static SootMethod getOccurringMethod(final ISliceCriterion criterion) {
-		return ((AbstractSliceCriterion) criterion).getOccurringMethod();
+		return criterion.getOccurringMethod();
 	}
 
 	/**
@@ -101,12 +101,13 @@ public final class CriteriaSpecHelper {
 	public static Stmt getOccurringStmt(final ISliceCriterion criterion) {
 		final Stmt _result;
 
-		if (criterion instanceof SliceExpr) {
-			_result = ((SliceExpr) criterion).getOccurringStmt();
-		} else if (criterion instanceof SliceStmt) {
-			_result = (Stmt) ((SliceStmt) criterion).getCriterion();
+		if (criterion instanceof ExprLevelSliceCriterion) {
+			_result = ((ExprLevelSliceCriterion) criterion).getOccurringStmt();
+		} else if (criterion instanceof StmtLevelSliceCriterion) {
+			_result = (Stmt) ((StmtLevelSliceCriterion) criterion).getCriterion();
 		} else {
-			throw new IllegalArgumentException("The type of \"criterion\" has to be one of SliceStmt or SliceExpr.");
+			throw new IllegalArgumentException(
+				"The type of \"criterion\" has to be one of StmtLevelSliceCriterion or ExprLevelSliceCriterion.");
 		}
 		return _result;
 	}

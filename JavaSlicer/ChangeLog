@@ -1,3 +1,32 @@
+2005-02-27  venku  <rvprasad@cis.ksu.edu>
+
+	* auxiliary/slicerConfig.xsd, 
+	  auxiliary/slicerConfig_JiBXBinding.xml: 
+	  src/edu/ksu/cis/indus/tools/slicer/SlicerConfiguration.java: 
+	  	Support to control inter-procedural-ness of Ready dependence.
+	
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/generators/StaticSliceCriteriaGenerator.java: The criteria were not being 
+	contextualized. FIXED.
+	
+	* src/edu/ksu/cis/indus/tools/slicer/SlicerConfigurator.java (setupReadyDepUI):  Altered layout.
+	Added tool tips to all graphical entities.	
+	
+	* src/edu/ksu/cis/indus/toolkits/bandera/SlicerTool.java: Ripple effect of changes to concerned classes.
+	
+	* src/edu/ksu/cis/indus/slicer/DependenceExtractor.java: Ripple effect of converting ready dependence info pertaining to ready 
+		dependence relating synchronized methods to be non-statement based and of the above changes.
+		
+	* edu.ksu.cis.indus.slicer:
+		Renamed classes as given below.
+			AbstractSliceCriterion -> AbstractProgramPointLevelSliceCriterion
+			SliceStmt -> StmtLevelSliceCriterion
+			SliceExpr -> ExprLevelSliceCriterion
+		Introduced a new class to represent method level slice criterion - MethodLevelSliceCriterion.
+		Methods in above classes were renamed appropritately.
+		SlicingEngine was modified to calculate slice based on method level slice criterion.
+		BackwardSlicingPart, ForwardSlicingPart, and SliceCriteriaFactory had ripple effects.
+		
+
 2005-02-26  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml,

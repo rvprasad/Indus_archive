@@ -23,23 +23,53 @@ import java.util.Stack;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.ObjectPool;
+
+import org.apache.commons.pool.impl.SoftReferenceObjectPool;
+
 import soot.SootMethod;
 
 
 /**
- * This class represents a slice criterion.  This class has support builtin for object pooling.
+ * This class represents method-level slice criterion.  This class has support builtin for object pooling.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-abstract class AbstractSliceCriterion
+class MethodLevelSliceCriterion
   extends AbstractPoolable
   implements ISliceCriterion {
 	/** 
-	 * The method in which <code>stmt</code> occurs.
+	 * A pool of <code>StmtLevelSliceCriterion</code> criterion objects.
+	 *
+	 * @invariant STMT_POOL.borrowObject().oclIsKindOf(StmtLevelSliceCriterion)
 	 */
-	protected SootMethod method;
+	static final ObjectPool METHOD_POOL =
+		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
+				/**
+				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
+				 */
+				public final Object makeObject() {
+					final MethodLevelSliceCriterion _result = new MethodLevelSliceCriterion();
+					_result.setPool(METHOD_POOL);
+					return _result;
+				}
+			});
+
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(MethodLevelSliceCriterion.class);
+
+	/** 
+	 * The method which is syntactically part of the slice criteria interest..
+	 */
+	private SootMethod method;
 
 	/** 
 	 * This captures the call sequence that caused this criterion in the callee to occur.  So, when slicing, if this field is
@@ -47,12 +77,6 @@ abstract class AbstractSliceCriterion
 	 * field is null).
 	 */
 	private Stack callStack;
-
-	/** 
-	 * This indicates if the effect of executing the criterion should be considered for slicing.  By default it takes on  the
-	 * value <code>false</code> to indicate execution should not be considered.
-	 */
-	private boolean considerExecution;
 
 	/**
 	 * @see ISliceCriterion#setCallStack(Stack)
@@ -85,16 +109,14 @@ abstract class AbstractSliceCriterion
 	public boolean equals(final Object o) {
 		boolean _result = false;
 
-		if (o instanceof AbstractSliceCriterion) {
-			_result =
-				((AbstractSliceCriterion) o).method.equals(method)
-				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution;
+		if (o instanceof MethodLevelSliceCriterion) {
+			_result = ((MethodLevelSliceCriterion) o).method.equals(method);
 
 			if (_result) {
 				if (callStack != null) {
-					_result = callStack.equals(((AbstractSliceCriterion) o).callStack);
+					_result = callStack.equals(((MethodLevelSliceCriterion) o).callStack);
 				} else {
-					_result = callStack == ((AbstractSliceCriterion) o).callStack;
+					_result = callStack == ((MethodLevelSliceCriterion) o).callStack;
 				}
 			}
 		}
@@ -106,7 +128,6 @@ abstract class AbstractSliceCriterion
 	 */
 	public int hashCode() {
 		int _hash = 17;
-		_hash = _hash * 37 + Boolean.valueOf(considerExecution).hashCode();
 		_hash = _hash * 37 + method.hashCode();
 
 		if (callStack != null) {
@@ -127,8 +148,9 @@ abstract class AbstractSliceCriterion
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).append("considerExecution",
-			this.considerExecution).append("method", this.method).append("callStack", this.callStack).toString();
+		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).append("method", this.method)
+																					 .append("callStack", this.callStack)
+																					 .toString();
 	}
 
 	/**
@@ -141,34 +163,26 @@ abstract class AbstractSliceCriterion
 	}
 
 	/**
-	 * Sets the flag to indicate if the execution of the criterion should be considered during slicing.
+	 * Retrieves a method-level slicing criterion object.
 	 *
-	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
-	 * 		  considered while slicing.  This also means all the subexpressions of the associated expression are also
-	 * 		  considered as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching
-	 * 		  this criterion should be considered while slicing.  This means none of the subexpressions of the associated
-	 * 		  expression are considered as slice criteria.
-	 */
-	final void setConsiderExecution(final boolean shouldConsiderExecution) {
-		considerExecution = shouldConsiderExecution;
-	}
-
-	/**
-	 * Returns the stored criterion object.
+	 * @return a method-level slicing criterion object.
 	 *
-	 * @return Object representing the criterion.
+	 * @throws RuntimeException if an object could not be retrieved from the pool.
 	 *
 	 * @post result != null
 	 */
-	abstract Object getCriterion();
+	static MethodLevelSliceCriterion getMethodLevelSliceCriterion() {
+		MethodLevelSliceCriterion _result;
 
-	/**
-	 * Indicates if the effect of execution of criterion should be considered.
-	 *
-	 * @return <code>true</code> if the effect of execution should be considered; <code>false</code>, otherwise.
-	 */
-	final boolean isConsiderExecution() {
-		return considerExecution;
+		try {
+			_result = (MethodLevelSliceCriterion) METHOD_POOL.borrowObject();
+		} catch (final Exception _e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("How can this happen?", _e);
+			}
+			throw new RuntimeException(_e);
+		}
+		return _result;
 	}
 }
 

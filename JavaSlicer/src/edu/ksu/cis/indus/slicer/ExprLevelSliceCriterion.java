@@ -28,32 +28,33 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 
 import soot.SootMethod;
+import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
 
 /**
- * This class represents a statement as a slice criterion.  This class supports object pooling.
+ * This class represents expression-level slice criterion.  This class supports object pooling.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-class SliceStmt
-  extends AbstractSliceCriterion {
+class ExprLevelSliceCriterion
+  extends AbstractProgramPointLevelSliceCriterion {
 	/** 
-	 * A pool of <code>SliceStmt</code> criterion objects.
+	 * A pool of <code>ExprLevelSliceCriterion</code> criterion objects.
 	 *
-	 * @invariant STMT_POOL.borrowObject().oclIsKindOf(SliceStmt)
+	 * @invariant EXPR_POOL.borrowObject().oclIsKindOf(ExprLevelSliceCriterion)
 	 */
-	static final ObjectPool STMT_POOL =
+	static final ObjectPool EXPR_POOL =
 		new SoftReferenceObjectPool(new BasePoolableObjectFactory() {
 				/**
 				 * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
 				 */
 				public final Object makeObject() {
-					final SliceStmt _result = new SliceStmt();
-					_result.setPool(STMT_POOL);
+					final ExprLevelSliceCriterion _result = new ExprLevelSliceCriterion();
+					_result.setPool(EXPR_POOL);
 					return _result;
 				}
 			});
@@ -61,12 +62,17 @@ class SliceStmt
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SliceStmt.class);
+	private static final Log LOGGER = LogFactory.getLog(ExprLevelSliceCriterion.class);
 
 	/** 
 	 * The statement associated with this criterion.
 	 */
 	protected Stmt stmt;
+
+	/** 
+	 * The expression associated with this criterion.
+	 */
+	protected ValueBox expr;
 
 	/**
 	 * Checks if the given object is "equal" to this object.
@@ -78,9 +84,9 @@ class SliceStmt
 	public boolean equals(final Object o) {
 		boolean _result = false;
 
-		if (o instanceof SliceStmt) {
-			final SliceStmt _temp = (SliceStmt) o;
-			_result = _temp.stmt == stmt && super.equals(o);
+		if (o instanceof ExprLevelSliceCriterion) {
+			final ExprLevelSliceCriterion _temp = (ExprLevelSliceCriterion) o;
+			_result = _temp.expr == expr && _temp.stmt == stmt && super.equals(o);
 		}
 		return _result;
 	}
@@ -91,6 +97,7 @@ class SliceStmt
 	public int hashCode() {
 		int _hash = super.hashCode();
 		_hash = 37 * _hash + stmt.hashCode();
+		_hash = 37 * _hash + expr.hashCode();
 		return _hash;
 	}
 
@@ -99,56 +106,67 @@ class SliceStmt
 	 */
 	public String toString() {
 		return new ToStringBuilder(this, CustomToStringStyle.HASHCODE_AT_END_STYLE).appendSuper(super.toString())
-																					 .append("stmt", this.stmt).toString();
+																					 .append("expr", this.expr).toString();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return the statement(<code>Stmt</code>) associated with this criterion.
+	 * @return the expression(<code>ValueBox</code>) associated with criterion.
 	 *
-	 * @post result != null and result.oclIsKindOf(jimple.Stmt)
+	 * @post result != null and result.oclIsKindOf(ValueBox)
 	 *
-	 * @see AbstractSliceCriterion#getCriterion()
+	 * @see AbstractProgramPointLevelSliceCriterion#getCriterion()
 	 */
 	protected Object getCriterion() {
+		return expr;
+	}
+
+	/**
+	 * Provides the statement in which the slice expression occurs.
+	 *
+	 * @return the statement in which the slice expression occurs.
+	 *
+	 * @post result != null
+	 */
+	protected final Stmt getOccurringStmt() {
 		return stmt;
 	}
 
 	/**
-	 * Retrieves a statement-level slicing criterion object.
+	 * Retrieves an expression-level slicing criterion object.
 	 *
-	 * @return a statement-level slicing criterion object.
+	 * @return an expression-level slicing criterion object.
 	 *
 	 * @throws RuntimeException if an object could not be retrieved from the pool.
 	 *
 	 * @post result != null
 	 */
-	static SliceStmt getSliceStmt() {
-		SliceStmt _result;
-
+	static ExprLevelSliceCriterion getExprLevelSliceCriterion() {
 		try {
-			_result = (SliceStmt) STMT_POOL.borrowObject();
-		} catch (Exception _e) {
+			final ExprLevelSliceCriterion _result = (ExprLevelSliceCriterion) EXPR_POOL.borrowObject();
+			return _result;
+		} catch (final Exception _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("How can this happen?", _e);
 			}
 			throw new RuntimeException(_e);
 		}
-		return _result;
 	}
 
 	/**
 	 * Initializes this object.
 	 *
-	 * @param occurringMethod in which the slice criterion occurs.
-	 * @param criterion is the slice criterion.
+	 * @param occurringMethod in which the criterion containing statement occurs.
+	 * @param occurringStmt in which the criterion containing expression occurs.
+	 * @param criterion is the slicing criterion.
 	 *
-	 * @pre method != null and stmt != null
+	 * @pre expr != null and stmt != null and method != null
 	 */
-	void initialize(final SootMethod occurringMethod, final Stmt criterion) {
+	void initialize(final SootMethod occurringMethod, final Stmt occurringStmt, final ValueBox criterion) {
 		super.initialize(occurringMethod);
-		this.stmt = criterion;
+		this.stmt = occurringStmt;
+		this.expr = criterion;
 	}
 }
 

@@ -93,6 +93,7 @@ public final class SlicerConfigurator
 		_sliceInfoTabComposite.pack();
 		_sliceInfoTab.setControl(_sliceInfoTabComposite);
 		_sliceInfoTab.setText("Slice");
+		_sliceInfoTab.setToolTipText("Configure slice properties.");
 
 		final TabItem _dependenceDATab = new TabItem(_tabFolder, SWT.NONE);
 		final Composite _dependenceDAComposite = new Composite(_tabFolder, SWT.NONE);
@@ -100,6 +101,7 @@ public final class SlicerConfigurator
 		_dependenceDAComposite.pack();
 		_dependenceDATab.setControl(_dependenceDAComposite);
 		_dependenceDATab.setText("General Dependence");
+		_dependenceDATab.setToolTipText("Configure control and synchronization dependences.");
 
 		final TabItem _divergenceDATab = new TabItem(_tabFolder, SWT.NONE);
 		final Composite _divergenceDAComposite = new Composite(_tabFolder, SWT.NONE);
@@ -107,6 +109,7 @@ public final class SlicerConfigurator
 		_divergenceDAComposite.pack();
 		_divergenceDATab.setControl(_divergenceDAComposite);
 		_divergenceDATab.setText("Divergence");
+		_divergenceDATab.setToolTipText("Configure divergence dependences.");
 
 		final TabItem _interferenceDATab = new TabItem(_tabFolder, SWT.NONE);
 		final Composite _interferenceDATabComposite = new Composite(_tabFolder, SWT.NONE);
@@ -114,6 +117,7 @@ public final class SlicerConfigurator
 		_interferenceDATabComposite.pack();
 		_interferenceDATab.setControl(_interferenceDATabComposite);
 		_interferenceDATab.setText("Intereference");
+		_interferenceDATab.setToolTipText("Configure interference dependences.");
 
 		final TabItem _readyDATab = new TabItem(_tabFolder, SWT.NONE);
 		final Composite _readyDATabComposite = new Composite(_tabFolder, SWT.NONE);
@@ -121,6 +125,7 @@ public final class SlicerConfigurator
 		_readyDATabComposite.pack();
 		_readyDATab.setControl(_readyDATabComposite);
 		_readyDATab.setText("Ready");
+		_readyDATab.setToolTipText("Configure ready dependences.");
 
 		_tabFolder.pack();
 		parent.pack();
@@ -138,7 +143,7 @@ public final class SlicerConfigurator
 		composite.setLayout(_rowLayout);
 
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
-        
+
 		final Button _useNonTerminationSensitiveCDAButton = new Button(composite, SWT.CHECK);
 		_useNonTerminationSensitiveCDAButton.setText("use non-termination sensitive control dependence");
 		_useNonTerminationSensitiveCDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_DIVERGENCEDA))
@@ -150,9 +155,12 @@ public final class SlicerConfigurator
 
 		final Button _useSyncDepButton = new Button(composite, SWT.CHECK);
 		_useSyncDepButton.setText("use synchronization dependence");
+		_useSyncDepButton.setToolTipText("Use synchronization dependence in calculation of the slice.");
 		_useSyncDepButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_SYNCHRONIZATIONDA)).booleanValue());
-		_useSyncDepButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_SYNCHRONIZATIONDA,
-				_useSyncDepButton, _cfg));
+		_useSyncDepButton.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.USE_SYNCHRONIZATIONDA,
+				_useSyncDepButton,
+				_cfg));
 	}
 
 	/**
@@ -170,6 +178,7 @@ public final class SlicerConfigurator
 
 		final Button _useDDAButton = new Button(composite, SWT.CHECK);
 		_useDDAButton.setText("use divergence dependence");
+		_useDDAButton.setToolTipText("Use divergence dependence in calculation of the slice.");
 		_useDDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
 		_useDDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
 				_useDDAButton, _cfg));
@@ -182,12 +191,15 @@ public final class SlicerConfigurator
 
 		final Button _intraProceduralDDA = new Button(_natureOfDDAGroup, SWT.RADIO);
 		_intraProceduralDDA.setText("intra-procedural only");
+		_intraProceduralDDA.setToolTipText("This will not capture dependence on call-sites to divergent methods.");
 
 		final Button _interProceduralDDA = new Button(_natureOfDDAGroup, SWT.RADIO);
 		_interProceduralDDA.setText("inter-procedural only");
+		_interProceduralDDA.setToolTipText("This will not capture dependence on intra-procedual divergence.");
 
 		final Button _intraAndInterProceduralDDA = new Button(_natureOfDDAGroup, SWT.RADIO);
 		_intraAndInterProceduralDDA.setText("intra- and inter-procedural");
+		_intraAndInterProceduralDDA.setToolTipText("This will capture both intra- and inter-procedual divergence.");
 
 		final SelectionListener _sl2 =
 			new SelectionListener() {
@@ -195,9 +207,9 @@ public final class SlicerConfigurator
 					Object _value = null;
 
 					if (evt.widget == _intraProceduralDDA) {
-						_value = SlicerConfiguration.INTRA_PROCEDURAL;
+						_value = SlicerConfiguration.INTRA_PROCEDURAL_ONLY;
 					} else if (evt.widget == _interProceduralDDA) {
-						_value = SlicerConfiguration.INTER_PROCEDURAL;
+						_value = SlicerConfiguration.INTER_PROCEDURAL_ONLY;
 					} else if (evt.widget == _intraAndInterProceduralDDA) {
 						_value = SlicerConfiguration.INTRA_AND_INTER_PROCEDURAL;
 					}
@@ -217,11 +229,11 @@ public final class SlicerConfigurator
 
 		final Object _temp = _cfg.getProperty(SlicerConfiguration.NATURE_OF_DIVERGENCE_DA);
 
-		if (_temp == null || _temp.equals(SlicerConfiguration.INTER_PROCEDURAL)) {
+		if (_temp == null || _temp.equals(SlicerConfiguration.INTER_PROCEDURAL_ONLY)) {
 			_interProceduralDDA.setSelection(true);
 		} else if (_temp.equals(SlicerConfiguration.INTRA_AND_INTER_PROCEDURAL)) {
 			_intraAndInterProceduralDDA.setSelection(true);
-		} else if (_temp.equals(SlicerConfiguration.INTRA_PROCEDURAL)) {
+		} else if (_temp.equals(SlicerConfiguration.INTRA_PROCEDURAL_ONLY)) {
 			_intraProceduralDDA.setSelection(true);
 		}
 
@@ -268,6 +280,7 @@ public final class SlicerConfigurator
 
 		final Button _useIDAButton = new Button(composite, SWT.CHECK);
 		_useIDAButton.setText("use interference dependence");
+		_useIDAButton.setToolTipText("Use interference dependence in calculation of the slice.");
 		_useIDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_INTERFERENCEDA)).booleanValue());
 		_useIDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_INTERFERENCEDA,
 				_useIDAButton, _cfg));
@@ -278,6 +291,7 @@ public final class SlicerConfigurator
 		_gridLayout3.numColumns = 2;
 		_natureOfIDAGroup.setLayout(_gridLayout3);
 		_natureOfIDAGroup.setText("Precision of Interference dependence");
+		_natureOfIDAGroup.setToolTipText("Controls the precision of interference dependence.");
 
 		final GridData _gridData1 = new GridData(GridData.FILL_HORIZONTAL);
 		_gridData1.horizontalSpan = 2;
@@ -287,16 +301,20 @@ public final class SlicerConfigurator
 		final GridLayout _gridLayout4 = new GridLayout();
 		_gridLayout4.numColumns = 1;
 		_precisionGroup.setLayout(_gridLayout4);
-		_precisionGroup.setText("Inteference dependence mode");
+		_precisionGroup.setText("Sort of analysis to be used.");
+		_precisionGroup.setToolTipText("Controls the precision via  properties inherent to interference.");
 
 		final Button _typedIDA = new Button(_precisionGroup, SWT.RADIO);
 		_typedIDA.setText("use type-based analysis");
+        _typedIDA.setToolTipText("Only primaries of compatible types will be considered");
 
 		final Button _equivalenceClassBasedEscapeAnalysisBasedIDA = new Button(_precisionGroup, SWT.RADIO);
 		_equivalenceClassBasedEscapeAnalysisBasedIDA.setText("use equivalence class-based analysis");
+        _equivalenceClassBasedEscapeAnalysisBasedIDA.setToolTipText("Only primaries of belonging to the same equivalence class will be considered.");
 
 		final Button _symbolBasedEscapeAnalysisBasedIDA = new Button(_precisionGroup, SWT.RADIO);
-		_symbolBasedEscapeAnalysisBasedIDA.setText("use sybmol and equivalence class-based analysis");
+		_symbolBasedEscapeAnalysisBasedIDA.setText("use symbol and equivalence class-based analysis");
+        _symbolBasedEscapeAnalysisBasedIDA.setToolTipText("Only symbolically equivalent primaries that belong to the same equivalence class will be considered.");
 
 		final SelectionListener _sl2 =
 			new SelectionListener() {
@@ -346,7 +364,7 @@ public final class SlicerConfigurator
 
 		final Button _useOFAForInterference = new Button(_analysisComposite, SWT.CHECK);
 		_useOFAForInterference.setText("use object flow analysis information");
-
+        _useOFAForInterference.setToolTipText("Only aliasing primaries will be considered");
 		_useOFAForInterference.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.USE_OFA_FOR_INTERFERENCE_DA,
 				_useOFAForInterference,
@@ -412,33 +430,38 @@ public final class SlicerConfigurator
 
 		final Button _useRDAButton = new Button(_readyComposite1, SWT.CHECK);
 		_useRDAButton.setText("use ready dependence");
+		_useRDAButton.setToolTipText("Use ready dependence in calculation of the slice.");
 		_useRDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
 		_useRDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA,
 				_useRDAButton, _cfg));
 
 		// Sets up the composite and buttons pertaining to precision control.        
-		final Group _natureOfRDAGroup = new Group(composite, SWT.SHADOW_ETCHED_IN);
+		final Group _precisionOfRDAGroup = new Group(composite, SWT.SHADOW_ETCHED_IN);
 		final GridLayout _gridLayout3 = new GridLayout();
 		_gridLayout3.numColumns = 2;
-		_natureOfRDAGroup.setLayout(_gridLayout3);
-		_natureOfRDAGroup.setText("Precision of Ready dependence");
+		_precisionOfRDAGroup.setLayout(_gridLayout3);
+		_precisionOfRDAGroup.setText("Precision of Ready dependence");
 
-		final Group _precisionGroup = new Group(_natureOfRDAGroup, SWT.SHADOW_ETCHED_IN);
+		final Group _precisionGroup = new Group(_precisionOfRDAGroup, SWT.SHADOW_ETCHED_IN);
 		final GridLayout _gridLayout4 = new GridLayout();
 		_gridLayout4.numColumns = 1;
 		_precisionGroup.setLayout(_gridLayout4);
-		_precisionGroup.setText("Ready dependence mode");
+        _precisionGroup.setText("Sort of analysis to be used.");
+        _precisionGroup.setToolTipText("Controls the precision via  properties inherent to interference.");
 
 		// Sets up the buttons that control the nature of ready dependence.
 		final Button _typedRDA = new Button(_precisionGroup, SWT.RADIO);
 		_typedRDA.setText("use type-based analysis");
+        _typedRDA.setToolTipText("Only primaries of compatible types will be considered");
 
 		final Button _equivalenceClassBasedEscapeAnalysisBasedRDA = new Button(_precisionGroup, SWT.RADIO);
 		_equivalenceClassBasedEscapeAnalysisBasedRDA.setText("use equivalence class-based analysis");
+        _equivalenceClassBasedEscapeAnalysisBasedRDA.setToolTipText("Only primaries belonging to the same equivalence class  will be considered.");
 
 		final Button _symbolBasedEscapeAnalysisBasedRDA = new Button(_precisionGroup, SWT.RADIO);
 		_symbolBasedEscapeAnalysisBasedRDA.setText("use sybmol and equivalence class-based analysis");
-
+        _symbolBasedEscapeAnalysisBasedRDA.setToolTipText("Only symbolically equivalent primaries that belong to the same equivalence class will be considered.");
+        
 		SelectionListener _sl =
 			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
@@ -476,46 +499,67 @@ public final class SlicerConfigurator
 		}
 
 		// Sets up the buttons that control what auxiliary analysis are used improve precision.         
-		final Composite _analysisComposite = new Composite(_natureOfRDAGroup, SWT.NONE);
+		final Composite _analysisComposite = new Composite(_precisionOfRDAGroup, SWT.NONE);
 		final RowLayout _rowLayout = new RowLayout();
 		_rowLayout.type = SWT.VERTICAL;
 		_analysisComposite.setLayout(_rowLayout);
 
+		final GridData _analysisCompositeGridData = new GridData(GridData.FILL_HORIZONTAL);
+		_analysisCompositeGridData.verticalAlignment = SWT.TOP;
+		_analysisComposite.setLayoutData(_analysisCompositeGridData);
+
 		final Button _useOFAForReady = new Button(_analysisComposite, SWT.CHECK);
 		_useOFAForReady.setText("use object flow analysis information");
+        _useOFAForReady.setToolTipText("Only aliasing primaries will be considered");
 		_useOFAForReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA)).booleanValue());
 		_useOFAForReady.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_OFA_FOR_READY_DA,
 				_useOFAForReady, _cfg));
+        
 
 		final Button _useSLAForReady = new Button(_analysisComposite, SWT.CHECK);
 		_useSLAForReady.setText("use safe lock analysis ");
+        _useSLAForReady.setToolTipText("Safe locks will not considered");
 		_useSLAForReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_SLA_FOR_READY_DA)).booleanValue());
 		_useSLAForReady.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_SLA_FOR_READY_DA,
 				_useSLAForReady, _cfg));
 
+		final Button _useCallSiteSensitiveReady = new Button(_analysisComposite, SWT.CHECK);
+		_useCallSiteSensitiveReady.setText("use call-site sensitive");
+		_useCallSiteSensitiveReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.CALL_SITE_SENSITIVE_READY_DA))
+			  .booleanValue());
+		_useCallSiteSensitiveReady.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.CALL_SITE_SENSITIVE_READY_DA,
+				_useCallSiteSensitiveReady,
+				_cfg));
+
 		// Sets up the buttons that control what rules of ready dependence analysis are used.        
-		final Composite _readyComposite2 = new Composite(composite, SWT.NONE);
+		final Group _natureOfRDAGroup = new Group(composite, SWT.SHADOW_ETCHED_IN);
 		final GridLayout _gridLayout5 = new GridLayout();
 		_gridLayout5.numColumns = 2;
-		_readyComposite2.setLayout(_gridLayout5);
+		_natureOfRDAGroup.setLayout(_gridLayout5);
+		_natureOfRDAGroup.setText("Nature of Ready dependence");
 
-		final Button _rule1RDAButton = new Button(_readyComposite2, SWT.CHECK);
+		final Button _rule1RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule1RDAButton.setText("use rule 1 of ready dependence");
+        _rule1RDAButton.setToolTipText("Intra-thread intra-procedural monitor acquisition based ready dependence");
 		_rule1RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule1RDAButton, _cfg));
 
-		final Button _rule2RDAButton = new Button(_readyComposite2, SWT.CHECK);
+		final Button _rule2RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule2RDAButton.setText("use rule 2 of ready dependence");
+        _rule2RDAButton.setToolTipText("Inter-thread monitor acquisition ready dependence");
 		_rule2RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule2RDAButton, _cfg));
 
-		final Button _rule3RDAButton = new Button(_readyComposite2, SWT.CHECK);
+		final Button _rule3RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule3RDAButton.setText("use rule 3 of ready dependence");
+        _rule3RDAButton.setToolTipText("Intra-thread intra-procedural Object.wait() based ready dependence");
 		_rule3RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule3RDAButton, _cfg));
 
-		final Button _rule4RDAButton = new Button(_readyComposite2, SWT.CHECK);
+		final Button _rule4RDAButton = new Button(_natureOfRDAGroup, SWT.CHECK);
 		_rule4RDAButton.setText("use rule 4 of ready dependence");
+        _rule4RDAButton.setToolTipText("Inter-thread Object.wait() based ready dependence");
 		_rule4RDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA,
 				_rule4RDAButton, _cfg));
 
@@ -528,11 +572,12 @@ public final class SlicerConfigurator
 						_val = true;
 					}
 					_precisionGroup.setEnabled(_val);
-					_natureOfRDAGroup.setEnabled(_val);
+					_precisionOfRDAGroup.setEnabled(_val);
 					_equivalenceClassBasedEscapeAnalysisBasedRDA.setEnabled(_val);
 					_typedRDA.setEnabled(_val);
 					_useOFAForReady.setEnabled(_val);
 					_useSLAForReady.setEnabled(_val);
+					_useCallSiteSensitiveReady.setEnabled(_val);
 					_symbolBasedEscapeAnalysisBasedRDA.setEnabled(_val);
 					_rule1RDAButton.setEnabled(_val);
 					_rule2RDAButton.setEnabled(_val);
@@ -547,7 +592,7 @@ public final class SlicerConfigurator
 
 		if (_useRDAButton.getSelection()) {
 			_precisionGroup.setEnabled(true);
-			_natureOfRDAGroup.setEnabled(true);
+			_precisionOfRDAGroup.setEnabled(true);
 			_typedRDA.setEnabled(true);
 			_equivalenceClassBasedEscapeAnalysisBasedRDA.setEnabled(true);
 			_symbolBasedEscapeAnalysisBasedRDA.setEnabled(true);
@@ -564,9 +609,11 @@ public final class SlicerConfigurator
 			_useOFAForReady.setSelection(_bool.booleanValue());
 			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_SLA_FOR_READY_DA);
 			_useSLAForReady.setSelection(_bool.booleanValue());
+			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.CALL_SITE_SENSITIVE_READY_DA);
+			_useCallSiteSensitiveReady.setSelection(_bool.booleanValue());
 		} else {
 			_precisionGroup.setEnabled(false);
-			_natureOfRDAGroup.setEnabled(false);
+			_precisionOfRDAGroup.setEnabled(false);
 			_typedRDA.setEnabled(false);
 			_equivalenceClassBasedEscapeAnalysisBasedRDA.setEnabled(false);
 			_symbolBasedEscapeAnalysisBasedRDA.setEnabled(false);
@@ -576,6 +623,7 @@ public final class SlicerConfigurator
 			_rule4RDAButton.setEnabled(false);
 			_useOFAForReady.setEnabled(false);
 			_useSLAForReady.setEnabled(false);
+			_useCallSiteSensitiveReady.setEnabled(false);
 		}
 	}
 

@@ -94,8 +94,8 @@
       <xsd:documentation> This represents the property pertaining to procedural boundary. </xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
-      <xsd:enumeration value="INTRA_PROCEDURAL"/>
-      <xsd:enumeration value="INTER_PROCEDURAL"/>
+      <xsd:enumeration value="INTRA_PROCEDURAL_ONLY"/>
+      <xsd:enumeration value="INTER_PROCEDURAL_ONLY"/>
       <xsd:enumeration value="INTRA_AND_INTER_PROCEDURAL"/>
     </xsd:restriction>
   </xsd:simpleType>
@@ -140,6 +140,7 @@
     <xsd:attribute id="rule4" name="rule4" type="xsd:boolean" use="required"/>
     <xsd:attribute ref="slicer:active" use="required"/>
     <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
+    <xsd:attribute name="callSiteSensitive" type="xsd:boolean" use="required"/>
     <xsd:attribute name="useOFA" type="xsd:boolean" use="required"/>
     <xsd:attribute id="useSafeLockAnalysis" name="useSafeLockAnalysis" type="xsd:boolean" use="required"/>
   </xsd:complexType>

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.slicer;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Stack;
@@ -153,13 +154,13 @@ public final class SliceCriteriaFactory {
 	public Collection getCriteria(final SootMethod method, final Stmt stmt, final ValueBox expr, final boolean descend,
 		final boolean considerExecution) {
 		final Collection _result = new HashSet();
-		final SliceExpr _exprCriterion = getExprCriteria(method, stmt, expr, considerExecution);
+		final ExprLevelSliceCriterion _exprCriterion = getExprCriteria(method, stmt, expr, considerExecution);
 		_result.add(_exprCriterion);
 
 		if (descend) {
 			for (final Iterator _i = expr.getValue().getUseBoxes().iterator(); _i.hasNext();) {
 				final ValueBox _useBox = (ValueBox) _i.next();
-				final SliceExpr _temp = getExprCriteria(method, stmt, _useBox, considerExecution);
+				final ExprLevelSliceCriterion _temp = getExprCriteria(method, stmt, _useBox, considerExecution);
 				_result.add(_temp);
 			}
 		}
@@ -179,7 +180,7 @@ public final class SliceCriteriaFactory {
 	 * @return a collection of slice criterion corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null
-	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
 	public Collection getCriteria(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
 		return getCriteria(method, stmt, false, considerExecution);
@@ -200,18 +201,18 @@ public final class SliceCriteriaFactory {
 	 * @return a collection of slice criterion corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null
-	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 * @post result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
 	public Collection getCriteria(final SootMethod method, final Stmt stmt, final boolean descend,
 		final boolean considerExecution) {
 		final Collection _result = new HashSet();
-		final SliceStmt _stmtCriterion = getStmtCriteria(method, stmt, considerExecution);
+		final StmtLevelSliceCriterion _stmtCriterion = getStmtCriteria(method, stmt, considerExecution);
 		_result.add(_stmtCriterion);
 
 		if (descend) {
 			for (final Iterator _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext();) {
 				final ValueBox _vBox = (ValueBox) _i.next();
-				final SliceExpr _temp = getExprCriteria(method, stmt, _vBox, considerExecution);
+				final ExprLevelSliceCriterion _temp = getExprCriteria(method, stmt, _vBox, considerExecution);
 				_result.add(_temp);
 			}
 		}
@@ -247,7 +248,7 @@ public final class SliceCriteriaFactory {
 				final ValueBox _vBox = (ValueBox) _j.next();
 
 				if (_vBox.getValue().equals(local)) {
-					final SliceExpr _exprCriterion = getExprCriteria(method, _stmt, _vBox, considerExecution);
+					final ExprLevelSliceCriterion _exprCriterion = getExprCriteria(method, _stmt, _vBox, considerExecution);
 					_result.add(_exprCriterion);
 				}
 			}
@@ -267,9 +268,25 @@ public final class SliceCriteriaFactory {
 		boolean _result = false;
 
 		if (o != null) {
-			_result = o instanceof AbstractSliceCriterion;
+			_result = o instanceof ISliceCriterion;
 		}
 		return _result;
+	}
+
+	/**
+	 * Retrieves a slice criterion for the given method.
+	 *
+	 * @param method of interest.
+	 *
+	 * @return a slice criterion.
+	 *
+	 * @pre method != null
+	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
+	 */
+	public Collection getCriteria(final SootMethod method) {
+		final MethodLevelSliceCriterion _criterion = MethodLevelSliceCriterion.getMethodLevelSliceCriterion();
+		_criterion.initialize(method);
+		return Collections.singleton(_criterion);
 	}
 
 	/**
@@ -286,8 +303,8 @@ public final class SliceCriteriaFactory {
 	public ISliceCriterion clone(final ISliceCriterion criterion) {
 		final ISliceCriterion _result;
 
-		if (criterion instanceof SliceStmt) {
-			final SliceStmt _t = (SliceStmt) criterion;
+		if (criterion instanceof StmtLevelSliceCriterion) {
+			final StmtLevelSliceCriterion _t = (StmtLevelSliceCriterion) criterion;
 			_result = getStmtCriteria(_t.getOccurringMethod(), (Stmt) _t.getCriterion(), _t.isConsiderExecution());
 
 			final Stack _callStack = _t.getCallStack();
@@ -295,8 +312,8 @@ public final class SliceCriteriaFactory {
 			if (_callStack != null) {
 				_result.setCallStack((Stack) _callStack.clone());
 			}
-		} else if (criterion instanceof SliceExpr) {
-			final SliceExpr _t = (SliceExpr) criterion;
+		} else if (criterion instanceof ExprLevelSliceCriterion) {
+			final ExprLevelSliceCriterion _t = (ExprLevelSliceCriterion) criterion;
 			_result =
 				getExprCriteria(_t.getOccurringMethod(), _t.getOccurringStmt(), (ValueBox) _t.getCriterion(),
 					_t.isConsiderExecution());
@@ -326,9 +343,9 @@ public final class SliceCriteriaFactory {
 	 * @pre method != null and stmt != null and vlaueBox != null
 	 * @post result != null
 	 */
-	private SliceExpr getExprCriteria(final SootMethod method, final Stmt stmt, final ValueBox valueBox,
+	private ExprLevelSliceCriterion getExprCriteria(final SootMethod method, final Stmt stmt, final ValueBox valueBox,
 		final boolean considerExecution) {
-		final SliceExpr _temp = SliceExpr.getSliceExpr();
+		final ExprLevelSliceCriterion _temp = ExprLevelSliceCriterion.getExprLevelSliceCriterion();
 		_temp.initialize(method, stmt, valueBox);
 		_temp.setConsiderExecution(considerExecution);
 		return _temp;
@@ -347,8 +364,8 @@ public final class SliceCriteriaFactory {
 	 * @pre method != null and stmt != null
 	 * @post result != null
 	 */
-	private SliceStmt getStmtCriteria(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
-		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();
+	private StmtLevelSliceCriterion getStmtCriteria(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
+		final StmtLevelSliceCriterion _stmtCriterion = StmtLevelSliceCriterion.getStmtLevelSliceCriterion();
 		_stmtCriterion.initialize(method, stmt);
 		_stmtCriterion.setConsiderExecution(considerExecution);
 		return _stmtCriterion;

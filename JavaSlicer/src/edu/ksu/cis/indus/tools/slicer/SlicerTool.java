@@ -189,7 +189,7 @@ public final class SlicerTool
 	/** 
 	 * The slicing criteria.
 	 *
-	 * @invariant criteria != null and criteria.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 * @invariant criteria != null and criteria.oclIsKindOf(Collection(ISliceCriterion))
 	 */
 	private final Collection criteria;
 
@@ -424,7 +424,7 @@ public final class SlicerTool
 	 *
 	 * @return returns the criteria.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 * @post result != null and result.oclIsKindOf(Collection(ISliceCriterion))
 	 */
 	public Collection getCriteria() {
 		return criteria;

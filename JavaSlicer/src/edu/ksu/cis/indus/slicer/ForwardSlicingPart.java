@@ -86,8 +86,8 @@ public class ForwardSlicingPart
 		} else if (_dir.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependents(entity, method));
 		} else if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("Trying to retrieve FORWARD dependence from a dependence analysis that is BACKWARD direction. -- " 
-                    + analysis.getClass() + " - " + _dir);
+			LOGGER.warn("Trying to retrieve FORWARD dependence from a dependence analysis that is BACKWARD direction. -- "
+				+ analysis.getClass() + " - " + _dir);
 		}
 
 		return _result;
@@ -106,17 +106,17 @@ public class ForwardSlicingPart
 		 * not the arguments.  Refer to transformAndGenerateToNewCriteriaForXXXX for information about how
 		 * invoke expressions are handled differently.
 		 */
-		engine.generateSliceStmtCriterion(callStmt, caller, true);
+		engine.generateStmtLevelSliceCriterion(callStmt, caller, true);
 		engine.getCollector().includeInSlice(callStmt.getInvokeExprBox());
 
 		if (!callee.isStatic()) {
 			final ValueBox _vBox = ((InstanceInvokeExpr) callStmt.getInvokeExpr()).getBaseBox();
-			engine.generateSliceExprCriterion(_vBox, callStmt, caller, false);
+			engine.generateExprLevelSliceCriterion(_vBox, callStmt, caller, false);
 		}
 
 		if (callStmt instanceof AssignStmt) {
 			final AssignStmt _defStmt = (AssignStmt) callStmt;
-			engine.generateSliceExprCriterion(_defStmt.getLeftOpBox(), callStmt, caller, false);
+			engine.generateExprLevelSliceCriterion(_defStmt.getLeftOpBox(), callStmt, caller, false);
 		}
 	}
 
@@ -145,7 +145,7 @@ public class ForwardSlicingPart
 						final Value _rightOp = _idStmt.getRightOp();
 
 						if (_rightOp instanceof ThisRef) {
-							engine.generateSliceStmtCriterion(_idStmt, _callee, false);
+							engine.generateStmtLevelSliceCriterion(_idStmt, _callee, false);
 							break;
 						}
 					}
@@ -159,8 +159,8 @@ public class ForwardSlicingPart
 	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(Local, Stmt, SootMethod)
 	 */
 	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
-		engine.generateSliceStmtCriterion(stmt, method, false);
-        
+		engine.generateStmtLevelSliceCriterion(stmt, method, false);
+
 		if (stmt.containsInvokeExpr()) {
 			final Collection _useBoxes = stmt.getInvokeExpr().getUseBoxes();
 			final Iterator _j = _useBoxes.iterator();
@@ -170,7 +170,7 @@ public class ForwardSlicingPart
 				final ValueBox _vb = (ValueBox) _j.next();
 
 				if (_vb.getValue().equals(local)) {
-					engine.generateSliceExprCriterion(_vb, stmt, method, true);
+					engine.generateExprLevelSliceCriterion(_vb, stmt, method, true);
 				}
 			}
 
@@ -279,7 +279,7 @@ public class ForwardSlicingPart
 					final Value _rightOp = _idStmt.getRightOp();
 
 					if (_rightOp instanceof ParameterRef && ((ParameterRef) _rightOp).getIndex() == argIndex) {
-						engine.generateSliceStmtCriterion(_idStmt, _callee, false);
+						engine.generateStmtLevelSliceCriterion(_idStmt, _callee, false);
 						break;
 					}
 				}

@@ -146,7 +146,7 @@ public final class SlicingEngine {
 	 * The work bag used during slicing.
 	 *
 	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
-	 * @invariant workbag->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
+	 * @invariant workbag->forall(o | o.oclIsKindOf(ISliceCriterion))
 	 */
 	private final IWorkBag workbag = new PoolAwareWorkBag(new FIFOWorkBag());
 
@@ -182,7 +182,7 @@ public final class SlicingEngine {
 	/** 
 	 * The list of slice criteria.
 	 *
-	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
+	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(ISliceCriterion))
 	 */
 	private List criteria = new ArrayList();
 
@@ -332,9 +332,9 @@ public final class SlicingEngine {
 	 *
 	 * @param sliceCriteria are ofcourse the slicing criteria
 	 *
-	 * @throws IllegalStateException when there are criteria which are not of type <code>AbstractSliceCriterion</code>.
+	 * @throws IllegalStateException when there are criteria which are not of type <code>ISliceCriterion</code>.
 	 *
-	 * @pre sliceCriteria != null and sliceCriteria.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 * @pre sliceCriteria != null and sliceCriteria.oclIsKindOf(Collection(ISliceCriterion))
 	 */
 	public void setSliceCriteria(final Collection sliceCriteria) {
 		if (sliceCriteria == null || sliceCriteria.size() == 0) {
@@ -535,21 +535,29 @@ public final class SlicingEngine {
 		while (workbag.hasWork()) {
 			final Object _work = workbag.getWork();
 
-			if (_work instanceof SliceExpr) {
-				final SliceExpr _sliceExpr = (SliceExpr) _work;
+			if (_work instanceof ExprLevelSliceCriterion) {
+				final ExprLevelSliceCriterion _sliceExpr = (ExprLevelSliceCriterion) _work;
 
-				if (sliceScope == null || sliceScope.isInScope(_sliceExpr.method, system)) {
+				if (sliceScope == null || sliceScope.isInScope(_sliceExpr.getOccurringMethod(), system)) {
 					callStackCache = _sliceExpr.getCallStack();
 					transformAndGenerateNewCriteriaForExpr(_sliceExpr);
 				}
-			} else if (_work instanceof SliceStmt) {
-				final SliceStmt _sliceStmt = (SliceStmt) _work;
+			} else if (_work instanceof StmtLevelSliceCriterion) {
+				final StmtLevelSliceCriterion _sliceStmt = (StmtLevelSliceCriterion) _work;
 				final SootMethod _sm = _sliceStmt.getOccurringMethod();
 
 				if (sliceScope == null || sliceScope.isInScope(_sm, system)) {
 					final Stmt _stmt = (Stmt) _sliceStmt.getCriterion();
 					callStackCache = _sliceStmt.getCallStack();
 					transformAndGenerateNewCriteriaForStmt(_stmt, _sm, _sliceStmt.isConsiderExecution());
+				}
+			} else if (_work instanceof MethodLevelSliceCriterion) {
+				final MethodLevelSliceCriterion _sliceMethod = (MethodLevelSliceCriterion) _work;
+				final SootMethod _sm = _sliceMethod.getOccurringMethod();
+
+				if (sliceScope == null || sliceScope.isInScope(_sm, system)) {
+					callStackCache = _sliceMethod.getCallStack();
+					transformAndGenerateNewCriteriaForMethod(_sm);
 				}
 			}
 			((IPoolable) _work).returnToPool();
@@ -658,11 +666,11 @@ public final class SlicingEngine {
 	 *
 	 * @pre valueBox != null and stmt != null and method != null and callstack != null
 	 */
-	void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
+	void generateExprLevelSliceCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution, final Stack callStack) {
 		final Stack _stack = callStackCache;
 		callStackCache = callStack;
-		generateSliceExprCriterion(valueBox, stmt, method, considerExecution);
+		generateExprLevelSliceCriterion(valueBox, stmt, method, considerExecution);
 		callStackCache = _stack;
 	}
 
@@ -677,7 +685,7 @@ public final class SlicingEngine {
 	 *
 	 * @pre valueBox != null and stmt != null and method != null
 	 */
-	void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
+	void generateExprLevelSliceCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
 		if (isNotIncludedInSlice(valueBox)) {
 			final Collection _sliceCriteria =
@@ -711,7 +719,7 @@ public final class SlicingEngine {
 	 *
 	 * @pre stmt != null and method != null
 	 */
-	void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
+	void generateStmtLevelSliceCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
 		if (isNotIncludedInSlice(stmt)) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method, stmt, considerExecution);
 			setContext(_sliceCriteria);
@@ -740,7 +748,7 @@ public final class SlicingEngine {
 
 				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 					final ValueBox _valueBox = (ValueBox) _i.next();
-					generateSliceExprCriterion(_valueBox, stmt, method, considerExecution);
+					generateExprLevelSliceCriterion(_valueBox, stmt, method, considerExecution);
 				}
 			}
 
@@ -801,7 +809,7 @@ public final class SlicingEngine {
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
 
-				((AbstractSliceCriterion) _criterion).setCallStack((Stack) callStackCache.clone());
+				_criterion.setCallStack((Stack) callStackCache.clone());
 			}
 		}
 	}
@@ -884,20 +892,14 @@ public final class SlicingEngine {
 				dependenceExtractor.setTrigger(_pair, method);
 				CollectionUtils.forAllDo(_analyses, dependenceExtractor);
 
-				final Collection _valuesSet = dependenceExtractor.getDependenceMap().values();
-				final Iterator _l = _valuesSet.iterator();
-				final int _lEnd = _valuesSet.size();
+				final Collection _dependences = dependenceExtractor.getDependences();
+				final Iterator _l = _dependences.iterator();
+				final int _lEnd = _dependences.size();
 
 				for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
-					final Collection _values = (Collection) _l.next();
-					final Iterator _j = _values.iterator();
-					final int _jEnd = _values.size();
+					final Stmt _depStmt = (Stmt) _l.next();
 
-					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-						final Stmt _depStmt = (Stmt) _j.next();
-
-						directionSensitiveInfo.processLocalAt(_local, _depStmt, method);
-					}
+					directionSensitiveInfo.processLocalAt(_local, _depStmt, method);
 				}
 			}
 		}
@@ -912,19 +914,18 @@ public final class SlicingEngine {
 	 *
 	 * @param criteriaBase a reference that is required to generate contexts.  This is not used by this method. Rather it is
 	 * 		  provided to the context generator.
-	 * @param stmtToBeIncluded the criteria needs to be generated to include this statement into the slice.
+	 * @param stmtToBeIncluded the criteria needs to be generated to include this statement into the slice.  If this is
+	 * 		  <code>null</code> then the provided method is included in the slice.
 	 * @param methodToBeIncluded this method contains <code>stmtToBeIncluded</code>.
-	 * @param considerExecution indicates if the execution of the statement should be considered or just the control reaching
-	 * 		  it.
 	 *
-	 * @pre criteriaBase != null and stmtToBeIncluded != null and methodToBeIncluded != null
+	 * @pre criteriaBase != null and methodToBeIncluded != null
 	 */
 	private void generateInterProceduralContextualizedCriteria(final Object criteriaBase, final Stmt stmtToBeIncluded,
-		final SootMethod methodToBeIncluded, final boolean considerExecution) {
+		final SootMethod methodToBeIncluded) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateInterProceduralContextualizedCriteria(Object criteriaBase = " + criteriaBase
 				+ ", Stmt stmtToBeIncluded = " + stmtToBeIncluded + ", SootMethod methodToBeIncluded = " + methodToBeIncluded
-				+ ", boolean considerExecution = " + considerExecution + ") - BEGIN");
+				+ ") - BEGIN");
 		}
 
 		final Stack _temp = getCopyOfCallStackCache();
@@ -932,15 +933,41 @@ public final class SlicingEngine {
 		final Iterator _i = _contexts.iterator();
 		final int _iEnd = _contexts.size();
 
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Stack _context = (Stack) _i.next();
-			setCallStackCache(_context);
-			generateSliceStmtCriterion(stmtToBeIncluded, methodToBeIncluded, considerExecution);
+		if (stmtToBeIncluded != null) {
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Stack _context = (Stack) _i.next();
+				setCallStackCache(_context);
+				generateStmtLevelSliceCriterion(stmtToBeIncluded, methodToBeIncluded, true);
+			}
+		} else {
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Stack _context = (Stack) _i.next();
+				setCallStackCache(_context);
+				generateMethodLevelSliceCriteria(methodToBeIncluded);
+			}
 		}
 		setCallStackCache(_temp);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("generateInterProceduralContextualizedCriteria() - END");
+		}
+	}
+
+	/**
+	 * Generates method level slice criteria for the given method.
+	 *
+	 * @param method of interest.
+	 *
+	 * @pre method != null
+	 */
+	private void generateMethodLevelSliceCriteria(final SootMethod method) {
+		// THINK: Should we react differently based on previous inclusion of the method in the slice?
+		final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
+		setContext(_sliceCriteria);
+		workbag.addAllWorkNoDuplicates(_sliceCriteria);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Adding " + method.getSignature() + " @ " + callStackCache + " to workbag.");
 		}
 	}
 
@@ -964,30 +991,24 @@ public final class SlicingEngine {
 		dependenceExtractor.setTrigger(stmt, method);
 		CollectionUtils.forAllDo(das, dependenceExtractor);
 
-		for (final Iterator _i = dependenceExtractor.getDependenceMap().entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final boolean _considerExecution = ((Boolean) _entry.getKey()).booleanValue();
+		for (final Iterator _i = dependenceExtractor.getDependences().iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
+			final Stmt _stmtToBeIncluded;
+			final SootMethod _methodToBeIncluded;
 
-			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
-				final Object _o = _j.next();
-				final Stmt _stmtToBeIncluded;
-				final SootMethod _methodToBeIncluded;
+			if (_o instanceof Pair) {
+				final Pair _pair = (Pair) _o;
+				_stmtToBeIncluded = (Stmt) _pair.getFirst();
+				_methodToBeIncluded = (SootMethod) _pair.getSecond();
+			} else {
+				_stmtToBeIncluded = (Stmt) _o;
+				_methodToBeIncluded = method;
+			}
 
-				if (_o instanceof Pair) {
-					final Pair _pair = (Pair) _o;
-					_stmtToBeIncluded = (Stmt) _pair.getFirst();
-					_methodToBeIncluded = (SootMethod) _pair.getSecond();
-				} else {
-					_stmtToBeIncluded = (Stmt) _o;
-					_methodToBeIncluded = method;
-				}
-
-				if (_methodToBeIncluded.equals(method)) {
-					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
-				} else {
-					generateInterProceduralContextualizedCriteria(_o, _stmtToBeIncluded, _methodToBeIncluded,
-						_considerExecution);
-				}
+			if (_methodToBeIncluded.equals(method) && _stmtToBeIncluded != null) {
+				generateStmtLevelSliceCriterion(_stmtToBeIncluded, _methodToBeIncluded, true);
+			} else {
+				generateInterProceduralContextualizedCriteria(_o, _stmtToBeIncluded, _methodToBeIncluded);
 			}
 		}
 
@@ -1035,7 +1056,7 @@ public final class SlicingEngine {
 	 * @pre expr != null and expr.getOccurringStmt() != null and expr.getOccurringMethod() != null
 	 * @pre expr.getCriterion() != null and expr.getCriterion().oclIsKindOf(ValueBox)
 	 */
-	private void transformAndGenerateNewCriteriaForExpr(final SliceExpr expr) {
+	private void transformAndGenerateNewCriteriaForExpr(final ExprLevelSliceCriterion expr) {
 		final Stmt _stmt = expr.getOccurringStmt();
 		final SootMethod _method = expr.getOccurringMethod();
 		final ValueBox _vBox = (ValueBox) expr.getCriterion();
@@ -1065,6 +1086,27 @@ public final class SlicingEngine {
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
+		}
+	}
+
+	/**
+	 * Transforms the given method and generates suitable slice criteria based on various dependences.
+	 *
+	 * @param method of interest.
+	 *
+	 * @pre method != null
+	 */
+	private void transformAndGenerateNewCriteriaForMethod(final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("transformAndGenerateNewCriteriaForMethod(SootMethod method = " + method + ") - BEGIN");
+		}
+
+		includeMethodAndDeclaringClassInSlice(method);
+		generateStmtMethodCriteria(null, method, controlflowBasedDAs);
+		generateCriteriaForTheCallToMethod(method);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("transformAndGenerateNewCriteriaForMethod() - END");
 		}
 	}
 

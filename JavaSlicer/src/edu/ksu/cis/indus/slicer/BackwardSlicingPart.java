@@ -151,7 +151,7 @@ public class BackwardSlicingPart
 			if (_trailer instanceof ReturnStmt) {
 				// TODO: we are considering both throws and returns as return points. This should change when we 
 				// consider if control-flow based on exceptions.
-				engine.generateSliceExprCriterion(((ReturnStmt) _trailer).getOpBox(), _trailer, _callee, true);
+				engine.generateExprLevelSliceCriterion(((ReturnStmt) _trailer).getOpBox(), _trailer, _callee, true);
 			}
 		}
 	}
@@ -173,7 +173,7 @@ public class BackwardSlicingPart
 			final Pair _pair = (Pair) input;
 			final Stmt _stmt = (Stmt) _pair.getFirst();
 			final SootMethod _callee = (SootMethod) _pair.getSecond();
-			engine.generateSliceStmtCriterion(_stmt, _callee, false);
+			engine.generateStmtLevelSliceCriterion(_stmt, _callee, false);
 		}
 	}
 
@@ -189,8 +189,8 @@ public class BackwardSlicingPart
 			  || _direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
 			_result.addAll(analysis.getDependees(entity, method));
 		} else if (LOGGER.isWarnEnabled()) {
-			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- " 
-                    + analysis.getClass() + " - " + _direction);
+			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- "
+				+ analysis.getClass() + " - " + _direction);
 		}
 
 		return _result;
@@ -214,7 +214,7 @@ public class BackwardSlicingPart
 		 * not the arguments.  Refer to transformAndGenerateToNewCriteriaForXXXX for information about how
 		 * invoke expressions are handled differently.
 		 */
-		engine.generateSliceStmtCriterion(callStmt, caller, false);
+		engine.generateStmtLevelSliceCriterion(callStmt, caller, false);
 		engine.getCollector().includeInSlice(callStmt.getInvokeExprBox());
 		generateCriteriaForReceiverOfAt(callee, callStmt, caller);
 		recordCallInfoForProcessingArgsTo(callStmt, caller, callee);
@@ -259,7 +259,7 @@ public class BackwardSlicingPart
 				+ method + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
-		engine.generateSliceStmtCriterion(stmt, method, true);
+		engine.generateStmtLevelSliceCriterion(stmt, method, true);
 
 		if (stmt.containsInvokeExpr()) {
 			final Iterator _i = stmt.getDefBoxes().iterator();
@@ -316,7 +316,7 @@ public class BackwardSlicingPart
 
 			if (_as.getRightOp() instanceof NewExpr) {
 				final Stmt _def = engine.getInitMapper().getInitCallStmtForNewExprStmt(stmt, method);
-				engine.generateSliceStmtCriterion(_def, method, true);
+				engine.generateStmtLevelSliceCriterion(_def, method, true);
 			}
 		}
 
@@ -365,7 +365,7 @@ public class BackwardSlicingPart
 			final SootMethod _caller = _temp.getMethod();
 			final Stmt _stmt = _temp.getStmt();
 			final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
-			engine.generateSliceExprCriterion(_argBox, _stmt, _caller, true);
+			engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
 			engine.enterMethod(_temp);
 			generateCriteriaForReceiverOfAt(callee, _stmt, _caller);
 			generateCriteriaForMissedParameters(callee, _index);
@@ -375,7 +375,7 @@ public class BackwardSlicingPart
 				final SootMethod _caller = _ctrp.getMethod();
 				final Stmt _stmt = _ctrp.getStmt();
 				final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
-				engine.generateSliceExprCriterion(_argBox, _stmt, _caller, true);
+				engine.generateExprLevelSliceCriterion(_argBox, _stmt, _caller, true);
 				generateCriteriaForReceiverOfAt(callee, _stmt, _caller);
 			}
 		}
@@ -513,7 +513,7 @@ public class BackwardSlicingPart
 			final SootMethod _caller = (SootMethod) _triple.getSecond();
 			final Stack _stack = (Stack) _triple.getThird();
 			final InvokeExpr _expr = _stmt.getInvokeExpr();
-			engine.generateSliceExprCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true, _stack);
+			engine.generateExprLevelSliceCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true, _stack);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -542,7 +542,7 @@ public class BackwardSlicingPart
 
 		if (!callee.isStatic()) {
 			final ValueBox _vBox = ((InstanceInvokeExpr) callStmt.getInvokeExpr()).getBaseBox();
-			engine.generateSliceExprCriterion(_vBox, callStmt, caller, true);
+			engine.generateExprLevelSliceCriterion(_vBox, callStmt, caller, true);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -586,7 +586,7 @@ public class BackwardSlicingPart
 
 					if (_called.getName().equals("<init>")
 						  && _called.getDeclaringClass().equals(initMethod.getDeclaringClass().getSuperclass())) {
-						engine.generateSliceStmtCriterion(_stmt, initMethod, true);
+						engine.generateStmtLevelSliceCriterion(_stmt, initMethod, true);
 						break;
 					}
 				}
@@ -626,7 +626,8 @@ public class BackwardSlicingPart
 			final SootMethod _callee = (SootMethod) _i.next();
 
 			if (considerMethodExitForCriteriaGeneration(_callee, closure == returnValueInclClosure)) {
-			    engine.collector.includeInSlice(_callee);
+				engine.collector.includeInSlice(_callee);
+
 				if (_callee.isConcrete()) {
 					final BasicBlockGraph _calleeBasicBlockGraph = _bbgMgr.getBasicBlockGraph(_callee);
 					final CallTriple _callTriple = new CallTriple(caller, stmt, stmt.getInvokeExpr());
@@ -647,7 +648,7 @@ public class BackwardSlicingPart
 					final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
 
 					for (int _j = _callee.getParameterCount() - 1; _j >= 0; _j--) {
-						engine.generateSliceExprCriterion(_invokeExpr.getArgBox(_j), stmt, caller, true);
+						engine.generateExprLevelSliceCriterion(_invokeExpr.getArgBox(_j), stmt, caller, true);
 					}
 				}
 			} else {
@@ -663,7 +664,7 @@ public class BackwardSlicingPart
 
 				if (_params != null && _callee.getParameterCount() > 0) {
 					for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
-						engine.generateSliceExprCriterion(_invokeExpr.getArgBox(_j), stmt, caller, true);
+						engine.generateExprLevelSliceCriterion(_invokeExpr.getArgBox(_j), stmt, caller, true);
 					}
 				}
 			}

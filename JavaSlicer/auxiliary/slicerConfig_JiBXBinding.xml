@@ -64,6 +64,8 @@
 				set-method="useReadyRule3" get-method="isReadyRule3Used" />
 			<value style="attribute" name="rule4" type="boolean" 
 				set-method="useReadyRule4" get-method="isReadyRule4Used"/>	
+			<value style="attribute" name="callSiteSensitive" type="boolean" 
+				set-method="useCallSiteSensitiveReady" get-method="isCallSiteSensitiveReadyUsed"/>
 			<value style="attribute" name="useOFA" type="boolean" set-method="useOFAForReady"
                 get-method="isOFAUsedForReady"/> 	
 			<value style="attribute" name="useSafeLockAnalysis" type="boolean" set-method="useSafeLockAnalysisForReady"

@@ -149,30 +149,22 @@ public final class SlicerConfiguration
 	static final Object USE_DIVERGENCEDA = "use divergence dependence";
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This identifies the property that indicates the nature of divergence dependence, i.e., intra, inter, and intra-inter.
 	 */
 	static final Object NATURE_OF_DIVERGENCE_DA = "nature of divergence dependence";
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates pure intra-procedural setting.
 	 */
-	static final Object INTRA_PROCEDURAL = "INTRA_PROCEDURAL";
+	static final Object INTRA_PROCEDURAL_ONLY = "INTRA_PROCEDURAL_ONLY";
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates pure inter-procedural setting.
 	 */
-	static final Object INTER_PROCEDURAL = "INTER_PROCEDURAL";
+	static final Object INTER_PROCEDURAL_ONLY = "INTER_PROCEDURAL_ONLY";
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates intra- and inter-procedural setting.
 	 */
 	static final Object INTRA_AND_INTER_PROCEDURAL = "INTRA_AND_INTER_PROCEDURAL";
 
@@ -249,6 +241,13 @@ public final class SlicerConfiguration
 	static final Object NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE = "Non termination sensitive";
 
 	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	static final Object CALL_SITE_SENSITIVE_READY_DA = "call site sensitive ready dependence";
+
+	/** 
 	 * This is the factory object to create configurations.
 	 */
 	private static final IToolConfigurationFactory FACTORY_SINGLETON = new SlicerConfiguration();
@@ -308,10 +307,20 @@ public final class SlicerConfiguration
 		propertyIds.add(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE);
 		propertyIds.add(USE_DIVERGENCEDA);
 		propertyIds.add(NATURE_OF_DIVERGENCE_DA);
-		propertyIds.add(INTRA_PROCEDURAL);
+		propertyIds.add(INTRA_PROCEDURAL_ONLY);
 		propertyIds.add(INTRA_AND_INTER_PROCEDURAL);
-		propertyIds.add(INTER_PROCEDURAL);
+		propertyIds.add(INTER_PROCEDURAL_ONLY);
 		propertyIds.add(USE_SYNCHRONIZATIONDA);
+		propertyIds.add(CALL_SITE_SENSITIVE_READY_DA);
+	}
+
+	/**
+	 * Checks if call-site sensitive ready dependence is used.
+	 *
+	 * @return <code>true</code> if call-site based ready dependence is used; <code>false</code>, otherwise.
+	 */
+	public boolean isCallSiteSensitiveReadyUsed() {
+		return ((Boolean) properties.get(CALL_SITE_SENSITIVE_READY_DA)).booleanValue();
 	}
 
 	/**
@@ -417,7 +426,7 @@ public final class SlicerConfiguration
 		String _result = (String) properties.get(NATURE_OF_DIVERGENCE_DA);
 
 		if (_result == null) {
-			_result = INTRA_PROCEDURAL.toString();
+			_result = INTRA_PROCEDURAL_ONLY.toString();
 		}
 		return _result;
 	}
@@ -737,9 +746,10 @@ public final class SlicerConfiguration
 		setProperty(USE_RULE2_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_RULE3_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_RULE4_IN_READYDA, Boolean.TRUE);
+		setProperty(CALL_SITE_SENSITIVE_READY_DA, Boolean.TRUE);
 		setProperty(USE_SLA_FOR_READY_DA, Boolean.TRUE);
 		setProperty(PROPERTY_AWARE, Boolean.FALSE);
-        setProperty(USE_SYNCHRONIZATIONDA, Boolean.FALSE);
+		setProperty(USE_SYNCHRONIZATIONDA, Boolean.FALSE);
 
 		id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, new DeadlockPreservingCriteriaGenerator());
 		setProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY, CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS);
@@ -752,6 +762,15 @@ public final class SlicerConfiguration
 		id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,
 			Collections.singleton(new ReferenceBasedDataDA()));
 		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
+	}
+
+	/**
+	 * Sets if call-site sensitive ready dependence is used.
+	 *
+	 * @param use <code>true</code> if call-site based ready dependence should be used; <code>false</code>, otherwise.
+	 */
+	public void useCallSiteSensitiveReady(final boolean use) {
+		processPropertyHelper(CALL_SITE_SENSITIVE_READY_DA, use);
 	}
 
 	/**
@@ -1018,10 +1037,10 @@ public final class SlicerConfiguration
 		final boolean _interProcedural = property.equals(INTRA_AND_INTER_PROCEDURAL);
 
 		if (_direction != null) {
-			if (property.equals(INTER_PROCEDURAL)) {
+			if (property.equals(INTER_PROCEDURAL_ONLY)) {
 				id2dependencyAnalyses.put(IDependencyAnalysis.DIVERGENCE_DA,
 					Collections.singleton(InterProceduralDivergenceDA.getDivergenceDA(_direction)));
-			} else if (property.equals(INTRA_PROCEDURAL) || _interProcedural) {
+			} else if (property.equals(INTRA_PROCEDURAL_ONLY) || _interProcedural) {
 				final DivergenceDA _divergenceDA = DivergenceDA.getDivergenceDA(_direction);
 				id2dependencyAnalyses.put(IDependencyAnalysis.DIVERGENCE_DA, Collections.singleton(_divergenceDA));
 				_divergenceDA.setConsiderCallSites(_interProcedural);
@@ -1029,10 +1048,10 @@ public final class SlicerConfiguration
 		} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
 			final Collection _das = new ArrayList();
 
-			if (property.equals(INTER_PROCEDURAL)) {
+			if (property.equals(INTER_PROCEDURAL_ONLY)) {
 				_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
 				_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
-			} else if (property.equals(INTRA_PROCEDURAL) || _interProcedural) {
+			} else if (property.equals(INTRA_PROCEDURAL_ONLY) || _interProcedural) {
 				final DivergenceDA _forwardDivergenceDA = DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION);
 				final DivergenceDA _backwardDivergenceDA =
 					DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION);
@@ -1264,6 +1283,12 @@ public final class SlicerConfiguration
 				  _i.hasNext();) {
 				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
 				_rda.setUseSafeLockAnalysis(booleanValue.booleanValue());
+			}
+		} else if (propertyID.equals(CALL_SITE_SENSITIVE_READY_DA)) {
+			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.READY_DA)).iterator();
+				  _i.hasNext();) {
+				final ReadyDAv1 _rda = (ReadyDAv1) _i.next();
+				_rda.setConsiderCallSites(booleanValue.booleanValue());
 			}
 		} else {
 			processRDARuleProperties(propertyID);
