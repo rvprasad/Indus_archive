@@ -147,15 +147,6 @@ public abstract class AbstractController {
 	}
 
 	/**
-	 * Provides the execution status of this controllers and it's controllees.
-	 *
-	 * @return <code>true</code> if all the participating analyses have completed; <code>false</code>, otherwise.
-	 */
-	public final boolean isStable() {
-		return stable;
-	}
-
-	/**
 	 * Provides the statement graph for the given method.
 	 *
 	 * @param method for which the statement graph is requested.
@@ -278,6 +269,9 @@ public abstract class AbstractController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/08/18 00:59:50  venku
+   Changed specification to fit the last change.
+
    Revision 1.6  2003/08/18 00:59:11  venku
    Changed the type of the IDs to java.lang.Object to provide extensibility.
    Ripple effect of that happens in AbstractController.
