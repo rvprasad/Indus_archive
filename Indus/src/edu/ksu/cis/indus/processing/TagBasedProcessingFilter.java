@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import soot.SootClass;
 import soot.SootMethod;
+import soot.tagkit.Host;
 
 
 /**
@@ -46,7 +47,7 @@ public class TagBasedProcessingFilter
 	/**
 	 * The name of the tag used to filter out classes and methods.
 	 */
-	private final String tagName;
+	protected final String tagName;
 
 	/**
 	 * Creates a new TagBasedProcessingFilter object.
@@ -68,7 +69,7 @@ public class TagBasedProcessingFilter
 		for (final Iterator _i = classes.iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
-			if (_sc.hasTag(tagName)) {
+			if (filter(_sc)) {
 				_result.add(_sc);
 			}
 		}
@@ -84,16 +85,27 @@ public class TagBasedProcessingFilter
 	}
 
 	/**
+     * Checks if the given host can should be filtered or not.
+     * 
+     * @param host to be filtered.
+     * @return <code>true</code>if <code>host</code> should be filtered; <code>false</code>, otherwise.
+     * @pre host != null
+     */
+    protected boolean filter(final Host host) {
+        return !host.hasTag(tagName);
+    }
+
+    /**
 	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterMethods(java.util.Collection)
 	 */
 	public final Collection filterMethods(final Collection methods) {
 		final List _result = new ArrayList();
 
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
-			final SootMethod _sc = (SootMethod) _i.next();
+			final SootMethod _sm = (SootMethod) _i.next();
 
-			if (_sc.hasTag(tagName)) {
-				_result.add(_sc);
+			if (filter(_sm)) {
+				_result.add(_sm);
 			}
 		}
 
@@ -111,6 +123,10 @@ public class TagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.5  2003/12/05 12:43:22  venku
    - logging.
    Revision 1.4  2003/12/02 11:31:57  venku
