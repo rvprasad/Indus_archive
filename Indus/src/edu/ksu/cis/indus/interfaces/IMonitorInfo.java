@@ -80,7 +80,7 @@ public interface IMonitorInfo
 	Collection getEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive);
 
 	/**
-	 * Retrieves the monitor triples for monitors enclosing in the given statement in the given method. Only the monitors
+	 * Retrieves the monitor triples for monitors enclosing the given statement in the given method. Only the monitors
 	 * occurring in the method in which the statement occurs are returned.
 	 *
 	 * @param stmt obviously.
@@ -251,6 +251,9 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/07/27 07:21:11  venku
+   - coding conventions and documentation.
+
    Revision 1.11  2004/07/27 07:08:14  venku
    - revamped IMonitorInfo interface.
    - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
