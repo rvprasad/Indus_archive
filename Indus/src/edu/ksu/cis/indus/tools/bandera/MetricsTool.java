@@ -113,7 +113,10 @@ public class MetricsTool
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.tool.Tool#getOutputMap()
+	 * {@inheritDoc}  The map will contain statistics for classes belonging to various categories. Currently, application and
+	 * library classes are supported.  The statistics for each category is itself provided as a map. Please refer to
+	 * {@link edu.ksu.cis.indus.common.soot.MetricsProcessor#getStatistics() MetricsProcessor.getStatistics()} for details
+	 * of the category statistics.
 	 */
 	public Map getOutputMap() {
 		return outputMap;
@@ -124,15 +127,8 @@ public class MetricsTool
 	 */
 	public List getOutputParameterList() {
 		final List _result = new ArrayList();
-		_result.add(MetricsProcessor.NUM_OF_CLASSES);
-		_result.add(MetricsProcessor.NUM_OF_FIELDS);
-		_result.add(MetricsProcessor.NUM_OF_METHODS);
-		_result.add(MetricsProcessor.NUM_OF_METHODS_WITH_MULTIPLE_EXIT_POINTS);
-		_result.add(MetricsProcessor.NUM_OF_METHODS_WITH_ZERO_EXIT_POINTS);
-		_result.addAll(CollectionUtils.transformedCollection(ProcessingController.STMT_CLASSES,
-				TransformerUtils.stringValueTransformer()));
-		_result.addAll(CollectionUtils.transformedCollection(ProcessingController.VALUE_CLASSES,
-				TransformerUtils.stringValueTransformer()));
+		_result.add(MetricsProcessor.APPLICATION_STATISTICS);
+		_result.add(MetricsProcessor.LIBRARY_STATISTICS);
 		return _result;
 	}
 
