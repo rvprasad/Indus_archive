@@ -73,6 +73,7 @@ import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -274,14 +275,23 @@ public class DependencyXMLizer
 			_xmlizer.dumpXMLizedJimple = _cl.hasOption('j');
 
 			_xmlizer.setXMLOutputDir(_outputDir);
-			_xmlizer.setClassNames(_cl.getOptionValues('c'));
+            String[] _classNames = _cl.getOptionValues('c');
+            if (_classNames == null)
+                throw new MissingOptionException("-c");
+			_xmlizer.setClassNames(_classNames);
 			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
+            boolean flag = true;
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
 				if (_cl.hasOption(_dasOptions[_i][0].toString())) {
 					_xmlizer.populateDA((DependencyAnalysis) _dasOptions[_i][3]);
+                    flag = false;
 				}
 			}
+            if (flag) {
+                throw new ParseException("Atleast one dependence analysis must be requested.");
+                
+            }
 			_xmlizer.initialize();
 			_xmlizer.execute();
 			_xmlizer.reset();
@@ -662,6 +672,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2003/12/27 20:07:40  venku
+   - fixed xmlizers/driver to not throw exception
+     when -h is specified
+
    Revision 1.34  2003/12/16 06:54:05  venku
    - moved preprocessing of analyses after initialization.
    Revision 1.33  2003/12/16 06:15:40  venku
