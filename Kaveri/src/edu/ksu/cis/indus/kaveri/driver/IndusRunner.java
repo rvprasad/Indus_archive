@@ -142,7 +142,8 @@ public class IndusRunner
 					public void toolProgess(ToolProgressEvent arg0) {
 						_ctr++;
 						if (!monitor.isCanceled()) {
-							monitor.worked(_ctr);	
+							monitor.worked(_ctr);
+							//System.out.println(arg0.getMsg());
 						}						
 						else {
 							opCancelled = true;

@@ -27,6 +27,8 @@ import edu.ksu.cis.indus.kaveri.common.SECommons;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
@@ -67,6 +69,10 @@ public class SliceAnnotate
 		this.editor = (CompilationUnitEditor) targetEditor;
 		Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
+					final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+					try {
+					_file.deleteMarkers("edu.ksu.cis.indus.kaveri.cimarker", false, IResource.DEPTH_INFINITE);
+					} catch (CoreException _ce) {}
 					final Map _map = KaveriPlugin.getDefault().getCacheMap();
 
 					if (editor != null && _map != null && _map.size() > 0) {
@@ -136,7 +142,7 @@ public class SliceAnnotate
 		}
 	}
 
-	/**
+	/**	
 	 * Handles the selection change event.
 	 *
 	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction,

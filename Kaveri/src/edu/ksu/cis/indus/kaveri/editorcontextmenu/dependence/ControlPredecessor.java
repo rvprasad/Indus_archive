@@ -55,8 +55,7 @@ public class ControlPredecessor extends DependenceBaseClass
 	/* (non-Javadoc)
 	 * @see edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence.DependenceBaseClass#getDependenceAnnotationKey()
 	 */
-	protected String getDependenceAnnotationKey() {
-		// TODO Auto-generated method stub
+	protected String getDependenceAnnotationKey() {	
 		return "indus.slice.ControlDependencehighlightAnnotation";
 	}
 }

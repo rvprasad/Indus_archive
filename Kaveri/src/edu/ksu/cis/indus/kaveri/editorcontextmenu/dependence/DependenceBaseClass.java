@@ -7,6 +7,7 @@
 package edu.ksu.cis.indus.kaveri.editorcontextmenu.dependence;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,7 +16,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -33,6 +37,9 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.texteditor.MarkerUtilities;
+
+import com.sun.rsasign.f;
 
 import soot.SootMethod;
 import soot.jimple.Stmt;
@@ -217,12 +224,20 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 		if (editor == null) {
 			return;
 		}
-		
+		final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+		try {
+		_file.deleteMarkers("edu.ksu.cis.indus.kaveri.cimarker", false, IResource.DEPTH_INFINITE);
+		} catch (CoreException _ce) {}
 		final IAnnotationModel _model = editor.getDocumentProvider().getAnnotationModel(editor.getEditorInput());
 		final Iterator _it =_model.getAnnotationIterator();
 		while (_it.hasNext()) {
 			final Annotation _an = (Annotation) _it.next();
-			if (_an.getType().equals(annotationKey)) {
+			if (_an.getType().equals("indus.slice.ControlDependencehighlightAnnotation") 
+					||_an.getType().equals("indus.slice.InterferenceDependencehighlightAnnotation")
+					||_an.getType().equals("indus.slice.ReadyDependencehighlightAnnotation")
+					||_an.getType().equals("indus.slice.DivergenceDependencehighlightAnnotation")
+					||_an.getType().equals("indus.slice.SynchronizationDependencehighlightAnnotation")									
+					) {
 				_model.removeAnnotation(_an);
 			}
 		}
@@ -276,8 +291,9 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 								getDepHistory().getHistory().size() == 0) {
                 		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().reset();
                 		KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().setElemHistoryLink("");
+                		removeDependenceAnnotation(editor);
                 	}                	
-                	_dset.clear();
+                	//_dset.clear();
                 	final String _link = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().getElemHistoryLink();
                 	Pair _pair = new Pair(triple, _link, false, true);
                 	KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().setElemHistoryLink(getDependenceInfo());
@@ -288,25 +304,59 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                     	if (_set.size() > 0) {
                     		annotSet.clear();
                     	}
+                    	final HashSet _newLineSet = new HashSet();
                     	final Iterator _stit = _set.iterator();
                     	while(_stit.hasNext()) {
 							final Stmt _st = (Stmt) _stit.next();
 							int _nLine = SECommons.getLineNumberForStmt(_st);
+							if (_nLine != -1) {
+								final Integer _it = new Integer(_nLine);							
+								if (_dset.contains(_it)) {
+									final String _markerID = "edu.ksu.cis.indus.kaveri.cimarker";
+									try {
+									//final IMarker _marker = _file.createMarker(_markerID);
+									final Map _attMap = new HashMap();
+									_attMap.put(IMarker.MESSAGE, "Multiple Dependencies Present");										
+									_attMap.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_NORMAL));
+									_attMap.put(IMarker.LINE_NUMBER, new Integer(_nLine));										
+									MarkerUtilities.createMarker(_file, _attMap, _markerID);
+									} catch (CoreException _ce) {}
+								} else {
+									_newLineSet.add(_it);
+								}	
+							}							
+                    	}
+						final Iterator _it = _newLineSet.iterator();
+						while (_it.hasNext()) {
+							final Integer _int = (Integer) _it.next();
+							final int _nLine = _int.intValue();
 							if (_nLine != -1) {								
 								try {
 									final IRegion _region =
 										editor.getDocumentProvider().getDocument(editor.getEditorInput()).
-										getLineInformation(_nLine - 1);
-									_dset.add(new Integer(_nLine));
+										getLineInformation(_nLine - 1);																	
+										_dset.add(_int);
+										final String _text =
+											editor.getDocumentProvider().getDocument(editor.getEditorInput()).get(_region.getOffset(),
+												_region.getLength());
+									final String _trimmedString = _text.trim();
+									final int _stIndex = _text.indexOf(_trimmedString);
+									if (_trimmedString.equals("}") || _trimmedString.equals("{")) {
+										continue;
+									}
+									if (_trimmedString.length() > 0) {
 									final Annotation _annot = new Annotation(getDependenceAnnotationKey(), false, null);
-									final Position _pos = new Position(_region.getOffset(), _region.getLength());
+									final Position _pos = new Position(_region.getOffset() + _stIndex, _region.getLength() - _stIndex);									
 									annotSet.add(_annot);
 									_model.addAnnotation(_annot, _pos);
+									}
 								} catch (BadLocationException _e) {
 									SECommons.handleException(_e);									
 								}
-							}							
-						}                    
+							}
+						}
+														
+						                    
                 	
                 	
                 	
