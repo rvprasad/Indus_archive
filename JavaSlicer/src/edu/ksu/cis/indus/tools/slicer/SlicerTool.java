@@ -47,7 +47,6 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.NewExpr2InitMapper;
@@ -254,7 +253,7 @@ public final class SlicerTool
 	/** 
 	 * This provides use-def information based on aliasing.
 	 */
-	private AliasedUseDefInfo aliasUD;
+	private AliasedUseDefInfov2 aliasUD;
 
 	/** 
 	 * This is the instance of equivalence class based escape analysis used by this object.
@@ -277,7 +276,7 @@ public final class SlicerTool
 	private NewExpr2InitMapper initMapper;
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * This provides safe lock information.
 	 */
 	private SafeLockAnalysis safelockAnalysis;
 
@@ -325,9 +324,10 @@ public final class SlicerTool
 		monitorInfo = new MonitorAnalysis();
 		// create safe lock analysis
 		safelockAnalysis = new SafeLockAnalysis();
-
-		// set up data required for dependency analyses.
+		// create alias use def analysis
 		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, threadGraph, bbgMgr);
+		
+		// set up data required for dependency analyses.
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
 		info.put(IEnvironment.ID, ofa.getEnvironment());
@@ -911,6 +911,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.105  2004/07/28 09:09:35  venku
+   - changed aliased use def analysis to consider thread.
+   - also fixed a bug in the same analysis.
+   - ripple effect.
+   - deleted entry control dependence and renamed direct entry control da as
+     entry control da.
+
    Revision 1.104  2004/07/27 11:07:21  venku
    - updated project to use safe lock analysis.
 
