@@ -204,7 +204,7 @@ abstract public class BasicSliceFunctions {
                     KaveriPlugin.getDefault().getIndusConfiguration()
                             .getCriteria().clear();
                     final SlicerTool _sTool = KaveriPlugin.getDefault().getSlicerTool();
-                    if (_sTool.getActiveConfiguration() == null) {
+                    if (_sTool.getCurrentConfiguration() == null) {
                         KaveriPlugin.getDefault().loadConfigurations();    
                     }                        
                     KaveriPlugin.getDefault().getIndusConfiguration()

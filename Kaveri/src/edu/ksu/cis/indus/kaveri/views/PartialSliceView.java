@@ -425,10 +425,9 @@ public class PartialSliceView extends ViewPart {
 
         _comp.addControlListener(new ControlAdapter() {
             public void controlResized(ControlEvent e) {
-                TableColumn _col1 = _table.getColumn(0);
-                _col1.setWidth(_comp.getSize().x * 2 / 3);
-                _col1 = _table.getColumn(1);
-                _col1.setWidth(_comp.getSize().x / 3);
+                for (int i = 0; i < _table.getColumnCount(); i++) {
+                    _table.getColumn(i).pack();
+                }
             }
         });
 

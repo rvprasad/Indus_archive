@@ -437,7 +437,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
             return new LinkedList();
         }
         final SlicerConfiguration _config = (SlicerConfiguration) _stool
-                .getActiveConfiguration();
+                .getCurrentConfiguration();
         final List _lst = new LinkedList();
         Collection _coll = _config.getDependenceAnalyses(dependenceType);
         if (_coll != null) {
@@ -445,11 +445,13 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
             while (it.hasNext()) {
                 AbstractDependencyAnalysis _crt = (AbstractDependencyAnalysis) it
                         .next();            
+                if (_crt.isStable()) {
                     Collection ct = _crt.getDependents(_stmt, _method);
                     Iterator stit = ct.iterator();
                     while (stit.hasNext()) {
                         _lst.add(stit.next());
                     }
+                }
                 }
                            
         }
@@ -474,7 +476,7 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
             return new LinkedList();
         }
         final SlicerConfiguration _config = (SlicerConfiguration) _stool
-                .getActiveConfiguration();
+                .getCurrentConfiguration();
         final List _lst = new LinkedList();
         Collection _coll = _config.getDependenceAnalyses(dependenceType);
         if (_coll != null) {
@@ -482,11 +484,14 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
             while (it.hasNext()) {
                 AbstractDependencyAnalysis _crt = (AbstractDependencyAnalysis) it
                         .next();
-                    Collection ct = _crt.getDependees(_stmt, _method);                
+                if (_crt.isStable()) {
+                    Collection ct = _crt.getDependees(_stmt, _method);
+                    
                     Iterator stit = ct.iterator();
                     while (stit.hasNext()) {
                         _lst.add(stit.next());
-                    }                                   
+                    }
+                }
                 
             }
         }

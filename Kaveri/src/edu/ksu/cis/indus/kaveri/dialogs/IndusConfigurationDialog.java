@@ -546,7 +546,7 @@ public class IndusConfigurationDialog extends Dialog {
      */
     private void initializeConfigs(final Combo confsCombo) {
         final SlicerTool _sTool = KaveriPlugin.getDefault().getSlicerTool();
-        if (_sTool.getActiveConfiguration() == null) {
+        if (_sTool.getCurrentConfiguration() == null) {
             KaveriPlugin.getDefault().loadConfigurations();    
         }            
         final SlicerTool _slicetool = KaveriPlugin.getDefault().getSlicerTool();
@@ -555,7 +555,7 @@ public class IndusConfigurationDialog extends Dialog {
             confsCombo.add(((IToolConfiguration) _t.next()).getConfigName());
         }
         final int _activeIndex = confsCombo.indexOf(_slicetool
-                .getActiveConfiguration().getConfigName());
+                .getCurrentConfiguration().getConfigName());
         confsCombo.select(_activeIndex);
     }
 
