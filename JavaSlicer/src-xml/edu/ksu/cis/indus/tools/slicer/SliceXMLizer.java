@@ -22,8 +22,8 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
-import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
 
@@ -563,6 +563,9 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/22 13:07:30  venku
+   - check on output directory missing.  FIXED.
+
    Revision 1.5  2004/01/22 01:06:32  venku
    - coding convention.
    Revision 1.4  2004/01/17 23:52:04  venku
