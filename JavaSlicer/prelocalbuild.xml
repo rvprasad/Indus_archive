@@ -7,9 +7,14 @@
         <equals arg1="${ant.project.name}" arg2="indus.javaslicer"/>
     </condition>
 
-    <path id="indus.javaslicer.srcpath">
+    <path id="indus.javaslicer.docsrcpath">
     	<pathelement location="../JavaSlicer/src"/>
     	<pathelement location="../JavaSlicer/src-xml"/>
+    </path>
+
+    <path id="indus.javaslicer.srcpath">
+        <path refid="indus.javaslicer.docsrcpath"/>
+    	<pathelement location="../JavaSlicer/src-test"/>
     </path>
     
     <path id="indus.javaslicer.classpath">
