@@ -187,15 +187,16 @@ public final class DependenceExtractor
 	public void execute(final Object analysis) {
 		final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
 		final Collection _dependences = retriever.getDependences(_da, entity, context);
-
-		if (_da.getIds().contains(IDependencyAnalysis.READY_DA)) {
+		final Collection _ids = _da.getIds();
+        
+        if (_ids.contains(IDependencyAnalysis.READY_DA)) {
 			final Collection _specials = ((ReadyDAv1) _da).getSynchronizedMethodEntryExitPoints(_dependences);
 			falseCriteria.addAll(_specials);
 			_dependences.removeAll(_specials);
 		}
 		trueCriteria.addAll(_dependences);
 
-		if (CollectionUtils.containsAny(depID2ctxtRetriever.keySet(), _da.getIds())) {
+		if (CollectionUtils.containsAny(depID2ctxtRetriever.keySet(), _ids)) {
 			populateCriteriaBaseToContextsMap(_da);
 		}
 
