@@ -17,11 +17,11 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,8 +42,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class SliceGotoProcessor
-  implements IGotoProcessor {
+abstract class AbstractSliceGotoProcessor {
 	/**
 	 * The slice collector.
 	 */
@@ -65,28 +64,66 @@ public class SliceGotoProcessor
 	private SootMethod method;
 
 	/**
-	 * This indicates if the slice is a backward slice or a forward slice. <code>true</code> indicates backward slice and
-	 * <code>false</code> indicates forward slice.
-	 */
-	private final boolean backwardSlice;
-
-	/**
-	 * Creates a new SliceGotoProcessor object.
+	 * Creates a new AbstractSliceGotoProcessor object.
 	 *
 	 * @param collector collects the slice.
-	 * @param backward <code>true</code> indicates the slice is backward; <code>false</code>, otherwise.
 	 *
 	 * @pre collector != null
 	 */
-	public SliceGotoProcessor(final TaggingBasedSliceCollector collector, final boolean backward) {
+	protected AbstractSliceGotoProcessor(final TaggingBasedSliceCollector collector) {
 		sliceCollector = collector;
-		backwardSlice = backward;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#postprocess()
+	 * Retrieve the last statements and the successors basic blocks containing the statements following these statements.
+	 * The subclass determine how the statements and the successors are picked.  This information is returned as pair of
+	 * <code>Stmt</code> and <code>Collection</code> of successors.
+	 *
+	 * @param bb is the basic block.
+	 *
+	 * @return a collection of pairs of statement and a collection of basic blocks.
+	 *
+	 * @pre bb != null
+	 * @post result.oclIsKindOf(Collection(Pair(Stmt, Collection(BasicBlockGraph)))
+	 * @post result->forall(o | o != null)
 	 */
-	public final void postprocess() {
+	protected abstract Collection getLastStmtAndSuccsOfBasicBlock(final BasicBlock bb);
+
+	/**
+	 * Retrieve the statements of the given basic block in an order.  The subclasses determine the order.
+	 *
+	 * @param bb is the basic block.
+	 *
+	 * @return a list of statements that occur in <code>bb</code> in a suitable order.
+	 *
+	 * @pre bb != null
+	 * @post result != null and result.oclIsKindOf(Sequence(Stmt))
+	 */
+	protected abstract List getStmtsOfForProcessing(final BasicBlock bb);
+
+	/**
+	 * Preprocess the current method's body for goto-based control flow retention.
+	 *
+	 * @param theMethod to be processed.
+	 * @param bbg DOCUMENT ME!
+	 *
+	 * @pre theMethod != null
+	 */
+	final void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
+		method = theMethod;
+		taggedBB.clear();
+
+		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
+			final BasicBlock _bb = (BasicBlock) _j.next();
+			processBasicBlock(_bb);
+		}
+		postprocess();
+	}
+
+	/**
+	 * Postprocess the current method's body for goto-based control flow retention.
+	 */
+	private final void postprocess() {
 		final String _tagName = sliceCollector.getTagName();
 		final Collection _processed = new HashSet();
 
@@ -94,26 +131,23 @@ public class SliceGotoProcessor
 			final BasicBlock _bb = (BasicBlock) workBag.getWork();
 			_processed.add(_bb);
 
-			Stmt _trailer;
-			Collection _succs;
+			final Collection _stmtSuccPairs = getLastStmtAndSuccsOfBasicBlock(_bb);
 
-			if (backwardSlice) {
-				_trailer = _bb.getTrailerStmt();
-				_succs = _bb.getSuccsOf();
-			} else {
-				_trailer = _bb.getLeaderStmt();
-				_succs = _bb.getPredsOf();
-			}
+			for (Iterator _i = _stmtSuccPairs.iterator(); _i.hasNext();) {
+				final Pair _pair = (Pair) _i.next();
+				final Stmt _stmt = (Stmt) _pair.getFirst();
+				final Collection _succs = (Collection) _pair.getSecond();
 
-			if (!CollectionUtils.intersection(taggedBB, _succs).isEmpty()
-				  && _trailer.getTag(_tagName) == null
-				  && _trailer instanceof GotoStmt) {
-				sliceCollector.includeInSlice(_trailer);
-				sliceCollector.includeInSlice(method);
-				process(_bb);
+				if (!CollectionUtils.intersection(taggedBB, _succs).isEmpty()
+					  && _stmt.getTag(_tagName) == null
+					  && _stmt instanceof GotoStmt) {
+					sliceCollector.includeInSlice(_stmt);
+					sliceCollector.includeInSlice(method);
+					processBasicBlock(_bb);
 
-				if (!_processed.contains(_bb)) {
-					workBag.addWorkNoDuplicates(_bb);
+					if (!_processed.contains(_bb)) {
+						workBag.addWorkNoDuplicates(_bb);
+					}
 				}
 			}
 		}
@@ -121,24 +155,16 @@ public class SliceGotoProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#process(soot.SootMethod)
+	 * Process the given basic block that belongs to the current method.
+	 *
+	 * @param bb is the basic block to be processed.
+	 *
+	 * @pre bb != null
 	 */
-	public final void preprocess(final SootMethod theMethod) {
-		method = theMethod;
-		taggedBB.clear();
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#process(BasicBlock)
-	 */
-	public final void process(final BasicBlock bb) {
+	private final void processBasicBlock(final BasicBlock bb) {
 		boolean _tagged = false;
 		final String _tagName = sliceCollector.getTagName();
-		final List _list = new ArrayList(bb.getStmtsOf());
-
-		if (backwardSlice) {
-			Collections.reverse(_list);
-		}
+		final List _list = getStmtsOfForProcessing(bb);
 
 		for (final Iterator _i = _list.iterator(); _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
@@ -151,13 +177,18 @@ public class SliceGotoProcessor
 				sliceCollector.includeInSlice(method);
 			}
 		}
-		workBag.addWork(bb);
+
+		if (_tagged) {
+			workBag.addWork(bb);
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/01/11 00:01:23  venku
+   - formatting and coding convention.
    Revision 1.10  2004/01/06 00:17:05  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.

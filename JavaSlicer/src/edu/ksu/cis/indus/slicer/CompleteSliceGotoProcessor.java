@@ -15,70 +15,63 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
-import soot.SootMethod;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 
 /**
- * This class can be used goto post-process while generating a complete slice.
+ * This implementation handles statements of the basic block as required for goto processing of complete slices.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CompleteSliceGotoProcessor
-  implements IGotoProcessor {
-	/**
-	 * The processor to consider backward effect on goto inclusions.
-	 */
-	IGotoProcessor backwardProcessor;
-
-	/**
-	 * The processor to consider forward effect on goto inclusions.
-	 */
-	IGotoProcessor forwardProcessor;
-
+final class CompleteSliceGotoProcessor
+  extends AbstractSliceGotoProcessor {
 	/**
 	 * Creates a new CompleteSliceGotoProcessor object.
 	 *
-	 * @param collector is the slice collector which annotated the system whose gotos needs to be processed.
+	 * @param collector collects the slice.
 	 *
 	 * @pre collector != null
 	 */
-	CompleteSliceGotoProcessor(final TaggingBasedSliceCollector collector) {
-		backwardProcessor = new SliceGotoProcessor(collector, true);
-		forwardProcessor = new SliceGotoProcessor(collector, false);
+	protected CompleteSliceGotoProcessor(TaggingBasedSliceCollector collector) {
+		super(collector);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#postprocess()
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
 	 */
-	public void postprocess() {
-		backwardProcessor.postprocess();
-		forwardProcessor.postprocess();
+	protected Collection getLastStmtAndSuccsOfBasicBlock(final BasicBlock bb) {
+		final Collection _stmts = bb.getStmtsOf();
+		final Collection _result = new ArrayList();
+		_result.add(new Pair(bb.getTrailerStmt(), bb.getSuccsOf()));
+
+		if (_stmts.size() > 1) {
+			_result.add(new Pair(bb.getLeaderStmt(), bb.getPredsOf()));
+		}
+		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#preprocess(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
 	 */
-	public void preprocess(final SootMethod method) {
-		backwardProcessor.preprocess(method);
-		forwardProcessor.preprocess(method);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.slicer.IGotoProcessor#process(BasicBlock)
-	 */
-	public void process(final BasicBlock bbg) {
-		backwardProcessor.process(bbg);
-		forwardProcessor.process(bbg);
+	protected List getStmtsOfForProcessing(BasicBlock bb) {
+		List _result = new ArrayList(bb.getStmtsOf());
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.5  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
