@@ -48,9 +48,9 @@ import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 
 import edu.ksu.cis.indus.tools.AbstractTool;
-import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
+import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.Phase;
 
 import java.io.StringReader;
@@ -406,7 +406,7 @@ public final class SlicerTool
 		if (stringizedForm != null && stringizedForm.length() != 0) {
 			try {
 				StringReader reader = new StringReader(stringizedForm);
-				configurationInfo = (AbstractToolConfiguration) unmarshallingContext.unmarshalDocument(reader, null);
+				configurationInfo = (IToolConfiguration) unmarshallingContext.unmarshalDocument(reader, null);
 				result = true;
 			} catch (JiBXException e) {
 				LOGGER.error("Error while unmarshalling Slicer configurationCollection. Recovering with new clean"
@@ -546,7 +546,7 @@ public final class SlicerTool
 	public void initialize() {
 		configurationInfo = new CompositeToolConfiguration();
 
-		AbstractToolConfiguration toolConfig = SlicerConfiguration.getFactory().createToolConfiguration();
+		IToolConfiguration toolConfig = SlicerConfiguration.getFactory().createToolConfiguration();
 		toolConfig.initialize();
 		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(toolConfig);
 	}
@@ -658,6 +658,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.41  2003/12/01 12:15:08  venku
    - optimized populate...() method.
    - used the setConsiderExecution() method in AbstractSliceCriteion.

@@ -52,7 +52,7 @@ public class TagBasedProcessingFilter
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterClasses(java.util.Collection)
 	 */
-	public Collection filterClasses(final Collection classes) {
+	public final Collection filterClasses(final Collection classes) {
 		final List _result = new ArrayList();
 
 		for (final Iterator _i = classes.iterator(); _i.hasNext();) {
@@ -68,7 +68,7 @@ public class TagBasedProcessingFilter
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterMethods(java.util.Collection)
 	 */
-	public Collection filterMethods(final Collection methods) {
+	public final Collection filterMethods(final Collection methods) {
 		final List _result = new ArrayList();
 
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
@@ -85,6 +85,9 @@ public class TagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.2  2003/12/02 01:30:59  venku
    - coding conventions and formatting.
    Revision 1.1  2003/11/30 01:20:37  venku

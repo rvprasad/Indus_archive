@@ -912,7 +912,7 @@ public class ProcessingController {
 	 *
 	 * @param environment an instance of the FA.
 	 */
-	public void setEnvironment(final IEnvironment environment) {
+	public final void setEnvironment(final IEnvironment environment) {
 		env = environment;
 	}
 
@@ -921,14 +921,14 @@ public class ProcessingController {
 	 *
 	 * @param theFilter DOCUMENT ME!
 	 */
-	public void setProcessingFilter(final IProcessingFilter theFilter) {
+	public final void setProcessingFilter(final IProcessingFilter theFilter) {
 		processingFilter = theFilter;
 	}
 
 	/**
 	 * Controls the processing activity.
 	 */
-	public void process() {
+	public final void process() {
 		final Collection _processors = new HashSet();
 		_processors.addAll(interfaceProcessors);
 
@@ -971,7 +971,7 @@ public class ProcessingController {
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
 	 * @param processor the instance of processor.
 	 */
-	public void register(final Class interest, final IProcessor processor) {
+	public final void register(final Class interest, final IProcessor processor) {
 		Set temp = (Set) class2processors.get(interest);
 
 		if (temp == null) {
@@ -986,7 +986,7 @@ public class ProcessingController {
 	 *
 	 * @param processor the instance of processor.
 	 */
-	public void register(final IProcessor processor) {
+	public final void register(final IProcessor processor) {
 		if (!interfaceProcessors.contains(processor)) {
 			interfaceProcessors.add(processor);
 		}
@@ -998,7 +998,7 @@ public class ProcessingController {
 	 *
 	 * @param processor the instance of processor.
 	 */
-	public void registerForAllStmts(final IProcessor processor) {
+	public final void registerForAllStmts(final IProcessor processor) {
 		for (final Iterator _i = ProcessingController.STMT_CLASSES.iterator(); _i.hasNext();) {
 			register((Class) _i.next(), processor);
 		}
@@ -1010,7 +1010,7 @@ public class ProcessingController {
 	 *
 	 * @param processor the instance of processor.
 	 */
-	public void registerForAllValues(final IProcessor processor) {
+	public final void registerForAllValues(final IProcessor processor) {
 		for (final Iterator _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
 			register((Class) _i.next(), processor);
 		}
@@ -1025,7 +1025,7 @@ public class ProcessingController {
 	 *
 	 * @throws IllegalArgumentException when there are no processors who have registered to process <code>interest</code>.
 	 */
-	public void unregister(final Class interest, final IProcessor processor) {
+	public final void unregister(final Class interest, final IProcessor processor) {
 		final Set _temp = (Set) class2processors.get(interest);
 
 		if (_temp == null) {
@@ -1039,7 +1039,7 @@ public class ProcessingController {
 	 *
 	 * @param processor the instance of processor.
 	 */
-	public void unregister(final IProcessor processor) {
+	public final void unregister(final IProcessor processor) {
 		interfaceProcessors.remove(processor);
 	}
 
@@ -1049,7 +1049,7 @@ public class ProcessingController {
 	 *
 	 * @param processor the instance of processor.
 	 */
-	public void unregisterForAllStmts(final IProcessor processor) {
+	public final void unregisterForAllStmts(final IProcessor processor) {
 		for (final Iterator _i = ProcessingController.STMT_CLASSES.iterator(); _i.hasNext();) {
 			unregister((Class) _i.next(), processor);
 		}
@@ -1061,7 +1061,7 @@ public class ProcessingController {
 	 *
 	 * @param processor the instance of processor.
 	 */
-	public void unregisterForAllValues(final IProcessor processor) {
+	public final void unregisterForAllValues(final IProcessor processor) {
 		for (final Iterator _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
 			unregister((Class) _i.next(), processor);
 		}
@@ -1084,7 +1084,7 @@ public class ProcessingController {
 	 *
 	 * @pre theClasses != null and theClasses.oclIsKindOf(Collection(SootClass))
 	 */
-	protected void processClasses(final Collection theClasses) {
+	protected final void processClasses(final Collection theClasses) {
 		Collection classes;
 
 		if (processingFilter == null) {
@@ -1126,7 +1126,7 @@ public class ProcessingController {
 	 *
 	 * @pre theMethods != null and theMethods.oclIsKindOf(Collection(SootMethod))
 	 */
-	protected void processMethods(final Collection theMethods) {
+	protected final void processMethods(final Collection theMethods) {
 		Collection methods;
 
 		if (processingFilter == null) {
@@ -1178,6 +1178,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.19  2003/12/02 01:30:58  venku
    - coding conventions and formatting.
    Revision 1.18  2003/12/01 11:34:28  venku

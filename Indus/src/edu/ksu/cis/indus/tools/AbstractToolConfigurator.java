@@ -25,23 +25,25 @@ import org.eclipse.swt.widgets.Composite;
 
 
 /**
- * This is the API exposed by the tool for configuring it via GUI.
+ * This class provides abstract implementation of <code>ITooConfigurator</code> interface which the concrete implementations
+ * should extend.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public abstract class AbstractToolConfigurator
-  implements DisposeListener {
-	/**
-	 * This is the configuration to be handled by this object.
-	 */
-	protected AbstractToolConfiguration configuration;
-
+  implements DisposeListener,
+	  IToolConfigurator {
 	/**
 	 * The parent composite on which the provided interface will be displayed.
 	 */
 	protected Composite parent;
+
+	/**
+	 * This is the configuration to be handled by this object.
+	 */
+	protected IToolConfiguration configuration;
 
 	/**
 	 * This class handles the changing of boolean property as per to the selection of the associated button widget.
@@ -50,17 +52,17 @@ public abstract class AbstractToolConfigurator
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	protected class BooleanPropertySelectionListener
+	protected static final class BooleanPropertySelectionListener
 	  implements SelectionListener {
-		/**
-		 * The configuration that houses the associated property.
-		 */
-		private final AbstractToolConfiguration containingConfiguration;
-
 		/**
 		 * The button widget that triggers property changes.
 		 */
 		private final Button button;
+
+		/**
+		 * The configuration that houses the associated property.
+		 */
+		private final IToolConfiguration containingConfiguration;
 
 		/**
 		 * The id of the property which can be changed via <code>button</code>.
@@ -76,8 +78,7 @@ public abstract class AbstractToolConfigurator
 		 *
 		 * @pre propID != null and sender != null and config != null
 		 */
-		public BooleanPropertySelectionListener(final Object propID, final Button sender,
-			final AbstractToolConfiguration config) {
+		public BooleanPropertySelectionListener(final Object propID, final Button sender, final IToolConfiguration config) {
 			id = propID;
 			button = sender;
 			containingConfiguration = config;
@@ -99,23 +100,15 @@ public abstract class AbstractToolConfigurator
 	}
 
 	/**
-	 * Sets the configuration to be configured.
-	 *
-	 * @param toolConfiguration is the configuration to be edited.
-	 *
-	 * @pre toolConfiguration != null
+	 * @see IToolconfigurator#setConfiguration(IToolConfiguration)
 	 */
-	public final void setConfiguration(final AbstractToolConfiguration toolConfiguration) {
+	public final void setConfiguration(final IToolConfiguration toolConfiguration) {
 		checkConfiguration(toolConfiguration);
 		configuration = toolConfiguration;
 	}
 
 	/**
-	 * Initializes the configurator with the given composite on which it should provide the UI.
-	 *
-	 * @param composite on which the UI is provided.
-	 *
-	 * @pre composite != null
+	 * @see IToolconfigurator#initialize(Composite)
 	 */
 	public final void initialize(final Composite composite) {
 		parent = composite;
@@ -124,9 +117,7 @@ public abstract class AbstractToolConfigurator
 	}
 
 	/**
-	 * Called when the parent widget is disposed.  Subclasses should override this method appropriately.
-	 *
-	 * @see org.eclipse.swt.events.DisposeListener#widgetDisposed(org.eclipse.swt.events.DisposeEvent)
+	 * @see IToolConfigurator#widgetDisposed(DisposeEvent)
 	 */
 	public void widgetDisposed(final DisposeEvent evt) {
 	}
@@ -139,7 +130,7 @@ public abstract class AbstractToolConfigurator
 	 *
 	 * @pre toolConfiguration != null
 	 */
-	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {
+	protected void checkConfiguration(final IToolConfiguration toolConfiguration) {
 	}
 
 	/**
@@ -151,6 +142,9 @@ public abstract class AbstractToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.5  2003/11/05 08:20:52  venku
    - coding convention.
    Revision 1.4  2003/10/20 13:55:25  venku

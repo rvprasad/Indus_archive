@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.toolkits.bandera;
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
 
-import edu.ksu.cis.indus.tools.AbstractToolConfigurator;
+import edu.ksu.cis.indus.tools.IToolConfigurator;
 
 import org.eclipse.swt.widgets.Shell;
 
@@ -40,7 +40,7 @@ public class SlicerConfigurationView
 	 *
 	 * @invariant configurator != null
 	 */
-	private final AbstractToolConfigurator configurator;
+	private final IToolConfigurator configurator;
 
 	/**
 	 * The window in which the configuration interface of the slicer will be displayed.
@@ -54,7 +54,7 @@ public class SlicerConfigurationView
 	 *
 	 * @pre theConfigurator != null
 	 */
-	SlicerConfigurationView(final AbstractToolConfigurator theConfigurator) {
+	SlicerConfigurationView(final IToolConfigurator theConfigurator) {
 		configurator = theConfigurator;
 	}
 
@@ -110,6 +110,9 @@ public class SlicerConfigurationView
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.8  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.

@@ -230,6 +230,9 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.17  2003/11/24 10:11:32  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.

@@ -48,14 +48,14 @@ public abstract class AbstractTool
 	 *
 	 * @invariant configurationInfo != null
 	 */
-	protected AbstractToolConfiguration configurationInfo;
+	protected IToolConfiguration configurationInfo;
 
 	/**
 	 * This is the configurator associated with this tool instance.  Subclasses should provide a valid reference.
 	 *
 	 * @invariant configurator != null
 	 */
-	protected AbstractToolConfigurator configurator;
+	protected IToolConfigurator configurator;
 
 	/**
 	 * This indicates if the tool should pause execution.
@@ -96,8 +96,8 @@ public abstract class AbstractTool
 	 *
 	 * @post result != null
 	 */
-	public final AbstractToolConfiguration getActiveConfiguration() {
-		AbstractToolConfiguration result;
+	public final IToolConfiguration getActiveConfiguration() {
+		IToolConfiguration result;
 
 		if (configurationInfo instanceof CompositeToolConfiguration) {
 			result = ((CompositeToolConfiguration) configurationInfo).getActiveToolConfiguration();
@@ -113,7 +113,7 @@ public abstract class AbstractTool
 	 *
 	 * @return a configurationCollection editor.
 	 */
-	public final AbstractToolConfigurator getConfigurator() {
+	public final IToolConfigurator getConfigurator() {
 		return configurator;
 	}
 
@@ -128,7 +128,7 @@ public abstract class AbstractTool
 		if (!pause || isStable()) {
 			thread =
 				new Thread() {
-						public void run() {
+						public final void run() {
 							try {
 								execute(phase);
 							} catch (InterruptedException e) {
@@ -187,7 +187,7 @@ public abstract class AbstractTool
 	 *
 	 * @return <code>true</code> if the tool is not active; <code>false</code>, otherwise.
 	 */
-	public synchronized boolean isStable() {
+	public final synchronized boolean isStable() {
 		return thread == null || !thread.isAlive();
 	}
 
@@ -219,6 +219,9 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.8  2003/12/02 01:30:59  venku
    - coding conventions and formatting.
    Revision 1.7  2003/11/17 17:56:25  venku

@@ -70,7 +70,7 @@ public class Context
 	 *
 	 * @return the call stack of the this context.  Any operation on this object affects the call stack of this context.
 	 */
-	public Stack getCallString() {
+	public final Stack getCallString() {
 		final Stack _temp = new Stack();
 		_temp.addAll(callString);
 		return _temp;
@@ -81,7 +81,7 @@ public class Context
 	 *
 	 * @return the current method in this context.
 	 */
-	public SootMethod getCurrentMethod() {
+	public final SootMethod getCurrentMethod() {
 		SootMethod result = null;
 
 		try {
@@ -101,7 +101,7 @@ public class Context
 	 *
 	 * @return the program point previously represented by this context.
 	 */
-	public ValueBox setProgramPoint(final ValueBox pp) {
+	public final ValueBox setProgramPoint(final ValueBox pp) {
 		final ValueBox _temp = progPoint;
 		progPoint = pp;
 
@@ -113,7 +113,7 @@ public class Context
 	 *
 	 * @return the program point in this context.
 	 */
-	public ValueBox getProgramPoint() {
+	public final ValueBox getProgramPoint() {
 		return progPoint;
 	}
 
@@ -123,7 +123,7 @@ public class Context
 	 *
 	 * @param sm the method to be installed as the current method and the only method on the call stack in this context.
 	 */
-	public void setRootMethod(final SootMethod sm) {
+	public final void setRootMethod(final SootMethod sm) {
 		callString.removeAllElements();
 		callString.push(sm);
 	}
@@ -135,7 +135,7 @@ public class Context
 	 *
 	 * @return the previous statement in this context.
 	 */
-	public Stmt setStmt(final Stmt stmtParam) {
+	public final Stmt setStmt(final Stmt stmtParam) {
 		final Stmt _temp = this.stmt;
 		this.stmt = stmtParam;
 		return _temp;
@@ -146,7 +146,7 @@ public class Context
 	 *
 	 * @return the statement in this context.
 	 */
-	public Stmt getStmt() {
+	public final Stmt getStmt() {
 		return stmt;
 	}
 
@@ -155,7 +155,7 @@ public class Context
 	 *
 	 * @param sm the method being called in the current context.  This cannot be <code>null</code>.
 	 */
-	public void callNewMethod(final SootMethod sm) {
+	public final void callNewMethod(final SootMethod sm) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Adding method " + sm);
 		}
@@ -243,7 +243,7 @@ public class Context
 	 *
 	 * @return the method returned from.
 	 */
-	public SootMethod returnFromCurrentMethod() {
+	public final SootMethod returnFromCurrentMethod() {
 		return (SootMethod) callString.pop();
 	}
 
@@ -260,6 +260,9 @@ public class Context
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.1  2003/11/06 05:15:05  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

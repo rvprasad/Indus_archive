@@ -590,7 +590,7 @@ public class SlicerConfiguration
 	 */
 	static final SlicerConfiguration makeToolConfiguration() {
 		SlicerConfiguration result = new SlicerConfiguration();
-		result.configName = "configuration" + System.currentTimeMillis();
+		result.setConfigName("configuration" + System.currentTimeMillis());
 		result.initialize();
 		return result;
 	}
@@ -656,6 +656,9 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.22  2003/12/02 01:30:50  venku
    - coding conventions and formatting.
    Revision 1.21  2003/11/28 16:40:26  venku

@@ -40,13 +40,15 @@ public final class CompositeToolConfiguration
 
 	/**
 	 * The list of constituent configuration.
+	 *
+	 * @invariant configurations->forall(o | o.oclIsKindOf(IToolConfiguration))
 	 */
 	final ArrayList configurations = new ArrayList();
 
 	/**
 	 * The active constituent configuration.
 	 */
-	private AbstractToolConfiguration active;
+	private IToolConfiguration active;
 
 	/**
 	 * Create a new container of configurations.  This is primarily used for java-2-xml binding.
@@ -66,7 +68,7 @@ public final class CompositeToolConfiguration
 	 *
 	 * @pre config != null and configurations.contains(config)
 	 */
-	public void setActiveToolConfiguration(final AbstractToolConfiguration config) {
+	public void setActiveToolConfiguration(final IToolConfiguration config) {
 		if (configurations.contains(config)) {
 			active = config;
 		} else {
@@ -77,39 +79,15 @@ public final class CompositeToolConfiguration
 	}
 
 	/**
-	 * Retrieves the active configuration.
-	 *
-	 * @return the active configuration.
-	 *
-	 * @throws RuntimeException when there are no configurations.
-	 *
-	 * @post result != null
-	 */
-	public AbstractToolConfiguration getActiveToolConfiguration() {
-		if (active == null) {
-			active = (AbstractToolConfiguration) configurations.get(0);
-
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("Selecting the first configuration as active configurationCollection.");
-			}
-
-			if (active == null) {
-				throw new RuntimeException("There are no configurations.");
-			}
-		}
-		return active;
-	}
-
-	/**
 	 * Sets the configuration with the given id as active.
 	 *
 	 * @param id of the configuration to be activated.
 	 */
 	public void setActiveToolConfigurationID(final String id) {
 		for (final Iterator _i = configurations.iterator(); _i.hasNext();) {
-			final AbstractToolConfiguration _config = (AbstractToolConfiguration) _i.next();
+			final IToolConfiguration _config = (IToolConfiguration) _i.next();
 
-			if (_config.configName.equals(id)) {
+			if (_config.getConfigName().equals(id)) {
 				active = _config;
 			}
 		}
@@ -123,7 +101,7 @@ public final class CompositeToolConfiguration
 	 * @post result != null
 	 */
 	public String getActiveToolConfigurationID() {
-		return getActiveToolConfiguration().configName;
+		return getActiveToolConfiguration().getConfigName();
 	}
 
 	/**
@@ -134,7 +112,7 @@ public final class CompositeToolConfiguration
 	 * @pre config != null
 	 * @post config != null implies configurations.contains(config)
 	 */
-	public void addToolConfiguration(final AbstractToolConfiguration config) {
+	public void addToolConfiguration(final IToolConfiguration config) {
 		if (config == null) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Null configurations are not supported.");
@@ -169,68 +147,75 @@ public final class CompositeToolConfiguration
 	}
 
 	/**
-	 * Retrieves the tool configuration with the given id.
-	 *
-	 * @param id of the requested configuration.
-	 *
-	 * @return the requested configuration.
-	 */
-	protected AbstractToolConfiguration getToolConfiguration(final String id) {
-		AbstractToolConfiguration result = null;
-
-		for (final Iterator _i = configurations.iterator(); _i.hasNext();) {
-			result = (AbstractToolConfiguration) _i.next();
-
-			if (result.configName.equals(id)) {
-				break;
-			}
-			result = null;
-		}
-		return result;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#processProperty(Object, Object)
 	 */
 	protected boolean processProperty(final Object propertyID, final Object value) {
-		return getActiveToolConfiguration().processProperty(propertyID, value);
+		final IToolConfiguration _ac = getActiveToolConfiguration();
+		return ((AbstractToolConfiguration) _ac).processProperty(propertyID, value);
+	}
+
+	/**
+	 * Retrieves the active configuration.
+	 *
+	 * @return the active configuration.
+	 *
+	 * @throws RuntimeException when there are no configurations.
+	 *
+	 * @post result != null
+	 */
+	IToolConfiguration getActiveToolConfiguration() {
+		if (active == null) {
+			active = (IToolConfiguration) configurations.get(0);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Selecting the first configuration as active configurationCollection.");
+			}
+
+			if (active == null) {
+				throw new RuntimeException("There are no configurations.");
+			}
+		}
+		return active;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.11  2003/12/02 01:30:59  venku
    - coding conventions and formatting.
    Revision 1.10  2003/10/19 20:16:23  venku
    - jibx binding fixes.
    Revision 1.9  2003/10/19 19:11:57  venku
  *** empty log message ***
-     Revision 1.8  2003/10/14 05:39:25  venku
-     - well, jibx doesnot support abstract types for fields even with
-       factories or I do not know how to tell it to use the factory.
-       Right now, the fix is to use concrete types.
-     Revision 1.7  2003/09/27 01:27:47  venku
-     - documentation.
-     Revision 1.6  2003/09/27 01:09:36  venku
-     - changed AbstractToolConfigurator and CompositeToolConfigurator
-       such that the composite to display the interface on is provided by the application.
-     - documentation.
-     Revision 1.5  2003/09/26 15:30:39  venku
-     - removed PropertyIdentifier class.
-     - ripple effect of the above change.
-     - formatting
-     Revision 1.4  2003/09/26 15:16:40  venku
-     - coding conventions.
-     Revision 1.3  2003/09/26 15:05:01  venku
-     - binding related errors fixed.
-     Revision 1.2  2003/09/26 15:00:01  venku
-     - The configuration of tools in Indus has been placed in this package.
-     - Formatting.
-     Revision 1.1  2003/09/26 13:58:43  venku
-     - checkpoint commit.
-     - Renamed ToolConfigurationCollection to CompositeToolConfiguration
-     - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
-     Revision 1.1  2003/09/26 05:56:10  venku
-     - a checkpoint commit.
+             Revision 1.8  2003/10/14 05:39:25  venku
+             - well, jibx doesnot support abstract types for fields even with
+               factories or I do not know how to tell it to use the factory.
+               Right now, the fix is to use concrete types.
+             Revision 1.7  2003/09/27 01:27:47  venku
+             - documentation.
+             Revision 1.6  2003/09/27 01:09:36  venku
+             - changed AbstractToolConfigurator and CompositeToolConfigurator
+               such that the composite to display the interface on is provided by the application.
+             - documentation.
+             Revision 1.5  2003/09/26 15:30:39  venku
+             - removed PropertyIdentifier class.
+             - ripple effect of the above change.
+             - formatting
+             Revision 1.4  2003/09/26 15:16:40  venku
+             - coding conventions.
+             Revision 1.3  2003/09/26 15:05:01  venku
+             - binding related errors fixed.
+             Revision 1.2  2003/09/26 15:00:01  venku
+             - The configuration of tools in Indus has been placed in this package.
+             - Formatting.
+             Revision 1.1  2003/09/26 13:58:43  venku
+             - checkpoint commit.
+             - Renamed ToolConfigurationCollection to CompositeToolConfiguration
+             - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
+             Revision 1.1  2003/09/26 05:56:10  venku
+             - a checkpoint commit.
  */

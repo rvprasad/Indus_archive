@@ -43,13 +43,6 @@ import org.eclipse.swt.widgets.Label;
 public final class CompositeToolConfigurator
   extends AbstractToolConfigurator {
 	/**
-	 * This is the child configurator to be used to configure each instance of configuration.
-	 *
-	 * @invariant childConfigurator != null
-	 */
-	AbstractToolConfigurator childConfigurator;
-
-	/**
 	 * This combo presents the available configurations.
 	 */
 	Combo configCombo;
@@ -74,6 +67,13 @@ public final class CompositeToolConfigurator
 	IToolConfigurationFactory toolConfigFactory;
 
 	/**
+	 * This is the child configurator to be used to configure each instance of configuration.
+	 *
+	 * @invariant childConfigurator != null
+	 */
+	IToolConfigurator childConfigurator;
+
+	/**
 	 * Creates a new CompositeToolConfigurator object.
 	 *
 	 * @param compositeConfigs is the composite configuration.
@@ -82,7 +82,7 @@ public final class CompositeToolConfigurator
 	 *
 	 * @pre compositeConfigs != null and child != null and factory != null
 	 */
-	public CompositeToolConfigurator(final CompositeToolConfiguration compositeConfigs, final AbstractToolConfigurator child,
+	public CompositeToolConfigurator(final CompositeToolConfiguration compositeConfigs, final IToolConfigurator child,
 		final IToolConfigurationFactory factory) {
 		compositeConfiguration = compositeConfigs;
 		childConfigurator = child;
@@ -140,10 +140,10 @@ public final class CompositeToolConfigurator
 		_newConfig.setLayoutData(gridData);
 		_newConfig.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					final AbstractToolConfiguration _atc = toolConfigFactory.createToolConfiguration();
-					_atc.configName = "slicer_configuration_" + compositeConfiguration.configurations.size();
+					final IToolConfiguration _atc = toolConfigFactory.createToolConfiguration();
+					_atc.setConfigName("slicer_configuration_" + compositeConfiguration.configurations.size());
 					compositeConfiguration.addToolConfiguration(_atc);
-					configCombo.add(_atc.configName);
+					configCombo.add(_atc.getConfigName());
 					configCombo.select(compositeConfiguration.configurations.indexOf(_atc));
 				}
 
@@ -157,11 +157,11 @@ public final class CompositeToolConfigurator
 		}
 
 		for (final Iterator _i = compositeConfiguration.configurations.iterator(); _i.hasNext();) {
-			final AbstractToolConfiguration _config = (AbstractToolConfiguration) _i.next();
-			configCombo.add(_config.configName);
+			final IToolConfiguration _config = (IToolConfiguration) _i.next();
+			configCombo.add(_config.getConfigName());
 		}
 
-		final AbstractToolConfiguration _c = compositeConfiguration.getActiveToolConfiguration();
+		final IToolConfiguration _c = compositeConfiguration.getActiveToolConfiguration();
 		configCombo.select(compositeConfiguration.configurations.indexOf(_c));
 		displayChild();
 	}
@@ -181,7 +181,7 @@ public final class CompositeToolConfigurator
 		childComposite.setVisible(true);
 
 		final int _index = configCombo.getSelectionIndex();
-		final AbstractToolConfiguration _tc = (AbstractToolConfiguration) compositeConfiguration.configurations.get(_index);
+		final IToolConfiguration _tc = (IToolConfiguration) compositeConfiguration.configurations.get(_index);
 		compositeConfiguration.setActiveToolConfiguration(_tc);
 		childConfigurator.setConfiguration(_tc);
 		childConfigurator.initialize(childComposite);
@@ -191,6 +191,9 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.9  2003/12/02 01:30:59  venku
    - coding conventions and formatting.
    Revision 1.8  2003/11/03 07:59:26  venku

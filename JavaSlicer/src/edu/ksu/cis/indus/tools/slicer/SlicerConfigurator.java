@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
-import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.AbstractToolConfigurator;
+import edu.ksu.cis.indus.tools.IToolConfiguration;
 
 import org.eclipse.swt.SWT;
 
@@ -58,7 +58,7 @@ public final class SlicerConfigurator
 	 *
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(AbstractToolConfiguration)
 	 */
-	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {
+	protected void checkConfiguration(final IToolConfiguration toolConfiguration) {
 		if (!(toolConfiguration instanceof SlicerConfiguration)) {
 			throw new RuntimeException(
 				"The toolConfiguration has to be of type edu.ksu.cis.indus.tools.slicer.SlicerConfiguration.");
@@ -428,6 +428,9 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/02 09:42:18  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.17  2003/11/06 05:21:49  venku
    - documentation.
    Revision 1.16  2003/11/05 08:26:42  venku
