@@ -22,16 +22,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>JiBX-JavaSlicer [Builder] [1].launch</value>
-				</dictionary>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<arguments>
-				<dictionary>
-					<key>LaunchConfigHandle</key>
-					<value>JiBX-JavaSlicer [Builder] [2].launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/JiBX-JavaSlicer [Builder].launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
