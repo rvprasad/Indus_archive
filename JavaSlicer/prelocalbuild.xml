@@ -21,6 +21,7 @@
         <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
         <pathelement location="/usr/local/javaclasses/junit.jar"/>
         <pathelement location="/usr/local/javaclasses/jibx-run.jar"/>
+        <pathelement location="/usr/local/javaclasses/xpp3.jar"/>  
         <pathelement location="/usr/local/javaclasses/commons-cli.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
