@@ -44,7 +44,7 @@ import java.util.Collection;
 
 
 /**
- * Call-Graph-based processing controller.  This only processes reachable methods.
+ * Call-Graph-based pre- or post-processing controller.  This only processes reachable methods.
  *
  * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -80,5 +80,9 @@ public class CGBasedProcessingController
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/02/20 19:15:58  venku
+Moved all the classes which control the dependency analysis
+into one package.
+
 
 *****/
