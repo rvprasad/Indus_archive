@@ -202,7 +202,7 @@ public class ExitControlDA
 		final List _methodLocalDent2Dee = CollectionsUtilities.getListFromMap(dependent2dependee, method);
 		final List _stmtList = getStmtList(method);
 		final int _noOfStmtsInMethod = _stmtList.size();
-		final List _dependeeBBStmtst = new ArrayList();
+		final List _dependeeBBStmts = new ArrayList();
 		CollectionsUtilities.ensureSize(_methodLocalDee2Dent, _noOfStmtsInMethod, null);
 		CollectionsUtilities.ensureSize(_methodLocalDent2Dee, _noOfStmtsInMethod, null);
 
@@ -214,11 +214,11 @@ public class ExitControlDA
 			//record dependence within dependee block
 			final Collection _dependents =
 				(Collection) CollectionsUtilities.getSetAtIndexFromList(_methodLocalDee2Dent, _stmtList.indexOf(_dependee));
-			_dependeeBBStmtst.clear();
-			_dependeeBBStmtst.addAll(_dependeeBB.getStmtsOf());
-			_dependeeBBStmtst.remove(_dependee);
-			_dependents.addAll(_dependeeBBStmtst);
-			recordDependence(_methodLocalDent2Dee, _stmtList, _dependee, _dependeeBBStmtst);
+			_dependeeBBStmts.clear();
+			_dependeeBBStmts.addAll(_dependeeBB.getStmtsOf());
+			_dependeeBBStmts.remove(_dependee);
+			_dependents.addAll(_dependeeBBStmts);
+			recordDependence(_methodLocalDent2Dee, _stmtList, _dependee, _dependeeBBStmts);
 
 			// record dependence for dependent blocks
 			final Collection _dependentBBs = (Collection) _entry.getValue();
