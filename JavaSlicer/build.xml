@@ -13,9 +13,17 @@
 
 <target name="build" depends="init">
     <mkdir dir="${build}"/>
+    <javac destdir="${build}" includes="**/*java">
+        <src refid="${ant.project.name}.srcpath" />
+        <classpath refid="${ant.project.name}.classpath"/>
+    </javac>
+</target>
+
+<target name="debugBuild" depends="init">
+    <mkdir dir="${build}"/>
     <javac destdir="${build}" debug="on" includes="**/*java">
-        <src refid="srcpath" />
-        <classpath refid="classpath"/>
+        <src refid="${ant.project.name}.srcpath" />
+        <classpath refid="${ant.project.name}.classpath"/>
     </javac>
 </target>
 
@@ -104,14 +112,17 @@
     <delete dir="${docs}"/>
 </target>
 
-<import file="postlocalbuild.xml"/>
-
 </project>
 
 <!--
 ChangeLog:
 
 $Log$
+Revision 1.16  2003/11/17 17:03:48  venku
+- build process can now be configured for each project
+  via pre and post build files.
+- replaced localbuild.xml by prelocalbuild.xml and postlocalbuild.xml.
+
 Revision 1.15  2003/11/14 20:56:54  venku
 - moved jar dependencies into localbuild.xml
 - added inclusion for build targets

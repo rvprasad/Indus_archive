@@ -9,12 +9,13 @@
     <path id="indus.srcpath">
         <pathelement location="src"/>
    	    <pathelement location="src-xml"/>
+   	    <pathelement location="src-test"/>
     </path>
 
     <path id="srcpath">
-        <path refid="indus.srcpath"/>
-	    <path refid="staticanalyses.srcpath"/>
-   	    <path refid="javaslicer.srcpath"/>
+        <path refid="${ant.project.name}.srcpath"/>
+	    <path refid="indus.staticanalyses.srcpath"/>
+   	    <path refid="indus.javaslicer.srcpath"/>
     </path>
 
     <path id="indus.classpath">
@@ -25,8 +26,8 @@
     </path>
 
     <path id="classpath">
-        <path refid="indus.classpath"/>
-        <path refid="javaslicer.classpath"/>
-        <path refid="staticanalyses.classpath"/>
+        <path refid="${ant.project.name}.classpath"/>
+        <path refid="${ant.project.name}.javaslicer.classpath"/>
+        <path refid="${ant.project.name}.staticanalyses.classpath"/>
     </path>
 </project>

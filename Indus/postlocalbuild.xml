@@ -1,6 +1,0 @@
-<project>
-
-    <import file="../StaticAnalyses/postlocalbuild.xml"/>
-    <import file="../JavaSlicer/postlocalbuild.xml"/>
-    
-</project>
