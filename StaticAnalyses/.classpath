@@ -5,13 +5,12 @@
     <classpathentry excluding=".cono" kind="src" path="src-dependence"/>
     <classpathentry excluding=".cono" kind="src" path="src-concurrency"/>
     <classpathentry kind="src" path="src-test"/>
-    <classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.apache.logging/log4j-logging-logkit.jar"/>
-    <classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
     <classpathentry kind="src" path="/Indus"/>
     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
     <classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
     <classpathentry kind="var" path="JAVACLASSES/sootclasses.jar"/>
     <classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
     <classpathentry kind="var" path="JAVACLASSES/junit.jar"/>
+    <classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
     <classpathentry kind="output" path="build"/>
 </classpath>
