@@ -201,11 +201,10 @@ public class BasicBlockGraphTest
 			for (int _i = 0; _i < _factories.length; _i++) {
 				final IStmtGraphFactory _factory = _factories[_i];
 				final TestSuite _temp = new TestSuite(BasicBlockGraphTest.class);
-				_temp.setName(_factory.getClass().getName());
 
 				for (final Enumeration _enum = _temp.tests(); _enum.hasMoreElements();) {
 					final BasicBlockGraphTest _test = (BasicBlockGraphTest) _enum.nextElement();
-					_test.setTestName(_methodNames[_j] + ":" + _classNames[_j]);
+					_test.setTestName(_factory.getClass().getName() + ":" + _methodNames[_j] + ":" + _classNames[_j]);
 					_test.factory = _factory;
 					_test.methodName = _methodNames[_j];
 					_test.className = _classNames[_j];
@@ -243,4 +242,9 @@ public class BasicBlockGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/06/01 01:12:16  venku
+   - added a new testcase to test BasicBlockGraph.
+   - documentation.
+   - added iterator() method to ExceptionFlowSensitiveStmtGraph to
+     return only statement captured in the graph.
  */
