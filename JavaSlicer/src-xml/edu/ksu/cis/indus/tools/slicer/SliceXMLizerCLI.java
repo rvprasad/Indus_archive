@@ -33,6 +33,7 @@ import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidual
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
+import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
 import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.Phase;
@@ -187,7 +188,8 @@ public class SliceXMLizerCLI
 	 * Creates an instance of this class.
 	 */
 	protected SliceXMLizerCLI() {
-		slicer = new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
+		slicer = new SlicerTool(TokenUtil.getTokenManager(new SootValueTypeManager()), 
+                new ExceptionFlowSensitiveStmtGraphFactory());
 		cfgProvider = slicer.getStmtGraphFactory();
 	}
 

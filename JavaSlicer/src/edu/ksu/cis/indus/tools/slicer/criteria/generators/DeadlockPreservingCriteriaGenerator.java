@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;

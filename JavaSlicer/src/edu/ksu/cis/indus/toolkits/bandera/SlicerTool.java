@@ -29,7 +29,7 @@ import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
-import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
+import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;

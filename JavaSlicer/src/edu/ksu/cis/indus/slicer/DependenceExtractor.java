@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import edu.ksu.cis.indus.interfaces.ICallingContextRetriever;
