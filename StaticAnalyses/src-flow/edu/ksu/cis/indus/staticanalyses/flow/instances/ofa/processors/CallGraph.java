@@ -45,7 +45,6 @@ import soot.Value;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
-import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.NullConstant;
 import soot.jimple.SpecialInvokeExpr;
@@ -55,9 +54,11 @@ import soot.jimple.VirtualInvokeExpr;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.interfaces.*;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.processing.*;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.INode;
 import edu.ksu.cis.indus.staticanalyses.support.Marker;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
@@ -82,7 +83,7 @@ import java.util.Stack;
 
 
 /**
- * This class calculates class graph information from the associated object flow analysis.
+ * This class calculates call graphCache information from the given object flow analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -103,91 +104,86 @@ public class CallGraph
 	 * However, our definition of head methods are those methods(excluding those in invoked via <code>invokespecial</code>
 	 * bytecode) with no caller method that belongs to the system.
 	 *
-	 * @invariant heads->forall(o | o.oclType = SootMethod)
+	 * @invariant head != null and heads.oclIsKindOf(Set(SootMethod))
 	 */
 	private final Collection heads = new HashSet();
 
 	/**
 	 * The collection of list of methods that form cycles.
 	 *
-	 * @invariant cycles->forall(o | o.oclIsKindOf(List(SootMethod)))
+	 * @invariant cycles.oclIsKindOf(Collection(List(SootMethod)))
 	 */
 	private Collection cycles = new HashSet();
 
 	/**
 	 * The collection of methods that are reachble in the system.
 	 *
-	 * @invariant reachables->forall(o | o.oclType = SootMethod)
+	 * @invariant reachables.oclIsKindOf(Set(SootMethod))
 	 */
 	private Collection reachables = new HashSet();
 
 	/**
 	 * The collection of methods which are the head of a recursion cycle.
 	 *
-	 * @invariant recursionRoots->forall(o | o.oclType = SootMethod)
+	 * @invariant recursionRoots.oclIsKindOf(Set(SootMethod))
 	 */
 	private Collection recursionRoots = new HashSet();
 
 	/**
-	 * The collection of SCCs in this call graph.
+	 * The collection of SCCs in this call graphCache.
 	 *
-	 * @invariant sccs->forall(o | o.oclIsKindOf(Collection(SootMethod)))
+	 * @invariant sccs.oclIsKindOf(Set(Collection(SootMethod)))
 	 */
 	private Collection sccs = new HashSet();
 
 	/**
 	 * This maps callees to callers.
 	 *
-	 * @invariant callee2callers.oclIsKindOf(Map(SootMethod, Bag(SootMethod)))
+	 * @invariant callee2callers.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
 	private Map callee2callers = new HashMap();
 
 	/**
 	 * This maps callers to callees.
 	 *
-	 * @invariant caller2callees.oclIsKindOf(Map(SootMethod, Bag(SootMethod)))
+	 * @invariant caller2callees.oclIsKindOf(Map(SootMethod, Set(CallTriple)))
 	 */
 	private Map caller2callees = new HashMap();
 
 	/**
-	 * The BFA instance which implements object flow analysis.  This instance is used to calculate call graph information.
+	 * The BFA instance which implements object flow analysis.  This instance is used to calculate call graphCache
+	 * information.
 	 */
 	private OFAnalyzer analyzer;
 
 	/**
-	 * This caches a traversable graph representation of the call graph.
+	 * This caches a traversable graphCache representation of the call graphCache.
 	 */
-	private SimpleNodeGraph graph;
+	private SimpleNodeGraph graphCache;
 
 	/**
 	 * Sets the analyzer to be used to calculate call graph information upon call back.
 	 *
-	 * @param analyzer that provides the information to create the call graph.
+	 * @param objFlowAnalyzer that provides the information to create the call graph.
 	 *
-	 * @throws IllegalArgumentException when the analyzer is not an instance of <code>OFAnalyzer</code>.
+	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#setAnalyzer(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#setAnalyzer(IValueAnalyzer)
 	 */
-	public void setAnalyzer(IValueAnalyzer analyzer)
-	  throws IllegalArgumentException {
-		if (analyzer instanceof OFAnalyzer) {
-			this.analyzer = (OFAnalyzer) analyzer;
-			heads.clear();
-			recursionRoots.clear();
-			reachables.clear();
-			cycles.clear();
-			graph = null;
-		} else {
-			throw new IllegalArgumentException("analyzer has to be of type OFAnalyzer.");
-		}
+	public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
+		this.analyzer = (OFAnalyzer) objFlowAnalyzer;
+		heads.clear();
+		recursionRoots.clear();
+		reachables.clear();
+		cycles.clear();
+		graphCache = null;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallGraph()
 	 */
 	public SimpleNodeGraph getCallGraph() {
-		return graph;
+		return graphCache;
 	}
 
 	/**
@@ -195,14 +191,14 @@ public class CallGraph
 	 *
 	 * @param caller which calls the returned methods.
 	 *
-	 * @return a collection of <code>CallTriple</code>s corresponding to the call sites.
+	 * @return a collection of call sites along with callees at those sites.
 	 *
-	 * @post result->forall(o | o.isOclKindOf(CallTriple))
+	 * @pre caller != null
+	 * @post result.oclIsKindOf(Collection(CallTriple))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallees(soot.SootMethod,
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallees(SootMethod)
 	 */
-	public Collection getCallees(SootMethod caller) {
+	public Collection getCallees(final SootMethod caller) {
 		Collection result = Collections.EMPTY_LIST;
 		Collection callees = (Collection) caller2callees.get(caller);
 
@@ -218,15 +214,15 @@ public class CallGraph
 	 * @param invokeExpr the method call site.
 	 * @param context in which the call occurs.
 	 *
-	 * @return a collection of <code>SootMethod</code>s.
+	 * @return a collection of methods.
 	 *
+	 * @pre invokeExpr != null and context != null
 	 * @pre context.getCurrentMethod() != null
-	 * @post result->forall(o | o.oclType = SootMethod)
+	 * @post result.oclIsKindOf(Collection(SootMethod))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallees(soot.jimple.InvokeExpr,
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallees(InvokeExpr,Context)
 	 */
-	public Collection getCallees(InvokeExpr invokeExpr, Context context) {
+	public Collection getCallees(final InvokeExpr invokeExpr, final Context context) {
 		Collection result;
 
 		if (invokeExpr instanceof StaticInvokeExpr || invokeExpr instanceof SpecialInvokeExpr) {
@@ -261,13 +257,13 @@ public class CallGraph
 	 *
 	 * @param callee is the method being called.
 	 *
-	 * @return a collection of <code>CallTriple</code>s corresponding to the call sites.
-	 *
-	 * @post result->forall(o | o.isOclKindOf(CallTriple))
+	 * @return a collection of call-sites at which <code>callee</code> is called.
+	 * @pre callee != null
+	 * @post result->forall(o | o.oclIsKindOf(CallTriple))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallers(soot.SootMethod)
 	 */
-	public Collection getCallers(SootMethod callee) {
+	public Collection getCallers(final SootMethod callee) {
 		Collection result = Collections.EMPTY_LIST;
 		Collection callers = (Collection) callee2callers.get(callee);
 
@@ -335,10 +331,11 @@ public class CallGraph
 	 * @param method to be checked for reachabiliy.
 	 *
 	 * @return <code>true</code> if <code>method</code> is reachable; <code>false</code>, otherwise.
+     * @pre method != null
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#isReachable(soot.SootMethod)
 	 */
-	public boolean isReachable(SootMethod method) {
+	public boolean isReachable(final SootMethod method) {
 		return reachables.contains(method);
 	}
 
@@ -360,7 +357,7 @@ public class CallGraph
 	 *
 	 * @return a colleciton of methods.
 	 *
-	 * @post result->forall(o | o.oclType = SootMethod)
+	 * @post result.oclIsKindOf(Collection(SootMethod))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getRecursionRoots()
 	 */
@@ -428,11 +425,10 @@ public class CallGraph
 	 *
 	 * @param value is the AST node to be processed.
 	 * @param context in which value should be processed.
-	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.jimple.Value,
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+	 * @pre context != null
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Value,Context)
 	 */
-	public void callback(Value value, Context context) {
+	public void callback(final Value value, final Context context) {
 		Stmt stmt = context.getStmt();
 		SootMethod caller = context.getCurrentMethod();
 		SootMethod callee = null;
@@ -508,7 +504,7 @@ public class CallGraph
 	 */
 	public void consolidate() {
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: call graph consolidation");
+			LOGGER.info("BEGIN: call graphCache consolidation");
 		}
 
 		long start = System.currentTimeMillis();
@@ -539,10 +535,10 @@ public class CallGraph
 		}
 
 		// calculate heads, recursion roots, and cycle information.
-		graph = new SimpleNodeGraph();
+		graphCache = new SimpleNodeGraph();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Starting construction of call graph...");
+			LOGGER.debug("Starting construction of call graphCache...");
 		}
 
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
@@ -550,36 +546,23 @@ public class CallGraph
 			Collection temp = (Collection) caller2callees.get(sm);
 
 			if (temp != null) {
-				INode callerNode = graph.getNode(sm);
+				INode callerNode = graphCache.getNode(sm);
 
 				for (Iterator j = temp.iterator(); j.hasNext();) {
 					CallTriple ctrp = (CallTriple) j.next();
 					SootMethod method = ctrp.getMethod();
-					INode calleeNode = graph.getNode(method);
+					INode calleeNode = graphCache.getNode(method);
 
-					graph.addEdgeFromTo(callerNode, calleeNode);
+					graphCache.addEdgeFromTo(callerNode, calleeNode);
 				}
 			}
 		}
 
-		/*
-		   if (LOGGER.isDebugEnabled())
-		     LOGGER.debug("Starting cycle calculation...");
-		     Collection temp = graph.getCycles();
-		     for(Iterator i = temp.iterator(); i.hasNext();) {
-		         Collection cycle = (Collection) i.next();
-		         java.util.List l = new ArrayList();
-		         for(Iterator j = cycle.iterator(); j.hasNext();) {
-		             l.add(((SimpleNode) j.next())._OBJECT);
-		         }
-		         cycles.add(l);
-		     }
-		 */
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Starting strongly connected component calculation...");
 		}
 
-		Collection temp = graph.getSCCs(true);
+		Collection temp = graphCache.getSCCs(true);
 
 		for (Iterator i = temp.iterator(); i.hasNext();) {
 			Collection scc = (Collection) i.next();
@@ -603,15 +586,15 @@ public class CallGraph
 		long stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: call graph consolidation");
-			LOGGER.info("TIMING: call graph consolidation took " + (stop - start) + "ms.");
+			LOGGER.info("END: call graphCache consolidation");
+			LOGGER.info("TIMING: call graphCache consolidation took " + (stop - start) + "ms.");
 		}
 	}
 
 	/**
-	 * Provides a stringized representation of this call graph.
+	 * Provides a stringized representation of this call graphCache.
 	 *
-	 * @return stringized representation of the this call graph.
+	 * @return stringized representation of the this call graphCache.
 	 */
 	public String dumpGraph() {
 		StringBuffer result = new StringBuffer();
@@ -650,10 +633,9 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 	 */
-	public void hookup(ProcessingController ppc) {
+	public void hookup(final ProcessingController ppc) {
 		ppc.register(VirtualInvokeExpr.class, this);
 		ppc.register(InterfaceInvokeExpr.class, this);
 		ppc.register(StaticInvokeExpr.class, this);
@@ -661,10 +643,9 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 	 */
-	public void unhook(ProcessingController ppc) {
+	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(VirtualInvokeExpr.class, this);
 		ppc.unregister(InterfaceInvokeExpr.class, this);
 		ppc.unregister(StaticInvokeExpr.class, this);
@@ -676,10 +657,10 @@ public class CallGraph
 	 *
 	 * @param accessClass is the class via which <code>method</code> is accesed.
 	 * @param method being accessed/invoked.
-	 *
+	 * @pre accessClass != null and method != null
 	 * @return the implementation of <code>method</code> if present in the class hierarchy; <code>null</code>, otherwise.
 	 */
-	private SootMethod findMethodImplementation(SootClass accessClass, SootMethod method) {
+	private SootMethod findMethodImplementation(final SootClass accessClass, final SootMethod method) {
 		String methodName = method.getName();
 		List parameterTypes = method.getParameterTypes();
 		Type returnType = method.getReturnType();
@@ -693,10 +674,11 @@ public class CallGraph
 	 * @param methodName is the name of the method.
 	 * @param parameterTypes is the list of parameter types of the method.
 	 * @param returnType is the return type of the method.
-	 *
+	 * @pre accessClass != null and methodName != null and parameterTypes != null and returnType != null
 	 * @return the implementation of the requested method if present in the class hierarchy; <code>null</code>, otherwise.
 	 */
-	private SootMethod findMethodImplementation(SootClass accessClass, String methodName, List parameterTypes, Type returnType) {
+	private SootMethod findMethodImplementation(final SootClass accessClass, final String methodName,
+		final List parameterTypes, final Type returnType) {
 		SootMethod result = null;
 
 		if (accessClass.declaresMethod(methodName, parameterTypes, returnType)) {
@@ -716,21 +698,23 @@ public class CallGraph
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.3  2003/08/11 04:27:34  venku
-- Ripple effect of changes to Pair
-- Ripple effect of changes to _content in Marker
-- Changes of how thread start sites are tracked in ThreadGraphInfo
-
-Revision 1.2  2003/08/09 21:54:00  venku
-Leveraging getInvokeExpr() in Stmt class in getMethodsReachableFrom()
-
-Revision 1.1  2003/08/07 06:40:24  venku
-Major:
- - Moved the package under indus umbrella.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.4  2003/08/12 18:20:43  venku
+   Ripple effect of changing the analyzer and the environment.
+   
+   Revision 1.3  2003/08/11 04:27:34  venku
+   - Ripple effect of changes to Pair
+   - Ripple effect of changes to _content in Marker
+   - Changes of how thread start sites are tracked in ThreadGraphInfo
+   
+   Revision 1.2  2003/08/09 21:54:00  venku
+   Leveraging getInvokeExpr() in Stmt class in getMethodsReachableFrom()
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */

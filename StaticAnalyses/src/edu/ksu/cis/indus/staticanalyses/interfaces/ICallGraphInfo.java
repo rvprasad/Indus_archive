@@ -147,6 +147,7 @@ public interface ICallGraphInfo {
 	 *
 	 * @return a collection of call-sites.
 	 *
+	 * @pre caller != null
 	 * @post result != null and result.oclIsKindOf(Collection(CallTriple))
 	 */
 	Collection getCallees(SootMethod caller);
@@ -160,6 +161,7 @@ public interface ICallGraphInfo {
 	 *
 	 * @return a collection of methods.
 	 *
+	 * @pre expr != null and context != null
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
 	Collection getCallees(InvokeExpr expr, Context context);
@@ -171,6 +173,7 @@ public interface ICallGraphInfo {
 	 *
 	 * @return a colleciton of call-sites.
 	 *
+	 * @pre callee != null
 	 * @post result != null and result.oclIsKindOf(Collection(CallTriple))
 	 */
 	Collection getCallers(SootMethod callee);
@@ -212,7 +215,8 @@ public interface ICallGraphInfo {
 	 * @param method to be checked for reachability.
 	 *
 	 * @return <code>true</code> if <code>method</code> can be reached in the analyzed system; <code>false</code>, otherwise.
-     * @pre method != null
+	 *
+	 * @pre method != null
 	 */
 	boolean isReachable(SootMethod method);
 
@@ -246,17 +250,25 @@ public interface ICallGraphInfo {
 
 /*
    ChangeLog:
+   
    $Log$
+   
+   Revision 1.4  2003/08/11 07:46:09  venku
+   Finalized the parameters.
+   Spruced up Documentation and Specification.
+   
    Revision 1.3  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.
    - Documentation and specification of other classes.
+   
    Revision 1.2  2003/08/09 23:26:20  venku
    - Added an interface to provide use-def information.
    - Added an implementation to the above interface.
    - Extended call graph processor to retrieve call tree information rooted at arbitrary node.
    - Modified IValueAnalyzer interface such that only generic queries are possible.
      If required, this can be extended in the future.
+     
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

@@ -130,6 +130,7 @@ public interface IThreadGraphInfo {
 	 *
 	 * @return a collection of methods executed in this thread.
 	 *
+	 * @pre ne != null and ctxt != null
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
 	Collection getExecutedMethods(NewExpr ne, Context ctxt);
@@ -141,6 +142,7 @@ public interface IThreadGraphInfo {
 	 *
 	 * @return a collection of allocation sites which capture the creation of the executing thread.
 	 *
+	 * @pre sm != null
 	 * @post result != null and result.oclIsKindOf(Collection(NewExprTriple))
 	 */
 	Collection getExecutionThreads(SootMethod sm);
@@ -157,18 +159,19 @@ public interface IThreadGraphInfo {
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.3  2003/08/12 01:52:00  venku
+   Removed redundant final in parameter declaration in methods of interfaces.
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
 
-   
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
     - Renamed isEmpty() to hasWork() in WorkBag.
-    
+
    Revision 1.1  2003/05/22 22:16:45  venku
    All the interfaces were renamed to start with an "I".
  */

@@ -35,7 +35,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import soot.ArrayType;
 import soot.RefLikeType;
 import soot.RefType;
 import soot.SootClass;
@@ -74,15 +73,15 @@ import java.util.Set;
 
 
 /**
- * This class provides information regarding the threads that occur in the system.  It can provide information such as the
+ * This class provides information regarding threads that occur in the system.  It can provide information such as the
  * possible threads in the system and the methods invoked in these threads.
  * 
  * <p>
  * Main threads do not have allocation sites.  This is addressed by associating each main thread with a
  * <code>NewExprTriple</code> with <code>null</code> for statement and method, but  a <code>NewExpr</code> which creates a
  * type with the name that starts with "MainThread:".  The rest of the name is a number followed by the signature of the
- * starting method in the thread. For example, "MainThread:2:signature" represents the second mainthread with the run method
- * given by signature.
+ * starting method in the thread. For example, "MainThread:2:[signature]" represents the second mainthread with the run
+ * method given by signature.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -100,48 +99,50 @@ public class ThreadGraph
 	/**
 	 * The collection of thread allocation sites.
 	 *
-	 * @invariant newThreadExprs.isOclKindOf(Collection(NewExprTriple))
+	 * @invariant newThreadExprs != null and newThreadExprs.oclIsKindOf(Collection(NewExprTriple))
 	 */
 	private final Collection newThreadExprs = new HashSet();
 
 	/**
 	 * The collection of method invocation sites at which <code>java.lang.Thread.start()</code> is invoked.
+	 *
+	 * @invariant startSites.oclIsKindOf(Collection(CallTriple)) and startSites != null
 	 */
 	private final Collection startSites = new HashSet();
 
 	/**
 	 * This provides call graph information pertaining to the system.
+	 *
+	 * @invariant cgi != null
 	 */
 	private final ICallGraphInfo cgi;
 
 	/**
 	 * This maps methods to thread allocation sites which create threads in which the key method is executed.
 	 *
-	 * @invariant method2threads.isOclKindOf(Map(SootMethod, Collection(NewExprTriple)))
+	 * @invariant method2threads != null and method2threads.oclIsKindOf(Map(SootMethod, Collection(NewExprTriple)))
 	 */
 	private final Map method2threads = new HashMap();
 
 	/**
 	 * This maps threads allocation sites to the methods which are executed in the created threads.
 	 *
-	 * @invariant thread2methods.isOclKindOf(Map(NewExprTriple, Collection(SootMethod)))
+	 * @invariant thread2methods != null and thread2methods.isOclKindOf(Map(NewExprTriple, Collection(SootMethod)))
 	 */
 	private final Map thread2methods = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides object flow information required by this analysis.
 	 */
 	private OFAnalyzer analyzer;
 
 	/**
 	 * Creates a new ThreadGraph object.
 	 *
-	 * @param cgi provides call graph information.
+	 * @param callGraph provides call graph information.
 	 */
-	public ThreadGraph(ICallGraphInfo cgi) {
-		this.cgi = cgi;
+	public ThreadGraph(final ICallGraphInfo callGraph) {
+		this.cgi = callGraph;
 	}
 
 	/**
@@ -152,21 +153,20 @@ public class ThreadGraph
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the object flow analyzer to be used for analysis.
 	 *
-	 * @param valueAnalyzer DOCUMENT ME!
+	 * @param objFlowAnalyzer is the object flow analyzer.
+	 *
+	 * @pre objFlowAnalyzer != null and objFlowAnalyzer.oclIsKindOf(OFAnalyzer)
 	 */
-	public void setAnalyzer(IValueAnalyzer valueAnalyzer) {
-		analyzer = (OFAnalyzer) valueAnalyzer;
+	public void setAnalyzer(final IValueAnalyzer objFlowAnalyzer) {
+		analyzer = (OFAnalyzer) objFlowAnalyzer;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getExecutedMethods( soot.jimple.NewExpr,
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getExecutedMethods(NewExpr,Context)
 	 */
-	public Collection getExecutedMethods(NewExpr ne, Context ctxt) {
+	public Collection getExecutedMethods(final NewExpr ne, final Context ctxt) {
 		Set result = (Set) thread2methods.get(new NewExprTriple(ctxt.getCurrentMethod(), ctxt.getStmt(), ne));
 
 		if (result == null) {
@@ -180,16 +180,18 @@ public class ThreadGraph
 	/**
 	 * Please refer to class documentation for important information.
 	 *
-	 * @param sm DOCUMENT ME!
+	 * @param sm is the method of interest.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of threads in which <code>sm</code> executes.
 	 *
+	 * @pre sm != null
 	 * @post result->forall(o | o.getExpr().getType().getClassName().indexOf("MainThread") == 0 implies (o.getStmt() = null
 	 * 		 and o.getSootMethod() = null))
+	 * @post result.oclIsKindOf(Collection(NewExprTriple))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getExecutionThreads(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getExecutionThreads(SootMethod)
 	 */
-	public Collection getExecutionThreads(SootMethod sm) {
+	public Collection getExecutionThreads(final SootMethod sm) {
 		Set result = (Set) method2threads.get(sm);
 
 		if (result == null) {
@@ -208,14 +210,17 @@ public class ThreadGraph
 	}
 
 	/**
-	 * Called by the post processing controller on encountering values in the system.
+	 * Called by the post processing controller on encountering <code>NewExpr</code> and <code>VirtualInvokeExpr</code>
+	 * values in the system.
 	 *
 	 * @param value that was encountered and needs processing.
 	 * @param context in which the value was encountered.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when there is a glitch in the system being analyzed is not type-safe.
+	 *
+	 * @pre value != null and context != null
 	 */
-	public void callback(Value value, Context context) {
+	public void callback(final Value value, final Context context) {
 		IEnvironment env = analyzer.getEnvironment();
 
 		if (value instanceof NewExpr) {
@@ -270,7 +275,7 @@ public class ThreadGraph
 	/**
 	 * Consolidates the thread graph information before it is available to the application.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException when there is a glitch in the system being analyzed is not type-safe.
 	 */
 	public void consolidate() {
 		if (LOGGER.isInfoEnabled()) {
@@ -304,7 +309,7 @@ public class ThreadGraph
 					flag = scTemp.getName().equals("java.lang.Thread");
 				} else {
 					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("How can there be a descendent class of java.lang.Thread without access to run() method.");
+						LOGGER.warn("How can there be a descendent of java.lang.Thread without access to run() method.");
 					}
 					throw new RuntimeException("run() method is unavailable via " + sc
 						+ " even though it is a descendent of java.lang.Thread.");
@@ -432,19 +437,17 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 	 */
-	public void hookup(ProcessingController ppc) {
+	public void hookup(final ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
 		ppc.register(VirtualInvokeExpr.class, this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
-	 * 		edu.ksu.cis.indus.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 	 */
-	public void unhook(ProcessingController ppc) {
+	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
 	}
 
@@ -454,14 +457,16 @@ public class ThreadGraph
 	 * @param ne is the allocation expression.
 	 *
 	 * @return the triple corresponding to the allocation expression.
+	 *
+	 * @pre ne != null
 	 */
-	private NewExprTriple extractNewExprTripleFor(NewExpr ne) {
+	private NewExprTriple extractNewExprTripleFor(final NewExpr ne) {
 		NewExprTriple result = null;
 
 		for (Iterator i = newThreadExprs.iterator(); i.hasNext();) {
 			NewExprTriple ntrp = (NewExprTriple) i.next();
 
-			if (ntrp.getExpr().equals(ne) && ntrp.getExpr() == ne) {
+			if (ntrp.getExpr() == ne) {
 				result = ntrp;
 				break;
 			}
@@ -470,16 +475,17 @@ public class ThreadGraph
 	}
 
 	/**
-	 * Calculates the tranitive closure of methods called from the given method.  The inclusion constraint for the  closure
+	 * Calculates the transitive closure of methods called from the given method.  The inclusion constraint for the closure
 	 * is that the method cannot be an instance of <code>java.lang.Thread.start()</code>.
 	 *
 	 * @param starterMethod is the method from where the closure calculation starts.
 	 *
 	 * @return a collection of <code>SootMethod</code>s occurring the call closure.
 	 *
-	 * @post result.isOclKindOf(Collection(SootMethod))
+	 * @pre starterMethod != null
+	 * @post result != null and result.isOclKindOf(Collection(SootMethod))
 	 */
-	private Collection transitiveThreadCallClosure(SootMethod starterMethod) {
+	private Collection transitiveThreadCallClosure(final SootMethod starterMethod) {
 		Collection result = new HashSet();
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
 		wb.addWork(starterMethod);
@@ -514,6 +520,10 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 04:27:33  venku
+   - Ripple effect of changes to Pair
+   - Ripple effect of changes to _content in Marker
+   - Changes of how thread start sites are tracked in ThreadGraphInfo
    Revision 1.1  2003/08/07 06:40:25  venku
    Major:
     - Moved the package under indus umbrella.
