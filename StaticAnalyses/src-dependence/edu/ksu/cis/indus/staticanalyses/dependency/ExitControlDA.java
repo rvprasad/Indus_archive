@@ -15,18 +15,29 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
+
+import soot.jimple.Stmt;
 
 
 /**
@@ -51,8 +62,10 @@ public class ExitControlDA
 	 */
 	private ICallGraphInfo callgraph;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private IDependencyAnalysis entryControlDA;
 
@@ -114,6 +127,61 @@ public class ExitControlDA
 		return _result;
 	}
 
+	///CLOVER:OFF
+
+	/**
+	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
+	 *
+	 * @return a stringized representation of this object.
+	 *
+	 * @post result != null
+	 */
+	public final String toString() {
+		final StringBuffer _result =
+			new StringBuffer("Statistics for exit control dependence as calculated by " + getClass().getName() + "\n");
+		int _localEdgeCount;
+		int _localEntryPointDep;
+		int _edgeCount = 0;
+		int _entryPointDep = 0;
+
+		final StringBuffer _temp = new StringBuffer();
+
+		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final SootMethod _method = (SootMethod) _entry.getKey();
+			final List _stmts = getStmtList(_method);
+			final List _cd = (List) _entry.getValue();
+			_localEdgeCount = 0;
+			_localEntryPointDep = _stmts.size();
+
+			for (int _j = 0; _j < _stmts.size(); _j++) {
+				if (_cd == null) {
+					continue;
+				}
+
+				final Collection _dees = (Collection) _cd.get(_j);
+
+				if (_dees != null) {
+					_temp.append("\t\t" + _stmts.get(_j) + " --> " + _dees + "\n");
+					_localEdgeCount += _dees.size();
+					_localEntryPointDep--;
+				}
+			}
+
+			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount + " control dependence edges with "
+				+ _localEntryPointDep + " entry point dependences.\n");
+			_result.append(_temp);
+			_temp.delete(0, _temp.length());
+			_edgeCount += _localEdgeCount;
+			_entryPointDep += _localEntryPointDep;
+		}
+		_result.append("A total of " + _edgeCount + " control dependence edges exists with " + _entryPointDep
+			+ " entry point dependences.");
+		return _result.toString();
+	}
+
+	///CLOVER:ON
+	
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
 	 */
@@ -146,6 +214,31 @@ public class ExitControlDA
 	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod)) and not method->includes(null)
 	 */
 	public final void analyze(final Collection methods) {
+		unstable();
+
+		if (!entryControlDA.isStable()) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: Exit Control Dependence processing due to unstable entry control dependence info.");
+			}
+			return;
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Exit Control Dependence processing");
+		}
+
+		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final BasicBlockGraph _bbg = getBasicBlockGraph(_sm);
+			final Collection _dependeeBBs = calculateDependeesOfSinksIn(_bbg, _sm);
+			calculateDependenceForStmts(calculateDependenceForBBs(_bbg, _dependeeBBs), _sm);
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Exit Control Dependence processing");
+		}
+
+		stable();
 	}
 
 	/**
@@ -178,11 +271,108 @@ public class ExitControlDA
 		}
 		entryControlDA = _temp;
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param bbg DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private Collection calculateDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
+		final Collection _result = new HashSet();
+		final Collection _sinks = new ArrayList();
+		_sinks.addAll(bbg.getTails());
+		_sinks.addAll(bbg.getPseudoTails());
+
+		for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
+			final BasicBlock _sink = (BasicBlock) _i.next();
+			final Stmt _stmt = _sink.getLeaderStmt();
+			final Collection _dependees = entryControlDA.getDependees(_stmt, method);
+
+			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
+				final Stmt _dependee = (Stmt) _j.next();
+				final BasicBlock _dependeeBB = bbg.getEnclosingBlock(_dependee);
+				_result.add(_dependeeBB);
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param bbg DOCUMENT ME!
+	 * @param dependeeBBs DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private Map calculateDependenceForBBs(final BasicBlockGraph bbg, final Collection dependeeBBs) {
+		final Map _dependence = new HashMap();
+		final Iterator _i = dependeeBBs.iterator();
+		final int _iEnd = dependeeBBs.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final BasicBlock _dependeeBB = (BasicBlock) _i.next();
+			final Collection _dependents = bbg.getReachablesFrom(_dependeeBB, false);
+			_dependence.put(_dependeeBB, _dependents);
+		}
+		return _dependence;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param dependeeBB2dependentBBs DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 */
+	private void calculateDependenceForStmts(final Map dependeeBB2dependentBBs, final SootMethod method) {
+		final List _methodLocalDee2Dent = CollectionsUtilities.getListFromMap(dependee2dependent, method);
+		final List _methodLocalDent2Dee = CollectionsUtilities.getListFromMap(dependent2dependee, method);
+		final List _stmtList = getStmtList(method);
+		final int _noOfStmtsInMethod = _stmtList.size();
+		CollectionsUtilities.ensureSize(_methodLocalDee2Dent, _noOfStmtsInMethod, null);
+		CollectionsUtilities.ensureSize(_methodLocalDent2Dee, _noOfStmtsInMethod, null);
+
+		for (final Iterator _i = dependeeBB2dependentBBs.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final BasicBlock _dependeeBB = (BasicBlock) _entry.getKey();
+			final Stmt _dependee = _dependeeBB.getTrailerStmt();
+			final Collection _dependents =
+				(Collection) CollectionsUtilities.getSetAtIndexFromList(_methodLocalDee2Dent, _stmtList.indexOf(_dependee));
+			final Collection _dependentBBs = (Collection) _entry.getValue();
+			final Iterator _j = _dependentBBs.iterator();
+			final int _jEnd = _dependentBBs.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final BasicBlock _dependentBB = (BasicBlock) _j.next();
+				final List _stmtsOf = _dependentBB.getStmtsOf();
+				final Iterator _k = _stmtsOf.iterator();
+				final int _kEnd = _stmtsOf.size();
+
+				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+					final Stmt _dependent = (Stmt) _k.next();
+					final Collection _dependees =
+						(Collection) CollectionsUtilities.getSetAtIndexFromList(_methodLocalDent2Dee,
+							_stmtList.indexOf(_dependent));
+					_dependees.add(_dependee);
+				}
+				_dependents.addAll(_stmtsOf);
+			}
+		}
+		dependent2dependee.put(method, _methodLocalDent2Dee);
+		dependee2dependent.put(method, _methodLocalDee2Dent);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.11  2004/06/12 06:59:57  venku
    - dependency analysis test was failing due to subtyping incorrectness.  FIXED.
    Revision 1.10  2004/06/05 09:52:24  venku
