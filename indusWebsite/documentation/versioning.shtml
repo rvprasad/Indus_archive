@@ -7,15 +7,15 @@
 	This document provides normative way to do releases in project Indus.
 
 	<ol>
-	<li>Each project should start with a version tag <i>(XYZ_0_0)</i></li>
+	<li>Each project should start with a version tag <i>(version_0_0)</i></li>
 	<li>After each "settled" change to the project, the project should be tagged via date tag.</li>
-	<li>When the project reaches a state that warrants a new version, the project should be tagged with a version tag.
-	<i>(XYZ_0_1)</i></li>
-	<li>Each release should have an associated date tag.</li>
-	<li>Each release artifact's name should reflect the date tag associated with it. <i>(module-XYZ-YYYYMMDD-HHMM)</i></li>
-	<li>In situations where multiple versions of a module are being maintained, the release artifact's name should contain the 
-	version number as well as the date tag information. <i>(module-XYZ_0_1-YYYYMMDD-HHMM)</i> </li>
-	<li>If an older version (XYZ_0_1) is updated then it is released as <i>module-XYZ_0_1_x</i>.</li>
+	<li>When the project reaches a state that warrants a new version (minor or major), the project should be tagged with a version 
+	tag.<i>(version_0_1)</i></li>
+	<li>Each time a project releases software, it should be tagged with a date tag (YYYYMMDD-HHMM) and a version tag that 
+	reflects the associated date tag (version_0_1-YYYYMMDD-HHMM).</li>
+	<li>The name of every artifact in a release should reflect the version tag associated with it. 
+	<i>(module-0.1-YYYYMMDD-HHMM)</i></li>
+	<li>If an older version (version_0_0) is updated then it is released as <i>module-0.0.1-YYYYMMDD-HHMM</i>.</li>
 	</ol>
 
 According to the above guidelines, all changes pertaining to an upcoming version will be released as enhancement to the current 
