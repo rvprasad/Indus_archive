@@ -197,6 +197,22 @@ final class AliasSet
 	}
 
 	/**
+	 * Checks if the given alias set was accessed.
+	 *
+	 * @return <code>true</code> if it was accessed; <code>false</code>, otherwise.
+	 */
+	boolean isAccessed() {
+		return ((AliasSet) find()).accessed;
+	}
+
+	/**
+	 * Marks the alias set as shared.
+	 */
+	void setEscapes() {
+		((AliasSet) find()).shared = true;
+	}
+
+	/**
 	 * Retrieves an unmodifiable copy of the field map of this alias set.
 	 *
 	 * @return the field map.
@@ -268,17 +284,6 @@ final class AliasSet
 		if (a.readyEntity == null) {
 			a.readyEntity = getNewReadyEntity();
 		}
-	}
-
-	/**
-	 * Checks if the object associated with this alias set is shared between threads.
-	 *
-	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
-	 *
-	 * @post result == find().shared
-	 */
-	boolean isShared() {
-		return ((AliasSet) find()).shared;
 	}
 
 	/**
@@ -364,6 +369,17 @@ final class AliasSet
 	 */
 	Object getReadyEntity() {
 		return ((AliasSet) find()).readyEntity;
+	}
+
+	/**
+	 * Checks if the object associated with this alias set is shared between threads.
+	 *
+	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
+	 *
+	 * @post result == find().shared
+	 */
+	boolean escapes() {
+		return ((AliasSet) find()).shared;
 	}
 
 	/**
@@ -514,6 +530,9 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/28 03:17:13  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.4  2003/09/01 12:01:30  venku
    Major:
    - Ready dependence info in ECBA was flaky as it did not consider
