@@ -20,8 +20,8 @@ import edu.ksu.cis.indus.slicer.TaggingBasedSliceCollector;
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
+import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
@@ -235,7 +235,7 @@ public class SlicerDriver
 
 		ProcessingController ctrl = new ProcessingController();
 		ctrl.setEnvironment(slicer.getEnvironment());
-		ctrl.setProcessingFilter(new CGBasedProcessingFilter(cgi));
+		ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
 
 		AbstractSliceXMLizer sliceIP = getXMLizer();
 		CustomDependencyXMLizer dep = new CustomDependencyXMLizer();
@@ -454,6 +454,9 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/30 02:38:44  venku
+   - changed the name of SLICING_TAG.
+
    Revision 1.14  2003/11/30 00:10:20  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
