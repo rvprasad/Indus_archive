@@ -28,23 +28,27 @@ Current Version
 	- Implemented Indirect and Direct Entry Control dependence.
 	- Added new options to OFA and CallGraph CLI classes.
 	- Added a new implementation of Use-Def Analysis for method locals.
-    - Implemented Divergence Dependence.
+    - Implemented Divergence dependence (edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA)
+    - Implemented Exit Control dependence (edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA)
+
 
 
 Version 0.1
 ------------
 This is (hopefully) a stable release of version 0.1a.  One notable change is that we have decided to use Soot 2.1.0 for
-Indus.  This is because there were some changes in Soot pertaining to control flow graphs which were not decided at the time
-of this release.  As we do not know when these changes in Soot will stabilize we advice the users to use Soot 2.1.0 only.
+Indus.  This is because there were some changes in Soot pertaining to control flow graphs which were not decided at 
+the time of this release.  As we do not know when these changes in Soot will stabilize we advice the users to use 
+Soot 2.1.0 only.
 
-We have switched over to a new module to manage values in the flow analyses.  This module is available in Indus module.
+We have switched over to a new module to manage values in the flow analyses.  This module is available in Indus 
+module.
 
 
 Version 0.1a
 --------------
 This is the first release of StaticAnalyses subproject of Indus.  This module provides implementation of a flow analysis
-framework, object flow anlaysis, escape analysis, and a slew of dependence analyses.  Please refer to the user guide and java
-docs for more information.  
+framework, object flow anlaysis, escape analysis, and a slew of dependence analyses.  Please refer to the user guide 
+and java docs for more information.  
 
 In this release, the following implementations do not work.
 	Exit Control dependence (edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA)
