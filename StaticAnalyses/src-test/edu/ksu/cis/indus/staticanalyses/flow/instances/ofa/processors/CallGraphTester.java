@@ -41,9 +41,7 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -390,9 +388,11 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/29 09:48:14  venku
+   - 2 SCC should be disjoint.  intersection should be used
+     instead of subtract.  FIXED.
    Revision 1.2  2003/11/29 09:44:20  venku
    - changed the check for getCallees(InvokeExpr,..).
-
    Revision 1.1  2003/11/29 09:35:44  venku
    - added test support for processors.  CallGraph, in particular.
  */
