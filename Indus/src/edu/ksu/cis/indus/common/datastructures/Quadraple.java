@@ -86,7 +86,6 @@ public final class Quadraple
 		this.second = secondParam;
 		this.third = thirdParam;
 		this.fourth = fourthParam;
-		optimize();
 	}
 
 	/**
@@ -282,6 +281,9 @@ public final class Quadraple
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/06/03 00:47:01  venku
+   - deleted the constructor with optimize argument.
+
    Revision 1.3  2004/01/28 00:17:51  venku
    - documentation.
    - removed QuadrapleManager.
