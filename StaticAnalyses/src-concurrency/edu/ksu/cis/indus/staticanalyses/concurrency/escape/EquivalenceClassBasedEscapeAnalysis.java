@@ -28,8 +28,6 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 
 import java.util.ArrayList;
@@ -237,13 +235,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 		public void caseAssignStmt(final AssignStmt stmt) {
 			boolean temp = valueProcessor.read;
 			valueProcessor.read = true;
-			stmt.getRightOp().apply(valueProcessor);
+			valueProcessor.process(stmt.getRightOp());
 			valueProcessor.read = temp;
 
 			AliasSet r = (AliasSet) valueProcessor.getResult();
 			temp = valueProcessor.read;
 			valueProcessor.read = false;
-			stmt.getLeftOp().apply(valueProcessor);
+			valueProcessor.process(stmt.getLeftOp());
 			valueProcessor.read = temp;
 
 			AliasSet l = (AliasSet) valueProcessor.getResult();
@@ -257,14 +255,14 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 		 */
 		public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
-			stmt.getOp().apply(valueProcessor);
+			valueProcessor.process(stmt.getOp());
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 		 */
 		public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
-			stmt.getOp().apply(valueProcessor);
+			valueProcessor.process(stmt.getOp());
 		}
 
 		/**
@@ -273,13 +271,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 		public void caseIdentityStmt(final IdentityStmt stmt) {
 			boolean temp = valueProcessor.read;
 			valueProcessor.read = true;
-			stmt.getRightOp().apply(valueProcessor);
+			valueProcessor.process(stmt.getRightOp());
 			valueProcessor.read = temp;
 
 			AliasSet r = (AliasSet) valueProcessor.getResult();
 			temp = valueProcessor.read;
 			valueProcessor.read = false;
-			stmt.getLeftOp().apply(valueProcessor);
+			valueProcessor.process(stmt.getLeftOp());
 			valueProcessor.read = temp;
 
 			AliasSet l = (AliasSet) valueProcessor.getResult();
@@ -293,15 +291,14 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 		 */
 		public void caseInvokeStmt(final InvokeStmt stmt) {
-			stmt.getInvokeExpr().apply(valueProcessor);
+			valueProcessor.process(stmt.getInvokeExpr());
 		}
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 		 */
 		public void caseReturnStmt(final ReturnStmt stmt) {
-			Value v = stmt.getOp();
-			v.apply(valueProcessor);
+			valueProcessor.process(stmt.getOp());
 
 			AliasSet l = (AliasSet) valueProcessor.getResult();
 
@@ -314,8 +311,20 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 		 */
 		public void caseThrowStmt(final ThrowStmt stmt) {
-			stmt.getOp().apply(valueProcessor);
+			valueProcessor.process(stmt.getOp());
 			methodCtxtCache.getThrownAS().unify((AliasSet) valueProcessor.getResult(), false);
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 *
+		 * @param stmt
+		 */
+		void process(Stmt stmt) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing statement: " + stmt);
+			}
+			stmt.apply(this);
 		}
 	}
 
@@ -505,6 +514,18 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
+		 * DOCUMENT ME!
+		 *
+		 * @param value
+		 */
+		void process(Value value) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing value: " + value);
+			}
+			value.apply(this);
+		}
+
+		/**
 		 * Helper method to mark the alias set as read or written.
 		 *
 		 * @param as is the alias set to be marked.
@@ -688,7 +709,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 			if (wSM.getDeclaringClass().getName().equals("java.lang.Object")
 				  && wSM.getReturnType() instanceof VoidType
-				  && (wSM.getParameterCount() == 0)
 				  && wSM.getName().equals("wait")
 				  && nSM.getDeclaringClass().getName().equals("java.lang.Object")
 				  && nSM.getReturnType() instanceof VoidType
@@ -869,7 +889,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 				context.setRootMethod(sm);
 
 				if (sm.getName().equals("<init>")) {
-					valueProcessor.accessed = false;
+                    // TODO: This value was set to false previously.  However, that optimization is incorrect. After 
+                    // verification.  The accessed flag in valueProcessor should be removed and a default value of "true" 
+                    // should be used in it's place.
+					valueProcessor.accessed = true;
 				} else {
 					valueProcessor.accessed = true;
 				}
@@ -886,7 +909,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 					for (Iterator k = bb.getStmtsOf().iterator(); k.hasNext();) {
 						Stmt stmt = (Stmt) k.next();
 						context.setStmt(stmt);
-						stmt.apply(stmtProcessor);
+						stmtProcessor.process(stmt);
 					}
 
 					for (Iterator k = bb.getSuccsOf().iterator(); k.hasNext();) {
@@ -1055,12 +1078,14 @@ public class EquivalenceClassBasedEscapeAnalysis
 		if (AliasSet.canHaveAliasSet(v.getType())) {
 			if (v instanceof InstanceFieldRef) {
 				InstanceFieldRef i = (InstanceFieldRef) v;
-				result = ((AliasSet) local2AS.get(i.getBase())).getASForField(((FieldRef) v).getField().getSignature());
+				AliasSet temp = (AliasSet) local2AS.get(i.getBase());
+				result = temp.getASForField(((FieldRef) v).getField().getSignature());
 			} else if (v instanceof StaticFieldRef) {
 				result = (AliasSet) globalASs.get(((FieldRef) v).getField().getSignature());
 			} else if (v instanceof ArrayRef) {
 				ArrayRef a = (ArrayRef) v;
-				result = ((AliasSet) local2AS.get(a.getBase())).getASForField(AliasSet.ARRAY_FIELD);
+				AliasSet temp = (AliasSet) local2AS.get(a.getBase());
+				result = temp.getASForField(AliasSet.ARRAY_FIELD);
 			} else if (v instanceof Local) {
 				result = (AliasSet) local2AS.get(v);
 			}
@@ -1128,10 +1153,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2003/12/07 08:41:32  venku
+   - deleted getCallGraph() from ICallGraphInfo interface.
+   - made getSCCs() direction sensitive.
+   - ripple effect.
    Revision 1.31  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.30  2003/11/26 06:57:59  venku
    - subtle error in shared.  If the values are static field references
      they will escape but their sharedEntities set will be empty.
