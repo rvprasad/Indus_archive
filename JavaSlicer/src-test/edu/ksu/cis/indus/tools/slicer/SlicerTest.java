@@ -250,6 +250,11 @@ public final class SlicerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/09 07:02:12  venku
+   - Made -o mandatory in SliceDriver.
+   - all information is dumped into directory specified via -o.
+   - Renamed SliceDriver to SliceXMLizer.
+
    Revision 1.4  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
      formatting.
@@ -277,7 +282,7 @@ public final class SlicerTest
    - moved xmlizing classes to a different class.
    Revision 1.2  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
-   - Switched the contents of DependencyXMLizer and SlicerTest.
+   - Switched the contents of DependencyXMLizerDriver and SlicerTest.
    - Corrected errors which emitting xml tags.
    - added a scrapbook.
    Revision 1.1  2003/11/11 10:11:27  venku

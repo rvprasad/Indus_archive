@@ -22,7 +22,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerDriver;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.tools.Phase;
@@ -148,7 +148,7 @@ public class SliceXMLizer
 	 * @version $Revision$ $Date$
 	 */
 	private class CustomDependencyXMLizer
-	  extends DependencyXMLizer {
+	  extends DependencyXMLizerDriver {
 		/**
 		 * Creates a new CustomDependencyXMLizer object.
 		 */
@@ -269,7 +269,7 @@ public class SliceXMLizer
 			_jimpler.hookup(_ctrl);
 		}
 
-		final Map _xmlizers = _dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, _ctrl);
+		//final Map _xmlizers = _dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, _ctrl);
 		_ctrl.process();
 
 		if (_jimpler != null) {
@@ -282,7 +282,7 @@ public class SliceXMLizer
 				LOGGER.error("Failed to close the xml file based for jimple representation.", _e);
 			}
 		}
-		_dep.flushXMLizers(_xmlizers, _ctrl);
+		//_dep.flushXMLizers(_xmlizers, _ctrl);
 
 		_ctrl.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
 		_sliceIP.hookup(_ctrl);
@@ -562,6 +562,9 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/09 04:39:57  venku
+   -
+
    Revision 1.8  2004/02/09 02:21:51  venku
    - ripple effect of refactoring xmlizing framework.
 
