@@ -36,7 +36,7 @@ public class ValuedVariant
 	 * The flow graph node associated with this variant.
 	 * </p>
 	 */
-	protected IFGNode node;
+	protected final IFGNode node;
 
 	/**
 	 * Creates a new <code>ValuedVariant</code> instance.
@@ -46,17 +46,6 @@ public class ValuedVariant
 	 * @pre flowNode != null
 	 */
 	ValuedVariant(final IFGNode flowNode) {
-		this.node = flowNode;
-	}
-
-	/**
-	 * Sets the given node as the flow graph node of this variant.
-	 *
-	 * @param flowNode the node to be set as the flow graph node of this variant.
-	 *
-	 * @pre flowNode != null
-	 */
-	public void setFGNode(final IFGNode flowNode) {
 		this.node = flowNode;
 	}
 
