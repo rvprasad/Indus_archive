@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
@@ -31,7 +31,7 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class OFAProcessorArgTestSuite {
+public class OFAProcessorTestSuite {
 	///CLOVER:OFF
 
 	/**
@@ -79,6 +79,9 @@ public class OFAProcessorArgTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 02:08:51  venku
+   - documentation
+
    Revision 1.2  2004/02/08 01:14:33  venku
    - added clover source directives.
    - renamed DependencyTestSuite to DependencyArgTestSuite.
@@ -89,7 +92,7 @@ public class OFAProcessorArgTestSuite {
    Revision 1.1  2004/01/03 19:52:54  venku
    - renamed CallGraphInfoTest to CallGraphTest
    - all tests of a kind have to be exposed via a suite like
-     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
+     FATestSuite or OFAProcessorTestSuite.  This is to enable
      automated testing.
    - all properties should start with indus and not edu.ksu.cis.indus...
  */

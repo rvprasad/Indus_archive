@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.TestHelper;
 
@@ -92,6 +92,9 @@ public final class OFAProcessorTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 02:08:25  venku
+   - coding conventions.
+
    Revision 1.1  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

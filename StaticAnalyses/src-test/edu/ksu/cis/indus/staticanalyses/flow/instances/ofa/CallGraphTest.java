@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
@@ -366,6 +366,10 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 01:10:33  venku
+   - renamed TestSuite classes to ArgTestSuite classes.
+   - added DependencyArgTestSuite.
+
    Revision 1.2  2004/01/06 01:51:55  venku
    - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
    Revision 1.1  2004/01/03 19:52:54  venku
