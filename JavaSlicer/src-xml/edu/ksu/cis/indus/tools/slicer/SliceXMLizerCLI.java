@@ -314,10 +314,12 @@ public class SliceXMLizerCLI
 		_o = new Option("h", "help", false, "Display message.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("i", "output-jimple", false, "Output xml representation of the jimple BEFORE residualization.");
+		_o = new Option("i", "output-jimple-before-res", false,
+				"Output xml representation of the jimple BEFORE residualization.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("j", "output-jimple", false, "Output xml representation of the jimple AFTER residualization.");
+		_o = new Option("j", "output-jimple-after-res", false,
+				"Output xml representation of the jimple AFTER residualization.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 
@@ -574,9 +576,13 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/05/14 03:10:41  venku
+   - The destructively updated jimple can be dumped during tearDown() as
+     by then all tests would have completed, hence, not impacting the id
+     generation.
+
    Revision 1.33  2004/05/11 22:21:44  venku
    - added options to control pre/post residualization jimple dumps.
-
    Revision 1.32  2004/05/11 22:17:16  venku
    - privatized some methods.
    - enabled dumping of pre-residulization and post-residualization jimple.
