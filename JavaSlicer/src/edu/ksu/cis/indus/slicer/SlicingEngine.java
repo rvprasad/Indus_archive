@@ -63,8 +63,6 @@ import soot.VoidType;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
-import soot.jimple.EnterMonitorStmt;
-import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -114,7 +112,7 @@ public final class SlicingEngine {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SlicingEngine.class);
+	static final Log LOGGER = LogFactory.getLog(SlicingEngine.class);
 
 	static {
 		final Collection _c = new HashSet();
@@ -140,11 +138,6 @@ public final class SlicingEngine {
 	 * The controller used to access the dependency analysis info during slicing.
 	 */
 	private AnalysesController controller;
-
-	/**
-	 * The ids of the dependencies to be considered for slicing.
-	 */
-	private final Collection dependencies = new HashSet();
 
 	/**
 	 * This is the collection of methods whose exits were transformed.
@@ -192,7 +185,7 @@ public final class SlicingEngine {
 	/**
 	 * The closure used to generate criteria based on slice direction. See <code>setSliceType()</code> for details.
 	 */
-	private AbstractCriteriaClosure criteriaClosure;
+	private DependenceClosure criteriaClosure;
 
 	/**
 	 * This maps new expressions to corresponding init call sites.
@@ -218,13 +211,8 @@ public final class SlicingEngine {
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private abstract static class AbstractCriteriaClosure
+	private static class DependenceClosure
 	  implements Closure {
-		/**
-		 * The logger used by instances of this class to log messages.
-		 */
-		private static final Log SLICE_CLOSURE_LOGGER = LogFactory.getLog(AbstractCriteriaClosure.class);
-
 		/**
 		 * The method in which the trigger occurs.
 		 */
@@ -246,19 +234,52 @@ public final class SlicingEngine {
 		private final Collection trueCriteria;
 
 		/**
+		 * The object that actually retrieves the dependences from the given dependence analysis.
+		 */
+		private final IDependenceRetriver retriever;
+
+		/**
 		 * This maps truth values (true/false) to a collection of criteria based on reachability of control flow.
 		 */
 		private final Map newCriteria;
 
 		/**
 		 * Creates a new CriteriaClosure object.
+		 *
+		 * @param dependenceRetriever to be used to extract dependence from the dependence analysis.
+		 *
+		 * @pre dependenceRetriever != null
 		 */
-		protected AbstractCriteriaClosure() {
+		protected DependenceClosure(final IDependenceRetriver dependenceRetriever) {
 			newCriteria = new HashMap();
 			trueCriteria = new HashSet();
 			falseCriteria = new HashSet();
+			retriever = dependenceRetriever;
 			newCriteria.put(Boolean.TRUE, trueCriteria);
 			newCriteria.put(Boolean.FALSE, falseCriteria);
+		}
+
+		/**
+		 * This interface enables to retrieve dependences.
+		 *
+		 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+		 * @author $Author$
+		 * @version $Revision$ To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
+		 */
+		static interface IDependenceRetriver {
+			/**
+			 * Retrieves the dependencies.
+			 *
+			 * @param analysis is the analysis from which to retrieve the dependences.
+			 * @param stmt for which the dependences are requested.
+			 * @param method in which <code>stmt</code> occurs.
+			 *
+			 * @return a collection of dependences.
+			 *
+			 * @pre analysis != null and stmt != null and method != null
+			 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
+			 */
+			Collection getDependences(final IDependencyAnalysis analysis, final Stmt stmt, final SootMethod method);
 		}
 
 		/**
@@ -270,7 +291,7 @@ public final class SlicingEngine {
 		 */
 		public final void execute(final Object analysis) {
 			final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
-			final Collection _criteria = getCriteria(_da);
+			final Collection _criteria = retriever.getDependences(_da, stmt, method);
 
 			if (_da.getId().equals(IDependencyAnalysis.READY_DA)) {
 				final Collection _specials = ((ReadyDAv1) _da).getSynchronizedMethodEntryExitPoints(_criteria);
@@ -279,29 +300,17 @@ public final class SlicingEngine {
 			}
 			trueCriteria.addAll(_criteria);
 
-			if (SLICE_CLOSURE_LOGGER.isDebugEnabled()) {
+			if (LOGGER.isDebugEnabled()) {
 				final StringBuffer _sb = new StringBuffer();
 				_sb.append("Criteria bases for " + stmt + "@" + method + " from " + _da.getClass() + " are :\n[");
 
-				for (final Iterator _j = getCriteria(_da).iterator(); _j.hasNext();) {
+				for (final Iterator _j = retriever.getDependences(_da, stmt, method).iterator(); _j.hasNext();) {
 					_sb.append("\n\t->" + _j.next());
 				}
 				_sb.append("\n]");
-				SLICE_CLOSURE_LOGGER.debug(_sb.toString());
+				LOGGER.debug(_sb.toString());
 			}
 		}
-
-		/**
-		 * Retrieves the dependencies.
-		 *
-		 * @param analysis is the analysis from which to retrieve the dependences.
-		 *
-		 * @return a collection of dependences.
-		 *
-		 * @pre analysis != null
-		 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
-		 */
-		protected abstract Collection getCriteria(final IDependencyAnalysis analysis);
 
 		/**
 		 * Retrieves the criteria mapping truth values (true/false indicating the execution effect of the criteria is
@@ -339,12 +348,12 @@ public final class SlicingEngine {
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private class BackwardSliceClosure
-	  extends AbstractCriteriaClosure {
+	private class BackwardSliceDependenceClosure
+	  implements DependenceClosure.IDependenceRetriver {
 		/**
-		 * @see AbstractCriteriaClosure#getCriteria(IDependencyAnalysis)
+		 * @see DependenceClosure.IDependenceRetriver#getDependences(IDependencyAnalysis,Stmt,SootMethod)
 		 */
-		protected Collection getCriteria(final IDependencyAnalysis da) {
+		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
 			return new HashSet(da.getDependees(stmt, method));
 		}
 	}
@@ -357,12 +366,12 @@ public final class SlicingEngine {
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private class CompleteSliceClosure
-	  extends AbstractCriteriaClosure {
+	private class CompleteSliceDependenceClosure
+	  implements DependenceClosure.IDependenceRetriver {
 		/**
-		 * @see AbstractCriteriaClosure#getCriteria(IDependencyAnalysis)
+		 * @see DependenceClosure.IDependenceRetriver#getDependences(IDependencyAnalysis,Stmt,SootMethod)
 		 */
-		protected Collection getCriteria(final IDependencyAnalysis da) {
+		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
 			final Collection _result = new HashSet();
 			_result.addAll(da.getDependees(stmt, method));
 			_result.addAll(da.getDependents(stmt, method));
@@ -378,12 +387,12 @@ public final class SlicingEngine {
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
-	private class ForwardSliceClosure
-	  extends AbstractCriteriaClosure {
+	private class ForwardSliceDependenceClosure
+	  implements DependenceClosure.IDependenceRetriver {
 		/**
-		 * @see AbstractCriteriaClosure#getCriteria(IDependencyAnalysis)
+		 * @see DependenceClosure.IDependenceRetriver#getDependences(IDependencyAnalysis,Stmt,SootMethod)
 		 */
-		protected Collection getCriteria(final IDependencyAnalysis da) {
+		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
 			return new HashSet(da.getDependents(stmt, method));
 		}
 	}
@@ -400,10 +409,9 @@ public final class SlicingEngine {
 	 */
 	public void setAnalysesControllerAndDependenciesToUse(final AnalysesController ctrl, final Collection dependenciesToUse) {
 		controller = ctrl;
-		dependencies.addAll(dependenciesToUse);
 		controlflowBasedDAs.clear();
 
-		for (final Iterator _i = dependencies.iterator(); _i.hasNext();) {
+		for (final Iterator _i = dependenciesToUse.iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 
 			if (_id.equals(IDependencyAnalysis.CONTROL_DA)
@@ -532,11 +540,11 @@ public final class SlicingEngine {
 		sliceType = theSliceType;
 
 		if (sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			criteriaClosure = new BackwardSliceClosure();
+			criteriaClosure = new DependenceClosure(new BackwardSliceDependenceClosure());
 		} else if (sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-			criteriaClosure = new ForwardSliceClosure();
+			criteriaClosure = new DependenceClosure(new ForwardSliceDependenceClosure());
 		} else if (sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-			criteriaClosure = new CompleteSliceClosure();
+			criteriaClosure = new DependenceClosure(new CompleteSliceDependenceClosure());
 		}
 	}
 
@@ -671,9 +679,8 @@ public final class SlicingEngine {
 
 			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
 				final Object _o = _j.next();
-
-				Stmt _stmtToBeIncluded;
-				SootMethod _methodToBeIncluded;
+				final Stmt _stmtToBeIncluded;
+				final SootMethod _methodToBeIncluded;
 
 				if (_o instanceof Pair) {
 					final Pair _pair = (Pair) _o;
@@ -689,31 +696,6 @@ public final class SlicingEngine {
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating Criteria based on dependences");
-		}
-	}
-
-	/**
-	 * Generates new slice criteria based on the specified dependence.
-	 *
-	 * @param stmt in which expression which leads to dependence occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param dependenceId identifies the dependence based on which the slice criteria should be generated.
-	 *
-	 * @pre stmt != null and method != null and dependenceId != null
-	 */
-	private void generateNewCriteriaBasedOnDependence(final Stmt stmt, final SootMethod method, final Object dependenceId) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for based on dependence:" + dependenceId);
-		}
-
-		final Collection _das = controller.getAnalyses(dependenceId);
-
-		if (!_das.isEmpty()) {
-			generateNewCriteria(stmt, method, _das);
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating criteria for based on dependence:" + dependenceId);
 		}
 	}
 
@@ -781,13 +763,13 @@ public final class SlicingEngine {
 	 * @pre stmt != null and method != null
 	 * @pre stmt.containsInvokeExpr() == true
 	 */
-	private void generateNewCriteriaForInvocation(final Stmt stmt, final SootMethod method, final boolean considerReturnValue) {
+	private void generateNewCriteriaForInvokeExprIn(final Stmt stmt, final SootMethod method,
+		final boolean considerReturnValue) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating criteria for invocation expressions (caller-callee)");
 		}
 
 		final InvokeExpr _expr = stmt.getInvokeExpr();
-
 		final SootMethod _sm = _expr.getMethod();
 
 		if (_sm.isStatic()) {
@@ -970,11 +952,12 @@ public final class SlicingEngine {
 			}
 		} else {
 			if (valueBox.getValue() instanceof InvokeExpr) {
-				generateNewCriteriaForInvocation(stmt, method, considerExecution);
+				generateNewCriteriaForInvokeExprIn(stmt, method, considerExecution);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Already collected expr " + valueBox.getValue() + " at " + stmt + " in " + method.getSignature());
+				LOGGER.debug("Already collected expr " + valueBox.getValue() + " occurring at " + stmt + " in "
+					+ method.getSignature());
 			}
 		}
 	}
@@ -1215,7 +1198,6 @@ public final class SlicingEngine {
 		final SootMethod _method = sExpr.getOccurringMethod();
 		final ValueBox _vBox = (ValueBox) sExpr.getCriterion();
 		final Value _value = _vBox.getValue();
-
 		final boolean _considerExecution = sExpr.isConsiderExecution();
 
 		if (LOGGER.isDebugEnabled()) {
@@ -1223,24 +1205,17 @@ public final class SlicingEngine {
 				+ _stmt + " in " + _method);
 		}
 
-		// collect the expresssion
-		collector.includeInSlice(_vBox);
-
-		// include any sub expressions and generate criteria from them
-		transformAndGenerateCriteriaForVBoxes(_value.getUseBoxes(), _stmt, _method);
-
 		// include the statement to capture control dependency and generate criteria from it
-		final boolean _flag = _stmt instanceof EnterMonitorStmt || _stmt instanceof ExitMonitorStmt;
-		transformAndGenerateNewCriteriaForStmt(_stmt, _method, _flag);
+		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
 
 		// generate new slice criteria
 		if (_considerExecution) {
-			if (_value instanceof InvokeExpr) {
-				generateNewCriteriaForInvocation(_stmt, _method, _considerExecution);
-			} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
-				generateNewCriteriaBasedOnDependence(_stmt, _method, IDependencyAnalysis.INTERFERENCE_DA);
-				generateNewCriteriaBasedOnDependence(_stmt, _method, IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
-			}
+			final Collection _temp = new HashSet(_value.getUseBoxes());
+			_temp.add(_vBox);
+			// include any sub expressions and generate criteria from them
+			transformAndGenerateToConsiderExecution(_stmt, _method, _temp);
+		} else {
+		    collector.includeInSlice(_vBox);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -1265,35 +1240,42 @@ public final class SlicingEngine {
 			LOGGER.debug("BEGIN: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
 		}
 
-		// collect the statement
-		collector.includeInSlice(stmt);
-
 		// transform the statement
 		if (considerExecution) {
-			transformAndGenerateCriteriaForVBoxes(stmt.getUseAndDefBoxes(), stmt, method);
-
 			// generate new slice criteria
 			processForNewExpr(stmt, method);
-
-			if (stmt.containsInvokeExpr()) {
-				generateNewCriteriaForInvocation(stmt, method, considerExecution);
-			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
-				generateNewCriteriaBasedOnDependence(stmt, method, IDependencyAnalysis.INTERFERENCE_DA);
-				generateNewCriteriaBasedOnDependence(stmt, method, IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
-			} else if (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt) {
-				generateNewCriteriaBasedOnDependence(stmt, method, IDependencyAnalysis.SYNCHRONIZATION_DA);
-			}
+			transformAndGenerateToConsiderExecution(stmt, method, stmt.getUseAndDefBoxes());
 		}
 
 		// generate new slice criteria
 		generateNewCriteriaForTheCallToMethod(method);
 		generateNewCriteria(stmt, method, controlflowBasedDAs);
-
-		collector.includeInSlice(method);
 		includeMethodAndDeclaringClassInSlice(method);
+
+		// collect the statement
+		collector.includeInSlice(stmt);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
+		}
+	}
+
+	/**
+	 * Transforms the given value boxes and generates criteria that are required to consider execution.
+	 *
+	 * @param stmt in which the value boxes occur.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param vBoxes are the ValueBoxesto be transformed.
+	 *
+	 * @pre stmt != null and method != null and vBoxes != null
+	 * @pre vBoxes.oclIsKindOf(Collection(ValueBox))
+	 * @pre stmt.getUseAndDefBoxes().containsAll(valueBoxes)
+	 */
+	private void transformAndGenerateToConsiderExecution(final Stmt stmt, final SootMethod method, final Collection vBoxes) {
+		transformAndGenerateCriteriaForVBoxes(vBoxes, stmt, method);
+
+		if (stmt.containsInvokeExpr()) {
+			generateNewCriteriaForInvokeExprIn(stmt, method, true);
 		}
 	}
 }
@@ -1301,6 +1283,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.81  2004/06/26 10:16:35  venku
+   - bug #389. FIXED.
    Revision 1.80  2004/06/14 04:32:11  venku
    - removed an unnecessary method invocation.
    Revision 1.79  2004/06/14 02:57:23  venku
