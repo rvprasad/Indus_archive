@@ -162,7 +162,7 @@ public final class BasicBlockGraph
 		}
 
 		/**
-		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code>. 
+		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code>.
 		 *
 		 * @param start is the starting statement of the requested statement list.
 		 * @param end is the ending statement of the requested statement list.
@@ -232,6 +232,50 @@ public final class BasicBlockGraph
 		public String toString() {
 			return new ToStringBuilder(this).append("stmts", this.stmts).toString();
 		}
+	}
+
+	/**
+	 * Retreives the basic blocks in which the given statements occur.
+	 *
+	 * @param stmts of interest.
+	 *
+	 * @return a collection of basic blocks
+	 *
+	 * @pre stmts != null and stmts.oclIsKindOf(Collection(Stmt))
+	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
+	 */
+	public List getEnclosedBasicBlocks(final Collection stmts) {
+		final List _result = new ArrayList();
+		final Iterator _i = stmts.iterator();
+		final int _iEnd = stmts.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Stmt _stmt = (Stmt) _i.next();
+			_result.add(getEnclosingBlock(_stmt));
+		}
+		return _result;
+	}
+
+	/**
+	 * Retreives the statements occurring in the given basic blocks..
+	 *
+	 * @param basicBlocks of interest.
+	 *
+	 * @return a collection of statements
+	 *
+	 * @pre basicBlocks != null and basicBlocks.oclIsKindOf(Collection(BasicBlock))
+	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 */
+	public List getEnclosedStmts(final Collection basicBlocks) {
+		final List _result = new ArrayList();
+		final Iterator _i = basicBlocks.iterator();
+		final int _iEnd = basicBlocks.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final BasicBlock _bb = (BasicBlock) _i.next();
+			_result.add(_bb.getStmtsOf());
+		}
+		return _result;
 	}
 
 	/**
@@ -430,9 +474,10 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/07/20 08:04:32  venku
+   - documentation.
    Revision 1.5  2004/07/16 05:37:17  venku
    - changed index based queries to statement based queries.
-
    Revision 1.4  2004/07/07 06:25:08  venku
    - the way statement sub list was constructed in the basic block was incorrect.  FIXED.
    - ripple effect.
