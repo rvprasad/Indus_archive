@@ -19,7 +19,9 @@ import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,22 +62,27 @@ public class BackwardSliceGotoProcessor
 	 * {@inheritDoc}
 	 */
 	protected final void processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
+		final Collection _gotos = new HashSet();
+		final String _tagName = sliceCollector.getTagName();
+
 		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _j.next();
-
 			boolean _tagged = false;
-			final String _tagName = sliceCollector.getTagName();
-			final List _list = getStmtsOfForProcessing(_bb);
+			_gotos.clear();
 
-			for (final Iterator _i = _list.iterator(); _i.hasNext();) {
+			for (final Iterator _i = getStmtsOfForProcessing(_bb).iterator(); _i.hasNext();) {
 				final Stmt _stmt = (Stmt) _i.next();
 
 				if (_stmt.getTag(_tagName) != null) {
 					_tagged = true;
 					workBag.addWork(_bb);
 				} else if (_stmt instanceof GotoStmt && _tagged) {
-					sliceCollector.includeInSlice(_stmt);
+					_gotos.add(_stmt);
 				}
+			}
+
+			if (_tagged) {
+				sliceCollector.includeInSlice(_gotos);
 			}
 		}
 	}
@@ -84,10 +91,11 @@ public class BackwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/22 01:01:40  venku
+   - coding convention.
    Revision 1.4  2004/01/13 23:34:54  venku
    - fixed the processing of intra basicblock jumps and
      inter basic block jumps.
-
    Revision 1.3  2004/01/13 08:39:07  venku
    - moved the GotoProcessors back into the slicer core as these
      classes home the logic required for slice creation.
