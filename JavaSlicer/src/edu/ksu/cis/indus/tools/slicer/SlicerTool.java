@@ -410,6 +410,7 @@ public final class SlicerTool
 			ecba.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
 			ecba.unhook(cgBasedPreProcessCtrl);
+            ecba.execute();
 			phase.nextMajorPhase();
 			ph = phase;
 		}
@@ -544,6 +545,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/06 05:15:05  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.18  2003/11/05 03:16:21  venku
    - changes in creating the criteria.
    - coding convention.
