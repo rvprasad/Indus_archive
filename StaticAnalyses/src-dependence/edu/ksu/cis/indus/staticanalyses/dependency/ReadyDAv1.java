@@ -389,7 +389,16 @@ public class ReadyDAv1
 		if ((rulesParam & ~(RULE_1 | RULE_2 | RULE_3 | RULE_4)) != 0) {
 			throw new IllegalArgumentException("rules has to be a combination of RULE_XX constants defined in this class.");
 		}
-		this.rules = rulesParam;
+		rules = rulesParam;
+	}
+
+	/**
+	 * Provides the rules that are active at present.
+	 *
+	 * @return the active rules as a logical OR of <i>RULE_XX</i> constants. 
+	 */
+	public int getRules() {
+		return rules;
 	}
 
 	/**
@@ -834,6 +843,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/09/12 22:33:08  venku
+   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
+   - Ripple effect of the above changes.
    Revision 1.15  2003/09/10 11:50:23  venku
    - formatting.
    Revision 1.14  2003/09/10 11:49:30  venku
