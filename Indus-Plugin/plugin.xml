@@ -3,14 +3,16 @@
 <plugin
    id="edu.ksu.cis.indus"
    name="Indus Plug-in"
-   version="0.5.0"
+   version="0.5.1"
    provider-name="SAnToS laboratory, Kansas State University"
    class="edu.ksu.cis.projects.indus.IndusPlugin">
 
    <runtime>
       <library name="lib/commons-cli-1.0.jar"/>
       <library name="lib/commons-collections-3.1.jar"/>
-      <library name="lib/commons-lang-2.0.jar"/>
+      <library name="lib/commons-lang-2.0.jar">
+         <export name="*"/>
+      </library>
       <library name="lib/commons-pool-1.1.jar"/>
       <library name="lib/jibx-run.jar">
          <export name="*"/>
