@@ -179,18 +179,21 @@ public final class CallGraphXMLizerCLI
 			final long _stop = System.currentTimeMillis();
 			addTimeLog("FA", _stop - _start);
 			writeInfo("END: FA");
+
+			final String _fileBaseName =
+				(_root.getDeclaringClass().getJavaStyleName() + "_" + _root.getSubSignature()).replaceAll(" ", "_");
 			((CallGraph) _cgi).reset();
 			_processors.clear();
 			_processors.add(_cgi);
 			_pc.reset();
 			_pc.driveProcessors(_processors);
 			_processors.clear();
-			_info.put(AbstractXMLizer.FILE_NAME_ID, _rootname);
+			_info.put(AbstractXMLizer.FILE_NAME_ID, _fileBaseName);
 			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			xmlizer.writeXML(_info);
 
 			if (dumpJimple) {
-				xmlizer.dumpJimple(_rootname, xmlizer.getXmlOutputDir(), _xmlcgipc);
+				xmlizer.dumpJimple(_fileBaseName, xmlizer.getXmlOutputDir(), _xmlcgipc);
 			}
 		}
 	}
@@ -199,6 +202,8 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/25 19:11:31  venku
+   - added option to control class path and dump reachables.
    Revision 1.11  2004/05/11 22:30:21  venku
    - fixed command line errors.
    Revision 1.10  2004/04/25 23:18:18  venku
