@@ -712,13 +712,14 @@ public final class SlicerTool
 		}
 
 		if (LOGGER.isDebugEnabled()) {
+			final StringBuffer _sb = new StringBuffer();
+
 			for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
 				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Criterion: " + _criterion);
-				}
+				_sb.append(_criterion);
+				_sb.append("\n\t");
 			}
+			LOGGER.debug("Criteria:\n" + _sb.toString());
 		}
 	}
 
@@ -752,6 +753,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.59  2004/01/19 08:27:03  venku
+   - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.58  2004/01/16 21:18:53  venku
    - renamed setUnitGraphProvider() to setUnitGraphFactory()
      in BasicBlockGraphMgr.
