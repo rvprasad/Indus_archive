@@ -13,7 +13,7 @@ Required software:
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
     Polyglot 1.1.0	
         (polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]
-    Soot: a Java Optimization Framework (2.1.0 or bleeding edge)
+    Soot: a Java Optimization Framework (2.1.0 or higher)
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
     SWT (3.0 >= M7)
         (swt.jar) [http://www.eclipse.org]
@@ -21,8 +21,6 @@ Required software:
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)	
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
-    MXP1: Xml Pull Parser 3rd Edition (XPP3) (1.1.2)
-        (xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
 
