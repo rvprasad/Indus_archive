@@ -142,6 +142,7 @@ public abstract class SootBasedDriver {
 		if (classNames == null) {
 			throw new RuntimeException("Please call setClassNames() before using this TestCase object.");
 		}
+        writeInfo("Loading classes....");
 		scene = loadupClassesAndCollectMains();
 	}
 
@@ -264,6 +265,9 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/12 05:22:26  venku
+   - moved this from src-test source directory to src.
+
    Revision 1.1  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
    - Switched the contents of DependencyXMLizer and DependencyTest.
