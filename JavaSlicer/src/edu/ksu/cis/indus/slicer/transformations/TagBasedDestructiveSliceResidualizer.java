@@ -72,6 +72,7 @@ import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.LookupSwitchStmt;
 import soot.jimple.NewExpr;
+import soot.jimple.NopStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticInvokeExpr;
@@ -858,14 +859,16 @@ public final class TagBasedDestructiveSliceResidualizer
 			stmt2predecessors.clear();
 			oldStmt2newStmt.clear();
 
-			// prune locals and traps
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Locals " + _body.getLocals());
 				LOGGER.debug("Retaining:" + localsToKeep);
 			}
+
+			// prune locals and traps
 			_body.getLocals().retainAll(localsToKeep);
 			_body.getTraps().retainAll(trapsToRetain);
 
+			injectReturnsIntoDanglingNopBlocks(_ch);
 			// transformations built into Soot
 			NopEliminator.v().transform(_body);
 			UnreachableCodeEliminator.v().transform(_body);
@@ -893,6 +896,59 @@ public final class TagBasedDestructiveSliceResidualizer
 			LOGGER.debug("END: Finishing method " + currMethod);
 		}
 		currMethod = null;
+	}
+
+	/**
+	 * Injects an appropriate return statement as the trailer statement of each tail basic block that contains only NOP
+	 * statements.
+	 *
+	 * @param stmtList to be altered.
+	 *
+	 * @pre stmtList != null and basicBlockGraph != null
+	 */
+	private void injectReturnsIntoDanglingNopBlocks(final Chain stmtList) {
+		/*
+		 * HACK:
+		 * This is a fall out of executability processing.
+		 * if () {
+		 *   throw a;
+		 * } else {
+		 *   if () {
+		 *     ret b;
+		 *   } else {
+		 *     ret c;
+		 *   }
+		 * }
+		 * Let the above snippet be the tail of method.  If none of these statements are in the slice, then an exit point is
+		 * picked randomly.  If this is "throw a" is picked, then the else block is nop-ed (refer to
+		 * ExecutableSlicePostProcessor.pickReturnPoint()), i.e., there will be a path via which the control from the method
+		 * will fall through.  To prevent this we plugin a return statement in the tail basic blocks containing only nop
+		 * statement.  Remember that the basic block graph should be that of the untransformed method and this phase cannot
+		 * happen any earlier.
+		 *
+		 */
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEFORE - Stmts: " + stmtList);
+		}
+
+		final Stmt _end = (Stmt) stmtList.getLast();
+
+		if (_end instanceof NopStmt) {
+			final Type _retType = currMethod.getReturnType();
+			final Stmt _newStmt;
+
+			if (_retType instanceof VoidType) {
+				_newStmt = Jimple.v().newReturnVoidStmt();
+			} else {
+				_newStmt = Jimple.v().newReturnStmt(Util.getDefaultValueFor(_retType));
+			}
+			stmtList.insertAfter(_newStmt, _end);
+			stmtList.remove(_end);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("AFTER - Stmts: " + stmtList);
+		}
 	}
 
 	/**
@@ -1005,6 +1061,9 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/08/02 07:33:46  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
    Revision 1.19  2004/07/25 01:34:36  venku
    - if a throw was marked and not the exception value, then the code to create
      a value is injected independent of the fact that the thrown value is in the slice.
