@@ -40,22 +40,13 @@ public abstract class AbstractSliceResidualizer
   extends AbstractTransformer
   implements ISliceResidualizer {
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	public void makeExecutable() {
-		// TODO: implement me!
-	}
-
-	/**
 	 * Marks the given criteria as included in the slice.  {@inheritDoc}
 	 *
 	 * @param seedcriteria DOCUMENT ME!
 	 *
 	 * @see edu.ksu.cis.indus.slicer.ISliceResidualizer#processSeedCriteria(java.util.Collection)
 	 */
-	public final void processSeedCriteria(final Collection seedcriteria) {
+	public void processSeedCriteria(final Collection seedcriteria) {
 		for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
 			AbstractSliceCriterion crit = (AbstractSliceCriterion) i.next();
 
@@ -102,9 +93,16 @@ public abstract class AbstractSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
    Revision 1.4  2003/11/19 23:56:23  venku
    - documentation.
-
    Revision 1.3  2003/11/16 22:55:31  venku
    - added new methods to support processing of seed criteria.
      This is not same as slicing seed criteria of which we do not
