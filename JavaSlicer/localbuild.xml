@@ -39,7 +39,7 @@
      </taskdef>
   
     <target name="bind">
-        <bind verbose="true" binding="auxiliary/slicerConfig_JiBXBinding.xml">
+        <bind verbose="true" binding="${basedir}/auxiliary/slicerConfig_JiBXBinding.xml">
         	<classpath>
         		<path refid="bind.classpath"/>
 	        	<pathelement location="../Indus/${build}/"/>
