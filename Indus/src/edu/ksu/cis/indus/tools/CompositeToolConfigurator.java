@@ -41,6 +41,8 @@ public final class CompositeToolConfigurator
   extends AbstractToolConfigurator {
 	/**
 	 * This is the child configurator to be used to configure each instance of configuration.
+	 *
+	 * @invariant childConfigurator != null
 	 */
 	AbstractToolConfigurator childConfigurator;
 
@@ -56,28 +58,30 @@ public final class CompositeToolConfigurator
 
 	/**
 	 * This is the composite configuration being configured.
+	 *
+	 * @invariant compositeConfiguration != null
 	 */
 	CompositeToolConfiguration compositeConfiguration;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The factory used to create a new configuration instance.
+	 *
+	 * @invariant toolConfigFactory != null
 	 */
 	IToolConfigurationFactory toolConfigFactory;
 
 	/**
 	 * Creates a new CompositeToolConfigurator object.
 	 *
-	 * @param configs is the composite configuration.
+	 * @param compositeConfigs is the composite configuration.
 	 * @param child is the configurator to be used for each configuration instance.
 	 * @param factory is used to create tool configuration of a specific type when there exists none.
 	 *
-	 * @pre configs != null and child != null
+	 * @pre compositeConfigs != null and child != null and factory != null
 	 */
-	public CompositeToolConfigurator(final CompositeToolConfiguration configs, final AbstractToolConfigurator child,
+	public CompositeToolConfigurator(final CompositeToolConfiguration compositeConfigs, final AbstractToolConfigurator child,
 		final IToolConfigurationFactory factory) {
-		compositeConfiguration = configs;
+		compositeConfiguration = compositeConfigs;
 		childConfigurator = child;
 		toolConfigFactory = factory;
 	}
@@ -160,9 +164,7 @@ public final class CompositeToolConfigurator
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Displays the child configurator.
 	 */
 	void displayChild() {
 		if (childComposite != null) {
@@ -186,6 +188,12 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/10/20 13:55:25  venku
+   - Added a factory to create new configurations.
+   - Simplified AbstractToolConfigurator methods.
+   - The driver manages the shell.
+   - Got all the gui parts running EXCEPT for changing
+     the name of the configuration.
    Revision 1.6  2003/10/14 02:57:10  venku
    - ripple effect of changes to AbstractToolConfigurator.
    Revision 1.5  2003/09/27 01:27:47  venku
