@@ -72,6 +72,7 @@ public final class CallGraphXMLizerCLI
 		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
 		_option.setArgs(Option.UNLIMITED_VALUES);
 		_option.setValueSeparator(' ');
+        _option.setRequired(true);
 		_options.addOption(_option);
 		_option =
 			new Option("o", "output", true,
@@ -87,7 +88,7 @@ public final class CallGraphXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-				(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.xmlizer.CallGraphXMLizer ", _options);
+				(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphXMLizerCLI ", _options);
 				System.exit(1);
 			}
 
@@ -109,7 +110,7 @@ public final class CallGraphXMLizerCLI
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerDriver",
+			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphXMLizerCLI",
 				_options);
 		}
 	}
@@ -181,6 +182,9 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/05 11:59:45  venku
+   - documentation.
+
    Revision 1.2  2004/02/11 09:37:18  venku
    - large refactoring of code based  on testing :-)
    - processing filters can now be chained.
