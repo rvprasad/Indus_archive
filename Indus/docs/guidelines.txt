@@ -1,0 +1,28 @@
+ - unspecified pre/post conditions and invariants indicate worst case behavior. For example, unspecified post condition on
+   result indicates that the result can be null or non-null if the result is of reference type.  In case, of inheritence, the
+   worst case behavior is the one that is inherited.
+
+ - Contrary to Liskov principle, in the case of references, we allow subclasses to strengthen the pre-condition in ways such
+   as requiring a non-null arguments when the parent class allowed null arguments or to constrain the argument to a specific
+   subtype mentioned in the parent class pre-condition.
+
+ - names of static final fields shall follow the naming convention imposed by [A-Z]+[_A-Z0-9]+
+
+ - names of public member fields shall start with an "_".
+
+ - all parameters should be declared as final.
+
+ - no locals/parameters should hide any fields of the enclosing class.
+
+ - Interface names shall start with an "I".
+
+ - Names of Abstract classes should start with "Abstract".
+
+ - Auxillary methods/variable names should start with "aux".  
+
+   These methods/variables should not be considered as part of the interface.
+
+ - Variables that are required across methods may be risen to class level variables (static/instance).  However, as they are
+   helper variables and not state or attribute variables, they should not be considered as part of the class.  Names of such
+   variable will end with "Cache".
+
