@@ -53,6 +53,11 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  * Given a def site, the use site is tracked based on the id being defined and used. Hence, information about field/array
  * access via primaries which are local variables is inaccurate in such a setting, hence, it is not  provided by this class.
  * Please refer to {@link ReferenceBasedDataDA ReferenceBasedDataDA} for such information.
+ * 
+ * <p>
+ * This implementation is based on <code>soot.toolkits.scalar.SimpleLocalDefs</code> and
+ * <code>soot.toolkits.scalar.SimpleLocalUses</code> classes .
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -179,7 +184,7 @@ public class IdentifierBasedDataDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return AbstractDependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
+		return IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
 	}
 
 	/**
@@ -209,48 +214,7 @@ public class IdentifierBasedDataDA
 				LOGGER.debug("Processing " + _currMethod.getSignature());
 			}
 
-			final SimpleLocalDefs _defs = new SimpleLocalDefs(_unitGraph);
-			final SimpleLocalUses _uses = new SimpleLocalUses(_unitGraph, _defs);
-			final Collection _t = getStmtList(_currMethod);
-			final List _dependees = new ArrayList(_t.size());
-			final List _dependents = new ArrayList(_t.size());
-
-			for (final Iterator _j = _t.iterator(); _j.hasNext();) {
-				final Stmt _currStmt = (Stmt) _j.next();
-				Collection _currUses = Collections.EMPTY_LIST;
-
-				if (_currStmt instanceof DefinitionStmt) {
-					final Collection _temp = _uses.getUsesOf(_currStmt);
-
-					if (_temp.size() != 0) {
-						_currUses = new ArrayList();
-
-						for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
-							final UnitValueBoxPair _p = (UnitValueBoxPair) _k.next();
-							_currUses.add(_p.getUnit());
-						}
-					}
-				}
-				_dependents.add(_currUses);
-
-				Map _currDefs = Collections.EMPTY_MAP;
-
-				if (_currStmt.getUseBoxes().size() > 0) {
-					_currDefs = new HashMap();
-
-					for (final Iterator _k = _currStmt.getUseBoxes().iterator(); _k.hasNext();) {
-						final ValueBox _currValueBox = (ValueBox) _k.next();
-						final Value _value = _currValueBox.getValue();
-
-						if (_value instanceof Local && !_currDefs.containsKey(_value)) {
-							_currDefs.put(_value, _defs.getDefsOfAt((Local) _value, _currStmt));
-						}
-					}
-				}
-				_dependees.add(_currDefs);
-			}
-			dependee2dependent.put(_currMethod, _dependents);
-			dependent2dependee.put(_currMethod, _dependees);
+			calculateDAForMethod(_currMethod, _unitGraph);
 		}
 		stable = true;
 
@@ -321,11 +285,66 @@ public class IdentifierBasedDataDA
 			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
 		}
 	}
+
+	/**
+	 * Calculates dependence info for the given method.
+	 *
+	 * @param method for which to calculate dependence.
+	 * @param unitGraph of <code>method</code>.
+	 *
+	 * @pre method != null and unitGraph != null
+	 */
+	private void calculateDAForMethod(final SootMethod method, final UnitGraph unitGraph) {
+		final SimpleLocalDefs _defs = new SimpleLocalDefs(unitGraph);
+		final SimpleLocalUses _uses = new SimpleLocalUses(unitGraph, _defs);
+		final Collection _t = getStmtList(method);
+		final List _dependees = new ArrayList(_t.size());
+		final List _dependents = new ArrayList(_t.size());
+
+		for (final Iterator _j = _t.iterator(); _j.hasNext();) {
+			final Stmt _currStmt = (Stmt) _j.next();
+			Collection _currUses = Collections.EMPTY_LIST;
+
+			if (_currStmt instanceof DefinitionStmt) {
+				final Collection _temp = _uses.getUsesOf(_currStmt);
+
+				if (_temp.size() != 0) {
+					_currUses = new ArrayList();
+
+					for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
+						final UnitValueBoxPair _p = (UnitValueBoxPair) _k.next();
+						_currUses.add(_p.getUnit());
+					}
+				}
+			}
+			_dependents.add(_currUses);
+
+			Map _currDefs = Collections.EMPTY_MAP;
+
+			if (_currStmt.getUseBoxes().size() > 0) {
+				_currDefs = new HashMap();
+
+				for (final Iterator _k = _currStmt.getUseBoxes().iterator(); _k.hasNext();) {
+					final ValueBox _currValueBox = (ValueBox) _k.next();
+					final Value _value = _currValueBox.getValue();
+
+					if (_value instanceof Local && !_currDefs.containsKey(_value)) {
+						_currDefs.put(_value, _defs.getDefsOfAt((Local) _value, _currStmt));
+					}
+				}
+			}
+			_dependees.add(_currDefs);
+		}
+		dependee2dependent.put(method, _dependents);
+		dependent2dependee.put(method, _dependees);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/06/15 08:48:25  venku
+   - logging.
    Revision 1.35  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.34  2004/03/04 13:08:15  venku
