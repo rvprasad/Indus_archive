@@ -190,7 +190,7 @@ public final class SliceCollector {
 				}
 				LOGGER.debug("Tagged[1]: " + _o);
 			}
-		} else if (_hostTag != tag) {
+		} else if (!_hostTag.equals(tag)) {
 			host.removeTag(tagName);
 			host.addTag(tag);
 
@@ -318,6 +318,10 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/08/02 04:53:45  venku
+   - simplified goto processing logic and collapsed 5 classes into 1 class, SliceGotoProcessor.
+   - ripple effect.
+
    Revision 1.13  2004/06/12 06:47:27  venku
    - documentation.
    - refactoring.
