@@ -12,10 +12,14 @@
       <library name="lib/commons-collections-3.1.jar"/>
       <library name="lib/commons-lang-2.0.jar"/>
       <library name="lib/commons-pool-1.1.jar"/>
-      <library name="lib/jibx-run.jar"/>
+      <library name="lib/jibx-run.jar">
+         <export name="*"/>
+      </library>
       <library name="lib/xmlenc-0.44.jar"/>
       <library name="lib/xmlunit1.0.jar"/>
-      <library name="lib/xpp3.jar"/>
+      <library name="lib/xpp3.jar">
+         <export name="*"/>
+      </library>
       <library name="lib/commons-io-1.0.jar"/>
       <library name="lib/trove.jar"/>      
       <library name="lib/log4j-1.2.8.jar">
