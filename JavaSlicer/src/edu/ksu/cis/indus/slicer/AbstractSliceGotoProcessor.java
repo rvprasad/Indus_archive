@@ -23,7 +23,6 @@ import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -86,13 +85,12 @@ public abstract class AbstractSliceGotoProcessor {
 
 		processForIntraBasicBlockGotos(bbg);
 
-		final Collection _processed = new HashSet();
 		final UnitGraph _unitGraph = bbg.getStmtGraph();
 		final Body _body = _unitGraph.getBody();
 		final List _units = new ArrayList(_body.getUnits());
 		final Collection _handlerStmts = new ArrayList();
 
-        // collect the handler statements in the traps
+		// collect the handler statements in the traps
 		for (final Iterator _i = _body.getTraps().iterator(); _i.hasNext();) {
 			final Trap _trap = (Trap) _i.next();
 			_handlerStmts.add(_trap.getHandlerUnit());
@@ -100,8 +98,6 @@ public abstract class AbstractSliceGotoProcessor {
 
 		while (workBag.hasWork()) {
 			final BasicBlock _bb = (BasicBlock) workBag.getWork();
-			_processed.add(_bb);
-
 			final Stmt _leader = _bb.getLeaderStmt();
 			final int _lind = _units.indexOf(_leader);
 			final boolean _flag = _handlerStmts.contains(_leader);
@@ -110,12 +106,16 @@ public abstract class AbstractSliceGotoProcessor {
 				final Stmt _predStmtOfLeader = (Stmt) _units.get(_lind - 1);
 				final List _succsOfPred = _unitGraph.getSuccsOf(_predStmtOfLeader);
 
-                /*
-                 *  if the leader is not a successor of the statement that preceeds it in the sequence of byte codes or
-                 *     if it is a successor and also a trap handler then include the preceeding statement in the 
-                 *     slice.
-                 */
-				if (!_succsOfPred.contains(_leader) || (_succsOfPred.contains(_leader) && _flag)) {
+				/*
+				 *  if
+				 *   - the leader is not a successor of the statement that preceeds it in the sequence of byte codes and the
+				 *     preceeding statement has other successors
+				 * or
+				 *   - the leader is the successor and a trap handler
+				 * then include the preceeding statement in the slice.
+				 */
+				if ((!(_succsOfPred.contains(_leader) || _succsOfPred.isEmpty()))
+					  || (_succsOfPred.contains(_leader) && _flag)) {
 					sliceCollector.includeInSlice(_predStmtOfLeader);
 				}
 			}
@@ -139,7 +139,7 @@ public abstract class AbstractSliceGotoProcessor {
 
 			if (_bbg != null) {
 				process(_sm, _bbg);
-            }
+			}
 		}
 	}
 
@@ -156,10 +156,11 @@ public abstract class AbstractSliceGotoProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/02/27 00:52:52  venku
+   - documentation and coding convention.
    Revision 1.9  2004/01/27 01:48:24  venku
    - statements preceeding exception handlers need to be included
      not considering the jump based on exception.  FIXED.
-
    Revision 1.8  2004/01/27 00:41:34  venku
    - coding convention.
    Revision 1.7  2004/01/26 23:54:13  venku
