@@ -6,20 +6,20 @@
 	<classpathentry excluding="**/*html" kind="src" path="src-concurrency"/>
 	<classpathentry excluding="**/*html" kind="src" path="src-test"/>
 	<classpathentry excluding="**/*html" kind="src" path="src-xml"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="CLOVER_RUNTIME"/>
-	<classpathentry sourcepath="JAVACLASSES/src/common-pool.jar" kind="var" path="JAVACLASSES/commons-pool.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
-	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.0.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
-	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/common-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
-	<classpathentry sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/commons-logging.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
-	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
-	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
-	<classpathentry kind="src" path="/Indus"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="var" path="CLOVER_RUNTIME"/>
+	<classpathentry exported="true" sourcepath="JAVACLASSES/src/common-pool.jar" kind="var" path="JAVACLASSES/commons-pool.jar"/>
+	<classpathentry exported="true" kind="var" path="JAVACLASSES/commons-collections.jar"/>
+	<classpathentry exported="true" sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.0.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
+	<classpathentry exported="true" kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
+	<classpathentry exported="true" sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
+	<classpathentry exported="true" sourcepath="JAVACLASSES/src/common-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
+	<classpathentry exported="true" sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>
+	<classpathentry exported="true" kind="var" path="JAVACLASSES/commons-logging.jar"/>
+	<classpathentry exported="true" sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
+	<classpathentry exported="true" kind="var" path="JAVACLASSES/xmlenc.jar"/>
+	<classpathentry exported="true" kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
+	<classpathentry exported="true" kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
+	<classpathentry exported="true" kind="src" path="/Indus"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
