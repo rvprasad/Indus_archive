@@ -998,8 +998,8 @@ public class ProcessingController {
 	 * </p>
 	 */
 	public final void process() {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: processing classes");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: processing classes");
 		}
 
 		initializeProcessors();
@@ -1019,17 +1019,17 @@ public class ProcessingController {
 		processValues = !CollectionUtils.intersection(class2processors.keySet(), VALUE_CLASSES).isEmpty();
 		processClasses(env.getClasses());
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: processing classes");
-			LOGGER.info("BEGIN: consolidation");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debub("END: processing classes");
+			LOGGER.debug("BEGIN: consolidation");
 		}
 
 		for (final Iterator _i = _processors.iterator(); _i.hasNext();) {
 			((IProcessor) _i.next()).consolidate();
 		}
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: consolidation");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: consolidation");
 		}
 	}
 
@@ -1291,6 +1291,11 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/04/20 00:42:23  venku
+   - Processing required a stmtGraphFactory to detect locally reachable statements
+     However, this will fail in certain case.  Instead, one should be able to use this
+     feature or just process all statements.  FIXED.
+
    Revision 1.32  2004/03/29 01:55:15  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
