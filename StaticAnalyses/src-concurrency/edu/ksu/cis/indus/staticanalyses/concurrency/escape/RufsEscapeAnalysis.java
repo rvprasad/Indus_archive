@@ -15,6 +15,40 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.ProcessingController;
+
+import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
+import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
+import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
+import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.staticanalyses.support.Triple;
+import edu.ksu.cis.indus.staticanalyses.support.Util;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.ArrayType;
 import soot.Local;
 import soot.Modifier;
@@ -56,38 +90,6 @@ import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
 
 import soot.toolkits.graph.CompleteUnitGraph;
-
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.processing.ProcessingController;
-import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
-import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
-import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -1391,7 +1393,7 @@ public class RufsEscapeAnalysis
 	/**
 	 * Invoked by the controller when a <code>Value</code> is encountered.
 	 *
-	 * @param value DOCUMENT ME!
+	 * @param vBox DOCUMENT ME!
 	 * @param context DOCUMENT ME!
 	 *
 	 * @pre value.isOclKindOf(NewExpr)
@@ -1431,7 +1433,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param type DOCUMENT ME!
 	 *
@@ -1665,12 +1669,16 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param v DOCUMENT ME!
 	 * @param sm DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
 	 */
 	AliasSet getAliasSetFor(final Value v, final SootMethod sm) {
 		Triple trp = (Triple) methodCtxt2triple.get(sm);
@@ -1875,17 +1883,17 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/17 15:42:46  venku
+   - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.9  2003/11/10 03:17:19  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    - ripple effect.
-
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.7  2003/11/05 09:27:10  venku
    - Split IWorkBag into an interface and an implementation
      for the sake of performance.
@@ -1896,32 +1904,32 @@ main_control:
      but yet says it is out of sync.
    Revision 1.4  2003/09/08 02:23:24  venku
  *** empty log message ***
-           Revision 1.3  2003/09/01 11:57:30  venku
-           - Ripple effect of changes in CFGAnalysis.
-           Revision 1.2  2003/08/24 12:42:33  venku
-           Removed occursInCycle() method from DirectedGraph.
-           Installed occursInCycle() method in CFGAnalysis.
-           Converted performTopologicalsort() and getFinishTimes() into instance methods.
-           Ripple effect of the above changes.
-           Revision 1.1  2003/08/21 01:24:25  venku
-            - Renamed src-escape to src-concurrency to as to group all concurrency
-              issue related analyses into a package.
-            - Renamed escape package to concurrency.escape.
-            - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-           Revision 1.2  2003/08/11 06:29:07  venku
-           Changed format of change log accumulation at the end of the file
-           Revision 1.1  2003/08/07 06:39:07  venku
-           Major:
-            - Moved the package under indus umbrella.
-           Minor:
-            - changes to accomodate ripple effect from support package.
-           Revision 1.3  2003/07/30 08:30:31  venku
-           Refactoring ripple.
-           Also fixed a subtle bug in isShared() which caused wrong results.
-           Revision 1.2  2003/07/27 21:22:14  venku
-           Minor:
-            - removed unnecessary casts.
-           Revision 1.1  2003/07/27 20:52:39  venku
-           First of the many refactoring while building towards slicer release.
-           This is the escape analysis refactored and implemented as per to tech report.
+             Revision 1.3  2003/09/01 11:57:30  venku
+             - Ripple effect of changes in CFGAnalysis.
+             Revision 1.2  2003/08/24 12:42:33  venku
+             Removed occursInCycle() method from DirectedGraph.
+             Installed occursInCycle() method in CFGAnalysis.
+             Converted performTopologicalsort() and getFinishTimes() into instance methods.
+             Ripple effect of the above changes.
+             Revision 1.1  2003/08/21 01:24:25  venku
+              - Renamed src-escape to src-concurrency to as to group all concurrency
+                issue related analyses into a package.
+              - Renamed escape package to concurrency.escape.
+              - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+             Revision 1.2  2003/08/11 06:29:07  venku
+             Changed format of change log accumulation at the end of the file
+             Revision 1.1  2003/08/07 06:39:07  venku
+             Major:
+              - Moved the package under indus umbrella.
+             Minor:
+              - changes to accomodate ripple effect from support package.
+             Revision 1.3  2003/07/30 08:30:31  venku
+             Refactoring ripple.
+             Also fixed a subtle bug in isShared() which caused wrong results.
+             Revision 1.2  2003/07/27 21:22:14  venku
+             Minor:
+              - removed unnecessary casts.
+             Revision 1.1  2003/07/27 20:52:39  venku
+             First of the many refactoring while building towards slicer release.
+             This is the escape analysis refactored and implemented as per to tech report.
  */

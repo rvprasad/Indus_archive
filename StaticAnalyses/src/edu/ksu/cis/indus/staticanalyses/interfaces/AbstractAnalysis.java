@@ -15,11 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import soot.SootMethod;
-
-import soot.toolkits.graph.UnitGraph;
-
 import edu.ksu.cis.indus.interfaces.IStatus;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
@@ -28,6 +25,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import soot.SootMethod;
+
+import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -190,14 +191,18 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.14  2003/11/01 23:50:34  venku
    - documentation.
-
    Revision 1.13  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
      these unit graphs.
-
    Revision 1.12  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

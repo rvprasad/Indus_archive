@@ -15,13 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
-import soot.ArrayType;
-import soot.Modifier;
-import soot.RefType;
-import soot.SootField;
-import soot.SootMethod;
-import soot.Type;
-
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
@@ -37,6 +30,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import soot.ArrayType;
+import soot.Modifier;
+import soot.RefType;
+import soot.SootField;
+import soot.SootMethod;
+import soot.Type;
 
 
 /**
@@ -230,6 +230,10 @@ public final class OFAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/30 01:07:57  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.6  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

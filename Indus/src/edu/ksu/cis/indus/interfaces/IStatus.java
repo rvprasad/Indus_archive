@@ -46,9 +46,11 @@ public interface IStatus {
 /*
    ChangeLog:
    $Log$
-   Revision 1.2  2003/08/21 03:54:41  venku
-   Documentation.
-   Revision 1.1  2003/08/21 03:30:34  venku
-   Added a new interface to query stableness of objects.
-   Analyses/Engine/Transformation objects in particular.
+   Revision 1.3  2003/09/27 23:21:42  venku
+ *** empty log message ***
+       Revision 1.2  2003/08/21 03:54:41  venku
+       Documentation.
+       Revision 1.1  2003/08/21 03:30:34  venku
+       Added a new interface to query stableness of objects.
+       Analyses/Engine/Transformation objects in particular.
  */

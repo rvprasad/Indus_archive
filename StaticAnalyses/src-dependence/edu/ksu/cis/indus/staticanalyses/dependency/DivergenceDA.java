@@ -15,10 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import soot.SootMethod;
-
-import soot.jimple.Stmt;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
@@ -28,9 +24,6 @@ import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +32,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.SootMethod;
+
+import soot.jimple.Stmt;
 
 
 /**
@@ -305,9 +305,9 @@ public class DivergenceDA
 			}
 
 			/*
-			 * TODO: Pass 2.3: Prune the information in cycles from the pre-divergent point of the cycle to the next 
-             * pre-divergent point in the cycle.
-			 * 
+			 * TODO: Pass 2.3: Prune the information in cycles from the pre-divergent point of the cycle to the next
+			 * pre-divergent point in the cycle.
+			 *
 			 */
 		}
 
@@ -573,13 +573,13 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/11/26 10:11:42  venku
+   - redundant check eliminated.
    Revision 1.22  2003/11/25 19:12:26  venku
    - documentation.
-
    Revision 1.21  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
-
    Revision 1.20  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

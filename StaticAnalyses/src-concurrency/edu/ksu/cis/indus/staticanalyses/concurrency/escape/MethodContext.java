@@ -15,13 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import soot.SootMethod;
-import soot.Type;
-
 import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +25,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.SootMethod;
+import soot.Type;
 
 
 /**
@@ -503,12 +503,15 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/06 05:31:08  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
    Revision 1.7  2003/10/05 16:22:25  venku
    - Interference dependence is now symbol based.
    - Both interference and ready dependence consider
      loop information in a more sound manner.
    - ripple effect of the above.
-
    Revision 1.6  2003/10/05 06:31:35  venku
    - Things work.  The bug was the order in which the
      parameter alias sets were being accessed.  FIXED.

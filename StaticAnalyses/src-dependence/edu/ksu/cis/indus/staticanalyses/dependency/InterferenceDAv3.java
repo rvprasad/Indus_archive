@@ -15,14 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.support.Pair;
+
 import soot.SootMethod;
 import soot.Value;
 
 import soot.jimple.AssignStmt;
-
-import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 
 /**
@@ -90,19 +90,18 @@ public class InterferenceDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/06 05:32:50  venku
+   - documentation.
    Revision 1.1  2003/10/05 16:22:25  venku
    - Interference dependence is now symbol based.
    - Both interference and ready dependence consider
      loop information in a more sound manner.
    - ripple effect of the above.
-
    Revision 1.12  2003/09/29 13:37:25  venku
-   *** empty log message ***
-
+ *** empty log message ***
    Revision 1.11  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.10  2003/09/08 02:28:02  venku
    - ifDependentOn() was changed to isDependentOn().
    Revision 1.9  2003/08/21 03:56:08  venku

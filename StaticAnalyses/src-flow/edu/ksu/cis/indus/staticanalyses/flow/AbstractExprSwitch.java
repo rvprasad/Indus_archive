@@ -15,20 +15,21 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.interfaces.IPrototype;
+
+import edu.ksu.cis.indus.processing.Context;
+
+import java.util.Stack;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
 
 import soot.jimple.AbstractJimpleValueSwitch;
-
-import edu.ksu.cis.indus.interfaces.IPrototype;
-import edu.ksu.cis.indus.processing.Context;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Stack;
 
 
 /**
@@ -190,28 +191,29 @@ public abstract class AbstractExprSwitch
 
 /*
    ChangeLog:
-
    $Log$
+   Revision 1.7  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.6  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.5  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
    Revision 1.4  2003/08/17 09:59:03  venku
    Spruced up documentation and specification.
    Documentation changes to FieldVariant.
-
    Revision 1.3  2003/08/15 02:54:06  venku
    Spruced up specification and documentation for flow-insensitive classes.
    Changed names in AbstractExprSwitch.
    Ripple effect of above change.
    Formatting changes to IPrototype.
-
    Revision 1.2  2003/08/12 18:39:56  venku
    Ripple effect of moving IPrototype to Indus.
-
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

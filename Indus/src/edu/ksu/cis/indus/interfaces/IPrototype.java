@@ -54,26 +54,23 @@ public interface IPrototype {
 
 /*
    ChangeLog:
-
    $Log$
-   Revision 1.3  2003/08/18 04:16:35  venku
-   Documentation change.
-
-   Revision 1.2  2003/08/15 02:54:06  venku
-   Spruced up specification and documentation for flow-insensitive classes.
-   Changed names in AbstractExprSwitch.
-   Ripple effect of above change.
-   Formatting changes to IPrototype.
-
-   Revision 1.1  2003/08/12 18:33:41  venku
-   Created an umbrella project to host generic interfaces related to design patterns.
-   Moving prototype pattern interface under this umbrella.
-
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
-
-   Revision 1.1  2003/05/22 22:18:31  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
+   Revision 1.4  2003/09/27 23:21:42  venku
+ *** empty log message ***
+       Revision 1.3  2003/08/18 04:16:35  venku
+       Documentation change.
+       Revision 1.2  2003/08/15 02:54:06  venku
+       Spruced up specification and documentation for flow-insensitive classes.
+       Changed names in AbstractExprSwitch.
+       Ripple effect of above change.
+       Formatting changes to IPrototype.
+       Revision 1.1  2003/08/12 18:33:41  venku
+       Created an umbrella project to host generic interfaces related to design patterns.
+       Moving prototype pattern interface under this umbrella.
+       Revision 1.1  2003/08/07 06:40:24  venku
+       Major:
+        - Moved the package under indus umbrella.
+       Revision 1.1  2003/05/22 22:18:31  venku
+       All the interfaces were renamed to start with an "I".
+       Optimizing changes related Strings were made.
  */

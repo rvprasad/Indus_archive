@@ -15,16 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import soot.SootMethod;
-import soot.Value;
-import soot.ValueBox;
-
-import soot.jimple.NewExpr;
-import soot.jimple.SpecialInvokeExpr;
-import soot.jimple.Stmt;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
+
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
@@ -32,6 +25,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import soot.SootMethod;
+import soot.Value;
+import soot.ValueBox;
+
+import soot.jimple.NewExpr;
+import soot.jimple.SpecialInvokeExpr;
+import soot.jimple.Stmt;
 
 
 /**
@@ -172,6 +173,9 @@ public class Init2NewExprMapper
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/22 00:42:22  venku
+   - renamed InitResolved to Init2NewExprMapper.
+   - added logic to realize the functionality.
    Revision 1.1  2003/11/20 08:22:33  venku
    - added support to include calls to <init> based on new expressions.
    - need to implement the class that provides this information.

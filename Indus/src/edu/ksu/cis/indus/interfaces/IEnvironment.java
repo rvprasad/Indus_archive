@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import soot.SootClass;
-
 import java.util.Collection;
+
+import soot.SootClass;
 
 
 /**
@@ -43,7 +43,7 @@ public interface IEnvironment {
 	 *
 	 * @post result.oclType = SootClass
 	 */
-	SootClass getClass(String className);
+	SootClass getClass(final String className);
 
 	/**
 	 * Returns the classes that form the system.
@@ -67,10 +67,15 @@ public interface IEnvironment {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 05:15:05  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.5  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.4  2003/08/21 08:22:51  venku
    Changed ID value.
    Revision 1.3  2003/08/17 10:48:34  venku

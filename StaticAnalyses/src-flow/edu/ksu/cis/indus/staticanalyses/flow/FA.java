@@ -15,6 +15,19 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.common.NamedTag;
+
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
+import edu.ksu.cis.indus.processing.Context;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.ArrayType;
 import soot.Modifier;
 import soot.RefType;
@@ -25,17 +38,6 @@ import soot.SootMethod;
 import soot.Type;
 
 import soot.tagkit.Tag;
-
-import edu.ksu.cis.indus.common.NamedTag;
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.processing.Context;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 
 
 /**
@@ -423,17 +425,6 @@ public class FA
 	}
 
 	/**
-	 * Retrieves the tag associated with the framework instance.
-	 *
-	 * @return the tag associated with the framework instance.
-	 *
-	 * @post result != null
-	 */
-	Tag getTag() {
-		return tag;
-	}
-
-	/**
 	 * Resets the framework.  The framework forgets all information allowing for a new session of analysis to executed.
 	 */
 	public void reset() {
@@ -458,6 +449,17 @@ public class FA
 		instanceFieldVariantManager = new FieldVariantManager(this, mf.getInstanceFieldIndexManager());
 		methodVariantManager = new MethodVariantManager(this, mf.getMethodIndexManager(), modeFactory.getASTIndexManager());
 		staticFieldVariantManager = new FieldVariantManager(this, mf.getStaticFieldIndexManager());
+	}
+
+	/**
+	 * Retrieves the tag associated with the framework instance.
+	 *
+	 * @return the tag associated with the framework instance.
+	 *
+	 * @post result != null
+	 */
+	Tag getTag() {
+		return tag;
 	}
 
 	/**
@@ -513,9 +515,10 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/30 01:39:34  venku
+   - changed access level of getTag.
    Revision 1.10  2003/11/30 01:09:42  venku
    - documentation.
-
    Revision 1.9  2003/11/30 01:07:57  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.

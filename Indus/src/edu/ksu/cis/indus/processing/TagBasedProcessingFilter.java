@@ -15,13 +15,13 @@
 
 package edu.ksu.cis.indus.processing;
 
-import soot.SootClass;
-import soot.SootMethod;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -32,7 +32,7 @@ import java.util.List;
  * @version $Revision$ $Date$
  */
 public class TagBasedProcessingFilter
-  implements IProcessingFilter {
+  extends AbstractProcessingFilter {
 	/**
 	 * The name of the tag used to filter out classes and methods.
 	 */
@@ -53,38 +53,40 @@ public class TagBasedProcessingFilter
 	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterClasses(java.util.Collection)
 	 */
 	public Collection filterClasses(final Collection classes) {
-		List result = new ArrayList();
+		final List _result = new ArrayList();
 
-		for (Iterator i = classes.iterator(); i.hasNext();) {
-			SootClass sc = (SootClass) i.next();
+		for (final Iterator _i = classes.iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
 
-			if (sc.hasTag(tagName)) {
-				result.add(sc);
+			if (_sc.hasTag(tagName)) {
+				_result.add(_sc);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterMethods(java.util.Collection)
 	 */
 	public Collection filterMethods(final Collection methods) {
-		List result = new ArrayList();
+		final List _result = new ArrayList();
 
-		for (Iterator i = methods.iterator(); i.hasNext();) {
-			SootMethod sc = (SootMethod) i.next();
+		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
+			final SootMethod _sc = (SootMethod) _i.next();
 
-			if (sc.hasTag(tagName)) {
-				result.add(sc);
+			if (_sc.hasTag(tagName)) {
+				_result.add(_sc);
 			}
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.1  2003/11/30 01:20:37  venku
    - added a new tag based processing filter.
  */

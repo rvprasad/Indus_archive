@@ -15,6 +15,16 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
+import edu.ksu.cis.indus.processing.Context;
+
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+
 import soot.ArrayType;
 import soot.Scene;
 import soot.SootClass;
@@ -24,14 +34,6 @@ import soot.Value;
 
 import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
-
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 
 
 /**
@@ -350,6 +352,10 @@ public abstract class AbstractAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/30 01:07:58  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.9  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

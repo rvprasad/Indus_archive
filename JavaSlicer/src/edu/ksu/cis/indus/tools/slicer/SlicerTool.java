@@ -15,20 +15,17 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import soot.Scene;
-import soot.SootMethod;
-
-import soot.jimple.Stmt;
-
-import soot.toolkits.graph.UnitGraph;
-
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
+
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
+
 import edu.ksu.cis.indus.slicer.AbstractSliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -49,20 +46,12 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
+
 import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.Phase;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IMarshallingContext;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -76,6 +65,22 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IMarshallingContext;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
+
+import soot.Scene;
+import soot.SootMethod;
+
+import soot.jimple.Stmt;
+
+import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -620,7 +625,8 @@ public final class SlicerTool
 		for (Iterator i = im.getMonitorTriples().iterator(); i.hasNext();) {
 			Triple mTriple = (Triple) i.next();
 			SootMethod method = (SootMethod) mTriple.getThird();
-            temp.clear();
+			temp.clear();
+
 			if (mTriple.getFirst() == null) {
 				// add all return points (including throws) of the method as the criteria
 				UnitGraph graph = unitGraphProvider.getUnitGraph(method);
@@ -636,7 +642,6 @@ public final class SlicerTool
 					}
 				}
 			} else {
-
 				temp.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getFirst()));
 				temp.addAll(criteriaFactory.getCriterion(method, (Stmt) mTriple.getSecond()));
 			}
@@ -653,6 +658,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2003/12/01 12:15:08  venku
+   - optimized populate...() method.
+   - used the setConsiderExecution() method in AbstractSliceCriteion.
    Revision 1.40  2003/12/01 04:20:10  venku
    - tag name should be provided for the engine before execution.
    Revision 1.39  2003/11/30 02:13:39  venku

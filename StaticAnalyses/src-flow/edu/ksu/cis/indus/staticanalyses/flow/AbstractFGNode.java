@@ -15,14 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -288,6 +288,9 @@ public abstract class AbstractFGNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.4  2003/08/26 16:53:34  venku
    diffValues() used to get values() on src inside the loop.  However,
    this was loop invariant, hence, has been hoisted outside the loop.

@@ -112,12 +112,13 @@ public class JikesBasedDirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/10 03:40:50  venku
+   - renamed DirectedAndSimpleNodeGraphTest1 to
+     DirectedAndSimpleNodeGraphTest.
    Revision 1.1  2003/11/10 03:39:53  venku
    - renamed test2 and test3 to JikesBased and JavacBased tests.
-
    Revision 1.4  2003/09/28 23:19:36  venku
-   *** empty log message ***
-
+ *** empty log message ***
    Revision 1.3  2003/09/11 12:31:00  venku
    - made ancestral relationship antisymmetric
    - added testcases to test the relationship.

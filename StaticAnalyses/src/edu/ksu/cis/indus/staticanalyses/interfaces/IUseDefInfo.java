@@ -15,13 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import soot.jimple.DefinitionStmt;
-import soot.jimple.Stmt;
-
 import edu.ksu.cis.indus.interfaces.IStatus;
+
 import edu.ksu.cis.indus.processing.Context;
 
 import java.util.Collection;
+
+import soot.jimple.DefinitionStmt;
+import soot.jimple.Stmt;
 
 
 /**
@@ -66,26 +67,25 @@ public interface IUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/12 03:50:13  venku
+   - getDefs operates on statements and
+     getUses operates on Def statements.
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.6  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.5  2003/08/21 03:32:37  venku
    Incorporated IStatus interface into any interface that provides analysis information.
    Revision 1.4  2003/08/13 08:49:10  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosed later on in implementaions.
-
    Revision 1.3  2003/08/12 01:52:00  venku
    Removed redundant final in parameter declaration in methods of interfaces.
-
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.

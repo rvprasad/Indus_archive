@@ -16,9 +16,10 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
-import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
+
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
@@ -29,6 +30,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
+
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
 
@@ -169,18 +171,18 @@ public class SlicerConfiguration
 	 * Creates a new SlicerConfiguration object.
 	 */
 	protected SlicerConfiguration() {
-		PROPERTY_IDS.add(USE_DIVERGENCEDA);
-		PROPERTY_IDS.add(INTERPROCEDURAL_DIVERGENCEDA);
-		PROPERTY_IDS.add(NATURE_OF_INTERFERENCE_DA);
-		PROPERTY_IDS.add(USE_READYDA);
-		PROPERTY_IDS.add(NATURE_OF_READY_DA);
-		PROPERTY_IDS.add(USE_RULE1_IN_READYDA);
-		PROPERTY_IDS.add(USE_RULE2_IN_READYDA);
-		PROPERTY_IDS.add(USE_RULE3_IN_READYDA);
-		PROPERTY_IDS.add(USE_RULE4_IN_READYDA);
-		PROPERTY_IDS.add(SLICE_FOR_DEADLOCK);
-		PROPERTY_IDS.add(SLICE_TYPE);
-		PROPERTY_IDS.add(EXECUTABLE_SLICE);
+		propertyIds.add(USE_DIVERGENCEDA);
+		propertyIds.add(INTERPROCEDURAL_DIVERGENCEDA);
+		propertyIds.add(NATURE_OF_INTERFERENCE_DA);
+		propertyIds.add(USE_READYDA);
+		propertyIds.add(NATURE_OF_READY_DA);
+		propertyIds.add(USE_RULE1_IN_READYDA);
+		propertyIds.add(USE_RULE2_IN_READYDA);
+		propertyIds.add(USE_RULE3_IN_READYDA);
+		propertyIds.add(USE_RULE4_IN_READYDA);
+		propertyIds.add(SLICE_FOR_DEADLOCK);
+		propertyIds.add(SLICE_TYPE);
+		propertyIds.add(EXECUTABLE_SLICE);
 	}
 
 	/**
@@ -213,14 +215,14 @@ public class SlicerConfiguration
 		id2dependencyAnalyses.put(DependencyAnalysis.SYNCHRONIZATION_DA, Collections.singleton(new SynchronizationDA()));
 		dependencesToUse.add(DependencyAnalysis.INTERFERENCE_DA);
 		dependencesToUse.add(DependencyAnalysis.CONTROL_DA);
-        
-        // set default values for certain properties
-        setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
-        setProperty(USE_READYDA, Boolean.FALSE);
-        setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
-        setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
-        setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
-        setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
+
+		// set default values for certain properties
+		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
+		setProperty(USE_READYDA, Boolean.FALSE);
+		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
+		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
+		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
+		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
 	}
 
 	/**
@@ -654,22 +656,20 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/02 01:30:50  venku
+   - coding conventions and formatting.
    Revision 1.21  2003/11/28 16:40:26  venku
    - cosmetic.
-
    Revision 1.20  2003/11/25 17:51:26  venku
    - split control dependence into 2 classes.
      EntryControlDA handled control DA as required for backward slicing.
      ExitControlDA handles control DA as required for forward slicing.
    - ripple effect.
-
    Revision 1.19  2003/11/16 18:33:01  venku
    - fixed an error while returning the DAs.
-
    Revision 1.18  2003/11/16 18:24:08  venku
    - added methods to retrive active dependencies.
    - documentation and formatting.
-
    Revision 1.17  2003/11/09 08:12:49  venku
    - values of all boolean properties are discovered by getBooleanProperty().
      If the property does not exist, a default value will be returned.

@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.slicer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.commons.pool.ObjectPool;
 
 
@@ -122,6 +123,9 @@ public abstract class AbstractSliceCriterion {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/01 12:13:37  venku
+   - removed support to carry slice type as it was needed now.
+     It can be rolled back on when required. :-)
    Revision 1.4  2003/12/01 12:12:26  venku
    - added support to carry slice type.
    Revision 1.3  2003/11/24 00:01:14  venku

@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
-import soot.SootClass;
-import soot.SootMethod;
-
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 
 import java.util.ArrayList;
@@ -25,6 +22,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -35,7 +35,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class XMLizingProcessingFilter
+public final class XMLizingProcessingFilter
   implements IProcessingFilter {
 	/**
 	 * This compares <code>SootClass</code> objects lexographically based on their fully qualified java names.
@@ -57,45 +57,32 @@ public class XMLizingProcessingFilter
 		 * @pre o1.oclIsKindOf(SootClass) and o2.oclIsKindOf(SootClass)
 		 */
 		public int compare(final Object o1, final Object o2) {
-			SootClass sc1 = (SootClass) o1;
-			SootClass sc2 = (SootClass) o2;
-			return sc1.getName().compareTo(sc2.getName());
+			final SootClass _sc1 = (SootClass) o1;
+			final SootClass _sc2 = (SootClass) o2;
+			return _sc1.getName().compareTo(_sc2.getName());
 		}
 	}
 
-    /**
-     * This compares <code>SootMethod</code> objects lexographically based on their java signature.
-     *
-     * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-     * @author $Author$
-     * @version $Revision$ $Date$
-     */
-    private final class LexographicalMethodComparator
-    implements Comparator {
-        /**
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
-        public int compare(final Object o1, final Object o2) {
-            String sig1 = ((SootMethod) o1).getSubSignature();
-            String sig2 = ((SootMethod) o2).getSubSignature();
-            return sig1.substring(sig1.indexOf(' ')).compareTo(sig2.substring(sig2.indexOf(' ')));
-        }
-    }
-    
-    
-    /**
-     * This implementation returns the methods in alphabetical order as required to assing unique id to entities while
-     * XMLizing.
-     *
-     * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
-     */
-    public Collection filterMethods(final Collection methods) {
-        List result = new ArrayList(methods);
-        Collections.sort(result, new LexographicalMethodComparator());
-        return result;
-    }
-    
-    
+
+	/**
+	 * This compares <code>SootMethod</code> objects lexographically based on their java signature.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private final class LexographicalMethodComparator
+	  implements Comparator {
+		/**
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		public int compare(final Object o1, final Object o2) {
+			final String _sig1 = ((SootMethod) o1).getSubSignature();
+			final String _sig2 = ((SootMethod) o2).getSubSignature();
+			return _sig1.substring(_sig1.indexOf(' ')).compareTo(_sig2.substring(_sig2.indexOf(' ')));
+		}
+	}
+
 	/**
 	 * This implementation returns the classes in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
@@ -103,30 +90,41 @@ public class XMLizingProcessingFilter
 	 * @see edu.ksu.cis.indus.interfaces.IFilter#filter(java.lang.Object)
 	 */
 	public Collection filterClasses(final Collection classes) {
-		List result = new ArrayList(classes);
-		Collections.sort(result, new LexographicalClassComparator());
-		return result;
+		final List _result = new ArrayList(classes);
+		Collections.sort(_result, new LexographicalClassComparator());
+		return _result;
+	}
+
+	/**
+	 * This implementation returns the methods in alphabetical order as required to assing unique id to entities while
+	 * XMLizing.
+	 *
+	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
+	 */
+	public Collection filterMethods(final Collection methods) {
+		final List _result = new ArrayList(methods);
+		Collections.sort(_result, new LexographicalMethodComparator());
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 01:30:58  venku
+   - coding conventions and formatting.
    Revision 1.2  2003/11/30 09:03:58  venku
    - inner classes are visible when they are not used outside.  FIXED.
-
    Revision 1.1  2003/11/30 01:17:11  venku
    - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
    - renamed XMLizingController to XMLizingProcessingFilter.
    - ripple effect.
-
    Revision 1.6  2003/11/30 00:10:17  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.5  2003/11/17 16:58:19  venku
    - populateDAs() needs to be called from outside the constructor.
    - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.

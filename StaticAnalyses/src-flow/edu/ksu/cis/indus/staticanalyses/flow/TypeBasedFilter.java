@@ -15,20 +15,21 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import soot.RefType;
-import soot.SootClass;
-import soot.Type;
-import soot.Value;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import edu.ksu.cis.indus.staticanalyses.support.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.RefType;
+import soot.SootClass;
+import soot.Type;
+import soot.Value;
 
 
 /**
@@ -132,10 +133,15 @@ public class TypeBasedFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.7  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.6  2003/08/25 11:25:23  venku
    Formatting.
    Revision 1.5  2003/08/25 11:24:53  venku

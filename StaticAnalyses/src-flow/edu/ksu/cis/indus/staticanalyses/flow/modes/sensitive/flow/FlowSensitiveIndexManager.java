@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.flow;
 
 import edu.ksu.cis.indus.processing.Context;
+
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.OneContextInfoIndex;
@@ -76,10 +77,15 @@ public class FlowSensitiveIndexManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.3  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.2  2003/08/12 18:39:15  venku
    Spruced up documentation and specification.
    Revision 1.1  2003/08/07 06:40:24  venku

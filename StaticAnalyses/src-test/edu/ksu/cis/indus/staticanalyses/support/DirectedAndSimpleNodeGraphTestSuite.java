@@ -71,6 +71,8 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/29 08:13:38  venku
+   - added support to execute the test suite from command line.
    Revision 1.4  2003/11/10 03:40:50  venku
    - renamed DirectedAndSimpleNodeGraphTest1 to
      DirectedAndSimpleNodeGraphTest.
@@ -78,7 +80,7 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
    - renamed test2 and test3 to JikesBased and JavacBased tests.
    Revision 1.2  2003/09/28 23:19:36  venku
  *** empty log message ***
-   Revision 1.1  2003/09/11 02:37:12  venku
-   - added a test case for javac compilation of Divergent04 test.
-   - created test suite to test directed and simple node graph.
+     Revision 1.1  2003/09/11 02:37:12  venku
+     - added a test case for javac compilation of Divergent04 test.
+     - created test suite to test directed and simple node graph.
  */

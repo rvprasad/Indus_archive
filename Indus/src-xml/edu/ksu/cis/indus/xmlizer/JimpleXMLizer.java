@@ -15,6 +15,20 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
+import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.ProcessingController;
+
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
+import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.Body;
 import soot.Local;
 import soot.Scene;
@@ -27,20 +41,6 @@ import soot.Type;
 import soot.jimple.Stmt;
 
 import soot.util.Chain;
-
-import edu.ksu.cis.indus.processing.AbstractProcessor;
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.processing.Environment;
-import edu.ksu.cis.indus.processing.ProcessingController;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-
-import java.util.Iterator;
 
 
 /**
@@ -92,14 +92,14 @@ public class JimpleXMLizer
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private boolean processingClass = false;
+	private boolean processingClass;
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private boolean processingMethod = false;
+	private boolean processingMethod;
 
 	/**
 	 * Creates a new JimpleXMLizer object.
@@ -131,26 +131,26 @@ public class JimpleXMLizer
 	 * @param s DOCUMENT ME!
 	 */
 	public static void main(final String[] s) {
-		JimpleXMLizer xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
-		ProcessingController pc = new ProcessingController();
-		Scene scene = Scene.v();
-		Environment env = new Environment(scene);
-		pc.setEnvironment(env);
-		pc.setProcessingFilter(new XMLizingProcessingFilter());
+		final JimpleXMLizer _xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
+		final ProcessingController _pc = new ProcessingController();
+		final Scene _scene = Scene.v();
+		final Environment _env = new Environment(_scene);
+		_pc.setEnvironment(_env);
+		_pc.setProcessingFilter(new XMLizingProcessingFilter());
 
 		for (int i = 0; i < s.length; i++) {
-			scene.loadClassAndSupport(s[i]);
+			_scene.loadClassAndSupport(s[i]);
 		}
 
-		Writer writer = new OutputStreamWriter(System.out);
-		xmlizer.setWriter(writer);
-		xmlizer.hookup(pc);
-		pc.process();
-		xmlizer.unhook(pc);
+		final Writer _writer = new OutputStreamWriter(System.out);
+		_xmlizer.setWriter(_writer);
+		_xmlizer.hookup(_pc);
+		_pc.process();
+		_xmlizer.unhook(_pc);
 
 		try {
-			writer.flush();
-			writer.close();
+			_writer.flush();
+			_writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -198,49 +198,52 @@ public class JimpleXMLizer
 
 			// capture info about signature
 			xmlizedSystem.write("\t\t\t<signature>\n");
-			xmlizedSystem.write("\t\t\t\t<returnType typeId=\"" + idGenerator.getIdForType(method.getReturnType()) + "\"/>\n");
+
+			final String _indent = "\t\t\t\t";
+			xmlizedSystem.write(_indent + "<returnType typeId=\"" + idGenerator.getIdForType(method.getReturnType())
+				+ "\"/>\n");
 
 			if (method.getParameterCount() > 0) {
 				int j = 0;
 
-				for (Iterator i = method.getParameterTypes().iterator(); i.hasNext();) {
-					xmlizedSystem.write("\t\t\t\t<paramType typeId=\"" + idGenerator.getIdForType((Type) i.next())
+				for (final Iterator _i = method.getParameterTypes().iterator(); _i.hasNext();) {
+					xmlizedSystem.write(_indent + "<paramType typeId=\"" + idGenerator.getIdForType((Type) _i.next())
 						+ "\" position=\"" + j++ + "\"/>\n");
 				}
 			}
 
 			if (method.getExceptions().size() > 0) {
-				for (Iterator i = method.getExceptions().iterator(); i.hasNext();) {
-					xmlizedSystem.write("\t\t\t\t<exception typeId=\"" + idGenerator.getIdForClass((SootClass) i.next())
+				for (final Iterator _i = method.getExceptions().iterator(); _i.hasNext();) {
+					xmlizedSystem.write(_indent + "<exception typeId=\"" + idGenerator.getIdForClass((SootClass) _i.next())
 						+ "\"/>\n");
 				}
 			}
 			xmlizedSystem.write("\t\t\t</signature>\n");
 
 			if (method.isConcrete()) {
-				Body body = method.retrieveActiveBody();
+				final Body _body = method.retrieveActiveBody();
 
-				Chain traps = body.getTraps();
+				final Chain _traps = _body.getTraps();
 
 				// capture info about traps
-				if (!traps.isEmpty()) {
+				if (!_traps.isEmpty()) {
 					xmlizedSystem.write("\t\t\t<traplist>\n");
 
-					for (Iterator i = traps.iterator(); i.hasNext();) {
-						Trap trap = (Trap) i.next();
-						xmlizedSystem.write("\t\t\t\t<trap typeId=\"" + idGenerator.getIdForClass(trap.getException())
-							+ "\" beginId=\"" + idGenerator.getIdForStmt((Stmt) trap.getBeginUnit(), method) + "\" endId=\""
-							+ idGenerator.getIdForStmt((Stmt) trap.getEndUnit(), method) + "\" handlerId=\""
-							+ idGenerator.getIdForStmt((Stmt) trap.getHandlerUnit(), method) + "\"/>\n");
+					for (final Iterator _i = _traps.iterator(); _i.hasNext();) {
+						final Trap _trap = (Trap) _i.next();
+						xmlizedSystem.write("\t\t\t\t<trap typeId=\"" + idGenerator.getIdForClass(_trap.getException())
+							+ "\" beginId=\"" + idGenerator.getIdForStmt((Stmt) _trap.getBeginUnit(), method) + "\" endId=\""
+							+ idGenerator.getIdForStmt((Stmt) _trap.getEndUnit(), method) + "\" handlerId=\""
+							+ idGenerator.getIdForStmt((Stmt) _trap.getHandlerUnit(), method) + "\"/>\n");
 					}
 					xmlizedSystem.write("\t\t\t</traplist>\n");
 				}
 
 				// capture info about locals
-				for (Iterator i = body.getLocals().iterator(); i.hasNext();) {
-					Local l = (Local) i.next();
-					xmlizedSystem.write("\t\t\t<local id=\"" + idGenerator.getIdForLocal(l, method) + "\" name=\""
-						+ l.getName() + "\" typeId=\"" + idGenerator.getIdForType(l.getType()) + "\"/>\n");
+				for (final Iterator _i = _body.getLocals().iterator(); _i.hasNext();) {
+					final Local _l = (Local) _i.next();
+					xmlizedSystem.write("\t\t\t<local id=\"" + idGenerator.getIdForLocal(_l, method) + "\" name=\""
+						+ _l.getName() + "\" typeId=\"" + idGenerator.getIdForType(_l.getType()) + "\"/>\n");
 				}
 			}
 		} catch (IOException e) {
@@ -289,15 +292,16 @@ public class JimpleXMLizer
 			xmlizedSystem.write("\t  accessSpec=\"" + accessSpec + "\">\n");
 
 			if (clazz.hasSuperclass()) {
-				xmlizedSystem.write("\t\t<superclass typeId=\"" + idGenerator.getIdForClass(clazz.getSuperclass()) + "\"/>\n");
+				final SootClass _sc = clazz.getSuperclass();
+				xmlizedSystem.write("\t\t<superclass typeId=\"" + idGenerator.getIdForClass(_sc) + "\"/>\n");
 			}
 
 			if (clazz.getInterfaceCount() > 0) {
 				xmlizedSystem.write("\t\t<interfaceList>\n");
 
-				for (Iterator i = clazz.getInterfaces().iterator(); i.hasNext();) {
-					SootClass inter = (SootClass) i.next();
-					xmlizedSystem.write("\t\t\t<superinterface typeId=\"" + idGenerator.getIdForClass(inter) + "\"/>\n");
+				for (final Iterator _i = clazz.getInterfaces().iterator(); _i.hasNext();) {
+					final SootClass _inter = (SootClass) _i.next();
+					xmlizedSystem.write("\t\t\t<superinterface typeId=\"" + idGenerator.getIdForClass(_inter) + "\"/>\n");
 				}
 				xmlizedSystem.write("\t\t</interfaceList>\n");
 			}
@@ -393,6 +397,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/12/02 01:30:58  venku
+   - coding conventions and formatting.
    Revision 1.22  2003/11/30 02:12:41  venku
    - root element specification of the DOCTYPE changed.
    Revision 1.21  2003/11/30 01:17:11  venku

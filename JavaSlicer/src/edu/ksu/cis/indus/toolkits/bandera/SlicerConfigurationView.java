@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.toolkits.bandera;
 
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
+
 import edu.ksu.cis.indus.tools.AbstractToolConfigurator;
 
 import org.eclipse.swt.widgets.Shell;
@@ -109,6 +110,12 @@ public class SlicerConfigurationView
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/10/20 13:55:25  venku
+   - Added a factory to create new configurations.
+   - Simplified AbstractToolConfigurator methods.
+   - The driver manages the shell.
+   - Got all the gui parts running EXCEPT for changing
+     the name of the configuration.
    Revision 1.7  2003/10/14 03:00:22  venku
    - setConfiguration() was not called. This makes sense as the
      CompositeToolConfigurator() will provide the configuration.

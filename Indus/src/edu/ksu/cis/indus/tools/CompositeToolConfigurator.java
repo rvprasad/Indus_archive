@@ -15,17 +15,20 @@
 
 package edu.ksu.cis.indus.tools;
 
+import java.util.Iterator;
+
 import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-
-import java.util.Iterator;
 
 
 /**
@@ -90,16 +93,16 @@ public final class CompositeToolConfigurator
 	 * {@inheritDoc}
 	 */
 	protected void setup() {
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 3;
-		parent.setLayout(gridLayout);
+		final GridLayout _gridLayout = new GridLayout();
+		_gridLayout.numColumns = 3;
+		parent.setLayout(_gridLayout);
 
-		Label label = new Label(parent, SWT.NONE);
-		label.setText("Configurations:");
+		final Label _label = new Label(parent, SWT.NONE);
+		_label.setText("Configurations:");
 
 		GridData gridData = new GridData();
 		gridData.horizontalSpan = 3;
-		label.setLayoutData(gridData);
+		_label.setLayoutData(gridData);
 		configCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
 		configCombo.setItems(new String[0]);
 		configCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -115,12 +118,12 @@ public final class CompositeToolConfigurator
 			});
 		configCombo.setVisible(true);
 
-		Button ok = new Button(parent, SWT.PUSH);
-		ok.setText("Ok");
+		final Button _ok = new Button(parent, SWT.PUSH);
+		_ok.setText("Ok");
 		gridData = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
-		gridData.horizontalIndent = ok.getText().length() * 5;
-		ok.setLayoutData(gridData);
-		ok.addSelectionListener(new SelectionListener() {
+		gridData.horizontalIndent = _ok.getText().length();
+		_ok.setLayoutData(gridData);
+		_ok.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
 					parent.dispose();
 				}
@@ -130,18 +133,18 @@ public final class CompositeToolConfigurator
 				}
 			});
 
-		Button newConfig = new Button(parent, SWT.PUSH);
-		newConfig.setText("Create");
+		final Button _newConfig = new Button(parent, SWT.PUSH);
+		_newConfig.setText("Create");
 		gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
-		gridData.horizontalIndent = newConfig.getText().length() * 5;
-		newConfig.setLayoutData(gridData);
-		newConfig.addSelectionListener(new SelectionListener() {
+		gridData.horizontalIndent = _newConfig.getText().length();
+		_newConfig.setLayoutData(gridData);
+		_newConfig.addSelectionListener(new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					AbstractToolConfiguration atc = toolConfigFactory.createToolConfiguration();
-					atc.configName = "slicer_configuration_" + compositeConfiguration.configurations.size();
-					compositeConfiguration.addToolConfiguration(atc);
-					configCombo.add(atc.configName);
-					configCombo.select(compositeConfiguration.configurations.indexOf(atc));
+					final AbstractToolConfiguration _atc = toolConfigFactory.createToolConfiguration();
+					_atc.configName = "slicer_configuration_" + compositeConfiguration.configurations.size();
+					compositeConfiguration.addToolConfiguration(_atc);
+					configCombo.add(_atc.configName);
+					configCombo.select(compositeConfiguration.configurations.indexOf(_atc));
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
@@ -153,13 +156,13 @@ public final class CompositeToolConfigurator
 			compositeConfiguration.configurations.add(toolConfigFactory.createToolConfiguration());
 		}
 
-		for (Iterator i = compositeConfiguration.configurations.iterator(); i.hasNext();) {
-			AbstractToolConfiguration config = (AbstractToolConfiguration) i.next();
-			configCombo.add(config.configName);
+		for (final Iterator _i = compositeConfiguration.configurations.iterator(); _i.hasNext();) {
+			final AbstractToolConfiguration _config = (AbstractToolConfiguration) _i.next();
+			configCombo.add(_config.configName);
 		}
 
-		AbstractToolConfiguration c = compositeConfiguration.getActiveToolConfiguration();
-		configCombo.select(compositeConfiguration.configurations.indexOf(c));
+		final AbstractToolConfiguration _c = compositeConfiguration.getActiveToolConfiguration();
+		configCombo.select(compositeConfiguration.configurations.indexOf(_c));
 		displayChild();
 	}
 
@@ -172,15 +175,15 @@ public final class CompositeToolConfigurator
 		}
 		childComposite = new Composite(parent, SWT.NONE);
 
-		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.horizontalSpan = 3;
-		childComposite.setLayoutData(gridData);
+		final GridData _gridData = new GridData(GridData.FILL_HORIZONTAL);
+		_gridData.horizontalSpan = 3;
+		childComposite.setLayoutData(_gridData);
 		childComposite.setVisible(true);
 
-		int index = configCombo.getSelectionIndex();
-		AbstractToolConfiguration tc = (AbstractToolConfiguration) compositeConfiguration.configurations.get(index);
-		compositeConfiguration.setActiveToolConfiguration(tc);
-		childConfigurator.setConfiguration(tc);
+		final int _index = configCombo.getSelectionIndex();
+		final AbstractToolConfiguration _tc = (AbstractToolConfiguration) compositeConfiguration.configurations.get(_index);
+		compositeConfiguration.setActiveToolConfiguration(_tc);
+		childConfigurator.setConfiguration(_tc);
 		childConfigurator.initialize(childComposite);
 	}
 }
@@ -188,6 +191,8 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.8  2003/11/03 07:59:26  venku
    - documentation.
    Revision 1.7  2003/10/20 13:55:25  venku

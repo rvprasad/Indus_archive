@@ -19,6 +19,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
@@ -150,13 +151,14 @@ public abstract class AbstractToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/05 08:20:52  venku
+   - coding convention.
    Revision 1.4  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.
    - The driver manages the shell.
    - Got all the gui parts running EXCEPT for changing
      the name of the configuration.
-
    Revision 1.3  2003/10/14 02:56:51  venku
    - exposed parent field to subclasses.
    - added hide() method

@@ -15,6 +15,11 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import soot.ArrayType;
 import soot.Local;
 import soot.PatchingChain;
@@ -26,11 +31,6 @@ import soot.Type;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -121,13 +121,11 @@ public class UniqueJimpleIDGenerator
 	}
 
 	/**
-	 * (non-Javadoc)
-	 *
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getNewMethodId()
 	 */
 	public String getIdForMethod(final SootMethod method) {
-		SootClass sc = method.getDeclaringClass();
-		return getIdForClass(sc) + "_m" + sc.getMethods().indexOf(method);
+		final SootClass _sc = method.getDeclaringClass();
+		return getIdForClass(_sc) + "_m" + _sc.getMethods().indexOf(method);
 	}
 
 	/**
@@ -137,9 +135,9 @@ public class UniqueJimpleIDGenerator
 		String result = "?";
 
 		if (method.isConcrete()) {
-			PatchingChain c = method.getActiveBody().getUnits();
+			final PatchingChain _c = method.getActiveBody().getUnits();
 			tempList.clear();
-			tempList.addAll(c);
+			tempList.addAll(_c);
 			result = String.valueOf(tempList.indexOf(stmt));
 		}
 		return getIdForMethod(method) + "_s" + result;
@@ -154,10 +152,10 @@ public class UniqueJimpleIDGenerator
 		if (type instanceof RefType) {
 			result = getIdForClass(((RefType) type).getSootClass());
 		} else if (type instanceof ArrayType) {
-			ArrayType arrayType = (ArrayType) type;
-			StringBuffer t = new StringBuffer(getIdForType(arrayType.baseType));
-			t.append(".." + arrayType.numDimensions);
-			result = t.toString();
+			final ArrayType _arrayType = (ArrayType) type;
+			final StringBuffer _t = new StringBuffer(getIdForType(_arrayType.baseType));
+			_t.append(".." + _arrayType.numDimensions);
+			result = _t.toString();
 		} else {
 			result = type.toString().replaceAll("[\\[\\]]", "_.").replaceAll("\\p{Blank}", "");
 		}
@@ -176,8 +174,8 @@ public class UniqueJimpleIDGenerator
 	 * @return DOCUMENT ME!
 	 */
 	public String getIdForValueBox(final ValueBox box, final Stmt stmt, final SootMethod method) {
-		List vBoxes = stmt.getUseAndDefBoxes();
-		return getIdForStmt(stmt, method) + "_v" + vBoxes.indexOf(box);
+		final List _vBoxes = stmt.getUseAndDefBoxes();
+		return getIdForStmt(stmt, method) + "_v" + _vBoxes.indexOf(box);
 	}
 
 	/**
@@ -195,6 +193,8 @@ public class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/02 01:30:58  venku
+   - coding conventions and formatting.
    Revision 1.5  2003/11/30 09:44:53  venku
    - renamed getIdForValue to getIdForValueBox.
    Revision 1.4  2003/11/28 09:40:55  venku

@@ -15,17 +15,18 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import soot.SootClass;
-import soot.SootMethod;
-
 import edu.ksu.cis.indus.interfaces.IPrototype;
+
 import edu.ksu.cis.indus.processing.Context;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Collection;
-import java.util.HashSet;
+import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -174,6 +175,10 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/30 01:07:58  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.13  2003/11/26 02:00:24  venku
    - logging.
    Revision 1.12  2003/11/26 01:23:59  venku

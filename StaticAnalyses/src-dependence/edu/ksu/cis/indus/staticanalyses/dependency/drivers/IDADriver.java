@@ -57,17 +57,21 @@ public class IDADriver
 		das = new ArrayList();
 		das.add(new InterferenceDAv1());
 		das.add(new InterferenceDAv2());
-        das.add(new InterferenceDAv3());
+		das.add(new InterferenceDAv3());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/10/05 16:22:25  venku
+   - Interference dependence is now symbol based.
+   - Both interference and ready dependence consider
+     loop information in a more sound manner.
+   - ripple effect of the above.
    Revision 1.6  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.5  2003/09/02 11:30:56  venku
    - Enabled toggling ECBA instance.
    Revision 1.4  2003/08/11 06:34:52  venku

@@ -56,6 +56,8 @@ public interface IProcessingFilter {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/30 00:20:41  venku
+   - documentation.
    Revision 1.1  2003/11/30 00:10:17  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.

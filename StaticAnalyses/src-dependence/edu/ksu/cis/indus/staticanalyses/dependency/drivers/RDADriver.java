@@ -70,6 +70,8 @@ public final class RDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/07 12:00:04  venku
+   - added driving code for ReadyDAv3.
    Revision 1.9  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.

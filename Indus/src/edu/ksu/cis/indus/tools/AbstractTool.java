@@ -60,7 +60,7 @@ public abstract class AbstractTool
 	/**
 	 * This indicates if the tool should pause execution.
 	 */
-	boolean pause = false;
+	boolean pause;
 
 	/**
 	 * The thread in which the tools is running or ran previously.
@@ -195,8 +195,8 @@ public abstract class AbstractTool
 	 * This is the template method in which the actual processing of the tool happens.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
-     * 
-     * @throws InterruptedException when the execution of the tool is interrupted.
+	 *
+	 * @throws InterruptedException when the execution of the tool is interrupted.
 	 */
 	protected abstract void execute(final Object phase)
 	  throws InterruptedException;
@@ -219,6 +219,8 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.7  2003/11/17 17:56:25  venku
    - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
      way to intialize the tool independent of how it's dependent

@@ -15,16 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
-import soot.ArrayType;
-import soot.RefType;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
-
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
-import org.apache.commons.logging.Log;
+import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
 import java.io.File;
 
@@ -36,6 +29,14 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+
+import soot.ArrayType;
+import soot.RefType;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -313,9 +314,10 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/26 01:49:34  venku
+   - minor logical error. FIXED.
    Revision 1.11  2003/11/20 07:28:40  venku
    - formatting.
-
    Revision 1.10  2003/11/20 07:27:41  venku
    - Explicitly sets options on Soot to use local name splitting.
    Revision 1.9  2003/11/17 03:22:59  venku

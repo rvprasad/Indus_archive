@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.xmlizer;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
+
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.util.Collection;
@@ -73,6 +74,8 @@ public class CGBasedXMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/30 09:03:23  venku
+   - changed filed name to something more appropriate.
    Revision 1.1  2003/11/30 01:17:15  venku
    - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
    - renamed XMLizingController to XMLizingProcessingFilter.

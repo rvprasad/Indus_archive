@@ -15,18 +15,18 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import soot.SootMethod;
-
-import soot.jimple.EnterMonitorStmt;
-import soot.jimple.ExitMonitorStmt;
-import soot.jimple.InvokeStmt;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import soot.SootMethod;
+
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
+import soot.jimple.InvokeStmt;
 
 
 /**
@@ -121,6 +121,9 @@ public class ReadyDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/05 08:25:37  venku
+   - This version of ReadyDA is based on symbolic analysis
+     and escape analysis.
    Revision 1.11  2003/11/03 07:54:29  venku
    - deleted comments.
    Revision 1.10  2003/09/28 03:16:48  venku

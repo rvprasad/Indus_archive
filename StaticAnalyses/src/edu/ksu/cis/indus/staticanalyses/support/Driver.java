@@ -15,13 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
-import soot.ArrayType;
-import soot.RefType;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
-
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
+
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
 import java.io.PrintStream;
@@ -32,6 +27,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import soot.ArrayType;
+import soot.RefType;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -205,6 +206,8 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/11 10:10:29  venku
+   - moved run() and initialize() into Driver.
    Revision 1.10  2003/11/06 05:04:01  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.9  2003/11/02 20:14:32  venku
@@ -224,17 +227,17 @@ public abstract class Driver {
    - basic block graph manager can be cached via bbm.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-             Revision 1.2  2003/08/11 04:20:19  venku
-             - Pair and Triple were changed to work in optimized and unoptimized mode.
-             - Ripple effect of the previous change.
-             - Documentation and specification of other classes.
-             Revision 1.1  2003/08/10 03:43:26  venku
-             Renamed Tester to Driver.
-             Refactored logic to pick entry points.
-             Provided for logging timing stats into any specified stream.
-             Ripple effect in others.
-             Revision 1.1  2003/08/07 06:42:16  venku
-             Major:
-              - Moved the package under indus umbrella.
-              - Renamed isEmpty() to hasWork() in IWorkBag.
+               Revision 1.2  2003/08/11 04:20:19  venku
+               - Pair and Triple were changed to work in optimized and unoptimized mode.
+               - Ripple effect of the previous change.
+               - Documentation and specification of other classes.
+               Revision 1.1  2003/08/10 03:43:26  venku
+               Renamed Tester to Driver.
+               Refactored logic to pick entry points.
+               Provided for logging timing stats into any specified stream.
+               Ripple effect in others.
+               Revision 1.1  2003/08/07 06:42:16  venku
+               Major:
+                - Moved the package under indus umbrella.
+                - Renamed isEmpty() to hasWork() in IWorkBag.
  */

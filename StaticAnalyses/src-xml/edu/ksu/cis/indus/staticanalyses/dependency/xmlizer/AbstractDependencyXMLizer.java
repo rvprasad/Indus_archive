@@ -15,18 +15,20 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
-import soot.SootClass;
-import soot.SootMethod;
-
 import edu.ksu.cis.indus.processing.AbstractProcessor;
+
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+
+import java.io.IOException;
+import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.IOException;
-import java.io.Writer;
+import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -172,6 +174,8 @@ public abstract class AbstractDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/26 09:17:09  venku
+   - removed method and class signature from the emitted xml.
    Revision 1.6  2003/11/24 23:58:01  venku
    - incorrect attribute values were being emitted. FIXED.
    Revision 1.5  2003/11/17 15:56:59  venku

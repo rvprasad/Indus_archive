@@ -51,10 +51,15 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.4  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.3  2003/08/21 03:32:37  venku
    Incorporated IStatus interface into any interface that provides analysis information.
    Revision 1.2  2003/08/11 07:46:09  venku

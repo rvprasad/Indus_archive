@@ -15,6 +15,10 @@
 
 package edu.ksu.cis.indus.transformations.common;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import soot.Local;
 import soot.RefType;
 import soot.SootClass;
@@ -64,10 +68,6 @@ import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
 import soot.jimple.VirtualInvokeExpr;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -785,26 +785,28 @@ public class ASTCloner
 /*
    ChangeLog:
    $Log$
-   Revision 1.11  2003/09/26 15:06:05  venku
-   - Formatting.
-   - ITransformer has a new method initialize() via which the system
-     being transformed can be specified.
-   Revision 1.10  2003/08/20 18:22:24  venku
-   Documentation error fixed.
-   Revision 1.9  2003/08/19 12:44:39  venku
-   Changed the signature of ITransformer.getLocal()
-   Introduced reset() in ITransformer.
-   Ripple effect of the above changes.
-   Revision 1.8  2003/08/19 11:58:53  venku
-   Remove any reference to slicing from the documentation.
-   Revision 1.7  2003/08/18 04:45:31  venku
-   Moved the code such that code common to transformations are in one location
-   and independent of any specific transformation.
-   Revision 1.6  2003/08/18 04:01:52  venku
-   Major changes:
-    - Teased apart cloning logic in the slicer.  Made it transformation independent.
-    - Moved it under transformation common location under indus.
-   Revision 1.5  2003/05/22 22:23:49  venku
-   Changed interface names to start with a "I".
-   Formatting.
+   Revision 1.12  2003/09/27 23:21:42  venku
+ *** empty log message ***
+     Revision 1.11  2003/09/26 15:06:05  venku
+     - Formatting.
+     - ITransformer has a new method initialize() via which the system
+       being transformed can be specified.
+     Revision 1.10  2003/08/20 18:22:24  venku
+     Documentation error fixed.
+     Revision 1.9  2003/08/19 12:44:39  venku
+     Changed the signature of ITransformer.getLocal()
+     Introduced reset() in ITransformer.
+     Ripple effect of the above changes.
+     Revision 1.8  2003/08/19 11:58:53  venku
+     Remove any reference to slicing from the documentation.
+     Revision 1.7  2003/08/18 04:45:31  venku
+     Moved the code such that code common to transformations are in one location
+     and independent of any specific transformation.
+     Revision 1.6  2003/08/18 04:01:52  venku
+     Major changes:
+      - Teased apart cloning logic in the slicer.  Made it transformation independent.
+      - Moved it under transformation common location under indus.
+     Revision 1.5  2003/05/22 22:23:49  venku
+     Changed interface names to start with a "I".
+     Formatting.
  */

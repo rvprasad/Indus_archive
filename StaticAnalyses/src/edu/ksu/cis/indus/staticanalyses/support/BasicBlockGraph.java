@@ -15,12 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
-import soot.Trap;
-
-import soot.jimple.Stmt;
-
-import soot.toolkits.graph.UnitGraph;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +23,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import soot.Trap;
+
+import soot.jimple.Stmt;
+
+import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -383,13 +383,13 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/06 05:04:02  venku
+   - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.12  2003/11/05 09:28:10  venku
    - ripple effect of splitting IWorkBag.
-
    Revision 1.11  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.10  2003/09/12 08:09:37  venku
    - documentation.
    Revision 1.9  2003/09/11 12:18:35  venku

@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.tools;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -106,11 +106,11 @@ public final class CompositeToolConfiguration
 	 * @param id of the configuration to be activated.
 	 */
 	public void setActiveToolConfigurationID(final String id) {
-		for (Iterator i = configurations.iterator(); i.hasNext();) {
-			AbstractToolConfiguration config = (AbstractToolConfiguration) i.next();
+		for (final Iterator _i = configurations.iterator(); _i.hasNext();) {
+			final AbstractToolConfiguration _config = (AbstractToolConfiguration) _i.next();
 
-			if (config.configName.equals(id)) {
-				active = config;
+			if (_config.configName.equals(id)) {
+				active = _config;
 			}
 		}
 	}
@@ -178,8 +178,8 @@ public final class CompositeToolConfiguration
 	protected AbstractToolConfiguration getToolConfiguration(final String id) {
 		AbstractToolConfiguration result = null;
 
-		for (Iterator i = configurations.iterator(); i.hasNext();) {
-			result = (AbstractToolConfiguration) i.next();
+		for (final Iterator _i = configurations.iterator(); _i.hasNext();) {
+			result = (AbstractToolConfiguration) _i.next();
 
 			if (result.configName.equals(id)) {
 				break;
@@ -200,39 +200,37 @@ public final class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.10  2003/10/19 20:16:23  venku
    - jibx binding fixes.
-
    Revision 1.9  2003/10/19 19:11:57  venku
-   *** empty log message ***
-
-   Revision 1.8  2003/10/14 05:39:25  venku
-   - well, jibx doesnot support abstract types for fields even with
-     factories or I do not know how to tell it to use the factory.
-     Right now, the fix is to use concrete types.
-
-   Revision 1.7  2003/09/27 01:27:47  venku
-   - documentation.
-
-   Revision 1.6  2003/09/27 01:09:36  venku
-   - changed AbstractToolConfigurator and CompositeToolConfigurator
-     such that the composite to display the interface on is provided by the application.
-   - documentation.
-   Revision 1.5  2003/09/26 15:30:39  venku
-   - removed PropertyIdentifier class.
-   - ripple effect of the above change.
-   - formatting
-   Revision 1.4  2003/09/26 15:16:40  venku
-   - coding conventions.
-   Revision 1.3  2003/09/26 15:05:01  venku
-   - binding related errors fixed.
-   Revision 1.2  2003/09/26 15:00:01  venku
-   - The configuration of tools in Indus has been placed in this package.
-   - Formatting.
-   Revision 1.1  2003/09/26 13:58:43  venku
-   - checkpoint commit.
-   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
-   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
-   Revision 1.1  2003/09/26 05:56:10  venku
-   - a checkpoint commit.
+ *** empty log message ***
+     Revision 1.8  2003/10/14 05:39:25  venku
+     - well, jibx doesnot support abstract types for fields even with
+       factories or I do not know how to tell it to use the factory.
+       Right now, the fix is to use concrete types.
+     Revision 1.7  2003/09/27 01:27:47  venku
+     - documentation.
+     Revision 1.6  2003/09/27 01:09:36  venku
+     - changed AbstractToolConfigurator and CompositeToolConfigurator
+       such that the composite to display the interface on is provided by the application.
+     - documentation.
+     Revision 1.5  2003/09/26 15:30:39  venku
+     - removed PropertyIdentifier class.
+     - ripple effect of the above change.
+     - formatting
+     Revision 1.4  2003/09/26 15:16:40  venku
+     - coding conventions.
+     Revision 1.3  2003/09/26 15:05:01  venku
+     - binding related errors fixed.
+     Revision 1.2  2003/09/26 15:00:01  venku
+     - The configuration of tools in Indus has been placed in this package.
+     - Formatting.
+     Revision 1.1  2003/09/26 13:58:43  venku
+     - checkpoint commit.
+     - Renamed ToolConfigurationCollection to CompositeToolConfiguration
+     - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
+     Revision 1.1  2003/09/26 05:56:10  venku
+     - a checkpoint commit.
  */

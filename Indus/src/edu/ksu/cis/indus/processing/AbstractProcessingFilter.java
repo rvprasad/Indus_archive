@@ -19,8 +19,8 @@ import java.util.Collection;
 
 
 /**
- * This is an abstract implementation of <code>IProcessingFilter</code> which just returns the given set of classes and
- * methods without filtering.
+ * This is an abstract implementation of <code>IProcessingFilter</code> via which class and method filtering will occur in
+ * <code>ProcessingController</code>. Default implementation returns the given methods/classes as is.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -29,14 +29,30 @@ import java.util.Collection;
 public abstract class AbstractProcessingFilter
   implements IProcessingFilter {
 	/**
-	 * {@inheritDoc} Returns the given collection.
+	 * Filter out classes from the given collection of classes. Default implementation returns the given methods as is.
+	 *
+	 * @param classes is the collection to be filtered.
+	 *
+	 * @return a collection of classes that were not filtered.
+	 *
+	 * @pre classes.oclIsKindOf(Collection(soot.SootClass)
+	 * @post result.oclIsKinfOf(Collection(soot.SootClass))
+	 * @post result->forall(o | classes.contains(o))
 	 */
 	public Collection filterClasses(final Collection classes) {
 		return classes;
 	}
 
 	/**
-	 * {@inheritDoc} Returns the given collection.
+	 * Filter out methods from the given collection of methods.  Default implementation returns the given methods as is.
+	 *
+	 * @param methods is the collection to be filtered.
+	 *
+	 * @return a collection of methods that were not filtered.
+	 *
+	 * @pre methods.oclIsKindOf(Collection(soot.SootMethod)
+	 * @post result.oclIsKinfOf(Collection(soot.SootMethod))
+	 * @post result->forall(o | methods.contains(o))
 	 */
 	public Collection filterMethods(final Collection methods) {
 		return methods;
@@ -46,6 +62,8 @@ public abstract class AbstractProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.2  2003/11/30 00:20:41  venku
    - documentation.
    Revision 1.1  2003/11/30 00:10:17  venku

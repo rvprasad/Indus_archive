@@ -41,7 +41,7 @@ public interface IProcessor {
 	 *
 	 * @pre vBox != null
 	 */
-	void callback(ValueBox vBox, Context context);
+	void callback(final ValueBox vBox, final Context context);
 
 	/**
 	 * This method will be called by the controlling agent upon walking a statement in the analyzed system.
@@ -51,7 +51,7 @@ public interface IProcessor {
 	 *
 	 * @pre stmt != null
 	 */
-	void callback(Stmt stmt, Context context);
+	void callback(final Stmt stmt, final Context context);
 
 	/**
 	 * This method will be called by the controlling agent for each method for each class in the analyzed system. This
@@ -61,7 +61,7 @@ public interface IProcessor {
 	 *
 	 * @pre method != null
 	 */
-	void callback(SootMethod method);
+	void callback(final SootMethod method);
 
 	/**
 	 * This method will be called by the controlling agent for each class in the analyzed system. This callback need not be
@@ -71,7 +71,7 @@ public interface IProcessor {
 	 *
 	 * @pre clazz != null
 	 */
-	void callback(SootClass clazz);
+	void callback(final SootClass clazz);
 
 	/**
 	 * This method will be called by the controlling agent for each field in each class in the analyzed system. This callback
@@ -81,7 +81,7 @@ public interface IProcessor {
 	 *
 	 * @pre field != null
 	 */
-	void callback(SootField field);
+	void callback(final SootField field);
 
 	/**
 	 * This gives the  processors to consolidate before the information is available to the user.  This <i>should</i> be
@@ -97,7 +97,7 @@ public interface IProcessor {
 	 *
 	 * @pre ppc != null
 	 */
-	void hookup(ProcessingController ppc);
+	void hookup(final ProcessingController ppc);
 
 	/**
 	 * This method indicates to the processors that the processing will begin.  Implementation can suitably initialize in
@@ -113,15 +113,16 @@ public interface IProcessor {
 	 *
 	 * @pre ppc != null
 	 */
-	void unhook(ProcessingController ppc);
+	void unhook(final ProcessingController ppc);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.4  2003/11/17 15:58:12  venku
    - coding conventions.
-
    Revision 1.3  2003/11/17 15:42:49  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.2  2003/11/10 07:53:56  venku

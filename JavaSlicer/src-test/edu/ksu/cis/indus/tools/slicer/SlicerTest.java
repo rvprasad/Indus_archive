@@ -18,20 +18,10 @@ package edu.ksu.cis.indus.tools.slicer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import soot.G;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.custommonkey.xmlunit.XMLTestCase;
-
-import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +33,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.custommonkey.xmlunit.XMLTestCase;
+
+import org.xml.sax.SAXException;
+
+import soot.G;
 
 
 /**
@@ -250,11 +251,15 @@ public final class SlicerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/24 10:14:39  venku
+   - there are no residualizers now.  There is a very precise
+     slice collector which will collect the slice via tags.
+   - architectural change. The slicer is hard-wired wrt to
+     slice collection.  Residualization is outside the slicer.
    Revision 1.1  2003/11/17 03:22:55  venku
    - added junit test support for Slicing.
    - refactored code in test for dependency to make it more
      simple.
-
    Revision 1.6  2003/11/16 19:01:33  venku
    - documentation.
    Revision 1.5  2003/11/16 18:41:18  venku

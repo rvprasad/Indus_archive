@@ -15,6 +15,28 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.Local;
 import soot.SootClass;
 import soot.SootMethod;
@@ -27,27 +49,6 @@ import soot.jimple.JimpleBody;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
-
-import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
-import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 
 
 /**
@@ -268,13 +269,16 @@ public final class RufEATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/30 01:07:58  venku
+   - added name tagging support in FA to enable faster
+     post processing based on filtering.
+   - ripple effect.
    Revision 1.7  2003/11/30 00:10:24  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.6  2003/11/12 10:53:26  venku
    - this is now based on SootBasedDriver.
    Revision 1.5  2003/11/06 05:15:07  venku
@@ -290,31 +294,31 @@ public final class RufEATester
      but yet says it is out of sync.
    Revision 1.2  2003/09/08 02:23:24  venku
  *** empty log message ***
-                   Revision 1.1  2003/08/21 01:24:25  venku
-                    - Renamed src-escape to src-concurrency to as to group all concurrency
-                      issue related analyses into a package.
-                    - Renamed escape package to concurrency.escape.
-                    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-                   Revision 1.4  2003/08/17 10:48:34  venku
-                   Renamed BFA to FA.  Also renamed bfa variables to fa.
-                   Ripple effect was huge.
-                   Revision 1.3  2003/08/11 06:29:07  venku
-                   Changed format of change log accumulation at the end of the file
-                   Revision 1.2  2003/08/10 03:43:26  venku
-                   Renamed Tester to Driver.
-                   Refactored logic to pick entry points.
-                   Provided for logging timing stats into any specified stream.
-                   Ripple effect in others.
-                   Revision 1.1  2003/08/07 06:39:07  venku
-                   Major:
-                    - Moved the package under indus umbrella.
-                   Minor:
-                    - changes to accomodate ripple effect from support package.
-                   Revision 1.3  2003/07/30 08:30:31  venku
-                   Refactoring ripple.
-                   Also fixed a subtle bug in isShared() which caused wrong results.
-                   Revision 1.2  2003/07/27 21:15:22  venku
-                   Minor:
-                    - arg name changes.
-                    - comment changes.
+                     Revision 1.1  2003/08/21 01:24:25  venku
+                      - Renamed src-escape to src-concurrency to as to group all concurrency
+                        issue related analyses into a package.
+                      - Renamed escape package to concurrency.escape.
+                      - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+                     Revision 1.4  2003/08/17 10:48:34  venku
+                     Renamed BFA to FA.  Also renamed bfa variables to fa.
+                     Ripple effect was huge.
+                     Revision 1.3  2003/08/11 06:29:07  venku
+                     Changed format of change log accumulation at the end of the file
+                     Revision 1.2  2003/08/10 03:43:26  venku
+                     Renamed Tester to Driver.
+                     Refactored logic to pick entry points.
+                     Provided for logging timing stats into any specified stream.
+                     Ripple effect in others.
+                     Revision 1.1  2003/08/07 06:39:07  venku
+                     Major:
+                      - Moved the package under indus umbrella.
+                     Minor:
+                      - changes to accomodate ripple effect from support package.
+                     Revision 1.3  2003/07/30 08:30:31  venku
+                     Refactoring ripple.
+                     Also fixed a subtle bug in isShared() which caused wrong results.
+                     Revision 1.2  2003/07/27 21:15:22  venku
+                     Minor:
+                      - arg name changes.
+                      - comment changes.
  */

@@ -15,20 +15,20 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.Body;
 import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 
 
 /**
@@ -179,6 +179,11 @@ public class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/01 12:18:25  venku
+   - as criteria creation is only the function of the factory
+     and as setConsider..() method is available, the
+     responsibility to tweak the purpose of the criteria
+     is pushed out of the factory.
    Revision 1.2  2003/11/05 08:31:33  venku
    - we only support before and after type of criteria.  This
      includes the cases of inclusion in slice.
@@ -188,27 +193,27 @@ public class SliceCriteriaFactory {
      for more criteria.
    Revision 1.1  2003/10/13 00:58:04  venku
  *** empty log message ***
-             Revision 1.11  2003/09/27 22:38:30  venku
-             - package documentation.
-             - formatting.
-             Revision 1.10  2003/09/15 08:09:17  venku
-             - fixed param dependency.  However, this needs to be addressed
-               in a generic setting.  Also, the theoretics concerned to inclusion
-               should be dealt appropriately.
-             Revision 1.9  2003/08/21 09:31:52  venku
-             If the SliceExpr was created based on a Def Box, it would not have
-             included the statement.  This was fixed.
-             Revision 1.8  2003/08/20 18:31:22  venku
-             Documentation errors fixed.
-             Revision 1.7  2003/08/18 12:14:13  venku
-             Well, to start with the slicer implementation is complete.
-             Although not necessarily bug free, hoping to stabilize it quickly.
-             Revision 1.6  2003/08/18 05:01:45  venku
-             Committing package name change in source after they were moved.
-             Revision 1.5  2003/08/18 04:56:47  venku
-             Spruced up Documentation and specification.
-             But committing before moving slicer under transformation umbrella of Indus.
-             Revision 1.4  2003/05/22 22:23:49  venku
-             Changed interface names to start with a "I".
-             Formatting.
+                 Revision 1.11  2003/09/27 22:38:30  venku
+                 - package documentation.
+                 - formatting.
+                 Revision 1.10  2003/09/15 08:09:17  venku
+                 - fixed param dependency.  However, this needs to be addressed
+                   in a generic setting.  Also, the theoretics concerned to inclusion
+                   should be dealt appropriately.
+                 Revision 1.9  2003/08/21 09:31:52  venku
+                 If the SliceExpr was created based on a Def Box, it would not have
+                 included the statement.  This was fixed.
+                 Revision 1.8  2003/08/20 18:31:22  venku
+                 Documentation errors fixed.
+                 Revision 1.7  2003/08/18 12:14:13  venku
+                 Well, to start with the slicer implementation is complete.
+                 Although not necessarily bug free, hoping to stabilize it quickly.
+                 Revision 1.6  2003/08/18 05:01:45  venku
+                 Committing package name change in source after they were moved.
+                 Revision 1.5  2003/08/18 04:56:47  venku
+                 Spruced up Documentation and specification.
+                 But committing before moving slicer under transformation umbrella of Indus.
+                 Revision 1.4  2003/05/22 22:23:49  venku
+                 Changed interface names to start with a "I".
+                 Formatting.
  */

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.processing;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
+
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 
@@ -42,6 +43,8 @@ public abstract class AbstractValueAnalyzerBasedProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/10 03:16:25  venku
+   - uses abstract implementation of IProcessor.
    Revision 1.1  2003/11/10 03:15:19  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    Revision 1.8  2003/11/06 05:15:07  venku

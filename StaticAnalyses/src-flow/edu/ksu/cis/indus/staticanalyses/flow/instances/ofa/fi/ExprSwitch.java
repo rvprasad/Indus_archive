@@ -15,6 +15,25 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
 
+import edu.ksu.cis.indus.processing.Context;
+
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
+import edu.ksu.cis.indus.staticanalyses.flow.ArrayVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
+import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.TypeBasedFilter;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.ArrayAccessExprWork;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FGAccessNode;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FieldAccessExprWork;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.InvokeExprWork;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.ArrayType;
 import soot.Local;
 import soot.SootField;
@@ -41,24 +60,6 @@ import soot.jimple.StringConstant;
 import soot.jimple.ThisRef;
 import soot.jimple.UnopExpr;
 import soot.jimple.VirtualInvokeExpr;
-
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
-import edu.ksu.cis.indus.staticanalyses.flow.ArrayVariant;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
-import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
-import edu.ksu.cis.indus.staticanalyses.flow.TypeBasedFilter;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.ArrayAccessExprWork;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FGAccessNode;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FieldAccessExprWork;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.InvokeExprWork;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -449,10 +450,15 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.7  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.6  2003/08/26 17:55:45  venku
    Well, we used typing info for triggering static field expression.  However,
    this was incorrect as the flow to the primary is cut off.  FIXED.

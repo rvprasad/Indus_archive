@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import soot.ArrayType;
 import soot.Local;
 import soot.SootField;
@@ -70,9 +73,6 @@ import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
-
-import java.io.IOException;
-import java.io.Writer;
 
 
 /**
@@ -405,11 +405,11 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseNewMultiArrayExpr(soot.jimple.NewMultiArrayExpr)
 	 */
 	public final void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
-		ArrayType type = v.getBaseType();
+		final ArrayType _type = v.getBaseType();
 
 		try {
-			out.write(tabs + "<new_multi_array id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(type.baseType)
-				+ "\" dimension=\"" + type.numDimensions + "\">\n");
+			out.write(tabs + "<new_multi_array id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(_type.baseType)
+				+ "\" dimension=\"" + _type.numDimensions + "\">\n");
 
 			for (int i = 0; i < v.getSizeCount(); i++) {
 				writeDimensionSize(i + 1, v.getSizeBox(i));
@@ -613,7 +613,7 @@ public class ValueXMLizer
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param v
+	 * @param v DOCUMENT ME!
 	 */
 	private void writeBase(final ValueBox v) {
 		try {
@@ -630,8 +630,8 @@ public class ValueXMLizer
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param operatorName
-	 * @param v
+	 * @param operatorName DOCUMENT ME!
+	 * @param v DOCUMENT ME!
 	 */
 	private void writeBinaryExpr(final String operatorName, final BinopExpr v) {
 		try {
@@ -673,7 +673,7 @@ public class ValueXMLizer
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param field
+	 * @param field DOCUMENT ME!
 	 */
 	private void writeField(final SootField field) {
 		try {
@@ -688,16 +688,16 @@ public class ValueXMLizer
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param name
-	 * @param v
+	 * @param name DOCUMENT ME!
+	 * @param v DOCUMENT ME!
 	 */
 	private void writeInvokeExpr(final String name, final InvokeExpr v) {
 		try {
 			out.write(tabs + "<invoke_expr name=\"" + name + "\" id=\"" + newId + "\">\n");
 
-			SootMethod method = v.getMethod();
+			final SootMethod _method = v.getMethod();
 			incrementTabs();
-			out.write(tabs + "<method_ref methodId=\"" + idGenerator.getIdForMethod(method) + "\"/>\n");
+			out.write(tabs + "<method_ref methodId=\"" + idGenerator.getIdForMethod(_method) + "\"/>\n");
 			decrementTabs();
 
 			if (v instanceof InstanceInvokeExpr) {
@@ -721,8 +721,8 @@ public class ValueXMLizer
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param operatorName
-	 * @param value
+	 * @param operatorName DOCUMENT ME!
+	 * @param value DOCUMENT ME!
 	 */
 	private void writeUnaryExpr(final String operatorName, final UnopExpr value) {
 		try {
@@ -740,6 +740,8 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/02 01:30:58  venku
+   - coding conventions and formatting.
    Revision 1.10  2003/11/30 12:49:28  venku
    - tabbing in the output.
    Revision 1.9  2003/11/30 09:44:53  venku

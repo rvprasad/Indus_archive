@@ -15,13 +15,6 @@
 
 package edu.ksu.cis.indus.processing;
 
-import soot.ArrayType;
-import soot.RefType;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
-import soot.VoidType;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.ArrayList;
@@ -29,6 +22,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+
+import soot.ArrayType;
+import soot.RefType;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.VoidType;
 
 
 /**
@@ -72,16 +72,16 @@ public class Environment
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getRoots()
 	 */
 	public Collection getRoots() {
-		Collection result = new HashSet();
-		List argList = new ArrayList();
-		argList.add(ArrayType.v(RefType.v("java.lang.String"), 1));
+		final Collection _temp = new HashSet();
+		final List _argList = new ArrayList();
+		_argList.add(ArrayType.v(RefType.v("java.lang.String"), 1));
 
-		for (Iterator i = system.getClasses().iterator(); i.hasNext();) {
-			SootClass sc = (SootClass) i.next();
-			SootMethod sm = sc.getMethod("main", argList, VoidType.v());
+		for (final Iterator _i = system.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+			final SootMethod _sm = _sc.getMethod("main", _argList, VoidType.v());
 
-			if (sm != null && sm.isStatic() && sm.isPublic()) {
-				result.add(sm);
+			if (_sm != null && _sm.isStatic() && _sm.isPublic()) {
+				_temp.add(_sm);
 			}
 		}
 		return null;
@@ -91,7 +91,8 @@ public class Environment
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.1  2003/11/06 07:06:57  venku
    - a wrapper to expose Scene as an IEnvironment.
-
  */

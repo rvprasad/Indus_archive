@@ -15,24 +15,26 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
-import soot.SootMethod;
-
-import soot.jimple.Stmt;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
+
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
 
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.SootMethod;
+
+import soot.jimple.Stmt;
 
 
 /**
@@ -110,9 +112,10 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/17 17:17:57  venku
+   - dumb iteration error. FIXED.
    Revision 1.4  2003/11/17 15:42:46  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
-
    Revision 1.3  2003/11/17 01:35:54  venku
    - renamed out to writer in AbstractDependencyXMLizer
    - added methods to spit out root element tags.

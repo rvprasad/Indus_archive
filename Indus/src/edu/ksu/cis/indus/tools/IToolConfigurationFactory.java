@@ -36,6 +36,10 @@ public interface IToolConfigurationFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 02:24:00  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
    Revision 1.2  2003/11/03 07:59:54  venku
    - formatting.
    Revision 1.1  2003/10/20 13:55:25  venku

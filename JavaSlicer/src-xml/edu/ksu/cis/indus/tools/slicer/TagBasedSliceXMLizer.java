@@ -15,22 +15,24 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.processing.Context;
+
+import edu.ksu.cis.indus.slicer.SlicingTag;
+
+import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+
+import java.io.IOException;
+import java.io.Writer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
-
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.slicer.SlicingTag;
-import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.io.IOException;
-import java.io.Writer;
 
 
 /**
@@ -242,6 +244,8 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/30 09:46:38  venku
+   - coding conventions.
    Revision 1.11  2003/11/30 09:45:35  venku
    - tag check on statement was used while tagging valueBox. FIXED.
    Revision 1.10  2003/11/25 16:23:08  venku

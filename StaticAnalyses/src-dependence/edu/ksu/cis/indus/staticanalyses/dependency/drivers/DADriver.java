@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
-import soot.Scene;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -41,14 +41,16 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.Scene;
 
 
 /**
@@ -356,6 +358,8 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2003/11/30 01:39:11  venku
+   - incorporated tag based filtering during CG construction.
    Revision 1.31  2003/11/30 01:07:57  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.

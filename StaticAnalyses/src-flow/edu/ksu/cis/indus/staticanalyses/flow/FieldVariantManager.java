@@ -60,6 +60,9 @@ public class FieldVariantManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.3  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.

@@ -16,15 +16,19 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.AbstractToolConfigurator;
 
 import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
+
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -424,6 +428,8 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/06 05:21:49  venku
+   - documentation.
    Revision 1.16  2003/11/05 08:26:42  venku
    - changed the xml schema for the slicer configuration.
    - The configruator, driver, and the configuration handle

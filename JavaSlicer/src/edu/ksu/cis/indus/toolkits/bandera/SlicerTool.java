@@ -15,17 +15,15 @@
 
 package edu.ksu.cis.indus.toolkits.bandera;
 
-import soot.Scene;
-
 import edu.ksu.cis.bandera.tool.Tool;
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
-import edu.ksu.cis.bandera.util.BaseObservable;
-import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
-import edu.ksu.cis.indus.tools.Phase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import edu.ksu.cis.bandera.util.BaseObservable;
+
+import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
+
+import edu.ksu.cis.indus.tools.Phase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +32,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.Scene;
 
 
 /**
@@ -105,7 +108,7 @@ public class SlicerTool
 	 */
 	public SlicerTool() {
 		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool();
-        tool.setTagName(TAG_NAME);
+		tool.setTagName(TAG_NAME);
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
 	}
 
@@ -227,6 +230,11 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/24 10:11:32  venku
+   - there are no residualizers now.  There is a very precise
+     slice collector which will collect the slice via tags.
+   - architectural change. The slicer is hard-wired wrt to
+     slice collection.  Residualization is outside the slicer.
    Revision 1.16  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.
@@ -235,12 +243,10 @@ public class SlicerTool
      so that they can be used by the residualizers.  This is where
      published interface annotation is required.
    - ripple effect of the above refactoring.
-
    Revision 1.15  2003/11/18 21:43:54  venku
    - fixed code in bandera version of the tool to work with new assumptions.
    - removed TAG_NAME input parameter to make the transition to clone-based transformer
      transparent to bandera.
-
    Revision 1.14  2003/11/14 21:09:37  venku
    - formatting.
    Revision 1.13  2003/11/14 21:08:17  venku

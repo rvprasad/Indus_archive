@@ -16,11 +16,12 @@
 package edu.ksu.cis.indus.staticanalyses.processing;
 
 import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
+
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.Collection;
+
+import org.apache.commons.collections.CollectionUtils;
 
 
 /**
@@ -61,6 +62,12 @@ public class CGBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/30 00:10:24  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
    Revision 1.8  2003/11/12 03:52:46  venku
    - it just inherits from ProcessingController.  This is incorrect.
    Revision 1.6  2003/11/06 05:15:07  venku

@@ -79,10 +79,10 @@ public final class Phase
 	 * @return an instance of this class.
 	 */
 	public static Phase createPhase() {
-		Phase result = new Phase();
-		result.major = 0;
-		result.minor = 0;
-		return result;
+		final Phase _result = new Phase();
+		_result.major = 0;
+		_result.minor = 0;
+		return _result;
 	}
 
 	/**
@@ -129,8 +129,8 @@ public final class Phase
 		boolean result = false;
 
 		if (o != null && o instanceof Phase) {
-			Phase p = (Phase) o;
-			result = equalsMajor(p) && equalsMinor(p);
+			final Phase _p = (Phase) o;
+			result = equalsMajor(_p) && equalsMinor(_p);
 		}
 		return result;
 	}
@@ -192,6 +192,8 @@ public final class Phase
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/18 21:40:00  venku
+   - added a new method to check ordering relation between 2 phase object.
    Revision 1.2  2003/09/26 15:00:01  venku
    - The configuration of tools in Indus has been placed in this package.
    - Formatting.

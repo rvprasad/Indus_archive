@@ -15,13 +15,13 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import soot.SootClass;
-import soot.SootMethod;
-
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -114,6 +114,9 @@ public class MethodVariantManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.6  2003/08/30 23:18:34  venku
    A small quirk in stat logging. FIXED.
    Revision 1.5  2003/08/30 23:15:17  venku

@@ -18,21 +18,10 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import soot.G;
-import soot.SootMethod;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
+
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.custommonkey.xmlunit.XMLTestCase;
-
-import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +32,18 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.custommonkey.xmlunit.XMLTestCase;
+
+import org.xml.sax.SAXException;
+
+import soot.G;
+import soot.SootMethod;
 
 
 /**
@@ -202,7 +203,7 @@ public final class DependencyTest
 					test.xmlizer.setClassNames(temp);
 					test.xmlizer.setXMLOutputDir(xmlOutputDir);
 					test.xmlizer.setGenerator(generator);
-                    test.xmlizer.populateDAs();
+					test.xmlizer.populateDAs();
 
 					if (classpath != null) {
 						test.xmlizer.addToSootClassPath(classpath);
@@ -224,11 +225,13 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/17 16:58:15  venku
+   - populateDAs() needs to be called from outside the constructor.
+   - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
    Revision 1.7  2003/11/17 03:22:59  venku
    - added junit test support for Slicing.
    - refactored code in test for dependency to make it more
      simple.
-
    Revision 1.6  2003/11/16 19:01:33  venku
    - documentation.
    Revision 1.5  2003/11/16 18:41:18  venku

@@ -15,6 +15,13 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.support.Pair;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootMethod;
 import soot.Value;
 
@@ -22,13 +29,6 @@ import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.InvokeStmt;
 import soot.jimple.VirtualInvokeExpr;
-
-import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -132,6 +132,13 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/06 03:12:02  venku
+   - it was possible for escaping values of classes in different
+     branches of the class hierarchy to be declared as ready dependent
+     by rule 2 and 4.  Fixed this by calling the super
+     ifDependentOnByRuleX() to ensure that the types occur
+     in the same branch of the class hierarchy before using escape
+     information.
    Revision 1.12  2003/11/05 08:25:12  venku
    - This version of Ready DA is only based on escape information.
    Revision 1.11  2003/11/03 07:54:29  venku

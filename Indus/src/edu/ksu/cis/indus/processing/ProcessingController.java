@@ -15,6 +15,23 @@
 
 package edu.ksu.cis.indus.processing;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.Local;
 import soot.SootClass;
 import soot.SootField;
@@ -86,22 +103,6 @@ import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
 
-import edu.ksu.cis.indus.interfaces.IEnvironment;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 
 /**
  * This class controls the post processing for an analysis.  The analyses such as FA are very low-level.  The information is
@@ -121,14 +122,19 @@ import java.util.Set;
  */
 public class ProcessingController {
 	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
-
-	/**
 	 * A collection of all possible Jimple statement types for which a processor can register interest.
 	 */
 	public static final Collection STMT_CLASSES;
+
+	/**
+	 * A collection of all possible Jimple value types for which a processor can register interest.
+	 */
+	public static final Collection VALUE_CLASSES;
+
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
 
 	static {
 		Collection t = new HashSet();
@@ -200,11 +206,6 @@ public class ProcessingController {
 	}
 
 	/**
-	 * A collection of all possible Jimple value types for which a processor can register interest.
-	 */
-	public static final Collection VALUE_CLASSES;
-
-	/**
 	 * The collection of processors registered with this controller to process interfaces (class/method).   This maintains
 	 * the insertion order.
 	 *
@@ -259,7 +260,7 @@ public class ProcessingController {
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	private class StmtSwitcher
+	private final class StmtSwitcher
 	  extends AbstractStmtSwitch {
 		/**
 		 * This walks expressions in the statement.
@@ -476,14 +477,14 @@ public class ProcessingController {
 		 * @param o the AST INode to be processed.
 		 */
 		public void defaultCase(final Class objClass, final Object o) {
-			Collection temp = (Collection) class2processors.get(objClass);
+			final Collection _temp = (Collection) class2processors.get(objClass);
 
-			if (temp != null) {
-				Stmt stmt = (Stmt) o;
+			if (_temp != null) {
+				final Stmt _stmt = (Stmt) o;
 
-				for (Iterator i = temp.iterator(); i.hasNext();) {
-					IProcessor pp = (IProcessor) i.next();
-					pp.callback(stmt, context);
+				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+					final IProcessor _pp = (IProcessor) _i.next();
+					_pp.callback(_stmt, context);
 				}
 			}
 		}
@@ -497,7 +498,7 @@ public class ProcessingController {
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	private class ValueSwitcher
+	private final class ValueSwitcher
 	  extends AbstractJimpleValueSwitch {
 		/**
 		 * @see soot.jimple.ExprSwitch#caseAddExpr(soot.jimple.AddExpr)
@@ -850,12 +851,12 @@ public class ProcessingController {
 		 * @param o the AST node to be processed.
 		 */
 		public void defaultCase(final Class objClass, final Object o) {
-			Collection temp = (Collection) class2processors.get(objClass);
+			final Collection _temp = (Collection) class2processors.get(objClass);
 
-			if (temp != null) {
-				for (Iterator i = temp.iterator(); i.hasNext();) {
-					IProcessor pp = (IProcessor) i.next();
-					pp.callback(context.getProgramPoint(), context);
+			if (_temp != null) {
+				for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+					final IProcessor _pp = (IProcessor) _i.next();
+					_pp.callback(context.getProgramPoint(), context);
 				}
 			}
 		}
@@ -907,7 +908,7 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Sets the environment which provides
+	 * Sets the environment which provides the system to be processed.
 	 *
 	 * @param environment an instance of the FA.
 	 */
@@ -916,24 +917,33 @@ public class ProcessingController {
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param theFilter DOCUMENT ME!
+	 */
+	public void setProcessingFilter(final IProcessingFilter theFilter) {
+		processingFilter = theFilter;
+	}
+
+	/**
 	 * Controls the processing activity.
 	 */
-	public final void process() {
-		Collection processors = new HashSet();
-		processors.addAll(interfaceProcessors);
+	public void process() {
+		final Collection _processors = new HashSet();
+		_processors.addAll(interfaceProcessors);
 
-		for (Iterator i = class2processors.values().iterator(); i.hasNext();) {
-			processors.addAll((Collection) i.next());
+		for (final Iterator _i = class2processors.values().iterator(); _i.hasNext();) {
+			_processors.addAll((Collection) _i.next());
 		}
 
-		initializeProcessors(processors);
+		initializeProcessors(_processors);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: processing classes");
 		}
 
-		for (Iterator i = processors.iterator(); i.hasNext();) {
-			((IProcessor) i.next()).processingBegins();
+		for (final Iterator _i = _processors.iterator(); _i.hasNext();) {
+			((IProcessor) _i.next()).processingBegins();
 		}
 
 		processStmts = !CollectionUtils.intersection(class2processors.keySet(), STMT_CLASSES).isEmpty();
@@ -945,22 +955,13 @@ public class ProcessingController {
 			LOGGER.info("BEGIN: consolidation");
 		}
 
-		for (Iterator i = processors.iterator(); i.hasNext();) {
-			((IProcessor) i.next()).consolidate();
+		for (final Iterator _i = _processors.iterator(); _i.hasNext();) {
+			((IProcessor) _i.next()).consolidate();
 		}
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: consolidation");
 		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param theFilter ME!
-	 */
-	public void setProcessingFilter(final IProcessingFilter theFilter) {
-		processingFilter = theFilter;
 	}
 
 	/**
@@ -998,8 +999,8 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public void registerForAllStmts(final IProcessor processor) {
-		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
-			register((Class) i.next(), processor);
+		for (final Iterator _i = ProcessingController.STMT_CLASSES.iterator(); _i.hasNext();) {
+			register((Class) _i.next(), processor);
 		}
 	}
 
@@ -1010,8 +1011,8 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public void registerForAllValues(final IProcessor processor) {
-		for (Iterator i = ProcessingController.VALUE_CLASSES.iterator(); i.hasNext();) {
-			register((Class) i.next(), processor);
+		for (final Iterator _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
+			register((Class) _i.next(), processor);
 		}
 	}
 
@@ -1025,12 +1026,12 @@ public class ProcessingController {
 	 * @throws IllegalArgumentException when there are no processors who have registered to process <code>interest</code>.
 	 */
 	public void unregister(final Class interest, final IProcessor processor) {
-		Set temp = (Set) class2processors.get(interest);
+		final Set _temp = (Set) class2processors.get(interest);
 
-		if (temp == null) {
+		if (_temp == null) {
 			throw new IllegalArgumentException("There are no processors registered  for " + interest.getName());
 		}
-		temp.remove(processor);
+		_temp.remove(processor);
 	}
 
 	/**
@@ -1049,8 +1050,8 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public void unregisterForAllStmts(final IProcessor processor) {
-		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
-			unregister((Class) i.next(), processor);
+		for (final Iterator _i = ProcessingController.STMT_CLASSES.iterator(); _i.hasNext();) {
+			unregister((Class) _i.next(), processor);
 		}
 	}
 
@@ -1061,8 +1062,8 @@ public class ProcessingController {
 	 * @param processor the instance of processor.
 	 */
 	public void unregisterForAllValues(final IProcessor processor) {
-		for (Iterator i = ProcessingController.VALUE_CLASSES.iterator(); i.hasNext();) {
-			unregister((Class) i.next(), processor);
+		for (final Iterator _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
+			unregister((Class) _i.next(), processor);
 		}
 	}
 
@@ -1099,23 +1100,22 @@ public class ProcessingController {
 			LOGGER.debug("Classes to be processed:\n" + classes);
 		}
 
-		for (Iterator i = classes.iterator(); i.hasNext();) {
-			SootClass sc = (SootClass) i.next();
+		for (final Iterator _i = classes.iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing class " + sc);
+				LOGGER.debug("Processing class " + _sc);
 			}
 
-			for (Iterator k = interfaceProcessors.iterator(); k.hasNext();) {
-				IProcessor pp = (IProcessor) k.next();
-				pp.callback(sc);
+			for (final Iterator _k = interfaceProcessors.iterator(); _k.hasNext();) {
+				final IProcessor _pp = (IProcessor) _k.next();
+				_pp.callback(_sc);
 
-				for (Iterator j = sc.getFields().iterator(); j.hasNext();) {
-					SootField field = (SootField) j.next();
-					pp.callback(field);
+				for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
+					_pp.callback((SootField) _j.next());
 				}
 			}
-			processMethods(sc.getMethods());
+			processMethods(_sc.getMethods());
 		}
 	}
 
@@ -1139,41 +1139,37 @@ public class ProcessingController {
 			LOGGER.debug("Methods to be processed:\n" + methods);
 		}
 
-		List sl = new ArrayList();
+		final List _sl = new ArrayList();
 
-		for (Iterator j = methods.iterator(); j.hasNext();) {
-			SootMethod sm = (SootMethod) j.next();
-			context.setRootMethod(sm);
+		for (final Iterator _j = methods.iterator(); _j.hasNext();) {
+			final SootMethod _sm = (SootMethod) _j.next();
+			context.setRootMethod(_sm);
 
-			for (Iterator k = interfaceProcessors.iterator(); k.hasNext();) {
-				((IProcessor) k.next()).callback(sm);
+			for (final Iterator _k = interfaceProcessors.iterator(); _k.hasNext();) {
+				((IProcessor) _k.next()).callback(_sm);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing method " + sm);
+				LOGGER.debug("Processing method " + _sm);
 			}
 
-			if (processStmts || processValues) {
-				if (sm.isConcrete()) {
-					try {
-						sl.clear();
-						sl.addAll(sm.retrieveActiveBody().getUnits());
+			if ((processStmts || processValues) && _sm.isConcrete()) {
+				try {
+					_sl.clear();
+					_sl.addAll(_sm.retrieveActiveBody().getUnits());
 
-						for (Iterator k = sl.iterator(); k.hasNext();) {
-							Stmt stmt = (Stmt) k.next();
-							context.setStmt(stmt);
-							stmt.apply(stmtSwitcher);
-						}
-					} catch (RuntimeException e) {
-						LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
-							+ " recognize the given method or it's parts or method has not stored in jimple "
-							+ "representation. : " + sm.getSignature(), e);
+					for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
+						final Stmt _stmt = (Stmt) _k.next();
+						context.setStmt(_stmt);
+						_stmt.apply(stmtSwitcher);
 					}
-				} else {
-					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info(sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
-					}
+				} catch (RuntimeException e) {
+					LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
+						+ " recognize the given method or it's parts or method has not stored in jimple "
+						+ "representation. : " + _sm.getSignature(), e);
 				}
+			} else if (LOGGER.isInfoEnabled()) {
+				LOGGER.info(_sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
 			}
 		}
 	}
@@ -1182,6 +1178,8 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/12/02 01:30:58  venku
+   - coding conventions and formatting.
    Revision 1.18  2003/12/01 11:34:28  venku
    - op1's box was used while processing op2 of binary expressions.  FIXED.
    Revision 1.17  2003/12/01 02:02:31  venku

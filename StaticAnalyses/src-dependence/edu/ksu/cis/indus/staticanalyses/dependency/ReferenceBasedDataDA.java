@@ -15,24 +15,25 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import soot.SootMethod;
-
-import soot.jimple.AssignStmt;
-import soot.jimple.DefinitionStmt;
-import soot.jimple.Stmt;
-
 import edu.ksu.cis.indus.processing.Context;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.SootMethod;
+
+import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.Stmt;
 
 
 /**
@@ -209,6 +210,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/25 19:03:40  venku
+   - added more stringent tests to check if the underlying
+     info should be used.
    Revision 1.15  2003/11/16 18:41:03  venku
    - incorrect ID was returned.  FIXED.
    Revision 1.14  2003/11/12 03:56:32  venku

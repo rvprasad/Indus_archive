@@ -15,16 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import soot.SootMethod;
-
-import soot.jimple.GotoStmt;
-import soot.jimple.Stmt;
-
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.LIFOWorkBag;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +25,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import soot.SootMethod;
+
+import soot.jimple.GotoStmt;
+import soot.jimple.Stmt;
 
 
 /**
@@ -159,6 +159,9 @@ public class SliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/01 12:21:25  venku
+   - methods in collector underwent a lot of change to minimize them.
+   - ripple effect.
    Revision 1.1  2003/11/25 00:00:45  venku
    - added support to include gotos in the slice.
    - added logic to include all tail points in the slice after slicing

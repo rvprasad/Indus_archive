@@ -15,23 +15,23 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.SootMethod;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
 import soot.tagkit.Host;
-
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 
 
 /**
@@ -181,7 +181,9 @@ class TaggingBasedSliceCollector {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param host DOCUMENT ME!
 	 */
@@ -310,6 +312,9 @@ class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/01 12:21:25  venku
+   - methods in collector underwent a lot of change to minimize them.
+   - ripple effect.
    Revision 1.6  2003/11/30 13:21:35  venku
    - removed uncalled method.
    - changed the logic used to check tags of statements.

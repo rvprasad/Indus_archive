@@ -50,14 +50,14 @@ public class NamedTag
 	 *
 	 * @post result != null
 	 */
-	public String getName() {
+	public final String getName() {
 		return name;
 	}
 
 	/**
 	 * @see soot.tagkit.Tag#getValue()
 	 */
-	public byte[] getValue() {
+	public final byte[] getValue() {
 		return name.getBytes();
 	}
 }
@@ -65,8 +65,9 @@ public class NamedTag
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.1  2003/11/30 00:46:58  venku
    - added a new tag which can be identified by name.
    - ripple effect.
-
  */

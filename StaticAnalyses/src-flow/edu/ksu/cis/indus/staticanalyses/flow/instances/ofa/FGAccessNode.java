@@ -18,10 +18,10 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractWork;
 import edu.ksu.cis.indus.staticanalyses.flow.WorkList;
 
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.Collection;
 
 
 /**
@@ -100,6 +100,9 @@ public class FGAccessNode
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.3  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
    Revision 1.2  2003/08/15 03:39:53  venku

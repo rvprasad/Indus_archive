@@ -15,14 +15,14 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import soot.SootMethod;
-
-import soot.toolkits.graph.UnitGraph;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import soot.SootMethod;
+
+import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -74,9 +74,10 @@ public abstract class AbstractUnitGraphFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/29 04:20:30  venku
+   - coding convention.
    Revision 1.2  2003/09/28 06:54:17  venku
    - one more small change to the interface.
-
    Revision 1.1  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
  */

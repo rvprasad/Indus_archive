@@ -15,16 +15,16 @@
 
 package edu.ksu.cis.indus.processing;
 
-import soot.SootMethod;
-import soot.ValueBox;
-
-import soot.jimple.Stmt;
+import java.util.EmptyStackException;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.EmptyStackException;
-import java.util.Stack;
+import soot.SootMethod;
+import soot.ValueBox;
+
+import soot.jimple.Stmt;
 
 
 /**
@@ -71,9 +71,9 @@ public class Context
 	 * @return the call stack of the this context.  Any operation on this object affects the call stack of this context.
 	 */
 	public Stack getCallString() {
-		Stack temp = new Stack();
-		temp.addAll(callString);
-		return temp;
+		final Stack _temp = new Stack();
+		_temp.addAll(callString);
+		return _temp;
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class Context
 
 		try {
 			result = (SootMethod) callString.peek();
-		} catch (EmptyStackException e) {
+		} catch (final EmptyStackException e) {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("There are no methods in the call stack.", e);
 			}
@@ -102,10 +102,10 @@ public class Context
 	 * @return the program point previously represented by this context.
 	 */
 	public ValueBox setProgramPoint(final ValueBox pp) {
-		ValueBox temp = progPoint;
+		final ValueBox _temp = progPoint;
 		progPoint = pp;
 
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -136,9 +136,9 @@ public class Context
 	 * @return the previous statement in this context.
 	 */
 	public Stmt setStmt(final Stmt stmtParam) {
-		Stmt result = this.stmt;
+		final Stmt _temp = this.stmt;
 		this.stmt = stmtParam;
-		return result;
+		return _temp;
 	}
 
 	/**
@@ -174,7 +174,7 @@ public class Context
 		try {
 			temp = (Context) super.clone();
 			temp.callString = (Stack) callString.clone();
-		} catch (CloneNotSupportedException e) {
+		} catch (final CloneNotSupportedException e) {
 			LOGGER.error("This should not happen.", e);
 		}
 		return temp;
@@ -191,27 +191,27 @@ public class Context
 		boolean ret = false;
 
 		if (o != null && o instanceof Context) {
-			Context c = (Context) o;
+			final Context _temp = (Context) o;
 
 			if (progPoint != null) {
-				ret = progPoint.equals(c.progPoint);
+				ret = progPoint.equals(_temp.progPoint);
 			} else {
-				ret = progPoint == c.progPoint;
+				ret = progPoint == _temp.progPoint;
 			}
 
 			if (ret) {
 				if (stmt != null) {
-					ret = stmt.equals(c.stmt);
+					ret = stmt.equals(_temp.stmt);
 				} else {
-					ret = stmt == c.stmt;
+					ret = stmt == _temp.stmt;
 				}
+			}
 
-				if (ret) {
-					if (callString != null) {
-						ret &= callString.equals(c.callString);
-					} else {
-						ret &= callString == c.callString;
-					}
+			if (ret) {
+				if (callString != null) {
+					ret &= callString.equals(_temp.callString);
+				} else {
+					ret &= callString == _temp.callString;
 				}
 			}
 		}
@@ -260,10 +260,15 @@ public class Context
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 05:15:05  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.4  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.3  2003/09/25 03:20:17  venku
    - pruned finally block.
    Revision 1.2  2003/08/11 08:12:26  venku

@@ -19,8 +19,6 @@ import junit.framework.TestCase;
 
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
 
 
 /**
@@ -453,9 +453,11 @@ public class DirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/10 03:40:50  venku
+   - renamed DirectedAndSimpleNodeGraphTest1 to
+     DirectedAndSimpleNodeGraphTest.
    Revision 1.12  2003/09/28 23:19:36  venku
-   *** empty log message ***
-
+ *** empty log message ***
    Revision 1.11  2003/09/14 23:20:48  venku
    - added support to retrieve a DAG from a graph.
    - removed support to extract preds/succs as a bitst from the graph.

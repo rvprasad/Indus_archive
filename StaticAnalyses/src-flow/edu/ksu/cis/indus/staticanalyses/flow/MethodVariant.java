@@ -15,6 +15,20 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.processing.Context;
+
+import edu.ksu.cis.indus.staticanalyses.support.Util;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.Local;
 import soot.RefLikeType;
 import soot.RefType;
@@ -34,19 +48,6 @@ import soot.jimple.ThrowStmt;
 import soot.toolkits.graph.CompleteUnitGraph;
 
 import soot.toolkits.scalar.SimpleLocalDefs;
-
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 
 
 //MethodVariant.java
@@ -202,8 +203,8 @@ public class MethodVariant
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
 		}
-        
-        sm.addTag(_fa.getTag());
+
+		sm.addTag(_fa.getTag());
 	}
 
 	/**
@@ -486,6 +487,10 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/30 01:11:28  venku
+   - types associated with locals are processed.
+   - methods are tagged with a named tag retrieved
+     from the framework instance.
    Revision 1.9  2003/11/25 23:04:51  venku
    - local variable access is faster than fields.  FIXED.
    Revision 1.8  2003/11/25 23:03:54  venku

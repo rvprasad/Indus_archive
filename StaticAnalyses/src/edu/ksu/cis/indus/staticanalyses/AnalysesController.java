@@ -16,18 +16,20 @@
 package edu.ksu.cis.indus.staticanalyses;
 
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+
 import edu.ksu.cis.indus.processing.ProcessingController;
+
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -227,6 +229,12 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.24  2003/11/03 07:56:42  venku
    - renamed getAnalysis() to getAnalyses().
    Revision 1.23  2003/11/02 22:11:17  venku

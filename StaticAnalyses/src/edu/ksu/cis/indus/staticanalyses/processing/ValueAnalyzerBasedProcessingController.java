@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.processing;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
+
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 
@@ -78,6 +79,12 @@ public class ValueAnalyzerBasedProcessingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.8  2003/10/21 08:41:04  venku
    - Changed the methods/classes get filtered.
    Revision 1.7  2003/09/28 03:16:20  venku

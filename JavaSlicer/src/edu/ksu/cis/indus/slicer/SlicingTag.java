@@ -29,7 +29,6 @@ import edu.ksu.cis.indus.common.NamedTag;
  */
 public class SlicingTag
   extends NamedTag {
-
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -58,22 +57,17 @@ public class SlicingTag
 	public boolean isSeed() {
 		return seed;
 	}
-
-	/**
-	 * @see soot.tagkit.Tag#getValue()
-	 */
-	public byte[] getValue() {
-		return name.getBytes();
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/30 00:47:01  venku
+   - added a new tag which can be identified by name.
+   - ripple effect.
    Revision 1.1  2003/11/24 16:47:31  venku
    - moved inner classes as external class.
    - made TaggingBasedSliceCollector package private.
    - removed inheritance based dependence on ITransformer
      for TaggingBasedSliceCollector.
-
  */

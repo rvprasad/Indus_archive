@@ -15,14 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import soot.SootMethod;
-
-import soot.jimple.EnterMonitorStmt;
-import soot.jimple.ExitMonitorStmt;
-import soot.jimple.Stmt;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -35,9 +30,6 @@ import edu.ksu.cis.indus.staticanalyses.support.Pair;
 import edu.ksu.cis.indus.staticanalyses.support.Quadraple;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +38,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.SootMethod;
+
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
+import soot.jimple.Stmt;
 
 
 /**
@@ -507,6 +508,8 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/17 01:40:40  venku
+   - documentation.
    Revision 1.19  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.

@@ -169,10 +169,11 @@ public abstract class MutableDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/10/20 00:43:05  venku
+    - coding convention.
    Revision 1.2  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.1  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.

@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.Collection;
+
+import org.apache.commons.collections.CollectionUtils;
 
 
 /**
@@ -68,6 +68,9 @@ public class LIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/01 13:42:02  venku
+   - added support to provide information about which work peices
+     were added to the bag and which weren't.
    Revision 1.4  2003/11/16 19:09:42  venku
    - documentation.
    Revision 1.3  2003/11/06 05:04:02  venku

@@ -15,15 +15,17 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.ObjectPool;
+
+import org.apache.commons.pool.impl.SoftReferenceObjectPool;
+
 import soot.SootMethod;
 
 import soot.jimple.Stmt;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 
 
 /**
@@ -158,6 +160,9 @@ class SliceStmt
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/01 12:20:14  venku
+   - ripple effect of adding setConsider..() method to super class.
+   - restricted the access to all methods.
    Revision 1.4  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.

@@ -47,7 +47,9 @@ public interface IJimpleIDGenerator {
 	String getIdForClass(SootClass clazz);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param field DOCUMENT ME!
 	 *
@@ -56,7 +58,9 @@ public interface IJimpleIDGenerator {
 	String getIdForField(SootField field);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param v DOCUMENT ME!
 	 * @param method DOCUMENT ME!
@@ -66,7 +70,9 @@ public interface IJimpleIDGenerator {
 	String getIdForLocal(Local v, SootMethod method);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param method DOCUMENT ME!
 	 *
@@ -80,6 +86,7 @@ public interface IJimpleIDGenerator {
 	 * <p></p>
 	 *
 	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -88,9 +95,9 @@ public interface IJimpleIDGenerator {
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param type
+	 * @param type DOCUMENT ME!
 	 *
-	 * @return
+	 * @return DOCUMENT ME!
 	 */
 	String getIdForType(Type type);
 
@@ -111,6 +118,8 @@ public interface IJimpleIDGenerator {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 01:30:58  venku
+   - coding conventions and formatting.
    Revision 1.4  2003/11/30 09:44:53  venku
    - renamed getIdForValue to getIdForValueBox.
    Revision 1.3  2003/11/17 15:57:03  venku

@@ -15,6 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi;
 
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
@@ -26,14 +34,6 @@ import soot.jimple.RetStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
-
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
-import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -280,6 +280,9 @@ public class StmtSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.3  2003/08/26 17:53:55  venku
    Actually we can use the types to cut down the number of edges
    between the flow nodes. The current fix uses a method in OFAnalyzer

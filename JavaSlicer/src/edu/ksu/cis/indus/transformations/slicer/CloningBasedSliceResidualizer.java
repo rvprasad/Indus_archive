@@ -15,6 +15,20 @@
 
 package edu.ksu.cis.indus.transformations.slicer;
 
+import edu.ksu.cis.indus.slicer.SlicingEngine;
+
+import edu.ksu.cis.indus.staticanalyses.support.Util;
+
+import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
+import edu.ksu.cis.indus.transformations.common.Cloner;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import soot.Body;
 import soot.PatchingChain;
 import soot.RefType;
@@ -40,18 +54,6 @@ import soot.jimple.toolkits.scalar.NopEliminator;
 
 import soot.util.Chain;
 
-import edu.ksu.cis.indus.slicer.SlicingEngine;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
-import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
-import edu.ksu.cis.indus.transformations.common.Cloner;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 
 /**
  * This transforms the given system based on the decisions of a slicing engine.  The results of this transformer is a new
@@ -66,8 +68,8 @@ import java.util.Set;
  * @author $Author$
  * @version $Revision$
  */
-public class CloningBasedSliceResidualizer extends AbstractTransformer
-   {
+public class CloningBasedSliceResidualizer
+  extends AbstractTransformer {
 	/**
 	 * The system resulting from the transformation.
 	 */
@@ -116,6 +118,13 @@ public class CloningBasedSliceResidualizer extends AbstractTransformer
 	 */
 	public void setCloner(final Cloner theCloner) {
 		cloner = theCloner;
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.ksu.cis.indus.slicer.ISliceCollector#setTagName(java.lang.String)
+	 */
+	public void setTagName(String tag_name) {
+		// TODO: Auto-generated method stub
 	}
 
 	/**
@@ -366,6 +375,13 @@ public class CloningBasedSliceResidualizer extends AbstractTransformer
 		// TODO: Auto-generated method stub
 	}
 
+	/* (non-Javadoc)
+	 * @see edu.ksu.cis.indus.slicer.ISliceCollector#processSeedCriteria(java.util.Collection)
+	 */
+	public void processSeedCriteria(Collection seedcriteria) {
+		// TODO: Auto-generated method stub
+	}
+
 	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
 	 */
@@ -387,6 +403,13 @@ public class CloningBasedSliceResidualizer extends AbstractTransformer
 
 		writeIntoAt(sliced, slicedSL, stmt, unslicedSL);
 		addMapping(sliced, stmt, method);
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
+	 */
+	public void transform(ValueBox vBox, Stmt stmt, SootMethod method) {
+		// TODO: Auto-generated method stub
 	}
 
 	/**
@@ -525,38 +548,19 @@ public class CloningBasedSliceResidualizer extends AbstractTransformer
 		writeChain.insertAfter(index, writeData);
 		writeChain.remove(index);
 	}
-    /* (non-Javadoc)
-     * @see edu.ksu.cis.indus.slicer.ISliceCollector#processSeedCriteria(java.util.Collection)
-     */
-    public void processSeedCriteria(Collection seedcriteria) {
-    // TODO: Auto-generated method stub
-
-    }
-    /* (non-Javadoc)
-     * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.ValueBox, soot.jimple.Stmt, soot.SootMethod)
-     */
-    public void transform(ValueBox vBox, Stmt stmt, SootMethod method) {
-    // TODO: Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see edu.ksu.cis.indus.slicer.ISliceCollector#setTagName(java.lang.String)
-     */
-    public void setTagName(String tag_name) {
-        // TODO: Auto-generated method stub
-        
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/24 10:13:53  venku
+   - this package will change.  CloningBasedXXX class will
+     be deleted.  Destructive update based transformer
+     will be installed first followed by a new clone based residualizer.
    Revision 1.2  2003/11/24 07:30:11  venku
    - as makeExecutable() will be called from SlicingEngine,
      call to this method from completeTransformation() has been removed.
    - added makeExecutable() method.
-
    Revision 1.1  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.

@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import soot.SootMethod;
 
 import soot.jimple.AbstractStmtSwitch;
@@ -34,9 +37,6 @@ import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
-
-import java.io.IOException;
-import java.io.Writer;
 
 
 /**
@@ -101,7 +101,8 @@ public class StmtXMLizer
 	 */
 	public final void caseAssignStmt(final AssignStmt v) {
 		try {
-			out.write("\t\t\t<assign_stmt  id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
+			final boolean _notEmpty = !v.getBoxesPointingToThis().isEmpty();
+			out.write("\t\t\t<assign_stmt  id=\"" + newId + "\" label=\"" + (_notEmpty) + "\">\n");
 			out.write("\t\t\t\t<lhs>\n");
 			valueXMLizer.apply(v.getLeftOpBox());
 			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
@@ -361,6 +362,8 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 01:30:58  venku
+   - coding conventions and formatting.
    Revision 1.7  2003/11/28 09:39:22  venku
    - added support to indicate labels.
    Revision 1.6  2003/11/24 06:45:23  venku

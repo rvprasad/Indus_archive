@@ -594,13 +594,13 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/06 05:04:02  venku
+   - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.12  2003/11/05 09:27:48  venku
    - ripple effect of splitting IWorkBag.
-
    Revision 1.11  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.10  2003/09/14 23:20:48  venku
    - added support to retrieve a DAG from a graph.
    - removed support to extract preds/succs as a bitst from the graph.

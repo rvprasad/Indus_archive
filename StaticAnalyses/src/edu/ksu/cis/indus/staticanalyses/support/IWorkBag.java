@@ -108,6 +108,9 @@ public interface IWorkBag {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/01 13:42:02  venku
+   - added support to provide information about which work peices
+     were added to the bag and which weren't.
    Revision 1.1  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.8  2003/11/05 09:27:10  venku

@@ -49,6 +49,9 @@ public class RHSConnector
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.2  2003/08/15 03:39:53  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosened later on in implementaions.

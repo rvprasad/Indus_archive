@@ -15,13 +15,13 @@
 
 package edu.ksu.cis.indus.tools;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -45,7 +45,7 @@ public abstract class AbstractToolConfiguration {
 	/**
 	 * This is set of property ids recognized by this configurationCollection.
 	 */
-	protected final Collection PROPERTY_IDS = new HashSet();
+	protected final Collection propertyIds = new HashSet();
 
 	/**
 	 * This maps properties of this configurationCollection to their values.
@@ -73,18 +73,18 @@ public abstract class AbstractToolConfiguration {
 	 * @pre property != null and value != null
 	 */
 	public final boolean setProperty(final Object propertyID, final Object value) {
-		if (!PROPERTY_IDS.contains(propertyID)) {
-			String message = "Invalid property identifier specified: " + propertyID;
-			LOGGER.error(message);
-			throw new IllegalArgumentException(message);
+		if (!propertyIds.contains(propertyID)) {
+			final String _message = "Invalid property identifier specified: " + propertyID;
+			LOGGER.error(_message);
+			throw new IllegalArgumentException(_message);
 		}
 
-		boolean result = processProperty(propertyID, value);
+		final boolean _result = processProperty(propertyID, value);
 
-		if (result) {
+		if (_result) {
 			properties.put(propertyID, value);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -123,6 +123,8 @@ public abstract class AbstractToolConfiguration {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.2  2003/09/27 01:09:36  venku
    - changed AbstractToolConfigurator and CompositeToolConfigurator
      such that the composite to display the interface on is provided by the application.

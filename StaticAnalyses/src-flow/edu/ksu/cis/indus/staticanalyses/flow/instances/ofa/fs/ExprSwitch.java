@@ -15,21 +15,21 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs;
 
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
+
+import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.Local;
 import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceFieldRef;
-
-import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
-import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Iterator;
 
 
 /**
@@ -144,6 +144,9 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.5  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
    Revision 1.4  2003/08/15 02:54:06  venku

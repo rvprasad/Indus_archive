@@ -15,17 +15,17 @@
 
 package edu.ksu.cis.indus.common;
 
-import soot.SootMethod;
-
-import soot.toolkits.graph.CompleteUnitGraph;
-import soot.toolkits.graph.UnitGraph;
-
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+
+import java.lang.ref.WeakReference;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.lang.ref.WeakReference;
+import soot.SootMethod;
+
+import soot.toolkits.graph.CompleteUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -47,21 +47,21 @@ public class CompleteUnitGraphFactory
 	 *
 	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
 	 */
-	public UnitGraph getUnitGraph(final SootMethod method) {
-		WeakReference ref = (WeakReference) method2UnitGraph.get(method);
+	public final UnitGraph getUnitGraph(final SootMethod method) {
+		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
 		UnitGraph result = null;
 
-		if (ref == null || ref.get() == null) {
+		if (_ref == null || _ref.get() == null) {
 			if (method.isConcrete()) {
 				result = new CompleteUnitGraph(method.retrieveActiveBody());
 				method2UnitGraph.put(method, new WeakReference(result));
-			} else {
+
 				if (LOGGER.isInfoEnabled()) {
 					LOGGER.info("Method " + method + " is not concrete.");
 				}
 			}
-		} else if (ref != null) {
-			result = (CompleteUnitGraph) ref.get();
+		} else if (_ref != null) {
+			result = (CompleteUnitGraph) _ref.get();
 		}
 		return result;
 	}
@@ -70,6 +70,8 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/02 01:30:59  venku
+   - coding conventions and formatting.
    Revision 1.7  2003/11/28 22:00:20  venku
    - logging.
    Revision 1.6  2003/11/26 06:26:25  venku
@@ -83,7 +85,7 @@ public class CompleteUnitGraphFactory
      have a body.
    Revision 1.2  2003/09/28 06:52:22  venku
  *** empty log message ***
-     Revision 1.1  2003/09/28 06:22:54  venku
-     - Added support to plug unit graphs from the environment when
-       requested by the implementations.
+               Revision 1.1  2003/09/28 06:22:54  venku
+               - Added support to plug unit graphs from the environment when
+                 requested by the implementations.
  */

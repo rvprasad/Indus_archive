@@ -62,6 +62,11 @@ public class CDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/25 17:51:23  venku
+   - split control dependence into 2 classes.
+     EntryControlDA handled control DA as required for backward slicing.
+     ExitControlDA handles control DA as required for forward slicing.
+   - ripple effect.
    Revision 1.5  2003/11/05 04:17:28  venku
    - subtle bug caused when enabled bi-directional support. FIXED.
    Revision 1.4  2003/11/03 07:50:06  venku

@@ -48,10 +48,12 @@ public interface IValueFilter {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.2  2003/08/16 02:55:12  venku
    Removed redundant keywords.
    Formatting.
-
    Revision 1.1  2003/08/16 02:33:50  venku
    Renamed AValueFilter to IValueFilter.
    Revision 1.2  2003/08/15 04:07:56  venku

@@ -20,16 +20,9 @@ import junit.framework.TestSuite;
 
 import junit.swingui.TestRunner;
 
-import soot.ArrayType;
-import soot.G;
-import soot.RefType;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
-import soot.VoidType;
-
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
+
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
@@ -37,12 +30,20 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.support.DirectedAndSimpleNodeGraphTest;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import soot.ArrayType;
+import soot.G;
+import soot.RefType;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.VoidType;
 
 
 /**
@@ -397,6 +398,8 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/30 01:38:52  venku
+   - incorporated tag based filtering during CG construction.
    Revision 1.5  2003/11/30 01:07:57  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.

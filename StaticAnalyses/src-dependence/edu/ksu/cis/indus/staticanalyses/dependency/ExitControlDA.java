@@ -17,14 +17,15 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
 
+import java.util.BitSet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.BitSet;
 
 
 /**
  * DOCUMENT ME!
+ * 
  * <p></p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -68,10 +69,11 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/25 19:12:59  venku
+   - documentation.
    Revision 1.1  2003/11/25 17:51:23  venku
    - split control dependence into 2 classes.
      EntryControlDA handled control DA as required for backward slicing.
      ExitControlDA handles control DA as required for forward slicing.
    - ripple effect.
-
  */

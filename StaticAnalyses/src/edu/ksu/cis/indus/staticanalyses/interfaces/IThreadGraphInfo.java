@@ -15,16 +15,18 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
+
+import edu.ksu.cis.indus.processing.Context;
+
+import edu.ksu.cis.indus.staticanalyses.support.Triple;
+
+import java.util.Collection;
+
 import soot.SootMethod;
 
 import soot.jimple.NewExpr;
 import soot.jimple.Stmt;
-
-import edu.ksu.cis.indus.interfaces.IStatus;
-import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
-
-import java.util.Collection;
 
 
 /**
@@ -166,10 +168,15 @@ public interface IThreadGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.8  2003/09/28 03:08:03  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.7  2003/09/08 02:21:53  venku
    - supports a new method to extract thread allocation sites
      which may be executed multiple times.

@@ -15,14 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import soot.ArrayType;
-import soot.RefType;
-import soot.Type;
-
 import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +24,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.ArrayType;
+import soot.RefType;
+import soot.Type;
 
 
 /**
@@ -662,6 +662,11 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/10/05 16:22:25  venku
+   - Interference dependence is now symbol based.
+   - Both interference and ready dependence consider
+     loop information in a more sound manner.
+   - ripple effect of the above.
    Revision 1.8  2003/10/05 06:31:35  venku
    - Things work.  The bug was the order in which the
      parameter alias sets were being accessed.  FIXED.

@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import soot.SootMethod;
-
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
@@ -26,9 +24,6 @@ import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -36,6 +31,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import soot.SootMethod;
 
 
 /**
@@ -440,6 +440,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/01 11:28:48  venku
+   - control da calculation was erroneous when the support
+     for direction switch was removed.  FIXED.
    Revision 1.1  2003/11/25 17:51:23  venku
    - split control dependence into 2 classes.
      EntryControlDA handled control DA as required for backward slicing.

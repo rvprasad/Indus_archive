@@ -18,11 +18,11 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.io.Writer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -93,6 +93,11 @@ abstract class AbstractSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 15:25:17  venku
+   - added new method to AbstractSliceXMLizer to flush writer.
+   - called flush on xmlizer from the driver.
+   - erroneous file name was being constructed. FIXED.
+   - added tabbing and new line to output in TagBasedSliceXMLizer.
    Revision 1.2  2003/11/17 02:23:52  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them

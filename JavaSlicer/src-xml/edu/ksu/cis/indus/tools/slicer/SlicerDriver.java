@@ -16,28 +16,18 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
+
 import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
+
 import edu.ksu.cis.indus.tools.Phase;
+
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
-
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -53,6 +43,21 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.eclipse.swt.SWT;
+
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 
 /**
@@ -107,8 +112,10 @@ public class SlicerDriver
 	 */
 	private IJimpleIDGenerator idGenerator;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private String tagName = "SlicingTag";
 
@@ -459,6 +466,8 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/01 04:20:10  venku
+   - tag name should be provided for the engine before execution.
    Revision 1.16  2003/11/30 09:02:01  venku
    - incorrect processing filter used during xmlization. FIXED.
    Revision 1.15  2003/11/30 02:38:44  venku
