@@ -194,6 +194,7 @@ public final class Util {
 		if (_flag) {
 			final SootClass _declClass = scm.getSootClass("java.lang.Thread");
 			final SootMethod _sm = _declClass.getMethodByName("start");
+            _declClass.setApplicationClass();
 			_sm.setModifiers(_sm.getModifiers() ^ Modifier.NATIVE);
 
 			final Jimple _jimple = Jimple.v();
@@ -241,6 +242,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/31 10:01:16  venku
+   - removed unused code.
+
    Revision 1.5  2003/12/31 09:52:20  venku
    - removed unused code.
    Revision 1.4  2003/12/31 09:34:22  venku
