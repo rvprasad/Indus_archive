@@ -132,6 +132,148 @@ public final class SlicerConfigurator
 	}
 
 	/**
+	 * Sets up the assertion preservation part of the UI.
+	 *
+	 * @param composite on which to install the UI.
+	 * @param cfg to be used.
+	 *
+	 * @pre composite != null and cfg != null
+	 */
+	private void setupAssertionUI(final Composite composite, final SlicerConfiguration cfg) {
+		final Group _assertionGroup = new Group(composite, SWT.NONE);
+		final GridData _gridData1 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		_gridData1.horizontalSpan = 3;
+		_assertionGroup.setLayoutData(_gridData1);
+
+		final RowLayout _rowLayout1 = new RowLayout();
+		_rowLayout1.type = SWT.VERTICAL;
+		_rowLayout1.fill = true;
+		_assertionGroup.setLayout(_rowLayout1);
+		_assertionGroup.setText("Preservation of assertions in the system");
+
+		final Button _assertionPreservingSliceButton = new Button(_assertionGroup, SWT.CHECK);
+		_assertionPreservingSliceButton.setText("Preserve assertions");
+		_assertionPreservingSliceButton.setEnabled(true);
+
+		final Button _applclasses = new Button(_assertionGroup, SWT.CHECK);
+		_applclasses.setText("Preserve assertions in application classes only");
+		_applclasses.setSelection(((Boolean) cfg.getProperty(SlicerConfiguration.ASSERTIONS_IN_APPLICATION_CLASSES_ONLY))
+			  .booleanValue());
+
+		final SelectionListener _sl1 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
+				_assertionPreservingSliceButton, cfg) {
+				public void widgetSelected(final SelectionEvent evt) {
+					final boolean _value = button.getSelection();
+					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
+					_applclasses.setEnabled(_value);
+				}
+			};
+		_assertionPreservingSliceButton.addSelectionListener(_sl1);
+
+		_assertionPreservingSliceButton.setSelection(cfg.getSliceToPreserveAssertions());
+		_assertionPreservingSliceButton.notifyListeners(SWT.Selection, null);
+	}
+
+	/**
+	 * Sets up the deadlock preservation part of the UI.
+	 *
+	 * @param composite on which to install the UI.
+	 * @param cfg to be used.
+	 *
+	 * @pre composite != null and cfg != null
+	 */
+	private void setupDeadlockUI(final Composite composite, final SlicerConfiguration cfg) {
+		final Group _deadlockGroup = new Group(composite, SWT.NONE);
+		final GridData _gridData1 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		_gridData1.horizontalSpan = 2;
+		_deadlockGroup.setLayoutData(_gridData1);
+
+		final RowLayout _rowLayout1 = new RowLayout();
+		_rowLayout1.type = SWT.VERTICAL;
+		_rowLayout1.fill = true;
+		_deadlockGroup.setLayout(_rowLayout1);
+		_deadlockGroup.setText("Preservation of Deadlocking property");
+
+		final Button _button = new Button(_deadlockGroup, SWT.CHECK);
+		_button.setText("Preserve Deadlock");
+
+		final Button _applclasses = new Button(_deadlockGroup, SWT.CHECK);
+		_applclasses.setText("Preserve sync constructs in application classes only");
+		_applclasses.setSelection(((Boolean) cfg.getProperty(SlicerConfiguration.SYNCS_IN_APPLICATION_CLASSES_ONLY))
+			  .booleanValue());
+
+		final Group _group1 = new Group(_deadlockGroup, SWT.SHADOW_ETCHED_IN);
+		_group1.setText("Deadlock Criteria Selection Strategy");
+
+		final RowLayout _rowLayout2 = new RowLayout();
+		_rowLayout2.type = SWT.VERTICAL;
+		_group1.setLayout(_rowLayout2);
+
+		final Button _allSycnStrategy = new Button(_group1, SWT.RADIO);
+		_allSycnStrategy.setText("All Synchronization constructs");
+
+		final Button _escapingSyncStrategy = new Button(_group1, SWT.RADIO);
+		_escapingSyncStrategy.setText("Escaping Sychronization constructs");
+
+		final Button _ctxtsensEscapingSyncStrategy = new Button(_group1, SWT.RADIO);
+		_ctxtsensEscapingSyncStrategy.setText("Escaping Sychronization constructs with their contexts");
+
+		final SelectionListener _sl4 =
+			new SelectionListener() {
+				public void widgetSelected(final SelectionEvent evt) {
+					Object _value = null;
+
+					if (evt.widget == _ctxtsensEscapingSyncStrategy) {
+						_value = SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS;
+					} else if (evt.widget == _escapingSyncStrategy) {
+						_value = SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS;
+					} else if (evt.widget == _allSycnStrategy) {
+						_value = SlicerConfiguration.ALL_SYNC_CONSTRUCTS;
+					}
+
+					if (_value != null) {
+						cfg.setProperty(SlicerConfiguration.DEADLOCK_CRITERIA_SELECTION_STRATEGY, _value);
+					}
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent evt) {
+					widgetSelected(evt);
+				}
+			};
+		_allSycnStrategy.addSelectionListener(_sl4);
+		_escapingSyncStrategy.addSelectionListener(_sl4);
+		_ctxtsensEscapingSyncStrategy.addSelectionListener(_sl4);
+
+		final Object _temp = cfg.getDeadlockCriteriaSelectionStrategy();
+
+		if (_temp.equals(SlicerConfiguration.ALL_SYNC_CONSTRUCTS)) {
+			_allSycnStrategy.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS)) {
+			_escapingSyncStrategy.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
+			_ctxtsensEscapingSyncStrategy.setSelection(true);
+		}
+
+		final SelectionListener _sl5 =
+			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, cfg) {
+				public void widgetSelected(final SelectionEvent evt) {
+					final boolean _value = button.getSelection();
+					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
+					_group1.setEnabled(_value);
+					_applclasses.setEnabled(_value);
+					_allSycnStrategy.setEnabled(_value);
+					_escapingSyncStrategy.setEnabled(_value);
+					_ctxtsensEscapingSyncStrategy.setEnabled(_value);
+				}
+			};
+		_button.addSelectionListener(_sl5);
+
+		_button.setSelection(cfg.getSliceForDeadlock());
+		_button.notifyListeners(SWT.Selection, null);
+	}
+
+	/**
 	 * Sets up tab corresponding to general dependencein the configurator composite.
 	 *
 	 * @param composite to layout the general dependence configuration widgets.
@@ -156,7 +298,7 @@ public final class SlicerConfigurator
 		final Button _useSyncDepButton = new Button(composite, SWT.CHECK);
 		_useSyncDepButton.setText("use synchronization dependence");
 		_useSyncDepButton.setToolTipText("Use synchronization dependence in calculation of the slice.");
-		_useSyncDepButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_SYNCHRONIZATIONDA)).booleanValue());
+		_useSyncDepButton.setSelection(_cfg.isSynchronizationDepAnalysisUsed());
 		_useSyncDepButton.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.USE_SYNCHRONIZATIONDA,
 				_useSyncDepButton,
@@ -179,7 +321,7 @@ public final class SlicerConfigurator
 		final Button _useDDAButton = new Button(composite, SWT.CHECK);
 		_useDDAButton.setText("use divergence dependence");
 		_useDDAButton.setToolTipText("Use divergence dependence in calculation of the slice.");
-		_useDDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_DIVERGENCEDA)).booleanValue());
+		_useDDAButton.setSelection(_cfg.isDivergenceDepAnalysisUsed());
 		_useDDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
 				_useDDAButton, _cfg));
 
@@ -257,11 +399,8 @@ public final class SlicerConfigurator
 				}
 			});
 
-		final boolean _selection = _useDDAButton.getSelection();
-		_natureOfDDAGroup.setEnabled(_selection);
-		_interProceduralDDA.setEnabled(_selection);
-		_intraProceduralDDA.setEnabled(_selection);
-		_intraAndInterProceduralDDA.setEnabled(_selection);
+		_useDDAButton.setSelection(_cfg.isDivergenceDepAnalysisUsed());
+		_useDDAButton.notifyListeners(SWT.Selection, null);
 	}
 
 	/**
@@ -281,7 +420,7 @@ public final class SlicerConfigurator
 		final Button _useIDAButton = new Button(composite, SWT.CHECK);
 		_useIDAButton.setText("use interference dependence");
 		_useIDAButton.setToolTipText("Use interference dependence in calculation of the slice.");
-		_useIDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_INTERFERENCEDA)).booleanValue());
+		_useIDAButton.setSelection(_cfg.isInterferenceDepAnalysisUsed());
 		_useIDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_INTERFERENCEDA,
 				_useIDAButton, _cfg));
 
@@ -372,8 +511,7 @@ public final class SlicerConfigurator
 				_useOFAForInterference,
 				_cfg));
 
-		final Boolean _bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_INTERFERENCE_DA);
-		_useOFAForInterference.setSelection(_bool.booleanValue());
+		_useOFAForInterference.setSelection(_cfg.isOFAUsedForInterference());
 
 		// Links up the buttons via selection listener to control toggling based on the user's decision 
 		// to use interference DA.
@@ -397,19 +535,9 @@ public final class SlicerConfigurator
 				}
 			});
 
-		final boolean _selection = _useIDAButton.getSelection();
-		_useOFAForInterference.setEnabled(_selection);
-
-		_natureOfIDAGroup.setEnabled(_selection);
-		_typedIDA.setEnabled(_selection);
-		_equivalenceClassBasedEscapeAnalysisBasedIDA.setEnabled(_selection);
-		_symbolBasedEscapeAnalysisBasedIDA.setEnabled(_selection);
-		_precisionGroup.setEnabled(_selection);
-
-		if (_selection) {
-			final Boolean _b = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA);
-			_useOFAForInterference.setSelection(_b.booleanValue());
-		}
+		_useOFAForInterference.setSelection(_cfg.isOFAUsedForInterference());
+		_useIDAButton.setSelection(_cfg.isInterferenceDepAnalysisUsed());
+		_useIDAButton.notifyListeners(SWT.Selection, null);
 	}
 
 	/**
@@ -433,7 +561,7 @@ public final class SlicerConfigurator
 		final Button _useRDAButton = new Button(_readyComposite1, SWT.CHECK);
 		_useRDAButton.setText("use ready dependence");
 		_useRDAButton.setToolTipText("Use ready dependence in calculation of the slice.");
-		_useRDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_READYDA)).booleanValue());
+		_useRDAButton.setSelection(_cfg.isReadyDepAnalysisUsed());
 		_useRDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_READYDA,
 				_useRDAButton, _cfg));
 
@@ -515,21 +643,20 @@ public final class SlicerConfigurator
 		final Button _useOFAForReady = new Button(_analysisComposite, SWT.CHECK);
 		_useOFAForReady.setText("use object flow analysis information");
 		_useOFAForReady.setToolTipText("Only aliasing primaries will be considered");
-		_useOFAForReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA)).booleanValue());
+		_useOFAForReady.setSelection(_cfg.isOFAUsedForReady());
 		_useOFAForReady.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_OFA_FOR_READY_DA,
 				_useOFAForReady, _cfg));
 
 		final Button _useSLAForReady = new Button(_analysisComposite, SWT.CHECK);
 		_useSLAForReady.setText("use safe lock analysis ");
 		_useSLAForReady.setToolTipText("Safe locks will not considered");
-		_useSLAForReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_SLA_FOR_READY_DA)).booleanValue());
+		_useSLAForReady.setSelection(_cfg.isSafeLockAnalysisUsedForReady());
 		_useSLAForReady.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_SLA_FOR_READY_DA,
 				_useSLAForReady, _cfg));
 
 		final Button _useCallSiteSensitiveReady = new Button(_analysisComposite, SWT.CHECK);
 		_useCallSiteSensitiveReady.setText("use call-site sensitive");
-		_useCallSiteSensitiveReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.CALL_SITE_SENSITIVE_READY_DA))
-			  .booleanValue());
+		_useCallSiteSensitiveReady.setSelection(_cfg.isCallSiteSensitiveReadyUsed());
 		_useCallSiteSensitiveReady.addSelectionListener(new BooleanPropertySelectionListener(
 				SlicerConfiguration.CALL_SITE_SENSITIVE_READY_DA,
 				_useCallSiteSensitiveReady,
@@ -593,36 +720,9 @@ public final class SlicerConfigurator
 				}
 			});
 
-		final boolean _selection = _useRDAButton.getSelection();
-		_precisionGroup.setEnabled(_selection);
-		_precisionOfRDAGroup.setEnabled(_selection);
-		_typedRDA.setEnabled(_selection);
-		_equivalenceClassBasedEscapeAnalysisBasedRDA.setEnabled(_selection);
-		_symbolBasedEscapeAnalysisBasedRDA.setEnabled(_selection);
-		_rule1RDAButton.setEnabled(_selection);
-		_rule2RDAButton.setEnabled(_selection);
-		_rule3RDAButton.setEnabled(_selection);
-		_rule4RDAButton.setEnabled(_selection);
-		_useOFAForReady.setEnabled(_selection);
-		_useSLAForReady.setEnabled(_selection);
-		_useCallSiteSensitiveReady.setEnabled(_selection);
-
-		if (_selection) {
-			Boolean _bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE1_IN_READYDA);
-			_rule1RDAButton.setSelection(_bool.booleanValue());
-			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE2_IN_READYDA);
-			_rule2RDAButton.setSelection(_bool.booleanValue());
-			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE3_IN_READYDA);
-			_rule3RDAButton.setSelection(_bool.booleanValue());
-			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_RULE4_IN_READYDA);
-			_rule4RDAButton.setSelection(_bool.booleanValue());
-			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA);
-			_useOFAForReady.setSelection(_bool.booleanValue());
-			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_SLA_FOR_READY_DA);
-			_useSLAForReady.setSelection(_bool.booleanValue());
-			_bool = (Boolean) _cfg.getProperty(SlicerConfiguration.CALL_SITE_SENSITIVE_READY_DA);
-			_useCallSiteSensitiveReady.setSelection(_bool.booleanValue());
-		}
+		_useOFAForReady.setSelection(_cfg.isOFAUsedForInterference());
+		_useRDAButton.setSelection(_cfg.isInterferenceDepAnalysisUsed());
+		_useRDAButton.notifyListeners(SWT.Selection, null);
 	}
 
 	/**
@@ -645,8 +745,7 @@ public final class SlicerConfigurator
 		_gridData2.horizontalSpan = 2;
 		executableSliceButton.setLayoutData(_gridData2);
 
-		final Boolean _executableProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.EXECUTABLE_SLICE);
-		executableSliceButton.setSelection(_executableProperty.booleanValue());
+		executableSliceButton.setSelection(_cfg.getExecutableSlice());
 
 		final SelectionListener _sl1 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, executableSliceButton, _cfg);
@@ -662,108 +761,15 @@ public final class SlicerConfigurator
 		final GridData _gridData4 = new GridData();
 		_gridData4.horizontalSpan = 1;
 		_propertyAwareSlicingButton.setLayoutData(_gridData4);
-
-		final Boolean _propertyAwareSlicingProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.PROPERTY_AWARE);
-		_propertyAwareSlicingButton.setSelection(_propertyAwareSlicingProperty.booleanValue());
+		_propertyAwareSlicingButton.setSelection(_cfg.getPropertyAware());
 
 		final SelectionListener _sl3 =
 			new BooleanPropertySelectionListener(SlicerConfiguration.PROPERTY_AWARE, _propertyAwareSlicingButton, _cfg);
 		_propertyAwareSlicingButton.addSelectionListener(_sl3);
 
-		final Button _assertionPreservingSliceButton = new Button(composite, SWT.CHECK);
-		_assertionPreservingSliceButton.setText("Preserve assertions");
+		setupAssertionUI(composite, _cfg);
 
-		final GridData _gridData3 = new GridData();
-		_gridData3.horizontalSpan = 2;
-		_assertionPreservingSliceButton.setLayoutData(_gridData3);
-
-		final Boolean _assertionsProperty = (Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS);
-		_assertionPreservingSliceButton.setSelection(_assertionsProperty.booleanValue());
-
-		final SelectionListener _sl2 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
-				_assertionPreservingSliceButton, _cfg);
-		_assertionPreservingSliceButton.addSelectionListener(_sl2);
-
-		final Group _deadlockGroup = new Group(composite, SWT.NONE);
-		final GridData _gridData1 = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		_gridData1.horizontalSpan = 2;
-		_deadlockGroup.setLayoutData(_gridData1);
-
-		final RowLayout _rowLayout1 = new RowLayout();
-		_rowLayout1.type = SWT.VERTICAL;
-		_rowLayout1.fill = true;
-		_deadlockGroup.setLayout(_rowLayout1);
-		_deadlockGroup.setText("Slice for Deadlock");
-
-		final Button _button = new Button(_deadlockGroup, SWT.CHECK);
-		_button.setText("Preserve Deadlock");
-		_button.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.SLICE_FOR_DEADLOCK)).booleanValue());
-
-		final Group _group1 = new Group(_deadlockGroup, SWT.SHADOW_ETCHED_IN);
-		_group1.setText("Deadlock Criteria Selection Strategy");
-
-		final RowLayout _rowLayout2 = new RowLayout();
-		_rowLayout2.type = SWT.VERTICAL;
-		_group1.setLayout(_rowLayout2);
-
-		final Button _allSycnStrategy = new Button(_group1, SWT.RADIO);
-		_allSycnStrategy.setText("All Synchronization constructs");
-
-		final Button _escapingSyncStrategy = new Button(_group1, SWT.RADIO);
-		_escapingSyncStrategy.setText("Escaping Sychronization constructs");
-
-		final Button _ctxtsensEscapingSyncStrategy = new Button(_group1, SWT.RADIO);
-		_ctxtsensEscapingSyncStrategy.setText("Escaping Sychronization constructs with their contexts");
-
-		final SelectionListener _sl4 =
-			new SelectionListener() {
-				public void widgetSelected(final SelectionEvent evt) {
-					Object _value = null;
-
-					if (evt.widget == _ctxtsensEscapingSyncStrategy) {
-						_value = SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS;
-					} else if (evt.widget == _escapingSyncStrategy) {
-						_value = SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS;
-					} else if (evt.widget == _allSycnStrategy) {
-						_value = SlicerConfiguration.ALL_SYNC_CONSTRUCTS;
-					}
-
-					if (_value != null) {
-						_cfg.setProperty(SlicerConfiguration.DEADLOCK_CRITERIA_SELECTION_STRATEGY, _value);
-					}
-				}
-
-				public void widgetDefaultSelected(final SelectionEvent evt) {
-					widgetSelected(evt);
-				}
-			};
-		_allSycnStrategy.addSelectionListener(_sl4);
-		_escapingSyncStrategy.addSelectionListener(_sl4);
-		_ctxtsensEscapingSyncStrategy.addSelectionListener(_sl4);
-
-		final Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
-
-		if (_temp.equals(SlicerConfiguration.ALL_SYNC_CONSTRUCTS)) {
-			_allSycnStrategy.setSelection(true);
-		} else if (_temp.equals(SlicerConfiguration.ESCAPING_SYNC_CONSTRUCTS)) {
-			_escapingSyncStrategy.setSelection(true);
-		} else if (_temp.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
-			_ctxtsensEscapingSyncStrategy.setSelection(true);
-		}
-
-		final SelectionListener _sl5 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, _button, _cfg) {
-				public void widgetSelected(final SelectionEvent evt) {
-					final boolean _value = button.getSelection();
-					containingConfiguration.setProperty(id, Boolean.valueOf(_value));
-					_group1.setEnabled(_value);
-					_allSycnStrategy.setEnabled(_value);
-					_escapingSyncStrategy.setEnabled(_value);
-					_ctxtsensEscapingSyncStrategy.setEnabled(_value);
-				}
-			};
-		_button.addSelectionListener(_sl5);
+		setupDeadlockUI(composite, _cfg);
 
 		//Slice type related group
 		final Group _group2 = new Group(composite, SWT.SHADOW_ETCHED_IN);

@@ -21,6 +21,8 @@ import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicat
 
 import java.util.Collection;
 
+import org.apache.commons.collections.Predicate;
+
 
 /**
  * This interface is used by the slicer tool to generate slicing criteria.  An implementation of this interface can be used
@@ -54,13 +56,22 @@ public interface ISliceCriteriaGenerator {
 	void setCriteriaContextualizer(ISliceCriteriaContextualizer contextualizer);
 
 	/**
-	 * Sets the criteria filter.
+	 * Sets the predicate to filter criteria.
 	 *
-	 * @param criteriaFilter to be used.
+	 * @param predicate to be used.
 	 *
-	 * @pre criteriaFilter != null
+	 * @pre predicate != null
 	 */
-	void setCriteriaFilter(ISliceCriteriaPredicate criteriaFilter);
+	void setCriteriaFilterPredicate(ISliceCriteriaPredicate predicate);
+
+	/**
+	 * Sets the predicate to filter out criteria sites.
+	 *
+	 * @param predicate to be used.
+	 *
+	 * @pre predicate != null
+	 */
+	void setSiteSelectionPredicate(Predicate predicate);
 }
 
 // End of File

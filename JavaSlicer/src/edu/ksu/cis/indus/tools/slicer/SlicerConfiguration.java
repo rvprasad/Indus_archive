@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+import edu.ksu.cis.indus.common.soot.ApplicationClassesOnlyPredicate;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
@@ -250,6 +251,18 @@ public final class SlicerConfiguration
 	 */
 	static final Object CALL_SITE_SENSITIVE_READY_DA = "call site sensitive ready dependence";
 
+    /** 
+     * This identifies the property that governs which assertions will be selected. 
+     */
+    static final Object ASSERTIONS_IN_APPLICATION_CLASSES_ONLY = "consider assertions in application classes only";
+
+    /** 
+     * This identifies the property that governs which synchronization constructs will be selected to preserve deadlocking 
+     * property. 
+     */
+    static final Object SYNCS_IN_APPLICATION_CLASSES_ONLY =
+        "consider synchronization constructs in application classes only";
+    
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -320,6 +333,8 @@ public final class SlicerConfiguration
 		propertyIds.add(INTER_PROCEDURAL_ONLY);
 		propertyIds.add(USE_SYNCHRONIZATIONDA);
 		propertyIds.add(CALL_SITE_SENSITIVE_READY_DA);
+		propertyIds.add(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY);
+		propertyIds.add(SYNCS_IN_APPLICATION_CLASSES_ONLY);
 	}
 
 	/**
@@ -676,6 +691,46 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Checks if assertions only in application classes will be considered.
+	 *
+	 * @return <code>true</code> if assertions only in application classes will be considered.; <code>false</code>,
+	 * 		   otherwise.
+	 */
+	public boolean areAssertionsOnlyInAppClassesConsidered() {
+		return ((Boolean) properties.get(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY)).booleanValue();
+	}
+
+	/**
+	 * Checks if synchronization constructs only in application classes will be considered.
+	 *
+	 * @return <code>true</code> if synchronization constructs only in application classes will be considered.;
+	 * 		   <code>false</code>, otherwise.
+	 */
+	public boolean areSynchronizationsOnlyInAppClassesConsidered() {
+		return ((Boolean) properties.get(SYNCS_IN_APPLICATION_CLASSES_ONLY)).booleanValue();
+	}
+
+	/**
+	 * Sets the propery the governs if only assertions in application classes are considered.
+	 *
+	 * @param value <code>true</code> if only assertions in application classes should be considered; <code>false</code>,
+	 * 		  otherwise.
+	 */
+	public void considerAssertionsInAppClassesOnly(final boolean value) {
+		setProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Sets the propery the governs if only synchronization constructs in application classes are considered.
+	 *
+	 * @param value <code>true</code> if only synchronization constructs in application classes should be considered;
+	 * 		  <code>false</code>, otherwise.
+	 */
+	public void considerSynchronizationsInAppClassesOnly(final boolean value) {
+		setProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY, Boolean.valueOf(value));
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.tools.IToolConfigurationFactory#createToolConfiguration()
 	 */
 	public IToolConfiguration createToolConfiguration() {
@@ -730,6 +785,8 @@ public final class SlicerConfiguration
 		setProperty(CALL_SITE_SENSITIVE_READY_DA, Boolean.FALSE);
 		setProperty(USE_SLA_FOR_READY_DA, Boolean.FALSE);
 		setProperty(PROPERTY_AWARE, Boolean.FALSE);
+		setProperty(ASSERTIONS_IN_APPLICATION_CLASSES_ONLY, Boolean.TRUE);
+		setProperty(SYNCS_IN_APPLICATION_CLASSES_ONLY, Boolean.FALSE);
 
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
@@ -1004,7 +1061,11 @@ public final class SlicerConfiguration
 			_stmtTypes.add(AssignStmt.class);
 			_stmtTypes.add(ThrowStmt.class);
 			_t.setStmtTypes(_stmtTypes);
-			_t.setCriteriaFilter(new AssertionSliceCriteriaPredicate());
+			_t.setCriteriaFilterPredicate(new AssertionSliceCriteriaPredicate());
+
+			if (areAssertionsOnlyInAppClassesConsidered()) {
+				_t.setSiteSelectionPredicate(new ApplicationClassesOnlyPredicate());
+			}
 			id2critGenerators.put(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID, _t);
 		} else {
 			id2critGenerators.remove(ASSERTION_PRESERVING_CRITERIA_GENERATOR_ID);
@@ -1023,13 +1084,13 @@ public final class SlicerConfiguration
 			id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, _t);
 
 			if (ALL_SYNC_CONSTRUCTS.equals(_property)) {
-				_t.setCriteriaFilter(ISliceCriteriaPredicate.DUMMY_FILTER);
+				_t.setCriteriaFilterPredicate(ISliceCriteriaPredicate.DUMMY_FILTER);
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
-				_t.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
+				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
 				_t.setCriteriaContextualizer(ISliceCriteriaContextualizer.DUMMY_CONTEXTUALIZER);
 			} else if (CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS.equals(_property)) {
-				_t.setCriteriaFilter(new EscapingSliceCriteriaPredicate());
+				_t.setCriteriaFilterPredicate(new EscapingSliceCriteriaPredicate());
 				_t.setCriteriaContextualizer(new DeadlockPreservingCriteriaCallStackContextualizer());
 			} else {
 				final String _msg =
@@ -1038,6 +1099,10 @@ public final class SlicerConfiguration
 
 				LOGGER.error("setupDeadlockPreservation() -  : " + _msg);
 				throw new IllegalStateException(_msg);
+			}
+
+			if (areSynchronizationsOnlyInAppClassesConsidered()) {
+				_t.setSiteSelectionPredicate(new ApplicationClassesOnlyPredicate());
 			}
 		}
 	}
@@ -1107,13 +1172,14 @@ public final class SlicerConfiguration
 			dependencesToUse.add(_id);
 
 			final Object _property = getNatureOfInterferenceDepAnalysis();
-            final Class _clazz;
+			final Class _clazz;
+
 			if (SYMBOL_AND_EQUIVCLS_BASED_INFO.equals(_property)) {
 				_clazz = InterferenceDAv3.class;
 			} else if (EQUIVALENCE_CLASS_BASED_INFO.equals(_property)) {
-                _clazz = InterferenceDAv2.class;
+				_clazz = InterferenceDAv2.class;
 			} else if (TYPE_BASED_INFO.equals(_property)) {
-                _clazz = InterferenceDAv1.class;
+				_clazz = InterferenceDAv1.class;
 			} else {
 				final String _msg =
 					"Interference dependence could not be configured due to illegal " + "interference dependence nature.";
@@ -1121,54 +1187,53 @@ public final class SlicerConfiguration
 				throw new IllegalStateException(_msg);
 			}
 
-            final Constructor _instance;
-            try {
-                _instance = _clazz.getConstructor(null);
-                id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA, Collections.singleton(_instance.newInstance(null)));
-            } catch (final NoSuchMethodException _e) {
-                final String _msg =
-                    "Dependence analysis does not provide zero parameter constructor :" + _clazz;
-                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+			final Constructor _instance;
 
-                final RuntimeException _runtimeException = new RuntimeException(_msg);
-                _runtimeException.initCause(_e);
-                throw _runtimeException;
-            } catch (final IllegalArgumentException _e) {
-                final String _msg =
-                    "Dependence analysis does not provide zero-parameter constructor : " + _clazz;
-                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
-                throw _e;
-            } catch (final SecurityException _e) {
-                final String _msg = "Insufficient permission to access specified dependence analysis class : " + _clazz;
-                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+			try {
+				_instance = _clazz.getConstructor(null);
+				id2dependencyAnalyses.put(IDependencyAnalysis.INTERFERENCE_DA,
+					Collections.singleton(_instance.newInstance(null)));
+			} catch (final NoSuchMethodException _e) {
+				final String _msg = "Dependence analysis does not provide zero parameter constructor :" + _clazz;
+				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
 
-                final RuntimeException _runtimeException = new RuntimeException(_msg);
-                _runtimeException.initCause(_e);
-                throw _runtimeException;
-            } catch (final IllegalAccessException _e) {
-                final String _msg =
-                    "Dependence analysis does not provide publicly accessible constructors : " + _clazz;
-                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+				final RuntimeException _runtimeException = new RuntimeException(_msg);
+				_runtimeException.initCause(_e);
+				throw _runtimeException;
+			} catch (final IllegalArgumentException _e) {
+				final String _msg = "Dependence analysis does not provide zero-parameter constructor : " + _clazz;
+				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+				throw _e;
+			} catch (final SecurityException _e) {
+				final String _msg = "Insufficient permission to access specified dependence analysis class : " + _clazz;
+				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
 
-                final RuntimeException _runtimeException = new RuntimeException(_msg);
-                _runtimeException.initCause(_e);
-                throw _runtimeException;
-            } catch (final InvocationTargetException _e) {
-                final String _msg = "constructor threw an exception : " + _clazz;
-                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+				final RuntimeException _runtimeException = new RuntimeException(_msg);
+				_runtimeException.initCause(_e);
+				throw _runtimeException;
+			} catch (final IllegalAccessException _e) {
+				final String _msg = "Dependence analysis does not provide publicly accessible constructors : " + _clazz;
+				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
 
-                final RuntimeException _runtimeException = new RuntimeException(_msg);
-                _runtimeException.initCause(_e);
-                throw _runtimeException;
-            } catch (final InstantiationException _e) {
-                final String _msg = "Exception while instantiating the analysis : " + _clazz;
-                LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+				final RuntimeException _runtimeException = new RuntimeException(_msg);
+				_runtimeException.initCause(_e);
+				throw _runtimeException;
+			} catch (final InvocationTargetException _e) {
+				final String _msg = "constructor threw an exception : " + _clazz;
+				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
 
-                final RuntimeException _runtimeException = new RuntimeException(_msg);
-                _runtimeException.initCause(_e);
-                throw _runtimeException;
-            }
-            
+				final RuntimeException _runtimeException = new RuntimeException(_msg);
+				_runtimeException.initCause(_e);
+				throw _runtimeException;
+			} catch (final InstantiationException _e) {
+				final String _msg = "Exception while instantiating the analysis : " + _clazz;
+				LOGGER.error("setupInterferenceDependence() -  : " + _msg);
+
+				final RuntimeException _runtimeException = new RuntimeException(_msg);
+				_runtimeException.initCause(_e);
+				throw _runtimeException;
+			}
+
 			for (final Iterator _i = ((Collection) id2dependencyAnalyses.get(IDependencyAnalysis.INTERFERENCE_DA)).iterator();
 				  _i.hasNext();) {
 				final InterferenceDAv1 _ida = (InterferenceDAv1) _i.next();

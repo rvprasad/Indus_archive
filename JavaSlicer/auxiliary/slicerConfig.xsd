@@ -67,14 +67,18 @@
     </xsd:restriction>
   </xsd:simpleType>
   
+  <xsd:attribute name="inApplicationClassesOnly" id="inApplicationClassesOnly" default="false" type="xsd:boolean"/>
+  
   <xsd:complexType id="deadlock" name="deadlock">
 	<xsd:attribute name="sliceForDeadlock" type="xsd:boolean" use="required"/>
     <xsd:attribute default="ESCAPING_SYNC_CONSTRUCTS" name="deadlockCriteriaSelectionStrategy"
 		type="slicer:deadlockCriteriaSelectionStrategy"/>
+	<xsd:attribute ref="slicer:inApplicationClassesOnly" use="required"/>
   </xsd:complexType>
   
   <xsd:complexType id="assertion" name="assertion">  	
 	<xsd:attribute name="sliceToPreserveAssertions" type="xsd:boolean" use="required"/>
+	<xsd:attribute ref="slicer:inApplicationClassesOnly" use="required"/>
   </xsd:complexType>	    
   
   <xsd:simpleType id="natureOfInterThreadAnalysis" name="natureOfInterThreadAnalysis">
@@ -116,7 +120,7 @@
     <xsd:annotation>
       <xsd:documentation> This captures divergence dependence information. </xsd:documentation>
     </xsd:annotation>
-    <xsd:attribute default="INTRA_PROCEDURAL" name="natureOfDivergenceAnalysis"
+    <xsd:attribute default="INTRA_PROCEDURAL_ONLY" name="natureOfDivergenceAnalysis"
       type="slicer:proceduralBoundaryProperty"/>
     <xsd:attribute ref="slicer:active" use="required"/>
   </xsd:complexType>

@@ -71,42 +71,45 @@ public final class DeadlockPreservingCriteriaGenerator
 		for (final Iterator _i = _slicer.getMonitorInfo().getMonitorTriples().iterator(); _i.hasNext();) {
 			final Triple _mTriple = (Triple) _i.next();
 			final SootMethod _method = (SootMethod) _mTriple.getThird();
-			_subResult.clear();
-			_context.setRootMethod(_method);
 
-			if (_method.getDeclaringClass().isApplicationClass() && shouldGenerateCriteriaFrom(_mTriple)) {
-				if (_mTriple.getFirst() == null) {
-					// add all entry points and return points (including throws) of the method as the criteria
-					final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_method);
+			if (shouldConsiderSite(_method)) {
+				_subResult.clear();
+				_context.setRootMethod(_method);
 
-					if (_bbg != null) {
-						final Collection _criteria =
-							_criteriaFactory.getCriteria(_method, (Stmt) _bbgMgr.getStmtList(_method).get(0), false);
-						_subResult.addAll(_criteria);
+				if (_method.getDeclaringClass().isApplicationClass() && shouldGenerateCriteriaFrom(_mTriple)) {
+					if (_mTriple.getFirst() == null) {
+						// add all entry points and return points (including throws) of the method as the criteria
+						final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_method);
 
-						for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
-							final BasicBlock _bb = (BasicBlock) _j.next();
-							final Stmt _stmt = _bb.getTrailerStmt();
-							_subResult.addAll(_criteriaFactory.getCriteria(_method, _stmt, false));
+						if (_bbg != null) {
+							final Collection _criteria =
+								_criteriaFactory.getCriteria(_method, (Stmt) _bbgMgr.getStmtList(_method).get(0), false);
+							_subResult.addAll(_criteria);
+
+							for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
+								final BasicBlock _bb = (BasicBlock) _j.next();
+								final Stmt _stmt = _bb.getTrailerStmt();
+								_subResult.addAll(_criteriaFactory.getCriteria(_method, _stmt, false));
+							}
+							contextualizeCriteriaBasedOnThis(_method, _subResult);
+						} else {
+							if (LOGGER.isWarnEnabled()) {
+								LOGGER.warn("Could not retrieve the basic block graph for " + _method.getSignature()
+									+ ".  Moving on.");
+							}
 						}
-						contextualizeCriteriaBasedOnThis(_method, _subResult);
 					} else {
-						if (LOGGER.isWarnEnabled()) {
-							LOGGER.warn("Could not retrieve the basic block graph for " + _method.getSignature()
-								+ ".  Moving on.");
-						}
-					}
-				} else {
-					final EnterMonitorStmt _enterStmt = (EnterMonitorStmt) _mTriple.getFirst();
+						final EnterMonitorStmt _enterStmt = (EnterMonitorStmt) _mTriple.getFirst();
 
-					_subResult.addAll(_criteriaFactory.getCriteria(_method, _enterStmt, true, true));
-					_subResult.addAll(_criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getSecond(), true, true));
-					_context.setStmt(_enterStmt);
-					_context.setProgramPoint(_enterStmt.getOpBox());
-					contextualizeCriteriaBasedOnProgramPoint(_context, _subResult);
+						_subResult.addAll(_criteriaFactory.getCriteria(_method, _enterStmt, true, true));
+						_subResult.addAll(_criteriaFactory.getCriteria(_method, (Stmt) _mTriple.getSecond(), true, true));
+						_context.setStmt(_enterStmt);
+						_context.setProgramPoint(_enterStmt.getOpBox());
+						contextualizeCriteriaBasedOnProgramPoint(_context, _subResult);
+					}
 				}
+				_result.addAll(_subResult);
 			}
-			_result.addAll(_subResult);
 		}
 
 		if (LOGGER.isDebugEnabled()) {

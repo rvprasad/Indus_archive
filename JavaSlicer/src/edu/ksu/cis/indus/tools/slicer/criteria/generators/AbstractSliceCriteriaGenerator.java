@@ -23,6 +23,8 @@ import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicat
 
 import java.util.Collection;
 
+import org.apache.commons.collections.Predicate;
+
 import soot.SootMethod;
 
 
@@ -43,7 +45,12 @@ public abstract class AbstractSliceCriteriaGenerator
 	/** 
 	 * The filter to use.
 	 */
-	private ISliceCriteriaPredicate criteriaFilter;
+	private ISliceCriteriaPredicate criteriaPredicate;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private Predicate siteSelectionPredicate;
 
 	/** 
 	 * The slicer that defines the context in which generator functions.
@@ -60,8 +67,8 @@ public abstract class AbstractSliceCriteriaGenerator
 			contextualizer.setSlicerTool(slicerTool);
 		}
 
-		if (criteriaFilter != null) {
-			criteriaFilter.setSlicerTool(slicerTool);
+		if (criteriaPredicate != null) {
+			criteriaPredicate.setSlicerTool(slicerTool);
 		}
 		return getCriteriaTemplateMethod();
 	}
@@ -74,10 +81,17 @@ public abstract class AbstractSliceCriteriaGenerator
 	}
 
 	/**
-	 * @see ISliceCriteriaGenerator#setCriteriaFilter(ISliceCriteriaPredicate)
+	 * @see ISliceCriteriaGenerator#setCriteriaFilterPredicate(ISliceCriteriaPredicate)
 	 */
-	public final void setCriteriaFilter(final ISliceCriteriaPredicate theCriteriaFilter) {
-		criteriaFilter = theCriteriaFilter;
+	public final void setCriteriaFilterPredicate(final ISliceCriteriaPredicate thePredicate) {
+		criteriaPredicate = thePredicate;
+	}
+
+	/**
+	 * @see ISliceCriteriaGenerator#setSiteSelectionPredicate(Predicate)
+	 */
+	public final void setSiteSelectionPredicate(final Predicate thePredicate) {
+		siteSelectionPredicate = thePredicate;
 	}
 
 	/**
@@ -115,6 +129,24 @@ public abstract class AbstractSliceCriteriaGenerator
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param method DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	protected final boolean shouldConsiderSite(final SootMethod method) {
+		final boolean _result;
+
+		if (siteSelectionPredicate != null) {
+			_result = siteSelectionPredicate.evaluate(method);
+		} else {
+			_result = true;
+		}
+		return _result;
+	}
+
+	/**
 	 * This is a template method that the subclasses should implement to generate the criteria.
 	 *
 	 * @return a collection of criteria.
@@ -144,8 +176,8 @@ public abstract class AbstractSliceCriteriaGenerator
 	protected final boolean shouldGenerateCriteriaFrom(final Object entity) {
 		final boolean _result;
 
-		if (criteriaFilter != null) {
-			_result = criteriaFilter.evaluate(entity);
+		if (criteriaPredicate != null) {
+			_result = criteriaPredicate.evaluate(entity);
 		} else {
 			_result = true;
 		}

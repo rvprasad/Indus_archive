@@ -26,10 +26,15 @@
 					get-method="getSliceForDeadlock" default="true"/>
 				<value style="attribute" name="deadlockCriteriaSelectionStrategy" type="java.lang.String" 
 					set-method="setDeadlockCriteriaSelectionStrategy" get-method="getDeadlockCriteriaSelectionStrategy"/>
+				<value style="attribute" name="inApplicationClassesOnly" type="boolean"
+					set-method="considerSynchronizationsInAppClassesOnly" 
+					get-method="areSynchronizationsOnlyInAppClassesConsidered"/>					
 			</structure>		    
 			<structure name="assertion">
 				<value style="attribute" name="sliceToPreserveAssertions" type="boolean" 
 					set-method="setSliceToPreserveAssertions" get-method="getSliceToPreserveAssertions" default="false"/>
+				<value style="attribute" name="inApplicationClassesOnly" type="boolean"
+					set-method="considerAssertionsInAppClassesOnly" get-method="areAssertionsOnlyInAppClassesConsidered"/>
 			</structure>
 		</structure>
 		<structure name="control">

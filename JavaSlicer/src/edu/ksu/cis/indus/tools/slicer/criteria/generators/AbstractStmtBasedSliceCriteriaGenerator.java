@@ -42,7 +42,7 @@ import soot.jimple.Stmt;
 
 /**
  * This class contains the logic to generate slice criteria based on properties of statements.  The subclasses provide the
- * logic pertaining to property-based criteria selection. 
+ * logic pertaining to property-based criteria selection.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -87,27 +87,31 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootMethod _sm = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_sm);
-			final List _nodeList = _bbg.getNodes();
-			final Iterator _j = _nodeList.iterator();
-			final int _jEnd = _nodeList.size();
 
-			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final BasicBlock _bb = (BasicBlock) _j.next();
+			if (shouldConsiderSite(_sm)) {
+				final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_sm);
+				final List _nodeList = _bbg.getNodes();
+				final Iterator _j = _nodeList.iterator();
+				final int _jEnd = _nodeList.size();
 
-				final List _stmtsOf = _bb.getStmtsOf();
-				final Iterator _k = _stmtsOf.iterator();
-				final int _kEnd = _stmtsOf.size();
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final BasicBlock _bb = (BasicBlock) _j.next();
 
-				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final Stmt _stmt = (Stmt) _k.next();
+					final List _stmtsOf = _bb.getStmtsOf();
+					final Iterator _k = _stmtsOf.iterator();
+					final int _kEnd = _stmtsOf.size();
 
-					if (shouldConsiderStmt(_stmt) && shouldGenerateCriteriaFrom(getEntityForCriteriaFiltering(_stmt, _sm))) {
-						if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-							_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, true));
-							_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, false));
-						} else {
-							_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, _considerExecution));
+					for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+						final Stmt _stmt = (Stmt) _k.next();
+
+						if (shouldConsiderStmt(_stmt)
+							  && shouldGenerateCriteriaFrom(getEntityForCriteriaFiltering(_stmt, _sm))) {
+							if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, true));
+								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, false));
+							} else {
+								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, _considerExecution));
+							}
 						}
 					}
 				}
