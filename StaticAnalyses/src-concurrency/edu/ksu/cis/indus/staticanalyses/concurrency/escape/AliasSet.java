@@ -105,11 +105,6 @@ final class AliasSet
 	private boolean read;
 
 	/** 
-	 * This indicates if this object is being unified with itself.
-	 */
-	private boolean selfUnifying;
-
-	/** 
 	 * This indicates if the variable (hence, the object referred to) associated with this alias set shared across threads.
 	 */
 	private boolean shared;
@@ -162,11 +157,12 @@ final class AliasSet
 			_result = find();
 		} else if (find() != this) {
 			//just work on the representative of the class
-			_result = (AliasSet) ((AliasSet) find()).clone();
+			_result = ((AliasSet) find()).clone();
 		} else {
 			final AliasSet _clone = (AliasSet) super.clone();
 
 			_clone.fieldMap = (Map) ((HashMap) fieldMap).clone();
+			_clone.fieldMap.clear();
 
 			if (readyEntities != null) {
 				_clone.readyEntities = (HashSet) ((HashSet) readyEntities).clone();
@@ -193,7 +189,7 @@ final class AliasSet
 			_result = ((AliasSet) find()).toString();
 		} else {
 			if (stringifying) {
-				_result = String.valueOf(Integer.toHexString(hashCode()));
+				_result = Integer.toHexString(hashCode());
 			} else {
 				stringifying = true;
 				_result =
@@ -203,7 +199,7 @@ final class AliasSet
 											   .append("multiThreadAccess", this.multiThreadAccess)
 											   .append("shared", this.shared).append("shareEntities", this.shareEntities)
 											   .append("notifies", this.notifies).append("read", this.read)
-											   .append("fieldMap", fieldMap).toString();
+											   .append("fieldMap", this.fieldMap).toString();
 				stringifying = false;
 			}
 		}
@@ -231,6 +227,17 @@ final class AliasSet
 	}
 
 	/**
+	 * Creates a new alias set.
+	 *
+	 * @return a new alias set.
+	 *
+	 * @post result != null
+	 */
+	static AliasSet createAliasSet() {
+		return new AliasSet();
+	}
+
+	/**
 	 * Fixes up the field maps of the alias sets in the given map.  When alias sets are cloned, the field maps are cloned.
 	 * Hence, they are shallow copied.  This method clones the relation between the alias sets among their clones.
 	 *
@@ -248,7 +255,7 @@ final class AliasSet
 		while (_wb.hasWork()) {
 			final AliasSet _clonee = (AliasSet) _wb.getWork();
 			final AliasSet _clone = (AliasSet) clonee2clone.get(_clonee);
-			final Map _cloneeFieldMap = _clonee.fieldMap;
+			final Map _cloneeFieldMap = ((AliasSet) _clonee.find()).fieldMap;
 			final Set _cloneeFields = _cloneeFieldMap.keySet();
 			final Iterator _i = _cloneeFields.iterator();
 			final int _iEnd = _cloneeFields.size();
@@ -261,11 +268,11 @@ final class AliasSet
 				 * contexts but the same representative alias set in both contexts.  We don't do the same for clones as they
 				 * are representation until they are unified, which happens in the following block.
 				 */
-				final Object _cloneeFieldAS = (AliasSet) ((AliasSet) _cloneeFieldMap.get(_field)).find();
+				final Object _cloneeFieldAS = _cloneeFieldMap.get(_field); 
 				Object _cloneFieldAS = clonee2clone.get(_cloneeFieldAS);
 
 				if (_cloneFieldAS == null) {
-					_cloneFieldAS = (AliasSet) ((AliasSet) _cloneeFieldAS).clone();
+					_cloneFieldAS = ((AliasSet) _cloneeFieldAS).clone();
 					clonee2clone.put(_cloneeFieldAS, _cloneFieldAS);
 				}
 				_clone.fieldMap.put(_field, _cloneFieldAS);
@@ -287,6 +294,19 @@ final class AliasSet
 				}
 			}
 		}
+	}
+
+	/**
+	 * Retrieves the alias set corresponding to the given field of the object represented by this alias set.
+	 *
+	 * @param field is the signature of the field.
+	 *
+	 * @return the alias set associated with <code>field</code>.
+	 *
+	 * @post result == self.find().fieldMap.get(field)
+	 */
+	AliasSet getASForField(final String field) {
+		return (AliasSet) ((AliasSet) find()).fieldMap.get(field);
 	}
 
 	/**
@@ -399,30 +419,6 @@ final class AliasSet
 	}
 
 	/**
-	 * Creates a new alias set.
-	 *
-	 * @return a new alias set.
-	 *
-	 * @post result != null
-	 */
-	static AliasSet createAliasSet() {
-		return new AliasSet();
-	}
-
-	/**
-	 * Retrieves the alias set corresponding to the given field of the object represented by this alias set.
-	 *
-	 * @param field is the signature of the field.
-	 *
-	 * @return the alias set associated with <code>field</code>.
-	 *
-	 * @post result == self.find().fieldMap.get(field)
-	 */
-	AliasSet getASForField(final String field) {
-		return (AliasSet) ((AliasSet) find()).fieldMap.get(field);
-	}
-
-	/**
 	 * Checks if the object associated with this alias set is shared between threads.
 	 *
 	 * @return <code>true</code> if the object is shared; <code>false</code>, otherwise.
@@ -444,7 +440,7 @@ final class AliasSet
 			final AliasSet _as = (AliasSet) _wb.getWork();
 			_as.multiThreadAccess = true;
 
-			for (final Iterator _i = fieldMap.values().iterator(); _i.hasNext();) {
+			for (final Iterator _i = _as.fieldMap.values().iterator(); _i.hasNext();) {
 				_wb.addWork(((AliasSet) _i.next()).find());
 			}
 		}
@@ -462,12 +458,12 @@ final class AliasSet
 	 */
 	static void propogateInfoFromTo(final AliasSet from, final AliasSet to) {
 		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
-		_wb.addWork(new Pair(from.find(), to.find()));
+		_wb.addWork(new Pair(from, to));
 
 		while (_wb.hasWork()) {
 			final Pair _pair = (Pair) _wb.getWork();
-			final AliasSet _fromRep = (AliasSet) _pair.getFirst();
-			final AliasSet _toRep = (AliasSet) _pair.getSecond();
+			final AliasSet _fromRep = (AliasSet) ((AliasSet) _pair.getFirst()).find();
+			final AliasSet _toRep = (AliasSet) ((AliasSet) _pair.getSecond()).find();
 
 			if (_fromRep != _toRep) {
 				_toRep.shared |= _fromRep.shared;
@@ -492,15 +488,15 @@ final class AliasSet
 
 					_toRep.shareEntities.addAll(_fromRep.shareEntities);
 				}
-			}
-
-			for (final Iterator _i = _toRep.fieldMap.keySet().iterator(); _i.hasNext();) {
-				final Object _key = _i.next();
-				final AliasSet _to = (AliasSet) _toRep.fieldMap.get(_key);
-				final AliasSet _from = (AliasSet) _fromRep.fieldMap.get(_key);
-
-				if ((_to != null) && (_from != null)) {
-					_wb.addWork(new Pair(_from.find(), _to.find()));
+			
+				for (final Iterator _i = _toRep.fieldMap.keySet().iterator(); _i.hasNext();) {
+					final Object _key = _i.next();
+					final AliasSet _to = (AliasSet) _toRep.fieldMap.get(_key);
+					final AliasSet _from = (AliasSet) _fromRep.fieldMap.get(_key);
+	
+					if ((_to != null) && (_from != null)) {
+						_wb.addWork(new Pair(_from, _to));
+					}
 				}
 			}
 		}
@@ -515,7 +511,7 @@ final class AliasSet
 	 * @pre as != null
 	 */
 	void putASForField(final String field, final AliasSet as) {
-		((AliasSet) find()).fieldMap.put(field, as.find());
+		((AliasSet) find()).fieldMap.put(field, as);
 
 		if (isGlobal()) {
 			as.setGlobal();
@@ -523,42 +519,43 @@ final class AliasSet
 	}
 
 	/**
-	 * Unifies this object with itself.  This is required when the alias set is occurs in the context of a site which is
+	 * Unifies the given object with itself.  This is required when the alias set is occurs in the context of a site which is
 	 * executed multiple times, in particular, reachable from a call-site which may be executed multiple times.
+	 *
+	 * @param as the alias set to be unified with itself.
+	 * 
+	 * @pre as != null
 	 */
-	void selfUnify() {
-		final AliasSet _m = (AliasSet) find();
+	static void selfUnify(final AliasSet as) {
+		final Collection _processed = new HashSet();
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(_processed);
+		_wb.addWork(as);
 
-		if (_m == this) {
-			if (selfUnifying) {
-				return;
+		while (_wb.hasWork()) {
+			final AliasSet _m = (AliasSet) _wb.getWork();
+			final AliasSet _repr = (AliasSet) _m.find();
+
+			if (_repr != _m) {
+				_processed.add(_repr);
 			}
-			selfUnifying = true;
 
-			_m.shared |= _m.accessed;
+			_repr.shared |= _repr.accessed;
 
-			if (_m.waits && _m.notifies) {
-				if (_m.readyEntities == null) {
-					_m.readyEntities = new HashSet();
+			if (_repr.waits && _repr.notifies) {
+				if (_repr.readyEntities == null) {
+					_repr.readyEntities = new HashSet();
 				}
-				_m.readyEntities.add(getNewReadyEntity());
+				_repr.readyEntities.add(getNewReadyEntity());
 			}
 
-			if (_m.read && _m.written) {
-				if (_m.shareEntities == null) {
-					_m.shareEntities = new HashSet();
+			if (_repr.read && _repr.written) {
+				if (_repr.shareEntities == null) {
+					_repr.shareEntities = new HashSet();
 				}
-				_m.shareEntities.add(getNewShareEntity());
+				_repr.shareEntities.add(getNewShareEntity());
 			}
 
-			for (final Iterator _i = _m.fieldMap.values().iterator(); _i.hasNext();) {
-				final AliasSet _fieldAS = (AliasSet) _i.next();
-				_fieldAS.selfUnify();
-			}
-
-			selfUnifying = false;
-		} else {
-			_m.selfUnify();
+			_wb.addAllWorkNoDuplicates(_repr.fieldMap.values());
 		}
 	}
 
@@ -581,7 +578,7 @@ final class AliasSet
 	 * @post result != null
 	 */
 	private static Object getNewReadyEntity() {
-		return new String("Entity:" + readyEntityCount++);
+		return new String("ReadyEntity:" + readyEntityCount++);
 	}
 
 	/**
@@ -592,7 +589,7 @@ final class AliasSet
 	 * @post result != null
 	 */
 	private static Object getNewShareEntity() {
-		return new String("Entity:" + shareEntityCount++);
+		return new String("ShareEntity:" + shareEntityCount++);
 	}
 
 	/**
@@ -612,31 +609,47 @@ final class AliasSet
 		if (_m != _n) {
 			_m.union(_n);
 
-			final AliasSet _rep1 = (AliasSet) _m.find();
-			final AliasSet _rep2;
+			final AliasSet _representative = (AliasSet) _m.find();
+			final AliasSet _represented;
 
-			if (_rep1 == _m) {
-				_rep2 = _n;
+			if (_representative == _m) {
+				_represented = _n;
 			} else {
-				_rep2 = _m;
+				_represented = _m;
 			}
 
-			_rep1.waits |= _rep2.waits;
-			_rep1.notifies |= _rep2.notifies;
-			_rep1.accessed |= _rep2.accessed;
-			_rep1.read |= _rep2.read;
-			_rep1.written |= _rep2.written;
-			_rep1.multiThreadAccess |= _rep2.multiThreadAccess;
-			_rep1.shared |= _rep2.shared;
+			_representative.waits |= _represented.waits;
+			_representative.notifies |= _represented.notifies;
+			_representative.accessed |= _represented.accessed;
+			_representative.read |= _represented.read;
+			_representative.written |= _represented.written;
+			_representative.multiThreadAccess |= _represented.multiThreadAccess;
+			_representative.shared |= _represented.shared;
 
-			if (unifyAll && _rep1.multiThreadAccess) {
-				unifyEscapeInfo(_rep1, _rep2);
+			if (_represented.readyEntities != null) {
+				if (_representative.readyEntities == null) {
+					_representative.readyEntities = _represented.readyEntities;
+				} else {
+					_representative.readyEntities.addAll(_represented.readyEntities);
+				}
 			}
 
-			_rep1.unifyFields(_rep2, unifyAll);
+			if (_represented.shareEntities != null) {
+				if (_representative.shareEntities == null) {
+					_representative.shareEntities = _represented.shareEntities;
+				} else {
+					_representative.shareEntities.addAll(_represented.shareEntities);
+				}
+			}
 
-			if (_rep1.global || _rep2.global) {
-				_rep1.setGlobal();
+			if (unifyAll && _representative.multiThreadAccess) {
+				unifyEscapeInfo(_representative, _represented);
+			}
+
+			_representative.unifyFields(_represented, unifyAll);
+
+			if (_representative.global || _represented.global) {
+				_representative.setGlobal();
 			}
 		}
 	}
@@ -644,24 +657,24 @@ final class AliasSet
 	/**
 	 * Unify escape and sharing information in the given alias set.
 	 *
-	 * @param reprAliasSet is one of the alias set involved in the unification.
-	 * @param aliasSet is the other alias set involved in the unification.
+	 * @param representative is one of the alias set involved in the unification.
+	 * @param represented is the other alias set involved in the unification.
 	 */
-	private static void unifyEscapeInfo(final AliasSet reprAliasSet, final AliasSet aliasSet) {
-		reprAliasSet.shared |= (reprAliasSet.accessed && aliasSet.accessed);
+	private static void unifyEscapeInfo(final AliasSet representative, final AliasSet represented) {
+		representative.shared |= (representative.accessed && represented.accessed);
 
-		if ((reprAliasSet.waits && aliasSet.notifies) || (reprAliasSet.notifies && aliasSet.waits)) {
-			if (reprAliasSet.readyEntities == null) {
-				reprAliasSet.readyEntities = new HashSet();
+		if ((representative.waits && represented.notifies) || (representative.notifies && represented.waits)) {
+			if (representative.readyEntities == null) {
+				representative.readyEntities = new HashSet();
 			}
-			reprAliasSet.readyEntities.add(getNewReadyEntity());
+			representative.readyEntities.add(getNewReadyEntity());
 		}
 
-		if ((reprAliasSet.read && aliasSet.written) || (reprAliasSet.written && aliasSet.read)) {
-			if (reprAliasSet.shareEntities == null) {
-				reprAliasSet.shareEntities = new HashSet();
+		if ((representative.read && represented.written) || (representative.written && represented.read)) {
+			if (representative.shareEntities == null) {
+				representative.shareEntities = new HashSet();
 			}
-			reprAliasSet.shareEntities.add(getNewShareEntity());
+			representative.shareEntities.add(getNewShareEntity());
 		}
 	}
 
@@ -679,11 +692,9 @@ final class AliasSet
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final Object _key = _entry.getKey();
 			final Object _value = _entry.getValue();
-			final AliasSet _fieldASInThis = (AliasSet) fieldMap.get(_key);
-			final AliasSet _givenFieldAS = (AliasSet) _value;
-
-			if (_fieldASInThis != null) {
-				unifyAliasSetHelper(_fieldASInThis, _givenFieldAS, unifyAll);
+			
+			if (fieldMap.containsKey(_key)) {
+			    unifyAliasSetHelper((AliasSet) fieldMap.get(_key), (AliasSet) _value, unifyAll);
 			} else {
 				fieldMap.put(_key, _value);
 			}
@@ -694,6 +705,8 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/08/02 10:30:26  venku
+   - resolved few more issues in escape analysis.
    Revision 1.22  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.

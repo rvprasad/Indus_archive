@@ -132,6 +132,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final CFGAnalysis cfgAnalysis;
 
 	/** 
+	 * The collection of method contexts to be unified with themselves.
+	 * 	
+	 * @invariant contextsToBeSelfUnified.oclIsKindOf(Collection(MethodContext))
+	 */
+	final Collection contextsToBeSelfUnified = new HashSet();
+
+	/** 
 	 * This provides context information pertaining to caller-callee relation across method calls.  The method stored in the
 	 * context is the caller.  The statement is one in which invocation occurs.  The program point is at which place the
 	 * invocation happens.
@@ -158,6 +165,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * 			  MethodContext))))
 	 */
 	final Map method2Triple;
+
+	/** 
+	 * This maps site context to a collection of method contexts with which it should be unified.
+	 *
+	 * @invariant sc2mcs.oclIsKindOf(Map(MethodContext, Collection(MethodContext)))
+	 */
+	final Map sc2mcs = new HashMap();
 
 	/** 
 	 * This is the statement processor used to analyze the methods.
@@ -508,11 +522,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @param o is a piece of IR to be processed.
 		 */
 		public void defaultCase(final Object o) {
-			if (o instanceof Value) {
-				setResult(AliasSet.getASForType(((Value) o).getType()));
-			} else {
-				setResult(null);
-			}
+			setResult(null);
 		}
 
 		/**
@@ -595,8 +605,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		private void processCallees(final Collection callees, final SootMethod caller, final AliasSet primaryAliasSet,
 			final MethodContext siteContext) {
-			boolean _shouldSelfUnify = false;
-
 			for (final Iterator _i = callees.iterator(); _i.hasNext();) {
 				final SootMethod _callee = (SootMethod) _i.next();
 				final Triple _triple = (Triple) method2Triple.get(_callee);
@@ -631,14 +639,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				if (_isThreadBoundary) {
 					_mc.markAsCrossingThreadBoundary();
 				}
-				siteContext.unifyMethodContext(_mc);
-				_shouldSelfUnify |= Util.isStartMethod(_callee);
-			}
 
-			// It would suffice to unify the site context with it self in the case of loop enclosure
-			// as this is more semantically close to what happens during execution.
-			if (_shouldSelfUnify && cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
-				siteContext.selfUnify();
+				// It would suffice to unify the method context with it self in the case of loop enclosure
+				// as this is more semantically close to what happens during execution.
+				if (Util.isStartMethod(_callee) && cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
+					contextsToBeSelfUnified.add(_mc);
+				}
+				CollectionsUtilities.putIntoSetInMap(sc2mcs, siteContext, _mc);
 			}
 		}
 
@@ -676,7 +683,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			} else if (expr instanceof InterfaceInvokeExpr
 				  || expr instanceof VirtualInvokeExpr
 				  || expr instanceof SpecialInvokeExpr) {
-				context.setProgramPoint(((InstanceInvokeExpr) expr).getBaseBox());
 				_callees.addAll(cgi.getCallees(expr, context));
 			}
 
@@ -1115,6 +1121,37 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * Performs self-unification on method contexts marked for self unification and then unifies site contexts with
+	 * corresponding  method contexts.
+	 */
+	private void finishUpMethod() {
+		final Iterator _j = contextsToBeSelfUnified.iterator();
+		final int _jEnd = contextsToBeSelfUnified.size();
+
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			final MethodContext _mc = (MethodContext) _j.next();
+			_mc.selfUnify();
+		}
+		contextsToBeSelfUnified.clear();
+
+		final Iterator _i = sc2mcs.entrySet().iterator();
+		final int _iEnd = sc2mcs.entrySet().size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final MethodContext _sc = (MethodContext) _entry.getKey();
+			final Iterator _k = ((Collection) _entry.getValue()).iterator();
+			final int _kEnd = ((Collection) _entry.getValue()).size();
+
+			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+				final MethodContext _mc = (MethodContext) _k.next();
+				_sc.unifyMethodContext(_mc);
+			}
+		}
+		sc2mcs.clear();
+	}
+
+	/**
 	 * Performs phase 2 processing as described in the paper described in the documentation of this class.
 	 */
 	private void performPhase2() {
@@ -1161,13 +1198,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 						context.setStmt(_stmt);
 						stmtProcessor.process(_stmt);
 					}
-
-					for (final Iterator _k = _bb.getSuccsOf().iterator(); _k.hasNext();) {
-						final Object _o = _k.next();
-
-						_wb.addWorkNoDuplicates(_o);
-					}
+					_wb.addAllWorkNoDuplicates(_bb.getSuccsOf());
 				}
+
+				finishUpMethod();
 
 				// discard alias sets that serve as a mere indirection level. 
 				discardReferentialAliasSets(_sm);
@@ -1213,17 +1247,17 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				 * more info.
 				 */
 				if (_calleeTriple == null) {
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("NO CALLEE TRIPLE: " + _callee.getSignature());
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("NO CALLEE TRIPLE: " + _callee.getSignature());
 					}
 
 					continue;
 				}
 
-				final MethodContext _mc = (MethodContext) (_calleeTriple.getFirst());
+				final MethodContext _calleeMethodContext = (MethodContext) (_calleeTriple.getFirst());
 				final CallTriple _callerTrp = new CallTriple(_caller, _ctrp.getStmt(), _ctrp.getExpr());
-				final MethodContext _sc = (MethodContext) _ctrp2sc.get(_callerTrp);
-				MethodContext.propogateInfoFromTo(_sc, _mc);
+				final MethodContext _calleeSiteContext = (MethodContext) _ctrp2sc.get(_callerTrp);
+				MethodContext.propogateInfoFromTo(_calleeSiteContext, _calleeMethodContext);
 			}
 		}
 
@@ -1239,6 +1273,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.64  2004/08/02 10:30:26  venku
+   - resolved few more issues in escape analysis.
    Revision 1.63  2004/08/01 22:58:25  venku
    - ECBA was erroneous for 2 reasons.
      - top-down propagation was not complete. FIXED.

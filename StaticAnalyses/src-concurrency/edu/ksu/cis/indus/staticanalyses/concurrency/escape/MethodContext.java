@@ -170,7 +170,7 @@ final class MethodContext
 			 */
 			if (thisAS != null) {
 				_clone.thisAS = (AliasSet) thisAS.clone();
-				_clonee2clone.put(thisAS.find(), _clone.thisAS);
+				_clonee2clone.put(thisAS, _clone.thisAS);
 			}
 			_clone.argAliasSets = new ArrayList();
 
@@ -180,7 +180,7 @@ final class MethodContext
 				if (_tmp != null) {
 					final AliasSet _o = (AliasSet) _tmp.clone();
 					_clone.argAliasSets.add(_o);
-					_clonee2clone.put(_tmp.find(), _o);
+					_clonee2clone.put(_tmp, _o);
 				} else {
 					_clone.argAliasSets.add(null);
 				}
@@ -188,10 +188,10 @@ final class MethodContext
 
 			if (ret != null) {
 				_clone.ret = (AliasSet) ret.clone();
-				_clonee2clone.put(ret.find(), _clone.ret);
+				_clonee2clone.put(ret, _clone.ret);
 			}
 			_clone.thrown = (AliasSet) thrown.clone();
-			_clonee2clone.put(thrown.find(), _clone.thrown);
+			_clonee2clone.put(thrown, _clone.thrown);
 			AliasSet.fixUpFieldMapsOfClone(_clonee2clone);
 		}
 		return _clone;
@@ -358,7 +358,7 @@ final class MethodContext
 
 				// it is possible that the argument at a site-context is null
 				if (_aliasSet != null) {
-					_aliasSet.selfUnify();
+					AliasSet.selfUnify(_aliasSet);
 				}
 			}
 		}
@@ -366,14 +366,14 @@ final class MethodContext
 		final AliasSet _mRet = _methodContext.ret;
 
 		if (_mRet != null) {
-			_mRet.selfUnify();
+			AliasSet.selfUnify(_mRet);
 		}
-		_methodContext.thrown.selfUnify();
+		AliasSet.selfUnify(_methodContext.thrown);
 
 		final AliasSet _mThis = _methodContext.thisAS;
 
 		if (_mThis != null) {
-			_mThis.selfUnify();
+			AliasSet.selfUnify(_mThis);
 		}
 	}
 
@@ -469,6 +469,9 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/08/02 10:30:26  venku
+   - resolved few more issues in escape analysis.
+
    Revision 1.19  2004/08/01 22:58:25  venku
    - ECBA was erroneous for 2 reasons.
      - top-down propagation was not complete. FIXED.
