@@ -101,10 +101,6 @@ public class MethodVariantManager
 	 * @post result != null
 	 */
 	public static SootMethod findDeclaringMethod(final SootClass sc, final SootMethod sm) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(sc + "." + sm.getName());
-		}
-
 		if (sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
 			return sc.getMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType());
 		} else if (sc.hasSuperclass()) {
@@ -138,6 +134,8 @@ public class MethodVariantManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/30 22:39:20  venku
+   Added support to query statistics of the managers.
    Revision 1.3  2003/08/17 10:48:33  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
