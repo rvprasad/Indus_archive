@@ -34,7 +34,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 
@@ -155,8 +155,7 @@ public final class RufEATester
 			ppc.process();
 			cg.unhook(ppc);
 
-			ppc = new CGBasedProcessingController(cg);
-			ppc.setAnalyzer(aa);
+			ppc.setProcessingFilter(new CGBasedProcessingFilter(cg));
 
 			// Create Thread graph
 			ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, bbm));
@@ -269,6 +268,8 @@ public final class RufEATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/12 10:53:26  venku
+   - this is now based on SootBasedDriver.
    Revision 1.5  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
@@ -282,31 +283,31 @@ public final class RufEATester
      but yet says it is out of sync.
    Revision 1.2  2003/09/08 02:23:24  venku
  *** empty log message ***
-               Revision 1.1  2003/08/21 01:24:25  venku
-                - Renamed src-escape to src-concurrency to as to group all concurrency
-                  issue related analyses into a package.
-                - Renamed escape package to concurrency.escape.
-                - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-               Revision 1.4  2003/08/17 10:48:34  venku
-               Renamed BFA to FA.  Also renamed bfa variables to fa.
-               Ripple effect was huge.
-               Revision 1.3  2003/08/11 06:29:07  venku
-               Changed format of change log accumulation at the end of the file
-               Revision 1.2  2003/08/10 03:43:26  venku
-               Renamed Tester to Driver.
-               Refactored logic to pick entry points.
-               Provided for logging timing stats into any specified stream.
-               Ripple effect in others.
-               Revision 1.1  2003/08/07 06:39:07  venku
-               Major:
-                - Moved the package under indus umbrella.
-               Minor:
-                - changes to accomodate ripple effect from support package.
-               Revision 1.3  2003/07/30 08:30:31  venku
-               Refactoring ripple.
-               Also fixed a subtle bug in isShared() which caused wrong results.
-               Revision 1.2  2003/07/27 21:15:22  venku
-               Minor:
-                - arg name changes.
-                - comment changes.
+                   Revision 1.1  2003/08/21 01:24:25  venku
+                    - Renamed src-escape to src-concurrency to as to group all concurrency
+                      issue related analyses into a package.
+                    - Renamed escape package to concurrency.escape.
+                    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+                   Revision 1.4  2003/08/17 10:48:34  venku
+                   Renamed BFA to FA.  Also renamed bfa variables to fa.
+                   Ripple effect was huge.
+                   Revision 1.3  2003/08/11 06:29:07  venku
+                   Changed format of change log accumulation at the end of the file
+                   Revision 1.2  2003/08/10 03:43:26  venku
+                   Renamed Tester to Driver.
+                   Refactored logic to pick entry points.
+                   Provided for logging timing stats into any specified stream.
+                   Ripple effect in others.
+                   Revision 1.1  2003/08/07 06:39:07  venku
+                   Major:
+                    - Moved the package under indus umbrella.
+                   Minor:
+                    - changes to accomodate ripple effect from support package.
+                   Revision 1.3  2003/07/30 08:30:31  venku
+                   Refactoring ripple.
+                   Also fixed a subtle bug in isShared() which caused wrong results.
+                   Revision 1.2  2003/07/27 21:15:22  venku
+                   Minor:
+                    - arg name changes.
+                    - comment changes.
  */

@@ -237,6 +237,15 @@ public class ProcessingController {
 	boolean processValues;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private IProcessingFilter processingFilter;
+    
+    private IProcessingFilter methodFilter;
+
+	/**
 	 * This defines the environment in which the processing runs.
 	 */
 	private IEnvironment env;
@@ -975,7 +984,8 @@ public class ProcessingController {
 	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
 	 * @post result != null
 	 */
-	protected Collection filterClasses(final Collection classes) {
+	protected final Collection filterClasses(final Collection classes) {
+		// TODO: delete
 		return classes;
 	}
 
@@ -989,7 +999,8 @@ public class ProcessingController {
 	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod))
 	 * @post result != null
 	 */
-	protected Collection filterMethods(final Collection methods) {
+	protected final Collection filterMethods(final Collection methods) {
+		// TODO: delete
 		return methods;
 	}
 
@@ -1011,7 +1022,16 @@ public class ProcessingController {
 	 * @pre theClasses != null and theClasses.oclIsKindOf(Collection(SootClass))
 	 */
 	protected void processClasses(final Collection theClasses) {
-		Collection classes = filterClasses(theClasses);
+		Collection classes;
+
+		if (processingFilter == null) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Performance may be hit as classFilter is not set.");
+			}
+			classes = theClasses;
+		} else {
+			classes = processingFilter.filterClasses(theClasses);
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Classes to be processed:\n" + classes);
@@ -1045,7 +1065,16 @@ public class ProcessingController {
 	 * @pre theMethods != null and theMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	protected void processMethods(final Collection theMethods) {
-		Collection methods = filterMethods(theMethods);
+		Collection methods;
+
+		if (methodFilter == null) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Performance may be hit as methodFilter is not set.");
+			}
+			methods = theMethods;
+		} else {
+			methods = methodFilter.filterClasses(theMethods);
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Methods to be processed:\n" + methods);
@@ -1089,11 +1118,21 @@ public class ProcessingController {
 			}
 		}
 	}
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param DOCUMENT ME!
+     */
+    public void setProcessingFilter(final IProcessingFilter theFilter) {
+        processingFilter = theFilter;
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/17 15:58:58  venku
+   - coding conventions.
    Revision 1.12  2003/11/17 15:42:49  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.11  2003/11/17 01:44:01  venku

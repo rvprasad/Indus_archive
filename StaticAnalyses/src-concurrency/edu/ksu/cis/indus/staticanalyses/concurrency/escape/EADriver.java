@@ -34,7 +34,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 
@@ -135,7 +135,7 @@ public final class EADriver
 			ppc.process();
 			cg.unhook(ppc);
 
-			ppc = new CGBasedProcessingController(cg);
+			ppc.setProcessingFilter(new CGBasedProcessingFilter(cg));
 			ppc.setAnalyzer(aa);
 
 			// Create Thread graph
@@ -262,6 +262,8 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/11/17 01:17:12  venku
+   - formatting.
    Revision 1.17  2003/11/16 19:09:42  venku
    - documentation.
    Revision 1.16  2003/11/12 10:50:55  venku

@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.xmlizer;
 import soot.SootClass;
 import soot.SootMethod;
 
-import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.IProcessingFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,7 @@ import java.util.List;
  * @version $Revision$ $Date$
  */
 public class XMLizingController
-  extends ProcessingController {
+  implements IProcessingFilter {
 	/**
 	 * This compares <code>SootClass</code> objects lexographically based on their fully qualified java names.
 	 *
@@ -47,7 +47,14 @@ public class XMLizingController
 	public static final class LexographicalClassComparator
 	  implements Comparator {
 		/**
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 * DOCUMENT ME!
+		 *
+		 * @param o1 DOCUMENT ME!
+		 * @param o2 DOCUMENT ME!
+		 *
+		 * @return DOCUMENT ME!
+		 *
+		 * @pre o1.oclIsKindOf(SootClass) and o2.oclIsKindOf(SootClass)
 		 */
 		public int compare(Object o1, Object o2) {
 			SootClass sc1 = (SootClass) o1;
@@ -56,47 +63,48 @@ public class XMLizingController
 		}
 	}
 
-
-	/**
-	 * This compares <code>SootMethod</code> objects lexographically based on their java signature.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	public static final class LexographicalMethodComparator
-	  implements Comparator {
-		/**
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
-		public int compare(Object o1, Object o2) {
-			String sig1 = ((SootMethod) o1).getSubSignature();
-			String sig2 = ((SootMethod) o2).getSubSignature();
-			return sig1.substring(sig1.indexOf(' ')).compareTo(sig2.substring(sig2.indexOf(' ')));
-		}
-	}
-
+    /**
+     * This compares <code>SootMethod</code> objects lexographically based on their java signature.
+     *
+     * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+     * @author $Author$
+     * @version $Revision$ $Date$
+     */
+    public static final class LexographicalMethodComparator
+    implements Comparator {
+        /**
+         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         */
+        public int compare(Object o1, Object o2) {
+            String sig1 = ((SootMethod) o1).getSubSignature();
+            String sig2 = ((SootMethod) o2).getSubSignature();
+            return sig1.substring(sig1.indexOf(' ')).compareTo(sig2.substring(sig2.indexOf(' ')));
+        }
+    }
+    
+    
+    /**
+     * This implementation returns the methods in alphabetical order as required to assing unique id to entities while
+     * XMLizing.
+     *
+     * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
+     */
+    public Collection filterMethods(Collection methods) {
+        List result = new ArrayList(methods);
+        Collections.sort(result, new LexographicalMethodComparator());
+        return result;
+    }
+    
+    
 	/**
 	 * This implementation returns the classes in alphabetical order as required to assing unique id to entities while
 	 * XMLizing.
 	 *
-	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterClasses(Collection)
+	 * @see edu.ksu.cis.indus.interfaces.IFilter#filter(java.lang.Object)
 	 */
 	public Collection filterClasses(final Collection classes) {
 		List result = new ArrayList(classes);
 		Collections.sort(result, new LexographicalClassComparator());
-		return result;
-	}
-
-	/**
-	 * This implementation returns the methods in alphabetical order as required to assing unique id to entities while
-	 * XMLizing.
-	 *
-	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
-	 */
-	public Collection filterMethods(Collection methods) {
-		List result = new ArrayList(methods);
-		Collections.sort(result, new LexographicalMethodComparator());
 		return result;
 	}
 }
@@ -104,11 +112,13 @@ public class XMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/17 16:58:19  venku
+   - populateDAs() needs to be called from outside the constructor.
+   - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
    Revision 1.4  2003/11/17 02:24:00  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them
      rather than they constructing them.
-
    Revision 1.3  2003/11/12 03:59:41  venku
    - exposed inner classes as static classes.
    Revision 1.2  2003/11/07 11:13:06  venku

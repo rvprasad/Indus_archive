@@ -41,7 +41,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
@@ -226,7 +226,8 @@ public final class SlicerTool
 		callGraph = new CallGraph();
 
 		// create the pre processor for thread graph construction.
-		cgBasedPreProcessCtrl = new CGBasedProcessingController(callGraph);
+		cgBasedPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
+        cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 
 		unitGraphProvider = new TrapUnitGraphFactory();
@@ -637,6 +638,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2003/11/28 18:16:38  venku
+   - formatting.
+
    Revision 1.35  2003/11/28 16:39:53  venku
    - uses TrapUnitGraphFactory all through.
    - removed unnecessary addition of SlicerConfiguration

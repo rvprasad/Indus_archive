@@ -132,10 +132,11 @@ public class JimpleXMLizer
 	 */
 	public static void main(String[] s) {
 		JimpleXMLizer xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
-		ProcessingController pc = new XMLizingController();
+		ProcessingController pc = new ProcessingController();
 		Scene scene = Scene.v();
 		Environment env = new Environment(scene);
 		pc.setEnvironment(env);
+		pc.setProcessingFilter(new XMLizingController());
 
 		for (int i = 0; i < s.length; i++) {
 			scene.loadClassAndSupport(s[i]);
@@ -392,6 +393,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/28 09:40:38  venku
+   - the way information is captured is changed.
       Revision 1.18  2003/11/26 18:26:08  venku
       - capture a whole lot more information for classes and methods.
       - removed unnecessary info from the attributes.

@@ -47,10 +47,11 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTripl
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
+import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingFilter;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
@@ -169,8 +170,10 @@ public class DependencyXMLizer
 	 */
 	ValueAnalyzerBasedProcessingController cgipc;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private AliasedUseDefInfo aliasUD;
 
@@ -311,10 +314,11 @@ public class DependencyXMLizer
 		ICallGraphInfo cgi = new CallGraph();
 		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
 		Collection rm = new ArrayList();
-		cgipc = new CGBasedProcessingController(cgi);
+		cgipc = new ValueAnalyzerBasedProcessingController();
 
 		pc.setAnalyzer(aa);
 		cgipc.setAnalyzer(aa);
+		cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
 		aliasUD = new AliasedUseDefInfo(aa);
 		info.put(ICallGraphInfo.ID, cgi);
 		info.put(IThreadGraphInfo.ID, tgi);
@@ -530,8 +534,9 @@ public class DependencyXMLizer
 	 * @param cgi DOCUMENT ME!
 	 */
 	protected void writeXML(final String root, final ICallGraphInfo cgi) {
-		ProcessingController ctrl = new CGBasedXMLizingController(cgi);
+		ProcessingController ctrl = new ProcessingController();
 		ctrl.setEnvironment(aa.getEnvironment());
+		ctrl.setProcessingFilter(new CGBasedXMLizingFilter(cgi));
 
 		Map xmlizers = initXMLizers(root, ctrl);
 		ctrl.process();
@@ -652,6 +657,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/25 19:04:29  venku
+   - aliased use def analysis was never executed. FIXED.
    Revision 1.9  2003/11/25 17:51:23  venku
    - split control dependence into 2 classes.
      EntryControlDA handled control DA as required for backward slicing.

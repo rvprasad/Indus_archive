@@ -13,10 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
+package edu.ksu.cis.indus.staticanalyses.xmlizer;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.xmlizer.XMLizingController;
 
 import java.util.Collection;
@@ -29,8 +29,8 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CGBasedXMLizingController
-  extends CGBasedProcessingController {
+public class CGBasedXMLizingFilter
+  extends CGBasedProcessingFilter {
 	/**
 	 * The instance of xmlizing controller that is wrapped.
 	 *
@@ -46,7 +46,7 @@ public class CGBasedXMLizingController
 	 * @pre cgiPrm != null
 	 * @post xmlizingController != null
 	 */
-	public CGBasedXMLizingController(final ICallGraphInfo cgiPrm) {
+	public CGBasedXMLizingFilter(final ICallGraphInfo cgiPrm) {
 		super(cgiPrm);
 		xmlizingController = new XMLizingController();
 	}
@@ -55,7 +55,7 @@ public class CGBasedXMLizingController
 	 * {@inheritDoc} This implementation uses an XMLizingController to filter the classes after the classes  have been
 	 * filtered based on call graph.
 	 */
-	protected Collection filterClasses(final Collection classes) {
+	public Collection filterClasses(final Collection classes) {
 		return xmlizingController.filterClasses(super.filterClasses(classes));
 	}
 
@@ -65,7 +65,7 @@ public class CGBasedXMLizingController
 	 *
 	 * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
 	 */
-	protected Collection filterMethods(final Collection methods) {
+	public Collection filterMethods(final Collection methods) {
 		return xmlizingController.filterMethods(super.filterMethods(methods));
 	}
 }
@@ -73,11 +73,13 @@ public class CGBasedXMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 16:58:15  venku
+   - populateDAs() needs to be called from outside the constructor.
+   - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
    Revision 1.2  2003/11/17 02:23:56  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them
      rather than they constructing them.
-
    Revision 1.1  2003/11/12 05:18:54  venku
    - moved xmlizing classes to a different class.
    Revision 1.1  2003/11/12 05:05:45  venku

@@ -35,7 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTripl
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
@@ -152,7 +152,8 @@ public abstract class DADriver
 		ICallGraphInfo cgi = new CallGraph();
 		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
 		Collection rm = new ArrayList();
-		cgipc = new CGBasedProcessingController(cgi);
+		cgipc = new ValueAnalyzerBasedProcessingController();
+        cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
 		aliasUD = new AliasedUseDefInfo(aa);
 
 		pc.setAnalyzer(aa);
@@ -350,6 +351,9 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2003/11/25 19:01:20  venku
+   - uses environment available from OFA rather than the primitive scene.
+
    Revision 1.28  2003/11/11 10:10:29  venku
    - moved run() and initialize() into Driver.
    Revision 1.27  2003/11/06 05:31:07  venku
