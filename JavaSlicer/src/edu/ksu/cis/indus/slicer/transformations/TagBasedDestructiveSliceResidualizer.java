@@ -213,11 +213,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	private final class StmtResidualizer
 	  extends AbstractStmtSwitch {
-		/*
-		 * TODO: Depending on the relevant branches of the conditional various branches of the conditional can be sliced to
-		 * improve precision.
-		 */
-
 		/** 
 		 * This is the instance to be used to residualize expressions/values.
 		 */
