@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Triple;
@@ -112,6 +111,16 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 
 	/** 
+	 * The logger used by instances of <code>ValueProcessor</code> class to log messages.
+	 */
+	static final Log VALUE_PROCESSOR_LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.ValueProcessor.class);
+
+	/** 
+	 * The logger used by instances of <code>StmtProcessor</code> class to log messages.
+	 */
+	static final Log STMT_PROCESSOR_LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.StmtProcessor.class);
+
+	/** 
 	 * This is the unique string identifier that can be used to identify an instance of this class.
 	 */
 	public static final String ID = "Shared Access Information";
@@ -119,7 +128,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
+	private static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
 
 	/** 
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.
@@ -130,13 +139,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * This provides inter-procedural control-flow information.
 	 */
 	final CFGAnalysis cfgAnalysis;
-
-	/** 
-	 * The collection of method contexts to be unified with themselves.
-	 *
-	 * @invariant contextsToBeSelfUnified.oclIsKindOf(Collection(MethodContext))
-	 */
-	final Collection contextsToBeSelfUnified = new HashSet();
 
 	/** 
 	 * This provides context information pertaining to caller-callee relation across method calls.  The method stored in the
@@ -165,13 +167,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * 			  MethodContext))))
 	 */
 	final Map method2Triple;
-
-	/** 
-	 * This maps site context to a collection of method contexts with which it should be unified.
-	 *
-	 * @invariant sc2mcs.oclIsKindOf(Map(MethodContext, Collection(MethodContext)))
-	 */
-	final Map sc2mcs = new HashMap();
 
 	/** 
 	 * This is the statement processor used to analyze the methods.
@@ -336,8 +331,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @pre stmt != null
 		 */
 		void process(final Stmt stmt) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing statement: " + stmt);
+			if (STMT_PROCESSOR_LOGGER.isTraceEnabled()) {
+				STMT_PROCESSOR_LOGGER.trace("Processing statement: " + stmt);
 			}
 			stmt.apply(this);
 		}
@@ -533,8 +528,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @pre value != null
 		 */
 		void process(final Value value) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing value: " + value);
+			if (VALUE_PROCESSOR_LOGGER.isTraceEnabled()) {
+				VALUE_PROCESSOR_LOGGER.trace("Processing value: " + value);
 			}
 			value.apply(this);
 		}
@@ -643,9 +638,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				// It would suffice to unify the method context with it self in the case of loop enclosure
 				// as this is more semantically close to what happens during execution.
 				if (Util.isStartMethod(_callee) && cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
-					contextsToBeSelfUnified.add(_mc);
+					_mc.selfUnify();
 				}
-				CollectionsUtilities.putIntoSetInMap(sc2mcs, siteContext, _mc);
+				siteContext.unifyMethodContext(_mc);
 			}
 		}
 
@@ -1121,37 +1116,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Performs self-unification on method contexts marked for self unification and then unifies site contexts with
-	 * corresponding  method contexts.
-	 */
-	private void finishUpMethod() {
-		final Iterator _j = contextsToBeSelfUnified.iterator();
-		final int _jEnd = contextsToBeSelfUnified.size();
-
-		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-			final MethodContext _mc = (MethodContext) _j.next();
-			_mc.selfUnify();
-		}
-		contextsToBeSelfUnified.clear();
-
-		final Iterator _i = sc2mcs.entrySet().iterator();
-		final int _iEnd = sc2mcs.entrySet().size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final MethodContext _sc = (MethodContext) _entry.getKey();
-			final Iterator _k = ((Collection) _entry.getValue()).iterator();
-			final int _kEnd = ((Collection) _entry.getValue()).size();
-
-			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-				final MethodContext _mc = (MethodContext) _k.next();
-				_sc.unifyMethodContext(_mc);
-			}
-		}
-		sc2mcs.clear();
-	}
-
-	/**
 	 * Performs phase 2 processing as described in the paper described in the documentation of this class.
 	 */
 	private void performPhase2() {
@@ -1200,8 +1164,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					}
 					_wb.addAllWorkNoDuplicates(_bb.getSuccsOf());
 				}
-
-				finishUpMethod();
 
 				// discard alias sets that serve as a mere indirection level. 
 				discardReferentialAliasSets(_sm);
@@ -1268,6 +1230,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.66  2004/08/05 08:26:29  venku
+   - fixed the nagging bug in alias set cloning.
    Revision 1.65  2004/08/04 10:51:11  venku
    - INTERIM commit to enable working acorss sites.
    Revision 1.64  2004/08/02 10:30:26  venku
