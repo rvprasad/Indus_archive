@@ -77,7 +77,7 @@ import edu.ksu.cis.indus.kaveri.common.SECommons;
 public class DependenceHistoryView extends ViewPart {
     /**
      * <p>
-     * The table viewer for this view.
+     * The table tvLeft for this view.
      * </p>
      */
     private TableTreeViewer viewer;
@@ -273,7 +273,7 @@ public class DependenceHistoryView extends ViewPart {
          * The input has changed. Register for receiving any changes.
          * 
          * @param v
-         *            The current viewer
+         *            The current tvLeft
          * @param oldInput
          *            The old input to the view.
          * @param newInput
@@ -507,14 +507,14 @@ public class DependenceHistoryView extends ViewPart {
     }
 
     /**
-     * Passing the focus request to the viewer's control.
+     * Passing the focus request to the tvLeft's control.
      */
     public void setFocus() {
         viewer.getControl().setFocus();
     }
 
     /**
-     * This is a callback that will allow us to create the viewer and initialize
+     * This is a callback that will allow us to create the tvLeft and initialize
      * it.
      * 
      * @param parent
@@ -552,7 +552,7 @@ public class DependenceHistoryView extends ViewPart {
             }
         });
 
-        //viewer = new CheckboxTableViewer(_table);
+        //tvLeft = new CheckboxTableViewer(_table);
         final IToolBarManager _manager = getViewSite().getActionBars()
                 .getToolBarManager();
         fillToolBar(_manager);

@@ -24,7 +24,7 @@ import org.eclipse.jface.viewers.Viewer;
 /**
  * @author ganeshan
  * 
- * Provide the content for the context dialog viewer.
+ * Provide the content for the context dialog tvLeft.
  */
 public class ContextContentProvider implements IStructuredContentProvider {
 

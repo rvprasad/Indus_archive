@@ -76,7 +76,7 @@ import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
 public class PartialSliceView extends ViewPart {
     /**
      * <p>
-     * The table viewer for this view.
+     * The table tvLeft for this view.
      * </p>
      */
     private TableViewer viewer;
@@ -220,7 +220,7 @@ public class PartialSliceView extends ViewPart {
          * The input has changed. Register for receiving any changes.
          * 
          * @param v
-         *            The current viewer
+         *            The current tvLeft
          * @param oldInput
          *            The old input to the view.
          * @param newInput
@@ -376,14 +376,14 @@ public class PartialSliceView extends ViewPart {
     }
 
     /**
-     * Passing the focus request to the viewer's control.
+     * Passing the focus request to the tvLeft's control.
      */
     public void setFocus() {
         viewer.getControl().setFocus();
     }
 
     /**
-     * This is a callback that will allow us to create the viewer and initialize
+     * This is a callback that will allow us to create the tvLeft and initialize
      * it.
      * 
      * @param parent
@@ -433,7 +433,7 @@ public class PartialSliceView extends ViewPart {
 
         viewer = new TableViewer(_table);
 
-        //viewer = new CheckboxTableViewer(_table);
+        //tvLeft = new CheckboxTableViewer(_table);
         viewer.setContentProvider(new ViewContentProvider());
         viewer.setLabelProvider(new ViewLabelProvider());
         viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration()

@@ -14,6 +14,15 @@
       <library name="lib/xstream.jar">
          <export name="*"/>
       </library>
+      <library name="lib/peq.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/peq-indus.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/peq-specCompiler.jar">
+         <export name="*"/>
+      </library>
    </runtime>
    <requires>
       <import plugin="org.eclipse.ui"/>
@@ -32,7 +41,8 @@
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="edu.ksu.cis.indus" version="0.5.0" match="greaterOrEqual"/>
-      <import plugin="edu.ksu.cis.j2b" optional="true"/>
+      <import plugin="edu.ksu.cis.j2b"/>
+      <import plugin="org.antlr" version="2.7.4" match="greaterOrEqual" optional="true"/>
    </requires>
 
 <!-- The document -->
@@ -311,6 +321,14 @@
          category="edu.ksu.cis.indus.kaveri"
          name="Dependence Tracking View"
          id="edu.ksu.cis.indus.kaveri.dependence.DependenceTrackingView"/>
+   <view
+         allowMultiple="false"
+         icon="data/icons/sample.gif"
+         class="edu.ksu.cis.indus.kaveri.peq.PEQView"
+         category="edu.ksu.cis.indus.kaveri"
+         name="Peq View"
+         id="edu.ksu.cis.indus.kaveri.peq.peqview"/>
+
    </extension>
    
    <extension

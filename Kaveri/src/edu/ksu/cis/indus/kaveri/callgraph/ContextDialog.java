@@ -52,7 +52,7 @@ import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 public class ContextDialog extends Dialog {
     
     /**
-     * The viewer instance.
+     * The tvLeft instance.
      */
     private CheckboxTableViewer viewer;
 

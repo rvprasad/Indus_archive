@@ -43,7 +43,7 @@ import edu.ksu.cis.indus.kaveri.common.SECommons;
 public class ScopeDialog extends Dialog {
 
     /**
-     * The checkbox viewer
+     * The checkbox tvLeft
      */
     private CheckboxTableViewer tv;
 
@@ -180,7 +180,7 @@ public class ScopeDialog extends Dialog {
     /**
      * Setup the cell editors
      * 
-     * @param viewer
+     * @param tvLeft
      */
     private void setupEditors(TableViewer viewer) {
         final Table _table = viewer.getTable();

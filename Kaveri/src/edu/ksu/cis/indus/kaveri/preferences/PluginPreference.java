@@ -92,7 +92,7 @@ public class PluginPreference extends PreferencePage implements
 
     /**
      * <p>
-     * The checkbox table viewer.
+     * The checkbox table tvLeft.
      * </p>
      */
     private CheckboxTableViewer viewer;

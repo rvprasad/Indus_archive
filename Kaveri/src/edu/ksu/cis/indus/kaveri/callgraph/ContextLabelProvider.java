@@ -22,7 +22,7 @@ import org.eclipse.swt.graphics.Image;
 /**
  * @author ganeshan
  * 
- * Provide the labels for the context dialog viewer.
+ * Provide the labels for the context dialog tvLeft.
  */
 public class ContextLabelProvider extends LabelProvider implements
         ITableLabelProvider {

@@ -59,7 +59,7 @@ import edu.ksu.cis.indus.kaveri.common.SECommons;
 public class RootMethodDialog extends Dialog {
     
     /**
-     * Comment for <code>viewer</code>
+     * Comment for <code>tvLeft</code>
      */
     private CheckboxTableViewer viewer;
     
