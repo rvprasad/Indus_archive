@@ -35,6 +35,8 @@ import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewConfiguration;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewData;
+import edu.ksu.cis.indus.kaveri.scoping.ScopeSelectionDialog;
+
 
 
 import edu.ksu.cis.indus.tools.IToolConfiguration;
@@ -46,6 +48,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -67,6 +70,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -225,6 +229,10 @@ public class IndusConfigurationDialog
 		final Button _btnDelete = new Button(_subcomposite2, SWT.PUSH);
 		_btnDelete.setText(Messages.getString("IndusConfigurationDialog.5"));  //$NON-NLS-1$
 		handleDelete(_btnDelete, project);
+		
+		final Button _btnScope = new Button(_subcomposite2, SWT.PUSH);
+		_btnScope.setText("Setup Scope");
+		handleScope(_btnScope);
 
 		// Add griddata
 		GridData _data = new GridData();
@@ -237,7 +245,8 @@ public class IndusConfigurationDialog
 		final GridData _grpData = new GridData(GridData.FILL_HORIZONTAL);
 		_grpData.horizontalSpan = 3;
 		_group.setLayoutData(_grpData);
-
+		// Reset the scope string
+		KaveriPlugin.getDefault().getIndusConfiguration().setScopeSpecification("");
 		return _composite;
 	}
 
@@ -350,6 +359,46 @@ public class IndusConfigurationDialog
 					}
 				}
 			});
+	}
+	
+	/**
+	 * Handles the scope button action.
+	 * @param btnScope The scope button.
+	 */
+	private void handleScope(final Button btnScope) {
+		btnScope.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent e) {
+				ScopeSelectionDialog _sld = new ScopeSelectionDialog(Display.getCurrent().getActiveShell(),
+						 null, null);
+				if (_sld.open() == IDialogConstants.OK_ID) {
+					final Object _res[] =_sld.getResult();
+					if (_res != null && _res.length > 0) {
+						String _scopeSpec = "<?xml version=\"1.0\"?>\n";
+						_scopeSpec += "<scopeSpec  xmlns=\"http://indus.projects.cis.ksu.edu/indus\">\n";												
+						for (int i = 0; i < _res.length; i++) {
+							final IMethod _method = (IMethod) _res[i];
+							_scopeSpec += "\n<methodSpec>\n";
+							_scopeSpec += "<declaringClassSpec>\n";
+						    _scopeSpec += "<typeSpec hierarchySpec=\"IDENTITY\" inclusion=\"true\">" + _method.getParent().getElementName();
+						    _scopeSpec += "\n</typeSpec>\n</declaringClassSpec>\n";	
+						    _scopeSpec += "<returnTypeSpec>\n";
+							_scopeSpec += "<typeSpec hierarchySpec=\"IDENTITY\" inclusion=\"true\">";
+							try {
+							final String _retStr = _method.getReturnType();
+							_scopeSpec += _retStr;
+							} catch(JavaModelException _jme) {
+								_scopeSpec += "void";
+							}							
+							_scopeSpec += "\n</typeSpec>\n" + "</returnTypeSpec>";
+						     _scopeSpec += "\n<methodNameSpec>" + _method.getElementName() + "</methodNameSpec>\n";							  
+							_scopeSpec += "</methodSpec>\n";
+						}
+						_scopeSpec += "</scopeSpec>";
+						KaveriPlugin.getDefault().getIndusConfiguration().setScopeSpecification(_scopeSpec);
+					}
+				}
+			}
+		});
 	}
 
 	/**

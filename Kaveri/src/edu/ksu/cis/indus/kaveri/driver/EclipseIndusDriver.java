@@ -21,6 +21,7 @@
 package edu.ksu.cis.indus.kaveri.driver;
 
 
+import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -57,6 +58,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.eclipse.core.runtime.Path;
+import org.jibx.runtime.JiBXException;
 
 
 
@@ -460,6 +462,15 @@ public class EclipseIndusDriver
 		slicer.setTagName(nameOfSliceTag);		
 		slicer.setSystem(new Environment(scene));
 		slicer.setRootMethods(rootMethods);
+		final String _scopeStr = KaveriPlugin.getDefault().getIndusConfiguration()
+		.getScopeSpecification();
+		try {
+		if (!(_scopeStr == null || _scopeStr.equals("") )) {
+			slicer.setSliceScopeDefinition(SpecificationBasedScopeDefinition.deserialize(_scopeStr));
+		}
+		} catch(JiBXException _jbe) {
+			SECommons.handleException(_jbe);
+		}
 		slicer.setCriteria(criteria);
 		slicer.run(Phase.STARTING_PHASE, true);
 	}

@@ -28,14 +28,18 @@ import edu.ksu.cis.indus.kaveri.views.DependenceHistoryData;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 //import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jface.resource.ImageDescriptor;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -83,6 +87,22 @@ public class IndusConfiguration {
 	 */
 	private List criteria;
 
+	/**
+	 * Maintains a cache of the scoped elements.
+	 */
+	private Map scopeMap;
+	
+	/**
+	 * Resource Manager. Used to cache system resources.
+	 */
+	private ResourceManager rManager;
+	
+	
+	/**
+	 * Holds the xml representation of the scope.
+	 */
+	private String scopeSpecification;
+	
 	/**
 	 * The list of statements for partial slice view.
 	 */	
@@ -138,6 +158,9 @@ public class IndusConfiguration {
 		stmtList = new PartialStmtData();
 		depHistory = new DependenceHistoryData();
 		selectedStatement = "            ";
+		rManager = new ResourceManager();
+		scopeMap = new HashMap();
+		scopeSpecification = "";
 	}
 
 	/**
@@ -309,7 +332,7 @@ public class IndusConfiguration {
 		stmtList.setStmtList(null);
 		criteria.clear();	
 		KaveriPlugin.getDefault().reset();
-		depHistory.reset();
+		depHistory.reset();		
 	}
 	/**
 	 * Returns the set of statements.
@@ -372,5 +395,46 @@ public class IndusConfiguration {
 	 */
 	public void addToDepLinkSet(Object line) {
 		depLinkSet.add(line);
+	}
+	/**
+	 * @return Returns the rManager.
+	 */
+	public ResourceManager getRManager() {
+		return rManager;
+	}
+	/**
+	 * @return Returns the scopeMap.
+	 */
+	public Map getScopeMap() {
+		return scopeMap;
+	}
+	/**
+	 * Adds the given method to the scope cache.
+	 * @param method The java method to add to the scope.
+	 */
+	public void addToScopeMap(IMethod method) {
+		final IJavaElement _class =  method.getParent();
+	    if (_class != null) {
+	    	if (scopeMap.containsKey(_class)) {
+	    		final Set _set = (Set) scopeMap.get(_class);
+	    		_set.add(method);
+	    	} else {
+	    		final Set _set = new HashSet();
+	    		_set.add(method);
+	    		scopeMap.put(_class, _set);
+	    	}
+	    }
+	}
+	/**
+	 * @return Returns the scopeSpecification.
+	 */
+	public String getScopeSpecification() {
+		return scopeSpecification;
+	}
+	/**
+	 * @param scopeSpecification The scopeSpecification to set.
+	 */
+	public void setScopeSpecification(String scopeSpecification) {
+		this.scopeSpecification = scopeSpecification;
 	}
 }

@@ -278,7 +278,25 @@
                      style="push"
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.editorMenu.menu/dependenceMenu/controlmenu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CPAction"/>
-            </viewerContribution>      
+            </viewerContribution>
+            <objectContribution
+                  adaptable="true"
+                  objectClass="org.eclipse.jdt.core.IMethod"
+                  id="edu.ksu.cis.indus.kaveri.popup.scopePopupObject">
+               <menu
+                     label="Indus"
+                     path="additions"
+                     id="edu.ksu.cis.indus.kaveri.popup.scopePopupObject.menu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     enablesFor="+"
+                     label="Add to Scope"
+                     class="edu.ksu.cis.indus.kaveri.scoping.ScopePopupAction"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.kaveri.popup.scopePopupObject.menu/group1"
+                     id="edu.ksu.cis.indus.kaveri.popup.scopePopupObjectAction"/>
+            </objectContribution>      
    </extension>
 <!-- This extension shows additional information about the slice part chosen -->
 <!-- This extension enables highlighting of the slice elements -->

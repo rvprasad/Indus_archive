@@ -34,12 +34,12 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.texteditor.AnnotationPreferenceLookup;
 import org.eclipse.ui.texteditor.MarkerUtilities;
-
-import com.sun.rsasign.f;
 
 import soot.SootMethod;
 import soot.jimple.Stmt;
@@ -50,6 +50,7 @@ import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 import edu.ksu.cis.indus.kaveri.presentation.TagToAnnotationMapper;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.kaveri.views.DependenceStackData;
 import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -118,7 +119,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
     					}					
     				}				
     			}
-    			final Triple _triple = new Triple(_inpfile.getName(), _text, new Integer(_nSelLine));
+    			final Triple _triple = new Triple(_inpfile, _text, new Integer(_nSelLine));
     			
     			if(decorateMap != null && decorateMap.size() > 0) {
                 	processDependency(_triple);
@@ -231,7 +232,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 		final IAnnotationModel _model = editor.getDocumentProvider().getAnnotationModel(editor.getEditorInput());
 		final Iterator _it =_model.getAnnotationIterator();
 		while (_it.hasNext()) {
-			final Annotation _an = (Annotation) _it.next();
+			final Annotation _an = (Annotation) _it.next();			
 			if (_an.getType().equals("indus.slice.ControlDependencehighlightAnnotation") 
 					||_an.getType().equals("indus.slice.InterferenceDependencehighlightAnnotation")
 					||_an.getType().equals("indus.slice.ReadyDependencehighlightAnnotation")
@@ -257,7 +258,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 	 *
 	 * @param triple The triple of filename, selected text and line number.
 	 * Precondition: 
-	 *  triple.getFirst().oclIsType(String) :  Filename
+	 *  triple.getFirst().oclIsType(IFile) :  File
 	 *  triple.getMiddle().oclIsType(String) : Selected text
 	 *  triple.getFirst().oclIsType(Integer) : Line number
 	 */
@@ -295,7 +296,14 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
                 	}                	
                 	//_dset.clear();
                 	final String _link = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().getElemHistoryLink();
-                	Pair _pair = new Pair(triple, _link, false, true);
+                	final DependenceStackData _dsd = new DependenceStackData();
+                	_dsd.setFile((IFile) triple.getFirst());
+                	_dsd.setStatement(triple.getSecond().toString());
+                	_dsd.setLineNo(((Integer) triple.getThird()).intValue());
+                	AnnotationPreferenceLookup apl = new AnnotationPreferenceLookup();
+                	final RGB _rgb = apl.getAnnotationPreference(getDependenceAnnotationKey()).getColorPreferenceValue();
+                	_dsd.setDepColor(_rgb);
+                	Pair _pair = new Pair(_dsd, _link, false, true);
                 	KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory().setElemHistoryLink(getDependenceInfo());
                 	KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(_pair);
                 	
@@ -348,7 +356,7 @@ abstract public class DependenceBaseClass implements IEditorActionDelegate {
 									final Annotation _annot = new Annotation(getDependenceAnnotationKey(), false, null);
 									final Position _pos = new Position(_region.getOffset() + _stIndex, _region.getLength() - _stIndex);									
 									annotSet.add(_annot);
-									_model.addAnnotation(_annot, _pos);
+									_model.addAnnotation(_annot, _pos);									
 									}
 								} catch (BadLocationException _e) {
 									SECommons.handleException(_e);									

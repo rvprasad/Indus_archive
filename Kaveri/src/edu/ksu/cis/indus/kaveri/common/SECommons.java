@@ -226,7 +226,7 @@ public final class SECommons {
 		final StringWriter _sw = new StringWriter();
 		final PrintWriter _pw = new PrintWriter(_sw);
 		exception.printStackTrace(_pw);
-
+		exception.printStackTrace();
 		final ExceptionDialog _ed = new ExceptionDialog(Display.getDefault().getActiveShell(), _sw.getBuffer().toString());
 		_ed.open();
 	}

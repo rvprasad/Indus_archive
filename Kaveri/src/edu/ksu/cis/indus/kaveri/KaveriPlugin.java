@@ -264,6 +264,7 @@ public class KaveriPlugin
 			final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
 			_workspace.removeResourceChangeListener(listener);
 		}		
+		getIndusConfiguration().getRManager().dispose();
 	}
 	/**
 	 * @return Returns the cacheMap.
