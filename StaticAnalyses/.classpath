@@ -14,7 +14,7 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
+	<classpathentry sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/common-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
