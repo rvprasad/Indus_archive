@@ -15,7 +15,13 @@
 
 package edu.ksu.cis.indus.processing;
 
+import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import soot.tagkit.Host;
+import soot.tagkit.Tag;
 
 
 /**
@@ -27,6 +33,13 @@ import soot.tagkit.Host;
  */
 public class AntiTagBasedProcessingFilter
   extends TagBasedProcessingFilter {
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AntiTagBasedProcessingFilter.class);
+
 	/**
 	 * Creates a new TagBasedProcessingFilter object.
 	 *
@@ -42,6 +55,18 @@ public class AntiTagBasedProcessingFilter
 	 * @see edu.ksu.cis.indus.processing.TagBasedProcessingFilter#isFilterate(soot.tagkit.Host)
 	 */
 	protected boolean isFilterate(final Host host) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Host " + host + " is tagged:" + host.hasTag(tagName) + " [" + tagName + "]");
+			LOGGER.debug("Host " + host + " has the following tags: ");
+
+			for (final Iterator _i = host.getTags().iterator(); _i.hasNext();) {
+				final Tag _tag = (Tag) _i.next();
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug(_tag.getName());
+				}
+			}
+		}
 		return !host.hasTag(tagName);
 	}
 }
@@ -49,8 +74,9 @@ public class AntiTagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/14 20:36:05  venku
+   - the filtering methods were incorrect in TagBased... FIXED.
    Revision 1.1  2003/12/14 15:53:31  venku
    - added a new class AntiTagBasedProcessingFilter that
      does the opposite of TagBasedProcessingFilter.
-
  */
