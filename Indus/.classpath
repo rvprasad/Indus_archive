@@ -9,7 +9,7 @@
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/swt/swt.jar"/>
-	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
+	<classpathentry sourcepath="JAVACLASSES/src/common-collections.jar" kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/junit.jar" kind="var" path="ECLIPSE_HOME/plugins/org.junit_3.8.1/junit.jar"/>
 	<classpathentry kind="output" path="build"/>
