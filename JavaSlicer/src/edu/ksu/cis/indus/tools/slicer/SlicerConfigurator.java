@@ -428,6 +428,7 @@ public final class SlicerConfigurator
 					_natureOfRDAGroup.setEnabled(_val);
 					_equivalenceClassBasedEscapceAnalysisBasedRDA.setEnabled(_val);
 					_typedRDA.setEnabled(_val);
+					_useOFAForReady.setEnabled(_val);
 					_symbolBasedEscapeAnalysisBasedRDA.setEnabled(_val);
 					_rule1RDAButton.setEnabled(_val);
 					_rule2RDAButton.setEnabled(_val);
@@ -473,6 +474,10 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/07/20 06:20:27  venku
+   - fixed a few more issues pertaining to serialized configuration and how the
+     configurator should treat illegal configurations.
+
    Revision 1.24  2004/07/20 00:31:04  venku
    - addressed bug #408.
    Revision 1.23  2004/02/25 00:09:12  venku
