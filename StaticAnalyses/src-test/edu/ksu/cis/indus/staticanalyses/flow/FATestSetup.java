@@ -59,11 +59,6 @@ public class FATestSetup
 	protected IValueAnalyzer valueAnalyzer;
 
 	/**
-	 * The scene used during testing.
-	 */
-	protected Scene scene;
-
-	/**
 	 * The names of the class to analyze.
 	 */
 	protected final String classNames;
@@ -85,7 +80,6 @@ public class FATestSetup
 	protected FATestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test);
 		valueAnalyzer = OFAnalyzer.getFSOSAnalyzer(FATestSetup.TAG_NAME);
-		scene = Scene.v();
 		sootClassPath = classpath;
 		classNames = theNameOfClasses;
 	}
@@ -100,10 +94,12 @@ public class FATestSetup
 		final String[] _j = classNames.toString().split(" ");
 		final Collection _rootMethods = new ArrayList();
 
-		scene.setSootClassPath(sootClassPath);
+		// retrieve the scene from the "G" afresh.
+		final Scene _scene = Scene.v();
+		_scene.setSootClassPath(sootClassPath);
 
 		for (int _i = _j.length - 1; _i >= 0; _i--) {
-			final SootClass _sc = scene.loadClassAndSupport(_j[_i]);
+			final SootClass _sc = _scene.loadClassAndSupport(_j[_i]);
 
 			if (_sc.declaresMethod("main", Collections.singletonList(ArrayType.v(RefType.v("java.lang.String"), 1)),
 					  VoidType.v())) {
@@ -117,7 +113,7 @@ public class FATestSetup
 			}
 		}
 
-		valueAnalyzer.analyze(scene, _rootMethods);
+		valueAnalyzer.analyze(_scene, _rootMethods);
 
 		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), FATest.class);
 
@@ -136,13 +132,14 @@ public class FATestSetup
 		G.reset();
 		valueAnalyzer.reset();
 		valueAnalyzer = null;
-		scene = null;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/08 19:53:31  venku
+   - it should be tearDown and not teardown. FIXED.
    Revision 1.7  2004/02/08 19:17:19  venku
    - test refactoring for regression testing.
    Revision 1.6  2004/02/08 05:28:49  venku

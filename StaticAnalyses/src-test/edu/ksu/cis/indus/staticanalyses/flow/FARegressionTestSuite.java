@@ -27,9 +27,6 @@ import junit.framework.TestSuite;
 
 import junit.swingui.TestRunner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * This is the test suite used to run FA related tests using JUnit's swing interface to the runner.
@@ -40,11 +37,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FARegressionTestSuite
   extends TestCase {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(FARegressionTestSuite.class);
-
 	///CLOVER:OFF
 
 	/**
@@ -59,33 +51,33 @@ public class FARegressionTestSuite
 	 */
 	public static void main(final String[] args) {
 		final TestRunner _runner = new TestRunner();
+		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalyses.flow.FARegressionTestSuite" };
 		_runner.setLoading(false);
-		_runner.startTest(suite());
-		_runner.runSuite();
+		_runner.start(_suiteName);
 	}
 
 	///CLOVER:ON
 
 	/**
-     * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
-     * <code>FA_TEST_PROPERTIES_FILE</code> system property.  Refer to
-     * <code>edu.ksu.cis.indus.staticanalyses.flow.FATest.properties</code> for the format of the file.
-     *
-     * @return the suite of tests.
-     *
-     * @throws RuntimeException when <code>FA_TEST_PROPERTIES_FILE</code> property is unspecified.
-     */
-    public static Test suite() {
-        final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.fa");
-        final String _propFileName = System.getProperty(FA_TEST_PROPERTIES_FILE);
+	 * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
+	 * <code>FA_TEST_PROPERTIES_FILE</code> system property.  Refer to
+	 * <code>edu.ksu.cis.indus.staticanalyses.flow.FATest.properties</code> for the format of the file.
+	 *
+	 * @return the suite of tests.
+	 *
+	 * @throws RuntimeException when <code>FA_TEST_PROPERTIES_FILE</code> property is unspecified.
+	 */
+	public static Test suite() {
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.fa");
+		final String _propFileName = System.getProperty(FA_TEST_PROPERTIES_FILE);
 
-        if (_propFileName == null) {
-            throw new RuntimeException("Please provide a property file like FATest.properties via "
-                + "-D" + FA_TEST_PROPERTIES_FILE);
-        }
-        setupTests(_propFileName, _suite);
-        return _suite;
-    }
+		if (_propFileName == null) {
+			throw new RuntimeException("Please provide a property file like FATest.properties via " + "-D"
+				+ FA_TEST_PROPERTIES_FILE);
+		}
+		setupTests(_propFileName, _suite);
+		return _suite;
+	}
 
 	/**
 	 * Sets up the test fixture.
@@ -97,7 +89,7 @@ public class FARegressionTestSuite
 	 *
 	 * @pre propFileName != null and suite != null
 	 */
-	protected static void setupTests(final String propFileName, final TestSuite suite) {
+	private static void setupTests(final String propFileName, final TestSuite suite) {
 		final Properties _props = new Properties();
 
 		try {
@@ -108,37 +100,17 @@ public class FARegressionTestSuite
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
 				final String _classNames = _props.getProperty(_config + ".classNames");
-				final String _xmlOutputDir = _props.getProperty(_config + ".xmlOutputDir");
-				final String _xmlInputDir = _props.getProperty(_config + ".xmlInputDir");
 				final String _classpath = _props.getProperty(_config + ".classpath");
-				File _f = new File(_xmlInputDir);
-
-				if (!_f.exists() || !_f.canRead()) {
-					LOGGER.error("Input directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
-					continue;
-				}
-				_f = new File(_xmlOutputDir);
-
-				if (!_f.exists() || !_f.canWrite()) {
-					LOGGER.error("Output directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
-					continue;
-				}
-
-				FATestSetup _test;
 
 				try {
 					final TestSuite _temp = new TestSuite();
 					_temp.setName(_config);
-                    _temp.addTestSuite(FATest.class);
-					_test = new FATestSetup(_temp, _classNames, _classpath);
-					_test.setXMLOutputDir(_xmlOutputDir);
-					_test.setXMLInputDir(_xmlInputDir);
-				} catch (IllegalArgumentException _e) {
-					_test = null;
-				}
+					_temp.addTestSuite(FATest.class);
 
-				if (_test != null) {
+					FATestSetup _test = new FATestSetup(_temp, _classNames, _classpath);
 					suite.addTest(_test);
+				} catch (IllegalArgumentException _e) {
+					;
 				}
 			}
 		} catch (IOException _e) {
@@ -150,6 +122,8 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 19:17:19  venku
+   - test refactoring for regression testing.
    Revision 1.1  2004/02/08 04:53:11  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.

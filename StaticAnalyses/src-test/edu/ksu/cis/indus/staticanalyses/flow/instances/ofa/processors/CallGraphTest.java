@@ -255,29 +255,6 @@ public final class CallGraphTest
 	}
 
 	/**
-	 * Tests <code>getSCCs()</code>.
-	 */
-	protected void localtestGetSCCs() {
-		final Collection _sccs = cgi.getSCCs(true);
-		final Collection _reachables = cgi.getReachableMethods();
-		assertNotNull(_sccs);
-
-		for (final Iterator _i = _sccs.iterator(); _i.hasNext();) {
-			final Collection _scc1 = (Collection) _i.next();
-			assertNotNull(_scc1);
-			assertTrue(_reachables.containsAll(_scc1));
-
-			for (final Iterator _j = _sccs.iterator(); _j.hasNext();) {
-				final Collection _scc2 = (Collection) _j.next();
-
-				if (_scc1 != _scc2) {
-					assertTrue(CollectionUtils.intersection(_scc1, _scc2).isEmpty());
-				}
-			}
-		}
-	}
-
-	/**
 	 * Tests the size() method of the graph associated with the call graph.
 	 */
 	public void testSize() {
@@ -344,6 +321,29 @@ public final class CallGraphTest
 	}
 
 	/**
+	 * Tests <code>getSCCs()</code>.
+	 */
+	protected void localtestGetSCCs() {
+		final Collection _sccs = cgi.getSCCs(true);
+		final Collection _reachables = cgi.getReachableMethods();
+		assertNotNull(_sccs);
+
+		for (final Iterator _i = _sccs.iterator(); _i.hasNext();) {
+			final Collection _scc1 = (Collection) _i.next();
+			assertNotNull(_scc1);
+			assertTrue(_reachables.containsAll(_scc1));
+
+			for (final Iterator _j = _sccs.iterator(); _j.hasNext();) {
+				final Collection _scc2 = (Collection) _j.next();
+
+				if (_scc1 != _scc2) {
+					assertTrue(CollectionUtils.intersection(_scc1, _scc2).isEmpty());
+				}
+			}
+		}
+	}
+
+	/**
 	 * Test  <code>getTails()</code> method of the graph associated with the call graph.
 	 */
 	protected void localtestGraphGetTails() {
@@ -365,6 +365,8 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/08 19:32:09  venku
+   - test refactoring for regression testing.
    Revision 1.5  2004/02/08 04:53:10  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.
@@ -372,15 +374,12 @@ public final class CallGraphTest
    - coding convention.
    - all tests occur at the same package as the classes
      being tested.
-
    Revision 1.1  2004/02/08 02:21:21  venku
    - renamed package instances.ofa.processors to instances.ofa.
    - renamed OFAProcessorArgTestSuite to OFAProcessorTestSuite.
-
    Revision 1.3  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.
-
    Revision 1.2  2004/01/06 01:51:55  venku
    - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
    Revision 1.1  2004/01/03 19:52:54  venku

@@ -62,9 +62,9 @@ public final class OFARegressionTestSuite
 	 */
 	public static void main(final String[] args) {
 		final TestRunner _runner = new TestRunner();
+		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalysis.flow.instances.ofa.OFARegressionTestSuite" };
 		_runner.setLoading(false);
-		_runner.startTest(suite());
-		_runner.runSuite();
+		_runner.start(_suiteName);
 	}
 
 	///CLOVER:ON
@@ -83,8 +83,8 @@ public final class OFARegressionTestSuite
 		final String _propFileName = System.getProperty(OFA_TEST_PROPERTIES_FILE);
 
 		if (_propFileName == null) {
-			throw new RuntimeException("Please provide a property file like OFATest.properties via "
-				+ "-D" + OFA_TEST_PROPERTIES_FILE);
+			throw new RuntimeException("Please provide a property file like OFATest.properties via " + "-D"
+				+ OFA_TEST_PROPERTIES_FILE);
 		}
 		setupTests(_propFileName, _suite);
 		return _suite;
@@ -127,22 +127,18 @@ public final class OFARegressionTestSuite
 					continue;
 				}
 
-				OFATestSetup _test;
-
 				try {
 					final TestSuite _temp = new TestSuite();
 					_temp.setName(_config);
 					_temp.addTestSuite(CallGraphTest.class);
 					_temp.addTestSuite(FATest.class);
-					_test = new OFATestSetup(_temp, _classNames, _classpath);
+
+					OFATestSetup _test = new OFATestSetup(_temp, _classNames, _classpath);
 					_test.setXMLOutputDir(_xmlOutputDir);
 					_test.setXMLInputDir(_xmlInputDir);
-				} catch (IllegalArgumentException _e) {
-					_test = null;
-				}
-
-				if (_test != null) {
 					suite.addTest(_test);
+				} catch (IllegalArgumentException _e) {
+					;
 				}
 			}
 		} catch (IOException _e) {
@@ -154,6 +150,8 @@ public final class OFARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 19:17:19  venku
+   - test refactoring for regression testing.
    Revision 1.1  2004/02/08 04:53:10  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.
@@ -161,7 +159,6 @@ public final class OFARegressionTestSuite
    - coding convention.
    - all tests occur at the same package as the classes
      being tested.
-
    Revision 1.2  2004/02/08 01:48:54  venku
    - documentation and coding convention.
    Revision 1.1  2004/02/08 01:14:33  venku

@@ -30,7 +30,7 @@ import java.util.Iterator;
 
 import junit.framework.TestSuite;
 
-import soot.G;
+import soot.Scene;
 
 
 /**
@@ -70,12 +70,13 @@ public final class OFATestSetup
 		_pc.process();
 		cgiImpl.unhook(_pc);
 
-		Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class);
+		final Collection _temp = TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), CallGraphTest.class);
+		final Scene _scene = Scene.v();
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IFAProcessorTest _tester = (IFAProcessorTest) _i.next();
 			_tester.setFA(valueAnalyzer);
-			_tester.setScene(scene);
+			_tester.setScene(_scene);
 			_tester.setProcessor(cgiImpl);
 		}
 	}
@@ -93,6 +94,8 @@ public final class OFATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 19:53:31  venku
+   - it should be tearDown and not teardown. FIXED.
    Revision 1.2  2004/02/08 19:17:19  venku
    - test refactoring for regression testing.
    Revision 1.1  2004/02/08 04:53:10  venku

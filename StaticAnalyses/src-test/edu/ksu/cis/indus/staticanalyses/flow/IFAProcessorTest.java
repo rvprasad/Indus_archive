@@ -57,6 +57,8 @@ public interface IFAProcessorTest {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 19:17:19  venku
+   - test refactoring for regression testing.
    Revision 1.1  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.

@@ -55,10 +55,24 @@ public final class FATest
 	 */
 	private String faTagName;
 
+	/**
+	 * Sets the flow analyzer instance to be tested.
+	 *
+	 * @param theFA the flow analyzer instance.
+	 *
+	 * @pre theFA != null
+	 */
 	public void setFA(final FA theFA) {
 		fa = theFA;
 	}
 
+	/**
+	 * Sets the tag name used by the flow analyzer.
+	 *
+	 * @param tagName is the name of the tag.
+	 *
+	 * @pre tagName != null
+	 */
 	public void setFATagName(final String tagName) {
 		faTagName = tagName;
 	}
@@ -175,6 +189,8 @@ public final class FATest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/08 19:17:19  venku
+   - test refactoring for regression testing.
    Revision 1.4  2004/02/08 04:53:10  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.
@@ -182,23 +198,19 @@ public final class FATest
    - coding convention.
    - all tests occur at the same package as the classes
      being tested.
-
    Revision 1.3  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.
-
    Revision 1.2  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.1  2004/01/03 19:52:54  venku
    - renamed CallGraphInfoTest to CallGraphTest
    - all tests of a kind have to be exposed via a suite like
      FATestSuite or OFAProcessorArgTestSuite.  This is to enable
      automated testing.
    - all properties should start with indus and not edu.ksu.cis.indus...
-
    Revision 1.11  2003/12/31 08:48:59  venku
    - Refactoring.
    - Setup classes setup each tests by data created by a common setup.
