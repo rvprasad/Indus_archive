@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
+import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
 
 import java.util.ArrayList;
 
@@ -61,12 +62,17 @@ public final class RDADriver
 		das.add(rd);
 		rd = new ReadyDAv2();
 		das.add(rd);
+		rd = new ReadyDAv3();
+		das.add(rd);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.8  2003/09/02 11:30:56  venku
    - Enabled toggling ECBA instance.
    Revision 1.7  2003/09/01 11:56:59  venku
