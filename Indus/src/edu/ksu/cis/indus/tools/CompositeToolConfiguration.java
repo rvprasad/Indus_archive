@@ -83,17 +83,30 @@ public final class CompositeToolConfiguration
 	 * Sets the configuration with the given id as active.
 	 *
 	 * @param id of the configuration to be activated.
+	 *
+	 * @throws RuntimeException when the given configuration id is non-existent.
 	 */
 	public void setActiveToolConfigurationID(final String id) {
 		if (configurations.isEmpty()) {
 			activeConfigID = id;
 		} else {
+			String _temp = null;
+
 			for (final Iterator _i = configurations.iterator(); _i.hasNext();) {
 				final IToolConfiguration _config = (IToolConfiguration) _i.next();
 
 				if (_config.getConfigName().equals(id)) {
-					activeConfigID = _config.getConfigName();
+					_temp = id;
 				}
+			}
+
+			if (_temp != null) {
+				activeConfigID = _temp;
+			} else {
+				final String _msg =
+					"setActiveToolConfigurationID(id = " + id + ") - Configuration with given ID does not exist.";
+				LOGGER.error(_msg);
+				throw new RuntimeException(_msg);
 			}
 		}
 	}
@@ -169,8 +182,17 @@ public final class CompositeToolConfiguration
 	 * @post result != null
 	 */
 	IToolConfiguration getActiveToolConfiguration() {
-	    IToolConfiguration _result = getToolConfigWithGivenID();
-	    
+		IToolConfiguration _result = null;
+
+		for (final Iterator _i = configurations.iterator(); _i.hasNext();) {
+			final IToolConfiguration _config = (IToolConfiguration) _i.next();
+
+			if (_config.getConfigName().equals(activeConfigID)) {
+				_result = _config;
+				break;
+			}
+		}
+
 		if (_result == null) {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("Selecting the first configuration as active configurationCollection.");
@@ -184,33 +206,16 @@ public final class CompositeToolConfiguration
 				throw new RuntimeException("There are no configurations.");
 			}
 		}
-		
+
 		return _result;
 	}
-
-    /**
-     * Retrieves tool configuration with given ID.  <code>null</code> is returned if none exist.
-     * 
-     * @return the tool configuration.
-     */
-    private IToolConfiguration getToolConfigWithGivenID() {
-        IToolConfiguration _result = null;
-
-		for (final Iterator _i = configurations.iterator(); _i.hasNext();) {
-			final IToolConfiguration _config = (IToolConfiguration) _i.next();
-
-			if (_config.getConfigName().equals(activeConfigID)) {
-				_result = _config;
-				break;
-			}
-		}
-        return _result;
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/08/03 22:28:12  venku
+   - active configuration was ignored. FIXED.
    Revision 1.14  2003/12/28 03:18:51  venku
    - jibx supports abstract types during binding.  Whoa!
    Revision 1.13  2003/12/02 11:31:57  venku
