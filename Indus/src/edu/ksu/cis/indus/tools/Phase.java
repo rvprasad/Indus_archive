@@ -58,14 +58,14 @@ public final class Phase
 	 *
 	 * @invariant 0 leq _major
 	 */
-	private int _major;
+	private int major;
 
 	/**
 	 * This is the minor phase.
 	 *
 	 * @invariant 0 leq _minor
 	 */
-	private int _minor;
+	private int minor;
 
 	/**
 	 * Creates a new Phase object.
@@ -80,9 +80,22 @@ public final class Phase
 	 */
 	public static Phase createPhase() {
 		Phase result = new Phase();
-		result._major = 0;
-		result._minor = 0;
+		result.major = 0;
+		result.minor = 0;
 		return result;
+	}
+
+	/**
+	 * Checks if this object is earlier than the given object.
+	 *
+	 * @param phase to be compared with this object.
+	 *
+	 * @return <code>true</code> if this phase object is earlier than the given phase; <code>false</code>, otherwise.
+	 *
+	 * @pre phase != null
+	 */
+	public boolean isEarlierThan(final Phase phase) {
+		return (major < phase.major) || (major == phase.major && minor < phase.minor);
 	}
 
 	/**
@@ -95,8 +108,8 @@ public final class Phase
 
 		try {
 			result = (Phase) super.clone();
-			result._major = _major;
-			result._minor = _minor;
+			result.major = major;
+			result.minor = minor;
 		} catch (CloneNotSupportedException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Cloning of phase failed.", e);
@@ -130,7 +143,7 @@ public final class Phase
 	 * @return <code>true</code> if both represent the same major phase; <code>false</code>, otherwise.
 	 */
 	public boolean equalsMajor(final Phase p) {
-		return _major == p._major;
+		return major == p.major;
 	}
 
 	/**
@@ -141,44 +154,47 @@ public final class Phase
 	 * @return <code>true</code> if both represent the same minor phase; <code>false</code>, otherwise.
 	 */
 	public boolean equalsMinor(final Phase p) {
-		return _minor == p._minor;
+		return minor == p.minor;
 	}
 
 	/**
 	 * Modifies this instance to represent the finished phase.
 	 */
 	public void finished() {
-		_major = Integer.MAX_VALUE;
-		_minor = Integer.MAX_VALUE;
+		major = Integer.MAX_VALUE;
+		minor = Integer.MAX_VALUE;
 	}
 
 	/**
 	 * Modifies this instance to represent the next major phase.
 	 */
 	public void nextMajorPhase() {
-		_major++;
-		_minor = 0;
+		major++;
+		minor = 0;
 	}
 
 	/**
 	 * Modifies this instance to represent the next minor phase.
 	 */
 	public void nextMinorPhase() {
-		_minor++;
+		minor++;
 	}
 
 	/**
 	 * Resets this instance to represent the starting phase.
 	 */
 	public void reset() {
-		_major = 0;
-		_minor = 0;
+		major = 0;
+		minor = 0;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/26 15:00:01  venku
+   - The configuration of tools in Indus has been placed in this package.
+   - Formatting.
    Revision 1.1  2003/09/26 05:56:10  venku
    - a checkpoint commit.
  */
