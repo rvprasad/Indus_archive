@@ -149,7 +149,7 @@ public abstract class AbstractTool
 			checkConfiguration();
 			childException = null;
 
-			final AbstractTool _parent = this;
+            final Object _parent = this;
 			thread =
 				new Thread() {
 						public final void run() {
@@ -166,7 +166,7 @@ public abstract class AbstractTool
 							} finally {
                                 synchronized (_parent) {
                                     if (_temp != null) {
-										_parent.childException = _temp;
+										childException = _temp;
 									}
                                     pause = false;
                                     _parent.notify();
@@ -239,6 +239,9 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/01/25 09:07:18  venku
+   - coding convention.
+
    Revision 1.17  2004/01/16 22:11:47  venku
    - join does not relinquish the lock.  Hence, a new solution
      to communicate the death of the child thread has been
