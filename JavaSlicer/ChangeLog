@@ -1,5 +1,6 @@
 2005-03-01  venku  <rvprasad@cis.ksu.edu>
 
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/specification/SliceCriterionSpec.java:  Added support to serialize method level slice criterion.
 	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java: Added logic to track calling contexts.
 
 2005-02-27  venku  <rvprasad@cis.ksu.edu>

@@ -25,6 +25,16 @@
 
 	<xsd:attribute name="index" type="xsd:nonNegativeInteger"/>			
 
+	<xsd:complexType name="expr">
+		<xsd:attribute ref="slicer:index" use="required">
+			<xsd:annotation>
+		        <xsd:documentation>
+    		      This is 0-offset index of the expression in the list of use-def boxes of the enclosing statement.
+        		</xsd:documentation>
+	     	</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
 	<xsd:complexType name="stmt">
 		<xsd:attribute ref="slicer:index" use="required">
 			<xsd:annotation>
@@ -36,16 +46,6 @@
 		<xsd:attribute name="considerEntireStmt" type="xsd:boolean" use="required"/>
 	</xsd:complexType>
 
-	<xsd:complexType name="expr">
-		<xsd:attribute ref="slicer:index" use="required">
-			<xsd:annotation>
-		        <xsd:documentation>
-    		      This is 0-offset index of the expression in the list of use-def boxes of the enclosing statement.
-        		</xsd:documentation>
-	     	</xsd:annotation>
-		</xsd:attribute>
-	</xsd:complexType>
-
 	<xsd:complexType id="criterion" name="criterion">
 		<xsd:annotation>
 	        <xsd:documentation>
@@ -55,13 +55,19 @@
 		<xsd:sequence>
 			<xsd:element name="className" type="xsd:string"/>
 			<xsd:element name="method" type="slicer:method"/>
-			<xsd:element name="stmt" type="slicer:stmt" maxOccurs="unbounded"/>
-			<xsd:element name="expr" type="slicer:expr" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="stmt" type="slicer:stmt" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="expr" type="slicer:expr" minOccurs="0" maxOccurs="1"/>
 		</xsd:sequence>
 		<xsd:attribute name="considerExecution" type="xsd:boolean" use="optional"/>
 	</xsd:complexType>
 
 	<xsd:complexType id="method" name="method">
+		<xsd:annotation>
+			<xsd:documentation>
+			As for specifying types, provide the fully-qualified names of the types as specified in the class file.  So, the name of 
+			java.lang.String array type would written as "java.lang.String[".
+			</xsd:documentation>
+		</xsd:annotation>
 		<xsd:sequence>
 			<xsd:element name="methodName" type="xsd:string"/>
 			<xsd:element name="returnTypeName" type="xsd:string"/>
@@ -73,12 +79,6 @@
 				</xsd:complexType>
 			</xsd:element>
 		</xsd:sequence>
-		<xsd:annotation>
-			<xsd:documentation>
-			As for specifying types, provide the fully-qualified names of the types as specified in the class file.  So, the name of 
-			java.lang.String array type would written as "java.lang.String[".
-			</xsd:documentation>
-		</xsd:annotation>
 	</xsd:complexType>
 
 </xsd:schema>

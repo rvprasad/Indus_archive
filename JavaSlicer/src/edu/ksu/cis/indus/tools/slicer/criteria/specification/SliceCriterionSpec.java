@@ -105,7 +105,7 @@ public final class SliceCriterionSpec
 	/** 
 	 * The index of the statement, in the method body, in which the slice criterion occurs.
 	 */
-	private int stmtIndex;
+	private int stmtIndex = -1;  // Initialization is required due to a limitation of JiBX (known problem 3 on JiBX site)
 
 	/**
 	 * Creates an instance of this class.
@@ -165,14 +165,19 @@ public final class SliceCriterionSpec
 		}
 
 		final Collection _result;
-		final Stmt _stmt = (Stmt) _stmts.get(stmtIndex);
 
-		if (exprIndex == -1) {
-			_result = CRITERIA_FACTORY.getCriteria(_sm, _stmt, considerEntireStmt, considerExecution);
+		if (stmtIndex == -1) {
+			_result = CRITERIA_FACTORY.getCriteria(_sm);
 		} else {
-			_result =
-				CRITERIA_FACTORY.getCriteria(_sm, _stmt, (ValueBox) _stmt.getUseAndDefBoxes().get(exprIndex),
-					considerExecution);
+			final Stmt _stmt = (Stmt) _stmts.get(stmtIndex);
+
+			if (exprIndex == -1) {
+				_result = CRITERIA_FACTORY.getCriteria(_sm, _stmt, considerEntireStmt, considerExecution);
+			} else {
+				_result =
+					CRITERIA_FACTORY.getCriteria(_sm, _stmt, (ValueBox) _stmt.getUseAndDefBoxes().get(exprIndex),
+						considerExecution);
+			}
 		}
 
 		return _result;
@@ -302,13 +307,22 @@ public final class SliceCriterionSpec
 	}
 
 	/**
-	 * Tests if the expression index is valid in this spec. <b>This is used to serialize/deserialize.</b>
+	 * Tests if the expression index is available in this spec. <b>This is used to serialize/deserialize.</b>
 	 *
 	 * @return <code>true</code> if an element capturing the expression index should be output; <code>false</code>,
 	 * 		   otherwise.
 	 */
 	private boolean testExpr() {
 		return exprIndex != -1;
+	}
+
+	/**
+	 * Tests if the stmt index is available in this spec. <b>This is used to serialize/deserialize.</b>
+	 *
+	 * @return <code>true</code> if an element capturing the statement index should be output; <code>false</code>, otherwise.
+	 */
+	private boolean testStmt() {
+		return stmtIndex != -1;
 	}
 
 	/**

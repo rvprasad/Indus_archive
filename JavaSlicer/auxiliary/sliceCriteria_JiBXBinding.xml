@@ -1,29 +1,30 @@
 <binding package="edu.ksu.cis.indus.tools.slicer.criteria.specification">
-    <namespace uri="http://indus.projects.cis.ksu.edu/slicer" prefix="slicer" default="all"/>
-	<mapping name="criteria" class="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaSpec"
-        ns="http://indus.projects.cis.ksu.edu/slicer">
-		<collection field="criteria" item-type="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec" 
-			factory="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaSpec.createCriteriaContainer"/>
+	<namespace default="all" prefix="slicer" uri="http://indus.projects.cis.ksu.edu/slicer"/>
+	<mapping class="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaSpec" name="criteria"
+		ns="http://indus.projects.cis.ksu.edu/slicer">
+		<collection
+			factory="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaSpec.createCriteriaContainer"
+			field="criteria" item-type="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec"/>
 	</mapping>
-	<mapping name="criterion" class="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec" 
-         ns="http://indus.projects.cis.ksu.edu/slicer">
-		<value style="attribute" name="considerExecution" field="considerExecution" type="boolean"/>
-		<value name="className" field="className" type="java.lang.String"/>
+	<mapping class="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec" name="criterion"
+		ns="http://indus.projects.cis.ksu.edu/slicer">
+		<value field="considerExecution" name="considerExecution" style="attribute" type="boolean"/>
+		<value field="className" name="className" type="java.lang.String"/>
 		<structure name="method">
-			<value name="methodName" field="methodName" type="java.lang.String"/>
-			<value name="returnTypeName" field="returnTypeName" type="java.lang.String"/>
-			<collection field="parameterTypeNames" ordered="true" name="parameters"
-				factory="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec.createParameterTypeNamesContainer">
+			<value field="methodName" name="methodName" type="java.lang.String"/>
+			<value field="returnTypeName" name="returnTypeName" type="java.lang.String"/>
+			<collection
+				factory="edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriterionSpec.createParameterTypeNamesContainer"
+				field="parameterTypeNames" name="parameters" ordered="true">
 				<value name="parameterTypeName" type="java.lang.String"/>
 			</collection>
 		</structure>
-		<structure name="stmt">
-			<value style="attribute" name="index" field="stmtIndex" type="int"/>
-			<value style="attribute" name="considerEntireStmt" field="considerEntireStmt" type="boolean"/>
+		<structure name="stmt" test-method="testStmt" usage="optional">
+			<value field="stmtIndex" name="index" style="attribute" type="int"/>
+			<value field="considerEntireStmt" name="considerEntireStmt" style="attribute" type="boolean"/>
 		</structure>
-		<structure name="expr" usage="optional" test-method="testExpr">
-			<value style="attribute" name="index" field="exprIndex" type="int" default="-1"/>
+		<structure name="expr" test-method="testExpr" usage="optional">
+			<value default="-1" field="exprIndex" name="index" style="attribute" type="int"/>
 		</structure>
 	</mapping>
 </binding>
-    

@@ -1,30 +1,39 @@
-<slicer:criteria 
-    xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
+<slicer:criteria xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    
     <slicer:criterion slicer:considerExecution="false">
-        <slicer:className>
-            Control14
-        </slicer:className>    
-        
+        <!-- This is an example of a stmt level criterion -->
+        <slicer:className> Control14 </slicer:className>
         <slicer:method>
-            <slicer:methodName>
-                main
-            </slicer:methodName>
-            
-            <slicer:returnTypeName>
-                void
-            </slicer:returnTypeName>
-            
+            <slicer:methodName> main </slicer:methodName>
+            <slicer:returnTypeName> void </slicer:returnTypeName>
             <slicer:parameters>
-                <slicer:parameterTypeName>
-                    java.lang.String[
-                </slicer:parameterTypeName>
+                <slicer:parameterTypeName> java.lang.String[ </slicer:parameterTypeName>
             </slicer:parameters>
-        </slicer:method>    
-        
-        <slicer:stmt slicer:index="9" slicer:considerEntireStmt="true"/>
-
+        </slicer:method>
+        <slicer:stmt slicer:considerEntireStmt="true" slicer:index="9"/>
     </slicer:criterion>
-
+    <slicer:criterion slicer:considerExecution="false">
+        <!-- This is an example of a method level criterion -->
+        <slicer:className> Control14 </slicer:className>
+        <slicer:method>
+            <slicer:methodName> main </slicer:methodName>
+            <slicer:returnTypeName> void </slicer:returnTypeName>
+            <slicer:parameters>
+                <slicer:parameterTypeName> java.lang.String[ </slicer:parameterTypeName>
+            </slicer:parameters>
+        </slicer:method>
+    </slicer:criterion>
+    <slicer:criterion slicer:considerExecution="false">
+        <!-- This is an example of a expr level criterion -->
+        <slicer:className> Control14 </slicer:className>
+        <slicer:method>
+            <slicer:methodName> main </slicer:methodName>
+            <slicer:returnTypeName> void </slicer:returnTypeName>
+            <slicer:parameters>
+                <slicer:parameterTypeName> java.lang.String[ </slicer:parameterTypeName>
+            </slicer:parameters>
+        </slicer:method>
+        <slicer:stmt slicer:considerEntireStmt="true" slicer:index="9"/>
+        <slicer:expr slicer:index="4"/>
+    </slicer:criterion>
 </slicer:criteria>
