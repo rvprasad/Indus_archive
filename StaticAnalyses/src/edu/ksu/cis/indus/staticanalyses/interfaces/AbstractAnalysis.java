@@ -162,7 +162,8 @@ public abstract class AbstractAnalysis {
 	}
 
 	/**
-	 * Returns the basic block graph constructed from the given control flow graph.
+	 * Returns the basic block graph constructed from the given control flow graph.  This will also remember the association 
+     * between the given method and graph.
 	 *
 	 * @param stmtGraph is a control flow graph.
 	 *
@@ -172,21 +173,21 @@ public abstract class AbstractAnalysis {
 	 * @post result != null
 	 */
 	protected BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
-		return graphManager.getBasicBlockGraph(stmtGraph);
+        method2stmtGraph.put(stmtGraph.getBody().getMethod(), stmtGraph);
+        return graphManager.getBasicBlockGraph(stmtGraph);
 	}
 
 	/**
-	 * Returns the basic block graph constructed from the given control flow graph.
+	 * Returns the basic block graph for the given method, if one exists. 
 	 *
 	 * @param method for which the basic block graph is requested.
 	 *
-	 * @return the basic block graph corresponding to <code>stmtGraph</code>.
+	 * @return the basic block graph corresponding to <code>method</code>, if one exists.
 	 *
 	 * @pre method != null
-	 * @post result != null
 	 */
 	protected BasicBlockGraph getBasicBlockGraph(final SootMethod method) {
-		return graphManager.getBasicBlockGraph((UnitGraph) method2stmtGraph.get(method));
+		return graphManager.getBasicBlockGraph(method);
 	}
 
 	/**
@@ -223,6 +224,10 @@ public abstract class AbstractAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/09 01:13:58  venku
+   - made basic block graph manager configurable in AbstractAnalysis
+   - ripple effect of the above change in DADriver.  This should also affect Slicer.
+
    Revision 1.6  2003/08/21 01:35:05  venku
    Documentation changes.
    reset() is not called in initialize.  The user needs to do this.
