@@ -522,7 +522,7 @@ public class CallGraph
 	 */
 	public void consolidate() {
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: call graphCache consolidation");
+			LOGGER.info("BEGIN: call graph consolidation");
 		}
 
 		long start = System.currentTimeMillis();
@@ -604,8 +604,8 @@ public class CallGraph
 		long stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: call graphCache consolidation");
-			LOGGER.info("TIMING: call graphCache consolidation took " + (stop - start) + "ms.");
+			LOGGER.info("END: call graph consolidation");
+			LOGGER.info("TIMING: call graph consolidation took " + (stop - start) + "ms.");
 		}
 	}
 
@@ -740,6 +740,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/08/25 09:31:39  venku
+   Enabled reset() support for these classes.
+
    Revision 1.12  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.
