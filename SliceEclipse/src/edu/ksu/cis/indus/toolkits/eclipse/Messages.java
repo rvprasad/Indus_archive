@@ -65,7 +65,7 @@ import java.util.ResourceBundle;
 			_retString = RESOURCE_BUNDLE.getString(key);
 		} catch (MissingResourceException _mre) {
 			_retString =  '!' + key + '!';
-		}
+		}			
 		return _retString;
 	}
 }

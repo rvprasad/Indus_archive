@@ -73,13 +73,13 @@ public final class SootConvertor {
 	 * @param theclass The JDT class
 	 * @param themethod The JDT method
 	 * @param theline The chosen line
-	 * @return ArrayList The list of SootClass, SootMethod, list of Jimple Stmts
+	 * @return List The list of SootClass, SootMethod, list of Jimple Stmts
 	 * @throws IndusException Throws IndusException on null parameters
 	 */
-	public static ArrayList getStmtForLine(final IFile thefile,
+	public static List getStmtForLine(final IFile thefile,
 			final IType theclass, final IMethod themethod, final int theline)
 	throws IndusException {
-		ArrayList _stmtlist = null;
+		List _stmtlist = null;
 		String _sootClassPath = "";
 		if (SECommons.checkForNull(thefile)
 				 || SECommons.checkForNull(theclass)
@@ -124,8 +124,6 @@ public final class SootConvertor {
 				_sootclass = _scene.loadClassAndSupport(theclass
 						.getFullyQualifiedName());
 			} catch (RuntimeException _rme) {
-				// Unavoidable to catch this. Soot throws 
-				// this sometimes.
 				SECommons.handleException(_rme);
 			}
 			if (_sootclass != null) {
@@ -141,13 +139,13 @@ public final class SootConvertor {
 	 * @param sootclass The coressponding SootClass
 	 * @param themethod The JDT method
 	 * @param theline The chosen Java line
-	 * @return ArrayList The list of SootClass, SootMethod, list of Jimple Stmts 
+	 * @return List The list of SootClass, SootMethod, list of Jimple Stmts 
 	 *  postcondition: ArrayList.firstElement.kindOf(SootClass), ArrayList.secondElement.kindOf(SootMethod),
 	 * ArrayList.remainingElements.kindOf(Stmt)
 	 */
-	private static ArrayList getStmtLine(final SootClass sootclass,
+	private static List getStmtLine(final SootClass sootclass,
 			final IMethod themethod, final int theline) {
-		ArrayList _stmtlist = null;
+		List _stmtlist = null;
 		SootMethod _method = null;
 		try {
 			if (themethod.getDeclaringType().getElementName().equals(
@@ -159,7 +157,11 @@ public final class SootConvertor {
 				_method = sootclass.getMethodByName(themethod.getElementName()); //getCorrSootMethod(themethod, sootclass);
 			}
 		} catch (RuntimeException _ame) {
-			if (_ame.getMessage().equals(Messages.getString("SootConvertor.7"))) { //$NON-NLS-1$
+			// Unavoidable, soot creates the exception.
+			// Need to catch this to have a proper
+			// method mapping. Would be better if soot
+			// threw a user defined exception
+			if (_ame.getMessage().equals(Messages.getString("SootConvertor.7"))) {
 				_method = getCorrSootMethod(themethod, sootclass);
 			}
 
@@ -171,7 +173,7 @@ public final class SootConvertor {
 			} else {
 				_body = _method.retrieveActiveBody();
 			}
-			ArrayList _stmtslst;
+			List _stmtslst;
 			_stmtslst = isStmtPresent(_body, theline);
 			if (_stmtslst != null) {
 				_stmtlist = new ArrayList();
@@ -234,10 +236,10 @@ public final class SootConvertor {
 	 * Returns the list of Stmts with the given line number.
 	 * @param body The Jimple Body
 	 * @param theline The selected Java line.
-	 * @return ArrayList The list of SootClass, SootMethod, list of Jimple Stmts
+	 * @return List The list of SootClass, SootMethod, list of Jimple Stmts
 	 */
-	private static ArrayList isStmtPresent(final Body body, final int theline) {
-		final ArrayList _stmt = new ArrayList();
+	private static List isStmtPresent(final Body body, final int theline) {
+		final List _stmt = new ArrayList();
 		final Chain _unitchain = body.getUnits();
 		final Iterator _iterator = _unitchain.snapshotIterator();
 		int _nLine;

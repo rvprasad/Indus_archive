@@ -123,10 +123,10 @@ public class ForwardSlice
 
 			if (_element != null && _element instanceof IMethod) {
 				final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
-				final ArrayList _stmtlist = SootConvertor.getStmtForLine(_file, _type, (IMethod) _element, _nSelLine);
+				final List _stmtlist = SootConvertor.getStmtForLine(_file, _type, (IMethod) _element, _nSelLine);
 
 				if (_stmtlist != null && _stmtlist.size() >= 3) {
-					final ArrayList _storeLst = new ArrayList();
+					final List _storeLst = new ArrayList();
 
 					// Format: Classname: qualified signature, method: signature, line no
 					final int _noStmts = _stmtlist.size() - 2;

@@ -25,9 +25,9 @@ import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.presentation.AddIndusAnnotation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 //import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -75,7 +75,7 @@ public class IndusConfiguration {
 	/**
 	 * Creates a new IndusConfiguration object.
 	 */
-	private HashMap lineNumbers;	
+	private Map lineNumbers;	
 
 	/**
 	 * <p>
@@ -88,7 +88,7 @@ public class IndusConfiguration {
 	/**
 	 * The criteria.
 	 */
-	private ArrayList criteria; 
+	private List criteria; 
 	
 	/**
 	 * The current configuration for the slice. Set by IndusConfigurationDialog
@@ -181,7 +181,7 @@ public class IndusConfiguration {
 	 *
 	 * @param lineNumbersMap The map of classnames to line numbers.
 	 */
-	public void setLineNumbers(final HashMap lineNumbersMap) {
+	public void setLineNumbers(final Map lineNumbersMap) {
 		this.lineNumbers = lineNumbersMap;
 	}
 
@@ -190,7 +190,7 @@ public class IndusConfiguration {
 	 *
 	 * @return Returns the lineNumbers.
 	 */
-	public HashMap getLineNumbers() {
+	public Map getLineNumbers() {
 		return lineNumbers;
 	}
 
@@ -286,7 +286,7 @@ public class IndusConfiguration {
 	 * Returns the criteria chosen.
 	 * @return Returns the criteria.
 	 */
-	public ArrayList getCriteria() {
+	public List getCriteria() {
 		return criteria;
 	}
 	

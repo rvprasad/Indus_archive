@@ -78,10 +78,11 @@ public class BackwardSlice
 
 	/**
 	 * Sets the current editor.
+	 *
 	 * @see org.eclipse.ui.IEditorActionDelegate#setActiveEditor(org.eclipse.jface.action.IAction,
 	 * 		org.eclipse.ui.IEditorPart)
 	 */
-	public void setActiveEditor(final IAction action, final IEditorPart targetEditor) {		
+	public void setActiveEditor(final IAction action, final IEditorPart targetEditor) {
 		editor = (CompilationUnitEditor) targetEditor;
 	}
 
@@ -122,10 +123,10 @@ public class BackwardSlice
 
 			if (_element != null && _element instanceof IMethod) {
 				final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
-				final ArrayList _stmtlist = SootConvertor.getStmtForLine(_file, _type, (IMethod) _element, _nSelLine);
+				final List _stmtlist = SootConvertor.getStmtForLine(_file, _type, (IMethod) _element, _nSelLine);
 
 				if (_stmtlist != null && _stmtlist.size() >= 3) {
-					final ArrayList _storeLst = new ArrayList();
+					final List _storeLst = new ArrayList();
 
 					// Format: Classname: qualified signature, method: signature, line no
 					final int _noStmts = _stmtlist.size() - 2;
@@ -135,6 +136,7 @@ public class BackwardSlice
 					_c.setNLineNo(_nSelLine);
 					_c.setNJimpleIndex(_noStmts - 1);
 					_c.setBConsiderValue(true);
+
 					final String _configuration =
 						SliceEclipsePlugin.getDefault().getPreferenceStore().getString("backwardConfiguration");
 					SliceEclipsePlugin.getDefault().getIndusConfiguration().reset();
@@ -147,6 +149,7 @@ public class BackwardSlice
 
 					final IndusRunner _runner = new IndusRunner(_lst);
 					_runner.setEditor(editor);
+
 					if (!_runner.doWork()) {
 						return;
 					}
@@ -157,8 +160,7 @@ public class BackwardSlice
 					try {
 						final ProgressMonitorDialog _dialog = new ProgressMonitorDialog(_shell);
 						_dialog.run(true, false, _runner);
-					} 					  
-					  catch (InvocationTargetException _ie) {
+					} catch (InvocationTargetException _ie) {
 						SECommons.handleException(_ie);
 					} catch (InterruptedException _ie) {
 						SECommons.handleException(_ie);
@@ -167,9 +169,8 @@ public class BackwardSlice
 			}
 		} catch (JavaModelException _jme) {
 			SECommons.handleException(_jme);
+		} catch (IndusException _ie) {
+			SECommons.handleException(_ie);
 		}
-		catch (IndusException _ie) {
-		  	SECommons.handleException(_ie);
-		  }
 	}
 }

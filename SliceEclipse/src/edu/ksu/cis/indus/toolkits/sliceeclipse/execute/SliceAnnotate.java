@@ -24,7 +24,8 @@ package edu.ksu.cis.indus.toolkits.sliceeclipse.execute;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.presentation.AddIndusAnnotation;
 
-import java.util.HashMap;
+
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 
@@ -83,7 +84,7 @@ public class SliceAnnotate
 			if (_indusA.annotationPresent(_fl)) {
 				_indusA.setEditor(editor, true);
 			} else {
-				final HashMap _map = SliceEclipsePlugin.getDefault().getIndusConfiguration().getLineNumbers();
+				final Map _map = SliceEclipsePlugin.getDefault().getIndusConfiguration().getLineNumbers();
 				_indusA.setEditor(editor, _map);
 			}
 		}

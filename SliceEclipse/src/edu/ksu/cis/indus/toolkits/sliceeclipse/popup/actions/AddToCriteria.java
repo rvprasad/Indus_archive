@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.CriteriaData;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -135,7 +136,7 @@ public class AddToCriteria
 	 */
 	private boolean isOkToAdd(final CriteriaData data, final Criteria criteria) {
 		boolean _isOk = true;
-		final ArrayList _lst = data.getCriterias();
+		final List _lst = data.getCriterias();
 
 		for (int _i = 0; _i < _lst.size(); _i++) {
 			final Criteria _tcriteria = (Criteria) _lst.get(_i);
@@ -196,8 +197,8 @@ public class AddToCriteria
 	 * @param file The Java file in which the criteria is present.
 	 * @param criteria The criteria the user has chosen.
 	 */
-	private void allowUserToPickCriteria(final ArrayList stmtlist, final IFile file, final Criteria criteria) {
-		final ArrayList _stlist = new ArrayList();
+	private void allowUserToPickCriteria(final List stmtlist, final IFile file, final Criteria criteria) {
+		final List _stlist = new ArrayList();
 
 		for (int _i = 2; _i < stmtlist.size(); _i++) {
 			_stlist.add(stmtlist.get(_i));
@@ -240,11 +241,11 @@ public class AddToCriteria
 		final String _className = type.getElementName();
 
 		try {
-			final ArrayList _stmtlist = SootConvertor.getStmtForLine(file, type, (IMethod) element, nSelLine);
+			final List _stmtlist = SootConvertor.getStmtForLine(file, type, (IMethod) element, nSelLine);
 
 			if (_stmtlist != null && _stmtlist.size() >= 3) {
 				final Criteria _c = new Criteria();
-				final ArrayList _storeLst = new ArrayList();
+				final List _storeLst = new ArrayList();
 				final int _noStmts = _stmtlist.size() - 2;
 				_c.setStrClassName(PrettySignature.getSignature(type));
 				_c.setStrMethodName(PrettySignature.getSignature(element));

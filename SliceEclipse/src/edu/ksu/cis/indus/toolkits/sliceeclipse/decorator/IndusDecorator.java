@@ -21,8 +21,8 @@ package edu.ksu.cis.indus.toolkits.sliceeclipse.decorator;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -89,7 +89,7 @@ public class IndusDecorator
 
 		if (_filelst.size() > 0) {
 			boolean _shouldDecorate = false;
-			final HashMap _map = SliceEclipsePlugin.getDefault().getIndusConfiguration().getLineNumbers();
+			final Map _map = SliceEclipsePlugin.getDefault().getIndusConfiguration().getLineNumbers();
 
 			if (_map != null && _map.size() > 0) {
 				_shouldDecorate = true;
@@ -113,7 +113,7 @@ public class IndusDecorator
 	 * @return boolean True if the file should be decorated.
 	 */
 	private boolean isFileOkToDecorate(final IResource resource,
-			final HashMap map) {
+			final Map map) {
 		boolean _isFileOk = false;
 		final ICompilationUnit _icunit = (ICompilationUnit) JavaCore
 				.create((IFile) resource);

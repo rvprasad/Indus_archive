@@ -37,7 +37,6 @@ import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.ViewData;
 
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
-import java.util.ArrayList;
 
 import org.eclipse.core.resources.IResource;
 
@@ -281,7 +280,7 @@ public class IndusConfigurationDialog
 
 					if (_propVal != null) {
 						final CriteriaData _data = (CriteriaData) _xstream.fromXML(_propVal);
-						final ArrayList _lst = _data.getCriterias();
+						final java.util.List _lst = _data.getCriterias();
 						SliceEclipsePlugin.getDefault().getIndusConfiguration().getCriteria().clear();
 
 						for (int _i = 0; _i < _currentsels.length && _currentsels[_i] < _lst.size(); _i++) {
@@ -333,7 +332,7 @@ public class IndusConfigurationDialog
 								_xstream.alias(Messages.getString("IndusConfigurationDialog.8"), CriteriaData.class);
 
 								final CriteriaData _data = (CriteriaData) _xstream.fromXML(_propVal);
-								final ArrayList _lst = _data.getCriterias();
+								final java.util.List _lst = _data.getCriterias();
 								_lst.remove(index);
 
 								final String _xml = _xstream.toXML(_data);
@@ -368,7 +367,7 @@ public class IndusConfigurationDialog
 		if (!_prefval.equals("")) {  //$NON-NLS-1$
 
 			final SliceConfigurationHolder _sch = (SliceConfigurationHolder) _xstream.fromXML(_prefval);
-			final ArrayList _lst = _sch.getList();
+			final java.util.List _lst = _sch.getList();
 			final SlicerTool _stool =
 				new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
 
@@ -409,7 +408,7 @@ public class IndusConfigurationDialog
 
 				if (_propVal != null) {
 					final CriteriaData _data = (CriteriaData) _xstream.fromXML(_propVal);
-					final ArrayList _lst = _data.getCriterias();
+					final java.util.List _lst = _data.getCriterias();
 					final String[] _colnames = { "Function", "Line number", "Jimple index", "Consider Execution" };
 
 					for (int _i = 0; _i < _colnames.length; _i++) {
@@ -466,7 +465,7 @@ public class IndusConfigurationDialog
 		if (_prefval != null && !_prefval.equals("")) {  //$NON-NLS-1$
 
 			final ViewConfiguration _vc = (ViewConfiguration) _xstream.fromXML(_prefval);
-			final ArrayList _lst = _vc.getList();
+			final java.util.List _lst = _vc.getList();
 
 			for (int _i = 0; _i < _lst.size(); _i++) {
 				final ViewData _vd = (ViewData) _lst.get(_i);

@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.toolkits.sliceeclipse.dialogs;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
 
 
-import java.util.ArrayList;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -47,7 +46,7 @@ public class StatementResolver extends Dialog {
 	/**
 	 * The list of jimple statements.
 	 */
-	private ArrayList stmtList;
+	private java.util.List stmtList;
 	
 	/** The SWT list. */
 	private List jimpleList;
@@ -59,7 +58,7 @@ public class StatementResolver extends Dialog {
 	 * @param parentShell The parent shell
 	 * @param stmtlist The jimple stmt list
 	 */
-	public  StatementResolver(final Shell parentShell, final ArrayList stmtlist) {
+	public  StatementResolver(final Shell parentShell, final java.util.List stmtlist) {
 		super(parentShell);
 		stmtList = stmtlist;
 	}

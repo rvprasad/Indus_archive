@@ -36,10 +36,8 @@ public class ExceptionDialog extends Dialog {
 	 */
     private String exceptionTrace;
 
-    /**
-     * The Text area to show the exception trace.
-     */
-    private Text expList;
+    
+    
 
     /**
      * Constructor.
@@ -86,11 +84,12 @@ public class ExceptionDialog extends Dialog {
         _group1.setText(Messages.getString("ExceptionDialog.1")); //$NON-NLS-1$
         final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
         _group1.setLayout(_fl);
-        expList = new Text(_group1, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        final Text _expList;
+        _expList = new Text(_group1, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         final int _wh = 400;
-        expList.setBounds(0, 0, _wh, _wh);
-        expList.setText(exceptionTrace);
-        expList.setEditable(false);
+        _expList.setBounds(0, 0, _wh, _wh);
+        _expList.setText(exceptionTrace);
+        _expList.setEditable(false);
 
         return _composite;
     }

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -62,7 +63,7 @@ public class AddIndusAnnotation {
 	 * Vector to hold the annotations.
 	 * </p>
 	 */
-	private HashMap locationMap;
+	private Map locationMap;
 
 	/**
 	 * Are annotations present?
@@ -104,7 +105,7 @@ public class AddIndusAnnotation {
 	 * @param theeditor The currently open Java editor
 	 * @param lineMap The map of classnames to line numbers
 	 */
-	public void setEditor(final CompilationUnitEditor theeditor, final HashMap lineMap) {
+	public void setEditor(final CompilationUnitEditor theeditor, final Map lineMap) {
 		this.editor = theeditor;
 		final IFile _file = (IFile) ((IFileEditorInput) theeditor.getEditorInput()).getFile();		
 		
@@ -159,7 +160,7 @@ public class AddIndusAnnotation {
 	 * @param javaFile The input java file.
 	 * @param lineMap The set of slice line numbers.
 	 */
-	public void addAnnotationToLines(final IFile javaFile, final HashMap lineMap) {
+	public void addAnnotationToLines(final IFile javaFile, final Map lineMap) {
 		if (lineMap != null) {
 			//			IFile file = ((IFileEditorInput) editor.getEditorInput()).getFile();
 			//			ICompilationUnit unit = JavaCore.createCompilationUnitFrom(file);
@@ -231,7 +232,7 @@ public class AddIndusAnnotation {
 	 * @param lineMap The mapping of classnames to line numbers.
 	 * @return List The list of filtered line numbers
 	 */
-	private List filterLines(final IFile javaFile, final HashMap lineMap) {
+	private List filterLines(final IFile javaFile, final Map lineMap) {
 		final List _lst = new LinkedList();
 		final ICompilationUnit _unit = JavaCore.createCompilationUnitFrom(javaFile);
 		if (_unit != null) {

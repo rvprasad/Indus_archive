@@ -384,7 +384,7 @@ public class PluginPreference extends PreferencePage implements
 
 			private void editandchange(final int index) {
 				final SliceConfigurationHolder _sch = getSliceConfigurations();
-				final ArrayList _lst = _sch.getList();
+				final java.util.List _lst = _sch.getList();
 				if (index < _lst.size()) {
 					final String _configuration = (String) _lst.get(index);
 					final SlicerTool _stool = new SlicerTool(TokenUtil
@@ -517,7 +517,7 @@ public class PluginPreference extends PreferencePage implements
 					if (!_prefval.equals(Messages.getString(""))) { //$NON-NLS-1$
 						final ViewConfiguration _vc = (ViewConfiguration) _xstream
 								.fromXML(_prefval);
-						final ArrayList _lst = _vc.getList();
+						final java.util.List _lst = _vc.getList();
 						_lst.remove(_index);
 						_prefval = _xstream.toXML(_vc);
 						_ps.setValue(_viewname, _prefval);
@@ -828,7 +828,7 @@ public class PluginPreference extends PreferencePage implements
 
 			final SliceConfigurationHolder _sch = (SliceConfigurationHolder) _xstream
 					.fromXML(_prefvals);
-			final ArrayList _lst = _sch.getList();
+			final java.util.List _lst = _sch.getList();
 			final SlicerTool _stool = new SlicerTool(TokenUtil
 					.getTokenManager(),
 					new ExceptionFlowSensitiveStmtGraphFactory());
@@ -865,7 +865,7 @@ public class PluginPreference extends PreferencePage implements
 		if (_prefval != null && !_prefval.equals("")) { //$NON-NLS-1$
 			final ViewConfiguration _vc = (ViewConfiguration) _xstream
 					.fromXML(_prefval);
-			final ArrayList _lst = _vc.getList();
+			final java.util.List _lst = _vc.getList();
 
 			for (int _i = 0; _i < _lst.size(); _i++) {
 				viewList.add(Messages.getString("PluginPreference.48") + _i); //$NON-NLS-1$

@@ -20,7 +20,6 @@
  */
 package edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata;
 
-import java.util.ArrayList;
 
 
 /**
@@ -29,10 +28,7 @@ import java.util.ArrayList;
  * @author Ganeshan
  */
 public class Criteria {
-	/** 
-	 * The list of classname, method name, line number, index and value consideration.
-	 */
-	private ArrayList criteria;
+	
 	
 	/**
 	 * The class name.
@@ -65,23 +61,7 @@ public class Criteria {
 	 */
 	private boolean disabled;
 
-	/**
-	 * Sets the criteria.
-	 * @deprecated
-	 * @param criterias The criteria to set.
-	 */
-	public void setCriteria(final ArrayList criterias) {
-		this.criteria = criterias;
-	}
-
-	/**
-	 * Get the criteria set.
-	 * @deprecated
-	 * @return Returns the criteria.
-	 */
-	public ArrayList getCriteria() {
-		return criteria;
-	}
+	
 
 	/**
 	 * Criteria Disabled.

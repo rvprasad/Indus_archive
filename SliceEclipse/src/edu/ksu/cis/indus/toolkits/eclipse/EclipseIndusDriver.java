@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -133,11 +134,11 @@ public class EclipseIndusDriver
 	/**
 	 * Returns a vector of java line numbers associated with jimple slice tags.
 	 *
-	 * @return HashMap The HashMap of classnames to line numbers postcondition:  result.oclIsKindOf(HashMap) :- classnames ->
+	 * @return Map The HashMap of classnames to line numbers postcondition:  result.oclIsKindOf(HashMap) :- classnames ->
 	 * 		   line numbers.
 	 */
-	public HashMap getAnnotationLineNumbers() {
-		final HashMap _v = new HashMap();
+	public Map getAnnotationLineNumbers() {
+		final Map _v = new HashMap();
 		final Chain _classlist = Scene.v().getApplicationClasses();
 		final Iterator _iterator = _classlist.snapshotIterator();
 

@@ -16,12 +16,11 @@
 /*
  * Created on May 25, 2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * 
  */
 package edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The criteria holder.
@@ -32,17 +31,17 @@ public class CriteriaData {
 	/**
 	 * The list of criterias.
 	 */
-	private ArrayList criterias;
+	private List criterias;
 	/**
 	 * @return Returns the criterias.
 	 */
-	public ArrayList getCriterias() {
+	public List getCriterias() {
 		return criterias;
 	}
 	/**
 	 * @param criteria The criterias to set.
 	 */
-	public void setCriterias(final ArrayList criteria) {
+	public void setCriterias(final List criteria) {
 		this.criterias = criteria;
 	}
 }

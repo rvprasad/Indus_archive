@@ -197,7 +197,7 @@ public class ViewDialog
 	 */
 	private boolean isDuplicate(final ViewConfiguration vc, final ViewData vd) {
 		boolean _result = false;
-		final ArrayList _lst = vc.getList();
+		final java.util.List _lst = vc.getList();
 		for (int _i = 0; _i < _lst.size(); _i++) {
 			final ViewData _data = (ViewData) _lst.get(_i);
 			if (vd.equals(_data)) {

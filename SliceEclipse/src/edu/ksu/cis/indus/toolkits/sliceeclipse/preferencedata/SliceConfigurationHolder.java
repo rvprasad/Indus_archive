@@ -16,41 +16,39 @@
 /*
  * Created on May 27, 2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * 
  */
 package edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata;
 
-import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * The slice configuration holder.
  *
- * @author Ganeshan TODO To change the template for this generated type comment go to Window - Preferences - Java - Code
- * 		   Generation - Code and Comments
+ * @author Ganeshan 
  */
 public class SliceConfigurationHolder {
 	/** 
 	 * The list of configurations.
 	 */
-	private ArrayList list;
+	private List list;
 
 	/**
 	 * Sets the list of criteria.
 	 *
 	 * @param lists The list to set.
 	 */
-	public void setList(final ArrayList lists) {
+	public void setList(final List lists) {
 		this.list = lists;
 	}
 
 	/**
 	 * Gets the list of criteria.
 	 *
-	 * @return Returns the list.
+	 * @return List Returns the list.
 	 */
-	public ArrayList getList() {
+	public List getList() {
 		return list;
 	}
 }

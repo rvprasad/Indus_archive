@@ -139,7 +139,7 @@ public class RunIndusProject implements IObjectActionDelegate {
 	 * @return List The list of java files.
 	 */
 	private List processForFiles(final IJavaProject jproject) {
-		ArrayList _javaFileList = new ArrayList();
+		List _javaFileList = new ArrayList();
 		try {
 			final IPackageFragment[] _fragments = jproject
 					.getPackageFragments();
