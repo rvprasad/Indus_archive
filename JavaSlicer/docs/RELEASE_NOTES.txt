@@ -43,6 +43,8 @@ Version 0.5
 	- Added support to generate criteria based on class-level entities (feature request #232)
 	- Provided a new class "FieldBasedCriteriaGenerator" to generated criteria based on fields.
 	- Refactored classes related criteria filters, generators, and specification.
+    - Addressed feature request #562, #537, and #540.
+    - Addressed bug report #558 and #551.
 	- A whole lot of bug fixes.
 	
 

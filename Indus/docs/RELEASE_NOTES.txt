@@ -39,6 +39,7 @@ Version 0.5
 	- Added support to manage infomation based on IDs of implementation.
 	- Refactored the mechanism to configure property-based application-level constants.
 	- Extended use-def info interface to handle static fields.
+    - Addressed feature request #536.
 	? Requires jars from Bandera to use Bandera related tools.
 
 Version 0.4
