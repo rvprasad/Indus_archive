@@ -54,8 +54,10 @@ import java.util.Map;
 public class AliasedUseDefInfo
   extends AbstractValueAnalyzerBasedProcessor
   implements IUseDefInfo {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AliasedUseDefInfo.class);
 
@@ -107,7 +109,7 @@ public class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getDefs(AssignStmt, Context)
 	 */
 	public Collection getDefs(final Stmt useStmt, final Context context) {
-		Map stmt2defs = (Map) usesMap.get(context.getCurrentMethod());
+		Map stmt2defs = (Map) defsMap.get(context.getCurrentMethod());
 		Collection result = null;
 
 		if (stmt2defs != null) {
@@ -293,6 +295,8 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/25 19:02:20  venku
+   - bugs during info calculations.  FIXED.
    Revision 1.11  2003/11/12 03:51:12  venku
    - getDefs operates on statements and
      getUses operates on Def statements.
