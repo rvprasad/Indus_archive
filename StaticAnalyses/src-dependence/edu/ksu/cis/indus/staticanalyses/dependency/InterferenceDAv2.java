@@ -47,8 +47,9 @@ import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 /**
  * This class uses escape-analysis information as calculated by {@link
- * edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis EquivalenceClassBasedEscapeAnalysis} to prune the
- * interference dependence edges as calculated by it's parent class.  This can be further spruced by symbolic-analysis.
+ * edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
+ * EquivalenceClassBasedEscapeAnalysis} to prune the interference dependence edges as calculated by it's parent class.  This
+ * can be further spruced by symbolic-analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -109,9 +110,14 @@ public class InterferenceDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/08/21 01:25:21  venku
+    - Renamed src-escape to src-concurrency to as to group all concurrency
+      issue related analyses into a package.
+    - Renamed escape package to concurrency.escape.
+    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+   Changes due to the ripple effect of the above changes are being committed.
    Revision 1.7  2003/08/14 05:10:29  venku
    Fixed documentation links.
-
    Revision 1.6  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.5  2003/08/11 06:31:55  venku

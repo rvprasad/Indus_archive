@@ -230,15 +230,16 @@ public class EquivalenceClassBasedEscapeAnalysis
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
-	 * @param scmPrm provides and manages the classes to be analysed.
-	 * @param cgiPrm provides call-graph information.
+	 * @param scene provides and manages the classes to be analysed.
+	 * @param callgraph provides call-graph information.
 	 * @param tgiPrm provides thread-graph information.
 	 *
-	 * @pre scm != null and cgi != null and tgi != null
+	 * @pre scene != null and callgraph != null and tgi != null
 	 */
-	public EquivalenceClassBasedEscapeAnalysis(final Scene scmPrm, final ICallGraphInfo cgiPrm, final IThreadGraphInfo tgiPrm) {
-		this.scm = scmPrm;
-		this.cgi = cgiPrm;
+	public EquivalenceClassBasedEscapeAnalysis(final Scene scene, final ICallGraphInfo callgraph,
+		final IThreadGraphInfo tgiPrm) {
+		this.scm = scene;
+		this.cgi = callgraph;
 		this.tgi = tgiPrm;
 
 		threadAllocSitesSingle = new HashSet();
@@ -1061,13 +1062,16 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/21 01:24:25  venku
+    - Renamed src-escape to src-concurrency to as to group all concurrency
+      issue related analyses into a package.
+    - Renamed escape package to concurrency.escape.
+    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
    Revision 1.3  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.
-
    Revision 1.2  2003/08/11 06:29:07  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.1  2003/08/07 06:39:07  venku
    Major:
     - Moved the package under indus umbrella.
