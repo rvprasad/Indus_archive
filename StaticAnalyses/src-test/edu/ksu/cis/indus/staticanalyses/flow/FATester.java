@@ -15,6 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.swingui.TestRunner;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -23,11 +28,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.swingui.TestRunner;
 
 import soot.ArrayType;
 import soot.RefType;
@@ -123,7 +123,7 @@ public class FATester
 	 * <p></p>
 	 */
 	public void testGetClasses() {
-		for (final Iterator _i = env.getClasses().iterator(); _i.hasNext();) {
+		for (final Iterator _i = fa.getScene().getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 			boolean flag = false;
 
@@ -137,11 +137,9 @@ public class FATester
 
 				if (fa.queryMethodVariant(_sm) != null) {
 					assertTrue(_sm.hasTag(TAG_NAME));
-				}
-
-				if (_sm.hasTag(TAG_NAME)) {
-					assertTrue(fa.queryMethodVariant(_sm) != null);
 					flag = true;
+				} else {
+					assertFalse(_sm.hasTag(TAG_NAME));
 				}
 			}
 
@@ -195,4 +193,6 @@ public class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/05 15:28:12  venku
+   - added test case for trivial tagging test in FA.
  */

@@ -15,6 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import junit.extensions.TestSetup;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import junit.swingui.TestRunner;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -29,14 +37,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-
-import junit.extensions.TestSetup;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import junit.swingui.TestRunner;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -163,6 +163,7 @@ public class CallGraphTester
 			pc.process();
 			cgiImpl.unhook(pc);
 			cgi = cgiImpl;
+			System.out.println(cgiImpl.dumpGraph());
 		}
 
 		/**
@@ -412,8 +413,16 @@ public class CallGraphTester
 		Collection reachables = cgi.getReachableMethods();
 		assertTrue(reachables != null);
 
+		Context ctxt = new Context();
+
 		for (Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod o = (SootMethod) i.next();
+			System.out.println(o);
+
+			if (!o.isStatic()) {
+				ctxt.setRootMethod(o);
+				assertTrue(ofa.getValuesForThis(ctxt) != null);
+			}
 			assertTrue(o.hasTag(tagName));
 			assertTrue(o.getDeclaringClass().hasTag(tagName));
 		}
@@ -447,6 +456,8 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/05 15:28:12  venku
+   - added test case for trivial tagging test in FA.
    Revision 1.8  2003/12/05 11:48:19  venku
    - added one more check while testing SCC.
    Revision 1.7  2003/12/02 09:42:39  venku
