@@ -512,6 +512,22 @@ public final class SlicerConfiguration
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
+		// set default values for certain properties
+		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
+		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
+		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
+		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
+		setProperty(USE_OFA_FOR_INTERFERENCE_DA, Boolean.TRUE);
+		setProperty(USE_READYDA, Boolean.TRUE);
+		setProperty(NATURE_OF_READY_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
+		setProperty(USE_OFA_FOR_READY_DA, Boolean.TRUE);
+		setProperty(USE_RULE1_IN_READYDA, Boolean.TRUE);
+		setProperty(USE_RULE2_IN_READYDA, Boolean.TRUE);
+		setProperty(USE_RULE3_IN_READYDA, Boolean.TRUE);
+		setProperty(USE_RULE4_IN_READYDA, Boolean.TRUE);
+		setProperty(USE_SLA_FOR_READY_DA, Boolean.TRUE);
+		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
+
 		// default required fixed dependency analyses
 		dependencesToUse.add(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
 		id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA,
@@ -525,21 +541,6 @@ public final class SlicerConfiguration
 		dependencesToUse.add(IDependencyAnalysis.READY_DA);
 		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
 
-		// set default values for certain properties
-		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
-		setProperty(USE_OFA_FOR_INTERFERENCE_DA, Boolean.TRUE);
-		setProperty(USE_READYDA, Boolean.TRUE);
-		setProperty(NATURE_OF_READY_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
-		setProperty(USE_OFA_FOR_READY_DA, Boolean.TRUE);
-		setProperty(USE_RULE1_IN_READYDA, Boolean.TRUE);
-		setProperty(USE_RULE2_IN_READYDA, Boolean.TRUE);
-		setProperty(USE_RULE3_IN_READYDA, Boolean.TRUE);
-		setProperty(USE_RULE4_IN_READYDA, Boolean.TRUE);
-		setProperty(USE_SLA_FOR_READY_DA, Boolean.TRUE);
-		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
-		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
-		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
-		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
 	}
 
 	/**
@@ -912,6 +913,11 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.53  2004/08/15 08:37:25  venku
+   - REFACTORING pertaining to feature request #426
+     - refactored dependence retriever interface.
+     - refactored direction sensitive dependence information creation.
+
    Revision 1.52  2004/07/28 17:20:40  venku
    - trivial nip-tucks.
    Revision 1.51  2004/07/28 02:47:44  venku
