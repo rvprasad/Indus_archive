@@ -52,26 +52,17 @@ import soot.Scene;
 import soot.ShortType;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.Trap;
-import soot.TrapManager;
 import soot.Type;
-import soot.Unit;
 import soot.Value;
 
 import soot.jimple.DoubleConstant;
 import soot.jimple.FloatConstant;
-import soot.jimple.InstanceFieldRef;
-import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.IntConstant;
-import soot.jimple.InvokeExpr;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.LongConstant;
 import soot.jimple.NullConstant;
-import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
-
-import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -505,60 +496,6 @@ public final class Util {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param body DOCUMENT ME!
-	 * @param graph DOCUMENT ME!
-	 */
-	public static void pruneExceptionBasedControlFlow(final JimpleBody body, final UnitGraph graph) {
-		// process each trapped unit
-		for (final Iterator _i = TrapManager.getTrappedUnitsOf(body).iterator(); _i.hasNext();) {
-			final Stmt _unit = (Stmt) _i.next();
-			final List _traps = TrapManager.getTrapsAt(_unit, body);
-
-			// gather all the exception types that is assumed to be thrown by the current unit.
-			for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
-				final Trap _trap = (Trap) _j.next();
-				final Unit _handler = _trap.getHandlerUnit();
-				final List _temp = TrapManager.getExceptionTypesOf(_handler, body);
-
-				boolean _retainflag = false;
-				final boolean _hasArrayRef = _unit.containsArrayRef();
-				final boolean _hasFieldRef = _unit.containsFieldRef();
-				final boolean _hasInstanceFieldRef = _hasFieldRef && _unit.getFieldRef() instanceof InstanceFieldRef;
-				final boolean _hasInvokeExpr = _unit.containsInvokeExpr();
-                final InvokeExpr _invokeExpr = _unit.getInvokeExpr();
-				final boolean _hasInstanceInvokeExpr = _hasInvokeExpr && _invokeExpr instanceof InstanceInvokeExpr;
-
-				// for each declared caught exception type validate the declaration and tailor the graph as needed.
-				for (final Iterator _k = _temp.iterator(); _k.hasNext() && !_retainflag;) {
-					final SootClass _exception = (SootClass) _k.next();
-					_retainflag =
-						(_hasArrayRef || _hasInstanceFieldRef || _hasInstanceInvokeExpr)
-						  && isDescendentOf(_exception, "java.lang.NullPointerException");
-					_retainflag |= _hasArrayRef && isDescendentOf(_exception, "java.lang.ArrayIndexOutOfBoundsException");
-
-					if (_hasInvokeExpr) {
-						for (final Iterator _l = _invokeExpr.getMethod().getExceptions().iterator(); _l.hasNext();) {
-							final SootClass _thrown = (SootClass) _l.next();
-							_retainflag |= isDescendentOf(_thrown, _exception);
-						}
-					}
-				}
-
-				if (!_retainflag) {
-					final Collection _succs = graph.getSuccsOf(_unit);
-					final Collection _preds = graph.getPredsOf(_handler);
-					_succs.remove(_handler);
-					_preds.remove(_unit);
-				}
-			}
-		}
-	}
-
-	/**
 	 * Removes methods from <code>methods</code> which have same signature as any methods in <code>methodsToRemove</code>.
 	 * This is the counterpart of <code>retainMethodsWithSignature</code>.
 	 *
@@ -629,6 +566,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/03/08 02:10:14  venku
+   - enabled preliminary support to prune exception based intraprocedural
+     control flow edges.
    Revision 1.18  2004/03/07 00:42:49  venku
    - added a new method to extract the options to be used by
      soot to use Indus.
