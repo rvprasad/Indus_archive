@@ -210,9 +210,12 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/29 14:55:03  venku
+   - don't use "use-orignal-names" option with Jimple.
+     The variables referring to objects need to be unique if the
+     results of the analyses should be meaningful.
    Revision 1.9  2003/09/29 09:04:30  venku
    - dump formatting.
-
    Revision 1.8  2003/09/29 07:30:51  venku
    - added support to spit out local variables names as they occur
      in the source rather than jimplified names.

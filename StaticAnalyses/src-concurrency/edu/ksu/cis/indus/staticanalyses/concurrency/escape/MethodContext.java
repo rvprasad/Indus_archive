@@ -129,7 +129,7 @@ class MethodContext
 		if (paramCount > 0) {
 			argAliasSets = new ArrayList(paramCount);
 
-			for (int i = paramCount - 1; i >= 0; i--) {
+			for (int i = 0; i < paramCount; i++) {
 				argAliasSets.add(AliasSet.getASForType(sm.getParameterType(i)));
 			}
 		} else {
@@ -268,16 +268,14 @@ class MethodContext
 
 		int paramCount = method.getParameterCount();
 
-		if (paramCount > 0) {
-			for (int i = paramCount - 1; i >= 0; i--) {
-				temp = (AliasSet) argAliasSets.get(i);
+		for (int i = 0; i < paramCount; i++) {
+			temp = (AliasSet) argAliasSets.get(i);
 
-				if (temp != null) {
-					temp = (AliasSet) temp.find();
+			if (temp != null) {
+				temp = (AliasSet) temp.find();
 
-					if (!col.contains(temp)) {
-						temp.addReachableAliasSetsTo(col);
-					}
+				if (!col.contains(temp)) {
+					temp.addReachableAliasSetsTo(col);
 				}
 			}
 		}
@@ -296,7 +294,9 @@ class MethodContext
 		AliasSet temp1;
 		AliasSet temp2;
 
-		for (int i = method.getParameterCount() - 1; i >= 0; i--) {
+		int paramCount = method.getParameterCount();
+
+		for (int i = 0; i < paramCount; i++) {
 			if (AliasSet.canHaveAliasSet(method.getParameterType(i))) {
 				temp1 = (AliasSet) rep1.argAliasSets.get(i);
 				temp2 = (AliasSet) rep2.argAliasSets.get(i);
@@ -348,10 +348,21 @@ class MethodContext
 			return;
 		}
 
-		for (int i = method.getParameterCount() - 1; i >= 0; i--) {
+		m.union(n);
+
+		MethodContext temp = (MethodContext) m.find();
+
+		if (temp != m) {
+			n = m;
+			m = temp;
+		}
+
+		int paramCount = method.getParameterCount();
+
+		for (int i = 0; i < paramCount; i++) {
 			if (AliasSet.canHaveAliasSet(method.getParameterType(i))) {
-				AliasSet mAS = m.getParamAS(i);
-				AliasSet nAS = n.getParamAS(i);
+				AliasSet mAS = (AliasSet) m.argAliasSets.get(i);
+				AliasSet nAS = (AliasSet) n.argAliasSets.get(i);
 
 				if (mAS == null && nAS != null || mAS != null && nAS == null) {
 					if (LOGGER.isWarnEnabled()) {
@@ -364,8 +375,8 @@ class MethodContext
 			}
 		}
 
-		AliasSet mRet = m.getReturnAS();
-		AliasSet nRet = n.getReturnAS();
+		AliasSet mRet = m.ret;
+		AliasSet nRet = n.ret;
 
 		if ((mRet == null && nRet != null) || (mRet != null && nRet == null)) {
 			if (LOGGER.isWarnEnabled()) {
@@ -374,10 +385,10 @@ class MethodContext
 		} else if (mRet != null) {
 			mRet.unify(nRet, unifyAll);
 		}
-		m.getThrownAS().unify(n.getThrownAS(), unifyAll);
+		m.thrown.unify(n.thrown, unifyAll);
 
-		AliasSet mThis = m.getThisAS();
-		AliasSet nThis = n.getThisAS();
+		AliasSet mThis = m.thisAS;
+		AliasSet nThis = n.thisAS;
 
 		if ((mThis == null && nThis != null) || (mThis != null && nThis == null)) {
 			if (LOGGER.isWarnEnabled()) {
@@ -386,7 +397,6 @@ class MethodContext
 		} else if (mThis != null) {
 			mThis.unify(nThis, unifyAll);
 		}
-		m.union(n);
 	}
 
 	/**
@@ -464,9 +474,10 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/29 13:32:27  venku
+   - @#@%
    Revision 1.4  2003/09/29 11:29:08  venku
    - added more log information.
-
    Revision 1.3  2003/09/01 12:01:30  venku
    Major:
    - Ready dependence info in ECBA was flaky as it did not consider

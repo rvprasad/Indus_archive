@@ -334,8 +334,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 		 */
 		boolean accessed;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		boolean read = true;
 
@@ -497,7 +499,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param as DOCUMENT ME!
 		 */
@@ -538,13 +542,14 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 			// fix up arg alias sets.
 			List argASs;
+			int paramCount = sm.getParameterCount();
 
-			if (sm.getParameterCount() == 0) {
+			if (paramCount == 0) {
 				argASs = Collections.EMPTY_LIST;
 			} else {
 				argASs = new ArrayList();
 
-				for (int i = sm.getParameterCount() - 1; i >= 0; i--) {
+				for (int i = 0; i < paramCount; i++) {
 					Value val = v.getArg(i);
 					Object temp = null;
 
@@ -610,9 +615,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 				MethodContext mc = (MethodContext) triple.getFirst();
 
 				/*
-				 * If the caller and callee occur in different SCCs clone the callee method context and then unify it with
-				 * the site context.  If not, unify the method context with site-context as precision will be lost any which
-				 * way.
+				 * If the caller and callee occur in different SCCs then clone the callee method context and then unify it
+				 * with the site context.  If not, unify the method context with site-context as precision will be lost any
+				 * which way.
 				 */
 				if (cfgAnalysis.notInSameSCC(caller, callee)) {
 					try {
@@ -623,58 +628,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 					}
 				}
 
-                System.out.println("========================================================");
-                if (sc.thisAS != null) {
-                    System.out.println(caller.getSignature() + " " + context.getStmt());
-                    System.out.println(((AliasSet)sc.thisAS.find()).accessed + " " + ((AliasSet)sc.thisAS.find()).hashCode());
-                    System.out.println(((AliasSet)mc.thisAS.find()).accessed + " " + ((AliasSet)mc.thisAS.find()).hashCode());
-                    for (Iterator j = sc.thisAS.getFieldMap().keySet().iterator(); j.hasNext();) {
-                        Object b = j.next();
-                        AliasSet o = (AliasSet)sc.thisAS.getFieldMap().get(b);
-                        System.out.println("\t" + b + " " + ((AliasSet)o.find()).escapes() + " " + o.find().hashCode());
-                        
-                    }
-                    for (int j = 0; j < callee.getParameterCount(); j++) {
-                        AliasSet as = sc.getParamAS(j);
-                        if (as != null)
-                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).accessed + " " + ((AliasSet)as.find()).hashCode());
-                        as = mc.getParamAS(j);
-                        if (as != null)
-                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).accessed + " " + ((AliasSet)as.find()).hashCode());
-
-                    }
-                }
-
 				sc.unify(mc, unifyAll);
 
-                if (sc.thisAS != null) {
-                    System.out.println(caller.getSignature() + " " + context.getStmt());
-                    System.out.println(((AliasSet)sc.thisAS.find()).escapes() + " " + ((AliasSet)sc.thisAS.find()).hashCode());
-                    System.out.println(((AliasSet)mc.thisAS.find()).escapes() + " " + ((AliasSet)mc.thisAS.find()).hashCode());
-
-                    for (Iterator j = sc.thisAS.getFieldMap().keySet().iterator(); j.hasNext();) {
-                        Object b = j.next();
-                        AliasSet o = (AliasSet)sc.thisAS.getFieldMap().get(b);
-                        System.out.println("\t" + b + " " + ((AliasSet)o.find()).escapes() + " " + o.find().hashCode());
-                        
-                    }
-                    for (int j = 0; j < callee.getParameterCount(); j++) {
-                        AliasSet as = sc.getParamAS(j);
-                        if (as != null)
-                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).accessed + " " + ((AliasSet)as.find()).hashCode());
-                        as = mc.getParamAS(j);
-                        if (as != null)
-                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).accessed + " " + ((AliasSet)as.find()).hashCode());
-
-                    }
-                }
-                System.out.println("========================================================");
-                
 				if (multiExecution) {
 					// It would suffice to unify the site context with it self in the case of loop enclosure
 					// as this is more semantically close to what happens during execution.
 					sc.unify(sc, unifyAll);
-                    System.out.println("*****************************");
+					System.out.println("*****************************");
 				}
 			}
 
@@ -935,51 +895,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 				if (valueProcessor.accessed) {
 					continue;
 				}
-
-				wb.clear();
-				AliasSet aTemp = methodCtxtCache.getReturnAS();
-
-				if (aTemp != null) {
-					wb.addWork(aTemp);
-				}
-
-				wb.addWork(methodCtxtCache.getThrownAS());
-
-				for (int k = sm.getParameterCount() - 1; k >= 0; k--) {
-					aTemp = methodCtxtCache.getParamAS(k);
-
-					if (aTemp != null) {
-						wb.addWork(aTemp);
-					}
-				}
-                if (!sm.isStatic())
-                    wb.addWork(methodCtxtCache.thisAS);
-
-				processed.clear();
-
-				while (wb.hasWork()) {
-					AliasSet as = (AliasSet) ((AliasSet) wb.getWork()).find();
-
-					if (processed.contains(as)) {
-						continue;
-					}
-
-					processed.add(as);
-					as.setAccessedTo(true);
-
-					for (Iterator k = as.getFieldMap().values().iterator(); k.hasNext();) {
-						AliasSet element = (AliasSet) k.next();
-
-						if (!processed.contains(element.find())) {
-							wb.addWork(element.find());
-						}
-					}
-				}
-
 			}
 		}
 
-        // Phase 3
+		// Phase 3
 		processed.clear();
 		wb.addAllWork(cgi.getHeads());
 
@@ -1018,24 +937,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 				MethodContext mc = (MethodContext) (triple.getFirst());
 				CallTriple callerTrp = new CallTriple(caller, ctrp.getStmt(), ctrp.getExpr());
 				MethodContext sc = (MethodContext) ctrp2sc.get(callerTrp);
-                if (sc.thisAS != null) {
-                    System.out.println(caller.getSignature() + " " + ctrp.getStmt() + " " + ((AliasSet)sc.thisAS.find()).escapes() + ((AliasSet)sc.thisAS.find()).hashCode());
-                    for (Iterator j = sc.thisAS.getFieldMap().keySet().iterator(); j.hasNext();) {
-                        Object b = j.next();
-                        AliasSet o = (AliasSet)sc.thisAS.getFieldMap().get(b);
-                        System.out.println("\t" + b + " " + ((AliasSet)o.find()).escapes() + " " + o.find().hashCode());
-                        
-                    }
-                    for (int j = 0; j < callee.getParameterCount(); j++) {
-                        AliasSet as = sc.getParamAS(j);
-                        if (as != null)
-                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).escapes() + " " + ((AliasSet)as.find()).hashCode());
-                        as = mc.getParamAS(j);
-                        if (as != null)
-                        System.out.println("\t\t" + j + " " + ((AliasSet)as.find()).escapes() + " " + ((AliasSet)as.find()).hashCode());
-
-                    }
-                }
 				sc.propogateInfoFromTo(mc);
 
 				if (!processed.contains(callee)) {
@@ -1044,7 +945,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -1089,8 +989,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 				// polluted (pessimistic) only when necessary.
 				Collection o1 = getAliasSetFor(v1, sm1).getShareEntities();
 				Collection o2 = getAliasSetFor(v2, sm2).getShareEntities();
-				System.out.println(v1 + "@" + sm1 + "-------" + o1);
-				System.out.println(v2 + "@" + sm2 + "-------" + o2);
 				result = (o1 != null) && (o2 != null) && !(CollectionUtils.intersection(o1, o2).isEmpty());
 			} catch (RuntimeException e) {
 				if (LOGGER.isWarnEnabled()) {
@@ -1146,7 +1044,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 				result = (AliasSet) local2AS.get(v);
 			}
 		}
-		System.out.println(((AliasSet)result.find()).hashCode() + " " + result.isAccessed() + " " + result.escapes());
 		return result;
 	}
 }
@@ -1154,6 +1051,8 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/10/04 22:53:45  venku
+   - backup commit.
    Revision 1.14  2003/09/29 14:54:46  venku
    - don't use "use-orignal-names" option with Jimple.
      The variables referring to objects need to be unique if the

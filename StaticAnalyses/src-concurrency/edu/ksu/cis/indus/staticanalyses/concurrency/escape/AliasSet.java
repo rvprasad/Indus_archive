@@ -69,9 +69,19 @@ final class AliasSet
 	private static int shareEntityCount = 0;
 
 	/**
+	 * This represents if the variable associated with alias set was accessed (read/written).
+	 */
+	boolean accessed;
+
+	/**
 	 * This holds the reference of the clone object being created.  This is used to handle cycles during cloning.
 	 */
 	private AliasSet theClone;
+
+	/**
+	 * This represents the unique ready Entity associated with this alias set.
+	 */
+	private Collection readyEntities;
 
 	/**
 	 * <p>
@@ -86,16 +96,6 @@ final class AliasSet
 	 * @invariant fieldMap.oclIsKindOf(Map(String, AliasSet))
 	 */
 	private Map fieldMap;
-
-	/**
-	 * This represents the unique ready Entity associated with this alias set.
-	 */
-	private Object readyEntity;
-
-	/**
-	 * This represents if the variable associated with alias set was accessed (read/written).
-	 */
-	boolean accessed;
 
 	/**
 	 * This indicates if this alias set is associated with a static field.
@@ -147,7 +147,7 @@ final class AliasSet
 		accessed = false;
 		global = false;
 		propogating = false;
-		readyEntity = null;
+		readyEntities = null;
 		read = false;
 		written = false;
 		shareEntities = null;
@@ -314,8 +314,9 @@ final class AliasSet
 	void setReadyEntity() {
 		AliasSet a = ((AliasSet) find());
 
-		if (a.readyEntity == null) {
-			a.readyEntity = getNewReadyEntity();
+		if (a.readyEntities == null) {
+			a.readyEntities = new HashSet();
+			a.readyEntities.add(getNewReadyEntity());
 		}
 	}
 
@@ -327,7 +328,7 @@ final class AliasSet
 	 * @return DOCUMENT ME!
 	 */
 	Collection getShareEntities() {
-		return ((AliasSet)find()).shareEntities;
+		return ((AliasSet) find()).shareEntities;
 	}
 
 	/**
@@ -430,7 +431,7 @@ final class AliasSet
 	 * @post result == self.find().readyEntity
 	 */
 	Object getReadyEntity() {
-		return ((AliasSet) find()).readyEntity;
+		return ((AliasSet) find()).readyEntities;
 	}
 
 	/**
@@ -462,9 +463,6 @@ final class AliasSet
 		AliasSet rep1 = (AliasSet) find();
 		AliasSet rep2 = (AliasSet) as.find();
 		rep2.shared |= rep1.shared;
-        
-        if (rep1.shared)
-            System.out.println("------" + rep1.hashCode() + " " + rep2.hashCode());
 
 		/*
 		 * This is tricky.  A constructor can be called to construct 2 instances in which one is used in
@@ -472,8 +470,11 @@ final class AliasSet
 		 * set of the primary of the <init> method will be rep1 and one may provide a non-null ready entity to rep2
 		 * and the other may come and erase it if the check is not made.
 		 */
-		if (rep1.readyEntity != null) {
-			rep2.readyEntity = rep1.readyEntity;
+		if (rep1.readyEntities != null) {
+			if (rep2.readyEntities == null) {
+				rep2.readyEntities = new HashSet();
+			}
+			rep2.readyEntities = rep1.readyEntities;
 		}
 
 		if (rep1.shareEntities != null) {
@@ -490,8 +491,6 @@ final class AliasSet
 			AliasSet from = (AliasSet) rep1.fieldMap.get(key);
 
 			if ((to != null) && (from != null)) {
-//				to = (AliasSet) to.find();
-//				from = (AliasSet) from.find();
 				from.propogateInfoFromTo(to);
 			}
 		}
@@ -547,15 +546,18 @@ final class AliasSet
 
 		if (unifyAll) {
 			rep1.shared |= rep1.accessed && rep2.accessed;
-            
-            if(rep1.shared)
-                System.out.println("++++++" + rep1.hashCode() + " " + rep2.hashCode());
-            
-			if (rep1.readyEntity == null && ((rep1.waits && rep2.notifies) || (rep1.notifies && rep2.waits))) {
-				rep1.readyEntity = getNewReadyEntity();
+
+			if ((rep1.waits && rep2.notifies) || (rep1.notifies && rep2.waits)) {
+				if (rep1.readyEntities == null) {
+					rep1.readyEntities = new HashSet();
+				}
+				rep1.readyEntities.add(getNewReadyEntity());
 			}
-			if ((rep1.shareEntities == null) && ((rep1.read && rep2.written) || (rep1.written && rep2.read))) {
-				rep1.shareEntities = new HashSet();
+
+			if ((rep1.read && rep2.written) || (rep1.written && rep2.read)) {
+				if (rep1.shareEntities == null) {
+					rep1.shareEntities = new HashSet();
+				}
 				rep1.shareEntities.add(getNewShareEntity());
 			}
 		} else {
@@ -579,6 +581,7 @@ final class AliasSet
 			if (field != null) {
 				AliasSet repAS = (AliasSet) field;
 				toBeProcessed.remove(fieldName);
+
 				FastUnionFindElement temp = (FastUnionFindElement) rep2.fieldMap.get(fieldName);
 
 				if (temp != null) {
@@ -624,6 +627,8 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/10/04 22:53:45  venku
+   - backup commit.
    Revision 1.6  2003/09/29 13:34:31  venku
    - #@$#%
    Revision 1.5  2003/09/28 03:17:13  venku
