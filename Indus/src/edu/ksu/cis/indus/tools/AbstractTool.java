@@ -64,9 +64,13 @@ public abstract class AbstractTool {
 	 *
 	 * @param stringizedForm contains the information to be loaded into this object.
 	 *
+	 * @return <code>true</code> if the configuration could be constructed from the given stringized form. <code>false</code>
+	 * 		   if the configuration could not be constructed from the given stringized form.  In the latter case, the
+	 * 		   implementation  can load a default configuration.
+	 *
 	 * @pre stringizedForm != null
 	 */
-	public abstract void destringizeConfiguration(final String stringizedForm);
+	public abstract boolean destringizeConfiguration(final String stringizedForm);
 
 	/**
 	 * Returns a stringized from of the information in the object suitable for serialization.
@@ -196,11 +200,12 @@ public abstract class AbstractTool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/10/19 20:29:03  venku
+   - access specifier on pause.
    Revision 1.1  2003/09/26 23:46:58  venku
    - Renamed Tool to AbstractTool
    - Renamed ToolConfiguration to AbstractToolConfiguration
    - Renamed ToolConfigurator to AbstractToolConfigurator
-
    Revision 1.5  2003/09/26 15:00:01  venku
    - The configuration of tools in Indus has been placed in this package.
    - Formatting.
