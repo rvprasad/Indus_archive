@@ -1173,7 +1173,7 @@ public class ProcessingController {
 			_classes = theClasses;
 		} else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Processing filter class: " + processingFilter.getClass());
+                LOGGER.debug("Processing filter class: " + processingFilter);
             }
 			_classes = processingFilter.filterClasses(theClasses);
 		}

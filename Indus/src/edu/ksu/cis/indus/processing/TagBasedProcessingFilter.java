@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,6 +58,13 @@ public class TagBasedProcessingFilter
 	 */
 	public TagBasedProcessingFilter(final String theTagName) {
 		tagName = theTagName;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("tagName", this.tagName).toString();
 	}
 
 	/**

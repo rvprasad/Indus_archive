@@ -20,8 +20,6 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
-import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;

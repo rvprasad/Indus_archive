@@ -16,11 +16,14 @@
 package edu.ksu.cis.indus.processing;
 
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import soot.SootClass;
 import soot.SootField;
@@ -66,6 +69,14 @@ public final class SpecificationBasedFilter
 	 */
 	public void setSystem(final IEnvironment theSystem) {
 		this.system = theSystem;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("system", this.system)
+										  .append("matcher", this.matcher).toString();
 	}
 
 	/**
