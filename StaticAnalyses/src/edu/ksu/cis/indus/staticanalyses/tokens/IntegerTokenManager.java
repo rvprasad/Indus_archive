@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+
 
 /**
  * This class realizes a token manager that represents tokens as bit positions in an integer via bit-encoding.  This implies
@@ -253,35 +255,36 @@ public class IntegerTokenManager
 	 */
 	public ITokens getTokens(final Collection values) {
 		final IntegerTokens _result = new IntegerTokens(this);
+		final Collection _commons = CollectionUtils.intersection(valueList, values);
 
-		for (final Iterator _i = values.iterator(); _i.hasNext();) {
-			final Object _value = _i.next();
-			final int _index = valueList.indexOf(_value);
-
-			if (_index != -1) {
-				_result.integer |= 1 << _index;
-			} else {
-				if (valueList.size() == NO_OF_BITS_IN_AN_INTEGER) {
-					throw new IllegalStateException("This token manager cannot handle a type system instance with more than "
-						+ NO_OF_BITS_IN_AN_INTEGER + " values.");
-				}
-
-				valueList.add(_value);
-
-				final int _newIndex = valueList.indexOf(_value);
-				final int _newValueRep = 1 << _newIndex;
-				_result.integer |= _newValueRep;
-
-				final Collection _types = typeMgr.getAllTypes(_value);
-
-				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
-					final Object _type = _j.next();
-					final MutableInteger _integer =
-						(MutableInteger) CollectionsModifier.getFromMap(type2tokens, _type, new MutableInteger());
-					_integer.setValue(_integer.intValue() | _newValueRep);
-				}
-			}
+		for (final Iterator _i = _commons.iterator(); _i.hasNext();) {
+			_result.integer |= 1 << valueList.indexOf(_i.next());
 		}
+
+		final Collection _diff = CollectionUtils.subtract(values, _commons);
+		int _index = 1 << valueList.size();
+
+		for (final Iterator _i = _diff.iterator(); _i.hasNext();) {
+			if (valueList.size() == NO_OF_BITS_IN_AN_INTEGER) {
+				throw new IllegalStateException("This token manager cannot handle a type system instance with more than "
+					+ NO_OF_BITS_IN_AN_INTEGER + " values.");
+			}
+
+			final Object _value = _i.next();
+			valueList.add(_value);
+			_result.integer |= _index;
+
+			final Collection _types = typeMgr.getAllTypes(_value);
+
+			for (final Iterator _j = _types.iterator(); _j.hasNext();) {
+				final Object _type = _j.next();
+				final MutableInteger _integer =
+					(MutableInteger) CollectionsModifier.getFromMap(type2tokens, _type, new MutableInteger());
+				_integer.setValue(_integer.intValue() | _index);
+			}
+			_index <<= 1;
+		}
+
 		return _result;
 	}
 
@@ -305,11 +308,12 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/17 20:28:38  venku
+   - coding conventions.
    Revision 1.2  2004/04/17 09:17:44  venku
    - introduced the mutable counterpart of Integer class.
    - used that in this manager.
    - fixed some "counting" errors.
-
    Revision 1.1  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.

@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -202,27 +204,28 @@ public final class BitSetTokenManager
 	 */
 	public ITokens getTokens(final Collection values) {
 		final BitSetTokens _result = new BitSetTokens(this);
+		final Collection _commons = CollectionUtils.intersection(valueList, values);
 
-		for (final Iterator _i = values.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _commons.iterator(); _i.hasNext();) {
+			_result.bitset.set(valueList.indexOf(_i.next()));
+		}
+
+		final Collection _diff = CollectionUtils.subtract(values, _commons);
+		int _index = valueList.size();
+
+		for (final Iterator _i = _diff.iterator(); _i.hasNext();) {
 			final Object _value = _i.next();
-			final int _index = valueList.indexOf(_value);
+			valueList.add(_value);
+			_result.bitset.set(_index);
 
-			if (_index != -1) {
-				_result.bitset.set(_index);
-			} else {
-				valueList.add(_value);
+			final Collection _types = typeMgr.getAllTypes(_value);
 
-				final int _newIndex = valueList.indexOf(_value);
-				_result.bitset.set(_newIndex);
-
-				final Collection _types = typeMgr.getAllTypes(_value);
-
-				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
-					final Object _type = _j.next();
-					final BitSet _tokens = (BitSet) CollectionsModifier.getFromMap(type2tokens, _type, new BitSet());
-					_tokens.set(_newIndex);
-				}
+			for (final Iterator _j = _types.iterator(); _j.hasNext();) {
+				final Object _type = _j.next();
+				final BitSet _tokens = (BitSet) CollectionsModifier.getFromMap(type2tokens, _type, new BitSet());
+				_tokens.set(_index);
 			}
+			_index++;
 		}
 		return _result;
 	}
@@ -254,4 +257,9 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
  */
