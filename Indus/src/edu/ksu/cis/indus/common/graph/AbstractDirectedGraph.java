@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.collections.CollectionUtils;
+
 
 /**
  * This class provides abstract implementation of <code>IDirectedGraph</code> in which nodes are represented by
@@ -142,12 +144,21 @@ public abstract class AbstractDirectedGraph
 	public final Collection getCycles() {
 		Collection _result = new ArrayList();
 
-		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
-			final INode _head = (INode) _i.next();
-			final Collection _temp = findCycles(_head);
+		for (final Iterator _i = getSCCs(true).iterator(); _i.hasNext();) {
+			final Collection _scc = (Collection) _i.next();
 
-			if (!_temp.isEmpty()) {
-				_result.addAll(_temp);
+			if (_scc.size() == 1) {
+				final INode _node = (INode) _scc.iterator().next();
+
+				if (_node.getSuccsOf().contains(_node)) {
+					_result.add(Collections.singleton(_node));
+				}
+			} else {
+				final Collection _temp = findCycles(_scc);
+
+				if (!_temp.isEmpty()) {
+					_result.addAll(_temp);
+				}
 			}
 		}
 
@@ -587,22 +598,20 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Finds cycles reachable from the given head node.
+	 * Finds cycles in the given SCC.
 	 *
-	 * @param head is the node from below which the cycles need to be searched for.
+	 * @param scc in which to search for cycles.
 	 *
 	 * @return a collection of cycles. Each cycle is represented as a sequence in which the first element starts the cycle.
 	 *
-	 * @pre head != null
+	 * @pre scc != null and scc.oclIsKindOf(Collection(INode))
 	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
 	 */
-	private Collection findCycles(final INode head) {
+	private Collection findCycles(final Collection scc) {
 		final Collection _result = new ArrayList();
 		final IWorkBag _wb = new LIFOWorkBag();
 		final Stack _dfsPath = new Stack();
-		_wb.clear();
-		_wb.addWork(head);
-		_dfsPath.clear();
+		_wb.addWork(scc.iterator().next());
 
 		while (_wb.hasWork()) {
 			final Object _o = _wb.getWork();
@@ -621,7 +630,7 @@ public abstract class AbstractDirectedGraph
 				}
 			} else {
 				final INode _node = (INode) _o;
-				final Collection _succs = _node.getSuccsOf();
+				final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), scc);
 
 				if (!_succs.isEmpty()) {
 					_dfsPath.push(_node);
@@ -694,6 +703,8 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/06/04 04:49:50  venku
+   - added toString() method.
    Revision 1.15  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
