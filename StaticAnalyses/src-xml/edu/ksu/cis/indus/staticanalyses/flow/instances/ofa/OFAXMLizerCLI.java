@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -66,12 +67,12 @@ import soot.SootMethod;
  */
 public final class OFAXMLizerCLI
   extends SootBasedDriver {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(OFAXMLizerCLI.class);
 
-	/**
+	/** 
 	 * This indicates if analysis should be run for all root methods or separated for each root method.
 	 */
 	private boolean cumulative;
@@ -189,7 +190,7 @@ public final class OFAXMLizerCLI
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
-		final ICallGraphInfo _cgi = new CallGraph();
+		final ICallGraphInfo _cgi = new CallGraph(new PairManager(false, true));
 		final Collection _rm = new ArrayList();
 		final ProcessingController _xmlcgipc = new ProcessingController();
 
@@ -257,6 +258,8 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/06/22 14:34:55  venku
+   - added commandline option to enable cumulative or separate analyses when there is more than root method.
    Revision 1.13  2004/06/12 06:45:22  venku
    - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
    Revision 1.12  2004/06/03 03:50:34  venku

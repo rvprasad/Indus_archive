@@ -308,8 +308,10 @@ public final class SlicerTool
 		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(FLOW_ANALYSIS_TAG_NAME));
 		cgPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
 
+		// create pair manager
+		pairMgr = new Pair.PairManager(false, true);
 		// create the call graph.
-		callGraph = new CallGraph();
+		callGraph = new CallGraph(pairMgr);
 
 		// create the pre processor for thread graph construction.
 		cgBasedPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
@@ -317,8 +319,6 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 		cgBasedPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
 
-		// create pair manager
-		pairMgr = new Pair.PairManager(false, true);
 		// create basic block graph manager
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setUnitGraphFactory(getStmtGraphFactory());
@@ -912,6 +912,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.111  2004/08/02 07:33:46  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
    Revision 1.110  2004/08/02 04:53:45  venku
    - simplified goto processing logic and collapsed 5 classes into 1 class, SliceGotoProcessor.
    - ripple effect.

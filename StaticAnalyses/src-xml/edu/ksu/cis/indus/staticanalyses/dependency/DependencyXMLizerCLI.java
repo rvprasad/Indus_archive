@@ -277,7 +277,8 @@ public class DependencyXMLizerCLI
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
-		final ICallGraphInfo _cgi = new CallGraph();
+		final PairManager _pairManager = new PairManager(false, true);
+		final ICallGraphInfo _cgi = new CallGraph(_pairManager);
 		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, getBbm()));
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
@@ -292,7 +293,6 @@ public class DependencyXMLizerCLI
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
-		final PairManager _pairManager = new PairManager(false, true);
 		final AliasedUseDefInfo _aliasUD;
 
 		if (useAliasedUseDefv1) {
@@ -380,10 +380,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/08/08 08:28:05  venku
+   - aspectized outputting of statistics.
    Revision 1.42  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.
-
    Revision 1.41  2004/08/01 21:30:15  venku
    - ECBA was made independent of ThreadGraph Analysis.
    Revision 1.40  2004/08/01 21:07:16  venku
@@ -668,10 +669,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/08/08 08:28:05  venku
+   - aspectized outputting of statistics.
    Revision 1.42  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.
-
    Revision 1.41  2004/08/01 21:30:15  venku
    - ECBA was made independent of ThreadGraph Analysis.
    Revision 1.40  2004/08/01 21:07:16  venku

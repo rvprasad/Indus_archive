@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
 import edu.ksu.cis.indus.TestHelper;
 
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FATestSetup;
@@ -42,20 +44,20 @@ import junit.framework.TestSuite;
  */
 public class ValueAnalysisTestSetup
   extends FATestSetup {
-	/**
+	/** 
 	 * The call graph implementation to be tested.
 	 */
 	protected CallGraph cgiImpl;
 
 	/**
-	 * @see FATestSetup#FATestSetup()
+	 * @see FATestSetup#FATestSetup(TestSuite,String,String)
 	 */
 	public ValueAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
 		super(test, theNameOfClasses, classpath);
 	}
 
 	/**
-	 * @see TestCase#setUp()
+	 * @see FATestSetup#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -66,7 +68,7 @@ public class ValueAnalysisTestSetup
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
 		_pc.setStmtGraphFactory(getStmtGraphFactory());
-		cgiImpl = new CallGraph();
+		cgiImpl = new CallGraph(new PairManager(false, true));
 		cgiImpl.hookup(_pc);
 		_pc.process();
 		cgiImpl.unhook(_pc);
@@ -82,7 +84,7 @@ public class ValueAnalysisTestSetup
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see FATestSetup#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -95,6 +97,9 @@ public class ValueAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/21 04:13:19  venku
+   - jimple dumping takes time.  Instead, the user can control this
+     per configuration.
    Revision 1.8  2004/04/20 06:53:17  venku
    - documentation.
    Revision 1.7  2004/04/18 02:05:18  venku

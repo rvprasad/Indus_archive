@@ -16,6 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
@@ -43,6 +45,8 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import org.apache.commons.collections.map.LRUMap;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -66,7 +70,7 @@ import soot.jimple.VirtualInvokeExpr;
 /**
  * This class calculates call graphCache information from the given object flow analysis.
  *
- * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
  * @author $Author$
  * @version $Revision$
  */
@@ -79,14 +83,45 @@ public class CallGraph
 	private static final Log LOGGER = LogFactory.getLog(CallGraph.class);
 
 	/** 
-	 * The collection of methods from which the system can be started.  Although an instance of a class can be created and a
-	 * method can be invoked on it from the environment, this method will not be considered as a <i>head method</i>.
+	 * The size of the cache based on the number of methods in the system.
+	 */
+	private static final int NUM_METHODS_CACHE_SIZE = 1000;
+
+	/** 
+	 * The load factor for the cache based on the number of methods in the system.
+	 */
+	private static final float LOAD_FACTOR = 0.999f;
+
+	/** 
+	 * The collection of methods from which the system can be started. Although an instance of a class can be created and a
+	 * method can be invoked on it from the environment, this method will not be considered as a <i>head method </i>.
 	 * However, our definition of head methods are those methods(excluding those in invoked via <code>invokespecial</code>
 	 * bytecode) with no caller method that belongs to the system.
 	 *
 	 * @invariant head != null and heads.oclIsKindOf(Set(SootMethod))
 	 */
 	private final Collection heads = new HashSet();
+
+	/** 
+	 * A cache of mappings from an invocation site to methods reachable from that site via call chain.
+	 *
+	 * @invariant invocationsite2reachableMethods.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(SootMethod)))
+	 */
+	private final Map invocationsite2reachableMethods = new LRUMap(NUM_METHODS_CACHE_SIZE, LOAD_FACTOR, true);
+
+	/** 
+	 * A cache of mappings from a method to methods that can via a call chain reach the key of the mapping.
+	 *
+	 * @invariant method2reachableMethods.oclIsKindOf(Map(SootMethod, Collection(SootMethod)))
+	 */
+	private final Map method2backwardReachableMethods = new LRUMap(NUM_METHODS_CACHE_SIZE, LOAD_FACTOR, true);
+
+	/** 
+	 * A cache of mappings from a method to methods reachable from that site via call chain.
+	 *
+	 * @invariant method2reachableMethods.oclIsKindOf(Map(SootMethod, Collection(SootMethod)))
+	 */
+	private final Map method2forwardReachableMethods = new LRUMap(NUM_METHODS_CACHE_SIZE, LOAD_FACTOR, true);
 
 	/** 
 	 * The collection of methods that are reachble in the system.
@@ -96,8 +131,7 @@ public class CallGraph
 	private Collection reachables = new HashSet();
 
 	/** 
-	 * The FA instance which implements object flow analysis.  This instance is used to calculate call graphCache
-	 * information.
+	 * The FA instance which implements object flow analysis. This instance is used to calculate call graphCache information.
 	 *
 	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
@@ -132,14 +166,30 @@ public class CallGraph
 	private Map caller2callees = new HashMap();
 
 	/** 
+	 * This manages pair objects.
+	 */
+	private final PairManager pairMgr;
+
+	/** 
 	 * This caches a traversable graphCache representation of the call graphCache.
 	 */
 	private SimpleNodeGraph graphCache;
 
 	/**
+	 * Creates a new CallGraph object.
+	 *
+	 * @param pairManager to be used when creating pair objects.
+	 *
+	 * @pre pairManager != null
+	 */
+	public CallGraph(final PairManager pairManager) {
+		pairMgr = pairManager;
+	}
+
+	/**
 	 * A comparator to compare call triples based on <code>toString()</code> value of the method being called.
 	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath </a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
 	 */
@@ -283,26 +333,45 @@ public class CallGraph
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.jimple.Stmt,soot.SootMethod)
 	 */
 	public Collection getMethodsReachableFrom(final Stmt stmt, final SootMethod root) {
-		final InvokeExpr _ie = stmt.getInvokeExpr();
-		final Context _context = new Context();
-		_context.setRootMethod(root);
+		final Pair _pair = pairMgr.getPair(stmt, root);
+		Collection _result = (Collection) invocationsite2reachableMethods.get(_pair);
 
-		final Collection _callees = getCallees(_ie, _context);
-		final Collection _result = new HashSet(_callees);
+		if (_result == null) {
+			final InvokeExpr _ie = stmt.getInvokeExpr();
+			final Context _context = new Context();
+			_context.setRootMethod(root);
 
-		for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
-			_result.addAll(getMethodsReachableFrom((SootMethod) _i.next(), true));
+			final Collection _callees = getCallees(_ie, _context);
+			_result = new HashSet(_callees);
+
+			for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
+				_result.addAll(getMethodsReachableFrom((SootMethod) _i.next(), true));
+			}
+			invocationsite2reachableMethods.put(_pair, _result);
 		}
-		return _result;
+		return Collections.unmodifiableCollection(_result);
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.SootMethod,boolean)
 	 */
 	public Collection getMethodsReachableFrom(final SootMethod root, final boolean forward) {
-		final Collection _result = graphCache.getReachablesFrom(graphCache.getNode(root), forward);
-		CollectionUtils.transform(_result, SimpleNodeGraph.OBJECT_EXTRACTOR);
-		return _result;
+		final Map _map;
+
+		if (forward) {
+			_map = method2forwardReachableMethods;
+		} else {
+			_map = method2backwardReachableMethods;
+		}
+
+		Collection _result = (Collection) _map.get(root);
+
+		if (_result == null) {
+			_result = graphCache.getReachablesFrom(graphCache.getNode(root), forward);
+			CollectionUtils.transform(_result, SimpleNodeGraph.OBJECT_EXTRACTOR);
+			_map.put(root, _result);
+		}
+		return Collections.unmodifiableCollection(_result);
 	}
 
 	/**
@@ -428,11 +497,10 @@ public class CallGraph
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: call graph consolidation");
 		}
-
-		final long _start = System.currentTimeMillis();
 		heads.addAll(analyzer.getEnvironment().getRoots());
 
-		// populate the caller2callees with head information in cases there are no calls in the system.
+		// populate the caller2callees with head information in cases there are
+		// no calls in the system.
 		if (caller2callees.isEmpty()) {
 			for (final Iterator _i = heads.iterator(); _i.hasNext();) {
 				final Object _head = _i.next();
@@ -444,7 +512,7 @@ public class CallGraph
 			LOGGER.debug("Starting construction of call graph...");
 		}
 
-		// construct call graph 
+		// construct call graph
 		graphCache = new SimpleNodeGraph();
 
 		for (final Iterator _i = reachables.iterator(); _i.hasNext();) {
@@ -462,11 +530,8 @@ public class CallGraph
 			}
 		}
 
-		final long _stop = System.currentTimeMillis();
-
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: call graph consolidation");
-			LOGGER.info("TIMING: call graph consolidation took " + (_stop - _start) + "ms.");
 		}
 	}
 
@@ -551,6 +616,8 @@ public class CallGraph
 		bottomUpSCC = null;
 		reachables.clear();
 		heads.clear();
+		method2forwardReachableMethods.clear();
+		invocationsite2reachableMethods.clear();
 	}
 
 	/**
@@ -674,192 +741,116 @@ public class CallGraph
 }
 
 /*
-   ChangeLog:
-   $Log$
-   Revision 1.60  2004/07/23 10:00:26  venku
-   - enabled toggling the topological sort direction.
-
-   Revision 1.59  2004/07/23 09:53:21  venku
-   - extended call graph interface to extract methods in topologically sorted order.
-
-   Revision 1.58  2004/07/11 14:17:39  venku
-   - added a new interface for identification purposes (IIdentification)
-   - all classes that have an id implement this interface.
-   Revision 1.57  2004/07/11 09:42:14  venku
-   - Changed the way status information was handled the library.
-     - Added class AbstractStatus to handle status related issues while
-       the implementations just announce their status.
-   Revision 1.56  2004/07/08 09:46:02  venku
-   - logging.
-   Revision 1.55  2004/07/07 10:08:26  venku
-   - altered the method to calculate reachability.
-   - documented CallGraph
-   - altered CallGraph to adhere to coding conventions.
-   Revision 1.54  2004/03/29 08:48:58  venku
-   - all nodes reachable should be represented in the embedded graph in
-     the call graph.  FIXED.
-   Revision 1.53  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.52  2004/03/03 02:17:46  venku
-   - added a new method to ICallGraphInfo interface.
-   - implemented the above method in CallGraph.
-   - made aliased use-def call-graph sensitive.
-   Revision 1.51  2004/02/25 00:04:02  venku
-   - documenation.
-   Revision 1.50  2004/01/23 20:13:23  venku
-   - removed no-effect code.
-   Revision 1.49  2004/01/21 02:52:09  venku
-   - the argument to getSCCs was used to create topDownSCC
-     rather than just using it to select the ordered SCCs.
-   Revision 1.48  2004/01/21 01:34:56  venku
-   - logging.
-   Revision 1.47  2004/01/20 21:23:36  venku
-   - the return value of getSCCs needs to be ordered if
-     it accepts a direction parameter.  FIXED.
-   Revision 1.46  2004/01/06 01:12:43  venku
-   - coding conventions.
-   Revision 1.45  2004/01/06 00:17:01  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.44  2003/12/31 06:09:34  venku
-   - <clinit>s are ignored as heads when the did not
-     call any methods.  FIXED.
-   Revision 1.43  2003/12/16 00:19:25  venku
-   - specialinvoke was handled incorrectly.  FIXED
-     It behaves like virtual in cases when a non-instance
-     initialization method is invoked.  Otherwise, it acts
-     like static invocation. We deal with the first case
-     by treating it as virtual invocation and the second
-     case as static invoke expr but only with a primary.
-   Revision 1.42  2003/12/13 19:38:58  venku
-   - removed unnecessary imports.
-   Revision 1.41  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.40  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.39  2003/12/08 13:29:48  venku
-   - StringConstants were not considered at call-sites.  FIXED.
-   Revision 1.38  2003/12/08 12:20:44  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.37  2003/12/08 12:15:59  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.36  2003/12/07 14:02:45  venku
-   MAJOR CHANGE:
-    - We previously assumed that there may be parts of the
-      system that the flow analysis can suck in.  This is untrue.
-      So, we assume all methods marked/tagged via the flow analysis
-      as reachables.  All <clinits> and roots as head.
-      However, if the flow analysis marks abstract super class methods
-      when marking concrete method implementations, then we will
-      need to inject back the pruning logic.  As I don't need it
-      now I am getting rid of it.
-   Revision 1.35  2003/12/07 08:41:32  venku
-   - deleted getCallGraph() from ICallGraphInfo interface.
-   - made getSCCs() direction sensitive.
-   - ripple effect.
-   Revision 1.34  2003/12/05 21:02:25  venku
-   - special invokes are treated just like virtual invoke.
-   Revision 1.33  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.32  2003/11/29 09:34:59  venku
-   - removed getCycles() method as it was not being used.
-   Revision 1.31  2003/11/29 09:30:37  venku
-   - removed getRecursionRoots() method as it was not being used.
-   - modified pruning algorithmm.
-   - modified getCallees(InvokeExpr,Context) method.
-   Revision 1.30  2003/11/28 22:10:34  venku
-   - formatting.
-   - simple and faster pruning algorithm.
-   Revision 1.29  2003/11/26 06:14:54  venku
-   - formatting and coding convention.
-   Revision 1.28  2003/11/26 02:55:45  venku
-   - now handles clinit in a more robust way.
-   Revision 1.27  2003/11/25 23:48:23  venku
-   - added support to consider <clinit> methods as well.
-   Revision 1.26  2003/11/17 15:42:46  venku
-   - changed the signature of callback(Value,..) to callback(ValueBox,..)
-   Revision 1.25  2003/11/10 03:17:19  venku
-   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
-   - ripple effect.
-   Revision 1.24  2003/11/06 05:31:08  venku
-   - moved IProcessor to processing package from interfaces.
-   - ripple effect.
-   - fixed documentation errors.
-   Revision 1.23  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.22  2003/11/05 09:32:48  venku
-   - ripple effect of splitting Workbag.
-   Revision 1.21  2003/09/29 06:54:57  venku
-   - dump formatting.
-   Revision 1.20  2003/09/29 06:19:34  venku
-   - added more info to the dump.
-   Revision 1.19  2003/09/29 05:52:44  venku
-   - added more info to the dump.
-   Revision 1.18  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.17  2003/09/25 03:30:19  venku
-   - coding convention.
-   Revision 1.16  2003/09/13 04:24:42  venku
-   - boundary conditions, boundary conditions.  Well, we did not
-     handle the case when there was no calls in the system. FIXED.
-   Revision 1.15  2003/09/12 01:24:12  venku
-   - As preprocessing before CallGraph exists happen based on the
-     parts of the system touched.  Non-reachable methods will be
-     pre-processed.  However, later they should be pruned away. FIXED.
-   Revision 1.14  2003/09/08 02:07:44  venku
-   - debug stmt error. FIXED.
-   Revision 1.13  2003/08/25 09:31:39  venku
-   Enabled reset() support for these classes.
-   Revision 1.12  2003/08/24 08:13:11  venku
-   Major refactoring.
-    - The methods to modify the graphs were exposed.
-    - The above anamoly was fixed by supporting a new class AbstractMutableDirectedGraph.
-    - Each Mutable graph extends this graph and exposes itself via
-      suitable interface to restrict access.
-    - Ripple effect of the above changes.
-   Revision 1.11  2003/08/21 03:43:56  venku
-   Ripple effect of adding IStatus.
-   Revision 1.10  2003/08/17 11:54:25  venku
-   Formatting and documentation.
-   Revision 1.9  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to valueAnalyzer.
-   Ripple effect was huge.
-   Revision 1.8  2003/08/15 23:23:32  venku
-   Removed redundant "implement IValueAnalyzerBasedProcessor".
-   Revision 1.7  2003/08/14 05:10:29  venku
-   Fixed documentation links.
-   Revision 1.6  2003/08/13 08:49:10  venku
-   Spruced up documentation and specification.
-   Tightened preconditions in the interface such that they can be loosed later on in implementaions.
-   Revision 1.5  2003/08/13 08:29:40  venku
-   Spruced up documentation and specification.
-   Revision 1.4  2003/08/12 18:20:43  venku
-   Ripple effect of changing the analyzer and the environment.
-   Revision 1.3  2003/08/11 04:27:34  venku
-   - Ripple effect of changes to Pair
-   - Ripple effect of changes to _content in Marker
-   - Changes of how thread start sites are tracked in ThreadGraphInfo
-   Revision 1.2  2003/08/09 21:54:00  venku
-   Leveraging getInvokeExpr() in Stmt class in getMethodsReachableFrom()
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
+ * ChangeLog: $Log$ Revision 1.61 2004/08/06 07:37:57 venku -
+ * getMethodsReachableFrom(Stmt, SootMethod) did not include the immediate
+ * callees. FIXED. Revision 1.60 2004/07/23 10:00:26 venku - enabled toggling
+ * the topological sort direction. Revision 1.59 2004/07/23 09:53:21 venku -
+ * extended call graph interface to extract methods in topologically sorted
+ * order. Revision 1.58 2004/07/11 14:17:39 venku - added a new interface for
+ * identification purposes (IIdentification) - all classes that have an id
+ * implement this interface. Revision 1.57 2004/07/11 09:42:14 venku - Changed
+ * the way status information was handled the library. - Added class
+ * AbstractStatus to handle status related issues while the implementations just
+ * announce their status. Revision 1.56 2004/07/08 09:46:02 venku - logging.
+ * Revision 1.55 2004/07/07 10:08:26 venku - altered the method to calculate
+ * reachability. - documented CallGraph - altered CallGraph to adhere to coding
+ * conventions. Revision 1.54 2004/03/29 08:48:58 venku - all nodes reachable
+ * should be represented in the embedded graph in the call graph. FIXED.
+ * Revision 1.53 2004/03/29 01:55:03 venku - refactoring. - history sensitive
+ * work list processing is a common pattern. This has been captured in
+ * HistoryAwareXXXXWorkBag classes. - We rely on views of CFGs to process the
+ * body of the method. Hence, it is required to use a particular view CFG
+ * consistently. This requirement resulted in a large change. - ripple effect of
+ * the above changes. Revision 1.52 2004/03/03 02:17:46 venku - added a new
+ * method to ICallGraphInfo interface. - implemented the above method in
+ * CallGraph. - made aliased use-def call-graph sensitive. Revision 1.51
+ * 2004/02/25 00:04:02 venku - documenation. Revision 1.50 2004/01/23 20:13:23
+ * venku - removed no-effect code. Revision 1.49 2004/01/21 02:52:09 venku - the
+ * argument to getSCCs was used to create topDownSCC rather than just using it
+ * to select the ordered SCCs. Revision 1.48 2004/01/21 01:34:56 venku -
+ * logging. Revision 1.47 2004/01/20 21:23:36 venku - the return value of
+ * getSCCs needs to be ordered if it accepts a direction parameter. FIXED.
+ * Revision 1.46 2004/01/06 01:12:43 venku - coding conventions. Revision 1.45
+ * 2004/01/06 00:17:01 venku - Classes pertaining to workbag in package
+ * indus.graph were moved to indus.structures. - indus.structures was renamed to
+ * indus.datastructures. Revision 1.44 2003/12/31 06:09:34 venku - <clinit>s are
+ * ignored as heads when the did not call any methods. FIXED. Revision 1.43
+ * 2003/12/16 00:19:25 venku - specialinvoke was handled incorrectly. FIXED It
+ * behaves like virtual in cases when a non-instance initialization method is
+ * invoked. Otherwise, it acts like static invocation. We deal with the first
+ * case by treating it as virtual invocation and the second case as static
+ * invoke expr but only with a primary. Revision 1.42 2003/12/13 19:38:58 venku -
+ * removed unnecessary imports. Revision 1.41 2003/12/13 02:29:08 venku -
+ * Refactoring, documentation, coding convention, and formatting. Revision 1.40
+ * 2003/12/09 04:22:10 venku - refactoring. Separated classes into separate
+ * packages. - ripple effect. Revision 1.39 2003/12/08 13:29:48 venku -
+ * StringConstants were not considered at call-sites. FIXED. Revision 1.38
+ * 2003/12/08 12:20:44 venku - moved some classes from staticanalyses interface
+ * to indus interface package - ripple effect. Revision 1.37 2003/12/08 12:15:59
+ * venku - moved support package from StaticAnalyses to Indus project. - ripple
+ * effect. - Enabled call graph xmlization. Revision 1.36 2003/12/07 14:02:45
+ * venku MAJOR CHANGE: - We previously assumed that there may be parts of the
+ * system that the flow analysis can suck in. This is untrue. So, we assume all
+ * methods marked/tagged via the flow analysis as reachables. All <clinits> and
+ * roots as head. However, if the flow analysis marks abstract super class
+ * methods when marking concrete method implementations, then we will need to
+ * inject back the pruning logic. As I don't need it now I am getting rid of it.
+ * Revision 1.35 2003/12/07 08:41:32 venku - deleted getCallGraph() from
+ * ICallGraphInfo interface. - made getSCCs() direction sensitive. - ripple
+ * effect. Revision 1.34 2003/12/05 21:02:25 venku - special invokes are treated
+ * just like virtual invoke. Revision 1.33 2003/12/02 09:42:38 venku - well well
+ * well. coding convention and formatting changed as a result of embracing
+ * checkstyle 3.2 Revision 1.32 2003/11/29 09:34:59 venku - removed getCycles()
+ * method as it was not being used. Revision 1.31 2003/11/29 09:30:37 venku -
+ * removed getRecursionRoots() method as it was not being used. - modified
+ * pruning algorithmm. - modified getCallees(InvokeExpr,Context) method.
+ * Revision 1.30 2003/11/28 22:10:34 venku - formatting. - simple and faster
+ * pruning algorithm. Revision 1.29 2003/11/26 06:14:54 venku - formatting and
+ * coding convention. Revision 1.28 2003/11/26 02:55:45 venku - now handles
+ * clinit in a more robust way. Revision 1.27 2003/11/25 23:48:23 venku - added
+ * support to consider <clinit> methods as well. Revision 1.26 2003/11/17
+ * 15:42:46 venku - changed the signature of callback(Value,..) to
+ * callback(ValueBox,..) Revision 1.25 2003/11/10 03:17:19 venku - renamed
+ * AbstractProcessor to AbstractValueAnalyzerBasedProcessor. - ripple effect.
+ * Revision 1.24 2003/11/06 05:31:08 venku - moved IProcessor to processing
+ * package from interfaces. - ripple effect. - fixed documentation errors.
+ * Revision 1.23 2003/11/06 05:15:07 venku - Refactoring, Refactoring,
+ * Refactoring. - Generalized the processing controller to be available in Indus
+ * as it may be useful outside static anlaysis. This meant moving IProcessor,
+ * Context, and ProcessingController. - ripple effect of the above changes was
+ * large. Revision 1.22 2003/11/05 09:32:48 venku - ripple effect of splitting
+ * Workbag. Revision 1.21 2003/09/29 06:54:57 venku - dump formatting. Revision
+ * 1.20 2003/09/29 06:19:34 venku - added more info to the dump. Revision 1.19
+ * 2003/09/29 05:52:44 venku - added more info to the dump. Revision 1.18
+ * 2003/09/28 03:16:33 venku - I don't know. cvs indicates that there are no
+ * differences, but yet says it is out of sync. Revision 1.17 2003/09/25
+ * 03:30:19 venku - coding convention. Revision 1.16 2003/09/13 04:24:42 venku -
+ * boundary conditions, boundary conditions. Well, we did not handle the case
+ * when there was no calls in the system. FIXED. Revision 1.15 2003/09/12
+ * 01:24:12 venku - As preprocessing before CallGraph exists happen based on the
+ * parts of the system touched. Non-reachable methods will be pre-processed.
+ * However, later they should be pruned away. FIXED. Revision 1.14 2003/09/08
+ * 02:07:44 venku - debug stmt error. FIXED. Revision 1.13 2003/08/25 09:31:39
+ * venku Enabled reset() support for these classes. Revision 1.12 2003/08/24
+ * 08:13:11 venku Major refactoring. - The methods to modify the graphs were
+ * exposed. - The above anamoly was fixed by supporting a new class
+ * AbstractMutableDirectedGraph. - Each Mutable graph extends this graph and
+ * exposes itself via suitable interface to restrict access. - Ripple effect of
+ * the above changes. Revision 1.11 2003/08/21 03:43:56 venku Ripple effect of
+ * adding IStatus. Revision 1.10 2003/08/17 11:54:25 venku Formatting and
+ * documentation. Revision 1.9 2003/08/17 10:48:34 venku Renamed BFA to FA. Also
+ * renamed bfa variables to valueAnalyzer. Ripple effect was huge. Revision 1.8
+ * 2003/08/15 23:23:32 venku Removed redundant "implement
+ * IValueAnalyzerBasedProcessor". Revision 1.7 2003/08/14 05:10:29 venku Fixed
+ * documentation links. Revision 1.6 2003/08/13 08:49:10 venku Spruced up
+ * documentation and specification. Tightened preconditions in the interface
+ * such that they can be loosed later on in implementaions. Revision 1.5
+ * 2003/08/13 08:29:40 venku Spruced up documentation and specification.
+ * Revision 1.4 2003/08/12 18:20:43 venku Ripple effect of changing the analyzer
+ * and the environment. Revision 1.3 2003/08/11 04:27:34 venku - Ripple effect
+ * of changes to Pair - Ripple effect of changes to _content in Marker - Changes
+ * of how thread start sites are tracked in ThreadGraphInfo Revision 1.2
+ * 2003/08/09 21:54:00 venku Leveraging getInvokeExpr() in Stmt class in
+ * getMethodsReachableFrom() Revision 1.1 2003/08/07 06:40:24 venku Major: -
+ * Moved the package under indus umbrella.
  */

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -63,12 +64,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class CallGraphXMLizerCLI
   extends SootBasedDriver {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizerCLI.class);
 
-	/**
+	/** 
 	 * This indicates if cumulative or separate call graphs should be generated when there are more than one root methods.
 	 */
 	private boolean cumulative;
@@ -167,7 +168,7 @@ public final class CallGraphXMLizerCLI
 
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
-		final ICallGraphInfo _cgi = new CallGraph();
+		final ICallGraphInfo _cgi = new CallGraph(new PairManager(false, true));
 		final Collection _rm = new ArrayList();
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
@@ -230,6 +231,8 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/06/22 14:34:54  venku
+   - added commandline option to enable cumulative or separate analyses when there is more than root method.
    Revision 1.15  2004/06/12 06:45:22  venku
    - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
    Revision 1.14  2004/06/03 03:50:33  venku

@@ -21,6 +21,7 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 
 import edu.ksu.cis.bandera.util.BaseObservable;
 
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -38,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +46,6 @@ import java.util.Set;
 
 import soot.Scene;
 import soot.SootClass;
-import soot.SootField;
 
 import soot.util.Chain;
 
@@ -61,33 +60,33 @@ import soot.util.Chain;
 public final class OFATool
   extends BaseObservable
   implements Tool {
-	/**
+	/** 
 	 * This key denotes the Scene.
 	 */
 	public static final String SCENE_INPUT_KEY = "scene";
 
-	/**
+	/** 
 	 * This key denotes the Set of SootMethods that are entry points.
 	 */
 	public static final String ENTRY_POINTS_INPUT_KEY = "entryPoints";
 
-	/**
+	/** 
 	 * This key denotes the call graph in the given Scene from the given entry points.
 	 */
 	public static final String CALL_GRAPH_OUTPUT_KEY = "callgraph";
 
-	/**
+	/** 
 	 * This key denotes the map of from reachable classes to the reachable fields in them in the given Scene from the given
 	 * entry points.
 	 */
 	public static final String REACHABLE_CLASSES_AND_FIELDS_OUTPUT_KEY = "reachableClassesAndFields";
 
-	/**
+	/** 
 	 * The list of input parameters.
 	 */
 	private static List inputParameterList;
 
-	/**
+	/** 
 	 * The list of output parameters.
 	 */
 	private static List outputParameterList;
@@ -97,12 +96,12 @@ public final class OFATool
 		initOutputParameters();
 	}
 
-	/**
+	/** 
 	 * The call graph.
 	 */
 	private ICallGraphInfo callgraph;
 
-	/**
+	/** 
 	 * A map from reachable classes to a collection of reachabled fields in them.
 	 *
 	 * @invariant reachableClass2Fields.oclIsKindOf(Map(SootClass, Collection(SootFields)))
@@ -110,12 +109,12 @@ public final class OFATool
 	 */
 	private final Map reachableClass2Fields = new HashMap();
 
-	/**
+	/** 
 	 * The Scene that holds the application to search in.
 	 */
 	private Scene scene;
 
-	/**
+	/** 
 	 * A set of methods that serve as the entry points to the system represented by the scene.
 	 *
 	 * @invariant entryPoints.oclIsKindOf(Collection(SootMethods))
@@ -309,7 +308,7 @@ public final class OFATool
 		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
-		callgraph = new CallGraph();
+		callgraph = new CallGraph(new PairManager(false, true));
 		_pc.setAnalyzer(_aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
 		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory());
