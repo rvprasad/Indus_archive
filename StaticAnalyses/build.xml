@@ -21,6 +21,10 @@
         <fileset dir="." includes="src*/**/*.properties"/>
         <mapper type="regexp" from="^(src[^/]*/)(.+)properties" to="\2properties"/>
     </copy>
+    <copy todir="${build.dir}">
+        <fileset dir="." includes="src*/**/*.xml"/>
+        <mapper type="regexp" from="^(src[^/]*/)(.+)xml" to="\2xml"/>
+    </copy>
 </target>
 
 <target name="build" depends="init">
@@ -144,6 +148,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.31  2004/04/18 01:27:33  venku
+.properties files were not being copied during compilation.  FIXED.
+
 Revision 1.30  2004/03/05 12:41:21  venku
 - added release notes files.
 - enabled debug information in the jar files.
