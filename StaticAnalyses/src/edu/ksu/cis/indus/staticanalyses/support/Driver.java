@@ -85,6 +85,14 @@ public abstract class Driver {
 	}
 
 	/**
+	 * Drives the analysis.
+	 */
+	public void run() {
+		initialize();
+		execute();
+	}
+
+	/**
 	 * Adds an entry into the time log of this driver.  The subclasses should use this method to add time logs corresponding
 	 * to each analysis they drive.
 	 *
@@ -155,6 +163,12 @@ public abstract class Driver {
 	protected abstract void execute();
 
 	/**
+	 * Initialize the components being driven.  This implementation does nothing.
+	 */
+	protected void initialize() {
+	}
+
+	/**
 	 * Prints the timing statistics into the given stream.
 	 *
 	 * @param stream into which the timing statistics should be written to.
@@ -191,12 +205,12 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/06 05:04:01  venku
+   - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.9  2003/11/02 20:14:32  venku
    - thread body is fixed external to the driver in Util.
-
    Revision 1.8  2003/09/28 12:11:44  venku
    - the unit graphs used by default are TrapUnitGraphs.
-
    Revision 1.7  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
    Revision 1.6  2003/09/28 06:20:38  venku
@@ -210,17 +224,17 @@ public abstract class Driver {
    - basic block graph manager can be cached via bbm.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-           Revision 1.2  2003/08/11 04:20:19  venku
-           - Pair and Triple were changed to work in optimized and unoptimized mode.
-           - Ripple effect of the previous change.
-           - Documentation and specification of other classes.
-           Revision 1.1  2003/08/10 03:43:26  venku
-           Renamed Tester to Driver.
-           Refactored logic to pick entry points.
-           Provided for logging timing stats into any specified stream.
-           Ripple effect in others.
-           Revision 1.1  2003/08/07 06:42:16  venku
-           Major:
-            - Moved the package under indus umbrella.
-            - Renamed isEmpty() to hasWork() in IWorkBag.
+             Revision 1.2  2003/08/11 04:20:19  venku
+             - Pair and Triple were changed to work in optimized and unoptimized mode.
+             - Ripple effect of the previous change.
+             - Documentation and specification of other classes.
+             Revision 1.1  2003/08/10 03:43:26  venku
+             Renamed Tester to Driver.
+             Refactored logic to pick entry points.
+             Provided for logging timing stats into any specified stream.
+             Ripple effect in others.
+             Revision 1.1  2003/08/07 06:42:16  venku
+             Major:
+              - Moved the package under indus umbrella.
+              - Renamed isEmpty() to hasWork() in IWorkBag.
  */

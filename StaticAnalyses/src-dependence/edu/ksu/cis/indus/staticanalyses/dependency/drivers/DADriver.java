@@ -106,16 +106,7 @@ public abstract class DADriver
 	/**
 	 * The command line arguments.
 	 */
-	private final String[] args;
-
-	/**
-	 * Creates a new DADriver object.  This is a dummy do-nothing constructor.
-	 *
-	 * @throws RuntimeException if this constructor is executed.
-	 */
-	protected DADriver() {
-		throw new RuntimeException("Default constructor should never be called.");
-	}
+	private String[] args;
 
 	/**
 	 * Creates a new instance of this class.
@@ -133,11 +124,9 @@ public abstract class DADriver
 	}
 
 	/**
-	 * Drives the analysis.
+	 * Creates a new DADriver object.
 	 */
-	public void run() {
-		initialize();
-		execute();
+	private DADriver() {
 	}
 
 	/**
@@ -255,13 +244,6 @@ public abstract class DADriver
 	}
 
 	/**
-	 * Initialize the collection of dependence analyses with the analyses to be driven.
-	 *
-	 * @post das.size() > 0
-	 */
-	protected abstract void initialize();
-
-	/**
 	 * Drive the given processors by the given controller.  This is helpful to batch pre/post-processors.
 	 *
 	 * @param pc controls the processing activity.
@@ -359,13 +341,16 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/11/06 05:31:07  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
    Revision 1.26  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
      in Indus as it may be useful outside static anlaysis. This
      meant moving IProcessor, Context, and ProcessingController.
    - ripple effect of the above changes was large.
-
    Revision 1.25  2003/11/02 22:10:08  venku
    - changed the signature of the constructor of
      EquivalenceClassBasedEscapeAnalysis.
