@@ -11,6 +11,11 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
+			<name>com.cortexeb.tools.clover.eclipse.cloverjavabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
 			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
 			<arguments>
 				<dictionary>
