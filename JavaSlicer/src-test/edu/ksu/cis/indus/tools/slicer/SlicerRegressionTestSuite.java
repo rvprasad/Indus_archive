@@ -107,6 +107,7 @@ public final class SlicerRegressionTestSuite
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
 				final String _classpath = _props.getProperty(_config + ".classpath");
+                final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDirectory");
 				final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 				Test _test;
 
@@ -118,6 +119,7 @@ public final class SlicerRegressionTestSuite
 						final SlicerTestSetup _sTestSetup =
 							new SlicerTestSetup(_suite, _temp, _xmlTestDir, _xmlControlDir, _classpath);
 						final XMLBasedSlicerTest _xmlTest = new XMLBasedSlicerTest(_sTestSetup);
+                        _sTestSetup.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
 						_suite.addTest(_xmlTest);
 						_test = _sTestSetup;
 					}
@@ -138,6 +140,9 @@ public final class SlicerRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/04/20 06:53:15  venku
+   - documentation.
+
    Revision 1.3  2004/04/20 05:27:13  venku
    - renamed checkExecutability() to checkXMLBasedTestExecutability().
    Revision 1.2  2004/04/18 09:08:18  venku

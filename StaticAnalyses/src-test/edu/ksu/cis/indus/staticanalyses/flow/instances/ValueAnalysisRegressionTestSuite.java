@@ -116,7 +116,7 @@ public final class ValueAnalysisRegressionTestSuite
 				final String _classNames = _props.getProperty(_config + ".classNames");
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
-				final String _jimpleDumpDir = _props.getProperty(_config + "");
+				final String _jimpleDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDirectory");
 				final String _classpath = _props.getProperty(_config + ".classpath");
 				final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 
@@ -135,6 +135,7 @@ public final class ValueAnalysisRegressionTestSuite
 						TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 						final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
+                        _test.setJimpleXMLDumpLocation(_jimpleDumpDir);
 						_test.setStmtGraphFactory(stmtGraphFactory);
 						_test.setXMLTestDir(_xmlTestDir);
 						_test.setXMLControlDir(_xmlControlDir);
@@ -153,6 +154,10 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/21 04:13:19  venku
+   - jimple dumping takes time.  Instead, the user can control this
+     per configuration.
+
    Revision 1.12  2004/04/20 06:53:17  venku
    - documentation.
    Revision 1.11  2004/04/20 05:27:14  venku

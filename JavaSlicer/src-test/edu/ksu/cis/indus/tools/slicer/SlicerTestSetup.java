@@ -69,6 +69,11 @@ public class SlicerTestSetup
 	 */
 	SliceXMLizerCLI driver;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private String jimpleDumpDir;
+
 	/**
 	 * Creates a new instance of this class.
 	 *
@@ -95,6 +100,15 @@ public class SlicerTestSetup
 		driver.setClassNames(classNames);
 		setXMLControlDir(xmlControlDirectory);
 		setXMLTestDir(xmlTestDirectory);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param dumpDir
+	 */
+	public void setJimpleXMLDumpLocation(final String dumpDir) {
+		jimpleDumpDir = dumpDir;
 	}
 
 	/**
@@ -127,9 +141,11 @@ public class SlicerTestSetup
 
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 
-		// write XML
+		// write Jimple XML
 		try {
-			driver.xmlizedJimpleWriter = new FileWriter(new File(getXMLTestDir() + File.separator + "jimple.xml"));
+			if (jimpleDumpDir != null) {
+				driver.xmlizedJimpleWriter = new FileWriter(new File(jimpleDumpDir + File.separator + "jimple.xml"));
+			}
 		} catch (IOException _e) {
 			LOGGER.fatal("IO error while creating file to dump jimple.", _e);
 		}
@@ -149,7 +165,7 @@ public class SlicerTestSetup
 		for (final Iterator _iter = driver.slicer.getDAs().iterator(); _iter.hasNext();) {
 			((DependencyAnalysis) _iter.next()).reset();
 		}
-        driver = null;
+		driver = null;
 	}
 
 	/**
@@ -195,9 +211,10 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/21 02:24:02  venku
+   - test clean up code was added.
    Revision 1.2  2004/04/20 06:53:15  venku
    - documentation.
-
    Revision 1.1  2004/04/18 08:59:00  venku
    - enabled test support for slicer.
  */
