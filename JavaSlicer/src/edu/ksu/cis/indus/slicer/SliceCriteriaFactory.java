@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.slicer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Stack;
 
 import soot.Local;
 import soot.SootMethod;
@@ -286,11 +287,23 @@ public final class SliceCriteriaFactory {
 		if (criterion instanceof SliceStmt) {
 			final SliceStmt _t = (SliceStmt) criterion;
 			_result = getStmtCriteria(_t.getOccurringMethod(), (Stmt) _t.getCriterion(), _t.isConsiderExecution());
+
+			final Stack _callStack = _t.getCallStack();
+
+			if (_callStack != null) {
+				_result.setCallStack((Stack) _callStack.clone());
+			}
 		} else if (criterion instanceof SliceExpr) {
 			final SliceExpr _t = (SliceExpr) criterion;
 			_result =
 				getExprCriteria(_t.getOccurringMethod(), _t.getOccurringStmt(), (ValueBox) _t.getCriterion(),
 					_t.isConsiderExecution());
+
+			final Stack _callStack = _t.getCallStack();
+
+			if (_callStack != null) {
+				_result.setCallStack((Stack) _callStack.clone());
+			}
 		} else {
 			throw new IllegalArgumentException("criterion's type " + criterion.getClass() + " is unknown.");
 		}
