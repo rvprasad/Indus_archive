@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.ControlDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 
 import java.util.ArrayList;
 
@@ -62,6 +61,12 @@ public class CDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/10/31 01:00:58  venku
+   - added support to switch direction.  However, forward
+     slicing can be viewed in two interesting ways and
+     our implementation handles the most interesting
+     direction.
+
    Revision 1.2  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
