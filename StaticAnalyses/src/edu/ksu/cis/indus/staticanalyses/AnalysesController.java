@@ -56,7 +56,7 @@ import java.util.Map;
 
 
 /**
- * This class is provides the control class for the dependency analyses suite. The analyses progress in phases. It may be so
+ * This class is provides the control class for the analyses suite. The analyses progress in phases. It may be so
  * that some application require a particular sequence in which each analysis should progress. Hence, the applications
  * provide an implementation of controller interface to drive the analyses in a particular sequence of phases.
  *
@@ -269,6 +269,9 @@ public abstract class AbstractController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/08/18 04:08:22  venku
+   Removed unnecessary method.
+
    Revision 1.7  2003/08/18 00:59:50  venku
    Changed specification to fit the last change.
 
