@@ -19,6 +19,7 @@ import soot.Local;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Value;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
@@ -26,6 +27,7 @@ import soot.jimple.AddExpr;
 import soot.jimple.AndExpr;
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
+import soot.jimple.BinopExpr;
 import soot.jimple.BreakpointStmt;
 import soot.jimple.CastExpr;
 import soot.jimple.CaughtExceptionRef;
@@ -44,9 +46,11 @@ import soot.jimple.GtExpr;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InstanceOfExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InterfaceInvokeExpr;
+import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.LeExpr;
 import soot.jimple.LengthExpr;
@@ -78,6 +82,7 @@ import soot.jimple.SubExpr;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThisRef;
 import soot.jimple.ThrowStmt;
+import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
@@ -237,16 +242,16 @@ public class ProcessingController {
 	boolean processValues;
 
 	/**
+	 * This defines the environment in which the processing runs.
+	 */
+	private IEnvironment env;
+
+	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
 	private IProcessingFilter processingFilter;
-    
-	/**
-	 * This defines the environment in which the processing runs.
-	 */
-	private IEnvironment env;
 
 	/**
 	 * This class visits the statements of the methods and calls the call-back methods of the registered processors.
@@ -500,6 +505,7 @@ public class ProcessingController {
 		 */
 		public void caseAddExpr(AddExpr v) {
 			defaultCase(AddExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -507,6 +513,7 @@ public class ProcessingController {
 		 */
 		public void caseAndExpr(AndExpr v) {
 			defaultCase(AndExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -514,6 +521,10 @@ public class ProcessingController {
 		 */
 		public void caseArrayRef(ArrayRef v) {
 			defaultCase(ArrayRef.class, v);
+			context.setProgramPoint(v.getBaseBox());
+			v.getBase().apply(this);
+			context.setProgramPoint(v.getIndexBox());
+			v.getIndex().apply(this);
 		}
 
 		/**
@@ -521,6 +532,8 @@ public class ProcessingController {
 		 */
 		public void caseCastExpr(CastExpr v) {
 			defaultCase(CastExpr.class, v);
+			context.setProgramPoint(v.getOpBox());
+			v.getOp().apply(this);
 		}
 
 		/**
@@ -535,6 +548,7 @@ public class ProcessingController {
 		 */
 		public void caseCmpExpr(CmpExpr v) {
 			defaultCase(CmpExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -542,6 +556,7 @@ public class ProcessingController {
 		 */
 		public void caseCmpgExpr(CmpgExpr v) {
 			defaultCase(CmpgExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -549,6 +564,7 @@ public class ProcessingController {
 		 */
 		public void caseCmplExpr(CmplExpr v) {
 			defaultCase(CmplExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -556,6 +572,7 @@ public class ProcessingController {
 		 */
 		public void caseDivExpr(DivExpr v) {
 			defaultCase(DivExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -570,6 +587,7 @@ public class ProcessingController {
 		 */
 		public void caseEqExpr(EqExpr v) {
 			defaultCase(EqExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -584,6 +602,7 @@ public class ProcessingController {
 		 */
 		public void caseGeExpr(GeExpr v) {
 			defaultCase(GeExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -591,6 +610,7 @@ public class ProcessingController {
 		 */
 		public void caseGtExpr(GtExpr v) {
 			defaultCase(GtExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -598,6 +618,8 @@ public class ProcessingController {
 		 */
 		public void caseInstanceFieldRef(InstanceFieldRef v) {
 			defaultCase(InstanceFieldRef.class, v);
+			context.setProgramPoint(v.getBaseBox());
+			v.getBase().apply(this);
 		}
 
 		/**
@@ -605,6 +627,8 @@ public class ProcessingController {
 		 */
 		public void caseInstanceOfExpr(InstanceOfExpr v) {
 			defaultCase(InstanceOfExpr.class, v);
+			context.setProgramPoint(v.getOpBox());
+			v.getOp().apply(this);
 		}
 
 		/**
@@ -619,6 +643,7 @@ public class ProcessingController {
 		 */
 		public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
 			defaultCase(InterfaceInvokeExpr.class, v);
+			processInvokeExpr(v);
 		}
 
 		/**
@@ -626,6 +651,7 @@ public class ProcessingController {
 		 */
 		public void caseLeExpr(LeExpr v) {
 			defaultCase(LeExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -633,6 +659,7 @@ public class ProcessingController {
 		 */
 		public void caseLengthExpr(LengthExpr v) {
 			defaultCase(LengthExpr.class, v);
+			processUnaryExpr(v);
 		}
 
 		/**
@@ -654,6 +681,7 @@ public class ProcessingController {
 		 */
 		public void caseLtExpr(LtExpr v) {
 			defaultCase(LtExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -661,6 +689,7 @@ public class ProcessingController {
 		 */
 		public void caseMulExpr(MulExpr v) {
 			defaultCase(MulExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -668,6 +697,7 @@ public class ProcessingController {
 		 */
 		public void caseNeExpr(NeExpr v) {
 			defaultCase(NeExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -675,6 +705,7 @@ public class ProcessingController {
 		 */
 		public void caseNegExpr(NegExpr v) {
 			defaultCase(NegExpr.class, v);
+			processUnaryExpr(v);
 		}
 
 		/**
@@ -710,6 +741,7 @@ public class ProcessingController {
 		 */
 		public void caseOrExpr(OrExpr v) {
 			defaultCase(OrExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -724,6 +756,7 @@ public class ProcessingController {
 		 */
 		public void caseRemExpr(RemExpr v) {
 			defaultCase(RemExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -731,6 +764,7 @@ public class ProcessingController {
 		 */
 		public void caseShlExpr(ShlExpr v) {
 			defaultCase(ShlExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -738,6 +772,7 @@ public class ProcessingController {
 		 */
 		public void caseShrExpr(ShrExpr v) {
 			defaultCase(ShrExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -745,6 +780,7 @@ public class ProcessingController {
 		 */
 		public void caseSpecialInvokeExpr(SpecialInvokeExpr v) {
 			defaultCase(SpecialInvokeExpr.class, v);
+			processInvokeExpr(v);
 		}
 
 		/**
@@ -759,6 +795,7 @@ public class ProcessingController {
 		 */
 		public void caseStaticInvokeExpr(StaticInvokeExpr v) {
 			defaultCase(StaticInvokeExpr.class, v);
+			processInvokeExpr(v);
 		}
 
 		/**
@@ -773,6 +810,7 @@ public class ProcessingController {
 		 */
 		public void caseSubExpr(SubExpr v) {
 			defaultCase(SubExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -787,6 +825,7 @@ public class ProcessingController {
 		 */
 		public void caseUshrExpr(UshrExpr v) {
 			defaultCase(UshrExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -794,6 +833,7 @@ public class ProcessingController {
 		 */
 		public void caseVirtualInvokeExpr(VirtualInvokeExpr v) {
 			defaultCase(VirtualInvokeExpr.class, v);
+			processInvokeExpr(v);
 		}
 
 		/**
@@ -801,6 +841,7 @@ public class ProcessingController {
 		 */
 		public void caseXorExpr(XorExpr v) {
 			defaultCase(XorExpr.class, v);
+			processBinaryExpr(v);
 		}
 
 		/**
@@ -818,6 +859,49 @@ public class ProcessingController {
 					pp.callback(context.getProgramPoint(), context);
 				}
 			}
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 *
+		 * @param v DOCUMENT ME!
+		 */
+		private void processBinaryExpr(BinopExpr v) {
+			context.setProgramPoint(v.getOp1Box());
+			v.getOp1().apply(this);
+			context.setProgramPoint(v.getOp1Box());
+			v.getOp2().apply(this);
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 *
+		 * @param v DOCUMENT ME!
+		 */
+		private void processInvokeExpr(InvokeExpr v) {
+			if (v instanceof InstanceInvokeExpr) {
+				context.setProgramPoint(((InstanceInvokeExpr) v).getBaseBox());
+				((InstanceInvokeExpr) v).getBase().apply(this);
+			}
+
+			for (int i = 0; i < v.getArgCount(); i++) {
+				context.setProgramPoint(v.getArgBox(i));
+				v.getArg(i).apply(this);
+			}
+		}
+
+		/**
+		 * DOCUMENT ME! <p></p>
+		 *
+		 * @param v DOCUMENT ME!
+		 */
+		private void processUnaryExpr(UnopExpr v) {
+			context.setProgramPoint(v.getOpBox());
+			v.getOp().apply(this);
 		}
 	}
 
@@ -867,6 +951,15 @@ public class ProcessingController {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: consolidation");
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param theFilter ME!
+	 */
+	public void setProcessingFilter(final IProcessingFilter theFilter) {
+		processingFilter = theFilter;
 	}
 
 	/**
@@ -1083,26 +1176,20 @@ public class ProcessingController {
 			}
 		}
 	}
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param DOCUMENT ME!
-     */
-    public void setProcessingFilter(final IProcessingFilter theFilter) {
-        processingFilter = theFilter;
-    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/30 00:21:11  venku
+   - methodFilter fields was removed.
+   - error in logic while filtering methods. FIXED.
    Revision 1.14  2003/11/30 00:10:17  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.13  2003/11/17 15:58:58  venku
    - coding conventions.
    Revision 1.12  2003/11/17 15:42:49  venku
