@@ -20,7 +20,6 @@ import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.IProcessor;
@@ -406,24 +405,6 @@ public class DependencyXMLizer
 				addTimeLog(_da.getClass().getName() + "[" + _da.hashCode() + "] analysis", _stop - _start);
 			}
 			writeInfo("END: dependency analyses");
-
-			final Map _threadMap = new HashMap();
-			writeInfo("\nThread mapping:");
-
-			int _count = 1;
-
-			for (final Iterator _j = _tgi.getAllocationSites().iterator(); _j.hasNext();) {
-				final NewExprTriple _element = (NewExprTriple) _j.next();
-				final String _tid = "T" + _count++;
-				_threadMap.put(_element, _tid);
-
-				if (_element.getMethod() == null) {
-					writeInfo(_tid + " -> " + _element.getExpr().getType());
-				} else {
-					writeInfo(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod());
-				}
-			}
-
 			writeXML(_rootname, info);
 			writeInfo("Total classes loaded: " + scene.getClasses().size());
 			printTimingStats();
@@ -680,6 +661,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/01/20 15:52:12  venku
+   - enabled soot class path setting option.
    Revision 1.38  2004/01/09 07:27:34  venku
    - an overriding xmlOutDir variables exists.  FIXED.
    Revision 1.37  2004/01/06 00:17:00  venku
