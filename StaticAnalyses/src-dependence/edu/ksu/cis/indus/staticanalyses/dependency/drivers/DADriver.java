@@ -31,7 +31,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
@@ -78,7 +78,7 @@ public abstract class DADriver
 	/**
 	 * A collection of dependence analyses.
 	 *
-	 * @invariant das.oclIsKindOf(Collection(DependencyAnalysis))
+	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 */
 	protected Collection das;
 
@@ -218,7 +218,7 @@ public abstract class DADriver
 			}
 
 			for (Iterator i = das.iterator(); i.hasNext();) {
-				DependencyAnalysis da = (DependencyAnalysis) i.next();
+				AbstractDependencyAnalysis da = (AbstractDependencyAnalysis) i.next();
 				start = System.currentTimeMillis();
 				da.analyze();
 				stop = System.currentTimeMillis();
@@ -298,7 +298,7 @@ public abstract class DADriver
 		Collection failed = new ArrayList();
 
 		for (Iterator i = das.iterator(); i.hasNext();) {
-			DependencyAnalysis da = (DependencyAnalysis) i.next();
+			AbstractDependencyAnalysis da = (AbstractDependencyAnalysis) i.next();
 			da.reset();
 			da.setBasicBlockGraphManager(bbm);
 
@@ -344,7 +344,7 @@ public abstract class DADriver
 		}
 
 		for (Iterator i = das.iterator(); i.hasNext();) {
-			DependencyAnalysis da = (DependencyAnalysis) i.next();
+			AbstractDependencyAnalysis da = (AbstractDependencyAnalysis) i.next();
 
 			if (da.getPreProcessor() != null) {
 				da.getPreProcessor().unhook(cgipc);
@@ -356,6 +356,12 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.41  2004/03/03 05:59:33  venku
    - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.40  2004/03/03 02:17:46  venku

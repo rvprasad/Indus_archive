@@ -55,7 +55,7 @@ import soot.SootMethod;
  * @invariant dependee2dependent.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
  */
 public class EntryControlDA
-  extends DependencyAnalysis {
+  extends AbstractDependencyAnalysis {
 	/*
 	 * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in
 	 * the list corresponds to the statement at the same location in the statement list of the method.  The collection is the
@@ -84,7 +84,7 @@ public class EntryControlDA
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
@@ -112,7 +112,7 @@ public class EntryControlDA
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
@@ -129,16 +129,16 @@ public class EntryControlDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return DependencyAnalysis.CONTROL_DA;
+		return AbstractDependencyAnalysis.CONTROL_DA;
 	}
 
 	/**
 	 * Calculates the control dependency information for the methods provided during initialization.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
 		analyze(callgraph.getReachableMethods());
@@ -446,6 +446,15 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.14  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent

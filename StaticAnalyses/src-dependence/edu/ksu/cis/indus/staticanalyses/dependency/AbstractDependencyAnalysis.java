@@ -42,7 +42,7 @@ import java.util.Map;
  * @invariant doesPreProcessing() implies getPreProcessor() != null
  * @invariant getPreProcessing() != null implies doesPreProcessing()
  */
-public abstract class DependencyAnalysis
+public abstract class AbstractDependencyAnalysis
   extends AbstractAnalysis {
 	/**
 	 * This identifies class-level data dependency analysis.
@@ -174,6 +174,9 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/03/03 10:11:40  venku
+   - formatting.
+
    Revision 1.16  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent

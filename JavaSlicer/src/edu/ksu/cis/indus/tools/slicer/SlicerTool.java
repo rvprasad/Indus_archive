@@ -42,7 +42,7 @@ import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -362,7 +362,7 @@ public final class SlicerTool
 	 *
 	 * @return the collection of dependency analyses.
 	 *
-	 * @post result != null and result.oclIsKindOf(Set(DependencyAnalysis))
+	 * @post result != null and result.oclIsKindOf(Set(AbstractDependencyAnalysis))
 	 */
 	public Collection getDAs() {
 		final Collection _result = new LinkedHashSet();
@@ -802,7 +802,7 @@ public final class SlicerTool
 		}
 
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
-		final Collection _das = _slicerConfig.getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
+		final Collection _das = _slicerConfig.getDependenceAnalysis(AbstractDependencyAnalysis.SYNCHRONIZATION_DA);
 		IMonitorInfo _im = null;
 
 		for (final Iterator _i = _das.iterator(); _i.hasNext();) {
@@ -897,6 +897,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.84  2004/05/14 04:43:56  venku
+   - enhanced reset() method.
+
    Revision 1.83  2004/05/10 08:12:03  venku
    - streamlined the names of tags that are used.
    - deleted SlicingTag class.  NamedTag is used instead.

@@ -83,7 +83,7 @@ public class DependencyXMLizerCLI
 	/**
 	 * A collection of dependence analyses.
 	 *
-	 * @invariant das.oclIsKindOf(Collection(DependencyAnalysis))
+	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 */
 	protected List das = new ArrayList();
 
@@ -293,7 +293,7 @@ public class DependencyXMLizerCLI
 		writeInfo("BEGIN: dependency analyses");
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 			_start = System.currentTimeMillis();
 			_da.analyze();
 			CollectionsModifier.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
@@ -318,7 +318,7 @@ public class DependencyXMLizerCLI
 		final Collection _failed = new ArrayList();
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 			_da.reset();
 			_da.setBasicBlockGraphManager(getBbm());
 
@@ -356,7 +356,7 @@ public class DependencyXMLizerCLI
 		aliasUD.unhook(cgipc);
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 
 			if (_da.getPreProcessor() != null) {
 				_da.getPreProcessor().unhook(cgipc);
@@ -368,6 +368,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.10  2004/04/23 01:00:48  venku
    - trying to resolve issues with canonicalization of Jimple.
    Revision 1.9  2004/04/23 00:42:36  venku
@@ -554,6 +561,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.10  2004/04/23 01:00:48  venku
    - trying to resolve issues with canonicalization of Jimple.
    Revision 1.9  2004/04/23 00:42:36  venku

@@ -80,7 +80,7 @@ import soot.jimple.Stmt;
  * 			  SootMethodMethod)))))
  */
 public class InterferenceDAv1
-  extends DependencyAnalysis {
+  extends AbstractDependencyAnalysis {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -224,7 +224,7 @@ public class InterferenceDAv1
 	 * @pre stmt.oclIsTypeOf(Stmt) or method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object stmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
@@ -263,7 +263,7 @@ public class InterferenceDAv1
 	 * @pre stmt.oclIsTypeOf(Stmt) or method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
@@ -292,10 +292,10 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return DependencyAnalysis.INTERFERENCE_DA;
+		return AbstractDependencyAnalysis.INTERFERENCE_DA;
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
 		stable = false;
@@ -644,6 +644,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/03/03 10:11:40  venku
+   - formatting.
+
    Revision 1.34  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent

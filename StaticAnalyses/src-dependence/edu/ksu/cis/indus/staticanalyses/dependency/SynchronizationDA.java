@@ -79,7 +79,7 @@ import soot.jimple.Stmt;
  * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Map(EnterMonitortmt, Collection(ExitMonitorStmt))))
  */
 public final class SynchronizationDA
-  extends DependencyAnalysis
+  extends AbstractDependencyAnalysis
   implements IMonitorInfo {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -183,7 +183,7 @@ public final class SynchronizationDA
 	 * @pre dependentStmt.oclIsKindOf(Stmt)
 	 * @post result->forall( o | o.oclIsKindOf(ExitMonitorStmt) or o.oclIsKindOf(EnterMonitorStmt))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
 		return getHelper(dependent2dependee, dependentStmt, method);
@@ -201,17 +201,17 @@ public final class SynchronizationDA
 	 * @pre dependeeStmt.oclIsKindOf(ExitMonitorStmt) or dependeeStmt.oclIsKindOf(EnterMonitorStmt)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
 		return getHelper(dependee2dependent, dependeeStmt, method);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return DependencyAnalysis.SYNCHRONIZATION_DA;
+		return AbstractDependencyAnalysis.SYNCHRONIZATION_DA;
 	}
 
 	/**
@@ -235,7 +235,7 @@ public final class SynchronizationDA
 	/**
 	 * Calculates the synchronization dependency information for the methods provided during initialization.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
 		stable = false;
@@ -520,6 +520,15 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.35  2004/03/04 11:52:21  venku
    - modified ReadyDA to use CollectionsModifiers.
    - fixed some subtle bugs in SyncDA.

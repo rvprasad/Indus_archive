@@ -26,11 +26,15 @@ import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.XMLBasedOFATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.XMLBasedCallGraphTest;
+
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +49,9 @@ import junit.framework.TestSuite;
 
 import junit.textui.TestRunner;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * This is the test suite used to run dependency analyses related tests using JUnit's text interface to the runner.
@@ -55,6 +62,11 @@ import junit.textui.TestRunner;
  */
 public class DependencyAnalysisRegressionTestSuite
   extends TestCase {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(DependencyAnalysisRegressionTestSuite.class);
+
 	/**
 	 * This is the property via which the ofa test accepts input.  Refer to DepedencyAnalysisTest.properties for format.
 	 */
@@ -98,6 +110,43 @@ public class DependencyAnalysisRegressionTestSuite
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param analysis DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private static Test getDATestFor(final AbstractDependencyAnalysis analysis) {
+		final String _daTestClassName = analysis.getClass().getName() + "Test";
+		Test _result = null;
+
+		try {
+			final Class _daTestClass = Class.forName(_daTestClassName);
+			final Class[] _constructorArgs = { Class.forName(AbstractDependencyAnalysis.class.getName()) };
+			final Constructor _daTestClassConstructor = _daTestClass.getDeclaredConstructor(_constructorArgs);
+			final Object[] _newArgs = { analysis };
+			final AbstractDependencyAnalysisTest _daTest =
+				(AbstractDependencyAnalysisTest) _daTestClassConstructor.newInstance(_newArgs);
+			_result = _daTest;
+		} catch (final InstantiationException _e1) {
+			LOGGER.error("Error while creating an object of type. " + _daTestClassName, _e1);
+		} catch (final IllegalAccessException _e1) {
+			LOGGER.error("Error while accessing the constructor of type. " + _daTestClassName, _e1);
+		} catch (final InvocationTargetException _e1) {
+			LOGGER.error("Error while invoking the constructor of type. " + _daTestClassName, _e1);
+		} catch (final ClassNotFoundException _e1) {
+			LOGGER.error("Error while finding type. " + _daTestClassName, _e1);
+		} catch (final SecurityException _e1) {
+			LOGGER.error("Security violation while accessing the constructor of type. " + _daTestClassName, _e1);
+		} catch (final NoSuchMethodException _e1) {
+			LOGGER.error("Could not find the required constructor of type. " + _daTestClassName, _e1);
+		}
+		return _result;
+	}
+
+	/**
 	 * Sets up the test fixture.
 	 *
 	 * @param propFileName is the name of the file with the data to setup the test fixture.
@@ -125,7 +174,7 @@ public class DependencyAnalysisRegressionTestSuite
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
 				final String _classpath = _props.getProperty(_config + ".classpath");
-                final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDir");
+				final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDir");
 				final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 
 				try {
@@ -162,9 +211,15 @@ public class DependencyAnalysisRegressionTestSuite
 							final Object _da = _j.next();
 
 							if (!Pattern.matches(_ignoreDARegex, _da.getClass().getName())) {
-								final XMLBasedDependencyAnalysisTest _test =
-									new XMLBasedDependencyAnalysisTest((DependencyAnalysis) _da, _xmlizer);
-								_temp.addTest(_test);
+								final XMLBasedDependencyAnalysisTest _xmlTest =
+									new XMLBasedDependencyAnalysisTest((AbstractDependencyAnalysis) _da, _xmlizer);
+								_temp.addTest(_xmlTest);
+
+								final Test _test = getDATestFor((AbstractDependencyAnalysis) _da);
+
+								if (_test != null) {
+									_temp.addTest(_test);
+								}
 							}
 						}
 						_temp.addTestSuite(XMLBasedCallGraphTest.class);
@@ -175,15 +230,15 @@ public class DependencyAnalysisRegressionTestSuite
 
 						final DependencyAnalysisTestSetup _test =
 							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath);
-                        _test.setIdGenerator(new UniqueJimpleIDGenerator());
-                        _test.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
+						_test.setIdGenerator(new UniqueJimpleIDGenerator());
+						_test.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
 						_test.setStmtGraphFactory(_stmtGraphFactory);
 						_test.setXMLTestDir(_xmlTestDir);
 						_test.setXMLControlDir(_xmlControlDir);
 						suite.addTest(_test);
 					}
-				} catch (IllegalArgumentException _e) {
-					;
+				} catch (final IllegalArgumentException _e) {
+					_e.printStackTrace();
 				}
 			}
 		} catch (final IOException _e) {
@@ -195,16 +250,19 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/04/25 21:18:38  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
    Revision 1.8  2004/04/22 10:03:59  venku
    - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
-
    Revision 1.7  2004/04/22 08:00:19  venku
    - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
-
    Revision 1.6  2004/04/21 04:13:20  venku
    - jimple dumping takes time.  Instead, the user can control this
      per configuration.
-
    Revision 1.5  2004/04/20 06:53:17  venku
    - documentation.
    Revision 1.4  2004/04/20 05:27:14  venku

@@ -108,7 +108,7 @@ import soot.jimple.VirtualInvokeExpr;
  * @invariant dependee2dependent.oclIsKindOf(Map(Stmt, Collection(Pair(Stmt, SootMethod))))
  */
 public class ReadyDAv1
-  extends DependencyAnalysis {
+  extends AbstractDependencyAnalysis {
 	/**
 	 * This indicates rule 1 of ready dependency as described in the report.
 	 */
@@ -374,7 +374,7 @@ public class ReadyDAv1
 	 * @pre dependentStmt.isOclKindOf(Stmt) and context.isOclIsKindOf(SootMethod)
 	 * @post result.isOclKindOf(Collection(Pair(Stmt, Method)))
 	 *
-	 * @see DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object context) {
 		final Map _temp = (Map) dependent2dependee.get(context);
@@ -398,7 +398,7 @@ public class ReadyDAv1
 	 * @pre dependeeStmt.isOclKindOf(Stmt)
 	 * @post result.isOclKindOf(Collection(Pair(Stmt, SootMethod)))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents( java.lang.Object,
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents( java.lang.Object,
 	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object context) {
@@ -412,10 +412,10 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return DependencyAnalysis.READY_DA;
+		return AbstractDependencyAnalysis.READY_DA;
 	}
 
 	/**
@@ -473,7 +473,7 @@ public class ReadyDAv1
 	 * Calculates ready dependency for the methods provided at initialization.  It considers only the rules specified by via
 	 * <code>setRules</code> method. By default, all rules are considered for the analysis.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
 		stable = false;
@@ -1245,6 +1245,15 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.50  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.49  2004/03/04 14:03:26  venku
    - wait() and notify() should be retrieved each time the analyses is setup. FIXED.
    Revision 1.48  2004/03/04 11:52:21  venku

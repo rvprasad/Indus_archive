@@ -59,7 +59,7 @@ import soot.jimple.Stmt;
  * @invariant dependent2dependee.values()->forall(o | o.getValue().size = o.getKey().getActiveBody().getUnits().size())
  */
 public class DivergenceDA
-  extends DependencyAnalysis {
+  extends AbstractDependencyAnalysis {
 	/*
 	 * The dependence information is stored as follows: For each method, a sequence of collection of statements is maintained.
 	 * The length of the sequence is equal to the number of statements in the method.  The statement collection at a location
@@ -107,7 +107,7 @@ public class DivergenceDA
 	 * @post result->forall( o | o.isOclKindOf(Stmt))
 	 * @post result.size == 1
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
@@ -141,7 +141,7 @@ public class DivergenceDA
 	 * @pre dependentStmt.isOclKindOf(Stmt)
 	 * @post result->forall( o | o.isOclKindOf(Stmt))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
 		Collection result = Collections.EMPTY_LIST;
@@ -159,16 +159,16 @@ public class DivergenceDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return DependencyAnalysis.DIVERGENCE_DA;
+		return AbstractDependencyAnalysis.DIVERGENCE_DA;
 	}
 
 	/**
 	 * Calculates the divergence dependency in the methods.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
 		stable = false;
@@ -575,6 +575,15 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.30  2004/03/03 10:11:40  venku
    - formatting.
    Revision 1.29  2004/03/03 10:07:24  venku

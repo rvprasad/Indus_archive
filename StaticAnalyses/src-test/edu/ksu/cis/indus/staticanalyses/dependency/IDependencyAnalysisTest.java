@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.IXMLBasedTest;
-
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 
@@ -27,14 +25,13 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
  * @author $Author$
  * @version $Revision$
  */
-public interface IDependencyAnalysisTest
-  extends IXMLBasedTest {
+public interface IDependencyAnalysisTest {
 	/**
 	 * Retrieves the analysis instance being tested.
 	 *
 	 * @return the instance of the analysis.
 	 */
-	DependencyAnalysis getDA();
+	AbstractDependencyAnalysis getDA();
 
 	/**
 	 * Retrieves the environment which the analysis analyzed.
@@ -47,6 +44,12 @@ public interface IDependencyAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/25 21:18:38  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
    Revision 1.2  2004/03/29 09:44:41  venku
    - finished the xml-based testing framework for dependence.
    Revision 1.1  2004/03/09 19:10:40  venku

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.AbstractXMLBasedTest;
+import edu.ksu.cis.indus.IXMLBasedTest;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -34,11 +35,11 @@ import java.util.Collections;
  */
 public class XMLBasedDependencyAnalysisTest
   extends AbstractXMLBasedTest
-  implements IDependencyAnalysisTest {
+  implements IDependencyAnalysisTest, IXMLBasedTest {
 	/**
 	 * The instance of the analysis being tested.
 	 */
-	private DependencyAnalysis da;
+	private AbstractDependencyAnalysis da;
 
 	/**
 	 * The instance of the xmlizer used to generate the test data.
@@ -63,7 +64,7 @@ public class XMLBasedDependencyAnalysisTest
 	 *
 	 * @pre depXMLizer != null and theDA != null
 	 */
-	public XMLBasedDependencyAnalysisTest(final DependencyAnalysis theDA, final DependencyXMLizer depXMLizer) {
+	public XMLBasedDependencyAnalysisTest(final AbstractDependencyAnalysis theDA, final DependencyXMLizer depXMLizer) {
 		da = theDA;
 		xmlizer = depXMLizer;
 		setName("testXMLSimilarity");
@@ -82,7 +83,7 @@ public class XMLBasedDependencyAnalysisTest
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysisTest#getDA()
 	 */
-	public DependencyAnalysis getDA() {
+	public AbstractDependencyAnalysis getDA() {
 		return da;
 	}
 
@@ -127,6 +128,11 @@ public class XMLBasedDependencyAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/05/13 03:30:03  venku
+   - coding convention.
+   - documentation.
+   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
+
    Revision 1.4  2004/04/19 05:10:26  venku
    - NPE's in test setup caused by unchecked reseting.
    Revision 1.3  2004/04/18 02:05:18  venku

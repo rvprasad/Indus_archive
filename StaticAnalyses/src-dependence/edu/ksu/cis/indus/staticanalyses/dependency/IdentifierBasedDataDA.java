@@ -66,7 +66,7 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  * 			  o.getKey().getBody(Jimple.v()).getStmtList().size())
  */
 public class IdentifierBasedDataDA
-  extends DependencyAnalysis {
+  extends AbstractDependencyAnalysis {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -176,16 +176,16 @@ public class IdentifierBasedDataDA
 	 */
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return DependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
+		return AbstractDependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
 	}
 
 	/**
 	 * Calculates the dependency information for locals in the methods provided during initialization.
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
 		stable = false;
@@ -320,6 +320,9 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/03/04 13:08:15  venku
+   - coding convention.
+
    Revision 1.33  2004/03/03 10:11:40  venku
    - formatting.
    Revision 1.32  2004/03/03 10:07:24  venku

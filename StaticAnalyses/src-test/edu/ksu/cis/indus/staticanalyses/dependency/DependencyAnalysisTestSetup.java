@@ -43,10 +43,14 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestSuite;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -61,6 +65,11 @@ import junit.framework.TestSuite;
  */
 public class DependencyAnalysisTestSetup
   extends ValueAnalysisTestSetup {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(DependencyAnalysisTestSetup.class);
+
 	/**
 	 * The instance of aliased use-def info to use.
 	 */
@@ -132,7 +141,7 @@ public class DependencyAnalysisTestSetup
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 
 		// retrieve dependence analysis
-		das = new ArrayList();
+		das = new HashSet();
 
 		for (final Iterator _i =
 				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IDependencyAnalysisTest.class).iterator();
@@ -154,7 +163,7 @@ public class DependencyAnalysisTestSetup
 		setupDependencyAnalyses(_pc);
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 			_da.analyze();
 			CollectionsModifier.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
 		}
@@ -177,7 +186,7 @@ public class DependencyAnalysisTestSetup
 
 		// teardown the dependency analysis
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			((DependencyAnalysis) _i.next()).reset();
+			((AbstractDependencyAnalysis) _i.next()).reset();
 		}
 		das.clear();
 		das = null;
@@ -195,14 +204,14 @@ public class DependencyAnalysisTestSetup
 		final Collection _failed = new ArrayList();
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 			_da.reset();
 			_da.setBasicBlockGraphManager(bbgMgr);
 
 			try {
 				_da.initialize(info);
 			} catch (InitializationException _e) {
-				System.err.println(_da.getClass() + " failed to initialize, hence, will not be executed." + _e.getMessage());
+				LOGGER.error(_da.getClass() + " failed to initialize, hence, will not be executed.", _e);
 				_failed.add(_da);
 			}
 
@@ -220,7 +229,7 @@ public class DependencyAnalysisTestSetup
 		ecba.execute();
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 
 			if (_da.getPreProcessor() != null) {
 				_da.getPreProcessor().unhook(cgipc);
@@ -232,6 +241,9 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/21 04:13:20  venku
+   - jimple dumping takes time.  Instead, the user can control this
+     per configuration.
    Revision 1.11  2004/04/21 02:24:01  venku
    - test clean up code was added.
    Revision 1.10  2004/04/20 06:53:17  venku

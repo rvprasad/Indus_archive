@@ -150,7 +150,7 @@ public final class DependencyXMLizer
 	 * @pre da != null
 	 * @post result != null
 	 */
-	String getDAPartOfFileName(final DependencyAnalysis da) {
+	String getDAPartOfFileName(final AbstractDependencyAnalysis da) {
 		return da.getId() + ":" + da.getClass().getName();
 	}
 
@@ -165,7 +165,7 @@ public final class DependencyXMLizer
 	 * @pre writer != null and da != null
 	 * @post result != null
 	 */
-	private StmtLevelDependencyXMLizer getXMLizerFor(final Writer writer, final DependencyAnalysis da) {
+	private StmtLevelDependencyXMLizer getXMLizerFor(final Writer writer, final AbstractDependencyAnalysis da) {
 		StmtLevelDependencyXMLizer _result = null;
 		final String _xmlizerId = da.getId().toString();
 
@@ -205,13 +205,13 @@ public final class DependencyXMLizer
 			throw new IllegalStateException("Please specify an output directory while using the xmlizer.");
 		}
 
-		for (final Iterator _i = DependencyAnalysis.ids.iterator(); _i.hasNext();) {
+		for (final Iterator _i = AbstractDependencyAnalysis.ids.iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 			final Collection _col = (Collection) info.get(_id);
 
 			if (_col != null) {
 				for (final Iterator _j = _col.iterator(); _j.hasNext();) {
-					final DependencyAnalysis _da = (DependencyAnalysis) _j.next();
+					final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _j.next();
 					String _providedFileName = (String) info.get(FILE_NAME_ID);
 
 					if (_providedFileName == null) {
@@ -248,6 +248,9 @@ public final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/05/13 03:32:03  venku
+   - documentation.  refactoring of getFileName() in IXMLizer.
+
    Revision 1.18  2004/05/13 03:12:33  venku
    - CustomXMLOutputter defaults to UTF-8 encoding.
    - Added a new method to AbstractXMLizer to encode strings.

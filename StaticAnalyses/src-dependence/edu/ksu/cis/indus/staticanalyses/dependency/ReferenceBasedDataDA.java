@@ -46,7 +46,7 @@ import soot.jimple.Stmt;
  * @version $Revision$
  */
 public class ReferenceBasedDataDA
-  extends DependencyAnalysis {
+  extends AbstractDependencyAnalysis {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -75,7 +75,7 @@ public class ReferenceBasedDataDA
 	 * @post result->forall(o | o.getFirst().getLeftOf().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getLeftOf().oclIsKindOf(ArrayRef))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object stmt, final Object method) {
 		contextCache.setRootMethod((SootMethod) method);
@@ -103,7 +103,7 @@ public class ReferenceBasedDataDA
 	 * @post result->forall(o | o.getFirst().getRightOp().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getRightOp().oclIsKindOf(ArrayRef))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
@@ -120,10 +120,10 @@ public class ReferenceBasedDataDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getId()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return DependencyAnalysis.REFERENCE_BASED_DATA_DA;
+		return AbstractDependencyAnalysis.REFERENCE_BASED_DATA_DA;
 	}
 
 	/**
@@ -211,6 +211,10 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/03/03 10:07:24  venku
+   - renamed dependeeMap as dependent2dependee
+   - renamed dependentmap as dependee2dependent
+
    Revision 1.19  2004/03/03 02:17:46  venku
    - added a new method to ICallGraphInfo interface.
    - implemented the above method in CallGraph.

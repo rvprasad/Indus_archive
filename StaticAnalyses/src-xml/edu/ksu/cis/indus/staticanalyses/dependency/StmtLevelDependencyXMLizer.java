@@ -58,7 +58,7 @@ final class StmtLevelDependencyXMLizer
 	/**
 	 * This is the dependency analysis whose information should be xmlized.
 	 */
-	private DependencyAnalysis analysis;
+	private AbstractDependencyAnalysis analysis;
 
 	/**
 	 * This is used to generate id's for xml elements.
@@ -95,7 +95,7 @@ final class StmtLevelDependencyXMLizer
 	 * @pre out != null and generator != null and depAnalysis != null
 	 */
 	public StmtLevelDependencyXMLizer(final XMLOutputter out, final IJimpleIDGenerator generator,
-		final DependencyAnalysis depAnalysis) {
+		final AbstractDependencyAnalysis depAnalysis) {
 		writer = out;
 		idGenerator = generator;
 		analysis = depAnalysis;
@@ -256,6 +256,9 @@ final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/05/13 07:34:25  venku
+   - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
+
    Revision 1.14  2004/05/13 06:50:58  venku
    - renamed .xsd's to XML.xsd's.
    - ripple effect.

@@ -21,7 +21,7 @@ import edu.ksu.cis.indus.TestHelper;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.dependency.XMLBasedDependencyAnalysisTest;
 
@@ -111,7 +111,7 @@ public class SlicerTestSetup
 		final IEnvironment _environment = driver.slicer.getEnvironment();
 
 		for (final Iterator _i = driver.slicer.getDAs().iterator(); _i.hasNext();) {
-			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
+			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 			final XMLBasedDependencyAnalysisTest _test = new XMLBasedDependencyAnalysisTest(_da, _xmlizer);
 			_test.setCallGraph(_cgiImpl);
 			_test.setEnvironment(_environment);
@@ -146,7 +146,7 @@ public class SlicerTestSetup
 		driver.slicer.reset();
 
 		for (final Iterator _iter = driver.slicer.getDAs().iterator(); _iter.hasNext();) {
-			((DependencyAnalysis) _iter.next()).reset();
+			((AbstractDependencyAnalysis) _iter.next()).reset();
 		}
 		driver = null;
 		super.tearDown();
@@ -195,6 +195,9 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/05/14 04:44:17  venku
+   - enhanced tearDown() method.
+
    Revision 1.13  2004/05/14 03:10:42  venku
    - The destructively updated jimple can be dumped during tearDown() as
      by then all tests would have completed, hence, not impacting the id
