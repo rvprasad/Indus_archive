@@ -170,6 +170,13 @@
       can just lookup for a particular id in a map during configuration phase and use the provided implementation. We
       could have used the interface type-based resolution, but it is more simpler this way.</para>
   </sect1>
+  <sect1>
+    <title>Peccadillos</title>
+    <para>As Indus is based on Soot, the analyses and transformations work on the runtime artifacts of Soot constructed
+      using a particular configuration of Soot. The options to reach enable this particular Soot configuration is
+      provided via <emphasis>Util.getSootOptions()</emphasis> method. It is strongly recommended to initialize Soot with
+      the options obtained by this method before loading classes when using Indus or it's subprojects.</para>
+  </sect1>
   <sect1 id="closing-note">
     <title>Closing Note</title>
     <para>The XMLizing classes used by this project and it's parent and sibling projects use the xmlzing framework to
