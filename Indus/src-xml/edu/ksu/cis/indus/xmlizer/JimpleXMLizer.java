@@ -88,7 +88,7 @@ public class JimpleXMLizer
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private boolean processingMethod = true;
+	private boolean processingMethod = false;
 
 	/**
 	 * Creates a new JimpleXMLizer object.
@@ -279,6 +279,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/24 01:20:27  venku
+   - enhanced output formatting.
+
    Revision 1.13  2003/11/24 00:54:03  venku
    - deleted  getstream() method as it was not used.
 

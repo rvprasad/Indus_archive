@@ -42,6 +42,7 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InstanceOfExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InterfaceInvokeExpr;
+import soot.jimple.InvokeExpr;
 import soot.jimple.LeExpr;
 import soot.jimple.LengthExpr;
 import soot.jimple.LongConstant;
@@ -85,8 +86,10 @@ import java.io.Writer;
  */
 public class ValueXMLizer
   extends AbstractJimpleValueSwitch {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	StringBuffer tabs = new StringBuffer("\t\t\t\t");
 
@@ -303,7 +306,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
 	 */
 	public final void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
-		writeInstanceInvokeExpr("interface", v);
+		writeInvokeExpr("interface", v);
 	}
 
 	/**
@@ -468,7 +471,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
 	 */
 	public final void caseSpecialInvokeExpr(SpecialInvokeExpr v) {
-		writeInstanceInvokeExpr("special", v);
+		writeInvokeExpr("special", v);
 	}
 
 	/**
@@ -488,22 +491,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
 	 */
 	public final void caseStaticInvokeExpr(StaticInvokeExpr v) {
-		try {
-			out.write(tabs + "<invoke_expr name=\"static\" id=\"" + newId + "\">\n");
-			out.write("<method id=\"" + idGenerator.getIdForMethod(v.getMethod()) + "\"/>\n");
-
-			if (v.getArgCount() > 0) {
-				out.write("<arguments>\n");
-
-				for (int i = 0; i < v.getArgCount(); i++) {
-					apply(v.getArgBox(i));
-				}
-				out.write("</arguments>\n");
-			}
-			out.write(tabs + "</invoke_expr>\n");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		writeInvokeExpr("static", v);
 	}
 
 	/**
@@ -546,7 +534,7 @@ public class ValueXMLizer
 	 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
 	 */
 	public final void caseVirtualInvokeExpr(VirtualInvokeExpr v) {
-		writeInstanceInvokeExpr("virtual", v);
+		writeInvokeExpr("virtual", v);
 	}
 
 	/**
@@ -701,14 +689,17 @@ public class ValueXMLizer
 	 * @param name
 	 * @param v
 	 */
-	private void writeInstanceInvokeExpr(String name, InstanceInvokeExpr v) {
+	private void writeInvokeExpr(String name, InvokeExpr v) {
 		try {
 			out.write(tabs + "<invoke_expr name=\"" + name + "\" id=\"" + newId + "\">\n");
 
 			SootMethod method = v.getMethod();
 			incrementTabs();
 			out.write(tabs + "<method id=\"" + idGenerator.getIdForMethod(method) + "\"/>\n");
-			writeBase(v.getBaseBox());
+
+			if (v instanceof InstanceInvokeExpr) {
+				writeBase(((InstanceInvokeExpr) v).getBaseBox());
+			}
 
 			if (v.getArgCount() > 0) {
 				out.write(tabs + "\t<arguments>\n");
@@ -747,6 +738,8 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/24 01:20:27  venku
+   - enhanced output formatting.
    Revision 1.3  2003/11/17 15:57:03  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
