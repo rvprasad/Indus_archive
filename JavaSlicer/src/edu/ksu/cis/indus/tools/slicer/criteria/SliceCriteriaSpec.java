@@ -31,13 +31,14 @@ import soot.Scene;
 
 
 /**
- * This class is the criteria specification.
+ * This class is the criteria specification.  <i>This is intended for internal use only.  Clients should not depend on or use
+ * this class.</i>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class SliceCriteriaSpec {
+public final class SliceCriteriaSpec {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -121,4 +122,9 @@ final class SliceCriteriaSpec {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/02 09:00:08  venku
+   - added support to serialize/deserialize slice criteria. (feature #397)
+   - used the above support in SliceXMLizerCLI.
+   - used Jakarta Commons IO library.
+
  */

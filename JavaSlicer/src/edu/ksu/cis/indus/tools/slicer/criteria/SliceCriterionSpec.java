@@ -46,13 +46,14 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class is the criterion specification.
+ * This class is the criterion specification. <i>This is intended for internal use only.  Clients should not depend on or use
+ * this class.</i> 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @author $Author$
+ * @author $Author$ 
  * @version $Revision$ $Date$
  */
-final class SliceCriterionSpec
+public final class SliceCriterionSpec
   implements Cloneable {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -340,6 +341,12 @@ final class SliceCriterionSpec
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/08/16 01:05:04  venku
+   - fixed bug report 434.  We assumed SootClass.getJavaStyleName() returned the FQN. But,
+     as always with Soot, it does not provide what you think it provides.  There is some bizarre
+     setting that needs to be tweaked to get this right.  We have a fix in place, but this may again
+     be affected by some setting.  One more reason for Espina.
+
    Revision 1.5  2004/07/22 21:32:23  venku
    - documentation.
    Revision 1.4  2004/07/21 06:28:06  venku
