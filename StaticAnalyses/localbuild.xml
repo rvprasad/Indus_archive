@@ -4,7 +4,6 @@
     
     <path id="staticanalyses.srcpath">
     	<pathelement location="../StaticAnalyses/src"/>
-	    <pathelement location="../StaticAnalyses/src-xml"/>
 	    <pathelement location="../StaticAnalyses/src-flow"/>
     	<pathelement location="../StaticAnalyses/src-dependence"/>
 	    <pathelement location="../StaticAnalyses/src-concurrency"/>
