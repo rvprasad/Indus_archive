@@ -885,7 +885,6 @@ public final class SlicingEngine {
 
 		// generate new slice criteria
 		generateCriteriaForTheCallToMethod(method);
-		includeMethodAndDeclaringClassInSlice(method);
 
 		// collect the statement
 		collector.includeInSlice(stmt);
@@ -970,6 +969,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.96  2004/08/23 20:28:43  venku
+   - optimization.
+
    Revision 1.95  2004/08/23 17:59:19  venku
    - local processing compared incorrect value types.  FIXED.
 
