@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="var" path="CLOVER_RUNTIME"/>
-	<classpathentry excluding="**/*html" kind="src" path="src"/>
-	<classpathentry excluding="**/*html" kind="src" path="src-xml"/>
-	<classpathentry excluding="**/*html" kind="src" path="src-test"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src-xml"/>
+	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-logging-api.jar"/>
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.platform.source.linux.gtk.x86_3.0.0/src/org.eclipse.swt.gtk_3.0.0/ws/gtk/swtsrc.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
