@@ -268,12 +268,12 @@ public class SootBasedDriver {
 		/**
 		 * Set the names of the root classes.  Root classes are those that may contain root methods.
 		 *
-		 * @param classNames is names of application / root classes.
+		 * @param names is names of application / root classes.
 		 *
-		 * @pre classNames != null and classNames.oclIsKindOf(Collection(SootClass))
+		 * @pre names != null and names(Collection(String))
 		 */
-		protected void setClassNames(final Collection classNames) {
-			theClassNames = classNames;
+		protected void setClassNames(final Collection names) {
+			theClassNames = names;
 		}
 
 		/**
@@ -554,6 +554,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/06/22 00:42:30  venku
+   - spruced up the way root methods and root classes are identified.
+
    Revision 1.28  2004/06/15 10:06:22  venku
    - coding conventions.
    Revision 1.27  2004/06/14 08:39:29  venku
