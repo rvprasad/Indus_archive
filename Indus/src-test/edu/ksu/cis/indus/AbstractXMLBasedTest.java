@@ -60,6 +60,58 @@ public abstract class AbstractXMLBasedTest
 	protected String xmlOutputDir;
 
 	/**
+	 * The name of the method being run.
+	 */
+	private String testMethodName = "";
+
+	/**
+	 * The name of the test case instance.
+	 */
+	private String testName = "";
+
+	/**
+	 * @see junit.framework.TestCase#setName(java.lang.String)
+	 */
+	public void setName(String name) {
+		testMethodName = name;
+	}
+
+	/**
+	 * @see junit.framework.TestCase#getName()
+	 */
+	public String getName() {
+		final String _result;
+
+		if (!testName.equals("")) {
+			_result = testName;
+		} else {
+			_result = testMethodName;
+		}
+		return _result;
+	}
+
+	/**
+	 * Returns the name of the method being tested.
+	 *
+	 * @return the name of the method being tested.
+	 */
+	public String getTestMethodName() {
+		return testMethodName;
+	}
+
+	/**
+	 * Sets the name of the test instance.
+	 *
+	 * @param name of the test instance.
+	 *
+	 * @pre name != null
+	 */
+	public void setTestName(String name) {
+		testName = name;
+		super.setName(name);
+	}
+
+	/**
 	 * DOCUMENT ME!
 	 *
 	 * @param xmlInDir ME!
@@ -88,7 +140,7 @@ public abstract class AbstractXMLBasedTest
 			final Reader _previous = new FileReader(new File(xmlInputDir + File.separator + getFileName()));
 			assertXMLEqual(_previous, _current);
 		} catch (IOException _e) {
-			LOGGER.error("Failed to write the xml file " + _outfileName, _e);
+			LOGGER.error("Failed to read/write the xml file " + _outfileName, _e);
 			fail(_e.getMessage());
 		} catch (SAXException _e) {
 			LOGGER.error("Exception while parsing XML", _e);
@@ -107,11 +159,23 @@ public abstract class AbstractXMLBasedTest
 	 * @return DOCUMENT ME!
 	 */
 	protected abstract String getFileName();
+
+	/**
+	 * @see junit.framework.TestCase#runTest()
+	 */
+	protected void runTest()
+	  throws Throwable {
+		super.setName(testMethodName);
+		super.runTest();
+		super.setName(testName);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/09 06:49:05  venku
+   - deleted dependency xmlization and test classes.
    Revision 1.3  2004/02/09 04:39:40  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.

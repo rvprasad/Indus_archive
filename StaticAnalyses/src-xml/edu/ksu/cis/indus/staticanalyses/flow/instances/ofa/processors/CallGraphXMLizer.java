@@ -166,7 +166,7 @@ public class CallGraphXMLizer
 					_temp.add(_ctrp.getMethod());
 				}
 
-				for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
+				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
 					SootMethod _callee = (SootMethod) _j.next();
 					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\"/>\n");
 				}
@@ -254,6 +254,9 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/09 06:49:02  venku
+   - deleted dependency xmlization and test classes.
+
    Revision 1.5  2004/02/09 04:39:36  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.
