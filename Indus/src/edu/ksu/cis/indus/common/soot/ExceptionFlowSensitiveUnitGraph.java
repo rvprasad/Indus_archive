@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.common.soot;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import soot.Body;
 import soot.Trap;
@@ -65,10 +66,15 @@ final class ExceptionFlowSensitiveUnitGraph
 
 				for (final Iterator _i = _units.iterator(_trap.getBeginUnit(), _trap.getEndUnit()); _i.hasNext();) {
 					final Unit _unit = (Unit) _i.next();
-					((Collection) unitToSuccs.get(_unit)).remove(_handler);
+					final List _list = new ArrayList((List) unitToSuccs.get(_unit));
+					_list.remove(_handler);
+					unitToSuccs.put(_unit, _list);
 					_preds.add(_unit);
 				}
-				((Collection) unitToPreds.get(_handler)).removeAll(_preds);
+
+				final List _list = new ArrayList((List) unitToPreds.get(_handler));
+				_list.removeAll(_preds);
+				unitToSuccs.put(_handler, _list);
 				break;
 			}
 		}
@@ -78,6 +84,9 @@ final class ExceptionFlowSensitiveUnitGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/17 05:59:15  venku
+   - renamed ExceptionFlowSensitiveStmtGraphXXXX to
+     ExceptionFlowSensitiveUnitGraph.
    Revision 1.2  2004/02/17 05:45:34  venku
    - added the logic to create stmt graphs whose structure can be
      tuned to consider the flow of control due to certain exceptions.
