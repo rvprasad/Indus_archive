@@ -225,6 +225,15 @@ public class SliceXMLizerCLI
 	}
 
 	/**
+	 * Updates jimple destructively.
+	 */
+	void destructivelyUpdateJimple() {
+		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
+		_residualizer.setTagToResidualize(nameOfSliceTag);
+		_residualizer.residualizeSystem(scene);
+	}
+
+	/**
 	 * Write the slice as XML document.
 	 */
 	void writeXML() {
@@ -354,45 +363,6 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Sets up the output options according to the command line args.
-	 *
-	 * @param cl contains the command line.
-	 * @param xmlizer that needs to be configured.
-	 *
-	 * @pre cl != null and xmlizer != null
-	 */
-	private static void setupOutputOptions(final CommandLine cl, final SliceXMLizerCLI xmlizer) {
-		final String _outputDir;
-
-		if (cl.hasOption('o')) {
-			_outputDir = cl.getOptionValue("o");
-		} else {
-			_outputDir = ".";
-
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Using current directory to output artifacts.");
-			}
-		}
-
-		if (cl.hasOption('j')) {
-			xmlizer.jimpleXMLDumpDir = _outputDir;
-		}
-
-		xmlizer.setOutputDirectory(_outputDir);
-	}
-
-	/**
-	 * Changes the active configuration to use.
-	 *
-	 * @param configID is the id of the active configuration.
-	 *
-	 * @pre configName != null
-	 */
-	private void setConfigName(final String configID) {
-		slicer.setActiveConfiguration(configID);
-	}
-
-	/**
 	 * Processes the command line for slicer tool configuration information.  Defaults to a configuration if none are
 	 * specified.
 	 *
@@ -454,13 +424,50 @@ public class SliceXMLizerCLI
 	}
 
 	/**
+	 * Sets up the output options according to the command line args.
+	 *
+	 * @param cl contains the command line.
+	 * @param xmlizer that needs to be configured.
+	 *
+	 * @pre cl != null and xmlizer != null
+	 */
+	private static void setupOutputOptions(final CommandLine cl, final SliceXMLizerCLI xmlizer) {
+		final String _outputDir;
+
+		if (cl.hasOption('o')) {
+			_outputDir = cl.getOptionValue("o");
+		} else {
+			_outputDir = ".";
+
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Using current directory to output artifacts.");
+			}
+		}
+
+		if (cl.hasOption('j')) {
+			xmlizer.jimpleXMLDumpDir = _outputDir;
+		}
+
+		xmlizer.setOutputDirectory(_outputDir);
+	}
+
+	/**
+	 * Changes the active configuration to use.
+	 *
+	 * @param configID is the id of the active configuration.
+	 *
+	 * @pre configName != null
+	 */
+	private void setConfigName(final String configID) {
+		slicer.setActiveConfiguration(configID);
+	}
+
+	/**
 	 * Residualize the slice as jimple files in the output directory.
 	 */
 	private void residualize() {
 		if (destructiveJimpleUpdate) {
-			final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
-			_residualizer.setTagToResidualize(nameOfSliceTag);
-			_residualizer.residualizeSystem(scene);
+			destructivelyUpdateJimple();
 		}
 
 		final Printer _printer = Printer.v();
@@ -539,6 +546,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/05/04 07:55:44  venku
+   - id generator was not initialized correctly in slicer test setup. FIXED.
    Revision 1.21  2004/04/25 23:18:20  venku
    - coding conventions.
    Revision 1.20  2004/04/25 21:18:41  venku

@@ -123,6 +123,7 @@ public class SlicerTestSetup
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 
 		// write XMLized data
+		driver.destructivelyUpdateJimple();
 		driver.writeXML();
 	}
 
@@ -185,6 +186,8 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/05/04 07:55:44  venku
+   - id generator was not initialized correctly in slicer test setup. FIXED.
    Revision 1.7  2004/04/25 21:18:41  venku
    - refactoring.
      - created new classes from previously embedded classes.
