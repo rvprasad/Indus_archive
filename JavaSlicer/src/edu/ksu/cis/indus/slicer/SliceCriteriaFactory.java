@@ -152,17 +152,13 @@ public final class SliceCriteriaFactory {
 	public Collection getCriteria(final SootMethod method, final Stmt stmt, final ValueBox expr, final boolean descend,
 		final boolean considerExecution) {
 		final Collection _result = new HashSet();
-		final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
-		_exprCriterion.initialize(method, stmt, expr);
-		_exprCriterion.setConsiderExecution(considerExecution);
+		final SliceExpr _exprCriterion = getExprCriteria(method, stmt, expr, considerExecution);
 		_result.add(_exprCriterion);
 
 		if (descend) {
 			for (final Iterator _i = expr.getValue().getUseBoxes().iterator(); _i.hasNext();) {
 				final ValueBox _useBox = (ValueBox) _i.next();
-				final SliceExpr _temp = SliceExpr.getSliceExpr();
-				_temp.initialize(method, stmt, _useBox);
-				_temp.setConsiderExecution(considerExecution);
+				final SliceExpr _temp = getExprCriteria(method, stmt, _useBox, considerExecution);
 				_result.add(_temp);
 			}
 		}
@@ -170,8 +166,8 @@ public final class SliceCriteriaFactory {
 	}
 
 	/**
-	 * Creates slice criteria from the given statement only.  This is equivalent to <code>getCriterion(method, stmt,
-	 * false, considerExecution)</code>.
+	 * Creates slice criteria from the given statement only.  This is equivalent to <code>getCriterion(method, stmt, false,
+	 * considerExecution)</code>.
 	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt is the criterion.
@@ -208,17 +204,13 @@ public final class SliceCriteriaFactory {
 	public Collection getCriteria(final SootMethod method, final Stmt stmt, final boolean descend,
 		final boolean considerExecution) {
 		final Collection _result = new HashSet();
-		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();
-		_stmtCriterion.initialize(method, stmt);
-		_stmtCriterion.setConsiderExecution(considerExecution);
+		final SliceStmt _stmtCriterion = getStmtCriteria(method, stmt, considerExecution);
 		_result.add(_stmtCriterion);
 
 		if (descend) {
 			for (final Iterator _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext();) {
 				final ValueBox _vBox = (ValueBox) _i.next();
-				final SliceExpr _temp = SliceExpr.getSliceExpr();
-				_temp.initialize(method, stmt, _vBox);
-				_temp.setConsiderExecution(considerExecution);
+				final SliceExpr _temp = getExprCriteria(method, stmt, _vBox, considerExecution);
 				_result.add(_temp);
 			}
 		}
@@ -254,9 +246,7 @@ public final class SliceCriteriaFactory {
 				final ValueBox _vBox = (ValueBox) _j.next();
 
 				if (_vBox.getValue().equals(local)) {
-					final SliceExpr _exprCriterion = SliceExpr.getSliceExpr();
-					_exprCriterion.initialize(method, _stmt, _vBox);
-					_exprCriterion.setConsiderExecution(considerExecution);
+					final SliceExpr _exprCriterion = getExprCriteria(method, _stmt, _vBox, considerExecution);
 					_result.add(_exprCriterion);
 				}
 			}
@@ -279,6 +269,66 @@ public final class SliceCriteriaFactory {
 			_result = o instanceof AbstractSliceCriterion;
 		}
 		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param criterion
+	 *
+	 * @return
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 */
+	public ISliceCriterion clone(final ISliceCriterion criterion) {
+		final ISliceCriterion _result;
+
+		if (criterion instanceof SliceStmt) {
+			final SliceStmt _t = (SliceStmt) criterion;
+			_result = getStmtCriteria(_t.getOccurringMethod(), (Stmt) _t.getCriterion(), _t.isConsiderExecution());
+		} else if (criterion instanceof SliceExpr) {
+			final SliceExpr _t = (SliceExpr) criterion;
+			_result =
+				getExprCriteria(_t.getOccurringMethod(), _t.getOccurringStmt(), (ValueBox) _t.getCriterion(),
+					_t.isConsiderExecution());
+		} else {
+			throw new IllegalArgumentException("criterion's type " + criterion.getClass() + " is unknown.");
+		}
+		return _result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method
+	 * @param stmt
+	 * @param valueBox
+	 * @param considerExecution
+	 *
+	 * @return
+	 */
+	private SliceExpr getExprCriteria(final SootMethod method, final Stmt stmt, final ValueBox valueBox,
+		final boolean considerExecution) {
+		final SliceExpr _temp = SliceExpr.getSliceExpr();
+		_temp.initialize(method, stmt, valueBox);
+		_temp.setConsiderExecution(considerExecution);
+		return _temp;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method
+	 * @param stmt
+	 * @param considerExecution
+	 *
+	 * @return
+	 */
+	private SliceStmt getStmtCriteria(final SootMethod method, final Stmt stmt, final boolean considerExecution) {
+		final SliceStmt _stmtCriterion = SliceStmt.getSliceStmt();
+		_stmtCriterion.initialize(method, stmt);
+		_stmtCriterion.setConsiderExecution(considerExecution);
+		return _stmtCriterion;
 	}
 }
 

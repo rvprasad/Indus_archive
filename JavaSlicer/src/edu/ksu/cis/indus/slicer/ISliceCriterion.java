@@ -21,7 +21,7 @@ import java.util.Stack;
 
 
 /**
- * This is a marker interface via which slice criterion is exposed to the external world.
+ * This is an interface via which slice criterion is exposed to the external world.
  * 
  * <p>
  * The purpose of this interface is to identify an object as a poolable slicing criterion.  To be more precise,

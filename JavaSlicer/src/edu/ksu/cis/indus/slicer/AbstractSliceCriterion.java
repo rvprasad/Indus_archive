@@ -136,14 +136,6 @@ abstract class AbstractSliceCriterion
 	}
 
 	/**
-	 * @see java.lang.Object#clone()
-	 */
-	public final Object clone()
-	  throws CloneNotSupportedException {
-		return super.clone();
-	}
-
-	/**
 	 * Initializes this object.
 	 *
 	 * @param occurringMethod in which the slice criterion occurs.

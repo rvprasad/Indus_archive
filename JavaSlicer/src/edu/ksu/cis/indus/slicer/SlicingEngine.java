@@ -327,20 +327,16 @@ public final class SlicingEngine {
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
 
+		final SliceCriteriaFactory _criteriaFactory = SliceCriteriaFactory.getFactory();
 		for (final Iterator _i = sliceCriteria.iterator(); _i.hasNext();) {
 			final Object _o = _i.next();
 
 			if (!SliceCriteriaFactory.isSlicingCriterion(_o)) {
-				LOGGER.error("The work piece is not a subtype of AbstractSliceCriterion" + _o);
-				throw new IllegalStateException("The work piece is not a subtype of AbstractSliceCriterion" + _o);
+				LOGGER.error("The work piece is not a valid slice criterion." + _o);
+				throw new IllegalStateException("The work piece is not a valid slice criterion." + _o);
 			}
 
-			try {
-				criteria.add(((AbstractSliceCriterion) _o).clone());
-			} catch (final CloneNotSupportedException _e) {
-				LOGGER.error("The work piece could not be cloned - " + _o, _e);
-				throw new IllegalStateException("The work piece could not be cloned - " + _o);
-			}
+			criteria.add(_criteriaFactory.clone((ISliceCriterion) _o));
 		}
 		Collections.sort(criteria, ToStringBasedComparator.SINGLETON);
 
