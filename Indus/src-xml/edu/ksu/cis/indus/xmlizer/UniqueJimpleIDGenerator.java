@@ -21,6 +21,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
+import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
@@ -55,8 +56,10 @@ public class UniqueJimpleIDGenerator
 	 */
 	private final Map method2locals = new HashMap();
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private List classes = new ArrayList();
 
@@ -66,20 +69,6 @@ public class UniqueJimpleIDGenerator
 	 * </p>
 	 */
 	private List tempList = new ArrayList();
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private int stmtIdCounter;
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private int valueIdCounter = 0;
 
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getNewClassId()
@@ -166,19 +155,15 @@ public class UniqueJimpleIDGenerator
 	 * 
 	 * <p></p>
 	 *
+	 * @param box DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
 	 * @param method DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public String getNewStmtId(final SootMethod method) {
-		return getIdForMethod(method) + "_s" + stmtIdCounter++;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getNewValueId()
-	 */
-	public String getNewValueId(final Stmt stmt, final SootMethod method) {
-		return getIdForStmt(stmt, method) + "_v" + valueIdCounter++;
+	public String getIdForValue(ValueBox box, Stmt stmt, SootMethod method) {
+		List vBoxes = stmt.getUseAndDefBoxes();
+		return getIdForStmt(stmt, method) + "_v" + vBoxes.indexOf(box);
 	}
 
 	/**
@@ -191,32 +176,15 @@ public class UniqueJimpleIDGenerator
 		class2fields.clear();
 		classes.clear();
 	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	public void resetStmtCounter() {
-		stmtIdCounter = 0;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	public void resetValueCounter() {
-		valueIdCounter = 0;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/16 18:37:42  venku
+   - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
    Revision 1.1  2003/11/07 11:14:44  venku
    - Added generator class for xmlizing purpose.
    - XMLizing of Jimple works, but takes long.
      Probably, reachable method dump should fix it.  Another rainy day problem.
-
  */

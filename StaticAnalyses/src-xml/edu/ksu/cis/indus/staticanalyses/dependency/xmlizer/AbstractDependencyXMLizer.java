@@ -129,7 +129,6 @@ public abstract class AbstractDependencyXMLizer
 			}
 			writer.write("\t\t<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
 				+ idGenerator.getIdForMethod(method) + "\">\n");
-			idGenerator.resetStmtCounter();
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", e);
@@ -174,6 +173,8 @@ public abstract class AbstractDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/17 15:42:46  venku
+   - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.3  2003/11/17 01:35:54  venku
    - renamed out to writer in AbstractDependencyXMLizer
    - added methods to spit out root element tags.

@@ -178,7 +178,6 @@ public class JimpleXMLizer
 
 			xmlizedSystem.write("<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
 				+ idGenerator.getIdForMethod(method) + "\">");
-			idGenerator.resetStmtCounter();
 
 			if (method.isConcrete()) {
 				Body body = method.retrieveActiveBody();
@@ -291,6 +290,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/16 18:37:42  venku
+   - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
+
    Revision 1.10  2003/11/12 04:47:12  venku
    - < needed to be escaped. FIXED.
 

@@ -19,7 +19,7 @@ import soot.ArrayType;
 import soot.Local;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AddExpr;
@@ -149,9 +149,9 @@ public class ValueXMLizer
 	public final void caseArrayRef(ArrayRef v) {
 		try {
 			out.write("<array_ref id=\"" + newId + "\">");
-			writeBase(v.getBase());
+			writeBase(v.getBaseBox());
 			out.write("<index>");
-			apply(v.getIndex());
+			apply(v.getIndexBox());
 			out.write("</index>");
 			out.write("</array_ref>");
 		} catch (IOException e) {
@@ -165,7 +165,7 @@ public class ValueXMLizer
 	public final void caseCastExpr(CastExpr v) {
 		try {
 			out.write("<cast id=\"" + newId + "\" " + idGenerator.getIdForType(v.getCastType()) + " \">");
-			apply(v.getOp());
+			apply(v.getOpBox());
 			out.write("</cast >");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -261,7 +261,7 @@ public class ValueXMLizer
 	public final void caseInstanceFieldRef(InstanceFieldRef v) {
 		try {
 			out.write("<instance_field_ref id=\"" + newId + "\">");
-			writeBase(v.getBase());
+			writeBase(v.getBaseBox());
 			writeField(v.getField());
 			out.write("</instance_field_ref>");
 		} catch (IOException e) {
@@ -275,7 +275,7 @@ public class ValueXMLizer
 	public final void caseInstanceOfExpr(InstanceOfExpr v) {
 		try {
 			out.write("<instanceof id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getCheckType()) + "\">");
-			apply(v.getOp());
+			apply(v.getOpBox());
 			out.write("</instanceof>");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -370,7 +370,7 @@ public class ValueXMLizer
 	public final void caseNewArrayExpr(NewArrayExpr v) {
 		try {
 			out.write("<new_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(v.getBaseType()) + "\">");
-			writeDimensionSize(1, v.getSize());
+			writeDimensionSize(1, v.getSizeBox());
 			out.write("</new_array>");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -399,7 +399,7 @@ public class ValueXMLizer
 				+ "\" dimension=\"" + type.numDimensions + "\">");
 
 			for (int i = 0; i < type.numDimensions; i++) {
-				writeDimensionSize(i + 1, v.getSize(i));
+				writeDimensionSize(i + 1, v.getSizeBox(i));
 			}
 			out.write("</new_multi_array>");
 		} catch (IOException e) {
@@ -487,7 +487,7 @@ public class ValueXMLizer
 			out.write("<arguments>");
 
 			for (int i = 0; i < v.getArgCount(); i++) {
-				apply(v.getArg(i));
+				apply(v.getArgBox(i));
 			}
 			out.write("</arguments>");
 			out.write("</invoke_expr>");
@@ -584,12 +584,12 @@ public class ValueXMLizer
 	 * 
 	 * <p></p>
 	 *
-	 * @param value DOCUMENT ME!
+	 * @param vBox DOCUMENT ME!
 	 */
-	void apply(final Value value) {
+	void apply(final ValueBox vBox) {
 		Object temp = newId;
-		newId = idGenerator.getNewValueId(currStmt, currMethod);
-		value.apply(this);
+		newId = idGenerator.getIdForValue(vBox, currStmt, currMethod);
+		vBox.getValue().apply(this);
 		newId = temp;
 	}
 
@@ -598,7 +598,7 @@ public class ValueXMLizer
 	 *
 	 * @param v
 	 */
-	private void writeBase(Value v) {
+	private void writeBase(ValueBox v) {
 		try {
 			out.write("<base>");
 			apply(v);
@@ -618,10 +618,10 @@ public class ValueXMLizer
 		try {
 			out.write("<binary_expr id=\"" + newId + "\" op=\"" + operatorName + "\">");
 			out.write("<left_op>");
-			apply(v.getOp1());
+			apply(v.getOp1Box());
 			out.write("</left_op>");
 			out.write("<right_op>");
-			apply(v.getOp1());
+			apply(v.getOp2Box());
 			out.write("</right_op>");
 			out.write("</binary_expr>");
 		} catch (IOException e) {
@@ -637,7 +637,7 @@ public class ValueXMLizer
 	 * @param i DOCUMENT ME!
 	 * @param v DOCUMENT ME!
 	 */
-	private void writeDimensionSize(int i, Value v) {
+	private void writeDimensionSize(int i, ValueBox v) {
 		try {
 			out.write("<size dimension=\"" + i + "\">");
 			apply(v);
@@ -672,11 +672,11 @@ public class ValueXMLizer
 
 			SootMethod method = v.getMethod();
 			out.write("<method id=\"" + idGenerator.getIdForMethod(method) + "\"/>");
-			writeBase(v.getBase());
+			writeBase(v.getBaseBox());
 			out.write("<arguments>");
 
 			for (int i = 0; i < v.getArgCount(); i++) {
-				apply(v.getArg(i));
+				apply(v.getArgBox(i));
 			}
 			out.write("</arguments>");
 			out.write("</invoke_expr>");
@@ -694,7 +694,7 @@ public class ValueXMLizer
 	private void writeUnaryExpr(String operatorName, UnopExpr value) {
 		try {
 			out.write("<unary_expr name=\"" + operatorName + "\" id=\"" + newId + "\">");
-			apply(value.getOp());
+			apply(value.getOpBox());
 			out.write("</" + operatorName + ">");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -705,6 +705,10 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/07 11:14:44  venku
+   - Added generator class for xmlizing purpose.
+   - XMLizing of Jimple works, but takes long.
+     Probably, reachable method dump should fix it.  Another rainy day problem.
    Revision 1.1  2003/11/07 06:27:03  venku
    - Made the XMLizer classes concrete by moving out the
      id generation logic outside.

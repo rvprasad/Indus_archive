@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.tools.slicer;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.Stmt;
@@ -229,6 +228,9 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/17 15:42:42  venku
+   - changed the signature of callback(Value,..) to callback(ValueBox,..)
+
    Revision 1.3  2003/11/17 15:25:17  venku
    - added new method to AbstractSliceXMLizer to flush writer.
    - called flush on xmlizer from the driver.

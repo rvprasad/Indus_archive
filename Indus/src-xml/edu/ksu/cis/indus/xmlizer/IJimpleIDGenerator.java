@@ -20,6 +20,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
+import soot.ValueBox;
 
 import soot.jimple.Stmt;
 
@@ -92,36 +93,25 @@ public interface IJimpleIDGenerator {
 
 	/**
 	 * DOCUMENT ME!
-	 *
-	 * @return
-	 */
-	String getNewStmtId(SootMethod method);
-
-	/**
-	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
+	 *
+	 * @param box DOCUMENT ME!
+	 * @param stmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	String getNewValueId(Stmt stmt, SootMethod method);
-
-	/**
-	 *
-	 */
-	void resetStmtCounter();
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	void resetValueCounter();
+	String getIdForValue(ValueBox box, Stmt stmt, SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/07 11:14:44  venku
+   - Added generator class for xmlizing purpose.
+   - XMLizing of Jimple works, but takes long.
+     Probably, reachable method dump should fix it.  Another rainy day problem.
    Revision 1.1  2003/11/07 06:27:03  venku
    - Made the XMLizer classes concrete by moving out the
      id generation logic outside.

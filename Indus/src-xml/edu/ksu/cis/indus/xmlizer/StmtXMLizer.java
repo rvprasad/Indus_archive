@@ -103,9 +103,9 @@ public class StmtXMLizer
 		try {
 			out.write("<assign_stmt  id=\"" + newId + "\">");
 			out.write("<lhs>");
-			valueXMLizer.apply(v.getLeftOp());
+			valueXMLizer.apply(v.getLeftOpBox());
 			out.write("</lhs><rhs>");
-			valueXMLizer.apply(v.getRightOp());
+			valueXMLizer.apply(v.getRightOpBox());
 			out.write("</rhs>");
 			out.write("</assignstmt>");
 		} catch (IOException e) {
@@ -130,7 +130,7 @@ public class StmtXMLizer
 	public final void caseEnterMonitorStmt(EnterMonitorStmt v) {
 		try {
 			out.write("<entermonitor_stmt id=\"" + newId + "\">");
-			valueXMLizer.apply(v.getOp());
+			valueXMLizer.apply(v.getOpBox());
 			out.write("</entermonitor_stmt>");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -143,7 +143,7 @@ public class StmtXMLizer
 	public final void caseExitMonitorStmt(ExitMonitorStmt v) {
 		try {
 			out.write("<exitmonitor_stmt id=\"" + newId + "\">");
-			valueXMLizer.apply(v.getOp());
+			valueXMLizer.apply(v.getOpBox());
 			out.write("</exitmonitor_stmt>");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -169,9 +169,9 @@ public class StmtXMLizer
 		try {
 			out.write("<identity_stmt  id=\"" + newId + "\">");
 			out.write("<lhs>");
-			valueXMLizer.apply(v.getLeftOp());
+			valueXMLizer.apply(v.getLeftOpBox());
 			out.write("</lhs><rhs>");
-			valueXMLizer.apply(v.getRightOp());
+			valueXMLizer.apply(v.getRightOpBox());
 			out.write("</rhs>");
 			out.write("</identity_stmt>");
 		} catch (IOException e) {
@@ -187,7 +187,7 @@ public class StmtXMLizer
 			out.write("<if_stmt id=\"" + newId + " true_target id=\"" + idGenerator.getIdForStmt(v.getTarget(), currMethod)
 				+ "\"/>");
 			out.write("<condition>");
-			valueXMLizer.apply(v.getCondition());
+			valueXMLizer.apply(v.getConditionBox());
 			out.write("</condition>");
 			out.write("</if_stmt>");
 		} catch (IOException e) {
@@ -201,7 +201,7 @@ public class StmtXMLizer
 	public final void caseInvokeStmt(InvokeStmt v) {
 		try {
 			out.write("<invoke_stmt id=\"" + newId + "\">");
-			valueXMLizer.apply(v.getInvokeExpr());
+			valueXMLizer.apply(v.getInvokeExprBox());
 			out.write("</invoke_stmt>");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -216,7 +216,7 @@ public class StmtXMLizer
 			out.write("<lookupswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
 				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\">");
 			out.write("<key>");
-			valueXMLizer.apply(v.getKey());
+			valueXMLizer.apply(v.getKeyBox());
 			out.write("</key>");
 
 			for (int i = 0; i < v.getTargetCount(); i++) {
@@ -246,7 +246,7 @@ public class StmtXMLizer
 	public final void caseRetStmt(RetStmt v) {
 		try {
 			out.write("<ret_stmt id=\"" + newId + "\">");
-			valueXMLizer.apply(v.getStmtAddress());
+			valueXMLizer.apply(v.getStmtAddressBox());
 			out.write("</ret_stmt>");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -259,7 +259,7 @@ public class StmtXMLizer
 	public final void caseReturnStmt(ReturnStmt v) {
 		try {
 			out.write("<return_stmt id=\"" + newId + "\">");
-			valueXMLizer.apply(v.getOp());
+			valueXMLizer.apply(v.getOpBox());
 			out.write("</return_stmt>");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -285,7 +285,7 @@ public class StmtXMLizer
 			out.write("<tableswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
 				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\">");
 			out.write("<key>");
-			valueXMLizer.apply(v.getKey());
+			valueXMLizer.apply(v.getKeyBox());
 			out.write("</key>");
 
 			for (int i = 0; i < v.getHighIndex() - v.getLowIndex(); i++) {
@@ -304,7 +304,7 @@ public class StmtXMLizer
 	public final void caseThrowStmt(ThrowStmt v) {
 		try {
 			out.write("<throw_stmt id=\"" + newId + "\">");
-			valueXMLizer.apply(v.getOp());
+			valueXMLizer.apply(v.getOpBox());
 			out.write("</throw_stmt>");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -343,8 +343,7 @@ public class StmtXMLizer
 	 * @param stmt DOCUMENT ME!
 	 */
 	void apply(final Stmt stmt) {
-		newId = idGenerator.getNewStmtId(currMethod);
-		idGenerator.resetValueCounter();
+		newId = idGenerator.getIdForStmt(stmt, currMethod);
 		valueXMLizer.setStmt(stmt);
 		stmt.apply(this);
 	}
@@ -353,6 +352,10 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/07 11:14:44  venku
+   - Added generator class for xmlizing purpose.
+   - XMLizing of Jimple works, but takes long.
+     Probably, reachable method dump should fix it.  Another rainy day problem.
    Revision 1.1  2003/11/07 06:27:03  venku
    - Made the XMLizer classes concrete by moving out the
      id generation logic outside.
