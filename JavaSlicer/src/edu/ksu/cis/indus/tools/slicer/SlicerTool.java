@@ -52,7 +52,6 @@ import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
-import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
 
@@ -390,7 +389,6 @@ public final class SlicerTool
 			throw new RuntimeException(e);
 		}
 
-		IToolConfigurationFactory factory = SlicerConfiguration.getFactory();
 		configurationInfo = null;
 
 		if (stringizedForm != null && stringizedForm.length() != 0) {
@@ -405,14 +403,11 @@ public final class SlicerTool
 		}
 
 		if (configurationInfo == null) {
-			configurationInfo = new CompositeToolConfiguration();
-
-			AbstractToolConfiguration toolConfig = factory.createToolConfiguration();
-			toolConfig.initialize();
-			((CompositeToolConfiguration) configurationInfo).addToolConfiguration(toolConfig);
+			initialize();
 		}
 		configurator =
-			new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(), factory);
+			new CompositeToolConfigurator((CompositeToolConfiguration) configurationInfo, new SlicerConfigurator(),
+				SlicerConfiguration.getFactory());
 		return result;
 	}
 
@@ -515,6 +510,20 @@ public final class SlicerTool
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.tools.AbstractTool#initialize()
+	 */
+	public void initialize() {
+		configurationInfo = new CompositeToolConfiguration();
+
+		AbstractToolConfiguration toolConfig = SlicerConfiguration.getFactory().createToolConfiguration();
+		toolConfig.initialize();
+		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(toolConfig);
+
+		SlicerConfiguration config = new SlicerConfiguration();
+		((CompositeToolConfiguration) configurationInfo).addToolConfiguration(config);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public void reset() {
@@ -612,6 +621,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/11/17 02:23:52  venku
+   - documentation.
+   - xmlizers require streams/writers to be provided to them
+     rather than they constructing them.
    Revision 1.25  2003/11/16 18:33:01  venku
    - fixed an error while returning the DAs.
    Revision 1.24  2003/11/16 18:24:08  venku

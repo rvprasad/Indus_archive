@@ -211,6 +211,7 @@ public class SlicerDriver
 		slicer.setSystem(scene);
 		slicer.setRootMethods(rootMethods);
 		slicer.setCriteria(Collections.EMPTY_LIST);
+		slicer.initialize();
 		slicer.run(Phase.STARTING_PHASE);
 
 		while (!slicer.isStable()) {
@@ -220,6 +221,30 @@ public class SlicerDriver
 				LOGGER.error("Error while waiting for the tool to finish.", e);
 			}
 		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	void writeXML() {
+		ICallGraphInfo cgi = slicer.getCallGraph();
+		CGBasedXMLizingController ctrl = new CGBasedXMLizingController(cgi);
+		ctrl.setEnvironment(slicer.getEnvironment());
+
+		AbstractSliceXMLizer sliceIP = getXMLizer();
+		CustomDependencyXMLizer dep = new CustomDependencyXMLizer();
+		dep.setClassNames(rootMethods);
+		dep.setGenerator(idGenerator);
+		dep.populateDAs();
+		sliceIP.hookup(ctrl);
+
+		Map xmlizers = dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, ctrl);
+		ctrl.process();
+		dep.flushXMLizers(xmlizers, ctrl);
+		sliceIP.unhook(ctrl);
+		sliceIP.flush();
 	}
 
 	/**
@@ -344,47 +369,23 @@ public class SlicerDriver
 			System.out.println(slicer.stringizeConfiguration());
 		}
 	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	void writeXML() {
-		ICallGraphInfo cgi = slicer.getCallGraph();
-		CGBasedXMLizingController ctrl = new CGBasedXMLizingController(cgi);
-		ctrl.setEnvironment(slicer.getEnvironment());
-
-		AbstractSliceXMLizer sliceIP = getXMLizer();
-		CustomDependencyXMLizer dep = new CustomDependencyXMLizer();
-		dep.setClassNames(rootMethods);
-		dep.setGenerator(idGenerator);
-        dep.populateDAs();
-		sliceIP.hookup(ctrl);
-
-		Map xmlizers = dep.initXMLizers(SUFFIX_FOR_XMLIZATION_PURPOSES, ctrl);
-		ctrl.process();
-		dep.flushXMLizers(xmlizers, ctrl);
-		sliceIP.unhook(ctrl);
-        sliceIP.flush();
-        
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/17 16:58:12  venku
+   - populateDAs() needs to be called from outside the constructor.
+   - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
    Revision 1.4  2003/11/17 15:25:17  venku
    - added new method to AbstractSliceXMLizer to flush writer.
    - called flush on xmlizer from the driver.
    - erroneous file name was being constructed. FIXED.
    - added tabbing and new line to output in TagBasedSliceXMLizer.
-
    Revision 1.3  2003/11/17 03:22:55  venku
    - added junit test support for Slicing.
    - refactored code in test for dependency to make it more
      simple.
-
    Revision 1.2  2003/11/17 02:23:52  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them

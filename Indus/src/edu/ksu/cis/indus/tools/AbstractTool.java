@@ -124,7 +124,7 @@ public abstract class AbstractTool
 	 *
 	 * @throws RuntimeException when this method called on a paused tool.
 	 */
-	public final void run(final Object phase) {
+	public final synchronized void run(final Object phase) {
 		if (!pause || isStable()) {
 			thread =
 				new Thread() {
@@ -149,6 +149,11 @@ public abstract class AbstractTool
 	 * @return the current phase.
 	 */
 	public abstract Object getPhase();
+
+	/**
+	 * Initialize the tool.  This is called once on the tool.
+	 */
+	public abstract void initialize();
 
 	/**
 	 * Aborts the execution of the tool.
@@ -182,7 +187,7 @@ public abstract class AbstractTool
 	 *
 	 * @return <code>true</code> if the tool is not active; <code>false</code>, otherwise.
 	 */
-	public boolean isStable() {
+	public synchronized boolean isStable() {
 		return thread == null || !thread.isAlive();
 	}
 
@@ -212,9 +217,10 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/17 01:46:38  venku
+   - documented the support to query stability information.
    Revision 1.5  2003/11/15 21:54:24  venku
    - added support to query status of tool.
-
    Revision 1.4  2003/11/15 21:26:08  venku
    - removed initialize() method as it was not used.
    Revision 1.3  2003/11/09 05:18:16  venku
