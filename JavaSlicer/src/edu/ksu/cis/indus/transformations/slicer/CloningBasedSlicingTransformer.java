@@ -64,7 +64,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class SlicingTransformer
+public class CloningBasedSlicingTransformer
   extends AbstractTransformer {
 	/**
 	 * The cloner from which the map is extracted.
@@ -282,6 +282,11 @@ public class SlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/08/19 11:52:25  venku
+   The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
+   and  Slicer to SliceEngine.
+   Ripple effect of the above.
+
    Revision 1.11  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides
