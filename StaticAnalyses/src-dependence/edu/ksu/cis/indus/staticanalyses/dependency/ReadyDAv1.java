@@ -331,7 +331,7 @@ public class ReadyDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
+		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
@@ -341,7 +341,7 @@ public class ReadyDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
+		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			ppc.unregister(EnterMonitorStmt.class, this);
@@ -415,7 +415,7 @@ public class ReadyDAv1
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return AbstractDependencyAnalysis.READY_DA;
+		return IDependencyAnalysis.READY_DA;
 	}
 
 	/**
@@ -544,7 +544,7 @@ public class ReadyDAv1
 			_result.append("In method " + _method + "\n ");
 
 			for (final Iterator _k = ((Map) _entry.getValue()).entrySet().iterator(); _k.hasNext();) {
-				Map.Entry _entry1 = (Map.Entry) _k.next();
+				final Map.Entry _entry1 = (Map.Entry) _k.next();
 				final Object _dependent = _entry1.getKey();
 
 				int _localEdgeCount = 0;
@@ -1023,7 +1023,6 @@ public class ReadyDAv1
 
 		for (final Iterator _i = _method2dependeeMap.keySet().iterator(); _i.hasNext();) {
 			final SootMethod _method = (SootMethod) _i.next();
-			final List _stmts = getStmtList(_method);
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
 			final Collection _dependees = (Collection) _method2dependeeMap.get(_method);
 			final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _method);
@@ -1162,14 +1161,14 @@ public class ReadyDAv1
 
 							for (final Iterator _l = _tails.iterator(); _l.hasNext();) {
 								final BasicBlock _bb = (BasicBlock) _l.next();
-								final Map dees2dents =
+								final Map _dees2dents =
 									CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
-								CollectionsUtilities.putAllIntoSetInMap(dees2dents, _bb.getTrailerStmt(), _dtSet);
+								CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _bb.getTrailerStmt(), _dtSet);
 							}
 						} else {
-							final Map dees2dents =
+							final Map _dees2dents =
 								CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
-							CollectionsUtilities.putAllIntoSetInMap(dees2dents, _exit, _dtSet);
+							CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _exit, _dtSet);
 						}
 					}
 				}
@@ -1191,9 +1190,9 @@ public class ReadyDAv1
 
 					if (_key != null) {
 					    
-					final Map dents2dees =
+					final Map _dents2dees =
 						CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
-					CollectionsUtilities.putAllIntoSetInMap(dents2dees, _key, _deSet);
+					CollectionsUtilities.putAllIntoSetInMap(_dents2dees, _key, _deSet);
 					} else {
 					    LOGGER.error("How can we record ready dependence for a synchronized method with no head?");
 					}
@@ -1254,6 +1253,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.58  2004/07/07 06:25:07  venku
+   - the way statement sub list was constructed in the basic block was incorrect.  FIXED.
+   - ripple effect.
+
    Revision 1.57  2004/07/04 11:52:41  venku
    - renamed getStmtFrom() to getStmtsFrom().
 

@@ -576,7 +576,6 @@ public final class SynchronizationDA
 	private Collection processMonitor(final Collection processedMonitors, final Stmt enterMonitor, final SootMethod method,
 		final Map enter2exits) {
 		final IWorkBag _workbag = new HistoryAwareLIFOWorkBag(new HashSet());
-		final List _stmtList = getStmtList(method);
 		final BasicBlockGraph _bbGraph = getBasicBlockGraph(method);
 		final Collection _enterMonitors = new HashSet();
 		_enterMonitors.add(enterMonitor);
@@ -736,6 +735,10 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/07/07 06:25:07  venku
+   - the way statement sub list was constructed in the basic block was incorrect.  FIXED.
+   - ripple effect.
+
    Revision 1.46  2004/07/04 11:52:41  venku
    - renamed getStmtFrom() to getStmtsFrom().
 
