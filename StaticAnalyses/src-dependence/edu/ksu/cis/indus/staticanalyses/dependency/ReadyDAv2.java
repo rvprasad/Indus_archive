@@ -65,13 +65,6 @@ public class ReadyDAv2
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
-	 * @see ReadyDAv1
-	 */
-	public ReadyDAv2(final boolean acrossMethodCalls) {
-		super(acrossMethodCalls);
-	}
-
-	/**
 	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
 	 * results of a {@link edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis
 	 * EquivalenceClassBasedEscapeAnalysis} analysis is used to determine the dependence.
@@ -232,6 +225,13 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/08/21 01:25:21  venku
+    - Renamed src-escape to src-concurrency to as to group all concurrency
+      issue related analyses into a package.
+    - Renamed escape package to concurrency.escape.
+    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+   Changes due to the ripple effect of the above changes are being committed.
+
    Revision 1.6  2003/08/14 05:10:29  venku
    Fixed documentation links.
 

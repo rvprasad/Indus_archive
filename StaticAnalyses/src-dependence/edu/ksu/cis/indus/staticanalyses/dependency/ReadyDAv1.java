@@ -203,18 +203,13 @@ public class ReadyDAv1
 	 * ignore ready dependence across call-sites and rely on other dependence analysis to include the call-site.  This only
 	 * affects how rule 1 and 3 are interpreted.
 	 */
-	private final boolean interProcedural;
+	private boolean interProcedural;
 
 	/**
 	 * Creates a new ReadyDAv1 object.
-	 *
-	 * @param acrossMethodCalls <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor
-	 * 		  statement should be considered as a ready dependeee; <code>false</code>, otherwise. This only affects how rule
-	 * 		  1 and 3 are interpreted.
 	 */
-	public ReadyDAv1(final boolean acrossMethodCalls) {
+	public ReadyDAv1() {
 		preprocessor = new PreProcessor();
-		interProcedural = acrossMethodCalls;
 	}
 
 	/**
@@ -377,6 +372,17 @@ public class ReadyDAv1
 			result = Collections.EMPTY_SET;
 		}
 		return result;
+	}
+
+	/**
+	 * Records if ready dependency should be interprocedural or otherwise. 
+	 *
+	 * @param acrossMethodCalls <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor
+	 * 		  statement should be considered as a ready dependeee; <code>false</code>, otherwise. This only affects how rule
+	 * 		  1 and 3 are interpreted
+	 */
+	public void setInterProcedural(final boolean acrossMethodCalls) {
+		interProcedural = acrossMethodCalls;
 	}
 
 	/**
@@ -903,9 +909,11 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/11 08:49:34  venku
+   Javadoc documentation errors were fixed.
+   Some classes were documented.
    Revision 1.5  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.4  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.3  2003/08/11 04:20:19  venku
