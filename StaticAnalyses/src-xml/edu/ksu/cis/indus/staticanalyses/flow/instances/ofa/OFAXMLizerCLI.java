@@ -175,7 +175,7 @@ public final class OFAXMLizerCLI
 			}
 
 			_cli.initialize();
-			_cli.execute(_cl.hasOption('j'), _cl.getOptionValue('t'));
+			_cli.execute(_cl.hasOption('j'));
 		} catch (final ParseException _e) {
 			LOGGER.fatal("Error while parsing command line.", _e);
 			printUsage(_options);
@@ -212,9 +212,8 @@ public final class OFAXMLizerCLI
 	 *
 	 * @param dumpJimple <code>true</code> indicates that the jimple should be xmlized as well; <code>false</code>,
 	 * 		  otherwise.
-	 * @param callGraphType of call graph analysis.
 	 */
-	private void execute(final boolean dumpJimple, final String callGraphType) {
+	private void execute(final boolean dumpJimple) {
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";

@@ -170,7 +170,7 @@ public class DependencyXMLizerCLI
 				{ "nscda", "Non-termination sensitive Entry control dependence", _ncda },
 				{
 					"nicda", "Non-termination insensitive Entry control dependence",
-					new NonTerminationInsensitiveEntryControlDA()
+					new NonTerminationInsensitiveEntryControlDA(),
 				},
 				{ "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "sda", "Synchronization dependence", new SynchronizationDA() },
@@ -185,21 +185,21 @@ public class DependencyXMLizerCLI
 				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
 				{
 					"fdda", "Forward Intraprocedural Divergence dependence",
-					DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION)
+					DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION),
 				},
 				{
 					"bdda", "Backward Intraprocedural Divergence dependence",
-					DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION)
+					DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION),
 				},
 				{ "fidda", "Forward Intra+Interprocedural Divergence dependence", _fidda },
 				{ "bidda", "Backward Intra+Interprocedural Divergence dependence", _bidda },
 				{
 					"fpidda", "Forward Interprocedural Divergence dependence",
-					InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION)
+					InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION),
 				},
 				{
 					"bpidda", "Backward Interprocedural Divergence dependence",
-					InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION)
+					InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION),
 				},
 			};
 		_option = new Option("h", "help", false, "Display message.");
@@ -274,26 +274,7 @@ public class DependencyXMLizerCLI
 				}
 			}
 
-			boolean _flag = true;
-
-			for (int _i = 0; _i < _dasOptions.length; _i++) {
-				if (_cl.hasOption(_dasOptions[_i][0].toString())) {
-					final Object _da = _dasOptions[_i][2];
-					_xmlizerCLI.das.add(_da);
-					_flag = false;
-
-					if (_da instanceof InterferenceDAv1) {
-						((InterferenceDAv1) _da).setUseOFA(_cl.hasOption("ofaforinterference"));
-					}
-
-					if (_da instanceof ReadyDAv1) {
-						((ReadyDAv1) _da).setUseOFA(_cl.hasOption("ofaforready"));
-						((ReadyDAv1) _da).setUseSafeLockAnalysis(_xmlizerCLI.useSafeLockAnalysis);
-					}
-				}
-			}
-
-			if (_flag) {
+			if (!parseForDependenceOptions(_dasOptions, _cl, _xmlizerCLI)) {
 				throw new ParseException("Atleast one dependence analysis must be requested.");
 			}
 
@@ -305,6 +286,38 @@ public class DependencyXMLizerCLI
 			LOGGER.fatal("Beyond our control. May day! May day!", _e);
 			throw new RuntimeException(_e);
 		}
+	}
+
+	/**
+	 * Parses command line for dependence analysis options.
+	 *
+	 * @param dependenceOptions supported by this CLI.
+	 * @param cmdLine provided by the user.
+	 * @param xmlizerCLI that will be influenced by the provided dependence analysis options.
+	 *
+	 * @return <code>false</code> if no dependence options were parsed; <code>true</code>, otherwise.
+	 */
+	private static boolean parseForDependenceOptions(final Object[][] dependenceOptions, final CommandLine cmdLine,
+		final DependencyXMLizerCLI xmlizerCLI) {
+		boolean _flag = false;
+
+		for (int _i = 0; _i < dependenceOptions.length; _i++) {
+			if (cmdLine.hasOption(dependenceOptions[_i][0].toString())) {
+				final Object _da = dependenceOptions[_i][2];
+				xmlizerCLI.das.add(_da);
+				_flag = true;
+
+				if (_da instanceof InterferenceDAv1) {
+					((InterferenceDAv1) _da).setUseOFA(cmdLine.hasOption("ofaforinterference"));
+				}
+
+				if (_da instanceof ReadyDAv1) {
+					((ReadyDAv1) _da).setUseOFA(cmdLine.hasOption("ofaforready"));
+					((ReadyDAv1) _da).setUseSafeLockAnalysis(xmlizerCLI.useSafeLockAnalysis);
+				}
+			}
+		}
+		return _flag;
 	}
 
 	/**
