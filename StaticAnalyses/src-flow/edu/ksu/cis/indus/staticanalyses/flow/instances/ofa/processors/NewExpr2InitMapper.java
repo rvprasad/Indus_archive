@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.interfaces.*;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -36,19 +38,17 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class maps a new instance creation expression to the invocation site that calls the constructor on the created
- * instance. In Jimple, one can pick the new expression and pick the immediate following statement with
- * <code>&lt;init&gt;</code> invocation expression.  Note that both these statements should occur in the same method.
- * However, this can be incorrect in some cases.  A more sound approach is to this approach and only pair the new expression
- * and the invocation expression only when the object created at the new expression flows into the primary at the
- * invocation site. We use object flow analysis for this purpose.
+ * This class provides an implementation of <code>INewExpr2InitMapper</code> based on object flow information. The approach
+ * pairs the instance creation expression and the invocation expression only when the object created at the creation
+ * expression flows into the primary at the invocation site.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
 public class NewExpr2InitMapper
-  extends AbstractValueAnalyzerBasedProcessor {
+  extends AbstractValueAnalyzerBasedProcessor
+  implements INewExpr2InitMapper {
 	/**
 	 * This is a cache of the context.
 	 */
@@ -77,15 +77,7 @@ public class NewExpr2InitMapper
 	}
 
 	/**
-	 * Retrieves the init invocation expression containing statement corresponding to the given new expression containing
-	 * statement.
-	 *
-	 * @param newExprStmt is the statement with the new expression.
-	 * @param method in which <code>newExprStmt</code> occurs.
-	 *
-	 * @return the statement in which the corresponding init invocation expression occurring statement
-	 *
-	 * @post result != null and result.contains(InvokeExpr) and result.getInvokeExpr().oclIsKindOf(SpecialInvokeExpr)
+	 * @see INewExpr2InitMapper#getInitCallStmtForNewExprStmt(Stmt,SootMethod)
 	 */
 	public Stmt getInitCallStmtForNewExprStmt(final Stmt newExprStmt, final SootMethod method) {
 		Map ne2init = (Map) method2map.get(method);
@@ -181,10 +173,12 @@ public class NewExpr2InitMapper
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 19:52:45  venku
+   - renamed Init2NewExprMapper to NewExpr2InitMapper.
+   - ripple effect.
    Revision 1.3  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.2  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
