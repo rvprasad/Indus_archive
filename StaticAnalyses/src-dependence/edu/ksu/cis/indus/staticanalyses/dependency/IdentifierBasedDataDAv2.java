@@ -211,7 +211,7 @@ public class IdentifierBasedDataDAv2
 					final Collection _uses = _useDef.getUsesOf(_stmt);
 
 					for (final Iterator _k = _uses.iterator(); _k.hasNext();) {
-						_temp.append("\t\t" + _stmt + " --> " + _k.next() + "\n");
+						_temp.append("\t\t" + _stmt + " <-- " + _k.next() + "\n");
 					}
 					_localEdgeCount += _uses.size();
 				}
@@ -276,6 +276,10 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/06/15 08:54:48  venku
+   - implemented method local use-def info analysis.
+   - implemented identified based dependence analysis based on above analysis.
+
    Revision 1.35  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.34  2004/03/04 13:08:15  venku
