@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import java.util.Map.Entry;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -54,11 +56,8 @@ import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.DoubleConstant;
-import soot.jimple.EnterMonitorStmt;
-import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FloatConstant;
 import soot.jimple.IdentityStmt;
-import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
@@ -116,6 +115,20 @@ public final class TagBasedDestructiveSliceResidualizer
 	private final Collection classesToKill = new HashSet();
 
 	/**
+	 * This tracks the fields of the current class that should be deleted.
+	 *
+	 * @invariant fieldsToKill.oclIsKindOf(Collection(SootField))
+	 */
+	private final Collection fieldsToKill = new HashSet();
+
+	/**
+	 * This tracks the methods of the current class that should be deleted.
+	 *
+	 * @invariant methodsToKill.oclIsKindOf(Collection(SootMethod))
+	 */
+	private final Collection methodsToKill = new HashSet();
+
+	/**
 	 * This is used to process the statements during residualization.
 	 */
 	private final StmtResidualizer stmtProcessor = new StmtResidualizer();
@@ -151,38 +164,31 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	private final class StmtResidualizer
 	  extends AbstractStmtSwitch {
+		/*
+		 * THINK: In enter/exit montior, invoke, and conditional statements, there is no meaning in marking the statement as
+		 * required and not the containing expression.  (Or can it be?) Hence, for such statements we assume that the
+		 * containing expressions will be residualized. If so, then we can leave the expression untouched.  Only in the case
+		 * of invocation statement do we need to process the arguments to the call.
+		 *
+		 * TODO: Depending on the relevant branches of the conditional various branches of the conditional can be sliced to 
+         * improve precision.
+		 */
+
 		/**
 		 * This is the instance to be used to residualize expressions/values.
 		 */
 		final ValueResidualizer valueProcessor = new ValueResidualizer();
 
 		/**
+		 * The logger used by instances of this class to log messages.
+		 */
+		private final Log stmtResidualizerLogger = LogFactory.getLog(StmtResidualizer.class);
+
+		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
 		public void caseAssignStmt(final AssignStmt stmt) {
 			residualizeDefStmt(stmt);
-		}
-
-		/**
-		 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
-		 */
-		public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
-			final ValueBox _vBox = stmt.getOpBox();
-
-			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				stmt.setOp(getDefaultValueFor(_vBox.getValue().getType()));
-			}
-		}
-
-		/**
-		 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
-		 */
-		public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
-			final ValueBox _vBox = stmt.getOpBox();
-
-			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				stmt.setOp(getDefaultValueFor(_vBox.getValue().getType()));
-			}
 		}
 
 		/**
@@ -193,27 +199,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		}
 
 		/**
-		 * @see soot.jimple.StmtSwitch#caseIfStmt(soot.jimple.IfStmt)
-		 */
-		public void caseIfStmt(final IfStmt stmt) {
-			final ValueBox _vBox = stmt.getConditionBox();
-
-			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				stmt.setCondition(getDefaultValueFor(_vBox.getValue().getType()));
-			}
-		}
-
-		/**
 		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 		 */
 		public void caseInvokeStmt(final InvokeStmt stmt) {
-			final ValueBox _vBox = stmt.getInvokeExprBox();
-
-			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				final Jimple _jimple = Jimple.v();
-				final Value _t = _jimple.newStaticInvokeExpr(theScene.getSootClass("java.lang.System").getMethodByName("gc"));
-				stmt.setInvokeExpr(_t);
-			}
+			valueProcessor.residualize(stmt.getInvokeExprBox());
 		}
 
 		/**
@@ -296,13 +285,22 @@ public final class TagBasedDestructiveSliceResidualizer
 		 */
 		private void residualizeDefStmt(final DefinitionStmt stmt) {
 			if (!((Host) stmt.getLeftOpBox()).hasTag(tagToResidualize)) {
+				/*
+				 * If the definition statement is marked and the lhs is unmarked then the rhs should be an invoke expr
+				 * that is marked.  If rhs is not an invoke expr then the slice is incorrect.
+				 */
+				if (!stmt.containsInvokeExpr()) {
+					stmtResidualizerLogger.error("Incorrect slice.  "
+						+ "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt);
+				}
+
 				final Jimple _jimple = Jimple.v();
 				final Value _expr = stmt.getRightOp();
 				final Stmt _stmt = _jimple.newInvokeStmt(_expr);
-				valueProcessor.residualize(_expr, stmt.getRightOpBox());
+				valueProcessor.residualize(stmt.getRightOpBox());
 				setResult(_stmt);
 			} else {
-				valueProcessor.residualize(stmt.getRightOp(), stmt.getRightOpBox());
+				valueProcessor.residualize(stmt.getRightOpBox());
 			}
 		}
 	}
@@ -325,37 +323,24 @@ public final class TagBasedDestructiveSliceResidualizer
 
 			for (final Iterator _i = _v.getUseBoxes().iterator(); _i.hasNext();) {
 				final ValueBox _vBox = (ValueBox) _i.next();
-				setResult(null);
-				_vBox.getValue().apply(this);
-
-				_v = (Value) getResult();
-
-				if (_v != null) {
-					_vBox.setValue(_v);
-				}
+				residualize(_vBox);
 			}
 		}
 
 		/**
 		 * Residualizes the value.
 		 *
-		 * @param value to be residualized.
 		 * @param vBox contains <code>value</code>.
 		 *
 		 * @pre value != null and vBox != null
 		 */
-		public void residualize(final Value value, final ValueBox vBox) {
+		public void residualize(final ValueBox vBox) {
+			final Value _value = vBox.getValue();
+
 			if (!((Host) vBox).hasTag(tagToResidualize)) {
-				vBox.setValue(getDefaultValueFor(value.getType()));
+				vBox.setValue(getDefaultValueFor(_value.getType()));
 			} else {
-				setResult(null);
-				value.apply(this);
-
-				final Value _v = (Value) getResult();
-
-				if (_v != null) {
-					vBox.setValue(_v);
-				}
+				_value.apply(this);
 			}
 		}
 	}
@@ -401,26 +386,15 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	public void callback(final SootMethod method) {
 		if (currClass != null) {
-			finishUpProcessingMethod();
+			consolidateMethod();
 
 			if (method.hasTag(tagToResidualize)) {
 				currMethod = method;
+				methodsToKill.remove(method);
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Residualized method " + method);
 				}
-			} else {
-				currMethod = null;
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Deleted method " + method);
-				}
-			}
-		} else {
-			currMethod = null;
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Deleted method " + method);
 			}
 		}
 	}
@@ -429,22 +403,29 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
 	public void callback(final SootClass clazz) {
-		finishUpProcessingMethod();
-		finishUpProcessingClass();
+		consolidateClass();
 
 		if (clazz.hasTag(tagToResidualize)) {
 			currClass = clazz;
+			classesToKill.remove(clazz);
+			methodsToKill.addAll(clazz.getMethods());
+			fieldsToKill.addAll(clazz.getFields());
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Residualized class " + clazz);
 			}
-		} else {
-			classesToKill.add(clazz);
-			currClass = null;
-			currMethod = null;
+		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
+	 */
+	public void callback(SootField field) {
+		if (currClass != null && field.hasTag(tagToResidualize)) {
+			fieldsToKill.remove(field);
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Deleted class " + clazz);
+				LOGGER.debug("Residualized field " + field);
 			}
 		}
 	}
@@ -453,8 +434,71 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 	 */
 	public void consolidate() {
-		finishUpProcessingMethod();
-		finishUpProcessingClass();
+		consolidateClass();
+	}
+
+	/**
+	 * Consolidate the current method.
+	 *
+	 * @post currMethod = null
+	 */
+	public void consolidateMethod() {
+		if (currMethod != null) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("BEGIN: Finishing method " + currMethod + "[concrete: " + currMethod.isConcrete() + "]");
+			}
+
+			if (currMethod.isConcrete()) {
+				// replace statements marked as nop statements with nop statements.
+				final JimpleBody _body = (JimpleBody) currMethod.getActiveBody();
+				final Chain _ch = _body.getUnits();
+				final Jimple _jimple = Jimple.v();
+
+				for (final Iterator _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
+					final Stmt _stmt = (Stmt) _i.next();
+					final Object _pred = _ch.getPredOf(_stmt);
+					_ch.remove(_stmt);
+
+					final Stmt _newStmt = _jimple.newNopStmt();
+
+					if (_pred == null) {
+						_ch.addFirst(_newStmt);
+					} else {
+						_ch.insertAfter(_newStmt, _pred);
+					}
+				}
+				stmtsToBeNOPed.clear();
+
+				// replace statements with new statements as recorded earlier.
+				for (final Iterator _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
+					final Entry _entry = (Entry) _i.next();
+					final Stmt _oldStmt = (Stmt) _entry.getKey();
+					final Object _pred = _ch.getPredOf(_oldStmt);
+					_ch.remove(_oldStmt);
+
+					final Object _newStmt = _entry.getValue();
+
+					if (_pred == null) {
+						_ch.addFirst(_newStmt);
+					} else {
+						_ch.insertAfter(_newStmt, _pred);
+					}
+				}
+
+				oldStmt2newStmt.clear();
+				_body.validateLocals();
+				_body.validateTraps();
+				_body.validateUnitBoxes();
+				_body.validateUses();
+				NopEliminator.v().transform(_body);
+				currMethod.setActiveBody(_body);
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("END: Finishing method " + currMethod);
+			}
+			currMethod = null;
+		}
 	}
 
 	/**
@@ -472,6 +516,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		currMethod = null;
 		currClass = null;
 		classesToKill.clear();
+		classesToKill.addAll(theScene.getClasses());
+		oldStmt2newStmt.clear();
+		stmtsToBeNOPed.clear();
+		methodsToKill.clear();
 	}
 
 	/**
@@ -493,17 +541,12 @@ public final class TagBasedDestructiveSliceResidualizer
 		_pc.reset();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Removing classes: " + classesToKill);
+			LOGGER.debug("Deleting classes: " + classesToKill);
 		}
-		scene.getClasses().removeAll(classesToKill);
 
-		/*
-		   final IProcessor _erasure = new ErasingProcessor();
-		   _pc.setProcessingFilter(new AntiTagBasedProcessingFilter(tagName));
-		   _erasure.hookup(_pc);
-		   _pc.process();
-		   _erasure.unhook(_pc);
-		 */
+		for (final Iterator _i = classesToKill.iterator(); _i.hasNext();) {
+			scene.removeClass((SootClass) _i.next());
+		}
 	}
 
 	/**
@@ -556,122 +599,49 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
-	 * Finish processing the current class by erasing the body of untagged methods and deleting fields.
+	 * Consolidate the current class and method.
+	 *
+	 * @post currClass = null and methodsToKill.size() = 0 and fieldsToKill.size() = 0 and currMethod = null
 	 */
-	private void finishUpProcessingClass() {
+	private void consolidateClass() {
 		if (currClass != null) {
+			consolidateMethod();
+
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Finishing class " + currClass);
-			}
-
-			final Collection _temp = new HashSet();
-
-			for (final Iterator _i = currClass.getMethods().iterator(); _i.hasNext();) {
-				final SootMethod _sm = (SootMethod) _i.next();
-
-				if (!_sm.hasTag(tagToResidualize)) {
-					_temp.add(_sm);
-				}
+				LOGGER.debug("BEGIN: Finishing class " + currClass);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Erasing methods: " + _temp);
+				LOGGER.debug("Erasing methods: " + methodsToKill);
 			}
 
-			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+			for (final Iterator _i = methodsToKill.iterator(); _i.hasNext();) {
 				currClass.removeMethod((SootMethod) _i.next());
 			}
-			_temp.clear();
-
-			for (final Iterator _j = currClass.getFields().iterator(); _j.hasNext();) {
-				final SootField _sf = (SootField) _j.next();
-
-				if (!_sf.hasTag(tagToResidualize)) {
-					_temp.add(_sf);
-				}
-			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Erasing fields: " + _temp);
+				LOGGER.debug("Erasing fields: " + fieldsToKill);
 			}
 
-			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+			for (final Iterator _i = fieldsToKill.iterator(); _i.hasNext();) {
 				currClass.removeField((SootField) _i.next());
 			}
-		}
-	}
 
-	/**
-	 * Finish processing the current method by replacing statements with nops or new statements as recorded during
-	 * processing.
-	 */
-	private void finishUpProcessingMethod() {
-		if (currMethod != null && currMethod.isConcrete()) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Finishing method " + currMethod);
+				LOGGER.debug("END: Finishing class " + currClass);
 			}
-
-			// replace statements marked as nop statements with nop statements.
-			final JimpleBody _body = (JimpleBody) currMethod.getActiveBody();
-			final Chain _ch = _body.getUnits();
-			final Jimple _jimple = Jimple.v();
-
-			for (final Iterator _i = stmtsToBeNOPed.iterator(); _i.hasNext();) {
-				final Stmt _stmt = (Stmt) _i.next();
-				final Object _pred = _ch.getPredOf(_stmt);
-				_ch.remove(_stmt);
-
-				final Stmt _newStmt = _jimple.newNopStmt();
-
-				if (_pred == null) {
-					_ch.addFirst(_newStmt);
-				} else {
-					_ch.insertAfter(_newStmt, _pred);
-				}
-			}
-			stmtsToBeNOPed.clear();
-
-			// replace statements with new statements as recorded earlier.
-			for (final Iterator _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
-				final Map.Entry _entry = (Map.Entry) _i.next();
-				final Stmt _oldStmt = (Stmt) _entry.getKey();
-				final Object _pred = _ch.getPredOf(_oldStmt);
-				_ch.remove(_oldStmt);
-
-				final Object _newStmt = _entry.getValue();
-
-				if (_pred == null) {
-					_ch.addFirst(_newStmt);
-				} else {
-					_ch.insertAfter(_newStmt, _pred);
-				}
-			}
-
-			// REMOVE: BEGIN
-			System.out.println("Method Body of " + currMethod);
-
-			for (final Iterator _i = currMethod.getActiveBody().getUnits().iterator(); _i.hasNext();) {
-				try {
-					System.out.println(_i.next());
-				} catch (RuntimeException r) {
-					r.printStackTrace();
-				}
-			}
-
-			// REMOVE: END
-			oldStmt2newStmt.clear();
-			_body.validateLocals();
-			_body.validateTraps();
-			_body.validateUnitBoxes();
-			_body.validateUses();
-			NopEliminator.v().transform(_body);
+			currClass = null;
 		}
+		methodsToKill.clear();
+		fieldsToKill.clear();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/09 07:03:07  venku
+   - added annotations for code to be removed.
    Revision 1.5  2003/12/16 12:43:33  venku
    - fixed many errors during destruction of the system.
    Revision 1.4  2003/12/15 16:30:57  venku
