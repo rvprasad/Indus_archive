@@ -79,6 +79,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -357,12 +359,16 @@ public class DependencyXMLizer
 		ICallGraphInfo cgi = new CallGraph();
 		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
 		Collection rm = new ArrayList();
+		ProcessingController xmlcgipc = new ProcessingController();
 		cgipc = new ValueAnalyzerBasedProcessingController();
 
 		pc.setAnalyzer(aa);
 		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
 		cgipc.setAnalyzer(aa);
 		cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
+		xmlcgipc.setEnvironment(aa.getEnvironment());
+		xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
+
 		aliasUD = new AliasedUseDefInfo(aa);
 		info.put(ICallGraphInfo.ID, cgi);
 		info.put(IThreadGraphInfo.ID, tgi);
@@ -443,8 +449,6 @@ public class DependencyXMLizer
 
 			if (dumpXMLizedJimple) {
 				final JimpleXMLizer _t = new JimpleXMLizer(new UniqueJimpleIDGenerator());
-				pc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
-
 				FileWriter _writer;
 
 				try {
@@ -452,9 +456,9 @@ public class DependencyXMLizer
 						new FileWriter(new File(getXmlOutDir() + File.separator
 								+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "jimple.xml"));
 					_t.setWriter(_writer);
-					_t.hookup(pc);
-					pc.process();
-					_t.unhook(pc);
+					_t.hookup(xmlcgipc);
+					xmlcgipc.process();
+					_t.unhook(xmlcgipc);
 					_writer.flush();
 					_writer.close();
 				} catch (IOException e) {
@@ -734,6 +738,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/05 09:17:44  venku
+   - added support xmlize the jimple.
    Revision 1.17  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
