@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.optimizations.SCCBasedOptimizer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
@@ -65,41 +66,9 @@ public class FA
   implements IEnvironment,
 	  IWorkBagProvider {
 	/** 
-	 * This is the property that the user can specify to control the interval between the application of SCC-based
-	 * optimziation. The name of the property is "edu.ksu.cis.indus.staticanalyses.flow.FA.sccOptimizationInterval". If
-	 * unspecified, the interval defaults to <i>10000</i>.
-	 */
-	public static final String SCC_OPTIMIZATION_INTERVAL_PROPERTY;
-
-	/** 
-	 * This is the default length of the interval between which SCC-based optimization is applied to the flow network.
-	 */
-	private static final int DEFAULT_SCC_OPTIMIZATION_INTERVAL;
-
-	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER;
-
-	static {
-		LOGGER = LogFactory.getLog(FA.class);
-		SCC_OPTIMIZATION_INTERVAL_PROPERTY = "edu.ksu.cis.indus.staticanalyses.flow.FA.sccOptimizationInterval";
-
-		final String _prop = System.getProperty(SCC_OPTIMIZATION_INTERVAL_PROPERTY);
-		int _val = 10000;
-
-		if (_prop != null) {
-			_val = Integer.parseInt(_prop);
-
-			if (_val < 1) {
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("SCC optimization has been disabled.");
-				}
-				_val = 0;
-			}
-		}
-		DEFAULT_SCC_OPTIMIZATION_INTERVAL = _val;
-	}
+	private static final Log LOGGER = LogFactory.getLog(FA.class);
 
 	/** 
 	 * This is the collection of methods that serve as entry points into the system being analyzed.
@@ -201,7 +170,7 @@ public class FA
 		analyzer = theAnalyzer;
 		tag = new NamedTag(tagName);
 		tokenManager = tokenMgr;
-		sccOptimizationInterval = DEFAULT_SCC_OPTIMIZATION_INTERVAL;
+		sccOptimizationInterval = Constants.getSCCOptimizationIntervalForFA();
 	}
 
 	/**

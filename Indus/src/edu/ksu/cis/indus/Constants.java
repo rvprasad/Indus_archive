@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common;
+package edu.ksu.cis.indus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,7 +91,7 @@ public final class Constants {
 	/** 
 	 * This contains the constants.
 	 */
-	private static final Properties configuration = new Properties();
+	private static final Properties CONFIGURATIONS = new Properties();
 
 	static {
 		final String _propFileName = System.getProperty(CONSTANTS_CONFIGURATION_FILE_PROPERTY);
@@ -99,7 +99,7 @@ public final class Constants {
 		if (_propFileName != null) {
 			try {
 				final InputStream _stream = ClassLoader.getSystemResourceAsStream(_propFileName);
-				configuration.load(_stream);
+				CONFIGURATIONS.load(_stream);
 			} catch (IOException _e) {
 				System.err.println("Well, error loading property file.  Bailing.");
 				throw new RuntimeException(_e);
@@ -126,7 +126,7 @@ public final class Constants {
 		final int _defaultValue = DEFAULT_NUM_OF_CLASSES_IN_APPLICATION;
 		final String _key = NUM_OF_CLASSES_IN_APPLICATION_PROPERTY;
 		final int _result;
-		_result = retrieveIntValue(_defaultValue, _key);
+		_result = retrieveIntValue(_defaultValue, _key, CONFIGURATIONS);
 		return _result;
 	}
 
@@ -139,7 +139,7 @@ public final class Constants {
 		final int _defaultValue = DEFAULT_NUM_OF_FIELDS_IN_APPLICATION;
 		final String _key = NUM_OF_FIELDS_IN_APPLICATION_PROPERTY;
 		final int _result;
-		_result = retrieveIntValue(_defaultValue, _key);
+		_result = retrieveIntValue(_defaultValue, _key, CONFIGURATIONS);
 		return _result;
 	}
 
@@ -152,7 +152,7 @@ public final class Constants {
 		final int _defaultValue = DEFAULT_NUM_OF_METHODS_IN_APPLICATION;
 		final String _key = NUM_OF_METHODS_IN_APPLICATION_PROPERTY;
 		final int _result;
-		_result = retrieveIntValue(_defaultValue, _key);
+		_result = retrieveIntValue(_defaultValue, _key, CONFIGURATIONS);
 		return _result;
 	}
 
@@ -165,7 +165,7 @@ public final class Constants {
 	 * @post result != null
 	 */
 	public static String getRootMethodTrapperClassName() {
-		String _result = configuration.getProperty(ROOT_METHOD_TRAPPER_CLASS_PROPERTY);
+		String _result = CONFIGURATIONS.getProperty(ROOT_METHOD_TRAPPER_CLASS_PROPERTY);
 
 		if (_result == null) {
 			_result = "edu.ksu.cis.indus.common.soot.SootBasedDriver.RootMethodTrapper";
@@ -182,7 +182,7 @@ public final class Constants {
 	 * @post result != null
 	 */
 	public static String getStmtGraphFactoryClassName() {
-		String _result = configuration.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
+		String _result = CONFIGURATIONS.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
 
 		if (_result == null) {
 			_result = "edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory";
@@ -191,19 +191,20 @@ public final class Constants {
 	}
 
 	/**
-	 * Retrieves an integer constant.
+	 * Retrieves an integer constant.  <i>This method is not for public use.</i>
 	 *
 	 * @param defaultValue obviously.
 	 * @param key of interest.
+     * @param props from which to retrieve the values.
 	 *
 	 * @return the constant.
 	 *
 	 * @throws NumberFormatException when configuration file is syntactically incorrect.
 	 */
-	private static int retrieveIntValue(final int defaultValue, final String key)
+	public static int retrieveIntValue(final int defaultValue, final String key, final Properties props)
 	  throws NumberFormatException {
 		final int _result;
-		final String _temp = configuration.getProperty(key);
+		final String _temp = props.getProperty(key);
 
 		if (_temp != null) {
 			_result = Integer.parseInt(_temp);

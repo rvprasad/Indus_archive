@@ -16,13 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.staticanalyses.Constants;
 import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStrategy;
-import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.MemoryIntensiveIndexManagementStrategy;
-import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.ProcessorIntensiveIndexManagementStrategy;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * This class encapsulates the index creation logic.  It is abstract and it provides an interface through which new indices
@@ -35,26 +30,6 @@ import org.apache.commons.logging.LogFactory;
 public abstract class AbstractIndexManager
   implements IIndexManager {
 	/** 
-	 * The value of <code>INDEX_MANAGEMENT_STRATEGY_PROPERTY</code> to use memory intensive index management strategy.
-	 */
-	public static final String MEMORY_INTENSIVE_INDEX_MANAGEMENT = "MEMORY_INTENSIVE_INDEX_MANAGEMENT";
-
-	/** 
-	 * The value of <code>INDEX_MANAGEMENT_STRATEGY_PROPERTY</code> to use processor intensive index management strategy.
-	 */
-	public static final String PROCESSOR_INTENSIVE_INDEX_MANAGEMENT = "PROCESSOR_INTENSIVE_INDEX_MANAGEMENT";
-
-	/** 
-	 * The name of the property via which index management strategy can be altered.
-	 */
-	public static final String INDEX_MANAGEMENT_STRATEGY = "edu.ksu.cis.indus.staticanalyses.flow.indexManagementStrategy";
-
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractIndexManager.class);
-
-	/** 
 	 * The strategy used to manage indices.
 	 */
 	private final IIndexManagementStrategy strategizedIndexMgr;
@@ -63,17 +38,7 @@ public abstract class AbstractIndexManager
 	 * Creates a new AbstractIndexManager object.
 	 */
 	public AbstractIndexManager() {
-		final String _prop = System.getProperty(INDEX_MANAGEMENT_STRATEGY);
-
-		if (_prop != null && _prop.equals(MEMORY_INTENSIVE_INDEX_MANAGEMENT)) {
-			strategizedIndexMgr = new MemoryIntensiveIndexManagementStrategy();
-		} else {
-			strategizedIndexMgr = new ProcessorIntensiveIndexManagementStrategy();
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("AbstractIndexManager() - The index management strategy is " + _prop);
-		}
+		strategizedIndexMgr = Constants.getIndexManagementStrategy();
 	}
 
 	/**

@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
-import edu.ksu.cis.indus.common.Constants;
+import edu.ksu.cis.indus.Constants;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 
 import java.util.ArrayList;

@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import edu.ksu.cis.indus.common.Constants;
+import edu.ksu.cis.indus.Constants;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;

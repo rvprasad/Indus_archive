@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.Constants;
+import edu.ksu.cis.indus.Constants;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;

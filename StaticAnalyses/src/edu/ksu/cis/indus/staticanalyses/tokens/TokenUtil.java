@@ -15,6 +15,15 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
+import edu.ksu.cis.indus.staticanalyses.Constants;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 /**
  * This class contains utility methods and fields concerning token and type system management logic.
  *
@@ -24,10 +33,9 @@ package edu.ksu.cis.indus.staticanalyses.tokens;
  */
 public final class TokenUtil {
 	/** 
-	 * The name of the property the user can use to configure the token manager class.
+	 * The logger used by instances of this class to log messages.
 	 */
-	public static final String INDUS_STATICANALYSES_TOKENMANAGERTYPE = 
-        "edu.ksu.cis.indus.staticanalyses.tokens.TokenManagerClass";
+	private static final Log LOGGER = LogFactory.getLog(TokenUtil.class);
 
 	///CLOVER:OFF
 
@@ -40,50 +48,63 @@ public final class TokenUtil {
 	///CLOVER:ON
 
 	/**
-	 * Retrieves a token manager based on the value of the system property "indus.staticanalyses.TokenManagerClass".  The
-	 * user can specify the name of the class of the manager to instanstiate via this property.  It has to be one of the
-	 * following.
-	 * 
-	 * <ul>
-	 * <li>
-	 * edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager
-	 * </li>
-	 * <li>
-	 * edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager
-	 * </li>
-	 * <li>
-	 * edu.ksu.cis.indus.staticanalyses.tokens.IntegerTokenManager
-	 * </li>
-	 * </ul>
-	 * 
-	 * <p>
-	 * By default, an instance of <code>edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager</code> is returned.
-	 * </p>
+	 * Retrieves a token manager based on the value of returned by
+	 * <code>edu.ksu.cis.indus.staticanalyses.Constants.getTokenMgrType()</code>.
 	 *
-     * @param typeManager being used by the user.
-     * 
+	 * @param typeManager being used by the user.
+	 *
 	 * @return a token manager.
 	 *
-     * @pre typeManager != null
+	 * @pre typeManager != null
 	 * @post result != null
 	 * @post result.oclIsKindOf(BitSetTokenManager) or result.oclIsKindOf(CollectionTokenManager) or
 	 * 		 result.oclIsKindOf(IntegerTokenManager)
 	 */
 	public static ITokenManager getTokenManager(final ITypeManager typeManager) {
 		ITokenManager _tokenMgr = null;
-		final String _tmType = System.getProperty(INDUS_STATICANALYSES_TOKENMANAGERTYPE);
+		final String _tmType = Constants.getTokenManagerType();
 
-		if (_tmType != null) {
-			if (_tmType.equals(CollectionTokenManager.class.getName())) {
-				_tokenMgr = new CollectionTokenManager(typeManager);
-			} else if (_tmType.equals(IntegerTokenManager.class.getName())) {
-				_tokenMgr = new IntegerTokenManager(typeManager);
+		try {
+			final Class _class = ClassLoader.getSystemClassLoader().loadClass(_tmType);
+			final Constructor _ctstr = _class.getConstructor(new Class[] { ITypeManager.class });
+
+			if (_ctstr != null) {
+				_tokenMgr = (ITokenManager) _ctstr.newInstance(new Object[] { typeManager });
 			}
+		} catch (final InstantiationException _e) {
+			LOGGER.fatal("getTokenManager() - Unable to creat an instance of the given token manager class. : _tmType = "
+				+ _tmType, _e);
+
+			final Error _t = new InstantiationError();
+			_t.initCause(_e);
+			throw _t;
+		} catch (final IllegalAccessException _e) {
+			LOGGER.fatal("getTokenManager() - Unable to access the contructor of the given token manager class. : _tmType = "
+				+ _tmType, _e);
+
+			final Error _t = new IllegalAccessError();
+			_t.initCause(_e);
+			throw _t;
+		} catch (final ClassNotFoundException _e) {
+			LOGGER.fatal("getTokenManager() - Unable to find the given token manager class. : _tmType = " + _tmType, _e);
+
+			final Error _t = new NoClassDefFoundError();
+			_t.initCause(_e);
+			throw _t;
+		} catch (final NoSuchMethodException _e) {
+			LOGGER.fatal("getTokenManager() - security exception. : _tmType = " + _tmType, _e);
+
+			final Error _t = new NoSuchMethodError();
+			_t.initCause(_e);
+			throw _t;
+		} catch (final InvocationTargetException _e) {
+			LOGGER.fatal("getTokenManager() - the constructor threw an exception. : _tmType = " + _tmType, _e);
+
+			final Error _t = new NoSuchMethodError();
+			_t.initCause(_e);
+			throw _t;
 		}
 
-		if (_tokenMgr == null) {
-			_tokenMgr = new BitSetTokenManager(typeManager);
-		}
 		return _tokenMgr;
 	}
 }

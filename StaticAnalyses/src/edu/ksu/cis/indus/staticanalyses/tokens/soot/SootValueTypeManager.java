@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens.soot;
 
-import edu.ksu.cis.indus.common.Constants;
+import edu.ksu.cis.indus.Constants;
 import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.IDynamicTokenTypeRelationDetector;

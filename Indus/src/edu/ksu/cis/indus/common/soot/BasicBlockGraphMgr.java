@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import edu.ksu.cis.indus.common.Constants;
+import edu.ksu.cis.indus.Constants;
 
 import java.lang.ref.SoftReference;
 
