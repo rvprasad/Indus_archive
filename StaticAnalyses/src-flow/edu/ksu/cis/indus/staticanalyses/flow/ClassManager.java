@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -140,42 +141,47 @@ public class ClassManager
 			}
 
 			IWorkBag wb = new FIFOWorkBag();
-			wb.addWork(sc);
+			Collection temp = new ArrayList();
+
+			if (sc.hasSuperclass()) {
+				wb.addWork(sc.getSuperclass());
+			}
+			wb.addAllWorkNoDuplicates(sc.getInterfaces());
 
 			while (wb.hasWork()) {
-				SootClass work = (SootClass) wb.getWork();
+				final SootClass _sc = (SootClass) wb.getWork();
+
+				if (classes.contains(_sc)) {
+					continue;
+				}
+				classes.add(_sc);
+                _sc.addTag(theTag);
+				temp.clear();
 
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("considered " + work.getName());
+					LOGGER.debug("considered " + _sc.getName());
 				}
 
-				if (work.declaresMethodByName("<clinit>")) {
-					SootMethod method = work.getMethodByName("<clinit>");
+				if (_sc.declaresMethodByName("<clinit>")) {
+					final SootMethod _method = _sc.getMethodByName("<clinit>");
 
 					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("considered " + method);
+						LOGGER.debug("considered " + _method);
 					}
 
-					fa.getMethodVariant(method, context);
+					fa.getMethodVariant(_method, context);
 				}
 
-				if (work.hasSuperclass()) {
-					SootClass superClass = work.getSuperclass();
-
-					if (!classes.contains(superClass)) {
-						classes.add(superClass);
-						superClass.addTag(theTag);
-						wb.addWorkNoDuplicates(superClass);
-					}
+				if (_sc.hasSuperclass()) {
+					temp.add(_sc.getSuperclass());
 				}
+				temp.addAll(_sc.getInterfaces());
 
-				for (final Iterator i = work.getInterfaces().iterator(); i.hasNext();) {
-					SootClass ic = (SootClass) i.next();
+				for (final Iterator _i = temp.iterator(); _i.hasNext();) {
+					SootClass t = (SootClass) _i.next();
 
-					if (!classes.contains(ic)) {
-						classes.add(ic);
-						ic.addTag(theTag);
-						wb.addWorkNoDuplicates(ic);
+					if (!classes.contains(t)) {
+						wb.addWorkNoDuplicates(t);
 					}
 				}
 			}
@@ -197,6 +203,8 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/12/07 03:22:48  venku
+   - processing logic did not consider interfaces.  FIXED.
    Revision 1.15  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
