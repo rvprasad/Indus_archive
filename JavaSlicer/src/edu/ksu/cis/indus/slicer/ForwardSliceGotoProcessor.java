@@ -15,11 +15,8 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -31,7 +28,7 @@ import java.util.List;
  * @version $Revision$ $Date$
  */
 public final class ForwardSliceGotoProcessor
-  extends AbstractSliceGotoProcessor {
+  extends BackwardSliceGotoProcessor {
 	/**
 	 * Creates a new ForwardSliceGotoProcessor object.
 	 *
@@ -41,13 +38,6 @@ public final class ForwardSliceGotoProcessor
 	 */
 	public ForwardSliceGotoProcessor(SliceCollector collector) {
 		super(collector);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
-	 */
-	protected Collection getLastStmtAndSuccsOfBasicBlock(final BasicBlock bb) {
-		return Collections.singleton(new Pair(bb.getLeaderStmt(), bb.getPredsOf()));
 	}
 
 	/**
@@ -61,19 +51,19 @@ public final class ForwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/13 08:39:07  venku
+   - moved the GotoProcessors back into the slicer core as these
+     classes home the logic required for slice creation.
    Revision 1.2  2004/01/13 04:39:29  venku
    - method and class visibility.
-
    Revision 1.1  2004/01/13 04:35:08  venku
    - added a new package called "processing" and it will house
      all processing done on the slice to ensure the slice satisfies
      certain properties such as executability.
    - Moved GotoProcessors into processing package.
-
    Revision 1.1  2004/01/11 03:44:25  venku
    - Deleted IGotoProcessor and SliceGotoProcessor.
    - Moved the logic of SliceGotoProcessor into
      AbstractSliceGotoProcessor.
    - Different slices are handled by different processor classes.
-
  */

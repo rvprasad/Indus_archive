@@ -15,13 +15,16 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+
+import soot.jimple.GotoStmt;
+import soot.jimple.Stmt;
 
 
 /**
@@ -31,7 +34,7 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class BackwardSliceGotoProcessor
+public class BackwardSliceGotoProcessor
   extends AbstractSliceGotoProcessor {
 	/**
 	 * Creates a new BackwardSliceGotoProcessor object.
@@ -45,13 +48,6 @@ public final class BackwardSliceGotoProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#postProcessBasicBlock(BasicBlock)
-	 */
-	protected Collection getLastStmtAndSuccsOfBasicBlock(final BasicBlock bb) {
-		return Collections.singleton(new Pair(bb.getTrailerStmt(), bb.getSuccsOf()));
-	}
-
-	/**
 	 * @see AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
 	 */
 	protected List getStmtsOfForProcessing(BasicBlock bb) {
@@ -59,24 +55,48 @@ public final class BackwardSliceGotoProcessor
 		Collections.reverse(_result);
 		return _result;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected final void processForIntraBasicBlockGotos(final BasicBlockGraph bbg) {
+		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
+			final BasicBlock _bb = (BasicBlock) _j.next();
+
+			boolean _tagged = false;
+			final String _tagName = sliceCollector.getTagName();
+			final List _list = getStmtsOfForProcessing(_bb);
+
+			for (final Iterator _i = _list.iterator(); _i.hasNext();) {
+				final Stmt _stmt = (Stmt) _i.next();
+
+				if (_stmt.getTag(_tagName) != null) {
+					_tagged = true;
+					workBag.addWork(_bb);
+				} else if (_stmt instanceof GotoStmt && _tagged) {
+					sliceCollector.includeInSlice(_stmt);
+				}
+			}
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/13 08:39:07  venku
+   - moved the GotoProcessors back into the slicer core as these
+     classes home the logic required for slice creation.
    Revision 1.2  2004/01/13 04:39:29  venku
    - method and class visibility.
-
    Revision 1.1  2004/01/13 04:35:08  venku
    - added a new package called "processing" and it will house
      all processing done on the slice to ensure the slice satisfies
      certain properties such as executability.
    - Moved GotoProcessors into processing package.
-
    Revision 1.1  2004/01/11 03:44:25  venku
    - Deleted IGotoProcessor and SliceGotoProcessor.
    - Moved the logic of SliceGotoProcessor into
      AbstractSliceGotoProcessor.
    - Different slices are handled by different processor classes.
-
  */

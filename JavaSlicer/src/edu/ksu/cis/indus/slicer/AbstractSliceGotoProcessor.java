@@ -15,25 +15,24 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import soot.SootMethod;
 
-import soot.jimple.GotoStmt;
 import soot.jimple.Stmt;
+
+import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -46,24 +45,19 @@ import soot.jimple.Stmt;
  */
 public abstract class AbstractSliceGotoProcessor {
 	/**
-	 * The slice collector.
-	 */
-	private final SliceCollector sliceCollector;
-
-	/**
-	 * The collection of basic blocks that contained atleast one statement that is tagged.
-	 */
-	private Collection taggedBB = new HashSet();
-
-	/**
 	 * A workbag.
 	 */
-	private final IWorkBag workBag = new LIFOWorkBag();
+	protected final IWorkBag workBag = new LIFOWorkBag();
+
+	/**
+	 * The slice collector.
+	 */
+	protected final SliceCollector sliceCollector;
 
 	/**
 	 * The method being processed.
 	 */
-	private SootMethod method;
+	protected SootMethod method;
 
 	/**
 	 * Creates a new AbstractSliceGotoProcessor object.
@@ -77,7 +71,7 @@ public abstract class AbstractSliceGotoProcessor {
 	}
 
 	/**
-	 * Preprocess the current method's body for goto-based control flow retention.
+	 * Process the current method's body for goto-based control flow retention.
 	 *
 	 * @param theMethod to be processed.
 	 * @param bbg is the basic block graph of <code>theMethod</code>.
@@ -87,13 +81,31 @@ public abstract class AbstractSliceGotoProcessor {
 	 */
 	public final void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
 		method = theMethod;
-		taggedBB.clear();
+		workBag.clear();
 
-		for (final Iterator _j = bbg.getNodes().iterator(); _j.hasNext();) {
-			final BasicBlock _bb = (BasicBlock) _j.next();
-			processBasicBlock(_bb);
+		processForIntraBasicBlockGotos(bbg);
+
+		IWorkBag _workBag = new FIFOWorkBag();
+		Collection processed = new HashSet();
+		final UnitGraph _unitGraph = bbg.getStmtGraph();
+		final List _units = new ArrayList(_unitGraph.getBody().getUnits());
+
+		while (workBag.hasWork()) {
+			final BasicBlock _bb = (BasicBlock) _workBag.getWork();
+			processed.add(_bb);
+
+			final Stmt _leader = _bb.getLeaderStmt();
+			int lind = _units.indexOf(_leader);
+
+			if (lind > 0) {
+				final Stmt _predStmtInUnits = (Stmt) _units.get(lind - 1);
+				final List _succsOfPred = _unitGraph.getSuccsOf(_predStmtInUnits);
+
+				if (!_succsOfPred.contains(_leader)) {
+					sliceCollector.includeInSlice(_predStmtInUnits);
+				}
+			}
 		}
-		postprocess();
 	}
 
 	/**
@@ -105,7 +117,7 @@ public abstract class AbstractSliceGotoProcessor {
 	 * @pre methods != null and bbgMgr != null
 	 * @pre methods.oclIsKindOf(Collection(SootMethod))
 	 */
-	public void process(final Collection methods, final BasicBlockGraphMgr bbgMgr) {
+	public final void process(final Collection methods, final BasicBlockGraphMgr bbgMgr) {
 		// include all gotos required to recreate the control flow of the system.
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -119,99 +131,21 @@ public abstract class AbstractSliceGotoProcessor {
 	}
 
 	/**
-	 * Retrieve the last statements and the successors basic blocks containing the statements following these statements. The
-	 * subclass determine how the statements and the successors are picked.  This information is returned as pair of
-	 * <code>Stmt</code> and <code>Collection</code> of successors.
+	 * Process the basic blocks to consider intra basic block gotos to reconstruct the control flow.
 	 *
-	 * @param bb is the basic block.
+	 * @param bbg is the basic block graph containing the basic blocks to be processed.
 	 *
-	 * @return a collection of pairs of statement and a collection of basic blocks.
-	 *
-	 * @pre bb != null
-	 * @post result.oclIsKindOf(Collection(Pair(Stmt, Collection(BasicBlockGraph)))
-	 * @post result->forall(o | o != null)
+	 * @pre bbg != null
 	 */
-	protected abstract Collection getLastStmtAndSuccsOfBasicBlock(final BasicBlock bb);
-
-	/**
-	 * Retrieve the statements of the given basic block in an order.  The subclasses determine the order.
-	 *
-	 * @param bb is the basic block.
-	 *
-	 * @return a list of statements that occur in <code>bb</code> in a suitable order.
-	 *
-	 * @pre bb != null
-	 * @post result != null and result.oclIsKindOf(Sequence(Stmt))
-	 */
-	protected abstract List getStmtsOfForProcessing(final BasicBlock bb);
-
-	/**
-	 * Postprocess the current method's body for goto-based control flow retention.
-	 */
-	private final void postprocess() {
-		final String _tagName = sliceCollector.getTagName();
-		final Collection _processed = new HashSet();
-
-		while (workBag.hasWork()) {
-			final BasicBlock _bb = (BasicBlock) workBag.getWork();
-			_processed.add(_bb);
-
-			final Collection _stmtSuccPairs = getLastStmtAndSuccsOfBasicBlock(_bb);
-
-			for (Iterator _i = _stmtSuccPairs.iterator(); _i.hasNext();) {
-				final Pair _pair = (Pair) _i.next();
-				final Stmt _stmt = (Stmt) _pair.getFirst();
-				final Collection _succs = (Collection) _pair.getSecond();
-
-				if (!CollectionUtils.intersection(taggedBB, _succs).isEmpty()
-					  && _stmt.getTag(_tagName) == null
-					  && _stmt instanceof GotoStmt) {
-					sliceCollector.includeInSlice(_stmt);
-					sliceCollector.includeInSlice(method);
-					processBasicBlock(_bb);
-
-					if (!_processed.contains(_bb)) {
-						workBag.addWorkNoDuplicates(_bb);
-					}
-				}
-			}
-		}
-		workBag.clear();
-	}
-
-	/**
-	 * Process the given basic block that belongs to the current method.
-	 *
-	 * @param bb is the basic block to be processed.
-	 *
-	 * @pre bb != null
-	 */
-	private final void processBasicBlock(final BasicBlock bb) {
-		boolean _tagged = false;
-		final String _tagName = sliceCollector.getTagName();
-		final List _list = getStmtsOfForProcessing(bb);
-
-		for (final Iterator _i = _list.iterator(); _i.hasNext();) {
-			final Stmt _stmt = (Stmt) _i.next();
-
-			if (_stmt.getTag(_tagName) != null) {
-				_tagged = true;
-				taggedBB.add(bb);
-			} else if (_stmt instanceof GotoStmt && _tagged) {
-				sliceCollector.includeInSlice(_stmt);
-				sliceCollector.includeInSlice(method);
-			}
-		}
-
-		if (_tagged) {
-			workBag.addWork(bb);
-		}
-	}
+	protected abstract void processForIntraBasicBlockGotos(final BasicBlockGraph bbg);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/13 08:39:07  venku
+   - moved the GotoProcessors back into the slicer core as these
+     classes home the logic required for slice creation.
    Revision 1.3  2004/01/13 07:53:51  venku
    - as post processing beyond retention of semantics of slice is
      particular to the application or the tool.  Hence, moved the
@@ -219,7 +153,6 @@ public abstract class AbstractSliceGotoProcessor {
    - added a new method to AbstractSliceGotoProcessor to
      process a collection of methods given a basic block graph
      manager.
-
    Revision 1.2  2004/01/13 04:39:29  venku
    - method and class visibility.
    Revision 1.1  2004/01/13 04:35:08  venku
