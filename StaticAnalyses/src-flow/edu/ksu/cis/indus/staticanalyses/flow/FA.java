@@ -434,6 +434,7 @@ public class FA
 		staticFieldVariantManager.reset();
 		worklist.clear();
 		rootMethods.clear();
+        classManager.reset();
 		scm = null;
 	}
 
@@ -515,6 +516,9 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/05 00:53:09  venku
+   - removed unused method and restricted access to certain methods.
+
    Revision 1.12  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
