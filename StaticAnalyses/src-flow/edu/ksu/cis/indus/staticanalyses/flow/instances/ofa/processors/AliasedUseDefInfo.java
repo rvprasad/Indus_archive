@@ -128,7 +128,7 @@ public class AliasedUseDefInfo
 	 *
 	 * @param method in which the use occurs.
 	 *
-	 * @pre context != null 
+	 * @pre context != null
 	 */
 	public Collection getDefs(final Stmt useStmt, final SootMethod method) {
 		Collection _result = Collections.EMPTY_LIST;
@@ -144,7 +144,7 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getDefs(soot.Local, soot.jimple.Stmt, SootMethod)
+	 * {@inheritDoc}<i>This operation is unsupported in this implementation.</i>
 	 */
 	public Collection getDefs(final Local local, final Stmt useStmt, final SootMethod method) {
 		throw new UnsupportedOperationException("This opertation is not supported.");
@@ -162,7 +162,7 @@ public class AliasedUseDefInfo
 	 *
 	 * @param method in which the definition occurs.
 	 *
-	 * @pre method != null 
+	 * @pre method != null
 	 */
 	public Collection getUses(final DefinitionStmt defStmt, final SootMethod method) {
 		Collection _result = Collections.EMPTY_LIST;
@@ -355,7 +355,8 @@ public class AliasedUseDefInfo
 	 *
 	 * @return <code>true</code>
 	 */
-	protected boolean isReachableViaInterProceduralFlow(SootMethod defMethod, Stmt defStmt, SootMethod useMethod, Stmt useStmt) {
+	protected boolean isReachableViaInterProceduralFlow(final SootMethod defMethod, final Stmt defStmt,
+		final SootMethod useMethod, final Stmt useStmt) {
 		return true;
 	}
 
@@ -433,21 +434,21 @@ public class AliasedUseDefInfo
 
 		if (defMethod.getName().equals("<clinit>") || useMethod.getName().equals("<clinit>")) {
 			_result = true;
-		}
-
-		if (useMethod.equals(defMethod)) {
-			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(useMethod);
-			final BasicBlock _bbUse = _bbg.getEnclosingBlock(useStmt);
-			final BasicBlock _bbDef = _bbg.getEnclosingBlock(defStmt);
-
-			if (_bbUse == _bbDef) {
-				final List _sl = _bbUse.getStmtsOf();
-				_result = _sl.indexOf(defStmt) < _sl.indexOf(useStmt);
-			} else {
-				_result = _bbg.isReachable(_bbDef, _bbUse, true);
-			}
 		} else {
-			_result = isReachableViaInterProceduralFlow(defMethod, defStmt, useMethod, useStmt);
+			if (useMethod.equals(defMethod)) {
+				final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(useMethod);
+				final BasicBlock _bbUse = _bbg.getEnclosingBlock(useStmt);
+				final BasicBlock _bbDef = _bbg.getEnclosingBlock(defStmt);
+
+				if (_bbUse == _bbDef) {
+					final List _sl = _bbUse.getStmtsOf();
+					_result = _sl.indexOf(defStmt) < _sl.indexOf(useStmt);
+				} else {
+					_result = _bbg.isReachable(_bbDef, _bbUse, true);
+				}
+			} else {
+				_result = isReachableViaInterProceduralFlow(defMethod, defStmt, useMethod, useStmt);
+			}
 		}
 		return _result;
 	}
@@ -456,6 +457,9 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/07/22 09:42:40  venku
+   - altered IUseDefInfo to use tighter types.
+   - ripple effect.
    Revision 1.41  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
@@ -463,7 +467,6 @@ public class AliasedUseDefInfo
      ECBA and AliasedUseDefInfo analysis.
    - Added new faster implementation of LocalUseDefAnalysisv2
    - Used LocalUseDefAnalysisv2
-
    Revision 1.40  2004/07/17 23:32:18  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
