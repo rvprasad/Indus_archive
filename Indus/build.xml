@@ -8,7 +8,6 @@
 
 <target name="init">
     <tstamp/>
-    <property file="antbuild.properties"/>
     <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${drishti.jar}"/>
 </target>
 
@@ -115,6 +114,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.13  2003/11/13 14:25:01  venku
+- altered build.xml and localbuild.xml to change clean target
+  and enable building just indus.
+
 Revision 1.12  2003/11/13 13:31:22  venku
 - added support jarring classes.
 

@@ -1,7 +1,8 @@
 <project>
     <import file="../StaticAnalyses/localbuild.xml"/>
     <import file="../JavaSlicer/localbuild.xml"/>
-        
+
+    <property file="antbuild.properties"/>        
     <property name="package" value="edu.ksu.cis.indus"/>
     <property name="ant.project.name" value="indus"/>
 

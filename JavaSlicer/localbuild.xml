@@ -1,4 +1,5 @@
 <project>
+    <property file="antbuild.properties"/>
     <property name="package" value="edu.ksu.cis.indus"/>
     <property name="ant.project.name" value="indus.javaslicer"/>
     
@@ -21,9 +22,27 @@
     </path>    
     
     <path id="classpath">
-    	<pathelement location="../Indus/build/"/>
-	    <pathelement location="../StaticAnalyses/build/"/>
+    	<pathelement location="../Indus/${build}/"/>
+	    <pathelement location="../StaticAnalyses/${build}/"/>
 	    <path refid="javaslicer.classpath"/>
    </path>
+
+    <path id="bind.classpath">
+      <pathelement location="/usr/local/javaclasses/bcel.jar"/>
+      <pathelement location="/usr/local/javaclasses/jibx-bind.jar"/>
+      <pathelement location="/usr/local/javaclasses/jibx-run.jar"/>
+      <pathelement location="/usr/local/javaclasses/xpp3.jar"/>  
+    </path>
    
+    <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask">
+        <classpath refid="bind.classpath"/>
+     </taskdef>
+  
+    <target name="bind">
+        <bind verbose="true" binding="auxiliary/slicerConfig_JiBXBinding.xml">
+            <classpathset dir="${build}"/>
+            <classpathset dir="../Indus/${build}/"/>
+        </bind>
+    </target>
+  
 </project>

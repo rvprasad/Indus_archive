@@ -1,4 +1,5 @@
 <project>
+    <property file="antbuild.properties"/>
     <property name="package" value="edu.ksu.cis.indus.staticanalyses"/>
     <property name="ant.project.name" value="indus.staticanalyses"/>
     
