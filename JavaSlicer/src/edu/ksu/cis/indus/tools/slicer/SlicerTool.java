@@ -783,7 +783,9 @@ public final class SlicerTool
 		daController.initialize();
 		daController.execute();
 
-		if (!slicerConfig.isContextSensitiveDeadlockCriteria()) {
+		final String _deadlockCriteriaSelectionStrategy = slicerConfig.getDeadlockCriteriaSelectionStrategy();
+        if (!slicerConfig.getPropertyAware()
+			  && !_deadlockCriteriaSelectionStrategy.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
 			ecba.flushSiteContexts();
 		}
 
@@ -943,7 +945,7 @@ public final class SlicerTool
 			engine.setSliceScopeDefinition(sliceScopeDefinition);
 			engine.setSystem(system);
 
-			if (slicerConfig.isContextSensitiveDeadlockCriteria()) {
+			if (slicerConfig.getPropertyAware()) {
 				final Map _map = new HashMap();
 				final ThreadEscapeInfoBasedCallingContextRetriever _t1 = new ThreadEscapeInfoBasedCallingContextRetriever();
 				_t1.setECBA(getECBA());
