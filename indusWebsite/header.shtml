@@ -20,7 +20,7 @@
     <td colspan="2">
 
       <div id="header">
-        <!--#include virtual="/banner-content.shtml" -->
+        <!--#include virtual="banner-content.shtml" -->
       </div>
 
     </td>
@@ -29,7 +29,7 @@
     <td valign="top" width="180">
 
       <div id="menu">
-        <!--#include virtual="/menu-content.shtml" -->
+        <!--#include virtual="menu-content.shtml" -->
       </div>
 
     </td>

@@ -3,7 +3,12 @@
 <!--#set var="description" value="Screen Shots of Indus" -->
 
 <!--#include virtual="/header.shtml" -->
-<p>Screen shots will be posted shortly.</p>
+<p>
+<ul>
+<li><a href="/projects/screenshots.shtml">Kaveri</a></li>
+</ul>
+</p>
+
 <!--
 <table width ="80%" border="0" cellspacing="14" align="center">
 <td> <a href="/images/screen-shots/cadenaTextualViewSS.gif"><img src="/images/screen-shots/cadenaTextViewSmall.gif" border="1"> </a><div align="left"><small>IDL3 Editor View</small></div></td>

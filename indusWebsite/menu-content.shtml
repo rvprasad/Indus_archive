@@ -75,6 +75,15 @@
     <li><a href="/collaborations/presentations.shtml">Presentations</a></li>
     <!--#endif -->
   </ul>
+  
+  <h1>Sub Projects</h1>
+  <ul>
+   <!--#if expr="${menuItem} = Projects.Kaveri" -->   
+  <li>Kaveri</li>  
+  <!--#else -->
+    <li><a href="/projects/kaveri.shtml">Kaveri</a></li>    
+    <!--#endif -->
+  </ul>
 
   <h1>Support</h1>
   <ul>

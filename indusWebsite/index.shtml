@@ -14,7 +14,7 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
 	href="http://bandera.projects.cis.ksu.edu/">Bandera</a> or platform such as <a
 	href="http://www.eclipse.org">Eclipse</a>.</li>   
 </ul>
-
+ 
 <p>At present, there are 3 modules that are part of Indus. More modules are expected to be added over the course of time.  We
    provide an overview of the intent of each module that are available at present.</p>
 <ul>

@@ -1,0 +1,15 @@
+<!--#set var="menuItem" value="Projects.Requirements" -->
+<!--#set var="title" value="SliceEclipse Requirements" -->
+<!--#set var="description" value="Requriements for SliceEclipse" -->
+
+<!--#include virtual="/header.shtml" -->
+
+  <p>The following are the requirements for SliceEclipse:
+  <ul>
+      <li><a href="http://www.eclipse.org">Eclipse:</a> Eclipse version 3.0 or higher is needed.</li>
+      <li><a href="http://www.sable.mcgill.ca/soot">Soot:</a> Indus Plug-in 0.3 or higher.</li>
+   </ul>
+   </p>
+       
+
+<!--#include virtual="/footer.shtml" -->

@@ -1,0 +1,25 @@
+<!--#set var="menuItem" value="Projects.Screenshots" -->
+<!--#set var="title" value="Kaveri Screenshots" -->
+<!--#set var="description" value="Screenshots of Kaveri" -->
+
+<!--#include virtual="/header.shtml" -->
+
+  <p>
+<table width ="80%" border="0" cellspacing="14" align="center">
+<tr>
+<td> <img src="/images/kaveri/preferences.png" border="0"> <div align="left"><small>Slice Configuration Preference</small></div></td>
+</tr>
+<tr>
+<td> <img src="/images/kaveri/criteriaselection.png" border="0"><div align="left"><small>Adding criteria</small></div></td>
+</tr>
+<tr>
+<td><img src="/images/kaveri/sliceconfig.png" border="0"><div align="left"><small>Slice Configuration</small></div></td>
+</tr>
+<tr>
+<td> <img src="/images/kaveri/slice.png" width="490" height="336" border="0"> <div align="left"><small>Viewing a Slice</small></div></td>
+</tr>
+</table>
+   </p>
+       
+
+<!--#include virtual="/footer.shtml" -->

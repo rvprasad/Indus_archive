@@ -1,0 +1,46 @@
+<!--#set var="menuItem" value="Projects.Kaveri" -->
+<!--#set var="title" value="About Kaveri" -->
+<!--#set var="description" value="The eclipse frontend to Indus" -->
+
+<!--#include virtual="/header.shtml" -->
+
+<p>
+<blockquote>
+ <b>Kaveri</b> is an eclipse plug-in front-end for the Indus Java slicer. It utilizes the Indus program slicer to calculate slices of Java programs and then displays the results visually in the editor. The purpose of this project is to create an effective tool for simplifying program understanding, program analysis, program debugging and testing..</p>
+ <p>
+ <b>Options currently available with Kaveri:</b>
+ <ul>
+ <li>Backward and Forward Slicing (<a href="/projects/screenshots.shtml">Screenshot</a>)</li>
+ <!-- <li>A filtered dependence information display (<a href="/projects/screenshots.shtml">Screenshot</a>)</li>  -->
+ </ul>
+</p>
+<!--
+<p>
+<b>Features</b>
+
+<ul>
+<li></li>
+<li></li>
+<li>Dependency view filter (<a href="/projects/screenshots.shtml">Screenshot</a>)</li>
+</ul>
+
+</p>
+-->
+
+<p>
+ Kaveri can be obtained from the  
+<a href="http://projects.cis.ksu.edu/plugin/ksuafrs/showfiles.php?group_id=12">download page </a>
+<!--or using the Eclipse feature installation method. The address for the feature installation is
+<a href="http://indus.projects.cis.ksu.edu/sliceeclipse">
+ http://indus.projects.cis.ksu.edu/sliceeclipse</a>-->
+</p>
+
+<p>
+Before using Kaveri please go through the documentation,
+which can be obtained from the <a href="http://projects.cis.ksu.edu/docman/index.php?group_id=12">user guides page</a>.
+</p>	
+<!--
+<p>
+<img src="/images/sliceeclipse/slice.png" alt="View of the slice" width="450" height="326" border="1">
+</p>-->
+<!--#include virtual="/footer.shtml" -->
