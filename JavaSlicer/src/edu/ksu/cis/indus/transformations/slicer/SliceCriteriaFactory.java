@@ -57,9 +57,9 @@ import java.util.Iterator;
  * 
  * <p>
  * The interesting issue while  creating slicing criteria is the inclusion information.  Please refer to {@link SlicingEngine
- * SlicingEngine}  for the sort of slices we discuss here.  In case of expression-level slice criterion, inclusion would mean 
- * that the entire statement containing the expression needs to be included independent of the slice type, i.e., backward or
- * complete.  The same applies to statement-level slice criterion.
+ * SlicingEngine}  for the sort of slices we discuss here.  In case of expression-level slice criterion, inclusion would
+ * mean  that the entire statement containing the expression needs to be included independent of the slice type, i.e.,
+ * backward or complete.  The same applies to statement-level slice criterion.
  * </p>
  * 
  * <p>
@@ -110,20 +110,26 @@ public class SliceCriteriaFactory {
 	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox vBox, final boolean inclusive) {
 		Collection result = new HashSet();
 		Value value = vBox.getValue();
+		boolean include = true;
+        // add the use boxes as a slice criteria if the given expression is not being defined.  If so, add the complete
+        // statement with inclusion. 
+		if (!stmt.getDefBoxes().contains(vBox)) {
+			Collection temp = value.getUseBoxes();
 
-		Collection temp = value.getUseBoxes();
-
-		if (temp.size() > 0) {
-			for (Iterator i = temp.iterator(); i.hasNext();) {
-				SliceExpr exprCriterion = SliceExpr.getSliceExpr();
-				exprCriterion.initialize(method, stmt, vBox, inclusive);
-				result.add(exprCriterion);
+			if (temp.size() > 0) {
+				for (Iterator i = temp.iterator(); i.hasNext();) {
+					SliceExpr exprCriterion = SliceExpr.getSliceExpr();
+					exprCriterion.initialize(method, stmt, vBox, inclusive);
+					result.add(exprCriterion);
+				}
 			}
+			include = false;
 		}
 
 		SliceStmt stmtCriterion = SliceStmt.getSliceStmt();
-		stmtCriterion.initialize(method, stmt, inclusive);
+		stmtCriterion.initialize(method, stmt, include);
 		result.add(stmtCriterion);
+
 		return result;
 	}
 
@@ -201,10 +207,11 @@ public class SliceCriteriaFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/08/20 18:31:22  venku
+   Documentation errors fixed.
    Revision 1.7  2003/08/18 12:14:13  venku
    Well, to start with the slicer implementation is complete.
    Although not necessarily bug free, hoping to stabilize it quickly.
-
    Revision 1.6  2003/08/18 05:01:45  venku
    Committing package name change in source after they were moved.
    Revision 1.5  2003/08/18 04:56:47  venku
