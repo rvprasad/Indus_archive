@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.transformations.slicer;
+package edu.ksu.cis.indus.slicer.transformations;
 
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -608,6 +608,12 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/02/23 09:10:54  venku
+   - depending on the unit graph used the body may be inconsistent in
+     terms of control/data flow paths as the data analyses are based
+     on the unit graph.  Hence, soot transformers are used to bring the
+     body into a consistent state and then the validity tests are performed.
+
    Revision 1.19  2004/02/23 04:43:39  venku
    - jumps were not fixed properly when old statements were
      replaced with new statements.

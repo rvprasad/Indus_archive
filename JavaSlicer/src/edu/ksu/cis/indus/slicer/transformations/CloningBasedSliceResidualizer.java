@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.transformations.slicer;
+package edu.ksu.cis.indus.slicer.transformations;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
@@ -68,7 +68,7 @@ import soot.util.Chain;
  * @author $Author$
  * @version $Revision$
  */
-public class CloningBasedSliceResidualizer
+class CloningBasedSliceResidualizer
   extends AbstractTransformer {
 	/**
 	 * The system resulting from the transformation.
@@ -369,7 +369,7 @@ public class CloningBasedSliceResidualizer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceCollector#makeExecutable()
+	 * @see edu.ksu.cis.indus.slicer.transformations.ISliceCollector#makeExecutable()
 	 */
 	public void makeExecutable() {
 		// TODO: Auto-generated method stub
@@ -553,6 +553,10 @@ public class CloningBasedSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/09 04:22:14  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.5  2003/12/08 12:16:05  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

@@ -25,7 +25,7 @@ import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
 import edu.ksu.cis.indus.tools.Phase;
 
-import edu.ksu.cis.indus.transformations.slicer.TagBasedDestructiveSliceResidualizer;
+import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -245,6 +245,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/02/06 00:33:26  venku
+   - logging.
+
    Revision 1.24  2004/02/06 00:22:09  venku
    - logging.
 

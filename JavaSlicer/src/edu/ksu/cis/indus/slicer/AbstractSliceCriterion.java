@@ -31,7 +31,7 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractSliceCriterion
+abstract class AbstractSliceCriterion
   extends AbstractPoolable
   implements ISliceCriterion {
 	/**
@@ -136,6 +136,14 @@ public abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/01/22 11:43:38  venku
+   - while checking for equality we can rely on instanceof for null check.
+     null instanceof <anything> is always false.
+   - If SliceExpr is the subclass of SliceStmt, then a SliceExpr object
+     can be equal to a SliceStmt object if they are equal in terms of SliceStmt
+     fields.  Hence, the slicestmt object may not be added to the
+     workbag when an identical sliceexpr object exists in the workbag. FIXED.
+
    Revision 1.11  2004/01/20 00:35:14  venku
    - use the new custom to string style defined in indus.
    Revision 1.10  2004/01/19 08:27:03  venku
