@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -253,10 +253,15 @@ public class SafeLockAnalysis
 			stable();
 
 			if (LOGGER.isDebugEnabled()) {
+				final Collection _safeMonitors = CollectionUtils.subtract(monitorInfo.getMonitorTriples(), unsafeMonitors);
 				LOGGER.debug("Unsafe Monitors: \n" + CollectionsUtilities.prettyPrint(unsafeMonitors));
-				LOGGER.debug("Safe Monitors: \n"
-					+ CollectionsUtilities.prettyPrint(CollectionUtils.subtract(monitorInfo.getMonitorTriples(),
-							unsafeMonitors)));
+				LOGGER.debug("Safe Monitors: \n" + CollectionsUtilities.prettyPrint(_safeMonitors));
+
+				final Collection _temp = CollectionUtils.subtract(monitorInfo.getMonitorTriples(), _safeMonitors);
+				_temp.removeAll(unsafeMonitors);
+				LOGGER.debug("Unaccounted Monitors: \n" + CollectionsUtilities.prettyPrint(_temp));
+				LOGGER.debug("Overlapping Monitors: \n"
+					+ CollectionsUtilities.prettyPrint(CollectionUtils.intersection(_safeMonitors, unsafeMonitors)));
 			}
 		}
 	}
@@ -576,59 +581,4 @@ public class SafeLockAnalysis
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.17  2004/08/09 10:15:05  venku
-   - used monitor graphs to achieve some speed up.
-   Revision 1.16  2004/08/05 09:28:54  venku
-   - documentation.
-   - removed safeByCondition3() as it was checking of dependence on any
-     enclosed lock and not enclosed locks that were unsafe.  However, this is
-     addressed in the fixed point iteration in analyze().
-   Revision 1.15  2004/08/02 07:33:45  venku
-   - small but significant change to the pair manager.
-   - ripple effect.
-   Revision 1.14  2004/07/30 05:17:08  venku
-   - moved the methods to check for wait(), notify(), and start() invocations into Util.
-   Revision 1.13  2004/07/27 11:07:20  venku
-   - updated project to use safe lock analysis.
-   Revision 1.12  2004/07/27 07:08:25  venku
-   - revamped IMonitorInfo interface.
-   - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
-   - deleted WaitNotifyAnalysis
-   - ripple effect in EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.11  2004/07/25 10:52:22  venku
-   - minor changes.
-   Revision 1.10  2004/07/25 10:26:07  venku
-   - added a new interface to query values attached to nodes.
-   Revision 1.9  2004/07/23 13:09:44  venku
-   - Refactoring in progress.
-     - Extended IMonitorInfo interface.
-     - Teased apart the logic to calculate monitor info from SynchronizationDA
-       into MonitorAnalysis.
-     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
-     - ripple effect.
-     - Implemented safelock analysis to handle intraprocedural processing.
-   Revision 1.8  2004/07/11 09:42:14  venku
-   - Changed the way status information was handled the library.
-     - Added class AbstractStatus to handle status related issues while
-       the implementations just announce their status.
-   Revision 1.7  2004/06/16 08:45:46  venku
-   - need to put in the framework for the analysis.
-   Revision 1.6  2003/12/08 12:20:44  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.5  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.4  2003/09/28 03:17:13  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.3  2003/09/15 01:42:21  venku
-   - removed unnecessary TODO markers.
-   Revision 1.2  2003/09/12 23:21:15  venku
-   - committing to avoid annoyance.
-   Revision 1.1  2003/09/12 23:15:40  venku
-   - committing to avoid annoyance.
- */
+// End of File
