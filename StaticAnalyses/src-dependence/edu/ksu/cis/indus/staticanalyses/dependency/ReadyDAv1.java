@@ -564,11 +564,9 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Indicates if OFA is used or not.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> indicates OFA is used; <code>false</code>, otherwise.
 	 */
 	protected final boolean getUseOFA() {
 		return useOFA;
@@ -1224,6 +1222,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/02/05 23:42:35  venku
+   - copy/paste error in normalizeExit. FIXED.
+   - incorrect maps were being updated in process2/4. FIXED.
+
    Revision 1.43  2004/01/25 15:32:41  venku
    - enabled ready and interference dependences to be OFA aware.
    Revision 1.42  2004/01/25 08:48:36  venku
