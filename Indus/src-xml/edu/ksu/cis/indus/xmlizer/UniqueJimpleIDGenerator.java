@@ -155,7 +155,7 @@ public class UniqueJimpleIDGenerator
 			result = getIdForClass(((RefType) type).getSootClass());
 		} else if (type instanceof ArrayType) {
 			ArrayType arrayType = (ArrayType) type;
-			StringBuffer t = new StringBuffer(getIdForType(arrayType.getElementType()));
+			StringBuffer t = new StringBuffer(getIdForType(arrayType.baseType));
 			t.append(".." + arrayType.numDimensions);
 			result = t.toString();
 		} else {
@@ -195,6 +195,9 @@ public class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/26 18:25:32  venku
+   - modified the id returned for types.
+
    Revision 1.2  2003/11/17 15:57:03  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
