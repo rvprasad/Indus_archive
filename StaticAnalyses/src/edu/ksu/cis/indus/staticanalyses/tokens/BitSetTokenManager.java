@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import edu.ksu.cis.indus.common.CollectionsModifier;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
@@ -231,7 +231,7 @@ public final class BitSetTokenManager
 
 				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
-					final BitSet _tokens = (BitSet) CollectionsModifier.getFromMap(type2tokens, _type, new BitSet(1));
+					final BitSet _tokens = (BitSet) CollectionsUtilities.getFromMap(type2tokens, _type, new BitSet(1));
 					_tokens.set(_index);
 				}
 				_index++;
@@ -267,6 +267,10 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/20 07:29:41  venku
+   - optimized the token set to be optimal when created.
+   - added new method to retrieve empty token sets (getNewTokenSet()).
+
    Revision 1.3  2004/05/19 00:20:49  venku
    - optimized getTokens() method.
    Revision 1.2  2004/05/06 22:27:29  venku

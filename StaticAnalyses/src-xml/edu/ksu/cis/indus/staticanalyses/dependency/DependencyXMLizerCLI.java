@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.CollectionsModifier;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -296,7 +296,7 @@ public class DependencyXMLizerCLI
 			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 			_start = System.currentTimeMillis();
 			_da.analyze();
-			CollectionsModifier.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
+			CollectionsUtilities.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
 			_stop = System.currentTimeMillis();
 			addTimeLog(_da.getClass().getName() + "[" + _da.hashCode() + "] analysis", _stop - _start);
 		}
@@ -368,6 +368,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/14 06:27:23  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.11  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
@@ -561,6 +564,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/14 06:27:23  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.11  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.

@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.common.CollectionsModifier;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -411,7 +411,7 @@ public class ThreadGraph
 
 			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
-				CollectionsModifier.putIntoCollectionInMap(method2threads, _sm, _value, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(method2threads, _sm, _value, new HashSet());
 			}
 		}
 
@@ -453,7 +453,7 @@ public class ThreadGraph
 
 			for (final Iterator _j = methods.iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
-				CollectionsModifier.putIntoCollectionInMap(method2threads, _sm, _thread, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(method2threads, _sm, _thread, new HashSet());
 			}
 		}
 
@@ -684,6 +684,15 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.28  2004/03/04 14:06:40  venku
    - nulls should not be considered as new expressions. FIXED.
    Revision 1.27  2004/02/25 00:04:02  venku

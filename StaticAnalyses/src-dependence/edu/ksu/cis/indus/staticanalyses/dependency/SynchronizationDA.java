@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.CollectionsModifier;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -263,13 +263,13 @@ public final class SynchronizationDA
 			final Stmt _enterMonitor = (Stmt) _pair.getFirst();
 			final SootMethod _method = (SootMethod) _pair.getSecond();
 			final Context _context = new Context();
-			final Map _ddee2ddents = (Map) CollectionsModifier.getFromMap(dependee2dependent, _method, new HashMap());
+			final Map _ddee2ddents = (Map) CollectionsUtilities.getFromMap(dependee2dependent, _method, new HashMap());
 
 			if (_ddee2ddents.get(_enterMonitor) != null) {
 				continue;
 			}
 
-			final Map _dent2ddees = (Map) CollectionsModifier.getFromMap(dependent2dependee, _method, new HashMap());
+			final Map _dent2ddees = (Map) CollectionsUtilities.getFromMap(dependent2dependee, _method, new HashMap());
 
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
 			final List _stmtList = getStmtList(_method);
@@ -346,14 +346,14 @@ nextBasicBlock:
 
 							for (final Iterator _k = _currStmts.iterator(); _k.hasNext();) {
 								final Stmt _curr = (Stmt) _k.next();
-								CollectionsModifier.putAllIntoCollectionInMap(_dent2ddees, _curr, _dependees, new HashSet());
+								CollectionsUtilities.putAllIntoCollectionInMap(_dent2ddees, _curr, _dependees, new HashSet());
 							}
 
 							// add dependent information for enter monitor
-							CollectionsModifier.putAllIntoCollectionInMap(_ddee2ddents, _enter, _currStmts, new HashSet());
+							CollectionsUtilities.putAllIntoCollectionInMap(_ddee2ddents, _enter, _currStmts, new HashSet());
 
 							//add dependent information for exit monitor
-							CollectionsModifier.putAllIntoCollectionInMap(_ddee2ddents, _exit, _currStmts, new HashSet());
+							CollectionsUtilities.putAllIntoCollectionInMap(_ddee2ddents, _exit, _currStmts, new HashSet());
 
 							final Triple _triple = new Triple(_enter, _exit, _method);
 							monitorTriples.add(_triple);
@@ -520,6 +520,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/05/14 06:27:24  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.36  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

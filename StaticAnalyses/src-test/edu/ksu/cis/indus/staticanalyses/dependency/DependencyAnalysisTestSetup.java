@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.TestHelper;
 
-import edu.ksu.cis.indus.common.CollectionsModifier;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
@@ -165,7 +165,7 @@ public class DependencyAnalysisTestSetup
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
 			_da.analyze();
-			CollectionsModifier.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
+			CollectionsUtilities.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
 		}
 	}
 
@@ -243,6 +243,9 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/05/14 11:25:48  venku
+   - aliasUD was not reset. FIXED.
+
    Revision 1.13  2004/05/14 06:27:25  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
 

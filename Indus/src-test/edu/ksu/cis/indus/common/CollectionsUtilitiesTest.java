@@ -24,13 +24,13 @@ import java.util.Map;
 
 
 /**
- * This class tests <code>CollectionsModifier</code> class.
+ * This class tests <code>CollectionsUtilities</code> class.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CollectionsModifierTest
+public class CollectionsUtilitiesTest
   extends IndusTestCase {
 	/**
 	 * The map.
@@ -45,7 +45,7 @@ public class CollectionsModifierTest
 		_temp.add("second");
 
 		final Collection _t = new ArrayList();
-		CollectionsModifier.putAllIntoCollectionInMap(map, "first", _temp, _t);
+		CollectionsUtilities.putAllIntoCollectionInMap(map, "first", _temp, _t);
 		assertNotNull(map.get("first"));
 		assertSame(_t, map.get("first"));
 		assertTrue(((Collection) map.get("first")).contains("second"));
@@ -59,7 +59,7 @@ public class CollectionsModifierTest
 		_temp.add("second");
 
 		final Collection _t = new ArrayList();
-		CollectionsModifier.putIntoCollectionInMap(map, "first", "second", _t);
+		CollectionsUtilities.putIntoCollectionInMap(map, "first", "second", _t);
 		assertNotNull(map.get("first"));
 		assertSame(_t, map.get("first"));
 		assertTrue(((Collection) map.get("first")).contains("second"));
@@ -86,6 +86,9 @@ public class CollectionsModifierTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/04/21 02:24:04  venku
+   - test clean up code was added.
+
    Revision 1.3  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the

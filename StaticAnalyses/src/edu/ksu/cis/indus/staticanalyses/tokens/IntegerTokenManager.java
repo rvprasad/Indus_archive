@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import edu.ksu.cis.indus.common.CollectionsModifier;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 
 import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
@@ -103,7 +103,7 @@ public class IntegerTokenManager
 			_result.integer |= ((IntegerTokens) tokens).integer;
 
 			final MutableInteger _tokens =
-				(MutableInteger) CollectionsModifier.getFromMap(type2tokens, filterType, new MutableInteger());
+				(MutableInteger) CollectionsUtilities.getFromMap(type2tokens, filterType, new MutableInteger());
 			_result.integer &= _tokens.intValue();
 			return _result;
 		}
@@ -288,7 +288,7 @@ public class IntegerTokenManager
 				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
 					final MutableInteger _integer =
-						(MutableInteger) CollectionsModifier.getFromMap(type2tokens, _type, new MutableInteger());
+						(MutableInteger) CollectionsUtilities.getFromMap(type2tokens, _type, new MutableInteger());
 					_integer.setValue(_integer.intValue() | _index);
 				}
 				_index <<= 1;
@@ -318,6 +318,10 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/05/20 07:29:41  venku
+   - optimized the token set to be optimal when created.
+   - added new method to retrieve empty token sets (getNewTokenSet()).
+
    Revision 1.5  2004/05/19 00:20:49  venku
    - optimized getTokens() method.
    Revision 1.4  2004/05/06 22:27:29  venku

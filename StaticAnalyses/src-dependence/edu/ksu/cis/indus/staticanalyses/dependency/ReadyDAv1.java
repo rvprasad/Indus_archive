@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.CollectionsModifier;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -268,8 +268,8 @@ public class ReadyDAv1
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
 				monitorMethods.add(method);
-				CollectionsModifier.putIntoCollectionInMap(enterMonitors, method, SYNC_METHOD_PROXY_STMT, new HashSet());
-				CollectionsModifier.putIntoCollectionInMap(exitMonitors, method, SYNC_METHOD_PROXY_STMT, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(enterMonitors, method, SYNC_METHOD_PROXY_STMT, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(exitMonitors, method, SYNC_METHOD_PROXY_STMT, new HashSet());
 			}
 		}
 
@@ -296,7 +296,7 @@ public class ReadyDAv1
 			}
 
 			if (_map != null) {
-				CollectionsModifier.putIntoCollectionInMap(_map, _method, stmt, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(_map, _method, stmt, new HashSet());
 			} else {
 				// InvokeStmt branch
 				InvokeExpr _expr = null;
@@ -316,7 +316,7 @@ public class ReadyDAv1
 					}
 
 					if (_map != null) {
-						CollectionsModifier.putIntoCollectionInMap(_map, _method, stmt, new HashSet());
+						CollectionsUtilities.putIntoCollectionInMap(_map, _method, stmt, new HashSet());
 					}
 				}
 			}
@@ -1022,7 +1022,7 @@ public class ReadyDAv1
 			final List _stmts = getStmtList(_method);
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
 			final Collection _dependees = (Collection) _method2dependeeMap.get(_method);
-			final Map _dents2dees = (Map) CollectionsModifier.getFromMap(dependent2dependee, _method, new HashMap());
+			final Map _dents2dees = (Map) CollectionsUtilities.getFromMap(dependent2dependee, _method, new HashMap());
 
 			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
 				final Stmt _dependee = (Stmt) _j.next();
@@ -1038,7 +1038,7 @@ public class ReadyDAv1
 				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
 					final Stmt _stmt = (Stmt) _k.next();
 
-					CollectionsModifier.putIntoCollectionInMap(_dents2dees, _stmt, _pair, new HashSet());
+					CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _stmt, _pair, new HashSet());
 
 					// record dependee to dependent direction information
 					_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
@@ -1067,7 +1067,7 @@ public class ReadyDAv1
 						for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
 							final Stmt _stmt = (Stmt) _k.next();
 
-							CollectionsModifier.putIntoCollectionInMap(_dents2dees, _stmt, _pair, new HashSet());
+							CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _stmt, _pair, new HashSet());
 
 							// record dependee to dependent direction information
 							_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
@@ -1091,8 +1091,8 @@ public class ReadyDAv1
 				}
 
 				//add dependee to dependent direction information.
-				final Map _dees2dents = (Map) CollectionsModifier.getFromMap(dependee2dependent, _method, new HashMap());
-				CollectionsModifier.putAllIntoCollectionInMap(_dees2dents, _dependee, _temp, new HashSet());
+				final Map _dees2dents = (Map) CollectionsUtilities.getFromMap(dependee2dependent, _method, new HashMap());
+				CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _dependee, _temp, new HashSet());
 			}
 		}
 	}
@@ -1159,14 +1159,14 @@ public class ReadyDAv1
 							for (final Iterator _l = _tails.iterator(); _l.hasNext();) {
 								final BasicBlock _bb = (BasicBlock) _l.next();
 								final Map dees2dents =
-									(Map) CollectionsModifier.getFromMap(dependee2dependent, _exitMethod, new HashMap());
-								CollectionsModifier.putAllIntoCollectionInMap(dees2dents, _bb.getTrailerStmt(), _dtSet,
+									(Map) CollectionsUtilities.getFromMap(dependee2dependent, _exitMethod, new HashMap());
+								CollectionsUtilities.putAllIntoCollectionInMap(dees2dents, _bb.getTrailerStmt(), _dtSet,
 									new HashSet());
 							}
 						} else {
 							final Map dees2dents =
-								(Map) CollectionsModifier.getFromMap(dependee2dependent, _exitMethod, new HashMap());
-							CollectionsModifier.putAllIntoCollectionInMap(dees2dents, _exit, _dtSet, new HashSet());
+								(Map) CollectionsUtilities.getFromMap(dependee2dependent, _exitMethod, new HashMap());
+							CollectionsUtilities.putAllIntoCollectionInMap(dees2dents, _exit, _dtSet, new HashSet());
 						}
 					}
 				}
@@ -1187,8 +1187,8 @@ public class ReadyDAv1
 					}
 
 					final Map dents2dees =
-						(Map) CollectionsModifier.getFromMap(dependent2dependee, _enterMethod, new HashMap());
-					CollectionsModifier.putAllIntoCollectionInMap(dents2dees, _key, _deSet, new HashSet());
+						(Map) CollectionsUtilities.getFromMap(dependent2dependee, _enterMethod, new HashMap());
+					CollectionsUtilities.putAllIntoCollectionInMap(dents2dees, _key, _deSet, new HashSet());
 				}
 			}
 		}
@@ -1225,8 +1225,8 @@ public class ReadyDAv1
 
 						if (ifDependentOnByRule4(_wPair, _nPair)) {
 							final Map _dents2dees =
-								(Map) CollectionsModifier.getFromMap(dependent2dependee, _wMethod, new HashMap());
-							CollectionsModifier.putIntoCollectionInMap(_dents2dees, _wait, _nPair, new HashSet());
+								(Map) CollectionsUtilities.getFromMap(dependent2dependee, _wMethod, new HashMap());
+							CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _wait, _nPair, new HashSet());
 							_dependents.add(_wPair);
 						}
 					}
@@ -1234,8 +1234,8 @@ public class ReadyDAv1
 
 				// add dependee to dependent information
 				if (!_dependents.isEmpty()) {
-					final Map _dees2dents = (Map) CollectionsModifier.getFromMap(dependee2dependent, _nMethod, new HashMap());
-					CollectionsModifier.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents, new HashSet());
+					final Map _dees2dents = (Map) CollectionsUtilities.getFromMap(dependee2dependent, _nMethod, new HashMap());
+					CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents, new HashSet());
 				}
 			}
 		}
@@ -1245,6 +1245,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.51  2004/05/14 06:27:23  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.50  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

@@ -62,7 +62,8 @@ public final class CommonUnitTestSuite {
 		final TestSuite _suite = new TestSuite();
 
 		//$JUnit-BEGIN$
-		_suite.addTestSuite(CollectionsModifierTest.class);
+		_suite.addTestSuite(CollectionsUtilitiesTest.class);
+		_suite.addTestSuite(FilteredMapTest.class);
 		//$JUnit-END$
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		_suite.setName(CommonUnitTestSuite.class.getName());
@@ -73,6 +74,9 @@ public final class CommonUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/05 23:16:37  venku
+   - textui.TestRunner cannot be run via start(). FIXED.
+
    Revision 1.6  2004/04/05 22:26:30  venku
    - used textui.TestRunner instead of swingui.TestRunner.
 

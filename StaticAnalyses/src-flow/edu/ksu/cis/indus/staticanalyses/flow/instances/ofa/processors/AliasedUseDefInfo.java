@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.common.CollectionsModifier;
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
@@ -75,9 +74,7 @@ public final class AliasedUseDefInfo
 	private static final Log LOGGER = LogFactory.getLog(AliasedUseDefInfo.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The basic block graph manager to use during analysis.
 	 */
 	private final BasicBlockGraphMgr bbgMgr;
 
@@ -192,10 +189,10 @@ public final class AliasedUseDefInfo
 			final Value _ref = _as.getRightOp();
 
 			if (_ref instanceof ArrayRef || _ref instanceof FieldRef) {
-				Map _stmt2ddees = (Map) CollectionsModifier.getFromMap(use2defsMap, _method, new HashMap());
+				Map _stmt2ddees = (Map) CollectionsUtilities.getFromMap(use2defsMap, _method, new HashMap());
 				_stmt2ddees.put(stmt, Collections.EMPTY_SET);
 			} else {
-				Map _stmt2ddents = (Map) CollectionsModifier.getFromMap(def2usesMap, _method, new HashMap());
+				Map _stmt2ddents = (Map) CollectionsUtilities.getFromMap(def2usesMap, _method, new HashMap());
 				_stmt2ddents.put(stmt, Collections.EMPTY_SET);
 			}
 		}
@@ -225,7 +222,7 @@ public final class AliasedUseDefInfo
 
 			// extract a map that contains information only for use sites in reachable methods.
 			final Map _temp =
-				MapUtils.predicatedMap(use2defsMap,
+				CollectionsUtilities.getFilteredMap(use2defsMap,
 					new Predicate() {
 						public boolean evaluate(final Object o) {
 							return _reachables.contains(o);
@@ -400,6 +397,9 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/05/21 10:25:47  venku
+   - logic to determine if instance field references were related was incorrect.  FIXED.
+   - refactoring.
    Revision 1.27  2004/03/03 05:59:33  venku
    - made aliased use-def info intraprocedural control flow reachability aware.
    Revision 1.26  2004/03/03 02:17:46  venku
