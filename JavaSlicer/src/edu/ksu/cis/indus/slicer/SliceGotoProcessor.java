@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,12 +52,7 @@ public final class SliceGotoProcessor {
 	/** 
 	 * This filter out statements that are not of type <code>GotoStmt</code>.
 	 */
-	public static final Predicate GOTO_STMT_PREDICATE =
-		new Predicate() {
-			public boolean evaluate(final Object object) {
-				return object instanceof GotoStmt;
-			}
-		};
+	public static final Predicate GOTO_STMT_PREDICATE = PredicateUtils.instanceofPredicate(GotoStmt.class);
 
 	/** 
 	 * The logger used by instances of this class to log messages.
