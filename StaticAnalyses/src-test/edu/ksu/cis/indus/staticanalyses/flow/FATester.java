@@ -299,6 +299,10 @@ public final class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.8  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
@@ -310,7 +314,7 @@ public final class FATester
    - Enabled call graph xmlization.
    Revision 1.5  2003/12/07 14:04:43  venku
    - made FATester command-line compatible.
-   - made use of DirectedAndSimpleNodeGraphTest in
+   - made use of AbstractDirectedGraphTest in
      CallGraphTester to test the constructed call graphs.
    Revision 1.4  2003/12/07 08:39:23  venku
    - added more tests.
