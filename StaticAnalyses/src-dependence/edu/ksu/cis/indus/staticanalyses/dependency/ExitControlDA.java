@@ -39,7 +39,9 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class provides indirect intraprocedural forward control dependence information.
+ * This class provides intraprocedural forward control dependence information.  The "directness" of the analysis (alike that
+ * of backward control dependence) depends on the flavor backward control dependence used to calculate forward control
+ * dependence.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -47,15 +49,13 @@ import soot.jimple.Stmt;
  */
 public class ExitControlDA
   extends AbstractControlDA {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ExitControlDA.class);
 
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	/** 
+	 * The instance of analysis that provides backward control dependence information.
 	 */
 	private IDependencyAnalysis entryControlDA;
 
@@ -150,12 +150,17 @@ public class ExitControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Calculates the dependees of the control sinks.
 	 *
-	 * @param bbg DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param bbg is the basic block graph in which control sink dependees need to be calculated.
+	 * @param method of <code>bbg</code>.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the collection of basic blocks that are backward control dependees of the control sinks in <code>bbg</code>.
+	 *
+	 * @pre bbg != null and method != null
+	 * @post result != null;
+	 * @post result.oclIsKindOf(Collection(BasicBlock))
+	 * @post bbg.getNodes().containsAll(result)
 	 */
 	private Collection calculateDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
 		final Collection _result;
@@ -184,12 +189,17 @@ public class ExitControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Calculates the dependence information at the level of basic blocks.
 	 *
-	 * @param bbg DOCUMENT ME!
-	 * @param dependeeBBs DOCUMENT ME!
+	 * @param bbg is the basic block graph for which dependence need to be calculated.
+	 * @param dependeeBBs is the set of forward control dependees in <code>bbg</code>.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a map from dependee basic block to collection of dependents basic block.
+	 *
+	 * @pre bbg != null and dependeeBBs != null
+	 * @post result != null and result.oclIsKindOf(Map(BasicBlock, Collection(BasicBlock)))
+	 * @post bbg.getNodes().containsAll(result.keySet())
+	 * @post result.values()->forall(o | bbg.getNodes().containsAll(o))
 	 */
 	private Map calculateDependenceForBBs(final BasicBlockGraph bbg, final Collection dependeeBBs) {
 		final Map _dependence = new HashMap();
@@ -205,10 +215,13 @@ public class ExitControlDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Calculates dependence information for statements from the dependence information for basic blocks.
 	 *
-	 * @param dependeeBB2dependentBBs DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param dependeeBB2dependentBBs maps dependee basic blocks to collection of depenent basic blocks.
+	 * @param method for which the dependence is being recorded.
+	 *
+	 * @pre dependeeBB2dependentBBs != null and method != null
+	 * @pre dependeeBB2dependentBBs.oclIsKindOf(Map(BasicBlock, Collection(BasicBlock)))
 	 */
 	private void calculateDependenceForStmts(final Map dependeeBB2dependentBBs, final SootMethod method) {
 		final List _methodLocalDee2Dent = CollectionsUtilities.getListFromMap(dependee2dependent, method);
@@ -252,6 +265,8 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/07/11 14:50:59  venku
+   - commit more logging.
    Revision 1.16  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
