@@ -21,7 +21,6 @@ import edu.ksu.cis.indus.TestHelper;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.XMLBasedDependencyAnalysisTest;
@@ -196,6 +195,13 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/05/14 09:02:57  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
+
    Revision 1.15  2004/05/14 06:27:21  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
 
