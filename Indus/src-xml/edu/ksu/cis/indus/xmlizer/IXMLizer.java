@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import java.util.Map;
+
 /**
  * This is the interface for xmlizing jimple-based systems.
  *
@@ -56,11 +58,24 @@ public interface IXMLizer {
 	 * @return the directory into which xml data will be dumped.
 	 */
 	String getXmlOutputDir();
+    
+    /**
+     * Writes information in XML form.
+     *
+     * @param info is a map in which information required for xmlization will be provided.
+     *
+     * @pre info != null
+     */
+    void writeXML(final Map info);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/09 02:00:11  venku
+   - changed AbstractXMLizer.
+   - ripple effect.
+
    Revision 1.3  2004/02/08 19:08:03  venku
    - documentation
 

@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -139,15 +137,6 @@ public abstract class AbstractXMLizer
 	 * @post result != null
 	 */
 	public abstract String getFileName(final String name);
-
-	/**
-	 * Writes information in XML form.
-	 *
-	 * @param info is a map in which information required for xmlization will be provided.
-	 *
-	 * @pre info != null
-	 */
-	public abstract void writeXML(final Map info);
 
 	/**
 	 * Dumps the jimple into a file.
@@ -274,6 +263,10 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/04/22 22:12:09  venku
+   - made changes to jimple xmlizer to dump each class into a separate file.
+   - ripple effect.
+
    Revision 1.17  2004/04/18 08:59:02  venku
    - enabled test support for slicer.
    Revision 1.16  2004/04/01 22:34:19  venku
