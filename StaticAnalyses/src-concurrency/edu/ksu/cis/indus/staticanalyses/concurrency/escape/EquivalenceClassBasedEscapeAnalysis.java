@@ -998,10 +998,6 @@ public class EquivalenceClassBasedEscapeAnalysis
 				MethodContext mc = (MethodContext) (triple.getFirst());
 				CallTriple callerTrp = new CallTriple(caller, ctrp.getStmt(), ctrp.getExpr());
 				MethodContext sc = (MethodContext) ctrp2sc.get(callerTrp);
-
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Triples " + triple + "\n" + ctrp + "\n" + callerTrp + "\n" + ctrp2sc);
-				}
 				sc.propogateInfoFromTo(mc);
 
 				if (!processed.contains(callee)) {
@@ -1069,6 +1065,12 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/24 12:04:32  venku
+   Removed occursInCycle() method from DirectedGraph.
+   Installed occursInCycle() method in CFGAnalysis.
+   Converted performTopologicalsort() and getFinishTimes() into instance methods.
+   Ripple effect of the above changes.
+
    Revision 1.3  2003/08/24 06:06:34  venku
    logging added.
    Revision 1.2  2003/08/21 03:56:44  venku
