@@ -128,7 +128,9 @@ public final class SynchronizationDA
 		 */
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
-				monitorTriples.add(new Triple(null, null, method));
+                Triple _triple = new Triple(null, null, method);
+                _triple.optimize();
+				monitorTriples.add(_triple);
 			}
 		}
 
@@ -511,6 +513,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/15 06:54:03  venku
+   - formatting.
+
    Revision 1.24  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
