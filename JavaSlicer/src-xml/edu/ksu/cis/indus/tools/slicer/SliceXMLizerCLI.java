@@ -284,7 +284,7 @@ public class SliceXMLizerCLI
 		if (LOGGER.isDebugEnabled()) {
 			try {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Criteria specification before slicing: \n"
+					LOGGER.debug("Criteria specification after slicing: \n"
 						+ SliceCriteriaParser.serialize(slicer.getCriteria()));
 				}
 			} catch (final JiBXException _e) {
@@ -711,6 +711,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/07/02 10:08:25  venku
+   - logging.
+
    Revision 1.42  2004/07/02 09:00:08  venku
    - added support to serialize/deserialize slice criteria. (feature #397)
    - used the above support in SliceXMLizerCLI.
