@@ -30,12 +30,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
+import java.io.Writer;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This implementation xmlizes slices that are captured as tags/annotation.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -49,49 +48,41 @@ class TagBasedSliceXMLizer
 	private static final Log LOGGER = LogFactory.getLog(TagBasedSliceXMLizer.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The name of the slice tag.
 	 */
 	private final String tagName;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This generates ids for jimple entities.
 	 */
 	private IJimpleIDGenerator idGenerator;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if classes are being processed.
 	 */
 	private boolean processingClass;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if methods are being processed.
 	 */
 	private boolean processingMethod;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if statements are being processed.
 	 */
 	private boolean processingStmt;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param oDir DOCUMENNT ME!
-	 * @param theTagName DOCUMENT ME!
-	 * @param generator DOCUMENT ME!
+	 * @param out is the writer to be used to write the xml information.
+	 * @param theTagName is the name of the tag used to indicate parts of the slice in the AST.
+	 * @param generator is the jimple id generator.
+	 *
+	 * @pre out != null and theTagName != null and generator != null
 	 */
-	public TagBasedSliceXMLizer(final String oDir, final String theTagName, final IJimpleIDGenerator generator) {
-		super(oDir);
+	public TagBasedSliceXMLizer(final Writer out, final String theTagName, final IJimpleIDGenerator generator) {
+		super(out);
 		tagName = theTagName;
 		idGenerator = generator;
 	}
@@ -212,8 +203,6 @@ class TagBasedSliceXMLizer
 	}
 
 	/**
-	 * (non-Javadoc)
-	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
 	 */
 	public void processingBegins() {
@@ -228,4 +217,6 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/17 01:39:42  venku
+   - added slice XMLization support.
  */

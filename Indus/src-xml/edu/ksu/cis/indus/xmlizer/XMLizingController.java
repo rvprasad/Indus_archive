@@ -28,9 +28,8 @@ import java.util.List;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a xmlizing controller.  Two different instances of this object will process a set of classes and their methods in
+ * the same order.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -39,9 +38,7 @@ import java.util.List;
 public class XMLizingController
   extends ProcessingController {
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This compares <code>SootClass</code> objects lexographically based on their fully qualified java names.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -61,9 +58,7 @@ public class XMLizingController
 
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This compares <code>SootMethod</code> objects lexographically based on their java signature.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -109,6 +104,8 @@ public class XMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/12 03:59:41  venku
+   - exposed inner classes as static classes.
    Revision 1.2  2003/11/07 11:13:06  venku
    - used class comparator instead of method comparator. FIXED.
    Revision 1.1  2003/11/06 10:01:25  venku

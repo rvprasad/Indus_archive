@@ -16,18 +16,19 @@
 package edu.ksu.cis.indus.tools;
 
 /**
- * DOCUMENT ME!
- * <p></p>
- * 
- * @version $Revision$ 
+ * The factory interface to be implemented by configuration factories.
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IToolConfigurationFactory {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Creates a tool configuration.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a tool configuration.
+	 *
+	 * @post result != null
 	 */
 	AbstractToolConfiguration createToolConfiguration();
 }
@@ -35,6 +36,8 @@ public interface IToolConfigurationFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/03 07:59:54  venku
+   - formatting.
    Revision 1.1  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.

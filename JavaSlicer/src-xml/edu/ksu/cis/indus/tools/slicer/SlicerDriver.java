@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -163,10 +164,22 @@ public class SlicerDriver
 	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
+	 *
+	 * @throws RuntimeException DOCUMENT ME!
 	 */
 	protected AbstractSliceXMLizer getXMLizer() {
 		idGenerator = new UniqueJimpleIDGenerator();
-		return new TagBasedSliceXMLizer(outputDirectory, TagBasedSlicingTransformer.SLICING_TAG, idGenerator);
+
+		AbstractSliceXMLizer result;
+
+		try {
+			FileWriter out = new FileWriter(new File(outputDirectory));
+			result = new TagBasedSliceXMLizer(out, TagBasedSlicingTransformer.SLICING_TAG, idGenerator);
+		} catch (IOException e) {
+			LOGGER.error("Exception while opening file to write xml information.", e);
+			throw new RuntimeException(e);
+		}
+		return result;
 	}
 
 	/**
@@ -358,6 +371,8 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/17 01:39:42  venku
+   - added slice XMLization support.
    Revision 1.7  2003/11/09 07:58:33  venku
    - default configuration has been put into file instead
      of embedding it into the source code.

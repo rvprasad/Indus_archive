@@ -560,7 +560,8 @@ public final class SlicerTool
 	/**
 	 * Creates criterion based on synchronization constructs and populates <code>criteria</code>.
 	 *
-	 * @throws IllegalStateException DOCUMENT ME!
+	 * @throws IllegalStateException when none of the Synchronization dependency analyses implement <code>IMonitorInfo</code>
+	 * 		   interface.
 	 */
 	private void populateDeadlockCriteria() {
 		SlicerConfiguration slicerConfig = (SlicerConfiguration) getActiveConfiguration();
@@ -611,10 +612,11 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/11/16 18:33:01  venku
+   - fixed an error while returning the DAs.
    Revision 1.24  2003/11/16 18:24:08  venku
    - added methods to retrive active dependencies.
    - documentation and formatting.
-
    Revision 1.23  2003/11/15 22:06:54  venku
    - added support to extract call graph and environment.
    Revision 1.22  2003/11/15 21:27:03  venku

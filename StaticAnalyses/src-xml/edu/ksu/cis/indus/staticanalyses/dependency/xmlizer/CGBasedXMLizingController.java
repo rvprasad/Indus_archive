@@ -23,9 +23,7 @@ import java.util.Collection;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a call-graph based xmlizing controller.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -34,16 +32,19 @@ import java.util.Collection;
 public class CGBasedXMLizingController
   extends CGBasedProcessingController {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The instance of xmlizing controller that is wrapped.
+	 *
+	 * @invariant xmlizingController != null
 	 */
 	private XMLizingController xmlizingController;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param cgiPrm DOCUMENT ME!
+	 * @param cgiPrm provides the call graph information required during controlling.
+	 *
+	 * @pre cgiPrm != null
+	 * @post xmlizingController != null
 	 */
 	public CGBasedXMLizingController(final ICallGraphInfo cgiPrm) {
 		super(cgiPrm);
@@ -72,10 +73,11 @@ public class CGBasedXMLizingController
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/12 05:18:54  venku
+   - moved xmlizing classes to a different class.
    Revision 1.1  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
    - Switched the contents of DependencyXMLizer and DependencyTest.
    - Corrected errors which emitting xml tags.
    - added a scrapbook.
-
  */

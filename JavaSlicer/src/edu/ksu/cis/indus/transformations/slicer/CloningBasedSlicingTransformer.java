@@ -103,9 +103,7 @@ public class CloningBasedSlicingTransformer
 	private Map unslicedMethod2stmtMap = new HashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates the slice type based on constants defined in <code>edu.ksu.cis.indus.slicer.SlicerTool,SLICE</code>.
 	 */
 	private Object sliceType;
 
@@ -527,11 +525,12 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/11/16 23:12:17  venku
+   - coding convention.
    Revision 1.29  2003/11/16 22:55:31  venku
    - added new methods to support processing of seed criteria.
      This is not same as slicing seed criteria of which we do not
      make any distinction.
-
    Revision 1.28  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it

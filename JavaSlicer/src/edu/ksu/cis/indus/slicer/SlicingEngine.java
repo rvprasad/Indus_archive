@@ -169,16 +169,12 @@ public class SlicingEngine {
 	private Object sliceType = BACKWARD_SLICE;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if executable slices should be generated.
 	 */
 	private boolean executableSlice;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if ready dependence should be used.
 	 */
 	private boolean useReady;
 
@@ -295,8 +291,8 @@ public class SlicingEngine {
 	 * Slices the system provided at initialization for the initialized criteria to generate the given type of slice..
 	 */
 	public void slice() {
-        transformer.processSeedCriteria(criteria);
-        workbag.addAllWorkNoDuplicates(criteria);
+		transformer.processSeedCriteria(criteria);
+		workbag.addAllWorkNoDuplicates(criteria);
 
 		// we are assuming the mapping will capture the past-processed information to prevent processed criteria from 
 		// reappearing.  
@@ -320,13 +316,16 @@ public class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
+	 * the given dependency analyses.
 	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param das DOCUMENT ME!
+	 * @param stmt that will trigger the dependence.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param das is a collection of dependency analyses.
+	 *
+	 * @pre stmt != null and method != null and das != null
+	 * @pre das.oclIsKindOf(Collection(DependencyAnalysis))
+	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
 	 */
 	private void generateNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
 		Collection newCriteria = new HashSet();
@@ -570,12 +569,13 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/16 23:01:44  venku
+   - exercises the support to process seed criteria.
    Revision 1.7  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
      into ISlicingBasedTransformer interface.
    - ripple effect.
-
    Revision 1.6  2003/11/06 05:15:05  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

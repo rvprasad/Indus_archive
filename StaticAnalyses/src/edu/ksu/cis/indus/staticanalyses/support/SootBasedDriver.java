@@ -39,9 +39,7 @@ import java.util.Map;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is generic driver that provides basic support to process a system represented in Jimple.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -72,16 +70,12 @@ public abstract class SootBasedDriver {
 	protected Collection rootMethods = new HashSet();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The list of classes that should be considered as the core of the system.
 	 */
 	protected List classNames;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The scene that contains the classes of the system.
 	 */
 	protected Scene scene;
 
@@ -99,16 +93,12 @@ public abstract class SootBasedDriver {
 	private final Map times = new LinkedHashMap();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The class path that should be added.
 	 */
 	private String classpathToAdd;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This counts the number of time logs.
 	 */
 	private int count;
 
@@ -124,33 +114,47 @@ public abstract class SootBasedDriver {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Set the names of the classes to be loaded.
 	 *
-	 * @param s DOCUMENT ME!
+	 * @param s contains the class names.
+	 *
+	 * @pre s != null
 	 */
 	public void setClassNames(final String[] s) {
 		classNames = Arrays.asList(s);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Set the names of the classes to be loaded.
 	 *
-	 * @param s DOCUMENT ME!
+	 * @param s contains the class names.
+	 *
+	 * @pre s != null and s.oclIsKindOf(Collection(String))
 	 */
 	public void setClassNames(final Collection s) {
 		classNames = new ArrayList(s);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Initialize the driver.  Loads up the classes and sets up the scene.
 	 *
-	 * @return DOCUMENT ME!
+	 * @throws RuntimeException when <code>setClassNames()</code> was not called before using this object.
+	 */
+	public void initialize() {
+		if (classNames == null) {
+			throw new RuntimeException("Please call setClassNames() before using this object.");
+		}
+		writeInfo("Loading classes....");
+		scene = loadupClassesAndCollectMains();
+	}
+
+	/**
+	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation. By default, it
+	 * provides an instance of <code>TrapUnitGraphFactory</code>
+	 *
+	 * @return an unit graph factory
+	 *
+	 * @post return != null
 	 */
 	protected AbstractUnitGraphFactory getUnitGraphFactory() {
 		return new TrapUnitGraphFactory();
@@ -170,29 +174,16 @@ public abstract class SootBasedDriver {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Records the given classpath in intention of using it while loading classes into the scene.
 	 *
-	 * @param classpath DOCUMENT ME!
+	 * @param classpath to be considered.
+	 *
+	 * @pre classpath != null
 	 */
 	protected void addToSootClassPath(final String classpath) {
 		classpathToAdd =
 			classpath + File.pathSeparator + System.getProperty("java.home") + File.separator + "lib" + File.separator
 			+ "rt.jar";
-	}
-
-	/**
-	 * Initialize the driver.  Loads up the classes and sets up the scene.
-	 *
-	 * @throws RuntimeException DOCUMENT ME!
-	 */
-	public void initialize() {
-		if (classNames == null) {
-			throw new RuntimeException("Please call setClassNames() before using this TestCase object.");
-		}
-		writeInfo("Loading classes....");
-		scene = loadupClassesAndCollectMains();
 	}
 
 	/**
@@ -239,11 +230,9 @@ public abstract class SootBasedDriver {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the logger to be used.
 	 *
-	 * @param myLogger DOCUMENT ME!
+	 * @param myLogger is the logger to be used.
 	 */
 	protected void setLogger(final Log myLogger) {
 		logger = myLogger;
@@ -301,7 +290,11 @@ public abstract class SootBasedDriver {
 	 */
 	protected void writeInfo(final Object info) {
 		if (logger != null && logger.isInfoEnabled()) {
-			logger.info(info.toString());
+			if (info == null) {
+				logger.info(info.toString());
+			} else {
+				logger.info("null");
+			}
 		}
 	}
 }
@@ -309,9 +302,10 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/15 21:30:21  venku
+   - added a new method to added class names stored in a collection.
    Revision 1.6  2003/11/14 21:12:00  venku
    - exposed initialize() as a public method.
-
    Revision 1.5  2003/11/12 10:45:36  venku
    - soot class path can be set in SootBasedDriver.
    - dependency tests are xmlunit based.

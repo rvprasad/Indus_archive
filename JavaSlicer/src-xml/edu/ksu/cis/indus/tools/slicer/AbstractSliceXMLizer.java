@@ -18,17 +18,11 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
 
 
 /**
- * DOCUMENT ME!
+ * This provides basic infrastructure to xmlize a slice.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -37,11 +31,6 @@ import java.io.Writer;
 abstract class AbstractSliceXMLizer
   extends AbstractProcessor {
 	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(AbstractSliceXMLizer.class);
-
-	/**
 	 * This is the file/stream into which the xml output will be written into.
 	 */
 	protected final Writer writer;
@@ -49,17 +38,10 @@ abstract class AbstractSliceXMLizer
 	/**
 	 * Creates a new AbstractSliceXMLizer object.
 	 *
-	 * @param file DOCUMENT ME!
-	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @param out is the writer with which the xml information should be written.
 	 */
-	protected AbstractSliceXMLizer(final String file) {
-		try {
-			writer = new FileWriter(new File(file));
-		} catch (IOException e) {
-			LOGGER.error("Exception while opening file to dump the slice in xml format.", e);
-			throw new RuntimeException(e);
-		}
+	protected AbstractSliceXMLizer(final Writer out) {
+		writer = out;
 	}
 
 	/**
@@ -88,4 +70,6 @@ abstract class AbstractSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/17 01:39:42  venku
+   - added slice XMLization support.
  */
