@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -74,17 +74,17 @@ import soot.options.Options;
  * @version $Revision$ $Date$
  */
 public class SootBasedDriver {
-	/**
+	/** 
 	 * The name of the property via which the name of the root method trapper class can be specified.
 	 */
 	public static final String TRAPPER_CLASS_PROPERTY;
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER;
 
-	/**
+	/** 
 	 * The name of the property via which the name of the statement graph factory class can be specified.
 	 */
 	private static final String STMT_GRAPH_FACTORY_CLASS_PROPERTY;
@@ -148,50 +148,50 @@ public class SootBasedDriver {
 		DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY = _graphFactory;
 	}
 
-	/**
+	/** 
 	 * The default object that can be used for trapping root methods.
 	 */
 	private static final RootMethodTrapper DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER;
 
-	/**
+	/** 
 	 * The default object that can be used for created statement graphs.
 	 */
 	private static final IStmtGraphFactory DEFAULT_INSTANCE_OF_STMT_GRAPH_FACTORY;
 
-	/**
+	/** 
 	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
 	 */
 	protected BasicBlockGraphMgr bbm;
 
-	/**
+	/** 
 	 * This is the set of methods which serve as the entry point into the system being analyzed.
 	 *
 	 * @invariant rootMethods.oclIsTypeOf(SootMethod)
 	 */
 	protected Collection rootMethods = new HashSet();
 
-	/**
+	/** 
 	 * This provides <code>UnitGraph</code>s required by the analyses.  By defaults this will be initialized to
 	 * <code>ExceptionFlowSensitiveStmtGraphFactory</code>.
 	 */
 	protected IStmtGraphFactory cfgProvider;
 
-	/**
+	/** 
 	 * The list of classes that should be considered as the core of the system.
 	 */
 	protected List classNames;
 
-	/**
+	/** 
 	 * The scene that contains the classes of the system.
 	 */
 	protected Scene scene;
 
-	/**
+	/** 
 	 * The logger used by instances of this class and it's subclasses to log messages.
 	 */
 	private Log logger;
 
-	/**
+	/** 
 	 * This is used to maintain the execution time of each analysis/transformation.  This timing information is printed via
 	 * <code>printTimingStats</code>.
 	 *
@@ -199,12 +199,12 @@ public class SootBasedDriver {
 	 */
 	private final Map times = new LinkedHashMap();
 
-	/**
+	/** 
 	 * This traps the root methods.
 	 */
 	private RootMethodTrapper rootMethodTrapper;
 
-	/**
+	/** 
 	 * The class path that should be added.
 	 */
 	private String classpathToAdd;
@@ -228,17 +228,17 @@ public class SootBasedDriver {
 	 * @version $Revision$ $Date$
 	 */
 	public static class RootMethodTrapper {
-		/**
+		/** 
 		 * The names of the classes which can contribute entry points.
 		 */
 		protected Collection theClassNames;
 
-		/**
+		/** 
 		 * The regular expression that is used to match classes which may contain root methods.
 		 */
 		private Pattern rootClassNamePattern;
 
-		/**
+		/** 
 		 * The regular expression that is used to match methods which should be root methods.
 		 */
 		private Pattern rootMethodNamePattern;
@@ -465,6 +465,15 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * Resets internal data structure.
+	 */
+	public final void reset() {
+		rootMethods.clear();
+		scene = null;
+		times.clear();
+	}
+
+	/**
 	 * Logs the given object via the logging api.  Configure the logging via the logging implementation's configuration
 	 * support.
 	 *
@@ -542,10 +551,12 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/08/16 16:48:56  venku
+   - changed the names of the methods that set and get UnitGraph or related classes to
+     contain StmtGraph instead of UnitGraph.
    Revision 1.31  2004/06/23 06:16:41  venku
    - deleted  SootBasedDriver.setClassNames(String[])
    - ripple effect.
-
    Revision 1.30  2004/06/22 14:38:41  venku
    - coding conventions.
    Revision 1.29  2004/06/22 00:42:30  venku
