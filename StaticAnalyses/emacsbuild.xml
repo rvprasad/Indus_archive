@@ -8,7 +8,7 @@
 
 <property name="bin" value="bin"/>
 <property name="dist" value="dist"/>
-<property name="build" value="${dist}"/>
+<property name="build" value="build"/>
 <property name="design" value="design"/>
 <property name="demo" value="demo"/>
 <property name="docs" value="docs"/>
