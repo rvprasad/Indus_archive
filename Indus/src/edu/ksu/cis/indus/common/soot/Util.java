@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -173,7 +174,7 @@ public final class Util {
 		}
 
 		final List _tsch = _sng.performTopologicalSort(topDown);
-		CollectionUtils.transform(_tsch, SimpleNodeGraph.OBJECT_EXTRACTOR);
+		CollectionUtils.transform(_tsch, IObjectDirectedGraph.OBJECT_EXTRACTOR);
 		return _tsch;
 	}
 
@@ -774,6 +775,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/07/30 07:07:52  venku
+   - documentation.
+
    Revision 1.29  2004/07/30 05:16:43  venku
    - moved the methods to check for wait(), notify(), and start() invocations into Util.
 

@@ -15,6 +15,9 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import org.apache.commons.collections.Transformer;
+
+
 /**
  * This interface extends directed graph interface to query for an object associated a node of the graph.
  *
@@ -24,6 +27,25 @@ package edu.ksu.cis.indus.common.graph;
  */
 public interface IObjectDirectedGraph
   extends IDirectedGraph {
+	/** 
+	 * This transformer can be used with Collection Utils to extract the objects from a collection of SimpleNodes.  If the
+	 * collection has objects of other type then the transformation will insert null into the collection being operated.
+	 */
+	Transformer OBJECT_EXTRACTOR =
+		new Transformer() {
+			/**
+			 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
+			 */
+			public Object transform(final Object input) {
+				Object _result = null;
+
+				if (input instanceof IObjectNode) {
+					_result = ((IObjectNode) input).getObject();
+				}
+				return _result;
+			}
+		};
+
 	/**
 	 * This interface facilitates the access to the object in a node.
 	 *
@@ -56,6 +78,8 @@ public interface IObjectDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/07/25 10:26:06  venku
+   - added a new interface to query values attached to nodes.
    Revision 1.1  2004/07/24 09:57:05  venku
    - added a new interface to extract objects associated with nodes of the graph.
  */

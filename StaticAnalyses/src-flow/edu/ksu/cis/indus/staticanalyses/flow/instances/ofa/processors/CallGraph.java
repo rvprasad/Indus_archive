@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 
@@ -316,7 +317,7 @@ public class CallGraph
 	 */
 	public List getMethodsInTopologicalOrder(final boolean topdown) {
 		final List _topologicalSorted = graphCache.performTopologicalSort(topdown);
-		CollectionUtils.transform(_topologicalSorted, SimpleNodeGraph.OBJECT_EXTRACTOR);
+		CollectionUtils.transform(_topologicalSorted, IObjectDirectedGraph.OBJECT_EXTRACTOR);
 		return _topologicalSorted;
 	}
 
@@ -359,7 +360,7 @@ public class CallGraph
 
 		if (_result == null) {
 			_result = graphCache.getReachablesFrom(graphCache.getNode(root), forward);
-			CollectionUtils.transform(_result, SimpleNodeGraph.OBJECT_EXTRACTOR);
+			CollectionUtils.transform(_result, IObjectDirectedGraph.OBJECT_EXTRACTOR);
 			_map.put(root, _result);
 		}
 		return Collections.unmodifiableCollection(_result);
@@ -733,6 +734,10 @@ public class CallGraph
 
 /*
  * ChangeLog: $Log$
+ * ChangeLog: Revision 1.63  2004/08/08 10:11:35  venku
+ * ChangeLog: - added a new class to configure constants used when creating data structures.
+ * ChangeLog: - ripple effect.
+ * ChangeLog:
  * ChangeLog: Revision 1.62  2004/08/08 08:50:03  venku
  * ChangeLog: - aspectized profiling/statistics logic.
  * ChangeLog: - used a cache in CallGraph for reachable methods.

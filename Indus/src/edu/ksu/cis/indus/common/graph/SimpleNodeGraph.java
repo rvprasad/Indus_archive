@@ -22,8 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.Transformer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,12 +36,6 @@ import org.apache.commons.logging.LogFactory;
 public final class SimpleNodeGraph
   extends AbstractMutableDirectedGraph
   implements IObjectDirectedGraph {
-	/** 
-	 * This transformer can be used with Collection Utils to extract the objects from a collection of SimpleNodes.  If the
-	 * collection has objects of other type then the transformation will insert null into the collection being operated.
-	 */
-	public static final Transformer OBJECT_EXTRACTOR = new ObjectExtractor();
-
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -109,29 +101,6 @@ public final class SimpleNodeGraph
 		}
 	}
 
-
-	/**
-	 * This class can be used to extract objects associated with a collection of simple nodes.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	private static final class ObjectExtractor
-	  implements Transformer {
-		/**
-		 * @see org.apache.commons.collections.Transformer#transform(java.lang.Object)
-		 */
-		public Object transform(final Object input) {
-			Object _result = null;
-
-			if (input instanceof IObjectNode) {
-				_result = ((IObjectNode) input).getObject();
-			}
-			return _result;
-		}
-	}
-
 	/**
 	 * Returns a node that represents <code>o</code> in this graph.  If no such node exists, then a new node is created.
 	 *
@@ -192,6 +161,8 @@ public final class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/07/25 10:26:06  venku
+   - added a new interface to query values attached to nodes.
    Revision 1.8  2004/07/24 09:57:05  venku
    - added a new interface to extract objects associated with nodes of the graph.
    Revision 1.7  2004/02/24 22:25:56  venku
