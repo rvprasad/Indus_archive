@@ -71,6 +71,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import soot.Printer;
 import soot.SootClass;
+import soot.SootMethod;
 
 
 /**
@@ -449,8 +450,6 @@ public class SliceXMLizerCLI
 	 * Residualize the slice as jimple files in the output directory.
 	 */
 	private void residualize() {
-		destructivelyUpdateJimple();
-
 		final Printer _printer = Printer.v();
 
 		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
@@ -461,7 +460,15 @@ public class SliceXMLizerCLI
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Residualizing " + _sc);
+				LOGGER.debug("Dumping jimple for " + _sc);
+			}
+
+			for (final Iterator _j = _sc.getMethods().iterator(); _j.hasNext();) {
+				final SootMethod _sm = (SootMethod) _j.next();
+
+				if (_sm.isConcrete()) {
+					_sm.retrieveActiveBody();
+				}
 			}
 
 			PrintWriter _writer = null;
@@ -471,8 +478,6 @@ public class SliceXMLizerCLI
 				_writer = new PrintWriter(new FileWriter(_file));
 				// write .jimple file
 				_printer.printTo(_sc, _writer);
-				// write .class file
-				_printer.write(_sc, outputDirectory);
 			} catch (final IOException _e) {
 				LOGGER.error("Error while writing " + _sc, _e);
 			} finally {
@@ -481,6 +486,18 @@ public class SliceXMLizerCLI
 					_writer.close();
 				}
 			}
+		}
+
+		destructivelyUpdateJimple();
+
+		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
+			final SootClass _sc = (SootClass) _i.next();
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Dumping class file for " + _sc);
+			}
+			// write .class file
+			_printer.write(_sc, outputDirectory);
 		}
 	}
 
@@ -527,6 +544,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/05/09 10:41:46  venku
+   - slice can be seen easily if the user just sees the slice.  So, there
+     is no point in having -d option.  Hence, it was removed.
+   - temporary directory is used to dump the slice instead of the current
+     directory when no directory is mentioned.
    Revision 1.24  2004/05/09 09:59:41  venku
    - deleted an unused constant.
    Revision 1.23  2004/05/04 09:58:21  venku
