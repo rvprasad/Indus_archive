@@ -21,6 +21,7 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -37,6 +38,11 @@ import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
  */
 public class StatementResolver extends Dialog {
 	/**
+	 * Checkbox for enabling consideration of the value at the statement.
+	 */ 
+	 Button btnConsiderExecution;
+	 
+	/**
 	 * The list of jimple statements.
 	 */
 	private ArrayList stmtList;
@@ -44,6 +50,8 @@ public class StatementResolver extends Dialog {
 	/** The SWT list. */
 	private List jimpleList;
 	
+	
+	 
 	/**
 	 * Constructor.
 	 * @param parentShell The parent shell
@@ -72,7 +80,7 @@ public class StatementResolver extends Dialog {
 	 */
 	protected Control createDialogArea(final Composite parent) {
 		final Composite _composite = new Composite(parent, SWT.NONE);
-		final RowLayout _rl = new RowLayout(SWT.HORIZONTAL);		
+		final RowLayout _rl = new RowLayout(SWT.VERTICAL);		
 		_composite.setLayout(_rl);
 		final Group _group1 = new Group(_composite, SWT.NONE);
 		_group1.setText(Messages.getString("StatementResolver.1")); //$NON-NLS-1$
@@ -85,6 +93,15 @@ public class StatementResolver extends Dialog {
 			final Stmt _stmt = (Stmt) stmtList.get(_i);
 			jimpleList.add(_stmt.toString());
 		}
+		final Group _group2 = new Group(_composite, SWT.BORDER);
+		_group2.setText("Advanced options");
+		final RowLayout _rl2 = new RowLayout(SWT.HORIZONTAL);
+		_group2.setLayout(_rl2);
+		btnConsiderExecution = new Button(_group2, SWT.CHECK);
+		btnConsiderExecution.setText("Consider the computed value");
+		final IDialogSettings _settings  = SliceEclipsePlugin.getDefault().getDialogSettings();
+		final boolean _considerValue = _settings.getBoolean("edu.ksu.indus.sliceeclipse.considervalue");
+		btnConsiderExecution.setSelection(_considerValue);
 		return _composite;
 	}
 	
@@ -98,6 +115,7 @@ public class StatementResolver extends Dialog {
 			final IDialogSettings _settings = SliceEclipsePlugin.getDefault()
 					.getDialogSettings();
 			_settings.put(Messages.getString("StatementResolver.2"), _index); //$NON-NLS-1$
+			_settings.put("edu.ksu.indus.sliceeclipse.considervalue", btnConsiderExecution.getSelection());
 			super.okPressed();
 		}		
 	}
