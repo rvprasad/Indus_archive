@@ -129,6 +129,7 @@ public class EclipseIndusDriver
 		G.reset();
 		slicer = new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
 		factory = SliceCriteriaFactory.getFactory();
+		cfgProvider = slicer.getStmtGraphFactory();
 	}
 
 	/**
