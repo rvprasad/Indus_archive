@@ -195,12 +195,12 @@ final class FilteredMap
 		return new FilteredSet(super.keySet(),
 			new Predicate() {
 				public boolean evaluate(final Object object) {
-					boolean _r = false;
+					boolean _result = false;
 
 					if (validateKey(object) && validateValue(_map.get(object))) {
-						_r = true;
+						_result = true;
 					}
-					return _r;
+					return _result;
 				}
 			});
 	}
@@ -322,6 +322,9 @@ final class FilteredMap
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/06/28 15:53:30  venku
+   - documentation.
+
    Revision 1.3  2004/06/28 08:08:27  venku
    - new collections classes for filtered access and update.
    Revision 1.2  2004/06/27 05:02:30  venku
