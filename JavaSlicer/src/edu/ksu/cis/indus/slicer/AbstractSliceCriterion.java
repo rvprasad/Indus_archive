@@ -68,8 +68,11 @@ abstract class AbstractSliceCriterion
 		if (o instanceof AbstractSliceCriterion) {
 			_result =
 				((AbstractSliceCriterion) o).method.equals(method)
-				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution
-				  && ((AbstractSliceCriterion) o).callStack.equals(callStack);
+				  && ((AbstractSliceCriterion) o).considerExecution == considerExecution;
+
+			if (_result && callStack != null) {
+				_result = callStack.equals(((AbstractSliceCriterion) o).callStack);
+			}
 		}
 		return _result;
 	}
@@ -184,6 +187,8 @@ abstract class AbstractSliceCriterion
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/08/18 09:10:34  venku
+   - made slicing more interprocedural.
    Revision 1.18  2004/07/09 05:05:25  venku
    - refactored the code to enable the criteria creation to be completely hidden
      from the user.
