@@ -144,18 +144,18 @@ public class IdentifierBasedDataDA
 	 * <code>context</code>. The context is the method in which the o occurs.
 	 *
 	 * @param stmt is a definition statement.
-	 * @param context is the method in which <code>stmt</code> occurs.
+	 * @param method is the method in which <code>stmt</code> occurs.
 	 *
 	 * @return a collection of statement and program points in them which depend on the definition in <code>stmt</code>.
 	 *
 	 * @pre stmt.isOclKindOf(Stmt)
-	 * @pre context.oclIsTypeOf(SootMethod)
+	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(LocalUnitPair))
 	 */
-	public Collection getDependents(final Object stmt, final Object context) {
-		SootMethod method = (SootMethod) context;
-		List dependents = (List) dependentMap.get(method);
-		return Collections.unmodifiableCollection((Collection) dependents.get(getStmtList(method).indexOf(stmt)));
+	public Collection getDependents(final Object stmt, final Object method) {
+		SootMethod sm = (SootMethod) method;
+		List dependents = (List) dependentMap.get(sm);
+		return Collections.unmodifiableCollection((Collection) dependents.get(getStmtList(sm).indexOf(stmt)));
 	}
 
 	/**
@@ -292,6 +292,9 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/11/05 00:44:51  venku
+   - added logging statements to track the execution.
+
    Revision 1.19  2003/11/05 00:36:16  venku
    - changed the way dependence information was stored.
    Revision 1.18  2003/11/05 00:23:04  venku
