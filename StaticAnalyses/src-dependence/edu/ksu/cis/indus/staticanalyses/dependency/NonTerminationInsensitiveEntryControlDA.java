@@ -66,7 +66,7 @@ public final class NonTerminationInsensitiveEntryControlDA
 
 	/** 
 	 * This indicates which version, direct or indirect, of non-termination sensitive backward dependence should be used as
-	 * the basis of this analysis
+	 * the basis of this analysis.
 	 */
 	private final boolean useIndirectBackwardDependence;
 
@@ -88,7 +88,7 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 * 		  href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>, only the
 	 * 		  results based on the indirect non-termination sensitive backward dependence will be  complete.</i>
 	 */
-	public NonTerminationInsensitiveEntryControlDA(boolean indirect) {
+	public NonTerminationInsensitiveEntryControlDA(final boolean indirect) {
 		super();
 		this.useIndirectBackwardDependence = indirect;
 	}
