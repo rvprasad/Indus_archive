@@ -200,29 +200,18 @@ public final class BasicBlockGraph
 		public List getStmtFromTo(final int start, final int end) {
 			List _result = Collections.EMPTY_LIST;
 
-			if (start == end) {
-				_result = new ArrayList();
-                _result.add(getStmtAt(start));
-			} else {
-				final Stmt _begStmt = getStmtAt(start);
+			if (start >= leader && end <= trailer && start <= end) {
+				final UnitGraph _stmtGraph = getStmtGraph();
 				final Stmt _endStmt = getStmtAt(end);
+				Stmt _temp = getStmtAt(start);
+				List _succs = _stmtGraph.getSuccsOf(_temp);
+				_result = new ArrayList();
+				_result.add(_temp);
 
-				if (stmts.contains(_begStmt) && stmts.contains(_endStmt)) {
-					_result = new ArrayList();
-					_result.add(_begStmt);
-
-					List _succs = getStmtGraph().getSuccsOf(_begStmt);
-
-					while (_succs.size() == 1) {
-						final Object _o = _succs.get(0);
-
-						if (_o.equals(_endStmt)) {
-							_result.add(_endStmt);
-							break;
-						}
-						_result.add(_o);
-						_succs = getStmtGraph().getSuccsOf(_o);
-					}
+				while (_temp != _endStmt) {
+					_temp = (Stmt) _succs.get(0);
+					_result.add(_temp);
+					_succs = _stmtGraph.getSuccsOf(_temp);
 				}
 			}
 			return _result;
@@ -417,6 +406,8 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/01/19 13:06:12  venku
+   - in getStmtsFrom() it retrieved the next statement if start == end. FIXED.
    Revision 1.8  2004/01/17 00:38:13  venku
    - documentation.
    Revision 1.7  2004/01/06 00:53:36  venku
