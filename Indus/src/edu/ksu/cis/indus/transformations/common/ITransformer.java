@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.transformations.common;
 
-import soot.Local;
-import soot.PatchingChain;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
@@ -36,18 +34,6 @@ import java.util.Collection;
  * @version $Revision$
  */
 public interface ITransformer {
-	/**
-	 * Retrieves the statement list for the transformed version of given transformed method.
-	 *
-	 * @param method is the transformed method.
-	 *
-	 * @return the statement list for the transformed version of the given method.
-	 *
-	 * @pre method != null
-	 * @post result != null
-	 */
-	PatchingChain getSliceStmtListFor(final SootMethod method);
-
 	/**
 	 * Retrieves the transformed version of the given untransformed class.
 	 *
@@ -95,6 +81,19 @@ public interface ITransformer {
 	Stmt getTransformed(Stmt untransformedStmt, SootMethod untransformedMethod);
 
 	/**
+	 * Retrieve the transformed version of the given value box .
+	 *
+	 * @param vBox of interest.
+	 * @param stmt in which vBox occurs.
+	 * @param method in which the local occurs.
+	 *
+	 * @return the transformed value box.
+	 *
+	 * @pre name != null and method != null
+	 */
+	ValueBox getTransformed(ValueBox vBox, Stmt stmt, SootMethod method);
+
+	/**
 	 * Retrieves the classes in the transformed system.
 	 *
 	 * @return a collection of transformed classes.
@@ -102,18 +101,6 @@ public interface ITransformer {
 	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 */
 	Collection getTransformedClasses();
-
-	/**
-	 * Retrieve the transformed version of the given local in the transformed version of the given method.
-	 *
-	 * @param local of interest.
-	 * @param method in which the local occurs.
-	 *
-	 * @return the transformed local.
-	 *
-	 * @pre name != null and method != null
-	 */
-	Local getTransformedLocal(Local local, SootMethod method);
 
 	/**
 	 * Retrieves the transformed version of the named class.
@@ -196,43 +183,45 @@ public interface ITransformer {
 /*
    ChangeLog:
    $Log$
-   Revision 1.9  2003/09/27 01:10:25  venku
-   - documentation.
-   Revision 1.8  2003/09/26 15:06:05  venku
-   - Formatting.
-   - ITransformer has a new method initialize() via which the system
-     being transformed can be specified.
-   Revision 1.7  2003/08/21 09:30:31  venku
-    - added a new transform() method which can transform at the level of ValueBox.
-    - CloningBasedSlicingTransformer does not do anything in this new method.
-   Revision 1.6  2003/08/19 12:44:39  venku
-   Changed the signature of ITransformer.getLocal()
-   Introduced reset() in ITransformer.
-   Ripple effect of the above changes.
-   Revision 1.5  2003/08/19 11:58:53  venku
-   Remove any reference to slicing from the documentation.
-   Revision 1.4  2003/08/19 11:52:25  venku
-   The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
-   and  Slicer to SliceEngine.
-   Ripple effect of the above.
-   Revision 1.3  2003/08/19 11:37:41  venku
-   Major changes:
-    - Changed ITransformMap extensively such that it now provides
-      interface to perform the actual transformation.
-    - Extended ITransformMap as AbstractTransformer to provide common
-      functionalities.
-    - Ripple effect of the above change in SlicerMapImpl.
-    - Ripple effect of the above changes in Slicer.
-    - The slicer now actually detects what needs to be included in the slice.
-      Hence, it is more of an analysis/driver/engine that drives the transformation
-      and SliceMapImpl is the engine that does or captures the transformation.
-   The immediate following change will be to rename ITransformMap to ITransformer,
-    SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
-   Revision 1.2  2003/08/18 04:45:31  venku
-   Moved the code such that code common to transformations are in one location
-   and independent of any specific transformation.
-   Revision 1.1  2003/08/18 04:01:52  venku
-   Major changes:
-    - Teased apart cloning logic in the slicer.  Made it transformation independent.
-    - Moved it under transformation common location under indus.
+   Revision 1.10  2003/09/27 23:21:42  venku
+ *** empty log message ***
+       Revision 1.9  2003/09/27 01:10:25  venku
+       - documentation.
+       Revision 1.8  2003/09/26 15:06:05  venku
+       - Formatting.
+       - ITransformer has a new method initialize() via which the system
+         being transformed can be specified.
+       Revision 1.7  2003/08/21 09:30:31  venku
+        - added a new transform() method which can transform at the level of ValueBox.
+        - CloningBasedSlicingTransformer does not do anything in this new method.
+       Revision 1.6  2003/08/19 12:44:39  venku
+       Changed the signature of ITransformer.getLocal()
+       Introduced reset() in ITransformer.
+       Ripple effect of the above changes.
+       Revision 1.5  2003/08/19 11:58:53  venku
+       Remove any reference to slicing from the documentation.
+       Revision 1.4  2003/08/19 11:52:25  venku
+       The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
+       and  Slicer to SliceEngine.
+       Ripple effect of the above.
+       Revision 1.3  2003/08/19 11:37:41  venku
+       Major changes:
+        - Changed ITransformMap extensively such that it now provides
+          interface to perform the actual transformation.
+        - Extended ITransformMap as AbstractTransformer to provide common
+          functionalities.
+        - Ripple effect of the above change in SlicerMapImpl.
+        - Ripple effect of the above changes in Slicer.
+        - The slicer now actually detects what needs to be included in the slice.
+          Hence, it is more of an analysis/driver/engine that drives the transformation
+          and SliceMapImpl is the engine that does or captures the transformation.
+       The immediate following change will be to rename ITransformMap to ITransformer,
+        SliceMapImpl to SliceTransformer, and Slicer to SliceEngine.
+       Revision 1.2  2003/08/18 04:45:31  venku
+       Moved the code such that code common to transformations are in one location
+       and independent of any specific transformation.
+       Revision 1.1  2003/08/18 04:01:52  venku
+       Major changes:
+        - Teased apart cloning logic in the slicer.  Made it transformation independent.
+        - Moved it under transformation common location under indus.
  */
