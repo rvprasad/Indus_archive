@@ -48,19 +48,21 @@ import soot.options.Options;
  * 
  * <p>
  * The classes in which to search for root methods can be configured via setting 1 system property named
- * "edu.ksu.cis.indus.common.soot.SootBasedDriver.rootClasses".  The syntax of this property a regular expression which will
+ * <code>indus.common.soot.SootBasedDriver.rootClasses</code>.  The syntax of this property a regular expression which will
  * be matched against the name of the class in which the method is declared.  Note if this is unspecified, then root methods
- * are searched only in the classes specified and not the classes which are required.  So, "edu.ksu.cis.indus.processing"
- * will find root methods occurring in classes defined in edu.ksu.cis.indus and having names starting with "processing".
+ * are searched only in the classes specified and not the classes which are required.  So, "edu.ksu.cis.indus.Processing"
+ * will find root methods occurring in classes defined in class <code>edu.ksu.cis.indus.Processing</code>.  Likewise, the
+ * user can control which methods are picked as root methods based on their signature by specifying the pattern via the
+ * system property,  <code>indus.common.soot.SootBasedDriver.rootMethods</code>.
  * </p>
  * 
  * <p>
  * The user can provide a root method trapper object to be used to identify root methods.  However, if the user does not
- * povide one,  then an instance of the class named via <code>indus.SootBasedDriver.RootMethodTrapper.class</code> property
- * will be used.  This named class should be a subclass of
- * <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>. If this property is unspecified, the an
- * instance of <code>SootBasedDriver.RootMethodMapper</code> is created via reflection and used.  Hence, the class specified
- * by the property should have a no-argument constructor.
+ * povide one,  then an instance of the class named via
+ * <code>indus.common.soot.SootBasedDriver.RootMethodTrapper.class</code> property will be used.  This named class should be
+ * a subclass of <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>. If this property is
+ * unspecified, the an instance of <code>SootBasedDriver.RootMethodMapper</code> is created via reflection and used.  Hence,
+ * the class specified by the property should have a no-argument constructor.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -80,7 +82,7 @@ public class SootBasedDriver {
 
 	static {
 		LOGGER = LogFactory.getLog(SootBasedDriver.class);
-		TRAPPER_CLASS_PROPERTY = "indus.SootBasedDriver.RootMethodTrapper.class";
+		TRAPPER_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.RootMethodTrapper.class";
 
 		final String _className = System.getProperty(TRAPPER_CLASS_PROPERTY);
 		RootMethodTrapper _rmt = new RootMethodTrapper();
@@ -192,18 +194,31 @@ public class SootBasedDriver {
 		/**
 		 * The regular expression that is used to match classes which may contain root methods.
 		 */
-		Pattern rootClasses;
+		private Pattern rootClasses;
+
+		/**
+		 * The regular expression that is used to match methods which should be root methods.
+		 */
+		private Pattern rootMethods;
 
 		/**
 		 * Creates a new RootMethodTrapper object.
 		 */
 		protected RootMethodTrapper() {
-			final String _theRootClasses = System.getProperty("edu.ksu.cis.indus.common.soot.SootBasedDriver.rootClasses");
+			final String _theRootClasses = System.getProperty("indus.common.soot.SootBasedDriver.rootClasses");
 
 			if (_theRootClasses != null) {
 				rootClasses = Pattern.compile(_theRootClasses);
 			} else {
 				rootClasses = null;
+			}
+
+			final String _theRootMethods = System.getProperty("indus.common.soot.SootBasedDriver.rootMethods");
+
+			if (_theRootMethods != null) {
+				rootMethods = Pattern.compile(_theRootMethods);
+			} else {
+				rootMethods = null;
 			}
 		}
 
@@ -217,7 +232,7 @@ public class SootBasedDriver {
 		 *
 		 * @pre sc != null
 		 */
-		protected final boolean considerClassForEntryPoint(final SootClass sc) {
+		protected boolean considerClassForEntryPoint(final SootClass sc) {
 			boolean _result = false;
 
 			if (rootClasses != null) {
@@ -240,15 +255,18 @@ public class SootBasedDriver {
 		 *
 		 * @pre sm != null
 		 */
-		protected final boolean trapRootMethods(final SootMethod sm) {
+		protected boolean trapRootMethods(final SootMethod sm) {
 			boolean _result = false;
 
-			if (sm.getName().equals("main")
+			if (rootMethods != null) {
+				_result = rootMethods.matcher(sm.getSignature()).matches();
+			} else if (sm.getName().equals("main")
 				  && sm.isStatic()
 				  && sm.getParameterCount() == 1
 				  && sm.getParameterType(0).equals(ArrayType.v(RefType.v("java.lang.String"), 1))) {
 				_result = true;
 			}
+
 			return _result;
 		}
 	}
@@ -480,6 +498,10 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/05/13 03:30:03  venku
+   - coding convention.
+   - documentation.
+   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
    Revision 1.22  2004/05/12 13:38:43  venku
    - Comparing Soot type objects acquired across reset()s will result in
      inequality.  This causes RootMethodTrapper to fail.  FIXED.
