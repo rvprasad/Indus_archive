@@ -43,7 +43,7 @@ public interface ITool {
 	IToolConfigurator getConfigurator();
 
 	/**
-	 * Retursn the current phase in which the tool was executing.
+	 * Returns the current phase in which the tool was executing.
 	 *
 	 * @return the current phase.
 	 */
@@ -53,6 +53,13 @@ public interface ITool {
 	 * Aborts the execution of the tool.
 	 */
 	void abort();
+
+	/**
+	 * Adds the given listener from the listener list. 
+	 *
+	 * @param listener to be added.
+	 */
+	void addToolProgressListener(IToolProgressListener listener);
 
 	/**
 	 * Populate this object with the information in given in string form.
@@ -76,6 +83,13 @@ public interface ITool {
 	 * Pauses the execution of the tool.
 	 */
 	void pause();
+
+	/**
+	 * Removes the given listener from the listener list. 
+	 *
+	 * @param listener to be removed.
+	 */
+	void removeToolProgressListener(IToolProgressListener listener);
 
 	/**
 	 * Reset the tool.  All state related information should be erased.
@@ -110,6 +124,8 @@ public interface ITool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/07/20 00:30:30  venku
+   - added a new exception to be thrown when configuration fails.
    Revision 1.2  2003/12/09 12:23:52  venku
    - added support to control synchronicity of method runs.
    - ripple effect.

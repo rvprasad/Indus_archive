@@ -17,6 +17,12 @@ package edu.ksu.cis.indus.tools;
 
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 
+import edu.ksu.cis.indus.tools.IToolProgressListener.ToolProgressEvent;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -28,19 +34,20 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractTool extends AbstractStatus
+public abstract class AbstractTool
+  extends AbstractStatus
   implements ITool {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(AbstractTool.class);
 
-	/**
+	/** 
 	 * This an object used to control the execution of the tool.
 	 */
 	protected final Object control = new Object();
 
-	/**
+	/** 
 	 * This is the configuration information associated with this tool instance.  Subclasses should provide a valid
 	 * reference.
 	 *
@@ -48,27 +55,44 @@ public abstract class AbstractTool extends AbstractStatus
 	 */
 	protected IToolConfiguration configurationInfo;
 
-	/**
+	/** 
 	 * This is the configurator associated with this tool instance.  Subclasses should provide a valid reference.
 	 *
 	 * @invariant configurator != null
 	 */
 	protected IToolConfigurator configurator;
 
-	/**
+	/** 
+	 * A collection of listeners of tools progress.
+	 *
+	 * @invariant listeners.oclIsKindOf(Collection(IToolProgressListener))
+	 */
+	final Collection listeners = new HashSet();
+
+	/** 
 	 * This variable is used by the child thread to communicate exception state to the parent thread.
 	 */
 	Exception childException;
 
-	/**
+	/** 
+	 * The thread in which the tools is running or ran previously.
+	 */
+	Thread thread;
+
+	/** 
 	 * This indicates if the tool should pause execution.
 	 */
 	boolean pause;
 
-	/**
-	 * The thread in which the tools is running or ran previously.
+	/** 
+	 * This is the number of messages that have been accepted for delivery.
 	 */
-	Thread thread;
+	int messageId = 0;
+
+	/** 
+	 * This is the number of the message to be delivered next.
+	 */
+	int token = 0;
 
 	/**
 	 * Retrieves an object that represents the active configuration of the tool.
@@ -106,10 +130,24 @@ public abstract class AbstractTool extends AbstractStatus
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.tools.ITool#addToolProgressListener(edu.ksu.cis.indus.tools.IToolProgressListener)
+	 */
+	public synchronized void addToolProgressListener(final IToolProgressListener listener) {
+		listeners.add(listener);
+	}
+
+	/**
 	 * Pauses the execution of the tool.
 	 */
 	public final void pause() {
 		pause = true;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.ITool#removeToolProgressListener(edu.ksu.cis.indus.tools.IToolProgressListener)
+	 */
+	public synchronized void removeToolProgressListener(final IToolProgressListener listener) {
+		listeners.remove(listener);
 	}
 
 	/**
@@ -132,7 +170,6 @@ public abstract class AbstractTool extends AbstractStatus
 	 *
 	 * @throws RuntimeException when the tool fails.
 	 * @throws IllegalStateException when this method is called on a paused tool.
-	 * @throws ToolConfigurationException when the tool cannot be configured according to the configuration.
 	 */
 	public final synchronized void run(final Object phase, final boolean synchronous) {
 		if (!pause || isNotAlive()) {
@@ -149,7 +186,7 @@ public abstract class AbstractTool extends AbstractStatus
 							} catch (InterruptedException _e) {
 								LOGGER.fatal("Interrupted while executing the tool.", _e);
 								_temp = _e;
-							} catch (Exception _e) {
+							} catch (final Exception _e) {
 								LOGGER.fatal("Tool failed.", _e);
 								_temp = _e;
 							} finally {
@@ -169,22 +206,28 @@ public abstract class AbstractTool extends AbstractStatus
 					if (childException != null) {
 						throw new RuntimeException(childException);
 					}
+					stable();
 				} catch (final InterruptedException _e) {
 					LOGGER.error("Interrupted while waiting on the run to complete.", _e);
 					throw new RuntimeException(_e);
 				}
 			} else {
-			    final Thread _temp = new Thread() {
-			        public void run() {
-			            try {
-                            thread.join();
-    			            stable();
-                        } catch (final InterruptedException _e) {
-        					LOGGER.error("Interrupted while waiting on the helper thread.", _e);
-                        }
-			        }
-			    };
-			    _temp.start();
+				final Thread _temp =
+					new Thread() {
+						public void run() {
+							try {
+								thread.join();
+
+								if (childException != null) {
+									throw new RuntimeException(childException);
+								}
+								stable();
+							} catch (final InterruptedException _e) {
+								LOGGER.error("Interrupted while waiting on the helper thread.", _e);
+							}
+						}
+					};
+				_temp.start();
 			}
 		} else {
 			throw new IllegalStateException("run() should be called when the tool is paused or running.");
@@ -194,10 +237,11 @@ public abstract class AbstractTool extends AbstractStatus
 	/**
 	 * Checks if the tool can be configured as per the given configuration.  Subclasses must override this method and throw
 	 * an <code>IllegalStateException</code> if the tool cannot be configured.
-	 * 
+	 *
 	 * @throws ToolConfigurationException when the tool cannot be configured according to the configuration.
 	 */
-	protected void checkConfiguration() throws ToolConfigurationException {
+	protected void checkConfiguration()
+	  throws ToolConfigurationException {
 	}
 
 	/**
@@ -209,6 +253,50 @@ public abstract class AbstractTool extends AbstractStatus
 	 */
 	protected abstract void execute(final Object phase)
 	  throws InterruptedException;
+
+	/**
+	 * Reports the given tool progress information to any registered listeners.  The listeners will receive the events in
+	 * the order they were fired.
+	 *
+	 * @param message about the progress of the tool.
+	 * @param info anything the tool may want to convey to the listener.
+	 *
+	 * @throws RuntimeException DOCUMENT ME!
+	 *
+	 * @pre message != null and info != null
+	 */
+	protected synchronized void fireToolProgressEvent(final String message, final Object info) {
+		final ToolProgressEvent _evt = new ToolProgressEvent(this, message, info);
+		final Collection _listenersList = (Collection) ((HashSet) listeners).clone();
+		final Thread _t =
+			new Thread() {
+				private final int msgId = messageId++;
+
+				public void run() {
+					synchronized (AbstractTool.this) {
+						while (token != msgId) {
+							try {
+							    AbstractTool.this.wait();
+							} catch (final InterruptedException _e) {
+								LOGGER.fatal("Thread interrupted.  Message will not be delivered - " + _evt, _e);
+								token++;
+								throw new RuntimeException(_e);
+							}
+						}
+					}
+
+					for (final Iterator _iter = _listenersList.iterator(); _iter.hasNext();) {
+						final IToolProgressListener _listener = (IToolProgressListener) _iter.next();
+						_listener.toolProgess(_evt);
+					}
+
+					synchronized (AbstractTool.this) {
+						token++;
+					}
+				}
+			};
+		_t.start();
+	}
 
 	/**
 	 * Used to suspend the tool execution. This indicates that the tool implementation is moving onto a new phase, hence, it
@@ -237,21 +325,19 @@ public abstract class AbstractTool extends AbstractStatus
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/07/20 00:30:30  venku
+   - added a new exception to be thrown when configuration fails.
    Revision 1.24  2004/07/11 09:42:15  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
        the implementations just announce their status.
-
    Revision 1.23  2004/05/11 19:16:47  venku
    The logic to spawn a thread and wait on it to finish was incorrect.  It led
    to race condition.  FIXED.
-
    Revision 1.22  2004/02/27 09:40:45  venku
    - documentation.
-
    Revision 1.21  2004/02/23 03:04:53  venku
    - synchronization issues in the tool.
-
    Revision 1.20  2004/02/17 05:43:57  venku
    - we do not want to catch errors but only exceptions. FIXED.
    Revision 1.19  2004/01/27 15:19:21  venku

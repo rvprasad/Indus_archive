@@ -572,6 +572,7 @@ public final class SlicerTool
 		}
 
 		if (_ph.equalsMajor(Phase.STARTING_PHASE)) {
+		    fireToolProgressEvent("Performing low level analyses", _ph);
 			lowLevelAnalysisPhase();
 		}
 
@@ -580,12 +581,14 @@ public final class SlicerTool
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
 
 		if (_ph.equalsMajor((Phase) DEPENDENCE_MAJOR_PHASE)) {
+		    fireToolProgressEvent("Performing dependence analyses", _ph);
 			dependencyAnalysisPhase(_slicerConfig);
 		}
 
 		movingToNextPhase();
 
 		if (_ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {
+		    fireToolProgressEvent("Performing slicing", _ph);
 			slicingPhase(_slicerConfig);
 		}
 		phase.finished();
@@ -738,6 +741,8 @@ public final class SlicerTool
 			LOGGER.info("BEGIN: low level static analyses phase");
 		}
 
+		fireToolProgressEvent("LOW LEVEL ANALYSES: Performing object flow analysis", phase);
+		
 		phase.reset();
 		// do the flow analyses
 		ofa.reset();
@@ -748,6 +753,8 @@ public final class SlicerTool
 
 		movingToNextPhase();
 
+		fireToolProgressEvent("LOW LEVEL ANALYSES: Constructing call graph", phase);
+		
 		// process flow information into a more meaningful call graph
 		callGraph.reset();
 		cgPreProcessCtrl.reset();
@@ -762,6 +769,8 @@ public final class SlicerTool
 
 		movingToNextPhase();
 
+		fireToolProgressEvent("LOW LEVEL ANALYSES: Constructing thread graph and misc.", phase);
+		
 		// process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression 
 		// mapper.
 		threadGraph.reset();
@@ -779,7 +788,9 @@ public final class SlicerTool
 
 		movingToNextPhase();
 
-		// process escape analyses.
+		fireToolProgressEvent("LOW LEVEL ANALYSES: Calculating intra-procedural use-def information", phase);
+		
+		// process alias use-def analyses.
 		cgBasedPreProcessCtrl.reset();
 		aliasUD.reset();
 		aliasUD.hookup(cgBasedPreProcessCtrl);
@@ -859,6 +870,9 @@ public final class SlicerTool
 			final SliceCollector _collector = engine.getCollector();
 			final Collection _methods = _collector.getMethodsInSlice();
 			final SliceGotoProcessor _gotoProcessor = new SliceGotoProcessor(_collector);
+			
+			fireToolProgressEvent("SLICING: Injecting executability into the slice.", phase);
+			
 			_postProcessor.process(_methods, bbgMgr, _collector);
 			_gotoProcessor.process(_methods, bbgMgr);
 		}
@@ -884,6 +898,8 @@ public final class SlicerTool
 		}
 
 		if (!criteria.isEmpty()) {
+		    fireToolProgressEvent("SLICING: Calculating the slice", phase);
+		    
 			// setup the slicing engine and slice
 			engine.setCgi(callGraph);
 			engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
@@ -893,9 +909,12 @@ public final class SlicerTool
 			engine.setSliceCriteria(criteria);
 			engine.initialize();
 			engine.slice();
-
+			phase.nextMinorPhase();
+			
 			// post process the slice as required
 			postProcessSlice();
+			
+			phase.nextMajorPhase();
 		} else {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("No slicing criteria were specified. Hence, no slicing was done.\nIf \"slice for deadlock\" was "
@@ -912,6 +931,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.113  2004/08/11 08:52:05  venku
+   - massive changes.
+     - Changed the way threads were represented in ThreadGraph.
+     - Changed the interface in IThreadGraph.
+     - ripple effect in other classes.
+
    Revision 1.112  2004/08/08 08:50:04  venku
    - aspectized profiling/statistics logic.
    - used a cache in CallGraph for reachable methods.
