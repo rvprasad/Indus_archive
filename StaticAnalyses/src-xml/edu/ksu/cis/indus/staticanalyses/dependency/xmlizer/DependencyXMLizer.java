@@ -47,13 +47,12 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
-import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
+import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
@@ -95,7 +94,7 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public class DependencyXMLizer
-  extends SootBasedDriver {
+  extends AbstractXMLizer {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -316,37 +315,6 @@ public class DependencyXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param xmlOutputDir DOCUMENT ME!
-	 *
-	 * @throws IllegalArgumentException DOCUMENT ME!
-	 */
-	public void setXMLOutputDir(final String xmlOutputDir) {
-		if (xmlOutputDir != null) {
-			File f = new File(xmlOutputDir);
-
-			if (f == null || !f.exists() | !f.canWrite()) {
-				throw new IllegalArgumentException("XML output directory should exists with proper permissions.");
-			}
-		}
-		xmlOutDir = xmlOutputDir;
-	}
-
-	/**
-	 * Returns the directory into which xml output will be written into.
-	 *
-	 * @return the directory into which xml output will be written
-	 *
-	 * @post result != null
-	 */
-	public String getXmlOutDir() {
-		return this.xmlOutDir;
-	}
-
-	/**
 	 * Drives the analyses.
 	 */
 	public void execute() {
@@ -446,7 +414,7 @@ public class DependencyXMLizer
 				}
 			}
 
-			writeXML(rootname, cgi);
+			writeXML(rootname, info);
 			writeInfo("Total classes loaded: " + scene.getClasses().size());
 			printTimingStats();
 
@@ -546,17 +514,6 @@ public class DependencyXMLizer
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
-	 *
-	 * @param generator DOCUMENT ME!
-	 */
-	public void setGenerator(final IJimpleIDGenerator generator) {
-		idGenerator = generator;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
 	 */
 	public void populateDAs() {
 		// The order is important for the purpose of Testing as it influences the output file name
@@ -604,12 +561,12 @@ public class DependencyXMLizer
 	 * <p></p>
 	 *
 	 * @param root DOCUMENT ME!
-	 * @param cgi DOCUMENT ME!
+	 * @param info DOCUMENT ME!
 	 */
-	protected void writeXML(final String root, final ICallGraphInfo cgi) {
+	protected void writeXML(final String root, final Map info) {
 		ProcessingController ctrl = new ProcessingController();
 		ctrl.setEnvironment(aa.getEnvironment());
-		ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
+		ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter((ICallGraphInfo) info.get(ICallGraphInfo.ID)));
 
 		Map xmlizers = initXMLizers(root, ctrl);
 		ctrl.process();
@@ -649,37 +606,6 @@ public class DependencyXMLizer
 	 */
 	private void populateDA(final DependencyAnalysis da) {
 		das.add(da);
-	}
-
-	/**
-	 * Drive the given processors by the given controller.  This is helpful to batch pre/post-processors.
-	 *
-	 * @param pc controls the processing activity.
-	 * @param processors is the collection of processors.
-	 *
-	 * @pre processors.oclIsKindOf(Collection(IValueAnalyzerBasedProcessor))
-	 */
-	private final void process(final ProcessingController pc, final Collection processors) {
-		for (Iterator i = processors.iterator(); i.hasNext();) {
-			IProcessor processor = (IValueAnalyzerBasedProcessor) i.next();
-
-			processor.hookup(pc);
-		}
-
-		writeInfo("BEGIN: FA post processing");
-
-		long start = System.currentTimeMillis();
-		pc.process();
-
-		long stop = System.currentTimeMillis();
-		addTimeLog("FA post processing", stop - start);
-		writeInfo("END: FA post processing");
-
-		for (Iterator i = processors.iterator(); i.hasNext();) {
-			IProcessor processor = (IValueAnalyzerBasedProcessor) i.next();
-
-			processor.unhook(pc);
-		}
 	}
 
 	/**
@@ -743,6 +669,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/12/08 11:53:25  venku
+   - formatting.
    Revision 1.22  2003/12/08 10:58:52  venku
    - changed command-line interface.
    Revision 1.21  2003/12/08 09:47:53  venku
