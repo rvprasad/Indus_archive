@@ -1,42 +1,19 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
 
@@ -47,6 +24,9 @@ import soot.jimple.InvokeStmt;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -62,15 +42,14 @@ import edu.ksu.cis.indus.staticanalyses.support.Pair;
 public class ReadyDAv2
   extends ReadyDAv1 {
 	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ReadyDAv2.class);
+
+	/**
 	 * This provides information to prune ready dependence edges.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
-    
-    /**
-     * The logger used by instances of this class to log messages.
-     * 
-     */
-    private static final Log LOGGER = LogFactory.getLog(ReadyDAv2.class);
 
 	/**
 	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
@@ -130,7 +109,7 @@ public class ReadyDAv2
 		ecba = (EquivalenceClassBasedEscapeAnalysis) info.get(EquivalenceClassBasedEscapeAnalysis.ID);
 
 		if (ecba == null) {
-            LOGGER.error(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
+			LOGGER.error(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
 			throw new InitializationException(EquivalenceClassBasedEscapeAnalysis.ID + " was not provided in info.");
 		}
 	}
@@ -234,22 +213,21 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/08/26 16:53:57  venku
+   logging added.
    Revision 1.8  2003/08/25 09:04:31  venku
    It was not a good decision to decide interproceduralness of the
    analyses at construction.  Hence, it now can be controlled via public
    method setInterprocedural().
    Ripple effect.
-
    Revision 1.7  2003/08/21 01:25:21  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.
     - Renamed escape package to concurrency.escape.
     - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
    Changes due to the ripple effect of the above changes are being committed.
-
    Revision 1.6  2003/08/14 05:10:29  venku
    Fixed documentation links.
-
    Revision 1.5  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.

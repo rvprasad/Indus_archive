@@ -374,6 +374,8 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/16 08:27:35  venku
+   - Well, we calculated doms, not idoms.  FIXED.
    Revision 1.11  2003/09/16 05:54:56  venku
    - changed access specifiers of methods from protected to private
      as they were not being called in the package or subclasses.

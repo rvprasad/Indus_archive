@@ -483,6 +483,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/09/12 22:33:09  venku
+   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
+   - Ripple effect of the above changes.
    Revision 1.10  2003/09/10 11:50:23  venku
    - formatting.
    Revision 1.9  2003/09/10 11:49:31  venku

@@ -89,6 +89,8 @@ public class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/15 02:21:24  venku
+   - added reset method.
    Revision 1.4  2003/09/10 10:51:07  venku
    - documentation.
    - removed unnecessary typecast.

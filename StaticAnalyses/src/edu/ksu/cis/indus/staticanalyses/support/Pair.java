@@ -377,6 +377,8 @@ public class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/09/14 22:53:54  venku
+   - added method to mapify a collection of pairs.
    Revision 1.4  2003/08/11 08:12:26  venku
    Major changes in equals() method of Context, Pair, Marker, and Triple.
    Similar changes in hashCode()
@@ -384,15 +386,15 @@ public class Pair
    Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-         Revision 1.2  2003/08/11 04:20:19  venku
-         - Pair and Triple were changed to work in optimized and unoptimized mode.
-         - Ripple effect of the previous change.
-         - Documentation and specification of other classes.
-         Revision 1.1  2003/08/07 06:42:16  venku
-         Major:
-          - Moved the package under indus umbrella.
-          - Renamed isEmpty() to hasWork() in WorkBag.
-         Revision 1.4  2003/05/22 22:18:31  venku
-         All the interfaces were renamed to start with an "I".
-         Optimizing changes related Strings were made.
+           Revision 1.2  2003/08/11 04:20:19  venku
+           - Pair and Triple were changed to work in optimized and unoptimized mode.
+           - Ripple effect of the previous change.
+           - Documentation and specification of other classes.
+           Revision 1.1  2003/08/07 06:42:16  venku
+           Major:
+            - Moved the package under indus umbrella.
+            - Renamed isEmpty() to hasWork() in WorkBag.
+           Revision 1.4  2003/05/22 22:18:31  venku
+           All the interfaces were renamed to start with an "I".
+           Optimizing changes related Strings were made.
  */

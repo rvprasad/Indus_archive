@@ -122,6 +122,8 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/14 23:29:32  venku
+   - deferred status changes to contained AliasedUseDefInfo analysis.
    Revision 1.6  2003/09/12 22:33:09  venku
    - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
    - Ripple effect of the above changes.

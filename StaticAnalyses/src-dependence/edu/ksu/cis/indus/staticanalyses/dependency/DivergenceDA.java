@@ -562,9 +562,10 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/09/15 01:40:48  venku
+   - well, getMethods() was not changed in findPreDivPoints(). FIXED.
    Revision 1.14  2003/09/13 05:56:08  venku
    - bumped up log levels to error.
-
    Revision 1.13  2003/09/13 05:42:07  venku
    - What if the unit graphs for all methods are unavailable?  Hence,
      added a method to AbstractAnalysis to retrieve the methods to

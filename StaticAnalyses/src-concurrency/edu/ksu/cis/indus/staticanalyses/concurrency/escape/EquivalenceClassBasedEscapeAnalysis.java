@@ -983,6 +983,8 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/27 01:27:46  venku
+   - documentation.
    Revision 1.9  2003/09/12 08:13:40  venku
    - added todo item.
    Revision 1.8  2003/09/08 02:24:27  venku

@@ -381,6 +381,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/12 22:33:08  venku
+   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
+   - Ripple effect of the above changes.
    Revision 1.9  2003/09/11 12:35:48  venku
    - formatting.
    Revision 1.8  2003/09/10 11:49:31  venku

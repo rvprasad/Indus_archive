@@ -1,36 +1,16 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (C) 2003, 2004, 2005
- * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
- * All rights reserved.
+ * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
  *
- * This work was done as a project in the SAnToS Laboratory,
- * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://indus.projects.cis.ksu.edu/).
- * It is understood that any modification not identified as such is
- * not covered by the preceding statement.
- *
- * This work is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This work is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this toolkit; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA  02111-1307, USA.
- *
- * Java is a trademark of Sun Microsystems, Inc.
- *
- * To submit a bug report, send a comment, or get the latest news on
- * this project and other SAnToS projects, please visit the web-site
- *                http://indus.projects.cis.ksu.edu/
+ * This software is licensed under the KSU Open Academic License.
+ * You should have received a copy of the license with the distribution.
+ * A copy can be found at
+ *     http://www.cis.ksu.edu/santos/license.html
+ * or you can contact the lab at:
+ *     SAnToS Laboratory
+ *     234 Nichols Hall
+ *     Manhattan, KS 66506, USA
  */
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
@@ -84,10 +64,10 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTripl
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
@@ -244,6 +224,11 @@ public class RufsEscapeAnalysis
 	 */
 	private final Collection threadAllocSitesSingle;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private CFGAnalysis cfg;
+
 	/**
 	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
@@ -263,7 +248,7 @@ public class RufsEscapeAnalysis
 		stmtProcessor = new StmtProcessor();
 		valueProcessor = new ValueProcessor();
 		context = new Context();
-        cfg = new CFGAnalysis(cgi, new BasicBlockGraphMgr());
+		cfg = new CFGAnalysis(cgi, new BasicBlockGraphMgr());
 	}
 
 	/**
@@ -1532,7 +1517,7 @@ public class RufsEscapeAnalysis
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
-        ppc.register(this);
+		ppc.register(this);
 	}
 
 	/**
@@ -1541,7 +1526,7 @@ public class RufsEscapeAnalysis
 	 */
 	public void unhook(ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
-        ppc.unregister(this);
+		ppc.unregister(this);
 	}
 
 	/**
@@ -1743,8 +1728,6 @@ main_control:
 		return result;
 	}
 
-    private CFGAnalysis cfg;
- 
 	/**
 	 * This checks for the first condition of phase 1 in Ruf's algorithm, i.e., "thread allocation sites occuring in loops".
 	 *
@@ -1771,24 +1754,22 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/08 02:23:24  venku
+ *** empty log message ***
    Revision 1.3  2003/09/01 11:57:30  venku
    - Ripple effect of changes in CFGAnalysis.
-
    Revision 1.2  2003/08/24 12:42:33  venku
    Removed occursInCycle() method from DirectedGraph.
    Installed occursInCycle() method in CFGAnalysis.
    Converted performTopologicalsort() and getFinishTimes() into instance methods.
    Ripple effect of the above changes.
-
    Revision 1.1  2003/08/21 01:24:25  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.
     - Renamed escape package to concurrency.escape.
     - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-
    Revision 1.2  2003/08/11 06:29:07  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.1  2003/08/07 06:39:07  venku
    Major:
     - Moved the package under indus umbrella.

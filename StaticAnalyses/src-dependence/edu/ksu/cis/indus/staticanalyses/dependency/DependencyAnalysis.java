@@ -92,7 +92,7 @@ public abstract class DependencyAnalysis
 	 */
 	protected final Map dependentMap = new HashMap();
 
-	/** 
+	/**
 	 * This indicates if the information provided by this analysis has stablized.
 	 */
 	protected boolean stable;
@@ -145,6 +145,9 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/12 22:33:08  venku
+   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
+   - Ripple effect of the above changes.
    Revision 1.7  2003/08/25 09:30:41  venku
    Renamed AliasedDataDA to ReferenceBasedDataDA.
    Renamed NonAliasedDataDA to IdentifierBasedDataDA.

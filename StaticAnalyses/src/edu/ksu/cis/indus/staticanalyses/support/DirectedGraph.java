@@ -125,8 +125,9 @@ public abstract class DirectedGraph {
 				preds.removeAll(backPredecessors);
 			}
 
-            Collection s;
-            Collection p;
+			Collection s;
+			Collection p;
+
 			if (succs.isEmpty()) {
 				s = Collections.EMPTY_LIST;
 			} else {
@@ -593,6 +594,10 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/09/14 23:20:48  venku
+   - added support to retrieve a DAG from a graph.
+   - removed support to extract preds/succs as a bitst from the graph.
+   - added/removed tests for the above changes.
    Revision 1.9  2003/09/11 12:31:00  venku
    - made ancestral relationship antisymmetric
    - added testcases to test the relationship.

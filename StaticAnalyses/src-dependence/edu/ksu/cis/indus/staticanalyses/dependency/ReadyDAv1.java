@@ -845,6 +845,8 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/09/24 15:52:53  venku
+   - documentation.
    Revision 1.17  2003/09/24 15:41:33  venku
    - provided a getter method for rules.
    Revision 1.16  2003/09/12 22:33:08  venku
