@@ -76,6 +76,7 @@ import soot.jimple.VirtualInvokeExpr;
 import soot.toolkits.graph.CompleteUnitGraph;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
@@ -86,6 +87,7 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FastUnionFindElement;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
@@ -1729,7 +1731,7 @@ main_control:
 			SootMethod caller2 = ctrp.getMethod();
 			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(caller2.retrieveActiveBody()));
 
-			if (bbg.occursInCycle(bbg.getEnclosingBlock(ctrp.getStmt()))) {
+			if (CFGAnalysis.occursInCycle(bbg, bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
 			} else {
 				result = executedMultipleTimes(caller2);
@@ -1752,7 +1754,7 @@ main_control:
 			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(sm.retrieveActiveBody()));
 			Stmt stmt = context.getStmt();
 
-			if (bbg.occursInCycle(bbg.getEnclosingBlock(stmt))) {
+			if (CFGAnalysis.occursInCycle(bbg, bbg.getEnclosingBlock(stmt))) {
 				threadAllocSitesMulti.add(new NewExprTriple(sm, stmt, ne));
 			} else {
 				threadAllocSitesSingle.add(new NewExprTriple(sm, stmt, ne));
@@ -1764,6 +1766,12 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/21 01:24:25  venku
+    - Renamed src-escape to src-concurrency to as to group all concurrency
+      issue related analyses into a package.
+    - Renamed escape package to concurrency.escape.
+    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+
    Revision 1.2  2003/08/11 06:29:07  venku
    Changed format of change log accumulation at the end of the file
 
