@@ -55,12 +55,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -149,22 +150,22 @@ public class DependencyXMLizerCLI
 		final DirectEntryControlDA _dncda = new DirectEntryControlDA();
 		final Object[][] _dasOptions =
 			{
-				{ "a", "ibdda1", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
-				{ "b", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
-				{ "d", "dncda", "Direct Entry control dependence", _dncda },
-				{ "e", "xcda", "Exit control dependence", new ExitControlDA() },
-				{ "f", "sda", "Synchronization dependence", new SynchronizationDA() },
-				{ "g", "rda1", "Ready dependence v1", new ReadyDAv1() },
-				{ "i", "rda2", "Ready dependence v2", new ReadyDAv2() },
-				{ "k", "rda3", "Ready dependence v3", new ReadyDAv3() },
-				{ "l", "ida1", "Interference dependence v1", new InterferenceDAv1() },
-				{ "m", "ida2", "Interference dependence v2", new InterferenceDAv2() },
-				{ "n", "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "o", "dda", "Divergence dependence", new DivergenceDA() },
-				{ "r", "incda", "Indirect Entry control dependence", _incda },
-				{ "s", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
-				{ "t", "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
-				{ "u", "ipdda", "Interprocedural Divergence dependence", _ipdda },
+				{ "ibdda1", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
+				{ "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
+				{ "dncda", "Direct Entry control dependence", _dncda },
+				{ "xcda", "Exit control dependence", new ExitControlDA() },
+				{ "sda", "Synchronization dependence", new SynchronizationDA() },
+				{ "rda1", "Ready dependence v1", new ReadyDAv1() },
+				{ "rda2", "Ready dependence v2", new ReadyDAv2() },
+				{ "rda3", "Ready dependence v3", new ReadyDAv3() },
+				{ "ida1", "Interference dependence v1", new InterferenceDAv1() },
+				{ "ida2", "Interference dependence v2", new InterferenceDAv2() },
+				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
+				{ "dda", "Divergence dependence", new DivergenceDA() },
+				{ "incda", "Indirect Entry control dependence", _incda },
+				{ "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
+				{ "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
+				{ "ipdda", "Interprocedural Divergence dependence", _ipdda },
 			};
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
@@ -174,24 +175,23 @@ public class DependencyXMLizerCLI
 		_option.setArgName("classpath");
 		_option.setOptionalArg(false);
 		_options.addOption(_option);
-		_option = new Option(" ", "aliased-use-def-v1", false, "Use version 1 of aliased use-def info.");
+		_option = new Option("aliasedusedefv", false, "Use version 1 of aliased use-def info.");
 		_options.addOption(_option);
-		_option = new Option(" ", "use-safe-lock-analysis", false, "Use safe-lock-analysis for ready dependence.");
+		_option = new Option("safelockanalysis", false, "Use safe-lock-analysis for ready dependence.");
 		_options.addOption(_option);
-		_option = new Option(" ", "use-ofa-for-interference", false, "Use OFA for interference dependence.");
+		_option = new Option("ofaforinterference", false, "Use OFA for interference dependence.");
 		_options.addOption(_option);
-		_option = new Option(" ", "use-ofa-for-ready", false, "Use OFA for ready dependence.");
+		_option = new Option("ofaforready", false, "Use OFA for ready dependence.");
 		_options.addOption(_option);
 
 		for (int _i = 0; _i < _dasOptions.length; _i++) {
 			final String _shortOption = _dasOptions[_i][0].toString();
-			final String _longOption = _dasOptions[_i][1].toString();
-			final String _description = _dasOptions[_i][2].toString();
-			_option = new Option(_shortOption, _longOption, false, _description);
+			final String _description = _dasOptions[_i][1].toString();
+			_option = new Option(_shortOption, false, _description);
 			_options.addOption(_option);
 		}
 
-		final PosixParser _parser = new PosixParser();
+		final CommandLineParser _parser = new GnuParser();
 
 		try {
 			final CommandLine _cl = _parser.parse(_options, args);
@@ -228,7 +228,7 @@ public class DependencyXMLizerCLI
 			}
 			_cli.setClassNames(_classNames);
 
-			if (_cl.hasOption(_dasOptions[3][0].toString())) {
+			if (_cl.hasOption(_dasOptions[2][0].toString())) {
 				_cli.das.add(_incda);
 				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _incda.getId(), _incda,
 					CollectionsUtilities.HASH_SET_FACTORY);
@@ -238,7 +238,7 @@ public class DependencyXMLizerCLI
 
 			for (int _i = 0; _i < _dasOptions.length; _i++) {
 				if (_cl.hasOption(_dasOptions[_i][0].toString())) {
-					final Object _da = _dasOptions[_i][3];
+					final Object _da = _dasOptions[_i][2];
 					_cli.das.add(_da);
 					_flag = false;
 
@@ -395,6 +395,8 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/07/27 11:07:20  venku
+   - updated project to use safe lock analysis.
    Revision 1.34  2004/07/25 10:29:13  venku
    - figured out how to include long options only (see aliased-use-def-v1)
    - added safe lock analysis into the pipeline.
@@ -660,6 +662,8 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/07/27 11:07:20  venku
+   - updated project to use safe lock analysis.
    Revision 1.34  2004/07/25 10:29:13  venku
    - figured out how to include long options only (see aliased-use-def-v1)
    - added safe lock analysis into the pipeline.
