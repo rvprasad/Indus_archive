@@ -265,7 +265,11 @@ public final class BasicBlockGraph
 			_handlerBlocks = new HashSet();
 
 			for (final Iterator _i = _traps.iterator(); _i.hasNext();) {
-				_handlerBlocks.add(getEnclosingBlock((Stmt) ((Trap) _i.next()).getHandlerUnit()));
+				final BasicBlock _block = getEnclosingBlock((Stmt) ((Trap) _i.next()).getHandlerUnit());
+
+				if (_block != null) {
+					_handlerBlocks.add(_block);
+				}
 			}
 		} else {
 			_handlerBlocks = Collections.EMPTY_LIST;
@@ -389,7 +393,10 @@ public final class BasicBlockGraph
 			for (final Iterator _j = stmtGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
 				final Stmt _nStmt = (Stmt) _j.next();
 				final BasicBlock _nBlock = getEnclosingBlock(_nStmt);
-				addEdgeFromTo(_block, _nBlock);
+
+				if (_nBlock != null) {
+					addEdgeFromTo(_block, _nBlock);
+				}
 			}
 		}
 
@@ -398,7 +405,11 @@ public final class BasicBlockGraph
 
 		// Setup the tails of the graph.
 		for (final Iterator _i = stmtGraph.getTails().iterator(); _i.hasNext();) {
-			tails.add(getEnclosingBlock((Stmt) _i.next()));
+			final BasicBlock _block = getEnclosingBlock((Stmt) _i.next());
+
+			if (_block != null) {
+				tails.add(_block);
+			}
 		}
 	}
 }
@@ -406,6 +417,8 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/01/25 09:00:58  venku
+   - coding convention.
    Revision 1.12  2004/01/25 03:20:52  venku
    - getLeaderStmt()/getTrailerStmt() will return null in case there
      are not leader/trailter statements.
