@@ -82,6 +82,8 @@ public class IdentifierBasedDataDAv2
 	 *
 	 * @return a collection of statements on which <code>programPoint</code> depends.
 	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 *
 	 * @pre programPoint.oclIsKindOf(Pair(Stmt, Local)) implies programPoint.oclTypeOf(Pair).getFirst() != null and
 	 * 		programPoint.oclTypeOf(Pair).getSecond() != null
 	 * @pre programPoint.oclIsKindOf(Stmt) or programPoint.oclIsKindOf(Pair(Stmt, Local))
@@ -102,9 +104,11 @@ public class IdentifierBasedDataDAv2
 				_result = _useDefAnalysis.getDefs(_local, _stmt, (SootMethod) method);
 			} else {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("We do not handle program points of type " + programPoint.getClass().getName() + " - "
-						+ programPoint + " in " + method);
+					LOGGER.warn("getDependees(programPoint = " + programPoint + ", method = " + method
+						+ ") - No dependents found for ");
 				}
+				throw new IllegalArgumentException(
+					"'programPoint' should be of type Pair or Stmt. The provided argument was " + programPoint);
 			}
 		} else {
 			if (LOGGER.isWarnEnabled()) {
@@ -116,24 +120,47 @@ public class IdentifierBasedDataDAv2
 	}
 
 	/**
-	 * Returns the statement and the program point in it which depends on <code>stmt</code> in the given
-	 * <code>context</code>. The context is the method in which the o occurs.
+	 * Returns the statement and the program point in it which depends on statement provided via <code>programPoint</code>
+	 * occurring  in the given <code>method</code>.
 	 *
-	 * @param stmt is a definition statement.
-	 * @param method is the method in which <code>stmt</code> occurs.
+	 * @param programPoint is the definition statement or a pair containing the definition statement as the first element.
+	 * 		  Although, only one variable can be defined in a Jimple statement, we allow for a pair in this query to make
+	 * 		  <code>getDependees</code> and <code>getDependents</code> symmetrical for ease of usage.
+	 * @param method is the method in which the statement provided by <code>programPoint</code> occurs.
 	 *
-	 * @return a collection of statement and program points in them which depend on the definition in <code>stmt</code>.
+	 * @return a collection of statement and program points in them which depend on the definition at
+	 * 		   <code>programPoint</code>.
 	 *
-	 * @pre stmt.isOclKindOf(Stmt)
+	 * @throws IllegalArgumentException when <code>programPoint</code> is not of type <code>DefinitionStmt</code> or
+	 * 		   <code>Pair(Object, DefinitionStmt)</code>
+	 *
+	 * @pre programPoint.isOclKindOf(DefinitionStmt) or programPoint.isOclIsKindOf(Pair(DefinitionStmt, Object))
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
-	public final Collection getDependents(final Object stmt, final Object method) {
+	public final Collection getDependents(final Object programPoint, final Object method) {
 		final IUseDefInfo _useDefAnalysis = (IUseDefInfo) dependee2dependent.get(method);
-		Collection _result = Collections.EMPTY_LIST;
+		final Collection _result;
 
-		if (_useDefAnalysis != null && stmt instanceof DefinitionStmt) {
-			_result = _useDefAnalysis.getUses((DefinitionStmt) stmt, (SootMethod) method);
+		if (_useDefAnalysis != null) {
+			final DefinitionStmt _stmt;
+
+			if (programPoint instanceof DefinitionStmt) {
+				_stmt = (DefinitionStmt) programPoint;
+			} else if (programPoint instanceof Pair) {
+				_stmt = (DefinitionStmt) ((Pair) programPoint).getFirst();
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("getDependents(entity = " + programPoint + ", method = " + method
+						+ ") - No dependents found for ");
+				}
+
+				throw new IllegalArgumentException(
+					"'programPoint' should be of type Pair or Stmt. The provided argument was " + programPoint);
+			}
+			_result = _useDefAnalysis.getUses(_stmt, (SootMethod) method);
+		} else {
+			_result = Collections.EMPTY_LIST;
 		}
 		return _result;
 	}

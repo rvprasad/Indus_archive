@@ -72,6 +72,18 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  */
 public class IdentifierBasedDataDA
   extends AbstractDependencyAnalysis {
+	/*
+	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
+	 * the methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
+	 * dependent statements is maintained in the list.  In case of dependee information, at each location corresponding to the
+	 * statement a map is maintained in the list.  The map maps a value box in the statement to a collection of dependee
+	 * statements.
+	 *
+	 * The rational for the way the information is maintained is only one local can be defined in a statement.  Also, if the
+	 * definition of a local reaches a statement, then all occurrences of that local at that statement must be dependent on
+	 * the same reaching def.
+	 */
+
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -91,6 +103,8 @@ public class IdentifierBasedDataDA
 	 * @param method in which <code>programPoint</code> occurs.
 	 *
 	 * @return a collection of statements on which <code>programPoint</code> depends.
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
 	 *
 	 * @pre programPoint.oclIsKindOf(Pair(Stmt, Local)) implies programPoint.oclTypeOf(Pair).getFirst() != null and
 	 * 		programPoint.oclTypeOf(Pair).getSecond() != null
@@ -135,31 +149,65 @@ public class IdentifierBasedDataDA
 
 			if (_c != null) {
 				_result = Collections.unmodifiableCollection(_c);
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("No dependence information available for " + programPoint + " in " + method);
+				}
 			}
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("getDependees(programPoint = " + programPoint + ", method = " + method
+					+ ") - No dependents found for ");
+			}
+
+			throw new IllegalArgumentException("'programPoint' should be of type Pair or Stmt. The provided argument was "
+				+ programPoint);
 		}
 		return _result;
 	}
 
 	/**
-	 * Returns the statement and the program point in it which depends on <code>stmt</code> in the given
-	 * <code>context</code>. The context is the method in which the o occurs.
+	 * Returns the statement and the program point in it which depends on statement provided via <code>programPoint</code>
+	 * occurring  in the given <code>method</code>.
 	 *
-	 * @param stmt is a definition statement.
-	 * @param method is the method in which <code>stmt</code> occurs.
+	 * @param programPoint is the definition statement or a pair containing the definition statement as the first element.
+	 * 		  Although, only one variable can be defined in a Jimple statement, we allow for a pair in this query to make
+	 * 		  <code>getDependees</code> and <code>getDependents</code> symmetrical for ease of usage.
+	 * @param method is the method in which the statement provided by <code>programPoint</code> occurs.
 	 *
-	 * @return a collection of statement and program points in them which depend on the definition in <code>stmt</code>.
+	 * @return a collection of statement and program points in them which depend on the definition at
+	 * 		   <code>programPoint</code>.
 	 *
-	 * @pre stmt.isOclKindOf(Stmt)
+	 * @throws IllegalArgumentException when <code>programPoint</code> is not of type <code>DefinitionStmt</code> or
+	 * 		   <code>Pair(Object, DefinitionStmt)</code>
+	 *
+	 * @pre programPoint.isOclKindOf(DefinitionStmt) or programPoint.isOclIsKindOf(Pair(DefinitionStmt, Object))
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
-	public Collection getDependents(final Object stmt, final Object method) {
+	public Collection getDependents(final Object programPoint, final Object method) {
+		final Stmt _stmt;
+
+		if (programPoint instanceof Stmt) {
+			_stmt = (Stmt) programPoint;
+		} else if (programPoint instanceof Pair) {
+			_stmt = (Stmt) ((Pair) programPoint).getFirst();
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("getDependents(programPoint = " + programPoint + ", method = " + method
+					+ ") - No dependents found for ");
+			}
+
+			throw new IllegalArgumentException("'programPoint' should be of type Pair or Stmt. The provided argument was "
+				+ programPoint);
+		}
+
 		final SootMethod _sm = (SootMethod) method;
 		final List _dependents = (List) dependee2dependent.get(_sm);
 		Collection _result = Collections.EMPTY_LIST;
 
 		if (_dependents != null) {
-			final Collection _temp = (Collection) _dependents.get(getStmtList(_sm).indexOf(stmt));
+			final Collection _temp = (Collection) _dependents.get(getStmtList(_sm).indexOf(_stmt));
 
 			if (_temp != null) {
 				_result = Collections.unmodifiableCollection(_temp);
@@ -174,18 +222,6 @@ public class IdentifierBasedDataDA
 	public Object getDirection() {
 		return BI_DIRECTIONAL;
 	}
-
-	/*
-	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
-	 * the methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
-	 * dependent statements is maintained in the list.  In case of dependee information, at each location corresponding to the
-	 * statement a map is maintained in the list.  The map maps a value box in the statement to a collection of dependee
-	 * statements.
-	 *
-	 * The rational for the way the information is maintained is only one local can be defined in a statement.  Also, if the
-	 * definition of a local reaches a statement, then all occurrences of that local at that statement must be dependent on
-	 * the same reaching def.
-	 */
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getIds()
