@@ -158,15 +158,15 @@ public class SlicerTool
 			LOGGER.warn("Deadlock criteria will be used.");
 		} else {
 			tool.setCriteria(criteria);
-		}
 
-		for (Iterator i = criteria.iterator(); i.hasNext();) {
-			Object o = i.next();
+			for (Iterator i = criteria.iterator(); i.hasNext();) {
+				Object o = i.next();
 
-			if (!SliceCriteriaFactory.isSlicingCriterion(o)) {
-				LOGGER.error(o
-					+ " is an invalid slicing criterion.  All slicing criterion should be created via SliceCriteriaFactory.");
-				throw new IllegalArgumentException("Slicing criteion " + o + " was not created by SliceCriteriaFactory.");
+				if (!SliceCriteriaFactory.isSlicingCriterion(o)) {
+					LOGGER.error(o
+						+ " is an invalid slicing criterion.  All slicing criterion should be created via SliceCriteriaFactory.");
+					throw new IllegalArgumentException("Slicing criteion " + o + " was not created by SliceCriteriaFactory.");
+				}
 			}
 		}
 
@@ -236,6 +236,9 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/11/13 15:37:47  venku
+   - criteria can be null or an empty set to defaul to deadlock
+     based criteria.
    Revision 1.11  2003/10/14 02:58:53  venku
    - changed tag name.
    Revision 1.10  2003/10/13 01:01:45  venku
