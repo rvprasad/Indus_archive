@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -33,7 +34,6 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
 import java.util.ArrayList;
@@ -56,7 +56,6 @@ import soot.Modifier;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
-import soot.VoidType;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
@@ -130,18 +129,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * This provides inter-procedural control-flow information.
 	 */
 	final CFGAnalysis cfgAnalysis;
-
-	/** 
-	 * This is the collection of notify methods in the system that can lead to ready dependences.
-	 */
-
-	//final Collection notifyMethods = new HashSet();
-
-	/** 
-	 * This is the collection of wait methods in the system that can lead to ready dependences.
-	 */
-
-	//final Collection waitMethods = new HashSet();
 
 	/** 
 	 * This provides context information pertaining to caller-callee relation across method calls.  The method stored in the
@@ -250,11 +237,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	final class StmtProcessor
 	  extends AbstractStmtSwitch {
-		/** 
-		 * The logger used by instances of this class to log messages.
-		 */
-		private final Log stmtProcessorLogger = LogFactory.getLog(StmtProcessor.class);
-
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 		 */
@@ -354,8 +336,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @pre stmt != null
 		 */
 		void process(final Stmt stmt) {
-			if (stmtProcessorLogger.isDebugEnabled()) {
-				stmtProcessorLogger.debug("Processing statement: " + stmt);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing statement: " + stmt);
 			}
 			stmt.apply(this);
 		}
@@ -383,11 +365,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		boolean read = true;
 
-		/** 
-		 * The logger used by instances of this class to log messages.
-		 */
-		private final Log valueProcessorLogger = LogFactory.getLog(ValueProcessor.class);
-
 		/**
 		 * Provides the alias set associated with the array element being referred.  All elements in a dimension of an array
 		 * are abstracted by a single alias set.
@@ -397,7 +374,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		public void caseArrayRef(final ArrayRef v) {
 			boolean _temp = read;
 			read = true;
-			v.getBase().apply(this);
+			process(v.getBase());
 			read = _temp;
 
 			final AliasSet _base = (AliasSet) getResult();
@@ -432,7 +409,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		public void caseInstanceFieldRef(final InstanceFieldRef v) {
 			boolean _temp = read;
 			read = true;
-			v.getBase().apply(this);
+			process(v.getBase());
 			read = _temp;
 
 			final AliasSet _base = (AliasSet) getResult();
@@ -560,8 +537,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 * @pre value != null
 		 */
 		void process(final Value value) {
-			if (valueProcessorLogger.isDebugEnabled()) {
-				valueProcessorLogger.debug("Processing value: " + value);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Processing value: " + value);
 			}
 			value.apply(this);
 		}
@@ -607,7 +584,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					Object _temp = null;
 
 					if (AliasSet.canHaveAliasSet(_val.getType())) {
-						v.getArg(_i).apply(valueProcessor);
+						process(v.getArg(_i));
 						_temp = valueProcessor.getResult();
 					}
 
@@ -638,8 +615,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				// This is needed when the system is not closed.
 				if (_triple == null) {
-					if (valueProcessorLogger.isDebugEnabled()) {
-						valueProcessorLogger.debug("NO TRIPLE.  May be due to open system. - " + _callee.getSignature());
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("NO TRIPLE.  May be due to open system. - " + _callee.getSignature());
 					}
 					continue;
 				}
@@ -658,7 +635,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					try {
 						_mc = (MethodContext) _mc.clone();
 					} catch (CloneNotSupportedException _e) {
-						valueProcessorLogger.error("Hell NO!  This should not happen.", _e);
+						LOGGER.error("Hell NO!  This should not happen.", _e);
 						throw new RuntimeException(_e);
 					}
 				}
@@ -691,8 +668,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			AliasSet _primaryAS = null;
 
 			if (!_sm.isStatic()) {
-				((InstanceInvokeExpr) expr).getBase().apply(valueProcessor);
-				_primaryAS = (AliasSet) valueProcessor.getResult();
+				process(((InstanceInvokeExpr) expr).getBase());
+				_primaryAS = (AliasSet) getResult();
 			}
 
 			final List _argASs = processArguments(expr, _sm);
@@ -729,15 +706,12 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		private boolean processNotifyStartWait(final AliasSet primaryAliasSet, final SootMethod callee) {
 			boolean _delayUnification = false;
 
-			if (callee.getName().equals("start")
-				  && callee.getDeclaringClass().getName().equals("java.lang.Thread")
-				  && callee.getReturnType() instanceof VoidType
-				  && callee.getParameterCount() == 0) {
+			if (Util.isStartMethod(callee)) {
 				// unify alias sets after all statements are processed if "start" is being invoked.
 				_delayUnification = true;
-			} else if (SafeLockAnalysis.isWaitMethod(callee)) {
+			} else if (Util.isWaitMethod(callee)) {
 				primaryAliasSet.setWaits();
-			} else if (SafeLockAnalysis.isNotifyMethod(callee)) {
+			} else if (Util.isNotifyMethod(callee)) {
 				primaryAliasSet.setNotifies();
 			}
 			return _delayUnification;
@@ -755,9 +729,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	private final class PreProcessor
 	  extends AbstractProcessor {
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * Creates an alias set for the static fields.  This is the creation of global alias sets in Ruf's algorithm.
-		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootField)
 		 */
 		public void callback(final SootField sf) {
 			if (Modifier.isStatic(sf.getModifiers())) {
@@ -771,9 +745,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		/**
+		 * {@inheritDoc}
+		 * 
 		 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
-		 *
-		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(SootMethod)
 		 */
 		public void callback(final SootMethod sm) {
 			if (LOGGER.isDebugEnabled()) {
@@ -865,7 +839,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final SootMethod _wSM = _wTemp.getMethod();
 			final SootMethod _nSM = _nTemp.getMethod();
 
-			if (SafeLockAnalysis.isWaitMethod(_wSM) && SafeLockAnalysis.isNotifyMethod(_nSM)) {
+			if (Util.isWaitMethod(_wSM) && Util.isNotifyMethod(_nSM)) {
 				final AliasSet _as1 = (AliasSet) ((Map) _trp1.getSecond()).get(_wTemp.getBase());
 				final AliasSet _as2 = (AliasSet) ((Map) _trp2.getSecond()).get(_nTemp.getBase());
 
@@ -1198,15 +1172,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				final Triple _triple = (Triple) method2Triple.get(_sm);
 
-				/*
-				 * NOTE: This is an kludge to fix an anamoly arising from closing open system.  However, this triple should
-				 * have been created for each processed method in the callback method.
-				 */
-				if (_triple == null) {
-					LOGGER.error("NO METHOD TRIPLE: " + _sm.getSignature());
-					continue;
-				}
-
 				methodCtxtCache = (MethodContext) _triple.getFirst();
 				localASsCache = (Map) _triple.getSecond();
 				scCache = (Map) _triple.getThird();
@@ -1292,11 +1257,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 
 				// It would suffice to unify the site context with it self in the case of loop enclosure
 				// as this is more semantically close to what happens during execution.
-				if (_callee.getName().equals("start")
-					  && _callee.getDeclaringClass().getName().equals("java.lang.Thread")
-					  && _callee.getReturnType() instanceof VoidType
-					  && _callee.getParameterCount() == 0
-					  && cfgAnalysis.executedMultipleTimes(_ctrp.getStmt(), _caller)) {
+				if (Util.isStartMethod(_callee) && cfgAnalysis.executedMultipleTimes(_ctrp.getStmt(), _caller)) {
 					_sc.selfUnify();
 				}
 
@@ -1316,6 +1277,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.61  2004/07/28 07:32:52  venku
+   - logging and toString() implementation.
    Revision 1.60  2004/07/27 07:08:25  venku
    - revamped IMonitorInfo interface.
    - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.

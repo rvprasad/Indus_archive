@@ -18,10 +18,8 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -156,43 +154,44 @@ final class MethodContext
 	 */
 	public Object clone()
 	  throws CloneNotSupportedException {
-		MethodContext _result = null;
+		MethodContext _clone = null;
 
-		if (set != null) {
-			_result = (MethodContext) ((MethodContext) find()).clone();
+		if (find() != this) {
+			_clone = (MethodContext) ((MethodContext) find()).clone();
 		} else {
-			_result = (MethodContext) super.clone();
+			_clone = (MethodContext) super.clone();
 
 			final Map _clonee2clone = new HashMap();
-			_result.set = null;
+			_clone.set = null;
 
 			if (thisAS != null) {
-				_result.thisAS = (AliasSet) thisAS.clone();
-				buildClonee2CloneMap(thisAS, _result.thisAS, _clonee2clone);
+				_clone.thisAS = (AliasSet) thisAS.clone();
+				_clonee2clone.put(thisAS, _clone.thisAS);
 			}
-			_result.argAliasSets = new ArrayList();
+			_clone.argAliasSets = new ArrayList();
 
 			for (final Iterator _i = argAliasSets.iterator(); _i.hasNext();) {
 				final AliasSet _tmp = (AliasSet) _i.next();
 
 				if (_tmp != null) {
-					final Object _o = _tmp.clone();
-					_result.argAliasSets.add(_o);
-					buildClonee2CloneMap(_tmp, (AliasSet) _o, _clonee2clone);
+					final AliasSet _o = (AliasSet) _tmp.clone();
+					_clone.argAliasSets.add(_o);
+					_clonee2clone.put(_tmp, _o);
 				} else {
-					_result.argAliasSets.add(null);
+					_clone.argAliasSets.add(null);
 				}
 			}
 
 			if (ret != null) {
-				_result.ret = (AliasSet) ret.clone();
-				buildClonee2CloneMap(ret, _result.ret, _clonee2clone);
+				_clone.ret = (AliasSet) ret.clone();
+				_clonee2clone.put(ret, _clone.ret);
 			}
-			_result.thrown = (AliasSet) thrown.clone();
-			buildClonee2CloneMap(thrown, _result.thrown, _clonee2clone);
+			_clone.thrown = (AliasSet) thrown.clone();
+			_clonee2clone.put(thrown, _clone.thrown);
+			AliasSet.fixUpFieldMapsOfClone(_clonee2clone);
 			unionclones(_clonee2clone);
 		}
-		return _result;
+		return _clone;
 	}
 
 	/**
@@ -413,42 +412,6 @@ final class MethodContext
 	}
 
 	/**
-	 * Builds the field map in the clone in such a way that it captures any circular references in existing in the clonee.
-	 *
-	 * @param s is the clonee.
-	 * @param d is the cone
-	 * @param clonee2clone maps the clonee alias sets to the clone alias sets.
-	 *
-	 * @pre s != null and d != null and clonee2clone != null
-	 * @invariant clonee2clone.oclIsKindOf(Map(AliasSet, AliasSet))
-	 */
-	private void buildClonee2CloneMap(final AliasSet s, final AliasSet d, final Map clonee2clone) {
-		clonee2clone.put(s, d);
-
-		final AliasSet _rep = (AliasSet) s.find();
-
-		final Map _sMap = _rep.getFieldMap();
-
-		for (final Iterator _i = _sMap.keySet().iterator(); _i.hasNext();) {
-			final String _fieldName = (String) _i.next();
-
-			final AliasSet _a = (AliasSet) _sMap.get(_fieldName);
-
-			if (clonee2clone.containsKey(_a)) {
-				d.putASForField(_fieldName, (AliasSet) clonee2clone.get(_a));
-			} else {
-				AliasSet _b = d.getASForField(_fieldName);
-
-				if (_b == null) {
-					_b = AliasSet.createAliasSet();
-					d.putASForField(_fieldName, _b);
-				}
-				buildClonee2CloneMap(_a, _b, clonee2clone);
-			}
-		}
-	}
-
-	/**
 	 * Unifies the given alias sets.
 	 *
 	 * @param aliasSet1 is one of the alias set to be unified.
@@ -503,29 +466,18 @@ final class MethodContext
 	 * @invariant clonee2clone.oclIsKindOf(Map(AliasSet, AliasSet))
 	 */
 	private void unionclones(final Map clonee2clone) {
-		final Collection _processed = new HashSet();
-
 		for (final Iterator _i = clonee2clone.keySet().iterator(); _i.hasNext();) {
 			final FastUnionFindElement _k1 = (FastUnionFindElement) _i.next();
-
-			if (_processed.contains(_k1)) {
-				continue;
-			}
 
 			for (final Iterator _j = clonee2clone.keySet().iterator(); _j.hasNext();) {
 				final FastUnionFindElement _k2 = (FastUnionFindElement) _j.next();
 
-				if (_k1 == _k2 || _processed.contains(_k2)) {
-					continue;
-				}
-
-				if (_k1.find() == _k2.find()) {
+				if (_k1 != _k2 && _k1.find() == _k2.find()) {
 					final FastUnionFindElement _v1 = (FastUnionFindElement) clonee2clone.get(_k1);
 					final FastUnionFindElement _v2 = (FastUnionFindElement) clonee2clone.get(_k2);
-					_v1.find().union(_v2.find());
+					_v1.union(_v2);
 				}
 			}
-			_processed.add(_k1);
 		}
 	}
 }
@@ -533,6 +485,12 @@ final class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/07/17 19:37:18  venku
+   - ECBA was incorrect for the following reasons.
+     - it fails if the start sites are not in the same method.
+     - it fails if the access in the threads occur in methods other than the
+       one in which the new thread is started.
+     - The above issues were addressed.
    Revision 1.16  2004/04/22 09:49:46  venku
    - added logic to discard fast-union-find elements which serve as levels of indirections.
    Revision 1.15  2004/01/21 09:58:16  venku

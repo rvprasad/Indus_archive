@@ -16,14 +16,16 @@
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.datastructures.FastUnionFindElement;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -64,11 +66,6 @@ final class AliasSet
 	 * This represents if the variable associated with alias set was accessed (read/written).
 	 */
 	boolean accessed;
-
-	/** 
-	 * This holds the reference of the clone object being created.  This is used to handle cycles during cloning.
-	 */
-	private AliasSet theClone;
 
 	/** 
 	 * This represents the ready Entities associated with this alias set.
@@ -148,7 +145,6 @@ final class AliasSet
 	 */
 	private AliasSet() {
 		fieldMap = new HashMap();
-		theClone = null;
 		shared = false;
 		accessed = false;
 		global = false;
@@ -187,28 +183,18 @@ final class AliasSet
 	  throws CloneNotSupportedException {
 		Object _result;
 
-		if (theClone != null) {
-			_result = theClone;
-		} else if (isGlobal()) {
+		if (isGlobal()) {
 			//optimization
 			_result = find();
-		} else if (set != null) {
+		} else if (find() != this) {
 			//just work on the representative of the class
 			_result = (AliasSet) ((AliasSet) find()).clone();
 		} else {
-			theClone = (AliasSet) super.clone();
+			final AliasSet _temp = (AliasSet) super.clone();
 
-			// clone() does a shallow copy. So, change the fields in the clone suitably.
-			theClone.fieldMap = new HashMap();
+			_temp.fieldMap = (Map) ((HashMap) fieldMap).clone();
 
-			for (final Iterator _i = fieldMap.entrySet().iterator(); _i.hasNext();) {
-				final Map.Entry _entry = (Map.Entry) _i.next();
-				final AliasSet _temp = (AliasSet) ((AliasSet) _entry.getValue()).clone();
-				theClone.fieldMap.put(_entry.getKey(), _temp);
-			}
-
-			_result = theClone;
-			theClone = null;
+			_result = _temp;
 		}
 
 		return _result;
@@ -224,7 +210,7 @@ final class AliasSet
 			_result = ((AliasSet) find()).toString();
 		} else {
 			if (stringifying) {
-				_result = "Top";
+				_result = String.valueOf(hashCode());
 			} else {
 				stringifying = true;
 				_result =
@@ -239,26 +225,6 @@ final class AliasSet
 			}
 		}
 		return _result;
-	}
-
-	/**
-	 * Marks this alias set and all reachable alias sets as being accessed in multiple threads.
-	 */
-	void markMultiThreadAccess() {
-		if (find() != this) {
-			((AliasSet) find()).markMultiThreadAccess();
-		} else {
-			if (markingMultiThreadAccess) {
-				return;
-			}
-			markingMultiThreadAccess = true;
-			multiThreadAccess = true;
-
-			for (final Iterator _i = fieldMap.values().iterator(); _i.hasNext();) {
-				((AliasSet) _i.next()).markMultiThreadAccess();
-			}
-			markingMultiThreadAccess = false;
-		}
 	}
 
 	/**
@@ -279,6 +245,44 @@ final class AliasSet
 		}
 
 		return _result;
+	}
+
+	/**
+	 * Fixes up the field maps of the alias sets in the given map.  When alias sets are cloned, the field maps are cloned.
+	 * Hence, they are shallow copied.  This method clones the relation between the alias sets among their clones.
+	 *
+	 * @param clonee2clone maps an alias set to it's clone.
+	 *
+	 * @throws CloneNotSupportedException when <code>clone()</code> fails.
+	 */
+	static void fixUpFieldMapsOfClone(final Map clonee2clone)
+	  throws CloneNotSupportedException {
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
+
+		_wb.addAllWork(clonee2clone.keySet());
+
+		while (_wb.hasWork()) {
+			final AliasSet _clonee = (AliasSet) _wb.getWork();
+			final AliasSet _clone = (AliasSet) clonee2clone.get(_clonee);
+			final Map _cloneeFieldMap = _clonee.fieldMap;
+			final Set _cloneeFields = _cloneeFieldMap.keySet();
+			final Iterator _i = _cloneeFields.iterator();
+			final int _iEnd = _cloneeFields.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Object _field = _i.next();
+				final Object _cloneeFieldAS = _cloneeFieldMap.get(_field);
+				final Object _cloneFieldAS = clonee2clone.get(_cloneeFieldAS);
+
+				if (_cloneFieldAS != null) {
+					_clone.fieldMap.put(_field, _cloneFieldAS);
+				} else {
+					final AliasSet _temp = (AliasSet) ((AliasSet) _cloneeFieldAS).clone();
+					clonee2clone.put(_cloneeFieldAS, _temp);
+				}
+				_wb.addWork(_cloneeFieldAS);
+			}
+		}
 	}
 
 	/**
@@ -425,6 +429,26 @@ final class AliasSet
 	}
 
 	/**
+	 * Marks this alias set and all reachable alias sets as being accessed in multiple threads.
+	 */
+	void markMultiThreadAccess() {
+		if (find() != this) {
+			((AliasSet) find()).markMultiThreadAccess();
+		} else {
+			if (markingMultiThreadAccess) {
+				return;
+			}
+			markingMultiThreadAccess = true;
+			multiThreadAccess = true;
+
+			for (final Iterator _i = fieldMap.values().iterator(); _i.hasNext();) {
+				((AliasSet) _i.next()).markMultiThreadAccess();
+			}
+			markingMultiThreadAccess = false;
+		}
+	}
+
+	/**
 	 * Propogates the information from this alias set to the given alias set.
 	 *
 	 * @param as is the destination of the information transfer.
@@ -433,14 +457,15 @@ final class AliasSet
 	 * @post as.getEntity() == getEntity()
 	 */
 	void propogateInfoFromTo(final AliasSet as) {
-		if (propogating) {
+		final AliasSet _rep1 = (AliasSet) find();
+		final AliasSet _rep2 = (AliasSet) as.find();
+
+		if (propogating || _rep1 == _rep2) {
 			return;
 		}
 
 		propogating = true;
 
-		final AliasSet _rep1 = (AliasSet) find();
-		final AliasSet _rep2 = (AliasSet) as.find();
 		_rep2.shared |= _rep1.shared;
 
 		/*
@@ -498,38 +523,39 @@ final class AliasSet
 	 * executed multiple times, in particular, reachable from a call-site which may be executed multiple times.
 	 */
 	void selfUnify() {
-		if (selfUnifying) {
-			return;
-		}
-		selfUnifying = true;
-
 		final AliasSet _m = (AliasSet) find();
 
-		_m.shared |= _m.accessed;
-
-		if (_m.waits && _m.notifies) {
-			if (_m.readyEntities == null) {
-				_m.readyEntities = new HashSet();
+		if (_m == this) {
+			if (selfUnifying) {
+				return;
 			}
-			_m.readyEntities.add(getNewReadyEntity());
-		}
+			selfUnifying = true;
 
-		if (_m.read && _m.written) {
-			if (_m.shareEntities == null) {
-				_m.shareEntities = new HashSet();
+			_m.shared |= _m.accessed;
+
+			if (_m.waits && _m.notifies) {
+				if (_m.readyEntities == null) {
+					_m.readyEntities = new HashSet();
+				}
+				_m.readyEntities.add(getNewReadyEntity());
 			}
-			_m.shareEntities.add(getNewShareEntity());
-		}
 
-		for (final Iterator _i = _m.fieldMap.keySet().iterator(); _i.hasNext();) {
-			final String _fieldName = (String) _i.next();
-			final FastUnionFindElement _field = (FastUnionFindElement) _m.fieldMap.get(_fieldName);
-
-			if (_field != null) {
-				((AliasSet) _field).selfUnify();
+			if (_m.read && _m.written) {
+				if (_m.shareEntities == null) {
+					_m.shareEntities = new HashSet();
+				}
+				_m.shareEntities.add(getNewShareEntity());
 			}
+
+			for (final Iterator _i = _m.fieldMap.values().iterator(); _i.hasNext();) {
+				final AliasSet _fieldAS = (AliasSet) _i.next();
+				_fieldAS.selfUnify();
+			}
+
+			selfUnifying = false;
+		} else {
+			_m.selfUnify();
 		}
-		selfUnifying = false;
 	}
 
 	/**
@@ -570,7 +596,7 @@ final class AliasSet
 			unifyEscapeInfo(_rep1, _rep2);
 		}
 
-		unifyFields(_rep1, _rep2);
+		_rep1.unifyFields(_rep2);
 
 		if (_rep1.global || _rep2.global) {
 			_rep1.setGlobal();
@@ -624,38 +650,25 @@ final class AliasSet
 	}
 
 	/**
-	 * Unify the fields of the given alias sets.
+	 * Unify the fields of the given alias sets with that of this alias set.
 	 *
-	 * @param aliasSet1 is one of the alias set involved in the unification.
-	 * @param aliasSet2 is the other alias set involved in the unification.
+	 * @param aliasSet is the other alias set involved in the unification.
 	 *
-	 * @pre aliasSet1 != null and aliasSet2 != null
+	 * @pre aliasSet != null
 	 */
-	private void unifyFields(final AliasSet aliasSet1, final AliasSet aliasSet2) {
-		final Collection _toBeProcessed = new HashSet();
-		final Collection _keySet = new ArrayList(aliasSet2.fieldMap.keySet());
-		_toBeProcessed.addAll(_keySet);
+	private void unifyFields(final AliasSet aliasSet) {
+		for (final Iterator _i = aliasSet.fieldMap.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final Object _key = _entry.getKey();
+			final Object _value = _entry.getValue();
+			final AliasSet _fieldASInThis = (AliasSet) fieldMap.get(_key);
+			final AliasSet _givenFieldAS = (AliasSet) _value;
 
-		for (final Iterator _i = _keySet.iterator(); _i.hasNext();) {
-			final String _fieldName = (String) _i.next();
-			final FastUnionFindElement _field = (FastUnionFindElement) aliasSet1.fieldMap.get(_fieldName);
-
-			if (_field != null) {
-				final AliasSet _repAS = (AliasSet) _field;
-				_toBeProcessed.remove(_fieldName);
-
-				final FastUnionFindElement _temp = (FastUnionFindElement) aliasSet2.fieldMap.get(_fieldName);
-
-				if (_temp != null) {
-					_repAS.unify((AliasSet) _temp);
-				}
+			if (_fieldASInThis != null) {
+				_fieldASInThis.unify(_givenFieldAS);
+			} else {
+				fieldMap.put(_key, _value);
 			}
-		}
-
-		for (final Iterator _i = _toBeProcessed.iterator(); _i.hasNext();) {
-			final String _field = (String) _i.next();
-			final AliasSet _rep2AS = (AliasSet) ((FastUnionFindElement) aliasSet2.fieldMap.get(_field));
-			aliasSet1.putASForField(_field, _rep2AS);
 		}
 	}
 }
@@ -663,6 +676,12 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/07/17 19:37:18  venku
+   - ECBA was incorrect for the following reasons.
+     - it fails if the start sites are not in the same method.
+     - it fails if the access in the threads occur in methods other than the
+       one in which the new thread is started.
+     - The above issues were addressed.
    Revision 1.17  2004/04/22 09:49:03  venku
    - coding conventions.
    Revision 1.16  2004/01/09 00:59:09  venku
