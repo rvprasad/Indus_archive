@@ -110,9 +110,7 @@ public class SlicerConfiguration
 	static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This identifies the option to create executable slice.
 	 */
 	static final Object EXECUTABLE_SLICE = "executable slice";
 
@@ -122,37 +120,27 @@ public class SlicerConfiguration
 	static final Object SLICE_TYPE = "slice type";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the factory object to create configurations.
 	 */
 	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates type based information.
 	 */
 	static final Object TYPE_BASED_INFO = "TYPE_BASED_INFO";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This identifies the property that indicates the nature of interference dependence, i.e., type based, etc.
 	 */
 	static final Object NATURE_OF_INTERFERENCE_DA = "nature of interference dependence";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This identifies the property that indicates the nature of ready dependence, i.e., type based, etc.
 	 */
 	static final Object NATURE_OF_READY_DA = "nature of ready dependence";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This indicates if executable slice should be generated.
 	 */
 	protected boolean executableSlice = true;
 
@@ -578,22 +566,23 @@ public class SlicerConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the configuration factory object.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the configuration factory.
+	 *
+	 * @post result != null
 	 */
 	static final IToolConfigurationFactory getFactory() {
 		return factorySingleton;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Factory method to create a configuration. This is used by the factory and in java-2-xml binding.  It is adviced to use
+	 * the factory object rather than using this method.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a new instance of a configuration.
+	 *
+	 * @post result != null
 	 */
 	static final SlicerConfiguration makeToolConfiguration() {
 		SlicerConfiguration result = new SlicerConfiguration();
@@ -621,24 +610,22 @@ public class SlicerConfiguration
 	}
 
 	/**
-	 * Provides the names of the dependences to use for slicing.
+	 * Provides the id of the dependences to use for slicing.
 	 *
-	 * @return a collection of dependence analyses.
+	 * @return a collection of id of the dependence analyses.
 	 *
-	 * @post result != null and result.oclIsKindOf(Collection(DependencyAnalysis))
+	 * @post result != null and result.oclIsKindOf(Collection(String))
 	 */
 	Collection getNamesOfDAsToUse() {
 		return Collections.unmodifiableCollection(dependencesToUse);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the boolean value of the given property.
 	 *
-	 * @param propertyId DOCUMENT ME!
+	 * @param propertyId identifies the property for which the value is required.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the value associated with <code>propertyId</code>.  Default value is <code>false</code>.
 	 */
 	private boolean getBooleanProperty(final Object propertyId) {
 		Boolean value = (Boolean) properties.get(propertyId);
@@ -665,6 +652,12 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/09 08:12:49  venku
+   - values of all boolean properties are discovered by getBooleanProperty().
+     If the property does not exist, a default value will be returned.
+   - initialization will populate default values for all properties.
+   - configurations are given default name on creation.
+   - factory method will initialize the configuration after creation.
    Revision 1.16  2003/11/05 08:26:42  venku
    - changed the xml schema for the slicer configuration.
    - The configruator, driver, and the configuration handle

@@ -195,9 +195,7 @@ public final class SlicerTool
 	private final SliceCriteriaFactory criteriaFactory;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the instance of equivalence class based escape analysis used by this object.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
@@ -276,6 +274,23 @@ public final class SlicerTool
 	 */
 	public Collection getCriteria() {
 		return criteria;
+	}
+
+	/**
+	 * Returns the dependency analyses used by this object.
+	 *
+	 * @return the collection of dependency analyses.
+	 *
+	 * @post result != null and result.oclIsKindOf(Set(DependencyAnalysis))
+	 */
+	public Collection getDAs() {
+		Collection result = new HashSet();
+		SlicerConfiguration config = ((SlicerConfiguration) getActiveConfiguration());
+
+		for (Iterator i = config.getNamesOfDAsToUse().iterator(); i.hasNext();) {
+			result.add(config.getDependenceAnalysis(i.next()));
+		}
+		return result;
 	}
 
 	/**
@@ -596,6 +611,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/11/15 22:06:54  venku
+   - added support to extract call graph and environment.
    Revision 1.22  2003/11/15 21:27:03  venku
    - deleted initialize()
    - added a new method to extract call graph
