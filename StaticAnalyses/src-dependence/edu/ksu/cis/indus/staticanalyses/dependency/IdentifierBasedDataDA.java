@@ -72,12 +72,12 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  */
 public class IdentifierBasedDataDA
   extends AbstractDependencyAnalysis {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(IdentifierBasedDataDA.class);
 
-	/**
+	/** 
 	 * This provides call graph information.
 	 */
 	private ICallGraphInfo callgraph;
@@ -168,6 +168,13 @@ public class IdentifierBasedDataDA
 		return _result;
 	}
 
+	/**
+	 * {@inheritDoc}  This implementation is bi-directional.
+	 */
+	public Object getDirection() {
+		return BI_DIRECTIONAL;
+	}
+
 	/*
 	 * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in
 	 * the methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
@@ -185,6 +192,13 @@ public class IdentifierBasedDataDA
 	 */
 	public Object getId() {
 		return IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.STMT_DEP_RETRIEVER);
 	}
 
 	/**
@@ -347,9 +361,12 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.38  2004/07/09 09:43:22  venku
    - added clover tags to control coverage of toSting()
-
    Revision 1.37  2004/06/15 08:53:50  venku
    - refactoring.
    - coding conventions.

@@ -36,6 +36,9 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.BackwardDirectionSensitiveInfo;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.ForwardDirectionSensitiveInfo;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.IDirectionSensitiveInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
@@ -189,9 +192,19 @@ public class ReadyDAv1
 	private final Collection specials = new HashSet();
 
 	/** 
+	 * The direction of the analysis.
+	 */
+	private final Object theDirection;
+
+	/** 
 	 * This provides call graph of the system being analyzed.
 	 */
 	private ICallGraphInfo callgraph;
+
+	/** 
+	 * This provides direction-sensitive information to make the analysis direction sensitive.
+	 */
+	private final IDirectionSensitiveInfo directionSensInfo;
 
 	/** 
 	 * This provides information such as the classes occurring in the system being analyzed.
@@ -241,9 +254,16 @@ public class ReadyDAv1
 	private boolean useSafeLockAnalysis;
 
 	/**
-	 * Creates a new ReadyDAv1 object.
+	 * Creates an instance of this class.
+	 *
+	 * @param directionSensitiveInfo that controls the direction.
+	 * @param direction of the analysis
+	 *
+	 * @pre info != null and direction != null
 	 */
-	public ReadyDAv1() {
+	protected ReadyDAv1(final IDirectionSensitiveInfo directionSensitiveInfo, final Object direction) {
+		directionSensInfo = directionSensitiveInfo;
+		theDirection = direction;
 		preprocessor = new PreProcessor();
 		considerCallSites = false;
 	}
@@ -319,6 +339,28 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * Retrieves an instance of ready dependence analysis that calculates information in backward direction.
+	 *
+	 * @return an instance of ready dependence.
+	 *
+	 * @post result != null
+	 */
+	public static ReadyDAv1 getBackwardReadyDA() {
+		return new ReadyDAv1(new BackwardDirectionSensitiveInfo(), BACKWARD_DIRECTION);
+	}
+
+	/**
+	 * Retrieves an instance of ready dependence analysis that calculates information in forward direction.
+	 *
+	 * @return an instance of ready dependence.
+	 *
+	 * @post result != null
+	 */
+	public static ReadyDAv1 getForwardReadyDA() {
+		return new ReadyDAv1(new ForwardDirectionSensitiveInfo(), FORWARD_DIRECTION);
+	}
+
+	/**
 	 * Records if ready dependency should be interprocedural or otherwise.
 	 *
 	 * @param consider <code>true</code> indicates that any call-site leading to wait() call-site or enter-monitor statement
@@ -379,10 +421,24 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
+	 */
+	public Object getDirection() {
+		return theDirection;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
 		return IDependencyAnalysis.READY_DA;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.PAIR_DEP_RETRIEVER);
 	}
 
 	/**
@@ -772,6 +828,28 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * Retrieves pairs of exitmonitor statements and the methods that containing the statement.
+	 *
+	 * @return a collection of pairs.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(Pair(ExitMonitorStmt, SootMethod)))
+	 */
+	private Collection getExitMonitorStmtMethodPairs() {
+		final Collection _temp = new HashSet();
+
+		for (final Iterator _i = exitMonitors.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final Object _method = _entry.getKey();
+
+			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
+				final Object _o = _j.next();
+				_temp.add(pairMgr.getPair(_o, _method));
+			}
+		}
+		return _temp;
+	}
+
+	/**
 	 * This checks if the lock associated the given monitor is unsafe.
 	 *
 	 * @param monitorStmt obviously.
@@ -815,6 +893,62 @@ public class ReadyDAv1
 			}
 		}
 		return _result;
+	}
+
+	/**
+	 * Collects the dependees in each method.
+	 *
+	 * @return a collection of dependees in each method.
+	 *
+	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
+	 */
+	private Map collectDependeesInMethods() {
+		final Map _method2dependeeMap = new HashMap();
+
+		if ((rules & RULE_1) != 0) {
+			final Collection _temp = new ArrayList();
+
+			for (final Iterator _i = enterMonitors.keySet().iterator(); _i.hasNext();) {
+				final SootMethod _method = (SootMethod) _i.next();
+
+				// if the method is not concrete we there can be no intra-procedural ready dependence.  So, don't bother.
+				if (_method.isConcrete()) {
+					final Collection _enterMonitorStmts = (Collection) enterMonitors.get(_method);
+					final Collection _col = new HashSet();
+					final Iterator _j = _enterMonitorStmts.iterator();
+					final int _jEnd = _enterMonitorStmts.size();
+
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final Object _enter = _j.next();
+						final boolean _unsafe = isLockUnsafe(_enter, _method);
+
+						if (_unsafe) {
+							if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
+								_col.remove(SYNC_METHOD_PROXY_STMT);
+								_temp.clear();
+								_temp.add(pairMgr.getPair(SYNC_METHOD_PROXY_STMT, _method));
+								normalizeEntryInformation(_temp);
+
+								for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
+									_col.add(((Pair) _k.next()).getFirst());
+								}
+							} else {
+								_col.add(_enter);
+							}
+						}
+					}
+					_method2dependeeMap.put(_method, _col);
+				}
+			}
+		}
+
+		if ((rules & RULE_3) != 0) {
+			for (final Iterator _i = waits.keySet().iterator(); _i.hasNext();) {
+				final SootMethod _method = (SootMethod) _i.next();
+				CollectionsUtilities.putAllIntoSetInMap(_method2dependeeMap, _method, (Collection) waits.get(_method));
+			}
+		}
+		return _method2dependeeMap;
 	}
 
 	/**
@@ -1025,64 +1159,14 @@ public class ReadyDAv1
 	private void processRule1And3() {
 		final IWorkBag _workbag = new LIFOWorkBag();
 		final Collection _processed = new HashSet();
-		final Map _method2dependeeMap = new HashMap();
-
-		if ((rules & RULE_1) != 0) {
-			final Collection _temp = new ArrayList();
-
-			for (final Iterator _i = enterMonitors.keySet().iterator(); _i.hasNext();) {
-				final SootMethod _method = (SootMethod) _i.next();
-
-				// if the method is not concrete we there can be no intra-procedural ready dependence.  So, don't bother.
-				if (_method.isConcrete()) {
-					final Collection _enterMonitorStmts = (Collection) enterMonitors.get(_method);
-					final Collection _col = new HashSet();
-					final Iterator _j = _enterMonitorStmts.iterator();
-					final int _jEnd = _enterMonitorStmts.size();
-
-					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-						final Object _enter = _j.next();
-						final boolean _unsafe = isLockUnsafe(_enter, _method);
-
-						if (_unsafe) {
-							if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
-								_col.remove(SYNC_METHOD_PROXY_STMT);
-								_temp.clear();
-								_temp.add(pairMgr.getPair(SYNC_METHOD_PROXY_STMT, _method));
-								normalizeEntryInformation(_temp);
-
-								for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
-									_col.add(((Pair) _k.next()).getFirst());
-								}
-							} else {
-								_col.add(_enter);
-							}
-						}
-					}
-					_method2dependeeMap.put(_method, _col);
-				}
-			}
-		}
-
-		if ((rules & RULE_3) != 0) {
-			for (final Iterator _i = waits.keySet().iterator(); _i.hasNext();) {
-				final SootMethod _method = (SootMethod) _i.next();
-
-				if (_method2dependeeMap.get(_method) != null) {
-					((Collection) _method2dependeeMap.get(_method)).addAll((Collection) waits.get(_method));
-				} else {
-					final Collection _tmp = new HashSet((Collection) waits.get(_method));
-					_method2dependeeMap.put(_method, _tmp);
-				}
-			}
-		}
+		final Map _method2dependeeMap = collectDependeesInMethods();
 
 		if ((waits.size() == 0 ^ notifies.size() == 0) && LOGGER.isWarnEnabled()) {
 			LOGGER.warn("There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
 				+ "wait()s that occur in different threads.");
 		}
 
-		final Collection _temp = new HashSet();
+		final Collection _dependents = new HashSet();
 
 		for (final Iterator _i = _method2dependeeMap.keySet().iterator(); _i.hasNext();) {
 			final SootMethod _method = (SootMethod) _i.next();
@@ -1093,64 +1177,27 @@ public class ReadyDAv1
 			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
 				final Stmt _dependee = (Stmt) _j.next();
 				BasicBlock _bb = _bbGraph.getEnclosingBlock(_dependee);
-				final List _sl = _bb.getStmtsFrom(_dependee);
-				_sl.remove(0);  // remove the dependee from the list
-				_temp.clear();
+				final List _sl = directionSensInfo.getIntraBBDependents(_bb, _dependee);
+				_dependents.clear();
 
-				boolean _shouldContinue = true;
 				final Pair _pair = pairMgr.getPair(_dependee, _method);
-
-				// add dependent to dependee direction information.
-				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
-					final Stmt _stmt = (Stmt) _k.next();
-
-					CollectionsUtilities.putIntoSetInMap(_dents2dees, _stmt, _pair);
-
-					// record dependee to dependent direction information
-					_temp.add(pairMgr.getPair(_stmt, _method));
-
-					/*
-					 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method call-site,
-					 * flag that the following successors should not be considered for this dependence and break.
-					 */
-					if (_dependees.contains(_stmt) || callsReadyMethod(_stmt, _method)) {
-						_shouldContinue = false;
-						break;
-					}
-				}
+				boolean _shouldContinue =
+					recordDependent2DependeeInfo(_dependents, _method, _dependees, _dents2dees, _sl, _pair);
 
 				// Process the successive basic blocks if there was no ready dependence head statement. 
 				if (_shouldContinue) {
 					_workbag.clear();
 					_processed.clear();
-					_workbag.addAllWork(_bb.getSuccsOf());
+					_workbag.addAllWork(directionSensInfo.getFollowersOfBB(_bb));
 
 					while (_workbag.hasWork()) {
 						_bb = (BasicBlock) _workbag.getWork();
-						_shouldContinue = true;
-
-						// add dependent to dependee direction information.
-						for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
-							final Stmt _stmt = (Stmt) _k.next();
-
-							CollectionsUtilities.putIntoSetInMap(_dents2dees, _stmt, _pair);
-
-							// record dependee to dependent direction information
-							_temp.add(pairMgr.getPair(_stmt, _method));
-
-							/*
-							 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method
-							 * call-site , flag that the following successors should not be considered for this dependence
-							 * and break.
-							 */
-							if (_dependees.contains(_stmt) || callsReadyMethod(_stmt, _method)) {
-								_shouldContinue = false;
-								break;
-							}
-						}
+						_shouldContinue =
+							recordDependent2DependeeInfo(_dependents, _method, _dependees, _dents2dees, _bb.getStmtsOf(),
+								_pair);
 
 						if (!_processed.contains(_bb) && _shouldContinue) {
-							_workbag.addAllWork(_bb.getSuccsOf());
+							_workbag.addAllWork(directionSensInfo.getFollowersOfBB(_bb));
 						}
 						_processed.add(_bb);
 					}
@@ -1158,7 +1205,7 @@ public class ReadyDAv1
 
 				//add dependee to dependent direction information.
 				final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _method);
-				CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _dependee, _temp);
+				CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _dependee, _dependents);
 			}
 		}
 	}
@@ -1168,24 +1215,10 @@ public class ReadyDAv1
 	 * in different threads, the combination  of these to be  considered is determined by <code>ifRelatedByRule2()</code>.
 	 */
 	private void processRule2() {
-		final Collection _temp = new HashSet();
-
-		for (final Iterator _i = exitMonitors.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final Object _method = _entry.getKey();
-
-			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
-				final Object _o = _j.next();
-				_temp.add(pairMgr.getPair(_o, _method));
-			}
-		}
-
-		// the set of dependees
 		final Collection _deSet = new HashSet();
-
-		// the set of dependents
 		final Collection _dtSet = new HashSet();
 		final Collection _tails = new HashSet();
+		final Collection _temp = getExitMonitorStmtMethodPairs();
 
 		/*
 		 * Iterate thru enter-monitor sites and record dependencies, in both direction, between each exit-monitor sites.
@@ -1307,14 +1340,62 @@ public class ReadyDAv1
 			}
 		}
 	}
+
+	/**
+	 * Records dependent to dependee information while capturing the dependents for recording information in the other
+	 * direction.
+	 *
+	 * @param dependents is the collection of dependents.  This is an <code>out</code> parameter.
+	 * @param method in which the dependees occur.
+	 * @param dependees is the collection of dependees.
+	 * @param dents2dees is the map which needs to be updated.
+	 * @param stmts is the collection of statements to be processed for dependent status.
+	 * @param pair is the dependee for which current execution is recording dependence.
+	 *
+	 * @return <code>true</code> if the following basic blocks of the basic block in which <code>stmts</code> occur should be
+	 * 		   considered for dependence; <code>false</code>, otherwise.
+	 *
+	 * @pre dependents != null and dependents.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
+	 * @pre method != null and pair != null and pair.oclIsKindOf(Pair(Stmt, SootMethod))
+	 * @pre dependees != null and dependees.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
+	 * @pre stmts != null and stmts.oclIsKindOf(Sequence(Stmt))
+	 * @pre dents2dees != null and dents2dees.oclIsKindOf(Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethod))))
+	 */
+	private boolean recordDependent2DependeeInfo(final Collection dependents, final SootMethod method,
+		final Collection dependees, final Map dents2dees, final List stmts, final Pair pair) {
+		boolean _shouldContinue;
+		_shouldContinue = true;
+
+		// add dependent to dependee direction information.
+		for (final Iterator _k = stmts.iterator(); _k.hasNext() && _shouldContinue;) {
+			final Stmt _stmt = (Stmt) _k.next();
+
+			CollectionsUtilities.putIntoSetInMap(dents2dees, _stmt, pair);
+
+			// record dependee to dependent direction information
+			dependents.add(pairMgr.getPair(_stmt, method));
+
+			/*
+			 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method
+			 * call-site, flag that the following successors should not be considered for this dependence
+			 * and break.
+			 */
+			_shouldContinue = !(dependees.contains(_stmt) || callsReadyMethod(_stmt, method));
+		}
+		return _shouldContinue;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.69  2004/08/11 08:52:04  venku
+   - massive changes.
+     - Changed the way threads were represented in ThreadGraph.
+     - Changed the interface in IThreadGraph.
+     - ripple effect in other classes.
    Revision 1.68  2004/08/09 04:56:22  venku
    - we assumed that monitor objects were non-array types. This was a bug.  FIXED.
-
    Revision 1.67  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.

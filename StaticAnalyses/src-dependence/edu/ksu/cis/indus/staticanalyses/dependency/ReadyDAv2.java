@@ -19,6 +19,9 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.BackwardDirectionSensitiveInfo;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.ForwardDirectionSensitiveInfo;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.IDirectionSensitiveInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,6 +48,8 @@ import soot.jimple.VirtualInvokeExpr;
  */
 public class ReadyDAv2
   extends ReadyDAv1 {
+    
+    
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -55,6 +60,42 @@ public class ReadyDAv2
 	 */
 	protected EquivalenceClassBasedEscapeAnalysis ecba;
 
+	/**
+	 * Creates an instance of this class.
+	 *
+	 * @param directionSensitiveInfo that controls the direction.
+	 * @param direction of the analysis
+	 *
+	 * @pre info != null and direction != null
+	 */
+	protected ReadyDAv2(final IDirectionSensitiveInfo directionSensitiveInfo, final Object direction) {
+		super(directionSensitiveInfo, direction);
+	}
+
+	/**
+	 * Retrieves an instance of ready dependence analysis that calculates information in backward direction.
+	 *
+	 * @return an instance of ready dependence.
+	 *
+	 * @post result != null
+	 */
+	public static ReadyDAv1 getBackwardReadyDA() {
+		return new ReadyDAv2(new BackwardDirectionSensitiveInfo(), BACKWARD_DIRECTION);
+	}
+
+	/**
+	 * Retrieves an instance of ready dependence analysis that calculates information in forward direction.
+	 *
+	 * @return an instance of ready dependence.
+	 *
+	 * @post result != null
+	 */
+	public static ReadyDAv1 getForwardReadyDA() {
+		return new ReadyDAv2(new ForwardDirectionSensitiveInfo(), FORWARD_DIRECTION);
+	}
+
+
+	
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
 	 */
@@ -163,6 +204,9 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/07/30 07:47:06  venku
+   - changed the way optional features were handled (OFA/SLA).
+
    Revision 1.21  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
@@ -162,10 +163,24 @@ public final class SynchronizationDA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
+	 */
+	public Object getDirection() {
+		return DIRECTIONLESS;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
 		return IDependencyAnalysis.SYNCHRONIZATION_DA;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.STMT_DEP_RETRIEVER);
 	}
 
 	/**
@@ -221,7 +236,7 @@ public final class SynchronizationDA
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws InitializationException when object flow analysis is not provided.
+	 * @throws InitializationException when monitor analysis is not provided.
 	 *
 	 * @pre info.get(IMonitorInfo.ID) != null and info.get(IMonitorInfo.ID).oclIsTypeOf(IMonitorInfo)
 	 *
@@ -242,6 +257,11 @@ public final class SynchronizationDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.54  2004/07/27 07:08:25  venku
+   - revamped IMonitorInfo interface.
+   - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
+   - deleted WaitNotifyAnalysis
+   - ripple effect in EquivalenceClassBasedEscapeAnalysis.
    Revision 1.53  2004/07/23 13:55:19  venku
    - Merging into main trunk.
    Revision 1.52.2.2  2004/07/23 13:23:16  venku

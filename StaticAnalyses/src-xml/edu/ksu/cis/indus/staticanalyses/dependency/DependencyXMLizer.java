@@ -151,7 +151,7 @@ public final class DependencyXMLizer
 	 * @post result != null
 	 */
 	String getDAPartOfFileName(final IDependencyAnalysis da) {
-		return da.getId() + ":" + da.getClass().getName();
+		return da.getId() + ":" + da.getDirection() + ":" + da.getClass().getName();
 	}
 
 	/**
@@ -205,7 +205,7 @@ public final class DependencyXMLizer
 			throw new IllegalStateException("Please specify an output directory while using the xmlizer.");
 		}
 
-		for (final Iterator _i = DependencyAnalysisUtil.IDENTIFIERS.iterator(); _i.hasNext();) {
+		for (final Iterator _i = AbstractDependencyAnalysis.IDENTIFIERS.iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 			final Collection _col = (Collection) info.get(_id);
 
@@ -248,6 +248,9 @@ public final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/07/21 10:13:15  venku
+   - log content.
+
    Revision 1.21  2004/05/14 09:02:56  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is

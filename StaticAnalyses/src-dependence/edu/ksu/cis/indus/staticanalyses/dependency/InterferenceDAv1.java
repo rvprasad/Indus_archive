@@ -268,10 +268,24 @@ public class InterferenceDAv1
 	}
 
 	/**
+	 * {@inheritDoc}  This implementation is bi-directional.
+	 */
+	public Object getDirection() {
+		return BI_DIRECTIONAL;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
 		return IDependencyAnalysis.INTERFERENCE_DA;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.PAIR_DEP_RETRIEVER);
 	}
 
 	/**
@@ -606,9 +620,9 @@ public class InterferenceDAv1
 				final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
 				final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
 
-				if (_dt instanceof StaticFieldRef && _de instanceof StaticFieldRef) {
+				if (_de instanceof StaticFieldRef) {
 					final SootField _f1 = ((StaticFieldRef) _de).getField();
-					final SootField _f2 = ((StaticFieldRef) _dt).getField();
+					final SootField _f2 = ((FieldRef) _dt).getField();
 
 					/*
 					 * if f1 and f2 are the same fields and
@@ -630,6 +644,11 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/08/11 08:52:04  venku
+   - massive changes.
+     - Changed the way threads were represented in ThreadGraph.
+     - Changed the interface in IThreadGraph.
+     - ripple effect in other classes.
    Revision 1.46  2004/08/02 07:33:45  venku
    - small but significant change to the pair manager.
    - ripple effect.

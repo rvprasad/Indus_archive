@@ -94,7 +94,7 @@ public class IdentifierBasedDataDAv2
 
 		if (_useDefAnalysis != null) {
 			if (programPoint instanceof Stmt) {
-				_result = collectDefInfoForAllLocalsIn((Stmt) programPoint, _useDefAnalysis, (SootMethod) method);
+				_result = collectDefsForAllLocalsIn((Stmt) programPoint, _useDefAnalysis, (SootMethod) method);
 			} else if (programPoint instanceof Pair) {
 				final Pair _pair = (Pair) programPoint;
 				final Stmt _stmt = (Stmt) _pair.getFirst();
@@ -139,10 +139,24 @@ public class IdentifierBasedDataDAv2
 	}
 
 	/**
+	 * {@inheritDoc}  This implementation is bi-directional.
+	 */
+	public Object getDirection() {
+		return BI_DIRECTIONAL;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public final Object getId() {
 		return IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.STMT_DEP_RETRIEVER);
 	}
 
 	/**
@@ -279,8 +293,7 @@ public class IdentifierBasedDataDAv2
 	 * @pre stmt != null and useDefAnalysis != null
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
 	 */
-	private Collection collectDefInfoForAllLocalsIn(final Stmt stmt, final IUseDefInfo useDefAnalysis, 
-	        final SootMethod method) {
+	private Collection collectDefsForAllLocalsIn(final Stmt stmt, final IUseDefInfo useDefAnalysis, final SootMethod method) {
 		final Collection _result = new HashSet();
 
 		for (final Iterator _i = stmt.getUseBoxes().iterator(); _i.hasNext();) {
@@ -301,16 +314,15 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/07/23 07:39:00  venku
+   - documentation.
    Revision 1.9  2004/07/22 09:42:40  venku
    - altered IUseDefInfo to use tighter types.
    - ripple effect.
-
    Revision 1.8  2004/07/21 20:31:33  venku
    documentation.
-
    Revision 1.7  2004/07/21 11:40:22  venku
    - documentation.
-
    Revision 1.6  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
@@ -318,7 +330,6 @@ public class IdentifierBasedDataDAv2
      ECBA and AliasedUseDefInfo analysis.
    - Added new faster implementation of LocalUseDefAnalysisv2
    - Used LocalUseDefAnalysisv2
-
    Revision 1.5  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while

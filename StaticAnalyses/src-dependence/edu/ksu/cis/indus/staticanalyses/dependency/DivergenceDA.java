@@ -26,6 +26,9 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.BackwardDirectionSensitiveInfo;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.ForwardDirectionSensitiveInfo;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.IDirectionSensitiveInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,6 +98,11 @@ public final class DivergenceDA
 	private ICallGraphInfo callgraph;
 
 	/** 
+	 * This provides direction-sensitive information to make the analysis direction sensitive.
+	 */
+	private final IDirectionSensitiveInfo directionSensInfo;
+
+	/** 
 	 * This maps methods to the inter-procedural divergence points they contain.
 	 *
 	 * @invariant method2interProcDivPoints.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
@@ -103,10 +111,39 @@ public final class DivergenceDA
 	private final Map method2interProcDivPoints = new HashMap();
 
 	/** 
+	 * The direction of the analysis.
+	 */
+	private final Object theDirection;
+
+	/** 
 	 * This indicates if call-sites that invoke methods containing pre-divergence points should be considered as
 	 * pre-divergence points.
 	 */
 	private boolean considerCallSites;
+
+	/**
+	 * Creates an instance of this class.
+	 *
+	 * @param directionSensitiveInfo that controls the direction.
+	 * @param direction of the analysis
+	 *
+	 * @pre info != null and direction != null
+	 */
+	private DivergenceDA(final IDirectionSensitiveInfo directionSensitiveInfo, final Object direction) {
+		directionSensInfo = directionSensitiveInfo;
+		theDirection = direction;
+	}
+
+	/**
+	 * Retrieves an instance of divergence dependence analysis that calculates information in backward direction.
+	 *
+	 * @return an instance of divergence dependence.
+	 *
+	 * @post result != null
+	 */
+	public static DivergenceDA getBackwardDivergenceDA() {
+		return new DivergenceDA(new BackwardDirectionSensitiveInfo(), BACKWARD_DIRECTION);
+	}
 
 	/**
 	 * Sets if the analyses should consider the effects of method calls.  This method may change the preprocessing
@@ -170,10 +207,35 @@ public final class DivergenceDA
 	}
 
 	/**
+	 * Retrieves an instance of divergence dependence analysis that calculates information in forward direction.
+	 *
+	 * @return an instance of divergence dependence.
+	 *
+	 * @post result != null
+	 */
+	public static DivergenceDA getForwardDivergenceDA() {
+		return new DivergenceDA(new ForwardDirectionSensitiveInfo(), FORWARD_DIRECTION);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
+	 */
+	public Object getDirection() {
+		return theDirection;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
 		return IDependencyAnalysis.DIVERGENCE_DA;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.STMT_DEP_RETRIEVER);
 	}
 
 	/**
@@ -303,7 +365,7 @@ public final class DivergenceDA
 	 */
 	private Collection getValidSuccs(final Stmt divPoint, final BasicBlock bb, final BasicBlockGraph bbg,
 		final SootMethod method) {
-		final Collection _result = new HashSet(bb.getSuccsOf());
+		final Collection _result = new HashSet(directionSensInfo.getFollowersOfBB(bb));
 
 		if (!((Collection) CollectionsUtilities.getFromMap(method2interProcDivPoints, method,
 				  CollectionsUtilities.EMPTY_LIST_FACTORY)).contains(divPoint)) {
@@ -346,14 +408,13 @@ public final class DivergenceDA
 
 		while (_wb.hasWork()) {
 			final BasicBlock _bb = (BasicBlock) _wb.getWork();
-			final Stmt _leaderStmt = _bb.getLeaderStmt();
-			final int _leaderIndex = _sl.indexOf(_leaderStmt);
-			final Collection _dependees = (Collection) ((List) dependent2dependee.get(method)).get(_leaderIndex);
+			final Stmt _firstStmt = directionSensInfo.getFirstStmtInBB(_bb);
+			final int _firstStmtIndex = _sl.indexOf(_firstStmt);
+			final Collection _dependees = (Collection) ((List) dependent2dependee.get(method)).get(_firstStmtIndex);
 			_dependents.clear();
 
-			if (!preDivPoints.contains(_leaderStmt)) {
-				final List _bbStmts = _bb.getStmtsFrom(_leaderStmt);
-				_bbStmts.remove(_leaderStmt);  // remove the leader from the list
+			if (!preDivPoints.contains(_firstStmt)) {
+				final List _bbStmts = directionSensInfo.getIntraBBDependents(_bb, _firstStmt);
 
 				for (final Iterator _i = _bbStmts.iterator(); _i.hasNext();) {
 					final Stmt _stmt = (Stmt) _i.next();
@@ -366,7 +427,8 @@ public final class DivergenceDA
 			}
 
 			if ((!succsOfPreDivPoints.contains(_bb))) {
-				final Collection _succs = recordDepAcrossBB(method, preDivPoints, _dependees, _dependents, _bb.getSuccsOf());
+				final Collection _succs =
+					recordDepAcrossBB(method, preDivPoints, _dependees, _dependents, directionSensInfo.getFollowersOfBB(_bb));
 				_wb.addAllWorkNoDuplicates(_succs);
 			} else {
 				recordDependenceInfoInBB(_dependees, method, _dependents);
@@ -416,8 +478,7 @@ public final class DivergenceDA
 			}
 			_dependents.clear();
 
-			final List _bbStmts = _bb.getStmtsFrom(_divPoint);
-			_bbStmts.remove(_divPoint);  // remove the pre-divergence point from the list
+			final List _bbStmts = directionSensInfo.getIntraBBDependents(_bb, _divPoint);
 
 			for (final Iterator _j = _bbStmts.iterator(); _j.hasNext();) {
 				final Stmt _stmt = (Stmt) _j.next();
@@ -565,10 +626,10 @@ public final class DivergenceDA
 
 		for (final Iterator _j = succs.iterator(); _j.hasNext();) {
 			final BasicBlock _succ = (BasicBlock) _j.next();
-			final Stmt _leader = _succ.getLeaderStmt();
-			dependents.add(_leader);
+			final Stmt _firstStmt = directionSensInfo.getFirstStmtInBB(_succ);
+			dependents.add(_firstStmt);
 
-			if (!preDivPoints.contains(_leader)) {
+			if (!preDivPoints.contains(_firstStmt)) {
 				_result.add(_succ);
 			}
 		}
@@ -610,6 +671,9 @@ public final class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
    Revision 1.39  2004/07/11 11:05:04  venku
    - added new specialized method to CollectionsUtilities.
    - used the above method in DivergenceDA.

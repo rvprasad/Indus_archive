@@ -704,9 +704,17 @@ public final class SlicerConfiguration
 	 */
 	private void processBooleanProperty(final Object propertyID, final Boolean booleanValue) {
 		if (propertyID.equals(USE_READYDA)) {
-			processUseProperty(booleanValue, IDependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv3()));
+			final Object _id = IDependencyAnalysis.READY_DA;
+
+			if (booleanValue.booleanValue()) {
+				dependencesToUse.add(_id);
+				processRDANatureProperty(SYMBOL_AND_EQUIVCLS_BASED_INFO);
+			} else {
+				dependencesToUse.remove(_id);
+				id2dependencyAnalyses.remove(_id);
+			}
 		} else if (propertyID.equals(USE_DIVERGENCEDA)) {
-			processUseProperty(booleanValue, IDependencyAnalysis.DIVERGENCE_DA, Collections.singleton(new DivergenceDA()));
+			processUseDivergenceProperty(booleanValue);
 		} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
 			processInterProceduralDivergenceDAProperty();
 		} else if (propertyID.equals(USE_OFA_FOR_INTERFERENCE_DA)) {
@@ -797,12 +805,40 @@ public final class SlicerConfiguration
 		boolean _result;
 		_result = true;
 
+		
 		if (property.equals(SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
-			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv3()));
+			final Collection _temp = new HashSet();
+			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+				_temp.add(ReadyDAv3.getForwardReadyDA());
+			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
+				_temp.add(ReadyDAv3.getBackwardReadyDA());
+			} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
+				_temp.add(ReadyDAv3.getBackwardReadyDA());
+				_temp.add(ReadyDAv3.getForwardReadyDA());
+			}
+			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
 		} else if (property.equals(EQUIVALENCE_CLASS_BASED_INFO)) {
-			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv2()));
+			final Collection _temp = new HashSet();
+			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+				_temp.add(ReadyDAv2.getForwardReadyDA());
+			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
+				_temp.add(ReadyDAv2.getBackwardReadyDA());
+			} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
+				_temp.add(ReadyDAv2.getBackwardReadyDA());
+				_temp.add(ReadyDAv2.getForwardReadyDA());
+			}
+			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
 		} else if (property.equals(TYPE_BASED_INFO)) {
-			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv1()));
+			final Collection _temp = new HashSet();
+			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+				_temp.add(ReadyDAv1.getForwardReadyDA());
+			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
+				_temp.add(ReadyDAv1.getBackwardReadyDA());
+			} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
+				_temp.add(ReadyDAv1.getBackwardReadyDA());
+				_temp.add(ReadyDAv1.getForwardReadyDA());
+			}
+			id2dependencyAnalyses.put(IDependencyAnalysis.READY_DA, _temp);
 		} else {
 			_result = false;
 		}
@@ -844,22 +880,31 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Process properties that indicates which dependence analysis should be used.
+	 * Process property that indicates if divergence dependence analysis should be used.
 	 *
 	 * @param val is the boolean that indicates the inclusion/exclusion of the analysis.
-	 * @param daID is the id of the analysis.
-	 * @param das is the collection of analyses that should be included (if <code>val</code> indicates inclusion).
 	 *
-	 * @pre val != null and daID != null and das != null
-	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
+	 * @pre val != null
 	 */
-	private void processUseProperty(final Boolean val, final Object daID, final Collection das) {
+	private void processUseDivergenceProperty(final Boolean val) {
+		final Object _id = IDependencyAnalysis.DIVERGENCE_DA;
+
 		if (val.booleanValue()) {
-			dependencesToUse.add(daID);
-			id2dependencyAnalyses.put(daID, das);
+			dependencesToUse.add(_id);
+
+			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+				id2dependencyAnalyses.put(_id, Collections.singleton(DivergenceDA.getForwardDivergenceDA()));
+			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
+				id2dependencyAnalyses.put(_id, Collections.singleton(DivergenceDA.getBackwardDivergenceDA()));
+			} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
+				final Collection _temp = new HashSet();
+				_temp.add(DivergenceDA.getForwardDivergenceDA());
+				_temp.add(DivergenceDA.getBackwardDivergenceDA());
+				id2dependencyAnalyses.put(_id, _temp);
+			}
 		} else {
-			dependencesToUse.remove(daID);
-			id2dependencyAnalyses.remove(daID);
+			dependencesToUse.remove(_id);
+			id2dependencyAnalyses.remove(_id);
 		}
 	}
 }
@@ -867,12 +912,12 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.52  2004/07/28 17:20:40  venku
+   - trivial nip-tucks.
    Revision 1.51  2004/07/28 02:47:44  venku
    - SLA was not turned on by default.
-
    Revision 1.50  2004/07/27 11:07:21  venku
    - updated project to use safe lock analysis.
-
    Revision 1.49  2004/07/21 11:36:27  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.

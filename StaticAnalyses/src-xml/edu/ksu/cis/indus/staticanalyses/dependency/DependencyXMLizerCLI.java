@@ -141,27 +141,34 @@ public class DependencyXMLizerCLI
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 
-		final DivergenceDA _ipdda = new DivergenceDA();
-		_ipdda.setConsiderCallSites(true);
+		final DivergenceDA _fipdda = DivergenceDA.getForwardDivergenceDA();
+		_fipdda.setConsiderCallSites(true);
+		final DivergenceDA _bipdda = DivergenceDA.getBackwardDivergenceDA();
+		_bipdda.setConsiderCallSites(true);
 
 		final EntryControlDA _ncda = new EntryControlDA();
 		final Object[][] _dasOptions =
 			{
 				{ "ibdda1", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
+				{ "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
+				{ "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
 				{ "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
 				{ "ncda", "Entry control dependence", _ncda },
 				{ "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "sda", "Synchronization dependence", new SynchronizationDA() },
-				{ "rda1", "Ready dependence v1", new ReadyDAv1() },
-				{ "rda2", "Ready dependence v2", new ReadyDAv2() },
-				{ "rda3", "Ready dependence v3", new ReadyDAv3() },
+				{ "frda1", "Forward Ready dependence v1", ReadyDAv1.getForwardReadyDA() },
+				{ "brda1", "Backward Ready dependence v1", ReadyDAv1.getBackwardReadyDA() },
+				{ "frda2", "Forward Ready dependence v2", ReadyDAv2.getForwardReadyDA() },
+				{ "brda2", "Backward Ready dependence v2", ReadyDAv2.getBackwardReadyDA() },
+				{ "frda3", "Forward Ready dependence v3", ReadyDAv3.getForwardReadyDA() },
+				{ "brda3", "Backward Ready dependence v3", ReadyDAv3.getBackwardReadyDA() },
 				{ "ida1", "Interference dependence v1", new InterferenceDAv1() },
 				{ "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "dda", "Divergence dependence", new DivergenceDA() },
-				{ "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
-				{ "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
-				{ "ipdda", "Interprocedural Divergence dependence", _ipdda },
+				{ "fdda", "Forward Divergence dependence", DivergenceDA.getForwardDivergenceDA() },
+				{ "bdda", "Backward Divergence dependence", DivergenceDA.getBackwardDivergenceDA() },
+				{ "fpdda", "Forward Interprocedural Divergence dependence", _fipdda },
+				{ "bpdda", "Backward Interprocedural Divergence dependence", _bipdda },
 			};
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
@@ -380,6 +387,12 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/08/11 08:52:04  venku
+   - massive changes.
+     - Changed the way threads were represented in ThreadGraph.
+     - Changed the interface in IThreadGraph.
+     - ripple effect in other classes.
+
    Revision 1.44  2004/08/08 08:50:03  venku
    - aspectized profiling/statistics logic.
    - used a cache in CallGraph for reachable methods.
@@ -675,6 +688,12 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/08/11 08:52:04  venku
+   - massive changes.
+     - Changed the way threads were represented in ThreadGraph.
+     - Changed the interface in IThreadGraph.
+     - ripple effect in other classes.
+
    Revision 1.44  2004/08/08 08:50:03  venku
    - aspectized profiling/statistics logic.
    - used a cache in CallGraph for reachable methods.

@@ -203,16 +203,20 @@ public class DependencyAnalysisRegressionTestSuite
 						suite.addTest(_temp);
 					} else {
 						_das.clear();
-						_das.add(new DivergenceDA());
+						_das.add(DivergenceDA.getForwardDivergenceDA());
+						_das.add(DivergenceDA.getBackwardDivergenceDA());
 						_das.add(new EntryControlDA());
 						_das.add(new ExitControlDA());
 						_das.add(new IdentifierBasedDataDA());
 						_das.add(new InterferenceDAv1());
 						_das.add(new InterferenceDAv2());
 						_das.add(new InterferenceDAv3());
-						_das.add(new ReadyDAv1());
-						_das.add(new ReadyDAv2());
-						_das.add(new ReadyDAv3());
+						_das.add(ReadyDAv1.getForwardReadyDA());
+						_das.add(ReadyDAv1.getBackwardReadyDA());
+						_das.add(ReadyDAv2.getForwardReadyDA());
+						_das.add(ReadyDAv2.getBackwardReadyDA());
+						_das.add(ReadyDAv3.getForwardReadyDA());
+						_das.add(ReadyDAv3.getBackwardReadyDA());
 						_das.add(new ReferenceBasedDataDA());
 						_das.add(new SynchronizationDA());
 
@@ -267,6 +271,12 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/06/14 08:39:28  venku
+   - added a property to SootBasedDriver to control the type of statement graph
+     factory to be used.
+   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
+   - ripple effect.
+
    Revision 1.13  2004/05/28 21:53:19  venku
    - added a method to ExceptionFlowSensitiveGraphFactory to create
      default factory objects.

@@ -16,6 +16,9 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.BackwardDirectionSensitiveInfo;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.ForwardDirectionSensitiveInfo;
+import edu.ksu.cis.indus.staticanalyses.dependency.direction.IDirectionSensitiveInfo;
 
 import soot.SootMethod;
 
@@ -35,6 +38,39 @@ import soot.jimple.InvokeStmt;
  */
 public class ReadyDAv3
   extends ReadyDAv2 {
+	/**
+	 * Creates an instance of this class.
+	 *
+	 * @param directionSensitiveInfo that controls the direction.
+	 * @param direction of the analysis
+	 *
+	 * @pre info != null and direction != null
+	 */
+	private ReadyDAv3(final IDirectionSensitiveInfo directionSensitiveInfo, final Object direction) {
+		super(directionSensitiveInfo, direction);
+	}
+
+	/**
+	 * Retrieves an instance of ready dependence analysis that calculates information in backward direction.
+	 *
+	 * @return an instance of ready dependence.
+	 *
+	 * @post result != null
+	 */
+	public static ReadyDAv1 getBackwardReadyDA() {
+		return new ReadyDAv3(new BackwardDirectionSensitiveInfo(), BACKWARD_DIRECTION);
+	}
+
+	/**
+	 * Retrieves an instance of ready dependence analysis that calculates information in forward direction.
+	 *
+	 * @return an instance of ready dependence.
+	 *
+	 * @post result != null
+	 */
+	public static ReadyDAv1 getForwardReadyDA() {
+		return new ReadyDAv3(new ForwardDirectionSensitiveInfo(), FORWARD_DIRECTION);
+	}
 	/**
 	 * Checks if the given <code>wait()</code> call-site is dependent on the <code>notifyXX()</code> call-site according to
 	 * rule 2.  The symbolic and escape analysis infomration from {@link
@@ -68,6 +104,10 @@ public class ReadyDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
+
    Revision 1.9  2004/07/30 07:47:06  venku
    - changed the way optional features were handled (OFA/SLA).
    Revision 1.8  2004/07/23 13:09:44  venku

@@ -53,14 +53,9 @@ import soot.SootMethod;
  */
 public final class EntryControlDA
   extends AbstractControlDA {
+
 	// TODO: Link to documentation describing entry-based intraprocedural control dependence needs to be added.
-
-	/*
-	 * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in
-	 * the list corresponds to the statement at the same location in the statement list of the method.  The collection is the
-	 * statements to which the statement at the location of the collection is related via control dependence.
-	 */
-
+    
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -85,6 +80,19 @@ public final class EntryControlDA
 	 */
 	public Object getDirection() {
 		return BACKWARD_DIRECTION;
+	}
+
+	/*
+	 * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in
+	 * the list corresponds to the statement at the same location in the statement list of the method.  The collection is the
+	 * statements to which the statement at the location of the collection is related via control dependence.
+	 */
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.STMT_DEP_RETRIEVER);
 	}
 
 	/**
@@ -160,58 +168,6 @@ public final class EntryControlDA
 			bitsets[location] = _temp;
 		}
 		return _temp;
-	}
-
-	/*
-	 * In this class, the tokens corresponding to ancestors are blocked at control points. Only when a node accumulates all
-	 * tokens of a control point node, the tokens at the control point corresponding to the ancestor of the control point are
-	 * injected into the token set of the node.
-	 */
-
-	/**
-	 * Processes the given node.  Basically, it propagates the tokens to it's successor and returns the successor whose token
-	 * sets were modified.
-	 *
-	 * @param node to be processed.
-	 * @param tokenSets is the collection of token sets of the nodes in the graph.  The first subscript is the index of the
-	 * 		  dependent  basic block in the sequence of basic blocks.  The second subscript is the index of the control
-	 * 		  point  basic block in the sequence of basic blocks.  The bit set at these subscript indicate the number of
-	 * 		  tokens (corresponding to the  successors of the control point) that have been accumulated at the dependent
-	 * 		  basic block.
-	 *
-	 * @return the collection of nodes whose token sets were modified.
-	 *
-	 * @pre parentNod != null and tokenSets != null and 0 &lt;= parentNode.getSuccsOf().size() &lt;= 1
-	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post parentNode.getSuccsOf().containsAll(result)
-	 */
-	private Collection processNode(final INode node, final BitSet[][] tokenSets) {
-		final Collection _result;
-		accumulateTokensAtNode(node, tokenSets);
-
-		if (!nodesWithChildrenCache.contains(node)) {
-			_result = processNodeWithOneOrLessChildren(node, tokenSets);
-		} else {
-			/*
-			 * Say B and C are control points, A is the control merge point of B, and A and B are dependent on C.
-			 * It is possible that node A accumulated all tokens from control point B when tokens from control point C had
-			 * not reached B.  In such cases, we need to find and add nodes such as A to the workbag for processing.
-			 */
-			_result = new HashSet();
-
-			final int _iEnd = nodesCache.size();
-			final int _nodeIndex = nodesCache.indexOf(node);
-			final int _succsSize = node.getSuccsOf().size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final BitSet _bitSet = tokenSets[_iIndex][_nodeIndex];
-
-				if (_bitSet != null && _bitSet.cardinality() == _succsSize && _nodeIndex != _iIndex) {
-					_result.add(nodesCache.get(_iIndex));
-				}
-			}
-		}
-		return _result;
 	}
 
 	/**
@@ -484,6 +440,58 @@ public final class EntryControlDA
 		return _wb;
 	}
 
+	/*
+	 * In this class, the tokens corresponding to ancestors are blocked at control points. Only when a node accumulates all
+	 * tokens of a control point node, the tokens at the control point corresponding to the ancestor of the control point are
+	 * injected into the token set of the node.
+	 */
+
+	/**
+	 * Processes the given node.  Basically, it propagates the tokens to it's successor and returns the successor whose token
+	 * sets were modified.
+	 *
+	 * @param node to be processed.
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.  The first subscript is the index of the
+	 * 		  dependent  basic block in the sequence of basic blocks.  The second subscript is the index of the control
+	 * 		  point  basic block in the sequence of basic blocks.  The bit set at these subscript indicate the number of
+	 * 		  tokens (corresponding to the  successors of the control point) that have been accumulated at the dependent
+	 * 		  basic block.
+	 *
+	 * @return the collection of nodes whose token sets were modified.
+	 *
+	 * @pre parentNod != null and tokenSets != null and 0 &lt;= parentNode.getSuccsOf().size() &lt;= 1
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post parentNode.getSuccsOf().containsAll(result)
+	 */
+	private Collection processNode(final INode node, final BitSet[][] tokenSets) {
+		final Collection _result;
+		accumulateTokensAtNode(node, tokenSets);
+
+		if (!nodesWithChildrenCache.contains(node)) {
+			_result = processNodeWithOneOrLessChildren(node, tokenSets);
+		} else {
+			/*
+			 * Say B and C are control points, A is the control merge point of B, and A and B are dependent on C.
+			 * It is possible that node A accumulated all tokens from control point B when tokens from control point C had
+			 * not reached B.  In such cases, we need to find and add nodes such as A to the workbag for processing.
+			 */
+			_result = new HashSet();
+
+			final int _iEnd = nodesCache.size();
+			final int _nodeIndex = nodesCache.indexOf(node);
+			final int _succsSize = node.getSuccsOf().size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final BitSet _bitSet = tokenSets[_iIndex][_nodeIndex];
+
+				if (_bitSet != null && _bitSet.cardinality() == _succsSize && _nodeIndex != _iIndex) {
+					_result.add(nodesCache.get(_iIndex));
+				}
+			}
+		}
+		return _result;
+	}
+
 	/**
 	 * Processes the given node.  Basically, it propagates the tokens to it's successor and returns the successor whose token
 	 * sets were modified.
@@ -577,13 +585,14 @@ public final class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/08/05 09:19:05  venku
+   - coding conventions.
    Revision 1.34  2004/07/28 09:09:27  venku
    - changed aliased use def analysis to consider thread.
    - also fixed a bug in the same analysis.
    - ripple effect.
    - deleted entry control dependence and renamed direct entry control da as
      entry control da.
-
    Revision 1.33  2004/07/20 01:20:08  venku
    - documentation.
    Revision 1.32  2004/07/11 11:50:17  venku

@@ -40,9 +40,23 @@ public interface IDependencyAnalysis
 	Object BACKWARD_DIRECTION = "BACKWARD_DIRECTION";
 
 	/** 
+	 * This identifies bi-directional dependence analysis.  This means that if such an analysis is designed for forward
+	 * direction then the backward direction information can be obtained by switching <code>getDependees()</code> and
+	 * <code>getDependents()</code>.
+	 */
+	Object BI_DIRECTIONAL = "BI_DIRECTIONAL";
+
+	/** 
 	 * This identifies control dependency analysis.
 	 */
 	Object CONTROL_DA = "CONTROL_DA";
+
+	/** 
+	 * This identifies directionless dependence analysis.  This means that the dependence information is directionless.  That
+	 * is, <code>getDependees</code> and <code>getDependents</code> will return the same values independent of the
+	 * direction.
+	 */
+	Object DIRECTIONLESS = "DIRECTIONLESS";
 
 	/** 
 	 * This identifies divergence dependency analysis.
@@ -119,6 +133,15 @@ public interface IDependencyAnalysis
 	Object getDirection();
 
 	/**
+	 * Retrieves dependence analysis that provides indirect dependence information corresponding to this dependence analysis.
+	 *
+	 * @return a dependence analysis.
+	 *
+	 * @post result != null
+	 */
+	IDependencyAnalysis getIndirectVersionOfDependence();
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
 	 */
 	boolean isStable();
@@ -134,6 +157,9 @@ public interface IDependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/07/20 06:36:12  venku
+   - documentation.
+   - deleted BI_DIRECTIONAL as it is rarely true that a dependence is bi-directional.
    Revision 1.5  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.

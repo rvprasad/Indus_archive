@@ -110,10 +110,24 @@ public class ReferenceBasedDataDA
 	}
 
 	/**
+	 * {@inheritDoc}  This implementation is bi-directional.
+	 */
+	public Object getDirection() {
+		return BI_DIRECTIONAL;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
 		return IDependencyAnalysis.REFERENCE_BASED_DATA_DA;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.PAIR_DEP_RETRIEVER);
 	}
 
 	/**
@@ -177,10 +191,11 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/08/11 03:45:42  venku
+   - logging.
    Revision 1.29  2004/07/22 09:42:40  venku
    - altered IUseDefInfo to use tighter types.
    - ripple effect.
-
    Revision 1.28  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
@@ -188,7 +203,6 @@ public class ReferenceBasedDataDA
      ECBA and AliasedUseDefInfo analysis.
    - Added new faster implementation of LocalUseDefAnalysisv2
    - Used LocalUseDefAnalysisv2
-
    Revision 1.27  2004/07/11 23:34:03  venku
    -
     coding conventions.

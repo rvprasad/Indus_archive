@@ -67,6 +67,13 @@ public class ExitControlDA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getIndirectVersionOfDependence()
+	 */
+	public IDependencyAnalysis getIndirectVersionOfDependence() {
+		return new IndirectDependenceAnalysis(this, IDependenceRetriever.STMT_DEP_RETRIEVER);
+	}
+
+	/**
 	 * Calculates the control dependency information for the methods provided during initialization.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
@@ -293,6 +300,9 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/07/20 08:04:22  venku
+   - dependence between the trailer statement of a basic block and other
+     statements in the basic block was not recorded.  FIXED.
    Revision 1.20  2004/07/20 07:25:43  venku
    - then-else logic was inverted. FIXED.
    Revision 1.19  2004/07/20 01:20:08  venku
