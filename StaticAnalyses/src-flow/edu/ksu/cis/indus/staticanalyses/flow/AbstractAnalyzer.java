@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -46,7 +46,6 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 
 import edu.ksu.cis.indus.staticanalyses.*;
-import edu.ksu.cis.indus.staticanalyses.*;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
@@ -54,6 +53,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+
 
 /**
  * This class represents the central access point for the information calculated in an analysis.  The subclass should extend
@@ -64,7 +64,8 @@ import java.util.Iterator;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public abstract class AbstractAnalyzer implements IValueAnalyzer {
+public abstract class AbstractAnalyzer
+  implements IValueAnalyzer {
 	/**
 	 * The instance of the framework performing the analysis and is being represented by this analyzer object.
 	 */
@@ -75,7 +76,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	 *
 	 * @invariant rootMethods->forall(o | o.isOclKind(SootMethod))
 	 */
-	protected Collection rootMethods;
+	//protected Collection rootMethods;
 
 	/**
 	 * The context to be used when analysis information is requested and a context is not provided.
@@ -96,7 +97,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 		this.context = theContext;
 		bfa = new BFA(this);
 		active = false;
-		rootMethods = new HashSet();
+		//rootMethods = new HashSet();
 	}
 
 	/**
@@ -104,12 +105,9 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	 *
 	 * @return a collection of classes.
 	 *
-	 * @post result->forall(o | o.oclType = soot.SootClass)
-	 
-	public Collection getClasses() {
-		return bfa.getClasses();
-	}*/
-
+	 * @post result->forall(o | o.oclType = soot.SootClass)     public Collection getClasses() { return bfa.getClasses();
+	 * 		 }
+	 */
 	/**
 	 * Returns the environment in which the analysis occurred.
 	 *
@@ -123,7 +121,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	 * Returns the methods from which the analysis started.
 	 *
 	 * @return a collection of <code>SootMethod</code>s.
-	 */
+	 *
 	public final Collection getRoots() {
 		return Collections.unmodifiableCollection(rootMethods);
 	}
@@ -137,7 +135,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	 * @return the collection of values associated with given exception class and and invoke expression.
 	 */
 	public final Collection getThrowValues(InvokeExpr e, SootClass exception) {
-		MethodVariant mv = bfa.queryMethodVariant((SootMethod) context.getCurrentMethod());
+		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
 		if (mv != null) {
@@ -157,7 +155,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	 *
 	 * @return the collection of values associated with <code>a</code> in <code>this.context</code>.
 	 */
-	public final Collection getValues(ArrayType a) {
+	protected final Collection getValues(ArrayType a) {
 		ArrayVariant v = bfa.queryArrayVariant(a);
 		Collection temp = Collections.EMPTY_SET;
 
@@ -175,8 +173,8 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	 *
 	 * @return the collection of values associated with <code>p</code> in <code>this.context</code>.
 	 */
-	public final Collection getValues(ParameterRef p) {
-		MethodVariant mv = bfa.queryMethodVariant((SootMethod) context.getCurrentMethod());
+	protected final Collection getValues(ParameterRef p) {
+		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
 		if (mv != null) {
@@ -192,7 +190,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	 *
 	 * @return the collection of values associated with <code>sf</code> in <code>this.context</code>.
 	 */
-	public final Collection getValues(SootField sf) {
+	protected final Collection getValues(SootField sf) {
 		FieldVariant fv = bfa.queryFieldVariant(sf);
 		Collection temp = Collections.EMPTY_SET;
 
@@ -209,7 +207,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	 *
 	 * @return the collection of values associted with <code>v</code> in <code>this.context</code>.
 	 */
-	public final Collection getValues(Value v) {
+	protected final Collection getValues(Value v) {
 		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
@@ -220,7 +218,6 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 				temp = astv.getFGNode().getValues();
 			}
 		}
-
 		return temp;
 	}
 
@@ -270,7 +267,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 		Context tmpCtxt = context;
 		context = ctxt;
 
-		MethodVariant mv = bfa.queryMethodVariant((SootMethod) context.getCurrentMethod());
+		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_LIST;
 
 		if (mv != null) {
@@ -297,7 +294,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 		}
 		active = true;
 		bfa.analyze(scm, root);
-		rootMethods.add(root);
+		bfa.addRootMethod(root);
 		active = false;
 	}
 
@@ -325,7 +322,7 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 		for (Iterator i = roots.iterator(); i.hasNext();) {
 			SootMethod root = (SootMethod) i.next();
 			bfa.analyze(scm, root);
-			rootMethods.add(root);
+			bfa.addRootMethod(root);
 		}
 		active = false;
 	}
@@ -337,11 +334,11 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
 	public final void reset() {
 		resetAnalysis();
 		bfa.reset();
-		rootMethods.clear();
 	}
 
 	/**
 	 * Sets the mode factory on the underlaying framework object.  Refer to <code>ModeFactory</code> for more details.
+	 *
 	 * @param mf is the mode factory which provides the entities that dictate the mode of the analysis.
 	 */
 	protected void setModeFactory(ModeFactory mf) {
@@ -360,5 +357,8 @@ public abstract class AbstractAnalyzer implements IValueAnalyzer {
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:40:24  venku
+Major:
+ - Moved the package under indus umbrella.
 
 *****/

@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -45,7 +45,6 @@ import soot.SootMethod;
 import soot.Type;
 
 import edu.ksu.cis.indus.staticanalyses.*;
-import edu.ksu.cis.indus.staticanalyses.*;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 
 import org.apache.commons.logging.Log;
@@ -53,6 +52,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 
 /**
@@ -74,6 +74,11 @@ public class BFA
 	 * The analyzer associated with this instance of the framework.
 	 */
 	public final AbstractAnalyzer _ANALYZER;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	protected Collection rootMethods = new HashSet();
 
 	/**
 	 * The worklist associated with this instance of the framework.
@@ -263,6 +268,13 @@ public class BFA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment#getRoots()
+	 */
+	public Collection getRoots() {
+		return Collections.unmodifiableCollection(rootMethods);
+	}
+
+	/**
 	 * Returns the associated <code>Scene</code>.
 	 *
 	 * @return the associated <code>Scene</code>.
@@ -371,6 +383,7 @@ public class BFA
 		methodManager.reset();
 		staticFieldManager.reset();
 		worklist.clear();
+		rootMethods.clear();
 		scm = null;
 	}
 
@@ -386,6 +399,15 @@ public class BFA
 		instanceFieldManager = new FieldVariantManager(this, mf.getInstanceFieldIndexManager());
 		methodManager = new MethodVariantManager(this, mf.getMethodIndexManager(), modeFactory.getASTIndexManager());
 		staticFieldManager = new FieldVariantManager(this, mf.getStaticFieldIndexManager());
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param root DOCUMENT ME!
+	 */
+	void addRootMethod(SootMethod root) {
+		rootMethods.add(root);
 	}
 
 	/**
@@ -431,9 +453,10 @@ public class BFA
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */

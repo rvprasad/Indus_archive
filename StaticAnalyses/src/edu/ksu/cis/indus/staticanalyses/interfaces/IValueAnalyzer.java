@@ -35,15 +35,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
-import soot.ArrayType;
 import soot.Scene;
-import soot.SootClass;
-import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
-
-import soot.jimple.InvokeExpr;
-import soot.jimple.ParameterRef;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
 
@@ -51,9 +44,8 @@ import java.util.Collection;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is the interface to be provided by an analysis that operates on values (which may be symbolic).  The analysis that
+ * implement this interface are behavioral analysis rather than structural analysis.
  *
  * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
@@ -61,81 +53,78 @@ import java.util.Collection;
  */
 public interface IValueAnalyzer {
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the enviroment in which the analysis operates.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the enviroment.
 	 */
-	public IEnvironment getEnvironment();
+	IEnvironment getEnvironment();
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the values associated with the given entity in the given context.
 	 *
-	 * @return DOCUMENT ME!
+	 * @param entity for which values are requested.
+	 * @param context in which the returned values will be associated with the entity.
+	 *
+	 * @return the collection of values.
+	 *
+	 * @pre context != null
+	 * @pre entity != null
+	 * @post result != null
 	 */
-	public Collection getRoots();
+	Collection getValues(final Object entity, final Context context);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the values associated with <code>this</code> variable in the given context.
 	 *
-	 * @param value DOCUMENT ME!
-	 * @param context DOCUMENT ME!
+	 * @param context in which the returned values will be associatd with <code>this</code> variable.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the collection of values
+	 *
+	 * @pre context != null
+	 * @pre context.getCurrentMethod() != null
+	 * @post result != null
 	 */
-	public Collection getValues(final Object value, final Context context);
+	Collection getValuesForThis(final Context context);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Analyzes the system represented by the given classes and and scene.
 	 *
-	 * @param context DOCUMENT ME!
+	 * @param scm manages the classes that constitute the system being analyzed.
+	 * @param classes which were mentioned by the user as being part of the system.  This generally serves as the starting
+	 * 		  point to discover other constituents of the system.  These may serve as the classes in which to explore for
+	 * 		  the  entry point of the system.
 	 *
-	 * @return DOCUMENT ME!
+	 * @pre scm != null and classes != null and classes.size() != 0
 	 */
-	public Collection getValuesForThis(final Context context);
+	void analyze(final Scene scm, final Collection classes);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Analyzes the system represented by the given classes starting at the given entry point.
 	 *
-	 * @param scm DOCUMENT ME!
-	 * @param classes DOCUMENT ME!
+	 * @param scm manages the classes that constitute the system being analyzed.
+	 * @param entry point into the system being analyzed.
+	 *
+	 * @pre scm != null and entry != null
 	 */
-	public void analyze(final Scene scm, final Collection classes);
+	void analyze(final Scene scm, final SootMethod entry);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param scm DOCUMENT ME!
-	 * @param entry DOCUMENT ME!
+	 * Resets the analyzer.
 	 */
-	public void analyze(final Scene scm, final SootMethod entry);
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 */
-	public void reset();
+	void reset();
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/07 06:42:16  venku
-Major:
- - Moved the package under indus umbrella.
- - Renamed isEmpty() to hasWork() in WorkBag.
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.2  2003/08/09 23:26:20  venku
+   - Added an interface to provide use-def information.
+   - Added an implementation to the above interface.
+   - Extended call graph processor to retrieve call tree information rooted at arbitrary node.
+   - Modified IValueAnalyzer interface such that only generic queries are possible.
+     If required, this can be extended in the future.
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+ */
