@@ -71,7 +71,7 @@ public class TagBasedProcessingFilter
 		for (final Iterator _i = classes.iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
-			if (filter(_sc)) {
+			if (isFilterate(_sc)) {
 				_result.add(_sc);
 			}
 		}
@@ -95,7 +95,7 @@ public class TagBasedProcessingFilter
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
 
-			if (filter(_sm)) {
+			if (isFilterate(_sm)) {
 				_result.add(_sm);
 			}
 		}
@@ -117,10 +117,10 @@ public class TagBasedProcessingFilter
 		final List _result = new ArrayList();
 
 		for (final Iterator _i = fields.iterator(); _i.hasNext();) {
-			final SootField _sm = (SootField) _i.next();
+			final SootField _sf = (SootField) _i.next();
 
-			if (filter(_sm)) {
-				_result.add(_sm);
+			if (isFilterate(_sf)) {
+				_result.add(_sf);
 			}
 		}
 
@@ -143,14 +143,18 @@ public class TagBasedProcessingFilter
 	 *
 	 * @pre host != null
 	 */
-	protected boolean filter(final Host host) {
-		return !host.hasTag(tagName);
+	protected boolean isFilterate(final Host host) {
+		return host.hasTag(tagName);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/14 16:43:44  venku
+   - extended ProcessingController to filter fields as well.
+   - ripple effect.
+
    Revision 1.7  2003/12/14 15:53:31  venku
    - added a new class AntiTagBasedProcessingFilter that
      does the opposite of TagBasedProcessingFilter.

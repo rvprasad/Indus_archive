@@ -39,9 +39,9 @@ public class AntiTagBasedProcessingFilter
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.TagBasedProcessingFilter#consider(soot.tagkit.Host)
+	 * @see edu.ksu.cis.indus.processing.TagBasedProcessingFilter#isFilterate(soot.tagkit.Host)
 	 */
-	protected boolean consider(Host host) {
+	protected boolean isFilterate(final Host host) {
 		return !host.hasTag(tagName);
 	}
 }
@@ -49,4 +49,8 @@ public class AntiTagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/14 15:53:31  venku
+   - added a new class AntiTagBasedProcessingFilter that
+     does the opposite of TagBasedProcessingFilter.
+
  */
