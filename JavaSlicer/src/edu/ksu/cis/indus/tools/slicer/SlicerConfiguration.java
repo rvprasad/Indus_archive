@@ -217,6 +217,7 @@ public class SlicerConfiguration
 		dependencesToUse.add(DependencyAnalysis.SYNCHRONIZATION_DA);
 		id2dependencyAnalyses.put(DependencyAnalysis.SYNCHRONIZATION_DA, Collections.singleton(new SynchronizationDA()));
 		dependencesToUse.add(DependencyAnalysis.INTERFERENCE_DA);
+        dependencesToUse.add(DependencyAnalysis.CONTROL_DA);
 	}
 
 	/**
@@ -613,6 +614,13 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/03 08:05:34  venku
+   - lots of changes
+     - changes to get the configuration working with JiBX
+     - changes to make configuration amenable to CompositeConfigurator
+     - added EquivalenceClassBasedAnalysis
+     - added fix for Thread's start method
+
    Revision 1.13  2003/10/21 06:07:01  venku
    - added support for executable slice.
    Revision 1.12  2003/10/21 06:00:19  venku
