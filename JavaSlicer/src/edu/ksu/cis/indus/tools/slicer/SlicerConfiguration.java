@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 
 /**
@@ -431,7 +432,7 @@ public final class SlicerConfiguration
 	/**
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(Object object) {
+	public boolean equals(final Object object) {
 		boolean _result = false;
 
 		if (object instanceof SlicerConfiguration) {
@@ -445,6 +446,15 @@ public final class SlicerConfiguration
 									 .append(this.properties, _config.properties).isEquals();
 		}
 		return _result;
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(propertyIds).append(sliceForDeadlock)
+											.append(id2dependencyAnalyses).append(executableSlice).append(dependencesToUse)
+											.append(properties).toHashCode();
 	}
 
 	/**
@@ -809,6 +819,10 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/06/03 21:41:55  venku
+   - added equals() method to compare two configurations based on content.
+     This means the attributes of the configuration such as name are not considered
+     during comparison.
    Revision 1.34  2004/05/31 20:28:18  venku
    - renamed methods getUseOFA... to isOFAUsedFor....
    Revision 1.33  2004/05/14 09:02:57  venku

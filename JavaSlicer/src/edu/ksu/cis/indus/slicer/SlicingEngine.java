@@ -32,7 +32,6 @@ import edu.ksu.cis.indus.interfaces.IPoolable;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
-import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 
@@ -1298,6 +1297,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.76  2004/05/31 21:38:10  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.75  2004/05/14 09:02:57  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is

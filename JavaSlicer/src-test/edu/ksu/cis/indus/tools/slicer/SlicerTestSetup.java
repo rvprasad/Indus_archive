@@ -21,6 +21,8 @@ import edu.ksu.cis.indus.TestHelper;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import edu.ksu.cis.indus.processing.Environment;
+
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.XMLBasedDependencyAnalysisTest;
@@ -94,7 +96,7 @@ public class SlicerTestSetup
 	/**
 	 * Initializes and drives the fixture.
 	 *
-	 * @see junit.framework.TestCase#setUp()
+	 * @see junit.extensions.TestSetup#setUp()
 	 */
 	protected void setUp()
 	  throws Exception {
@@ -108,7 +110,7 @@ public class SlicerTestSetup
 		final TestSuite _suite = (TestSuite) getTest();
 		final DependencyXMLizer _xmlizer = new DependencyXMLizer();
 		final ICallGraphInfo _cgiImpl = driver.slicer.getCallGraph();
-		final IEnvironment _environment = driver.slicer.getEnvironment();
+		final IEnvironment _environment = new Environment(driver.slicer.getSystem());
 
 		for (final Iterator _i = driver.slicer.getDAs().iterator(); _i.hasNext();) {
 			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
@@ -129,7 +131,7 @@ public class SlicerTestSetup
 	/**
 	 * Resets the underlying Soot framework and associated fixture.
 	 *
-	 * @see junit.framework.TestCase#tearDown()
+	 * @see junit.extensions.TestSetup#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -141,7 +143,7 @@ public class SlicerTestSetup
 			driver.jimpleXMLDumpDir = dumpLocation;
 			driver.dumpJimpleAsXML("");
 		}
-		
+
 		G.reset();
 		driver.slicer.reset();
 
@@ -195,35 +197,30 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/05/14 11:27:21  venku
+   - coding convention.
    Revision 1.16  2004/05/14 09:02:57  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is
        available via a utility class, DependencyAnalysisUtil.
      - DependencyAnalysis will have a sanity check via Unit Tests.
    - ripple effect.
-
    Revision 1.15  2004/05/14 06:27:21  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.14  2004/05/14 04:44:17  venku
    - enhanced tearDown() method.
-
    Revision 1.13  2004/05/14 03:10:42  venku
    - The destructively updated jimple can be dumped during tearDown() as
      by then all tests would have completed, hence, not impacting the id
      generation.
-
    Revision 1.12  2004/05/11 22:17:16  venku
    - privatized some methods.
    - enabled dumping of pre-residulization and post-residualization jimple.
-
    Revision 1.11  2004/05/11 11:52:48  venku
    - We do not destructively updated Jimple as Jimple is xmlized based on tag.
      Also, such update may invalidate previously calculated information.
-
    Revision 1.10  2004/05/10 09:40:16  venku
    - changed the way jimple is dumped.
-
    Revision 1.9  2004/05/04 09:58:22  venku
    - the test will also drive tagbased slice residualizer via the new
      method added to SliceXMLizerCLI.

@@ -241,7 +241,7 @@ public final class SliceCollector {
 			LOGGER.debug("Processing Gotos");
 		}
 
-		AbstractSliceGotoProcessor _gotoProcessor = null;
+		ISliceGotoProcessor _gotoProcessor = null;
 
 		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
 			_gotoProcessor = new BackwardSliceGotoProcessor(this);
@@ -327,6 +327,9 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/31 21:38:10  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.11  2004/05/10 08:12:03  venku
    - streamlined the names of tags that are used.
    - deleted SlicingTag class.  NamedTag is used instead.

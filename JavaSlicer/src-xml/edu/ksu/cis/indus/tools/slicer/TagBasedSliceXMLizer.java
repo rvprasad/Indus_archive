@@ -57,7 +57,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class TagBasedSliceXMLizer
+public final class TagBasedSliceXMLizer
   extends AbstractXMLizer {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -138,7 +138,7 @@ final class TagBasedSliceXMLizer
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.Value, edu.ksu.cis.indus.processing.Context)
+		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.ValueBox, edu.ksu.cis.indus.processing.Context)
 		 */
 		public void callback(final ValueBox vBox, final Context context) {
 			final SootMethod _method = context.getCurrentMethod();
@@ -286,7 +286,7 @@ final class TagBasedSliceXMLizer
 		 */
 		public void processingBegins() {
 			try {
-			    writer.declaration();
+				writer.declaration();
 				writer.startTag("system");
 			} catch (IOException _e) {
 				LOGGER.error("Exception while starting up writing xml information.", _e);
@@ -354,26 +354,24 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/05/13 07:34:24  venku
+   - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
    Revision 1.25  2004/05/13 03:32:04  venku
    - documentation.  refactoring of getFileName() in IXMLizer.
-
    Revision 1.24  2004/05/13 03:12:34  venku
    - CustomXMLOutputter defaults to UTF-8 encoding.
    - Added a new method to AbstractXMLizer to encode strings.
    - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
    - ripple effect.
-
    Revision 1.23  2004/05/13 01:14:21  venku
    - added declaration and dtd content to all xml documents.
    - removed redundant value element, the child of string constant.
-
    Revision 1.22  2004/05/10 08:12:03  venku
    - streamlined the names of tags that are used.
    - deleted SlicingTag class.  NamedTag is used instead.
    - ripple effect.
    - SliceCriteriaFactory's interface is enhanced to generate individual
      slice criterion as well as criteria set for all nodes in the given AST chunk.
-
    Revision 1.21  2004/05/09 09:59:59  venku
    - closed tags prematurely.  FIXED.
    Revision 1.20  2004/05/09 08:24:38  venku

@@ -43,7 +43,8 @@ import soot.toolkits.graph.UnitGraph;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractSliceGotoProcessor {
+public abstract class AbstractSliceGotoProcessor
+  implements ISliceGotoProcessor {
 	/**
 	 * A workbag.
 	 */
@@ -71,6 +72,30 @@ public abstract class AbstractSliceGotoProcessor {
 	}
 
 	/**
+	 * @see ISliceGotoProcessor#process(Collection, BasicBlockGraphMgr)
+	 */
+	public final void process(final Collection methods, final BasicBlockGraphMgr bbgMgr) {
+		// include all gotos required to recreate the control flow of the system.
+		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_sm);
+
+			if (_bbg != null) {
+				process(_sm, _bbg);
+			}
+		}
+	}
+
+	/**
+	 * Process the basic blocks to consider intra basic block gotos to reconstruct the control flow.
+	 *
+	 * @param bbg is the basic block graph containing the basic blocks to be processed.
+	 *
+	 * @pre bbg != null
+	 */
+	protected abstract void processForIntraBasicBlockGotos(final BasicBlockGraph bbg);
+
+	/**
 	 * Process the current method's body for goto-based control flow retention.
 	 *
 	 * @param theMethod to be processed.
@@ -79,7 +104,7 @@ public abstract class AbstractSliceGotoProcessor {
 	 * @pre theMethod != null
 	 * @pre bbg != null
 	 */
-	public final void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
+	private void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
 		method = theMethod;
 		workBag.clear();
 
@@ -121,41 +146,14 @@ public abstract class AbstractSliceGotoProcessor {
 			}
 		}
 	}
-
-	/**
-	 * Process the given methods.
-	 *
-	 * @param methods to be processed.
-	 * @param bbgMgr provides the basic block required to process the methods.
-	 *
-	 * @pre methods != null and bbgMgr != null
-	 * @pre methods.oclIsKindOf(Collection(SootMethod))
-	 */
-	public final void process(final Collection methods, final BasicBlockGraphMgr bbgMgr) {
-		// include all gotos required to recreate the control flow of the system.
-		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_sm);
-
-			if (_bbg != null) {
-				process(_sm, _bbg);
-			}
-		}
-	}
-
-	/**
-	 * Process the basic blocks to consider intra basic block gotos to reconstruct the control flow.
-	 *
-	 * @param bbg is the basic block graph containing the basic blocks to be processed.
-	 *
-	 * @pre bbg != null
-	 */
-	protected abstract void processForIntraBasicBlockGotos(final BasicBlockGraph bbg);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/05/31 21:38:11  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.11  2004/02/27 12:33:31  venku
    - subtle error when including statement before handler statement. FIXED.
    Revision 1.10  2004/02/27 00:52:52  venku

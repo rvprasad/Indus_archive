@@ -226,7 +226,7 @@ public class SliceXMLizerCLI
 	/**
 	 * Executes the slicer.
 	 */
-	protected final void execute() {
+	protected void execute() {
 		// execute the slicer
 		slicer.setTagName(nameOfSliceTag);
 		slicer.setSystem(scene);
@@ -249,11 +249,13 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Dump xmlized jimple
+	 * Dump xmlized jimple.
 	 *
-	 * @param name
+	 * @param base from which the names of the jimple file will be built.
+	 *
+	 * @pre base != null
 	 */
-	void dumpJimpleAsXML(final String name) {
+	void dumpJimpleAsXML(final String base) {
 		final IXMLizer _xmlizer = getXMLizer();
 
 		if (jimpleXMLDumpDir != null) {
@@ -266,7 +268,7 @@ public class SliceXMLizerCLI
 			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
 			_ctrl.setEnvironment(new Environment(scene));
 			_ctrl.setProcessingFilter(_filter);
-			((AbstractXMLizer) _xmlizer).dumpJimple(name, jimpleXMLDumpDir, _ctrl);
+			((AbstractXMLizer) _xmlizer).dumpJimple(base, jimpleXMLDumpDir, _ctrl);
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("END: Dumping XMLized Jimple");
@@ -339,8 +341,9 @@ public class SliceXMLizerCLI
 		}
 
 		if (_exception != null || _cl.hasOption("h")) {
-		    final String _cmdLineSyn = "java " + SliceXMLizerCLI.class.getName() + "<options> <class names>";
-		    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
+			final String _cmdLineSyn = "java " + SliceXMLizerCLI.class.getName() + "<options> <class names>";
+			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+
 			if (_exception != null) {
 				LOGGER.fatal("Incorrect command line.  Aborting.", _exception);
 				System.exit(1);
@@ -588,7 +591,7 @@ public class SliceXMLizerCLI
 
 		// serialize the output of the slicer
 		final Map _info = new HashMap();
-		_info.put(IEnvironment.ID, slicer.getEnvironment());
+		_info.put(IEnvironment.ID, new Environment(slicer.getSystem()));
 		_info.put(IStmtGraphFactory.ID, slicer.getStmtGraphFactory());
 		_xmlizer.setXmlOutputDir(outputDirectory);
 		_xmlizer.writeXML(_info);
@@ -598,11 +601,12 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/06/03 03:50:34  venku
+   - changed the way help will be output on command line classes.
    Revision 1.37  2004/05/29 00:11:44  venku
    - moved the OK button out of the composite configurator.
    - the client will provide a composite to the configurator to display and
      collect info and the client will handle the closing of the composite's parent.
-
    Revision 1.36  2004/05/28 21:53:20  venku
    - added a method to ExceptionFlowSensitiveGraphFactory to create
      default factory objects.

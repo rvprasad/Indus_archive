@@ -370,8 +370,8 @@ public final class TagBasedDestructiveSliceResidualizer
 
 					final Pair _freshPair = new Pair(new ArrayList(), new ArrayList());
 					final Pair _pair = (Pair) CollectionsUtilities.getFromMap(class2members, clazz, _freshPair);
-					final Collection clazzMethodsToKill = (Collection) _pair.getFirst();
-					clazzMethodsToKill.remove(_init);
+					final Collection _clazzMethodsToKill = (Collection) _pair.getFirst();
+					_clazzMethodsToKill.remove(_init);
 				}
 
 				// SPECIALIZATION: Specialization from here on.
@@ -837,10 +837,14 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/05/21 22:11:48  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
    Revision 1.9  2004/04/24 08:25:46  venku
    - methodsToKill belonging to the enclosing class was altered in
      prepareInit() method.  However, this is not true.  FIXED.
-
    Revision 1.8  2004/04/20 00:43:40  venku
    - The processing during residualization was driven by a graph.  This
      caused errors when the graph did not cover all of the statements.

@@ -19,6 +19,8 @@ import edu.ksu.cis.indus.AbstractXMLBasedTest;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import edu.ksu.cis.indus.processing.Environment;
+
 import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
 
@@ -61,13 +63,17 @@ public final class XMLBasedSlicerTest
 	protected void localSetup()
 	  throws Exception {
 		super.localSetup();
-		info.put(IEnvironment.ID, setup.driver.slicer.getEnvironment());
+		info.put(IEnvironment.ID, new Environment(setup.driver.slicer.getSystem()));
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/05/13 03:30:04  venku
+   - coding convention.
+   - documentation.
+   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
    Revision 1.3  2004/05/04 09:57:38  venku
    - coding convention.
    Revision 1.2  2004/04/20 06:53:15  venku

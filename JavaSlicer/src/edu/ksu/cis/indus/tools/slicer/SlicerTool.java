@@ -31,10 +31,10 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.AbstractSliceCriterion;
-import edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.BackwardSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.CompleteSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.ForwardSliceGotoProcessor;
+import edu.ksu.cis.indus.slicer.ISliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
@@ -42,7 +42,6 @@ import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
@@ -335,6 +334,15 @@ public final class SlicerTool
 	}
 
 	/**
+	 * Returns the call graph used by the slicer.
+	 *
+	 * @return the call graph used by the slicer.
+	 */
+	public ICallGraphInfo getCallGraph() {
+		return callGraph;
+	}
+
+	/**
 	 * Set the slicing criteria.
 	 *
 	 * @param theCriteria is a collection of slicing criteria.
@@ -608,24 +616,6 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Returns the call graph used by the slicer.
-	 *
-	 * @return the call graph used by the slicer.
-	 */
-	ICallGraphInfo getCallGraph() {
-		return callGraph;
-	}
-
-	/**
-	 * Returns the environment in which the slicer works.
-	 *
-	 * @return the environment in which the slicer ran or will run.
-	 */
-	IEnvironment getEnvironment() {
-		return ofa.getEnvironment();
-	}
-
-	/**
 	 * Sets execution consideration criteria on all of the given criteria to the given flag.
 	 *
 	 * @param sliceCriteria is the collection of criteria to be changed.
@@ -726,7 +716,7 @@ public final class SlicerTool
 	/**
 	 * Executes low level analyses.
 	 *
-	 * @throws InterruptedException
+	 * @throws InterruptedException when the tool is interrupted when moving between phases.
 	 */
 	private void lowLevelAnalysisPhase()
 	  throws InterruptedException {
@@ -836,7 +826,7 @@ public final class SlicerTool
 			final Object _sliceType = _slicerConfig.getSliceType();
 			final SliceCollector _collector = engine.getCollector();
 			final Collection _methods = _collector.getMethodsInSlice();
-			AbstractSliceGotoProcessor _gotoProcessor = null;
+			ISliceGotoProcessor _gotoProcessor = null;
 
 			if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
 				_gotoProcessor = new ForwardSliceGotoProcessor(_collector);
@@ -898,6 +888,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.87  2004/05/31 21:38:11  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.86  2004/05/14 09:02:57  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is
