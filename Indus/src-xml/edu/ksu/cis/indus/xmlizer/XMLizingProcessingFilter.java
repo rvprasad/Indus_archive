@@ -76,7 +76,7 @@ public final class XMLizingProcessingFilter
 	private final class LexographicalFieldComparator
 	  implements Comparator {
 		/**
-		 * Compares the given classes based on their name.
+		 * Compares the given fields based on their name.
 		 *
 		 * @param o1 is one of the method to be compared.
 		 * @param o2 is the other method to be compared.
@@ -87,9 +87,9 @@ public final class XMLizingProcessingFilter
 		 * @pre o1.oclIsKindOf(SootMethod) and o2.oclIsKindOf(SootMethod)
 		 */
 		public int compare(final Object o1, final Object o2) {
-			final String _sig1 = ((SootField) o1).getSubSignature();
-			final String _sig2 = ((SootField) o2).getSubSignature();
-			return _sig1.substring(_sig1.indexOf(' ')).compareTo(_sig2.substring(_sig2.indexOf(' ')));
+			final String _sig1 = ((SootField) o1).getSignature();
+			final String _sig2 = ((SootField) o2).getSignature();
+			return _sig1.compareTo(_sig2);
 		}
 	}
 
@@ -104,7 +104,7 @@ public final class XMLizingProcessingFilter
 	private final class LexographicalMethodComparator
 	  implements Comparator {
 		/**
-		 * Compares the given classes based on their name.
+		 * Compares the given methods based on their name.
 		 *
 		 * @param o1 is one of the method to be compared.
 		 * @param o2 is the other method to be compared.
@@ -115,9 +115,9 @@ public final class XMLizingProcessingFilter
 		 * @pre o1.oclIsKindOf(SootMethod) and o2.oclIsKindOf(SootMethod)
 		 */
 		public int compare(final Object o1, final Object o2) {
-			final String _sig1 = ((SootMethod) o1).getSubSignature();
-			final String _sig2 = ((SootMethod) o2).getSubSignature();
-			return _sig1.substring(_sig1.indexOf(' ')).compareTo(_sig2.substring(_sig2.indexOf(' ')));
+			final String _sig1 = ((SootMethod) o1).getSignature();
+			final String _sig2 = ((SootMethod) o2).getSignature();
+			return _sig1.compareTo(_sig2);
 		}
 	}
 
@@ -161,6 +161,10 @@ public final class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/14 16:43:45  venku
+   - extended ProcessingController to filter fields as well.
+   - ripple effect.
+
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
