@@ -78,6 +78,18 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	}
 
 	/**
+	 * Returns a default factory instance.  This will return a factory object created by  <code>new
+	 * ExceptionFlowSensitiveStmtGraphFactory(SYNC_RELATED_EXCEPTIONS, true)</code>
+	 *
+	 * @return a new factory instance.
+	 *
+	 * @post result != null
+	 */
+	public static ExceptionFlowSensitiveStmtGraphFactory getDefaultFactory() {
+		return new ExceptionFlowSensitiveStmtGraphFactory(SYNC_RELATED_EXCEPTIONS, true);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForBody(soot.jimple.JimpleBody)
 	 */
 	protected UnitGraph getUnitGraphForBody(final JimpleBody body) {
@@ -102,6 +114,14 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.3  2004/03/26 00:07:26  venku
    - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
    - ripple effect in classes and method names.
