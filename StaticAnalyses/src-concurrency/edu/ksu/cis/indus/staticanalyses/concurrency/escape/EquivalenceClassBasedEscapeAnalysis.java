@@ -1068,21 +1068,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Checks if the given statement containing a <code>wait</code> invocation is coupled to the given statement containing
-	 * <code>notify/All</code> invocation.  By coupling we mean that the notification via the given notify  invocation may
-	 * reach the given wait invocation.
-	 *
-	 * @param wait is the statement containing <code>wait</code> invocation.
-	 * @param waitMethod is the method in which <code>wait</code> occurs.
-	 * @param notify is the statement containing <code>notify/All</code> invocation.
-	 * @param notifyMethod is the method in which <code>notify</code> occurs.
-	 *
-	 * @return <code>true</code> if <code>wait</code> is ready dependent on <code>notify</code>; <code>false</code>,
-	 * 		   otherwise.
-	 *
-	 * @throws IllegalArgumentException if either of the given statement was not processed in the analysis.
-	 *
-	 * @pre wait != null and waitMethod != null and notify != null and notifyMethod != null
+	 * @see IEscapeInfo#areWaitAndNotifyCoupled(InvokeStmt, SootMethod, InvokeStmt, SootMethod)
 	 */
 	public boolean areWaitAndNotifyCoupled(final InvokeStmt wait, final SootMethod waitMethod, final InvokeStmt notify,
 		final SootMethod notifyMethod) {
@@ -1189,14 +1175,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Checks if the object bound to the given value in the given method shared or escapes.
-	 *
-	 * @param v is the object value being checked for sharing.
-	 * @param sm is the method in which <code>v</code> occurs.
-	 *
-	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
-	 *
-	 * @pre v != null and sm != null
+	 * @see IEscapeInfo#escapes(Value, SootMethod)
 	 */
 	public boolean escapes(final Value v, final SootMethod sm) {
 		boolean _result = true;
@@ -1251,17 +1230,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Checks if the given values are shared.  This is more stricter than escape-ness.  This requires that the values be
-	 * escaping as well as represent a common entity.
-	 *
-	 * @param v1 is one of the value in the check.
-	 * @param sm1 is the method in which <code>v1</code> occurs.
-	 * @param v2 is the other value in the check.
-	 * @param sm2 is the method in which <code>v2</code> occurs.
-	 *
-	 * @return <code>true</code> if the given values are indeed shared across threads; <code>false</code>, otherwise.
-	 *
-	 * @pre v1 != null and sm1 != null and v2 != null and sm2 != null
+	 * @see IEscapeInfo#shared(Value, SootMethod, Value, SootMethod)
 	 */
 	public boolean shared(final Value v1, final SootMethod sm1, final Value v2, final SootMethod sm2) {
 		boolean _result = escapes(v1, sm1) && escapes(v2, sm2);
@@ -1283,14 +1252,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
-	 * Checks if "this" variable of the given method escapes.  If the method is static then the result is pessimistic, hence,
-	 * <code>true</code> is returned.
-	 *
-	 * @param method in which "this" occurs.
-	 *
-	 * @return <code>true</code> if "this" escapes; <code>false</code>, otherwise.
-	 *
-	 * @pre method != null
+	 * @see IEscapeInfo#thisEscapes(SootMethod)
 	 */
 	public boolean thisEscapes(final SootMethod method) {
 		boolean _result = true;

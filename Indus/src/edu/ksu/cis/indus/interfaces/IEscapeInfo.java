@@ -55,7 +55,7 @@ public interface IEscapeInfo
 		final SootMethod notifyMethod);
 
 	/**
-	 * Checks if the object bound to the given value in the given method shared or escapes.
+	 * Checks if the object bound to the given variable in the given method shared or escapes.
 	 *
 	 * @param v is the object value being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
