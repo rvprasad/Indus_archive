@@ -150,38 +150,12 @@ public final class Quadraple
 
 		if (o instanceof Quadraple) {
 			final Quadraple _temp = (Quadraple) o;
-
-			if (first == null) {
-				_result = first == _temp.first;
-			} else {
-				_result = first.equals(_temp.first);
-			}
-
-			if (_result) {
-				if (second == null) {
-					_result = second == _temp.second;
-				} else {
-					_result = second.equals(_temp.second);
-				}
-			}
-
-			if (_result) {
-				if (third == null) {
-					_result = third == _temp.third;
-				} else {
-					_result = third.equals(_temp.third);
-				}
-			}
-
-			if (_result) {
-				if (fourth == null) {
-					_result = fourth == _temp.fourth;
-				} else {
-					_result = fourth.equals(_temp.fourth);
-				}
-			}
-		} else {
-			_result = super.equals(o);
+			_result =
+				(this == o)
+				  || ((first == _temp.first) || ((first != null) && first.equals(_temp.first)))
+				  && ((second == _temp.second) || ((second != null) && second.equals(_temp.second)))
+				  && ((third == _temp.third) || ((third != null) && third.equals(_temp.third)))
+				  && ((fourth == _temp.fourth) || ((fourth != null) && fourth.equals(_temp.fourth)));
 		}
 		return _result;
 	}

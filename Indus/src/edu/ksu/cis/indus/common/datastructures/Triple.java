@@ -141,28 +141,11 @@ public class Triple {
 
 		if (o instanceof Triple) {
 			final Triple _temp = (Triple) o;
-
-			if (first == null) {
-				_result = first == _temp.first;
-			} else {
-				_result = first.equals(_temp.first);
-			}
-
-			if (_result) {
-				if (second == null) {
-					_result = second == _temp.second;
-				} else {
-					_result = second.equals(_temp.second);
-				}
-			}
-
-			if (_result) {
-				if (third == null) {
-					_result = third == _temp.third;
-				} else {
-					_result = third.equals(_temp.third);
-				}
-			}
+			_result =
+				(this == o)
+				  || ((first == _temp.first) || ((first != null) && first.equals(_temp.first)))
+				  && ((second == _temp.second) || ((second != null) && second.equals(_temp.second)))
+				  && ((third == _temp.third) || ((third != null) && third.equals(_temp.third)));
 		}
 		return _result;
 	}

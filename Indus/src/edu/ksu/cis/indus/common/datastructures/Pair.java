@@ -222,20 +222,10 @@ public final class Pair {
 
 		if (o instanceof Pair) {
 			final Pair _temp = (Pair) o;
-
-			if (first == null) {
-				_result = first == _temp.first;
-			} else {
-				_result = first.equals(_temp.first);
-			}
-
-			if (_result) {
-				if (second == null) {
-					_result = second == _temp.second;
-				} else {
-					_result = second.equals(_temp.second);
-				}
-			}
+			_result =
+				(this == o)
+				  || ((first == _temp.first) || ((first != null) && first.equals(_temp.first)))
+				  && ((second == _temp.second) || ((second != null) && second.equals(_temp.second)));
 		}
 		return _result;
 	}

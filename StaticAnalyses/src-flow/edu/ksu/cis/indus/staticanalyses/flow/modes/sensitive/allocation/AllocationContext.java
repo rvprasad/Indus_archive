@@ -75,12 +75,9 @@ public class AllocationContext
 
 		if (o != null && o instanceof AllocationContext) {
 			final AllocationContext _c = (AllocationContext) o;
-
-			if (allocationSite != null) {
-				_result = allocationSite.equals(_c.allocationSite);
-			} else {
-				_result = _c.allocationSite == allocationSite;
-			}
+			_result =
+				(this == o) || (allocationSite == _c.allocationSite)
+				  || ((allocationSite != null) && allocationSite.equals(_c.allocationSite));
 		}
 		return _result && super.equals(o);
 	}

@@ -192,26 +192,14 @@ public class Context
 
 		if (o != null && o instanceof Context) {
 			final Context _temp = (Context) o;
-
-			if (progPoint != null) {
-				_ret = progPoint.equals(_temp.progPoint);
-			} else {
-				_ret = progPoint == _temp.progPoint;
-			}
+			_ret =
+				(this == o) || (progPoint == _temp.progPoint) || ((progPoint != null) && progPoint.equals(_temp.progPoint));
 
 			if (_ret) {
-				if (stmt != null) {
-					_ret = stmt.equals(_temp.stmt);
-				} else {
-					_ret = stmt == _temp.stmt;
-				}
-			}
+				_ret = (stmt == _temp.stmt) || ((stmt != null) && stmt.equals(_temp.stmt));
 
-			if (_ret) {
-				if (callString != null) {
-					_ret &= callString.equals(_temp.callString);
-				} else {
-					_ret &= callString == _temp.callString;
+				if (_ret) {
+					_ret = (callString == _temp.callString) || ((callString != null) && callString.equals(_temp.callString));
 				}
 			}
 		}

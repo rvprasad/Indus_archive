@@ -66,12 +66,7 @@ public class IndexManager
 
 			if (!_result && o != null && o instanceof DummyIndex) {
 				final DummyIndex _di = (DummyIndex) o;
-
-				if (object != null) {
-					_result = object.equals(_di.object);
-				} else {
-					_result = object == _di.object;
-				}
+				_result = (this == o) || (object == _di.object) || ((object != null) && object.equals(_di.object));
 			}
 			return _result;
 		}

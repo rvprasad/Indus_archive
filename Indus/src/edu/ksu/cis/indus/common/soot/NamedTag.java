@@ -69,7 +69,7 @@ public class NamedTag
 
 		if (o instanceof NamedTag) {
 			final NamedTag _t = (NamedTag) o;
-			_result = name == _t.name;
+			_result = (this == o) || (name == _t.name) || ((name != null) && name.equals(_t.name));
 		}
 		return _result;
 	}

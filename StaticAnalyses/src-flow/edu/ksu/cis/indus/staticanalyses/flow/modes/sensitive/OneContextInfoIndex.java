@@ -64,24 +64,14 @@ public class OneContextInfoIndex
 	 * @return <code>true</code> if this index is equal to <code>index</code>; <code>false</code> otherwise.
 	 */
 	public boolean equals(final Object index) {
-		boolean _result = index == this;
+		boolean _result = false;
 
-		if (!_result && index != null && index instanceof OneContextInfoIndex) {
+		if (index != null && index instanceof OneContextInfoIndex) {
 			final OneContextInfoIndex _d = (OneContextInfoIndex) index;
-
-			if (value != null) {
-				_result = value.equals(_d.value);
-			} else {
-				_result = value == _d.value;
-			}
-
-			if (_result) {
-				if (contextInfo != null) {
-					_result = contextInfo.equals(_d.contextInfo);
-				} else {
-					_result = contextInfo == _d.contextInfo;
-				}
-			}
+			_result =
+				(this == index)
+				  || ((value == _d.value) || ((value != null) && value.equals(_d.value)))
+				  && ((contextInfo == _d.contextInfo) || ((contextInfo != null) && contextInfo.equals(_d.contextInfo)));
 		}
 		return _result;
 	}
