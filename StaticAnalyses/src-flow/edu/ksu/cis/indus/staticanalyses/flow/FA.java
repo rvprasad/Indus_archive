@@ -429,7 +429,7 @@ public class FA
 	 *
 	 * @post result != null
 	 */
-	public Tag getTag() {
+	Tag getTag() {
 		return tag;
 	}
 
@@ -513,6 +513,9 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/30 01:09:42  venku
+   - documentation.
+
    Revision 1.9  2003/11/30 01:07:57  venku
    - added name tagging support in FA to enable faster
      post processing based on filtering.
