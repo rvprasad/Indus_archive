@@ -37,7 +37,7 @@ public class CompleteUnitGraphFactory
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @post result != null and result.oclIsKindOf(CompleteUnitGraph)
+	 * @post method.isConcret() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getStmtGraph(soot.SootMethod)
 	 */
@@ -46,8 +46,10 @@ public class CompleteUnitGraphFactory
 		UnitGraph result = null;
 
 		if (ref == null || ref.get() == null) {
-			result = new CompleteUnitGraph(method.retrieveActiveBody());
-			method2UnitGraph.put(method, new WeakReference(result));
+            if (method.isConcrete()) {
+                result = new CompleteUnitGraph(method.retrieveActiveBody());
+                method2UnitGraph.put(method, new WeakReference(result));
+            }
 		} else if (ref != null) {
 			result = (CompleteUnitGraph) ref.get();
 		}
@@ -58,6 +60,9 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/28 06:52:22  venku
+   *** empty log message ***
+
    Revision 1.1  2003/09/28 06:22:54  venku
    - Added support to plug unit graphs from the environment when
      requested by the implementations.

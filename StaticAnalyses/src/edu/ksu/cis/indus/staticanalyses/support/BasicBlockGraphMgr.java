@@ -54,6 +54,7 @@ public class BasicBlockGraphMgr {
 	 *
 	 * @return the basic block graph corresonding to <code>stmtGraph</code>.
 	 *
+	 * @pre stmtGraph != null
 	 * @post result != null
 	 */
 	public BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
@@ -68,7 +69,8 @@ public class BasicBlockGraphMgr {
 	}
 
 	/**
-	 * Retrieves the basic block graph corresponding to the given method.
+	 * Retrieves the basic block graph corresponding to the given method.  This returns <code>null</code> if the method is
+	 * not concrete.
 	 *
 	 * @param sm is the method for which the graph is requested.
 	 *
@@ -81,7 +83,14 @@ public class BasicBlockGraphMgr {
 			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphProvider() before "
 				+ "calling this method.");
 		}
-		return getBasicBlockGraph(unitGraphProvider.getUnitGraph(sm));
+
+		UnitGraph graph = unitGraphProvider.getUnitGraph(sm);
+		BasicBlockGraph result = null;
+
+		if (graph != null) {
+			result = getBasicBlockGraph(graph);
+		}
+		return result;
 	}
 
 	/**
@@ -119,14 +128,14 @@ public class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/28 06:54:17  venku
+   - one more small change to the interface.
    Revision 1.8  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
-
    Revision 1.7  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
      these unit graphs.
-
    Revision 1.6  2003/09/28 03:16:20  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
