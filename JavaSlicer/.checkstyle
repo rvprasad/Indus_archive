@@ -1,25 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle>
-    <file-filters>
-        <file-filter value=".*/abstraction/.*"/>
-        <file-filter value=".*/annotation/.*"/>
-        <file-filter value=".*/bir*/.*"/>
-        <file-filter value=".*/bui/.*"/>
-        <file-filter value=".*/checker/.*"/>
-        <file-filter value=".*/jext/.*"/>
-        <file-filter value=".*/dspin/.*"/>
-        <file-filter value=".*/jjjc/.*"/>
-        <file-filter value=".*/prog/.*"/>
-        <file-filter value=".*/report/.*"/>
-        <file-filter value=".*/smv/.*"/>
-        <file-filter value=".*/specificaion/.*"/>
-        <file-filter value=".*/spin/.*"/>
-        <file-filter value=".*/util/.*"/>
-        <file-filter value=".*/ca/.*"/>
-        <file-filter value=".*/org/.*"/>
-        <file-filter value=".*/java_cup/.*"/>
-        <file-filter value=".*/gov/.*"/>
-        <file-filter value=".*/src/.*"/>
-        <file-filter value="dummy"/>
-    </file-filters>
+    <file-filters/>
 </checkstyle>
