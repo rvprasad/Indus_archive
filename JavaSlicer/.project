@@ -28,6 +28,11 @@
 				</dictionary>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>com.ibm.sample.zip.creation.ZipBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>

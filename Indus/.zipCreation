@@ -5,6 +5,7 @@
       <source>
          <container path="/Indus/src"/>
          <container path="/Indus/src-xml"/>
+         <container path="/Indus/auxiliary"/>
       </source>
    </target>
 </zip-info>
