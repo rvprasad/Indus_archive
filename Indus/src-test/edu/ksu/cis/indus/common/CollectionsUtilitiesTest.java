@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class CollectionsUtilitiesTest
   extends IndusTestCase {
-	/**
+	/** 
 	 * The map.
 	 */
 	private Map map;
@@ -43,11 +43,8 @@ public class CollectionsUtilitiesTest
 	public final void testPutAllIntoCollectionInMap() {
 		final Collection _temp = new ArrayList();
 		_temp.add("second");
-
-		final Collection _t = new ArrayList();
-		CollectionsUtilities.putAllIntoCollectionInMap(map, "first", _temp, _t);
+		CollectionsUtilities.putAllIntoCollectionInMap(map, "first", _temp, CollectionsUtilities.ARRAY_LIST_FACTORY);
 		assertNotNull(map.get("first"));
-		assertSame(_t, map.get("first"));
 		assertTrue(((Collection) map.get("first")).contains("second"));
 	}
 
@@ -57,11 +54,8 @@ public class CollectionsUtilitiesTest
 	public final void testPutIntoCollectionInMap() {
 		final Collection _temp = new ArrayList();
 		_temp.add("second");
-
-		final Collection _t = new ArrayList();
-		CollectionsUtilities.putIntoCollectionInMap(map, "first", "second", _t);
+		CollectionsUtilities.putIntoCollectionInMap(map, "first", "second", CollectionsUtilities.ARRAY_LIST_FACTORY);
 		assertNotNull(map.get("first"));
-		assertSame(_t, map.get("first"));
 		assertTrue(((Collection) map.get("first")).contains("second"));
 	}
 
@@ -78,7 +72,7 @@ public class CollectionsUtilitiesTest
 	 */
 	protected void tearDown()
 	  throws Exception {
-        map.clear();
+		map.clear();
 		map = null;
 	}
 }
@@ -86,15 +80,16 @@ public class CollectionsUtilitiesTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/14 04:55:04  venku
+   - documentation.
+   - coding conventions.
    Revision 1.1  2004/05/21 22:11:48  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
      filtered maps.
    - ripple effect.
-
    Revision 1.4  2004/04/21 02:24:04  venku
    - test clean up code was added.
-
    Revision 1.3  2004/02/09 00:28:33  venku
    - added a new class, IndusTestCase, that extends TestCase
      to differentiate between the test method name and the
@@ -102,10 +97,8 @@ public class CollectionsUtilitiesTest
    - all test cases in indus extends IndusTestCase.
    - added a new method TestHelper to append container's name
      to the test cases.
-
    Revision 1.2  2004/02/07 16:13:29  venku
    - coding conventions.
-
    Revision 1.1  2004/01/28 22:55:23  venku
    - added test suites for classes in common package.
  */

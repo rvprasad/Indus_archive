@@ -37,6 +37,8 @@ import java.util.Map;
 
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.Factory;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -93,24 +95,29 @@ import soot.util.Chain;
  */
 public final class TagBasedDestructiveSliceResidualizer
   extends AbstractProcessor {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(TagBasedDestructiveSliceResidualizer.class);
 
-	/**
+	/** 
+	 * The collection of classes to be removed from the system after residualization.
+	 */
+	final Collection classesToKill = new HashSet();
+
+	/** 
 	 * This tracks the locals of the current method that should be deleted.
 	 */
 	final Collection localsToKeep = new HashSet();
 
-	/**
+	/** 
 	 * This tracks the methods of the current class that should be deleted.
 	 *
 	 * @invariant methodsToKill.oclIsKindOf(Collection(SootMethod))
 	 */
 	final Collection methodsToKill = new HashSet();
 
-	/**
+	/** 
 	 * This is the traps of a method that need to be retained.
 	 *
 	 * @invariant trapsToRetain != null
@@ -118,14 +125,14 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	final Collection trapsToRetain = new HashSet();
 
-	/**
+	/** 
 	 * This is a mapping from classes to it's members that should be removed.
 	 *
 	 * @invariant class2membersToKill.oclIsKindOf(Map(SootClass, Pair(Collection(SootMethod), Collection(SootField))))
 	 */
 	final Map class2members = new HashMap();
 
-	/**
+	/** 
 	 * This maps statements in the system to new statements that should be included in the slice.
 	 *
 	 * @invariant oldStmt2newStmt != null
@@ -133,7 +140,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	final Map oldStmt2newStmt = new HashMap();
 
-	/**
+	/** 
 	 * This maps a statement to a sequence of statements that need to be inserted before the key statement the statement
 	 * sequence of the method body.
 	 *
@@ -141,51 +148,46 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	final Map stmt2predecessors = new HashMap();
 
-	/**
+	/** 
 	 * The tag that identify the parts of the system that shall be residualized.
 	 */
 	NamedTag tagToResidualize;
 
-	/**
+	/** 
 	 * The system to be residualized.
 	 */
 	Scene theScene;
 
-	/**
+	/** 
 	 * The method being processed.
 	 */
 	SootMethod currMethod;
 
-	/**
+	/** 
 	 * The name of the tag used to identify the parts of the system to be residualized.
 	 */
 	String theNameOfTagToResidualize;
 
-	/**
-	 * The collection of classes to be removed from the system after residualization.
-	 */
-	final Collection classesToKill = new HashSet();
-
-	/**
+	/** 
 	 * This tracks the fields of the current class that should be deleted.
 	 *
 	 * @invariant fieldsToKill.oclIsKindOf(Collection(SootField))
 	 */
 	private final Collection fieldsToKill = new HashSet();
 
-	/**
+	/** 
 	 * This is used to process the statements during residualization.
 	 */
 	private final StmtResidualizer stmtProcessor = new StmtResidualizer();
 
-	/**
+	/** 
 	 * This is the collection of statements which are to be replaced by NOP statements in the residue.
 	 *
 	 * @invariant stmtsToBeNOPed.oclIsKindOf(Collection(Stmt))
 	 */
 	private List stmtsToBeNOPed = new ArrayList();
 
-	/**
+	/** 
 	 * The class being processed up until now.
 	 */
 	private SootClass currClass;
@@ -204,10 +206,20 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * improve precision.
 		 */
 
-		/**
+		/** 
 		 * This is the instance to be used to residualize expressions/values.
 		 */
 		final ValueResidualizer valueProcessor = new ValueResidualizer();
+
+		/** 
+		 * A factory to create pair to contain members of a class.
+		 */
+		private final Factory VALUE_FACTORY =
+			new Factory() {
+				public Object create() {
+					return new Pair(new ArrayList(), new ArrayList());
+				}
+			};
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
@@ -291,10 +303,10 @@ public final class TagBasedDestructiveSliceResidualizer
 
 				// retain the class
 				if (!_clazz.hasTag(theNameOfTagToResidualize)) {
-				    classesToKill.remove(_clazz);
-				    _clazz.addTag(tagToResidualize);
-				    
+					classesToKill.remove(_clazz);
+					_clazz.addTag(tagToResidualize);
 				}
+
 				// find an <init> method on the type and prepare the argument list
 				final SootMethod _init = prepareInitIn(_clazz);
 				final List _args = new ArrayList(_init.getParameterCount());
@@ -302,7 +314,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				for (int _i = _init.getParameterCount() - 1; _i >= 0; _i--) {
 					_args.add(Util.getDefaultValueFor(_init.getParameterType(_i)));
 				}
-				
+
 				// invoke <init> on the local
 				final InvokeExpr _iexpr = _jimple.newSpecialInvokeExpr(_local, _init, _args);
 				final InvokeStmt _istmt = _jimple.newInvokeStmt(_iexpr);
@@ -373,8 +385,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				if (_existsButIsNotIncluded) {
 					clazz.removeMethod(_init);
 
-					final Pair _freshPair = new Pair(new ArrayList(), new ArrayList());
-					final Pair _pair = (Pair) CollectionsUtilities.getFromMap(class2members, clazz, _freshPair);
+					final Pair _pair = (Pair) CollectionsUtilities.getFromMap(class2members, clazz, VALUE_FACTORY);
 					final Collection _clazzMethodsToKill = (Collection) _pair.getFirst();
 					_clazzMethodsToKill.remove(_init);
 				}
@@ -763,18 +774,17 @@ public final class TagBasedDestructiveSliceResidualizer
 			_body.validateTraps();
 			_body.validateUnitBoxes();
 			_body.validateUses();
-			
+
 			/*
 			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
 			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to be executable.
-			 * 
-			 * If there are NOP's in the body then the following condition will fail.  For this reason, this block should 
+			 *
+			 * If there are NOP's in the body then the following condition will fail.  For this reason, this block should
 			 * happen after the previous transformations block.
 			 */
 			if (_body.getUnits().isEmpty()) {
 				pluginSignatureCorrectBody(_body, _jimple);
 			}
-			
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -894,9 +904,10 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/07/10 00:52:44  venku
+   - throw statements need to suck in the class of the exception that is thrown. FIXED.
    Revision 1.14  2004/07/09 09:15:35  venku
    - refactoring.
-
    Revision 1.13  2004/07/08 22:15:18  venku
    - moved the method body validation code to the end so that it
      considers any newly introduced code as well.

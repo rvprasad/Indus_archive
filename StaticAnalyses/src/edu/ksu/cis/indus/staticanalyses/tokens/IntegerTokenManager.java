@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Factory;
 
 
 /**
@@ -39,12 +40,12 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public class IntegerTokenManager
   extends AbstractTokenManager {
-	/**
+	/** 
 	 * The number of values that can be managed by using int-based bit-encoding.
 	 */
 	static final int NO_OF_BITS_IN_AN_INTEGER = 31;
 
-	/**
+	/** 
 	 * The list used to canonicalize bit position for values.
 	 *
 	 * @invariant valueList.oclIsKindOf(Sequence(Object))
@@ -52,7 +53,7 @@ public class IntegerTokenManager
 	 */
 	final List valueList = new ArrayList();
 
-	/**
+	/** 
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
 	 *
 	 * @invariant type2tokens.oclIsKindOf(Map(IType, MutableInteger))
@@ -77,7 +78,7 @@ public class IntegerTokenManager
 	 */
 	public class IntegerTokenFilter
 	  implements ITokenFilter {
-		/**
+		/** 
 		 * The type of values to let through the filter.
 		 *
 		 * @pre filterType != null
@@ -103,7 +104,7 @@ public class IntegerTokenManager
 			_result.integer |= ((IntegerTokens) tokens).integer;
 
 			final MutableInteger _tokens =
-				(MutableInteger) CollectionsUtilities.getFromMap(type2tokens, filterType, new MutableInteger());
+				(MutableInteger) CollectionsUtilities.getFromMap(type2tokens, filterType, MutableInteger.FACTORY);
 			_result.integer &= _tokens.intValue();
 			return _result;
 		}
@@ -119,7 +120,17 @@ public class IntegerTokenManager
 	 */
 	public static class MutableInteger
 	  extends Number {
-		/**
+		/** 
+		 * A factory to create <code>MutableInteger</code>.
+		 */
+		public static final Factory FACTORY =
+			new Factory() {
+				public Object create() {
+					return new MutableInteger();
+				}
+			};
+
+		/** 
 		 * The value of this integer.
 		 */
 		private int value;
@@ -173,12 +184,12 @@ public class IntegerTokenManager
 	class IntegerTokens
 	  extends AbstractPrototype
 	  implements ITokens {
-		/**
+		/** 
 		 * The integer used to capture the representation of the tokens.
 		 */
 		int integer;
 
-		/**
+		/** 
 		 * The token manager associated with this instance of collection of tokens.
 		 *
 		 * @pre tokenMgr != null
@@ -288,7 +299,7 @@ public class IntegerTokenManager
 				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
 					final MutableInteger _integer =
-						(MutableInteger) CollectionsUtilities.getFromMap(type2tokens, _type, new MutableInteger());
+						(MutableInteger) CollectionsUtilities.getFromMap(type2tokens, _type, MutableInteger.FACTORY);
 					_integer.setValue(_integer.intValue() | _index);
 				}
 				_index <<= 1;
@@ -318,10 +329,14 @@ public class IntegerTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
    Revision 1.6  2004/05/20 07:29:41  venku
    - optimized the token set to be optimal when created.
    - added new method to retrieve empty token sets (getNewTokenSet()).
-
    Revision 1.5  2004/05/19 00:20:49  venku
    - optimized getTokens() method.
    Revision 1.4  2004/05/06 22:27:29  venku

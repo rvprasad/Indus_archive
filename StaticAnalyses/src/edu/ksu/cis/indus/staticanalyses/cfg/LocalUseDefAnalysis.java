@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
+
 import soot.Body;
 import soot.Local;
 import soot.PatchingChain;
@@ -51,28 +53,28 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$ $Date$
  */
 public final class LocalUseDefAnalysis {
-	/**
+	/** 
 	 * A map from local and statement pair to a collection of def statement.
 	 *
 	 * @invariant defInfo.oclIsKindOf(Map(Pair(Local, Stmt), Collection(DefinitionStmt))
 	 */
 	private final Map defInfo = new HashMap();
 
-	/**
+	/** 
 	 * A map from definition statement to a collection of statements.
 	 *
 	 * @invariant defInfo.oclIsKindOf(Map(DefinitionStmt, Collection(Stmt))
 	 */
 	private final Map useInfo = new HashMap();
 
-	/**
+	/** 
 	 * A list of statements in the given method.
 	 *
 	 * @invariant stmtList.oclIsKindOf(Sequence(Stmt))
 	 */
 	private List stmtList;
 
-	/**
+	/** 
 	 * The control flow graph used to calculate the use-def info.
 	 */
 	private UnitGraph unitGraph;
@@ -112,8 +114,8 @@ public final class LocalUseDefAnalysis {
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
 	 */
 	public Collection getDefsOf(final Local local, final Stmt stmt) {
-		return Collections.unmodifiableCollection((Collection) CollectionsUtilities.getFromMap(defInfo,
-				new Pair(local, stmt), Collections.EMPTY_LIST));
+		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(defInfo, new Pair(local, stmt),
+				Collections.EMPTY_LIST));
 	}
 
 	/**
@@ -127,7 +129,7 @@ public final class LocalUseDefAnalysis {
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
 	 */
 	public Collection getDefsOf(final Pair localStmtPair) {
-		return Collections.unmodifiableCollection((Collection) CollectionsUtilities.getFromMap(defInfo, localStmtPair,
+		return Collections.unmodifiableCollection((Collection) MapUtils.getObject(defInfo, localStmtPair,
 				Collections.EMPTY_LIST));
 	}
 
@@ -142,7 +144,7 @@ public final class LocalUseDefAnalysis {
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
 	public Collection getUsesOf(final Stmt stmt) {
-		return (Collection) CollectionsUtilities.getFromMap(useInfo, stmt, Collections.EMPTY_LIST);
+		return (Collection) MapUtils.getObject(useInfo, stmt, Collections.EMPTY_LIST);
 	}
 
 	/**
@@ -303,6 +305,8 @@ public final class LocalUseDefAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/06/24 06:27:48  venku
+   - previous performance improvement was buggy. FIXED.
    Revision 1.3  2004/06/23 05:05:21  venku
    - improved the algorithm for performance.
    Revision 1.2  2004/06/15 10:28:32  venku

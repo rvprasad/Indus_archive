@@ -81,31 +81,31 @@ import soot.jimple.VirtualInvokeExpr;
 public class ThreadGraph
   extends AbstractValueAnalyzerBasedProcessor
   implements IThreadGraphInfo {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ThreadGraph.class);
 
-	/**
+	/** 
 	 * This provides inter-procedural control-flow information.
 	 */
 	final CFGAnalysis cfgAnalysis;
 
-	/**
+	/** 
 	 * The collection of thread allocation sites.
 	 *
 	 * @invariant newThreadExprs != null and newThreadExprs.oclIsKindOf(Collection(NewExprTriple))
 	 */
 	private final Collection newThreadExprs = new HashSet();
 
-	/**
+	/** 
 	 * The collection of method invocation sites at which <code>java.lang.Thread.start()</code> is invoked.
 	 *
 	 * @invariant startSites.oclIsKindOf(Collection(CallTriple)) and startSites != null
 	 */
 	private final Collection startSites = new HashSet();
 
-	/**
+	/** 
 	 * A collection of thread allocation sites which are executed from within a loop or a SCC in the call graph.  This  also
 	 * includes any allocation sites reachable from a method executed in a loop.
 	 *
@@ -113,7 +113,7 @@ public class ThreadGraph
 	 */
 	private final Collection threadAllocSitesMulti;
 
-	/**
+	/** 
 	 * A collection of thread allocation sites which are not executed from within a loop or a SCC in the call graph.  This
 	 * also includes any allocation sites reachable from a method executed in a loop. This is the dual of
 	 * <code>threadAllocSitesMulti.</code>
@@ -122,28 +122,28 @@ public class ThreadGraph
 	 */
 	private final Collection threadAllocSitesSingle;
 
-	/**
+	/** 
 	 * This provides call graph information pertaining to the system.
 	 *
 	 * @invariant cgi != null
 	 */
 	private final ICallGraphInfo cgi;
 
-	/**
+	/** 
 	 * This maps methods to thread allocation sites which create threads in which the key method is executed.
 	 *
 	 * @invariant method2threads != null and method2threads.oclIsKindOf(Map(SootMethod, Collection(NewExprTriple)))
 	 */
 	private final Map method2threads = new HashMap();
 
-	/**
+	/** 
 	 * This maps threads allocation sites to the methods which are executed in the created threads.
 	 *
 	 * @invariant thread2methods != null and thread2methods.isOclKindOf(Map(NewExprTriple, Collection(SootMethod)))
 	 */
 	private final Map thread2methods = new HashMap();
 
-	/**
+	/** 
 	 * This provides object flow information required by this analysis.
 	 */
 	private OFAnalyzer analyzer;
@@ -404,7 +404,7 @@ public class ThreadGraph
 
 			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
-				CollectionsUtilities.putIntoCollectionInMap(method2threads, _sm, _value, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(method2threads, _sm, _value, CollectionsUtilities.HASH_SET_FACTORY);
 			}
 		}
 
@@ -441,12 +441,13 @@ public class ThreadGraph
 
 			newThreadExprs.add(_thread);
 
-			Collection methods = transitiveThreadCallClosure(_head);
-			thread2methods.put(_thread, methods);
+			final Collection _methods = transitiveThreadCallClosure(_head);
+			thread2methods.put(_thread, _methods);
 
-			for (final Iterator _j = methods.iterator(); _j.hasNext();) {
+			for (final Iterator _j = _methods.iterator(); _j.hasNext();) {
 				final SootMethod _sm = (SootMethod) _j.next();
-				CollectionsUtilities.putIntoCollectionInMap(method2threads, _sm, _thread, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(method2threads, _sm, _thread,
+					CollectionsUtilities.HASH_SET_FACTORY);
 			}
 		}
 
@@ -468,11 +469,11 @@ public class ThreadGraph
 			LOGGER.info("consolidate thread allocation site execution frequency information.");
 		}
 
-		Collection tassBak = new HashSet(threadAllocSitesSingle);
+		final Collection _tassBak = new HashSet(threadAllocSitesSingle);
 
 		// Mark any thread allocation site that will be executed multiple times via a loop or call graph SCC 
 		// as creating multiple threads.  The execution considers entire call chain to the entry method.
-		for (final Iterator _i = tassBak.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _tassBak.iterator(); _i.hasNext();) {
 			final NewExprTriple _trp = (NewExprTriple) _i.next();
 			final SootMethod _encloser = _trp.getMethod();
 
@@ -492,11 +493,11 @@ public class ThreadGraph
 			_ctxt.setStmt(_ntrp.getStmt());
 			_multiExecMethods.addAll(getExecutedMethods(_ntrp.getExpr(), _ctxt));
 		}
-		tassBak.clear();
-		tassBak.addAll(threadAllocSitesSingle);
+		_tassBak.clear();
+		_tassBak.addAll(threadAllocSitesSingle);
 
 		// filter the thread allocation site sets based on multiExecMethods.
-		for (final Iterator _i = tassBak.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _tassBak.iterator(); _i.hasNext();) {
 			final NewExprTriple _trp = (NewExprTriple) _i.next();
 			final SootMethod _encloser = _trp.getMethod();
 
@@ -533,7 +534,7 @@ public class ThreadGraph
 		_temp1.addAll(thread2methods.keySet());
 		Collections.sort(_temp1,
 			new Comparator() {
-				public int compare(Object o1, Object o2) {
+				public int compare(final Object o1, final Object o2) {
 					NewExprTriple _ne = (NewExprTriple) o1;
 					final String _s1 = _ne.getStmt() + "@" + _ne.getMethod() + "->" + _ne.getExpr();
 					_ne = (NewExprTriple) o2;
@@ -678,6 +679,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/07/11 14:17:39  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.31  2004/07/11 09:42:14  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while

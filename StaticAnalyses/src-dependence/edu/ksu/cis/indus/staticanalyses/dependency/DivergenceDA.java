@@ -84,17 +84,17 @@ public final class DivergenceDA
 	 *  - using loop information in getValidSuccs() to control which successors should be considered for dependence.
 	 */
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DivergenceDA.class);
 
-	/**
+	/** 
 	 * This provides the call graph information.
 	 */
 	private ICallGraphInfo callgraph;
 
-	/**
+	/** 
 	 * This maps methods to the inter-procedural divergence points they contain.
 	 *
 	 * @invariant method2interProcDivPoints.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
@@ -102,7 +102,7 @@ public final class DivergenceDA
 	 */
 	private final Map method2interProcDivPoints = new HashMap();
 
-	/**
+	/** 
 	 * This indicates if call-sites that invoke methods containing pre-divergence points should be considered as
 	 * pre-divergence points.
 	 */
@@ -142,7 +142,7 @@ public final class DivergenceDA
 		if (_list != null) {
 			_result =
 				(Collection) CollectionsUtilities.getAtIndexFromList(_list,
-					getStmtList((SootMethod) method).indexOf(dependentStmt), Collections.EMPTY_LIST);
+					getStmtList((SootMethod) method).indexOf(dependentStmt), CollectionsUtilities.EMPTY_LIST_FACTORY);
 		}
 
 		return _result;
@@ -164,7 +164,7 @@ public final class DivergenceDA
 	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
-		final Map _stmt2List = (Map) CollectionsUtilities.getFromMap(dependee2dependent, method, Collections.EMPTY_MAP);
+		final Map _stmt2List = (Map) MapUtils.getObject(dependee2dependent, method, Collections.EMPTY_MAP);
 		final Collection _result = (Collection) MapUtils.getObject(_stmt2List, dependeeStmt, Collections.EMPTY_LIST);
 		return Collections.unmodifiableCollection(_result);
 	}
@@ -305,8 +305,8 @@ public final class DivergenceDA
 		final SootMethod method) {
 		final Collection _result = new HashSet(bb.getSuccsOf());
 
-		if (!((Collection) CollectionsUtilities.getFromMap(method2interProcDivPoints, method, Collections.EMPTY_LIST))
-			  .contains(divPoint)) {
+		if (!((Collection) CollectionsUtilities.getFromMap(method2interProcDivPoints, method,
+				  CollectionsUtilities.EMPTY_LIST_FACTORY)).contains(divPoint)) {
 			final Collection _sccs = bbg.getSCCs(true);
 
 			for (final Iterator _i = _sccs.iterator(); _i.hasNext();) {
@@ -610,6 +610,9 @@ public final class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/07/11 11:05:04  venku
+   - added new specialized method to CollectionsUtilities.
+   - used the above method in DivergenceDA.
    Revision 1.38  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while

@@ -42,12 +42,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class BitSetTokenManager
   extends AbstractTokenManager {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(BitSetTokenManager.class);
 
-	/**
+	/** 
 	 * The list used to canonicalize bit position for values.
 	 *
 	 * @invariant valueList.oclIsKindOf(Sequence(Object))
@@ -55,7 +55,7 @@ public final class BitSetTokenManager
 	 */
 	final List valueList = new ArrayList();
 
-	/**
+	/** 
 	 * The mapping between types and the sequence of bits that represent the values that are of the key type.
 	 *
 	 * @invariant type2tokens.oclIsKindOf(Map(IType, BitSet))
@@ -83,7 +83,7 @@ public final class BitSetTokenManager
 	 */
 	private class BitSetTokenFilter
 	  implements ITokenFilter {
-		/**
+		/** 
 		 * The filter mask.
 		 */
 		private final BitSet bitmask;
@@ -122,12 +122,12 @@ public final class BitSetTokenManager
 	private class BitSetTokens
 	  extends AbstractPrototype
 	  implements ITokens {
-		/**
+		/** 
 		 * The bitset used to capture the representation of the tokens.
 		 */
 		final BitSet bitset;
 
-		/**
+		/** 
 		 * The token manager associated with this instance of collection of tokens.
 		 *
 		 * @pre tokenMgr != null
@@ -231,7 +231,8 @@ public final class BitSetTokenManager
 
 				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
-					final BitSet _tokens = (BitSet) CollectionsUtilities.getFromMap(type2tokens, _type, new BitSet());
+					final BitSet _tokens =
+						(BitSet) CollectionsUtilities.getFromMap(type2tokens, _type, CollectionsUtilities.BIT_SET_FACTORY);
 					_tokens.set(_index);
 				}
 				_index++;
@@ -267,16 +268,17 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/06/22 01:01:37  venku
+   - BitSet(1) creates an empty bitset.  Instead we use BitSet() to create a
+     bit set that contains a long array of length 1.
    Revision 1.5  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract
      filtered maps.
    - ripple effect.
-
    Revision 1.4  2004/05/20 07:29:41  venku
    - optimized the token set to be optimal when created.
    - added new method to retrieve empty token sets (getNewTokenSet()).
-
    Revision 1.3  2004/05/19 00:20:49  venku
    - optimized getTokens() method.
    Revision 1.2  2004/05/06 22:27:29  venku

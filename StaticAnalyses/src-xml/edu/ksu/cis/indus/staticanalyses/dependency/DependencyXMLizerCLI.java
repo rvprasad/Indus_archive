@@ -47,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +99,7 @@ public class DependencyXMLizerCLI
 	/** 
 	 * This provides use-def info based on aliasing.
 	 */
+
 	//private AliasedUseDefInfo aliasUD;
 
 	/** 
@@ -110,11 +110,13 @@ public class DependencyXMLizerCLI
 	/** 
 	 * This provides equivalence class based escape analysis.
 	 */
+
 	//private EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/** 
 	 * This provides call-graph based processing controller.
 	 */
+
 	//private ValueAnalyzerBasedProcessingController cgipc;
 
 	/** 
@@ -228,7 +230,8 @@ public class DependencyXMLizerCLI
 
 			if (_cl.hasOption(_dasOptions[3][0].toString())) {
 				_cli.das.add(_incda);
-				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _incda.getId(), _incda, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _incda.getId(), _incda,
+					CollectionsUtilities.HASH_SET_FACTORY);
 			}
 
 			boolean _flag = true;
@@ -284,6 +287,7 @@ public class DependencyXMLizerCLI
 		_xmlcgipc.setStmtGraphFactory(getStmtGraphFactory());
 
 		final AliasedUseDefInfo _aliasUD;
+
 		if (useAliasedUseDefv1) {
 			_aliasUD = new AliasedUseDefInfo(aa, bbm);
 		} else {
@@ -295,6 +299,7 @@ public class DependencyXMLizerCLI
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
 		info.put(IUseDefInfo.ID, _aliasUD);
+
 		final EquivalenceClassBasedEscapeAnalysis _ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, getBbm());
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, _ecba);
 
@@ -359,16 +364,16 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/07/17 19:37:38  venku
+   - coding conventions.
    Revision 1.26  2004/07/17 19:37:18  venku
    - ECBA was incorrect for the following reasons.
      - it fails if the start sites are not in the same method.
      - it fails if the access in the threads occur in methods other than the
        one in which the new thread is started.
      - The above issues were addressed.
-
    Revision 1.25  2004/07/16 06:45:32  venku
    - added an option to vary versions of aliased use def info.
-
    Revision 1.24  2004/07/16 06:38:47  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.
@@ -596,16 +601,16 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/07/17 19:37:38  venku
+   - coding conventions.
    Revision 1.26  2004/07/17 19:37:18  venku
    - ECBA was incorrect for the following reasons.
      - it fails if the start sites are not in the same method.
      - it fails if the access in the threads occur in methods other than the
        one in which the new thread is started.
      - The above issues were addressed.
-
    Revision 1.25  2004/07/16 06:45:32  venku
    - added an option to vary versions of aliased use def info.
-
    Revision 1.24  2004/07/16 06:38:47  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.

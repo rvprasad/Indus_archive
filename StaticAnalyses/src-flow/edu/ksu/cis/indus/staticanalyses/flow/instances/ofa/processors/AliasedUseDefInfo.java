@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
@@ -138,7 +139,7 @@ public class AliasedUseDefInfo
 			final Map _stmt2defs = (Map) use2defsMap.get(context.getCurrentMethod());
 
 			if (_stmt2defs != null) {
-				_result = (Collection) CollectionsUtilities.getFromMap(_stmt2defs, useStmt, Collections.EMPTY_LIST);
+				_result = (Collection) MapUtils.getObject(_stmt2defs, useStmt, Collections.EMPTY_LIST);
 			}
 		}
 		return _result;
@@ -161,7 +162,7 @@ public class AliasedUseDefInfo
 			final Map _stmt2uses = (Map) def2usesMap.get(context.getCurrentMethod());
 
 			if (_stmt2uses != null) {
-				_result = (Collection) CollectionsUtilities.getFromMap(_stmt2uses, defStmt, Collections.EMPTY_LIST);
+				_result = (Collection) MapUtils.getObject(_stmt2uses, defStmt, Collections.EMPTY_LIST);
 			}
 		}
 		return _result;
@@ -178,10 +179,10 @@ public class AliasedUseDefInfo
 			final Value _ref = _as.getRightOp();
 
 			if (_ref instanceof ArrayRef || _ref instanceof FieldRef) {
-				final Map _stmt2ddees = (Map) CollectionsUtilities.getFromMap(use2defsMap, _method, new HashMap());
+				final Map _stmt2ddees = CollectionsUtilities.getMapFromMap(use2defsMap, _method);
 				_stmt2ddees.put(stmt, null);
 			} else {
-				final Map _stmt2ddents = (Map) CollectionsUtilities.getFromMap(def2usesMap, _method, new HashMap());
+				final Map _stmt2ddents = CollectionsUtilities.getMapFromMap(def2usesMap, _method);
 				_stmt2ddents.put(stmt, null);
 			}
 		}
@@ -455,6 +456,10 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/07/17 19:35:46  venku
+   - added a new predicate class that can be used to checking existential
+     containment relation between two collections.
+   - ripple effect.
    Revision 1.38  2004/07/16 06:38:47  venku
    - added  a more precise implementation of aliased use-def information.
    - ripple effect.

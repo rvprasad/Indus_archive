@@ -166,7 +166,7 @@ public class DependencyAnalysisTestSetup
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			final IDependencyAnalysis _da = (IDependencyAnalysis) _i.next();
 			((AbstractDependencyAnalysis) _da).analyze();
-			CollectionsUtilities.putIntoCollectionInMap(info, _da.getId(), _da, new ArrayList());
+			CollectionsUtilities.putIntoCollectionInMap(info, _da.getId(), _da, CollectionsUtilities.ARRAY_LIST_FACTORY);
 		}
 	}
 
@@ -244,6 +244,10 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/07/16 06:38:47  venku
+   - added  a more precise implementation of aliased use-def information.
+   - ripple effect.
+
    Revision 1.17  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.

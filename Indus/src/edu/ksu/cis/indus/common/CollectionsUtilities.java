@@ -16,13 +16,16 @@
 package edu.ksu.cis.indus.common;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.Predicate;
 
 
@@ -35,6 +38,76 @@ import org.apache.commons.collections.Predicate;
  * @version $Revision$ $Date$
  */
 public final class CollectionsUtilities {
+	/** 
+	 * A factory to create <code>java.util.ArrayList</code>.
+	 */
+	public static final Factory ARRAY_LIST_FACTORY =
+		new Factory() {
+			public Object create() {
+				return new ArrayList();
+			}
+		};
+
+	/** 
+	 * A factory to create <code>Collections.EMPTY_LIST</code>.
+	 */
+	public static final Factory EMPTY_LIST_FACTORY =
+		new Factory() {
+			public Object create() {
+				return Collections.EMPTY_LIST;
+			}
+		};
+
+	/** 
+	 * A factory to create <code>Collections.EMPTY_SET</code>.
+	 */
+	public static final Factory EMPTY_SET_FACTORY =
+		new Factory() {
+			public Object create() {
+				return Collections.EMPTY_SET;
+			}
+		};
+
+	/** 
+	 * A factory to create <code>Collections.EMPTY_MAP</code>.
+	 */
+	public static final Factory EMPTY_MAP_FACTORY =
+		new Factory() {
+			public Object create() {
+				return Collections.EMPTY_MAP;
+			}
+		};
+
+	/** 
+	 * A factory to create <code>java.util.HashMap</code>.
+	 */
+	public static final Factory HASH_MAP_FACTORY =
+		new Factory() {
+			public Object create() {
+				return new HashMap();
+			}
+		};
+
+	/** 
+	 * A factory to create <code>java.util.HashSet</code>.
+	 */
+	public static final Factory HASH_SET_FACTORY =
+		new Factory() {
+			public Object create() {
+				return new HashSet();
+			}
+		};
+
+	/** 
+	 * A factory to create <code>java.util.BitSet</code>.
+	 */
+	public static final Factory BIT_SET_FACTORY =
+		new Factory() {
+			public Object create() {
+				return new BitSet();
+			}
+		};
+
 	///CLOVER:OFF
 
 	/**
@@ -53,7 +126,7 @@ public final class CollectionsUtilities {
 	 *
 	 * @param list from which to retrieve the value.
 	 * @param index in <code>list</code> from which to retrive the value.
-	 * @param defaultValue to be injected and returned if none exists or if <code>null</code> exists.
+	 * @param factory provides the default value to be injected and returned if none exists or if <code>null</code> exists.
 	 *
 	 * @return the value at <code>index</code> in <code>list</code>.
 	 *
@@ -63,16 +136,16 @@ public final class CollectionsUtilities {
 	 * @post list$pre.get(index) = null or list$pre.size() &lt; index implies result = defaultValue
 	 * @post list.get(index) = result
 	 */
-	public static Object getAtIndexFromList(final List list, final int index, final Object defaultValue) {
+	public static Object getAtIndexFromList(final List list, final int index, final Factory factory) {
 		if (index < 0) {
 			throw new IndexOutOfBoundsException("invalid index: " + index + " < 0");
 		}
 
 		if (index > list.size()) {
 			ensureSize(list, index, null);
-			list.set(index, defaultValue);
+			list.set(index, factory.create());
 		} else if (list.get(index) == null) {
-			list.set(index, defaultValue);
+			list.set(index, factory.create());
 		}
 		return list.get(index);
 	}
@@ -101,22 +174,19 @@ public final class CollectionsUtilities {
 	 *
 	 * @param map to be read.
 	 * @param key for which the value should be retrieved.
-	 * @param defaultValue is the default value.
+	 * @param factory used to create the default value.
 	 *
 	 * @return the value mapped to <code>key</code>.
 	 *
-	 * @pre map != null and key != null and value != null
+	 * @pre map != null and key != null and factory != null
 	 * @post map.get(key) != null
 	 * @post result != null
 	 */
-	public static Object getFromMap(final Map map, final Object key, final Object defaultValue) {
-		Object _return = map.get(key);
-
-		if (_return == null) {
-			_return = defaultValue;
-			map.put(key, defaultValue);
+	public static Object getFromMap(final Map map, final Object key, final Factory factory) {
+		if (!map.containsKey(key)) {
+			map.put(key, factory.create());
 		}
-		return _return;
+		return map.get(key);
 	}
 
 	/**
@@ -133,10 +203,10 @@ public final class CollectionsUtilities {
 	 * @post list$pre.get(index) = null or list$pre.size() &lt; index implies result.oclIsKindOf(java.util.List)
 	 * @post list.get(index) = result
 	 *
-	 * @see #getAtIndexFromList(List, int, Object)
+	 * @see #getAtIndexFromList(List, int, Factory)
 	 */
 	public static Object getListAtIndexFromList(final List list, final int index) {
-		return getAtIndexFromList(list, index, new ArrayList());
+		return getAtIndexFromList(list, index, ARRAY_LIST_FACTORY);
 	}
 
 	/**
@@ -150,11 +220,9 @@ public final class CollectionsUtilities {
 	 * @pre map != null and key != null and value != null
 	 * @post map.get(key) != null
 	 * @post result != null
-	 *
-	 * @see #getFromMap(Map,Object,Object)
 	 */
 	public static List getListFromMap(final Map map, final Object key) {
-		return (List) getFromMap(map, key, new ArrayList());
+		return (List) getFromMap(map, key, ARRAY_LIST_FACTORY);
 	}
 
 	/**
@@ -168,11 +236,9 @@ public final class CollectionsUtilities {
 	 * @pre map != null and key != null and value != null
 	 * @post map.get(key) != null
 	 * @post result != null
-	 *
-	 * @see #getFromMap(Map,Object,Object)
 	 */
 	public static Map getMapFromMap(final Map map, final Object key) {
-		return (Map) getFromMap(map, key, new HashMap());
+		return (Map) getFromMap(map, key, HASH_MAP_FACTORY);
 	}
 
 	/**
@@ -189,10 +255,10 @@ public final class CollectionsUtilities {
 	 * @post list$pre.get(index) = null or list$pre.size() &lt; index implies result.oclIsKindOf(java.util.Set)
 	 * @post list.get(index) = result
 	 *
-	 * @see #getAtIndexFromList(List, int, Object)
+	 * @see #getAtIndexFromList(List, int, Factory)
 	 */
 	public static Object getSetAtIndexFromList(final List list, final int index) {
-		return getAtIndexFromList(list, index, new HashSet());
+		return getAtIndexFromList(list, index, HASH_SET_FACTORY);
 	}
 
 	/**
@@ -206,11 +272,9 @@ public final class CollectionsUtilities {
 	 * @pre map != null and key != null and value != null
 	 * @post map.get(key) != null
 	 * @post result != null
-	 *
-	 * @see #getFromMap(Map,Object,Object)
 	 */
 	public static Set getSetFromMap(final Map map, final Object key) {
-		return (Set) getFromMap(map, key, new HashSet());
+		return (Set) getFromMap(map, key, HASH_SET_FACTORY);
 	}
 
 	/**
@@ -244,17 +308,17 @@ public final class CollectionsUtilities {
 	 * @param map to be altered.
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param values to be added into the collection mapped to <code>key</code>.
-	 * @param collection to be used if there is no collection mapped to <code>key</code>.
+	 * @param factory to be used to create the collection if there is no collection mapped to <code>key</code>.
 	 *
-	 * @pre map != null and key != null and values != null and collection != null
+	 * @pre map != null and key != null and values != null and factory != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
 	public static void putAllIntoCollectionInMap(final Map map, final Object key, final Collection values,
-		final Collection collection) {
+		final Factory factory) {
 		Collection _temp = (Collection) map.get(key);
 
 		if (_temp == null) {
-			_temp = collection;
+			_temp = (Collection) factory.create();
 			map.put(key, _temp);
 		}
 		_temp.addAll(values);
@@ -271,10 +335,10 @@ public final class CollectionsUtilities {
 	 * @pre map != null and key != null and values != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 *
-	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Collection)
+	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Factory)
 	 */
 	public static void putAllIntoListInMap(final Map map, final Object key, final Collection values) {
-		putAllIntoCollectionInMap(map, key, values, new ArrayList());
+		putAllIntoCollectionInMap(map, key, values, ARRAY_LIST_FACTORY);
 	}
 
 	/**
@@ -288,10 +352,10 @@ public final class CollectionsUtilities {
 	 * @pre map != null and key != null and values != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 *
-	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Collection)
+	 * @see #putAllIntoCollectionInMap(Map,Object,Collection,Factory)
 	 */
 	public static void putAllIntoSetInMap(final Map map, final Object key, final Collection values) {
-		putAllIntoCollectionInMap(map, key, values, new HashSet());
+		putAllIntoCollectionInMap(map, key, values, HASH_SET_FACTORY);
 	}
 
 	/**
@@ -301,16 +365,16 @@ public final class CollectionsUtilities {
 	 * @param map to be altered.
 	 * @param key is the key in the map that should be altered or populated.
 	 * @param value to be added into the collection mapped to <code>key</code>.
-	 * @param col to be used if there is no collection mapped to <code>key</code>.
+	 * @param factory to be used to create a collection if there is no collection mapped to <code>key</code>.
 	 *
-	 * @pre map != null and key != null and values != null and col != null
+	 * @pre map != null and key != null and values != null and factory != null
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
-	public static void putIntoCollectionInMap(final Map map, final Object key, final Object value, final Collection col) {
+	public static void putIntoCollectionInMap(final Map map, final Object key, final Object value, final Factory factory) {
 		Collection _temp = (Collection) map.get(key);
 
 		if (_temp == null) {
-			_temp = col;
+			_temp = (Collection) factory.create();
 			map.put(key, _temp);
 		}
 		_temp.add(value);
@@ -328,7 +392,7 @@ public final class CollectionsUtilities {
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
 	public static void putIntoListInMap(final Map map, final Object key, final Object value) {
-		putIntoCollectionInMap(map, key, value, new ArrayList());
+		putIntoCollectionInMap(map, key, value, ARRAY_LIST_FACTORY);
 	}
 
 	/**
@@ -343,13 +407,16 @@ public final class CollectionsUtilities {
 	 * @pre map.oclIsKindOf(Map(Object, Collection))
 	 */
 	public static void putIntoSetInMap(final Map map, final Object key, final Object value) {
-		putIntoCollectionInMap(map, key, value, new HashSet());
+		putIntoCollectionInMap(map, key, value, HASH_SET_FACTORY);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/07/11 11:05:04  venku
+   - added new specialized method to CollectionsUtilities.
+   - used the above method in DivergenceDA.
    Revision 1.7  2004/07/09 05:42:30  venku
    - deleted CollectionsUtilities.addAllFromTo().
    - used CollectionUtils.addAll() instead of CollectionsUtilities.addAllFromTo().

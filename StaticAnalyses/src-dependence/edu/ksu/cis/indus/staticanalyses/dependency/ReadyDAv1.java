@@ -109,135 +109,135 @@ import soot.jimple.VirtualInvokeExpr;
  */
 public class ReadyDAv1
   extends AbstractDependencyAnalysis {
-	/**
+	/** 
 	 * This indicates rule 1 of ready dependency as described in the report.
 	 */
 	public static final int RULE_1 = 1;
 
-	/**
+	/** 
 	 * This indicates rule 2 of ready dependency as described in the report.
 	 */
 	public static final int RULE_2 = 2;
 
-	/**
+	/** 
 	 * This indicates rule 3 of ready dependency as described in the report.
 	 */
 	public static final int RULE_3 = 4;
 
-	/**
+	/** 
 	 * This indicates rule 4 of ready dependency as described in the report.
 	 */
 	public static final int RULE_4 = 8;
 
-	/**
+	/** 
 	 * A token used to represent the nonexistent monitor entry/exit statements in synchronized methods.
 	 */
 	protected static final Object SYNC_METHOD_PROXY_STMT = "SYNC_METHOD_PROXY_STMT";
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ReadyDAv1.class);
 
-	/**
+	/** 
 	 * This is the logical OR of the <code>RULE_XX</code> as provided by the user.  This indicates the rules which need to be
 	 * considered while calculating ready dependency.
 	 */
 	protected int rules = RULE_1 | RULE_2 | RULE_3 | RULE_4;
 
-	/**
+	/** 
 	 * This stores the methods that are synchronized or have synchronized blocks in them.
 	 *
 	 * @invariant monitorMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	final Collection monitorMethods = new HashSet();
 
-	/**
+	/** 
 	 * The  collection of <code>notifyXX</code> methods as available in the <code>Object</code> class.
 	 *
 	 * @invariant notifyMethods->forall(o | o.oclIsTypeOf(SootMethod))
 	 */
 	Collection notifyMethods;
 
-	/**
+	/** 
 	 * The collection of methods (readyMethods) which contain at least an enter-monitor statement or a <code>wait()</code>
 	 * call-site.
 	 */
 	final Collection readyMethods = new HashSet();
 
-	/**
+	/** 
 	 * This is the <code>java.lang.Object.wait()</code> method.
 	 *
 	 * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
 	 */
 	Collection waitMethods;
 
-	/**
+	/** 
 	 * This maps a method to a collection of enter monitor statements in that method.
 	 *
 	 * @invariant enterMonitors.oclIsKindOf(Map(SootMethod, Set(EnterMonitorStmt)))
 	 */
 	final Map enterMonitors = new HashMap();
 
-	/**
+	/** 
 	 * This maps a method to a collection of exit monitor statements in that method.
 	 *
 	 * @invariant exitMonitors.oclIsKindOf(Map(SootMethod, Set(ExitMonitorStmt)))
 	 */
 	final Map exitMonitors = new HashMap();
 
-	/**
+	/** 
 	 * This maps methods to <code>Object.notifyXX</code> method calls in them.
 	 *
 	 * @invariant notifies.oclIsKindOf(Map(SootMethod, Set(VirtualInvokeExpr)))
 	 */
 	final Map notifies = new HashMap();
 
-	/**
+	/** 
 	 * This maps methods to <code>Object.wait</code> method calls in them.
 	 *
 	 * @invariant wait.oclIsKindOf(Map(SootMethod, Set(VirtualInvokeExpr)))
 	 */
 	final Map waits = new HashMap();
 
-	/**
+	/** 
 	 * This is a collection of dependeXX in Pair form which result from application of rule 2 to synchronized methods.
 	 */
 	private final Collection specials = new HashSet();
 
-	/**
+	/** 
 	 * This provides call graph of the system being analyzed.
 	 */
 	private ICallGraphInfo callgraph;
 
-	/**
+	/** 
 	 * This provides information such as the classes occurring in the system being analyzed.
 	 */
 	private IEnvironment env;
 
-	/**
+	/** 
 	 * This provides call graph of the system being analyzed.
 	 */
 	private IThreadGraphInfo threadgraph;
 
-	/**
+	/** 
 	 * The object flow analysis to be used.
 	 */
 	private IValueAnalyzer ofa;
 
-	/**
+	/** 
 	 * This manages pairs.
 	 */
 	private PairManager pairMgr;
 
-	/**
+	/** 
 	 * This indicates if dependence should be considered across call-sites.  Depending on the application, one may choose to
 	 * ignore ready dependence across call-sites and rely on other dependence analysis to include the call-site.  This only
 	 * affects how rule 1 and 3 are interpreted.
 	 */
 	private boolean considerCallSites;
 
-	/**
+	/** 
 	 * This indicates if object flow analysis should be used.
 	 */
 	private boolean useOFA;
@@ -268,8 +268,10 @@ public class ReadyDAv1
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
 				monitorMethods.add(method);
-				CollectionsUtilities.putIntoCollectionInMap(enterMonitors, method, SYNC_METHOD_PROXY_STMT, new HashSet());
-				CollectionsUtilities.putIntoCollectionInMap(exitMonitors, method, SYNC_METHOD_PROXY_STMT, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(enterMonitors, method, SYNC_METHOD_PROXY_STMT,
+					CollectionsUtilities.HASH_SET_FACTORY);
+				CollectionsUtilities.putIntoCollectionInMap(exitMonitors, method, SYNC_METHOD_PROXY_STMT,
+					CollectionsUtilities.HASH_SET_FACTORY);
 			}
 		}
 
@@ -296,7 +298,7 @@ public class ReadyDAv1
 			}
 
 			if (_map != null) {
-				CollectionsUtilities.putIntoCollectionInMap(_map, _method, stmt, new HashSet());
+				CollectionsUtilities.putIntoCollectionInMap(_map, _method, stmt, CollectionsUtilities.HASH_SET_FACTORY);
 			} else {
 				// InvokeStmt branch
 				InvokeExpr _expr = null;
@@ -316,7 +318,7 @@ public class ReadyDAv1
 					}
 
 					if (_map != null) {
-						CollectionsUtilities.putIntoCollectionInMap(_map, _method, stmt, new HashSet());
+						CollectionsUtilities.putIntoCollectionInMap(_map, _method, stmt, CollectionsUtilities.HASH_SET_FACTORY);
 					}
 				}
 			}
@@ -1232,7 +1234,8 @@ public class ReadyDAv1
 
 						if (ifDependentOnByRule4(_wPair, _nPair)) {
 							final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _wMethod);
-							CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _wait, _nPair, new HashSet());
+							CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _wait, _nPair,
+								CollectionsUtilities.HASH_SET_FACTORY);
 							_dependents.add(_wPair);
 						}
 					}
@@ -1241,7 +1244,8 @@ public class ReadyDAv1
 				// add dependee to dependent information
 				if (!_dependents.isEmpty()) {
 					final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _nMethod);
-					CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents, new HashSet());
+					CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents,
+						CollectionsUtilities.HASH_SET_FACTORY);
 				}
 			}
 		}
@@ -1251,9 +1255,12 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.61  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.60  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
-
    Revision 1.59  2004/07/07 06:29:19  venku
    - coding convention and documentation.
    Revision 1.58  2004/07/07 06:25:07  venku
