@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
+import edu.ksu.cis.indus.common.soot.RootMethodTrapper;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -39,6 +40,7 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CGBasedXMLizingProcessingFilter;
+import edu.ksu.cis.indus.staticanalyses.callgraphs.CHABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.CallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.callgraphs.OFABasedCallInfoCollector;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -128,7 +130,7 @@ public class InfluenceChecker
 	 *
 	 * @invariant das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
 	 */
-	protected List das = new ArrayList();
+	List das = new ArrayList();
 
 	/** 
 	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
@@ -142,14 +144,14 @@ public class InfluenceChecker
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private final Collection cdas = new ArrayList();
+	final Collection cdas = new ArrayList();
 
 	/** 
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private final Collection ddas = new ArrayList();
+	final Collection ddas = new ArrayList();
 
 	/** 
 	 * The xmlizer used to xmlize dependence information.
@@ -202,8 +204,8 @@ public class InfluenceChecker
 			if (!processedNodes.contains(node)) {
 				final Pair _pair = (Pair) node.getObject();
 				final SootMethod _method = (SootMethod) _pair.getSecond();
-				final Iterator _i = cgi.getCallers(_method).iterator();
-				final int _iEnd = cgi.getCallers(_method).size();
+				final Iterator _i = chacgi.getCallers(_method).iterator();
+				final int _iEnd = chacgi.getCallers(_method).size();
 
 				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 					final CallTriple _triple = (CallTriple) _i.next();
@@ -369,19 +371,18 @@ public class InfluenceChecker
 
 			final InfluenceChecker _xmlizerCLI = new InfluenceChecker();
 
-			/*_xmlizerCLI.setRootMethodTrapper(new RootMethodTrapper() {
-			 */
+			_xmlizerCLI.setRootMethodTrapper(new RootMethodTrapper() {
 
 			/** 
 			 * @see edu.ksu.cis.indus.common.soot.RootMethodTrapper#isThisARootMethod(soot.SootMethod)
 			 */
 
-			/*
 			   protected boolean isThisARootMethod(final SootMethod sm) {
 			       return true;
 			   }
 			
-			   } );*/
+			   } );
+            
 			String _outputDir = _cl.getOptionValue('o');
 
 			if (_outputDir == null) {
@@ -568,7 +569,7 @@ public class InfluenceChecker
 		final PairManager _pairManager = new PairManager(false, true);
 		cgi = new CallGraphInfo(new PairManager(false, true));
 
-		final IThreadGraphInfo _tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, getBbm()), _pairManager);
+        final IThreadGraphInfo _tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, getBbm()), _pairManager);
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		final ValueAnalyzerBasedProcessingController _cgipc = new ValueAnalyzerBasedProcessingController();
 		final MetricsProcessor _countingProcessor = new MetricsProcessor();
@@ -620,7 +621,7 @@ public class InfluenceChecker
 
 		initialize();
 		aa.analyze(new Environment(getScene()), getRootMethods());
-
+        
 		_callGraphInfoCollector.reset();
 		_processors.clear();
 		_processors.add(_callGraphInfoCollector);
@@ -684,7 +685,23 @@ public class InfluenceChecker
 		writeInfo("Total classes loaded: " + getScene().getClasses().size());
 	}
 
-	/**
+    private CallGraphInfo chacgi;
+    
+	private void calculateCHACallgraph() {
+        chacgi = new CallGraphInfo(new PairManager(false, true));
+        final ProcessingController _pc = new ProcessingController();
+        final OneAllStmtSequenceRetriever _ssr = new OneAllStmtSequenceRetriever();
+        _ssr.setStmtGraphFactory(getStmtGraphFactory());
+        _pc.setStmtSequencesRetriever(_ssr);
+        _pc.setEnvironment(new Environment(getScene()));
+        final CHABasedCallInfoCollector _col = new CHABasedCallInfoCollector();
+        _col.hookup(_pc);
+        _pc.process();
+        _col.unhook(_pc);
+        chacgi.createCallGraphInfo(_col.getCallInfo());
+    }
+
+    /**
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
@@ -708,6 +725,10 @@ public class InfluenceChecker
 		final SimpleEdgeGraph _graph = getGraph(type);
 		final IWorkBag _wb = new LIFOWorkBag();
 
+        if (type.equals("ai")) {
+            calculateCHACallgraph();
+        }
+        
 		int _missedPaths = 0;
 		final Collection _matchedPaths = new HashSet();
 
