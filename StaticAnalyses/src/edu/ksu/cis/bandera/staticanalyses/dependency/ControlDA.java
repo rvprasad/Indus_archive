@@ -60,8 +60,8 @@ import java.util.Map;
  * inter- method control dependency.
  * 
  * <p>
- * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in the
- * list corresponds to the statement at the same location in the statement list of the method.  The collection is the
+ * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in
+ * the list corresponds to the statement at the same location in the statement list of the method.  The collection is the
  * statements to which the statement at the location of the collection is related via control dependence.
  * </p>
  *
@@ -116,7 +116,8 @@ public class ControlDA
 	 * @pre method.oclType = SootMethod
 	 * @post result->forall(o | o.oclType = Stmt)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object,
+	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(Object dependeeStmt, Object method) {
 		Collection result = Collections.EMPTY_LIST;

@@ -146,9 +146,11 @@ public abstract class Controller {
 	 */
 	protected boolean stable = false;
 
-	/** 
-	 * <p>This is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
-	 * controller.</p>
+	/**
+	 * <p>
+	 * This is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
+	 * controller.
+	 * </p>
 	 */
 	private Map info;
 

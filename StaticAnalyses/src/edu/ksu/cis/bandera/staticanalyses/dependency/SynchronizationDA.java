@@ -65,13 +65,14 @@ import java.util.Stack;
  * This class provides synchronization dependency information.
  * 
  * <p>
- * The dependence information is stored as follows: For each method, a map from a statement to a collection of statement which
- * are related to the key via dependence is maintained.
+ * The dependence information is stored as follows: For each method, a map from a statement to a collection of statement
+ * which are related to the key via dependence is maintained.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
  * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Map(stmt, Collection(Stmt))))
  * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Map(stmt, Collection(Stmt))))
  */
@@ -131,7 +132,6 @@ public class SynchronizationDA
 
 	/**
 	 * Returns the monitors that occur in the analyzed system.
-	 *  
 	 *
 	 * @return a collection of <code>Triples</code>.
 	 *
@@ -249,8 +249,10 @@ public class SynchronizationDA
 	 * @param method in which <code>stmt</code> occurs.
 	 */
 	protected void preprocess(SootMethod method) {
-		if ((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED)
+		if((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED) {
 			monitorTriples.add(new Triple(null, null, method));
+		}
+
 		StmtList sl = ((StmtGraph) method2stmtGraph.get(method)).getBody().getStmtList();
 
 		for(ca.mcgill.sable.util.Iterator i = sl.iterator(); i.hasNext();) {

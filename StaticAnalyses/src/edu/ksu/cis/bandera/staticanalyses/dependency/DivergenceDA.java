@@ -106,7 +106,8 @@ public class DivergenceDA
 	 * @pre dependentStmt = Stmt
 	 * @post result->forall( o | o.oclType = Stmt)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object,
+	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(Object dependeeStmt, Object method) {
 		return getDependeXXHelper(dependentMap, dependeeStmt, method);

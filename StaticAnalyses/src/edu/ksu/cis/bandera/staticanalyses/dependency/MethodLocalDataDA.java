@@ -62,14 +62,15 @@ import java.util.Map;
 
 /**
  * This class provides data dependency information pertaining to method local data.  Method local data constitutes local
- * variables of primitive types and reference types in a method.  It does not include array elements even though the array is
- * local.
+ * variables of primitive types and reference types in a method.  It does not include array elements even though the array
+ * is local.
  * 
  * <p>
  * The dependent information is stored as follows: For each method, a list of length equal to the number of statements in the
- * methods is maintained. In case of dependent information, at each location corresponding to the statement a set of dependent
- * statements is maintained in the list.  In case of dependee information, at each location corresponding to the statement a
- * map is maintained in the list.  The map maps a value box in the statement to a collection of dependee statements.
+ * methods is maintained. In case of dependent information, at each location corresponding to the statement a set of
+ * dependent statements is maintained in the list.  In case of dependee information, at each location corresponding to the
+ * statement a map is maintained in the list.  The map maps a value box in the statement to a collection of dependee
+ * statements.
  * </p>
  * 
  * <p>

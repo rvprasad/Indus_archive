@@ -151,7 +151,7 @@ public abstract class DependencyAnalysis {
 	/**
 	 * Resets all internal data structures.
 	 *
-	 * @post dependeeMap.size() = 0 and dependentMap.size() = 0 and method2stmtGraph.size() = 0 
+	 * @post dependeeMap.size() = 0 and dependentMap.size() = 0 and method2stmtGraph.size() = 0
 	 */
 	public void reset() {
 		dependeeMap.clear();
