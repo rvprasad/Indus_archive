@@ -19,7 +19,10 @@ import edu.ksu.cis.indus.common.Constants;
 
 import java.lang.ref.SoftReference;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import soot.SootMethod;
@@ -35,17 +38,22 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public final class BasicBlockGraphMgr {
-	/**
+	/** 
 	 * This maps methods to basic block graphs.
 	 *
 	 * @invariant method2graph.oclIsKindOf(Map(SootMethod, BasicBlockGraph))
 	 */
 	private final Map method2graph = new HashMap(Constants.getNumOfMethodsInApplication());
 
-	/**
+	/** 
 	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
 	private IStmtGraphFactory stmtGraphProvider;
+
+	/** 
+	 * This maps methods to their statement list.
+	 */
+	private final Map method2stmtlist = new HashMap();
 
 	/**
 	 * Retrieves the basic block graph corresponding to the given method.  Returns an empty basic block graph if the method
@@ -86,6 +94,32 @@ public final class BasicBlockGraphMgr {
 	}
 
 	/**
+	 * Returns an unmodifiable list of statements in the given method, if it exists.
+	 *
+	 * @param method of interest.
+	 *
+	 * @return an unmodifiable list of statements.
+	 *
+	 * @pre method != null
+	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 */
+	public List getStmtList(final SootMethod method) {
+		List _result = (List) method2stmtlist.get(method);
+
+		if (_result == null) {
+			final UnitGraph _stmtGraph = getUnitGraph(method);
+
+			if (_stmtGraph != null) {
+				_result = Collections.unmodifiableList(new ArrayList(_stmtGraph.getBody().getUnits()));
+			} else {
+				_result = Collections.EMPTY_LIST;
+			}
+			method2stmtlist.put(method, _result);
+		}
+		return _result;
+	}
+
+	/**
 	 * Provides the unit graph for the given method.  This is retrieved from the unit graph provider set via
 	 * <code>setUnitGraphProvider</code>.
 	 *
@@ -114,16 +148,19 @@ public final class BasicBlockGraphMgr {
 	 */
 	public void reset() {
 		method2graph.clear();
+		method2stmtlist.clear();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/08/08 10:11:39  venku
+   - added a new class to configure constants used when creating data structures.
+   - ripple effect.
    Revision 1.1  2004/05/31 21:38:12  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
-
    Revision 1.9  2004/03/26 00:22:31  venku
    - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
    - ripple effect.
