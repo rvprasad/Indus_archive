@@ -112,7 +112,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Creates slice criteria from the given value.  This is equivalent to <code>getCriterion(method, stmt, expression,
-	 * false)</code>.
+	 * false, considerExecution)</code>.
 	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt in which the criterion occurs.
@@ -171,7 +171,7 @@ public final class SliceCriteriaFactory {
 
 	/**
 	 * Creates slice criteria from the given statement only.  This is equivalent to <code>getCriterion(method, stmt,
-	 * false)</code>.
+	 * false, considerExecution)</code>.
 	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt is the criterion.

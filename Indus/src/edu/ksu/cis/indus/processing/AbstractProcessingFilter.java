@@ -81,7 +81,7 @@ public abstract class AbstractProcessingFilter
 	 *
 	 * @param classes to be filtered.
 	 *
-	 * @return the collection of filterate classes.
+	 * @return the collection of filtrate classes.
 	 *
 	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
 	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
@@ -96,7 +96,7 @@ public abstract class AbstractProcessingFilter
 	 *
 	 * @param fields to be filtered.
 	 *
-	 * @return the collection of filterate fields.
+	 * @return the collection of filtrate fields.
 	 *
 	 * @pre fields != null and fields.oclIsKindOf(Collection(SootClass))
 	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
@@ -111,7 +111,7 @@ public abstract class AbstractProcessingFilter
 	 *
 	 * @param methods to be filtered.
 	 *
-	 * @return the collection of filterate methods.
+	 * @return the collection of filtrate methods.
 	 *
 	 * @pre methods != null and methods.oclIsKindOf(Collection(SootClass))
 	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
