@@ -39,6 +39,7 @@ import soot.Scene;
 import soot.SootMethod;
 
 import soot.toolkits.graph.CompleteUnitGraph;
+import soot.toolkits.graph.TrapUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -47,12 +48,14 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBased
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
@@ -211,7 +214,7 @@ public abstract class DADriver
 
 			if (method.isConcrete()) {
 				try {
-					UnitGraph sg = new CompleteUnitGraph(method.retrieveActiveBody());
+					UnitGraph sg = new TrapUnitGraph(method.retrieveActiveBody());
 					method2cmpltStmtGraph.put(method, sg);
 					bbm.getBasicBlockGraph(sg);
 				} catch (RuntimeException e) {
@@ -233,7 +236,7 @@ public abstract class DADriver
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
-
+        info.put(IUseDefInfo.ID, new AliasedUseDefInfo(aa));
 		setupDependencyAnalyses();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -390,6 +393,9 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/09/12 01:49:30  venku
+   - prints hashcode to differentiate between instances of same analysis.
+
    Revision 1.12  2003/09/09 01:13:58  venku
    - made basic block graph manager configurable in AbstractAnalysis
    - ripple effect of the above change in DADriver.  This should also affect Slicer.
