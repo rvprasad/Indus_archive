@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -227,7 +227,7 @@ public final class CallGraphXMLizerCLI
 			_pc.reset();
 			_pc.driveProcessors(_processors);
 			_processors.clear();
-			
+
 			final ByteArrayOutputStream _stream = new ByteArrayOutputStream();
 			MapUtils.verbosePrint(new PrintStream(_stream), "STATISTICS:", new TreeMap(_countingProcessor.getStatistics()));
 			writeInfo(_stream.toString());

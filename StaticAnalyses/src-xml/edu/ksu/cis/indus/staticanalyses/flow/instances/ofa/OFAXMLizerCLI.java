@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
-import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
