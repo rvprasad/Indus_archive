@@ -58,8 +58,8 @@ import soot.options.Options;
  * The user can provide a root method trapper object to be used to identify root methods.  However, if the user does not
  * provide one,  then an instance of the class named via
  * <code>indus.common.soot.SootBasedDriver.RootMethodTrapper.class</code> property will be used.  This named class should be
- * a subclass of <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>.   As reflection is used on
- * to instantiate an object, the specified class by the property should have a no-argument constructor.
+ * a subclass of <code>edu.ksu.cis.indus.common.soot.SootBasedDriver$RootMethodTrapper</code>.   As reflection is used on to
+ * instantiate an object, the specified class by the property should have a no-argument constructor.
  * </p>
  * 
  * <p>
@@ -122,26 +122,27 @@ public class SootBasedDriver {
 
 		STMT_GRAPH_FACTORY_CLASS_PROPERTY = "indus.common.soot.SootBasedDriver.StmtGraphFactory.class";
 
-		final String stmtGraphFactoryClassName = System.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
+		final String _nameOfStmtGraphFactoryClass = System.getProperty(STMT_GRAPH_FACTORY_CLASS_PROPERTY);
 		IStmtGraphFactory _graphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
 
-		if (stmtGraphFactoryClassName != null) {
+		if (_nameOfStmtGraphFactoryClass != null) {
 			try {
-				final Object _o = ClassLoader.getSystemClassLoader().loadClass(stmtGraphFactoryClassName).newInstance();
+				final Object _o = ClassLoader.getSystemClassLoader().loadClass(_nameOfStmtGraphFactoryClass).newInstance();
 
 				if (_o instanceof IStmtGraphFactory) {
 					_graphFactory = (IStmtGraphFactory) _o;
 				} else {
-					throw new IllegalArgumentException(stmtGraphFactoryClassName + " is not a subclass of IStmtGraphFactory.");
+					throw new IllegalArgumentException(_nameOfStmtGraphFactoryClass
+						+ " is not a subclass of IStmtGraphFactory.");
 				}
 			} catch (final ClassNotFoundException _e) {
-				LOGGER.fatal("class " + stmtGraphFactoryClassName + " could not be loaded/resolved. Bailing.", _e);
+				LOGGER.fatal("class " + _nameOfStmtGraphFactoryClass + " could not be loaded/resolved. Bailing.", _e);
 				throw new RuntimeException(_e);
 			} catch (final InstantiationException _e) {
-				LOGGER.fatal("An instance of class " + stmtGraphFactoryClassName + " could not be created. Bailing.", _e);
+				LOGGER.fatal("An instance of class " + _nameOfStmtGraphFactoryClass + " could not be created. Bailing.", _e);
 				throw new RuntimeException(_e);
 			} catch (final IllegalAccessException _e) {
-				LOGGER.fatal("No-arg constructor of " + stmtGraphFactoryClassName + " cannot be accessed.  Bailing.", _e);
+				LOGGER.fatal("No-arg constructor of " + _nameOfStmtGraphFactoryClass + " cannot be accessed.  Bailing.", _e);
 				throw new RuntimeException(_e);
 			}
 		}
@@ -236,12 +237,12 @@ public class SootBasedDriver {
 		/**
 		 * The regular expression that is used to match classes which may contain root methods.
 		 */
-		private Pattern rootClasses;
+		private Pattern rootClassNamePattern;
 
 		/**
 		 * The regular expression that is used to match methods which should be root methods.
 		 */
-		private Pattern rootMethods;
+		private Pattern rootMethodNamePattern;
 
 		/**
 		 * Creates a new RootMethodTrapper object.
@@ -250,22 +251,35 @@ public class SootBasedDriver {
 			final String _theRootClasses = System.getProperty("indus.common.soot.SootBasedDriver.rootClasses");
 
 			if (_theRootClasses != null) {
-				rootClasses = Pattern.compile(_theRootClasses);
+				rootClassNamePattern = Pattern.compile(_theRootClasses);
 			} else {
-				rootClasses = null;
+				rootClassNamePattern = null;
 			}
 
 			final String _theRootMethods = System.getProperty("indus.common.soot.SootBasedDriver.rootMethods");
 
 			if (_theRootMethods != null) {
-				rootMethods = Pattern.compile(_theRootMethods);
+				rootMethodNamePattern = Pattern.compile(_theRootMethods);
 			} else {
-				rootMethods = null;
+				rootMethodNamePattern = null;
 			}
 		}
 
 		/**
-		 * Checks if the given class can contribute root methods.
+		 * Set the names of the root classes.  Root classes are those that may contain root methods.
+		 *
+		 * @param classNames is names of application / root classes.
+		 *
+		 * @pre classNames != null and classNames.oclIsKindOf(Collection(SootClass))
+		 */
+		protected void setClassNames(final Collection classNames) {
+			theClassNames = classNames;
+		}
+
+		/**
+		 * Checks if the given class can contribute root methods.  This implementation considers the given class as root
+		 * class ff its name matches the pattern provided to identify the root class.  If the pattern is unspecified then
+		 * the class is considered as root if it had been specified to be loaded.
 		 *
 		 * @param sc is the class to check.
 		 *
@@ -277,18 +291,20 @@ public class SootBasedDriver {
 		protected boolean considerClassForEntryPoint(final SootClass sc) {
 			boolean _result = false;
 
-			if (rootClasses != null) {
-				_result = rootClasses.matcher(sc.getName()).matches();
-			}
-
-			if (!_result && theClassNames != null) {
+			if (rootClassNamePattern != null) {
+				_result = rootClassNamePattern.matcher(sc.getName()).matches();
+			} else if (theClassNames != null) {
 				_result = theClassNames.contains(sc.getName());
 			}
+
 			return _result;
 		}
 
 		/**
-		 * Checks if the given method qualifies as a root/entry method in the given system.
+		 * Checks if the given method qualifies as a root/entry method in the given system. This implementation considers the
+		 * given method as root  method if its name matches the pattern provided to identify the root method.  If the
+		 * pattern is unspecified then the given method is considered if its signature is <code>public static void
+		 * main(String[])</code>.
 		 *
 		 * @param sm is the method that may be an entry point into the system.
 		 *
@@ -300,8 +316,8 @@ public class SootBasedDriver {
 		protected boolean trapRootMethods(final SootMethod sm) {
 			boolean _result = false;
 
-			if (rootMethods != null) {
-				_result = rootMethods.matcher(sm.getSignature()).matches();
+			if (rootMethodNamePattern != null) {
+				_result = rootMethodNamePattern.matcher(sm.getSignature()).matches();
 			} else if (sm.getName().equals("main")
 				  && sm.isStatic()
 				  && sm.getParameterCount() == 1
@@ -512,8 +528,8 @@ public class SootBasedDriver {
 
 		if (_rmt == null) {
 			_rmt = DEFAULT_INSTANCE_OF_ROOT_METHOD_TRAPPER;
-			_rmt.theClassNames = Collections.unmodifiableCollection(classNames);
 		}
+		_rmt.setClassNames(Collections.unmodifiableCollection(classNames));
 
 		for (final Iterator _i = _mc.iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
@@ -538,12 +554,13 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/06/15 10:06:22  venku
+   - coding conventions.
    Revision 1.27  2004/06/14 08:39:29  venku
    - added a property to SootBasedDriver to control the type of statement graph
      factory to be used.
    - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
    - ripple effect.
-
    Revision 1.26  2004/05/31 21:38:12  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
