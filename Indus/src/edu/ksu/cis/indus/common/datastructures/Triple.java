@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -14,6 +14,9 @@
  */
 
 package edu.ksu.cis.indus.common.datastructures;
+
+import java.util.Comparator;
+
 
 /**
  * This class represents a triplet of objects.  The hashcode/stringized rep. of this object is derived from it's
@@ -39,27 +42,27 @@ package edu.ksu.cis.indus.common.datastructures;
  * @version $Revision$
  */
 public class Triple {
-	/**
+	/** 
 	 * The first object in this triple.
 	 */
 	protected Object first;
 
-	/**
+	/** 
 	 * The second object in this triple.
 	 */
 	protected Object second;
 
-	/**
+	/** 
 	 * The third object in this triple.
 	 */
 	protected Object third;
 
-	/**
+	/** 
 	 * A cached copy of the stringized representation of this object.
 	 */
 	private String str;
 
-	/**
+	/** 
 	 * A cached copy of the hash code of this object.
 	 */
 	private int hashCode;
@@ -77,6 +80,23 @@ public class Triple {
 		this.first = firstParam;
 		this.second = secondParam;
 		this.third = thirdParam;
+	}
+
+	/**
+	 * This compares two triples based on their stringized form.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public static final class TripleComparator
+	  implements Comparator {
+		/**
+		 * @see Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		public int compare(final Object o1, final Object o2) {
+			return o1.toString().compareTo(o2.toString());
+		}
 	}
 
 	/**
@@ -237,6 +257,8 @@ public class Triple {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/28 00:17:32  venku
+   - documentation.
    Revision 1.2  2004/01/25 15:39:20  venku
    - when the elements were null, a NPE could occur. FIXED.
    Revision 1.1  2004/01/06 00:17:10  venku
@@ -280,12 +302,12 @@ public class Triple {
    Formatted code.
    Revision 1.3  2003/08/11 07:13:58  venku
  *** empty log message ***
-                 Revision 1.2  2003/08/11 04:20:19  venku
-                 - Pair and Triple were changed to work in optimized and unoptimized mode.
-                 - Ripple effect of the previous change.
-                 - Documentation and specification of other classes.
-                 Revision 1.1  2003/08/07 06:42:16  venku
-                 Major:
-                  - Moved the package under indus umbrella.
-                  - Renamed isEmpty() to hasWork() in IWorkBag.
+                     Revision 1.2  2003/08/11 04:20:19  venku
+                     - Pair and Triple were changed to work in optimized and unoptimized mode.
+                     - Ripple effect of the previous change.
+                     - Documentation and specification of other classes.
+                     Revision 1.1  2003/08/07 06:42:16  venku
+                     Major:
+                      - Moved the package under indus umbrella.
+                      - Renamed isEmpty() to hasWork() in IWorkBag.
  */
