@@ -18,8 +18,17 @@
         <pathelement path="../JavaSlicer"/>
     </path>
 
+    <property name="cvs.modules" value="Indus StaticAnalyses"/>
+    <property name="cvs.root" value=":ext:venku@vulcan.isa-geek.net:/home/cvs"/>
+
+
     <target name="init">
         <tstamp/>
+        <cvs cvsroot="${cvs.root}"
+            compression="true" compressionlevel="3"
+            package="${cvs.modules}"
+            dest=".." failonerror="true"
+            command="update -dP"/>
     </target>
 
     <target name="dist" depends="init, cleanAll, buildAllCode, buildAllDoc">
