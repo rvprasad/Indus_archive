@@ -5,18 +5,26 @@
     <property name="package" value="edu.ksu.cis.indus"/>
     <property name="ant.project.name" value="indus"/>
 
-    <path id="srcpath">
-	    <pathelement location="src"/>
+    <path id="indus.srcpath">
+        <pathelement location="src"/>
    	    <pathelement location="src-xml"/>
-   	    <path refid="staticanalyses.srcpath"/>
+    </path>
+
+    <path id="srcpath">
+        <path refid="indus.srcpath"/>
+	    <path refid="staticanalyses.srcpath"/>
    	    <path refid="javaslicer.srcpath"/>
     </path>
 
-    <path id="classpath">
+    <path id="indus.classpath">
         <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
-        <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>
+        <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>    
+    </path>
+
+    <path id="classpath">
+        <path refid="indus.classpath"/>
         <path refid="javaslicer.classpath"/>
         <path refid="staticanalyses.classpath"/>
     </path>
