@@ -127,6 +127,8 @@ public class SlicerConfiguration
 	 * original program.
 	 */
 	protected boolean sliceForDeadlock = false;
+    
+    protected boolean executableSlice = true;
 
 	/**
 	 * The collection of ids of the dependences to be considered for slicing.
@@ -501,6 +503,13 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/10/20 13:55:25  venku
+   - Added a factory to create new configurations.
+   - Simplified AbstractToolConfigurator methods.
+   - The driver manages the shell.
+   - Got all the gui parts running EXCEPT for changing
+     the name of the configuration.
+
    Revision 1.10  2003/10/19 20:04:05  venku
    - class needs to be public for the purpose of
      marshalling and unmarshalling.  FIXED.

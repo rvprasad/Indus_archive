@@ -28,6 +28,16 @@ import edu.ksu.cis.indus.transformations.common.ITransformer;
 public interface ISlicingBasedTransformer
   extends ITransformer {
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param theSliceType DOCUMENT ME!
+	 * @param executableSlice DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	boolean handleSliceType(Object theSliceType, boolean executableSlice);
+
+	/**
 	 * Checks if the transformer can handle partial inclusions.  Note that one may want to slice based on an expression in a
 	 * statement.  If the transformation generates marking the existing program, then only the expression can be marked.
 	 * However, in case the transformation generates a new program then depending on the target language semantics, only
@@ -42,10 +52,11 @@ public interface ISlicingBasedTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/10/13 00:58:04  venku
+ *** empty log message ***
    Revision 1.2  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.1  2003/09/15 07:52:08  venku
    - added a new transformer interface specifically targetted for slicing.
    - implemented the above interface.

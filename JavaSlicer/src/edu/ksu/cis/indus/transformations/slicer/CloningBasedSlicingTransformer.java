@@ -41,9 +41,9 @@ import soot.jimple.toolkits.scalar.NopEliminator;
 
 import soot.util.Chain;
 
-import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
+import edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer;
+import edu.ksu.cis.indus.slicer.SlicingEngine;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
-import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 import edu.ksu.cis.indus.transformations.common.Cloner;
 
 import java.util.Collection;
@@ -68,8 +68,7 @@ import java.util.Set;
  * @version $Revision$
  */
 public class CloningBasedSlicingTransformer
-  extends AbstractTransformer
-  implements ISlicingBasedTransformer {
+  extends AbstractSlicingBasedTransformer {
 	/**
 	 * The system resulting from the transformation.
 	 */
@@ -103,6 +102,13 @@ public class CloningBasedSlicingTransformer
 	 * @invariant unslicedMethod2stmtMap != null
 	 */
 	private Map unslicedMethod2stmtMap = new HashMap();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Object sliceType;
 
 	/**
 	 * Set up the transformer
@@ -206,6 +212,9 @@ public class CloningBasedSlicingTransformer
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
 	public void completeTransformation() {
+		if (sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+			fixupReturnStmts();
+		}
 		fixupMethods();
 
 		for (Iterator i = unslicedMethod2stmtMap.keySet().iterator(); i.hasNext();) {
@@ -312,6 +321,26 @@ public class CloningBasedSlicingTransformer
 				nopTranformation.transform(slicedBody);
 			}
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * This implementation can only handle executable slices of type <code>SlicingEngine.BACKWARD_SLICE</code> and
+	 * <code>SlicingEngine.COMPLETE_SLICE</code>. Hence, it will <code>true</code> only in these cases and
+	 * <code>false</code> in all other cases.
+	 * </p>
+	 */
+	public boolean handleSliceType(final Object theSliceType, final boolean executableSlice) {
+		boolean result =
+			(theSliceType.equals(SlicingEngine.BACKWARD_SLICE) || theSliceType.equals(SlicingEngine.COMPLETE_SLICE))
+			  && executableSlice;
+
+		if (result) {
+			sliceType = theSliceType;
+		}
+		return result;
 	}
 
 	/**
@@ -488,6 +517,9 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/10/21 05:22:57  venku
+   - moved transformations that were inherent to
+     cloning based approach to this class from SlicingEngine.
    Revision 1.24  2003/10/13 00:59:57  venku
    - Split transformations.slicer into 2 packages
       - transformations.slicer

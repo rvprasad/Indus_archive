@@ -411,7 +411,7 @@ public final class SlicerTool
 			}
 			transformer.initialize(system);
 			engine.setSliceCriteria(criteria, daController, callGraph, transformer, slicerConfig.getNamesOfDAsToUse());
-			engine.slice(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
+			engine.slice(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE), slicerConfig.executableSlice);
 		}
 		phase.finished();
 	}
@@ -480,6 +480,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/10/20 13:55:25  venku
+   - Added a factory to create new configurations.
+   - Simplified AbstractToolConfigurator methods.
+   - The driver manages the shell.
+   - Got all the gui parts running EXCEPT for changing
+     the name of the configuration.
+
    Revision 1.12  2003/10/19 20:04:42  venku
    - configuration should be (un)marshalled not the tool. FIXED.
    Revision 1.11  2003/10/13 01:01:45  venku

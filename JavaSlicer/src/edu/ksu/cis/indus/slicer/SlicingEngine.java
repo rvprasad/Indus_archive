@@ -17,11 +17,7 @@ package edu.ksu.cis.indus.slicer;
 
 import soot.Body;
 import soot.Local;
-import soot.RefType;
-import soot.SootClass;
 import soot.SootMethod;
-import soot.Trap;
-import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
 
@@ -29,20 +25,10 @@ import soot.jimple.ArrayRef;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
-import soot.jimple.GotoStmt;
-import soot.jimple.IfStmt;
 import soot.jimple.InvokeExpr;
-import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
-import soot.jimple.LookupSwitchStmt;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
-import soot.jimple.TableSwitchStmt;
-import soot.jimple.ThrowStmt;
-
-import soot.jimple.toolkits.scalar.NopEliminator;
-
-import soot.util.Chain;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.Context;
@@ -53,7 +39,6 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
 
 import org.apache.commons.logging.Log;
@@ -63,8 +48,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
-
 
 /**
  * This class accepts slice criterions and generates slices of the given system.
@@ -113,6 +96,11 @@ public class SlicingEngine {
 	public static final Object COMPLETE_SLICE = "COMPLETE_SLICE";
 
 	/**
+	 * Forward slice request.
+	 */
+	public static final Object FORWARD_SLICE = "FORWARD_SLICE";
+
+	/**
 	 * This just a convenience collection of the types of slices supported by this class.
 	 *
 	 * @invariant sliceTypes.contains(FORWARD_SLICE) and sliceTypes.contains(BACKWARD_SLICE) and sliceTypes.contains
@@ -122,6 +110,7 @@ public class SlicingEngine {
 
 	static {
 		SLICE_TYPES.add(BACKWARD_SLICE);
+		SLICE_TYPES.add(FORWARD_SLICE);
 		SLICE_TYPES.add(COMPLETE_SLICE);
 	}
 
@@ -255,13 +244,15 @@ public class SlicingEngine {
 	 *
 	 * @param theSliceType is the type of slice requested.  This has to be one of<code>XXX_SLICE</code> values defined in
 	 * 		  this class.
+     * @param executableSlice is <code>true</code> if executable slice is requested; <code>false</code>, otherwise.
 	 *
-	 * @throws IllegalStateException when slice criteria, class manager, or controller is unspecified.
+	 * @throws IllegalStateException when slice criteria, class manager, or controller is unspecified. It is also thrown when
+     * the given slice type cannot be handled by the configured transformer.
 	 * @throws IllegalArgumentException when direction is not one of the <code>XXX_SLICE</code> values.
 	 *
 	 * @pre theSliceType != null
 	 */
-	public void slice(final Object theSliceType) {
+	public void slice(final Object theSliceType, final boolean executableSlice) {
 		if (criteria == null || criteria.size() == 0) {
 			LOGGER.warn("Slice criteria is unspecified.");
 			throw new IllegalStateException("Slice criteria is unspecified.");
@@ -271,8 +262,11 @@ public class SlicingEngine {
 		}
 
 		if (!SLICE_TYPES.contains(theSliceType)) {
-			throw new IllegalArgumentException("sliceType is not one of XXX_SLICE values defined in this class.");
+			throw new IllegalArgumentException("The given slice type is not one of XXX_SLICE values defined in this class.");
 		}
+        if (!transformer.handleSliceType(theSliceType, executableSlice))
+            throw new IllegalStateException("The given slice type cannot be handled by the configured transformer. Change the " +
+                    "slice type or provide a suitable transformer.");
 		sliceType = theSliceType;
 
 		workbag.addAllWorkNoDuplicates(criteria);
@@ -293,35 +287,7 @@ public class SlicingEngine {
 			}
 			work.sliced();
 		}
-		fixupMethods();
 		transformer.completeTransformation();
-	}
-
-	/**
-	 * Retrieves the sliced statement corresponding to the given unsliced statement.
-	 *
-	 * @param unslicedStmt for which the corresponding sliced statement is requested.
-	 * @param unslicedMethod in which <code>unslicedStmt</code> occurs.
-	 *
-	 * @return the sliced statement corresponding to the given unsliced statement
-	 *
-	 * @pre unslicedStmt != null and unslicedMethod != null
-	 * @post result != null
-	 */
-	private Stmt getSlicedStmt(final Stmt unslicedStmt, final SootMethod unslicedMethod) {
-		Stmt result = null;
-		SootMethod slicedMethod = transformer.getTransformed(unslicedMethod);
-		Iterator j = slicedMethod.getActiveBody().getUnits().iterator();
-
-		for (Iterator i = unslicedMethod.getActiveBody().getUnits().iterator(); i.hasNext();) {
-			Stmt stmt = (Stmt) i.next();
-			result = (Stmt) j.next();
-
-			if (stmt.equals(unslicedStmt)) {
-				break;
-			}
-		}
-		return result;
 	}
 
 	/*
@@ -375,89 +341,6 @@ public class SlicingEngine {
 	 */
 
 	/**
-	 * Fixes up the sliced methods.  This includes adjusting the targets of gotos and traps.  This also involves pruning the
-	 * exception list at the method interfaces and removing any unwanted or unnecessary statements such as <code>nop</code>.
-	 */
-	private void fixupMethods() {
-		NopEliminator nopTranformation = NopEliminator.v();
-
-		for (Iterator i = transformer.getTransformedClasses().iterator(); i.hasNext();) {
-			SootClass slicedClass = (SootClass) i.next();
-			SootClass unslicedClass = transformer.getUntransformed(slicedClass);
-
-			for (Iterator j = slicedClass.getMethods().iterator(); j.hasNext();) {
-				SootMethod slicedMethod = (SootMethod) j.next();
-				SootMethod unslicedMethod =
-					unslicedClass.getMethod(slicedMethod.getName(), slicedMethod.getParameterTypes(),
-						slicedMethod.getReturnType());
-				Body unslicedBody = unslicedMethod.getActiveBody();
-				Body slicedBody = slicedMethod.getActiveBody();
-
-				//fixup traps
-				Chain slicedTraps = slicedBody.getTraps();
-
-				for (Iterator k = unslicedBody.getTraps().iterator(); k.hasNext();) {
-					Trap unslicedTrap = (Trap) k.next();
-					Unit unslicedBeginTrap = unslicedTrap.getBeginUnit();
-					Unit slicedBeginTrap = (Unit) transformer.getTransformed((Stmt) unslicedBeginTrap, unslicedMethod);
-					Unit unslicedEndTrap = unslicedTrap.getEndUnit();
-					Unit slicedEndTrap = (Unit) transformer.getTransformed((Stmt) unslicedEndTrap, unslicedMethod);
-					Unit unslicedHandler = unslicedTrap.getHandlerUnit();
-					Unit slicedHandler = (Unit) transformer.getTransformed((Stmt) unslicedHandler, unslicedMethod);
-					slicedTraps.add(jimple.newTrap(transformer.getTransformed(unslicedTrap.getException()), slicedBeginTrap,
-							slicedEndTrap, slicedHandler));
-				}
-
-				/*
-				 * fixing up the gotos.  We will just copy the control flow from the sliced method and use post slicing
-				 * transformation to prune the code.
-				 */
-				for (Iterator k = unslicedBody.getUnits().iterator(); k.hasNext();) {
-					Stmt unslicedStmt = (Stmt) k.next();
-
-					if (unslicedStmt.branches()) {
-						if (unslicedStmt instanceof GotoStmt) {
-							GotoStmt slicedStmt = (GotoStmt) transformer.getTransformed(unslicedStmt, unslicedMethod);
-							slicedStmt.setTarget(getSlicedStmt((Stmt) slicedStmt.getTarget(), unslicedMethod));
-						} else if (unslicedStmt instanceof IfStmt) {
-							IfStmt slicedStmt = (IfStmt) transformer.getTransformed(unslicedStmt, unslicedMethod);
-							slicedStmt.setTarget(getSlicedStmt(slicedStmt.getTarget(), unslicedMethod));
-						} else if (unslicedStmt instanceof LookupSwitchStmt) {
-							LookupSwitchStmt slicedStmt =
-								(LookupSwitchStmt) transformer.getTransformed(unslicedStmt, unslicedMethod);
-
-							for (int index = 0; index < slicedStmt.getTargetCount(); index++) {
-								Stmt target = (Stmt) slicedStmt.getTarget(index);
-								slicedStmt.setTarget(index, getSlicedStmt(target, unslicedMethod));
-							}
-
-							Stmt target = (Stmt) slicedStmt.getDefaultTarget();
-							slicedStmt.setDefaultTarget(getSlicedStmt(target, unslicedMethod));
-						} else if (unslicedStmt instanceof TableSwitchStmt) {
-							TableSwitchStmt slicedStmt =
-								(TableSwitchStmt) transformer.getTransformed(unslicedStmt, unslicedMethod);
-
-							for (int index = 0; index < slicedStmt.getHighIndex() - slicedStmt.getLowIndex(); index++) {
-								Stmt target = (Stmt) slicedStmt.getTarget(index);
-								slicedStmt.setTarget(index, getSlicedStmt(target, unslicedMethod));
-							}
-
-							Stmt target = (Stmt) slicedStmt.getDefaultTarget();
-							slicedStmt.setDefaultTarget(getSlicedStmt(target, unslicedMethod));
-						}
-					}
-				}
-
-				//fixup exception list
-				pruneExceptionsAtMethodInterface(slicedMethod, slicedBody.getUnits());
-
-				//This will remove unnecessary nop statements, hence, fixing the gotos.
-				nopTranformation.transform(slicedBody);
-			}
-		}
-	}
-
-	/**
 	 * This is a helper method used for generating slice criteria based on interprocedural dependence expressions.
 	 *
 	 * @param slices is a collection of statement and method pairs.
@@ -477,47 +360,6 @@ public class SlicingEngine {
 				SliceStmt sliceCriterion = SliceStmt.getSliceStmt();
 				sliceCriterion.initialize(unslicedMethod, unslicedStmt, true);
 				workbag.addWorkNoDuplicates(sliceCriterion);
-			}
-		}
-	}
-
-	/**
-	 * Prunes the list of exception declared as being thrown at the interface of the given method based on the statements in
-	 * the method.
-	 *
-	 * @param sm is the method whose interface should be pruned.
-	 * @param sl is the statement list of the method.
-	 *
-	 * @pre sm != null and sl != null
-	 */
-	private void pruneExceptionsAtMethodInterface(final SootMethod sm, final Chain sl) {
-		Set thrownInBody = new HashSet();
-		Collection thrownAtInterface = sm.getExceptions();
-
-		for (Iterator i = sl.iterator(); i.hasNext();) {
-			Stmt stmt = (Stmt) i.next();
-
-			if (stmt instanceof ThrowStmt) {
-				thrownInBody.add(transformer.getTransformedSootClass(
-						((RefType) ((ThrowStmt) stmt).getOp().getType()).getClassName()));
-			} else {
-				if (stmt instanceof InvokeStmt) {
-					thrownInBody.addAll(stmt.getInvokeExpr().getMethod().getExceptions());
-				} else if (stmt instanceof ThrowStmt) {
-					SootClass exception = ((RefType) ((ThrowStmt) stmt).getOp().getType()).getSootClass();
-
-					if (!Util.isDescendentOf(exception, "java.lang.RuntimException")) {
-						thrownInBody.add(exception);
-					}
-				}
-			}
-		}
-
-		for (Iterator i = thrownAtInterface.iterator(); i.hasNext();) {
-			SootClass exception = (SootClass) i.next();
-
-			if (!thrownInBody.contains(exception)) {
-				sm.removeException(exception);
 			}
 		}
 	}
@@ -784,11 +626,12 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/10/13 00:58:03  venku
+ *** empty log message ***
    Revision 1.16  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
      these unit graphs.
-
    Revision 1.15  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.

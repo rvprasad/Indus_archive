@@ -26,8 +26,8 @@ import soot.jimple.Stmt;
 
 import soot.tagkit.StringTag;
 
-import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
-import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
+import edu.ksu.cis.indus.slicer.AbstractSlicingBasedTransformer;
+import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,8 +52,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public class TagBasedSlicingTransformer
-  extends AbstractTransformer
-  implements ISlicingBasedTransformer {
+  extends AbstractSlicingBasedTransformer {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
@@ -74,6 +73,11 @@ public class TagBasedSlicingTransformer
 	 */
 	private final Map method2locals = new HashMap();
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private Object sliceType;
+
 	/**
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
@@ -83,6 +87,11 @@ public class TagBasedSlicingTransformer
 	 * The tag to be used during transformation.
 	 */
 	private StringTag tag;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private boolean executable;
 
 	/**
 	 * Set the tag name to be used.
@@ -204,6 +213,21 @@ public class TagBasedSlicingTransformer
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#completeTransformation()
 	 */
 	public void completeTransformation() {
+		if (executable && sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+			fixupReturnStmts();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}  This implementation can handle all slice types defined in <code>SlicingEngine</code> be it executable
+	 * or non-executable.
+	 *
+	 * @see edu.ksu.cis.indus.slicer.ISlicingBasedTransformer#canHandleSliceType(java.lang.Object, boolean)
+	 */
+	public boolean handleSliceType(final Object theSliceType, final boolean executableSlice) {
+		sliceType = theSliceType;
+		executable = executableSlice;
+		return true;
 	}
 
 	/**
@@ -280,10 +304,14 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/10/13 01:00:09  venku
+   - Split transformations.slicer into 2 packages
+      - transformations.slicer
+      - slicer
+   - Ripple effect of the above changes.
    Revision 1.8  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.7  2003/09/27 01:27:46  venku
    - documentation.
    Revision 1.6  2003/09/26 15:08:35  venku

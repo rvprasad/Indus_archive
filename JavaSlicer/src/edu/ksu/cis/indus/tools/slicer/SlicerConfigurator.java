@@ -113,7 +113,10 @@ public final class SlicerConfigurator
 		final Button BW_SLICE = new Button(group, SWT.RADIO);
 		BW_SLICE.setText("Backward slice");
 
-		final Button CMPLT_SLICE = new Button(group, SWT.RADIO);
+        final Button FW_SLICE = new Button(group, SWT.RADIO);
+        FW_SLICE.setText("Forward slice");
+        
+        final Button CMPLT_SLICE = new Button(group, SWT.RADIO);
 		CMPLT_SLICE.setText("Complete slice");
 
 		SelectionListener sl =
@@ -125,7 +128,9 @@ public final class SlicerConfigurator
 						value = SlicingEngine.BACKWARD_SLICE;
 					} else if (evt.widget == CMPLT_SLICE) {
 						value = SlicingEngine.COMPLETE_SLICE;
-					}
+					}else if (evt.widget == FW_SLICE) {
+                        value = SlicingEngine.FORWARD_SLICE;
+                    }                    
 
 					if (value != null) {
 						SLICER_CONFIG.setProperty(SlicerConfiguration.SLICE_TYPE, value);
@@ -276,6 +281,13 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/10/20 13:55:25  venku
+   - Added a factory to create new configurations.
+   - Simplified AbstractToolConfigurator methods.
+   - The driver manages the shell.
+   - Got all the gui parts running EXCEPT for changing
+     the name of the configuration.
+
    Revision 1.11  2003/10/14 05:36:12  venku
    - implemented checkConfiguration().
    Revision 1.10  2003/10/14 02:58:21  venku
