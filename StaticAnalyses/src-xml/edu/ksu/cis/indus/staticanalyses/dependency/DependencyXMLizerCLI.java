@@ -142,6 +142,7 @@ public class DependencyXMLizerCLI
 		final DivergenceDA _ipdda = new DivergenceDA();
 		_ipdda.setConsiderCallSites(true);
 
+		final EntryControlDA _ncda = new EntryControlDA();
 		final Object[][] _dasOptions =
 			{
 				{ "a", "ibdda", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
@@ -156,7 +157,7 @@ public class DependencyXMLizerCLI
 				{ "m", "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "n", "ida3", "Interference dependence v3", new InterferenceDAv3() },
 				{ "q", "dda", "Divergence dependence", new DivergenceDA() },
-				{ "r", "incda", "Indirect Entry control dependence", new EntryControlDA() },
+				{ "r", "incda", "Indirect Entry control dependence", _ncda },
 				{ "s", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
 				{ "t", "ipdda", "Interprocedural Divergence dependence", _ipdda },
 			};
@@ -219,6 +220,10 @@ public class DependencyXMLizerCLI
 					_cli.das.add(_dasOptions[_i][3]);
 					_flag = false;
 				}
+			}
+
+			if (_cl.hasOption(_dasOptions[12][0].toString())) {
+				_cli.info.put(IDependencyAnalysis.CONTROL_DA, _ncda);
 			}
 
 			if (_flag) {
@@ -374,6 +379,8 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/07/04 11:00:50  venku
+   - added cli option for interprocedural divergence dependence.
    Revision 1.19  2004/06/23 06:17:25  venku
    - removed -c option.
    Revision 1.18  2004/06/23 04:41:28  venku
@@ -589,6 +596,8 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/07/04 11:00:50  venku
+   - added cli option for interprocedural divergence dependence.
    Revision 1.19  2004/06/23 06:17:25  venku
    - removed -c option.
    Revision 1.18  2004/06/23 04:41:28  venku
