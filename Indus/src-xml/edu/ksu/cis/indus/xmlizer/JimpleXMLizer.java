@@ -169,7 +169,7 @@ public class JimpleXMLizer
 			writer.attribute("abstract", String.valueOf(method.isAbstract()));
 			writer.attribute("static", String.valueOf(method.isStatic()));
 			writer.attribute("native", String.valueOf(method.isNative()));
-			writer.attribute("synchronize", String.valueOf(method.isSynchronized()));
+			writer.attribute("synchronized", String.valueOf(method.isSynchronized()));
 
 			writer.attribute("accessSpec", getAccessSpecifier(method.getModifiers()));
 
@@ -431,6 +431,10 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/05/13 01:14:21  venku
+   - added declaration and dtd content to all xml documents.
+   - removed redundant value element, the child of string constant.
+
    Revision 1.38  2004/05/09 09:59:25  venku
    - logical error. FIXED.
 
