@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 import edu.ksu.cis.indus.common.soot.TrapUnitGraphFactory;
-import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.common.structures.Pair;
 import edu.ksu.cis.indus.common.structures.Triple;
 
@@ -667,6 +666,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.51  2003/12/31 10:31:19  venku
+   - slicer should just slice, not fix the system. FIXED.
+
    Revision 1.50  2003/12/16 12:44:12  venku
    - exposed the flow analysis tag name.
 

@@ -40,8 +40,10 @@ public class SimpleNodeGraphTest
 	protected final Map name2node = new HashMap();
 
 	/**
-	 * The reference to a simple node graph used for testing.  This should be the same as dg, so set this via <code>setSNG</code>.
-     * @invariant dg = sng
+	 * The reference to a simple node graph used for testing.  This should be the same as dg, so set this via
+	 * <code>setSNG</code>.
+	 *
+	 * @invariant dg = sng
 	 */
 	protected SimpleNodeGraph sng;
 
@@ -83,6 +85,19 @@ public class SimpleNodeGraphTest
 	}
 
 	/**
+	 * Set the graph to be tested.
+	 *
+	 * @param graph is the graph to be tested.
+	 *
+	 * @pre graph != null
+	 * @post sng = graph and dg = graph
+	 */
+	protected void setSNG(final SimpleNodeGraph graph) {
+		sng = graph;
+		dg = sng;
+	}
+
+	/**
 	 * We construct the graph given in the book "Introduction to Algorithms" on page 553.
 	 *
 	 * @see TestCase#setUp()
@@ -118,18 +133,6 @@ public class SimpleNodeGraphTest
 	}
 
 	/**
-     * Set the graph to be tested.
-     * 
-     * @param _sng is the graph to be tested.
-     * @pre _sng != null
-     * @post sng = _sng and dg = _sng
-     */
-    protected void setSNG(final SimpleNodeGraph _sng) {
-        sng = _sng;
-        dg = _sng;        
-    }
-
-    /**
 	 * @see AbstractDirectedGraphTest#localtestAddEdgeFromTo
 	 */
 	protected void localtestAddEdgeFromTo() {
@@ -236,11 +239,13 @@ public class SimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/31 10:43:08  venku
+   - size() was unused in IDirectedGraph, hence, removed it.
+     Ripple effect.
    Revision 1.2  2003/12/30 10:04:24  venku
    - sng in SimpleNodeGraphTest should track dg or the otherway
      round to make the hierarchy of test work.  This has
      been fixed by adding setSNG().
-
    Revision 1.1  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
       - AbstractDirectedGraphTest
@@ -250,5 +255,4 @@ public class SimpleNodeGraphTest
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
      DirectedGraphTestSuite.
    - added checks to test exceptional behavior as well.
-
  */
