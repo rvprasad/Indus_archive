@@ -22,6 +22,7 @@ package edu.ksu.cis.indus.toolkits.sliceeclipse.execute;
 
 import edu.ksu.cis.indus.toolkits.eclipse.SootConvertor;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.IndusException;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
 
@@ -156,7 +157,8 @@ public class BackwardSlice
 					try {
 						final ProgressMonitorDialog _dialog = new ProgressMonitorDialog(_shell);
 						_dialog.run(true, false, _runner);
-					} catch (InvocationTargetException _ie) {
+					} 					  
+					  catch (InvocationTargetException _ie) {
 						SECommons.handleException(_ie);
 					} catch (InterruptedException _ie) {
 						SECommons.handleException(_ie);
@@ -166,5 +168,8 @@ public class BackwardSlice
 		} catch (JavaModelException _jme) {
 			SECommons.handleException(_jme);
 		}
+		catch (IndusException _ie) {
+		  	SECommons.handleException(_ie);
+		  }
 	}
 }

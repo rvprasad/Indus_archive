@@ -22,9 +22,9 @@ package edu.ksu.cis.indus.toolkits.sliceeclipse.execute;
 
 import edu.ksu.cis.indus.toolkits.eclipse.SootConvertor;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.IndusException;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.preferencedata.Criteria;
-
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -62,7 +62,7 @@ import org.eclipse.ui.IFileEditorInput;
 /**
  * Runs a forward slice on the chosen Java statement.
  *
- * @author Ganeshan 
+ * @author Ganeshan
  */
 public class ForwardSlice
   implements IEditorActionDelegate {
@@ -83,7 +83,7 @@ public class ForwardSlice
 	 * 		org.eclipse.ui.IEditorPart)
 	 */
 	public void setActiveEditor(final IAction action, final IEditorPart targetEditor) {
-		editor = (CompilationUnitEditor) targetEditor;		
+		editor = (CompilationUnitEditor) targetEditor;
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class ForwardSlice
 					_c.setNLineNo(_nSelLine);
 					_c.setNJimpleIndex(_noStmts - 1);
 					_c.setBConsiderValue(true);
-					
+
 					final String _configuration =
 						SliceEclipsePlugin.getDefault().getPreferenceStore().getString("forwardConfiguration");
 					SliceEclipsePlugin.getDefault().getIndusConfiguration().reset();
@@ -162,11 +162,14 @@ public class ForwardSlice
 					} catch (InvocationTargetException _ie) {
 						SECommons.handleException(_ie);
 					} catch (InterruptedException _ie) {
-						SECommons.handleException(_ie);					}
+						SECommons.handleException(_ie);
+					}
 				}
 			}
 		} catch (JavaModelException _jme) {
 			SECommons.handleException(_jme);
+		} catch (IndusException _ie) {
+			SECommons.handleException(_ie);
 		}
 	}
 }

@@ -468,9 +468,7 @@ public class EclipseIndusDriver
 	 * @return int The line number coressponding to the method.
 	 */
 	private int getLineNumberFromMethod(final SootMethod method) {
-		int _nLine = -1;
-
-		
+		int _nLine = -1;		
 
 		final NamedTag _sTag = (NamedTag) method.getTag(nameOfSliceTag);
 

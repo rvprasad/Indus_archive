@@ -19,6 +19,7 @@
 package edu.ksu.cis.indus.toolkits.eclipse;
 
 import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.toolkits.sliceeclipse.common.IndusException;
 import edu.ksu.cis.indus.toolkits.sliceeclipse.common.SECommons;
 
 
@@ -73,11 +74,18 @@ public final class SootConvertor {
 	 * @param themethod The JDT method
 	 * @param theline The chosen line
 	 * @return ArrayList The list of SootClass, SootMethod, list of Jimple Stmts
+	 * @throws IndusException Throws IndusException on null parameters
 	 */
 	public static ArrayList getStmtForLine(final IFile thefile,
-			final IType theclass, final IMethod themethod, final int theline) {
+			final IType theclass, final IMethod themethod, final int theline)
+	throws IndusException {
 		ArrayList _stmtlist = null;
-		String _sootClassPath = ""; 
+		String _sootClassPath = "";
+		if (SECommons.checkForNull(thefile)
+				 || SECommons.checkForNull(theclass)
+				 || SECommons.checkForNull(themethod)) {
+			throw new IndusException("getStmtForLine expects non-null arguments");
+		}
 		//G.reset();
 		IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
 				.getString("SootConvertor.1")); //$NON-NLS-1$
