@@ -442,7 +442,7 @@ public final class SlicingEngine {
 			((IPoolable) _work).returnToPool();
 		}
 
-		collector.completeTransformation();
+		collector.completeSlicing();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Required methods: " + required);
@@ -501,7 +501,7 @@ public final class SlicingEngine {
 			result = true;
 		} else {
 			if (invoked.contains(callee)) {
-				result = marked(caller) && collector.isTransformed(stmt.getInvokeExprBox());
+				result = marked(caller) && collector.hasBeenCollected(stmt.getInvokeExprBox());
 			} else {
 				throw new RuntimeException("How can this happen?" + callee + " was unmarked but was being processed.");
 			}
@@ -630,7 +630,7 @@ public final class SlicingEngine {
 			final SootMethod _sm = (SootMethod) _i.next();
 			final SootClass _sc = _sm.getDeclaringClass();
 
-			if (_sc.declaresMethodByName("<clinit>") && !collector.isTransformed(_sc.getMethodByName("<clinit>"))) {
+			if (_sc.declaresMethodByName("<clinit>") && !collector.hasBeenCollected(_sc.getMethodByName("<clinit>"))) {
 				_temp.add(_sc.getMethodByName("<clinit>"));
 			}
 		}
@@ -772,7 +772,7 @@ public final class SlicingEngine {
 		}
 
 		// generate criteria to include invocation sites only if the method has not been collected.
-		if (!collector.isTransformed(callee)) {
+		if (!collector.hasBeenCollected(callee)) {
 			collect(callee, callee.getDeclaringClass());
 
 			final boolean _notStatic = !callee.isStatic();
@@ -815,7 +815,7 @@ public final class SlicingEngine {
 			invoked.add(method);
 		}
 
-		if (!collector.isTransformed(valueBox)) {
+		if (!collector.hasBeenCollected(valueBox)) {
 			final SliceExpr _sliceCriterion = SliceExpr.getSliceExpr();
 			_sliceCriterion.initialize(method, stmt, valueBox);
 			_sliceCriterion.setConsiderExecution(considerExecution);
@@ -842,7 +842,7 @@ public final class SlicingEngine {
 			invoked.add(method);
 		}
 
-		if (!collector.isTransformed(stmt)) {
+		if (!collector.hasBeenCollected(stmt)) {
 			final SliceStmt _sliceCriterion = SliceStmt.getSliceStmt();
 			_sliceCriterion.initialize(method, stmt);
 			_sliceCriterion.setConsiderExecution(considerExecution);
@@ -978,7 +978,7 @@ public final class SlicingEngine {
 		for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
 			final ValueBox _vBox = (ValueBox) _i.next();
 
-			if (!collector.isTransformed(_vBox)) {
+			if (!collector.hasBeenCollected(_vBox)) {
 				collector.collect(_vBox);
 
 				final Value _value = _vBox.getValue();
@@ -1100,6 +1100,12 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/12/07 15:16:01  venku
+   - the order of collecting the slice had an impact on the
+     generation of the slice (due to optimization).  For this
+     reason the enclosing method should be collected after
+     the criteria are generated.
+
    Revision 1.27  2003/12/05 15:33:35  venku
    - more logging and logic to handle inter procedural slicing.
      Getting there.

@@ -106,7 +106,7 @@ final class TaggingBasedSliceCollector {
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	protected boolean isTransformed(final Host host) {
+	protected boolean hasBeenCollected(final Host host) {
 		final SlicingTag _temp = (SlicingTag) host.getTag(tagName);
 		return _temp != null;
 	}
@@ -116,7 +116,7 @@ final class TaggingBasedSliceCollector {
 	 * 
 	 * <p></p>
 	 */
-	protected void completeTransformation() {
+	protected void completeSlicing() {
 		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE) && engine.executableSlice) {
 			makeBackwardSliceExecutable();
 		}
@@ -202,7 +202,7 @@ final class TaggingBasedSliceCollector {
 				for (final Iterator _j = _sl.iterator(); _j.hasNext();) {
 					final Stmt _stmt = (Stmt) _j.next();
 
-					if (isTransformed(_stmt)) {
+					if (hasBeenCollected(_stmt)) {
 						for (final Iterator _k = TrapManager.getTrapsAt(_stmt, _body).iterator(); _k.hasNext();) {
 							collect(((Trap) _k.next()).getHandlerUnit());
 						}
@@ -295,6 +295,9 @@ final class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/04 12:10:12  venku
+   - changes that take a stab at interprocedural slicing.
+
    Revision 1.8  2003/12/02 09:42:17  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
