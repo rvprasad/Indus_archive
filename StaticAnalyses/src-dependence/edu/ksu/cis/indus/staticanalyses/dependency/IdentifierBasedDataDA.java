@@ -25,6 +25,7 @@ import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
 
+import soot.toolkits.scalar.LocalUnitPair;
 import soot.toolkits.scalar.SimpleLocalDefs;
 import soot.toolkits.scalar.SimpleLocalUses;
 import soot.toolkits.scalar.UnitValueBoxPair;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -87,39 +89,69 @@ public class IdentifierBasedDataDA
 	/**
 	 * Returns  the statements on which <code>o</code>, depends in the given <code>method</code>.
 	 *
-	 * @param stmtValueBoxPair is a pair of statement and program point at which a local occurs in the statement.
-	 * @param method in which <code>stmtValueBoxPair</code> occurs.
+	 * @param programPoint is the program point at which a local occurs in the statement.  If it is a statement, then
+	 * 		  information about all the locals in the statement is provided.  If it is a pair of statement and program point
+	 * 		  in it, then only  information about the local at that program point is provided.
+	 * @param method in which <code>programPoint</code> occurs.
 	 *
-	 * @return a collection of statements on which <code>stmtValueBoxPair</code> depends.
+	 * @return a collection of statements on which <code>programPoint</code> depends.
 	 *
-	 * @pre stmtValueBoxPair.oclIsKindOf(Pair(Stmt, ValueBox))
-	 * @pre stmtValueBoxPair.oclTypeOf(Pair).getFirst() != null
-	 * @pre stmtValueBoxPair.oclTypeOf(Pair).getSecond() != null
+	 * @pre programPoint.oclIsKindOf(Pair(Stmt, Local)) implies programPoint.oclTypeOf(Pair).getFirst() != null and
+	 * 		programPoint.oclTypeOf(Pair).getSecond() != null
+	 * @pre programPoint.oclIsKindOf(Stmt) or programPoint.oclIsKindOf(Pair(Stmt, Local))
 	 * @pre method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.isOclKindOf(DefinitionStmt))
 	 */
-	public Collection getDependees(final Object stmtValueBoxPair, final Object method) {
-		Pair pair = (Pair) stmtValueBoxPair;
-		Stmt stmt = (Stmt) pair.getFirst();
-		ValueBox vBox = (ValueBox) pair.getSecond();
-		SootMethod m = (SootMethod) method;
-		List dependees = (List) dependeeMap.get(method);
-		Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
-		return Collections.unmodifiableCollection((Collection) local2defs.get(vBox));
+	public Collection getDependees(final Object programPoint, final Object method) {
+		Collection result = Collections.EMPTY_LIST;
+
+		if (programPoint instanceof Stmt) {
+			result = new HashSet();
+
+			Stmt stmt = (Stmt) programPoint;
+			SootMethod m = (SootMethod) method;
+			List dependees = (List) dependeeMap.get(method);
+			Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
+
+			for (Iterator i = stmt.getUseBoxes().iterator(); i.hasNext();) {
+				Value o = ((ValueBox) i.next()).getValue();
+
+				if (o instanceof Local) {
+					Collection c = (Collection) local2defs.get(o);
+
+					if (c != null) {
+						result.addAll(c);
+					}
+				}
+			}
+		} else if (programPoint instanceof Pair) {
+			Pair pair = (Pair) programPoint;
+			Stmt stmt = (Stmt) pair.getFirst();
+			Local local = (Local) pair.getSecond();
+			SootMethod m = (SootMethod) method;
+			List dependees = (List) dependeeMap.get(method);
+			Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
+			Collection c = (Collection) local2defs.get(local);
+
+			if (c != null) {
+				result = Collections.unmodifiableCollection(c);
+			}
+		}
+		return result;
 	}
 
 	/**
-	 * Returns the statements which depend on <code>stmt</code> in the given <code>context</code>. The context is the method
-	 * in which the o occurs.
+	 * Returns the statement and the program point in it which depends on <code>stmt</code> in the given
+	 * <code>context</code>. The context is the method in which the o occurs.
 	 *
 	 * @param stmt is a definition statement.
 	 * @param context is the method in which <code>stmt</code> occurs.
 	 *
-	 * @return a collection of statements which depend on the definition in <code>stmt</code>.
+	 * @return a collection of statement and program points in them which depend on the definition in <code>stmt</code>.
 	 *
 	 * @pre stmt.isOclKindOf(Stmt)
 	 * @pre context.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.isOclKindOf(Stmt))
+	 * @post result->forall(o | o.isOclKindOf(LocalUnitPair))
 	 */
 	public Collection getDependents(final Object stmt, final Object context) {
 		SootMethod method = (SootMethod) context;
@@ -165,8 +197,8 @@ public class IdentifierBasedDataDA
 						currUses = new ArrayList();
 
 						for (Iterator k = temp.iterator(); k.hasNext();) {
-							UnitValueBoxPair element = (UnitValueBoxPair) k.next();
-							currUses.add(element.getUnit());
+							UnitValueBoxPair p = (UnitValueBoxPair) k.next();
+							currUses.add(new LocalUnitPair((Local) p.getValueBox().getValue(), p.getUnit()));
 						}
 					}
 				}
@@ -181,8 +213,8 @@ public class IdentifierBasedDataDA
 						ValueBox currValueBox = (ValueBox) k.next();
 						Value value = currValueBox.getValue();
 
-						if (value instanceof Local) {
-							currDefs.put(currValueBox, defs.getDefsOfAt((Local) value, currStmt));
+						if (value instanceof Local && !currDefs.containsKey(value)) {
+							currDefs.put(value, defs.getDefsOfAt((Local) value, currStmt));
 						}
 					}
 				}
@@ -261,6 +293,8 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/02 22:10:30  venku
+   - uses unitgraphs instead of complete unit graphs.
    Revision 1.15  2003/11/02 00:37:59  venku
    - logging changes.
    Revision 1.14  2003/11/02 00:34:01  venku
