@@ -252,7 +252,7 @@ public final class BasicBlockGraph
 	 * @pre stmts != null and stmts.oclIsKindOf(Collection(Stmt))
 	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
 	 */
-	public List getEnclosedBasicBlocks(final Collection stmts) {
+	public List getEnclosingBasicBlocks(final Collection stmts) {
 		final List _result = new ArrayList();
 		final Iterator _i = stmts.iterator();
 		final int _iEnd = stmts.size();
@@ -275,7 +275,7 @@ public final class BasicBlockGraph
 	}
 
 	/**
-	 * Retreives the statements occurring in the given basic blocks..
+	 * Retreives the statements occurring in the given basic blocks.
 	 *
 	 * @param basicBlocks of interest.
 	 *
@@ -291,7 +291,7 @@ public final class BasicBlockGraph
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
-			_result.add(_bb.getStmtsOf());
+			_result.addAll(_bb.getStmtsOf());
 		}
 		return _result;
 	}
@@ -492,6 +492,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/08/06 08:40:44  venku
+   - added logging statement for getEnclosingBlock() method.
+
    Revision 1.7  2004/07/24 09:56:44  venku
    - added new convenience methods.
    Revision 1.6  2004/07/20 08:04:32  venku
