@@ -33,9 +33,6 @@ import junit.framework.TestSuite;
 
 import junit.swingui.TestRunner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * This is the test suite used to run OFA related tests using JUnit's swing interface to the runner.
@@ -50,11 +47,6 @@ public final class OFARegressionTestSuite
 	 * This is the property via which the ofa test accepts input.  Refer to OFATest.properties for format.
 	 */
 	public static final String OFA_TEST_PROPERTIES_FILE = "indus.staticanalyses.flow.instances.ofa.OFATest.properties.file";
-
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(OFARegressionTestSuite.class);
 
 	///CLOVER:OFF
 
@@ -120,19 +112,19 @@ public final class OFARegressionTestSuite
 				File _f = new File(_xmlInputDir);
 
 				if (!_f.exists() || !_f.canRead()) {
-					LOGGER.error("Input directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
+					System.err.println("Input directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
 				_f = new File(_xmlOutputDir);
 
 				if (!_f.exists() || !_f.canWrite()) {
-					LOGGER.error("Output directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
+					System.err.println("Output directory " + _xmlInputDir + " does not exists. Bailing on " + _config);
 					continue;
 				}
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
-                    _temp.addTestSuite(XMLBasedCallGraphTest.class);
+					_temp.addTestSuite(XMLBasedCallGraphTest.class);
 					_temp.addTestSuite(CallGraphTest.class);
 					_temp.addTestSuite(FATest.class);
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
@@ -145,7 +137,7 @@ public final class OFARegressionTestSuite
 					;
 				}
 			}
-		} catch (IOException _e) {
+		} catch (final IOException _e) {
 			throw new IllegalArgumentException("Specified property file does not exist.");
 		}
 	}
@@ -154,6 +146,11 @@ public final class OFARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 01:20:10  venku
+   - coding convention.
+   - added a new abstract class contain the logic required for xml-based
+     testing.  (AbstractXMLBasedTest)
+   - added a new xml-based call graph testing class.
    Revision 1.4  2004/02/09 00:32:16  venku
    - all test cases in indus extends IndusTestCase.
    - RegressionTestSuites alter the name of the test instances

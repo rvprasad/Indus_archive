@@ -15,9 +15,19 @@
 
 package edu.ksu.cis.indus;
 
-import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.custommonkey.xmlunit.XMLTestCase;
+
+import org.xml.sax.SAXException;
 
 
 /**
@@ -29,29 +39,25 @@ import org.custommonkey.xmlunit.XMLTestCase;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class AbstractXMLBasedTest
+public abstract class AbstractXMLBasedTest
   extends XMLTestCase
   implements IXMLBasedTest {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AbstractXMLBasedTest.class);
+
+	/**
+	 * The directory in which xml-based testing input is read from.
+	 */
+	protected String xmlInputDir;
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	protected final AbstractXMLizer xmlizer;
-
-	/**
-	 * The directory in which xml-based testing input is read from.
-	 */
-	private String xmlInputDir;
-
-	/**
-	 * Creates a new AbstractXMLBasedTest object.
-	 *
-	 * @param theXmlizer DOCUMENT ME!
-	 */
-	protected AbstractXMLBasedTest(AbstractXMLizer theXmlizer) {
-		xmlizer = theXmlizer;
-	}
+	protected String xmlOutputDir;
 
 	/**
 	 * DOCUMENT ME!
@@ -65,34 +71,53 @@ public class AbstractXMLBasedTest
 	/**
 	 * DOCUMENT ME!
 	 *
+	 * @param xmlOutDir
+	 */
+	public void setXmlOutputDir(String xmlOutDir) {
+		xmlOutputDir = xmlOutDir;
+	}
+
+	/**
+	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
+	 */
+	public void testXMLSimilarity() {
+		final String _outfileName = xmlOutputDir + File.separator + getFileName();
+
+		try {
+			final Reader _current = new FileReader(new File(_outfileName));
+			final Reader _previous = new FileReader(new File(xmlInputDir + File.separator + getFileName()));
+			assertXMLEqual(_previous, _current);
+		} catch (IOException _e) {
+			LOGGER.error("Failed to write the xml file " + _outfileName, _e);
+			fail(_e.getMessage());
+		} catch (SAXException _e) {
+			LOGGER.error("Exception while parsing XML", _e);
+			fail(_e.getMessage());
+		} catch (ParserConfigurationException _e) {
+			LOGGER.error("XML parser configuration related exception", _e);
+			fail(_e.getMessage());
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
 	 * @return DOCUMENT ME!
 	 */
-	public String getXmlInputDir() {
-		return this.xmlInputDir;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param xmlOutputDir
-	 */
-	public void setXmlOutputDir(String xmlOutputDir) {
-		xmlizer.setXmlOutputDir(xmlOutputDir);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @return
-	 */
-	public String getXmlOutputDir() {
-		return xmlizer.getXmlOutputDir();
-	}
+	protected abstract String getFileName();
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 04:39:40  venku
+   - refactoring test classes still..
+   - need to make xmlizer classes independent of their purpose.
+     Hence, they need to be highly configurable.
+   - For each concept, test setup should be in TestSetup
+     rather than in the XMLizer.
    Revision 1.2  2004/02/09 02:00:11  venku
    - changed AbstractXMLizer.
    - ripple effect.

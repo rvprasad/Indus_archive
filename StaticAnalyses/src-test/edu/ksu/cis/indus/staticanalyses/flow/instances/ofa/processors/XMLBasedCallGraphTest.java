@@ -24,26 +24,12 @@ import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
-import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.xml.sax.SAXException;
-
 import soot.Scene;
-import soot.SootMethod;
 
 
 /**
@@ -59,33 +45,11 @@ public class XMLBasedCallGraphTest
   extends AbstractXMLBasedTest
   implements IFAProcessorTest {
 	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(XMLBasedCallGraphTest.class);
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private ICallGraphInfo cgi;
-
-	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
 	private final Map info = new HashMap();
-
-	/**
-	 * Creates a new XMLBasedCallGraphTest object.
-	 *
-	 * @pre xmlInputDir != null
-	 */
-	public XMLBasedCallGraphTest() {
-        super(new CallGraphXMLizer());
-		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
-	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setFA(edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer)
@@ -97,8 +61,9 @@ public class XMLBasedCallGraphTest
 	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setProcessor(edu.ksu.cis.indus.processing.IProcessor)
 	 */
 	public void setProcessor(IProcessor processor) {
-		cgi = (ICallGraphInfo) processor;
-		info.put(ICallGraphInfo.ID, cgi);
+		if (processor instanceof ICallGraphInfo) {
+			info.put(ICallGraphInfo.ID, processor);
+		}
 	}
 
 	/**
@@ -108,35 +73,10 @@ public class XMLBasedCallGraphTest
 	}
 
 	/**
-	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
+	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getFileName()
 	 */
-	public void testCallGraph() {
-		final String _xmlOutDir = getXmlOutputDir();
-		final String _xmlInDir = getXmlInputDir();
-
-		for (final Iterator _i = cgi.getHeads().iterator(); _i.hasNext();) {
-			final SootMethod _root = (SootMethod) _i.next();
-			final String _rootName = _root.getSignature();
-
-			try {
-				final Reader _current =
-					new FileReader(new File(_xmlOutDir + File.separator + "callgraph_"
-							+ _rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
-				final Reader _previous =
-					new FileReader(new File(_xmlInDir + File.separator + "callgraph_"
-							+ _rootName.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
-				assertXMLEqual(_previous, _current);
-			} catch (IOException _e) {
-				LOGGER.error("Failed to write the xml file for system rooted at method " + _rootName, _e);
-                fail(_e.getMessage());
-			} catch (SAXException _e) {
-				LOGGER.error("Exception while parsing XML", _e);
-                fail(_e.getMessage());
-			} catch (ParserConfigurationException _e) {
-				LOGGER.error("XML parser configuration related exception", _e);
-                fail(_e.getMessage());
-			}
-		}
+	protected String getFileName() {
+		return CallGraphXMLizer.getFileName(getName());
 	}
 
 	/**
@@ -146,22 +86,25 @@ public class XMLBasedCallGraphTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		xmlizer.setXmlOutputDir(getXmlOutputDir());
-
-		for (final Iterator _i = cgi.getHeads().iterator(); _i.hasNext();) {
-			SootMethod _rootname = (SootMethod) _i.next();
-			xmlizer.writeXML(_rootname.getSignature(), info);
-		}
+		CallGraphXMLizer xmlizer = new CallGraphXMLizer();
+		xmlizer.setXmlOutputDir(xmlOutputDir);
+		info.put(AbstractXMLizer.FILE_NAME_ID, xmlizer);
+		xmlizer.writeXML(info);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/09 04:39:36  venku
+   - refactoring test classes still..
+   - need to make xmlizer classes independent of their purpose.
+     Hence, they need to be highly configurable.
+   - For each concept, test setup should be in TestSetup
+     rather than in the XMLizer.
    Revision 1.3  2004/02/09 02:19:05  venku
     - first stab at refactoring xmlizer framework to be amenable
      to testing and standalone execution.
-
    Revision 1.2  2004/02/09 02:00:14  venku
    - changed AbstractXMLizer.
    - ripple effect.

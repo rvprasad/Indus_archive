@@ -228,6 +228,10 @@ public final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 03:05:46  venku
+   - renamed xmlizer packages to be in par with the packages
+     that contain the classes whose data is being xmlized.
+
    Revision 1.12  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
@@ -263,7 +267,7 @@ public final class StmtLevelDependencyXMLizer
    - moved xmlizing classes to a different class.
    Revision 1.3  2003/11/12 05:05:45  venku
    - Renamed SootDependentTest to SootBasedDriver.
-   - Switched the contents of DependencyXMLizer and DependencyTest.
+   - Switched the contents of DependencyXMLizerDriver and DependencyTest.
    - Corrected errors which emitting xml tags.
    - added a scrapbook.
    Revision 1.2  2003/11/10 20:05:02  venku

@@ -38,6 +38,11 @@ import org.apache.commons.logging.LogFactory;
 public abstract class AbstractXMLizer
   implements IXMLizer {
 	/**
+	 * The id used to retrieve the file name from the info map in <code>writeXML</code>.
+	 */
+	public static final Object FILE_NAME_ID = "FILE_NAME_ID";
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractXMLizer.class);
@@ -108,13 +113,11 @@ public abstract class AbstractXMLizer
 	/**
 	 * Writes information in XML form.
 	 *
-	 * @param rootname is the name of the root method which may be used to create the file name ofthe file into which xml
-	 * 		  form should be dumped.
 	 * @param info is a map in which information required for xmlization will be provided.
 	 *
-	 * @pre rootname != null and info != null
+	 * @pre info != null
 	 */
-	public abstract void writeXML(final String rootname, final Map info);
+	public abstract void writeXML(final Map info);
 
 	/**
 	 * Dumps the jimple into a file.  The name of the file is built from <code>rootname</code> and the parts of the jimple
@@ -154,6 +157,12 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/09 04:39:40  venku
+   - refactoring test classes still..
+   - need to make xmlizer classes independent of their purpose.
+     Hence, they need to be highly configurable.
+   - For each concept, test setup should be in TestSetup
+     rather than in the XMLizer.
    Revision 1.7  2004/02/09 02:00:11  venku
    - changed AbstractXMLizer.
    - ripple effect.

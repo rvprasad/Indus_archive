@@ -124,17 +124,82 @@ public class CallGraphXMLizer
 
 			sootBasedDriver = new SootBasedDriver();
 			sootBasedDriver.initialize();
-			_xmlizer.execute();
+			execute(_xmlizer);
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer", _options);
+			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerDriver", _options);
 		}
 	}
 
 	/**
-	 * Xmlize the given system.
+	 * Writes the call graph in XML.
+	 *
+	 * @param info is a map of id's to implementation that satisfies the interface associated with the id.
+	 *
+	 * @pre rootname != null and info != null
+	 * @pre info.oclIsKindOf(Map(Object, Object))
+	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
 	 */
-	public void execute() {
+	public final void writeXML(final Map info) {
+		final File _f =
+			new File(getXmlOutputDir() + File.separator + getFileName((String)info.get(FILE_NAME_ID)));
+		final FileWriter _writer;
+
+		try {
+			_writer = new FileWriter(_f);
+
+			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
+
+			_writer.write("<callgraph>\n");
+
+			// Control the order in which methods are processed. 
+			final IProcessingFilter _filter = new XMLizingProcessingFilter();
+			final Collection _temp = new HashSet();
+
+			for (final Iterator _i = _filter.filterMethods(_cgi.getReachableMethods()).iterator(); _i.hasNext();) {
+				final SootMethod _caller = (SootMethod) _i.next();
+				_writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\">\n");
+				_temp.clear();
+
+				for (final Iterator _j = _cgi.getCallees(_caller).iterator(); _j.hasNext();) {
+					final CallTriple _ctrp = (CallTriple) _j.next();
+					_temp.add(_ctrp.getMethod());
+				}
+
+				for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
+					SootMethod _callee = (SootMethod) _j.next();
+					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\"/>\n");
+				}
+
+				_writer.write("\t</caller>\n");
+			}
+			_writer.write("</callgraph>\n");
+			_writer.flush();
+			_writer.close();
+		} catch (IOException _e) {
+			_e.printStackTrace();
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param name DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public static String getFileName(final String name) {
+		return "callgraph_" + name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml";
+	}
+
+	/**
+	 * Xmlize the given system.
+	 *
+	 * @param xmlizer DOCUMENT ME!
+	 */
+	private static void execute(final AbstractXMLizer xmlizer) {
 		sootBasedDriver.setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
@@ -179,60 +244,9 @@ public class CallGraphXMLizer
 			_pc.reset();
 			_pc.driveProcessors(_processors);
 			_processors.clear();
-			dumpJimple(_rootname, _xmlcgipc);
-			writeXML(_rootname, _info);
-		}
-	}
-
-	/**
-	 * Writes the call graph in XML.
-	 *
-	 * @param rootname is the name of the root method
-	 * @param info is a map of id's to implementation that satisfies the interface associated with the id.
-	 *
-	 * @pre rootname != null and info != null
-	 * @pre info.oclIsKindOf(Map(Object, Object))
-	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
-	 */
-	public final void writeXML(final String rootname, final Map info) {
-		final File _f =
-			new File(getXmlOutputDir() + File.separator + "callgraph_"
-				+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
-		final FileWriter _writer;
-
-		try {
-			_writer = new FileWriter(_f);
-
-			final ICallGraphInfo _cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
-
-			_writer.write("<callgraph>\n");
-
-			// Control the order in which methods are processed. 
-			final IProcessingFilter _filter = new XMLizingProcessingFilter();
-			final Collection _temp = new HashSet();
-
-			for (final Iterator _i = _filter.filterMethods(_cgi.getReachableMethods()).iterator(); _i.hasNext();) {
-				final SootMethod _caller = (SootMethod) _i.next();
-				_writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\">\n");
-				_temp.clear();
-
-				for (final Iterator _j = _cgi.getCallees(_caller).iterator(); _j.hasNext();) {
-					final CallTriple _ctrp = (CallTriple) _j.next();
-					_temp.add(_ctrp.getMethod());
-				}
-
-				for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
-					SootMethod _callee = (SootMethod) _j.next();
-					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\"/>\n");
-				}
-
-				_writer.write("\t</caller>\n");
-			}
-			_writer.write("</callgraph>\n");
-			_writer.flush();
-			_writer.close();
-		} catch (IOException _e) {
-			_e.printStackTrace();
+			xmlizer.dumpJimple(_rootname, _xmlcgipc);
+			_info.put(AbstractXMLizer.FILE_NAME_ID, _rootname);
+			xmlizer.writeXML(_info);
 		}
 	}
 }
@@ -240,6 +254,12 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 04:39:36  venku
+   - refactoring test classes still..
+   - need to make xmlizer classes independent of their purpose.
+     Hence, they need to be highly configurable.
+   - For each concept, test setup should be in TestSetup
+     rather than in the XMLizer.
    Revision 1.4  2004/02/09 02:19:05  venku
     - first stab at refactoring xmlizer framework to be amenable
      to testing and standalone execution.
@@ -267,7 +287,7 @@ public class CallGraphXMLizer
    Revision 1.1  2003/12/08 11:59:47  venku
    - added a new class AbstractXMLizer which will host
      primary logic to xmlize analyses information.
-   - DependencyXMLizer inherits from this new class.
+   - DependencyXMLizerDriver inherits from this new class.
    - added a new class CallGraphXMLizer to xmlize
      call graph information.  The logic to write out the call
      graph is empty.
