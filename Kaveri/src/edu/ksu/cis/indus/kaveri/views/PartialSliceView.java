@@ -15,8 +15,10 @@
 package edu.ksu.cis.indus.kaveri.views;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -86,7 +88,7 @@ public class PartialSliceView extends ViewPart  {
     /**
      * The list of Jimple stmts in the criteria.
      */
-    private List crtList;
+    private Set crtList;
 
     /**
      * <p>
@@ -105,7 +107,7 @@ public class PartialSliceView extends ViewPart  {
      */
     public PartialSliceView() {
         isReady = false;
-        crtList = new ArrayList();
+        crtList = new HashSet();
     }
 
     /**
@@ -465,7 +467,7 @@ public class PartialSliceView extends ViewPart  {
         _actionLoad.setImageDescriptor(_desc);
         manager.add(_actionLoad);
 
-        Action _actionAddCriteria = new Action() {
+        Action _actionAddCriteriaTop = new Action() {
             public void run() {
                 if (viewer.getTable().getSelectionIndex() != -1
                         && partialData != null
@@ -478,62 +480,170 @@ public class PartialSliceView extends ViewPart  {
                         MessageDialog.openError(null, "Error",
                                 "Duplicate Criteria are not allowed!");
                     } else {
-                        addToCriteria(viewer.getTable().getSelectionIndex());
+                        addToCriteria(viewer.getTable().getSelectionIndex(), false);
                         viewer.refresh();
                     }
                 }
             }
 
-            /**
-             * Add the criteria as specified by the given jimple index.
-             * 
-             * @param selectionIndex
-             */
-            private void addToCriteria(int selectionIndex) {
-                final IFile _file = partialData.getJavaFile();
-                final IResource _resource = _file.getProject();
-                final QualifiedName _name = new QualifiedName(
-                        "edu.ksu.cis.indus.kaveri", "criterias");
-                CriteriaData _data = null;
-                final XStream _xstream = new XStream(new DomDriver());
-                _xstream.alias("CriteriaData", CriteriaData.class);
-
-                try {
-                    final String _propVal = _resource
-                            .getPersistentProperty(_name);
-
-                    if (_propVal == null) {
-                        _data = new CriteriaData();
-                        _data.setCriterias(new ArrayList());
-                    } else {
-                        _data = (CriteriaData) _xstream.fromXML(_propVal);
-                    }
-                    final Criteria _c = new Criteria();
-                    _c.setStrClassName(partialData.getClassName());
-                    _c.setStrMethodName(partialData.getMethodName());
-                    _c.setNLineNo(partialData.getLineNo());
-                    _c.setNJimpleIndex(selectionIndex);
-                    _c.setBConsiderValue(true); //Temporary fix later.
-                    
-                    _data.getCriterias().add(_c);
-
-                    final String _xml = _xstream.toXML(_data);
-                    _resource.setPersistentProperty(_name, _xml);
-                } catch (CoreException _e) {
-                    SECommons.handleException(_e);
-                }
-            }
+            
         };
 
-        _actionAddCriteria.setToolTipText("Add as criteria");
+        _actionAddCriteriaTop.setToolTipText("Add as criteria (Control)");
         final ImageDescriptor _descCrt = AbstractUIPlugin
                 .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                        "data/icons/addCriteria.gif");
-        _actionAddCriteria.setImageDescriptor(_descCrt);
-        manager.add(_actionAddCriteria);
+                        "data/icons/addCriteriaTop.gif");
+        _actionAddCriteriaTop.setImageDescriptor(_descCrt);
+        manager.add(_actionAddCriteriaTop);
 
+        
+        Action _actionAddCriteriaBottom = new Action() {
+            public void run() {
+                if (viewer.getTable().getSelectionIndex() != -1
+                        && partialData != null
+                        && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2,
+                            partialData.getStmtList().size());
+                    final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable()
+                            .getSelectionIndex());
+                    if (crtList.contains(_stmt)) {
+                        MessageDialog.openError(null, "Error",
+                                "Duplicate Criteria are not allowed!");
+                    } else {
+                        addToCriteria(viewer.getTable().getSelectionIndex(), true);
+                        crtList.add(_stmt);
+                        viewer.refresh();
+                    }
+                }
+            }
+
+            
+        };
+
+        _actionAddCriteriaBottom.setToolTipText("Add as criteria (Value)");
+        final ImageDescriptor _descCrtBot = AbstractUIPlugin
+                .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                        "data/icons/addCriteriaBot.gif");
+        _actionAddCriteriaBottom.setImageDescriptor(_descCrtBot);
+        manager.add(_actionAddCriteriaBottom);
+
+        Action _actionRemoveCriteria = new Action() {
+            public void run() {
+                if (viewer.getTable().getSelectionIndex() != -1
+                        && partialData != null
+                        && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2,
+                            partialData.getStmtList().size());
+                    final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable()
+                            .getSelectionIndex());
+                    if (!crtList.contains(_stmt)) {
+                        MessageDialog.openError(null, "Error",
+                                "Statement is not a criteria");
+                    } else {
+                        removeCriteria(viewer.getTable().getSelectionIndex());
+                        crtList.remove(_stmt);
+                        viewer.refresh();
+                    }
+                }
+            }
+
+            
+        };
+
+        _actionRemoveCriteria.setToolTipText("Remove criteria");
+        final ImageDescriptor _descCrtRem = AbstractUIPlugin
+                .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                        "data/icons/remCriteria.gif");
+        _actionRemoveCriteria.setImageDescriptor(_descCrtRem);
+        manager.add(_actionRemoveCriteria);
+        
     }
 
+    /**
+     * Removes the statement as specified by the index from the criteria.
+     * @param selectionIndex
+     */
+    protected void removeCriteria(int selectionIndex) {
+        final IFile _file = partialData.getJavaFile();
+        final IResource _resource = _file.getProject();
+        final QualifiedName _name = new QualifiedName(
+                "edu.ksu.cis.indus.kaveri", "criterias");
+        CriteriaData _data = null;
+        final XStream _xstream = new XStream(new DomDriver());
+        _xstream.alias("CriteriaData", CriteriaData.class);
+
+        try {
+            final String _propVal = _resource
+                    .getPersistentProperty(_name);
+
+            if (_propVal == null) {
+                _data = new CriteriaData();
+                _data.setCriterias(new ArrayList());
+            } else {
+                _data = (CriteriaData) _xstream.fromXML(_propVal);
+            }
+            
+            for (Iterator iter = _data.getCriterias().iterator(); iter.hasNext();) {
+                final Criteria _c = (Criteria) iter.next();
+                if (_c.getStrClassName().equals(partialData.getClassName()) 
+                      && _c.getStrMethodName().equals(partialData.getMethodName())
+                	  && _c.getNLineNo() == partialData.getLineNo()
+                	  && _c.getNJimpleIndex() == selectionIndex) {
+                	      _data.getCriterias().remove(_c);
+                	      break;
+                	  }
+                	               
+            }
+
+            final String _xml = _xstream.toXML(_data);
+            _resource.setPersistentProperty(_name, _xml);
+        } catch (CoreException _e) {
+            SECommons.handleException(_e);
+        }
+       
+        
+    }
+
+    /**
+     * Add the criteria as specified by the given jimple index.
+     * @param considerVal Consider the value.
+     * @param selectionIndex
+     */
+    private void addToCriteria(int selectionIndex, final boolean considerVal) {
+        final IFile _file = partialData.getJavaFile();
+        final IResource _resource = _file.getProject();
+        final QualifiedName _name = new QualifiedName(
+                "edu.ksu.cis.indus.kaveri", "criterias");
+        CriteriaData _data = null;
+        final XStream _xstream = new XStream(new DomDriver());
+        _xstream.alias("CriteriaData", CriteriaData.class);
+
+        try {
+            final String _propVal = _resource
+                    .getPersistentProperty(_name);
+
+            if (_propVal == null) {
+                _data = new CriteriaData();
+                _data.setCriterias(new ArrayList());
+            } else {
+                _data = (CriteriaData) _xstream.fromXML(_propVal);
+            }
+            final Criteria _c = new Criteria();
+            _c.setStrClassName(partialData.getClassName());
+            _c.setStrMethodName(partialData.getMethodName());
+            _c.setNLineNo(partialData.getLineNo());
+            _c.setNJimpleIndex(selectionIndex);
+            _c.setBConsiderValue(considerVal); 
+            
+            _data.getCriterias().add(_c);
+
+            final String _xml = _xstream.toXML(_data);
+            _resource.setPersistentProperty(_name, _xml);
+        } catch (CoreException _e) {
+            SECommons.handleException(_e);
+        }
+    }
+    
     /**
      * @param _table
      */
@@ -576,7 +686,6 @@ public class PartialSliceView extends ViewPart  {
      * @see org.eclipse.ui.IWorkbenchPart#dispose()
      */
     public void dispose() {
-        // TODO Auto-generated method stub
         super.dispose();
     }
 }
