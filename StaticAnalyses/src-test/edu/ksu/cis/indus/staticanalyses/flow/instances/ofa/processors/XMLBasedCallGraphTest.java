@@ -52,6 +52,11 @@ public class XMLBasedCallGraphTest
 	 */
 	private final Map info = new HashMap();
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private CallGraphXMLizer xmlizer;
+
 	/**
 	 * @see IFAProcessorTest#setFA(IValueAnalyzer)
 	 */
@@ -77,7 +82,7 @@ public class XMLBasedCallGraphTest
 	 * @see edu.ksu.cis.indus.AbstractXMLBasedTest#getFileName()
 	 */
 	protected String getFileName() {
-		return CallGraphXMLizer.getFileName(getName());
+		return xmlizer.getFileName(getName());
 	}
 
 	/**
@@ -87,7 +92,7 @@ public class XMLBasedCallGraphTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		CallGraphXMLizer xmlizer = new CallGraphXMLizer();
+		xmlizer = new CallGraphXMLizer();
 		xmlizer.setXmlOutputDir(xmlOutputDir);
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 		info.put(AbstractXMLizer.FILE_NAME_ID, getName());
@@ -98,6 +103,8 @@ public class XMLBasedCallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/09 07:34:31  venku
+    - formatting.
    Revision 1.6  2004/02/09 07:33:37  venku
    - id generator was not set on the xmlizer.  FIXED.
    Revision 1.5  2004/02/09 06:49:02  venku
