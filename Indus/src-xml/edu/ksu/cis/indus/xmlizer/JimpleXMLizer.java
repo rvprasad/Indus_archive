@@ -237,8 +237,6 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#consolidate()
 	 */
 	public final void consolidate() {
@@ -250,6 +248,7 @@ public class JimpleXMLizer
 			if (processingClass) {
 				xmlizedSystem.write("</class>");
 			}
+			xmlizedSystem.write("</jimple>");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", e);
@@ -274,14 +273,28 @@ public class JimpleXMLizer
 		ppc.unregisterForAllStmts(this);
 		ppc.unregister(this);
 	}
+
+	/**
+	 * @see edu.ksu.cis.indus.processing.IProcessor#processingBegins()
+	 */
+	public void processingBegins() {
+		try {
+			xmlizedSystem.write("<jimple>");
+		} catch (IOException e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing xmlized jimple info.", e);
+			}
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/10 07:49:22  venku
+   - documentation.
    Revision 1.6  2003/11/10 03:29:51  venku
    - logged exceptions.
-
    Revision 1.5  2003/11/10 03:13:04  venku
    - uses abstract implementation of IProcessor.
    Revision 1.4  2003/11/10 03:04:17  venku
