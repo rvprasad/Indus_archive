@@ -32,6 +32,8 @@ import junit.swingui.TestRunner;
  * @version $Revision$ $Date$
  */
 public class OFAProcessorArgTestSuite {
+	///CLOVER:OFF
+
 	/**
 	 * This is the entry point via the command-line.
 	 *
@@ -52,6 +54,8 @@ public class OFAProcessorArgTestSuite {
 		_runner.startTest(suite());
 		_runner.runSuite();
 	}
+
+	///CLOVER:OFF
 
 	/**
 	 * Retrieves the test suite that encapsulates the tests defined in this class.
@@ -75,6 +79,9 @@ public class OFAProcessorArgTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 01:10:33  venku
+   - renamed TestSuite classes to ArgTestSuite classes.
+   - added DependencyArgTestSuite.
    Revision 1.1  2004/01/03 19:52:54  venku
    - renamed CallGraphInfoTest to CallGraphTest
    - all tests of a kind have to be exposed via a suite like

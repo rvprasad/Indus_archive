@@ -30,6 +30,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import junit.swingui.TestRunner;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,12 +43,46 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DependencyTestSuite
+public final class DependencyArgTestSuite
   extends TestCase {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(DependencyTestSuite.class);
+	private static final Log LOGGER = LogFactory.getLog(DependencyArgTestSuite.class);
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	public static final String DEPENDENCE_TEST_PROPERTIES_FILE =
+		"indus.staticanalyses.dependency.DependencyTest.properties.file";
+
+	//  /CLOVER:OFF
+
+	/**
+	 * This is the entry point via command-line.
+	 *
+	 * @param args are a list of space separated names of classes to be analyzed.
+	 *
+	 * @pre args != null
+	 */
+	public static void main(final String[] args) {
+		final StringBuffer _sb = new StringBuffer();
+
+		for (int _i = args.length - 1; _i >= 0; _i--) {
+			_sb.append(args[_i] + " ");
+		}
+
+		System.setProperty(DEPENDENCE_TEST_PROPERTIES_FILE, _sb.toString());
+
+		final TestRunner _runner = new TestRunner();
+		_runner.setLoading(false);
+		_runner.startTest(suite());
+		_runner.runSuite();
+	}
+
+	///CLOVER:ON
 
 	/**
 	 * Provides the suite of tests in junit-style.  This sets up the tests based on the file specified via
@@ -59,7 +95,7 @@ public final class DependencyTestSuite
 	 */
 	public static Test suite() {
 		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.staticanalyses.dependency");
-		final String _propFileName = System.getProperty("indus.staticanalyses.dependency.DependencyTest.properties.file");
+		final String _propFileName = System.getProperty(DEPENDENCE_TEST_PROPERTIES_FILE);
 
 		if (_propFileName == null) {
 			throw new RuntimeException("Please provide a property file like DependencyTest.properties via"
@@ -136,4 +172,7 @@ public final class DependencyTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 01:10:33  venku
+   - renamed TestSuite classes to ArgTestSuite classes.
+   - added DependencyArgTestSuite.
  */

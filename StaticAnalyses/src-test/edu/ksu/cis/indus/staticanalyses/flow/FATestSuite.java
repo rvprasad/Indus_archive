@@ -31,6 +31,8 @@ import junit.swingui.TestRunner;
  */
 public class FATestSuite
   extends TestCase {
+	///CLOVER:OFF
+
 	/**
 	 * This is the entry point via command-line.
 	 *
@@ -53,6 +55,8 @@ public class FATestSuite
 		_runner.runSuite();
 	}
 
+	///CLOVER:ON
+
 	/**
 	 * Retrieves the test suite of the tests in this class.
 	 *
@@ -73,6 +77,9 @@ public class FATestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 01:10:33  venku
+   - renamed TestSuite classes to ArgTestSuite classes.
+   - added DependencyArgTestSuite.
    Revision 1.1  2004/01/03 19:52:54  venku
    - renamed CallGraphInfoTest to CallGraphTest
    - all tests of a kind have to be exposed via a suite like
