@@ -1,0 +1,17 @@
+<!--#set var="menuItem" value="Overview.Related" -->
+<!--#set var="title" value="Related Projects" -->
+<!--#set var="description" value="Projects Related to Indus" -->
+
+<!--#include virtual="/header.shtml" -->
+
+
+  <ul>
+    <li>The <a href="http://bandera.projects.cis.ksu.edu/">Bandera Project</a> integrates existing programming language processing techniques with newly developed techniques to provide automated support for the extraction of safe, compact, finite-state models that are suitable for verification from Java source code.
+<!--
+    <li>The <a href="http://www.cis.ksu.edu/~saves/">S<sup>2</sup>aVES</a> (Specification, Synthesis and Verification of Embedded Systems) is investigating technologies for specifying synchronization, distribution, and timing requirements of concurrent embedded software, for synthesizing efficient low-level implementations from those specifications and for verifying requirements of those implementations.
+    
+    <li><a href="http://www.objectweb.org/openccm/">OpenCCM</a> is an Open Source project dedicated to creating an open source implementation of the Object Management Group's CORBA Component Model.  The OpenCCM project is maintained by <a href="http://www.lifl.fr">LIFL</a>'s <a href="http://www.lifl.fr/GOAL/">GOAL</a> research team.  Currently, OpenCCM allows the compilation of OMG IDL3 specifications, and even generation of Java components from IDL3 specifications.
+  -->
+  </ul>
+  
+<!--#include virtual="/footer.shtml" -->

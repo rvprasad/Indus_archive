@@ -1,0 +1,11 @@
+<!--#set var="menuItem" value="Documentation.CaseStudies" -->
+<!--#set var="title" value="Case Studies" -->
+<!--#set var="description" value="Case Studies" -->
+<!--#set var="lastmod" value="4/30/2003 10:51 PM" -->
+
+<!--#include virtual="/header.shtml" -->
+<p>Case studies will be posted shortly.
+
+  <!--<p><a href="case-studies/classical-vs-quasi-cyclic.shtml">Classical Search vs Quasi-Cyclic Searches</a>. -->
+  
+<!--#include virtual="/footer.shtml" -->

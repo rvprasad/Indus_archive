@@ -1,0 +1,21 @@
+<!--#set var="menuItem" value="Overview.Funding" -->
+<!--#set var="title" value="Funding" -->
+<!--#set var="description" value="Funding for Indus" -->
+
+<!--#include virtual="/header.shtml" -->
+
+
+  <ul>
+    <li>DARPA/AFRL project <a href="http://www.cis.ksu.edu/~dwyer/projects/AFRL-F33615-00-C-3044.html">AFRL-F33615-00-C-3044</a>. 
+<!--    
+    <li>Army Research Office CIP/SW URI award <a href="http://www.cis.ksu.edu/~dwyer/projects/DAAD190110564.html">DAAD190110564</a>. 
+    <li>Cooperative Agreement, NCC-1-399, sponsored by Honeywell Technology Center and NASA Langley Research Center.
+    
+    <li>Intel Corporation.
+    
+    <li>Coordination Services for Distributed Application <a href="http://www.cis.ksu.edu/~singh/coordination.html">NSF CCR-OSC 0098179</a>.
+    -->
+    <li>Rockwell-Collins Advanced Technology Center.
+  </ul>
+
+<!--#include virtual="/footer.shtml" -->

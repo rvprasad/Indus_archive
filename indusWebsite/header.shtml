@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <!--#if expr="${title}" -->
+  <title><!--#echo var="title" --></title>
+  <!--#else -->
+  <title>Indus</title>
+  <!--#endif -->
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+<!-- Using table hack to get formatting to work properly w/ both IE
+     and Mozilla.  Just using div's was causing problems with IE on
+     tables that were too wide. -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr>
+    <td colspan="2">
+
+      <div id="header">
+        <!--#include virtual="/banner-content.shtml" -->
+      </div>
+
+    </td>
+  </tr>
+  <tr>
+    <td valign="top" width="180">
+
+      <div id="menu">
+        <!--#include virtual="/menu-content.shtml" -->
+      </div>
+
+    </td>
+    <td valign="top">
+
+      <div id="content">
+        <!--#if expr="${title}" -->
+        <h1><!--#echo var="title" --></h1>
+        <!--#endif -->

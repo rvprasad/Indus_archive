@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Website Update" default="website.ftp" basedir=".">
+
+	<taskdef name="query" classname="com.jera.anttasks.Query"/>
+
+	<target name="website.ftp">
+		<query name="login"/>
+		<query name="password" password="true"/>
+	
+		<ftp server="projects.cis.ksu.edu"
+       			userid="${login}"
+       			password="${password}"
+       			remotedir="../../groups/indus/htdocs"
+       			depends="no">
+       	   	<fileset dir="${basedir}" excludes=".project .cvsignore build.xml"/>
+  		</ftp>		
+	</target>
+	
+</project>

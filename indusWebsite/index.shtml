@@ -1,0 +1,9 @@
+<!--#set var="menuItem" value="Overview.About" -->
+<!--#set var="title" value="About Indus" -->
+<!--#set var="description" value="About Indus" -->
+
+<!--#include virtual="/header.shtml" -->
+    
+<p>A general description of Indus will be posted soon.</p>
+
+<!--#include virtual="/footer.shtml" -->

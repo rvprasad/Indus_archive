@@ -1,0 +1,16 @@
+<!--#set var="menuItem" value="Collaborations.Papers" -->
+<!--#set var="title" value="Papers" -->
+<!--#set var="description" value="Papers Related to Indus" -->
+
+<!--#include virtual="/header.shtml" -->
+
+<p>
+  <ul>
+    <li><a href="http://projects.cis.ksu.edu/docman/view.php/16/54/SAnToS-TR2003-6.pdf">Honing 
+the Detection of Interference and Ready Dependence for Slicing Concurrent Java Programs.</a>
+<i>Venkatesh Prasad Ranganath, John Hatcliff</i>. July 2003, Technical Report, SAnToS
+-TR2003-6. <i>Last updated: July 14, 2003.</i><br><br>
+  </ul>
+</p>
+
+<!--#include virtual="/footer.shtml" -->

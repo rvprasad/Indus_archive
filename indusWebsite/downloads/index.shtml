@@ -1,0 +1,9 @@
+<!--#set var="menuItem" value="Downloads" -->
+<!--#set var="title" value="Indus Downloads" -->
+<!--#set var="description" value="Downloads" -->
+
+<!--#include virtual="/header.shtml" -->
+
+<p>There are no Indus downloads available at this time.
+
+<!--#include virtual="/footer.shtml" -->

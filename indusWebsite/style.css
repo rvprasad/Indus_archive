@@ -1,0 +1,138 @@
+/*
+ * style.css
+ * by Todd Wallentine tcw AT ksu DOT edu
+ *
+ * This style was designed for the SAnToS Lab main website.
+ */
+
+        a {
+	  font-weight: bold;
+	  color: #c00;
+	}
+	
+        ol {
+	  margin-right: 40px;
+	}
+        li {
+	  margin-bottom: 10px;
+	}
+
+	table {
+          width: 97%;
+        }
+
+	body {
+          font:	12px/1.2 Verdana, Arial, Helvetica, sans-serif;
+	  background: #ddd;
+	  padding: 0px;
+	  margin: 20px 20px 0px 20px;
+	}
+	td {
+          font:	12px/1.2 Verdana, Arial, Helvetica, sans-serif;
+	  padding: 2px;
+	  margin: 20px 20px 0px 20px;
+	}
+
+	td.pces-deadline {
+	  background-color: #e7ff60;
+        }
+
+	th {
+          font:	12px/1.2 Verdana, Arial, Helvetica, sans-serif;
+	  background: #ddd;
+	  padding: 2px;
+	  margin: 20px 20px 0px 20px;
+	}
+
+
+	ul.none {
+          list-style-type: none;
+        }
+	
+	#content {
+	  border: 1px solid #000; 
+	  background: #fff;
+          /* margin-left: 190px; */
+	  /* float: right; */
+          /* margin-left: 240px; */
+	}
+
+	#menu {
+	  border-left: 1px solid #000; 
+	  border-right: 1px solid #000; 
+	  border-bottom: 1px solid #000;
+	  border-top: 1px solid #000;
+	  /* float: left;
+	  width: 180px; */
+	  background: #ededd3;
+	  margin: 0px 2px 8px 0px;
+	  /* margin: 0px 0px 10px 10px; */
+          font-variant: small-caps;
+          font-size: 11;
+          color: #878991;
+	}
+
+        #menu a {
+          color: #7889ba;
+        }
+		
+	p,h1,h2,h3 {
+	  margin: 0px 10px 10px 10px;
+	}
+	
+	pre { 
+	  margin: 0px 0px 10px 10px;
+	  border-style: solid;
+	  border-width: 2px;
+          width: 90%;
+	}
+	
+	h1 {
+	  font-size: 14px;
+	  padding-top: 10px;
+	}
+	
+        #header {
+          border: 1px solid #000;
+          width: 100%;
+          height: 75px;
+          background: #f8f8ed;
+          margin: 0px 0px 2px 0px;
+        }
+
+        #title {
+          /*margin: 2% 1% 1% 7%;
+          width: 20%;
+          float: left;
+          padding-bottom: 10px;*/
+          position: absolute;
+	  top: 30px;
+	  left: 50px;
+          font-size: xx-large;
+          font-weight: bold;
+          font-family: Verdana, Arial, Helvetica, sans-serif;
+          font-variant: small-caps;
+          color: #7889ba;
+        }
+
+        #description {
+          position: absolute;
+	  top: 40px;
+	  left: 250px;
+          font-size: x-large;
+          text-align: center;
+          font-variant: small-caps;
+          /* width: 50%;
+          float: left;
+          padding-bottom: 10px; */
+          color: #878991;
+        }
+
+        #logo1 {
+          width: 10%;
+          float: right;
+        }
+	#logo2 {
+	  width: 15%;
+	  float: left;
+	}

@@ -1,0 +1,18 @@
+<!--#set var="menuItem" value="Overview.People" -->
+<!--#set var="title" value="People" -->
+<!--#set var="description" value="People Working on Indus" -->
+
+<!--#include virtual="/header.shtml" -->
+
+  <p>Project Manager
+  <ul>
+      <li><a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Ranganath</a>, Kansas State University
+   </ul>
+  
+  <p>Acknowledgments
+  <ul>
+    <li>Ben Dolezal, Kansas State University<br>(Indus logo design)</li>
+    <li>Jason Weber, Kansas State University<br>(Indus website management)</li>
+  </ul>
+
+<!--#include virtual="/footer.shtml" -->

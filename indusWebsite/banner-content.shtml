@@ -1,0 +1,8 @@
+   <div id="logo2"><img src="/images/indus_logo.gif" border="0" alt="indus logo" height="100%" width="100%"></div>
+    <!--#if expr="${description}" -->
+    <!--<div id="description"> <!--#echo var="description" --> </div> -->
+    <!--#else -->
+    <!--<div id="description">Downloads</div>-->
+    <!--#endif -->
+    
+  <div id="logo1"><a href="http://www.cis.ksu.edu/santos/"><img src="/images/smSantos.gif" border="0" alt="santos lab"></a></div>

@@ -1,0 +1,82 @@
+  <h1>Overview</h1>
+  <ul>
+    <!--#if expr="${menuItem} = Overview.About" -->
+    <li>About Indus</li>
+    <!--#else -->
+    <li><a href="/">About Indus</a></li>
+    <!--#endif -->
+
+    <!--#if expr="${menuItem} = Overview.People" -->
+    <li>People</li>
+    <!--#else -->
+    <li><a href="/overview/people.shtml">People</a></li>
+    <!--#endif -->
+
+    <!--#if expr="${menuItem} = Overview.Funding" -->
+    <li>Funding</li>
+    <!--#else -->
+    <li><a href="/overview/funding.shtml">Funding</a></li>
+    <!--#endif -->
+
+    <!--#if expr="${menuItem} = Overview.Related" -->
+    <li>Related Projects</li>
+    <!--#else -->
+    <li><a href="/overview/related.shtml">Related projects</a></li>
+    <!--#endif -->
+    
+    <li><a href="http://projects.cis.ksu.edu/projects/indus/">Sourceforge</a></li>
+  </ul>
+
+  <h1>Downloads</h1>
+  <ul>
+    <!--#if expr="${menuItem} = Downloads" -->
+    <li>Indus</li>
+    <!--#else -->
+    <li><a href="/downloads/index.shtml">Indus</a></li>
+    <!--#endif -->
+  </ul> 
+  
+  <h1>Documentation</h1>
+  <ul>
+    <!--#if expr="${menuItem} = Documentation.ScreenShots" --> 
+    <li>Screen Shots</li>
+    <!--#else -->
+    <li><a href="/documentation/screenshots.shtml">Screen Shots</a></li>
+    <!--#endif -->
+    
+    <!--#if expr="${menuItem} = Documentation.CaseStudies" --> 
+    <li>Case Studies</li>
+    <!--#else -->
+    <li><a href="/documentation/case-studies.shtml">Case Studies</a></li>
+    <!--#endif -->
+  </ul>
+
+  <h1>Collaborations</h1>
+  <ul>
+    <!--#if expr="${menuItem} = Collaborations.Papers" -->
+    <li>Papers</li>
+    <!--#else -->
+    <li><a href="/collaborations/papers.shtml">Papers</a></li>
+    <!--#endif -->
+
+    <!--#if expr="${menuItem} = Collaborations.Presentations" -->    
+    <li>Presentations</li>
+    <!--#else -->
+    <li><a href="/collaborations/presentations.shtml">Presentations</a></li>
+    <!--#endif -->
+  </ul>
+
+  <h1>Support</h1>
+  <ul>
+    <!--#if expr="${menuItem} = Support.Policy" -->
+    <li>Policy</li>
+    <!--#else -->
+    <li><a href="/support/policy.shtml">Policy</a></li>
+    <!--#endif -->
+
+    <li><a href="http://projects.cis.ksu.edu/forum/?group_id=12">Forums</a></li>
+
+    <li><a href="http://projects.cis.ksu.edu/tracker/?group_id=12">Tracker (Bugs, Requests)</a></li>    
+
+    <li><a href="http://projects.cis.ksu.edu/mail/?group_id=12">Mailing List</a></li>
+  </ul>
