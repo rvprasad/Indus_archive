@@ -23,7 +23,7 @@ import soot.ValueBox;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.slicer.TaggingBasedSliceCollector.SlicingTag;
+import edu.ksu.cis.indus.slicer.SlicingTag;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
 import org.apache.commons.logging.Log;
@@ -238,6 +238,12 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/24 10:12:03  venku
+   - there are no residualizers now.  There is a very precise
+     slice collector which will collect the slice via tags.
+   - architectural change. The slicer is hard-wired wrt to
+     slice collection.  Residualization is outside the slicer.
+
    Revision 1.7  2003/11/24 00:11:42  venku
    - moved the residualizers/transformers into transformation
      package.
