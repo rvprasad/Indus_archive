@@ -26,7 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.InterProceduralDivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
-import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDAv3;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationInsensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
@@ -1228,7 +1228,8 @@ public final class SlicerConfiguration
 		final String _sliceType = getSliceType();
 
 		if (SlicingEngine.SLICE_TYPES.contains(_sliceType)) {
-            id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DA, Collections.singleton(new IdentifierBasedDAv3()));
+            id2dependencyAnalyses.put(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA, 
+                    Collections.singleton(new IdentifierBasedDataDAv3()));
 
 			final Collection _c = CollectionsUtilities.getSetFromMap(id2dependencyAnalyses, IDependencyAnalysis.CONTROL_DA);
 
