@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.datastructures.Quadraple;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.INode;
@@ -53,6 +54,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 
@@ -78,19 +80,30 @@ public final class MonitorAnalysis
   extends AbstractAnalysis
   implements IMonitorInfo {
 	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	static final Log LOGGER = LogFactory.getLog(MonitorAnalysis.class);
-
-	/** 
 	 * A predicate used to filter <code>EnterMonitorStmt</code>.
 	 */
-	private static final Predicate ENTER_MONITOR_STMT_PREDICATE =
+	public static final Predicate ENTER_MONITOR_STMT_PREDICATE =
 		new Predicate() {
 			public boolean evaluate(final Object obj) {
 				return obj instanceof EnterMonitorStmt;
 			}
 		};
+
+	/** 
+	 * A predicate used to filter statements with invoke expressions. Filter expression is
+	 * <code>((Stmt)o).containsInvokeExpr()</code>.
+	 */
+	public static final Predicate INVOKE_EXPR_PREDICATE =
+		new Predicate() {
+			public boolean evaluate(final Object object) {
+				return ((Stmt) object).containsInvokeExpr();
+			}
+		};
+
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	static final Log LOGGER = LogFactory.getLog(MonitorAnalysis.class);
 
 	/** 
 	 * This is collection of monitor triples that occur in the analyzed system.  The elements of the triple are of type
@@ -115,7 +128,7 @@ public final class MonitorAnalysis
 	final Map method2enclosedStmts2monitors = new HashMap();
 
 	/** 
-	 * This collects the enter-monitor statements in each method during preprocessing.
+	 * This collects the enter-monitor statements in each method during preprocessing.  This is used during analysis only.
 	 *
 	 * @invariant method2enterMonitors.oclIsKindOf(Map(SootMethod, Collection(EnterMonitorStmt)))
 	 */
@@ -126,7 +139,7 @@ public final class MonitorAnalysis
 	 *
 	 * @invariant method2enclosedStmts2monitors.oclIsKindOf(Map(SootMethod(Map(Stmt, Collection(Stmt)))))
 	 */
-	final Map method2monitor2encloseStmts = new HashMap();
+	final Map method2monitor2enclosedStmts = new HashMap();
 
 	/** 
 	 * This provides object flow information.
@@ -142,9 +155,18 @@ public final class MonitorAnalysis
 	private final Map syncedMethod2enclosedStmts = new HashMap();
 
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private IObjectDirectedGraph monitorGraph;
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private final PairManager pairMgr = new PairManager();
 
 	/**
 	 * Creates a new MonitorAnalysis object.
@@ -211,124 +233,92 @@ public final class MonitorAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosedStmts(soot.jimple.Stmt, SootMethod, boolean)
-	 */
-	public Collection getEnclosedStmts(final Stmt monitorStmt, final SootMethod method, final boolean transitive) {
-		final Collection _result = new HashSet();
-
-		final Map _map = (Map) MapUtils.getObject(method2monitor2encloseStmts, method, Collections.EMPTY_MAP);
-
-		if (_map.size() > 0) {
-			if (transitive) {
-				_result.addAll(calculateTransitiveClosure(_map, monitorStmt));
-			} else {
-				_result.addAll((Collection) MapUtils.getObject(_map, monitorStmt, Collections.EMPTY_LIST));
-			}
-
-			// remove the monitor from the set.
-			final Collection _monitorTriples = getMonitorTriplesFor(monitorStmt, method);
-			final Iterator _i = _monitorTriples.iterator();
-			final int _iEnd = _monitorTriples.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Triple _triple = (Triple) _i.next();
-				_result.remove(_triple.getFirst());
-				_result.remove(_triple.getSecond());
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * @see IMonitorInfo#getEnclosedStmts(SootMethod,boolean)
-	 */
-	public Collection getEnclosedStmts(final SootMethod method, final boolean transitive) {
-		if (!syncedMethods.isEmpty()) {
-			processSyncedMethods();
-		}
-
-		final Collection _result = new HashSet();
-		_result.addAll((Collection) MapUtils.getObject(syncedMethod2enclosedStmts, method, Collections.EMPTY_LIST));
-
-		if (transitive && !_result.isEmpty()) {
-			final Collection _temp = new HashSet();
-			_temp.addAll(_result);
-			CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
-
-			final Map _monitor2enclosedStmts = (Map) method2monitor2encloseStmts.get(method);
-			final Iterator _i = _temp.iterator();
-			final int _iEnd = _temp.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final Stmt _monitorStmt = (Stmt) _i.next();
-
-				_result.addAll(calculateTransitiveClosure(_monitor2enclosedStmts, _monitorStmt));
-			}
-		}
-		return _result;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosedStmts(edu.ksu.cis.indus.common.datastructures.Triple,
 	 * 		boolean)
 	 */
 	public Collection getEnclosedStmts(final Triple monitorTriple, final boolean transitive) {
 		final Collection _result = new HashSet();
 		final EnterMonitorStmt _enterMonitorStmt = (EnterMonitorStmt) monitorTriple.getFirst();
-		final SootMethod _sootMethod = (SootMethod) monitorTriple.getThird();
+		final SootMethod _sm = (SootMethod) monitorTriple.getThird();
 
 		if (_enterMonitorStmt == null) {
-			_result.addAll(getEnclosedStmts(_sootMethod, transitive));
+			if (!syncedMethods.isEmpty()) {
+				processSyncedMethods();
+			}
+
+			_result.addAll((Collection) MapUtils.getObject(syncedMethod2enclosedStmts, _sm, Collections.EMPTY_LIST));
+
+			if (transitive && !_result.isEmpty()) {
+				final Map _monitor2enclosedStmts = (Map) method2monitor2enclosedStmts.get(_sm);
+				final Collection _temp = new HashSet();
+				_temp.addAll(_result);
+				CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
+
+				final Iterator _i = _temp.iterator();
+				final int _iEnd = _temp.size();
+
+				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+					final Stmt _monitorStmt = (Stmt) _i.next();
+					final Collection _monitorTriplesFor = getMonitorTriplesFor(_monitorStmt, _sm);
+					final Iterator _j = _monitorTriplesFor.iterator();
+					final int _jEnd = _monitorTriplesFor.size();
+
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final Triple _monitor = (Triple) _j.next();
+						_result.addAll(calculateTransitiveClosureOfEnclosedStmts(_monitor2enclosedStmts, _monitor, _sm));
+					}
+				}
+			}
 		} else {
-			_result.addAll(getEnclosedStmts(_enterMonitorStmt, _sootMethod, transitive));
+			final Map _monitor2enclosedStmts =
+				(Map) MapUtils.getObject(method2monitor2enclosedStmts, _sm, Collections.EMPTY_MAP);
+
+			if (!_monitor2enclosedStmts.isEmpty()) {
+				if (transitive) {
+					_result.addAll(calculateTransitiveClosureOfEnclosedStmts(_monitor2enclosedStmts, monitorTriple, _sm));
+				} else {
+					_result.addAll((Collection) MapUtils.getObject(_monitor2enclosedStmts, monitorTriple,
+							Collections.EMPTY_LIST));
+				}
+			}
 		}
 		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitorTriples(soot.jimple.Stmt, soot.SootMethod, boolean)
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitorStmts(soot.jimple.Stmt, soot.SootMethod, boolean)
 	 */
-	public Collection getEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive) {
+	public Collection getEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive) {
 		final Collection _result = new HashSet();
-		final Collection _temp = getEnclosingMonitors(stmt, method, transitive);
-		CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
-
+		final Collection _temp = getEnclosingMonitorTriples(stmt, method, transitive);
 		final Iterator _i = _temp.iterator();
 		final int _iEnd = _temp.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final EnterMonitorStmt _stmt = (EnterMonitorStmt) _i.next();
-			_result.addAll(getMonitorTriplesFor(_stmt, method));
+			final Triple _monitor = (Triple) _i.next();
+			final Object _enter = _monitor.getFirst();
+
+			if (_enter != null) {
+				_result.add(_enter);
+				_result.add(_monitor.getSecond());
+			}
 		}
 		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitors(soot.jimple.Stmt, SootMethod, boolean)
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getEnclosingMonitorTriples(soot.jimple.Stmt, SootMethod, boolean)
 	 */
-	public Collection getEnclosingMonitors(final Stmt stmt, final SootMethod method, final boolean transitive) {
+	public Collection getEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive) {
 		final Collection _result = new HashSet();
+		final Map _enclosedStmt2monitors =
+			(Map) MapUtils.getObject(method2enclosedStmts2monitors, method, Collections.EMPTY_MAP);
 
-		final Map _map = (Map) MapUtils.getObject(method2enclosedStmts2monitors, method, Collections.EMPTY_MAP);
-
-		if (_map.size() > 0) {
+		if (_enclosedStmt2monitors.size() > 0) {
 			if (transitive) {
-				_result.addAll(calculateTransitiveClosure(_map, stmt));
+				_result.addAll(calculateTransitiveClosureOfEnclosingMonitor(_enclosedStmt2monitors, stmt));
 			} else {
-				_result.addAll((Collection) MapUtils.getObject(_map, stmt, Collections.EMPTY_LIST));
-			}
-
-			if (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt) {
-				// remove the monitor from the set.
-				final Collection _monitorTriples = getMonitorTriplesFor(stmt, method);
-				final Iterator _i = _monitorTriples.iterator();
-				final int _iEnd = _monitorTriples.size();
-
-				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final Triple _triple = (Triple) _i.next();
-					_result.remove(_triple.getFirst());
-					_result.remove(_triple.getSecond());
-				}
+				_result.addAll((Collection) MapUtils.getObject(_enclosedStmt2monitors, stmt, Collections.EMPTY_LIST));
 			}
 		}
 		return _result;
@@ -339,6 +329,74 @@ public final class MonitorAnalysis
 	 */
 	public Object getId() {
 		return IMonitorInfo.ID;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getInterProcedurallyEnclosedStmts(Triple,     boolean,
+	 * 		edu.ksu.cis.indus.interfaces.ICallGraphInfo)
+	 */
+	public Map getInterProcedurallyEnclosedStmts(final Triple monitorTriple, final boolean transitive,
+		final ICallGraphInfo callgraph) {
+		final Map _result;
+		final Stmt _stmt = (Stmt) monitorTriple.getFirst();
+		final SootMethod _sootMethod = (SootMethod) monitorTriple.getThird();
+
+		if (_stmt == null) {
+			_result = getInterProcedurallyEnclosedStmts(_sootMethod, transitive, callgraph);
+		} else {
+			_result = getInterProcedurallyEnclosedStmts(_stmt, _sootMethod, transitive, callgraph);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getInterProcedurallyEnclosingMonitorStmts(soot.jimple.Stmt,
+	 * 		soot.SootMethod,     boolean, edu.ksu.cis.indus.interfaces.ICallGraphInfo)
+	 */
+	public Map getInterProcedurallyEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive,
+		final ICallGraphInfo callgraph) {
+		final Map _result = new HashMap();
+		final Map _method2monitors = getInterProcedurallyEnclosingMonitorTriples(stmt, method, transitive, callgraph);
+		final Iterator _i = _method2monitors.entrySet().iterator();
+		final int _iEnd = _method2monitors.entrySet().size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final Collection _monitors = (Collection) _entry.getValue();
+			final Collection _temp = new HashSet();
+			final Iterator _j = _monitors.iterator();
+			final int _jEnd = _monitors.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final Triple _monitor = (Triple) _j.next();
+				_temp.addAll(getStmtsOfMonitor(_monitor));
+			}
+			_result.put(_entry.getKey(), _temp);
+		}
+		return _result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getInterProcedurallyEnclosingMonitorTriples(soot.jimple.Stmt,
+	 * 		soot.SootMethod, boolean, edu.ksu.cis.indus.interfaces.ICallGraphInfo)
+	 */
+	public Map getInterProcedurallyEnclosingMonitorTriples(final Stmt stmt, final SootMethod method,
+		final boolean transitive, final ICallGraphInfo callgraph) {
+		final Map _result = new HashMap();
+		_result.put(method, getEnclosingMonitorTriples(stmt, method, transitive));
+
+		if (transitive) {
+			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(new HashSet());
+			_wb.addAllWork(callgraph.getCallers(method));
+
+			while (_wb.hasWork()) {
+				final CallTriple _ctrp = (CallTriple) _wb.getWork();
+				final SootMethod _caller = _ctrp.getMethod();
+				_result.put(_caller, getEnclosingMonitorTriples(_ctrp.getStmt(), _caller, transitive));
+				_wb.addAllWorkNoDuplicates(callgraph.getCallers(_caller));
+			}
+		}
+		return _result;
 	}
 
 	/**
@@ -430,8 +488,11 @@ public final class MonitorAnalysis
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Triple _triple = (Triple) _i.next();
 
+			final Object _enter = _triple.getFirst();
+			final Object _exit = _triple.getSecond();
+
 			if (_triple.getThird().equals(method)
-				  && (_triple.getFirst().equals(monitorStmt) || _triple.getSecond().equals(monitorStmt))) {
+				  && ((_enter != null && _enter.equals(monitorStmt)) || (_exit != null && _exit.equals(monitorStmt)))) {
 				_result.add(_triple);
 			}
 		}
@@ -479,6 +540,24 @@ public final class MonitorAnalysis
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IMonitorInfo#getUnenclosedStmtsOf(soot.SootMethod)
+	 */
+	public Collection getUnenclosedStmtsOf(final SootMethod method) {
+		final Collection _enclosedStmts =
+			((Map) MapUtils.getObject(method2enclosedStmts2monitors, method, Collections.EMPTY_MAP)).keySet();
+		final Predicate _predicate =
+			new Predicate() {
+				public boolean evaluate(final Object o) {
+					return !_enclosedStmts.contains(o);
+				}
+			};
+
+		final Collection _result =
+			IteratorUtils.toList(IteratorUtils.filteredIterator(getUnitGraph(method).iterator(), _predicate));
+		return _result;
+	}
+
+	/**
 	 * Calculates the synchronization dependency information for the methods provided during initialization.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
@@ -507,7 +586,7 @@ public final class MonitorAnalysis
 
 			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
 				final Stmt _enterMonitor = (Stmt) _j.next();
-				final Map _monitor2enclosedStmts = CollectionsUtilities.getMapFromMap(method2monitor2encloseStmts, _method);
+				final Map _monitor2enclosedStmts = CollectionsUtilities.getMapFromMap(method2monitor2enclosedStmts, _method);
 
 				if (!_processedMonitors.contains(_enterMonitor) && _monitor2enclosedStmts.get(_enterMonitor) == null) {
 					_processedMonitors.addAll(processMonitor(_processedMonitors, _enterMonitor, _method, _enter2exits));
@@ -535,6 +614,7 @@ public final class MonitorAnalysis
 		monitorTriples.clear();
 		syncedMethods.clear();
 		syncedMethod2enclosedStmts.clear();
+		pairMgr.reset();
 		monitorGraph = null;
 	}
 
@@ -561,11 +641,11 @@ public final class MonitorAnalysis
 
 			for (final Iterator _j = ((Map) _entry.getValue()).entrySet().iterator(); _j.hasNext();) {
 				final Map.Entry _entry2 = (Map.Entry) _j.next();
-				final Stmt _dependent = (Stmt) _entry2.getKey();
+				final Object _dependent = _entry2.getKey();
 
 				for (final Iterator _k = ((Collection) _entry2.getValue()).iterator(); _k.hasNext();) {
-					final Stmt _obj = (Stmt) _k.next();
-					_temp.append("\t\t" + _dependent + "[" + _dependent.hashCode() + "] -encloses- " + _obj + "["
+					final Object _obj = _k.next();
+					_temp.append("\t\t" + _dependent + "[" + _dependent.hashCode() + "] -enclosed by- " + _obj + "["
 						+ _obj.hashCode() + "]\n");
 				}
 				_localEdgeCount += ((Collection) _entry2.getValue()).size();
@@ -578,7 +658,7 @@ public final class MonitorAnalysis
 
 		int _edgeCount2 = 0;
 
-		for (final Iterator _i = method2monitor2encloseStmts.values().iterator(); _i.hasNext();) {
+		for (final Iterator _i = method2monitor2enclosedStmts.values().iterator(); _i.hasNext();) {
 			for (final Iterator _j = ((Map) _i.next()).values().iterator(); _j.hasNext();) {
 				_edgeCount2 += ((Collection) _j.next()).size();
 			}
@@ -622,30 +702,175 @@ public final class MonitorAnalysis
 	}
 
 	/**
-	 * Calculates the monitor statement transitive closure for the given statement based in the given map.
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
-	 * @param map on which to calculate the closure.
+	 * @param method DOCUMENT ME!
+	 * @param transitive DOCUMENT ME!
+	 * @param callgraph DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private Map getInterProcedurallyEnclosedStmts(final SootMethod method, final boolean transitive,
+		final ICallGraphInfo callgraph) {
+		final Collection _intraStmts = getEnclosedStmts(new Triple(null, null, method), transitive);
+		final Map _method2stmts = new HashMap();
+		_method2stmts.put(method, _intraStmts);
+
+		final Iterator _stmtsWithInvokeExpr = IteratorUtils.filteredIterator(_intraStmts.iterator(), INVOKE_EXPR_PREDICATE);
+		calculateInterprocedurallyEnclosedStmts(method, transitive, callgraph, _method2stmts, _stmtsWithInvokeExpr);
+		return _method2stmts;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param monitorStmt DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 * @param transitive DOCUMENT ME!
+	 * @param callgraph DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	private Map getInterProcedurallyEnclosedStmts(final Stmt monitorStmt, final SootMethod method, final boolean transitive,
+		final ICallGraphInfo callgraph) {
+		final Collection _intraStmts = new HashSet();
+		final Collection _monitorTriplesFor = getMonitorTriplesFor(monitorStmt, method);
+		final Iterator _i = _monitorTriplesFor.iterator();
+		final int _iEnd = _intraStmts.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Triple _monitor = (Triple) _i.next();
+			_intraStmts.addAll(getStmtsOfMonitor(_monitor));
+		}
+
+		final Map _method2stmts = new HashMap();
+		_method2stmts.put(method, _intraStmts);
+
+		final Iterator _stmtsWithInvokeExpr = IteratorUtils.filteredIterator(_intraStmts.iterator(), INVOKE_EXPR_PREDICATE);
+		calculateInterprocedurallyEnclosedStmts(method, transitive, callgraph, _method2stmts, _stmtsWithInvokeExpr);
+		return _method2stmts;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method
+	 * @param transitive
+	 * @param callgraph
+	 * @param method2stmts
+	 * @param stmtsWithInvokeExpr
+	 */
+	private void calculateInterprocedurallyEnclosedStmts(final SootMethod method, final boolean transitive,
+		final ICallGraphInfo callgraph, final Map method2stmts, final Iterator stmtsWithInvokeExpr) {
+		final Context _context = new Context();
+		final IWorkBag _wb = new HistoryAwareLIFOWorkBag(new HashSet());
+
+		for (final Iterator _i = stmtsWithInvokeExpr; _i.hasNext();) {
+			final Stmt _stmt = (Stmt) _i.next();
+			_wb.addWork(pairMgr.getOptimizedPair(_stmt, method));
+		}
+
+		while (_wb.hasWork()) {
+			final Pair _pair = (Pair) _wb.getWork();
+			final Stmt _stmt = (Stmt) _pair.getFirst();
+			final SootMethod _caller = (SootMethod) _pair.getSecond();
+			_context.setStmt(_stmt);
+			_context.setRootMethod(_caller);
+
+			final Collection _callees = callgraph.getCallees(_stmt.getInvokeExpr(), _context);
+			final Iterator _i = _callees.iterator();
+			final int _iEnd = _callees.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final SootMethod _callee = (SootMethod) _i.next();
+
+				if (!_callee.isSynchronized() || (_callee.isSynchronized() && transitive)) {
+					final Collection _stmts = getUnenclosedStmtsOf(_callee);
+					CollectionsUtilities.putAllIntoSetInMap(method2stmts, _callee, _stmts);
+
+					for (final Iterator _j = IteratorUtils.filteredIterator(_stmts.iterator(), INVOKE_EXPR_PREDICATE);
+						  _j.hasNext();) {
+						final Stmt _s = (Stmt) _j.next();
+						_wb.addWork(pairMgr.getOptimizedPair(_s, _callee));
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Calculates the transitive closure of enclosing monitor for the given statement based in the given map.
+	 *
+	 * @param monitor2stmts maps a statement to it's immediately enclosing intraprocedural monitor.
+	 * @param monitor from which to initiate the closure.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @return the contents of the closure.
+	 *
+	 * @pre map != null and stmt != null and method != null
+	 * @pre map.oclIsKindOf(Map(Triple(EnterMonitorStmt, ExitMonitorStmt, SootMethod), Collection(Stmt)))
+	 * @post result != null and result.oclIsKindOf(Collection(Triple(EnterMonitorStmt, ExitMonitorStmt, SootMethod)))
+	 */
+	private Collection calculateTransitiveClosureOfEnclosedStmts(final Map monitor2stmts, final Triple monitor,
+		final SootMethod method) {
+		final Collection _result = new HashSet();
+		final Collection _temp = new HashSet();
+		final IWorkBag _wb = new LIFOWorkBag();
+		_wb.addWork(monitor);
+
+		while (_wb.hasWork()) {
+			final Triple _monitor = (Triple) _wb.getWork();
+			_temp.clear();
+			_temp.addAll((Collection) CollectionsUtilities.getFromMap(monitor2stmts, _monitor,
+					CollectionsUtilities.EMPTY_LIST_FACTORY));
+			_result.add(_temp);
+			CollectionUtils.filter(_temp, ENTER_MONITOR_STMT_PREDICATE);
+
+			final Iterator _i = _temp.iterator();
+			final int _iEnd = _temp.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Stmt _monitorStmt = (Stmt) _i.next();
+				_wb.addAllWorkNoDuplicates(getMonitorTriplesFor(_monitorStmt, method));
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * Calculates the transitive closure of enclosing monitor for the given statement based in the given map.
+	 *
+	 * @param stmt2monitors maps a statement to it's immediately enclosing intraprocedural monitor.
 	 * @param stmt from which to initiate the closure.
 	 *
 	 * @return the contents of the closure.
 	 *
 	 * @pre map != null and stmt != null
-	 * @pre map.oclIsKindOf(Map(Stmt, Collection(Stmt))
-	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 * @pre map.oclIsKindOf(Map(Stmt, Collection(Triple(EnterMonitorStmt, ExitMonitorStmt, SootMethod))))
+	 * @post result != null and result.oclIsKindOf(Collection(Triple(EnterMonitorStmt, ExitMonitorStmt, SootMethod)))
 	 */
-	private Collection calculateTransitiveClosure(final Map map, final Stmt stmt) {
+	private Collection calculateTransitiveClosureOfEnclosingMonitor(final Map stmt2monitors, final Stmt stmt) {
 		final Collection _result = new HashSet();
 		final IWorkBag _wb = new LIFOWorkBag();
-		final Collection _stmts = new HashSet();
 		_wb.addWork(stmt);
-		_result.add(stmt);
 
 		while (_wb.hasWork()) {
 			final Stmt _s = (Stmt) _wb.getWork();
-			_stmts.clear();
-			_stmts.addAll((Collection) map.get(_s));
-			CollectionUtils.filter(_stmts, ENTER_MONITOR_STMT_PREDICATE);
-			_result.addAll(_stmts);
+			final Collection _monitors =
+				(Collection) CollectionsUtilities.getFromMap(stmt2monitors, _s, CollectionsUtilities.EMPTY_LIST_FACTORY);
+			_result.add(_monitors);
+
+			final Iterator _i = _monitors.iterator();
+			final int _iEnd = _monitors.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Triple _monitor = (Triple) _i.next();
+				_wb.addAllWorkNoDuplicates(getStmtsOfMonitor(_monitor));
+			}
 		}
 		return _result;
 	}
@@ -654,17 +879,17 @@ public final class MonitorAnalysis
 	 * Populates the work bag with work to proecess the successors of the given basic block.
 	 *
 	 * @param workbag to populate.
-	 * @param enterBasicBlock is the basic blocks whose successors need to be processed.
+	 * @param exitBasicBlock is the basic blocks whose successors need to be processed.
 	 * @param enterStack is the stack of enter monitors.
 	 * @param currStmts is collection of current statement matched to the topmost monitor.
 	 *
-	 * @pre workbag != null and enterBasicBlock != null nad enterStack != null and currStmts != null
+	 * @pre workbag != null and exitBasicBlock != null nad enterStack != null and currStmts != null
 	 * @pre enterStack.oclIsKindOf(Sequence(Pair(EnterMonitorStmt, Collection(Stmt))))
 	 * @pre currStmts.oclIsKindOf(Collection(Stmt))
 	 */
-	private void populateWorkBagToProcessSuccessors(final IWorkBag workbag, final BasicBlock enterBasicBlock,
+	private void populateWorkBagToProcessSuccessors(final IWorkBag workbag, final BasicBlock exitBasicBlock,
 		final Stack enterStack, final Collection currStmts) {
-		final Collection _succs = enterBasicBlock.getSuccsOf();
+		final Collection _succs = exitBasicBlock.getSuccsOf();
 
 		if (_succs.size() == 1) {
 			final BasicBlock _succ = (BasicBlock) _succs.iterator().next();
@@ -700,15 +925,19 @@ public final class MonitorAnalysis
 		final Stack enterStack, final Collection currStmts, final BasicBlockGraph graph) {
 		for (final Iterator _k = exitMonitors.iterator(); _k.hasNext();) {
 			final Stmt _exit = (Stmt) _k.next();
-
 			final BasicBlock _exitBlock = graph.getEnclosingBlock(_exit);
 
+			// as we are short circuiting, remember to add the exit monitor stmt of the monitor we just skipped to the 
+			// current statement list.
+			final Collection _currStmtsClone = (Collection) ((HashSet) currStmts).clone();
+			_currStmtsClone.add(_exit);
+
 			if (_exit == _exitBlock.getTrailerStmt()) {
-				populateWorkBagToProcessSuccessors(workbag, _exitBlock, enterStack, currStmts);
+				populateWorkBagToProcessSuccessors(workbag, _exitBlock, enterStack, _currStmtsClone);
 			} else {
 				final List _stmts = _exitBlock.getStmtsOf();
 				workbag.addWork(new Quadraple(_exitBlock, _stmts.get(_stmts.indexOf(_exit) + 1), enterStack.clone(),
-						((HashSet) currStmts).clone()));
+						_currStmtsClone));
 			}
 		}
 	}
@@ -737,31 +966,22 @@ public final class MonitorAnalysis
 		Collection _result = currStmts;
 
 		if (shouldCollectInfo(method, _enter, _exit)) {
-			/*
-			 * This needs to be accounted in synchronization DA.
-			 * currStmts.add(_enter);
-			 * currStmts.add(_exit);
-			 */
-
 			// add dependee information.
 			final Map _dent2ddees = CollectionsUtilities.getMapFromMap(method2enclosedStmts2monitors, method);
-			final Map _ddee2ddents = CollectionsUtilities.getMapFromMap(method2monitor2encloseStmts, method);
-			final Collection _dependees = new HashSet();
-			_dependees.add(_enter);
-			_dependees.add(_exit);
+			final Map _ddee2ddents = CollectionsUtilities.getMapFromMap(method2monitor2enclosedStmts, method);
+
+			// collect monitor triples
+			final Triple _dependee = new Triple(_enter, _exit, method);
+			monitorTriples.add(_dependee);
 
 			for (final Iterator _k = currStmts.iterator(); _k.hasNext();) {
 				final Stmt _curr = (Stmt) _k.next();
-				CollectionsUtilities.putAllIntoSetInMap(_dent2ddees, _curr, _dependees);
+				CollectionsUtilities.putIntoSetInMap(_dent2ddees, _curr, _dependee);
 			}
 
 			// add enclosure information for enter and exit monitor
-			CollectionsUtilities.putAllIntoSetInMap(_ddee2ddents, _enter, currStmts);
-			CollectionsUtilities.putAllIntoSetInMap(_ddee2ddents, _exit, currStmts);
+			CollectionsUtilities.putAllIntoSetInMap(_ddee2ddents, _dependee, currStmts);
 
-			// collect monitor triples
-			final Triple _triple = new Triple(_enter, _exit, method);
-			monitorTriples.add(_triple);
 			CollectionsUtilities.putIntoSetInMap(enter2exits, _enter, _exit);
 			// load up the statements in the enclosing critical region for processing
 			_result = (HashSet) _pair.getSecond();
@@ -827,6 +1047,9 @@ outerloop:
 						_enterMonitors.add(_enter);
 					} else {
 						final Collection _exits = CollectionsUtilities.getSetFromMap(enter2exits, _enter);
+
+						// add the current monitor to the list of current statements
+						_currStmts.add(_stmt);
 						populateWorkBagWithSuccessorsOfNestedMonitor(_workbag, _exits, _enterStack, _currStmts, _bbGraph);
 						_skippingSuccs = true;
 						break;
@@ -864,34 +1087,12 @@ outerloop:
 	 * of the method.
 	 */
 	private void processSyncedMethods() {
-		final Collection _dependees = new ArrayList();
-		final Collection _temp = new HashSet();
-
 		for (final Iterator _i = syncedMethods.iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
-
-			for (final Iterator _j = getUnitGraph(_sm).iterator(); _j.hasNext();) {
-				final Stmt _stmt = (Stmt) _j.next();
-				_dependees.clear();
-				_dependees.addAll(getEnclosingMonitors(_stmt, _sm, false));
-				CollectionUtils.filter(_dependees, ENTER_MONITOR_STMT_PREDICATE);
-
-				final int _size;
-
-				if (_stmt instanceof EnterMonitorStmt || _stmt instanceof ExitMonitorStmt) {
-					_size = 1;
-				} else {
-					_size = 0;
-				}
-
-				if (_dependees.size() == _size) {
-					_temp.add(_stmt);
-				}
-			}
+			final Collection _temp = getUnenclosedStmtsOf(_sm);
 
 			if (!_temp.isEmpty()) {
 				syncedMethod2enclosedStmts.put(_sm, new ArrayList(_temp));
-				_temp.clear();
 			}
 		}
 		syncedMethods.clear();
@@ -942,6 +1143,9 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/07/25 10:27:27  venku
+   - extended MonitorInfo interface with convenience methods.
+   - implemented the above methods in MonitorAnalysis.
    Revision 1.1  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.

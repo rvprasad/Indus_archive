@@ -95,8 +95,24 @@ public final class SynchronizationDA
 		Collection _result = (Collection) _temp.get(dependentStmt);
 
 		if (_result == null) {
-			_result = new HashSet(monitorInfo.getEnclosingMonitors((Stmt) dependentStmt, (SootMethod) method, false));
-			fixMonitorInfoForDependence(_result, (Stmt) dependentStmt, (SootMethod) method);
+			_result = new HashSet(monitorInfo.getEnclosingMonitorStmts((Stmt) dependentStmt, (SootMethod) method, false));
+
+			final Stmt _stmt = (Stmt) dependentStmt;
+
+			if (_stmt instanceof ExitMonitorStmt || _stmt instanceof EnterMonitorStmt) {
+				final Collection _monitorTriples = monitorInfo.getMonitorTriplesFor(_stmt, ((SootMethod) method));
+
+				for (final Iterator _i = _monitorTriples.iterator(); _i.hasNext();) {
+					final Triple _triple = (Triple) _i.next();
+					final Object _enter = _triple.getFirst();
+					final Object _exit = _triple.getSecond();
+
+					if (_enter.equals(_stmt) || _exit.equals(_stmt)) {
+						_result.add(_enter);
+						_result.add(_exit);
+					}
+				}
+			}
 			_temp.put(dependentStmt, _result);
 		}
 		return _result;
@@ -122,8 +138,24 @@ public final class SynchronizationDA
 		Collection _result = (Collection) _temp.get(dependeeStmt);
 
 		if (_result == null) {
-			_result = new HashSet(monitorInfo.getEnclosedStmts((Stmt) dependeeStmt, (SootMethod) method, false));
-			fixMonitorInfoForDependence(_result, (Stmt) dependeeStmt, (SootMethod) method);
+			final Collection _monitors = monitorInfo.getMonitorTriplesFor((Stmt) dependeeStmt, (SootMethod) method);
+			_result = new HashSet();
+
+			final Iterator _i = _monitors.iterator();
+			final int _iEnd = _monitors.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final Triple _monitor = (Triple) _i.next();
+				final Object _enter = _monitor.getFirst();
+				final Object _exit = _monitor.getSecond();
+
+				if (dependeeStmt.equals(_enter) || dependeeStmt.equals(_exit)) {
+					final Collection _enclosedStmts = monitorInfo.getEnclosedStmts(_monitor, false);
+					_result.addAll(_enclosedStmts);
+					_result.add(_enter);
+					_result.add(_exit);
+				}
+			}
 			_temp.put(dependeeStmt, _result);
 		}
 		return _result;
@@ -205,39 +237,15 @@ public final class SynchronizationDA
 			throw new InitializationException(IMonitorInfo.ID + " was not provided in the info.");
 		}
 	}
-
-	/**
-	 * Fixed the monitor enclosure to fit dependence description.  In short, if <code>stmt</code> is a monitor statement then
-	 * add the corresponding monitor statements to <code>monitors</code>.
-	 *
-	 * @param monitors needs to be updated to fit dependence description.
-	 * @param stmt based on which the fix will occur.
-	 * @param method in which the monitors occur.
-	 *
-	 * @pre monitors != null and stmt != null and method != null
-	 * @pre monitors.oclIsKindOf(Collection(Stmt))
-	 * @post monitors.oclIsKindOf(Collection(Stmt))
-	 * @post (stmt$pre.oclIsKindOf(ExitMonitorStmt) or stmt$pre.oclIsKindOf(ExitMonitorStmt)) implies monitors.contains(stmt)
-	 */
-	private void fixMonitorInfoForDependence(final Collection monitors, final Stmt stmt, final SootMethod method) {
-		if (stmt instanceof ExitMonitorStmt || stmt instanceof EnterMonitorStmt) {
-			final Collection _monitorTriples = monitorInfo.getMonitorTriplesFor(stmt, method);
-
-			for (final Iterator _i = _monitorTriples.iterator(); _i.hasNext();) {
-				final Triple _triple = (Triple) _i.next();
-				monitors.add(_triple.getFirst());
-				monitors.add(_triple.getSecond());
-			}
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.53  2004/07/23 13:55:19  venku
+   - Merging into main trunk.
    Revision 1.52.2.2  2004/07/23 13:23:16  venku
    - coding conventions.
-
    Revision 1.52.2.1  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
@@ -246,7 +254,6 @@ public final class SynchronizationDA
      - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
      - ripple effect.
      - Implemented safelock analysis to handle intraprocedural processing.
-
    Revision 1.52  2004/07/22 07:19:29  venku
    - coding conventions.
    Revision 1.51  2004/07/21 02:07:35  venku

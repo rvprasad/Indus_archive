@@ -34,7 +34,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
-import edu.ksu.cis.indus.staticanalyses.concurrency.WaitNotifyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
 import java.util.ArrayList;
@@ -1300,6 +1299,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.59  2004/07/24 10:06:19  venku
+   - moved methods from WaitNotifyAnalysis to SafeLockAnalysis - ripple effect.
+
    Revision 1.58  2004/07/24 10:02:46  venku
    - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
      preprocessor hierarchy tree.

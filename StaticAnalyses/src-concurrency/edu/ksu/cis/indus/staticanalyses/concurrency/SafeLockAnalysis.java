@@ -50,7 +50,6 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -165,13 +164,6 @@ public class SafeLockAnalysis
 	 * </p>
 	 */
 	private final Map wait2monitorTriples = new HashMap();
-
-	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private WaitNotifyAnalysis waitNotifyAnalysis;
 
 	/**
 	 * DOCUMENT ME!
@@ -525,38 +517,6 @@ public class SafeLockAnalysis
 	 * 
 	 * <p></p>
 	 *
-	 * @param monitorStmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	private boolean monitorIsSafeBasedOnWaitSafety(final EnterMonitorStmt monitorStmt, final SootMethod method) {
-		boolean _result = true;
-		final Collection _stmts = monitorInfo.getEnclosedStmts(monitorStmt, method, false);
-		final Iterator _i = _stmts.iterator();
-		final int _iEnd = _stmts.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd && _result; _iIndex++) {
-			final Stmt _stmt = (Stmt) _i.next();
-
-			if (_stmt instanceof InvokeStmt) {
-				final InvokeStmt _invokeStmt = (InvokeStmt) _stmt;
-
-				if (SafeLockAnalysis.isWaitInvocation(_invokeStmt, method, callgraphInfo)
-					  && !waitNotifyAnalysis.isWaitCoupled(_invokeStmt, method)) {
-					unsafeWaits.add(pairMgr.getOptimizedPair(_stmt, method));
-					_result = false;
-				}
-			}
-		}
-		return _result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
 	 * @param method DOCUMENT ME!
 	 */
 	private void processMethod(final SootMethod method) {
@@ -690,13 +650,6 @@ public class SafeLockAnalysis
 			_waitMethods.add(_pair.getSecond());
 		}
 
-		final Predicate _predicate =
-			new Predicate() {
-				public boolean evaluate(final Object object) {
-					return ((Stmt) object).containsInvokeExpr();
-				}
-			};
-
 		boolean _safe = true;
 
 		final Collection _temp1 = new HashSet();
@@ -717,7 +670,7 @@ public class SafeLockAnalysis
 				_temp1.clear();
 				_temp1.addAll(_stmtsOf);
 
-				CollectionUtils.filter(_temp1, _predicate);
+				CollectionUtils.filter(_temp1, MonitorAnalysis.INVOKE_EXPR_PREDICATE);
 
 				final Iterator _l = _temp1.iterator();
 				final int _lEnd = _temp1.size();
@@ -840,9 +793,10 @@ public class SafeLockAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/07/25 10:52:22  venku
+   - minor changes.
    Revision 1.10  2004/07/25 10:26:07  venku
    - added a new interface to query values attached to nodes.
-
    Revision 1.9  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
