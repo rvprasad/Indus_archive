@@ -259,7 +259,7 @@ public final class BitSetTokenManager
 
 		if (_result == null) {
 			_result = new BitSetTokenFilter(_mask);
-			type2filter.put(type, _mask);
+			type2filter.put(type, _result);
 		}
 
 		return _result;
@@ -277,6 +277,10 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/08/09 03:11:49  venku
+   - each type-based filter is dependent on the values of that type.  As these do
+     not change in an analysis, it is wise to cache these filters for reuse.
+
    Revision 1.8  2004/08/08 10:11:35  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.
