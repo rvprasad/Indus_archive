@@ -55,7 +55,22 @@ public final class SlicerConfiguration
   extends AbstractToolConfiguration
   implements IToolConfigurationFactory {
 	/**
-	 * This indicates type based information.
+	 * This identifies the property that indicates if equivalence class based interference dependence should be used  instead
+	 * of naive type-based interference dependence. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i>
+	 * attribute in <code>slicerConfig_JiBXBinding.xml</code>.
+	 */
+	static final Object EQUIVALENCE_CLASS_BASED_INFO = "EQUIVALENCE_CLASS_BASED_INFO";
+
+	/**
+	 * This identifies the property that indicates if symbol and equivalence class based interference dependence should be
+	 * used  instead of naive type-based interference dependence. This is tied to values of
+	 * <i>slicer:natureOfInterThreadAnalysis</i>  attribute in <code>slicerConfig_JiBXBinding.xml</code>.
+	 */
+	static final Object SYMBOL_AND_EQUIVCLS_BASED_INFO = "SYMBOL_AND_EQUIVCLS_BASED_INFO";
+
+	/**
+	 * This indicates type based information. This is tied to values of <i>slicer:natureOfInterThreadAnalysis</i>  attribute
+	 * in <code>slicerConfig_JiBXBinding.xml</code>.
 	 */
 	static final Object TYPE_BASED_INFO = "TYPE_BASED_INFO";
 
@@ -74,18 +89,6 @@ public final class SlicerConfiguration
 	 * intraprocedural divergent dependence.
 	 */
 	static final Object INTERPROCEDURAL_DIVERGENCEDA = "interprocedural divergence dependence";
-
-	/**
-	 * This identifies the property that indicates if equivalence class based interference dependence should be used  instead
-	 * of naive type-based interference dependence.
-	 */
-	static final Object EQUIVALENCE_CLASS_BASED_INFO = "EQUIVALENCE_CLASS_BASED_INFO";
-
-	/**
-	 * This identifies the property that indicates if symbol and equivalence class based interference dependence should be
-	 * used  instead of naive type-based interference dependence.
-	 */
-	static final Object SYMBOL_AND_EQUIVCLS_BASED_INFO = "SYMBOL_AND_EQUIVCLS_BASED_INFO";
 
 	/**
 	 * This identifies the property that indicates if ready dependence should be considered for slicing.
@@ -690,6 +693,9 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.24  2003/12/02 11:32:01  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
