@@ -53,7 +53,7 @@ public class FARegressionTestSuite
 	 */
 	public static void main(final String[] args) {
 		final TestRunner _runner = new TestRunner();
-		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalyses.flow.FARegressionTestSuite" };
+		final String[] _suiteName = { FARegressionTestSuite.class.getName() };
 		_runner.setLoading(false);
 		_runner.start(_suiteName);
 	}
@@ -124,6 +124,12 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/09 01:20:10  venku
+   - coding convention.
+   - added a new abstract class contain the logic required for xml-based
+     testing.  (AbstractXMLBasedTest)
+   - added a new xml-based call graph testing class.
+
    Revision 1.4  2004/02/09 00:32:16  venku
    - all test cases in indus extends IndusTestCase.
    - RegressionTestSuites alter the name of the test instances

@@ -46,7 +46,7 @@ public final class DataStructuresUnitTestSuite {
 	 */
 	public static void main(final String[] s) {
 		final TestRunner _runner = new TestRunner();
-		final String[] _suiteName = { "edu.ksu.cis.indus.common.datastructures.DataStructuresUnitTestSuite" };
+		final String[] _suiteName = { DataStructuresUnitTestSuite.class.getName() };
 		_runner.start(_suiteName);
 	}
 
@@ -83,6 +83,15 @@ public final class DataStructuresUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/03/29 01:55:15  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.5  2004/02/09 01:39:50  venku
    - changed test naming for report purposes.
    Revision 1.4  2004/02/09 00:39:50  venku

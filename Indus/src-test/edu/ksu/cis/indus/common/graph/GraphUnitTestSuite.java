@@ -47,7 +47,7 @@ public final class GraphUnitTestSuite {
 	 */
 	public static void main(final String[] s) {
 		final TestRunner _runner = new TestRunner();
-		final String[] _suiteName = { "edu.ksu.cis.indus.common.graph.GraphUnitTestSuite" };
+		final String[] _suiteName = { GraphUnitTestSuite.class.getName() };
 		_runner.setLoading(false);
 		_runner.start(_suiteName);
 	}
@@ -80,6 +80,9 @@ public final class GraphUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/09 01:39:50  venku
+   - changed test naming for report purposes.
+
    Revision 1.3  2004/02/09 00:39:50  venku
    - output formatting.
    - UnitTestSuites alter the name of the test instances

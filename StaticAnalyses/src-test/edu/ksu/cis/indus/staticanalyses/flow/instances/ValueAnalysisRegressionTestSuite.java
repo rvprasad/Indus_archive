@@ -62,7 +62,7 @@ public final class ValueAnalysisRegressionTestSuite
 	 */
 	public static void main(final String[] args) {
 		final TestRunner _runner = new TestRunner();
-		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalyses.flow.instances.ValueAnalysisRegressionTestSuite" };
+		final String[] _suiteName = { ValueAnalysisRegressionTestSuite.class.getName() };
 		_runner.setLoading(false);
 		_runner.start(_suiteName);
 	}
@@ -156,6 +156,9 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/04/01 22:28:19  venku
+   - test suite name was incorrect.
+
    Revision 1.3  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

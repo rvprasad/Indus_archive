@@ -65,7 +65,7 @@ public class DependencyAnalysisRegresssionTestSuite {
 	 */
 	public static void main(String[] args) {
 		final TestRunner _runner = new TestRunner();
-		final String[] _suiteName = { "edu.ksu.cis.indus.staticanalysis.dependency.DependencyAnalysisRegressionTestSuite" };
+		final String[] _suiteName = { DependencyAnalysisRegresssionTestSuite.class.getName() };
 		_runner.setLoading(false);
 		_runner.start(_suiteName);
 	}
@@ -192,6 +192,8 @@ public class DependencyAnalysisRegresssionTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/01 19:18:29  venku
+   - stmtGraphFactory was not set.
    Revision 1.2  2004/03/29 09:44:41  venku
    - finished the xml-based testing framework for dependence.
    Revision 1.1  2004/03/09 18:40:03  venku
