@@ -65,20 +65,19 @@ public class ControlDA
 	private static final Log LOGGER = LogFactory.getLog(ControlDA.class);
 
 	/**
-	 * This indicates the dependence information is required in the forward direction assuming all the exit points of the
-	 * method as entry points.
+	 * This indicates the dependence information is required in the forward direction assuming all heads to the CFG as entry points.
 	 */
-	public static final Object FORWARD = "forward direction";
+	public static final Object FORWARD = "starting from the heads";
 
 	/**
-	 * This indicates the dependence information is required in the backward direction assuming all the entry points of the
-	 * method as entry points.
+	 * This indicates the dependence information is required in the backward direction, i.e. forward direction on the reversed form of the CFG. 
 	 */
-	public static final Object BACKWARD = "backward direction";
+	public static final Object BACKWARD = "starting from the tails";
 
 	/**
-	 * This captures the direction of the information calculated by this object.  <code>true</code> indicates following
-	 * control flow edges in reverse direction. <code>false</code> indicates follow control flow edges in forward direction.
+	 * This captures the direction of the information calculated by this object.  <code>true</code> indicates that the head
+     * into the graph is considered as entry points into the CFG.  <code>false</code>  indicates that the tails of the graph 
+     * should be considered as entry points into the CFG.
 	 */
 	private final boolean forward;
 
@@ -296,9 +295,9 @@ public class ControlDA
 			Collection preds;
 
 			if (forward) {
-				preds = (Collection) dagBlock.getSecond();
-			} else {
 				preds = (Collection) dagBlock.getFirst();
+			} else {
+				preds = (Collection) dagBlock.getSecond();
 			}
 
 			if (!processed.containsAll(preds)) {
@@ -311,9 +310,9 @@ public class ControlDA
 			Collection succs;
 
 			if (forward) {
-				succs = (Collection) dagBlock.getFirst();
-			} else {
 				succs = (Collection) dagBlock.getSecond();
+			} else {
+				succs = (Collection) dagBlock.getFirst();
 			}
 
 			BitSet[] currCD = cd[currIndex];
@@ -480,6 +479,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/11/05 00:44:51  venku
+   - added logging statements to track the execution.
+
    Revision 1.17  2003/11/03 07:56:04  venku
    - added logging.
 

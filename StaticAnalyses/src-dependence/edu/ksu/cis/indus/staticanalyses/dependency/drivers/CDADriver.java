@@ -53,14 +53,17 @@ public class CDADriver
 	 */
 	protected void initialize() {
 		das = new ArrayList();
-		das.add(new ControlDA(ControlDA.BACKWARD));
-        das.add(new ControlDA(ControlDA.FORWARD));
+		das.add(new ControlDA(ControlDA.FORWARD));
+        das.add(new ControlDA(ControlDA.BACKWARD));
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/03 07:50:06  venku
+   - coding convention.
+
    Revision 1.3  2003/10/31 01:00:58  venku
    - added support to switch direction.  However, forward
      slicing can be viewed in two interesting ways and
