@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.Util;
@@ -32,8 +33,6 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -81,27 +80,27 @@ import soot.jimple.Stmt;
  */
 public class InterferenceDAv1
   extends AbstractDependencyAnalysis {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(InterferenceDAv1.class);
 
-	/**
+	/** 
 	 * This provides threading information pertaining to the system being analyzed.
 	 */
 	protected IThreadGraphInfo tgi;
 
-	/**
+	/** 
 	 * This manages pairs.
 	 */
 	protected PairManager pairMgr;
 
-	/**
+	/** 
 	 * The object flow analysis to be used.
 	 */
 	private IValueAnalyzer ofa;
 
-	/**
+	/** 
 	 * This indicates if object flow analysis should be used.
 	 */
 	private boolean useOFA;
@@ -135,34 +134,29 @@ public class InterferenceDAv1
 		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt,Context)
 		 */
 		public void callback(final Stmt stmt, final Context context) {
-			final SootMethod _method = context.getCurrentMethod();
 			final AssignStmt _as = (AssignStmt) stmt;
 			Map _temp = null;
 
 			if (_as.containsFieldRef()) {
 				if (_as.getLeftOp() instanceof FieldRef) {
 					final SootField _sf = ((FieldRef) _as.getLeftOp()).getField();
-					_temp = getDependeXXMapHelper(dependee2dependent, _sf);
+					_temp = CollectionsUtilities.getMapFromMap(dependee2dependent, _sf);
 				} else {
 					final SootField _sf = ((FieldRef) _as.getRightOp()).getField();
-					_temp = getDependeXXMapHelper(dependent2dependee, _sf);
+					_temp = CollectionsUtilities.getMapFromMap(dependent2dependee, _sf);
 				}
 			} else if (_as.containsArrayRef()) {
 				if (_as.getLeftOp() instanceof ArrayRef) {
 					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getLeftOp()).getBase().getType();
-					_temp = getDependeXXMapHelper(dependee2dependent, _at);
+					_temp = CollectionsUtilities.getMapFromMap(dependee2dependent, _at);
 				} else {
 					final ArrayType _at = (ArrayType) ((ArrayRef) _as.getRightOp()).getBase().getType();
-					_temp = getDependeXXMapHelper(dependent2dependee, _at);
+					_temp = CollectionsUtilities.getMapFromMap(dependent2dependee, _at);
 				}
 			}
 
 			if (_temp != null) {
-				final Pair _p = pairMgr.getOptimizedPair(_as, _method);
-
-				if (_temp.get(_p) == null) {
-					_temp.put(_p, Collections.EMPTY_LIST);
-				}
+				_temp.put(pairMgr.getOptimizedPair(stmt, context.getCurrentMethod()), null);
 			}
 		}
 
@@ -192,24 +186,6 @@ public class InterferenceDAv1
 			if (tgi.getStartSites().size() != 0) {
 				ppc.unregister(AssignStmt.class, this);
 			}
-		}
-
-		/**
-		 * Helper method for getDependeXXMap() methods.
-		 *
-		 * @param map from which to extract the result map.
-		 * @param o is the field/array reference of interest.
-		 *
-		 * @return the map corresponding to the <code>o</code>.
-		 */
-		private Map getDependeXXMapHelper(final Map map, final Object o) {
-			Map _result = (Map) map.get(o);
-
-			if (_result == null) {
-				_result = new HashMap();
-				map.put(o, _result);
-			}
-			return _result;
 		}
 	}
 
@@ -330,30 +306,18 @@ public class InterferenceDAv1
 				continue;
 			}
 
-			final Map _deMap = (Map) dependent2dependee.get(_o);
-			final Map _dtMap = (Map) dependee2dependent.get(_o);
+			final Map _dtMap = (Map) dependent2dependee.get(_o);
+			final Map _deMap = (Map) dependee2dependent.get(_o);
 
-			for (final Iterator _j = _deMap.keySet().iterator(); _j.hasNext();) {
+			for (final Iterator _j = _dtMap.keySet().iterator(); _j.hasNext();) {
 				final Pair _dt = (Pair) _j.next();
 
-				for (final Iterator _k = _dtMap.keySet().iterator(); _k.hasNext();) {
+				for (final Iterator _k = _deMap.keySet().iterator(); _k.hasNext();) {
 					final Pair _de = (Pair) _k.next();
 
 					if (considerEffectOfClassInitializers(_dt, _de) && isDependentOn(_dt, _de)) {
-						Collection _t = (Collection) _deMap.get(_dt);
-
-						if (_t.equals(Collections.EMPTY_LIST)) {
-							_t = new HashSet();
-							_deMap.put(_dt, _t);
-						}
-						_t.add(_de);
-						_t = (Collection) _dtMap.get(_de);
-
-						if (_t.equals(Collections.EMPTY_LIST)) {
-							_t = new HashSet();
-							_dtMap.put(_de, _t);
-						}
-						_t.add(_dt);
+						CollectionsUtilities.putIntoSetInMap(_dtMap, _dt, _de);
+						CollectionsUtilities.putIntoSetInMap(_deMap, _de, _dt);
 					}
 				}
 			}
@@ -401,10 +365,14 @@ public class InterferenceDAv1
 			for (final Iterator _j = ((Map) _entry.getValue()).entrySet().iterator(); _j.hasNext();) {
 				final Map.Entry _entry2 = (Map.Entry) _j.next();
 
-				for (final Iterator _k = ((Collection) _entry2.getValue()).iterator(); _k.hasNext();) {
-					_temp.append("\t\t" + _entry2.getKey() + " --> " + _k.next() + "\n");
+				final Collection _collection = (Collection) _entry2.getValue();
+
+				if (_collection != null) {
+					for (final Iterator _k = (_collection).iterator(); _k.hasNext();) {
+						_temp.append("\t\t" + _entry2.getKey() + " --> " + _k.next() + "\n");
+					}
+					_lEdgeCount += (_collection).size();
 				}
-				_lEdgeCount += ((Collection) _entry2.getValue()).size();
 			}
 			_result.append("\tFor " + _entry.getKey() + " there are " + _lEdgeCount + " Interference dependence edges.\n");
 			_result.append(_temp);
@@ -657,18 +625,17 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/07/30 07:47:06  venku
+   - changed the way optional features were handled (OFA/SLA).
    Revision 1.43  2004/07/24 10:02:46  venku
    - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
      preprocessor hierarchy tree.
-
    Revision 1.42  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
        the implementations just announce their status.
-
    Revision 1.41  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
-
    Revision 1.40  2004/07/07 08:52:06  venku
    - Dependence verdict in case the methods enclosing the ends of the dependence
      are both class initialization was incorrect. FIXED.
