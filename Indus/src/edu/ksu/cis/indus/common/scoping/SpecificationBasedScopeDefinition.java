@@ -291,7 +291,7 @@ public final class SpecificationBasedScopeDefinition {
 	 *
 	 * @param nameOfTheSpec the new value of <code>name</code>.
 	 */
-	final void setName(final String nameOfTheSpec) {
+	void setName(final String nameOfTheSpec) {
 		this.name = nameOfTheSpec;
 	}
 
@@ -300,7 +300,7 @@ public final class SpecificationBasedScopeDefinition {
 	 *
 	 * @return the value in <code>name</code>.
 	 */
-	final String getName() {
+	String getName() {
 		return name;
 	}
 
