@@ -232,7 +232,7 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
-	 * Initializes the map with a cloner which manages the clone to clonee mappings.
+	 * Initializes the transformer.
 	 *
 	 * @param theCloner manages the clone to clonee mappings.
 	 * @param theSystem that is to be sliced.
@@ -305,6 +305,11 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/08/19 12:44:39  venku
+   Changed the signature of ITransformer.getLocal()
+   Introduced reset() in ITransformer.
+   Ripple effect of the above changes.
+
 
    Revision 1.13  2003/08/19 11:59:05  venku
    Patching commit.
