@@ -71,21 +71,25 @@
 
     <target name="cleanAll" depends="init">
         <subant target="clean">
+        	<property file="localbuild.properties"/>
             <buildpath refid="subprojects.buildfiles"/>
         </subant>
     </target>
 
     <target name="buildAllCode" depends="init">
         <subant target="build">
+	    	<property file="localbuild.properties"/>
             <buildpath refid="subprojects.buildfiles"/>
         </subant>
         <subant target="jar">
+           	<property file="localbuild.properties"/>
             <buildpath refid="subprojects.buildfiles"/>
         </subant>
     </target>
 
     <target name="buildAllDoc" depends="init">
         <subant target="docs">
+           	<property file="localbuild.properties"/>            	
             <buildpath refid="subprojects.buildfiles"/>
         	<property name="docbook.base" value="${docbook.base}"/>
         </subant>
