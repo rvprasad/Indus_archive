@@ -63,7 +63,7 @@ public class InterferenceDAv2
 		SootMethod dtMethod = (SootMethod) dependent.getSecond();
 		Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
 		Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
-		return ecba.isShared(de, deMethod) && ecba.isShared(dt, dtMethod);
+		return ecba.escapes(de, deMethod) && ecba.escapes(dt, dtMethod);
 	}
 
 	/**
@@ -90,6 +90,10 @@ public class InterferenceDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.10  2003/09/08 02:28:02  venku
    - ifDependentOn() was changed to isDependentOn().
    Revision 1.9  2003/08/21 03:56:08  venku
