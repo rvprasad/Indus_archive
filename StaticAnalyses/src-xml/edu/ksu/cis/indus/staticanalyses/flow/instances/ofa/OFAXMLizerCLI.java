@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -31,16 +32,20 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -67,15 +72,44 @@ public final class OFAXMLizerCLI
 	private static final Log LOGGER = LogFactory.getLog(OFAXMLizerCLI.class);
 
 	/**
+	 * This indicates if analysis should be run for all root methods or separated for each root method.
+	 */
+	private boolean cumulative;
+
+	/**
+	 * Retrieves the name that serves as the base for the file names into which info will be dumped along with the root
+	 * methods to be considered in one execution of the analyses.
+	 *
+	 * @param root is the object based on which base name should be generated.
+	 * @param methods is the collection that will contain the root methods upon return.
+	 *
+	 * @return a name along with the root methods via <code>methods</code>.
+	 *
+	 * @pre root != null and methods != null
+	 * @post result != null and (methods.contains(root) or methods.containsAll(root))
+	 */
+	public static String getBaseNameOfFileAndRootMethods(final Object root, final Collection methods) {
+		final String _result;
+
+		if (root instanceof SootMethod) {
+			final SootMethod _sm = (SootMethod) root;
+			_result = (_sm.getDeclaringClass().getJavaStyleName() + "_" + _sm.getSubSignature()).replaceAll(" ", "_");
+			methods.add(_sm);
+		} else {
+			_result = "collective_call_graph" + System.currentTimeMillis();
+			methods.addAll((Collection) root);
+		}
+		return _result;
+	}
+
+	/**
 	 * The entry point to the program via command line.
 	 *
 	 * @param args is the command line arguments.
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
-		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		_option.setArgs(Option.UNLIMITED_VALUES);
-		_option.setValueSeparator(' ');
+		Option _option = new Option("c", "cumulative", false, "Consider all root methods in the same execution.");
 		_options.addOption(_option);
 		_option =
 			new Option("o", "output", true,
@@ -94,8 +128,8 @@ public final class OFAXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption("h")) {
-			    final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
-			    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+				final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
+				(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 				System.exit(1);
 			}
 
@@ -111,15 +145,31 @@ public final class OFAXMLizerCLI
 			_xmlizer.setXmlOutputDir(_outputDir);
 			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
+			if (_cl.getArgList().isEmpty()) {
+				throw new MissingArgumentException("Please specify atleast one class.");
+			}
+
 			final OFAXMLizerCLI _cli = new OFAXMLizerCLI();
-			_cli.setClassNames(_cl.getOptionValues('c'));
+			_cli.setCumulative(_cl.hasOption('c'));
+			_cli.setClassNames(_cl.getArgList());
 			_cli.initialize();
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-		    final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
-		    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
+
+			final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
+			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
 		}
+	}
+
+	/**
+	 * Sets cumulative mode.
+	 *
+	 * @param option <code>true</code> indicates all root methods should be analyzed in one go; <code>false</code> indicates
+	 * 		  analysis should be executed once for each root method.
+	 */
+	private void setCumulative(final boolean option) {
+		cumulative = option;
 	}
 
 	/**
@@ -131,7 +181,7 @@ public final class OFAXMLizerCLI
 	 *
 	 * @pre xmlizer != nul
 	 */
-	private void execute(final AbstractXMLizer xmlizer, final boolean dumpJimple) {
+	private void execute(final IXMLizer xmlizer, final boolean dumpJimple) {
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
@@ -144,10 +194,12 @@ public final class OFAXMLizerCLI
 		final ProcessingController _xmlcgipc = new ProcessingController();
 
 		_pc.setAnalyzer(_aa);
+
 		final IProcessingFilter _tagFilter = new TagBasedProcessingFilter(_tagName);
-        _pc.setProcessingFilter(_tagFilter);
+		_pc.setProcessingFilter(_tagFilter);
 		_pc.setStmtGraphFactory(getStmtGraphFactory());
 		_xmlcgipc.setEnvironment(_aa.getEnvironment());
+
 		final IProcessingFilter _xmlFilter = new CGBasedXMLizingProcessingFilter(_cgi);
 		_xmlFilter.chain(_tagFilter);
 		_xmlcgipc.setProcessingFilter(_xmlFilter);
@@ -157,14 +209,23 @@ public final class OFAXMLizerCLI
 		_info.put(IValueAnalyzer.ID, _cgi);
 		_info.put(IValueAnalyzer.TAG_ID, _tagName);
 
-		for (final Iterator _k = getRootMethods().iterator(); _k.hasNext();) {
+		final List _roots = new ArrayList();
+
+		if (cumulative) {
+			_roots.add(getRootMethods());
+		} else {
+			_roots.addAll(getRootMethods());
+		}
+		Collections.sort(_roots, ToStringBasedComparator.SINGLETON);
+		writeInfo("Root methods are: " + _roots.size() + "\n" + _roots);
+
+		for (final Iterator _k = _roots.iterator(); _k.hasNext();) {
 			_rm.clear();
 
-			final SootMethod _root = (SootMethod) _k.next();
-			_rm.add(_root);
+			final Object _root = _k.next();
+			final String _fileBaseName = getBaseNameOfFileAndRootMethods(_root, _rm);
 
-			final String _rootname = _root.getSignature();
-			writeInfo("RootMethod: " + _rootname);
+			writeInfo("RootMethod: " + _root);
 			writeInfo("BEGIN: FA");
 
 			final long _start = System.currentTimeMillis();
@@ -182,12 +243,12 @@ public final class OFAXMLizerCLI
 			_pc.reset();
 			_pc.driveProcessors(_processors);
 			_processors.clear();
-			_info.put(AbstractXMLizer.FILE_NAME_ID, _rootname);
+			_info.put(AbstractXMLizer.FILE_NAME_ID, _fileBaseName);
 			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			xmlizer.writeXML(_info);
 
-			if (dumpJimple) {
-				xmlizer.dumpJimple(_rootname, xmlizer.getXmlOutputDir(), _xmlcgipc);
+			if (dumpJimple && xmlizer instanceof AbstractXMLizer) {
+				((AbstractXMLizer) xmlizer).dumpJimple(_fileBaseName, xmlizer.getXmlOutputDir(), _xmlcgipc);
 			}
 		}
 	}
@@ -196,31 +257,26 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/06/12 06:45:22  venku
+   - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
    Revision 1.12  2004/06/03 03:50:34  venku
    - changed the way help will be output on command line classes.
-
    Revision 1.11  2004/05/10 11:28:25  venku
    - Jimple is dumped only for the reachable parts of the system.
-
    Revision 1.10  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.9  2004/04/23 01:00:48  venku
    - trying to resolve issues with canonicalization of Jimple.
-
    Revision 1.8  2004/04/23 00:42:36  venku
    - trying to get canonical xmlized Jimple representation.
-
    Revision 1.7  2004/04/22 23:32:30  venku
    - xml file name were setup incorrectly.  FIXED.
-
    Revision 1.6  2004/04/22 20:09:06  venku
    - NPE. FIXED.
-
    Revision 1.5  2004/04/22 10:23:10  venku
    - added getTokenManager() method to OFAXMLizerCLI to create
      token manager based on a system property.

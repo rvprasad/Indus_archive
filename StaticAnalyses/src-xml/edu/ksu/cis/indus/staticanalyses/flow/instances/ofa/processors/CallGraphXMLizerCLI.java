@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
@@ -23,23 +24,27 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.MissingOptionException;
+import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -47,8 +52,6 @@ import org.apache.commons.cli.PosixParser;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import soot.SootMethod;
 
 
 /**
@@ -66,16 +69,18 @@ public final class CallGraphXMLizerCLI
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizerCLI.class);
 
 	/**
+	 * This indicates if cumulative or separate call graphs should be generated when there are more than one root methods.
+	 */
+	private boolean cumulative;
+
+	/**
 	 * The entry point to the program via command line.
 	 *
 	 * @param args is the command line arguments.
 	 */
 	public static void main(final String[] args) {
 		final Options _options = new Options();
-		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		_option.setArgs(Option.UNLIMITED_VALUES);
-		_option.setArgName("classes");
-		_option.setValueSeparator(' ');
+		Option _option = new Option("c", "cumulative", false, "Builds one call graph that includes all root methods.");
 		_options.addOption(_option);
 		_option =
 			new Option("o", "output", true,
@@ -101,8 +106,8 @@ public final class CallGraphXMLizerCLI
 			final CommandLine _cl = _parser.parse(_options, args);
 
 			if (_cl.hasOption('h')) {
-			    final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
-			    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+				final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
+				(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 				System.exit(1);
 			}
 
@@ -120,18 +125,30 @@ public final class CallGraphXMLizerCLI
 
 			final CallGraphXMLizerCLI _cli = new CallGraphXMLizerCLI();
 
-			if (!_cl.hasOption('c')) {
-				throw new MissingOptionException("-c");
+			if (_cl.getArgList().isEmpty()) {
+				throw new MissingArgumentException("Please specify atleast one class.");
 			}
-			_cli.setClassNames(_cl.getOptionValues('c'));
+			_cli.setCumulative(_cl.hasOption('c'));
+			_cli.setClassNames(_cl.getArgList());
 			_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			_cli.initialize();
 			_cli.execute(_xmlizer, _cl.hasOption('j'));
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
-		    final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
-		    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
+
+			final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
+			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
 		}
+	}
+
+	/**
+	 * Sets cumulative mode.
+	 *
+	 * @param option <code>true</code> indicates one cumulative call graph for all root methods; <code>false</code> indicates
+	 * 		  separate call graphs for each root method.
+	 */
+	private void setCumulative(final boolean option) {
+		cumulative = option;
 	}
 
 	/**
@@ -142,7 +159,7 @@ public final class CallGraphXMLizerCLI
 	 *
 	 * @pre xmlizer != null
 	 */
-	private void execute(final AbstractXMLizer xmlizer, final boolean dumpJimple) {
+	private void execute(final IXMLizer xmlizer, final boolean dumpJimple) {
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
@@ -165,14 +182,22 @@ public final class CallGraphXMLizerCLI
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, _cgi);
 
-		for (final Iterator _k = getRootMethods().iterator(); _k.hasNext();) {
+		final List _roots = new ArrayList();
+
+		if (cumulative) {
+			_roots.add(getRootMethods());
+		} else {
+			_roots.addAll(getRootMethods());
+		}
+		Collections.sort(_roots, ToStringBasedComparator.SINGLETON);
+		writeInfo("Root methods are: " + _roots.size() + "\n" + _roots);
+
+		for (final Iterator _k = _roots.iterator(); _k.hasNext();) {
 			_rm.clear();
 
-			final SootMethod _root = (SootMethod) _k.next();
-			_rm.add(_root);
-
-			final String _rootname = _root.getSignature();
-			writeInfo("RootMethod: " + _rootname);
+			final Object _root = _k.next();
+			final String _fileBaseName = OFAXMLizerCLI.getBaseNameOfFileAndRootMethods(_root, _rm);
+			writeInfo("RootMethod: " + _root);
 			writeInfo("BEGIN: FA");
 
 			final long _start = System.currentTimeMillis();
@@ -185,8 +210,6 @@ public final class CallGraphXMLizerCLI
 			addTimeLog("FA", _stop - _start);
 			writeInfo("END: FA");
 
-			final String _fileBaseName =
-				(_root.getDeclaringClass().getJavaStyleName() + "_" + _root.getSubSignature()).replaceAll(" ", "_");
 			((CallGraph) _cgi).reset();
 			_processors.clear();
 			_processors.add(_cgi);
@@ -197,8 +220,8 @@ public final class CallGraphXMLizerCLI
 			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			xmlizer.writeXML(_info);
 
-			if (dumpJimple) {
-				xmlizer.dumpJimple(_fileBaseName, xmlizer.getXmlOutputDir(), _xmlcgipc);
+			if (dumpJimple && xmlizer instanceof AbstractXMLizer) {
+				((AbstractXMLizer) xmlizer).dumpJimple(_fileBaseName, xmlizer.getXmlOutputDir(), _xmlcgipc);
 			}
 		}
 	}
@@ -207,12 +230,12 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/06/12 06:45:22  venku
+   - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
    Revision 1.14  2004/06/03 03:50:33  venku
    - changed the way help will be output on command line classes.
-
    Revision 1.13  2004/05/25 21:20:44  venku
    - changed the root name used to dump files.
-
    Revision 1.12  2004/05/25 19:11:31  venku
    - added option to control class path and dump reachables.
    Revision 1.11  2004/05/11 22:30:21  venku
