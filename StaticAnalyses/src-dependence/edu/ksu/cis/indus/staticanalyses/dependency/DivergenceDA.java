@@ -95,9 +95,10 @@ public final class DivergenceDA
 	private ICallGraphInfo callgraph;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps methods to the inter-procedural divergence points they contain.
+	 *
+	 * @invariant method2interProcDivPoints.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
+	 * @invariant method2interProcDivPoints.values()->forall(o | o->forall(p | p.containsInvokeExpr()))
 	 */
 	private final Map method2interProcDivPoints = new HashMap();
 
@@ -195,8 +196,8 @@ public final class DivergenceDA
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final SootMethod _method = (SootMethod) _entry.getKey();
 			final Collection _preDivPoints = (Collection) _entry.getValue();
-			final Collection _divergentBBs = calculateIntraBBDependence(_method, _preDivPoints);
-			calculateInterBBDependence(_method, _divergentBBs, _preDivPoints);
+			final Collection _succsOfPreDivBBs = calculateIntraBBDependence(_method, _preDivPoints);
+			calculateInterBBDependence(_method, _succsOfPreDivBBs, _preDivPoints);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -281,14 +282,20 @@ public final class DivergenceDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the valid successors of <code>bb</code> occurring in <code>bbg</code> of <code>method</code> w.r.t to
+	 * <code>divPoint</code>. Given divergence point is not an interprocedural divergence point, then the only the
+	 * successors of <code>bb</code> that do not occur in the SCC of  <code>bb</code> in <code>bbg</code> are considered
+	 * valid successors.
 	 *
-	 * @param divPoint DOCUMENT ME!
-	 * @param bb DOCUMENT ME!
-	 * @param bbg DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param divPoint of interest.
+	 * @param bb in which <code>divPoint</code> occurs.
+	 * @param bbg in which <code>bb</code> occurs.
+	 * @param method in which <code>divPoint</code> occurs and <code>bbg</code> corresponds to.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of successor basic blocks.
+	 *
+	 * @pre divPoint != null and bb != null and bbg != null and method != null
+	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
 	 */
 	private Collection getValidSuccs(final Stmt divPoint, final BasicBlock bb, final BasicBlockGraph bbg,
 		final SootMethod method) {
@@ -311,22 +318,27 @@ public final class DivergenceDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Calculates inter-basic block divergence dependence.
 	 *
-	 * @param method DOCUMENT ME!
-	 * @param divergentBBs DOCUMENT ME!
-	 * @param preDivPoints DOCUMENT ME!
+	 * @param method in which the basic blocks occur.
+	 * @param succsOfPreDivPoints are the successor basic blocks of pre-divergent basic blocks.
+	 * @param preDivPoints is the basic blocks which are the pre-divergent points.
+	 *
+	 * @pre method != null and succsOfPreDivPoints != null and preDivPoints != null
+	 * @pre succsOfPreDivPoints.oclIsKindOf(Collection(BasicBlock))
+	 * @pre preDivPoints.oclIsKindOf(Collection(BasicBlock))
+	 * @pre succsOfPreDivPoints->forall(o | preDivPoints->exists(p | o.getPredsOf().contains(p)))
 	 */
-	private void calculateInterBBDependence(final SootMethod method, final Collection divergentBBs,
+	private void calculateInterBBDependence(final SootMethod method, final Collection succsOfPreDivPoints,
 		final Collection preDivPoints) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Processing method " + method + " with divergent blocks: " + divergentBBs);
+			LOGGER.debug("BEGIN: Processing method " + method + " with divergent blocks: " + succsOfPreDivPoints);
 		}
 
 		final List _sl = getStmtList(method);
 		final IWorkBag _wb = new FIFOWorkBag();
 		final Collection _dependents = new HashSet();
-		_wb.addAllWork(divergentBBs);
+		_wb.addAllWork(succsOfPreDivPoints);
 
 		while (_wb.hasWork()) {
 			final BasicBlock _bb = (BasicBlock) _wb.getWork();
@@ -349,7 +361,7 @@ public final class DivergenceDA
 				}
 			}
 
-			if ((!divergentBBs.contains(_bb))) {
+			if ((!succsOfPreDivPoints.contains(_bb))) {
 				final Collection _succs = recordDepAcrossBB(method, preDivPoints, _dependees, _dependents, _bb.getSuccsOf());
 				_wb.addAllWorkNoDuplicates(_succs);
 			} else {
@@ -363,16 +375,21 @@ public final class DivergenceDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Calculates intra-basic block divergence dependence.
 	 *
-	 * @param method DOCUMENT ME!
-	 * @param divergentPoints DOCUMENT ME!
+	 * @param method in which the basic blocks occur.
+	 * @param preDivPoints are the basic blocks that contain pre-divergent points.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of basic blocks that follow the blocks in <code>preDivPoints</code>.
+	 *
+	 * @pre method != null and  preDivPoints != null
+	 * @pre preDivPoints.oclIsKindOf(Collection(BasicBlock))
+	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
+	 * @post result->forall(o | preDivPoints->exists(p | o.getPredsOf().contains(p)))
 	 */
-	private Collection calculateIntraBBDependence(final SootMethod method, final Collection divergentPoints) {
+	private Collection calculateIntraBBDependence(final SootMethod method, final Collection preDivPoints) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Processing method " + method + " with divergent points: " + divergentPoints);
+			LOGGER.debug("BEGIN: Processing method " + method + " with divergent points: " + preDivPoints);
 		}
 
 		final Collection _result = new HashSet();
@@ -382,14 +399,14 @@ public final class DivergenceDA
 		final List _dees = CollectionsUtilities.getListFromMap(dependent2dependee, method);
 		CollectionsUtilities.ensureSize(_dees, _sl.size(), null);
 
-		for (final Iterator _i = divergentPoints.iterator(); _i.hasNext();) {
+		for (final Iterator _i = preDivPoints.iterator(); _i.hasNext();) {
 			Stmt _divPoint = (Stmt) _i.next();
 			final BasicBlock _bb = _bbg.getEnclosingBlock(_divPoint);
 
 			for (final Iterator _j = _bb.getStmtsOf().iterator(); _j.hasNext();) {
 				_divPoint = (Stmt) _j.next();
 
-				if (divergentPoints.contains(_divPoint)) {
+				if (preDivPoints.contains(_divPoint)) {
 					break;
 				}
 			}
@@ -402,7 +419,7 @@ public final class DivergenceDA
 				final Stmt _stmt = (Stmt) _j.next();
 				_dependents.add(_stmt);
 
-				if (divergentPoints.contains(_stmt)) {
+				if (preDivPoints.contains(_stmt)) {
 					recordDependenceInfoInBB(Collections.singleton(_divPoint), method, _dependents);
 					_divPoint = _stmt;
 					_dependents.clear();
@@ -411,7 +428,7 @@ public final class DivergenceDA
 
 			final Collection _validSuccs = getValidSuccs(_divPoint, _bb, _bbg, method);
 			final Collection _temp =
-				recordDepAcrossBB(method, divergentPoints, Collections.singleton(_divPoint), _dependents, _validSuccs);
+				recordDepAcrossBB(method, preDivPoints, Collections.singleton(_divPoint), _dependents, _validSuccs);
 			_result.addAll(_temp);
 		}
 
@@ -520,15 +537,23 @@ public final class DivergenceDA
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Records dependence information across basic blocks while picking up basic blocks for further processing.
 	 *
-	 * @param method DOCUMENT ME!
-	 * @param preDivPoints DOCUMENT ME!
-	 * @param dependees DOCUMENT ME!
-	 * @param dependents DOCUMENT ME!
-	 * @param succs DOCUMENT ME! DOCUMENT ME!
+	 * @param method in which the dependence occurs.
+	 * @param preDivPoints are the pre-divergent basic blocks.
+	 * @param dependees are the dependees involved in depedence.
+	 * @param dependents are the dependents involved in depedence.
+	 * @param succs are the successor basic blocks whose leader statement should also be picked up as dependents.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of basic blocks whose dependence information changed.
+	 *
+	 * @pre method != null and preDivPoints != null and dependees != null and dependents != null and succs != null
+	 * @pre preDivPoints.oclIsKindOf(Collection(BasicBlock))
+	 * @pre dependees.oclIsKindOf(Collection(Stmt))
+	 * @pre dependents.oclIsKindOf(Collection(Stmt))
+	 * @pre succs.oclIsKindOf(Collection(BasicBlock))
+	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
+	 * @post succs.containsAll(result)
 	 */
 	private Collection recordDepAcrossBB(final SootMethod method, final Collection preDivPoints, final Collection dependees,
 		final Collection dependents, final Collection succs) {
@@ -548,7 +573,7 @@ public final class DivergenceDA
 	}
 
 	/**
-	 * Records dependence information collectively.
+	 * Records dependence information.
 	 *
 	 * @param dependees of course.
 	 * @param method in which the dependence occurs.
@@ -582,6 +607,8 @@ public final class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/07/08 11:02:57  venku
+   - ripple effect of changes to BasicBlock API.
    Revision 1.34  2004/07/04 11:58:12  venku
    - renamed getStmtFrom() to getStmtsFrom().
    - fixed Divergence Dependence.
