@@ -24,6 +24,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
@@ -330,6 +331,7 @@ public class SliceXMLizerCLI
 
 			final ProcessingController _ctrl = new ProcessingController();
 			final IProcessingFilter _filter = new XMLizingProcessingFilter();
+			_filter.chain(new TagBasedProcessingFilter(nameOfSliceTag));
 			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
 			_ctrl.setEnvironment(new Environment(scene));
 			_ctrl.setProcessingFilter(_filter);
@@ -602,6 +604,10 @@ public class SliceXMLizerCLI
 		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
+			if (!_sc.hasTag(nameOfSliceTag)) {
+				continue;
+			}
+
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Dumping jimple for " + _sc);
 			}
@@ -739,6 +745,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/07/07 00:43:54  venku
+   - class files are dumped only if residualization is requested.
    Revision 1.45  2004/07/04 12:17:58  venku
    - added cli option to control residualization.
    Revision 1.44  2004/07/03 00:07:56  venku
