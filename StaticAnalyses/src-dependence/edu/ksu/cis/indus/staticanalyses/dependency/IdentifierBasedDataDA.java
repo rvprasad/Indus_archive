@@ -94,48 +94,45 @@ public class IdentifierBasedDataDA
 	 * @post result->forall(o | o.isOclKindOf(DefinitionStmt))
 	 */
 	public Collection getDependees(final Object programPoint, final Object method) {
-		Collection result = Collections.EMPTY_LIST;
+		Collection _result = Collections.EMPTY_LIST;
 
 		if (programPoint instanceof Stmt) {
-			result = new HashSet();
+			_result = new HashSet();
 
-			Stmt stmt = (Stmt) programPoint;
-			SootMethod m = (SootMethod) method;
-			List dependees = (List) dependent2dependee.get(method);
+			final Stmt _stmt = (Stmt) programPoint;
+			final SootMethod _m = (SootMethod) method;
+			final List _dependees = (List) dependent2dependee.get(method);
 
-			if (dependees != null) {
-				Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
+			if (_dependees != null) {
+				final Map _local2defs = (Map) _dependees.get(getStmtList(_m).indexOf(_stmt));
 
-				for (Iterator i = stmt.getUseBoxes().iterator(); i.hasNext();) {
-					Value o = ((ValueBox) i.next()).getValue();
+				for (final Iterator _i = _stmt.getUseBoxes().iterator(); _i.hasNext();) {
+					final Value _o = ((ValueBox) _i.next()).getValue();
+					final Collection _c = (Collection) _local2defs.get(_o);
+					if (_c != null) {
+						_result.addAll(_c);
 
-					if (o instanceof Local) {
-						Collection c = (Collection) local2defs.get(o);
-
-						if (c != null) {
-							result.addAll(c);
-						}
 					}
 				}
 			} else {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("No dependence information available for " + stmt + " in " + method);
+					LOGGER.warn("No dependence information available for " + _stmt + " in " + method);
 				}
 			}
 		} else if (programPoint instanceof Pair) {
-			Pair pair = (Pair) programPoint;
-			Stmt stmt = (Stmt) pair.getFirst();
-			Local local = (Local) pair.getSecond();
-			SootMethod m = (SootMethod) method;
-			List dependees = (List) dependent2dependee.get(method);
-			Map local2defs = (Map) dependees.get(getStmtList(m).indexOf(stmt));
-			Collection c = (Collection) local2defs.get(local);
+			final Pair _pair = (Pair) programPoint;
+			final Stmt _stmt = (Stmt) _pair.getFirst();
+			final Local _local = (Local) _pair.getSecond();
+			final SootMethod _m = (SootMethod) method;
+			final List _dependees = (List) dependent2dependee.get(method);
+			final Map _local2defs = (Map) _dependees.get(getStmtList(_m).indexOf(_stmt));
+			final Collection _c = (Collection) _local2defs.get(_local);
 
-			if (c != null) {
-				result = Collections.unmodifiableCollection(c);
+			if (_c != null) {
+				_result = Collections.unmodifiableCollection(_c);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -152,9 +149,18 @@ public class IdentifierBasedDataDA
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
-		SootMethod sm = (SootMethod) method;
-		List dependents = (List) dependee2dependent.get(sm);
-		return Collections.unmodifiableCollection((Collection) dependents.get(getStmtList(sm).indexOf(stmt)));
+		final SootMethod _sm = (SootMethod) method;
+		final List _dependents = (List) dependee2dependent.get(_sm);
+		Collection _result = Collections.EMPTY_LIST;
+
+		if (_dependents != null) {
+			final Collection _temp = (Collection) _dependents.get(getStmtList(_sm).indexOf(stmt));
+
+			if (_temp != null) {
+				_result = Collections.unmodifiableCollection(_temp);
+			}
+		}
+		return _result;
 	}
 
 	/*
@@ -188,59 +194,61 @@ public class IdentifierBasedDataDA
 			LOGGER.info("BEGIN: Identifier Based Data Dependence processing");
 		}
 
-		for (Iterator i = callgraph.getReachableMethods().iterator(); i.hasNext();) {
-			SootMethod currMethod = (SootMethod) i.next();
-			UnitGraph unitGraph = getUnitGraph(currMethod);
+		for (final Iterator _i = callgraph.getReachableMethods().iterator(); _i.hasNext();) {
+			final SootMethod _currMethod = (SootMethod) _i.next();
+			final UnitGraph _unitGraph = getUnitGraph(_currMethod);
 
-			if (unitGraph == null) {
+			if (_unitGraph == null) {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Method " + currMethod.getSignature() + " does not have a unit graph.");
+					LOGGER.warn("Method " + _currMethod.getSignature() + " does not have a unit graph.");
 				}
 				continue;
 			}
+            if (LOGGER.isDebugEnabled()) 
+                LOGGER.debug("Processing " + _currMethod.getSignature());
 
-			SimpleLocalDefs defs = new SimpleLocalDefs(unitGraph);
-			SimpleLocalUses uses = new SimpleLocalUses(unitGraph, defs);
-			Collection t = getStmtList(currMethod);
-			List dependees = new ArrayList(t.size());
-			List dependents = new ArrayList(t.size());
+			final SimpleLocalDefs _defs = new SimpleLocalDefs(_unitGraph);
+			final SimpleLocalUses _uses = new SimpleLocalUses(_unitGraph, _defs);
+			final Collection _t = getStmtList(_currMethod);
+			final List _dependees = new ArrayList(_t.size());
+			final List _dependents = new ArrayList(_t.size());
 
-			for (Iterator j = t.iterator(); j.hasNext();) {
-				Stmt currStmt = (Stmt) j.next();
-				Collection currUses = Collections.EMPTY_LIST;
+			for (final Iterator _j = _t.iterator(); _j.hasNext();) {
+				final Stmt _currStmt = (Stmt) _j.next();
+				Collection _currUses = Collections.EMPTY_LIST;
 
-				if (currStmt instanceof DefinitionStmt) {
-					Collection temp = uses.getUsesOf(currStmt);
+				if (_currStmt instanceof DefinitionStmt) {
+					final Collection _temp = _uses.getUsesOf(_currStmt);
 
-					if (temp.size() != 0) {
-						currUses = new ArrayList();
+					if (_temp.size() != 0) {
+						_currUses = new ArrayList();
 
-						for (Iterator k = temp.iterator(); k.hasNext();) {
-							UnitValueBoxPair p = (UnitValueBoxPair) k.next();
-							currUses.add(p.getUnit());
+						for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
+							final UnitValueBoxPair _p = (UnitValueBoxPair) _k.next();
+							_currUses.add(_p.getUnit());
 						}
 					}
 				}
-				dependents.add(currUses);
+				_dependents.add(_currUses);
 
-				Map currDefs = Collections.EMPTY_MAP;
+				Map _currDefs = Collections.EMPTY_MAP;
 
-				if (currStmt.getUseBoxes().size() > 0) {
-					currDefs = new HashMap();
+				if (_currStmt.getUseBoxes().size() > 0) {
+					_currDefs = new HashMap();
 
-					for (Iterator k = currStmt.getUseBoxes().iterator(); k.hasNext();) {
-						ValueBox currValueBox = (ValueBox) k.next();
-						Value value = currValueBox.getValue();
+					for (final Iterator _k = _currStmt.getUseBoxes().iterator(); _k.hasNext();) {
+						final ValueBox _currValueBox = (ValueBox) _k.next();
+						final Value _value = _currValueBox.getValue();
 
-						if (value instanceof Local && !currDefs.containsKey(value)) {
-							currDefs.put(value, defs.getDefsOfAt((Local) value, currStmt));
+						if (_value instanceof Local && !_currDefs.containsKey(_value)) {
+							_currDefs.put(_value, _defs.getDefsOfAt((Local) _value, _currStmt));
 						}
 					}
 				}
-				dependees.add(currDefs);
+				_dependees.add(_currDefs);
 			}
-			dependee2dependent.put(currMethod, dependents);
-			dependent2dependee.put(currMethod, dependees);
+			dependee2dependent.put(_currMethod, _dependents);
+			dependent2dependee.put(_currMethod, _dependees);
 		}
 		stable = true;
 
@@ -255,38 +263,38 @@ public class IdentifierBasedDataDA
 	 * @return a stringized representation of this object.
 	 */
 	public String toString() {
-		StringBuffer result =
+		final StringBuffer _result =
 			new StringBuffer("Statistics for Identifier-based Data dependence as calculated by " + this.getClass().getName()
 				+ "\n");
-		int localEdgeCount = 0;
-		int edgeCount = 0;
+		int _localEdgeCount = 0;
+		int _edgeCount = 0;
 
-		StringBuffer temp = new StringBuffer();
+		final StringBuffer _temp = new StringBuffer();
 
-		for (Iterator i = dependee2dependent.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			localEdgeCount = 0;
+		for (final Iterator _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			_localEdgeCount = 0;
 
-			List stmts = getStmtList((SootMethod) entry.getKey());
-			int count = 0;
+			final List _stmts = getStmtList((SootMethod) _entry.getKey());
+			int _count = 0;
 
-			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-				Collection c = (Collection) j.next();
-				Stmt stmt = (Stmt) stmts.get(count++);
+			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
+				final Collection _c = (Collection) _j.next();
+				final Stmt _stmt = (Stmt) _stmts.get(_count++);
 
-				for (Iterator k = c.iterator(); k.hasNext();) {
-					temp.append("\t\t" + stmt + " <-- " + k.next() + "\n");
+				for (final Iterator _k = _c.iterator(); _k.hasNext();) {
+					_temp.append("\t\t" + _stmt + " <-- " + _k.next() + "\n");
 				}
-				localEdgeCount += c.size();
+				_localEdgeCount += _c.size();
 			}
-			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount
+			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount
 				+ " Identifier-based Data dependence edges.\n");
-			result.append(temp);
-			temp.delete(0, temp.length());
-			edgeCount += localEdgeCount;
+			_result.append(_temp);
+			_temp.delete(0, _temp.length());
+			_edgeCount += _localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " Identifier-based Data dependence edges exist.");
-		return result.toString();
+		_result.append("A total of " + _edgeCount + " Identifier-based Data dependence edges exist.");
+		return _result.toString();
 	}
 
 	/**
@@ -312,6 +320,8 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/03/03 10:11:40  venku
+   - formatting.
    Revision 1.32  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent
