@@ -1072,6 +1072,11 @@ public final class SlicingEngine {
 		boolean _result = isNotIncludedInSlice(method);
 
 		if (!_result) {
+
+            //TODO: check if the method is in collectedAllInvocationSites collection . If so, delete the method from the map and 
+            // return false.  Check if callStackCache is null, if so, delete the map from the method, add it to 
+            // collectedAllInvocationSites, and return true.  If not, then proceed with the following code. 
+            
 			_result = true;
 
 			final Collection _col = CollectionsUtilities.getSetFromMap(method2callStacks, method);
