@@ -312,7 +312,7 @@
             icon="data/icons/sample.gif"
             class="edu.ksu.cis.indus.kaveri.views.PartialSliceView"
             category="edu.ksu.cis.indus.kaveri"
-            name="Slice View"
+            name="Jimple View"
             id="edu.ksu.cis.indus.kaveri.views.PartialSliceView"/>
 	  <view
          allowMultiple="false"

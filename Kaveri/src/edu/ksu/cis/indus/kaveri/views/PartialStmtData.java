@@ -126,6 +126,19 @@ public class PartialStmtData {
         return listeners.size() > 0;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
+    public Object clone() throws CloneNotSupportedException {
+        final PartialStmtData _psd = new PartialStmtData();
+        _psd.setClassName(className);
+        _psd.setJavaFile(javaFile);
+        _psd.setLineNo(lineNo);
+        _psd.setMethodName(methodName);
+        _psd.setSelectedStatement(selectedStatement);
+        _psd.setStmtList(stmtList);
+        return _psd;
+    }
     /**
      * Removes the listener.
      * 
