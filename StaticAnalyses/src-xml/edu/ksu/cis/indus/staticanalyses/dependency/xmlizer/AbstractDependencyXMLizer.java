@@ -127,7 +127,8 @@ public abstract class AbstractDependencyXMLizer
 			} else {
 				processingMethod = true;
 			}
-			writer.write("\t\t<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
+			writer.write("\t\t<method signature=\""
+				+ method.getSubSignature().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;") + "\" id=\""
 				+ idGenerator.getIdForMethod(method) + "\">\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -173,6 +174,9 @@ public abstract class AbstractDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/17 15:56:59  venku
+   - removed support to retrieve new statement ids.
+   - added support to retrieve id for value boxes.
    Revision 1.4  2003/11/17 15:42:46  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.3  2003/11/17 01:35:54  venku
