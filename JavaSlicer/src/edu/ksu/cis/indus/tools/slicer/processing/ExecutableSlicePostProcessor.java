@@ -37,12 +37,15 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.ArrayType;
 import soot.Body;
 import soot.Local;
+import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Trap;
 import soot.TrapManager;
+import soot.Type;
 import soot.Value;
 import soot.ValueBox;
 
@@ -167,7 +170,7 @@ public final class ExecutableSlicePostProcessor
 				}
 			} else {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Could not get body for method " + _method.getSignature());
+					LOGGER.warn("Could not process method " + _method.getSignature());
 				}
 			}
 		}
@@ -218,8 +221,15 @@ public final class ExecutableSlicePostProcessor
 	 */
 	private void fixupClassHierarchy() {
 		final Map _class2abstractMethods = new HashMap();
-		final Collection _methods = new HashSet();
 		final Collection _temp = new HashSet();
+
+		// include the ancestor classes of all the collected classes.
+		for (final Iterator _i = collector.getClassesInSlice().iterator(); _i.hasNext();) {
+			_temp.addAll(Util.getAncestors((SootClass) _i.next()));
+		}
+		collector.includeInSlice(_temp);
+
+		// setup the variables for fixing the class hierarchy
 		final Collection _classesInSlice = collector.getClassesInSlice();
 		final Collection _topologicallyOrderedClasses = Util.getClassesInTopologicallySortedOrder(_classesInSlice, true);
 
@@ -231,26 +241,8 @@ public final class ExecutableSlicePostProcessor
 		// fixup methods with respect the class hierarchy  
 		for (final Iterator _i = _topologicallyOrderedClasses.iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
-			_methods.clear();
 
-			// gather collected abstract methods from super interfaces and classes.
-			for (final Iterator _j = _sc.getInterfaces().iterator(); _j.hasNext();) {
-				final SootClass _interface = (SootClass) _j.next();
-
-				if (collector.hasBeenCollected(_interface)) {
-					final Collection _abstractMethods = (Collection) _class2abstractMethods.get(_interface);
-					_methods.addAll(_abstractMethods);
-				}
-			}
-
-			if (_sc.hasSuperclass()) {
-				final SootClass _superClass = _sc.getSuperclass();
-
-				if (collector.hasBeenCollected(_superClass)) {
-					final Collection _abstractMethods = ((Collection) _class2abstractMethods.get(_superClass));
-					_methods.addAll(_abstractMethods);
-				}
-			}
+			final Collection _methods = gatherCollectedAbstractMethodsInSuperClasses(_class2abstractMethods, _sc);
 
 			// remove all abstract methods which are overridden by collected methods of this class.
 			Util.removeMethodsWithSameSignature(_methods, collector.getCollected(_sc.getMethods()));
@@ -265,7 +257,7 @@ public final class ExecutableSlicePostProcessor
 
 			// gather collected abstract methods in this class/interface
 			if (_sc.isInterface()) {
-				_methods.addAll(_sc.getMethods());
+				_methods.addAll(collector.getCollected(_sc.getMethods()));
 			} else if (_sc.isAbstract()) {
 				for (final Iterator _j = collector.getCollected(_sc.getMethods()).iterator(); _j.hasNext();) {
 					final SootMethod _sm = (SootMethod) _j.next();
@@ -291,6 +283,43 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
+	 * Gathers the collected abstract methods that belong to the super classes/interface of the given class.
+	 *
+	 * @param class2abstractMethods maps classes to collected abstract methods.
+	 * @param clazz for which the collection should be performed.
+	 *
+	 * @return a collection of collected abstract methods belonging to the super classes.
+	 *
+	 * @pre class2abstractMethods != null and class2abstractMethods.oclIsKindOf(Map(SootClass, Collection(SootMethod)))
+	 * @pre clazz != null
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 * @post result->forall(o | class2abstractMethods->exists(p | p.values().includes(o)))
+	 */
+	private Collection gatherCollectedAbstractMethodsInSuperClasses(final Map class2abstractMethods, final SootClass clazz) {
+		final Collection _methods = new HashSet();
+
+		// gather collected abstract methods from super interfaces and classes.
+		for (final Iterator _j = clazz.getInterfaces().iterator(); _j.hasNext();) {
+			final SootClass _interface = (SootClass) _j.next();
+
+			if (collector.hasBeenCollected(_interface)) {
+				final Collection _abstractMethods = (Collection) class2abstractMethods.get(_interface);
+				_methods.addAll(_abstractMethods);
+			}
+		}
+
+		if (clazz.hasSuperclass()) {
+			final SootClass _superClass = clazz.getSuperclass();
+
+			if (collector.hasBeenCollected(_superClass)) {
+				final Collection _abstractMethods = ((Collection) class2abstractMethods.get(_superClass));
+				_methods.addAll(_abstractMethods);
+			}
+		}
+		return _methods;
+	}
+
+	/**
 	 * Picks the return points of the method required to make it's slice executable.
 	 *
 	 * @param method to be processed.
@@ -310,24 +339,30 @@ public final class ExecutableSlicePostProcessor
 		_tails.addAll(_bbg.getPseudoTails());
 		cd.analyze(Collections.singleton(method));
 
-		for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
-			final BasicBlock _bb = (BasicBlock) _j.next();
-			final Stmt _stmt = _bb.getTrailerStmt();
-			final Collection _dependees = cd.getDependees(_stmt, method);
-			boolean _flag = _dependees.isEmpty();
+		if (_tails.size() == 1) {
+			// If there is only one tail then include the statement
+			final BasicBlock _bb = (BasicBlock) _tails.iterator().next();
+			collector.includeInSlice(_bb.getTrailerStmt());
+		} else {
+			// if there are more than one tail then pick only the ones that are reachable via collected statements
+			for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
+				final BasicBlock _bb = (BasicBlock) _j.next();
+				final Stmt _stmt = _bb.getTrailerStmt();
+				final Collection _dependees = cd.getDependees(_stmt, method);
+				boolean _flag = _dependees.isEmpty();
 
-			if (!_flag) {
-				for (final Iterator _i = _dependees.iterator(); _i.hasNext() && !_flag;) {
-					_flag = ((Stmt) _i.next()).hasTag(_tagName);
+				if (!_flag) {
+					for (final Iterator _i = _dependees.iterator(); _i.hasNext() && !_flag;) {
+						_flag = ((Stmt) _i.next()).hasTag(_tagName);
+					}
 				}
-			}
 
-			if (!_stmt.hasTag(_tagName) && _flag) {
-				collector.includeInSlice(_stmt);
-				collector.includeInSlice(method);
+				if (!_stmt.hasTag(_tagName) && _flag) {
+					collector.includeInSlice(_stmt);
 
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Picked " + _stmt + " in " + method);
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Picked " + _stmt + " in " + method);
+					}
 				}
 			}
 		}
@@ -420,10 +455,29 @@ public final class ExecutableSlicePostProcessor
 	 * @pre method != null
 	 */
 	private void processMethods(final SootMethod method) {
+		final Collection _temp = new HashSet();
+
 		for (final Iterator _i = Util.findMethodInSuperClassesAndInterfaces(method).iterator(); _i.hasNext();) {
 			final SootMethod _sm = (SootMethod) _i.next();
 			collector.includeInSlice(_sm.getDeclaringClass());
 			collector.includeInSlice(_sm);
+			_temp.clear();
+			_temp.add(_sm.getReturnType());
+			_temp.addAll(_sm.getParameterTypes());
+
+			for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
+				final Type _type = (Type) _j.next();
+
+				if (_type instanceof RefType) {
+					collector.includeInSlice(((RefType) _type).getSootClass());
+				} else if (_type instanceof ArrayType) {
+					final Type _baseType = ((ArrayType) _type).baseType;
+
+					if (_baseType instanceof RefType) {
+						collector.includeInSlice(((RefType) _baseType).getSootClass());
+					}
+				}
+			}
 			addToMethodWorkBag(_sm);
 		}
 	}
@@ -526,13 +580,14 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/02/06 00:12:16  venku
+   - coding convention.
    Revision 1.16  2004/02/05 18:20:58  venku
    - moved getClassesInTopologicalSortedOrder() into Util.
    - logging.
    - getClassesInTopologicalSortedOrder() was collecting the
      retain methods rather than the methods from which
      to retain. FIXED.
-
    Revision 1.15  2004/02/04 04:33:15  venku
    - logging.
    Revision 1.14  2004/01/31 01:49:49  venku
