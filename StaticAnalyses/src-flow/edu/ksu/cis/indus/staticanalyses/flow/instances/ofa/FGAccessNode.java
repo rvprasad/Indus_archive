@@ -20,9 +20,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.IWorkBagProvider;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * This class extends the flow graph node by associating a work peice with it.
@@ -36,11 +33,6 @@ import org.apache.commons.logging.LogFactory;
  */
 class FGAccessNode
   extends OFAFGNode {
-	/** 
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(FGAccessNode.class);
-
 	/** 
 	 * The work associated with this node.
 	 *
@@ -72,10 +64,6 @@ class FGAccessNode
 	 */
 	protected void onNewTokens(final ITokens newTokens) {
 		super.onNewTokens(newTokens);
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Values: " + newTokens + "\nSuccessors: " + succs);
-		}
 		work.addTokens(newTokens);
 		workbagProvider.getWorkBag().addWork(work);
 	}
