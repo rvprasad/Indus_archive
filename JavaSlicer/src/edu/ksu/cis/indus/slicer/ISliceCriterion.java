@@ -22,10 +22,14 @@ package edu.ksu.cis.indus.slicer;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  */
-public interface ISliceCriterion {
+interface ISliceCriterion {
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
  */

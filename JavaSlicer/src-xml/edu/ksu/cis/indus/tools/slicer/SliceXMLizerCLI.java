@@ -117,7 +117,7 @@ public class SliceXMLizerCLI
 	/**
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
-	private final String nameOfSliceTag = "SliceXMLizerCLI";
+	private final String nameOfSliceTag = "indus.tools.slicer.SliceXMLizerCLI:SLICER";
 
 	/**
 	 * Creates an instance of this class.
@@ -459,10 +459,6 @@ public class SliceXMLizerCLI
 		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = (SootClass) _i.next();
 
-			if (!_sc.hasTag(SlicerTool.FLOW_ANALYSIS_TAG_NAME)) {
-				continue;
-			}
-
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Dumping jimple for " + _sc);
 			}
@@ -549,6 +545,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/05/09 11:09:46  venku
+   - the client can now specify the statement graph factory to use during slicing.
+
    Revision 1.26  2004/05/09 11:01:14  venku
    - slice can be seen easily if the user just sees the slice.  So, there
      is no point in having -d option.  Hence, it was removed.

@@ -149,7 +149,7 @@ public final class SlicerTool
 	/**
 	 * The tag used to identify the parts touched by flow analysis.
 	 */
-	public static final String FLOW_ANALYSIS_TAG_NAME = "SlicerTool:FA";
+	public static final String FLOW_ANALYSIS_TAG_NAME = "indus.tools.slicer.SlicerTool:FA";
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -881,6 +881,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.82  2004/05/09 11:09:46  venku
+   - the client can now specify the statement graph factory to use during slicing.
+
    Revision 1.81  2004/04/16 20:10:41  venku
    - refactoring
     - enabled bit-encoding support in indus.

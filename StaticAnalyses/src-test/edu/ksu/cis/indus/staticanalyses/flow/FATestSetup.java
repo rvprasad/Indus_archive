@@ -49,7 +49,7 @@ public class FATestSetup
 	/**
 	 * The tag used by the flow analysis instance.
 	 */
-	public static final String TAG_NAME = "FATestSetup:TestTag";
+	public static final String TAG_NAME = "indus.staticanalyses.flow.FATestSetup:FA";
 
 	/**
 	 * The value analyzer used during testing.
@@ -125,6 +125,9 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/04/25 23:18:18  venku
+   - coding conventions.
+
    Revision 1.20  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.

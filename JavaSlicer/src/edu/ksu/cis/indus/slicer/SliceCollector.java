@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -77,7 +78,7 @@ public final class SliceCollector {
 	/**
 	 * The tag to be used during transformation.
 	 */
-	private SlicingTag tag;
+	private NamedTag tag;
 
 	/**
 	 * The name of the tag instance active in this instance of the transformer.
@@ -157,7 +158,7 @@ public final class SliceCollector {
 	 * @return <code>true</code>
 	 */
 	public boolean hasBeenCollected(final Host host) {
-		final SlicingTag _temp = (SlicingTag) host.getTag(tagName);
+		final NamedTag _temp = (NamedTag) host.getTag(tagName);
 		return _temp != null;
 	}
 
@@ -170,7 +171,7 @@ public final class SliceCollector {
 	 * @pre host != null
 	 */
 	public void includeInSlice(final Host host) {
-		final SlicingTag _hostTag = (SlicingTag) host.getTag(tagName);
+		final NamedTag _hostTag = (NamedTag) host.getTag(tagName);
 
 		if (_hostTag == null) {
 			host.addTag(tag);
@@ -302,7 +303,7 @@ public final class SliceCollector {
 	 */
 	void setTagName(final String theTagName) {
 		if (theTagName != null) {
-			tag = new SlicingTag(theTagName);
+			tag = new NamedTag(theTagName);
 			tagName = theTagName;
 		}
 	}
@@ -326,6 +327,9 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/24 08:26:13  venku
+   - changed the details of logging of pre/post processing slices.
+
    Revision 1.9  2004/04/24 07:48:26  venku
    - added toString() method for convenience.
    Revision 1.8  2004/02/01 22:16:16  venku

@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
@@ -25,8 +26,6 @@ import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.slicer.SlicingTag;
-
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.CustomXMLOutputter;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
@@ -35,7 +34,6 @@ import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 
 import java.util.Map;
 
@@ -147,7 +145,7 @@ final class TagBasedSliceXMLizer
 			final Stmt _stmt = context.getStmt();
 
 			try {
-				final SlicingTag _tag = (SlicingTag) vBox.getTag(tagName);
+				final NamedTag _tag = (NamedTag) vBox.getTag(tagName);
 
 				if (_tag != null) {
 					writer.startTag("value");
@@ -172,7 +170,7 @@ final class TagBasedSliceXMLizer
 					processingStmt = false;
 				}
 
-				final SlicingTag _tag = (SlicingTag) stmt.getTag(tagName);
+				final NamedTag _tag = (NamedTag) stmt.getTag(tagName);
 
 				if (_tag != null) {
 					writer.startTag("stmt");
@@ -200,7 +198,7 @@ final class TagBasedSliceXMLizer
 					processingMethod = false;
 				}
 
-				final SlicingTag _tag = (SlicingTag) method.getTag(tagName);
+				final NamedTag _tag = (NamedTag) method.getTag(tagName);
 
 				if (_tag != null) {
 					writer.startTag("method");
@@ -232,7 +230,7 @@ final class TagBasedSliceXMLizer
 					processingClass = false;
 				}
 
-				final SlicingTag _tag = (SlicingTag) clazz.getTag(tagName);
+				final NamedTag _tag = (NamedTag) clazz.getTag(tagName);
 
 				if (_tag != null) {
 					writer.startTag("class");
@@ -248,7 +246,7 @@ final class TagBasedSliceXMLizer
 		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
 		 */
 		public void callback(final SootField field) {
-			final SlicingTag _tag = (SlicingTag) field.getTag(tagName);
+			final NamedTag _tag = (NamedTag) field.getTag(tagName);
 
 			if (_tag != null) {
 				try {
@@ -355,10 +353,11 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/05/09 09:59:59  venku
+   - closed tags prematurely.  FIXED.
    Revision 1.20  2004/05/09 08:24:38  venku
    - all xmlizers use xmlenc to write xml data.
    - Hence, new library dependence on xmlenc.jar.
-
    Revision 1.19  2004/04/23 00:42:37  venku
    - trying to get canonical xmlized Jimple representation.
    Revision 1.18  2004/04/22 23:32:32  venku
