@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,26 +30,24 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.interfaces.*;
-import edu.ksu.cis.indus.staticanalyses.*;
-import edu.ksu.cis.indus.staticanalyses.*;
 import soot.SootClass;
+
+import edu.ksu.cis.indus.interfaces.IPrototype;
+import edu.ksu.cis.indus.staticanalyses.Context;
 
 import java.util.Collection;
 import java.util.HashSet;
 
 
 /**
- * <p>
  * This class manages class related primitive information and processing such as the processing of <code>&lt;
  * clinit&gt;</code> methods of classes being analyzed.
- * </p>
- *
+ * 
  * <p>
  * Created: Fri Mar  8 14:10:27 2002.
  * </p>
@@ -60,75 +58,72 @@ import java.util.HashSet;
 public class ClassManager
   implements IPrototype {
 	/**
-	 * <p>
 	 * The instance of the framework in which this object is used.
-	 * </p>
+	 *
+	 * @pre bfa != null
 	 */
 	protected final BFA bfa;
 
 	/**
-	 * <p>
 	 * The collection of classes for which the information has been processed.
-	 * </p>
 	 */
 	protected final Collection classes;
 
 	/**
-	 * <p>
 	 * Describe variable <code>context</code> here.
-	 * </p>
+	 *
+	 * @invariant context != null
 	 */
 	protected final Context context;
 
 	/**
-	 * <p>
 	 * Creates a new <code>ClassManager</code> instance.
-	 * </p>
 	 *
-	 * @param bfa the instance of the framework in which this object is used.  This cannot be <code>null</code>.
+	 * @param theAnalysis the instance of the framework in which this object is used.  This cannot be <code>null</code>.
+	 *
+	 * @pre theAnalysis != null
 	 */
-	public ClassManager(BFA bfa) {
+	public ClassManager(final BFA theAnalysis) {
 		classes = new HashSet();
-		this.bfa = bfa;
+		this.bfa = theAnalysis;
 		context = new Context();
 	}
 
 	/**
-	 * <p>
 	 * Creates a concrete object of the same class as this object but parameterized by <code>o</code>.
-	 * </p>
 	 *
 	 * @param o the instance of the analysis for which this object shall process information.  The actual type of
-	 *           <code>o</code> needs to be <code>BFA</code>.  This cannot be <code>null</code>.
+	 * 		  <code>o</code> needs to be <code>BFA</code>.
 	 *
 	 * @return an instance of <code>ClassManager</code> object parameterized by <code>o</code>.
+	 *
+	 * @pre o != null
+	 * @post result != null
 	 */
-	public Object getClone(Object o) {
+	public Object getClone(final Object o) {
 		return new ClassManager((BFA) o);
 	}
 
 	/**
-	 * <p>
 	 * This method is not supported by this class.
-	 * </p>
 	 *
 	 * @return (This method raises an exception.)
 	 *
 	 * @throws UnsupportedOperationException this method is not supported by this class.
 	 */
-	public Object getClone() throws UnsupportedOperationException {
+	public Object getClone() {
 		throw new UnsupportedOperationException("Parameterless prototype() method not supported.");
 	}
 
 	/**
-	 * <p>
 	 * Processes the given class for assimilating class related primitive information into the analysis.  This implementation
 	 * hooks in the class initialization method into the analysis.
-	 * </p>
 	 *
 	 * @param sc the class to be processed.  This cannot be <code>null</code>.
+	 *
+	 * @pre sc != null
 	 */
-	protected void process(SootClass sc) {
+	protected void process(final SootClass sc) {
 		if (!classes.contains(sc)) {
 			classes.add(sc);
 
@@ -138,37 +133,37 @@ public class ClassManager
 			}
 
 			while (sc.hasSuperclass()) {
-				sc = sc.getSuperclass();
+				SootClass temp = sc.getSuperclass();
 
-				if (sc.declaresMethod("<clinit>")) {
-					context.setRootMethod(sc.getMethod("<clinit>"));
-					bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
+				if (temp.declaresMethod("<clinit>")) {
+					context.setRootMethod(temp.getMethod("<clinit>"));
+					bfa.getMethodVariant(temp.getMethod("<clinit>"), context);
 				}
 			}
 		}
 	}
 
 	/**
-	 * <p>
 	 * Resets the manager.  Removes all information maintained about any classes.
-	 * </p>
 	 */
 	protected void reset() {
 		classes.clear();
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/07 06:40:24  venku
-Major:
- - Moved the package under indus umbrella.
-
-Revision 1.8  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.2  2003/08/12 18:39:56  venku
+   Ripple effect of moving IPrototype to Indus.
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 1.8  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow;
@@ -39,11 +39,9 @@ import soot.SootField;
 
 
 /**
- * <p>
  * This class manages field variants.  This class only provides the implementation to create new field variants.  The super
  * class is responsible of managing the variants.
- * </p>
- *
+ * 
  * <p>
  * Created: Fri Jan 25 14:33:09 2002
  * </p>
@@ -54,40 +52,41 @@ import soot.SootField;
 public class FieldVariantManager
   extends AbstractVariantManager {
 	/**
-	 * <p>
 	 * Creates a new <code>FieldVariantManager</code> instance.
-	 * </p>
 	 *
-	 * @param bfa the instance of the framework in which this object is used. This parameter cannot be <code>null</code>.
-	 * @param indexManager the manager of indices which are used to map fields to their variants.  This parameter cannot be
-	 *           <code>null</code>.
+	 * @param theAnalysis the instance of the framework in which this object is used.
+	 * @param indexManager the manager of indices which are used to map fields to their variants.
+	 *
+	 * @pre theAnalysis != null and indexManager != null
 	 */
-	public FieldVariantManager(BFA bfa, AbstractIndexManager indexManager) {
-		super(bfa, indexManager);
+	public FieldVariantManager(final BFA theAnalysis, final AbstractIndexManager indexManager) {
+		super(theAnalysis, indexManager);
 	}
 
 	/**
-	 * <p>
 	 * Returns a new variant of the field represented by <code>o</code>.
-	 * </p>
 	 *
-	 * @param o the field whose variant is to be returned.  The actual type of <code>o</code> needs to be
-	 *           <code>SootField</code>.
+	 * @param o the field whose variant is to be returned.  
 	 *
 	 * @return the variant associated with the field represetned by <code>o</code>.
+	 *
+	 * @pre o != null and o.oclIsKindOf(SootField)
 	 */
-	protected IVariant getNewVariant(Object o) {
+	protected IVariant getNewVariant(final Object o) {
 		return new FieldVariant((SootField) o, bfa.getNewFGNode());
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 0.7  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
+   $Log$
 
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
 
-*****/
+   Revision 0.7  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */
