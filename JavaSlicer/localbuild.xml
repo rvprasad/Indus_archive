@@ -35,14 +35,19 @@
     </path>
    
     <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask">
-        <classpath refid="bind.classpath"/>
+       <classpath refid="bind.classpath"/>
      </taskdef>
   
     <target name="bind">
         <bind verbose="true" binding="auxiliary/slicerConfig_JiBXBinding.xml">
-            <classpathset dir="${build}"/>
-            <classpathset dir="../Indus/${build}/"/>
+        	<classpath>
+        		<path refid="bind.classpath"/>
+	        	<pathelement location="../Indus/${build}/"/>
+    	        <pathelement location="${build}"/>
+        	</classpath>
         </bind>
     </target>
+    
+    <target name="jardepends" depends="build, bind"/>
   
 </project>

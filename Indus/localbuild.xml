@@ -29,4 +29,7 @@
         <path refid="javaslicer.classpath"/>
         <path refid="staticanalyses.classpath"/>
     </path>
+    
+    <target name="jardepends" depends="build"/>
+    
 </project>

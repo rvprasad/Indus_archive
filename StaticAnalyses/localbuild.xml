@@ -28,4 +28,6 @@
         <pathelement location="../Indus/build/"/>
 	    <pathelement location="../StaticAnalyses/build/"/>
     </path>
+    
+    <target name="jardepends" depends="build"/>        
 </project>

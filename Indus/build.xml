@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
-[<!ENTITY include SYSTEM "message.xml">]>
+<!--<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
+[<!ENTITY include SYSTEM "message.xml">]>-->
 <!-- $Revision$ -->
 <project name="indus" default="build" basedir=".">
 
@@ -21,13 +21,13 @@
 
 <target name="build" depends="init">
     <mkdir dir="${build}"/>
-    <javac destdir="${build}" debug="on">
+    <javac destdir="${build}" debug="on" include="**/*java">
         <src refid="indus.srcpath"/>
         <classpath refid="indus.classpath"/>
     </javac>
 </target>
 
-<target name="jar" depends="build">
+<target name="jar" depends="jardepends">
 	<jar destfile="${jarfile}" basedir="${build}" excludes="**/.*"/>
 </target>
 
@@ -114,6 +114,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.14  2003/11/13 15:29:03  venku
+- moved property import into localbuild.xml file.
+- added binding compiler support to slicer build process.
+
 Revision 1.13  2003/11/13 14:25:01  venku
 - altered build.xml and localbuild.xml to change clean target
   and enable building just indus.
