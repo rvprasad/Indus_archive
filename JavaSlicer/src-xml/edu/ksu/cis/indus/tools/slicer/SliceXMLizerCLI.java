@@ -82,11 +82,6 @@ import soot.SootClass;
 public class SliceXMLizerCLI
   extends SootBasedDriver {
 	/**
-	 * This is the suffix used for the files into which the slice information will be dumped in XML.
-	 */
-	public static final String SUFFIX_FOR_XMLIZATION_PURPOSES = "slicer";
-
-	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceXMLizerCLI.class);
@@ -546,6 +541,10 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/05/04 09:58:21  venku
+   - the test will also drive tagbased slice residualizer via the new
+     method added to SliceXMLizerCLI.
+
    Revision 1.22  2004/05/04 07:55:44  venku
    - id generator was not initialized correctly in slicer test setup. FIXED.
    Revision 1.21  2004/04/25 23:18:20  venku
