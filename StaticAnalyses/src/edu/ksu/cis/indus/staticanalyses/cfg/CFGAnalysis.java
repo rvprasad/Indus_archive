@@ -47,7 +47,9 @@ import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
 import edu.ksu.cis.indus.staticanalyses.support.Util;
 
 import java.util.Collection;
@@ -82,7 +84,8 @@ public class CFGAnalysis {
 	 *
 	 * @param scmParam manages the classes being analyzed.
 	 * @param cgiParam provides the call-graph information.
-     * @pre scmParam != null and cgiParam != null
+	 *
+	 * @pre scmParam != null and cgiParam != null
 	 */
 	public CFGAnalysis(final Scene scmParam, final ICallGraphInfo cgiParam) {
 		this(scmParam, cgiParam, new BasicBlockGraphMgr());
@@ -94,7 +97,8 @@ public class CFGAnalysis {
 	 * @param scmParam manages the classes being analyzed.
 	 * @param cgiParam provides the call-graph information.
 	 * @param bbmParam manages the basic block graphs of the methods being analyzed.
-     * @pre scmParam != null and cgiParam != null and bbmParam != null
+	 *
+	 * @pre scmParam != null and cgiParam != null and bbmParam != null
 	 */
 	public CFGAnalysis(final Scene scmParam, final ICallGraphInfo cgiParam, final BasicBlockGraphMgr bbmParam) {
 		this.scm = scmParam;
@@ -109,7 +113,8 @@ public class CFGAnalysis {
 	 * @param context in which <code>ne</code> occurs.
 	 *
 	 * @return <code>true</code> if the given allocation site is loop enclosed; <code>false</code>, otherwise.
-     * @pre ne != null and context != null and context.getCurrentMethod() != null
+	 *
+	 * @pre ne != null and context != null and context.getCurrentMethod() != null
 	 */
 	public boolean checkForLoopEnclosedNewExpr(final NewExpr ne, final Context context) {
 		String classname = ne.getBaseType().getClassName();
@@ -120,11 +125,24 @@ public class CFGAnalysis {
 			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(sm.retrieveActiveBody()));
 			Stmt stmt = context.getStmt();
 
-			if (bbg.occursInCycle(bbg.getEnclosingBlock(stmt))) {
+			if (occursInCycle(bbg, bbg.getEnclosingBlock(stmt))) {
 				result = true;
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Checks if the given node occurs in a cycle in the graph.  This may be sufficient in some cases rather than capturing
+	 * the cycle itself.
+	 *
+	 * @param graph in which <code>node</code> occurs.
+	 * @param node which may occur in a cycle.
+	 *
+	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
+	 */
+	public static final boolean occursInCycle(final DirectedGraph graph, final BasicBlock node) {
+		return graph.isReachable(node, node, true);
 	}
 
 	/**
@@ -134,7 +152,8 @@ public class CFGAnalysis {
 	 *
 	 * @return <code>true</code> if the given method or any of it's ancestors in the call tree have multiple or
 	 * 		   multiply-executed call sites; <code>false</code>, otherwise.
-     * @pre caller != null
+	 *
+	 * @pre caller != null
 	 */
 	public boolean executedMultipleTimes(final SootMethod caller) {
 		boolean result = false;
@@ -156,7 +175,7 @@ main_control:
 			SootMethod caller2 = ctrp.getMethod();
 			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(caller2.retrieveActiveBody()));
 
-			if (bbg.occursInCycle(bbg.getEnclosingBlock(ctrp.getStmt()))) {
+			if (occursInCycle(bbg, bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
 			} else {
 				result = executedMultipleTimes(caller2);
@@ -168,11 +187,12 @@ main_control:
 	/**
 	 * Checks if the given methods occur in the same SCC in the call graph of the system.
 	 *
-	 * @param m is one of the methods. 
+	 * @param m is one of the methods.
 	 * @param p is another method.
 	 *
 	 * @return <code>true</code> if the given methods occur in the same SCC; <code>false</code>, otherwise.
-     * @pre m != null and p != null  
+	 *
+	 * @pre m != null and p != null
 	 */
 	public boolean notInSameSCC(final SootMethod m, final SootMethod p) {
 		boolean result = true;
@@ -198,10 +218,11 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/14 05:00:48  venku
+   Spruced up specification.
    Revision 1.2  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.
-
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

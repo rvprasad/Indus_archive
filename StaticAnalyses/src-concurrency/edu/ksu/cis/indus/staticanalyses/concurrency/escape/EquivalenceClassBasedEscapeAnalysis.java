@@ -567,9 +567,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 				// This is needed when the system is not closed.
 				if (triple == null) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("NO TRIPLE.  May be due to open system.");
-                    }
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("NO TRIPLE.  May be due to open system.");
+					}
 					continue;
 				}
 
@@ -998,8 +998,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 				MethodContext mc = (MethodContext) (triple.getFirst());
 				CallTriple callerTrp = new CallTriple(caller, ctrp.getStmt(), ctrp.getExpr());
 				MethodContext sc = (MethodContext) ctrp2sc.get(callerTrp);
-                if (LOGGER.isDebugEnabled())
-                    LOGGER.debug("Triples " + triple + "\n" + ctrp + "\n" + callerTrp + "\n" + ctrp2sc);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Triples " + triple + "\n" + ctrp + "\n" + callerTrp + "\n" + ctrp2sc);
+				}
 				sc.propogateInfoFromTo(mc);
 
 				if (!processed.contains(callee)) {
@@ -1067,9 +1069,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/24 06:06:34  venku
+   logging added.
    Revision 1.2  2003/08/21 03:56:44  venku
    Formatting.
-
    Revision 1.1  2003/08/21 01:24:25  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.

@@ -35,6 +35,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -107,7 +109,7 @@ public abstract class DirectedGraph {
 			BitSet preds = new BitSet(nodes.size());
 
 			for (Iterator j = temp.getPredsOf().iterator(); j.hasNext();) {
-				preds.set(nodes.indexOf(j));
+				preds.set(nodes.indexOf(j.next()));
 			}
 			result[i] = preds;
 		}
@@ -175,7 +177,7 @@ public abstract class DirectedGraph {
 			BitSet succs = new BitSet(nodes.size());
 
 			for (Iterator j = temp.getSuccsOf().iterator(); j.hasNext();) {
-				succs.set(nodes.indexOf(j));
+				succs.set(nodes.indexOf(j.next()));
 			}
 			result[i] = succs;
 		}
@@ -184,7 +186,8 @@ public abstract class DirectedGraph {
 	}
 
 	/**
-	 * Checks if the given destination node is reachable from the given source node in the given direction.
+	 * Checks if the given destination node is reachable from the given source node in the given direction via outgoing
+	 * edges.
 	 *
 	 * @param src is the source node in the graph.
 	 * @param dest is the destination node in the graph.
@@ -223,7 +226,7 @@ public abstract class DirectedGraph {
 	 *
 	 * @return an read-only copy of immediate succession information as it occurs in this graph's spanning tree.
 	 *
-	 * @post result.equals(spanningSuccs)
+	 * @post result.oclIsKindOf(Map(INode, Collection(INode)))
 	 * @post result != null
 	 */
 	public final Map getSpanningSuccs() {
@@ -267,7 +270,7 @@ public abstract class DirectedGraph {
 		WorkBag wb = new WorkBag(WorkBag.LIFO);
 		Stack dfsPath = new Stack();
 
-		for (Iterator i = getHeads().iterator(); i.hasNext();) {
+		for (Iterator i = getNodes().iterator(); i.hasNext();) {
 			INode head = (INode) i.next();
 			wb.clear();
 			wb.addWork(head);
@@ -287,7 +290,21 @@ public abstract class DirectedGraph {
 					INode node = (INode) o;
 
 					if (dfsPath.contains(node)) {
-						result.add(new ArrayList(dfsPath.subList(dfsPath.indexOf(node), dfsPath.size())));
+						List temp = new ArrayList(dfsPath.subList(dfsPath.indexOf(node), dfsPath.size()));
+						boolean flag = true;
+
+						for (Iterator j = result.iterator(); j.hasNext();) {
+							Collection cyc = (Collection) j.next();
+
+							if (cyc.containsAll(temp) && temp.containsAll(cyc)) {
+								flag = false;
+								break;
+							}
+						}
+
+						if (flag) {
+							result.add(temp);
+						}
 					} else {
 						Collection succs = node.getSuccsOf();
 
@@ -322,7 +339,7 @@ public abstract class DirectedGraph {
 		Collection processed = new HashSet();
 		int time = 0;
 
-		for (Iterator i = getHeads().iterator(); i.hasNext();) {
+		for (Iterator i = nodes.iterator(); i.hasNext();) {
 			INode node = (INode) i.next();
 
 			if (!processed.contains(node)) {
@@ -392,37 +409,8 @@ public abstract class DirectedGraph {
 	}
 
 	/**
-	 * Checks if the given node occurs in a cycle in the graph.  This may be sufficient in some cases rather than capturing
-	 * the cycle itself.
-	 *
-	 * @param node which may occur in a cycle.
-	 *
-	 * @return <code>true</code> if <code>node</code> occurs in cycle; <code>false</code>, otherwise.
-	 */
-	public final boolean occursInCycle(final INode node) {
-		boolean result = false;
-		WorkBag wb = new WorkBag(WorkBag.LIFO);
-		wb.addWork(node);
-
-		Collection processed = new HashSet();
-
-		while (wb.hasWork()) {
-			INode temp = (INode) wb.getWork();
-
-			if (processed.contains(temp)) {
-				result = true;
-				break;
-			}
-			processed.add(temp);
-			wb.addAllWorkNoDuplicates(temp.getSuccsOf());
-		}
-		return result;
-	}
-
-	/**
 	 * Performs (pseudo-)topological sort of the given nodes in the given direction.
 	 *
-	 * @param nodes to be sorted.
 	 * @param topdown <code>true</code> indicates follow the forward edges while sorting; <code>false</code> indicates follow
 	 * 		  the backward edges.
 	 *
@@ -430,24 +418,23 @@ public abstract class DirectedGraph {
 	 *
 	 * @post result != null and result.oclIsKindOf(Sequence(INode))
 	 */
-	public static final List performTopologicalSort(final List nodes, final boolean topdown) {
+	public final List performTopologicalSort(final boolean topdown) {
 		List result;
+		List nodes = getNodes();
 		Map finishTime2node = new HashMap();
-		Collection processed = new ArrayList();
+		Collection processed = new HashSet();
 		int time = 0;
 
 		for (Iterator i = nodes.iterator(); i.hasNext();) {
 			INode node = (INode) i.next();
 
-			if (processed.contains(node)) {
-				continue;
+			if (!processed.contains(node)) {
+				time = getFinishTimes(nodes, node, processed, finishTime2node, time, topdown);
 			}
-			time = getFinishTimes(nodes, node, processed, finishTime2node, time, topdown);
 		}
 
 		List temp = new ArrayList(finishTime2node.keySet());
 		Collections.sort(temp);
-
 		result = new ArrayList();
 
 		for (Iterator i = temp.iterator(); i.hasNext();) {
@@ -468,8 +455,8 @@ public abstract class DirectedGraph {
 	 *
 	 * @return the finish time after the given dfs traversal.
 	 */
-	private static int getFinishTimes(final List nodes, final INode node, final Collection processed,
-		final Map finishTime2node, final int time, final boolean forward) {
+	private int getFinishTimes(final List nodes, final INode node, final Collection processed, final Map finishTime2node,
+		final int time, final boolean forward) {
 		processed.add(node);
 
 		int temp = time;
@@ -483,10 +470,10 @@ public abstract class DirectedGraph {
 			if (processed.contains(succ) || !nodes.contains(succ)) {
 				continue;
 			}
-			temp = getFinishTimes(nodes, succ, processed, finishTime2node, time, forward);
+			temp = getFinishTimes(nodes, succ, processed, finishTime2node, temp, forward);
 		}
 		finishTime2node.put(new Integer(++temp), node);
-		return time;
+		return temp;
 	}
 
 	/**
@@ -495,30 +482,50 @@ public abstract class DirectedGraph {
 	 * @post hasSpanningForest = true
 	 */
 	private final void createSpanningForest() {
-		Collection processed = new HashSet();
+		Collection reached = new HashSet();
 
 		if (spanningSuccs == null) {
 			spanningSuccs = new HashMap();
 		}
 		spanningSuccs.clear();
 
-		for (Iterator i = getHeads().iterator(); i.hasNext();) {
-			INode node = (INode) i.next();
+		List order = new ArrayList(getHeads());
+		boolean flag = false;
 
-			if (!processed.contains(node)) {
-				Collection temp = new HashSet();
-				spanningSuccs.put(node, temp);
+		// It is possible that the graph has no heads, i.e., nodes with no predecessors. 
+		// In such cases, the do loop ensures that all the nodes in the graph will be considered as heads.
+		do {
+			for (Iterator i = order.iterator(); i.hasNext();) {
+				INode node = (INode) i.next();
 
-				for (Iterator j = node.getSuccsOf().iterator(); j.hasNext();) {
-					INode succ = (INode) j.next();
+				// we do not want to process nodes that are already processed.
+				if (!spanningSuccs.keySet().contains(node)) {
+					Collection temp = new HashSet();
+					spanningSuccs.put(node, temp);
+					// mark any processed node as also visited.
+					reached.add(node);
 
-					if (!processed.contains(succ)) {
-						temp.add(succ);
+					for (Iterator j = node.getSuccsOf().iterator(); j.hasNext();) {
+						INode succ = (INode) j.next();
+
+						// record only those successors which have not been visited via other nodes. 
+						if (!reached.contains(succ)) {
+							temp.add(succ);
+							reached.add(succ);
+						}
 					}
 				}
 			}
-			processed.add(node);
-		}
+
+			Collection processed = spanningSuccs.keySet();
+			flag = !processed.containsAll(getNodes());
+
+			// if there are nodes in the graph that are not covered, then consider them here.
+			if (flag) {
+				order.clear();
+				order.addAll(CollectionUtils.subtract(getNodes(), processed));
+			}
+		} while (flag);
 		hasSpanningForest = true;
 	}
 }
@@ -526,15 +533,17 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
-   Revision 1.6  2003/05/22 22:18:31  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
+   Revision 1.3  2003/08/11 07:13:58  venku
+ *** empty log message ***
+         Revision 1.2  2003/08/11 04:20:19  venku
+         - Pair and Triple were changed to work in optimized and unoptimized mode.
+         - Ripple effect of the previous change.
+         - Documentation and specification of other classes.
+         Revision 1.1  2003/08/07 06:42:16  venku
+         Major:
+          - Moved the package under indus umbrella.
+          - Renamed isEmpty() to hasWork() in WorkBag.
+         Revision 1.6  2003/05/22 22:18:31  venku
+         All the interfaces were renamed to start with an "I".
+         Optimizing changes related Strings were made.
  */
