@@ -95,8 +95,8 @@ public abstract class AbstractToolConfiguration
 	}
 
 	/**
-	 * Processes the given property.  This should be overriden by subclasses to handle alter configurationCollection.  Only a
-	 * return value of <code>true</code> will result in the property being added to the configurationCollection.
+	 * Processes the given property.  This should be overriden by subclasses to handle alter configuration.  Only a
+	 * return value of <code>true</code> will result in the property being added to the configuration.
 	 *
 	 * @param propertyID is the identifier of the property.
 	 * @param value of the property.
@@ -111,6 +111,10 @@ public abstract class AbstractToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
+
    Revision 1.4  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
