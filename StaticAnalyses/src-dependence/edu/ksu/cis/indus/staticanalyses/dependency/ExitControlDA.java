@@ -39,9 +39,10 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class provides intraprocedural forward control dependence information.  The "directness" of the analysis (alike that
- * of backward control dependence) depends on the flavor backward control dependence used to calculate forward control
- * dependence.
+ * This class provides intraprocedural forward control dependence information.  The "direct-ness" and the "non-termination
+ * sensitivity" of the analysis depends on the flavor backward control dependence used to calculate forward control
+ * dependence (provided via <code>setup</code>).  For more information about the dependence calculated in  this
+ * implementation, please refer to  <a href="FILL ME">FILL ME</a>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
