@@ -167,7 +167,7 @@ public class InterferenceDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IProcessor#hookup(ProcessingController)
+		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 		 */
 		public void hookup(final ProcessingController ppc) {
 			if (tgi == null) {
@@ -181,7 +181,7 @@ public class InterferenceDAv1
 		}
 
 		/**
-		 * @see edu.ksu.cis.indus.interfaces.IProcessor#unhook(ProcessingController)
+		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
 		 */
 		public void unhook(final ProcessingController ppc) {
 			if (tgi == null) {
@@ -224,7 +224,7 @@ public class InterferenceDAv1
 	 * @pre stmt.oclIsTypeOf(Stmt) or method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object stmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
@@ -263,7 +263,7 @@ public class InterferenceDAv1
 	 * @pre stmt.oclIsTypeOf(Stmt) or method.oclIsTypeOf(SootMethod)
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
+	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
 		Collection _result = Collections.EMPTY_LIST;
@@ -295,7 +295,7 @@ public class InterferenceDAv1
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return AbstractDependencyAnalysis.INTERFERENCE_DA;
+		return IDependencyAnalysis.INTERFERENCE_DA;
 	}
 
 	/**
@@ -339,7 +339,7 @@ public class InterferenceDAv1
 				for (final Iterator _k = _dtMap.keySet().iterator(); _k.hasNext();) {
 					final Pair _de = (Pair) _k.next();
 
-					if (considerClassInitializers(_dt, _de) && isDependentOn(_dt, _de)) {
+					if (considerEffectOfClassInitializers(_dt, _de) && isDependentOn(_dt, _de)) {
 						Collection _t = (Collection) _deMap.get(_dt);
 
 						if (_t.equals(Collections.EMPTY_LIST)) {
@@ -362,7 +362,7 @@ public class InterferenceDAv1
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
 		}
-		
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Interference Dependence processing");
 		}
@@ -599,7 +599,7 @@ public class InterferenceDAv1
 	}
 
 	/**
-	 * Checks if the given dependence has any of the ends rooted in a class initializer and prunes the  dependence based on
+	 * Checks if the given dependence has any of the ends rooted in a class initializer and prunes the dependence based on
 	 * this information.
 	 *
 	 * @param dependent is the array/field read access site.
@@ -609,7 +609,7 @@ public class InterferenceDAv1
 	 *
 	 * @pre dependent != null and dependee != null
 	 */
-	private boolean considerClassInitializers(final Pair dependent, final Pair dependee) {
+	private boolean considerEffectOfClassInitializers(final Pair dependent, final Pair dependee) {
 		final SootMethod _deMethod = (SootMethod) dependee.getSecond();
 		final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
 		boolean _result = true;
@@ -618,7 +618,7 @@ public class InterferenceDAv1
 		final boolean _deci = _deMethod.getName().equals("<clinit>");
 		final boolean _dtci = _dtMethod.getName().equals("<clinit>");
 
-		if (_deci || _dtci) {
+		if (_deci ^ _dtci) {
 			final SootClass _deClass = _deMethod.getDeclaringClass();
 			final SootClass _dtClass = _dtMethod.getDeclaringClass();
 
@@ -633,11 +633,16 @@ public class InterferenceDAv1
 					final SootField _f1 = ((StaticFieldRef) _de).getField();
 					final SootField _f2 = ((StaticFieldRef) _dt).getField();
 
-					if (_f1.equals(_f2)
+					/*
+					 * if f1 and f2 are the same fields and
+					 *   if deMethod is clinit and f1 was declared in deClass or
+					 *      dtMethod is clinit and f2 was declared in dtClass then
+					 *      the dependence is invalid and it should not be considered.
+					 */
+					_result =
+						!(_f1.equals(_f2)
 						  && ((_deci && _f1.getDeclaringClass().equals(_deClass))
-						  || (_dtci && _f1.getDeclaringClass().equals(_dtClass)))) {
-						_result = false;
-					}
+						  || (_dtci && _f1.getDeclaringClass().equals(_dtClass))));
 				}
 			}
 		}
@@ -648,12 +653,12 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/06/16 14:30:12  venku
+   - logging.
    Revision 1.36  2004/05/14 06:27:24  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.35  2004/03/03 10:11:40  venku
    - formatting.
-
    Revision 1.34  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent
