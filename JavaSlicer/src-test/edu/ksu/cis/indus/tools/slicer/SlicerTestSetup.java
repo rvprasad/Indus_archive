@@ -122,9 +122,17 @@ public class SlicerTestSetup
 
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 
-		// write XMLized data
+		// write XMLized Jimple data
+		if (dumpLocation != null) {
+			driver.jimpleXMLDumpDir = dumpLocation;
+			driver.dumpJimple();
+		}
+		
+		// destructively update Jimple
 		driver.destructivelyUpdateJimple();
-		driver.writeXML();
+		
+		// We do not generate xmlized slice as it is responsibility of the XMLBasedTest to 
+		// generate the test data before testing.
 	}
 
 	/**
@@ -186,6 +194,9 @@ public class SlicerTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/05/04 09:58:22  venku
+   - the test will also drive tagbased slice residualizer via the new
+     method added to SliceXMLizerCLI.
    Revision 1.8  2004/05/04 07:55:44  venku
    - id generator was not initialized correctly in slicer test setup. FIXED.
    Revision 1.7  2004/04/25 21:18:41  venku

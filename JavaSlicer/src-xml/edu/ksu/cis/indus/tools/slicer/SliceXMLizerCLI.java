@@ -22,7 +22,9 @@ import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Environment;
+import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
+import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
@@ -226,23 +228,8 @@ public class SliceXMLizerCLI
 	 * Write the slice as XML document.
 	 */
 	void writeXML() {
+	    dumpJimple();
 		final IXMLizer _xmlizer = getXMLizer();
-
-		if (jimpleXMLDumpDir != null) {
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("BEGIN: Dumping Jimple");
-			}
-
-			final ProcessingController _ctrl = new ProcessingController();
-			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
-			_ctrl.setEnvironment(new Environment(scene));
-			_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter(slicer.getCallGraph()));
-			((AbstractXMLizer) _xmlizer).dumpJimple("", jimpleXMLDumpDir, _ctrl);
-
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("END: Dumping Jimple");
-			}
-		}
 
 		// serialize the output of the slicer
 		final Map _info = new HashMap();
@@ -253,6 +240,31 @@ public class SliceXMLizerCLI
 	}
 
 	/**
+     * Dump xmlized jimple
+     */
+    void dumpJimple() {
+        final IXMLizer _xmlizer = getXMLizer();
+
+		if (jimpleXMLDumpDir != null) {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: Dumping XMLized Jimple");
+			}
+
+			final ProcessingController _ctrl = new ProcessingController();
+			_ctrl.setStmtGraphFactory(getStmtGraphFactory());
+			_ctrl.setEnvironment(new Environment(scene));
+			final IProcessingFilter _filter = new CGBasedXMLizingProcessingFilter(slicer.getCallGraph());
+			_filter.chain(new TagBasedProcessingFilter(SlicerTool.FLOW_ANALYSIS_TAG_NAME));
+			_ctrl.setProcessingFilter(_filter);
+			((AbstractXMLizer) _xmlizer).dumpJimple("", jimpleXMLDumpDir, _ctrl);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: Dumping XMLized Jimple");
+			}
+		}
+    }
+
+    /**
 	 * Parses the command line argument.
 	 *
 	 * @param args contains the command line arguments.
@@ -545,6 +557,13 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/05/10 08:12:03  venku
+   - streamlined the names of tags that are used.
+   - deleted SlicingTag class.  NamedTag is used instead.
+   - ripple effect.
+   - SliceCriteriaFactory's interface is enhanced to generate individual
+     slice criterion as well as criteria set for all nodes in the given AST chunk.
+
    Revision 1.27  2004/05/09 11:09:46  venku
    - the client can now specify the statement graph factory to use during slicing.
 
