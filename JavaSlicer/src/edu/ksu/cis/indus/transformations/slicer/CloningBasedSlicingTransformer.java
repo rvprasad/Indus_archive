@@ -16,7 +16,6 @@
 package edu.ksu.cis.indus.transformations.slicer;
 
 import soot.Body;
-import soot.Local;
 import soot.PatchingChain;
 import soot.RefType;
 import soot.Scene;
@@ -156,17 +155,20 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.ValueBox, soot.jimple.Stmt,
+	 * 		soot.SootMethod)
+	 */
+	public ValueBox getTransformed(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
+		Stmt temp = getTransformed(stmt, method);
+		int index = stmt.getUseAndDefBoxes().indexOf(vBox);
+		return (ValueBox) temp.getUseAndDefBoxes().get(index);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedClasses()
 	 */
 	public Collection getTransformedClasses() {
 		return transformedSystem.getClasses();
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedLocal(soot.Local, soot.SootMethod)
-	 */
-	public Local getTransformedLocal(final Local local, final SootMethod method) {
-		return cloner.getLocal(local, method);
 	}
 
 	/**
@@ -517,6 +519,14 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/10/21 06:00:19  venku
+   - Split slicing type into 2 sets:
+        b/w, f/w, and complete
+        executable and non-executable.
+   - Extended transformer classes to handle these
+     classification.
+   - Added a new class to house the logic for fixing
+     return statements in case of backward executable slice.
    Revision 1.25  2003/10/21 05:22:57  venku
    - moved transformations that were inherent to
      cloning based approach to this class from SlicingEngine.
