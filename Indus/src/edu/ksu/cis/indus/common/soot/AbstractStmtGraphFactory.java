@@ -76,7 +76,7 @@ public abstract class AbstractStmtGraphFactory
 		}
 
 		if (_flag) {
-			_result = getUnitGraphForMethod(method);
+			_result = getStmtGraphForMethod(method);
 
 			if (_result == null) {
 				// stub in an empty graph.
@@ -91,7 +91,7 @@ public abstract class AbstractStmtGraphFactory
 				} else {
 					_units.add(_jimple.newReturnStmt(Util.getDefaultValueFor(method.getReturnType())));
 				}
-				_result = getUnitGraphForBody(_body);
+				_result = getStmtGraphForBody(_body);
 			}
 			method2UnitGraph.put(method, new WeakReference(_result));
 		}
@@ -115,7 +115,7 @@ public abstract class AbstractStmtGraphFactory
 	 * @pre body != null
 	 * @post result != null
 	 */
-	protected abstract UnitGraph getUnitGraphForBody(final JimpleBody body);
+	protected abstract UnitGraph getStmtGraphForBody(final JimpleBody body);
 
 	/**
 	 * Get the unit graph associated with the method.
@@ -126,12 +126,17 @@ public abstract class AbstractStmtGraphFactory
 	 *
 	 * @pre not method.isConcrete() implies result == null
 	 */
-	protected abstract UnitGraph getUnitGraphForMethod(final SootMethod method);
+	protected abstract UnitGraph getStmtGraphForMethod(final SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/26 00:22:31  venku
+   - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
+   - ripple effect.
+   - changed logic in ExceptionFlowSensitiveStmtGraph.
+
    Revision 1.1  2004/03/26 00:07:26  venku
    - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
    - ripple effect in classes and method names.

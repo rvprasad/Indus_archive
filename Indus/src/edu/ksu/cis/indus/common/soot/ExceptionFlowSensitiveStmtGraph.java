@@ -21,13 +21,13 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import soot.SootClass;
 import soot.Trap;
 import soot.TrapManager;
-import soot.Unit;
 
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
@@ -52,9 +52,20 @@ import soot.util.Chain;
 final class ExceptionFlowSensitiveStmtGraph
   extends UnitGraph {
 	/**
-	 * The collection of units represented in this graph.
+	 * The sequence of units represented in this graph.
 	 */
-	private Collection nodes;
+	private List nodes;
+
+	/** 
+	 * A cache of the nodes for which predecessors need to be fixed after processing.
+	 */
+	private Collection predsToBeProcessedCache;
+
+	/** 
+	 * A cache of the nodes for which successors need to be fixed after processing.
+	 * @invariant succsToBeProcessedCache.oclIsKindOf(Collection(Stmt))
+	 */
+	private Collection succsToBeProcessedCache;
 
 	/**
 	 * Creates an instance of this unit graph corresponding to the given body and options.
@@ -71,14 +82,28 @@ final class ExceptionFlowSensitiveStmtGraph
 	ExceptionFlowSensitiveStmtGraph(final JimpleBody unitBody, final Collection namesOfExceptionsToIgnore,
 		final boolean exceptionEdges) {
 		super(unitBody, true, exceptionEdges);
+		predsToBeProcessedCache = new HashSet();
+		succsToBeProcessedCache = new HashSet();
 		pruneExceptionalEdges(namesOfExceptionsToIgnore);
 		pruneExceptionBasedControlFlow();
+
+		for (final Iterator _i = succsToBeProcessedCache.iterator(); _i.hasNext();) {
+			final Stmt _unit = (Stmt) _i.next();
+			unitToSuccs.put(_unit, Collections.unmodifiableList((List) unitToSuccs.get(_unit)));
+		}
+
+		for (final Iterator _i = predsToBeProcessedCache.iterator(); _i.hasNext();) {
+			final Stmt _unit = (Stmt) _i.next();
+			unitToPreds.put(_unit, Collections.unmodifiableList((List) unitToPreds.get(_unit)));
+		}
+		predsToBeProcessedCache = null;
+		succsToBeProcessedCache = null;
 	}
 
 	/**
-	 * Returns an iterator over the statements represented in this graph.  The
-	 *  order of the statements will reflect the order of the statements in the sequence of statements obtained from the method.
-	 * 
+	 * Returns an iterator over the statements represented in this graph.  The order of the statements will reflect the order
+	 * of the statements in the sequence of statements obtained from the method.
+	 *
 	 * @see soot.toolkits.graph.DirectedGraph#iterator()
 	 */
 	public Iterator iterator() {
@@ -92,11 +117,12 @@ final class ExceptionFlowSensitiveStmtGraph
 				final Stmt _unit = (Stmt) _wb.getWork();
 				_wb.addAllWork(getSuccsOf(_unit));
 			}
-			
+
 			nodes = new ArrayList(getBody().getUnits());
-			nodes.retainAll(_temp);			
+			nodes.retainAll(_temp);
+			nodes = Collections.unmodifiableList(nodes);
 		}
-		return Collections.unmodifiableCollection(nodes).iterator();
+		return nodes.iterator();
 	}
 
 	/**
@@ -114,7 +140,7 @@ final class ExceptionFlowSensitiveStmtGraph
 			// gather all the exception types that is assumed to be thrown by the current unit.
 			for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
 				final Trap _trap = (Trap) _j.next();
-				final Unit _handler = _trap.getHandlerUnit();
+				final Stmt _handler = (Stmt) _trap.getHandlerUnit();
 				final boolean _hasArrayRef = _unit.containsArrayRef();
 				final boolean _hasFieldRef = _unit.containsFieldRef();
 				final boolean _hasInstanceFieldRef = _hasFieldRef && _unit.getFieldRef() instanceof InstanceFieldRef;
@@ -141,10 +167,12 @@ final class ExceptionFlowSensitiveStmtGraph
 					final List _preds = new ArrayList((List) unitToPreds.get(_handler));
 					_preds.remove(_unit);
 					unitToPreds.put(_handler, _preds);
+					predsToBeProcessedCache.add(_handler);
 
 					final List _succs = new ArrayList((List) unitToSuccs.get(_unit));
 					_succs.remove(_handler);
 					unitToSuccs.put(_unit, _succs);
+					succsToBeProcessedCache.add(_unit);
 				}
 			}
 		}
@@ -159,40 +187,28 @@ final class ExceptionFlowSensitiveStmtGraph
 	private void pruneExceptionalEdges(final Collection namesOfExceptionsToIgnore) {
 		final Chain _traps = body.getTraps();
 		final Chain _units = body.getUnits();
-		final Collection _predsToBeProcessed = new ArrayList();
-		final Collection _succsToBeProcessed = new ArrayList();
 
 		for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
 			final Trap _trap = (Trap) _j.next();
 
 			if (namesOfExceptionsToIgnore.contains(_trap.getException().getName())) {
-				final Unit _handler = _trap.getHandlerUnit();
-				final Unit _endUnit = (Unit) _units.getPredOf(_trap.getEndUnit());
+				final Stmt _handler = (Stmt) _trap.getHandlerUnit();
+				final Stmt _endUnit = (Stmt) _units.getPredOf(_trap.getEndUnit());
 
 				final List _preds = new ArrayList((List) unitToPreds.get(_handler));
 
 				for (final Iterator _i = _units.iterator(_trap.getBeginUnit(), _endUnit); _i.hasNext();) {
-					final Unit _unit = (Unit) _i.next();
+					final Stmt _unit = (Stmt) _i.next();
 					final List _succs = new ArrayList((List) unitToSuccs.get(_unit));
 					_succs.remove(_handler);
 					unitToSuccs.put(_unit, _succs);
-					_succsToBeProcessed.add(_handler);
+					succsToBeProcessedCache.add(_handler);
 					_preds.remove(_unit);
 				}
 				unitToPreds.put(_handler, _preds);
-				_predsToBeProcessed.add(_handler);
+				predsToBeProcessedCache.add(_handler);
 				_j.remove();
 			}
-		}
-
-		for (final Iterator _i = _succsToBeProcessed.iterator(); _i.hasNext();) {
-			final Unit _unit = (Unit) _i.next();
-			unitToSuccs.put(_unit, Collections.unmodifiableList((List) unitToSuccs.get(_unit)));
-		}
-
-		for (final Iterator _i = _predsToBeProcessed.iterator(); _i.hasNext();) {
-			final Unit _unit = (Unit) _i.next();
-			unitToPreds.put(_unit, Collections.unmodifiableList((List) unitToPreds.get(_unit)));
 		}
 	}
 }
@@ -200,12 +216,14 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/06/01 06:31:04  venku
+   - made ExceptionFlowSensitiveStmtGraph.iterator() return ordered statement list.
+   - ProcessingController uses UnitGraph.iterator() to visit the statements of a method.
    Revision 1.7  2004/06/01 01:12:16  venku
    - added a new testcase to test BasicBlockGraph.
    - documentation.
    - added iterator() method to ExceptionFlowSensitiveStmtGraph to
      return only statement captured in the graph.
-
    Revision 1.6  2004/03/27 08:39:40  venku
    - predecessor mapping was updated instread of successor mapping. FIXED.
    Revision 1.5  2004/03/26 00:22:31  venku

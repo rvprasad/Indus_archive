@@ -30,7 +30,7 @@ import soot.toolkits.graph.UnitGraph;
 
 
 /**
- * This class provides <code>ExceptionFlowSensitiveUnitGraph</code>s.
+ * This class provides <code>ExceptionFlowSensitiveStmtGraph</code>s.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -90,20 +90,20 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForBody(soot.jimple.JimpleBody)
+	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.jimple.JimpleBody)
 	 */
-	protected UnitGraph getUnitGraphForBody(final JimpleBody body) {
+	protected UnitGraph getStmtGraphForBody(final JimpleBody body) {
 		return new ExceptionFlowSensitiveStmtGraph(body, exceptionsToIgnore, flag);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForMethod(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForMethod(soot.SootMethod)
 	 */
-	protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
+	protected UnitGraph getStmtGraphForMethod(final SootMethod method) {
 		UnitGraph _result = null;
 
 		if (method.isConcrete()) {
-			_result = getUnitGraphForBody((JimpleBody) method.retrieveActiveBody());
+			_result = getStmtGraphForBody((JimpleBody) method.retrieveActiveBody());
 		} else if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Method " + method + " is not concrete.");
 		}
@@ -114,6 +114,9 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/05/28 21:41:58  venku
+   - added a new method to create default factory instances implementation.
+
    Revision 1.4  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

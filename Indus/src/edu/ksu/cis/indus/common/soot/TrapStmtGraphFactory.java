@@ -41,16 +41,16 @@ public final class TrapStmtGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(TrapStmtGraphFactory.class);
 
 	/**
-	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getUnitGraphForBody(soot.Body)
+	 * @see edu.ksu.cis.indus.common.soot.AbstractStmtGraphFactory#getStmtGraphForBody(soot.Body)
 	 */
-	protected UnitGraph getUnitGraphForBody(final JimpleBody body) {
+	protected UnitGraph getStmtGraphForBody(final JimpleBody body) {
 		return new TrapUnitGraph(body);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
+	protected UnitGraph getStmtGraphForMethod(final SootMethod method) {
 		UnitGraph _result = null;
 
 		if (method.isConcrete()) {
@@ -67,6 +67,10 @@ public final class TrapStmtGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/26 00:07:26  venku
+   - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
+   - ripple effect in classes and method names.
+
    Revision 1.9  2004/03/04 11:56:48  venku
    - renamed a method.
    - added a valid empty body into native methods.
