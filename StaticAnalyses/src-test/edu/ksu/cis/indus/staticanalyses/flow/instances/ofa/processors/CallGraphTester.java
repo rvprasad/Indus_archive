@@ -313,7 +313,7 @@ public class CallGraphTester
 	 */
 	protected final void setUp()
 	  throws Exception {
-		ofa = OFAnalyzer.getFSOSAnalyzer();
+		ofa = OFAnalyzer.getFSOSAnalyzer("CallGraphTester");
 		scene = Scene.v();
 
 		if (classes == null) {
@@ -388,6 +388,9 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/30 00:21:48  venku
+   - coding convention.
+
    Revision 1.3  2003/11/29 09:48:14  venku
    - 2 SCC should be disjoint.  intersection should be used
      instead of subtract.  FIXED.

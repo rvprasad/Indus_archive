@@ -72,10 +72,15 @@ public abstract class AbstractAnalyzer
 	 * Creates a new <code>AbstractAnalyzer</code> instance.
 	 *
 	 * @param theContext the context to be used by this analysis instance.
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
+	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
+	 * 		  detail.
+	 *
+	 * @pre theContext != null and tagName != null
 	 */
-	protected AbstractAnalyzer(final Context theContext) {
+	protected AbstractAnalyzer(final Context theContext, final String tagName) {
 		this.context = theContext;
-		fa = new FA(this);
+		fa = new FA(this, tagName);
 		stable = false;
 	}
 
@@ -345,10 +350,15 @@ public abstract class AbstractAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
    Revision 1.8  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.7  2003/08/21 03:47:11  venku
    Ripple effect of adding IStatus.
    Documentation.

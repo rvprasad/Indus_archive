@@ -58,6 +58,9 @@ public final class OFAnalyzer
 	/**
 	 * Creates a new <code>OFAnalyzer</code> instance.
 	 *
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
+	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
+	 * 		  detail.
 	 * @param astim the prototype of the index manager to be used in conjunction with AST nodes.
 	 * @param allocationim the prototype of the index manager to be used in conjunction with fields and arrays.
 	 * @param lexpr the LHS expression visitor prototype.
@@ -66,9 +69,9 @@ public final class OFAnalyzer
 	 *
 	 * @pre astim != null and allocationim != null and lexpr != null and rexpr != null and stmt != null
 	 */
-	private OFAnalyzer(final AbstractIndexManager astim, final AbstractIndexManager allocationim,
+	private OFAnalyzer(final String tagName, final AbstractIndexManager astim, final AbstractIndexManager allocationim,
 		final AbstractExprSwitch lexpr, final AbstractExprSwitch rexpr, final AbstractStmtSwitch stmt) {
-		super(new AllocationContext());
+		super(new AllocationContext(), tagName);
 
 		ModeFactory mf = new ModeFactory();
 		mf.setASTIndexManagerPrototype(astim);
@@ -100,14 +103,18 @@ public final class OFAnalyzer
 	/**
 	 * Returns the analyzer that operates in flow insensitive and allocation-site insensitive modes.
 	 *
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
+	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
+	 * 		  detail.
+	 *
 	 * @return the instance of analyzer correponding to the given name.
 	 *
-	 * @post result != null
+	 * @post result != null and tagName != null
 	 */
-	public static OFAnalyzer getFIOIAnalyzer() {
+	public static OFAnalyzer getFIOIAnalyzer(final String tagName) {
 		AbstractIndexManager temp = new IndexManager();
 
-		return new OFAnalyzer(temp, temp,
+		return new OFAnalyzer(tagName, temp, temp,
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
@@ -116,13 +123,17 @@ public final class OFAnalyzer
 	/**
 	 * Returns the analyzer that operates in flow insensitive and allocation-site sensitive modes.
 	 *
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
+	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
+	 * 		  detail.
+	 *
 	 * @return the instance of analyzer correponding to the given name.
 	 *
-	 * @post result != null
+	 * @post result != null and tagName != null
 	 */
-	public static OFAnalyzer getFIOSAnalyzer() {
+	public static OFAnalyzer getFIOSAnalyzer(final String tagName) {
 		OFAnalyzer temp =
-			new OFAnalyzer(new IndexManager(), new AllocationSiteSensitiveIndexManager(),
+			new OFAnalyzer(tagName, new IndexManager(), new AllocationSiteSensitiveIndexManager(),
 				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new LHSConnector()),
 				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.ExprSwitch(null, new RHSConnector()),
 				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
@@ -133,12 +144,16 @@ public final class OFAnalyzer
 	/**
 	 * Returns the analyzer that operates in flow sensitive and allocation-site insensitive modes.
 	 *
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
+	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
+	 * 		  detail.
+	 *
 	 * @return the instance of analyzer correponding to the given name.
 	 *
-	 * @post result != null
+	 * @post result != null and tagName != null
 	 */
-	public static OFAnalyzer getFSOIAnalyzer() {
-		return new OFAnalyzer(new FlowSensitiveIndexManager(), new IndexManager(),
+	public static OFAnalyzer getFSOIAnalyzer(final String tagName) {
+		return new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new IndexManager(),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitch(null, new LHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
 			new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
@@ -147,13 +162,17 @@ public final class OFAnalyzer
 	/**
 	 * Returns the analyzer that operates in flow sensitive and allocation-site sensitive modes.
 	 *
+	 * @param tagName is the name of the tag used by the instance of the flow analysis framework associated with this
+	 * 		  analysis instance to tag parts of the AST.   Refer to <code>FA.FA(AbstractAnalyzer, String)</code> for more
+	 * 		  detail.
+	 *
 	 * @return the instance of analyzer correponding to the given name.
 	 *
-	 * @post result != null
+	 * @post result != null and tagName != null
 	 */
-	public static OFAnalyzer getFSOSAnalyzer() {
+	public static OFAnalyzer getFSOSAnalyzer(final String tagName) {
 		OFAnalyzer temp =
-			new OFAnalyzer(new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
+			new OFAnalyzer(tagName, new FlowSensitiveIndexManager(), new AllocationSiteSensitiveIndexManager(),
 				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.ExprSwitch(null, new LHSConnector()),
 				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs.RHSExprSwitch(null, new RHSConnector()),
 				new edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fi.StmtSwitch(null));
@@ -211,6 +230,9 @@ public final class OFAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:16:33  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.5  2003/08/26 17:53:56  venku
    Actually we can use the types to cut down the number of edges
    between the flow nodes. The current fix uses a method in OFAnalyzer

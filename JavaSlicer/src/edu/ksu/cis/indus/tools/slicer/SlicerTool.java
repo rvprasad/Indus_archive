@@ -216,7 +216,7 @@ public final class SlicerTool
 		criteria = new HashSet();
 
 		// create the flow analysis.
-		ofa = OFAnalyzer.getFSOSAnalyzer();
+		ofa = OFAnalyzer.getFSOSAnalyzer("SlicerTool");
 
 		// create the pre processor for call graph construction.
 		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
@@ -638,6 +638,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2003/11/30 00:10:20  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.36  2003/11/28 18:16:38  venku
    - formatting.
 

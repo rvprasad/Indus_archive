@@ -24,6 +24,9 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 
+import soot.tagkit.Tag;
+
+import edu.ksu.cis.indus.common.NamedTag;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.processing.Context;
 
@@ -110,16 +113,24 @@ public class FA
 	 */
 	private Scene scm;
 
+	/** 
+	 * The tag used to identify the elements of the AST touched by this framework instance.
+	 */
+	private NamedTag tag;
+
 	/**
 	 * Creates a new <code>FA</code> instance.
 	 *
 	 * @param analyzer to be associated with this instance of the framework.
+	 * @param tagName is the name of the tag that will be tacked onto parts of the AST processed by this framework instance. 
+     * The guarantee is that all elements so tagged were processed by the framework instance.  The inverse need not be true.
 	 *
-	 * @pre analyzer != null
+	 * @pre analyzer != null and tagName != null
 	 */
-	FA(final AbstractAnalyzer analyzer) {
+	FA(final AbstractAnalyzer analyzer, final String tagName) {
 		worklist = new WorkList();
 		this._analyzer = analyzer;
+		this.tag = new NamedTag(tagName);
 	}
 
 	/**
@@ -411,6 +422,15 @@ public class FA
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return
+	 */
+	public Tag getTag() {
+		return tag;
+	}
+
+	/**
 	 * Resets the framework.  The framework forgets all information allowing for a new session of analysis to executed.
 	 */
 	public void reset() {
@@ -490,6 +510,10 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/06 05:31:08  venku
+   - moved IProcessor to processing package from interfaces.
+   - ripple effect.
+   - fixed documentation errors.
    Revision 1.7  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

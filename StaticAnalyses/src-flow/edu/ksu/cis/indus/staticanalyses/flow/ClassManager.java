@@ -49,21 +49,21 @@ public class ClassManager
 	/**
 	 * The collection of classes for which the information has been processed.
 	 */
-	protected final Collection classes;
+	final Collection classes;
 
 	/**
 	 * Describe variable <code>context</code> here.
 	 *
 	 * @invariant context != null
 	 */
-	protected final Context context;
+	private final Context context;
 
 	/**
 	 * The instance of the framework in which this object is used.
 	 *
 	 * @invariant fa != null
 	 */
-	protected final FA fa;
+	private final FA fa;
 
 	/**
 	 * Creates a new <code>ClassManager</code> instance.
@@ -115,6 +115,7 @@ public class ClassManager
 	protected void process(final SootClass sc) {
 		if (!classes.contains(sc)) {
 			classes.add(sc);
+			sc.addTag(fa.getTag());
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("considered " + sc.getName());
@@ -139,6 +140,7 @@ public class ClassManager
 					break;
 				}
 				classes.add(temp);
+				temp.addTag(fa.getTag());
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("considered " + temp.getName());
@@ -172,6 +174,8 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/26 02:00:24  venku
+   - logging.
    Revision 1.12  2003/11/26 01:23:59  venku
    - getMethod() is used instead of getMethodByName(). FIXED.
    Revision 1.11  2003/11/25 22:16:30  venku

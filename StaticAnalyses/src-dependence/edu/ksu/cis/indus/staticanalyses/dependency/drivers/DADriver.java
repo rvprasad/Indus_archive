@@ -145,7 +145,7 @@ public abstract class DADriver
 		}
 
 		scm = loadupClassesAndCollectMains(args);
-		aa = OFAnalyzer.getFSOSAnalyzer();
+		aa = OFAnalyzer.getFSOSAnalyzer("DADriver");
 
 		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
 		Collection processors = new ArrayList();
@@ -351,6 +351,13 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/11/30 00:10:24  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.29  2003/11/25 19:01:20  venku
    - uses environment available from OFA rather than the primitive scene.
 

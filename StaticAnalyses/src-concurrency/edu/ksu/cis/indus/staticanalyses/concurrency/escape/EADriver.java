@@ -99,7 +99,7 @@ public final class EADriver
 		setClassNames(args);
 		initialize();
 
-		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
+		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer("EADriver");
 		Collection rm = new ArrayList();
 
 		for (Iterator l = rootMethods.iterator(); l.hasNext();) {
@@ -262,6 +262,13 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/11/30 00:10:24  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.18  2003/11/17 01:17:12  venku
    - formatting.
    Revision 1.17  2003/11/16 19:09:42  venku

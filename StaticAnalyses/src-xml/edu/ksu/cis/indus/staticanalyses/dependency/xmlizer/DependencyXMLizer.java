@@ -307,7 +307,7 @@ public class DependencyXMLizer
 	 * Drives the analyses.
 	 */
 	public void execute() {
-		aa = OFAnalyzer.getFSOSAnalyzer();
+		aa = OFAnalyzer.getFSOSAnalyzer("DependencyXMLizer");
 
 		ValueAnalyzerBasedProcessingController pc = new ValueAnalyzerBasedProcessingController();
 		Collection processors = new ArrayList();
@@ -657,6 +657,13 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/30 00:10:24  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.10  2003/11/25 19:04:29  venku
    - aliased use def analysis was never executed. FIXED.
    Revision 1.9  2003/11/25 17:51:23  venku
