@@ -16,7 +16,9 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.ArrayList;
@@ -57,9 +59,11 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  * @version $Revision$
  *
  * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod,Sequence(Set(Stmt)))
- * @invariant dependee2dependent.values()->forall(o | o.getValue().size = o.getKey().getBody(Jimple.v()).getStmtList().size())
+ * @invariant dependee2dependent.values()->forall(o | o.getValue().size =
+ * 			  o.getKey().getBody(Jimple.v()).getStmtList().size())
  * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Sequence(Map(Local, Set(Stmt)))))
- * @invariant dependent2dependee.entrySet()->forall(o | o.getValue().size() = o.getKey().getBody(Jimple.v()).getStmtList().size())
+ * @invariant dependent2dependee.entrySet()->forall(o | o.getValue().size() =
+ * 			  o.getKey().getBody(Jimple.v()).getStmtList().size())
  */
 public class IdentifierBasedDataDA
   extends DependencyAnalysis {
@@ -308,28 +312,26 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/03/03 10:07:24  venku
+   - renamed dependeeMap as dependent2dependee
+   - renamed dependentmap as dependee2dependent
    Revision 1.31  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.30  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.29  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.28  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.27  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.26  2003/12/01 11:37:58  venku
    - logging.
    Revision 1.25  2003/11/28 22:11:35  venku

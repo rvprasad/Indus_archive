@@ -74,8 +74,10 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependent2dependee.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethodMethod)))))
- * @invariant dependee2dependent.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt, SootMethodMethod)))))
+ * @invariant dependent2dependee.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt,
+ * 			  SootMethodMethod)))))
+ * @invariant dependee2dependent.oclIsKindOf(Map(Object, Map(Pair(Stmt, SootMethod), Collection(Pair(Stmt,
+ * 			  SootMethodMethod)))))
  */
 public class InterferenceDAv1
   extends DependencyAnalysis {
@@ -642,10 +644,12 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/03/03 10:07:24  venku
+   - renamed dependeeMap as dependent2dependee
+   - renamed dependentmap as dependee2dependent
    Revision 1.33  2004/02/12 21:32:21  venku
    - refactored the code to test the escaping/sharing status of the
      base rather than the field/array location (bummer).
-
    Revision 1.32  2004/01/25 15:32:41  venku
    - enabled ready and interference dependences to be OFA aware.
    Revision 1.31  2004/01/18 00:02:01  venku

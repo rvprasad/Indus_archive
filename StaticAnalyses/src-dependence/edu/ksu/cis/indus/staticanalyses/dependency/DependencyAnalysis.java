@@ -97,20 +97,20 @@ public abstract class DependencyAnalysis
 	}
 
 	/**
+	 * This is similar to <code>dependent2dependee</code> except the direction is dependee->dependent. Hence, it is
+	 * recommended that the subclass use this store dependence information.
+	 *
+	 * @invariant dependee2dependent != null
+	 */
+	protected final Map dependee2dependent = new HashMap();
+
+	/**
 	 * This can used to store dependent->dependee direction of dependence information.  Hence, it is recommended that the
 	 * subclass use this store dependence information.
 	 *
 	 * @invariant dependent2dependee != null
 	 */
 	protected final Map dependent2dependee = new HashMap();
-
-	/**
-	 * This is similar to <code>dependent2dependee</code> except the direction is dependee->dependent. Hence, it is recommended that
-	 * the subclass use this store dependence information.
-	 *
-	 * @invariant dependee2dependent != null
-	 */
-	protected final Map dependee2dependent = new HashMap();
 
 	/**
 	 * This indicates if the information provided by this analysis has stablized.
@@ -174,9 +174,11 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/03/03 10:07:24  venku
+   - renamed dependeeMap as dependent2dependee
+   - renamed dependentmap as dependee2dependent
    Revision 1.15  2004/02/09 16:50:56  venku
     - formatting.
-
    Revision 1.14  2004/02/09 16:50:36  venku
    - added a cache of collection of dependence ids.
    Revision 1.13  2003/12/16 06:53:04  venku

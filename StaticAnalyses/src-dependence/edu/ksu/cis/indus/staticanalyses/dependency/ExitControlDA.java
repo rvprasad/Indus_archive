@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This class contains the logic to calculate control dependences in the reverse direction of control flow considering the
  * exit points as the entry points.
- * 
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
@@ -50,14 +50,14 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/25 00:04:02  venku
+   - documenation.
    Revision 1.7  2004/01/30 23:55:18  venku
    - added a new analyze method to analyze only the given
      collection of methods.
-
    Revision 1.6  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.5  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

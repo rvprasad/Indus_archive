@@ -512,12 +512,13 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/03/03 10:07:24  venku
+   - renamed dependeeMap as dependent2dependee
+   - renamed dependentmap as dependee2dependent
    Revision 1.32  2004/02/25 00:04:02  venku
    - documenation.
-
    Revision 1.31  2004/01/21 13:56:26  venku
    - tracking sync DA in synchronized methods is unnecessary.
-
    Revision 1.30  2004/01/21 13:52:12  venku
    - documentation.
    Revision 1.29  2004/01/19 08:57:29  venku

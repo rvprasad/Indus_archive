@@ -1223,6 +1223,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.46  2004/03/03 10:07:24  venku
+   - renamed dependeeMap as dependent2dependee
+   - renamed dependentmap as dependee2dependent
    Revision 1.45  2004/02/08 21:30:21  venku
    - documentation
    Revision 1.44  2004/02/05 23:42:35  venku
