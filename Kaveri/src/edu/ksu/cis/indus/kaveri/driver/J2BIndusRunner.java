@@ -168,18 +168,17 @@ public class J2BIndusRunner
 		// Residualize the scene
 		driver.residualize();
 
-		final Bundle _bundle = Platform.getBundle("edu.ksu.cis.j2b.J2BEclipse");
+		final Bundle _bundle = Platform.getBundle("edu.ksu.cis.j2b");
 
 		if (_bundle != null) {
 			int _state = _bundle.getState();
 
-			if (_state == Bundle.UNINSTALLED || _state == Bundle.STOPPING) {
+			if (_state == Bundle.INSTALLED || _state == Bundle.RESOLVED) {
 				try {
 					_bundle.start();
 
-					final J2BEclipsePlugin _j =
-						(J2BEclipsePlugin) _bundle.loadClass("edu.ksu.cis.j2b.J2BEclipsePlugin").getConstructor(null)
-													.newInstance(null);
+					final Class _j2bClass = _bundle.loadClass("edu.ksu.cis.j2b.J2BEclipsePlugin");
+					final J2BEclipsePlugin _j = (J2BEclipsePlugin) _j2bClass.getMethod("getDefault", null).invoke(null, null);
 					_j.generateAndWriteBIRSystem(driver.getScene(), ((IFile) fileList.get(0)).getProject(),
 						driver.getSlicer().getAtomicityInfo());
 				} catch (final BundleException _e) {
@@ -188,8 +187,6 @@ public class J2BIndusRunner
 					log("Zero-parameter constructor could not be found.", _e);
 				} catch (final SecurityException _e) {
 					log("Insufficient permission to access J2B bundle.", _e);
-				} catch (final InstantiationException _e) {
-					log("Could not instantiate J2B plugin.", _e);
 				} catch (final IllegalAccessException _e) {
 					log("Insufficient access permision to classes in J2B bundle.", _e);
 				} catch (final NoSuchMethodException _e) {
@@ -214,8 +211,6 @@ public class J2BIndusRunner
 
 		resetSoot();
 	}
-
-	
 
 	/**
 	 * Logs the given message and throws a runtime exception.
