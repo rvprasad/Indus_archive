@@ -164,12 +164,14 @@ public abstract class AbstractTool
 								LOGGER.fatal("Tool failed.", _e);
 								_temp = _e;
 							} finally {
-								if (_temp != null) {
-									synchronized (_parent) {
+                                synchronized (_parent) {
+                                    if (_temp != null) {
 										_parent.childException = _temp;
 									}
-								}
-								pause = false;
+                                    pause = false;
+                                    _parent.notify();
+                                }
+                                
 							}
 						}
 					};
@@ -177,7 +179,7 @@ public abstract class AbstractTool
 
 			if (synchronous) {
 				try {
-					thread.join();
+					wait();
 
 					if (childException != null) {
 						if (childException instanceof RuntimeException) {
@@ -241,6 +243,10 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/01/13 10:01:35  venku
+   - added a provision for the tool to check if it can be configured
+     according to the given configuration.
+
    Revision 1.15  2004/01/08 23:55:34  venku
    - documentation.
    Revision 1.14  2004/01/08 23:51:34  venku
