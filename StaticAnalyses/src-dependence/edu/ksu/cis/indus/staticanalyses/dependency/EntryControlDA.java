@@ -203,6 +203,8 @@ public class EntryControlDA
 		stable = true;
 	}
 
+	///CLOVER:OFF
+
 	/**
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
@@ -253,6 +255,8 @@ public class EntryControlDA
 			+ " entry point dependences.");
 		return _result.toString();
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Retrieves the bitset at the given location. If none exists, a new bit set is added.
@@ -573,10 +577,11 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/07/08 10:28:48  venku
+   - identity cases were not handled in DirectEntryControlDA and EntryControlDA. FIXED.
    Revision 1.25  2004/07/08 07:41:22  venku
    - tokens contributed by parentNode was not excluded when propagating tokens
      from parentNode to its children nodes.  FIXED.
-
    Revision 1.24  2004/06/22 01:01:37  venku
    - BitSet(1) creates an empty bitset.  Instead we use BitSet() to create a
      bit set that contains a long array of length 1.

@@ -497,11 +497,11 @@ public class ReadyDAv1
 				}
 			}
 		}
-		
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
 		}
-		
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Ready Dependence processing");
 		}
@@ -523,6 +523,8 @@ public class ReadyDAv1
 		notifies.clear();
 		monitorMethods.clear();
 	}
+
+	///CLOVER:OFF
 
 	/**
 	 * Returns a stringified representation of the analysis information.
@@ -572,6 +574,8 @@ public class ReadyDAv1
 		_result.append("A total of " + _edgeCount + " Ready dependence edges exist.");
 		return _result.toString();
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Indicates if OFA is used or not.
@@ -1161,13 +1165,11 @@ public class ReadyDAv1
 
 							for (final Iterator _l = _tails.iterator(); _l.hasNext();) {
 								final BasicBlock _bb = (BasicBlock) _l.next();
-								final Map _dees2dents =
-									CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
+								final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
 								CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _bb.getTrailerStmt(), _dtSet);
 							}
 						} else {
-							final Map _dees2dents =
-								CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
+							final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
 							CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _exit, _dtSet);
 						}
 					}
@@ -1189,12 +1191,10 @@ public class ReadyDAv1
 					}
 
 					if (_key != null) {
-					    
-					final Map _dents2dees =
-						CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
-					CollectionsUtilities.putAllIntoSetInMap(_dents2dees, _key, _deSet);
+						final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
+						CollectionsUtilities.putAllIntoSetInMap(_dents2dees, _key, _deSet);
 					} else {
-					    LOGGER.error("How can we record ready dependence for a synchronized method with no head?");
+						LOGGER.error("How can we record ready dependence for a synchronized method with no head?");
 					}
 				}
 			}
@@ -1231,8 +1231,7 @@ public class ReadyDAv1
 						final Pair _wPair = pairMgr.getOptimizedPair(_wait, _wMethod);
 
 						if (ifDependentOnByRule4(_wPair, _nPair)) {
-							final Map _dents2dees =
-								CollectionsUtilities.getMapFromMap(dependent2dependee, _wMethod);
+							final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _wMethod);
 							CollectionsUtilities.putIntoCollectionInMap(_dents2dees, _wait, _nPair, new HashSet());
 							_dependents.add(_wPair);
 						}
@@ -1241,8 +1240,7 @@ public class ReadyDAv1
 
 				// add dependee to dependent information
 				if (!_dependents.isEmpty()) {
-					final Map _dees2dents =
-						CollectionsUtilities.getMapFromMap(dependee2dependent, _nMethod);
+					final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _nMethod);
 					CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents, new HashSet());
 				}
 			}
@@ -1253,27 +1251,23 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.59  2004/07/07 06:29:19  venku
+   - coding convention and documentation.
    Revision 1.58  2004/07/07 06:25:07  venku
    - the way statement sub list was constructed in the basic block was incorrect.  FIXED.
    - ripple effect.
-
    Revision 1.57  2004/07/04 11:52:41  venku
    - renamed getStmtFrom() to getStmtsFrom().
-
    Revision 1.56  2004/07/04 11:09:00  venku
    - headless and multiple headed methods cause issue with statement graphs and basic blocks.  FIXED.
-
    Revision 1.55  2004/06/16 14:30:12  venku
    - logging.
-
    Revision 1.54  2004/06/01 06:29:57  venku
    - added new methods to CollectionUtilities.
    - ripple effect.
-
    Revision 1.53  2004/05/31 21:38:08  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
-
    Revision 1.52  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract

@@ -218,6 +218,8 @@ public final class DivergenceDA
 		method2interProcDivPoints.clear();
 	}
 
+	///CLOVER:OFF
+
 	/**
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
@@ -261,6 +263,8 @@ public final class DivergenceDA
 
 		return _result.toString();
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Sets up internal data structures.
@@ -607,6 +611,8 @@ public final class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/07/09 08:54:43  venku
+   - documentation.
    Revision 1.35  2004/07/08 11:02:57  venku
    - ripple effect of changes to BasicBlock API.
    Revision 1.34  2004/07/04 11:58:12  venku

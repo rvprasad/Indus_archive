@@ -77,17 +77,17 @@ public class ReferenceBasedDataDA
 	public Collection getDependees(final Object stmt, final Object method) {
 		final Collection _result;
 		final Stmt _theStmt = (Stmt) stmt;
-		
+
 		if (_theStmt.containsArrayRef() || _theStmt.containsFieldRef()) {
 			contextCache.setRootMethod((SootMethod) method);
 			_result = aliasedUD.getDefs(_theStmt, contextCache);
 		} else {
-		    _result = Collections.EMPTY_LIST;
+			_result = Collections.EMPTY_LIST;
 		}
-		
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getDependees(stmt = " + stmt + ", method = " + method + ") - _result = " + _result);
-        }
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getDependees(stmt = " + stmt + ", method = " + method + ") - _result = " + _result);
+		}
 
 		return _result;
 	}
@@ -111,17 +111,17 @@ public class ReferenceBasedDataDA
 	public Collection getDependents(final Object stmt, final Object method) {
 		final Collection _result;
 		final Stmt _theStmt = (Stmt) stmt;
-		
+
 		if (stmt instanceof DefinitionStmt && (_theStmt.containsArrayRef() || _theStmt.containsFieldRef())) {
-				contextCache.setRootMethod((SootMethod) method);
-				_result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
+			contextCache.setRootMethod((SootMethod) method);
+			_result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
 		} else {
-		    _result = Collections.EMPTY_LIST;
+			_result = Collections.EMPTY_LIST;
 		}
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getDependents(stmt = " + stmt + ", method = " + method + ") - _result = " + _result);
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getDependents(stmt = " + stmt + ", method = " + method + ") - _result = " + _result);
+		}
 
 		return _result;
 	}
@@ -157,6 +157,8 @@ public class ReferenceBasedDataDA
 		}
 	}
 
+	///CLOVER:OFF
+
 	/**
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
@@ -165,6 +167,8 @@ public class ReferenceBasedDataDA
 	public String toString() {
 		return aliasedUD + "";
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Extracts information provided by environment at initialization time.
@@ -191,6 +195,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/07/08 11:03:59  venku
+   - coding conventions.
+   - rely on AliasedUseDef analysis for toString() output.
    Revision 1.22  2004/06/16 14:30:12  venku
    - logging.
    Revision 1.21  2004/05/14 06:27:24  venku

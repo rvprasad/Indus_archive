@@ -227,6 +227,8 @@ public class IdentifierBasedDataDA
 		}
 	}
 
+	///CLOVER:OFF
+
 	/**
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
@@ -266,6 +268,8 @@ public class IdentifierBasedDataDA
 		_result.append("A total of " + _edgeCount + " Identifier-based Data dependence edges exist.");
 		return _result.toString();
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Sets up internal data structures.
@@ -343,6 +347,10 @@ public class IdentifierBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/06/15 08:53:50  venku
+   - refactoring.
+   - coding conventions.
+   - documentation.
    Revision 1.36  2004/06/15 08:48:25  venku
    - logging.
    Revision 1.35  2004/05/14 06:27:23  venku

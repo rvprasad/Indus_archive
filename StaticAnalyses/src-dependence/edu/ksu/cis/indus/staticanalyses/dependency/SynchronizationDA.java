@@ -332,6 +332,8 @@ public final class SynchronizationDA
 		syncedMethod2dependents.clear();
 	}
 
+	///CLOVER:OFF
+
 	/**
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
@@ -390,6 +392,8 @@ public final class SynchronizationDA
 		}
 		return _result.toString();
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Helper method to getDependeXX() methods.
@@ -596,13 +600,12 @@ outerloop:
 				/*
 				 * We do not employ the usual "do-not-process-processed-statements" here as in the following case comm1 and
 				 * exitmonitor will be processed before the second entermonitor is processed.
-				 * bb1: if <cnd> goto bb2 else bb3 
+				 * bb1: if <cnd> goto bb2 else bb3
 				 * bb2: entermonitor r1; goto bb4
 				 * bb3: entermontior r1; goto bb4
 				 * bb4: comm1; exitmonitor r1
-				 * Hence, we just process the statements and rely on the enterStack for validity. 
+				 * Hence, we just process the statements and rely on the enterStack for validity.
 				 */
-				
 				if (_stmt instanceof EnterMonitorStmt) {
 					final Stmt _enter = (EnterMonitorStmt) _stmt;
 
@@ -735,16 +738,15 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.48  2004/07/07 06:29:20  venku
+   - coding convention and documentation.
    Revision 1.47  2004/07/07 06:25:07  venku
    - the way statement sub list was constructed in the basic block was incorrect.  FIXED.
    - ripple effect.
-
    Revision 1.46  2004/07/04 11:52:41  venku
    - renamed getStmtFrom() to getStmtsFrom().
-
    Revision 1.45  2004/06/27 04:57:58  venku
    - a subtlety about valid enter/exit monitor patterns in the code was addressed. FIXED.
-
    Revision 1.44  2004/06/27 03:58:20  venku
    - bug #395. FIXED.
    Revision 1.43  2004/06/16 14:30:12  venku

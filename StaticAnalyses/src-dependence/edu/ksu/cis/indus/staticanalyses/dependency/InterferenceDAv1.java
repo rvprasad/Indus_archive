@@ -379,6 +379,8 @@ public class InterferenceDAv1
 		super.reset();
 	}
 
+	///CLOVER:OFF
+
 	/**
 	 * Returns a stringized representation of this analysis.  The representation includes the results of the analysis.
 	 *
@@ -412,6 +414,8 @@ public class InterferenceDAv1
 		_result.append("A total of " + _edgeCount + " Interference dependence edges exist.");
 		return _result.toString();
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Checks if the given array accesses are interference dependent on each other.
@@ -624,6 +628,7 @@ public class InterferenceDAv1
 
 			// if the classes of both the methods are not related
 			_result = !Util.isHierarchicallyRelated(_deClass, _dtClass);
+
 			if (_result) {
 				final Value _de = ((AssignStmt) dependee.getFirst()).getLeftOp();
 				final Value _dt = ((AssignStmt) dependent.getFirst()).getRightOp();
@@ -638,7 +643,8 @@ public class InterferenceDAv1
 					 *      dtMethod is clinit and f2 was declared in dtClass then
 					 *      the dependence is invalid and it should not be considered.
 					 */
-					_result = !((_f1.equals(_f2) 
+					_result =
+						!((_f1.equals(_f2)
 						  && ((_deci && _f1.getDeclaringClass().equals(_deClass))
 						  || (_dtci && _f1.getDeclaringClass().equals(_dtClass)))));
 				}
@@ -651,9 +657,11 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/07/07 08:52:06  venku
+   - Dependence verdict in case the methods enclosing the ends of the dependence
+     are both class initialization was incorrect. FIXED.
    Revision 1.39  2004/07/07 07:26:51  venku
    - optimization.
-
    Revision 1.38  2004/07/07 07:19:33  venku
    - coding conventions.
    Revision 1.37  2004/06/16 14:30:12  venku
