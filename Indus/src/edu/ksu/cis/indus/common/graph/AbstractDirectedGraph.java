@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.MembershipPredicate;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Marker;
@@ -33,6 +34,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections.Predicate;
 
 
 /**
@@ -167,7 +170,7 @@ public abstract class AbstractDirectedGraph
 	 * @see IDirectedGraph#getCycles()
 	 */
 	public final Collection getCycles() {
-		return findCycles(getNodes());
+		return findCycles(getNodes(), getBackEdges());
 	}
 
 	/**
@@ -437,16 +440,17 @@ public abstract class AbstractDirectedGraph
 	 * Finds cycles in the given set of nodes.
 	 *
 	 * @param nodes in which to search for cycles.
+	 * @param backedges is the back edges between the given set of nodes (and may be other nodes).
 	 *
 	 * @return a collection of cycles. Each cycle is represented as a sequence in which the first element starts the cycle.
 	 *
 	 * @pre scc != null and nodes.oclIsKindOf(Collection(INode))
+	 * @pre backEdges != null and backEdges.oclIsKindOf(Collection(Pair(INode, INode)))
 	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
 	 * @post result->forall(o | nodes.containsAll(o))
 	 */
-	public static Collection findCycles(final Collection nodes) {
+	public static Collection findCycles(final Collection nodes, final Collection backedges) {
 		final Collection _result = new ArrayList();
-
 		final List _sccs = findSCCs(nodes, false);
 		final Iterator _j = _sccs.iterator();
 		final int _jEnd = _sccs.size();
@@ -461,7 +465,16 @@ public abstract class AbstractDirectedGraph
 					_result.add(Collections.singleton(_node));
 				}
 			} else {
-				_result.addAll(findCyclesOccurringIn(_scc));
+				final Collection _edges = new ArrayList(backedges);
+
+				for (final Iterator _i = _edges.iterator(); _i.hasNext();) {
+					final Pair _edge = (Pair) _i.next();
+
+					if (!_scc.contains(_edge.getFirst()) || !_scc.contains(_edge.getSecond())) {
+						_i.remove();
+					}
+				}
+				_result.addAll(findCyclesOccurringIn(_scc, _edges));
 			}
 		}
 		return _result;
@@ -508,109 +521,142 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Finds cycles containing only the given SCC.
+	 * Gets immediate successors that occur in nodes and are not reachable via the given edges.
 	 *
-	 * @param scc in which the cycles should be detected.
+	 * @param node whose successors are required.
+	 * @param edgesNotToUse are the edges whose destination nodes should not be included in the result.
+	 * @param nodes is a collection of nodes of which the result nodes should be a members of.
 	 *
-	 * @return a collection of cycles.
+	 * @return a collection of nodes.
 	 *
-	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode)) and nodes.size() > 1
-	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
-	 * @post result->forall(o | nodes->containsAll(o))
+	 * @pre node != null and edgesNotToUse != null and nodes != null
+	 * @pre nodes.oclIsKindOf(Collection(INode))
+	 * @pre edgesNotToUse.oclIsKindOf(Collection(Pair(INode, INode)))
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post nodes.containsAll(result)
+	 * @post edgesNotToUse->forall(o | !result.contains(o.getSecond()))
 	 */
-	private static Collection findCyclesOccurringIn(final Collection scc) {
-		final IWorkBag _wb = new LIFOWorkBag();
-		final Stack _dfsPath = new Stack();
-		final Collection _result = new HashSet();
+	private static Collection getLimitedSuccsOf(final INode node, final Collection edgesNotToUse, final Collection nodes) {
+		final Collection _result = new HashSet(node.getSuccsOf());
 
-		_wb.addWork(pickSeedNodeForCycleEnumeration(scc));
+		for (final Iterator _i = _result.iterator(); _i.hasNext();) {
+			final INode _succ = (INode) _i.next();
 
-		while (_wb.hasWork()) {
-			final Object _o = _wb.getWork();
-
-			if (_o instanceof Marker) {
-				final Object _temp = ((Marker) _o).getContent();
-
-				while (!_temp.equals(_dfsPath.peek())) {
-					_dfsPath.pop();
-				}
-			} else {
-				final INode _node = (INode) _o;
-				final Collection _succsOf = CollectionUtils.intersection(_node.getSuccsOf(), scc);
-				final Collection _cycleCandidates = CollectionUtils.intersection(_succsOf, _dfsPath);
-				final Iterator _i = _cycleCandidates.iterator();
-				final int _iEnd = _cycleCandidates.size();
-
-				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final Object _ele = _i.next();
-					final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_ele), _dfsPath.size());
-
-					if (!_result.contains(_cycle)) {
-						final Collection _temp = new ArrayList(_cycle);
-						_temp.add(_node);
-						_result.add(_temp);
-					}
-				}
-
-				final Collection _nonCycleCandidates = CollectionUtils.subtract(_succsOf, _cycleCandidates);
-
-				if (!_nonCycleCandidates.isEmpty()) {
-				    final Marker _marker = new Marker(_node);
-					final Iterator _j = _nonCycleCandidates.iterator();
-					final int _jEnd = _nonCycleCandidates.size();
-
-					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-						final Object _ele = _j.next();
-
-						if (_jEnd > 1) {
-							_wb.addWork(_marker);
-						}
-						_wb.addWork(_ele);
-					}
-					_dfsPath.push(_node);
-				}
+			if (!nodes.contains(_succ) || edgesNotToUse.contains(new Pair(node, _succ))) {
+				System.out.println("Removing " + _succ);
+				_i.remove();
 			}
 		}
 		return _result;
 	}
 
 	/**
-	 * Picks the node (based on heuristics) to start cycle enumeration.  The heuristics is to pick the node that may be a
-	 * loop head. If none exists, then pick the one with single successor and predecessor nodes.  If none exists,
-	 * arbitrarily pick a node.
+	 * Checks if the given cycle has been recorded.
 	 *
-	 * @param scc in which cycle detection is in progress.
+	 * @param newCycle is the cycle being checked for if it is recorded.
+	 * @param cycles is the collection of recorded cycles.
 	 *
-	 * @return the seed node
+	 * @return <code>true</code> if <code>newCycle</code> occurs in <code>cycles</code>; <code>false</code>, otherwise.
 	 *
-	 * @pre scc.oclIsKindOf(Collection(INode)) and scc != null
-	 * @post result != null and scc.contains(result)
+	 * @pre newCycle != null and cycles != null
+	 * @pre cyclces.oclIsKindOf(Collection(Sequence(Object)))
 	 */
-	private static INode pickSeedNodeForCycleEnumeration(final Collection scc) {
-		INode _result = null;
+	private static boolean cycleNotRecorded(final List newCycle, final Collection cycles) {
+		boolean _result = true;
+		final List _temp = new ArrayList();
+		final Iterator _iter = cycles.iterator();
+		final int _iterEnd = cycles.size();
 
-		for (final Iterator _k = scc.iterator(); _k.hasNext();) {
-			final INode _ele = (INode) _k.next();
+		for (int _iterIndex = 0; _iterIndex < _iterEnd && _result; _iterIndex++) {
+			final List _cycle = (List) _iter.next();
 
-			if (_ele.getSuccsOf().size() == 1 && _ele.getPredsOf().size() == 1) {
-				_result = _ele;
-				break;
+			if (_cycle.size() == newCycle.size()) {
+				_temp.clear();
+				_temp.addAll(_cycle);
+				_temp.addAll(_cycle);
+				_result = Collections.indexOfSubList(_temp, newCycle) != -1;
 			}
 		}
+		return _result;
+	}
 
-		if (_result == null) {
-			for (final Iterator _k = scc.iterator(); _k.hasNext();) {
-				final INode _ele = (INode) _k.next();
+	/**
+	 * Finds cycles containing only the given SCC.
+	 *
+	 * @param scc in which the cycles should be detected.
+	 * @param backedges is the back edges only between the given set of nodes.
+	 *
+	 * @return a collection of cycles.
+	 *
+	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode)) and nodes.size() > 1
+	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
+	 * @post result->forall(o | nodes->containsAll(o))
+	 * @pre backEdges != null and backEdges.oclIsKindOf(Collection(Pair(INode, INode)))
+	 * @pre backEdges->forall(o | scc.contains(o.getFirst()) and scc.contains(o.getSecond()))
+	 */
+	private static Collection findCyclesOccurringIn(final Collection scc, final Collection backedges) {
+		final IWorkBag _wb = new LIFOWorkBag();
+		final Stack _dfsPath = new Stack();
+		final Collection _result = new HashSet();
+		final Predicate _cyclePredicate = new MembershipPredicate(true, _dfsPath);
+		final Predicate _noncyclePredicate = new MembershipPredicate(false, _dfsPath);
+		final Collection _backEdgesNotToUse = new HashSet(backedges);
+		final Iterator _k = backedges.iterator();
+		final int _kEnd = backedges.size();
 
-				if (!scc.containsAll(_ele.getPredsOf())) {
-					_result = _ele;
-					break;
+		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+			final Pair _edge = (Pair) _k.next();
+			_backEdgesNotToUse.remove(_edge);
+			_dfsPath.clear();
+
+			final Object _dest = _edge.getSecond();
+			_wb.addWork(_dest);
+
+			while (_wb.hasWork()) {
+				final Object _o = _wb.getWork();
+
+				if (_o instanceof Marker) {
+					final Object _temp = ((Marker) _o).getContent();
+
+					while (!_temp.equals(_dfsPath.peek())) {
+						_dfsPath.pop();
+					}
+				} else {
+					final INode _node = (INode) _o;
+					final Collection _succsOf = getLimitedSuccsOf(_node, _backEdgesNotToUse, scc);
+
+					_dfsPath.push(_node);
+
+					for (final Iterator _i = IteratorUtils.filteredIterator(_succsOf.iterator(), _cyclePredicate);
+						  _i.hasNext();) {
+						final Object _ele = _i.next();
+						final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_ele), _dfsPath.size());
+
+						if (cycleNotRecorded(_cycle, _result)) {
+							final Collection _temp = new ArrayList(_cycle);
+							_result.add(_temp);
+						}
+					}
+
+					CollectionUtils.filter(_succsOf, _noncyclePredicate);
+
+					if (!_succsOf.isEmpty()) {
+						final Marker _marker = new Marker(_node);
+						final Iterator _j = _succsOf.iterator();
+						final int _jEnd = _succsOf.size();
+
+						for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+							final Object _ele = _j.next();
+
+							if (_jEnd > 1) {
+								_wb.addWork(_marker);
+							}
+							_wb.addWork(_ele);
+						}
+					}
 				}
 			}
-		}
-
-		if (_result == null) {
-			_result = (INode) scc.iterator().next();
+			_backEdgesNotToUse.add(_edge);
 		}
 		return _result;
 	}

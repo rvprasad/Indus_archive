@@ -337,7 +337,7 @@ public class SafeLockAnalysis
 	private boolean isMonitorSafeByCond1InTheseBasicBlocks(final BasicBlockGraph bbg, final Collection basicBlocks,
 		final SootMethod method, final Collection waitMethods) {
 		boolean _result = true;
-		final Collection _t = AbstractDirectedGraph.findCycles(basicBlocks);
+		final Collection _t = AbstractDirectedGraph.findCycles(basicBlocks, bbg.getBackEdges());
 		final Iterator _j = _t.iterator();
 		final int _jEnd = _t.size();
 

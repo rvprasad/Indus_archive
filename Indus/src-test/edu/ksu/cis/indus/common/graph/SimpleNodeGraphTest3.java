@@ -47,7 +47,6 @@ public class SimpleNodeGraphTest3
 		_t.add(sng.getNode("c"));
 		_t.add(sng.getNode("b"));
 		_t.add(sng.getNode("d"));
-		System.out.println(_t + " " + _nodes);
 		assertTrue(_nodes.containsAll(_t) && _t.containsAll(_nodes));
 	}
 
