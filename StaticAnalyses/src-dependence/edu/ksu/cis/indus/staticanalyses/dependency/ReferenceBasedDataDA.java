@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
+
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -79,14 +80,14 @@ public class ReferenceBasedDataDA
 	public Collection getDependees(final Object stmt, final Object method) {
 		contextCache.setRootMethod((SootMethod) method);
 
-		Collection result = Collections.EMPTY_LIST;
-		Stmt theStmt = (Stmt) stmt;
+		Collection _result = Collections.EMPTY_LIST;
+		final Stmt _theStmt = (Stmt) stmt;
 
-		if (theStmt.containsArrayRef() || theStmt.containsFieldRef()) {
+		if (_theStmt.containsArrayRef() || _theStmt.containsFieldRef()) {
 			contextCache.setRootMethod((SootMethod) method);
-			result = aliasedUD.getDefs(theStmt, contextCache);
+			_result = aliasedUD.getDefs(_theStmt, contextCache);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -105,17 +106,17 @@ public class ReferenceBasedDataDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
-		Collection result = Collections.EMPTY_LIST;
+		Collection _result = Collections.EMPTY_LIST;
 
 		if (stmt instanceof AssignStmt) {
-			AssignStmt assign = (AssignStmt) stmt;
+			final AssignStmt _assign = (AssignStmt) stmt;
 
-			if (assign.containsArrayRef() || assign.containsFieldRef()) {
+			if (_assign.containsArrayRef() || _assign.containsFieldRef()) {
 				contextCache.setRootMethod((SootMethod) method);
-				result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
+				_result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -151,38 +152,38 @@ public class ReferenceBasedDataDA
 	 * @return a stringized representation of this object.
 	 */
 	public String toString() {
-		StringBuffer result =
+		final StringBuffer _result =
 			new StringBuffer("Statistics for Reference-based Data dependence as calculated by " + this.getClass().getName()
 				+ "\n");
-		int localEdgeCount = 0;
-		int edgeCount = 0;
+		int _localEdgeCount = 0;
+		int _edgeCount = 0;
 
-		StringBuffer temp = new StringBuffer();
+		final StringBuffer _temp = new StringBuffer();
 
-		for (Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			localEdgeCount = 0;
+		for (final Iterator _i = dependentMap.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			_localEdgeCount = 0;
 
-			List stmts = getStmtList((SootMethod) entry.getKey());
-			int count = 0;
+			final List _stmts = getStmtList((SootMethod) _entry.getKey());
+			int _count = 0;
 
-			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-				Collection c = (Collection) j.next();
-				Stmt stmt = (Stmt) stmts.get(count++);
+			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
+				final Collection _c = (Collection) _j.next();
+				final Stmt _stmt = (Stmt) _stmts.get(_count++);
 
-				for (Iterator k = c.iterator(); k.hasNext();) {
-					temp.append("\t\t" + stmt + " <-- " + k.next() + "\n");
+				for (final Iterator _k = _c.iterator(); _k.hasNext();) {
+					_temp.append("\t\t" + _stmt + " <-- " + _k.next() + "\n");
 				}
-				localEdgeCount += c.size();
+				_localEdgeCount += _c.size();
 			}
-			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount
+			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount
 				+ " Reference-based Data dependence edges.\n");
-			result.append(temp);
-			temp.delete(0, temp.length());
-			edgeCount += localEdgeCount;
+			_result.append(_temp);
+			_temp.delete(0, _temp.length());
+			_edgeCount += _localEdgeCount;
 		}
-		result.append("A total of " + edgeCount + " Reference-based Data dependence edges exist.");
-		return result.toString();
+		_result.append("A total of " + _edgeCount + " Reference-based Data dependence edges exist.");
+		return _result.toString();
 	}
 
 	/**
@@ -210,10 +211,12 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
    Revision 1.17  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.16  2003/11/25 19:03:40  venku
    - added more stringent tests to check if the underlying
      info should be used.

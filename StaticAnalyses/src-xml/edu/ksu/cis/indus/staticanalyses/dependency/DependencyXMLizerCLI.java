@@ -248,7 +248,7 @@ public class DependencyXMLizerCLI
 		_xmlcgipc.setEnvironment(aa.getEnvironment());
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
-		aliasUD = new AliasedUseDefInfo(aa);
+		aliasUD = new AliasedUseDefInfo(aa, _cgi);
 		info.put(ICallGraphInfo.ID, _cgi);
 		info.put(IThreadGraphInfo.ID, _tgi);
 		info.put(PairManager.ID, new PairManager());
@@ -353,6 +353,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/25 23:34:29  venku
+   - classes that should not be visible should be invisible :-)
+
    Revision 1.1  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.
@@ -509,6 +512,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/25 23:34:29  venku
+   - classes that should not be visible should be invisible :-)
+
    Revision 1.1  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.

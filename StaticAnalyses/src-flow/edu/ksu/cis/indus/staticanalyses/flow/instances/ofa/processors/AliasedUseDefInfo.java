@@ -16,7 +16,10 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
+
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -48,7 +51,9 @@ import soot.jimple.Stmt;
 
 
 /**
- * This is a naive implementation of aliased use-def analysis which calculates pessimistic may-be information.
+ * This class provides aliased use-def inforamtion which is based on types, points-to information, and call graph. If the use
+ * is reachable from the def via the control flow graph or via the CFG and the call graph,  then def and use site are
+ * related by use-def relation.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -58,11 +63,9 @@ public final class AliasedUseDefInfo
   extends AbstractValueAnalyzerBasedProcessor
   implements IUseDefInfo {
 	/**
-     * The logger used by instances of this class to log messages.
-     * 
-     */
-    private static final Log LOGGER = LogFactory.getLog(AliasedUseDefInfo.class);
-    
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(AliasedUseDefInfo.class);
 
 	/**
 	 * The object flow analyzer to be used to calculate the UD info.
@@ -91,6 +94,11 @@ public final class AliasedUseDefInfo
 	private final PairManager pairMgr = new PairManager();
 
 	/**
+	 * This provides the call graph of the system.
+	 */
+	private ICallGraphInfo cgi;
+
+	/**
 	 * This indicates if the analysis has stabilized.  If so, it is safe to query this object for information.
 	 */
 	private boolean stable;
@@ -99,31 +107,33 @@ public final class AliasedUseDefInfo
 	 * Creates a new AliasedUseDefInfo object.
 	 *
 	 * @param iva is the object flow analyzer to be used in the analysis.
+	 * @param cg is the call graph of the system.
 	 *
-	 * @pre analyzer != null
+	 * @pre analyzer != null and cg != null
 	 */
-	public AliasedUseDefInfo(final IValueAnalyzer iva) {
+	public AliasedUseDefInfo(final IValueAnalyzer iva, final ICallGraphInfo cg) {
 		use2defsMap = new HashMap();
 		def2usesMap = new HashMap();
 		analyzer = iva;
+		cgi = cg;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getDefs(Stmt, Context)
 	 */
 	public Collection getDefs(final Stmt useStmt, final Context context) {
-		Collection result = null;
+		Collection _result = null;
 
 		if (useStmt.containsArrayRef() || useStmt.containsFieldRef()) {
-			Map stmt2defs = (Map) use2defsMap.get(context.getCurrentMethod());
+			final Map _stmt2defs = (Map) use2defsMap.get(context.getCurrentMethod());
 
-			if (stmt2defs != null) {
-				result = (Collection) stmt2defs.get(useStmt);
+			if (_stmt2defs != null) {
+				_result = (Collection) _stmt2defs.get(useStmt);
 			}
 		}
 
-		return result == null ? Collections.EMPTY_SET
-							  : result;
+		return _result == null ? Collections.EMPTY_SET
+							   : _result;
 	}
 
 	/**
@@ -137,48 +147,48 @@ public final class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
 	 */
 	public Collection getUses(final DefinitionStmt defStmt, final Context context) {
-		Collection result = null;
+		Collection _result = null;
 
 		if (defStmt.containsArrayRef() || defStmt.containsFieldRef()) {
-			Map stmt2uses = (Map) def2usesMap.get(context.getCurrentMethod());
+			Map _stmt2uses = (Map) def2usesMap.get(context.getCurrentMethod());
 
-			if (stmt2uses != null) {
-				result = (Collection) stmt2uses.get(defStmt);
+			if (_stmt2uses != null) {
+				_result = (Collection) _stmt2uses.get(defStmt);
 			}
 		}
 
-		return result == null ? Collections.EMPTY_SET
-							  : result;
+		return _result == null ? Collections.EMPTY_SET
+							   : _result;
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(Stmt, Context)
 	 */
 	public void callback(final Stmt stmt, final Context context) {
-		AssignStmt as = (AssignStmt) stmt;
-		SootMethod method = context.getCurrentMethod();
+		final AssignStmt _as = (AssignStmt) stmt;
+		final SootMethod _method = context.getCurrentMethod();
 
-		if (as.containsArrayRef() || as.containsFieldRef()) {
-			Value ref = as.getRightOp();
+		if (_as.containsArrayRef() || _as.containsFieldRef()) {
+			Value _ref = _as.getRightOp();
 
-			if (ref instanceof ArrayRef || ref instanceof FieldRef) {
-				Map stmt2ddees = (Map) use2defsMap.get(method);
+			if (_ref instanceof ArrayRef || _ref instanceof FieldRef) {
+				Map _stmt2ddees = (Map) use2defsMap.get(_method);
 
-				if (stmt2ddees == null) {
-					stmt2ddees = new HashMap();
-					use2defsMap.put(method, stmt2ddees);
+				if (_stmt2ddees == null) {
+					_stmt2ddees = new HashMap();
+					use2defsMap.put(_method, _stmt2ddees);
 				}
-				stmt2ddees.put(stmt, Collections.EMPTY_SET);
+				_stmt2ddees.put(stmt, Collections.EMPTY_SET);
 			} else {
-				ref = as.getLeftOp();
+				_ref = _as.getLeftOp();
 
-				Map stmt2ddents = (Map) def2usesMap.get(method);
+				Map _stmt2ddents = (Map) def2usesMap.get(_method);
 
-				if (stmt2ddents == null) {
-					stmt2ddents = new HashMap();
-					def2usesMap.put(method, stmt2ddents);
+				if (_stmt2ddents == null) {
+					_stmt2ddents = new HashMap();
+					def2usesMap.put(_method, _stmt2ddents);
 				}
-				stmt2ddents.put(stmt, Collections.EMPTY_SET);
+				_stmt2ddents.put(stmt, Collections.EMPTY_SET);
 			}
 		}
 	}
@@ -194,94 +204,102 @@ public final class AliasedUseDefInfo
 			LOGGER.debug("BEGIN: consolidating");
 		}
 
-		Collection uses = new HashSet();
-		Context contextDef = new Context();
-		Context contextUse = new Context();
+		final Collection _uses = new HashSet();
+		final Context _contextDef = new Context();
+		final Context _contextUse = new Context();
 
-		for (Iterator i = def2usesMap.entrySet().iterator(); i.hasNext();) {
-			Map.Entry method2info1 = (Map.Entry) i.next();
-			SootMethod defMethod = (SootMethod) method2info1.getKey();
-			contextDef.setRootMethod(defMethod);
+		for (final Iterator _i = def2usesMap.entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _method2defuses = (Map.Entry) _i.next();
+			final SootMethod _defMethod = (SootMethod) _method2defuses.getKey();
+			_contextDef.setRootMethod(_defMethod);
 
-			for (Iterator j = ((Map) method2info1.getValue()).entrySet().iterator(); j.hasNext();) {
-				Map.Entry defStmt2useStmts = (Map.Entry) j.next();
-				Stmt defStmt = (Stmt) defStmt2useStmts.getKey();
+			for (final Iterator _j = ((Map) _method2defuses.getValue()).entrySet().iterator(); _j.hasNext();) {
+				final Map.Entry _defStmt2useStmts = (Map.Entry) _j.next();
+				final Stmt _defStmt = (Stmt) _defStmt2useStmts.getKey();
 
-				for (Iterator k = use2defsMap.entrySet().iterator(); k.hasNext();) {
-					Map.Entry method2info2 = (Map.Entry) k.next();
-					SootMethod useMethod = (SootMethod) method2info2.getKey();
-					contextUse.setRootMethod(useMethod);
+				/*
+				 * Check if the use method and the def method are the same.  If so, use CFG reachability.  If not, use
+				 * call graph reachability within the locality of a thread.
+				 */
+				final Collection _reachables = cgi.getMethodsReachableFrom(_defMethod);
+				_reachables.add(_defMethod);
+				_reachables.retainAll(use2defsMap.keySet());
 
-					for (Iterator l = ((Map) method2info2.getValue()).entrySet().iterator(); l.hasNext();) {
-						Map.Entry useStmt2defStmts = (Map.Entry) l.next();
-						Stmt useStmt = (Stmt) useStmt2defStmts.getKey();
+				for (final Iterator _k = _reachables.iterator(); _k.hasNext();) {
+					final SootMethod _useMethod = (SootMethod) _k.next();
+					_contextUse.setRootMethod(_useMethod);
+
+					for (final Iterator _l = ((Map) use2defsMap.get(_useMethod)).entrySet().iterator(); _l.hasNext();) {
+						final Map.Entry _useStmt2defStmts = (Map.Entry) _l.next();
+						final Stmt _useStmt = (Stmt) _useStmt2defStmts.getKey();
 
 						// initially host no dependence
-						boolean useDef = false;
+						boolean _useDef = false;
 
-						if (defStmt.containsArrayRef()
-							  && useStmt.containsArrayRef()
-							  && defStmt.getArrayRef().getType().equals(useStmt.getArrayRef().getType())) {
-							ValueBox vBox = useStmt.getArrayRef().getBaseBox();
-							contextUse.setStmt(useStmt);
-							contextUse.setProgramPoint(vBox);
+						if (_defStmt.containsArrayRef()
+							  && _useStmt.containsArrayRef()
+							  && _defStmt.getArrayRef().getType().equals(_useStmt.getArrayRef().getType())) {
+							ValueBox _vBox = _useStmt.getArrayRef().getBaseBox();
+							_contextUse.setStmt(_useStmt);
+							_contextUse.setProgramPoint(_vBox);
 
-							Collection c1 = analyzer.getValues(vBox.getValue(), contextUse);
+							final Collection _c1 = analyzer.getValues(_vBox.getValue(), _contextUse);
 
-							vBox = defStmt.getArrayRef().getBaseBox();
-							contextDef.setStmt(defStmt);
-							contextDef.setProgramPoint(vBox);
+							_vBox = _defStmt.getArrayRef().getBaseBox();
+							_contextDef.setStmt(_defStmt);
+							_contextDef.setProgramPoint(_vBox);
 
-							Collection c2 = analyzer.getValues(vBox.getValue(), contextDef);
+							final Collection _c2 = analyzer.getValues(_vBox.getValue(), _contextDef);
 
 							// if the primaries of the access expression alias atleast one object
-							if (!CollectionUtils.intersection(c1, c2).isEmpty()) {
-								useDef = true;
-							}
-						} else if (defStmt.containsFieldRef()
-							  && useStmt.containsFieldRef()
-							  && defStmt.getFieldRef().getField().equals(useStmt.getFieldRef().getField())) {
-							FieldRef fr = useStmt.getFieldRef();
+							_useDef = !CollectionUtils.intersection(_c1, _c2).isEmpty();
+						} else if (_defStmt.containsFieldRef()
+							  && _useStmt.containsFieldRef()
+							  && _defStmt.getFieldRef().getField().equals(_useStmt.getFieldRef().getField())) {
+							FieldRef _fr = _useStmt.getFieldRef();
 
 							// set the initial value to true assuming dependency in case of static field ref
-							useDef = true;
+							_useDef = true;
 
-							if (fr instanceof InstanceFieldRef) {
-								ValueBox vBox = ((InstanceFieldRef) useStmt.getFieldRef()).getBaseBox();
-								contextUse.setStmt(useStmt);
-								contextUse.setProgramPoint(vBox);
+							if (_fr instanceof InstanceFieldRef) {
+								ValueBox _vBox = ((InstanceFieldRef) _useStmt.getFieldRef()).getBaseBox();
+								_contextUse.setStmt(_useStmt);
+								_contextUse.setProgramPoint(_vBox);
 
-								Collection c1 = analyzer.getValues(vBox.getValue(), contextUse);
+								final Collection _c1 = analyzer.getValues(_vBox.getValue(), _contextUse);
 
-								vBox = ((InstanceFieldRef) defStmt.getFieldRef()).getBaseBox();
-								contextDef.setStmt(defStmt);
-								contextDef.setProgramPoint(vBox);
+								_vBox = ((InstanceFieldRef) _defStmt.getFieldRef()).getBaseBox();
+								_contextDef.setStmt(_defStmt);
+								_contextDef.setProgramPoint(_vBox);
 
-								Collection c2 = analyzer.getValues(vBox.getValue(), contextDef);
+								final Collection _c2 = analyzer.getValues(_vBox.getValue(), _contextDef);
 
 								// if the primaries of the access expression do not alias even one object.
-								if (CollectionUtils.intersection(c1, c2).isEmpty()) {
-									useDef = false;
-								}
+								_useDef = CollectionUtils.intersection(_c1, _c2).isEmpty();
 							}
 						}
 
-						if (useDef) {
-							Collection defs = (Collection) useStmt2defStmts.getValue();
-
-							if (defs.equals(Collections.EMPTY_SET)) {
-								defs = new HashSet();
-								useStmt2defStmts.setValue(defs);
+						if (_useDef) {
+							if (_useMethod.equals(_defMethod)) {
+								// TODO:
+								// check if there is a path from _defStmt to _useStmt in the CFG of _useMethod.  
 							}
-							defs.add(pairMgr.getOptimizedPair(defStmt, defMethod));
-							uses.add(pairMgr.getOptimizedPair(useStmt, useMethod));
+
+							Collection _defs = (Collection) _useStmt2defStmts.getValue();
+
+							if (_defs.equals(Collections.EMPTY_SET)) {
+								_defs = new HashSet();
+								_useStmt2defStmts.setValue(_defs);
+							}
+							_defs.add(pairMgr.getOptimizedPair(_defStmt, _defMethod));
+							_uses.add(pairMgr.getOptimizedPair(_useStmt, _useMethod));
 						}
 					}
 				}
 
-				if (uses.size() != 0) {
-					defStmt2useStmts.setValue(new HashSet(uses));
-					uses.clear();
+				if (_uses.size() != 0) {
+					_defStmt2useStmts.setValue(new HashSet(_uses));
+					_uses.clear();
 				}
 			}
 		}
@@ -320,31 +338,27 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/02/25 00:04:02  venku
+   - documenation.
    Revision 1.24  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.23  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.22  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.21  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.20  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.19  2003/12/08 09:45:04  venku
    - added reset method.
-
    Revision 1.18  2003/12/05 15:32:29  venku
    - coding convention.
    Revision 1.17  2003/12/05 02:19:01  venku

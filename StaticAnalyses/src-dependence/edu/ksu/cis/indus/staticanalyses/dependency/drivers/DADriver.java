@@ -157,7 +157,7 @@ public abstract class DADriver
 		Collection rm = new ArrayList();
 		cgipc = new ValueAnalyzerBasedProcessingController();
 		cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
-		aliasUD = new AliasedUseDefInfo(aa);
+		aliasUD = new AliasedUseDefInfo(aa, cgi);
 
 		pc.setAnalyzer(aa);
 		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
@@ -355,6 +355,11 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/01/06 00:17:01  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.38  2003/12/16 07:28:54  venku
    - moved preprocessing of analyses after initialization.
 

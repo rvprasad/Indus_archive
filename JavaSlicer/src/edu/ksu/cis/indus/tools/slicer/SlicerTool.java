@@ -291,7 +291,7 @@ public final class SlicerTool
 
 		// set up data required for dependency analyses.
 		final Map _info = new HashMap();
-		aliasUD = new AliasedUseDefInfo(ofa);
+		aliasUD = new AliasedUseDefInfo(ofa, callGraph);
 		_info.put(ICallGraphInfo.ID, callGraph);
 		_info.put(IThreadGraphInfo.ID, threadGraph);
 		_info.put(IEnvironment.ID, ofa.getEnvironment());
@@ -536,6 +536,7 @@ public final class SlicerTool
 			// process escape analyses.
 			cgBasedPreProcessCtrl.reset();
 			ecba.hookup(cgBasedPreProcessCtrl);
+            aliasUD.reset();
 			aliasUD.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
 			aliasUD.unhook(cgBasedPreProcessCtrl);
@@ -821,6 +822,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.75  2004/02/27 10:15:51  venku
+   - incorrect initialization of seed criteria. FIXED.
+
    Revision 1.74  2004/02/23 07:22:32  venku
    - logging.
 

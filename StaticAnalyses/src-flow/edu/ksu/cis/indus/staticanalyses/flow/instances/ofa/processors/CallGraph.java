@@ -273,26 +273,46 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.jimple.Stmt,
-	 * 		soot.SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.jimple.Stmt,     soot.SootMethod)
 	 */
 	public Collection getMethodsReachableFrom(final Stmt stmt, final SootMethod root) {
-		Collection result = new HashSet();
 		InvokeExpr ie = stmt.getInvokeExpr();
 		Context context = new Context();
 		context.setRootMethod(root);
-		result.add(getCallees(ie, context));
 
+		Collection result = new HashSet();
+		Collection callees = getCallees(ie, context);
+
+		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
+			result.addAll(getMethodsReachableFrom((SootMethod) _i.next()));
+		}
+		return result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.SootMethod)
+	 */
+	public Collection getMethodsReachableFrom(final SootMethod root) {
+		Collection result = new HashSet(getCallees(root));
 		IWorkBag wb = new FIFOWorkBag();
-		wb.addAllWorkNoDuplicates(result);
+
+		for (final Iterator _i = result.iterator(); _i.hasNext();) {
+			CallTriple _ctrp = (CallTriple) _i.next();
+			wb.addWork(_ctrp.getMethod());
+		}
 
 		while (wb.hasWork()) {
 			SootMethod callee = (SootMethod) wb.getWork();
 
 			if (!result.contains(callee)) {
 				Collection callees = CollectionUtils.subtract(getCallees(callee), result);
-				wb.addAllWorkNoDuplicates(callees);
-				result.addAll(callees);
+
+				for (final Iterator _i = callees.iterator(); _i.hasNext();) {
+					final CallTriple _ctrp = (CallTriple) _i.next();
+					final SootMethod temp = _ctrp.getMethod();
+					wb.addWorkNoDuplicates(temp);
+					result.add(temp);
+				}
 			}
 		}
 		return result;
@@ -532,6 +552,7 @@ public class CallGraph
 		result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n");
 		result.append("Strongly Connected components in the system: " + getSCCs(true).size() + "\n");
 		result.append("top-down\n");
+
 		final List _temp1 = new ArrayList();
 		final List _temp2 = new ArrayList();
 		_temp1.addAll(caller2callees.keySet());
@@ -671,16 +692,15 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.51  2004/02/25 00:04:02  venku
+   - documenation.
    Revision 1.50  2004/01/23 20:13:23  venku
    - removed no-effect code.
-
    Revision 1.49  2004/01/21 02:52:09  venku
    - the argument to getSCCs was used to create topDownSCC
      rather than just using it to select the ordered SCCs.
-
    Revision 1.48  2004/01/21 01:34:56  venku
    - logging.
-
    Revision 1.47  2004/01/20 21:23:36  venku
    - the return value of getSCCs needs to be ordered if
      it accepts a direction parameter.  FIXED.

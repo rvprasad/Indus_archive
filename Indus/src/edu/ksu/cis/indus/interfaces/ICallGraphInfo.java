@@ -173,6 +173,19 @@ public interface ICallGraphInfo
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
 	Collection getMethodsReachableFrom(Stmt stmt, SootMethod root);
+    
+    /**
+     * Returns the methods that are reachable from the given method.
+     *
+     * @param root in which the method invocation occurs.
+     *
+     * @return a collection of reachable methods.
+     *
+     * @pre root != null
+     * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+     */
+    Collection getMethodsReachableFrom(SootMethod root);
+    
 
 	/**
 	 * Checks if the <code>method</code> is reachable in the analyzed system.
@@ -210,6 +223,9 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/20 21:23:41  venku
+   - the return value of getSCCs needs to be ordered if
+     it accepts a direction parameter.  FIXED.
    Revision 1.5  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
