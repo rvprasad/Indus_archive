@@ -6,7 +6,8 @@
 
 <p>
 <blockquote>
- <b>Kaveri</b> is an eclipse plug-in front-end for the Indus Java slicer. It utilizes the Indus program slicer to calculate slices of Java programs and then displays the results visually in the editor. The purpose of this project is to create an effective tool for simplifying program understanding, program analysis, program debugging and testing..</p>
+ <b>Kaveri</b> is an eclipse plug-in front-end for the Indus Java slicer. It utilizes the Indus program slicer to calculate slices of Java programs and then displays the results visually in the editor. The purpose of this project is to create an effective tool for simplifying program understanding, program analysis, program debugging and testing.
+ </blockquote></p>
  <p>
  <b>Options currently available with Kaveri:</b>
  <ul>
