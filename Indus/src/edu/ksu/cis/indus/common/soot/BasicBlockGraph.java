@@ -175,7 +175,7 @@ public final class BasicBlockGraph
 		 * @post result != null
 		 * @post (start &lt; leader or start >= trailer) implies (result.size() = 0)
 		 */
-		public List getStmtFrom(final int start) {
+		public List getStmtsFrom(final int start) {
 			return getStmtFromTo(start, trailer);
 		}
 
@@ -440,6 +440,9 @@ public final class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/07/04 11:09:01  venku
+   - headless and multiple headed methods cause issue with statement graphs and basic blocks.  FIXED.
+
    Revision 1.1  2004/05/31 21:38:12  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
