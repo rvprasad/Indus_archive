@@ -34,10 +34,8 @@ import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
 
-import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
-import soot.jimple.FieldRef;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -161,35 +159,9 @@ public class ForwardSlicingPart
 	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(Local, Stmt, SootMethod)
 	 */
 	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
-		if (stmt.containsArrayRef()) {
-			final ArrayRef _ref = stmt.getArrayRef();
-			final Collection _useBoxes = _ref.getUseBoxes();
-			final Iterator _i = _useBoxes.iterator();
-			final int _iEnd = _useBoxes.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final ValueBox _vb = (ValueBox) _i.next();
-
-				if (_vb.getValue().equals(local)) {
-					engine.generateSliceStmtCriterion(stmt, method, false);
-					break;
-				}
-			}
-		} else if (stmt.containsFieldRef()) {
-			final FieldRef _ref = stmt.getFieldRef();
-			final Collection _useBoxes = _ref.getUseBoxes();
-			final Iterator _i = _useBoxes.iterator();
-			final int _iEnd = _useBoxes.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final ValueBox _vb = (ValueBox) _i.next();
-
-				if (_vb.getValue().equals(local)) {
-					engine.generateSliceStmtCriterion(stmt, method, false);
-					break;
-				}
-			}
-		} else if (stmt.containsInvokeExpr()) {
+		engine.generateSliceStmtCriterion(stmt, method, false);
+        
+		if (stmt.containsInvokeExpr()) {
 			final Collection _useBoxes = stmt.getInvokeExpr().getUseBoxes();
 			final Iterator _j = _useBoxes.iterator();
 			final int _jEnd = _useBoxes.size();
