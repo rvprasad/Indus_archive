@@ -206,6 +206,7 @@ public class ControlDA
 		final int NUM_OF_NODES = NODES.size();
 		BitSet[][] cd = new BitSet[NUM_OF_NODES][NUM_OF_NODES];
 		BitSet[] result = new BitSet[NUM_OF_NODES];
+		BitSet temp1 = new BitSet();
 		Collection processed = new ArrayList();
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
 		wb.addAllWorkNoDuplicates(graph.getHeads());
@@ -275,7 +276,23 @@ public class ControlDA
 				}
 			}
 
-			result[currIndex] = currResult;
+			// prune the dom set to a mere idom set.
+			if (!currResult.isEmpty()) {
+				for (Iterator i = ((Collection) dagBlock.getFirst()).iterator(); i.hasNext();) {
+					int pIndex = NODES.indexOf(i.next());
+
+					if (currResult.get(pIndex)) {
+						temp1.set(pIndex);
+					} else {
+						temp1.or(result[pIndex]);
+					}
+				}
+				result[currIndex] = currResult;
+				currResult.clear();
+				currResult.or(temp1);
+				temp1.clear();
+			}
+
 			// Add the successors of the node 
 			wb.addAllWorkNoDuplicates(succs);
 			processed.add(bb);
@@ -357,6 +374,9 @@ public class ControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/09/16 05:54:56  venku
+   - changed access specifiers of methods from protected to private
+     as they were not being called in the package or subclasses.
    Revision 1.10  2003/09/15 01:22:06  venku
    - fixupMaps() was screwed. FIXED.
    Revision 1.9  2003/09/15 00:58:25  venku
