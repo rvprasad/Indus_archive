@@ -37,8 +37,8 @@ public class DirectEntryControlDA
 	// TODO: Link to documentation describing direct entry-based intraprocedural control dependence needs to be added.
 
 	/*
-	 * In this class, the tokens corresponding to ancestors are blocked at control points. Only when a node accumulates all 
-	 * tokens of a control point node, the tokens at the control point corresponding to the ancestor of the control point are 
+	 * In this class, the tokens corresponding to ancestors are blocked at control points. Only when a node accumulates all
+	 * tokens of a control point node, the tokens at the control point corresponding to the ancestor of the control point are
 	 * injected into the token set of the node.
 	 */
 
@@ -86,13 +86,17 @@ public class DirectEntryControlDA
 	 */
 	private void accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
 		final int _nodeIndex = nodesCache.indexOf(node);
+
 		for (int _ctrlPointNodeIndex = nodesCache.size() - 1; _ctrlPointNodeIndex >= 0; _ctrlPointNodeIndex--) {
-		    final BitSet _nodesCtrlPointBitSet = tokenSets[_nodeIndex][_ctrlPointNodeIndex];
-		    final INode _ctrlPointNode = (INode) nodesCache.get(_ctrlPointNodeIndex);
-		    if (_nodesCtrlPointBitSet != null && _nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size() && _nodeIndex != _ctrlPointNodeIndex) {
-		        copyAncestorBitSetsFromTo(_ctrlPointNodeIndex, _nodeIndex, tokenSets);
-		    }
-        }
+			final BitSet _nodesCtrlPointBitSet = tokenSets[_nodeIndex][_ctrlPointNodeIndex];
+			final INode _ctrlPointNode = (INode) nodesCache.get(_ctrlPointNodeIndex);
+
+			if (_nodesCtrlPointBitSet != null
+				  && _nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size()
+				  && _nodeIndex != _ctrlPointNodeIndex) {
+				copyAncestorBitSetsFromTo(_ctrlPointNodeIndex, _nodeIndex, tokenSets);
+			}
+		}
 	}
 
 	/**
@@ -136,13 +140,13 @@ public class DirectEntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/07/08 10:28:48  venku
+   - identity cases were not handled in DirectEntryControlDA and EntryControlDA. FIXED.
    Revision 1.4  2004/06/22 01:01:37  venku
    - BitSet(1) creates an empty bitset.  Instead we use BitSet() to create a
      bit set that contains a long array of length 1.
-
    Revision 1.3  2004/06/06 08:33:37  venku
    - completed implementation and documentation.
-
    Revision 1.2  2004/06/06 02:28:50  venku
    - INTERIM : still implementating direct control dependence calculation.
    Revision 1.1  2004/06/05 09:52:24  venku
