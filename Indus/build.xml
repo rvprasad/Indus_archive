@@ -13,7 +13,7 @@
 
 	<target name="localbuild" depends="init">
 		<mkdir dir="${build.dir}" />
-		<javac source="1.4" compiler="javac1.4" target="1.4" destdir="${build.dir}" debug="on" 
+		<javac source="1.4" target="1.4" destdir="${build.dir}" debug="on" 
 			debuglevel="${debuglevel}" includes="**/*.java">
 			<src refid="${ant.project.name}.srcpath" />
 			<classpath refid="${classpath}" />
