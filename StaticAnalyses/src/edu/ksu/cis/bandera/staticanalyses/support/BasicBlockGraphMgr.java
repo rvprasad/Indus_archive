@@ -60,13 +60,13 @@ public class BasicBlockGraphMgr {
 	private final Map method2graph = new HashMap();
 
 	/**
-	 * Retrieves the basic block graph corresonding to the given control flow graph.
+	 * Provides the basic block graph corresponding to the given control flow graph.
 	 *
 	 * @param stmtGraph is the control flow graph of interest.
 	 *
 	 * @return the basic block graph corresonding to <code>stmtGraph</code>.
 	 *
-	 * @post result &lt;> null
+	 * @post result != null
 	 */
 	public BasicBlockGraph getBasicBlockGraph(StmtGraph stmtGraph) {
 		SootMethod method = ((JimpleBody) stmtGraph.getBody()).getMethod();
@@ -78,11 +78,32 @@ public class BasicBlockGraphMgr {
 		}
 		return (BasicBlockGraph) ref.get();
 	}
+	/**
+	 * Retrieves the basic block graph corresponding to the given method.  
+	 * 
+	 * @param sm is the method for which the graph is requested.
+	 * 
+	 * @return the basic block graph corresponding to <code>sm</code>, if one exists.  <code>null</code> is returned 
+	 * otherwise.
+	 * 
+	 * @post result == null || result != null;
+	 */
+	public BasicBlockGraph getBasicBlockGraph(SootMethod sm) {
+		WeakReference ref = (WeakReference)method2graph.get(sm);
+		BasicBlockGraph result = null;
+		if (ref != null) {
+			result = (BasicBlockGraph)ref.get();
+		}
+		return result;
+	}
 }
 
 /*****
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 17:31:19  venku
+Things are in flux.  Stabilizing them with CVS.
+
 
 *****/
