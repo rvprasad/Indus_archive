@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 
 import java.lang.ref.WeakReference;
 
@@ -56,7 +56,7 @@ public final class BasicBlockGraphMgr {
 	/**
 	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	private AbstractUnitGraphFactory unitGraphProvider;
+	private IUnitGraphFactory unitGraphProvider;
 
 	/**
 	 * Retrieves the basic block graph corresponding to the given method.  Returns an empty basic block graph if the method
@@ -89,12 +89,12 @@ public final class BasicBlockGraphMgr {
 		}
 
 		if (flag) {
-			UnitGraph _graph = unitGraphProvider.getUnitGraph(sm);
+			UnitGraph graph = unitGraphProvider.getUnitGraph(sm);
 
-			if (_graph == null) {
-				_graph = EMPTY_GRAPH;
+			if (graph == null) {
+				graph = EMPTY_GRAPH;
 			}
-			result = new BasicBlockGraph(_graph);
+			result = new BasicBlockGraph(graph);
 			method2graph.put(sm, new WeakReference(result));
 		}
 		return result;
@@ -120,7 +120,7 @@ public final class BasicBlockGraphMgr {
 	 *
 	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	public void setUnitGraphProvider(final AbstractUnitGraphFactory cfgProvider) {
+	public void setUnitGraphProvider(final IUnitGraphFactory cfgProvider) {
 		unitGraphProvider = cfgProvider;
 	}
 
@@ -135,6 +135,10 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.2  2003/12/09 04:02:43  venku
    - empty body is used for methods with no body.
 
