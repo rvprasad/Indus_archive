@@ -122,7 +122,7 @@ public final class Pair
 		/**
 		 * The scratch pad pair object to be used for does-it-manage check.
 		 */
-		private final Pair pair = new Pair(null, null, false);
+		private final Pair pairCache = new Pair(null, null, false);
 
 		/**
 		 * Provides an optimized pair containing 2 given objects in the given order.
@@ -174,11 +174,11 @@ public final class Pair
 		 */
 		private Pair getPair(final Object firstParam, final Object secondParam, final boolean optimized) {
 			Pair _result;
-			pair.first = firstParam;
-			pair.second = secondParam;
+			pairCache.first = firstParam;
+			pairCache.second = secondParam;
 
-			if (pairs.contains(pair)) {
-				_result = (Pair) pairs.get(pairs.indexOf(pair));
+			if (pairs.contains(pairCache)) {
+				_result = (Pair) pairs.get(pairs.indexOf(pairCache));
 			} else {
 				_result = new Pair(firstParam, secondParam, optimized);
 				pairs.add(0, _result);
@@ -376,6 +376,10 @@ public final class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
