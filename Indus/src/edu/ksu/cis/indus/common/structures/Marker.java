@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.structures;
 
 /**
  * This class serves as a marker in sequences of data.  The stringized representation of this object is dependent on  the
@@ -91,6 +91,11 @@ public class Marker {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.7  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

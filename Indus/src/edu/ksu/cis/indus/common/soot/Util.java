@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.soot;
 
 import soot.ArrayType;
 import soot.Local;
@@ -299,6 +299,11 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.6  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
 

@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.support.Util;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -512,6 +512,9 @@ public class MethodVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/12/08 13:30:35  venku
+   - cosmetic.
+
    Revision 1.15  2003/12/08 12:15:58  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

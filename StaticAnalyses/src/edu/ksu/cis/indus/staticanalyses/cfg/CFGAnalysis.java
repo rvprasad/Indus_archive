@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.graph.DirectedGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.support.BasicBlockGraph;
-import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.support.DirectedGraph;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -185,6 +185,9 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/08 12:19:47  venku
+   - coding convention.
+
    Revision 1.12  2003/12/08 12:16:00  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.graph;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -69,7 +69,7 @@ public abstract class MutableDirectedGraph
 		 *
 		 * @return the immediate predecessors of this node.
 		 *
-		 * @see edu.ksu.cis.indus.support.INode#getPredsOf()
+		 * @see edu.ksu.cis.indus.common.graph.INode#getPredsOf()
 		 */
 		public final Collection getPredsOf() {
 			return Collections.unmodifiableCollection(predecessors);
@@ -84,7 +84,7 @@ public abstract class MutableDirectedGraph
 		 *
 		 * @return the collection of successor nodes(<code>BasicBlock</code>) of this node.
 		 *
-		 * @see edu.ksu.cis.indus.support.INode#getSuccsNodesInDirection(boolean)
+		 * @see edu.ksu.cis.indus.common.graph.INode#getSuccsNodesInDirection(boolean)
 		 */
 		public final Collection getSuccsNodesInDirection(final boolean forward) {
 			if (forward) {
@@ -99,7 +99,7 @@ public abstract class MutableDirectedGraph
 		 *
 		 * @return the immediate successors of this node.
 		 *
-		 * @see edu.ksu.cis.indus.support.INode#getSuccsOf()
+		 * @see edu.ksu.cis.indus.common.graph.INode#getSuccsOf()
 		 */
 		public final Collection getSuccsOf() {
 			return Collections.unmodifiableCollection(successors);
@@ -169,6 +169,11 @@ public abstract class MutableDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.4  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

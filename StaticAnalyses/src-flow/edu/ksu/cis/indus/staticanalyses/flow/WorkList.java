@@ -15,8 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.support.IWorkBag;
-import edu.ksu.cis.indus.support.LIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,6 +95,11 @@ public class WorkList {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/08 12:15:58  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.12  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -27,9 +27,9 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.support.FIFOWorkBag;
-import edu.ksu.cis.indus.support.IWorkBag;
-import edu.ksu.cis.indus.support.Util;
+import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -663,6 +663,10 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.18  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

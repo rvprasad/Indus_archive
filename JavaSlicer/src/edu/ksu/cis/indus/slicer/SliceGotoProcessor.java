@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.support.IWorkBag;
-import edu.ksu.cis.indus.support.LIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -164,6 +164,11 @@ public class SliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/08 12:16:05  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.5  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
 

@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.support.Util;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -133,6 +133,11 @@ public class TypeBasedFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/08 12:15:58  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.9  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

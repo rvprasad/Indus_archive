@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.structures;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -276,7 +276,7 @@ public class Pair
 	 * @return an object to collection map.
 	 *
 	 * @pre pairs != null and not pairs->includes(null)
-	 * @pre pairs.oclIsKindOf(Collection(edu.ksu.cis.indus.support.Pair))
+	 * @pre pairs.oclIsKindOf(Collection(edu.ksu.cis.indus.common.graph.Pair))
 	 * @post result.oclIsKindOf(Map(Object, Collection(Object)))
 	 * @post result->entrySet()->forall(o | o.getValue()->forall(p | pairs->includes(Pair(o.getKey(), p))))
 	 * @post pairs->forall(o | result.get(o.getFirst())->includes(o.getSecond()))
@@ -377,6 +377,11 @@ public class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.9  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.graph;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -57,7 +57,7 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 	 * @post result != null
 	 */
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.support");
+		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.common.graph");
 
 		//$JUnit-BEGIN$
 		suite.addTestSuite(DirectedAndSimpleNodeGraphTest.class);
@@ -71,6 +71,11 @@ public final class DirectedAndSimpleNodeGraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.6  2003/12/02 09:42:34  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

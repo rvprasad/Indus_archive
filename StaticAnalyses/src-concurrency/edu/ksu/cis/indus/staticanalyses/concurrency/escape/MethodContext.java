@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
-import edu.ksu.cis.indus.support.FastUnionFindElement;
+import edu.ksu.cis.indus.common.structures.FastUnionFindElement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -503,6 +503,11 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/08 12:15:59  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.9  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

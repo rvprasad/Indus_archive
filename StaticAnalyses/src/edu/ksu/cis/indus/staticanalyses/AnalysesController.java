@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses;
 
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -229,6 +229,10 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.25  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available

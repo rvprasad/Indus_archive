@@ -17,7 +17,7 @@ package edu.ksu.cis.indus.transformations.slicer;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
-import edu.ksu.cis.indus.support.Util;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 import edu.ksu.cis.indus.transformations.common.Cloner;
@@ -553,6 +553,11 @@ public class CloningBasedSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/08 12:16:05  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.4  2003/12/02 09:42:18  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

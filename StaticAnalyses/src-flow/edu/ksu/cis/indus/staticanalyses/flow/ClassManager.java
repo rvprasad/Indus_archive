@@ -19,8 +19,8 @@ import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.support.FIFOWorkBag;
-import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -203,6 +203,11 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2003/12/08 12:15:58  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.17  2003/12/07 09:37:10  venku
    - changed the logic to handle super classes and their <clinit>s.
 

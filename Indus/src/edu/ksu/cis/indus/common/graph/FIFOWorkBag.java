@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.graph;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,21 +37,21 @@ public class FIFOWorkBag
 	protected List container = new ArrayList();
 
 	/**
-	 * @see edu.ksu.cis.indus.support.IWorkBag#getWork()
+	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#getWork()
 	 */
 	public Object getWork() {
 		return container.remove(0);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.support.IWorkBag#addAllWork(java.util.Collection)
+	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addAllWork(java.util.Collection)
 	 */
 	public void addAllWork(final Collection c) {
 		container.addAll(c);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.support.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
+	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
 	public Collection addAllWorkNoDuplicates(final Collection c) {
 		Collection result = CollectionUtils.intersection(c, container);
@@ -60,14 +60,14 @@ public class FIFOWorkBag
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.support.IWorkBag#addWork(java.lang.Object)
+	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addWork(java.lang.Object)
 	 */
 	public void addWork(final Object o) {
 		container.add(o);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.support.IWorkBag#addWorkNoDuplicates(java.lang.Object)
+	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
 	public boolean addWorkNoDuplicates(final Object o) {
 		boolean result = !container.contains(o);
@@ -79,14 +79,14 @@ public class FIFOWorkBag
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.support.IWorkBag#clear()
+	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#clear()
 	 */
 	public void clear() {
 		container.clear();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.support.IWorkBag#hasWork()
+	 * @see edu.ksu.cis.indus.common.graph.IWorkBag#hasWork()
 	 */
 	public boolean hasWork() {
 		return !container.isEmpty();
@@ -96,6 +96,11 @@ public class FIFOWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.support.BasicBlockGraph;
-import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -295,6 +295,11 @@ final class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/08 12:16:05  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.10  2003/12/07 22:13:12  venku
    - renamed methods in TaggingBasedSliceCollector.
 

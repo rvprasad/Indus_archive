@@ -15,15 +15,15 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.common.structures.Pair;
+import edu.ksu.cis.indus.common.structures.Pair.PairManager;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.support.Pair;
-import edu.ksu.cis.indus.support.Pair.PairManager;
-import edu.ksu.cis.indus.support.Util;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -494,6 +494,10 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.26  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

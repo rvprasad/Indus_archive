@@ -16,9 +16,9 @@
 package edu.ksu.cis.indus.interfaces;
 
 
+import edu.ksu.cis.indus.common.structures.Triple;
 import edu.ksu.cis.indus.processing.Context;
 
-import edu.ksu.cis.indus.support.Triple;
 
 import java.util.Collection;
 
@@ -208,6 +208,10 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:20:40  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.12  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

@@ -15,11 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
+import edu.ksu.cis.indus.common.structures.Pair;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.indus.support.Pair;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
@@ -125,6 +125,11 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/08 12:15:56  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.7  2003/12/08 10:57:59  venku
    - outputs count and id of dependences.
 

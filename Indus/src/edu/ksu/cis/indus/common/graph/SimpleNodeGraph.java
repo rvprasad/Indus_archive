@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.graph;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,21 +127,21 @@ public class SimpleNodeGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.support.DirectedGraph#getNodes()
+	 * @see edu.ksu.cis.indus.common.graph.DirectedGraph#getNodes()
 	 */
 	public List getNodes() {
 		return Collections.unmodifiableList(nodes);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.support.DirectedGraph#size()
+	 * @see edu.ksu.cis.indus.common.graph.DirectedGraph#size()
 	 */
 	public int size() {
 		return nodes.size();
 	}
 
 	/**
-	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.support.INode)
+	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.common.graph.INode)
 	 */
 	protected boolean containsNodes(final INode node) {
 		return nodes.contains(node);
@@ -151,6 +151,11 @@ public class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

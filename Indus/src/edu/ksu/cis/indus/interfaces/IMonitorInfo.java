@@ -40,7 +40,7 @@ public interface IMonitorInfo
 	 *
 	 * @return collection of monitors in the analyzed system.
 	 *
-	 * @post result.oclIsKindOf(Collection(edu.ksu.cis.indus.support.Triple(soot.jimple.EnterMonitorStmt,
+	 * @post result.oclIsKindOf(Collection(edu.ksu.cis.indus.common.graph.Triple(soot.jimple.EnterMonitorStmt,
 	 * 		 soot.jimple.ExitMonitorStmt, soot.SootMethod)))
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
@@ -50,6 +50,10 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:20:40  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.7  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

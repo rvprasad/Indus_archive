@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common;
+package edu.ksu.cis.indus.common.soot;
 
 import soot.tagkit.Tag;
 
@@ -87,6 +87,9 @@ public class NamedTag
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/03 21:44:20  venku
+   - added support for equals() and hashCode() methods.
+
    Revision 1.3  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

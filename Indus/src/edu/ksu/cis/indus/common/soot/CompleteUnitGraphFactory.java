@@ -13,9 +13,8 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common;
+package edu.ksu.cis.indus.common.soot;
 
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +59,10 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/08 10:16:26  venku
+   - refactored classes such that the subclasses only provide the
+     unit graphs whereas the parent class does the bookkeeping.
+
    Revision 1.10  2003/12/08 10:03:29  venku
    - changed the logic to obtain the reference, do the check on it,
      and then reinstall it if it had gone bad.

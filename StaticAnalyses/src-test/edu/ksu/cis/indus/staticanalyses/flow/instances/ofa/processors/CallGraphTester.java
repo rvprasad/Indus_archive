@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -23,9 +25,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
-import edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest;
-import edu.ksu.cis.indus.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.common.graph.DirectedAndSimpleNodeGraphTest;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -544,6 +544,9 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/09 03:35:48  venku
+   - formatting and removal of stdouts.
+
    Revision 1.14  2003/12/08 13:31:49  venku
    - used JUnit defined assert functions.
    Revision 1.13  2003/12/08 12:20:44  venku

@@ -15,6 +15,10 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.graph.DirectedGraph;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
+import edu.ksu.cis.indus.common.graph.MutableDirectedGraph.MutableNode;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -24,12 +28,8 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
-import edu.ksu.cis.indus.support.DirectedGraph;
-import edu.ksu.cis.indus.support.FIFOWorkBag;
-import edu.ksu.cis.indus.support.IWorkBag;
-import edu.ksu.cis.indus.support.MutableDirectedGraph.MutableNode;
-import edu.ksu.cis.indus.support.SimpleNodeGraph;
-import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -670,6 +670,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2003/12/08 13:29:48  venku
+   - StringConstants were not considered at call-sites.  FIXED.
+
    Revision 1.38  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

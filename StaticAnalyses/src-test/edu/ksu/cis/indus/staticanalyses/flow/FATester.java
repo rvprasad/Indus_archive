@@ -16,8 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.support.FIFOWorkBag;
-import edu.ksu.cis.indus.support.IWorkBag;
+import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -301,6 +301,9 @@ public class FATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/08 13:31:49  venku
+   - used JUnit defined assert functions.
+
    Revision 1.6  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

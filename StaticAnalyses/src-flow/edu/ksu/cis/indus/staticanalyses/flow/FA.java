@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import edu.ksu.cis.indus.common.NamedTag;
+import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
@@ -516,6 +516,9 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/07 03:22:26  venku
+   - exposed processClass().
+
    Revision 1.14  2003/12/05 15:29:44  venku
    - class manager was not being reset.  FIXED.
    Revision 1.13  2003/12/05 00:53:09  venku

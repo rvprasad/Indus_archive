@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
+import edu.ksu.cis.indus.common.soot.Driver;
+import edu.ksu.cis.indus.common.structures.Pair.PairManager;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
@@ -38,8 +40,6 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.support.Driver;
-import edu.ksu.cis.indus.support.Pair.PairManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -358,6 +358,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.34  2003/12/08 12:16:00  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

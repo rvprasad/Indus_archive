@@ -15,9 +15,13 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
-import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.TrapUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.common.structures.Pair;
+import edu.ksu.cis.indus.common.structures.Triple;
 
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
@@ -42,10 +46,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.support.Pair;
-import edu.ksu.cis.indus.support.Triple;
-import edu.ksu.cis.indus.support.Util;
 
 import edu.ksu.cis.indus.tools.AbstractTool;
 import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
@@ -658,6 +658,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2003/12/08 12:20:48  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.44  2003/12/08 12:16:05  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

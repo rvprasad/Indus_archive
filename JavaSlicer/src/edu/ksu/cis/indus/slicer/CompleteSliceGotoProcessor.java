@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
 import soot.SootMethod;
 
@@ -82,6 +82,11 @@ public class CompleteSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/08 12:16:05  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.3  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
 

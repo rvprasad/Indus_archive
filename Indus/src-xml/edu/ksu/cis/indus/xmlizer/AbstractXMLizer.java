@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
+import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import edu.ksu.cis.indus.support.SootBasedDriver;
 
 
 import java.io.File;
@@ -190,6 +190,11 @@ public abstract class AbstractXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.1  2003/12/08 11:59:44  venku
    - added a new class AbstractXMLizer which will host
      primary logic to xmlize analyses information.

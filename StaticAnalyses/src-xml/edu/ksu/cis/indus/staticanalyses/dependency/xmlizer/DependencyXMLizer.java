@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
+import edu.ksu.cis.indus.common.structures.Pair.PairManager;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
@@ -49,7 +50,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGrap
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.support.Pair.PairManager;
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
@@ -655,6 +655,10 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.25  2003/12/08 12:15:56  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.support.DirectedGraph;
+import edu.ksu.cis.indus.common.graph.DirectedGraph;
 
 import java.util.BitSet;
 
@@ -69,6 +69,11 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/08 12:15:57  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.3  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

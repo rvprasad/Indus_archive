@@ -15,6 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.structures.Pair;
+import edu.ksu.cis.indus.common.structures.Quadraple;
+import edu.ksu.cis.indus.common.structures.Triple;
 import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -22,13 +27,8 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.support.BasicBlockGraph;
-import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.support.IWorkBag;
-import edu.ksu.cis.indus.support.LIFOWorkBag;
-import edu.ksu.cis.indus.support.Pair;
-import edu.ksu.cis.indus.support.Quadraple;
-import edu.ksu.cis.indus.support.Triple;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -508,6 +508,10 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.22  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

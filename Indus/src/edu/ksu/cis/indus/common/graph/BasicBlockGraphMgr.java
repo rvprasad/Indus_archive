@@ -13,9 +13,9 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.graph;
 
-import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory;
 
 import java.lang.ref.WeakReference;
 
@@ -135,6 +135,9 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/09 04:02:43  venku
+   - empty body is used for methods with no body.
+
    Revision 1.1  2003/12/08 12:15:48  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

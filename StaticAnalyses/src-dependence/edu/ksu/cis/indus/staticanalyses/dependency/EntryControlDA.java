@@ -15,14 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.DirectedGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.structures.Pair;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.support.BasicBlockGraph;
-import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.support.DirectedGraph;
-import edu.ksu.cis.indus.support.FIFOWorkBag;
-import edu.ksu.cis.indus.support.IWorkBag;
-import edu.ksu.cis.indus.support.Pair;
+import edu.ksu.cis.indus.common.graph.FIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -440,6 +440,10 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/08 12:20:44  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.4  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

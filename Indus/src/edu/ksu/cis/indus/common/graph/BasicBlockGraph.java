@@ -13,7 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.graph;
+
+import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.graph.LIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -358,7 +361,7 @@ public class BasicBlockGraph
 	 *
 	 * @post result != null
 	 *
-	 * @see edu.ksu.cis.indus.support.DirectedGraph#getNodes()
+	 * @see edu.ksu.cis.indus.common.graph.DirectedGraph#getNodes()
 	 */
 	public List getNodes() {
 		return Collections.unmodifiableList(blocks);
@@ -374,7 +377,7 @@ public class BasicBlockGraph
 	}
 
 	/**
-	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.support.INode)
+	 * @see MutableDirectedGraph#containsNodes(edu.ksu.cis.indus.common.graph.INode)
 	 */
 	protected boolean containsNodes(final INode node) {
 		return blocks.contains(node);
@@ -395,6 +398,11 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.16  2003/12/04 08:35:22  venku
    - formatting.
 

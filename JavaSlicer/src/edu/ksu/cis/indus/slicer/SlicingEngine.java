@@ -15,6 +15,10 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.structures.Pair;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IPoolable;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -24,12 +28,8 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.Init2NewExprMapper;
-import edu.ksu.cis.indus.support.BasicBlockGraph;
-import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.support.IWorkBag;
-import edu.ksu.cis.indus.support.Pair;
-import edu.ksu.cis.indus.support.PoolAwareFIFOWorkBag;
+import edu.ksu.cis.indus.common.graph.IWorkBag;
+import edu.ksu.cis.indus.common.graph.PoolAwareFIFOWorkBag;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -1100,6 +1100,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2003/12/08 12:20:48  venku
+   - moved some classes from staticanalyses interface to indus interface package
+   - ripple effect.
+
    Revision 1.30  2003/12/08 12:16:05  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.

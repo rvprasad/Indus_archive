@@ -13,11 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.support;
+package edu.ksu.cis.indus.common.graph;
 
-import junit.framework.TestCase;
-
-import edu.ksu.cis.indus.support.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
+import edu.ksu.cis.indus.common.structures.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import junit.framework.TestCase;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -40,8 +41,8 @@ import org.apache.commons.collections.CollectionUtils;
  * @author $Author$
  * @version $Revision$ $Date$
  *
- * @see edu.ksu.cis.indus.support.DirectedGraph
- * @see edu.ksu.cis.indus.support.SimpleNodeGraph
+ * @see edu.ksu.cis.indus.common.graph.DirectedGraph
+ * @see edu.ksu.cis.indus.common.graph.SimpleNodeGraph
  */
 public class DirectedAndSimpleNodeGraphTest
   extends TestCase {
@@ -453,46 +454,48 @@ public class DirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/08 12:15:48  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
    Revision 1.3  2003/12/07 04:49:11  venku
    - exposed a couple of methods as they needed to be overridden
      for call graph testing.
-
    Revision 1.2  2003/12/02 09:42:34  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.1  2003/11/10 03:40:50  venku
    - renamed DirectedAndSimpleNodeGraphTest1 to
      DirectedAndSimpleNodeGraphTest.
    Revision 1.12  2003/09/28 23:19:36  venku
  *** empty log message ***
-   Revision 1.11  2003/09/14 23:20:48  venku
-   - added support to retrieve a DAG from a graph.
-   - removed support to extract preds/succs as a bitst from the graph.
-   - added/removed tests for the above changes.
-   Revision 1.10  2003/09/12 08:07:26  venku
-   - documentation.
-   Revision 1.9  2003/09/11 12:31:00  venku
-   - made ancestral relationship antisymmetric
-   - added testcases to test the relationship.
-   Revision 1.8  2003/09/11 02:37:30  venku
-   - formatting.
-   Revision 1.7  2003/09/11 02:37:12  venku
-   - added a test case for javac compilation of Divergent04 test.
-   - created test suite to test directed and simple node graph.
-   Revision 1.6  2003/09/11 01:52:07  venku
-   - prenum, postnum, and back edges support has been added.
-   - added test case to test the above addition.
-   - corrected subtle bugs in test1
-   - refactored test1 so that setup local testing can be added by subclasses.
-   Revision 1.5  2003/09/09 01:14:29  venku
-   - spruced up getSCCs() test for both true and false arguments.
-   Revision 1.4  2003/09/02 02:46:39  venku
-   - Removed unwanted import.
-   Revision 1.3  2003/09/01 20:57:12  venku
-   - Deleted getForwardSuccsOf().
-   Revision 1.2  2003/08/24 12:35:47  venku
-   Documentation changes.
-   Revision 1.1  2003/08/24 12:05:34  venku
-   Well added unit tests based on JUnit to the StaticAnalyses part of Indus.
+     Revision 1.11  2003/09/14 23:20:48  venku
+     - added support to retrieve a DAG from a graph.
+     - removed support to extract preds/succs as a bitst from the graph.
+     - added/removed tests for the above changes.
+     Revision 1.10  2003/09/12 08:07:26  venku
+     - documentation.
+     Revision 1.9  2003/09/11 12:31:00  venku
+     - made ancestral relationship antisymmetric
+     - added testcases to test the relationship.
+     Revision 1.8  2003/09/11 02:37:30  venku
+     - formatting.
+     Revision 1.7  2003/09/11 02:37:12  venku
+     - added a test case for javac compilation of Divergent04 test.
+     - created test suite to test directed and simple node graph.
+     Revision 1.6  2003/09/11 01:52:07  venku
+     - prenum, postnum, and back edges support has been added.
+     - added test case to test the above addition.
+     - corrected subtle bugs in test1
+     - refactored test1 so that setup local testing can be added by subclasses.
+     Revision 1.5  2003/09/09 01:14:29  venku
+     - spruced up getSCCs() test for both true and false arguments.
+     Revision 1.4  2003/09/02 02:46:39  venku
+     - Removed unwanted import.
+     Revision 1.3  2003/09/01 20:57:12  venku
+     - Deleted getForwardSuccsOf().
+     Revision 1.2  2003/08/24 12:35:47  venku
+     Documentation changes.
+     Revision 1.1  2003/08/24 12:05:34  venku
+     Well added unit tests based on JUnit to the StaticAnalyses part of Indus.
  */
