@@ -132,8 +132,9 @@ public class ClassManager
 				fa.getMethodVariant(sc.getMethod("<clinit>"), context);
 			}
 
-			while (sc.hasSuperclass()) {
-				SootClass temp = sc.getSuperclass();
+			SootClass temp = sc;
+			while (temp.hasSuperclass()) {
+				temp = temp.getSuperclass();
 
 				if (temp.declaresMethod("<clinit>")) {
 					context.setRootMethod(temp.getMethod("<clinit>"));
@@ -155,6 +156,9 @@ public class ClassManager
    ChangeLog:
    
    $Log$
+   Revision 1.5  2003/08/20 18:14:38  venku
+   Log4j was used instead of logging.  That is fixed.
+
    Revision 1.4  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
