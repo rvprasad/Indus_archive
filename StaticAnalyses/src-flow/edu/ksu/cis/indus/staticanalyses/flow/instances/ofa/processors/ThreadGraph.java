@@ -256,7 +256,7 @@ public class ThreadGraph
 		Value value = vBox.getValue();
 
 		if (value instanceof NewExpr) {
-			NewExpr ne = (NewExpr) vBox;
+			NewExpr ne = (NewExpr) value;
 			SootClass clazz = env.getClass(ne.getBaseType().getClassName());
 
 			// collect the new expressions which create Thread objects.
@@ -283,7 +283,7 @@ public class ThreadGraph
 				}
 			}
 		} else if (value instanceof VirtualInvokeExpr) {
-			VirtualInvokeExpr ve = (VirtualInvokeExpr) vBox;
+			VirtualInvokeExpr ve = (VirtualInvokeExpr) value;
 			RefLikeType rlt = (RefLikeType) ve.getBase().getType();
 			SootClass clazz = null;
 
@@ -630,6 +630,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/17 15:42:46  venku
+   - changed the signature of callback(Value,..) to callback(ValueBox,..)
+
    Revision 1.13  2003/11/10 03:17:18  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    - ripple effect.
