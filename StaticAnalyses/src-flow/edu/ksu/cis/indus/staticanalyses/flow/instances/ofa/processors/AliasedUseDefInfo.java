@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.support.Pair.PairManager;
@@ -320,6 +320,11 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/12/08 12:15:59  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.19  2003/12/08 09:45:04  venku
    - added reset method.
 

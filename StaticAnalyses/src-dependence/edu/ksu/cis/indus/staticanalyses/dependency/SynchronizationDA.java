@@ -15,11 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.support.BasicBlockGraph;
@@ -508,6 +508,11 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/12/08 12:15:57  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.21  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

@@ -15,7 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo.NewExprTriple;
 
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -42,10 +46,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
@@ -655,6 +655,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/08 12:15:56  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.24  2003/12/08 11:59:47  venku
    - added a new class AbstractXMLizer which will host
      primary logic to xmlize analyses information.

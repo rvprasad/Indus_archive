@@ -15,13 +15,13 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.support.BasicBlockGraph;
 import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
@@ -1153,6 +1153,11 @@ LOGGER.debug("LocalASsCache: " + localASsCache);
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2003/12/08 12:15:59  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.33  2003/12/08 10:46:45  venku
    - added logging support when processing statements and values.
    - accessed field of valueProcessor is true independent of

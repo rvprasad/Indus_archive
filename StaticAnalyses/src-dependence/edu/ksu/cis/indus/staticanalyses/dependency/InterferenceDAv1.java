@@ -15,11 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 import edu.ksu.cis.indus.support.Pair;
 import edu.ksu.cis.indus.support.Pair.PairManager;
@@ -494,6 +494,11 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2003/12/08 12:15:57  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.25  2003/12/08 09:37:23  venku
    - use class initialization optimization by default.
 

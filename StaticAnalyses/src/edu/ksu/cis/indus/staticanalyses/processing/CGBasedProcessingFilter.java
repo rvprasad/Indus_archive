@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.processing;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.AbstractProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 
 import java.util.Collection;
 
@@ -62,6 +62,10 @@ public class CGBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.1  2003/11/30 00:10:24  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.

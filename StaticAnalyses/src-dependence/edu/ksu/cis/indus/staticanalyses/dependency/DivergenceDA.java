@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.support.BasicBlockGraph;
 import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.support.IWorkBag;
@@ -573,6 +573,11 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/08 12:15:58  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.24  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

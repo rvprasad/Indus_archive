@@ -15,15 +15,15 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IPoolable;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.Init2NewExprMapper;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.support.BasicBlockGraph;
 import edu.ksu.cis.indus.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.support.BasicBlockGraphMgr;
@@ -1100,6 +1100,11 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/12/08 12:16:05  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.29  2003/12/07 22:13:12  venku
    - renamed methods in TaggingBasedSliceCollector.
 

@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -210,6 +210,10 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/02 09:42:36  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.16  2003/11/25 19:03:40  venku
    - added more stringent tests to check if the underlying
      info should be used.

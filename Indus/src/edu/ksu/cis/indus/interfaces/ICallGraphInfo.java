@@ -13,9 +13,8 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.interfaces;
+package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.interfaces.IStatus;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -209,6 +208,11 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/08 12:15:59  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.11  2003/12/07 08:41:32  venku
    - deleted getCallGraph() from ICallGraphInfo interface.
    - made getSCCs() direction sensitive.

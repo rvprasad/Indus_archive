@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.xmlizer;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 
@@ -216,6 +216,11 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/08 12:15:59  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.1  2003/12/08 11:59:47  venku
    - added a new class AbstractXMLizer which will host
      primary logic to xmlize analyses information.

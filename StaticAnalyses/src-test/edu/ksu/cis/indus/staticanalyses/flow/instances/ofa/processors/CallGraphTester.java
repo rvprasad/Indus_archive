@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
 import edu.ksu.cis.indus.support.DirectedAndSimpleNodeGraphTest;
 import edu.ksu.cis.indus.support.DirectedGraph;
@@ -543,6 +543,11 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/08 12:15:58  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.11  2003/12/07 14:04:43  venku
    - made FATester command-line compatible.
    - made use of DirectedAndSimpleNodeGraphTest in

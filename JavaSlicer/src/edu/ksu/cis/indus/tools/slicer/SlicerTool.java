@@ -18,7 +18,11 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
+import edu.ksu.cis.indus.interfaces.IMonitorInfo;
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -35,10 +39,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUse
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.Init2NewExprMapper;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
@@ -658,6 +658,11 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2003/12/08 12:16:05  venku
+   - moved support package from StaticAnalyses to Indus project.
+   - ripple effect.
+   - Enabled call graph xmlization.
+
    Revision 1.43  2003/12/02 11:32:01  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.

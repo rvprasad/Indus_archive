@@ -13,9 +13,8 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.interfaces;
+package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.interfaces.IStatus;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -67,6 +66,10 @@ public interface IUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.8  2003/11/12 03:50:13  venku
    - getDefs operates on statements and
      getUses operates on Def statements.

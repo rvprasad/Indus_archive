@@ -15,9 +15,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.concurrency;
 
+import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -123,6 +123,10 @@ public class SafeLockAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 09:42:38  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.4  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
