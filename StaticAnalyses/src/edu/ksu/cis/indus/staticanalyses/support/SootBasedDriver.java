@@ -301,7 +301,7 @@ public abstract class SootBasedDriver {
 	 */
 	protected void writeInfo(final Object info) {
 		if (logger != null && logger.isInfoEnabled()) {
-			if (info == null) {
+			if (info != null) {
 				logger.info(info.toString());
 			} else {
 				logger.info("null");
@@ -313,6 +313,9 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/20 07:28:40  venku
+   - formatting.
+
    Revision 1.10  2003/11/20 07:27:41  venku
    - Explicitly sets options on Soot to use local name splitting.
    Revision 1.9  2003/11/17 03:22:59  venku
