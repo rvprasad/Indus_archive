@@ -410,7 +410,15 @@ final class MethodContext
 				_represented = _m;
 			}
 
-			unifyParameters(_representative, _represented);
+			final int _paramCount = method.getParameterCount();
+
+			for (int _i = 0; _i < _paramCount; _i++) {
+				if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
+					final AliasSet _mAS = (AliasSet) _representative.argAliasSets.get(_i);
+					final AliasSet _nAS = (AliasSet) _represented.argAliasSets.get(_i);
+					unifyAliasSets(_mAS, _nAS);
+				}
+			}
 			unifyAliasSets(_representative.ret, _represented.ret);
 			unifyAliasSets(_representative.thrown, _represented.thrown);
 			unifyAliasSets(_representative.thisAS, _represented.thisAS);
@@ -477,9 +485,18 @@ final class MethodContext
 				 * are the representatives until they are unified, which happens in the following block.
 				 */
 				final AliasSet _srcFieldAS = (AliasSet) _src.getASForField(_field).find();
-				final AliasSet _cloneFieldAS = getCloneOf(src2clone, _srcFieldAS);
+				final AliasSet _cloneFieldAS;
+
+				// if the alias set is global, then we would have just used the representative instead of the clone, so...
+				if (_srcFieldAS.isGlobal()) {
+					_cloneFieldAS = _srcFieldAS;
+				} else {
+					_cloneFieldAS = getCloneOf(src2clone, _srcFieldAS);
+					_wb.addWork(_srcFieldAS);
+					assert (_clone.getASForField(_field) == null);
+					assert (_cloneFieldAS != null);
+				}
 				_clone.putASForField(_field, _cloneFieldAS);
-				_wb.addWork(_srcFieldAS);
 			}
 		}
 
@@ -490,7 +507,7 @@ final class MethodContext
 			for (final Iterator _j = src2clone.keySet().iterator(); _j.hasNext();) {
 				final AliasSet _k2 = (AliasSet) _j.next();
 
-				if (_k1.find() == _k2.find()) {
+				if (_k1 != _k2 && _k1.find() == _k2.find()) {
 					final AliasSet _v1 = (AliasSet) src2clone.get(_k1);
 					final AliasSet _v2 = (AliasSet) src2clone.get(_k2);
 					AliasSet.unifyAliasSetHelper(_v1, _v2, false);
@@ -518,39 +535,13 @@ final class MethodContext
 			representative.unifyAliasSet(represented);
 		}
 	}
-
-	/**
-	 * Unify the alias sets of the parameters in the given method contexts.
-	 *
-	 * @param representative is one of the method context that contains the parameter alias sets to be unified.
-	 * @param represented is the other method context that contains the parameter alias sets to be unified.
-	 *
-	 * @pre representative != null and represented != null
-	 */
-	private void unifyParameters(final MethodContext representative, final MethodContext represented) {
-		final int _paramCount = method.getParameterCount();
-
-		for (int _i = 0; _i < _paramCount; _i++) {
-			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(method.getParameterType(_i))) {
-				final AliasSet _mAS = (AliasSet) representative.argAliasSets.get(_i);
-				final AliasSet _nAS = (AliasSet) represented.argAliasSets.get(_i);
-
-				if (_mAS == null && _nAS != null || _mAS != null && _nAS == null) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("Incompatible method contexts being unified - argument[" + _i + "] - " + _mAS + " "
-							+ _nAS + " " + method.getSignature());
-					}
-				} else if (_mAS != null) {
-					_mAS.unifyAliasSet(_nAS);
-				}
-			}
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/08/05 08:26:28  venku
+   - fixed the nagging bug in alias set cloning.
    Revision 1.21  2004/08/04 10:51:11  venku
    - INTERIM commit to enable working acorss sites.
    Revision 1.20  2004/08/02 10:30:26  venku
