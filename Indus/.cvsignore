@@ -4,7 +4,6 @@ docs/javadocs*
 docs/doxydocs
 docs/doxydocs*
 build
-docs
 packaging
 indus-src.jar
 temp
