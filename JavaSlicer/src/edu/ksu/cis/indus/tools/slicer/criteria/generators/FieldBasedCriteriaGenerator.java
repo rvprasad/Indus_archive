@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
@@ -86,23 +88,32 @@ public final class FieldBasedCriteriaGenerator
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootMethod _sm = (SootMethod) _i.next();
-			final List _sl = _bbgMgr.getStmtList(_sm);
-			final Iterator _j = _sl.iterator();
-			final int _jEnd = _sl.size();
+			final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_sm);
+			final List _nodeList = _bbg.getNodes();
+			final Iterator _j = _nodeList.iterator();
+			final int _jEnd = _nodeList.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-				final Stmt _stmt = (Stmt) _j.next();
+				final BasicBlock _bb = (BasicBlock) _j.next();
 
-				if (_stmt.containsFieldRef()) {
-					final FieldRef _fRef = _stmt.getFieldRef();
-					final SootField _field = _fRef.getField();
+				final List _stmtsOf = _bb.getStmtsOf();
+				final Iterator _k = _stmtsOf.iterator();
+				final int _kEnd = _stmtsOf.size();
 
-					if (shouldGenerateCriteriaFrom(_field)) {
-						if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-							_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, true));
-							_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, false));
-						} else {
-							_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, _considerExecution));
+				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+					final Stmt _stmt = (Stmt) _k.next();
+
+					if (_stmt.containsFieldRef()) {
+						final FieldRef _fRef = _stmt.getFieldRef();
+						final SootField _field = _fRef.getField();
+
+						if (shouldGenerateCriteriaFrom(_field)) {
+							if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, true));
+								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, false));
+							} else {
+								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, _considerExecution));
+							}
 						}
 					}
 				}
