@@ -39,6 +39,8 @@ public class BFA {
 
 	ArrayVariantManager arrayManager;
 
+	ClassManager classManager;
+
 	FieldVariantManager instanceFieldManager;
 
 	MethodVariantManager methodManager;
@@ -49,7 +51,13 @@ public class BFA {
 		worklist = new WorkList();
 		modeFactory = mf;
 		this.analyzer = analyzer;
-		instances.put(name, this);
+		BFA.instances.put(name, this);
+		this.classManager = modeFactory.getClassManager(this);
+
+		arrayManager = new ArrayVariantManager(this, modeFactory.getArrayIndexManager());
+		instanceFieldManager = new FieldVariantManager(this, modeFactory.getInstanceFieldIndexManager());
+		methodManager = new MethodVariantManager(this, modeFactory.getMethodIndexManager(), modeFactory.getASTIndexManager());
+		staticFieldManager = new FieldVariantManager(this, modeFactory.getStaticFieldIndexManager());
 	}
 
 	void analyze(SootClassManager scm, SootMethod root) {
@@ -118,18 +126,6 @@ public class BFA {
 
 	public final AbstractStmtSwitch getStmt(MethodVariant e) {
 		return modeFactory.getStmt(e);
-	}
-
-	public void init() {
-		if (arrayManager != null || instanceFieldManager != null || methodManager != null ||
-			staticFieldManager != null) {
-			throw new IllegalStateException("Trying to initialize an initialized BFA object.");
-		} // end of if
-
-		arrayManager = new ArrayVariantManager(this, modeFactory.getArrayIndexManager());
-		instanceFieldManager = new FieldVariantManager(this, modeFactory.getInstanceFieldIndexManager());
-		methodManager = new MethodVariantManager(this, modeFactory.getMethodIndexManager(), modeFactory.getASTIndexManager());
-		staticFieldManager = new FieldVariantManager(this, modeFactory.getStaticFieldIndexManager());
 	}
 
 	public void reset() {

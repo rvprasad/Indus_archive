@@ -58,6 +58,8 @@ public class MethodVariant implements Variant {
 
 		logger.debug("Method:" + sm + context + "\n" + astvm.getClass());
 
+		bfa.classManager.process(sm);
+
 		if (!sm.isStatic()) {
 			thisVar = bfa.getFGNode();
 		} // end of if (!sm.isStatic())

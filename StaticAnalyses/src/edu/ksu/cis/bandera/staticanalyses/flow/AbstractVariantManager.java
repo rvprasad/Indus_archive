@@ -38,8 +38,8 @@ public abstract class AbstractVariantManager {
 		Index index = indexManager.getIndex(o, context);
 		Variant temp = null;
 
-		logger.debug("Entering - Index: " + index + "\n" + o + "\n" + context + "\n" + index2variant + "\n" +
-					 bfa.analyzer.active + "\n" + index.hashCode());
+		logger.debug("Entering - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa.analyzer.active + "\n" +
+					 index.hashCode()); 
 
 		if (index2variant.containsKey(index)) {
 			temp = (Variant)index2variant.get(index);
@@ -49,8 +49,7 @@ public abstract class AbstractVariantManager {
 			index2variant.put(index, temp);
 		} // end of if (index2variant.containsKey(index)) else
 
-		logger.debug("Exiting - Index: " + index + "\n" + o + "\n" + context + "\n" + index2variant + "\n" +
-					 bfa.analyzer.active);
+		logger.debug("Exiting - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa.analyzer.active);
 
 		return temp;
 	}

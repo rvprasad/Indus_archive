@@ -5,6 +5,7 @@ package edu.ksu.cis.bandera.bfa;
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.VoidType;
 import ca.mcgill.sable.soot.jimple.AbstractJimpleValueSwitch;
+import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 import edu.ksu.cis.bandera.jext.BanderaExprSwitch;
 import edu.ksu.cis.bandera.jext.ChooseExpr;
@@ -92,6 +93,7 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	}
 
 	public void defaultCase(Object o) {
+		setResult(method.getASTNode((Value)o));
 		logger.debug(o + " is not handled.");
 	}
 

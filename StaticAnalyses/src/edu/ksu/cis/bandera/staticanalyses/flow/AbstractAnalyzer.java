@@ -38,7 +38,6 @@ public abstract class AbstractAnalyzer {
 	protected AbstractAnalyzer (String name, ModeFactory mf){
 		context = new Context();
 		bfa = new BFA(name, this, mf);
-		bfa.init();
 		active = false;
 	}
 

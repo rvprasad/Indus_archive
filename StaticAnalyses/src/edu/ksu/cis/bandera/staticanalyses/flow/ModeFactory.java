@@ -20,6 +20,8 @@ public class ModeFactory {
 
 	private final Prototype arrayIndexManager;
 
+	private final Prototype classManager;
+
 	private final Prototype instanceFieldIndexManager;
 
 	private final Prototype lexpr;
@@ -34,13 +36,15 @@ public class ModeFactory {
 
 	private final Prototype stmt;
 
-	public ModeFactory (Prototype astIM, Prototype arrayIM, Prototype instanceFieldIM, Prototype staticFieldIM, 
-						Prototype methodIM, Prototype node, Prototype stmt, Prototype lexpr, Prototype rexpr) {
+	public ModeFactory (Prototype astIM, Prototype arrayIM, Prototype instanceFieldIM, Prototype staticFieldIM,
+						Prototype methodIM, Prototype node, Prototype stmt, Prototype lexpr, Prototype rexpr,
+						Prototype classManager) {
 		astIndexManager = astIM;
 		arrayIndexManager = arrayIM;
 		instanceFieldIndexManager = instanceFieldIM;
 		staticFieldIndexManager = staticFieldIM;
 		methodIndexManager = methodIM;
+		this.classManager = classManager;
 		this.node = node;
 		this.stmt = stmt;
 		this.lexpr = lexpr;
@@ -53,6 +57,10 @@ public class ModeFactory {
 
 	public final AbstractIndexManager getASTIndexManager() {
 		return (AbstractIndexManager)astIndexManager.prototype();
+	}
+
+	public final ClassManager getClassManager(Object o) {
+		return (ClassManager)classManager.prototype(o);
 	}
 
 	public final AbstractFGNode getFGNode(Object o) {
