@@ -18,6 +18,8 @@ package edu.ksu.cis.indus.staticanalyses;
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
+import edu.ksu.cis.indus.interfaces.AbstractStatus;
+
 import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -44,7 +46,8 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$
  */
-public class AnalysesController {
+public class AnalysesController
+  extends AbstractStatus {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -64,12 +67,6 @@ public class AnalysesController {
 	 * @invariant preprocessController != null;
 	 */
 	protected final ProcessingController preprocessController;
-
-	/**
-	 * The status of this controller and it's controllees.  The information provided by it's controllees is valid only when
-	 * this field is <code>true</code>.
-	 */
-	protected boolean stable;
 
 	/**
 	 * This provides basic block graphs for the analyses.
@@ -102,18 +99,6 @@ public class AnalysesController {
 	}
 
 	/**
-	 * Adds the implementations to be used for analysis.
-	 *
-	 * @param id of the analysis.
-	 * @param analyses are the implementations of the named analysis.
-	 *
-	 * @pre id != null and analyses != null and analysis->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
-	 */
-	public final void addAnalyses(final Object id, final Collection analyses) {
-		CollectionsUtilities.putAllIntoListInMap(participatingAnalyses, id, analyses);
-	}
-
-	/**
 	 * Provides the implementation registered for the given analysis purpose.
 	 *
 	 * @param id of the requested analyses.  This has to be one of the names(XXX_DA) defined in this class.
@@ -132,84 +117,96 @@ public class AnalysesController {
 	}
 
 	/**
+	 * Adds the implementations to be used for analysis.
+	 *
+	 * @param id of the analysis.
+	 * @param analyses are the implementations of the named analysis.
+	 *
+	 * @pre id != null and analyses != null and analysis->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
+	 */
+	public final void addAnalyses(final Object id, final Collection analyses) {
+		CollectionsUtilities.putAllIntoListInMap(participatingAnalyses, id, analyses);
+	}
+
+	/**
 	 * Executes the analyses in the registered order.
 	 */
 	public void execute() {
-		boolean analyzing;
-		Collection done = new ArrayList();
+		boolean _analyzing;
+		final Collection _done = new ArrayList();
 
 		do {
-			analyzing = false;
+			_analyzing = false;
 
-			for (Iterator i = participatingAnalyses.keySet().iterator(); i.hasNext();) {
-				String daName = (String) i.next();
-				Collection c = (Collection) participatingAnalyses.get(daName);
+			for (final Iterator _i = participatingAnalyses.keySet().iterator(); _i.hasNext();) {
+				final String _daName = (String) _i.next();
+				final Collection _c = (Collection) participatingAnalyses.get(_daName);
 
-				for (Iterator j = c.iterator(); j.hasNext();) {
-					AbstractAnalysis analysis = (AbstractAnalysis) j.next();
+				for (final Iterator _j = _c.iterator(); _j.hasNext();) {
+					final AbstractAnalysis _analysis = (AbstractAnalysis) _j.next();
 
-					if (analysis != null && !done.contains(analysis)) {
-						analysis.analyze();
+					if (_analysis != null && !_done.contains(_analysis)) {
+						_analysis.analyze();
 
-						boolean t = analysis.isStable();
+						final boolean _t = _analysis.isStable();
 
-						if (t) {
-							done.add(analysis);
+						if (_t) {
+							_done.add(_analysis);
 						}
-						analyzing |= t;
+						_analyzing |= _t;
 					}
 				}
 			}
-		} while (analyzing);
-		stable = true;
+		} while (_analyzing);
+		stable();
 	}
 
 	/**
 	 * Initializes the controller. Analyses are initialized and then driven to preprocess the system (in that order only).
 	 */
 	public void initialize() {
-		Collection failed = new ArrayList();
-		Collection preprocessors = new HashSet();
-		stable = false;
+		final Collection _failed = new ArrayList();
+		final Collection _preprocessors = new HashSet();
+		unstable();
 
-		for (Iterator k = participatingAnalyses.keySet().iterator(); k.hasNext();) {
-			Object key = k.next();
-			Collection c = (Collection) participatingAnalyses.get(key);
+		for (final Iterator _k = participatingAnalyses.keySet().iterator(); _k.hasNext();) {
+			final Object _key = _k.next();
+			final Collection _c = (Collection) participatingAnalyses.get(_key);
 
-			for (Iterator j = c.iterator(); j.hasNext();) {
-				AbstractAnalysis analysis = (AbstractAnalysis) j.next();
+			for (final Iterator _j = _c.iterator(); _j.hasNext();) {
+				final AbstractAnalysis _analysis = (AbstractAnalysis) _j.next();
 
 				try {
-					analysis.initialize(info);
+					_analysis.initialize(info);
 
-					if (analysis.doesPreProcessing()) {
-						IValueAnalyzerBasedProcessor p = analysis.getPreProcessor();
-						p.hookup(preprocessController);
-						preprocessors.add(p);
+					if (_analysis.doesPreProcessing()) {
+						final IValueAnalyzerBasedProcessor _p = _analysis.getPreProcessor();
+						_p.hookup(preprocessController);
+						_preprocessors.add(_p);
 					}
 
 					if (basicBlockGraphMgr != null) {
-						analysis.setBasicBlockGraphManager(basicBlockGraphMgr);
+						_analysis.setBasicBlockGraphManager(basicBlockGraphMgr);
 					}
-				} catch (InitializationException e) {
+				} catch (final InitializationException _e) {
 					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn(analysis.getClass() + " failed to initialize, hence, it will not executed.", e);
+						LOGGER.warn(_analysis.getClass() + " failed to initialize, hence, it will not executed.", _e);
 					}
-					failed.add(key);
+					_failed.add(_key);
 
-					if (analysis.doesPreProcessing()) {
-						preprocessors.remove(analysis.getPreProcessor());
+					if (_analysis.doesPreProcessing()) {
+						_preprocessors.remove(_analysis.getPreProcessor());
 					}
 				}
 			}
 
-			for (Iterator i = failed.iterator(); i.hasNext();) {
-				c.remove(i.next());
+			for (final Iterator _i = _failed.iterator(); _i.hasNext();) {
+				_c.remove(_i.next());
 			}
 		}
 		preprocessController.process();
 
-		for (final Iterator _i = preprocessors.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _preprocessors.iterator(); _i.hasNext();) {
 			((IProcessor) _i.next()).unhook(preprocessController);
 		}
 	}
@@ -234,10 +231,12 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/07/11 14:17:39  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
    Revision 1.34  2004/05/31 21:38:07  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
-
    Revision 1.33  2004/02/12 21:31:18  venku
    - analyses are initialized and then preprocessing begins.
    Revision 1.32  2004/01/21 00:29:39  venku
