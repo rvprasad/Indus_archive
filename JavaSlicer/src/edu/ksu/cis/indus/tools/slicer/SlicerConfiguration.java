@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.slicer.SlicingEngine;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
@@ -42,6 +41,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
 
 
 /**
@@ -428,6 +429,25 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * @see java.lang.Object#equals(Object)
+	 */
+	public boolean equals(Object object) {
+		boolean _result = false;
+
+		if (object instanceof SlicerConfiguration) {
+			final SlicerConfiguration _config = (SlicerConfiguration) object;
+			_result =
+				new EqualsBuilder().appendSuper(super.equals(object)).append(this.propertyIds, _config.propertyIds)
+									 .append(this.sliceForDeadlock, _config.sliceForDeadlock)
+									 .append(this.id2dependencyAnalyses, _config.id2dependencyAnalyses)
+									 .append(this.executableSlice, _config.executableSlice)
+									 .append(this.dependencesToUse, _config.dependencesToUse)
+									 .append(this.properties, _config.properties).isEquals();
+		}
+		return _result;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * 
 	 * <p>
@@ -789,6 +809,8 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/05/31 20:28:18  venku
+   - renamed methods getUseOFA... to isOFAUsedFor....
    Revision 1.33  2004/05/14 09:02:57  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is
