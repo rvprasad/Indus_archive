@@ -92,12 +92,12 @@
              author="true" additionalparam="-breakiterator" defaultexcludes="${exclude}"
              header="&lt;b> &lt;a href='http://indus.projects.cis.ksu.edu'>Indus &lt;/a>, a &lt;a href='http://www.cis.ksu.edu/santos'>SAnToS laboratory &lt;/a> project.&lt;/b>"
              doctitle="&lt;b>Indus, a toolkit to customize and adapt Java programs.&lt;/b>"
-             overview="src/overview.html"
-             >
+             overview="src/overview.html">
              <classpath refid="${ant.project.name}.classpath"/>
              <sourcepath refid="${srcpath}"/>
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
+             <link href="../../../Indus/docs/javadocs"/>
              <tag name="pre" description="Precondition:" scope="constructors,methods"/>
              <tag name="post" description="Postcondition:" scope="constructors,methods"/>
              <tag name="invariant" description="Invariant" scope="methods,types,fields"/>
@@ -140,6 +140,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.28  2004/02/26 09:37:37  venku
+- added support for building docbook doc.
+
 Revision 1.27  2004/02/04 02:25:35  venku
 - changed ant build scripts.
 

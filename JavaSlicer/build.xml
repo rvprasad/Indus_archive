@@ -98,6 +98,8 @@
              <sourcepath refid="${srcpath}"/>
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
+             <link href="../../../Indus/docs/javadocs"/>
+             <link href="../../../StaticAnalyses/docs/javadocs"/>
              <tag name="pre" description="Precondition:" scope="constructors,methods"/>
              <tag name="post" description="Postcondition:" scope="constructors,methods"/>
              <tag name="invariant" description="Invariant" scope="methods,types,fields"/>
@@ -140,6 +142,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.23  2004/02/26 09:37:41  venku
+- added support for building docbook doc.
+
 Revision 1.22  2004/02/04 02:25:30  venku
 - changed ant build scripts.
 
