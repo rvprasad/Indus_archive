@@ -73,7 +73,6 @@ public class CallGraphXMLizer
 	public static void main(final String[] args) {
 		final Options _options = new Options();
 		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		_option.setRequired(true);
 		_option.setArgs(Option.UNLIMITED_VALUES);
 		_option.setValueSeparator(' ');
 		_options.addOption(_option);
@@ -82,7 +81,6 @@ public class CallGraphXMLizer
 				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
 		_option.setArgs(1);
 		_options.addOption(_option);
-		_option.setRequired(false);
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 
@@ -90,6 +88,12 @@ public class CallGraphXMLizer
 
 		try {
 			final CommandLine _cl = _parser.parse(_options, args);
+
+			if (_cl.hasOption("h")) {
+				(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.staticanalyses.xmlizer.CallGraphXMLizer ", _options);
+				System.exit(1);
+			}
+
 			final CallGraphXMLizer _xmlizer = new CallGraphXMLizer();
 			String _outputDir = _cl.getOptionValue('o');
 
@@ -117,11 +121,12 @@ public class CallGraphXMLizer
 	/**
 	 * Writes the call graph in XML.
 	 *
-	 * @param rootname is the name of the root method 
+	 * @param rootname is the name of the root method
 	 * @param info is a map of id's to implementation that satisfies the interface associated with the id.
-     * @pre rootname != null and info != null
-     * @pre info.oclIsKindOf(Map(Object, Object))
-     * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
+	 *
+	 * @pre rootname != null and info != null
+	 * @pre info.oclIsKindOf(Map(Object, Object))
+	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
 	 */
 	protected final void writeXML(final String rootname, final Map info) {
 		final File _f =
@@ -210,6 +215,9 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.3  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

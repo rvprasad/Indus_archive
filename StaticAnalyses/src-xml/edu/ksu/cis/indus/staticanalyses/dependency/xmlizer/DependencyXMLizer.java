@@ -212,7 +212,6 @@ public class DependencyXMLizer
 	public static void main(final String[] args) {
 		final Options _options = new Options();
 		Option _option = new Option("c", "classes", true, "A list of space separate class names to be analyzed");
-		_option.setRequired(true);
 		_option.setArgs(Option.UNLIMITED_VALUES);
 		_option.setValueSeparator(' ');
 		_options.addOption(_option);
@@ -221,7 +220,6 @@ public class DependencyXMLizer
 				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
 		_option.setArgs(1);
 		_options.addOption(_option);
-		_option.setRequired(false);
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 
@@ -664,6 +662,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2003/12/16 06:54:05  venku
+   - moved preprocessing of analyses after initialization.
    Revision 1.33  2003/12/16 06:15:40  venku
    - jimple filename was indistinct. FIXED.
    Revision 1.32  2003/12/16 00:29:29  venku

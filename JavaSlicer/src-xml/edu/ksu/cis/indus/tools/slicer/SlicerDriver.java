@@ -339,19 +339,24 @@ public class SlicerDriver
 		CommandLine _cl = null;
 
 		// parse the arguments
+		Exception _exception = null;
+
 		try {
 			_cl = (new BasicParser()).parse(_options, args);
 		} catch (ParseException _e) {
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
-				_options, true);
-			LOGGER.fatal("Incorrect command line.  Aborting.", _e);
-			System.exit(1);
+			_exception = _e;
 		}
 
-		if (_cl.hasOption("h")) {
+		if (_exception != null || _cl.hasOption("h")) {
 			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SlicerDriver <options> <class names>",
 				_options, true);
-			System.exit(0);
+
+			if (_exception != null) {
+				LOGGER.fatal("Incorrect command line.  Aborting.", _exception);
+				System.exit(1);
+			} else {
+				System.exit(0);
+			}
 		}
 		xmlizer.setConfiguration(processCommandLineForConfiguration(_cl));
 
@@ -543,6 +548,8 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/12/16 12:43:04  venku
+   - changed jimple/class file dumping code.
    Revision 1.29  2003/12/16 00:29:21  venku
    - documentation.
    Revision 1.28  2003/12/15 16:35:29  venku
