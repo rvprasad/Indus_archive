@@ -74,9 +74,7 @@ import org.eclipse.swt.widgets.Shell;
 public class SlicerDriver
   extends SootBasedDriver {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the suffix used for the files into which the slice information will be dumped in XML.
 	 */
 	public static final String SUFFIX_FOR_XMLIZATION_PURPOSES = "slicer";
 
@@ -96,37 +94,31 @@ public class SlicerDriver
 	protected String outputDirectory;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The instance of the slicer tool.
 	 */
 	SlicerTool slicer;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The id generator used during xmlization.
 	 */
 	private IJimpleIDGenerator idGenerator;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
 	private String tagName = "SlicingTag";
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the writer used to write the xml data.
 	 */
 	private Writer jimpleWriter;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param generator DOCUMENT ME!
+	 * @param generator used to generate the id's during xmlization.
+	 *
+	 * @pre generator != null
 	 */
 	protected SlicerDriver(final IJimpleIDGenerator generator) {
 		slicer = new SlicerTool();
@@ -134,9 +126,7 @@ public class SlicerDriver
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This class extends dependency xmlizer by populating it with dependency analyses from the slicer.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -152,9 +142,7 @@ public class SlicerDriver
 		}
 
 		/**
-		 * DOCUMENT ME!
-		 * 
-		 * <p></p>
+		 * Populates the xmlizer with the analyses used in the slicer.
 		 */
 		public final void populateDAs() {
 			das.addAll(slicer.getDAs());
@@ -179,31 +167,35 @@ public class SlicerDriver
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the configuration to be used.
 	 *
-	 * @param configuration DOCUMENT ME!
+	 * @param configuration is the stringized form of the slicer configuration.
+	 *
+	 * @pre configuration != null
 	 */
 	protected final void setConfiguration(final String configuration) {
 		slicer.destringizeConfiguration(configuration);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Sets the output directory into which files should be dumped.
 	 *
-	 * @param oDir DOCUMENT ME!
+	 * @param oDir is the output directory.
+	 *
+	 * @pre oDir != null
 	 */
 	protected final void setOutputDirectory(final String oDir) {
 		outputDirectory = oDir;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the xmlizer to be used to xmlizer the slice.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the slice xmlizer.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
+	 * @throws RuntimeException if the file into which the xmlizer will write the data cannot be opened.
+	 *
+	 * @post result != null
 	 */
 	protected final TagBasedSliceXMLizer getXMLizer() {
 		TagBasedSliceXMLizer _result;
@@ -220,9 +212,7 @@ public class SlicerDriver
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Executes the slicer.
 	 */
 	protected final void execute() {
 		// execute the slicer
@@ -234,9 +224,7 @@ public class SlicerDriver
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Writes the slice and dependency information in XML.
 	 */
 	final void writeXML() {
 		final ICallGraphInfo _cgi = slicer.getCallGraph();
@@ -283,7 +271,9 @@ public class SlicerDriver
 	 * Parses the command line argument.
 	 *
 	 * @param args contains the command line arguments.
-	 * @param xmlizer DOCUMENT ME!
+	 * @param xmlizer used to xmlize the slice.
+	 *
+	 * @pre args != null and xmlizer != null
 	 */
 	private static void parseCommandLine(final String[] args, final SlicerDriver xmlizer) {
 		// create options
@@ -336,7 +326,7 @@ public class SlicerDriver
 				_options, true);
 			System.exit(0);
 		} else {
-			processCommandLineForConfiguration(xmlizer, _cl);
+			xmlizer.setConfiguration(processCommandLineForConfiguration(_cl));
 
 			String _outputDir = _cl.getOptionValue("o");
 
@@ -379,14 +369,20 @@ public class SlicerDriver
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Processes the command line for slicer tool configuration information.  Defaults to a configuration if none are
+	 * specified.
 	 *
-	 * @param xmlizer DOCUMENT ME!
-	 * @param cl DOCUMENT ME!
+	 * @param cl is the parsed command line.
+	 *
+	 * @return the tool configuration as a string.
+	 *
+	 * @post result != null
+	 * @pre cl != null
 	 */
-	private static void processCommandLineForConfiguration(final SlicerDriver xmlizer, final CommandLine cl) {
+	private static String processCommandLineForConfiguration(final CommandLine cl) {
 		String _config = cl.getOptionValue("c");
 		Reader _reader = null;
+		String _result = null;
 
 		if (_config != null) {
 			try {
@@ -425,17 +421,16 @@ public class SlicerDriver
 			while (_br.ready()) {
 				_buffer.append(_br.readLine());
 			}
-			xmlizer.setConfiguration(_buffer.toString());
+			_result = _buffer.toString();
 		} catch (IOException _e) {
 			LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
 			System.exit(1);
 		}
+		return _result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Displays the tool configuration GUI.
 	 */
 	private void showGUI() {
 		// call the configurator on the slicer
@@ -476,6 +471,9 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.24  2003/12/09 12:23:48  venku
    - added support to control synchronicity of method runs.
    - ripple effect.
