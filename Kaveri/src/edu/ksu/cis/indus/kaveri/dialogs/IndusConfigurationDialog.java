@@ -545,7 +545,10 @@ public class IndusConfigurationDialog extends Dialog {
      *            The configuration combo
      */
     private void initializeConfigs(final Combo confsCombo) {
-        KaveriPlugin.getDefault().loadConfigurations();
+        final SlicerTool _sTool = KaveriPlugin.getDefault().getSlicerTool();
+        if (_sTool.getActiveConfiguration() == null) {
+            KaveriPlugin.getDefault().loadConfigurations();    
+        }            
         final SlicerTool _slicetool = KaveriPlugin.getDefault().getSlicerTool();
         final Collection _c = _slicetool.getConfigurations();
         for (final Iterator _t = _c.iterator(); _t.hasNext();) {

@@ -106,9 +106,19 @@ public class PluginPreference extends PreferencePage implements
     private SpecificationBasedScopeDefinition sbsd;
     
     /**
+     * Indicates whether the exception list was modified.
+     */
+    private boolean isExceptionStateDirty;
+    
+    /**
      * The exception store.
      */
     private ExceptionListStore exceptionStore;
+    
+    /**
+     * The configuration when the page is displayed. Used to restore in case of cancel.
+     */
+    private String currConfig;
 
     /**
      * Creates a new PluginPreference object.
@@ -120,6 +130,7 @@ public class PluginPreference extends PreferencePage implements
         final IPreferenceStore _store = KaveriPlugin.getDefault()
                 .getPreferenceStore();
         setPreferenceStore(_store);
+        isExceptionStateDirty = false;
     }
 
     /**
@@ -150,7 +161,7 @@ public class PluginPreference extends PreferencePage implements
             }
 
         }
-        if (exceptionStore != null) {
+        if (exceptionStore != null && isExceptionStateDirty) {
             final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
             final XStream _xstream = new XStream();
             _xstream.alias("ExceptionListStore", ExceptionListStore.class);
@@ -254,6 +265,10 @@ public class PluginPreference extends PreferencePage implements
         
         initExceptionList();
         
+        for (int _i =0; _i < exceptionTable.getColumnCount(); _i++) {
+            exceptionTable.getColumn(_i).pack();
+        }
+        
         final Composite _rowComp = new Composite(_comp, SWT.BORDER);
         _gd = new GridData(GridData.FILL_HORIZONTAL);
         _gd.horizontalSpan = 1;
@@ -287,6 +302,7 @@ public class PluginPreference extends PreferencePage implements
                                final TableItem _item = new TableItem(exceptionTable, SWT.NONE);
                                _item.setText(0, _id.getValue());
                                _item.setData(_id.getValue());    
+                               isExceptionStateDirty = true;
                            }
                        }
                     }
@@ -302,6 +318,7 @@ public class PluginPreference extends PreferencePage implements
                             	final String _exceptionName = (String)  _item.getData();
                             	exceptionStore.removeException(_exceptionName);
                             	exceptionTable.remove(exceptionTable.getSelectionIndex());
+                            	isExceptionStateDirty = true;
                         }
                     }
                 }
@@ -373,7 +390,7 @@ public class PluginPreference extends PreferencePage implements
         }
         KaveriPlugin.getDefault().storeConfiguration();
         KaveriPlugin.getDefault().savePluginPreferences();
-        if (exceptionStore != null) {
+        if (exceptionStore != null && isExceptionStateDirty) {
             final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
             final XStream _xstream = new XStream();
             _xstream.alias("ExceptionListStore", ExceptionListStore.class);
@@ -522,7 +539,11 @@ public class PluginPreference extends PreferencePage implements
      */
     private Control createConfig(final TabFolder folder) {
         try {
-            KaveriPlugin.getDefault().loadConfigurations();
+            final SlicerTool _sTool = KaveriPlugin.getDefault().getSlicerTool();
+            if (_sTool.getActiveConfiguration() == null) {
+                KaveriPlugin.getDefault().loadConfigurations();    
+            }                       
+            currConfig = _sTool.getActiveConfiguration().getConfigName();
             final Composite _comp = new Composite(folder, SWT.NONE);
             final GridLayout _layout = new GridLayout();
             _layout.numColumns = 1;
@@ -712,7 +733,8 @@ public class PluginPreference extends PreferencePage implements
      * @see org.eclipse.jface.preference.IPreferencePage#performCancel()
      */
     public boolean performCancel() {
-        KaveriPlugin.getDefault().loadConfigurations();
+        KaveriPlugin.getDefault().loadConfigurations();        
+        KaveriPlugin.getDefault().getSlicerTool().setActiveConfiguration(currConfig);
         return super.performCancel();
     }
 }

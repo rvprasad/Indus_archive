@@ -293,6 +293,7 @@ public class KaveriPlugin extends AbstractUIPlugin {
     public void storeConfiguration() {
         final String _config = slicerTool.stringizeConfiguration();
         getPreferenceStore().setValue("defaultConfiguration", _config);
+        loadConfigurations();
     }
 
     /**

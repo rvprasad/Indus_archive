@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IRegion;
@@ -47,6 +48,7 @@ import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 import edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
@@ -178,9 +180,15 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         }
         
         if (invisibleRoot != null && dsd.getSelectedStatement() != null 
-                && dsd.getStmtList() != null && dsd.getStmtList().size() > 2) {            
+                && dsd.getStmtList() != null && dsd.getStmtList().size() > 2) {
+            try {
             handleDependees();
             handleDependents();
+        } catch (NullPointerException _ne) {
+            MessageDialog.openInformation(null, "Error in dependence module", "An unknown error has occured." +
+    		"Please disable this dependence tracking view until a new slice is performed");
+            KaveriErrorLog.logException("Error in dependence analysis module", _ne);
+        }
 
         }
 
@@ -205,12 +213,15 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         final RightPaneTreeParent _tpSynchronization = new RightPaneTreeParent(
                 "Synchronization");
 
+        
+        
         _tpDependents.addChild(_tpControl);
         _tpDependents.addChild(_tpData);
         _tpDependents.addChild(_tpReady);
         _tpDependents.addChild(_tpInterference);
         _tpDependents.addChild(_tpDivergence);
         _tpDependents.addChild(_tpSynchronization);
+        
 
         addDependenceChildren(_tpControl, IDependencyAnalysis.CONTROL_DA, false);
         addDependenceChildren(_tpData,
@@ -252,6 +263,8 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
         _tpDependees.addChild(_tpDivergence);
         _tpDependees.addChild(_tpSynchronization);
 
+        
+        
         addDependenceChildren(_tpControl, IDependencyAnalysis.CONTROL_DA, true);
         addDependenceChildren(_tpData,
                 IDependencyAnalysis.REFERENCE_BASED_DATA_DA, true);
@@ -432,13 +445,14 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
             Iterator it = _coll.iterator();
             while (it.hasNext()) {
                 AbstractDependencyAnalysis _crt = (AbstractDependencyAnalysis) it
-                        .next();                
-                Collection ct = _crt.getDependents(_stmt, _method);
-                Iterator stit = ct.iterator();
-                while (stit.hasNext()) {
-                    _lst.add(stit.next());
+                        .next();            
+                    Collection ct = _crt.getDependents(_stmt, _method);
+                    Iterator stit = ct.iterator();
+                    while (stit.hasNext()) {
+                        _lst.add(stit.next());
+                    }
                 }
-            }
+                           
         }
         return _lst;
     }
@@ -468,12 +482,13 @@ public class DepTrkDepLstContentProvider implements ITreeContentProvider,
             Iterator it = _coll.iterator();
             while (it.hasNext()) {
                 AbstractDependencyAnalysis _crt = (AbstractDependencyAnalysis) it
-                        .next();                
-                Collection ct = _crt.getDependees(_stmt, _method);
-                Iterator stit = ct.iterator();
-                while (stit.hasNext()) {
-                    _lst.add(stit.next());
-                }
+                        .next();
+                    Collection ct = _crt.getDependees(_stmt, _method);                
+                    Iterator stit = ct.iterator();
+                    while (stit.hasNext()) {
+                        _lst.add(stit.next());
+                    }                                   
+                
             }
         }
 

@@ -58,6 +58,7 @@ import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
 import edu.ksu.cis.indus.kaveri.driver.IndusRunner;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * The basic slice functions class. This class implements the basic functions
@@ -119,7 +120,7 @@ abstract public class BasicSliceFunctions {
                 final IndusConfigurationDialog2 _indusDialog = new IndusConfigurationDialog2(
                         new Shell(), _jproject);
                 KaveriPlugin.getDefault().getIndusConfiguration().getCriteria()
-                        .clear();
+                        .clear();                
                 KaveriPlugin.getDefault().getIndusConfiguration().getChosenContext().clear();
                 if (_indusDialog.open() == IDialogConstants.OK_ID) {
                     if (_structuredSelection.getFirstElement() instanceof IJavaProject
@@ -202,7 +203,10 @@ abstract public class BasicSliceFunctions {
                             .resetChosenContext();
                     KaveriPlugin.getDefault().getIndusConfiguration()
                             .getCriteria().clear();
-                    KaveriPlugin.getDefault().loadConfigurations();
+                    final SlicerTool _sTool = KaveriPlugin.getDefault().getSlicerTool();
+                    if (_sTool.getActiveConfiguration() == null) {
+                        KaveriPlugin.getDefault().loadConfigurations();    
+                    }                        
                     KaveriPlugin.getDefault().getIndusConfiguration()
                             .setCurrentConfiguration(sliceType);
                     KaveriPlugin.getDefault().getIndusConfiguration()
