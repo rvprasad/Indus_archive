@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
@@ -34,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedPro
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -142,6 +144,23 @@ public class CallGraph
 	 * This caches a traversable graphCache representation of the call graphCache.
 	 */
 	private SimpleNodeGraph graphCache;
+
+	/**
+	 * A comparator to compare call triples based on <code>toString()</code> value of the method being called.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private class CallTripleMethodToStringBasedComparator
+	  implements Comparator {
+		/**
+		 * @see Comparator#compare(Object,Object)
+		 */
+		public int compare(Object o1, Object o2) {
+			return ((CallTriple) o1).getMethod().getSignature().compareTo(((CallTriple) o2).getMethod().getSignature());
+		}
+	}
 
 	/**
 	 * Sets the analyzer to be used to calculate call graph information upon call back.
@@ -520,29 +539,37 @@ public class CallGraph
 		result.append("Strongly Connected components in the system: " + getSCCs(true).size() + "\n");
 		result.append("top-down\n");
 
-		for (Iterator i = caller2callees.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			SootMethod caller = (SootMethod) entry.getKey();
+		final List _temp1 = new ArrayList();
+		final List _temp2 = new ArrayList();
+		_temp1.addAll(caller2callees.keySet());
+		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
+
+		for (Iterator i = _temp1.iterator(); i.hasNext();) {
+			SootMethod caller = (SootMethod) i.next();
 			result.append("\n" + caller.getSignature() + "\n");
+			_temp2.clear();
+			_temp2.addAll((Collection) caller2callees.get(caller));
+			Collections.sort(_temp2, new CallTripleMethodToStringBasedComparator());
 
-			Collection callees = (Collection) entry.getValue();
-
-			for (Iterator j = callees.iterator(); j.hasNext();) {
+			for (Iterator j = _temp2.iterator(); j.hasNext();) {
 				CallTriple ctrp = (CallTriple) j.next();
 				result.append("\t" + ctrp.getMethod().getSignature() + "\n");
 			}
 		}
 
 		result.append("bottom-up\n");
+		_temp1.clear();
+		_temp1.addAll(callee2callers.keySet());
+		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
-		for (Iterator i = callee2callers.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			SootMethod callee = (SootMethod) entry.getKey();
+		for (Iterator i = _temp1.iterator(); i.hasNext();) {
+			SootMethod callee = (SootMethod) i.next();
 			result.append("\n" + callee.getSignature() + "\n");
+			_temp2.clear();
+			_temp2.addAll((Collection) callee2callers.get(callee));
+			Collections.sort(_temp2, new CallTripleMethodToStringBasedComparator());
 
-			Collection callers = (Collection) entry.getValue();
-
-			for (Iterator j = callers.iterator(); j.hasNext();) {
+			for (Iterator j = _temp2.iterator(); j.hasNext();) {
 				CallTriple ctrp = (CallTriple) j.next();
 				result.append("\t" + ctrp.getMethod().getSignature() + "\n");
 			}
@@ -651,6 +678,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/01/20 21:23:36  venku
+   - the return value of getSCCs needs to be ordered if
+     it accepts a direction parameter.  FIXED.
    Revision 1.46  2004/01/06 01:12:43  venku
    - coding conventions.
    Revision 1.45  2004/01/06 00:17:01  venku

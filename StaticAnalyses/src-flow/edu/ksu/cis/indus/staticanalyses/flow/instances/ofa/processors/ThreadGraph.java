@@ -15,10 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -27,13 +31,11 @@ import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -538,9 +540,20 @@ public class ThreadGraph
 
 		result.append("Total number of threads: " + thread2methods.size() + "\n");
 
-		for (Iterator i = thread2methods.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			NewExprTriple net = (NewExprTriple) entry.getKey();
+		final List _temp1 = new ArrayList();
+		_temp1.addAll(thread2methods.keySet());
+		Collections.sort(_temp1,
+			new Comparator() {
+				public int compare(Object o1, Object o2) {
+					NewExprTriple ne = (NewExprTriple) o1;
+					String _s1 = ne.getStmt() + "@" + ne.getMethod() + "->" + ne.getExpr();
+					ne = (NewExprTriple) o2;
+					return _s1.compareTo(ne.getStmt() + "@" + ne.getMethod() + "->" + ne.getExpr());
+				}
+			});
+
+		for (Iterator i = _temp1.iterator(); i.hasNext();) {
+			NewExprTriple net = (NewExprTriple) i.next();
 
 			if (net.getMethod() == null) {
 				result.append("\n" + net.getExpr().getType() + "\n");
@@ -550,7 +563,7 @@ public class ThreadGraph
 
 			l.clear();
 
-			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
+			for (Iterator j = ((Collection) thread2methods.get(net)).iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 				l.add(sm.getSignature());
 			}
@@ -560,22 +573,21 @@ public class ThreadGraph
 				result.append("\t" + j.next() + "\n");
 			}
 		}
-        
-        int _count = 1;
-        result.append("\nThread mapping:");
 
-        for (final Iterator _j = getAllocationSites().iterator(); _j.hasNext();) {
-            final NewExprTriple _element = (NewExprTriple) _j.next();
-            final String _tid = "T" + _count++;
+		int _count = 1;
+		result.append("\nThread mapping:");
 
-            if (_element.getMethod() == null) {
-                result.append(_tid + " -> " + _element.getExpr().getType());
-            } else {
-                result.append(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod());
-            }
-        }
+		for (final Iterator _j = getAllocationSites().iterator(); _j.hasNext();) {
+			final NewExprTriple _element = (NewExprTriple) _j.next();
+			final String _tid = "T" + _count++;
 
-        
+			if (_element.getMethod() == null) {
+				result.append(_tid + " -> " + _element.getExpr().getType());
+			} else {
+				result.append(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod());
+			}
+		}
+
 		return result.toString();
 	}
 
@@ -679,30 +691,28 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/01/06 00:17:01  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.22  2003/12/14 20:21:10  venku
    - logging.
-
    Revision 1.21  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.20  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.19  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.18  2003/12/08 12:15:59  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.17  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.16  2003/11/26 02:55:45  venku
    - now handles clinit in a more robust way.
    Revision 1.15  2003/11/17 16:47:50  venku
