@@ -45,36 +45,36 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public abstract class AbstractDirectedGraph
   implements IDirectedGraph {
-	/**
+	/** 
 	 * The set of nodes that constitute the head nodes of this graph.  <i>This needs to be populated by the subclass.</i>
 	 *
 	 * @invariant heads.oclIsKindOf(Set(INode))
 	 */
 	protected final Set heads = new HashSet();
 
-	/**
+	/** 
 	 * The set of nodes that constitute the tail nodes of this graph.  <i>This needs to be populated by the subclass.</i>
 	 *
 	 * @invariant heads.oclIsKindOf(Set(INode))
 	 */
 	protected final Set tails = new HashSet();
 
-	/**
+	/** 
 	 * This indicates if this graph has a spanning forest.
 	 */
 	protected boolean hasSpanningForest;
 
-	/**
+	/** 
 	 * This is the collection of back edges in this graph.
 	 */
 	private Collection backedges = new ArrayList();
 
-	/**
+	/** 
 	 * The collection of pseudo tails in the given graph.  Refer to <code>getPseudoTails()</code> for details.
 	 */
 	private final Collection pseudoTails = new HashSet();
 
-	/**
+	/** 
 	 * This maps a node to it's spanning successor nodes.
 	 *
 	 * @invariant spanningSuccs.keySet()->forall( o | o.oclIsKindOf(INode))
@@ -84,17 +84,17 @@ public abstract class AbstractDirectedGraph
 	 */
 	private Map spanningSuccs;
 
-	/**
+	/** 
 	 * This captures backward reachability information.
 	 */
 	private boolean[][] backwardReachabilityMatrix;
 
-	/**
+	/** 
 	 * This captures backward reachability information.
 	 */
 	private boolean[][] forwardReachabilityMatrix;
 
-	/**
+	/** 
 	 * This is the node indexed prenum of the nodes in this graph.
 	 *
 	 * @invariant postnums.size = getNodes().size()
@@ -102,7 +102,7 @@ public abstract class AbstractDirectedGraph
 	 */
 	private int[] postnums;
 
-	/**
+	/** 
 	 * This is the node indexed prenum of the nodes in this graph.
 	 *
 	 * @invariant prenums.size = getNodes().size()
@@ -110,12 +110,12 @@ public abstract class AbstractDirectedGraph
 	 */
 	private int[] prenums;
 
-	/**
+	/** 
 	 * This indicates if pseudo tails have been calculated for this graph.
 	 */
 	private boolean pseudoTailsCalculated;
 
-	/**
+	/** 
 	 * This indicates if reachability information has been calculated for this graph.
 	 */
 	private boolean reachability;
@@ -419,63 +419,33 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Finds cycles in the given SCC.
+	 * Finds cycles in the given set of nodes.
 	 *
-	 * @param scc in which to search for cycles.
+	 * @param nodes in which to search for cycles.
 	 *
 	 * @return a collection of cycles. Each cycle is represented as a sequence in which the first element starts the cycle.
 	 *
-	 * @pre scc != null and scc.oclIsKindOf(Collection(INode))
+	 * @pre scc != null and nodes.oclIsKindOf(Collection(INode))
 	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
+	 * @post result->forall(o | nodes.containsAll(o))
 	 */
-	public static Collection findCycles(final Collection scc) {
+	public static Collection findCycles(final Collection nodes) {
 		final Collection _result = new ArrayList();
 
-		if (scc.size() == 1) {
-			final INode _node = (INode) scc.iterator().next();
+		if (nodes.size() == 1) {
+			final INode _node = (INode) nodes.iterator().next();
 
 			if (_node.getSuccsOf().contains(_node)) {
 				_result.add(Collections.singleton(_node));
 			}
 		} else {
-			final IWorkBag _wb = new LIFOWorkBag();
-			final Stack _dfsPath = new Stack();
-			_wb.addWork(scc.iterator().next());
+			final Collection _considered = new HashSet();
 
-			while (_wb.hasWork()) {
-				final Object _o = _wb.getWork();
+			for (final Iterator _i = nodes.iterator(); _i.hasNext();) {
+				final INode _root = (INode) _i.next();
 
-				if (_o instanceof Marker) {
-					final Object _temp = ((Marker) _o).getContent();
-
-					while (!_temp.equals(_dfsPath.peek())) {
-						_dfsPath.pop();
-					}
-				} else if (_dfsPath.contains(_o)) {
-					final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_o), _dfsPath.size());
-
-					if (!_result.contains(_cycle)) {
-						_result.add(new ArrayList(_cycle));
-					}
-				} else {
-					final INode _node = (INode) _o;
-					final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), scc);
-
-					if (!_succs.isEmpty()) {
-						_dfsPath.push(_node);
-
-						if (_succs.size() > 1) {
-							final Marker _marker = new Marker(_node);
-
-							for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
-								final Object _ele = _j.next();
-								_wb.addWork(_marker);
-								_wb.addWork(_ele);
-							}
-						} else {
-							_wb.addWork(_succs.iterator().next());
-						}
-					}
+				if (!_considered.contains(_root)) {
+					findCyclesStartingFrom(nodes, _result, _considered, _root);
 				}
 			}
 		}
@@ -508,6 +478,67 @@ public abstract class AbstractDirectedGraph
 		hasSpanningForest = false;
 		pseudoTailsCalculated = false;
 		reachability = false;
+	}
+
+	/**
+	 * Finds cycles containing only the given nodes starting from the given root.
+	 *
+	 * @param nodes in which the cycles should be detected.
+	 * @param cycles is an out parameter that will contain the cycles.
+	 * @param consideredNodes is an out paramter that will contain nodes that were included in some cycle.
+	 * @param root from which to start the detection.
+	 *
+	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
+	 * @pre cycles != null and cycles.oclIsKindOf(Collection(Sequence(INode)))
+	 * @pre consideredNodes != null and consideredNodes.oclIsKindOf(Collection(INode))
+	 * @pre root != null
+	 * @post (cycles - cycles$pre)->forall(o | nodes.containsAll(o))
+	 * @post nodes.containsAll(consideredNodes$pre - consideredNodes$pre)
+	 */
+	private static void findCyclesStartingFrom(final Collection nodes, final Collection cycles,
+		final Collection consideredNodes, final INode root) {
+		final IWorkBag _wb = new LIFOWorkBag();
+		final Stack _dfsPath = new Stack();
+
+		_wb.addWork(root);
+
+		while (_wb.hasWork()) {
+			final Object _o = _wb.getWork();
+
+			if (_o instanceof Marker) {
+				final Object _temp = ((Marker) _o).getContent();
+
+				while (!_temp.equals(_dfsPath.peek())) {
+					_dfsPath.pop();
+				}
+			} else if (_dfsPath.contains(_o)) {
+				final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_o), _dfsPath.size());
+
+				if (!cycles.contains(_cycle)) {
+					cycles.add(new ArrayList(_cycle));
+					consideredNodes.addAll(_cycle);
+				}
+			} else {
+				final INode _node = (INode) _o;
+				final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), nodes);
+
+				if (!_succs.isEmpty()) {
+					_dfsPath.push(_node);
+
+					if (_succs.size() > 1) {
+						final Marker _marker = new Marker(_node);
+
+						for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
+							final Object _ele = _j.next();
+							_wb.addWork(_marker);
+							_wb.addWork(_ele);
+						}
+					} else {
+						_wb.addWork(_succs.iterator().next());
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -785,6 +816,8 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/07/11 13:42:05  venku
+   - optimization.
    Revision 1.19  2004/07/07 10:07:36  venku
    - added new method to calculate reachables. With test of course.
    Revision 1.18  2004/07/04 04:56:27  venku
