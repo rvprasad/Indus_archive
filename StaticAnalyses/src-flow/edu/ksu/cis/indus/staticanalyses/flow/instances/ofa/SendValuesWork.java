@@ -88,7 +88,7 @@ public class SendValuesWork
 	 *
 	 * @throws RuntimeException if the return of the object to the pool failed.
 	 */
-	protected void processed() {
+	protected void finished() {
 		try {
 			POOL.returnObject(this);
 		} catch (Exception e) {
@@ -162,6 +162,9 @@ public class SendValuesWork
    ChangeLog:
 
    $Log$
+   Revision 1.4  2003/08/18 08:34:20  venku
+   Well, used the object pool as available from jakarta commons implementation.
+
 
    Revision 1.3  2003/08/18 07:09:13  venku
    The way objects were removed from the pool was incorrect.  I had used get() instead of remove().

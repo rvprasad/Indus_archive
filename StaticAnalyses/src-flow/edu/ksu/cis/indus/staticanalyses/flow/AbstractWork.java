@@ -105,25 +105,29 @@ public abstract class AbstractWork {
 	}
 
 	/**
-	 * This will be called by the worklit after this work has been done.
+	 * Perform any sort of cleanup chores. This will/should be called after the work has been executed.
 	 */
-	protected void doneExecuting() {
+	protected void finished() {
 	}
 }
 
 /*
    ChangeLog:
-
    $Log$
-
+   
+   Revision 1.3  2003/08/17 11:19:13  venku
+   Placed the simple SendValuesWork class into a separate file.
+   Extended it with work pool support.
+   Amended AbstractWork and WorkList to enable work pool support.
+   
    Revision 1.2  2003/08/17 09:59:03  venku
    Spruced up documentation and specification.
    Documentation changes to FieldVariant.
-
+   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-
+    
    Revision 0.9  2003/05/22 22:18:50  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
