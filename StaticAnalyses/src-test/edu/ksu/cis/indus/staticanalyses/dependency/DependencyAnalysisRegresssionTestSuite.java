@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
 
@@ -38,6 +39,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import junit.textui.TestRunner;
@@ -50,7 +52,8 @@ import junit.textui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class DependencyAnalysisRegresssionTestSuite {
+public class DependencyAnalysisRegresssionTestSuite
+  extends TestCase {
 	/**
 	 * This is the property via which the ofa test accepts input.  Refer to DepedencyAnalysisTest.properties for format.
 	 */
@@ -121,63 +124,60 @@ public class DependencyAnalysisRegresssionTestSuite {
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
 				final String _classpath = _props.getProperty(_config + ".classpath");
-				File _f = new File(_xmlControlDir);
-
-				if (!_f.exists() || !_f.canRead()) {
-					System.err.println("Input directory " + _xmlControlDir + " does not exists. Bailing on " + _config);
-					continue;
-				}
-				_f = new File(_xmlTestDir);
-
-				if (!_f.exists() || !_f.canWrite()) {
-					System.err.println("Output directory " + _xmlControlDir + " does not exists. Bailing on " + _config);
-					continue;
-				}
+				final String _str = TestHelper.checkExecutability(_config, _xmlTestDir, _xmlControlDir);
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
-					_das.clear();
-					_das.add(new DivergenceDA());
-					_das.add(new EntryControlDA());
-					_das.add(new ExitControlDA());
-					_das.add(new IdentifierBasedDataDA());
-					_das.add(new InterferenceDAv1());
-					_das.add(new InterferenceDAv2());
-					_das.add(new InterferenceDAv3());
-					_das.add(new ReadyDAv1());
-					_das.add(new ReadyDAv2());
-					_das.add(new ReadyDAv3());
-					_das.add(new ReferenceBasedDataDA());
-					_das.add(new SynchronizationDA());
 
-					String _ignoreDARegex = _props.getProperty("ignore.das");
+					if (_str.length() > 0) {
+						_temp.addTest(new ErringTestCase(_str));
+						TestHelper.appendSuiteNameToTestsIn(_temp, true);
+						suite.addTest(_temp);
+					} else {
+						_das.clear();
+						_das.add(new DivergenceDA());
+						_das.add(new EntryControlDA());
+						_das.add(new ExitControlDA());
+						_das.add(new IdentifierBasedDataDA());
+						_das.add(new InterferenceDAv1());
+						_das.add(new InterferenceDAv2());
+						_das.add(new InterferenceDAv3());
+						_das.add(new ReadyDAv1());
+						_das.add(new ReadyDAv2());
+						_das.add(new ReadyDAv3());
+						_das.add(new ReferenceBasedDataDA());
+						_das.add(new SynchronizationDA());
 
-					if (_ignoreDARegex == null) {
-						_ignoreDARegex = "^$";
-					}
+						String _ignoreDARegex = _props.getProperty("ignore.das");
 
-					final DependencyXMLizer _xmlizer = new DependencyXMLizer();
-
-					for (final Iterator _j = _das.iterator(); _j.hasNext();) {
-						final Object _da = _j.next();
-
-						if (!Pattern.matches(_ignoreDARegex, _da.getClass().getName())) {
-							final XMLBasedDependencyAnalysisTest _test =
-								new XMLBasedDependencyAnalysisTest((DependencyAnalysis) _da, _xmlizer);
-							_temp.addTest(_test);
+						if (_ignoreDARegex == null) {
+							_ignoreDARegex = "^$";
 						}
-					}
-					_temp.addTestSuite(XMLBasedCallGraphTest.class);
-					_temp.addTestSuite(CallGraphTest.class);
-					_temp.addTestSuite(XMLBasedOFATest.class);
-					_temp.addTestSuite(FATest.class);
-					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
-					final DependencyAnalysisTestSetup _test = new DependencyAnalysisTestSetup(_temp, _classNames, _classpath);
-					_test.setStmtGraphFactory(stmtGraphFactory);
-					_test.setXMLTestDir(_xmlTestDir);
-					_test.setXMLControlDir(_xmlControlDir);
-					suite.addTest(_test);
+						final DependencyXMLizer _xmlizer = new DependencyXMLizer();
+
+						for (final Iterator _j = _das.iterator(); _j.hasNext();) {
+							final Object _da = _j.next();
+
+							if (!Pattern.matches(_ignoreDARegex, _da.getClass().getName())) {
+								final XMLBasedDependencyAnalysisTest _test =
+									new XMLBasedDependencyAnalysisTest((DependencyAnalysis) _da, _xmlizer);
+								_temp.addTest(_test);
+							}
+						}
+						_temp.addTestSuite(XMLBasedCallGraphTest.class);
+						_temp.addTestSuite(CallGraphTest.class);
+						_temp.addTestSuite(XMLBasedOFATest.class);
+						_temp.addTestSuite(FATest.class);
+						TestHelper.appendSuiteNameToTestsIn(_temp, true);
+
+						final DependencyAnalysisTestSetup _test =
+							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath);
+						_test.setStmtGraphFactory(stmtGraphFactory);
+						_test.setXMLTestDir(_xmlTestDir);
+						_test.setXMLControlDir(_xmlControlDir);
+						suite.addTest(_test);
+					}
 				} catch (IllegalArgumentException _e) {
 					;
 				}
@@ -191,15 +191,15 @@ public class DependencyAnalysisRegresssionTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/04/17 22:07:34  venku
+   - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
+   - ripple effect in interfaces, classes, and property files.
    Revision 1.6  2004/04/05 23:16:33  venku
    - textui.TestRunner cannot be run via start(). FIXED.
-
    Revision 1.5  2004/04/05 22:26:48  venku
    - used textui.TestRunner instead of swingui.TestRunner.
-
    Revision 1.4  2004/04/01 22:33:49  venku
    - test suite name was incorrect.
-
    Revision 1.3  2004/04/01 19:18:29  venku
    - stmtGraphFactory was not set.
    Revision 1.2  2004/03/29 09:44:41  venku

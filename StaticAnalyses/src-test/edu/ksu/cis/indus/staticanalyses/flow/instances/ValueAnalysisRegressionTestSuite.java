@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances;
 
+import edu.ksu.cis.indus.ErringTestCase;
 import edu.ksu.cis.indus.IXMLBasedTest;
 import edu.ksu.cis.indus.TestHelper;
 
@@ -109,39 +110,34 @@ public final class ValueAnalysisRegressionTestSuite
 			final IStmtGraphFactory stmtGraphFactory =
 				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
 					true);
-
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
 				final String _classNames = _props.getProperty(_config + ".classNames");
-                final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
-                final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
-                				final String _classpath = _props.getProperty(_config + ".classpath");
-				File _f = new File(_xmlControlDir);
-
-				if (!_f.exists() || !_f.canRead()) {
-					System.err.println("Input directory " + _xmlControlDir + " does not exists. Bailing on " + _config);
-					continue;
-				}
-				_f = new File(_xmlTestDir);
-
-				if (!_f.exists() || !_f.canWrite()) {
-					System.err.println("Output directory " + _xmlControlDir + " does not exists. Bailing on " + _config);
-					continue;
-				}
+				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
+				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
+				final String _classpath = _props.getProperty(_config + ".classpath");
+                final String _str = TestHelper.checkExecutability(_config, _xmlTestDir, _xmlControlDir);
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
-					_temp.addTestSuite(XMLBasedCallGraphTest.class);
-					_temp.addTestSuite(CallGraphTest.class);
-					_temp.addTestSuite(XMLBasedOFATest.class);
-					_temp.addTestSuite(FATest.class);
-					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
-					final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
-					_test.setStmtGraphFactory(stmtGraphFactory);
-					_test.setXMLTestDir(_xmlTestDir);
-					_test.setXMLControlDir(_xmlControlDir);
-					suite.addTest(_test);
+					if (_str.length() > 0) {
+						_temp.addTest(new ErringTestCase(_str));
+                        TestHelper.appendSuiteNameToTestsIn(_temp, true);
+                        suite.addTest(_temp);
+					} else {
+						_temp.addTestSuite(XMLBasedCallGraphTest.class);
+						_temp.addTestSuite(CallGraphTest.class);
+						_temp.addTestSuite(XMLBasedOFATest.class);
+						_temp.addTestSuite(FATest.class);
+                        TestHelper.appendSuiteNameToTestsIn(_temp, true);
+
+                        final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
+                        _test.setStmtGraphFactory(stmtGraphFactory);
+                        _test.setXMLTestDir(_xmlTestDir);
+                        _test.setXMLControlDir(_xmlControlDir);
+                        suite.addTest(_test);
+					}
 				} catch (IllegalArgumentException _e) {
 					;
 				}
@@ -155,18 +151,17 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/17 22:07:34  venku
+   - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
+   - ripple effect in interfaces, classes, and property files.
    Revision 1.7  2004/04/05 23:16:33  venku
    - textui.TestRunner cannot be run via start(). FIXED.
-
    Revision 1.6  2004/04/05 22:26:48  venku
    - used textui.TestRunner instead of swingui.TestRunner.
-
    Revision 1.5  2004/04/01 22:33:49  venku
    - test suite name was incorrect.
-
    Revision 1.4  2004/04/01 22:28:19  venku
    - test suite name was incorrect.
-
    Revision 1.3  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
@@ -175,7 +170,6 @@ public final class ValueAnalysisRegressionTestSuite
      required to use a particular view CFG consistently.  This requirement resulted
      in a large change.
    - ripple effect of the above changes.
-
    Revision 1.2  2004/03/08 03:09:09  venku
    - documentation.
    Revision 1.1  2004/03/07 20:27:54  venku

@@ -18,6 +18,8 @@ package edu.ksu.cis.indus;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 
+import java.io.File;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -113,11 +115,43 @@ public final class TestHelper {
 			}
 		}
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param configuration
+	 * @param xmlTestDir
+	 * @param xmlControlDir
+	 *
+	 * @return
+	 */
+	public static String checkExecutability(final String configuration, final String xmlTestDir, final String xmlControlDir) {
+		final StringBuffer _sb = new StringBuffer();
+		File _f = new File(xmlControlDir);
+
+		if (!_f.exists() || !_f.canRead()) {
+			_sb.append("Control directory " + xmlControlDir + " does not exists. Bailing on " + configuration);
+		}
+		_f = new File(xmlTestDir);
+
+		if (!_f.exists() || !_f.canWrite()) {
+			_sb.append("Test directory " + xmlControlDir + " does not exists. Bailing on " + configuration);
+		}
+		return _sb.toString();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.9  2004/02/17 05:46:20  venku
    - coding convention.
    Revision 1.8  2004/02/14 23:16:49  venku
