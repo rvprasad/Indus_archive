@@ -55,6 +55,7 @@ import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
@@ -197,6 +198,13 @@ public class DependencyXMLizer
 	private Properties properties;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private boolean dumpXMLizedJimple;
+
+	/**
 	 * Creates a new DependencyXMLizer object.
 	 *
 	 * @param useECBA DOCUMENT ME!
@@ -253,6 +261,8 @@ public class DependencyXMLizer
 		option.setArgs(1);
 		options.addOption(option);
 		option.setRequired(false);
+		option = new Option("j", "jimple", false, "Dump xmlized jimple.");
+		options.addOption(option);
 
 		for (int i = 0; i < dasOptions.length; i++) {
 			option = new Option(dasOptions[i][0].toString(), dasOptions[i][1].toString(), false, dasOptions[i][2].toString());
@@ -272,6 +282,9 @@ public class DependencyXMLizer
 				}
 				outputDir = ".";
 			}
+
+			xmlizer.dumpXMLizedJimple = cl.hasOption('j');
+
 			xmlizer.setXMLOutputDir(outputDir);
 			xmlizer.setClassNames(cl.getOptionValues('c'));
 			xmlizer.setGenerator(new UniqueJimpleIDGenerator());
@@ -283,7 +296,6 @@ public class DependencyXMLizer
 			}
 			xmlizer.initialize();
 			xmlizer.execute();
-			xmlizer.printTimingStats();
 			xmlizer.reset();
 		} catch (ParseException e) {
 			LOGGER.error("Error while parsing command line.", e);
@@ -428,6 +440,28 @@ public class DependencyXMLizer
 			writeXML(rootname, cgi);
 			writeInfo("Total classes loaded: " + scene.getClasses().size());
 			printTimingStats();
+
+			if (dumpXMLizedJimple) {
+				final JimpleXMLizer _t = new JimpleXMLizer(new UniqueJimpleIDGenerator());
+				pc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(cgi));
+
+				FileWriter _writer;
+
+				try {
+					_writer =
+						new FileWriter(new File(getXmlOutDir() + File.separator
+								+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "jimple.xml"));
+					_t.setWriter(_writer);
+					_t.hookup(pc);
+					pc.process();
+					_t.unhook(pc);
+					_writer.flush();
+					_writer.close();
+				} catch (IOException e) {
+					LOGGER.error("Error while opening/writing/closing jimple xml file.  Aborting.", e);
+					System.exit(1);
+				}
+			}
 		}
 	}
 
@@ -700,6 +734,9 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.16  2003/12/02 00:48:27  venku
    - coding conventions.
    Revision 1.15  2003/12/01 13:33:20  venku
