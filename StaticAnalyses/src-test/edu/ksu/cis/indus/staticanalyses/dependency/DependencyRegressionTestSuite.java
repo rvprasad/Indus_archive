@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
-
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
@@ -145,13 +143,13 @@ public final class DependencyRegressionTestSuite
 
 				try {
 					_test = new DependencyTest(new DependencyXMLizer(true), _xmlInputDir);
-					_test.xmlizer.setClassNames(_temp);
+					_test.xmlizer.sootBasedDriver.setClassNames(_temp);
 					_test.xmlizer.setXmlOutputDir(_xmlOutputDir);
 					_test.xmlizer.setGenerator(_generator);
 					_test.xmlizer.populateDAs();
 
 					if (_classpath != null) {
-						_test.xmlizer.addToSootClassPath(_classpath);
+						_test.xmlizer.sootBasedDriver.addToSootClassPath(_classpath);
 					}
 				} catch (IllegalArgumentException _e) {
 					_test = null;
@@ -170,6 +168,10 @@ public final class DependencyRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 02:00:14  venku
+   - changed AbstractXMLizer.
+   - ripple effect.
+
    Revision 1.1  2004/02/08 04:53:11  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.

@@ -35,21 +35,21 @@ import junit.framework.TestSuite;
 public class AbstractXMLBasedTestSetup
   extends TestSetup
   implements IXMLBasedTest {
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	/** 
+	 * <p>DOCUMENT ME! </p>
 	 */
-	private final AbstractXMLBasedTest xmlBasedTest;
+	private String xmlInputDir;
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private String xmlOutputDir;
 
 	/**
 	 * @see TestSetup#TestSetup(TestSuite)
 	 */
 	public AbstractXMLBasedTestSetup(TestSuite test) {
 		super(test);
-		xmlBasedTest = new AbstractXMLBasedTest() {
-					;
-				};
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class AbstractXMLBasedTestSetup
 	 * @param xmlInDir
 	 */
 	public void setXmlInputDir(String xmlInDir) {
-		xmlBasedTest.setXmlInputDir(xmlInDir);
+		xmlInputDir = xmlInDir;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class AbstractXMLBasedTestSetup
 	 * @return
 	 */
 	public String getXmlInputDir() {
-		return xmlBasedTest.getXmlInputDir();
+		return xmlInputDir;
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class AbstractXMLBasedTestSetup
 	 * @param xmlOutDir
 	 */
 	public void setXmlOutputDir(String xmlOutDir) {
-		xmlBasedTest.setXmlOutputDir(xmlOutDir);
+		xmlOutputDir = xmlOutDir;
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class AbstractXMLBasedTestSetup
 	 * @return
 	 */
 	public String getXmlOutputDir() {
-		return xmlBasedTest.getXmlOutputDir();
+		return xmlOutputDir;
 	}
 
 	/**
@@ -97,8 +97,8 @@ public class AbstractXMLBasedTestSetup
 
 		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
 			final IXMLBasedTest _tester = (IXMLBasedTest) _i.next();
-			_tester.setXmlOutputDir(xmlBasedTest.getXmlOutputDir());
-			_tester.setXmlInputDir(xmlBasedTest.getXmlInputDir());
+			_tester.setXmlOutputDir(xmlOutputDir);
+			_tester.setXmlInputDir(xmlInputDir);
 		}
 	}
 }
@@ -106,6 +106,11 @@ public class AbstractXMLBasedTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 01:20:06  venku
+   - coding convention.
+   - added a new abstract class contain the logic required for xml-based
+     testing.  (AbstractXMLBasedTest)
+   - added a new xml-based call graph testing class.
    Revision 1.1  2004/02/08 04:53:14  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.

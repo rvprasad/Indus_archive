@@ -32,15 +32,26 @@ import org.custommonkey.xmlunit.XMLTestCase;
 public class AbstractXMLBasedTest
   extends XMLTestCase
   implements IXMLBasedTest {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	private AbstractXMLizer xmlizer;
+	protected final AbstractXMLizer xmlizer;
 
 	/**
 	 * The directory in which xml-based testing input is read from.
 	 */
 	private String xmlInputDir;
+
+	/**
+	 * Creates a new AbstractXMLBasedTest object.
+	 *
+	 * @param theXmlizer DOCUMENT ME!
+	 */
+	protected AbstractXMLBasedTest(AbstractXMLizer theXmlizer) {
+		xmlizer = theXmlizer;
+	}
 
 	/**
 	 * DOCUMENT ME!
@@ -82,6 +93,9 @@ public class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/09 02:00:11  venku
+   - changed AbstractXMLizer.
+   - ripple effect.
    Revision 1.1  2004/02/09 01:20:06  venku
    - coding convention.
    - added a new abstract class contain the logic required for xml-based

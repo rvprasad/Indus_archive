@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -102,7 +103,7 @@ public class DependencyXMLizer
 		String _propFileName = System.getProperty("indus.dependencyxmlizer.properties.file");
 
 		if (_propFileName == null) {
-			_propFileName = "edu/ksu/cis/indus/staticanalyses/dependency/xmlizer/DependencyXMLizer.properties";
+			_propFileName = "edu/ksu/cis/indus/staticanalyses/dependency/DependencyXMLizer.properties";
 		}
 
 		final InputStream _stream = ClassLoader.getSystemResourceAsStream(_propFileName);
@@ -114,6 +115,11 @@ public class DependencyXMLizer
 			throw new RuntimeException(_e);
 		}
 	}
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	static final SootBasedDriver sootBasedDriver = new SootBasedDriver();
 
 	/**
 	 * This is the flow analyser used by the analyses being tested.
@@ -166,7 +172,7 @@ public class DependencyXMLizer
 	 * 		  otherwise.
 	 */
 	public DependencyXMLizer(final boolean useECBA) {
-		setLogger(LogFactory.getLog(DependencyXMLizer.class));
+		sootBasedDriver.setLogger(LogFactory.getLog(DependencyXMLizer.class));
 		setProperties(PROPERTIES);
 		ecbaRequired = useECBA;
 	}
@@ -267,11 +273,11 @@ public class DependencyXMLizer
 			if (_classNames == null) {
 				throw new MissingOptionException("-c");
 			}
-			_xmlizer.setClassNames(_classNames);
+			sootBasedDriver.setClassNames(_classNames);
 			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
 			if (_cl.hasOption('p')) {
-				_xmlizer.addToSootClassPath(_cl.getOptionValue('p'));
+				sootBasedDriver.addToSootClassPath(_cl.getOptionValue('p'));
 			}
 
 			boolean flag = true;
@@ -286,7 +292,7 @@ public class DependencyXMLizer
 			if (flag) {
 				throw new ParseException("Atleast one dependence analysis must be requested.");
 			}
-			_xmlizer.initialize();
+			sootBasedDriver.initialize();
 			_xmlizer.execute();
 			_xmlizer.reset();
 		} catch (ParseException _e) {
@@ -303,7 +309,7 @@ public class DependencyXMLizer
 	 * Drives the analyses.
 	 */
 	public final void execute() {
-		setLogger(LOGGER);
+		sootBasedDriver.setLogger(LOGGER);
 
 		final String _tagName = "DependencyXMLizer:FA";
 		aa = OFAnalyzer.getFSOSAnalyzer(_tagName);
@@ -311,7 +317,7 @@ public class DependencyXMLizer
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
 		final ICallGraphInfo _cgi = new CallGraph();
-		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, bbm));
+		final IThreadGraphInfo _tgi = new ThreadGraph(_cgi, new CFGAnalysis(_cgi, sootBasedDriver.getBbm()));
 		final Collection _rm = new ArrayList();
 		final ProcessingController _xmlcgipc = new ProcessingController();
 		cgipc = new ValueAnalyzerBasedProcessingController();
@@ -332,58 +338,58 @@ public class DependencyXMLizer
 		info.put(IUseDefInfo.ID, aliasUD);
 
 		if (ecbaRequired) {
-			ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, bbm);
+			ecba = new EquivalenceClassBasedEscapeAnalysis(_cgi, _tgi, sootBasedDriver.getBbm());
 			info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 		}
 
-		for (final Iterator _k = rootMethods.iterator(); _k.hasNext();) {
+		for (final Iterator _k = sootBasedDriver.getRootMethods().iterator(); _k.hasNext();) {
 			_rm.clear();
 
 			final SootMethod _root = (SootMethod) _k.next();
 			_rm.add(_root);
 
 			final String _rootname = _root.getSignature();
-			writeInfo("RootMethod: " + _rootname);
-			writeInfo("BEGIN: FA");
+			sootBasedDriver.writeInfo("RootMethod: " + _rootname);
+			sootBasedDriver.writeInfo("BEGIN: FA");
 
 			long _start = System.currentTimeMillis();
 			aa.reset();
-			bbm.reset();
+			sootBasedDriver.getBbm().reset();
 
 			if (ecbaRequired) {
 				ecba.reset();
 			}
-			aa.analyze(scene, _rm);
+			aa.analyze(sootBasedDriver.getScene(), _rm);
 
 			long _stop = System.currentTimeMillis();
-			addTimeLog("FA", _stop - _start);
-			writeInfo("END: FA");
+			sootBasedDriver.addTimeLog("FA", _stop - _start);
+			sootBasedDriver.writeInfo("END: FA");
 			((CallGraph) _cgi).reset();
 			_processors.clear();
 			_processors.add(_cgi);
 			_pc.reset();
-			process(_pc, _processors);
-			writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).dumpGraph());
+			_pc.driveProcessors(_processors);
+			sootBasedDriver.writeInfo("CALL GRAPH:\n" + ((CallGraph) _cgi).dumpGraph());
 			_processors.clear();
 			((ThreadGraph) _tgi).reset();
 			_processors.add(_tgi);
 			cgipc.reset();
-			process(cgipc, _processors);
-			writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).dumpGraph());
+			cgipc.driveProcessors(_processors);
+			sootBasedDriver.writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).dumpGraph());
 			setupDependencyAnalyses();
-			writeInfo("BEGIN: dependency analyses");
+			sootBasedDriver.writeInfo("BEGIN: dependency analyses");
 
 			for (final Iterator _i = das.iterator(); _i.hasNext();) {
 				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 				_start = System.currentTimeMillis();
 				_da.analyze();
 				_stop = System.currentTimeMillis();
-				addTimeLog(_da.getClass().getName() + "[" + _da.hashCode() + "] analysis", _stop - _start);
+				sootBasedDriver.addTimeLog(_da.getClass().getName() + "[" + _da.hashCode() + "] analysis", _stop - _start);
 			}
-			writeInfo("END: dependency analyses");
+			sootBasedDriver.writeInfo("END: dependency analyses");
 			writeXML(_rootname, info);
-			writeInfo("Total classes loaded: " + scene.getClasses().size());
-			printTimingStats();
+			sootBasedDriver.writeInfo("Total classes loaded: " + sootBasedDriver.getScene().getClasses().size());
+			sootBasedDriver.printTimingStats();
 
 			if (dumpXMLizedJimple) {
 				final JimpleXMLizer _t = new JimpleXMLizer(new UniqueJimpleIDGenerator());
@@ -391,7 +397,7 @@ public class DependencyXMLizer
 
 				try {
 					_writer =
-						new FileWriter(new File(getXmlOutputDir() + File.separator
+						new FileWriter(new File(getXmlOutputDir() + File.separator + "dependence_"
 								+ _rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "_jimple.xml"));
 					_t.setWriter(_writer);
 					_t.hookup(_xmlcgipc);
@@ -511,17 +517,6 @@ public class DependencyXMLizer
 	}
 
 	/**
-	 * Set the properties that map from dependence ids and dependence xmlization ids.
-	 *
-	 * @param props is the mapping.
-	 *
-	 * @pre props != null
-	 */
-	protected final void setProperties(final Properties props) {
-		properties = props;
-	}
-
-	/**
 	 * Write the xml for the given root and given information map.
 	 *
 	 * @param root is the entry point to the system.
@@ -530,7 +525,7 @@ public class DependencyXMLizer
 	 * @pre root != null and infoArg != null
 	 * @pre infoArg.oclIsKindOf(Map(Object, Object))
 	 */
-	protected final void writeXML(final String root, final Map infoArg) {
+	public final void writeXML(final String root, final Map infoArg) {
 		final ProcessingController _ctrl = new ProcessingController();
 		_ctrl.setEnvironment(aa.getEnvironment());
 		_ctrl.setProcessingFilter(new CGBasedXMLizingProcessingFilter((ICallGraphInfo) infoArg.get(ICallGraphInfo.ID)));
@@ -538,6 +533,17 @@ public class DependencyXMLizer
 		final Map _xmlizers = initXMLizers(root, _ctrl);
 		_ctrl.process();
 		flushXMLizers(_xmlizers, _ctrl);
+	}
+
+	/**
+	 * Set the properties that map from dependence ids and dependence xmlization ids.
+	 *
+	 * @param props is the mapping.
+	 *
+	 * @pre props != null
+	 */
+	protected final void setProperties(final Properties props) {
+		properties = props;
 	}
 
 	/**
@@ -585,7 +591,7 @@ public class DependencyXMLizer
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
 			_da.reset();
-			_da.setBasicBlockGraphManager(bbm);
+			_da.setBasicBlockGraphManager(sootBasedDriver.getBbm());
 
 			try {
 				_da.initialize(info);
@@ -609,14 +615,14 @@ public class DependencyXMLizer
 			ecba.hookup(cgipc);
 		}
 
-		writeInfo("BEGIN: preprocessing for dependency analyses");
+		sootBasedDriver.writeInfo("BEGIN: preprocessing for dependency analyses");
 
 		final long _start = System.currentTimeMillis();
 		cgipc.process();
 
 		final long _stop = System.currentTimeMillis();
-		addTimeLog("Dependency preprocessing", _stop - _start);
-		writeInfo("END: preprocessing for dependency analyses");
+		sootBasedDriver.addTimeLog("Dependency preprocessing", _stop - _start);
+		sootBasedDriver.writeInfo("END: preprocessing for dependency analyses");
 
 		if (ecbaRequired) {
 			ecba.unhook(cgipc);
@@ -637,14 +643,15 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 02:00:14  venku
+   - changed AbstractXMLizer.
+   - ripple effect.
    Revision 1.2  2004/02/09 01:25:10  venku
    - getRootMethods() was defined in SootBasedDriver, hence,
      deleted in this class.
-
    Revision 1.1  2004/02/08 03:05:46  venku
    - renamed xmlizer packages to be in par with the packages
      that contain the classes whose data is being xmlized.
-
    Revision 1.41  2004/01/21 13:52:12  venku
    - documentation.
    Revision 1.40  2004/01/21 01:41:43  venku

@@ -35,7 +35,6 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>com.atlassw.tools.eclipse.checkstyle.CheckstyleNature</nature>
-		<nature>net.sourceforge.metrics.nature</nature>
 		<nature>SimianUI.simiannature</nature>
 	</natures>
 </projectDescription>

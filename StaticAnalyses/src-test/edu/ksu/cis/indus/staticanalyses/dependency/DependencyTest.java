@@ -82,7 +82,7 @@ public final class DependencyTest
 		final List _das = xmlizer.getDAs();
 		final String _xmlOutDir = xmlizer.getXmlOutputDir();
 
-		for (final Iterator _i = xmlizer.getRootMethods().iterator(); _i.hasNext();) {
+		for (final Iterator _i = xmlizer.sootBasedDriver.getRootMethods().iterator(); _i.hasNext();) {
 			final SootMethod _root = (SootMethod) _i.next();
 			final String _rootName = _root.getSignature();
 
@@ -100,10 +100,13 @@ public final class DependencyTest
 				} catch (IOException _e) {
 					LOGGER.error("Failed to write the xml file based on " + _da.getClass() + " for system rooted at method "
 						+ _rootName, _e);
+					fail(_e.getMessage());
 				} catch (SAXException _e) {
 					LOGGER.error("Exception while parsing XML", _e);
+					fail(_e.getMessage());
 				} catch (ParserConfigurationException _e) {
 					LOGGER.error("XML parser configuration related exception", _e);
+					fail(_e.getMessage());
 				}
 			}
 		}
@@ -116,7 +119,6 @@ public final class DependencyTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		xmlizer.initialize();
 		xmlizer.execute();
 	}
 
@@ -135,6 +137,9 @@ public final class DependencyTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/02/09 02:00:14  venku
+   - changed AbstractXMLizer.
+   - ripple effect.
    Revision 1.13  2004/02/08 04:53:11  venku
    - refactoring!!!
    - All regression tests implement IXMLBasedTest.
@@ -142,15 +147,12 @@ public final class DependencyTest
    - coding convention.
    - all tests occur at the same package as the classes
      being tested.
-
    Revision 1.12  2004/02/08 01:10:33  venku
    - renamed TestSuite classes to ArgTestSuite classes.
    - added DependencyArgTestSuite.
-
    Revision 1.11  2004/01/03 21:07:07  venku
    - changed the system property name.
    - documentation.
-
    Revision 1.10  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.

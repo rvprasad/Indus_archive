@@ -114,7 +114,7 @@ public class SootBasedDriver {
 	 * and <code>bbm</code> to an instance of <code>BasicBlockGraphMgr</code> with <code>cfgProvider</code> as the unit
 	 * graph provider.
 	 */
-	protected SootBasedDriver() {
+	public SootBasedDriver() {
 		cfgProvider = getUnitGraphFactory();
 		bbm = new BasicBlockGraphMgr();
 		bbm.setUnitGraphFactory(cfgProvider);
@@ -203,6 +203,15 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public final BasicBlockGraphMgr getBbm() {
+		return this.bbm;
+	}
+
+	/**
 	 * Set the names of the classes to be loaded.
 	 *
 	 * @param s contains the class names.
@@ -225,6 +234,15 @@ public class SootBasedDriver {
 	}
 
 	/**
+	 * Sets the logger to be used.
+	 *
+	 * @param myLogger is the logger to be used.
+	 */
+	public final void setLogger(final Log myLogger) {
+		logger = myLogger;
+	}
+
+	/**
 	 * Retrieves the root methods in the system.
 	 *
 	 * @return the collection of root methods.
@@ -233,6 +251,40 @@ public class SootBasedDriver {
 	 */
 	public final Collection getRootMethods() {
 		return Collections.unmodifiableCollection(rootMethods);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public final Scene getScene() {
+		return this.scene;
+	}
+
+	/**
+	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation. By default, it
+	 * provides an instance of <code>TrapUnitGraphFactory</code>
+	 *
+	 * @return an unit graph factory
+	 *
+	 * @post return != null
+	 */
+	public final IUnitGraphFactory getUnitGraphFactory() {
+		return new TrapUnitGraphFactory();
+	}
+
+	/**
+	 * Adds an entry into the time log of this test.  The subclasses should use this method to add time logs corresponding to
+	 * each analysis they test/drive.
+	 *
+	 * @param name of the analysis for which the timing log is being created.
+	 * @param milliseconds taken by the analysis.
+	 *
+	 * @pre name != null
+	 */
+	public final void addTimeLog(final String name, final long milliseconds) {
+		times.put("[" + times.size() + "]" + name, new Long(milliseconds));
 	}
 
 	/**
@@ -261,45 +313,11 @@ public class SootBasedDriver {
 	}
 
 	/**
-	 * Sets the logger to be used.
-	 *
-	 * @param myLogger is the logger to be used.
-	 */
-	protected final void setLogger(final Log myLogger) {
-		logger = myLogger;
-	}
-
-	/**
-	 * Retrieves the unit graph factory to be used by other processes that are driven by this implementation. By default, it
-	 * provides an instance of <code>TrapUnitGraphFactory</code>
-	 *
-	 * @return an unit graph factory
-	 *
-	 * @post return != null
-	 */
-	protected final IUnitGraphFactory getUnitGraphFactory() {
-		return new TrapUnitGraphFactory();
-	}
-
-	/**
-	 * Adds an entry into the time log of this test.  The subclasses should use this method to add time logs corresponding to
-	 * each analysis they test/drive.
-	 *
-	 * @param name of the analysis for which the timing log is being created.
-	 * @param milliseconds taken by the analysis.
-	 *
-	 * @pre name != null
-	 */
-	protected final void addTimeLog(final String name, final long milliseconds) {
-		times.put("[" + times.size() + "]" + name, new Long(milliseconds));
-	}
-
-	/**
 	 * Prints the timing statistics into the given stream.
 	 *
 	 * @pre stream != null
 	 */
-	protected final void printTimingStats() {
+	public final void printTimingStats() {
 		writeInfo("Timing statistics:");
 
 		for (final Iterator _i = times.keySet().iterator(); _i.hasNext();) {
@@ -314,7 +332,7 @@ public class SootBasedDriver {
 	 *
 	 * @param info to be logged.
 	 */
-	protected void writeInfo(final Object info) {
+	public void writeInfo(final Object info) {
 		if (logger != null && logger.isInfoEnabled()) {
 			if (info != null) {
 				logger.info(info.toString());
@@ -390,6 +408,8 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/02/09 01:18:04  venku
+   - root methods can be retrieved via getRootMethods().
    Revision 1.10  2004/01/28 22:42:05  venku
    - check the entry class names if the class does not
      match the root soot classes.

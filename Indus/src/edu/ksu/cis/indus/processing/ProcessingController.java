@@ -931,6 +931,29 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Drive the given processors by the given controller.  This is helpful to batch pre/post-processors.
+	 *
+	 * @param processors is the collection of processors.
+	 *
+	 * @pre processors != null
+	 * @pre processors.oclIsKindOf(Collection(IProcessor))
+	 */
+	public final void driveProcessors(final Collection processors) {
+		for (final Iterator _i = processors.iterator(); _i.hasNext();) {
+			final IProcessor _processor = (IProcessor) _i.next();
+
+			_processor.hookup(this);
+		}
+		process();
+
+		for (final Iterator _i = processors.iterator(); _i.hasNext();) {
+			final IProcessor _processor = (IProcessor) _i.next();
+
+			_processor.unhook(this);
+		}
+	}
+
+	/**
 	 * Controls the processing activity.
 	 */
 	public final void process() {
@@ -1209,16 +1232,15 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/12/28 00:40:37  venku
+   - coding convention.
    Revision 1.29  2003/12/16 09:57:25  venku
    - removed redundant object and local.
-
    Revision 1.28  2003/12/15 02:16:47  venku
    - logging.
-
    Revision 1.27  2003/12/14 16:43:44  venku
    - extended ProcessingController to filter fields as well.
    - ripple effect.
-
    Revision 1.26  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

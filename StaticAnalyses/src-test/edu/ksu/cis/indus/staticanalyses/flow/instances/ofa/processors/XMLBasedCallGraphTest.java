@@ -64,11 +64,6 @@ public class XMLBasedCallGraphTest
 	private static final Log LOGGER = LogFactory.getLog(XMLBasedCallGraphTest.class);
 
 	/**
-	 * This provides the information for the test.  This drives the analyses and this object tests the output.
-	 */
-	private CallGraphXMLizer xmlizer;
-
-	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
@@ -88,7 +83,7 @@ public class XMLBasedCallGraphTest
 	 * @pre xmlInputDir != null
 	 */
 	public XMLBasedCallGraphTest() {
-		xmlizer = new CallGraphXMLizer();
+        super(new CallGraphXMLizer());
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 	}
 
@@ -115,7 +110,7 @@ public class XMLBasedCallGraphTest
 	/**
 	 * Tests the inforamtion generated from the associated fixture. This uses <i>XMLUnit</i>.
 	 */
-	public void testDA() {
+	public void testCallGraph() {
 		final String _xmlOutDir = getXmlOutputDir();
 		final String _xmlInDir = getXmlInputDir();
 
@@ -133,10 +128,13 @@ public class XMLBasedCallGraphTest
 				assertXMLEqual(_previous, _current);
 			} catch (IOException _e) {
 				LOGGER.error("Failed to write the xml file for system rooted at method " + _rootName, _e);
+                fail(_e.getMessage());
 			} catch (SAXException _e) {
 				LOGGER.error("Exception while parsing XML", _e);
+                fail(_e.getMessage());
 			} catch (ParserConfigurationException _e) {
 				LOGGER.error("XML parser configuration related exception", _e);
+                fail(_e.getMessage());
 			}
 		}
 	}
@@ -160,6 +158,10 @@ public class XMLBasedCallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/09 02:19:05  venku
+    - first stab at refactoring xmlizer framework to be amenable
+     to testing and standalone execution.
+
    Revision 1.2  2004/02/09 02:00:14  venku
    - changed AbstractXMLizer.
    - ripple effect.

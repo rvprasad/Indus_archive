@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.xmlizer;
 
-import edu.ksu.cis.indus.common.soot.SootBasedDriver;
-
-import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.io.File;
@@ -25,8 +22,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -41,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractXMLizer
-  extends SootBasedDriver implements IXMLizer {
+  implements IXMLizer {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -95,7 +90,7 @@ public abstract class AbstractXMLizer
 		final File _f = new File(xmlOutputDir);
 
 		if (!_f.exists() | !_f.canWrite()) {
-            LOGGER.error("XML output directory should exists with proper permissions.");
+			LOGGER.error("XML output directory should exists with proper permissions.");
 			throw new IllegalArgumentException("XML output directory should exists with proper permissions.");
 		}
 		xmlOutDir = xmlOutputDir;
@@ -119,7 +114,7 @@ public abstract class AbstractXMLizer
 	 *
 	 * @pre rootname != null and info != null
 	 */
-	protected abstract void writeXML(final String rootname, final Map info);
+	public abstract void writeXML(final String rootname, final Map info);
 
 	/**
 	 * Dumps the jimple into a file.  The name of the file is built from <code>rootname</code> and the parts of the jimple
@@ -133,7 +128,7 @@ public abstract class AbstractXMLizer
 	 *
 	 * @pre rootname != null and xmlcgipc != null
 	 */
-	protected final void dumpJimple(final String rootname, final ProcessingController xmlcgipc) {
+	public final void dumpJimple(final String rootname, final ProcessingController xmlcgipc) {
 		if (dumpXMLizedJimple) {
 			final JimpleXMLizer _t = new JimpleXMLizer(idGenerator);
 			Writer _writer;
@@ -154,50 +149,19 @@ public abstract class AbstractXMLizer
 			}
 		}
 	}
-
-	/**
-	 * Drive the given processors by the given controller.  This is helpful to batch pre/post-processors.
-	 *
-	 * @param pc controls the processing activity.
-	 * @param processors is the collection of processors.
-	 *
-	 * @pre pc != null and processors != null
-	 * @pre processors.oclIsKindOf(Collection(IValueAnalyzerBasedProcessor))
-	 */
-	protected final void process(final ProcessingController pc, final Collection processors) {
-		for (final Iterator _i = processors.iterator(); _i.hasNext();) {
-			final IProcessor _processor = (IProcessor) _i.next();
-
-			_processor.hookup(pc);
-		}
-
-		writeInfo("BEGIN: FA post processing");
-
-		final long _start = System.currentTimeMillis();
-		pc.process();
-
-		final long _stop = System.currentTimeMillis();
-		addTimeLog("FA post processing", _stop - _start);
-		writeInfo("END: FA post processing");
-
-		for (final Iterator _i = processors.iterator(); _i.hasNext();) {
-			final IProcessor _processor = (IProcessor) _i.next();
-
-			_processor.unhook(pc);
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/09 02:00:11  venku
+   - changed AbstractXMLizer.
+   - ripple effect.
    Revision 1.6  2003/12/28 00:41:48  venku
    - logging.
-
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.4  2003/12/09 10:20:49  venku
    - formatting.
    Revision 1.3  2003/12/09 04:22:03  venku

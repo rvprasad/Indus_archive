@@ -15,8 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+
+import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -26,6 +30,7 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
+import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -34,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -63,6 +69,13 @@ public class CallGraphXMLizer
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected static SootBasedDriver sootBasedDriver;
 
 	/**
 	 * The entry point to the program via command line.
@@ -106,10 +119,11 @@ public class CallGraphXMLizer
 			_xmlizer.dumpXMLizedJimple = _cl.hasOption('j');
 
 			_xmlizer.setXmlOutputDir(_outputDir);
-			_xmlizer.setClassNames(_cl.getOptionValues('c'));
+			sootBasedDriver.setClassNames(_cl.getOptionValues('c'));
 			_xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
-			_xmlizer.initialize();
+			sootBasedDriver = new SootBasedDriver();
+			sootBasedDriver.initialize();
 			_xmlizer.execute();
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
@@ -121,7 +135,7 @@ public class CallGraphXMLizer
 	 * Xmlize the given system.
 	 */
 	public void execute() {
-		setLogger(LOGGER);
+		sootBasedDriver.setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
 		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName);
@@ -140,30 +154,30 @@ public class CallGraphXMLizer
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, _cgi);
 
-		for (final Iterator _k = rootMethods.iterator(); _k.hasNext();) {
+		for (final Iterator _k = sootBasedDriver.getRootMethods().iterator(); _k.hasNext();) {
 			_rm.clear();
 
 			final SootMethod _root = (SootMethod) _k.next();
 			_rm.add(_root);
 
 			final String _rootname = _root.getSignature();
-			writeInfo("RootMethod: " + _rootname);
-			writeInfo("BEGIN: FA");
+			sootBasedDriver.writeInfo("RootMethod: " + _rootname);
+			sootBasedDriver.writeInfo("BEGIN: FA");
 
 			final long _start = System.currentTimeMillis();
 			_aa.reset();
-			bbm.reset();
+			sootBasedDriver.getBbm().reset();
 
-			_aa.analyze(scene, _rm);
+			_aa.analyze(sootBasedDriver.getScene(), _rm);
 
 			final long _stop = System.currentTimeMillis();
-			addTimeLog("FA", _stop - _start);
-			writeInfo("END: FA");
+			sootBasedDriver.addTimeLog("FA", _stop - _start);
+			sootBasedDriver.writeInfo("END: FA");
 			((CallGraph) _cgi).reset();
 			_processors.clear();
 			_processors.add(_cgi);
 			_pc.reset();
-			process(_pc, _processors);
+			_pc.driveProcessors(_processors);
 			_processors.clear();
 			dumpJimple(_rootname, _xmlcgipc);
 			writeXML(_rootname, _info);
@@ -180,7 +194,7 @@ public class CallGraphXMLizer
 	 * @pre info.oclIsKindOf(Map(Object, Object))
 	 * @pre info.get(ICallGraphInfo.ID) != null and info.get(ICallGraphInfo.ID).oclIsKindOf(ICallGraphInfo)
 	 */
-	protected final void writeXML(final String rootname, final Map info) {
+	public final void writeXML(final String rootname, final Map info) {
 		final File _f =
 			new File(getXmlOutputDir() + File.separator + "callgraph_"
 				+ rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml");
@@ -193,14 +207,25 @@ public class CallGraphXMLizer
 
 			_writer.write("<callgraph>\n");
 
-			for (final Iterator _i = _cgi.getReachableMethods().iterator(); _i.hasNext();) {
+			// Control the order in which methods are processed. 
+			final IProcessingFilter _filter = new XMLizingProcessingFilter();
+			final Collection _temp = new HashSet();
+
+			for (final Iterator _i = _filter.filterMethods(_cgi.getReachableMethods()).iterator(); _i.hasNext();) {
 				final SootMethod _caller = (SootMethod) _i.next();
 				_writer.write("\t<caller id=\"" + getIdGenerator().getIdForMethod(_caller) + "\">\n");
+				_temp.clear();
 
 				for (final Iterator _j = _cgi.getCallees(_caller).iterator(); _j.hasNext();) {
-					final SootMethod _callee = (SootMethod) _j.next();
-					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\">\n");
+					final CallTriple _ctrp = (CallTriple) _j.next();
+					_temp.add(_ctrp.getMethod());
 				}
+
+				for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
+					SootMethod _callee = (SootMethod) _j.next();
+					_writer.write("\t\t<callee id=\"" + getIdGenerator().getIdForMethod(_callee) + "\"/>\n");
+				}
+
 				_writer.write("\t</caller>\n");
 			}
 			_writer.write("</callgraph>\n");
@@ -215,6 +240,9 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/09 02:19:05  venku
+    - first stab at refactoring xmlizer framework to be amenable
+     to testing and standalone execution.
    Revision 1.3  2004/02/09 02:00:14  venku
    - changed AbstractXMLizer.
    - ripple effect.
