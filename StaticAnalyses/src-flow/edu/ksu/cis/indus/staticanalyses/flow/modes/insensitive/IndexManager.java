@@ -137,8 +137,7 @@ public class IndexManager
 	 *
 	 * @throws UnsupportedOperationException as this method is not supported.
 	 */
-	public Object getClone(final Object o)
-	  throws UnsupportedOperationException {
+	public Object getClone(final Object o) {
 		throw new UnsupportedOperationException("Single parameter prototype() is not supported.");
 	}
 
@@ -157,10 +156,17 @@ public class IndexManager
 
 /*
    ChangeLog:
+   
    $Log$
+   
+   Revision 1.2  2003/08/12 19:03:47  venku
+   Spruced up documentation and specification.
+   Changed equals() and hashCode().
+   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
+    
    Revision 0.10  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

@@ -62,16 +62,16 @@ public class OneContextInfoIndex
 	 * This index is used in association with <code>value</code>.  This value is not available for retrieval, but rather adds
 	 * to improve the performance of <code>hashCode()</code> and <code>equals(Object)</code>.
 	 */
-	private final Object v;
+	private final Object value;
 
 	/**
 	 * Creates a new <code>OneContextInfoIndex</code> instance.
 	 *
-	 * @param value the value whose variant is identified by this index.
+	 * @param v the value whose variant is identified by this index.
 	 * @param c the context in which <code>value</code>'s variant is identified by this index.
 	 */
-	public OneContextInfoIndex(final Object value, final Object c) {
-		this.v = value;
+	public OneContextInfoIndex(final Object v, final Object c) {
+		this.value = v;
 		this.contextInfo = c;
 	}
 
@@ -89,10 +89,10 @@ public class OneContextInfoIndex
 		if (index != null && index instanceof OneContextInfoIndex) {
 			OneContextInfoIndex d = (OneContextInfoIndex) index;
 
-			if (v != null) {
-				result = v.equals(d.v);
+			if (value != null) {
+				result = value.equals(d.value);
 			} else {
-				result = v == d.v;
+				result = value == d.value;
 			}
 
 			if (result) {
@@ -114,8 +114,8 @@ public class OneContextInfoIndex
 	public int hashCode() {
 		int result = 17;
 
-		if (v != null) {
-			result = 37 * result + v.hashCode();
+		if (value != null) {
+			result = 37 * result + value.hashCode();
 		}
 
 		if (contextInfo != null) {
@@ -130,13 +130,17 @@ public class OneContextInfoIndex
 	 * @return returns the stringized form of this object.
 	 */
 	public String toString() {
-		return v + " " + contextInfo;
+		return value + " " + contextInfo;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/12 19:03:47  venku
+   Spruced up documentation and specification.
+   Changed equals() and hashCode().
+
    Revision 1.2  2003/08/12 18:55:51  venku
    Spruced up documentation and specification.
    Changed equals() and hashCode() in AllocationContext.
