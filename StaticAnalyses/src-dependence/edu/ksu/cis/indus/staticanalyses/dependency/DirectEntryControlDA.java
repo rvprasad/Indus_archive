@@ -127,7 +127,7 @@ public class DirectEntryControlDA
 	private Collection copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
 		final BitSet[] _srcBitSets = tokenSets[src];
 		final BitSet[] _destBitSets = tokenSets[dest];
-		final BitSet _temp = new BitSet(1);
+		final BitSet _temp = new BitSet();
 		final Collection _result = new HashSet();
 		final Iterator _i = nodesWithChildrenCache.iterator();
 		final int _iEnd = nodesWithChildrenCache.size();
@@ -156,6 +156,9 @@ public class DirectEntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/06/06 08:33:37  venku
+   - completed implementation and documentation.
+
    Revision 1.2  2004/06/06 02:28:50  venku
    - INTERIM : still implementating direct control dependence calculation.
    Revision 1.1  2004/06/05 09:52:24  venku

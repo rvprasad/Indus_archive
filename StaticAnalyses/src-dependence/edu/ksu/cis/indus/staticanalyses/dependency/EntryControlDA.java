@@ -271,7 +271,7 @@ public class EntryControlDA
 		BitSet _temp = bitsets[location];
 
 		if (_temp == null) {
-			_temp = new BitSet(1);
+			_temp = new BitSet();
 			bitsets[location] = _temp;
 		}
 		return _temp;
@@ -538,7 +538,7 @@ public class EntryControlDA
 		final BitSet[][] tokenSets) {
 		final Collection _result = new HashSet();
 		final Iterator _j = succs.iterator();
-		final BitSet _t = new BitSet(1);
+		final BitSet _t = new BitSet();
 
 		for (int _k = succs.size(); _k > 0; _k--) {
 			final INode _succ = (INode) _j.next();
@@ -548,7 +548,7 @@ public class EntryControlDA
 			boolean _flag = false;
 
 			if (_temp == null) {
-				_temp = new BitSet(1);
+				_temp = new BitSet();
 				_succBitSets[nodeIndex] = _temp;
 				_flag = true;
 			} else {
@@ -570,6 +570,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/06/16 14:30:12  venku
+   - logging.
+
    Revision 1.22  2004/06/13 22:32:38  venku
    - deleted a logging message.
 

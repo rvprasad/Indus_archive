@@ -143,7 +143,7 @@ public final class BitSetTokenManager
 		 */
 		BitSetTokens(final BitSetTokenManager tokenManager) {
 			tokenMgr = tokenManager;
-			bitset = new BitSet(1);
+			bitset = new BitSet();
 		}
 
 		/**
@@ -231,7 +231,7 @@ public final class BitSetTokenManager
 
 				for (final Iterator _j = _types.iterator(); _j.hasNext();) {
 					final Object _type = _j.next();
-					final BitSet _tokens = (BitSet) CollectionsUtilities.getFromMap(type2tokens, _type, new BitSet(1));
+					final BitSet _tokens = (BitSet) CollectionsUtilities.getFromMap(type2tokens, _type, new BitSet());
 					_tokens.set(_index);
 				}
 				_index++;
@@ -247,7 +247,7 @@ public final class BitSetTokenManager
 		BitSet _mask = (BitSet) type2tokens.get(type);
 
 		if (_mask == null) {
-			_mask = new BitSet(1);
+			_mask = new BitSet();
 			type2tokens.put(type, _mask);
 		}
 
@@ -267,6 +267,12 @@ public final class BitSetTokenManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
    Revision 1.4  2004/05/20 07:29:41  venku
    - optimized the token set to be optimal when created.
    - added new method to retrieve empty token sets (getNewTokenSet()).
