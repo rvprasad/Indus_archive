@@ -44,10 +44,10 @@ import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.Type;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -75,24 +75,24 @@ public class BFA
   implements Environment {
 	/**
 	 * <p>
-	 * An instance of <code>Logger</code> used for logging purposes.
+	 * The logger used by instances of this class to log messages.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(BFA.class);
+	private static final Log LOGGER = LogFactory.getLog(BFA.class);
 
 	/**
 	 * <p>
 	 * A map of name to <code>BFA</code> instances.  This facilitates the retrival of analysis via name.
 	 * </p>
 	 */
-	private static final Map instances = new HashMap();
+	private static final Map INSTANCES = new HashMap();
 
 	/**
 	 * <p>
 	 * The analyzer associated with this instance of the framework.
 	 * </p>
 	 */
-	public final AbstractAnalyzer analyzer;
+	public final AbstractAnalyzer _ANALYZER;
 
 	/**
 	 * <p>
@@ -162,8 +162,8 @@ public class BFA
 	BFA(String name, AbstractAnalyzer analyzer, ModeFactory mf) {
 		worklist = new WorkList();
 		modeFactory = mf;
-		this.analyzer = analyzer;
-		BFA.instances.put(name, this);
+		this._ANALYZER = analyzer;
+		BFA.INSTANCES.put(name, this);
 		this.classManager = modeFactory.getClassManager(this);
 		arrayManager = new ArrayVariantManager(this, modeFactory.getArrayIndexManager());
 		instanceFieldManager = new FieldVariantManager(this, modeFactory.getInstanceFieldIndexManager());
@@ -183,8 +183,8 @@ public class BFA
 	public static final BFA getBFA(String name) {
 		BFA temp = null;
 
-		if(instances.containsKey(name)) {
-			temp = (BFA) instances.get(name);
+		if(INSTANCES.containsKey(name)) {
+			temp = (BFA) INSTANCES.get(name);
 		}
 
 		return temp;
@@ -201,7 +201,7 @@ public class BFA
 	 * @return the variant corresponding to <code>a</code> in the context captured by <code>analyzer</code>.
 	 */
 	public final ArrayVariant getArrayVariant(ArrayType a) {
-		return getArrayVariant(a, analyzer.context);
+		return getArrayVariant(a, _ANALYZER.context);
 	}
 
 	/**
@@ -257,7 +257,7 @@ public class BFA
 	 * @return the variant associated with the given field in the context captured by <code>analyzer</code>.
 	 */
 	public final FieldVariant getFieldVariant(SootField sf) {
-		return getFieldVariant(sf, analyzer.context);
+		return getFieldVariant(sf, _ANALYZER.context);
 	}
 
 	/**
@@ -272,6 +272,7 @@ public class BFA
 	 */
 	public final FieldVariant getFieldVariant(SootField sf, Context context) {
 		Variant temp = null;
+		processClass(sf.getDeclaringClass());
 		processType(sf.getType());
 
 		if(Modifier.isStatic(sf.getModifiers())) {
@@ -306,7 +307,7 @@ public class BFA
 	 * @return a variant of <code>sm</code> in the context <code>analyzer.context</code>.
 	 */
 	public final MethodVariant getMethodVariant(SootMethod sm) {
-		return getMethodVariant(sm, analyzer.context);
+		return getMethodVariant(sm, _ANALYZER.context);
 	}
 
 	/**
@@ -383,7 +384,7 @@ public class BFA
 	 * 		   <code>null</code> if none exist.
 	 */
 	public final ArrayVariant queryArrayVariant(ArrayType a) {
-		return queryArrayVariant(a, analyzer.context);
+		return queryArrayVariant(a, _ANALYZER.context);
 	}
 
 	/**
@@ -411,7 +412,7 @@ public class BFA
 	 * 		   if none exists.
 	 */
 	public final FieldVariant queryFieldVariant(SootField sf) {
-		return queryFieldVariant(sf, analyzer.context);
+		return queryFieldVariant(sf, _ANALYZER.context);
 	}
 
 	/**
@@ -447,7 +448,7 @@ public class BFA
 	 * @return a variant of <code>sm</code> in the context <code>analyzer.context</code>. <code>null</code> if none exist.
 	 */
 	public final MethodVariant queryMethodVariant(SootMethod sm) {
-		return queryMethodVariant(sm, analyzer.context);
+		return queryMethodVariant(sm, _ANALYZER.context);
 	}
 
 	/**
@@ -488,31 +489,31 @@ public class BFA
 	 */
 	void analyze(SootClassManager scm, SootMethod root) {
 		this.scm = scm;
+		LOGGER.info("Starting system processing...");
 		getMethodVariant(root);
+		LOGGER.info("Starting worklist processing...");
 		worklist.process();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Performs type-based processing of the given class.
 	 *
-	 * @param t DOCUMENT ME!
+	 * @param clazz is the class to be processed.
 	 */
-	void processClass(SootClass t) {
-		classManager.process(t);
+	void processClass(SootClass clazz) {
+		classManager.process(clazz);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Performs type-based processing.
 	 *
-	 * @param t DOCUMENT ME!
+	 * @param type to be processed.
 	 */
-	void processType(Type t) {
-		if(t instanceof RefType) {
-			classManager.process(getClass(((RefType) t).className));
+	void processType(Type type) {
+		if(type instanceof RefType) {
+			classManager.process(getClass(((RefType) type).className));
+		} else if(type instanceof ArrayType && ((ArrayType) type).baseType instanceof RefType) {
+			classManager.process(getClass(((RefType) ((ArrayType) type).baseType).className));
 		}
 	}
 }
@@ -521,9 +522,5 @@ public class BFA
  ChangeLog:
 
 $Log$
-Revision 0.10  2003/02/19 16:15:16  venku
-Well, things need to be baselined before proceeding to change
-them radically.  That's it.
-
 
 *****/

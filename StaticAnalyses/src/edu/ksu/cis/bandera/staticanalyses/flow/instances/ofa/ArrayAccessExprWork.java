@@ -68,7 +68,7 @@ public class ArrayAccessExprWork
 	/**
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 */
-	private static final Logger logger = LogManager.getLogger(ArrayAccessExprWork.class);
+	private static final Logger LOGGER = LogManager.getLogger(ArrayAccessExprWork.class);
 
 	/**
 	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
@@ -95,7 +95,7 @@ public class ArrayAccessExprWork
 		super(caller, accessExprBox, context);
 		this.ast = ast;
 		this.connector = connector;
-		logger.debug(String.valueOf(hashCode()));
+		LOGGER.debug(String.valueOf(hashCode()));
 	}
 
 	/**
@@ -103,8 +103,8 @@ public class ArrayAccessExprWork
 	 */
 	public synchronized void execute() {
 		ArrayType atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
-		BFA bfa = caller.bfa;
-		logger.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype + " in "
+		BFA bfa = caller._BFA;
+		LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype + " in "
 			+ context);
 
 		for(Iterator i = values.iterator(); i.hasNext();) {
@@ -118,7 +118,7 @@ public class ArrayAccessExprWork
 
 			FGNode nonast = bfa.getArrayVariant(atype, context).getFGNode();
 			connector.connect(ast, nonast);
-			logger.debug(nonast + " " + context);
+			LOGGER.debug(nonast + " " + context);
 		}
 	}
 }

@@ -63,7 +63,7 @@ public abstract class AbstractVariantManager {
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(AbstractVariantManager.class);
+	private static final Logger LOGGER = LogManager.getLogger(AbstractVariantManager.class);
 
 	/**
 	 * <p>
@@ -127,20 +127,17 @@ public abstract class AbstractVariantManager {
 	public final Variant select(Object o, Context context) {
 		Index index = indexManager.getIndex(o, context);
 		Variant temp = null;
-		logger.debug("Entering - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa.analyzer.active + "\n"
+		LOGGER.debug("Entering - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa._ANALYZER.active + "\n"
 			+ index.hashCode());
 
 		if(index2variant.containsKey(index)) {
 			temp = (Variant) index2variant.get(index);
-		} // end of if (index2variant.containsKey(index))
-		else if(bfa.analyzer.active) {
+		} else if(bfa._ANALYZER.active) {
 			temp = getNewVariant(o);
 			index2variant.put(index, temp);
 			temp.process();
 		}
-
-		// end of if (index2variant.containsKey(index)) else
-		logger.debug("Exiting - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa.analyzer.active);
+		LOGGER.debug("Exiting - Index: " + index + "\n" + o + "\n" + context + "\n" + bfa._ANALYZER.active);
 
 		return temp;
 	}
@@ -162,7 +159,7 @@ public abstract class AbstractVariantManager {
 	 * </p>
 	 */
 	void reset() {
-		logger.debug("Variant manager being reset.");
+		LOGGER.debug("Variant manager being reset.");
 		index2variant.clear();
 		indexManager.reset();
 	}

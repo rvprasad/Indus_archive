@@ -33,37 +33,60 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.interfaces;
+package edu.ksu.cis.bandera.staticanalyses.dependency.testers;
 
+
+import edu.ksu.cis.bandera.staticanalyses.dependency.ReadyDAv1;
+import edu.ksu.cis.bandera.staticanalyses.dependency.ReadyDAv2;
+
+import java.util.ArrayList;
 import java.util.Collection;
 
-
 /**
- This interface provides the information pertaining to Java monitors in the analyzed system.</p>
+ * DOCUMENT ME!
  * 
- * @version $Revision$ 
+ * <p></p>
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
-public interface MonitorInfo {
-	/** 
-	 * The id of this interface.
+public class RDATester
+  extends IDATester {
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	public String ID = "Synchronization monitor Information";
+	private Collection das;
 
 	/**
-	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
-	 * <code>SootMethod</code>. The third element is the method in which the monitor occurs.  In case the first and the second
-	 * element of the triple are <code>null</code> then this means the method is a synchronized.
-	 *
-	 * @return collection of monitors in the analyzed system.
-	 
-	 * @post result->forall(o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.Triple))
-	 * @post result->forall(o | o.getFirst().oclIsOclKindOf(ca.mcgill.sable.soot.jimple.EnterMonitorStmt))
-	 * @post result->forall(o | o.getSecond().oclIsOclKindOf(ca.mcgill.sable.soot.jimple.ExitMonitorStmt))
-	 * @post result->forall(o | o.getThird().oclIsOclKindOf(ca.mcgill.sable.soot.SootMethod) && o.getThird() != null)
+	 * Creates a new RDATester object.
 	 */
-	public Collection getMonitorTriples();
+	private RDATester() {
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param args DOCUMENT ME!
+	 */
+	public static void main(String args[]) {
+		RDATester t = new RDATester();
+		t.initialize();
+		t.run(args);
+	}
+
+	/**
+	 * Creates a new RDATester object.
+	 */
+	protected void initialize() {
+		das = new ArrayList();
+		das.add(new ReadyDAv1());
+		das.add(new ReadyDAv2());
+	}
 }
 
 /*****

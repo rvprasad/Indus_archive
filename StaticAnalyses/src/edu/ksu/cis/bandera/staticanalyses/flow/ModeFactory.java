@@ -35,12 +35,6 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-
-//ModeFactory.java
-
 /**
  * <p>
  * An implementation of <i>Abstract Factory</i> pattern given in Gang of Four book.  It "creates" various compoments required
@@ -56,13 +50,6 @@ import org.apache.log4j.Logger;
  * @version $Revision$
  */
 public class ModeFactory {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purposes.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(ModeFactory.class);
-
 	/**
 	 * <p>
 	 * The prototype of index managers that manager indices related to arrays.

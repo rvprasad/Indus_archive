@@ -64,7 +64,7 @@ public class MethodVariantManager
 	 * An instance of <code>Logger</code> used for logging purposes.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(MethodVariantManager.class);
+	private static final Logger LOGGER = LogManager.getLogger(MethodVariantManager.class);
 
 	/**
 	 * <p>
@@ -104,7 +104,7 @@ public class MethodVariantManager
 	 * @throws IllegalStateException if <code>sm</code> is not available in the given branch of the class hierarchy.
 	 */
 	public static SootMethod findDeclaringMethod(SootClass sc, SootMethod sm) {
-		logger.debug(sc + "." + sm.getName());
+		LOGGER.debug(sc + "." + sm.getName());
 
 		if(sc.declaresMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType())) {
 			return sc.getMethod(sm.getName(), sm.getParameterTypes(), sm.getReturnType());
@@ -113,10 +113,8 @@ public class MethodVariantManager
 
 			return findDeclaringMethod(sc, sm);
 		} else {
-			throw new IllegalStateException("Method " + sm + " not available in class" + sc + ".");
+			throw new IllegalStateException("Method " + sm + " not available in class " + sc + ".");
 		}
-
-		// end of else
 	}
 
 	/**

@@ -38,13 +38,12 @@ package edu.ksu.cis.bandera.staticanalyses.dependency.controller;
 import ca.mcgill.sable.soot.SootMethod;
 
 import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
-import ca.mcgill.sable.soot.jimple.Jimple;
-import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.StmtGraph;
 
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -218,7 +217,9 @@ public abstract class Controller {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param method DOCUMENT ME!
 	 *
@@ -243,7 +244,7 @@ public abstract class Controller {
 
 		for(Iterator i = methods.iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
-			CompleteStmtGraph sg = new CompleteStmtGraph(((JimpleBody) method.getBody(Jimple.v())).getStmtList());
+			CompleteStmtGraph sg = new CompleteStmtGraph((Util.getJimpleBody(method)).getStmtList());
 			method2cmpltStmtGraph.put(method, sg);
 		}
 

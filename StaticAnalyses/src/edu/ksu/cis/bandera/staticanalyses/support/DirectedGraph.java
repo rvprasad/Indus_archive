@@ -275,7 +275,7 @@ public abstract class DirectedGraph {
 				Object o = wb.getWork();
 
 				if(o instanceof Marker) {
-					Object temp = ((Marker) o).content;
+					Object temp = ((Marker) o)._CONTENT;
 
 					for(Object obj = dfsPath.pop(); !temp.equals(obj); obj = dfsPath.pop()) {
 						;
@@ -516,11 +516,5 @@ public abstract class DirectedGraph {
  ChangeLog:
 
 $Log$
-Revision 1.3  2003/02/21 07:22:22  venku
-Changed \@pre to $pre in the ocl constraints specified in Javadoc.
-
-Revision 1.2  2003/02/19 17:31:19  venku
-Things are in flux.  Stabilizing them with CVS.
-
 
 *****/

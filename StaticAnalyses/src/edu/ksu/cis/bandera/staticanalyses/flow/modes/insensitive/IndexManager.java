@@ -39,11 +39,6 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 import edu.ksu.cis.bandera.staticanalyses.flow.Index;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-
-// IndexManager.java
 
 /**
  * <p>
@@ -58,13 +53,6 @@ import org.apache.log4j.Logger;
  */
 public class IndexManager
   extends AbstractIndexManager {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(IndexManager.class.getName());
-
 	/**
 	 * <p>
 	 * This class represents an index that identifies an entity independent of any context information..

@@ -78,21 +78,23 @@ public class BasicBlockGraphMgr {
 		}
 		return (BasicBlockGraph) ref.get();
 	}
+
 	/**
-	 * Retrieves the basic block graph corresponding to the given method.  
-	 * 
+	 * Retrieves the basic block graph corresponding to the given method.
+	 *
 	 * @param sm is the method for which the graph is requested.
-	 * 
-	 * @return the basic block graph corresponding to <code>sm</code>, if one exists.  <code>null</code> is returned 
-	 * otherwise.
-	 * 
+	 *
+	 * @return the basic block graph corresponding to <code>sm</code>, if one exists.  <code>null</code> is returned
+	 * 		   otherwise.
+	 *
 	 * @post result == null || result != null;
 	 */
 	public BasicBlockGraph getBasicBlockGraph(SootMethod sm) {
-		WeakReference ref = (WeakReference)method2graph.get(sm);
+		WeakReference ref = (WeakReference) method2graph.get(sm);
 		BasicBlockGraph result = null;
-		if (ref != null) {
-			result = (BasicBlockGraph)ref.get();
+
+		if(ref != null) {
+			result = (BasicBlockGraph) ref.get();
 		}
 		return result;
 	}
@@ -102,8 +104,5 @@ public class BasicBlockGraphMgr {
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/19 17:31:19  venku
-Things are in flux.  Stabilizing them with CVS.
-
 
 *****/

@@ -45,10 +45,7 @@ import ca.mcgill.sable.soot.jimple.InvokeExpr;
 import ca.mcgill.sable.soot.jimple.ParameterRef;
 import ca.mcgill.sable.soot.jimple.Value;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Environment;
-
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -69,19 +66,14 @@ import java.util.Iterator;
  */
 public abstract class AbstractAnalyzer {
 	/**
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 */
-	private static final Logger logger = LogManager.getLogger(AbstractAnalyzer.class);
-
-	/**
 	 * The instance of the framework performing the analysis and is being represented by this analyzer object.
 	 */
 	protected BFA bfa;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of methods from which the analysis of the system starts.
+	 *
+	 * @invariant rootMethods->forall(o | o.isOclKind(SootMethod))
 	 */
 	protected Collection rootMethods;
 
@@ -124,7 +116,7 @@ public abstract class AbstractAnalyzer {
 		AbstractAnalyzer ret = null;
 
 		if(temp != null) {
-			ret = temp.analyzer;
+			ret = temp._ANALYZER;
 		}
 
 		// end of if (temp != null)
@@ -152,11 +144,9 @@ public abstract class AbstractAnalyzer {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Returns the methods from which the analysis started.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of <code>SootMethod</code>s.
 	 */
 	public final Collection getRoots() {
 		return Collections.unmodifiableCollection(rootMethods);
@@ -329,8 +319,8 @@ public abstract class AbstractAnalyzer {
 		}
 		active = true;
 		bfa.analyze(scm, root);
-		active = false;
 		rootMethods.add(root);
+		active = false;
 	}
 
 	/**

@@ -37,11 +37,6 @@ package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.SootField;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-
-//FieldVariantManager.java
 
 /**
  * <p>
@@ -58,13 +53,6 @@ import org.apache.log4j.Logger;
  */
 public class FieldVariantManager
   extends AbstractVariantManager {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purposes.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(FieldVariantManager.class);
-
 	/**
 	 * <p>
 	 * Creates a new <code>FieldVariantManager</code> instance.

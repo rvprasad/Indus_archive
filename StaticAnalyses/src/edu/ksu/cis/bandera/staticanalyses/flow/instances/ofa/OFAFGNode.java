@@ -106,6 +106,10 @@ public class OFAFGNode
 	public void onNewSucc(FGNode succ) {
 		Collection temp = diffValues(succ);
 
+		if(filter != null) {
+			temp = filter.filter(temp);
+		}
+
 		if(!temp.isEmpty()) {
 			worklist.addWork(new SendValuesWork(succ, temp));
 		}
@@ -120,7 +124,7 @@ public class OFAFGNode
 		for(Iterator i = succs.iterator(); i.hasNext();) {
 			FGNode succ = (FGNode) i.next();
 
-			if(!succ.getValues().contains(value)) {
+			if(!succ.getValues().contains(value) && !filter.filter(value)) {
 				worklist.addWork(new SendValuesWork(succ, value));
 			}
 		}
@@ -133,6 +137,10 @@ public class OFAFGNode
 	 * 		  <code>Object</code>.
 	 */
 	public void onNewValues(Collection values) {
+		if(filter != null) {
+			values = filter.filter(values);
+		}
+
 		for(Iterator i = succs.iterator(); i.hasNext();) {
 			FGNode succ = (FGNode) i.next();
 

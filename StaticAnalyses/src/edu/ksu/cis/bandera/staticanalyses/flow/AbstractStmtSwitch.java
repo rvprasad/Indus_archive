@@ -65,7 +65,7 @@ public abstract class AbstractStmtSwitch
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(AbstractStmtSwitch.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(AbstractStmtSwitch.class.getName());
 
 	/**
 	 * <p>
@@ -116,11 +116,10 @@ public abstract class AbstractStmtSwitch
 		if(m == null) {
 			context = null;
 			lexpr = rexpr = null;
-		} // end of if (m == null)
-		else {
-			context = m.context;
-			lexpr = m.bfa.getLHSExpr(this);
-			rexpr = m.bfa.getRHSExpr(this);
+		} else {
+			context = m._CONTEXT;
+			lexpr = m._BFA.getLHSExpr(this);
+			rexpr = m._BFA.getRHSExpr(this);
 		}
 
 		// end of if (m == null) else
@@ -146,7 +145,7 @@ public abstract class AbstractStmtSwitch
 	 * @param o the statement to be visited.
 	 */
 	public void defaultCase(Object o) {
-		logger.debug(o + " is not handled.");
+		LOGGER.debug(o + " is not handled.");
 	}
 
 	/**
@@ -186,9 +185,7 @@ public abstract class AbstractStmtSwitch
 	 */
 	protected void process(Stmt stmt) {
 		this.stmt = stmt;
-		logger.debug(">>>>> Processing: " + stmt);
 		stmt.apply(this);
-		logger.debug("<<<<< Processing: " + stmt);
 	}
 }
 

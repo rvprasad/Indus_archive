@@ -125,19 +125,19 @@ public class Triple
 			Triple temp = (Triple) o;
 
 			if(first != null) {
-				result = first.equals(first);
+				result = first.equals(temp.first);
 			} else {
 				result = first == temp.first;
 			}
 
 			if(second != null) {
-				result = result && second.equals(second);
+				result = result && second.equals(temp.second);
 			} else {
 				result = result && second == temp.second;
 			}
 
 			if(third != null) {
-				result = result && third.equals(third);
+				result = result && third.equals(temp.third);
 			} else {
 				result = result && third == temp.third;
 			}

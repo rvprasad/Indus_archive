@@ -33,7 +33,24 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.support;
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
+
+import ca.mcgill.sable.soot.RefType;
+import ca.mcgill.sable.soot.SootClass;
+import ca.mcgill.sable.soot.Type;
+
+import ca.mcgill.sable.soot.jimple.NewExpr;
+import ca.mcgill.sable.soot.jimple.NullConstant;
+import ca.mcgill.sable.soot.jimple.Value;
+
+import edu.ksu.cis.bandera.staticanalyses.flow.ValueFilter;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.support.Util;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
 
 /**
  * DOCUMENT ME!
@@ -44,129 +61,61 @@ package edu.ksu.cis.bandera.staticanalyses.support;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class FastUnionFindElement {
+public class TypeBasedFilter
+  extends ValueFilter {
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	protected FastUnionFindElement set;
+	private final Type type;
+	
+	private final Environment ENV;
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Creates a new TypeBasedFilter object.
 	 *
-	 * @return DOCUMENT ME!
+	 * @param type DOCUMENT ME!
 	 */
-	public boolean isAtomic() {
-		return true;
+	public TypeBasedFilter(Type type, Environment env) {
+		this.type = type;
+		ENV = env;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Creates a new TypeBasedFilter object.
 	 *
-	 * @return DOCUMENT ME!
+	 * @param clazz DOCUMENT ME!
 	 */
-	public boolean isBound() {
-		return false;
+	public TypeBasedFilter(SootClass clazz, Environment env) {
+		this.type = RefType.v(clazz.getName());
+		ENV = env;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Filters away values that do not have the required type.
 	 *
-	 * @return DOCUMENT ME!
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.ValueFilter#filter(java.util.Collection)
 	 */
-	public final FastUnionFindElement find() {
-		FastUnionFindElement result = this;
+	public Collection filter(Collection values) {
+		Collection result = new ArrayList();
 
-		while(result.set != null) {
-			result = result.set;
-		}
-
-		if(result != this) {
-			set = result;
-		}
-		return result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param e DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public boolean sameType(FastUnionFindElement e) {
-		return false;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param e DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public boolean unifyComponents(FastUnionFindElement e) {
-		return true;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param e DOCUMENT ME!
-	 */
-	public final void union(FastUnionFindElement e) {
-		FastUnionFindElement a = find();
-		FastUnionFindElement b = e.find();
-
-		if(a != b) {
-			if(b.isBound()) {
-				a.set = b;
-			} else {  // if a.isBound() or neither is bound
-				b.set = a;
+		for(Iterator i = values.iterator(); i.hasNext();) {
+			Value o = (Value) i.next();
+			if((type instanceof RefType && o instanceof NullConstant) || Util.isSameOrSubType(o.getType(), type, ENV)) {
+				result.add(o);
 			}
 		}
+		return result;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the given value can be filtered away(<code>true</code>) or not(<code>false</code>).
 	 *
-	 * @param e DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * @see edu.ksu.cis.bandera.staticanalyses.flow.ValueFilter#filter(java.lang.Object)
 	 */
-	public boolean unify(FastUnionFindElement e) {
-		boolean result = false;
-		FastUnionFindElement a;
-		FastUnionFindElement b;
-		a = find();
-		b = e.find();
-
-		if(a == b || a.sameType(b)) {
-			result = true;
-		} else if(!(a.isAtomic() || b.isAtomic())) {
-			a.union(b);
-			result = a.unifyComponents(b);
-		} else if(!(a.isBound() && b.isBound())) {
-			a.union(b);
-			result = true;
-		}
-
-		return result;
+	public boolean filter(Object value) {
+		return Util.isSameOrSubType(((NewExpr) value).getType(), type, ENV);
 	}
 }
 

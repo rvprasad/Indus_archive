@@ -62,7 +62,7 @@ public class ExprSwitch
 	/**
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 */
-	private static final Logger logger = LogManager.getLogger(ExprSwitch.class);
+	private static final Logger LOGGER = LogManager.getLogger(ExprSwitch.class);
 
 	/**
 	 * Creates a new <code>ExprSwitch</code> instance.
@@ -113,7 +113,7 @@ public class ExprSwitch
 			context.setProgramPoint(defStmt.getLeftOpBox());
 
 			FGNode defNode = method.getASTNode(defStmt.getLeftOp());
-			logger.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
+			LOGGER.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
 			defNode.addSucc(localNode);
 		}
 

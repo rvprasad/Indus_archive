@@ -37,11 +37,6 @@ package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.ArrayType;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-
-//ArrayVariantManager.java
 
 /**
  * <p>
@@ -57,13 +52,6 @@ import org.apache.log4j.Logger;
  */
 public class ArrayVariantManager
   extends AbstractVariantManager {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(ArrayVariantManager.class);
-
 	/**
 	 * <p>
 	 * Creates a new <code>ArrayVariantManager</code> instance.

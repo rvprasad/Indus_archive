@@ -38,11 +38,6 @@ package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-
-// LHSConnector.java
 
 /**
  * <p>
@@ -56,13 +51,6 @@ import org.apache.log4j.Logger;
  */
 public class LHSConnector
   implements FGNodeConnector {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(LHSConnector.class);
-
 	/**
 	 * <p>
 	 * Connects the given ast flow graph node to the non-ast flow graph node.

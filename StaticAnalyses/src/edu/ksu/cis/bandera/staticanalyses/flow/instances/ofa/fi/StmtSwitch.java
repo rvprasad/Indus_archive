@@ -51,11 +51,9 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-
-// StmtSwitch.java
 
 /**
  * <p>
@@ -71,10 +69,10 @@ public class StmtSwitch
   extends AbstractStmtSwitch {
 	/**
 	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
+	 * The logger used by instances of this class to log messages.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(StmtSwitch.class);
+	private static final Log LOGGER = LogFactory.getLog(StmtSwitch.class);
 
 	/**
 	 * <p>
@@ -96,13 +94,17 @@ public class StmtSwitch
 	 * @param stmt the assignment statement to be processed.
 	 */
 	public void caseAssignStmt(AssignStmt stmt) {
+		LOGGER.debug("BEGIN: processing " + stmt);
 		rexpr.process(stmt.getRightOpBox());
+		LOGGER.debug("Processed RHS");
 
 		FGNode right = (FGNode) rexpr.getResult();
 		lexpr.process(stmt.getLeftOpBox());
+		LOGGER.debug("Processed LHS");
 
 		FGNode left = (FGNode) lexpr.getResult();
 		right.addSucc(left);
+		LOGGER.debug("END: processed " + stmt);
 	}
 
 	/**
@@ -113,6 +115,7 @@ public class StmtSwitch
 	 * @param stmt the enter monitor statement to be processed.
 	 */
 	public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
+		LOGGER.debug("Processing statement: " + stmt);
 		rexpr.process(stmt.getOpBox());
 	}
 
@@ -124,6 +127,7 @@ public class StmtSwitch
 	 * @param stmt the exit monitor statement to be processed.
 	 */
 	public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
+		LOGGER.debug("Processing statement: " + stmt);
 		rexpr.process(stmt.getOpBox());
 	}
 
@@ -136,6 +140,7 @@ public class StmtSwitch
 	 * @param stmt the identity statement to be processed.
 	 */
 	public void caseIdentityStmt(IdentityStmt stmt) {
+		LOGGER.debug("Processing statement: " + stmt);
 		rexpr.process(stmt.getRightOpBox());
 
 		FGNode right = (FGNode) rexpr.getResult();
@@ -153,6 +158,7 @@ public class StmtSwitch
 	 * @param stmt the if statement to be processed.
 	 */
 	public void caseIfStmt(IfStmt stmt) {
+		LOGGER.debug("Processing statement: " + stmt);
 		rexpr.process(stmt.getConditionBox());
 	}
 
@@ -164,7 +170,9 @@ public class StmtSwitch
 	 * @param stmt the invoke statement to be processed.
 	 */
 	public void caseInvokeStmt(InvokeStmt stmt) {
+		LOGGER.debug("BEGIN: processing " + stmt);
 		rexpr.process(stmt.getInvokeExprBox());
+		LOGGER.debug("END: processed " + stmt);
 	}
 
 	/**
@@ -175,6 +183,7 @@ public class StmtSwitch
 	 * @param stmt the lookup switch  statement to be processed.
 	 */
 	public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
+		LOGGER.debug("Processing statement: " + stmt);
 		rexpr.process(stmt.getKeyBox());
 	}
 
@@ -186,6 +195,7 @@ public class StmtSwitch
 	 * @param stmt the return statement to be processed.
 	 */
 	public void caseRetStmt(RetStmt stmt) {
+		LOGGER.debug("Processing statement: " + stmt);
 		rexpr.process(stmt.getStmtAddressBox());
 	}
 
@@ -198,8 +208,12 @@ public class StmtSwitch
 	 * @param stmt the return statement to be processed.
 	 */
 	public void caseReturnStmt(ReturnStmt stmt) {
+		LOGGER.debug("BEGIN: processing " + stmt);
 		rexpr.process(stmt.getReturnValueBox());
-		((FGNode) rexpr.getResult()).addSucc(method.queryReturnNode());
+
+		FGNode retNode = (FGNode) rexpr.getResult();
+		retNode.addSucc(method.queryReturnNode());
+		LOGGER.debug("END: processed " + stmt);
 	}
 
 	/**
@@ -210,6 +224,7 @@ public class StmtSwitch
 	 * @param stmt the table switch  statement to be processed.
 	 */
 	public void caseTableSwitchStmt(TableSwitchStmt stmt) {
+		LOGGER.debug("Processing statement: " + stmt);
 		rexpr.process(stmt.getKeyBox());
 	}
 
@@ -221,6 +236,7 @@ public class StmtSwitch
 	 * @param stmt the throw statement to be processed.
 	 */
 	public void caseThrowStmt(ThrowStmt stmt) {
+		LOGGER.debug("Processing statement: " + stmt);
 		rexpr.process(stmt.getOpBox());
 	}
 

@@ -80,7 +80,7 @@ public class Pair
 		/**
 		 * This is the id of this service.
 		 */
-		public static final String NAME = "Pair management service";
+		public static final String ID = "Pair management service";
 
 		/**
 		 * The collection of managed pairs.
@@ -168,13 +168,13 @@ public class Pair
 			Pair temp = (Pair) o;
 
 			if(first != null) {
-				result = first.equals(first);
+				result = first.equals(temp.first);
 			} else {
 				result = first == temp.first;
 			}
 
 			if(second != null) {
-				result = result && second.equals(second);
+				result = result && second.equals(temp.second);
 			} else {
 				result = result && second == temp.second;
 			}
@@ -198,6 +198,17 @@ public class Pair
 			temp = temp + second;
 		}
 		return temp.hashCode();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public String toString() {
+		return "(" + first.toString() + ", " + second.toString() + ")";
 	}
 }
 

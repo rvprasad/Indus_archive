@@ -62,7 +62,7 @@ public class RHSExprSwitch
 	/**
 	 * An  instance of <code>Logger</code> used for logging purpose.
 	 */
-	private static final Logger logger = LogManager.getLogger(RHSExprSwitch.class);
+	private static final Logger LOGGER = LogManager.getLogger(RHSExprSwitch.class);
 
 	/**
 	 * Creates a new <code>RHSExprSwitch</code> instance.
@@ -82,7 +82,7 @@ public class RHSExprSwitch
 	 */
 	public void caseLocal(Local e) {
 		FGNode ast = method.getASTNode(e);
-		logger.debug("Local:" + e + "\n" + ast);
+		LOGGER.debug("Local:" + e + "\n" + ast);
 
 		List l = method.getDefsOfAt(e, stmt.getStmt());
 
@@ -94,7 +94,7 @@ public class RHSExprSwitch
 				context.setProgramPoint(defStmt.getLeftOpBox());
 
 				FGNode defNode = method.getASTNode(defStmt.getLeftOp());
-				logger.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
+				LOGGER.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
 				defNode.addSucc(ast);
 			}
 

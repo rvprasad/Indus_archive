@@ -35,9 +35,6 @@
 
 package edu.ksu.cis.bandera.staticanalyses.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,11 +54,6 @@ import java.util.Stack;
  * @version $Revision$
  */
 public class WorkBag {
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(WorkBag.class);
-
 	/**
 	 * Used to indicate Last-In-First-Out ordering on the work pieces stored in this container.
 	 */
@@ -85,7 +77,7 @@ public class WorkBag {
 	 * @param order is the requested ordering on the work pieces that will stored in this bag.  It has to be either
 	 * 		  <code>LIFO</code> or <code>FIFO</code>.
 	 *
-	 * @throws IllegalArgumentException when any order other than <code>LIFO</code> or <code>FIFO</code> is specified.
+	 * @throws IllegalArgumentException when any order other than<code>LIFO</code> or <code>FIFO</code> is specified.
 	 */
 	public WorkBag(int order) {
 		if(order == LIFO) {
@@ -109,7 +101,7 @@ public class WorkBag {
 		 *
 		 * @post result = self->isEmpty()
 		 */
-		public boolean isEmpty();
+		boolean isEmpty();
 
 		/**
 		 * Stores an object.
@@ -118,7 +110,7 @@ public class WorkBag {
 		 *
 		 * @post self->includes(o)
 		 */
-		public void add(Object o);
+		void add(Object o);
 
 		/**
 		 * Stores all the objects in the given collection.
@@ -128,7 +120,7 @@ public class WorkBag {
 		 * @invariant c : Bag(java.lang.Object)
 		 * @post self->includesAll(c)
 		 */
-		public void addAll(Collection c);
+		void addAll(Collection c);
 
 		/**
 		 * Stores all the objects in the given collection and ensures that duplicates do not exist.
@@ -138,14 +130,14 @@ public class WorkBag {
 		 * @invariant c : Bag(Object)
 		 * @post self->includesAll(c) and self->forall( o | self->count(o) = 1)
 		 */
-		public void addAllNoDuplicates(Collection c);
+		void addAllNoDuplicates(Collection c);
 
 		/**
 		 * Removes all objects from this collection.
 		 *
 		 * @post self->isEmpty()
 		 */
-		public void clear();
+		void clear();
 
 		/**
 		 * Checks if the given object is stored in this collection.
@@ -156,7 +148,7 @@ public class WorkBag {
 		 *
 		 * @post result = self->includes(o)
 		 */
-		public boolean contains(Object o);
+		boolean contains(Object o);
 
 		/**
 		 * Returns a stored object.
@@ -165,7 +157,7 @@ public class WorkBag {
 		 *
 		 * @post self->exists(o | result = o)
 		 */
-		public Object get();
+		Object get();
 	}
 
 	/**
@@ -251,6 +243,7 @@ public class WorkBag {
 		}
 	}
 
+
 	/**
 	 * This class implements FIFO ordering on the stored objects.
 	 */
@@ -295,6 +288,7 @@ public class WorkBag {
 			return queue.remove(0);
 		}
 	}
+
 
 	/**
 	 * This class implements LIFO ordering on the stored objects.
@@ -448,8 +442,5 @@ public class WorkBag {
  ChangeLog:
 
 $Log$
-Revision 1.4  2003/02/19 17:31:19  venku
-Things are in flux.  Stabilizing them with CVS.
-
 
 *****/

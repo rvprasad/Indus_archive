@@ -43,15 +43,16 @@ import ca.mcgill.sable.soot.VoidType;
 import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.NewExpr;
 import ca.mcgill.sable.soot.jimple.Value;
+import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Environment;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
 
@@ -64,6 +65,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -85,6 +89,13 @@ import java.util.Set;
 public class ThreadGraph
   extends AbstractProcessor
   implements ThreadGraphInfo {
+  	
+  	/**
+	 * <p>The logger used by instances of this class to log messages.</p>
+	 * 
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ThreadGraph.class);
+  	
 	/**
 	 * This provides call graph information pertaining to the system.
 	 */
@@ -112,6 +123,13 @@ public class ThreadGraph
 	private final Map thread2methods = new HashMap();
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Collection startSites = new HashSet();
+
+	/**
 	 * The object flow analyzer used to calculate thread graph information.
 	 */
 	private OFAnalyzer ofa;
@@ -126,22 +144,22 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo#getAllocationSites()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo#getAllocationSites()
 	 */
 	public Collection getAllocationSites() {
 		return Collections.unmodifiableCollection(newThreadExprs);
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#setAnalyzer(AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#setAnalyzer(AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer ofa) {
 		this.ofa = (OFAnalyzer) ofa;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo#getExecutedMethods(ca.mcgill.sable.soot.jimple.NewExpr,
-	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo#getExecutedMethods(
+	 * 		ca.mcgill.sable.soot.jimple.NewExpr,     edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public Collection getExecutedMethods(NewExpr ne, Context ctxt) {
 		Set result = (Set) thread2methods.get(new NewExprTriple(ctxt.getCurrentMethod(), ctxt.getStmt(), ne));
@@ -166,7 +184,7 @@ public class ThreadGraph
 	 * @post result->forall(o | o.getExpr().getType().className.indexOf("MainThread") == 0 implies (o.getStmt() = null and
 	 * 		 o.getSootMethod() = null))
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo#getExecutionThreads(ca.mcgill.sable.soot.SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo#getExecutionThreads(ca.mcgill.sable.soot.SootMethod)
 	 */
 	public Collection getExecutionThreads(SootMethod sm) {
 		Set result = (Set) method2threads.get(sm);
@@ -177,6 +195,13 @@ public class ThreadGraph
 			result = Collections.unmodifiableSet(result);
 		}
 		return result;
+	}
+
+	/**
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo#getStartSites()
+	 */
+	public Collection getStartSites() {
+		return Collections.unmodifiableCollection(startSites);
 	}
 
 	/**
@@ -194,8 +219,20 @@ public class ThreadGraph
 
 			// collect the new expressions which create Thread objects.
 			if(Util.isDescendentOf(clazz, "java.lang.Thread")
-					&& Util.getDeclaringClass(clazz, "start", Util.EMPTY_PARAM_LIST, VoidType.v()).getName().equals("java.lang.Thread")) {
+				  && Util.getDeclaringClass(clazz, "start", Util.EMPTY_PARAM_LIST, VoidType.v()).getName().equals("java.lang.Thread")) {
 				newThreadExprs.add(new NewExprTriple(context.getCurrentMethod(), context.getStmt(), ne));
+			}
+		} else if(value instanceof VirtualInvokeExpr) {
+			VirtualInvokeExpr ve = (VirtualInvokeExpr) value;
+			SootClass clazz = env.getClass(((RefType) ve.getBase().getType()).className);
+			SootMethod method = ve.getMethod();
+
+			if(Util.isDescendentOf(clazz, "java.lang.Thread")
+				  && method.getName().equals("start")
+				  && method.getReturnType() instanceof VoidType
+				  && method.getParameterCount() == 0
+				  && Util.getDeclaringClass(clazz, "start", Util.EMPTY_PARAM_LIST, VoidType.v()).getName().equals("java.lang.Thread")) {
+				startSites.add(new CallTriple(context.getCurrentMethod(), context.getStmt(), ve));
 			}
 		}
 	}
@@ -204,6 +241,8 @@ public class ThreadGraph
 	 * Consolidates the thread graph information before it is available to the application.
 	 */
 	public void consolidate() {
+        LOGGER.info("BEGIN: thread graph consolidation");
+		long start = System.currentTimeMillis();
 		// capture the run call-site in Thread.start method
 		Environment env = ofa.getEnvironment();
 		SootClass threadClass = env.getClass("java.lang.Thread");
@@ -228,7 +267,8 @@ public class ThreadGraph
 					t.add(value);
 					methods = new HashSet();
 
-					// It is possible that the same thread allocation site(loop enclosed) be associated with multiple target object 
+					// It is possible that the same thread allocation site(loop enclosed) be associated with multiple target 
+					// object 
 					for(Iterator j = ofa.getValues(threadClass.getField("target"), t).iterator(); j.hasNext();) {
 						NewExpr temp = (NewExpr) j.next();
 						SootClass scTemp = env.getClass(((RefType) temp.getBaseType()).className);
@@ -284,6 +324,10 @@ public class ThreadGraph
 				threads.add(thread);
 			}
 		}
+		long stop = System.currentTimeMillis();
+        LOGGER.info("END: thread graph consolidation");
+		LOGGER.info("TIMING: thread graph consolidation took " + (stop - start) + "ms.");
+
 	}
 
 	/**
@@ -321,10 +365,20 @@ public class ThreadGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
+	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
+		ppc.register(VirtualInvokeExpr.class, this);
+	}
+
+	/**
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
+	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 */
+	public void unhook(ProcessingController ppc) {
+		ppc.unregister(NewExpr.class, this);
 	}
 
 	/**
@@ -368,9 +422,9 @@ public class ThreadGraph
 			SootMethod sm = (SootMethod) wb.getWork();
 
 			if(sm.getName().equals("start")
-					&& sm.getDeclaringClass().getName().equals("java.lang.Thread")
-					&& sm.getParameterCount() == 0
-					&& sm.getReturnType().equals(VoidType.v())) {
+				  && sm.getDeclaringClass().getName().equals("java.lang.Thread")
+				  && sm.getParameterCount() == 0
+				  && sm.getReturnType().equals(VoidType.v())) {
 				continue;
 			}
 
@@ -394,14 +448,5 @@ public class ThreadGraph
  ChangeLog:
 
 $Log$
-Revision 1.1  2003/02/20 19:18:20  venku
-Processing was the general agenda, not post processing.
-Post processing was a flavor.  So, changed the post processing
-logic to be generic for processing and adaptable when requried.
-
-Revision 1.2  2003/02/19 16:15:16  venku
-Well, things need to be baselined before proceeding to change
-them radically.  That's it.
-
 
 *****/

@@ -39,14 +39,12 @@ import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootMethod;
 
 import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
-import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.NewExpr;
 import ca.mcgill.sable.soot.jimple.Stmt;
-import ca.mcgill.sable.soot.jimple.StmtBody;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
@@ -65,18 +63,24 @@ import java.util.Iterator;
  * @version $Revision$
  */
 public class ICFGAnalysis {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private BasicBlockGraphMgr bbm;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private CallGraphInfo cgi;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private SootClassManager scm;
 
@@ -90,6 +94,13 @@ public class ICFGAnalysis {
 		this(scm, cgi, new BasicBlockGraphMgr());
 	}
 
+	/**
+	 * Creates a new ICFGAnalysis object.
+	 *
+	 * @param scm DOCUMENT ME!
+	 * @param cgi DOCUMENT ME!
+	 * @param bbm DOCUMENT ME!
+	 */
 	public ICFGAnalysis(SootClassManager scm, CallGraphInfo cgi, BasicBlockGraphMgr bbm) {
 		this.scm = scm;
 		this.cgi = cgi;
@@ -110,10 +121,9 @@ public class ICFGAnalysis {
 		boolean result = false;
 
 		if(Util.isDescendentOf(scm.getClass(classname), "java.lang.Thread")) {
-			BasicBlockGraph bbg =
-				bbm.getBasicBlockGraph(new CompleteStmtGraph(((StmtBody) sm.getBody(Jimple.v())).getStmtList()));
+			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteStmtGraph(Util.getJimpleBody(sm).getStmtList()));
 			Stmt stmt = context.getStmt();
-			System.out.println("++++" + stmt);
+
 			if(bbg.occursInCycle(bbg.getEnclosingBlock(stmt))) {
 				result = true;
 			}
@@ -148,8 +158,7 @@ main_control:
 
 			CallTriple ctrp = (CallTriple) callers.iterator().next();
 			SootMethod caller2 = ctrp.getMethod();
-			BasicBlockGraph bbg =
-				bbm.getBasicBlockGraph(new CompleteStmtGraph(((StmtBody) caller2.getBody(Jimple.v())).getStmtList()));
+			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteStmtGraph(Util.getJimpleBody(caller2).getStmtList()));
 
 			if(bbg.occursInCycle(bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
@@ -159,36 +168,36 @@ main_control:
 		}
 		return result;
 	}
-	
+
 	/**
-			 * DOCUMENT ME!
-			 * 
-			 * <p></p>
-			 *
-			 * @param m DOCUMENT ME!
-			 * @param p DOCUMENT ME!
-			 *
-			 * @return DOCUMENT ME!
-			 */
-			public boolean notInSameSCC(SootMethod m, SootMethod p) {
-				boolean result = true;
-				Collection sccs = cgi.getSCCs();
-				Collection scc = null;
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param m DOCUMENT ME!
+	 * @param p DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public boolean notInSameSCC(SootMethod m, SootMethod p) {
+		boolean result = true;
+		Collection sccs = cgi.getSCCs();
+		Collection scc = null;
 
-				for(Iterator i = sccs.iterator(); i.hasNext();) {
-					scc = (Collection) i.next();
+		for(Iterator i = sccs.iterator(); i.hasNext();) {
+			scc = (Collection) i.next();
 
-					if(scc.contains(m)) {
-						break;
-					}
-					scc = null;
-				}
-
-				if(scc != null) {
-					result = !scc.contains(p);
-				}
-				return result;
+			if(scc.contains(m)) {
+				break;
 			}
+			scc = null;
+		}
+
+		if(scc != null) {
+			result = !scc.contains(p);
+		}
+		return result;
+	}
 }
 
 /*****

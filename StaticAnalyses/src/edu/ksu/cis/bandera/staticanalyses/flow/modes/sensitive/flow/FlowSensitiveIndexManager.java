@@ -58,7 +58,7 @@ public class FlowSensitiveIndexManager
 	/**
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 */
-	private static final Logger logger = LogManager.getLogger(FlowSensitiveIndexManager.class);
+	private static final Logger LOGGER = LogManager.getLogger(FlowSensitiveIndexManager.class);
 
 	/**
 	 * Returns a new instance of this class.
@@ -79,7 +79,7 @@ public class FlowSensitiveIndexManager
 	 * @return the index that uniquely identifies <code>o</code> at the program point captured in <code>c</code>.
 	 */
 	protected Index getIndex(Object o, Context c) {
-		logger.debug("Getting index for " + o + " in " + c);
+		LOGGER.debug("Getting index for " + o + " in " + c);
 
 		return new OneContextInfoIndex(o, c.getProgramPoint());
 	}

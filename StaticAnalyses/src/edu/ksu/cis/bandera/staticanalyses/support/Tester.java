@@ -36,20 +36,21 @@
 package edu.ksu.cis.bandera.staticanalyses.support;
 
 import ca.mcgill.sable.soot.ArrayType;
-import ca.mcgill.sable.soot.ClassFile;
 import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootMethod;
 
 import ca.mcgill.sable.soot.jimple.Jimple;
-import ca.mcgill.sable.soot.jimple.JimpleBody;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -74,7 +75,7 @@ public abstract class Tester {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	public static final ArrayType strArray = ArrayType.v(RefType.v("java.lang.String"), 1);
+	public static final ArrayType STR_ARRAY_TYPE = ArrayType.v(RefType.v("java.lang.String"), 1);
 
 	/**
 	 * <p>
@@ -88,7 +89,33 @@ public abstract class Tester {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
+	protected final Map times = new LinkedHashMap();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
 	protected Collection rootMethods = new HashSet();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected final Jimple jimple = Jimple.v();
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param key DOCUMENT ME!
+	 * @param value DOCUMENT ME!
+	 */
+	protected void addTimeLog(String key, long value) {
+		times.put(getClass().getName() + ":" + key, new Long(value));
+	}
 
 	/**
 	 * DOCUMENT ME!
@@ -101,8 +128,7 @@ public abstract class Tester {
 	 */
 	protected final SootClassManager loadupClassesAndCollectMains(String args[]) {
 		SootClassManager result = new SootClassManager();
-		Jimple jimple = Jimple.v();
-		ClassFile classfile = ClassFile.v();
+		boolean flag = false;
 
 		for(int i = 0; i < args.length; i++) {
 			result.getClass(args[i]);
@@ -113,22 +139,41 @@ public abstract class Tester {
 
 		for(ca.mcgill.sable.util.Iterator i = mc.iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
+
+			if(Util.implementsInterface(sc, "java.lang.Runnable")) {
+				flag = true;
+			}
+
 			ca.mcgill.sable.util.Collection methods = sc.getMethods();
 
 			for(ca.mcgill.sable.util.Iterator j = methods.iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 
 				try {
-					JimpleBody body = new JimpleBody(sm, sm.getBody(classfile), 0);
-					sm.storeBody(jimple, body);
+					Util.getJimpleBody(sm);
 					populateRootMethods(sm);
 				} catch(Exception e) {
 					LOGGER.warn("Method " + sm + " doesnot have body.", e);
 				}
 			}
 		}
+
+		if(flag) {
+			result.getClass("java.lang.Runnable");
+
+			SootClass sc = result.getClass("java.lang.Thread");
+			SootMethod sm = sc.getMethod("start");
+
+			Util.getJimpleBody(sm);
+			populateRootMethods(sm);
+		}
 		return result;
 	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 */
+	protected abstract void execute();
 
 	/**
 	 * DOCUMENT ME!
@@ -138,10 +183,24 @@ public abstract class Tester {
 	 * @param sm DOCUMENT ME!
 	 */
 	protected void populateRootMethods(SootMethod sm) {
-		if(sm.getName().equals("main") && sm.getParameterCount() == 1 && sm.getParameterType(0).equals(strArray)) {
+		if(sm.getName().equals("main") && sm.getParameterCount() == 1 && sm.getParameterType(0).equals(STR_ARRAY_TYPE)) {
 			rootMethods.add(sm);
 		}
 		Util.setThreadStartBody(sm);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 */
+	protected void printTimingStats() {
+		System.out.println("Timing statistics:");
+
+		for(Iterator i = times.keySet().iterator(); i.hasNext();) {
+			Object e = (Object) i.next();
+			System.out.println(e + " => " + times.get(e) + "ms");
+		}
 	}
 }
 

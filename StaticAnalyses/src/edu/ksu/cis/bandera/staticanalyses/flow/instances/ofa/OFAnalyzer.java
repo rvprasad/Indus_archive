@@ -46,11 +46,9 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.bandera.staticanalyses.flow.ClassManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.ModeFactory;
 import edu.ksu.cis.bandera.staticanalyses.flow.modes.insensitive.IndexManager;
-import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation.*;
+import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
+import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation.AllocationSiteSensitiveIndexManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.flow.FlowSensitiveIndexManager;
-
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -70,13 +68,6 @@ import java.util.Iterator;
  */
 public class OFAnalyzer
   extends AbstractAnalyzer {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(OFAnalyzer.class);
-
 	/**
 	 * <p>
 	 * Creates a new <code>OFAnalyzer</code> instance.

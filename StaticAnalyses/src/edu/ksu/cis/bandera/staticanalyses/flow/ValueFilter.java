@@ -33,47 +33,37 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.interfaces;
-
-import ca.mcgill.sable.soot.SootClass;
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import java.util.Collection;
 
 
 /**
- * This interface exposes the information pertaining to the system being analyzed which is essential for higher level
- * analyses to function. However, it does not expose any information pertaining to the actual implementation of the analysis
- * instance.
+ * DOCUMENT ME!
+ * <p></p>
  *
+ * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
- * @version $Revision$
  */
-public interface Environment {
+public abstract class ValueFilter {
 	/**
-	 * The id of this interface.
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param values DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
 	 */
-	public String NAME = "Environment";
+	public abstract Collection filter(Collection values);
 
 	/**
-	 * Returns the Jimple representation of the given class.
+	 * DOCUMENT ME! <p></p>
 	 *
-	 * @param className the name of the class whose Jimple representation is to be returned.
+	 * @param value DOCUMENT ME!
 	 *
-	 * @return the requested class.
-	 *
-	 * @post result.oclType = ca.mcgill.sable.soot.SootClass
+	 * @return DOCUMENT ME!
 	 */
-	public SootClass getClass(String className);
-
-	/**
-	 * Returns the classes accessed/used by the analyzer.
-	 *
-	 * @return the classes accessed/used by the analyzer.
-	 *
-	 * @post result->forall(o | o.oclType = ca.mcgill.sable.soot.SootClass)
-	 */
-	public Collection getClasses();
+	public abstract boolean filter(Object value);
 }
 
 /*****

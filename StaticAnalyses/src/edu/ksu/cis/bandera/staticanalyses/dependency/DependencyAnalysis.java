@@ -41,7 +41,7 @@ import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.StmtGraph;
 import ca.mcgill.sable.soot.jimple.StmtList;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
 
@@ -74,7 +74,7 @@ public abstract class DependencyAnalysis {
 	protected final Map dependeeMap = new HashMap();
 
 	/**
-	 * This is similar to <code>dependeeMap</code> except the direction is  dependee->dependent.
+	 * This is similar to <code>dependeeMap</code> except the direction is dependee->dependent.
 	 */
 	protected final Map dependentMap = new HashMap();
 
@@ -96,7 +96,7 @@ public abstract class DependencyAnalysis {
 	/**
 	 * The pre-processor for this analysis, if one exists.
 	 */
-	protected Processor preprocessor = null;
+	protected Processor preprocessor;
 
 	/**
 	 * This manages the basic block graphs of methods.
@@ -157,8 +157,8 @@ public abstract class DependencyAnalysis {
 	}
 
 	/**
-	 * Initializes the dependency analyzer with the information from the system to perform the analysis. This also resets
-	 * this analysis.
+	 * Initializes the dependency analyzer with the information from the system to perform the analysis.  This will also
+	 * reset the analysis.
 	 *
 	 * @param method2stmtGraph maps methods that constitute that analyzed system to their control flow graphs.
 	 * @param info contains the value for the member variable <code>info</code>. Refer to {@link #info info} and subclass
@@ -173,6 +173,15 @@ public abstract class DependencyAnalysis {
 		this.info.putAll(info);
 		this.method2stmtGraph.putAll(method2stmtGraph);
 		setup();
+	}
+
+	/**
+	 * Returns the statistics about dependency analysis in the form of a <code>String</code>.
+	 *
+	 * @return the statistics about dependency analysis.
+	 */
+	public String getStatistics() {
+		return getClass() + " does not implement this method.";
 	}
 
 	/**

@@ -41,7 +41,7 @@ import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
 import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
-import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation.*;
+import edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -33,29 +33,33 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.escape;
+package edu.ksu.cis.bandera.staticanalyses.dependency.testers;
 
-import ca.mcgill.sable.soot.Modifier;
-import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootClassManager;
-import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.SootMethod;
 
-import ca.mcgill.sable.soot.jimple.JimpleBody;
-import ca.mcgill.sable.soot.jimple.Local;
-
-import ca.mcgill.sable.util.Iterator;
+import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
 
 import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.support.Pair.PairManager;
 import edu.ksu.cis.bandera.staticanalyses.support.Tester;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -68,8 +72,43 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class EATester
+public abstract class DATester
   extends Tester {
+	/**
+	 * <p>
+	 * The logger used by instances of this class to log messages.
+	 * </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(DATester.class);
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected AbstractAnalyzer aa;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected Map info;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected Map method2cmpltStmtGraph = new HashMap();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected SootClassManager scm;
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -78,12 +117,19 @@ public class EATester
 	private String args[];
 
 	/**
-	 * Creates a new EATester object.
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param args DOCUMENT ME!
 	 */
-	private EATester(String args[]) {
+	public void run(String args[]) {
+		if(args.length == 0) {
+			System.out.println("Please specify a class to consider for the analysis.");
+			System.exit(-1);
+		}
 		this.args = args;
+		execute();
 	}
 
 	/**
@@ -91,14 +137,9 @@ public class EATester
 	 * 
 	 * <p></p>
 	 *
-	 * @param args DOCUMENT ME!
+	 * @return DOCUMENT ME!
 	 */
-	public static void main(String args[]) {
-		if(args.length == 0) {
-			System.out.println("Please specify a class to consider for the analysis.");
-		}
-		(new EATester(args)).execute();
-	}
+	protected abstract Collection getDependencyAnalyses();
 
 	/**
 	 * DOCUMENT ME!
@@ -106,30 +147,74 @@ public class EATester
 	 * <p></p>
 	 */
 	protected void execute() {
-		SootClassManager scm = loadupClassesAndCollectMains(args);
-		AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer("EATester");
+		LOGGER.info("Loading classes....");
+
+		scm = loadupClassesAndCollectMains(args);
+		aa = OFAnalyzer.getFSOSAnalyzer("DATester");
+		LOGGER.info("BEGIN: BFA");
+
+		long start = System.currentTimeMillis();
 		aa.analyze(scm, rootMethods);
 
-		ProcessingController ppc = new ProcessingController();
-		ppc.setAnalyzer(aa);
+		long stop = System.currentTimeMillis();
+		addTimeLog("BFA", stop - start);
+		LOGGER.info("END: BFA");
+
+		ProcessingController pc = new ProcessingController();
+		pc.setAnalyzer(aa);
 
 		CallGraph cg = new CallGraph();
-		cg.hookup(ppc);
+		cg.hookup(pc);
 
 		ThreadGraph tg = new ThreadGraph(cg);
-		tg.hookup(ppc);
+		tg.hookup(pc);
+		LOGGER.info("BEGIN: BFA post processing");
+		start = System.currentTimeMillis();
+		pc.process();
+		stop = System.currentTimeMillis();
+		addTimeLog("BFA post processing", stop - start);
+		LOGGER.info("END: BFA post processing");
+		cg.unhook(pc);
+		tg.unhook(pc);
 
-		RufsTweakedEscapeAnalysis ea = new RufsTweakedEscapeAnalysis(scm, cg, tg);
-		ea.hookup(ppc);
-		ppc.process();
 		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
 		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
 
-		ea.execute();
+		Map method2cmpltStmtGraph = new HashMap();
 
-		int count = 1;
+		for(Iterator i = cg.getReachableMethods().iterator(); i.hasNext();) {
+			SootMethod method = (SootMethod) i.next();
+
+			try {
+				CompleteStmtGraph sg = new CompleteStmtGraph((Util.getJimpleBody(method)).getStmtList());
+				method2cmpltStmtGraph.put(method, sg);
+			} catch(RuntimeException e) {
+				LOGGER.warn("Method " + method.getSignature() + " may not have body.", e);
+			}
+		}
+
+		info = new HashMap();
+		info.put(CallGraphInfo.ID, cg);
+		info.put(ThreadGraphInfo.ID, tg);
+		info.put(PairManager.ID, new PairManager());
+		info.put(Environment.ID, aa.getEnvironment());
+
+		Collection das = getDependencyAnalyses();
+		LOGGER.info("BEGIN: dependency analyses");
+
+		for(Iterator i = das.iterator(); i.hasNext();) {
+			DependencyAnalysis da = (DependencyAnalysis) i.next();
+			start = System.currentTimeMillis();
+			da.analyze();
+			stop = System.currentTimeMillis();
+			addTimeLog(da.getClass().getName() + " analysis", stop - start);
+		}
+		LOGGER.info("END: dependency analyses");
+
 		Map threadMap = new HashMap();
 		System.out.println("\nThread mapping:");
+
+		int count = 1;
 
 		for(java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
 			NewExprTriple element = (NewExprTriple) j.next();
@@ -143,32 +228,10 @@ public class EATester
 			}
 		}
 
-		for(int i = 0; i < args.length; i++) {
-			SootClass sc = scm.getClass(args[i]);
-			System.out.println("Info for class " + sc.getName() + "\n");
-
-			for(Iterator j = sc.getFields().iterator(); j.hasNext();) {
-				SootField sf = (SootField) j.next();
-
-				if(Modifier.isStatic(sf.getModifiers())) {
-					System.out.println("Info for static field " + sf.getName() + ":" + sf.getType() + "\n"
-						+ ea.tpgetInfo(sf, threadMap) + "\n");
-				}
-			}
-
-			for(Iterator j = sc.getMethods().iterator(); j.hasNext();) {
-				SootMethod sm = (SootMethod) j.next();
-				System.out.println("Info for Method " + sm.getSignature() + "\n" + ea.tpgetInfo(sm, threadMap));
-
-				JimpleBody body = Util.getJimpleBody(sm);
-
-				for(Iterator k = body.getLocals().iterator(); k.hasNext();) {
-					Local local = (Local) k.next();
-					System.out.println("Info for Local " + local + ":" + local.getType() + "\n"
-						+ ea.tpgetInfo(sm, local, threadMap) + "\n");
-				}
-			}
+		for(Iterator i = das.iterator(); i.hasNext();) {
+			System.out.println(((DependencyAnalysis) i.next()));
 		}
+		printTimingStats();
 	}
 }
 

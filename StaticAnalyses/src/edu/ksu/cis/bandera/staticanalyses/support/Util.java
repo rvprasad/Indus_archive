@@ -35,6 +35,8 @@
 
 package edu.ksu.cis.bandera.staticanalyses.support;
 
+import ca.mcgill.sable.soot.ArrayType;
+import ca.mcgill.sable.soot.ClassFile;
 import ca.mcgill.sable.soot.Modifier;
 import ca.mcgill.sable.soot.NoSuchMethodException;
 import ca.mcgill.sable.soot.RefType;
@@ -50,6 +52,8 @@ import ca.mcgill.sable.soot.jimple.StmtList;
 
 import ca.mcgill.sable.util.List;
 import ca.mcgill.sable.util.VectorList;
+
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,6 +79,11 @@ public class Util {
 	 */
 	private static final Log LOGGER = LogFactory.getLog(Util.class);
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private static Jimple jimple = Jimple.v();
+
 	/**
 	 * A private constructor to prevent the instantiation of this class.
 	 */
@@ -94,7 +103,7 @@ public class Util {
 	 *
 	 * @throws NoSuchMethodException is thrown when no such method is declared in the given hierarchy.
 	 *
-	 * @pre sc &lt;> null and method &lt;> null and parameterTypes &lt;> null and returnType &lt;> null
+	 * @pre sc != null and method != null and parameterTypes != null and returnType != null
 	 */
 	public static SootClass getDeclaringClass(SootClass sc, String method, List parameterTypes, Type returnType) {
 		SootClass contains = sc;
@@ -139,13 +148,21 @@ public class Util {
 	 */
 	public static boolean isDescendentOf(SootClass child, String ancestor) {
 		boolean retval = false;
+		SootClass temp = child;
 
-		while((retval == false) && child.hasSuperClass()) {
+		while(!retval) {
 			if(child.getName().equals(ancestor)) {
 				retval = true;
 			} else {
-				child = child.getSuperClass();
+				if (child.hasSuperClass())
+					child = child.getSuperClass();
+				else
+					break;
 			}
+		}
+
+		if(!retval) {
+			retval = implementsInterface(temp, ancestor);
 		}
 
 		return retval;
@@ -182,6 +199,70 @@ public class Util {
 	}
 
 	/**
+	 * Retreives the <code>JimpleBody</code> of the given Method.  A new body based on the class file is created if one is 
+	 * not stored.  
+	 *
+	 * @param sm is the method for which the body is requested.
+	 *
+	 * @return the body of the given method.
+	 */
+	public static JimpleBody getJimpleBody(SootMethod sm) {
+		JimpleBody result;
+
+		if(sm.isBodyStored(jimple)) {
+			result = (JimpleBody) sm.getBody(jimple);
+		} else {
+			result = new JimpleBody(sm, sm.getBody(ClassFile.v()), 0);
+			sm.storeBody(jimple, result);
+		}
+		return result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param t1 DOCUMENT ME!
+	 * @param t2 DOCUMENT ME!
+	 * @param env DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public static boolean isSameOrSubType(Type t1, Type t2, Environment env) {
+		boolean result = false;
+
+		if(t1.equals(t2)) {
+			result = true;
+		} else if(t1 instanceof RefType && t2 instanceof RefType) {
+			result = isDescendentOf(env.getClass(((RefType) t1).className), env.getClass(((RefType) t2).className));
+		}
+		return result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param t1 DOCUMENT ME!
+	 * @param t2 DOCUMENT ME!
+	 * @param env DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public static boolean isSameOrSubType(ArrayType t1, ArrayType t2, Environment env) {
+		boolean result = false;
+
+		if(t1.equals(t2)) {
+			result = true;
+		} else if(t1.numDimensions == t2.numDimensions) {
+			result = isSameOrSubType(t1.baseType, t2.baseType, env);
+		}
+		return result;
+	}
+
+	/**
 	 * Hooks in a <i>non-native</i><code>start</code> method to facilitate smooth callgraph construction.
 	 *
 	 * @param sm is the method to be changed.  It is changed only if the method is <code>java.lang.Thread.start</code>.
@@ -193,9 +274,9 @@ public class Util {
 		SootClass declClass = sm.getDeclaringClass();
 
 		if(Modifier.isNative(sm.getModifiers())
-				&& sm.getName().equals("start")
-				&& sm.getParameterCount() == 0
-				&& declClass.getName().equals("java.lang.Thread")) {
+			  && sm.getName().equals("start")
+			  && sm.getParameterCount() == 0
+			  && declClass.getName().equals("java.lang.Thread")) {
 			Jimple jimple = Jimple.v();
 			sm.setModifiers(sm.getModifiers() ^ Modifier.NATIVE);
 
@@ -291,14 +372,34 @@ public class Util {
 		}
 		return retval;
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param child DOCUMENT ME!
+	 * @param ancestor DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public static boolean implementsInterface(SootClass child, String ancestor) {
+		boolean result = false;
+
+		while(!result && (child.getInterfaceCount() > 0 || child.hasSuperClass())) {
+			if(child.implementsInterface(ancestor)) {
+				result = true;
+			} else {
+				child = child.getSuperClass();
+			}
+		}
+		return result;
+	}
 }
 
 /*****
  ChangeLog:
 
 $Log$
-Revision 1.3  2003/02/19 17:31:19  venku
-Things are in flux.  Stabilizing them with CVS.
-
 
 *****/

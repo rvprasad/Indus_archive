@@ -35,26 +35,28 @@
 
 package edu.ksu.cis.bandera.staticanalyses.interference;
 
-import ca.mcgill.sable.soot.ClassFile;
 import ca.mcgill.sable.soot.Modifier;
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootField;
 import ca.mcgill.sable.soot.SootMethod;
 
-import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.Local;
 
 import ca.mcgill.sable.util.Iterator;
 
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.Tester;
+import edu.ksu.cis.bandera.staticanalyses.support.Util;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,6 +73,13 @@ import java.util.Map;
  */
 public class IATester
   extends Tester {
+	/**
+	 * <p>
+	 * The logger used by instances of this class to log messages.
+	 * </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(IATester.class);
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -106,10 +115,17 @@ public class IATester
 	 * 
 	 * <p></p>
 	 */
-	private void execute() {
+	protected void execute() {
 		SootClassManager scm = loadupClassesAndCollectMains(args);
 		AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer("IATester");
+		LOGGER.info("BEGIN: BFA analysis");
+
+		long start = System.currentTimeMillis();
 		aa.analyze(scm, rootMethods);
+
+		long stop = System.currentTimeMillis();
+		LOGGER.info("END: BFA analysis");
+		addTimeLog("BFA analysis", stop - start);
 
 		ProcessingController ppc = new ProcessingController();
 		ppc.setAnalyzer(aa);
@@ -120,13 +136,23 @@ public class IATester
 		ThreadGraph tg = new ThreadGraph(cg);
 		tg.hookup(ppc);
 
-		EquivalenceClassBasedAnalysis ecba = new EquivalenceClassBasedAnalysis(scm, cg, tg);
-		ecba.hookup(ppc);
+		EquivalenceClassBasedAnalysis analysis = new EquivalenceClassBasedAnalysis(scm, cg, tg);
+		analysis.hookup(ppc);
+		LOGGER.info("BEGIN: BFA postprocessing");
+		start = System.currentTimeMillis();
 		ppc.process();
+		stop = System.currentTimeMillis();
+		LOGGER.info("END: BFA postprocessing");
+		addTimeLog(", BFA postprocessing took ", stop - start);
 		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
 		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
 
-		ecba.execute();
+		LOGGER.info("BEGIN: " + analysis.getClass().getName() + " processing");
+		start = System.currentTimeMillis();
+		analysis.execute();
+		stop = System.currentTimeMillis();
+		LOGGER.info("END: " + analysis.getClass().getName() + " processing");
+		addTimeLog(analysis.getClass().getName(), stop - start);
 
 		int count = 1;
 		Map threadMap = new HashMap();
@@ -143,8 +169,7 @@ public class IATester
 				System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
 			}
 		}
-	
-		
+
 		for(int i = 0; i < args.length; i++) {
 			SootClass sc = scm.getClass(args[i]);
 			System.out.println("Info for class " + sc.getName() + "\n");
@@ -154,33 +179,24 @@ public class IATester
 
 				if(Modifier.isStatic(sf.getModifiers())) {
 					System.out.println("Info for static field " + sf.getName() + ":" + sf.getType() + "\n"
-						+ ecba.toString(sf) + "\n");
+						+ analysis.toString(sf) + "\n");
 				}
 			}
 
 			for(Iterator j = sc.getMethods().iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
-				System.out.println("Info for Method " + sm.getSignature() + "\n" + ecba.toString(sm));
+				System.out.println("Info for Method " + sm.getSignature() + "\n" + analysis.toString(sm));
 
-				JimpleBody body;
-
-				try {
-					body = (JimpleBody) sm.getBody(Jimple.v());
-				} catch(Exception e) {
-					try {
-						body = new JimpleBody(sm, sm.getBody(ClassFile.v()), 0);
-					} catch(Exception ee) {
-						continue;
-					}
-				}
+				JimpleBody body = Util.getJimpleBody(sm);
 
 				for(Iterator k = body.getLocals().iterator(); k.hasNext();) {
 					Local local = (Local) k.next();
 					System.out.println("Info for Local " + local + ":" + local.getType() + "\n"
-						+ ecba.toString(sm, local) + "\n");
+						+ analysis.toString(sm, local) + "\n");
 				}
 			}
 		}
+		printTimingStats();
 	}
 }
 

@@ -42,10 +42,10 @@ import ca.mcgill.sable.soot.jimple.EnterMonitorStmt;
 import ca.mcgill.sable.soot.jimple.ExitMonitorStmt;
 import ca.mcgill.sable.soot.jimple.Stmt;
 
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.MonitorInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.MonitorInfo;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair;
@@ -116,7 +116,7 @@ public class SynchronizationDA
 		/**
 		 * Preprocesses the given method.  This implementation records if the method is synchronized.
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.SootMethod)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.SootMethod)
 		 */
 		public void callback(SootMethod method) {
 			if((method.getModifiers() & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED) {
@@ -132,7 +132,7 @@ public class SynchronizationDA
 		 *
 		 * @pre stmt.isOclKindOf(EnterMonitorStmt)
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
 		 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 		 */
 		public void callback(Stmt stmt, Context context) {
@@ -140,10 +140,19 @@ public class SynchronizationDA
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
+		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void hookup(ProcessingController ppc) {
 			ppc.register(EnterMonitorStmt.class, this);
+		}
+
+		/**
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
+		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 */
+		public void unhook(ProcessingController ppc) {
+			ppc.unregister(EnterMonitorStmt.class, this);
 		}
 	}
 

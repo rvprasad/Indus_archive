@@ -254,13 +254,13 @@ public class ControlDA
 				mDependee.add(sl.indexOf(j), Collections.EMPTY_LIST);
 			} else {
 				BasicBlock bb2 = graph.getEnclosingBlock(l);
-				mDependee.add(sl.indexOf(j), Collections.singletonList(sl.get(bb2.trailer)));
+				mDependee.add(sl.indexOf(j), Collections.singletonList(sl.get(bb2._TRAILER)));
 
-				ArrayList dependents = (ArrayList) mDependent.get(bb2.trailer);
+				ArrayList dependents = (ArrayList) mDependent.get(bb2._TRAILER);
 
 				if(dependents == null) {
 					dependents = new ArrayList();
-					mDependent.add(bb2.trailer, dependents);
+					mDependent.add(bb2._TRAILER, dependents);
 				}
 				dependents.add(j);
 			}

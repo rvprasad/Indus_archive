@@ -66,13 +66,20 @@ import java.util.Collection;
 public interface FGNode
   extends Prototype {
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param filter DOCUMENT ME!
+	 */
+	void setFilter(ValueFilter filter);
+
+	/**
 	 * <p>
 	 * Returns the values in this node.
 	 * </p>
 	 *
 	 * @return the values in this node.
 	 */
-	public Collection getValues();
+	Collection getValues();
 
 	/**
 	 * <p>
@@ -81,7 +88,7 @@ public interface FGNode
 	 *
 	 * @param node the node to be added as a successor node.
 	 */
-	public void addSucc(FGNode node);
+	void addSucc(FGNode node);
 
 	/**
 	 * <p>
@@ -90,7 +97,7 @@ public interface FGNode
 	 *
 	 * @param succs the set of nodes to be added as successor nodes.
 	 */
-	public void addSuccs(Collection succs);
+	void addSuccs(Collection succs);
 
 	/**
 	 * <p>
@@ -99,7 +106,7 @@ public interface FGNode
 	 *
 	 * @param value the value that arrived at this node.
 	 */
-	public void addValue(Object value);
+	void addValue(Object value);
 
 	/**
 	 * <p>
@@ -108,7 +115,7 @@ public interface FGNode
 	 *
 	 * @param values the set of values that arrived at this node.
 	 */
-	public void addValues(Collection values);
+	void addValues(Collection values);
 
 	/**
 	 * <p>
@@ -119,7 +126,7 @@ public interface FGNode
 	 *
 	 * @return <code>true</code> if the node contains the value; <code>false</code> otherwise.
 	 */
-	public boolean containsValue(Object o);
+	boolean containsValue(Object o);
 
 	/**
 	 * <p>
@@ -131,7 +138,7 @@ public interface FGNode
 	 *
 	 * @return a collection of values in that exist in this node and not in <code>src</code>.
 	 */
-	public Collection diffValues(FGNode src);
+	Collection diffValues(FGNode src);
 
 	/**
 	 * <p>
@@ -141,7 +148,7 @@ public interface FGNode
 	 *
 	 * @param succ the node being added as the successor to this node.
 	 */
-	public void onNewSucc(FGNode succ);
+	void onNewSucc(FGNode succ);
 
 	/**
 	 * <p>
@@ -151,7 +158,7 @@ public interface FGNode
 	 *
 	 * @param succs the collection of nodes being added as the successor to this node.
 	 */
-	public void onNewSuccs(Collection succs);
+	void onNewSuccs(Collection succs);
 
 	/**
 	 * <p>
@@ -161,7 +168,7 @@ public interface FGNode
 	 *
 	 * @param value the value being added to this node.
 	 */
-	public void onNewValue(Object value);
+	void onNewValue(Object value);
 
 	/**
 	 * <p>
@@ -171,7 +178,7 @@ public interface FGNode
 	 *
 	 * @param values the collection of values being added to this node.
 	 */
-	public void onNewValues(Collection values);
+	void onNewValues(Collection values);
 }
 
 /*****

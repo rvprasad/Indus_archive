@@ -37,7 +37,9 @@ package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi;
 
 import ca.mcgill.sable.soot.ArrayType;
 import ca.mcgill.sable.soot.BaseType;
+import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootField;
+import ca.mcgill.sable.soot.Type;
 
 import ca.mcgill.sable.soot.jimple.ArrayRef;
 import ca.mcgill.sable.soot.jimple.BinopExpr;
@@ -79,6 +81,7 @@ import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.ArrayAccessExprWork
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.FGAccessNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.FieldAccessExprWork;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.InvokeExprWork;
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.TypeBasedFilter;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -95,7 +98,7 @@ public class ExprSwitch
 	/**
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 */
-	private static final Logger logger = LogManager.getLogger(ExprSwitch.class);
+	private static final Logger LOGGER = LogManager.getLogger(ExprSwitch.class);
 
 	/**
 	 * Creates a new <code>ExprSwitch</code> instance.
@@ -115,7 +118,7 @@ public class ExprSwitch
 	 */
 	public void caseArrayRef(ArrayRef e) {
 		process(e.getBaseBox());
-		logger.debug(e.getBaseBox());
+		LOGGER.debug(e.getBaseBox());
 
 		FGNode baseNode = (FGNode) getResult();
 		FGNode ast = method.getASTNode(e);
@@ -134,6 +137,18 @@ public class ExprSwitch
 	 */
 	public void caseCastExpr(CastExpr e) {
 		process(e.getOpBox());
+
+		Type t = e.getCastType();
+
+		if(t instanceof RefType || t instanceof ArrayType) {
+			// NOTE: We need to filter expressions based on the cast type as casts result in type-conformant values at 
+			// run-time.
+			FGNode base = (FGNode) getResult();
+			FGNode cast = method.getASTNode(e);
+			cast.setFilter(new TypeBasedFilter(t, bfa));
+			base.addSucc(cast);
+			setResult(cast);
+		}
 	}
 
 	/**
@@ -142,7 +157,7 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseChooseExpr(ChooseExpr e) {
-		logger.error("What are the choices?  Are they jimple Values or what?");
+		LOGGER.error("What are the choices?  Are they jimple Values or what?");
 	}
 
 	/**
@@ -205,8 +220,8 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseLocal(Local e) {
-		setResult(method.getASTNode(e));
-		logger.debug("Local " + e + " - " + getResult() + "\n" + context);
+		FGNode node = method.getASTNode(e);
+		setResult(node);
 	}
 
 	/**
@@ -337,12 +352,14 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseStaticInvokeExpr(StaticInvokeExpr e) {
+		LOGGER.debug("BEGIN: processing " + e);
+
 		MethodVariant callee = bfa.getMethodVariant(e.getMethod(), context);
-		FGNode argNode;
 
 		for(int i = 0; i < e.getArgCount(); i++) {
 			process(e.getArgBox(i));
-			argNode = (FGNode) getResult();
+
+			FGNode argNode = (FGNode) getResult();
 			argNode.addSucc(callee.queryParameterNode(i));
 		}
 
@@ -353,6 +370,7 @@ public class ExprSwitch
 		} else {
 			setResult(null);
 		}
+		LOGGER.debug("END: processed " + e);
 	}
 
 	/**
@@ -423,6 +441,7 @@ public class ExprSwitch
 	 * @param e the invoke expression to be processed.
 	 */
 	protected void processNonStaticInvokeExpr(NonStaticInvokeExpr e) {
+		LOGGER.debug("BEGIN: processing " + e);
 		process(e.getBaseBox());
 
 		FGNode temp = (FGNode) getResult();
@@ -441,6 +460,7 @@ public class ExprSwitch
 		FGAccessNode baseNode = new FGAccessNode(work, getWorkList());
 		work.setFGNode(baseNode);
 		temp.addSucc(baseNode);
+		LOGGER.debug("END: processed " + e);
 	}
 }
 

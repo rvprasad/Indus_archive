@@ -35,6 +35,8 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors;
 
+import ca.mcgill.sable.soot.ArrayType;
+import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.Type;
@@ -52,12 +54,12 @@ import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 
 import ca.mcgill.sable.util.List;
 
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
 import edu.ksu.cis.bandera.staticanalyses.support.Marker;
 import edu.ksu.cis.bandera.staticanalyses.support.Node;
 import edu.ksu.cis.bandera.staticanalyses.support.SimpleNodeGraph;
@@ -166,7 +168,8 @@ public class CallGraph
 	 *
 	 * @throws IllegalArgumentException when the analyzer is not an instance of <code>OFAnalyzer</code>.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#setAnalyzer(
+	 * 		edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer analyzer) {
 		if(analyzer instanceof OFAnalyzer) {
@@ -182,7 +185,7 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCallGraph()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getCallGraph()
 	 */
 	public SimpleNodeGraph getCallGraph() {
 		return graph;
@@ -197,7 +200,7 @@ public class CallGraph
 	 *
 	 * @post result->forall(o | o.isOclKindOf(CallTriple))
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCallees(ca.mcgill.sable.soot.SootMethod,
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getCallees(ca.mcgill.sable.soot.SootMethod,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public Collection getCallees(SootMethod caller) {
@@ -220,7 +223,7 @@ public class CallGraph
 	 *
 	 * @post result->forall(o | o.oclType = SootMethod)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCallees(ca.mcgill.sable.soot.jimple.InvokeExpr,
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getCallees(ca.mcgill.sable.soot.jimple.InvokeExpr,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public Collection getCallees(InvokeExpr invokeExpr, Context context) {
@@ -234,13 +237,19 @@ public class CallGraph
 
 			for(Iterator i = newExprs.iterator(); i.hasNext();) {
 				Object o = i.next();
+				SootClass sc = null;
 
 				if(o instanceof NullConstant) {
 					continue;
+				} else {
+					Type t = ((Value) o).getType();
+System.out.println(">>>" + t);
+					if(t instanceof RefType) {
+						sc = analyzer.getEnvironment().getClass(((RefType) t).className);
+					} else if(t instanceof ArrayType) {
+						sc = analyzer.getEnvironment().getClass("java.lang.Object");
+					}
 				}
-
-				NewExpr expr = (NewExpr) o;
-				SootClass sc = analyzer.getEnvironment().getClass(expr.getBaseType().className);
 				result.add(findMethodImplementation(sc, invokeExpr.getMethod()));
 			}
 		}
@@ -256,7 +265,7 @@ public class CallGraph
 	 *
 	 * @post result->forall(o | o.isOclKindOf(CallTriple))
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCallers(ca.mcgill.sable.soot.SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getCallers(ca.mcgill.sable.soot.SootMethod)
 	 */
 	public Collection getCallers(SootMethod callee) {
 		Collection result = Collections.EMPTY_LIST;
@@ -269,7 +278,7 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCycles()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getCycles()
 	 */
 	public Collection getCycles() {
 		Collection result = new HashSet();
@@ -288,7 +297,7 @@ public class CallGraph
 	 *
 	 * @post result->forall(o | o.oclType = SootMethod)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getHeads()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getHeads()
 	 */
 	public Collection getHeads() {
 		return Collections.unmodifiableCollection(heads);
@@ -301,7 +310,7 @@ public class CallGraph
 	 *
 	 * @return <code>true</code> if <code>method</code> is reachable; <code>false</code>, otherwise.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#isReachable(ca.mcgill.sable.soot.SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#isReachable(ca.mcgill.sable.soot.SootMethod)
 	 */
 	public boolean isReachable(SootMethod method) {
 		return reachables.contains(method);
@@ -314,7 +323,7 @@ public class CallGraph
 	 *
 	 * @post result->forall(o | o.oclType = SootMethod)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getReachableMethods()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getReachableMethods()
 	 */
 	public Collection getReachableMethods() {
 		return Collections.unmodifiableCollection(reachables);
@@ -327,7 +336,7 @@ public class CallGraph
 	 *
 	 * @post result->forall(o | o.oclType = SootMethod)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getRecursionRoots()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getRecursionRoots()
 	 */
 	public Collection getRecursionRoots() {
 		if(recursionRoots == null) {
@@ -345,7 +354,7 @@ public class CallGraph
 					Object o = workbag.getWork();
 
 					if(o instanceof Marker) {
-						Object temp = ((Marker) o).content;
+						Object temp = ((Marker) o)._CONTENT;
 
 						for(Object obj = callStack.pop(); !temp.equals(obj); obj = callStack.pop()) {
 							;
@@ -376,7 +385,7 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getSCCs()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo#getSCCs()
 	 */
 	public Collection getSCCs() {
 		Collection result = new HashSet();
@@ -394,7 +403,7 @@ public class CallGraph
 	 * @param value is the AST node to be processed.
 	 * @param context in which value should be processed.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Value,
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Value,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
@@ -451,10 +460,6 @@ public class CallGraph
 				SootClass accessClass = analyzer.getEnvironment().getClass(newExpr.getBaseType().className);
 				callee = findMethodImplementation(accessClass, calleeMethod);
 
-				// HACK 1: The following if block. 
-				if(callee == null) {
-					continue;
-				}
 				triple = new CallTriple(callee, stmt, invokeExpr);
 				callees.add(triple);
 
@@ -473,10 +478,15 @@ public class CallGraph
 	/**
 	 * This calculates information such as heads, tails, recursion roots, and such.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#consolidate()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#consolidate()
 	 */
 	public void consolidate() {
+		LOGGER.info("BEGIN: call graph consolidation");
+
+		long start = System.currentTimeMillis();
 		heads.addAll(analyzer.getRoots());
+
+		LOGGER.debug("Starting the calculation of reachables...");
 
 		// calculate reachables.
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
@@ -500,6 +510,7 @@ public class CallGraph
 
 		// calculate heads, recursion roots, and cycle information.
 		graph = new SimpleNodeGraph();
+		LOGGER.debug("Starting construction of call graph...");
 
 		for(Iterator i = reachables.iterator(); i.hasNext();) {
 			SootMethod sm = (SootMethod) i.next();
@@ -518,33 +529,42 @@ public class CallGraph
 			}
 		}
 
-		Collection temp = graph.getCycles();
+		/*
+		   LOGGER.debug("Starting cycle calculation...");
+		   Collection temp = graph.getCycles();
+		   for(Iterator i = temp.iterator(); i.hasNext();) {
+		       Collection cycle = (Collection) i.next();
+		       java.util.List l = new ArrayList();
+		       for(Iterator j = cycle.iterator(); j.hasNext();) {
+		           l.add(((SimpleNode) j.next())._OBJECT);
+		       }
+		       cycles.add(l);
+		   }
+		 */
+		LOGGER.debug("Starting strongly connected component calculation...");
 
-		for(Iterator i = temp.iterator(); i.hasNext();) {
-			Collection cycle = (Collection) i.next();
-			java.util.List l = new ArrayList();
-
-			for(Iterator j = cycle.iterator(); j.hasNext();) {
-				l.add(((SimpleNode) j.next()).object);
-			}
-			cycles.add(l);
-		}
-		temp = graph.getSCCs(true);
+		Collection temp = graph.getSCCs(true);
 
 		for(Iterator i = temp.iterator(); i.hasNext();) {
 			Collection scc = (Collection) i.next();
 			java.util.List l = new ArrayList();
 
 			for(Iterator j = scc.iterator(); j.hasNext();) {
-				l.add(((SimpleNode) j.next()).object);
+				l.add(((SimpleNode) j.next())._OBJECT);
 			}
 			sccs.add(l);
 		}
+
+		LOGGER.debug("Fixing the recursion roots...");
 
 		for(Iterator i = cycles.iterator(); i.hasNext();) {
 			java.util.List cycle = (java.util.List) i.next();
 			recursionRoots.add(cycle.get(0));
 		}
+
+		long stop = System.currentTimeMillis();
+		LOGGER.info("END: call graph consolidation");
+		LOGGER.info("TIMING: call graph consolidation took " + (stop - start) + "ms.");
 	}
 
 	/**
@@ -591,13 +611,25 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
+	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(VirtualInvokeExpr.class, this);
 		ppc.register(InterfaceInvokeExpr.class, this);
 		ppc.register(StaticInvokeExpr.class, this);
 		ppc.register(SpecialInvokeExpr.class, this);
+	}
+
+	/**
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
+	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 */
+	public void unhook(ProcessingController ppc) {
+		ppc.unregister(VirtualInvokeExpr.class, this);
+		ppc.unregister(InterfaceInvokeExpr.class, this);
+		ppc.unregister(StaticInvokeExpr.class, this);
+		ppc.unregister(SpecialInvokeExpr.class, this);
 	}
 
 	/**
@@ -646,14 +678,5 @@ public class CallGraph
  ChangeLog:
 
 $Log$
-Revision 1.1  2003/02/20 19:18:20  venku
-Processing was the general agenda, not post processing.
-Post processing was a flavor.  So, changed the post processing
-logic to be generic for processing and adaptable when requried.
-
-Revision 1.2  2003/02/19 16:15:16  venku
-Well, things need to be baselined before proceeding to change
-them radically.  That's it.
-
 
 *****/

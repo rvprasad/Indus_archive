@@ -35,8 +35,8 @@
 
 package edu.ksu.cis.bandera.staticanalyses.dependency.controller;
 
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -33,7 +33,7 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.interfaces;
+package edu.ksu.cis.bandera.staticanalyses.interfaces;
 
 import ca.mcgill.sable.soot.SootMethod;
 
@@ -59,7 +59,7 @@ public interface CallGraphInfo {
 	/**
 	 * The id of this interface.
 	 */
-	public String ID = "Callgraph Information";
+	String ID = "Callgraph Information";
 
 	/**
 	 * This class captures in the information pertaining to a call relation.  It provides the expression, statement, and the
@@ -70,7 +70,7 @@ public interface CallGraphInfo {
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public final class CallTriple
+	final class CallTriple
 	  extends Triple {
 		/**
 		 * Creates a new CallTriple object.
@@ -109,6 +109,15 @@ public interface CallGraphInfo {
 		public Stmt getStmt() {
 			return (Stmt) getSecond();
 		}
+
+		/**
+		 * DOCUMENT ME! <p></p>
+		 *
+		 * @return DOCUMENT ME!
+		 */
+		public String toString() {
+			return getSecond() + "@" + getMethod();
+		}
 	}
 
 	/**
@@ -118,7 +127,7 @@ public interface CallGraphInfo {
 	 *
 	 * @post result->getNodes()->forall(o.oclType = SimpleNodeGraph.SimpleNode and o.object.oclType = SootMethod)
 	 */
-	public SimpleNodeGraph getCallGraph();
+	SimpleNodeGraph getCallGraph();
 
 	/**
 	 * Returns the set of methods called in <code>caller</code>.
@@ -129,7 +138,7 @@ public interface CallGraphInfo {
 	 *
 	 * @post result != null and result->forall(o | o.isOclKindOf(CallTriple))
 	 */
-	public Collection getCallees(SootMethod caller);
+	Collection getCallees(SootMethod caller);
 
 	/**
 	 * Returns the set of methods called in the given <code>expr</code> in the given <code>context</code>.
@@ -142,7 +151,7 @@ public interface CallGraphInfo {
 	 *
 	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
-	public Collection getCallees(InvokeExpr expr, Context context);
+	Collection getCallees(InvokeExpr expr, Context context);
 
 	/**
 	 * Returns the set of methods that call <code>callee</code>.
@@ -153,7 +162,7 @@ public interface CallGraphInfo {
 	 *
 	 * @post result != null and result->forall(o | o.isOclKindOf(CallTriple))
 	 */
-	public Collection getCallers(SootMethod callee);
+	Collection getCallers(SootMethod callee);
 
 	/**
 	 * Returns a collection of method lists.  The methods in the list form cycles.
@@ -162,7 +171,7 @@ public interface CallGraphInfo {
 	 *
 	 * @post result->forall(o | o.oclType = java.util.List(SootMethod))
 	 */
-	public Collection getCycles();
+	Collection getCycles();
 
 	/**
 	 * Returns the methods from which the system starts.
@@ -171,7 +180,7 @@ public interface CallGraphInfo {
 	 *
 	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
-	public Collection getHeads();
+	Collection getHeads();
 
 	/**
 	 * Checks if the <code>method</code> is reachable in the analyzed system.
@@ -180,7 +189,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return <code>true</code> if <code>method</code> can be reached in the analyzed system; <code>false</code>, otherwise.
 	 */
-	public boolean isReachable(SootMethod method);
+	boolean isReachable(SootMethod method);
 
 	/**
 	 * Returns a collection of methods that can be reached in the analyzed system.
@@ -189,7 +198,7 @@ public interface CallGraphInfo {
 	 *
 	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
-	public Collection getReachableMethods();
+	Collection getReachableMethods();
 
 	/**
 	 * Returns a collection of methods that are recursion roots in the analyzed system.
@@ -198,7 +207,7 @@ public interface CallGraphInfo {
 	 *
 	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
-	public Collection getRecursionRoots();
+	Collection getRecursionRoots();
 
 	/**
 	 * Returns a collection of collection of nodes which represent the strongly connected components in the given call graph.
@@ -207,19 +216,12 @@ public interface CallGraphInfo {
 	 *
 	 * @post result != null and result->forall(o | o.oclType = Collection(ca.mcgill.sable.soot.SootMethod))
 	 */
-	public Collection getSCCs();
+	Collection getSCCs();
 }
 
 /*****
  ChangeLog:
 
 $Log$
-Revision 1.3  2003/02/21 07:22:22  venku
-Changed \@pre to $pre in the ocl constraints specified in Javadoc.
-
-Revision 1.2  2003/02/19 16:15:16  venku
-Well, things need to be baselined before proceeding to change
-them radically.  That's it.
-
 
 *****/

@@ -49,7 +49,7 @@ public class ASTVariant
 	/**
 	 * The <code>Value</code> object represented by this variant.
 	 */
-	public final Value v;
+	public final Value _AST;
 
 	/**
 	 * Creates a new <code>ASTVariant</code> instance.
@@ -59,7 +59,7 @@ public class ASTVariant
 	 */
 	protected ASTVariant(Value v, FGNode node) {
 		super(node);
-		this.v = v;
+		this._AST = v;
 	}
 }
 

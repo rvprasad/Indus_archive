@@ -139,7 +139,7 @@ public class DivergenceDA
 				// This will not work.  Backedge is not detected.  Implement SCC at bb level and use it here.
 				if(bbGraph.isReachable(bb, bb, true) && bb.getSuccsOf().size() > 1) {
 					preDivPoints.add(bb);
-					stmt2ddents.add(bb.trailer, new HashSet());
+					stmt2ddents.add(bb._TRAILER, new HashSet());
 				}
 			}
 
@@ -154,7 +154,7 @@ public class DivergenceDA
 					Collection stmts = bb.getStmtsOf();
 
 					if(preDivPoints.contains(pred)) {
-						Collection set = (Collection) stmt2ddees.get(bb.leader);
+						Collection set = (Collection) stmt2ddees.get(bb._LEADER);
 
 						if(set == null) {
 							set = new HashSet();
@@ -164,9 +164,9 @@ public class DivergenceDA
 							Stmt stmt = (Stmt) l.next();
 							stmt2ddees.add(sl.indexOf(stmt), set);
 						}
-						((Collection) stmt2ddents.get(pred.trailer)).addAll(stmts);
+						((Collection) stmt2ddents.get(pred._TRAILER)).addAll(stmts);
 					} else {
-						Collection set = (Collection) stmt2ddees.get(pred.leader);
+						Collection set = (Collection) stmt2ddees.get(pred._LEADER);
 
 						for(Iterator l = stmts.iterator(); l.hasNext();) {
 							Stmt stmt = (Stmt) l.next();

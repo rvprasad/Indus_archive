@@ -60,7 +60,7 @@ public abstract class AbstractFGNode
 	/**
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 */
-	private static final Logger logger = LogManager.getLogger(AbstractFGNode.class);
+	private static final Logger LOGGER = LogManager.getLogger(AbstractFGNode.class);
 
 	/**
 	 * The set of immediate successor nodes, i.e., there is direct edge from this node to the successor nodes, of this node.
@@ -72,6 +72,11 @@ public abstract class AbstractFGNode
 	 * The set of values contained in this node.  The elements in the set are of type <code>Object</code>.
 	 */
 	protected final Set values = new HashSet();
+
+	/**
+	 * A filter that controls the outflow of values from this node.
+	 */
+	protected ValueFilter filter;
 
 	/**
 	 * The worklist associated with the enclosing instance of the framework.  This is required if subclasses will want to
@@ -86,6 +91,16 @@ public abstract class AbstractFGNode
 	 */
 	protected AbstractFGNode(WorkList worklist) {
 		this.worklist = worklist;
+		filter = null;
+	}
+
+	/**
+	 * Sets the filter on this node.
+	 *
+	 * @param filter to be used by this node.
+	 */
+	public void setFilter(ValueFilter filter) {
+		this.filter = filter;
 	}
 
 	/**
@@ -94,7 +109,7 @@ public abstract class AbstractFGNode
 	 * @param node the node to be added as successor to this node.
 	 */
 	public void addSucc(FGNode node) {
-		logger.debug("Adding " + node + " as the successor to " + this);
+		LOGGER.debug("Adding " + node + " as the successor to " + this);
 		succs.add(node);
 		onNewSucc(node);
 	}
@@ -105,7 +120,7 @@ public abstract class AbstractFGNode
 	 * @param succs the collection of <code>FGNode</code>s to be added as successors to this node.
 	 */
 	public void addSuccs(Collection succs) {
-		logger.debug("Adding " + succs + " as the successors to " + this);
+		LOGGER.debug("Adding " + succs + " as the successors to " + this);
 		this.succs.addAll(succs);
 		onNewSuccs(succs);
 	}
@@ -116,7 +131,7 @@ public abstract class AbstractFGNode
 	 * @param value the value to be injected in to this node.
 	 */
 	public void addValue(Object value) {
-		logger.debug("Injecting [" + value + "] into " + this);
+		LOGGER.debug("Injecting " + value + " into " + this);
 		values.add(value);
 		onNewValue(value);
 	}
@@ -127,7 +142,7 @@ public abstract class AbstractFGNode
 	 * @param values the collection of <code>Object</code>s to be added as successors to this node.
 	 */
 	public void addValues(Collection values) {
-		logger.debug("Injecting [" + values + "] into " + this);
+		LOGGER.debug("Injecting " + values + " into " + this);
 		this.values.addAll(values);
 		onNewValues(values);
 	}
@@ -194,7 +209,8 @@ public abstract class AbstractFGNode
 	 *
 	 * @return (This method raises an exception.)
 	 *
-	 * @throws UnsupportedOperationException DOCUMENT ME!
+	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
+	 * 		   subclasses.
 	 */
 	public Object prototype(Object param1) {
 		throw new UnsupportedOperationException("prototype(param1) method is not supported.");
@@ -205,7 +221,8 @@ public abstract class AbstractFGNode
 	 *
 	 * @return (This method raises an exception.)
 	 *
-	 * @throws UnsupportedOperationException DOCUMENT ME!
+	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
+	 * 		   subclasses.
 	 */
 	public Object prototype() {
 		throw new UnsupportedOperationException("Parameterless prototype() method is not supported.");
@@ -217,7 +234,7 @@ public abstract class AbstractFGNode
 	 * @return the stringized representation of this object.
 	 */
 	public String toString() {
-		return "FGNode:" + hashCode() + "\n";
+		return "FGNode:" + hashCode();
 	}
 }
 

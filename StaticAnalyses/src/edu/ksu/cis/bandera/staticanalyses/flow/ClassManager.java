@@ -37,16 +37,8 @@ package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.SootClass;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.Prototype;
-
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 import java.util.Collection;
 import java.util.HashSet;
-
-
-//ClassManager.java
 
 /**
  * <p>
@@ -63,13 +55,6 @@ import java.util.HashSet;
  */
 public class ClassManager
   implements Prototype {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(ClassManager.class);
-
 	/**
 	 * <p>
 	 * The instance of the framework in which this object is used.
@@ -148,7 +133,6 @@ public class ClassManager
 				bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
 			}
 
-			// end of if (sc.declaresMethod("<clinit>"))
 			while(sc.hasSuperClass()) {
 				sc = sc.getSuperClass();
 
@@ -156,14 +140,8 @@ public class ClassManager
 					context.setRootMethod(sc.getMethod("<clinit>"));
 					bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
 				}
-
-				// end of if (sc.declaresMethod("<clinit>"))
 			}
-
-			// end of while (sc.hasSuperClass())
 		}
-
-		// end of if (!classes.contains(sc))
 	}
 
 	/**

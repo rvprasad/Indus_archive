@@ -37,11 +37,6 @@ package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.SootField;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-
-//FieldVariant.java
 
 /**
  * <p>
@@ -59,17 +54,10 @@ public class FieldVariant
   extends AbstractValuedVariant {
 	/**
 	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(FieldVariant.class);
-
-	/**
-	 * <p>
 	 * The field represented by this variant.
 	 * </p>
 	 */
-	public final SootField field;
+	public final SootField _FIELD;
 
 	/**
 	 * <p>
@@ -81,7 +69,7 @@ public class FieldVariant
 	 */
 	public FieldVariant(SootField field, FGNode node) {
 		super(node);
-		this.field = field;
+		this._FIELD = field;
 	}
 }
 

@@ -33,7 +33,7 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.interfaces;
+package edu.ksu.cis.bandera.staticanalyses.interfaces;
 
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootField;
@@ -42,9 +42,9 @@ import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.jimple.Stmt;
 import ca.mcgill.sable.soot.jimple.Value;
 
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 
 
 /**
@@ -64,7 +64,7 @@ public interface Processor {
 	 *
 	 * @pre analyzer != null
 	 */
-	public void setAnalyzer(AbstractAnalyzer analyzer);
+	void setAnalyzer(AbstractAnalyzer analyzer);
 
 	/**
 	 * This method will be called by the controlling agent upon walking a value in the analyzed system.
@@ -74,7 +74,7 @@ public interface Processor {
 	 *
 	 * @pre value != null
 	 */
-	public void callback(Value value, Context context);
+	void callback(Value value, Context context);
 
 	/**
 	 * This method will be called by the controlling agent upon walking a statement in the analyzed system.
@@ -84,7 +84,7 @@ public interface Processor {
 	 *
 	 * @pre stmt != null
 	 */
-	public void callback(Stmt stmt, Context context);
+	void callback(Stmt stmt, Context context);
 
 	/**
 	 * This method will be called by the controlling agent for each method for each class in the analyzed system. This
@@ -94,7 +94,7 @@ public interface Processor {
 	 *
 	 * @pre method != null
 	 */
-	public void callback(SootMethod method);
+	void callback(SootMethod method);
 
 	/**
 	 * This method will be called by the controlling agent for each class in the analyzed system. This callback need not be
@@ -102,21 +102,21 @@ public interface Processor {
 	 *
 	 * @param clazz to be processed.
 	 */
-	public void callback(SootClass clazz);
+	void callback(SootClass clazz);
 
 	/**
 	 * This method will be called by the controlling agent for each field in each class in the analyzed system. This callback
 	 * need not be registered.
 	 *
-	 * @param clazz to be processed.
+	 * @param field to be processed.
 	 */
-	public void callback(SootField field);
+	void callback(SootField field);
 
 	/**
 	 * This gives the post processors to consolidate before the information is available to the user.  This <i>should</i> be
 	 * called before the post processors are queried for the results of the processing.
 	 */
-	public void consolidate();
+	void consolidate();
 
 	/**
 	 * This method will be called by the application.  The post processor should register it's interest with the controller
@@ -124,16 +124,21 @@ public interface Processor {
 	 *
 	 * @param ppc is the post processing controller.
 	 */
-	public void hookup(ProcessingController ppc);
+	void hookup(ProcessingController ppc);
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param ppc DOCUMENT ME!
+	 */
+	void unhook(ProcessingController ppc);
 }
 
 /*****
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/19 16:15:16  venku
-Well, things need to be baselined before proceeding to change
-them radically.  That's it.
-
 
 *****/

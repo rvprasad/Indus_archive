@@ -81,7 +81,7 @@ public abstract class AbstractExprSwitch
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(AbstractExprSwitch.class);
+	private static final Logger LOGGER = LogManager.getLogger(AbstractExprSwitch.class);
 
 	/**
 	 * <p>
@@ -142,7 +142,7 @@ public abstract class AbstractExprSwitch
 		if(stmt != null) {
 			context = stmt.context;
 			method = stmt.method;
-			bfa = stmt.method.bfa;
+			bfa = stmt.method._BFA;
 		} else {
 			context = null;
 			method = null;
@@ -284,7 +284,7 @@ public abstract class AbstractExprSwitch
 	 */
 	public void defaultCase(Object o) {
 		setResult(method.getASTNode((Value) o));
-		logger.debug(o + " is not handled.");
+		LOGGER.debug(o + " is not handled.");
 	}
 
 	/**
@@ -295,11 +295,11 @@ public abstract class AbstractExprSwitch
 	 * @param v the program point at which the to-be-processed expression occurs.
 	 */
 	public void process(ValueBox v) {
-		logger.debug("Started to process expression: " + v.getValue());
+		LOGGER.debug("Started to process expression: " + v.getValue());
 		programPoints.push(v);
 		v.getValue().apply(this);
 		programPoints.pop();
-		logger.debug("Finished processing expression: " + v.getValue() + "\n" + getResult());
+		LOGGER.debug("Finished processing expression: " + v.getValue() + "\n" + getResult());
 	}
 
 	/**

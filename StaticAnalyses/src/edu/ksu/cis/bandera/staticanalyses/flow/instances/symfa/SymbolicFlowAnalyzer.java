@@ -68,16 +68,16 @@ public class SymbolicFlowAnalyzer
 	 */
 	public SymbolicFlowAnalyzer(String name) {
 		super(name,
-			new ModeFactory(new FlowSensitiveIndexManager(), // AST indexmanager 
-				new SymbolSensitiveIndexManager(), // Array indexmanager
-				new SymbolSensitiveIndexManager(), // instance field indexmanager 
-				new IndexManager(), // static field indexmanager
-				new IndexManager(), // method indexmanager
-				new OFAFGNode(null), // node prototype
-				new StmtSwitch(null), // statement walker prototype
-				new ExprSwitch(null, new LHSConnector()), // lhs expression walker prototype 
-				new RHSExprSwitch(null, new RHSConnector()), // rhs expression walker prototype 
-				null // classmanager
+			new ModeFactory(new FlowSensitiveIndexManager(),  // AST indexmanager 
+				new SymbolSensitiveIndexManager(),  // Array indexmanager
+				new SymbolSensitiveIndexManager(),  // instance field indexmanager 
+				new IndexManager(),  // static field indexmanager
+				new IndexManager(),  // method indexmanager
+				new OFAFGNode(null),  // node prototype
+				new StmtSwitch(null),  // statement walker prototype
+				new ExprSwitch(null, new LHSConnector()),  // lhs expression walker prototype 
+				new RHSExprSwitch(null, new RHSConnector()),  // rhs expression walker prototype 
+				null  // classmanager
 		), new SymbolicContext());
 	}
 

@@ -48,13 +48,13 @@ public class Marker {
 	 * Any content to be stored in the marker.
 	 * </p>
 	 */
-	public final Object content;
+	public final Object _CONTENT;
 
 	/**
 	 * Creates a new Marker object with <code>content</code> set to <code>null</code>.
 	 */
 	public Marker() {
-		content = null;
+		_CONTENT = null;
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class Marker {
 	 * @param o is any content to be stored in the marker.
 	 */
 	public Marker(Object o) {
-		content = o;
+		_CONTENT = o;
 	}
 
 	/**
@@ -79,12 +79,12 @@ public class Marker {
 		boolean result = false;
 
 		if(o instanceof Marker) {
-			Object temp = ((Marker) o).content;
+			Object temp = ((Marker) o)._CONTENT;
 
-			if(temp == null && content == null) {
+			if(temp == null && _CONTENT == null) {
 				result = this == o;
-			} else if(content != null && temp != null) {
-				result = content.equals(temp);
+			} else if(_CONTENT != null && temp != null) {
+				result = _CONTENT.equals(temp);
 			}
 		}
 		return result;
@@ -98,8 +98,8 @@ public class Marker {
 	public int hashCode() {
 		int result = super.hashCode();
 
-		if(content != null) {
-			result = content.hashCode();
+		if(_CONTENT != null) {
+			result = _CONTENT.hashCode();
 		}
 		return result;
 	}

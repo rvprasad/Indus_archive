@@ -43,6 +43,7 @@ import ca.mcgill.sable.soot.jimple.ValueBox;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 
@@ -58,7 +59,7 @@ public class Context
 	/**
 	 * An instance of <code>Logger</code> used for logging purposes.
 	 */
-	private static final Logger logger = LogManager.getLogger(Context.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(Context.class.getName());
 
 	/**
 	 * The call-stack sensitive component of the context.  This is relevant in call-site sensitive mode of analysis.
@@ -101,7 +102,13 @@ public class Context
 	 * @return the current method in this context.
 	 */
 	public SootMethod getCurrentMethod() {
-		return (SootMethod) callString.peek();
+		SootMethod result = null;
+		try {
+			result = (SootMethod) callString.peek(); 
+		} catch (EmptyStackException e) {
+			LOGGER.info("There are no methods in the call stack.", e);
+		}
+		return result;
 	}
 
 	/**
@@ -167,7 +174,7 @@ public class Context
 	 * @param sm the method being called in the current context.  This cannot be <code>null</code>.
 	 */
 	public void callNewMethod(SootMethod sm) {
-		logger.debug("Adding method " + sm);
+		LOGGER.debug("Adding method " + sm);
 		callString.push(sm);
 	}
 
@@ -183,7 +190,7 @@ public class Context
 			temp = (Context) super.clone();
 			temp.callString = (Stack) callString.clone();
 		} catch(CloneNotSupportedException e) {
-			logger.error("This should not happen.", e);
+			LOGGER.error("This should not happen.", e);
 		} finally {
 			return temp;
 		}

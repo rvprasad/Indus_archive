@@ -48,6 +48,7 @@ import ca.mcgill.sable.soot.jimple.IdentityStmt;
 import ca.mcgill.sable.soot.jimple.InvokeExpr;
 import ca.mcgill.sable.soot.jimple.InvokeStmt;
 import ca.mcgill.sable.soot.jimple.Jimple;
+import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.soot.jimple.SimpleLocalDefs;
 import ca.mcgill.sable.soot.jimple.Stmt;
@@ -61,6 +62,7 @@ import ca.mcgill.sable.util.ArrayList;
 import ca.mcgill.sable.util.Iterator;
 import ca.mcgill.sable.util.List;
 
+import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.TypeBasedFilter;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
 import org.apache.log4j.LogManager;
@@ -85,28 +87,28 @@ public class MethodVariant
 	/**
 	 * An instance of <code>Logger</code> used for logging purposes.
 	 */
-	private static final Logger logger = LogManager.getLogger(MethodVariant.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(MethodVariant.class.getName());
 
 	/**
 	 * This object is used to create <code>Jimple</code> representation of the associated method.  This is required to
 	 * extract the list of statement corresponding to the method body and walk over it.
 	 */
-	public static final BodyRepresentation bodyrep = Jimple.v();
+	public static final BodyRepresentation JIMPLEBODYREP = Jimple.v();
 
 	/**
 	 * The instance of <code>BFA</code> which was responsible for the creation of this variant.
 	 */
-	public final BFA bfa;
+	public final BFA _BFA;
 
 	/**
 	 * The context which resulted in the creation of this variant.
 	 */
-	public final Context context;
+	public final Context _CONTEXT;
 
 	/**
 	 * The method represented by this variant.
 	 */
-	public final SootMethod sm;
+	public final SootMethod _METHOD;
 
 	/**
 	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
@@ -153,18 +155,37 @@ public class MethodVariant
 	 * 		  cannot be <code>null</code>.
 	 */
 	protected MethodVariant(SootMethod sm, ASTVariantManager astvm, BFA bfa) {
-		this.sm = sm;
-		this.bfa = bfa;
-		context = (Context) bfa.analyzer.context.clone();
-		context.callNewMethod(sm);
-		logger.debug(">> Method:" + sm + context + "\n" + astvm.getClass());
-		bfa.processClass(sm.getDeclaringClass());
+		_METHOD = sm;
+		_BFA = bfa;
+		_CONTEXT = (Context) bfa._ANALYZER.context.clone();
+		bfa._ANALYZER.context.callNewMethod(sm);
+		LOGGER.debug("BEGIN: preprocessing of " + sm);
+		int pCount = sm.getParameterCount();
+		if(pCount > 0) {
+			parameters = new AbstractFGNode[pCount];
 
-		if(!sm.isStatic()) {
-			thisVar = bfa.getNewFGNode();
+			for(int i = 0; i < pCount; i++) {
+				parameters[i] = bfa.getNewFGNode();
+				bfa.processType(sm.getParameterType(i));
+			}
 		} else {
-			thisVar = null;
+			parameters = new AbstractFGNode[0];
 		}
+
+		if(sm.isStatic()) {
+			thisVar = null;
+		} else {
+			thisVar = bfa.getNewFGNode();
+
+			/*
+			 * NOTE: This is required to filter out values which are descendents of a higher common type but which are
+			 * incompatible.  An examples is all objects entering run() site will have a run() method defined.  However, it
+			 * is false to assume that all such objects can be considered as receivers for all run() implementations plugged
+			 * into the run() site.
+			 */
+			thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), bfa));
+		}
+		bfa.processClass(sm.getDeclaringClass());
 
 		if(sm.getReturnType() instanceof VoidType) {
 			returnVar = null;
@@ -173,18 +194,9 @@ public class MethodVariant
 			bfa.processType(sm.getReturnType());
 		}
 
-		if(sm.getParameterCount() > 0) {
-			parameters = new AbstractFGNode[sm.getParameterCount()];
-
-			for(int i = 0; i < sm.getParameterCount(); i++) {
-				parameters[i] = bfa.getNewFGNode();
-				bfa.processType(sm.getParameterType(i));
-			}
-		} else {
-			parameters = new AbstractFGNode[0];
-		}
 		this.astvm = astvm;
-		logger.debug("<< Method:" + sm + context + "\n");
+		bfa._ANALYZER.context.returnFromCurrentMethod();
+		LOGGER.debug("END: preprocessed of " + sm);
 	}
 
 	/**
@@ -195,7 +207,7 @@ public class MethodVariant
 	 * @return the flow graph node associated with <code>v</code> in the context <code>this.context</code>.
 	 */
 	public final FGNode getASTNode(Value v) {
-		return getASTVariant(v, context).getFGNode();
+		return getASTVariant(v, _CONTEXT).getFGNode();
 	}
 
 	/**
@@ -220,7 +232,8 @@ public class MethodVariant
 	 * @return the variant associated with <code>v</code> in the context <code>this.context</code>.
 	 */
 	public final ASTVariant getASTVariant(Value v) {
-		return (ASTVariant) astvm.select(v, context);
+		_BFA.processType(v.getType());
+		return (ASTVariant) astvm.select(v, _CONTEXT);
 	}
 
 	/**
@@ -252,16 +265,68 @@ public class MethodVariant
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param v DOCUMENT ME!
+	 * @param c DOCUMENT ME!
+	 * @param filter DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public FGNode getFilterEnabledNode(Value v, Context c, ValueFilter filter) {
+		FGNode result = getASTNode(v, c);
+		result.setFilter(filter);
+		return result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param v DOCUMENT ME!
+	 * @param filter DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public FGNode getFilterEnabledNode(Value v, ValueFilter filter) {
+		FGNode result = getASTNode(v, _CONTEXT);
+		result.setFilter(filter);
+		return result;
+	}
+
+	/**
 	 * Processes the body of the method implementation associated with this variant.
 	 */
 	public void process() {
-		if(sm.isBodyStored(bodyrep)) {
-			stmt = bfa.getStmt(this);
-			logger.debug(">>>> Starting processing statements of " + sm);
+		LOGGER.debug("BEGIN: processing of " + _METHOD);
 
-			StmtBody jb = (StmtBody) sm.getBody(bodyrep);
-			StmtList list = ((StmtBody) sm.getBody(bodyrep)).getStmtList();
+		JimpleBody jb = null;
+
+		/*
+		   The question is how does one close a system.  If we try to load up bodies that are not loaded then this will lead
+		   to explosion of methods to be processed.  So, a better bet is that the user provides those classes crucial to start
+		   with and then we load up methods in a restricted way.  Say only, for methods occurring in classes defined in
+		   package java.lang.
+		 */
+		String className = _METHOD.getDeclaringClass().getName();
+
+		if(className.indexOf("java") == 0 && className.indexOf("java.lang.") == 0) {
+			try {
+				jb = Util.getJimpleBody(_METHOD);
+			} catch(RuntimeException e) {
+				LOGGER.warn("Could not get body for " + _METHOD.getSignature(), e);
+			}
+		} else if(_METHOD.isBodyStored(JIMPLEBODYREP)) {
+			jb = Util.getJimpleBody(_METHOD);
+		}
+
+		if(jb != null) {
+			StmtList list = ((StmtBody) _METHOD.getBody(JIMPLEBODYREP)).getStmtList();
 			defs = new SimpleLocalDefs(new CompleteStmtGraph(list));
+			stmt = _BFA.getStmt(this);
 
 			for(Iterator i = list.iterator(); i.hasNext();) {
 				stmt.process((Stmt) i.next());
@@ -288,10 +353,10 @@ public class MethodVariant
 						ThrowStmt ts = (ThrowStmt) tmp;
 
 						if(!caught.contains(ts)
-								&& Util.isDescendentOf(bfa.getClass(((RefType) ts.getOp().getType()).className), exception)) {
-							context.setStmt(ts);
+							  && Util.isDescendentOf(_BFA.getClass(((RefType) ts.getOp().getType()).className), exception)) {
+							_CONTEXT.setStmt(ts);
 
-							FGNode throwNode = getASTNode(ts.getOp(), context);
+							FGNode throwNode = getASTNode(ts.getOp(), _CONTEXT);
 							throwNode.addSucc(getASTNode(catchRef));
 							caught.add(ts);
 						}
@@ -307,7 +372,7 @@ public class MethodVariant
 						flag = false;
 
 						if(!caught.contains(tmp)) {
-							context.setStmt(tmp);
+							_CONTEXT.setStmt(tmp);
 
 							FGNode tempNode = queryThrowNode(expr, exception);
 
@@ -318,9 +383,8 @@ public class MethodVariant
 					}
 				}
 			}
-
-			logger.debug("<<<< Finished processing statements of " + sm);
 		}
+		LOGGER.debug("END: processing of " + _METHOD);
 	}
 
 	/**
@@ -332,7 +396,7 @@ public class MethodVariant
 	 * 		   <code>null</code> is returned.
 	 */
 	public final FGNode queryASTNode(Value v) {
-		return queryASTNode(v, context);
+		return queryASTNode(v, _CONTEXT);
 	}
 
 	/**
@@ -378,7 +442,7 @@ public class MethodVariant
 	public final FGNode queryParameterNode(int index) {
 		FGNode temp = null;
 
-		if(index >= 0 && index <= sm.getParameterCount()) {
+		if(index >= 0 && index <= _METHOD.getParameterCount()) {
 			temp = parameters[index];
 		}
 
@@ -414,7 +478,7 @@ public class MethodVariant
 	 * @return the node that captures values associated with the <code>exception</code> class at <code>e</code>.
 	 */
 	public final FGNode queryThrowNode(InvokeExpr e, SootClass exception) {
-		return queryThrowNode(e, exception, context);
+		return queryThrowNode(e, exception, _CONTEXT);
 	}
 
 	/**

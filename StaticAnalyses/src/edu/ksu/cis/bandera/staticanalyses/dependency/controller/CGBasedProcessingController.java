@@ -35,8 +35,8 @@
 
 package edu.ksu.cis.bandera.staticanalyses.dependency.controller;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -46,14 +46,16 @@ import java.util.Collection;
 /**
  * Call-Graph-based pre- or post-processing controller.  This only processes reachable methods.
  *
- * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public class CGBasedProcessingController
   extends ProcessingController {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private CallGraphInfo cgi;
 
@@ -71,8 +73,8 @@ public class CGBasedProcessingController
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController#processMethods(java.util.Collection)
 	 */
-	public void processMethods(Collection methods) {
-		super.processMethods(CollectionUtils.subtract(methods, cgi.getReachableMethods()));
+	protected void processMethods(Collection methods) {
+		super.processMethods(CollectionUtils.intersection(methods, cgi.getReachableMethods()));
 	}
 }
 
@@ -80,9 +82,5 @@ public class CGBasedProcessingController
  ChangeLog:
 
 $Log$
-Revision 1.1  2003/02/20 19:15:58  venku
-Moved all the classes which control the dependency analysis
-into one package.
-
 
 *****/

@@ -61,7 +61,7 @@ public class WorkList
 	 * An instance of <code>Logger</code> used for logging purposes.
 	 * </p>
 	 */
-	private static final Logger logger = Logger.getLogger(WorkList.class);
+	private static final Logger LOGGER = Logger.getLogger(WorkList.class);
 
 	/**
 	 * <p>
@@ -81,7 +81,7 @@ public class WorkList
 	 * @param w the work to be added into the worklist.
 	 */
 	public final void addWork(AbstractWork w) {
-		logger.debug("Added new work:" + w);
+		LOGGER.debug("Added new work:" + w);
 		addWorkNoDuplicates(w);
 	}
 
@@ -94,11 +94,9 @@ public class WorkList
 	void process() {
 		while(!isEmpty()) {
 			AbstractWork w = (AbstractWork) getWork();
-			logger.debug("Processing work:" + w);
+			LOGGER.debug("Processing work:" + w);
 			w.execute();
 		}
-
-		// end of while (!list.isEmpty())
 	}
 }
 

@@ -35,6 +35,7 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
+import ca.mcgill.sable.soot.ArrayType;
 import ca.mcgill.sable.soot.Modifier;
 import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
@@ -90,7 +91,7 @@ public class InvokeExprWork
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(InvokeExprWork.class);
+	private static final Logger LOGGER = LogManager.getLogger(InvokeExprWork.class);
 
 	/**
 	 * <p>
@@ -99,25 +100,25 @@ public class InvokeExprWork
 	 * called from the native method <code>Thread.start()</code>.
 	 * </p>
 	 */
-	protected static final Collection knownCallChains = new ArrayList(1);
+	protected static final Collection KNOWN_CALL_CHAINS = new ArrayList(1);
 
 	/**
 	 * <p>
 	 * This instance is used to create new virtual invoke ast nodes.
 	 * </p>
 	 */
-	protected static final Jimple jimple = Jimple.v();
+	protected static final Jimple JIMPLE = Jimple.v();
 
 	/**
 	 * <p>
 	 * This represents an empty parameter list.
 	 * </p>
 	 */
-	private static final List emptyParamList = new VectorList();
+	private static final List EMPTY_PARAM_LIST = new VectorList();
 
 	static {
-		knownCallChains.add(new NativeMethodCall("java.lang.Thread", "start", emptyParamList, VoidType.v(), "run",
-				emptyParamList, VoidType.v()));
+		KNOWN_CALL_CHAINS.add(new NativeMethodCall("java.lang.Thread", "start", EMPTY_PARAM_LIST, VoidType.v(), "run",
+				EMPTY_PARAM_LIST, VoidType.v()));
 	}
 
 	/**
@@ -126,6 +127,13 @@ public class InvokeExprWork
 	 * </p>
 	 */
 	protected AbstractExprSwitch exprSwitch;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected final boolean nonVoid;
 
 	/**
 	 * <p>
@@ -144,11 +152,10 @@ public class InvokeExprWork
 		super(caller, accessExprBox, context);
 
 		if(!(accessExprBox.getValue() instanceof NonStaticInvokeExpr)) {
-			throw new IllegalArgumentException("accessExprBox has contain a NonStaticInvokeExpr object as value.");
+			throw new IllegalArgumentException("accessExprBox has to contain a NonStaticInvokeExpr object as value.");
 		}
-
-		// end of if (!(accessExprBox.getValue() instanceof NonStaticInvokeExpr))
 		this.exprSwitch = exprSwitch;
+		this.nonVoid = !(((NonStaticInvokeExpr) accessExprBox.getValue()).getMethod().getReturnType() instanceof VoidType);
 	}
 
 	/**
@@ -263,14 +270,12 @@ public class InvokeExprWork
 			boolean temp = false;
 
 			if(sm.getName().equals(nativeMethodName)
-					&& sm.getReturnType().equals(nativeMethodRetType)
-					&& Util.isDescendentOf(sm.getDeclaringClass(), declClassName)
-					&& Modifier.isNative(sm.getModifiers())
-					&& sm.getParameterTypes().equals(nativeMethodParamTypes)) {
+				  && sm.getReturnType().equals(nativeMethodRetType)
+				  && Util.isDescendentOf(sm.getDeclaringClass(), declClassName)
+				  && Modifier.isNative(sm.getModifiers())
+				  && sm.getParameterTypes().equals(nativeMethodParamTypes)) {
 				temp = true;
 			}
-
-			// end of if (sm.getName() == nativeMethodName)
 			return temp;
 		}
 	}
@@ -285,15 +290,15 @@ public class InvokeExprWork
 	public synchronized void execute() {
 		NonStaticInvokeExpr e = (NonStaticInvokeExpr) accessExprBox.getValue();
 		SootMethod sm = e.getMethod();
-		BFA bfa = caller.bfa;
+		BFA bfa = caller._BFA;
 		SootClass sc;
 		SootClassManager scm = bfa.getSootClassManager();
-		logger.debug("Expr:" + e + "   Values:" + values + "   Method:" + sm);
-
 		ValueBox vb = context.getProgramPoint();
+		LOGGER.debug(this + "\n\tMethod:" + sm + "\n\tExpr:" + e + "\n\tValues:" + values + "\n\tNode:" + node);
 
 		for(Iterator i = values.iterator(); i.hasNext();) {
 			Value v = (Value) i.next();
+			LOGGER.debug("Value: " + v);
 
 			if(v instanceof NullConstant) {
 				continue;
@@ -302,16 +307,26 @@ public class InvokeExprWork
 			if(e instanceof SpecialInvokeExpr) {
 				sc = e.getMethod().getDeclaringClass();
 			} else {
-				sc = bfa.getClass(((RefType) v.getType()).className);
+				Type t = v.getType();
+
+				if(t instanceof RefType) {
+					sc = bfa.getClass(((RefType) v.getType()).className);
+				} else if(t instanceof ArrayType) {
+					sc = bfa.getClass("java.lang.Object");
+				} else {
+					RuntimeException ee = new RuntimeException("Non-reference/array type flowing into invocation site.");
+					LOGGER.error(ee);
+					context.setProgramPoint(vb);
+					throw ee;
+				}
 			}
 
-			// HACK 1: This try wrapper is to address scenarios in which values of incorrect type may flow into invocation
-			// sites as a result of using array types of Object and also as the object flow in array domain is based on array
-			// types rather than array allocation sites.  This needs to be addressed after SAS03.
 			try {
 				sm = MethodVariantManager.findDeclaringMethod(sc, e.getMethod());
-			} catch(IllegalStateException ee) {
-				continue;
+			} catch(RuntimeException ee) {
+				LOGGER.error(sc + ":" + context.getCurrentMethod() + "@" + e, ee);
+				context.setProgramPoint(vb);
+				throw ee;
 			}
 
 			MethodVariant mv = bfa.getMethodVariant(sm, context);
@@ -319,56 +334,45 @@ public class InvokeExprWork
 			if(!installedVariants.contains(mv)) {
 				FGNode param;
 				FGNode arg;
-
+System.out.println(this.hashCode() + ": " + sm + " " + sm.getParameterCount() + " " + mv._METHOD);
 				for(int j = 0; j < sm.getParameterCount(); j++) {
 					param = mv.queryParameterNode(j);
 					context.setProgramPoint(e.getArgBox(j));
 					arg = caller.queryASTNode(e.getArg(j), context);
 					arg.addSucc(param);
 				}
-
-				// end of for (int i = 0; i < sm.getArgCount(); i++)
 				param = mv.queryThisNode();
 				context.setProgramPoint(e.getBaseBox());
 				arg = caller.queryASTNode(e.getBase(), context);
 				arg.addSucc(param);
 
-				if(AbstractExprSwitch.isNonVoid(sm)) {
+				if(nonVoid) {
 					arg = mv.queryReturnNode();
 					context.setProgramPoint(accessExprBox);
 					param = caller.queryASTNode(e, context);
 					arg.addSucc(param);
 				}
-
-				// end of if (isNonVoid(sm))
 				installedVariants.add(mv);
 			}
 
-			// end of if (!installedVariants.contains(mv))
-			for(Iterator j = knownCallChains.iterator(); j.hasNext();) {
+			for(Iterator j = KNOWN_CALL_CHAINS.iterator(); j.hasNext();) {
 				NativeMethodCall temp = (NativeMethodCall) j.next();
-				logger.debug("Need to check if " + temp.nativeMethodName + " is same as " + sm.getSignature()
+				LOGGER.debug("Need to check if " + temp.nativeMethodName + " is same as " + sm.getSignature()
 					+ " declared in " + sm.getDeclaringClass());
 
 				if(temp.isThisTheMethod(sm)) {
 					SootMethod methodToCall = temp.getMethod(scm.getClass(e.getBase().getType().toString()));
-					VirtualInvokeExpr v1 = jimple.newVirtualInvokeExpr((Local) e.getBase(), methodToCall, new VectorList());
-					exprSwitch.process(jimple.newInvokeExprBox(v1));
+					VirtualInvokeExpr v1 = JIMPLE.newVirtualInvokeExpr((Local) e.getBase(), methodToCall, new VectorList());
+					exprSwitch.process(JIMPLE.newInvokeExprBox(v1));
 					context.setProgramPoint(e.getBaseBox());
 
 					FGNode src = caller.queryASTNode(e.getBase(), context);
 					context.setProgramPoint(v1.getBaseBox());
 					src.addSucc(caller.queryASTNode(v1.getBase(), context));
-					logger.debug("Plugging a call to run method of class" + e.getBase().getType().toString() + ".");
+					LOGGER.debug("Plugging a call to run method of class" + e.getBase().getType().toString() + ".");
 				}
-
-				// end of for (Iterator j = values.iterator(); j.hasNext();)
 			}
-
-			// end of if
 		}
-
-		// end of for (Iterator i = knownCallChains.iterator(); i.hasNext();)
 		context.setProgramPoint(vb);
 	}
 
@@ -380,7 +384,7 @@ public class InvokeExprWork
 	 * @return the stringized representation of this object.
 	 */
 	public String toString() {
-		return "InvokeExprWork: " + caller.sm + "@" + accessExprBox.getValue();
+		return "InvokeExprWork: " + caller._METHOD + "@" + accessExprBox.getValue();
 	}
 }
 

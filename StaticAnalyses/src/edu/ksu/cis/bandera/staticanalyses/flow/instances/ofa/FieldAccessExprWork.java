@@ -72,7 +72,7 @@ public class FieldAccessExprWork
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(FieldAccessExprWork.class);
+	private static final Logger LOGGER = LogManager.getLogger(FieldAccessExprWork.class);
 
 	/**
 	 * <p>
@@ -114,8 +114,8 @@ public class FieldAccessExprWork
 	 */
 	public synchronized void execute() {
 		SootField sf = ((FieldRef) accessExprBox.getValue()).getField();
-		BFA bfa = caller.bfa;
-		logger.debug(values + " values arrived at base node of " + accessExprBox.getValue());
+		BFA bfa = caller._BFA;
+		LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue());
 
 		for(Iterator i = values.iterator(); i.hasNext();) {
 			Value v = (Value) i.next();

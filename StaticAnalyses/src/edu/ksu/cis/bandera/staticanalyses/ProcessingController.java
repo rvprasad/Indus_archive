@@ -33,7 +33,7 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow;
+package edu.ksu.cis.bandera.staticanalyses;
 
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootField;
@@ -42,20 +42,23 @@ import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.jimple.AbstractJimpleValueSwitch;
 import ca.mcgill.sable.soot.jimple.AbstractStmtSwitch;
 import ca.mcgill.sable.soot.jimple.AssignStmt;
+import ca.mcgill.sable.soot.jimple.BreakpointStmt;
 import ca.mcgill.sable.soot.jimple.EnterMonitorStmt;
 import ca.mcgill.sable.soot.jimple.ExitMonitorStmt;
+import ca.mcgill.sable.soot.jimple.GotoStmt;
 import ca.mcgill.sable.soot.jimple.IdentityStmt;
 import ca.mcgill.sable.soot.jimple.IfStmt;
 import ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr;
 import ca.mcgill.sable.soot.jimple.InvokeStmt;
-import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.JimpleBody;
 import ca.mcgill.sable.soot.jimple.LookupSwitchStmt;
 import ca.mcgill.sable.soot.jimple.NewArrayExpr;
 import ca.mcgill.sable.soot.jimple.NewExpr;
 import ca.mcgill.sable.soot.jimple.NewMultiArrayExpr;
+import ca.mcgill.sable.soot.jimple.NopStmt;
 import ca.mcgill.sable.soot.jimple.RetStmt;
 import ca.mcgill.sable.soot.jimple.ReturnStmt;
+import ca.mcgill.sable.soot.jimple.ReturnVoidStmt;
 import ca.mcgill.sable.soot.jimple.SpecialInvokeExpr;
 import ca.mcgill.sable.soot.jimple.StaticInvokeExpr;
 import ca.mcgill.sable.soot.jimple.Stmt;
@@ -65,7 +68,9 @@ import ca.mcgill.sable.soot.jimple.ThrowStmt;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor;
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Processor;
 import edu.ksu.cis.bandera.staticanalyses.support.Util;
 
 import org.apache.commons.logging.Log;
@@ -176,6 +181,13 @@ public class ProcessingController {
 		}
 
 		/**
+		 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseBreakpointStmt(ca.mcgill.sable.soot.jimple.BreakpointStmt)
+		 */
+		public void caseBreakpointStmt(BreakpointStmt stmt) {
+			defaultCase(BreakpointStmt.class, stmt);
+		}
+
+		/**
 		 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseEnterMonitorStmt(ca.mcgill.sable.soot.jimple.EnterMonitorStmt)
 		 */
 		public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
@@ -191,6 +203,13 @@ public class ProcessingController {
 			defaultCase(ExitMonitorStmt.class, stmt);
 			context.setProgramPoint(stmt.getOpBox());
 			stmt.getOp().apply(vs);
+		}
+
+		/**
+		 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseGotoStmt(ca.mcgill.sable.soot.jimple.GotoStmt)
+		 */
+		public void caseGotoStmt(GotoStmt stmt) {
+			defaultCase(GotoStmt.class, stmt);
 		}
 
 		/**
@@ -232,6 +251,13 @@ public class ProcessingController {
 		}
 
 		/**
+		 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseNopStmt(ca.mcgill.sable.soot.jimple.NopStmt)
+		 */
+		public void caseNopStmt(NopStmt stmt) {
+			defaultCase(NopStmt.class, stmt);
+		}
+
+		/**
 		 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseRetStmt(ca.mcgill.sable.soot.jimple.RetStmt)
 		 */
 		public void caseRetStmt(RetStmt stmt) {
@@ -247,6 +273,13 @@ public class ProcessingController {
 			defaultCase(ReturnStmt.class, stmt);
 			context.setProgramPoint(stmt.getReturnValueBox());
 			stmt.getReturnValue().apply(vs);
+		}
+
+		/**
+		 * @see ca.mcgill.sable.soot.jimple.StmtSwitch#caseReturnVoidStmt(ca.mcgill.sable.soot.jimple.ReturnVoidStmt)
+		 */
+		public void caseReturnVoidStmt(ReturnVoidStmt stmt) {
+			defaultCase(ReturnVoidStmt.class, stmt);
 		}
 
 		/**
@@ -288,6 +321,7 @@ public class ProcessingController {
 		}
 	}
 
+
 	/**
 	 * DOCUMENT ME!
 	 * 
@@ -300,49 +334,50 @@ public class ProcessingController {
 	private class ValueSwitcher
 	  extends AbstractJimpleValueSwitch {
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(
+		 * 		ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
 		 */
 		public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
 			defaultCase(InterfaceInvokeExpr.class, v);
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewArrayExpr(ca.mcgill.sable.soot.jimple.NewArrayExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewArrayExpr( ca.mcgill.sable.soot.jimple.NewArrayExpr)
 		 */
 		public void caseNewArrayExpr(NewArrayExpr v) {
 			defaultCase(NewArrayExpr.class, v);
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewExpr(ca.mcgill.sable.soot.jimple.NewExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewExpr( ca.mcgill.sable.soot.jimple.NewExpr)
 		 */
 		public void caseNewExpr(NewExpr v) {
 			defaultCase(NewExpr.class, v);
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewMultiArrayExpr(ca.mcgill.sable.soot.jimple.NewMultiArrayExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseNewMultiArrayExpr( ca.mcgill.sable.soot.jimple.NewMultiArrayExpr)
 		 */
 		public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
 			defaultCase(NewMultiArrayExpr.class, v);
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseSpecialInvokeExpr(ca.mcgill.sable.soot.jimple.SpecialInvokeExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseSpecialInvokeExpr( ca.mcgill.sable.soot.jimple.SpecialInvokeExpr)
 		 */
 		public void caseSpecialInvokeExpr(SpecialInvokeExpr v) {
 			defaultCase(SpecialInvokeExpr.class, v);
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseStaticInvokeExpr(ca.mcgill.sable.soot.jimple.StaticInvokeExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseStaticInvokeExpr( ca.mcgill.sable.soot.jimple.StaticInvokeExpr)
 		 */
 		public void caseStaticInvokeExpr(StaticInvokeExpr v) {
 			defaultCase(StaticInvokeExpr.class, v);
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseVirtualInvokeExpr(ca.mcgill.sable.soot.jimple.VirtualInvokeExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseVirtualInvokeExpr( ca.mcgill.sable.soot.jimple.VirtualInvokeExpr)
 		 */
 		public void caseVirtualInvokeExpr(VirtualInvokeExpr v) {
 			defaultCase(VirtualInvokeExpr.class, v);
@@ -386,67 +421,16 @@ public class ProcessingController {
 			Processor pp = (Processor) i.next();
 			pp.setAnalyzer(analyzer);
 		}
+		LOGGER.info("BEGIN: processing classes");
 		processClasses(analyzer.getClasses());
+		LOGGER.info("END: processing classes");
+
+		LOGGER.info("BEGIN: processor consolidation");
 
 		for(Iterator i = processors.iterator(); i.hasNext();) {
 			((Processor) i.next()).consolidate();
 		}
-	}
-
-	/**
-	 * Controls the processing of class level entities.
-	 *
-	 * @param classes to be processed.
-	 */
-	public void processClasses(Collection classes) {
-		for(Iterator i = classes.iterator(); i.hasNext();) {
-			SootClass sc = (SootClass) i.next();
-			LOGGER.info("Processing class " + sc);
-
-			for(Iterator k = processors.iterator(); k.hasNext();) {
-				Processor pp = (Processor) k.next();
-				pp.callback(sc);
-
-				for(ca.mcgill.sable.util.Iterator j = sc.getFields().iterator(); j.hasNext();) {
-					SootField field = (SootField) j.next();
-					pp.callback(field);
-				}
-			}
-			processMethods(Util.convert("java.util.ArrayList", sc.getMethods()));
-		}
-	}
-
-	/**
-	 * Controls the processing of method level entities.
-	 *
-	 * @param methods to be processed.
-	 */
-	public void processMethods(Collection methods) {
-		Jimple jimple = Jimple.v();
-
-		for(Iterator j = methods.iterator(); j.hasNext();) {
-			SootMethod sm = (SootMethod) j.next();
-			context.setRootMethod(sm);
-
-			for(Iterator k = processors.iterator(); k.hasNext();) {
-				((Processor) k.next()).callback(sm);
-			}
-			LOGGER.info("Processing Method " + sm);
-
-			try {
-				StmtList sl = ((JimpleBody) sm.getBody(jimple)).getStmtList();
-
-				for(ca.mcgill.sable.util.Iterator k = sl.iterator(); k.hasNext();) {
-					Stmt stmt = (Stmt) k.next();
-					context.setStmt(stmt);
-					stmt.apply(stmtSwitcher);
-				}
-			} catch(Exception e) {
-				LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
-					+ " recognize the given method or it's parts or method has not stored jimple representation. : "
-					+ sm.getSignature(), e);
-			}
-		}
+		LOGGER.info("END: processor consolidation");
 	}
 
 	/**
@@ -478,19 +462,93 @@ public class ProcessingController {
 			processors.add(processor);
 		}
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param interest DOCUMENT ME!
+	 * @param processor DOCUMENT ME!
+	 *
+	 * @throws IllegalArgumentException DOCUMENT ME!
+	 */
+	public void unregister(Object interest, Processor processor) {
+		if(!(interest instanceof Class)) {
+			throw new IllegalArgumentException(
+				"In this ProcessingController implementation, interest has to be of type java.lang.Class");
+		}
+
+		Class valueClass = (Class) interest;
+		Set temp = (Set) class2processors.get(valueClass);
+
+		if(temp == null) {
+			throw new IllegalArgumentException("There are no processors registered  for " + ((Class) interest).getName());
+		}
+		temp.remove(processor);
+	}
+
+	/**
+	 * Controls the processing of class level entities.
+	 *
+	 * @param classes to be processed.
+	 */
+	protected void processClasses(Collection classes) {
+		LOGGER.debug("Classes to be processed:\n" + classes);
+		for(Iterator i = classes.iterator(); i.hasNext();) {
+			SootClass sc = (SootClass) i.next();
+			LOGGER.debug("Processing class " + sc);
+
+			for(Iterator k = processors.iterator(); k.hasNext();) {
+				Processor pp = (Processor) k.next();
+				pp.callback(sc);
+
+				for(ca.mcgill.sable.util.Iterator j = sc.getFields().iterator(); j.hasNext();) {
+					SootField field = (SootField) j.next();
+					pp.callback(field);
+				}
+			}
+			processMethods(Util.convert("java.util.ArrayList", sc.getMethods()));
+		}
+	}
+
+	/**
+	 * Controls the processing of method level entities.
+	 *
+	 * @param methods to be processed.
+	 */
+	protected void processMethods(Collection methods) {
+		LOGGER.debug("Methods to be processed:\n" + methods);
+		for(Iterator j = methods.iterator(); j.hasNext();) {
+			SootMethod sm = (SootMethod) j.next();
+			context.setRootMethod(sm);
+
+			for(Iterator k = processors.iterator(); k.hasNext();) {
+				((Processor) k.next()).callback(sm);
+			}
+			LOGGER.debug("Processing method " + sm);
+
+			try {
+				JimpleBody jb = Util.getJimpleBody(sm);
+				StmtList sl = jb.getStmtList();
+
+				for(ca.mcgill.sable.util.Iterator k = sl.iterator(); k.hasNext();) {
+					Stmt stmt = (Stmt) k.next();
+					context.setStmt(stmt);
+					stmt.apply(stmtSwitcher);
+				}
+			} catch(RuntimeException e) {
+				LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
+					+ " recognize the given method or it's parts or method has not stored jimple representation. : "
+					+ sm.getSignature(), e);
+			}
+		}
+	}
 }
 
 /*****
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/21 07:22:22  venku
-Changed \@pre to $pre in the ocl constraints specified in Javadoc.
-
-Revision 1.1  2003/02/20 19:19:31  venku
-Processing was the general agenda, not post processing.
-Post processing was a flavor.  So, changed the post processing
-logic to be generic for processing and adaptable when requried.
-
 
 *****/

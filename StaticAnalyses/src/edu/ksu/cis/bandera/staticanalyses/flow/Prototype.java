@@ -60,7 +60,7 @@ public interface Prototype {
 	 *
 	 * @return concrete object based on this prototype object.
 	 */
-	public Object prototype();
+	Object prototype();
 
 	/**
 	 * <p>
@@ -72,7 +72,7 @@ public interface Prototype {
 	 *
 	 * @return concrete object based on this prototype object.
 	 */
-	public Object prototype(Object o);
+	Object prototype(Object o);
 }
 
 /*****

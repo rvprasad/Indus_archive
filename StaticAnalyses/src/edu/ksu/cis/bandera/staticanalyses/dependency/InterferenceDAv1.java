@@ -45,12 +45,14 @@ import ca.mcgill.sable.soot.jimple.FieldRef;
 import ca.mcgill.sable.soot.jimple.Stmt;
 
 import edu.ksu.cis.bandera.staticanalyses.InitializationException;
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair.PairManager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -72,14 +74,16 @@ import java.util.Set;
 public class InterferenceDAv1
   extends DependencyAnalysis {
 	/**
-	 * This manages pairs.  This is used to implement <i>flyweight</i> pattern to conserve memory.
+	 * <p>
+	 * The logger used by instances of this class to log messages.
+	 * </p>
 	 */
-	PairManager pairMgr;
+	private static final Log LOGGER = LogFactory.getLog(InterferenceDAv1.class);
 
 	/**
-	 * This provide call graph information about the analyzed system.  This is required by the analysis.
+	 * This manages pairs.  This is used to implement <i>flyweight</i> pattern to conserve memory.
 	 */
-	private CallGraphInfo callgraph;
+	protected PairManager pairMgr;
 
 	/**
 	 * Creates a new InterferenceDAv1 object.
@@ -106,37 +110,53 @@ public class InterferenceDAv1
 		 *
 		 * @pre stmt.isOclKindOf(AssignStmt)
 		 *
-		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Stmt,
 		 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 		 */
 		public void callback(Stmt stmt, Context context) {
 			SootMethod method = context.getCurrentMethod();
 			AssignStmt as = (AssignStmt) stmt;
+			Map temp = null;
 
 			if(as.getLeftOp() instanceof FieldRef) {
 				SootField sf = ((FieldRef) as.getLeftOp()).getField();
-				Map temp = getDependeXXMapHelper(dependentMap, sf);
-				temp.put(pairMgr.getPair(as, method), Collections.EMPTY_SET);
+				temp = getDependeXXMapHelper(dependentMap, sf);
 			} else if(as.getLeftOp() instanceof ArrayRef) {
 				ArrayType at = (ArrayType) ((ArrayRef) as.getLeftOp()).getBase().getType();
-				Map temp = getDependeXXMapHelper(dependentMap, at);
-				temp.put(pairMgr.getPair(as, method), Collections.EMPTY_SET);
+				temp = getDependeXXMapHelper(dependentMap, at);
 			} else if(as.getRightOp() instanceof FieldRef) {
 				SootField sf = ((FieldRef) as.getRightOp()).getField();
-				Map temp = getDependeXXMapHelper(dependeeMap, sf);
-				temp.put(pairMgr.getPair(as, method), Collections.EMPTY_SET);
+				temp = getDependeXXMapHelper(dependeeMap, sf);
 			} else if(as.getRightOp() instanceof ArrayRef) {
 				ArrayType at = (ArrayType) ((ArrayRef) as.getRightOp()).getBase().getType();
-				Map temp = getDependeXXMapHelper(dependeeMap, at);
-				temp.put(pairMgr.getPair(as, method), Collections.EMPTY_SET);
+				temp = getDependeXXMapHelper(dependeeMap, at);
 			}
+			if(temp != null) {
+				Pair p = pairMgr.getPair(as, method);
+
+				if(temp.get(p) == null) {
+					temp.put(p, Collections.EMPTY_LIST);
+				}
+			}
+		}
+		
+		public void callback(SootMethod sm) {			
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
+		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void hookup(ProcessingController ppc) {
 			ppc.register(AssignStmt.class, this);
+		}
+
+		/**
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
+		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 */
+		public void unhook(ProcessingController ppc) {
+			ppc.unregister(AssignStmt.class, this);
 		}
 
 		/**
@@ -170,7 +190,8 @@ public class InterferenceDAv1
 	 * @pre stmtMethodPair.oclIsKindOf(Pair(Stmt, SootMethod))
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object,
+	 * 		java.lang.Object)
 	 */
 	public Collection getDependees(Object dependent, Object stmtMethodPair) {
 		Collection result = Collections.EMPTY_LIST;
@@ -198,7 +219,8 @@ public class InterferenceDAv1
 	 * @pre stmtMethodPair.oclIsKindOf(Pair(Stmt, SootMethod))
 	 * @post result->forall(o | o.oclIsKindOf(Pair(Stmt, SootMethod))
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object,
+	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(Object dependee, Object stmtMethodPair) {
 		Collection result = Collections.EMPTY_LIST;
@@ -222,6 +244,7 @@ public class InterferenceDAv1
 	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public boolean analyze() {
+		LOGGER.info(dependeeMap.keySet() + "\n" + dependentMap.keySet());
 		for(Iterator i = dependeeMap.keySet().iterator(); i.hasNext();) {
 			Object o = i.next();
 
@@ -255,6 +278,42 @@ public class InterferenceDAv1
 	 */
 	public void reset() {
 		super.reset();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public String toString() {
+		StringBuffer result =
+			new StringBuffer("Statistics for Interference Dependence as calculated by " + getClass().getName() + "\n");
+		int localEdgeCount = 0;
+		int edgeCount = 0;
+
+		StringBuffer temp = new StringBuffer();
+
+		for(Iterator i = dependentMap.entrySet().iterator(); i.hasNext();) {
+			Map.Entry entry = (Map.Entry) i.next();
+			localEdgeCount = 0;
+
+			for(Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
+				Map.Entry entry2 = (Map.Entry) j.next();
+
+				for(Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
+					temp.append("\t\t" + entry2.getKey() + " --> " + k.next() + "\n");
+				}
+				localEdgeCount += ((Collection) entry2.getValue()).size();
+			}
+			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount + " interference dependence edges.\n");
+			result.append(temp);
+			temp.delete(0, temp.length());
+			edgeCount += localEdgeCount;
+		}
+		result.append("A total of " + edgeCount + " interference Dependence edges exist.");
+		return result.toString();
 	}
 
 	/**
@@ -292,18 +351,13 @@ public class InterferenceDAv1
 	/**
 	 * Extracts information provided by the environment via <code>info</code> parameter to {@link #initialize initialize}.
 	 *
-	 * @throws InitializationException when instances of call graph or pair managing service are not provided.
+	 * @throws InitializationException when an instance pair managing service are not provided.
 	 */
 	protected void setup() {
-		callgraph = (CallGraphInfo) info.get(CallGraphInfo.ID);
-
-		if(callgraph == null) {
-			throw new InitializationException(CallGraphInfo.ID + " was not provided in info.");
-		}
-		pairMgr = (PairManager) info.get(PairManager.NAME);
+		pairMgr = (PairManager) info.get(PairManager.ID);
 
 		if(pairMgr == null) {
-			throw new InitializationException(PairManager.NAME + " was not provided in info.");
+			throw new InitializationException(PairManager.ID + " was not provided in info.");
 		}
 	}
 }

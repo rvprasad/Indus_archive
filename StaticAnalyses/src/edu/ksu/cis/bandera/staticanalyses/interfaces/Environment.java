@@ -33,35 +33,47 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
+package edu.ksu.cis.bandera.staticanalyses.interfaces;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import ca.mcgill.sable.soot.SootClass;
+
+import java.util.Collection;
 
 
 /**
- * <p>
- * This class encapsulates the logic to connect ast flow graph nodes with non-ast flow graph nodes when the ast nodes
- * correspond to r-values.
- * </p>
- * Created: Wed Jan 30 15:19:44 2002
+ * This interface exposes the information pertaining to the system being analyzed which is essential for higher level
+ * analyses to function. However, it does not expose any information pertaining to the actual implementation of the analysis
+ * instance.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author $Author$
  * @version $Revision$
  */
-public class RHSConnector
-  implements FGNodeConnector {
+public interface Environment {
 	/**
-	 * <p>
-	 * Connects the given non-ast flow graph node to the ast flow graph node.
-	 * </p>
-	 *
-	 * @param ast the ast flow graph node to be connected.
-	 * @param nonast the non-ast flow graph node to be connnected.
+	 * The id of this interface.
 	 */
-	public void connect(FGNode ast, FGNode nonast) {
-		nonast.addSucc(ast);
-	}
+	String ID = "Environment";
+
+	/**
+	 * Returns the Jimple representation of the given class.
+	 *
+	 * @param className the name of the class whose Jimple representation is to be returned.
+	 *
+	 * @return the requested class.
+	 *
+	 * @post result.oclType = ca.mcgill.sable.soot.SootClass
+	 */
+	SootClass getClass(String className);
+
+	/**
+	 * Returns the classes accessed/used by the analyzer.
+	 *
+	 * @return the classes accessed/used by the analyzer.
+	 *
+	 * @post result->forall(o | o.oclType = ca.mcgill.sable.soot.SootClass)
+	 */
+	Collection getClasses();
 }
 
 /*****

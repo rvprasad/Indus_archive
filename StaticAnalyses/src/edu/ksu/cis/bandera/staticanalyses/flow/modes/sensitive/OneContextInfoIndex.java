@@ -62,7 +62,7 @@ public class OneContextInfoIndex
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 * </p>
 	 */
-	private static final Logger logger = LogManager.getLogger(OneContextInfoIndex.class);
+	private static final Logger LOGGER = LogManager.getLogger(OneContextInfoIndex.class);
 
 	/**
 	 * <p>
@@ -90,7 +90,7 @@ public class OneContextInfoIndex
 	public OneContextInfoIndex(Object value, Object c) {
 		this.value = value;
 		this.contextInfo = c;
-		logger.debug("Value: " + value + "  Context: " + contextInfo);
+		LOGGER.debug("Value: " + value + "  Context: " + contextInfo);
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class OneContextInfoIndex
 	 */
 	public boolean equals(Object index) {
 		boolean temp = false;
-		logger.debug(index + "\n" + this);
+		LOGGER.debug(index + "\n" + this);
 
 		if(index instanceof OneContextInfoIndex) {
 			OneContextInfoIndex d = (OneContextInfoIndex) index;

@@ -35,14 +35,9 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 import java.util.HashSet;
 import java.util.Set;
 
-
-//AbstractIndexManager.java
 
 /**
  * <p>
@@ -59,13 +54,6 @@ import java.util.Set;
  */
 public abstract class AbstractIndexManager
   implements Prototype {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(AbstractIndexManager.class);
-
 	/**
 	 * <p>
 	 * The collection of indices managed by this object.

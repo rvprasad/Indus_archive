@@ -33,35 +33,37 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
+package edu.ksu.cis.bandera.staticanalyses.interfaces;
 
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
+import java.util.Collection;
 
 
 /**
- * <p>
- * This class encapsulates the logic to connect ast flow graph nodes with non-ast flow graph nodes when the ast nodes
- * correspond to r-values.
- * </p>
- * Created: Wed Jan 30 15:19:44 2002
+ * This interface provides the information pertaining to Java monitors in the analyzed system.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+ * @author $Author$
  * @version $Revision$
  */
-public class RHSConnector
-  implements FGNodeConnector {
+public interface MonitorInfo {
 	/**
-	 * <p>
-	 * Connects the given non-ast flow graph node to the ast flow graph node.
-	 * </p>
-	 *
-	 * @param ast the ast flow graph node to be connected.
-	 * @param nonast the non-ast flow graph node to be connnected.
+	 * The id of this interface.
 	 */
-	public void connect(FGNode ast, FGNode nonast) {
-		nonast.addSucc(ast);
-	}
+	String ID = "Synchronization monitor Information";
+
+	/**
+	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
+	 * <code>SootMethod</code>. The third element is the method in which the monitor occurs.  In case the first and the
+	 * second element of the triple are <code>null</code> then this means the method is a synchronized.
+	 *
+	 * @return collection of monitors in the analyzed system.
+	 *
+	 * @post result->forall(o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.Triple))
+	 * @post result->forall(o | o.getFirst().oclIsOclKindOf(ca.mcgill.sable.soot.jimple.EnterMonitorStmt))
+	 * @post result->forall(o | o.getSecond().oclIsOclKindOf(ca.mcgill.sable.soot.jimple.ExitMonitorStmt))
+	 * @post result->forall(o | o.getThird().oclIsOclKindOf(ca.mcgill.sable.soot.SootMethod) && o.getThird() != null)
+	 */
+	Collection getMonitorTriples();
 }
 
 /*****

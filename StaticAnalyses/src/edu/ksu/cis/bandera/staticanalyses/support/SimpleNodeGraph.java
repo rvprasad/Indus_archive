@@ -78,7 +78,7 @@ public class SimpleNodeGraph
 		 * DOCUMENT ME!
 		 * </p>
 		 */
-		public final Object object;
+		public final Object _OBJECT;
 
 		/**
 		 * The collection of nodes which precede this node in the graph.
@@ -96,7 +96,7 @@ public class SimpleNodeGraph
 		 * @param o DOCUMENT ME!
 		 */
 		SimpleNode(Object o) {
-			this.object = o;
+			this._OBJECT = o;
 		}
 
 		/**
@@ -229,8 +229,5 @@ public class SimpleNodeGraph
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/19 17:31:19  venku
-Things are in flux.  Stabilizing them with CVS.
-
 
 *****/

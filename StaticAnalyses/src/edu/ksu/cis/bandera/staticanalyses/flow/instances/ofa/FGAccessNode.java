@@ -62,7 +62,7 @@ public class FGAccessNode
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 * </p>
 	 */
-	private static final Logger logger = Logger.getLogger(FGAccessNode.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(FGAccessNode.class.getName());
 
 	/**
 	 * <p>
@@ -93,7 +93,7 @@ public class FGAccessNode
 	 */
 	public void onNewValue(Object value) {
 		super.onNewValue(value);
-		logger.debug("Value: " + value + "\nSuccessors: " + succs);
+		LOGGER.debug("Value: " + value + "\nSuccessors: " + succs);
 		work.addValue(value);
 		worklist.addWork(work);
 	}
@@ -107,7 +107,7 @@ public class FGAccessNode
 	 */
 	public void onNewValues(Collection values) {
 		super.onNewValues(values);
-		logger.debug("Values: " + values + "\nSuccessors: " + succs);
+		LOGGER.debug("Values: " + values + "\nSuccessors: " + succs);
 		work.addValues(values);
 		worklist.addWork(work);
 	}

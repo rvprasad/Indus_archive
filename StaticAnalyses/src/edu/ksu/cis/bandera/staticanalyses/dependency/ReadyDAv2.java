@@ -49,12 +49,12 @@ import ca.mcgill.sable.soot.jimple.Stmt;
 import ca.mcgill.sable.soot.jimple.StmtList;
 
 import edu.ksu.cis.bandera.staticanalyses.InitializationException;
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Environment;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.Environment;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.bandera.staticanalyses.support.Pair;
@@ -86,7 +86,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class ReadyDA
+public class ReadyDAv2
   extends DependencyAnalysis {
 	/**
 	 * The  collection of <code>notifyXX</code> methods as available in the <code>Object</code> class.
@@ -105,22 +105,22 @@ public class ReadyDA
 	/**
 	 * This indicates rule 1 of ready dependency as described in the report.
 	 */
-	public final int RULE_1 = 1;
+	public static final int RULE_1 = 1;
 
 	/**
 	 * This indicates rule 2 of ready dependency as described in the report.
 	 */
-	public final int RULE_2 = 2;
+	public static final int RULE_2 = 2;
 
 	/**
 	 * This indicates rule 3 of ready dependency as described in the report.
 	 */
-	public final int RULE_3 = 4;
+	public static final int RULE_3 = 4;
 
 	/**
 	 * This indicates rule 4 of ready dependency as described in the report.
 	 */
-	public final int RULE_4 = 8;
+	public static final int RULE_4 = 8;
 
 	/**
 	 * This maps methods to collection of enter monitor statements.
@@ -177,9 +177,9 @@ public class ReadyDA
 	private int rules = RULE_1 | RULE_2 | RULE_3 | RULE_4;
 
 	/**
-	 * Creates a new ReadyDA object.
+	 * Creates a new ReadyDAv1 object.
 	 */
-	public ReadyDA() {
+	public ReadyDAv2() {
 		preprocessor = new PreProcessor();
 	}
 
@@ -268,10 +268,19 @@ public class ReadyDA
 		}
 
 		/**
-		 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
+		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 		 */
 		public void hookup(ProcessingController ppc) {
 			ppc.register(InvokeStmt.class, this);
+		}
+
+		/**
+		 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
+		 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+		 */
+		public void unhook(ProcessingController ppc) {
+			ppc.unregister(InvokeStmt.class, this);
 		}
 	}
 
@@ -286,7 +295,7 @@ public class ReadyDA
 	 * @pre dependentStmt.isOclKindOf(Stmt)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.
+	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependees( java.lang.Object, java.lang.
 	 * 		Object)
 	 */
 	public Collection getDependees(Object dependentStmt, Object context) {
@@ -304,7 +313,7 @@ public class ReadyDA
 	 * @pre dependeeStmt.isOclKindOf(Stmt)
 	 * @post result->forall(o | o.isOclKindOf(Stmt))
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object,
+	 * @see edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis#getDependents( java.lang.Object,
 	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(Object dependeeStmt, Object context) {
@@ -363,6 +372,42 @@ public class ReadyDA
 	}
 
 	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public String toString() {
+		StringBuffer result =
+			new StringBuffer("Statistics for Interference Dependence as calculated by " + getClass().getName() + "\n");
+		int localEdgeCount = 0;
+		int edgeCount = 0;
+
+		StringBuffer temp = new StringBuffer();
+
+		for(Iterator i = dependeeMap.entrySet().iterator(); i.hasNext();) {
+			Map.Entry entry = (Map.Entry) i.next();
+			localEdgeCount = 0;
+
+			for(Iterator j = ((Map) entry.getValue()).entrySet().iterator(); j.hasNext();) {
+				Map.Entry entry2 = (Map.Entry) j.next();
+
+				for(Iterator k = ((Collection) entry2.getValue()).iterator(); k.hasNext();) {
+					temp.append("\t\t" + entry2.getKey() + " --> " + k.next() + "\n");
+				}
+				localEdgeCount += ((Collection) entry2.getValue()).size();
+			}
+			result.append("\tFor " + entry.getKey() + " there are " + localEdgeCount + " interference dependence edges.\n");
+			result.append(temp);
+			temp.delete(0, temp.length());
+			edgeCount += localEdgeCount;
+		}
+		result.append("A total of " + edgeCount + " interference Dependence edges exist.");
+		return result.toString();
+	}
+
+	/**
 	 * Extracts information as provided by environment at initialization time.  It collects <code>wait</code> and
 	 * <code>notifyXX</code> methods as represented in the AST system. It also extract call graph info, pair manaing
 	 * service, and environment from the <code>info</code> member.
@@ -396,20 +441,20 @@ public class ReadyDA
 			}
 		}
 
-		environment = (Environment) info.get(PairManager.NAME);
+		environment = (Environment) info.get(PairManager.ID);
 
 		if(environment == null) {
-			throw new InitializationException(Environment.NAME + " was not provided in info.");
+			throw new InitializationException(Environment.ID + " was not provided in info.");
 		}
 		callgraph = (CallGraphInfo) info.get(CallGraphInfo.ID);
 
 		if(callgraph == null) {
 			throw new InitializationException(CallGraphInfo.ID + " was not provided in info.");
 		}
-		pairMgr = (PairManager) info.get(PairManager.NAME);
+		pairMgr = (PairManager) info.get(PairManager.ID);
 
 		if(pairMgr == null) {
-			throw new InitializationException(PairManager.NAME + " was not provided in info.");
+			throw new InitializationException(PairManager.ID + " was not provided in info.");
 		}
 	}
 
@@ -529,7 +574,7 @@ public class ReadyDA
 				Stmt dependee = (Stmt) j.next();
 				BasicBlock bb = bbGraph.getEnclosingBlock(dependee);
 				List sl = bb.getStmtFrom(stmts.indexOf(dependee));
-				sl.remove(0); // remove the dependee from the list
+				sl.remove(0);  // remove the dependee from the list
 				temp = new HashSet();
 
 				Pair pair = pairMgr.getPair(dependee, method);

@@ -74,15 +74,15 @@ import ca.mcgill.sable.soot.jimple.ThrowStmt;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 
+import edu.ksu.cis.bandera.staticanalyses.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.processors.AbstractProcessor;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.CallGraphInfo.CallTriple;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo;
+import edu.ksu.cis.bandera.staticanalyses.interfaces.ThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.bandera.staticanalyses.support.FastUnionFindElement;
@@ -193,6 +193,11 @@ public class RufsEscapeAnalysis
 	 */
 	final ValueProcessor valueProcessor;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	Jimple jimple = Jimple.v();
+
 	// Cache variables do not capture state of the object.  Rather they are used cache values across method calls.
 
 	/**
@@ -296,7 +301,7 @@ public class RufsEscapeAnalysis
 		 * The logger used by instances of this class to log messages.
 		 * </p>
 		 */
-		private final Log LOGGER = LogFactory.getLog(AliasSet.class);
+		private final Log fLOGGER = LogFactory.getLog(AliasSet.class);
 
 		/**
 		 * <p>
@@ -579,7 +584,7 @@ public class RufsEscapeAnalysis
 		 */
 		void unify(AliasSet a) {
 			if(a == null) {
-				LOGGER.warn("Unification with null requested.");
+				fLOGGER.warn("Unification with null requested.");
 			}
 
 			boolean flag = false;
@@ -637,6 +642,7 @@ public class RufsEscapeAnalysis
 			}
 		}
 	}
+
 
 	/**
 	 * DOCUMENT ME!
@@ -950,6 +956,7 @@ public class RufsEscapeAnalysis
 		}
 	}
 
+
 	/**
 	 * DOCUMENT ME!
 	 * 
@@ -1068,6 +1075,7 @@ public class RufsEscapeAnalysis
 		}
 	}
 
+
 	/**
 	 * DOCUMENT ME!
 	 * 
@@ -1122,7 +1130,8 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(
+		 * 		ca.mcgill.sable.soot.jimple.InterfaceInvokeExpr)
 		 */
 		public void caseInterfaceInvokeExpr(InterfaceInvokeExpr v) {
 			processInvokeExpr(v);
@@ -1146,7 +1155,7 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseParameterRef(ca.mcgill.sable.soot.jimple.ParameterRef)
+		 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseParameterRef( ca.mcgill.sable.soot.jimple.ParameterRef)
 		 */
 		public void caseParameterRef(ParameterRef v) {
 			if(v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
@@ -1157,14 +1166,14 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseSpecialInvokeExpr(ca.mcgill.sable.soot.jimple.SpecialInvokeExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseSpecialInvokeExpr( ca.mcgill.sable.soot.jimple.SpecialInvokeExpr)
 		 */
 		public void caseSpecialInvokeExpr(SpecialInvokeExpr v) {
 			processInvokeExpr(v);
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseStaticFieldRef(ca.mcgill.sable.soot.jimple.StaticFieldRef)
+		 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseStaticFieldRef( ca.mcgill.sable.soot.jimple.StaticFieldRef)
 		 */
 		public void caseStaticFieldRef(StaticFieldRef v) {
 			if(v.getType() instanceof RefType || v.getType() instanceof ArrayType) {
@@ -1175,21 +1184,21 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseStaticInvokeExpr(ca.mcgill.sable.soot.jimple.StaticInvokeExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseStaticInvokeExpr( ca.mcgill.sable.soot.jimple.StaticInvokeExpr)
 		 */
 		public void caseStaticInvokeExpr(StaticInvokeExpr v) {
 			processInvokeExpr(v);
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseThisRef(ca.mcgill.sable.soot.jimple.ThisRef)
+		 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseThisRef( ca.mcgill.sable.soot.jimple.ThisRef)
 		 */
 		public void caseThisRef(ThisRef v) {
 			setResult(methodCtxtCache.getThisAS());
 		}
 
 		/**
-		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseVirtualInvokeExpr(ca.mcgill.sable.soot.jimple.VirtualInvokeExpr)
+		 * @see ca.mcgill.sable.soot.jimple.ExprSwitch#caseVirtualInvokeExpr( ca.mcgill.sable.soot.jimple.VirtualInvokeExpr)
 		 */
 		public void caseVirtualInvokeExpr(VirtualInvokeExpr v) {
 			processInvokeExpr(v);
@@ -1250,7 +1259,8 @@ public class RufsEscapeAnalysis
 
 			// fix up "return" alias set.
 			Stmt stmt = context.getStmt();
-			AliasSet retAS = (sm.getReturnType() instanceof RefType) ? new AliasSet() : null;
+			AliasSet retAS = (sm.getReturnType() instanceof RefType) ? new AliasSet()
+																	 : null;
 
 			if(stmt instanceof AssignStmt && ((AssignStmt) stmt).getLeftOp().getType() instanceof RefType) {
 				((AssignStmt) stmt).getLeftOp().apply(valueProcessor);
@@ -1313,28 +1323,30 @@ public class RufsEscapeAnalysis
 	 *
 	 * @pre analyzer.isOclKindOf(edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#setAnalyzer(
+	 * 		edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
 	 */
 	public void setAnalyzer(AbstractAnalyzer analyzer) {
 		this.ofa = (OFAnalyzer) analyzer;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isMethodEscaping(ca.mcgill.sable.soot.jimple.NewExpr)
+	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isMethodEscaping( ca.mcgill.sable.soot.jimple.NewExpr)
 	 */
 	public boolean isMethodEscaping(NewExpr allocSite) {
 		return true;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isSingleThreadSynchronized(ca.mcgill.sable.soot.jimple.Stmt)
+	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isSingleThreadSynchronized(
+	 * 		ca.mcgill.sable.soot.jimple.Stmt)
 	 */
 	public boolean isSingleThreadSynchronized(Stmt stmt) {
 		return false;
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isThreadEscaping(ca.mcgill.sable.soot.jimple.NewExpr)
+	 * @see edu.ksu.cis.bandera.staticanalyses.escape.EscapeAnalysis#isThreadEscaping( ca.mcgill.sable.soot.jimple.NewExpr)
 	 */
 	public boolean isThreadEscaping(NewExpr allocSite) {
 		return false;
@@ -1348,7 +1360,7 @@ public class RufsEscapeAnalysis
 	 *
 	 * @pre value.isOclKindOf(NewExpr)
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Value,
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback( ca.mcgill.sable.soot.jimple.Value,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
 	 */
 	public void callback(Value value, Context context) {
@@ -1360,7 +1372,7 @@ public class RufsEscapeAnalysis
 	/**
 	 * Creates an alias set for the static fields.  This is the creation of  global alias sets in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(SootField)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(SootField)
 	 */
 	public void callback(SootField sf) {
 		if(Modifier.isStatic(sf.getModifiers())) {
@@ -1379,7 +1391,7 @@ public class RufsEscapeAnalysis
 	/**
 	 * Creates a method context for <code>sm</code>.  This is the creation of method contexts in Ruf's algorithm.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(SootMethod)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#callback(SootMethod)
 	 */
 	public void callback(SootMethod sm) {
 		methodCtxt2triple.put(sm, new Triple(new MethodContext(sm), new HashMap(), new HashMap()));
@@ -1389,7 +1401,7 @@ public class RufsEscapeAnalysis
 	 * Performs phase1 (condition 2 and 3) operation here.  This should be called after the call graph information has been
 	 * consolidated.
 	 *
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#consolidate()
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#consolidate()
 	 */
 	public void consolidate() {
 		Collection tassBak = new HashSet(threadAllocSitesSingle);
@@ -1446,19 +1458,10 @@ public class RufsEscapeAnalysis
 
 			for(Iterator j = nodes.iterator(); j.hasNext();) {
 				SimpleNode node = (SimpleNode) j.next();
-				SootMethod sm = (SootMethod) node.object;
+				SootMethod sm = (SootMethod) node._OBJECT;
 				LOGGER.info("Processing method " + sm);
 
-				JimpleBody body;
-
-				try {
-					body = (JimpleBody) sm.getBody(Jimple.v());
-				} catch(Exception e) {
-					e.printStackTrace();
-					System.out.println(sm.getSignature());
-					body = new JimpleBody(sm, sm.getBody(ClassFile.v()), 0);
-				}
-
+				JimpleBody body = Util.getJimpleBody(sm);
 				Triple triple = (Triple) methodCtxt2triple.get(sm);
 
 				if(body == null) {
@@ -1511,10 +1514,19 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#hookup(edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#hookup(
+	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
 	 */
 	public void hookup(ProcessingController ppc) {
 		ppc.register(NewExpr.class, this);
+	}
+
+	/**
+	 * @see edu.ksu.cis.bandera.staticanalyses.interfaces.Processor#unhook(
+	 * 		edu.ksu.cis.bandera.staticanalyses.flow.ProcessingController)
+	 */
+	public void unhook(ProcessingController ppc) {
+		ppc.unregister(NewExpr.class, this);
 	}
 
 	/**
@@ -1533,7 +1545,7 @@ public class RufsEscapeAnalysis
 			SootField sf = (SootField) i.next();
 
 			if(Modifier.isStatic(sf.getModifiers())
-					|| (!(sf.getType() instanceof RefType) || sf.getType() instanceof ArrayType)) {
+				  || (!(sf.getType() instanceof RefType) || sf.getType() instanceof ArrayType)) {
 				continue;
 			}
 			result.putASForField(sf.getSignature(), new AliasSet());
@@ -1689,22 +1701,23 @@ public class RufsEscapeAnalysis
 	private boolean executedMultipleTimes(SootMethod caller) {
 		boolean result = false;
 		Collection callers = cgi.getCallers(caller);
-main_control:
+main_control: 
 		if(callers.size() > 1) {
 			result = true;
 		} else if(callers.size() == 1) {
 			for(Iterator i = cgi.getSCCs().iterator(); i.hasNext();) {
-							Collection scc = (Collection) i.next();
+				Collection scc = (Collection) i.next();
 
-							if(scc.contains(caller)) {
-								result = true;
-								break main_control;
-							}
-						}
+				if(scc.contains(caller)) {
+					result = true;
+					break main_control;
+				}
+			}
+
 			CallTriple ctrp = (CallTriple) callers.iterator().next();
 			SootMethod caller2 = ctrp.getMethod();
 			BasicBlockGraph bbg =
-				bbm.getBasicBlockGraph(new CompleteStmtGraph(((StmtBody) caller2.getBody(Jimple.v())).getStmtList()));
+				bbm.getBasicBlockGraph(new CompleteStmtGraph(((StmtBody) caller2.getBody(jimple)).getStmtList()));
 
 			if(bbg.occursInCycle(bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
@@ -1727,7 +1740,7 @@ main_control:
 
 		if(Util.isDescendentOf(scm.getClass(classname), "java.lang.Thread")) {
 			BasicBlockGraph bbg =
-				bbm.getBasicBlockGraph(new CompleteStmtGraph(((StmtBody) sm.getBody(Jimple.v())).getStmtList()));
+				bbm.getBasicBlockGraph(new CompleteStmtGraph(((StmtBody) sm.getBody(jimple)).getStmtList()));
 			Stmt stmt = context.getStmt();
 
 			if(bbg.occursInCycle(bbg.getEnclosingBlock(stmt))) {
@@ -1743,14 +1756,5 @@ main_control:
  ChangeLog:
 
 $Log$
-Revision 1.4  2003/02/21 07:22:22  venku
-Changed \@pre to $pre in the ocl constraints specified in Javadoc.
-
-Revision 1.3  2003/02/20 19:19:09  venku
-Affected by the refactoring processing and controlling logic.
-
-Revision 1.2  2003/02/19 17:31:10  venku
-Things are in flux.  Stabilizing them with CVS.
-
 
 *****/

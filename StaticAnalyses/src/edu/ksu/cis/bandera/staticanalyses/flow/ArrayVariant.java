@@ -37,11 +37,6 @@ package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.ArrayType;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-
-//ArrayVariant.java
 
 /**
  * Variant representing arrays.
@@ -57,17 +52,10 @@ public class ArrayVariant
   extends AbstractValuedVariant {
 	/**
 	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(ArrayVariant.class);
-
-	/**
-	 * <p>
 	 * The array type being represented by this variant.
 	 * </p>
 	 */
-	public final ArrayType type;
+	public final ArrayType _TYPE;
 
 	/**
 	 * <p>
@@ -79,7 +67,7 @@ public class ArrayVariant
 	 */
 	protected ArrayVariant(ArrayType a, FGNode node) {
 		super(node);
-		this.type = a;
+		this._TYPE = a;
 	}
 }
 

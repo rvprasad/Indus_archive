@@ -33,7 +33,7 @@
  *                http://www.cis.ksu.edu/santos/bandera
  */
 
-package edu.ksu.cis.bandera.staticanalyses.flow.interfaces;
+package edu.ksu.cis.bandera.staticanalyses.interfaces;
 
 import ca.mcgill.sable.soot.SootMethod;
 
@@ -58,7 +58,7 @@ public interface ThreadGraphInfo {
 	/**
 	 * The id of this interface.
 	 */
-	public String ID = "Threadgraph Information";
+	String ID = "Threadgraph Information";
 
 	/**
 	 * This class captures in the information pertaining to object allocation.  It provides the expression, statement, and
@@ -116,7 +116,7 @@ public interface ThreadGraphInfo {
 	 *
 	 * @post result->forall(o | o.isOclKindOf(NewExprTriple))
 	 */
-	public Collection getAllocationSites();
+	Collection getAllocationSites();
 
 	/**
 	 * Returns the methods called executed in the <code>Thread</code> object created by the given <code>ne</code> expression
@@ -127,7 +127,7 @@ public interface ThreadGraphInfo {
 	 *
 	 * @return a collection of <code>SootMethod</code>s executed in this thread.
 	 */
-	public Collection getExecutedMethods(NewExpr ne, Context ctxt);
+	Collection getExecutedMethods(NewExpr ne, Context ctxt);
 
 	/**
 	 * Returns the threads in which the given method is executed.
@@ -136,16 +136,19 @@ public interface ThreadGraphInfo {
 	 *
 	 * @return a collection of <code>NewExprTriple</code>s which capture the creation of the executing thread.
 	 */
-	public Collection getExecutionThreads(SootMethod sm);
+	Collection getExecutionThreads(SootMethod sm);
+
+	/**
+	 * Returns the sites which start new threads.
+	 *
+	 * @return a collection of <code>CallTriple</code>s which captures the start sites for threads. 
+	 */
+	Collection getStartSites();
 }
 
 /*****
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/19 16:15:16  venku
-Well, things need to be baselined before proceeding to change
-them radically.  That's it.
-
 
 *****/

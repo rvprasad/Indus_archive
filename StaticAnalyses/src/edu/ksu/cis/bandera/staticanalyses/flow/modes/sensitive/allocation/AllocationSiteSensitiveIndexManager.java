@@ -56,7 +56,7 @@ public class AllocationSiteSensitiveIndexManager
 	/**
 	 * An instance of <code>Logger</code> used for logging purpose.
 	 */
-	private static final Logger logger = LogManager.getLogger(AllocationSiteSensitiveIndexManager.class);
+	private static final Logger LOGGER = LogManager.getLogger(AllocationSiteSensitiveIndexManager.class);
 
 	/**
 	 * Returns a new instance of this class.
@@ -79,7 +79,7 @@ public class AllocationSiteSensitiveIndexManager
 	 * @pre c.oclIsKindof(SymbolicContext)
 	 */
 	protected Index getIndex(Object o, Context c) {
-		logger.debug("Getting index for " + o + " in " + c);
+		LOGGER.debug("Getting index for " + o + " in " + c);
 
 		AllocationContext ctxt = (AllocationContext) c;
 
@@ -91,9 +91,5 @@ public class AllocationSiteSensitiveIndexManager
  ChangeLog:
 
 $Log$
-Revision 1.2  2003/02/19 16:07:36  venku
-The major change is that the index managers have been
-placed in separate packages.
-
 
 *****/

@@ -35,13 +35,8 @@
 
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 import java.util.Collection;
 
-
-//AbstractValuedVariant.java
 
 /**
  * <p>
@@ -58,13 +53,6 @@ import java.util.Collection;
  */
 public abstract class AbstractValuedVariant
   implements Variant {
-	/**
-	 * <p>
-	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
-	 */
-	private static final Logger logger = LogManager.getLogger(AbstractValuedVariant.class);
-
 	/**
 	 * <p>
 	 * The flow graph node associated with this variant.
