@@ -27,6 +27,13 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
+Version 0.4
+------------
+	- Feature requests 426.
+	- added support in basic block graph manager to cache statement list of methods.
+	- Class file and Sources are now v1.4 compatible.
+	
+
 Verion 0.3
 -----------
 	- Added a new interface and implementation in which graphs can be queried fro objects associated with nodes.

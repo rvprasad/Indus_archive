@@ -28,11 +28,16 @@ Required software:
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
 
+Version 0.4
+------------
+	- Feature requests 397, 411, 427.
+	- Class file and Sources are now v1.4 compatible.
+	
 
 Version 0.3
 ------------
 	- Bugfixes in executable slice generation phase.
-	- Catered to bug reports 389,390, 408, and 410.
+	- Catered to bug reports 389, 390, 408, and 410.
 	- Extended the slicer configuration file to store safe lock analysis usage information.  This will invalidate the 
 	  configurations from older versions.
 

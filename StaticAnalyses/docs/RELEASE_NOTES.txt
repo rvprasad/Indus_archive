@@ -21,6 +21,12 @@ Required software:
     	(junit.jar) [http://junit.org]
 
 
+Version 0.4
+------------
+	- Feature requests 426.
+	- Class file and Sources are now v1.4 compatible.
+
+
 Version 0.3
 ------------
 	- Implemented SafeLock Analysis.
