@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.xmlizer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -129,8 +130,15 @@ public final class UniqueJimpleIDGenerator
 
 		if (method.isConcrete()) {
 			final PatchingChain _c = method.getActiveBody().getUnits();
-			List tempList = new ArrayList(_c);
-			_result = String.valueOf(tempList.indexOf(stmt));
+			int _count = 0;
+
+			for (final Iterator _i = _c.iterator(); _i.hasNext();) {
+				if (stmt == _i.next()) {
+					break;
+				}
+				_count++;
+			}
+			_result = String.valueOf(_count);
 		}
 		return getIdForMethod(method) + "_s" + _result;
 	}
@@ -175,10 +183,11 @@ public final class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/28 00:44:15  venku
+   - coding convention.
    Revision 1.9  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.8  2003/12/02 11:36:16  venku
    - coding convention.
    Revision 1.7  2003/12/02 09:42:24  venku
