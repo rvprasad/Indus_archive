@@ -86,22 +86,22 @@ import soot.toolkits.scalar.UnitValueBoxPair;
  * @version $Revision$
  */
 public final class SlicingEngine {
-	/**
+	/** 
 	 * Backward slice request.
 	 */
 	public static final Object BACKWARD_SLICE = "BACKWARD_SLICE";
 
-	/**
+	/** 
 	 * Complete slice request.
 	 */
 	public static final Object COMPLETE_SLICE = "COMPLETE_SLICE";
 
-	/**
+	/** 
 	 * Forward slice request.
 	 */
 	public static final Object FORWARD_SLICE = "FORWARD_SLICE";
 
-	/**
+	/** 
 	 * This just a convenience collection of the types of slices supported by this class.
 	 *
 	 * @invariant sliceTypes.contains(FORWARD_SLICE) and sliceTypes.contains(BACKWARD_SLICE) and sliceTypes.contains
@@ -109,7 +109,7 @@ public final class SlicingEngine {
 	 */
 	public static final Collection SLICE_TYPES;
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(SlicingEngine.class);
@@ -122,29 +122,29 @@ public final class SlicingEngine {
 		SLICE_TYPES = Collections.unmodifiableCollection(_c);
 	}
 
-	/**
+	/** 
 	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced.
 	 */
 	BasicBlockGraphMgr bbgMgr;
 
-	/**
+	/** 
 	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
 	 *
 	 * @invariant sliceTypes.contains(sliceType)
 	 */
 	Object sliceType = BACKWARD_SLICE;
 
-	/**
+	/** 
 	 * The controller used to access the dependency analysis info during slicing.
 	 */
 	private AnalysesController controller;
 
-	/**
+	/** 
 	 * This is the collection of methods whose exits were transformed.
 	 */
 	private final Collection exitTransformedMethods = new HashSet();
 
-	/**
+	/** 
 	 * The work bag used during slicing.
 	 *
 	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
@@ -152,7 +152,7 @@ public final class SlicingEngine {
 	 */
 	private final IWorkBag workbag = new PoolAwareWorkBag(new FIFOWorkBag());
 
-	/**
+	/** 
 	 * The collection of control based Dependence analysis to be used during slicing.  Synchronization, Divergence, and
 	 * Control dependences are such dependences.
 	 *
@@ -161,19 +161,19 @@ public final class SlicingEngine {
 	 */
 	private Collection controlflowBasedDAs = new ArrayList();
 
-	/**
+	/** 
 	 * This provides the call graph information in the system being sliced.
 	 */
 	private ICallGraphInfo cgi;
 
-	/**
+	/** 
 	 * The list of slice criteria.
 	 *
 	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
 	 */
 	private List criteria = new ArrayList();
 
-	/**
+	/** 
 	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the
 	 * slice.
 	 *
@@ -182,17 +182,17 @@ public final class SlicingEngine {
 	 */
 	private final Map method2params = new HashMap();
 
-	/**
+	/** 
 	 * The closure used to generate criteria based on slice direction. See <code>setSliceType()</code> for details.
 	 */
 	private DependenceClosure criteriaClosure;
 
-	/**
+	/** 
 	 * This maps new expressions to corresponding init call sites.
 	 */
 	private INewExpr2InitMapper initMapper;
 
-	/**
+	/** 
 	 * This collects the parts of the system that make up the slice.
 	 */
 	private SliceCollector collector;
@@ -213,32 +213,32 @@ public final class SlicingEngine {
 	 */
 	private static class DependenceClosure
 	  implements Closure {
-		/**
+		/** 
 		 * The method in which the trigger occurs.
 		 */
 		protected SootMethod method;
 
-		/**
+		/** 
 		 * The statement which is the trigger.
 		 */
 		protected Stmt stmt;
 
-		/**
+		/** 
 		 * The collection of criteria based on the flow of control reaching (exclusive) or leaving the statement.
 		 */
 		private final Collection falseCriteria;
 
-		/**
+		/** 
 		 * The collection of criteria based on the flow of control reaching and leaving the statement.
 		 */
 		private final Collection trueCriteria;
 
-		/**
+		/** 
 		 * The object that actually retrieves the dependences from the given dependence analysis.
 		 */
 		private final IDependenceRetriver retriever;
 
-		/**
+		/** 
 		 * This maps truth values (true/false) to a collection of criteria based on reachability of control flow.
 		 */
 		private final Map newCriteria;
@@ -264,7 +264,7 @@ public final class SlicingEngine {
 		 *
 		 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 		 * @author $Author$
-		 * @version $Revision$ To change this generated comment go to  Window>Preferences>Java>Code Generation>Code Template
+		 * @version $Revision$
 		 */
 		static interface IDependenceRetriver {
 			/**
@@ -354,7 +354,14 @@ public final class SlicingEngine {
 		 * @see DependenceClosure.IDependenceRetriver#getDependences(IDependencyAnalysis,Stmt,SootMethod)
 		 */
 		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
-			return new HashSet(da.getDependees(stmt, method));
+			final Collection _result = new HashSet();
+
+			if (da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+				_result.addAll(da.getDependees(stmt, method));
+			} else if (da.getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTION)) {
+				_result.addAll(da.getDependents(stmt, method));
+			}
+			return _result;
 		}
 	}
 
@@ -393,7 +400,14 @@ public final class SlicingEngine {
 		 * @see DependenceClosure.IDependenceRetriver#getDependences(IDependencyAnalysis,Stmt,SootMethod)
 		 */
 		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
-			return new HashSet(da.getDependents(stmt, method));
+			final Collection _result = new HashSet();
+
+			if (da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
+				_result.addAll(da.getDependents(stmt, method));
+			} else if (da.getDirection().equals(IDependencyAnalysis.FORWARD_DIRECTION)) {
+				_result.addAll(da.getDependees(stmt, method));
+			}
+			return _result;
 		}
 	}
 
@@ -941,7 +955,8 @@ public final class SlicingEngine {
 	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
 		if (!collector.hasBeenCollected(valueBox)) {
-		    final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriterion(method, stmt, valueBox, considerExecution);
+			final Collection _sliceCriteria =
+				SliceCriteriaFactory.getFactory().getCriterion(method, stmt, valueBox, considerExecution);
 			workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled()) {
@@ -972,7 +987,7 @@ public final class SlicingEngine {
 	 */
 	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
 		if (!collector.hasBeenCollected(stmt)) {
-		    final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriterion(method, stmt, considerExecution);
+			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriterion(method, stmt, considerExecution);
 			workbag.addAllWorkNoDuplicates(_sliceCriteria);
 
 			if (LOGGER.isDebugEnabled()) {
@@ -1118,17 +1133,90 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Transforms the given value boxes and generates new slice criteria based on what affects the given occurrence of the
-	 * value boxes.
+	 * Generates immediate slice for the given expression.
 	 *
-	 * @param vBoxes is collection of value boxes.
-	 * @param stmt is the statement in which <code>vBoxes</code> occur.
-	 * @param method is the method in which <code>stmt</code> occurs.
+	 * @param expr is the expression-level slice criterion.
 	 *
-	 * @pre vBoxes != null and stmt != null and method != null
-	 * @pre vBoxes.oclIsKindOf(Collection(ValueBoxes)) and stmt.getUseAndDefBoxes().containsAll(vBoxes)
+	 * @pre expr != null and expr.getOccurringStmt() != null and expr.getOccurringMethod() != null
+	 * @pre expr.getCriterion() != null and expr.getCriterion().oclIsKindOf(ValueBox)
 	 */
-	private void transformAndGenerateCriteriaForVBoxes(final Collection vBoxes, final Stmt stmt, final SootMethod method) {
+	private void transformAndGenerateNewCriteriaForExpr(final SliceExpr expr) {
+		final Stmt _stmt = expr.getOccurringStmt();
+		final SootMethod _method = expr.getOccurringMethod();
+		final ValueBox _vBox = (ValueBox) expr.getCriterion();
+		final Value _value = _vBox.getValue();
+		final boolean _considerExecution = expr.isConsiderExecution();
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox.getValue() + "[" + _considerExecution + "] at "
+				+ _stmt + " in " + _method);
+		}
+
+		// include the statement to capture control dependency and generate criteria from it
+		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
+
+		// generate new slice criteria
+		if (_considerExecution) {
+			final Collection _temp = new HashSet(_value.getUseBoxes());
+			_temp.add(_vBox);
+			// include any sub expressions and generate criteria from them
+			transformAndGenerateToConsiderExecution(_stmt, _method, _temp);
+		}
+
+		// DO NOT COLLECT THE EXPRESSION UNLESS EXECUTION EFFECT IS REQUIRED.
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
+		}
+	}
+
+	/**
+	 * Transforms the given statement and Generates new criteria.
+	 *
+	 * @param stmt is the statement-level slice criterion.
+	 * @param method is the method in which <code>stmt</code> occurs.
+	 * @param considerExecution <code>true</code> indicates that the effect of executing this criterion should be considered
+	 * 		  while slicing.  This means all the expressions of the associated statement are also considered as slice
+	 * 		  criteria. <code>false</code> indicates that just the mere effect of the control reaching this criterion should
+	 * 		  be considered while slicing.  This means none of the expressions of the associated statement are considered as
+	 * 		  slice criteria.
+	 */
+	private void transformAndGenerateNewCriteriaForStmt(final Stmt stmt, final SootMethod method,
+		final boolean considerExecution) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
+		}
+
+		// transform the statement
+		if (considerExecution) {
+			// generate new slice criteria
+			processForNewExpr(stmt, method);
+			transformAndGenerateToConsiderExecution(stmt, method, stmt.getUseAndDefBoxes());
+			collector.includeInSlice(stmt);
+		}
+
+		// DO NOT COLLECT THE EXPRESSION UNLESS EXECUTION EFFECT IS REQUIRED.
+		// generate new slice criteria
+		generateNewCriteriaForTheCallToMethod(method);
+		generateNewCriteria(stmt, method, controlflowBasedDAs);
+		includeMethodAndDeclaringClassInSlice(method);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
+		}
+	}
+
+	/**
+	 * Transforms the given value boxes and generates criteria that are required to consider execution.
+	 *
+	 * @param stmt in which the value boxes occur.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param vBoxes are the ValueBoxesto be transformed.
+	 *
+	 * @pre stmt != null and method != null and vBoxes != null
+	 * @pre vBoxes.oclIsKindOf(Collection(ValueBox))
+	 * @pre stmt.getUseAndDefBoxes().containsAll(valueBoxes)
+	 */
+	private void transformAndGenerateToConsiderExecution(final Stmt stmt, final SootMethod method, final Collection vBoxes) {
 		if (LOGGER.isDebugEnabled()) {
 			final StringBuffer _sb = new StringBuffer();
 			_sb.append("BEGIN: Transforming value boxes [");
@@ -1176,100 +1264,6 @@ public final class SlicingEngine {
 		// create new slice criteria
 		generateNewCriteria(stmt, method, _das);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Transforming value boxes");
-		}
-	}
-
-	/**
-	 * Generates immediate slice for the given expression.
-	 *
-	 * @param sExpr is the expression-level slice criterion.
-	 *
-	 * @pre sExpr != null and sExpr.getOccurringStmt() != null and sExpr.getOccurringMethod() != null
-	 * @pre sExpr.getCriterion() != null and sExpr.getCriterion().oclIsKindOf(ValueBox)
-	 */
-	private void transformAndGenerateNewCriteriaForExpr(final SliceExpr sExpr) {
-		final Stmt _stmt = sExpr.getOccurringStmt();
-		final SootMethod _method = sExpr.getOccurringMethod();
-		final ValueBox _vBox = (ValueBox) sExpr.getCriterion();
-		final Value _value = _vBox.getValue();
-		final boolean _considerExecution = sExpr.isConsiderExecution();
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox.getValue() + "[" + _considerExecution + "] at "
-				+ _stmt + " in " + _method);
-		}
-
-		// include the statement to capture control dependency and generate criteria from it
-		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
-
-		// generate new slice criteria
-		if (_considerExecution) {
-			final Collection _temp = new HashSet(_value.getUseBoxes());
-			_temp.add(_vBox);
-			// include any sub expressions and generate criteria from them
-			transformAndGenerateToConsiderExecution(_stmt, _method, _temp);
-		} else {
-		    collector.includeInSlice(_vBox);
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
-		}
-	}
-
-	/**
-	 * Transforms the given statement and Generates new criteria.
-	 *
-	 * @param stmt is the statement-level slice criterion.
-	 * @param method is the method in which <code>stmt</code> occurs.
-	 * @param considerExecution <code>true</code> indicates that the effect of executing this criterion should be considered
-	 * 		  while slicing.  This means all the expressions of the associated statement are also considered as slice
-	 * 		  criteria. <code>false</code> indicates that just the mere effect of the control reaching this criterion should
-	 * 		  be considered while slicing.  This means none of the expressions of the associated statement are considered as
-	 * 		  slice criteria.
-	 */
-	private void transformAndGenerateNewCriteriaForStmt(final Stmt stmt, final SootMethod method,
-		final boolean considerExecution) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
-		}
-
-		// transform the statement
-		if (considerExecution) {
-			// generate new slice criteria
-			processForNewExpr(stmt, method);
-			transformAndGenerateToConsiderExecution(stmt, method, stmt.getUseAndDefBoxes());
-		}
-
-		// generate new slice criteria
-		generateNewCriteriaForTheCallToMethod(method);
-		generateNewCriteria(stmt, method, controlflowBasedDAs);
-		includeMethodAndDeclaringClassInSlice(method);
-
-		// collect the statement
-		collector.includeInSlice(stmt);
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
-		}
-	}
-
-	/**
-	 * Transforms the given value boxes and generates criteria that are required to consider execution.
-	 *
-	 * @param stmt in which the value boxes occur.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param vBoxes are the ValueBoxesto be transformed.
-	 *
-	 * @pre stmt != null and method != null and vBoxes != null
-	 * @pre vBoxes.oclIsKindOf(Collection(ValueBox))
-	 * @pre stmt.getUseAndDefBoxes().containsAll(valueBoxes)
-	 */
-	private void transformAndGenerateToConsiderExecution(final Stmt stmt, final SootMethod method, final Collection vBoxes) {
-		transformAndGenerateCriteriaForVBoxes(vBoxes, stmt, method);
-
 		if (stmt.containsInvokeExpr()) {
 			generateNewCriteriaForInvokeExprIn(stmt, method, true);
 		}
@@ -1279,9 +1273,13 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.83  2004/07/09 05:05:25  venku
+   - refactored the code to enable the criteria creation to be completely hidden
+     from the user.
+   - exposed the setting of the considerExecution flag of the criteria in the factory.
+   - made SliceCriteriaFactory a singleton.
    Revision 1.82  2004/07/08 11:08:13  venku
    - refactoring to remove redundance.
-
    Revision 1.81  2004/06/26 10:16:35  venku
    - bug #389. FIXED.
    Revision 1.80  2004/06/14 04:32:11  venku
