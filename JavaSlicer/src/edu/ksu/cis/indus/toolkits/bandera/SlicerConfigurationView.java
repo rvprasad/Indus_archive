@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.toolkits.bandera;
 
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
-import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.AbstractToolConfigurator;
 
 import org.eclipse.swt.widgets.Shell;
@@ -35,11 +34,6 @@ import org.eclipse.swt.widgets.Shell;
 public class SlicerConfigurationView
   implements ToolConfigurationView,
 	  ToolIconView {
-	/**
-	 * The configuration that can be configured via this object.
-	 */
-	private AbstractToolConfiguration configuration;
-
 	/**
 	 * The configurator used to configure <code>configuration</code>.
 	 *
@@ -68,17 +62,6 @@ public class SlicerConfigurationView
 	 */
 	public Object getActiveIcon() {
 		return null;
-	}
-
-	/**
-	 * Set the configuration to be configured.
-	 *
-	 * @param config the configuration to be configured.
-	 *
-	 * @pre config != null
-	 */
-	public void setConfiguration(final AbstractToolConfiguration config) {
-		configuration = config;
 	}
 
 	/**
@@ -117,13 +100,16 @@ public class SlicerConfigurationView
 			shell = new Shell();
 			shell.setText("Configure Slicer");
 		}
-		configurator.display(shell, configuration);
+		configurator.display(shell);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 23:16:18  venku
+   - documentation
+
    Revision 1.5  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
