@@ -40,7 +40,8 @@ import soot.SootMethod;
 
 
 /**
- * This is an abstract implementation of <code>ICallingContextRetriever</code>.
+ * This is an abstract implementation of <code>ICallingContextRetriever</code>.  A concrete implementation of this class 
+ * asis will return null (open) contexts.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
