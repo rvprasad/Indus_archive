@@ -750,8 +750,8 @@ public final class SlicerTool
 				Collection _criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst());
 				setConsiderExecution(_criteria, true);
 				_temp.addAll(_criteria);
-				setConsiderExecution(_criteria, true);
 				_criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond());
+                setConsiderExecution(_criteria, true);
 				_temp.addAll(_criteria);
 			}
 			criteria.addAll(_temp);
@@ -821,6 +821,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.74  2004/02/23 07:22:32  venku
+   - logging.
+
    Revision 1.73  2004/02/23 06:49:17  venku
    - logging.
    Revision 1.72  2004/02/23 04:40:17  venku
