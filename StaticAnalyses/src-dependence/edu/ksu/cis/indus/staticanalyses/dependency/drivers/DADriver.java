@@ -245,7 +245,7 @@ public abstract class DADriver
 			start = System.currentTimeMillis();
 			da.analyze();
 			stop = System.currentTimeMillis();
-			addTimeLog(da.getClass().getName() + " analysis", stop - start);
+			addTimeLog(da.getClass().getName() + "[" + da.hashCode() + "] analysis", stop - start);
 		}
 
 		if (LOGGER.isInfoEnabled()) {
@@ -390,6 +390,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/09 01:13:58  venku
+   - made basic block graph manager configurable in AbstractAnalysis
+   - ripple effect of the above change in DADriver.  This should also affect Slicer.
+
    Revision 1.11  2003/09/09 00:45:53  venku
    - minor refactoring.
    Revision 1.10  2003/09/08 02:23:13  venku
