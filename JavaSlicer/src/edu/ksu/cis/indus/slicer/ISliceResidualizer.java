@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.transformations.slicer;
+package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.transformations.common.ITransformer;
 
@@ -42,22 +42,6 @@ public interface ISliceResidualizer
 	boolean handleSliceType(Object theSliceType, boolean executableSlice);
 
 	/**
-	 * Checks if the transformer can handle partial inclusions.  Note that one may want to slice based on an expression in a
-	 * statement.  If the transformation generates marking the existing program, then only the expression can be marked.
-	 * However, in case the transformation generates a new program then depending on the target language semantics, only
-	 * that expression can be  included or the entire statement would need to be included.  We address this situation as
-	 * partial inclusion.  The transformer should be able declare it's capabilities via this method.
-	 *
-	 * @return <code>true</code> if the transformer can handle partial inclusions; <code>false</code>, otherwise.
-	 */
-	boolean handlesPartialInclusions();
-
-	/**
-	 * Transforms the slice into an executable slice.
-	 */
-	void makeExecutable();
-
-	/**
 	 * Deals with seed criteria based on the nature of the implementation.
 	 *
 	 * @param seedcriteria is the collection of seed criteria.
@@ -70,6 +54,15 @@ public interface ISliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
+
    Revision 1.4  2003/11/16 22:55:31  venku
    - added new methods to support processing of seed criteria.
      This is not same as slicing seed criteria of which we do not

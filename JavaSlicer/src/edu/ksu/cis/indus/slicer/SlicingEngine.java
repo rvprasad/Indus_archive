@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
@@ -24,9 +25,11 @@ import soot.jimple.AssignStmt;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
+import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
+import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -41,7 +44,6 @@ import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.FIFOWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.IWorkBag;
 import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -462,7 +464,8 @@ public class SlicingEngine {
 
 	/**
 	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression.  By nature of
-	 * Jimple, only one invoke expression can occur in a statement, hence, the arguments.
+	 * Jimple, only one invoke expression can occur in a statement, hence, the arguments.  This treats constructors in a
+	 * different way as it will generate slice criteria to consider the class initializers as well.
 	 *
 	 * @param stmt in which the field occurs.
 	 * @param method in which <code>stmt</code> occurs.
@@ -472,12 +475,25 @@ public class SlicingEngine {
 	 */
 	private void generateNewCriteriaForInvocation(final Stmt stmt, final SootMethod method) {
 		InvokeExpr expr = stmt.getInvokeExpr();
-		Context context = new Context();
-		context.setRootMethod(method);
-		context.setStmt(stmt);
+		Collection callees = new HashSet();
+
+		if (expr instanceof SpecialInvokeExpr && expr.getMethod().getName().equals("<init>")) {
+			callees.add(expr.getMethod());
+
+			SootClass sc = expr.getMethod().getDeclaringClass();
+
+			if (sc.declaresMethodByName("<clinit>")) {
+				callees.add(sc.getMethodByName("<clinit>"));
+			}
+		} else {
+			Context context = new Context();
+			context.setRootMethod(method);
+			context.setStmt(stmt);
+			callees.addAll(cgi.getCallees(expr, context));
+		}
 
 		// add exit points of callees as the slice criteria
-		for (Iterator i = cgi.getCallees(expr, context).iterator(); i.hasNext();) {
+		for (Iterator i = callees.iterator(); i.hasNext();) {
 			SootMethod callee = (SootMethod) i.next();
 			BasicBlockGraph bbg = slicedBBGMgr.getBasicBlockGraph(callee);
 
@@ -547,6 +563,37 @@ public class SlicingEngine {
 	 * 
 	 * <p></p>
 	 *
+	 * @param method DOCUMENT ME!
+	 */
+	private void generateNewCriteriaForTheCallToThisMethod(final SootMethod method) {
+		for (Iterator i = cgi.getCallers(method).iterator(); i.hasNext();) {
+			CallTriple ctrp = (CallTriple) i.next();
+			SootMethod caller = ctrp.getMethod();
+			Stmt stmt = ctrp.getStmt();
+
+			if (transformer.getTransformed(stmt, method) == null) {
+				SliceStmt critStmt = SliceStmt.getSliceStmt();
+				critStmt.initialize(caller, stmt, false);
+				workbag.addWorkNoDuplicates(critStmt);
+
+				if (method instanceof InstanceInvokeExpr) {
+					ValueBox baseBox = ((InstanceInvokeExpr) stmt.getInvokeExpr()).getBaseBox();
+
+					if (transformer.getTransformed(baseBox, stmt, method) == null) {
+						SliceExpr critExpr = SliceExpr.getSliceExpr();
+						critExpr.initialize(caller, stmt, baseBox, true);
+						workbag.addWorkNoDuplicates(critExpr);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
 	 * @param stmt DOCUMENT ME!
 	 * @param method DOCUMENT ME!
 	 */
@@ -595,6 +642,7 @@ public class SlicingEngine {
 
 				if (vBox.getValue() instanceof ParameterRef) {
 					generateNewCriteriaForParam(vBox, method);
+					generateNewCriteriaForTheCallToThisMethod(method);
 				}
 			}
 		}
@@ -659,6 +707,7 @@ public class SlicingEngine {
 			} else if (useReady && (stmt instanceof EnterMonitorStmt || stmt instanceof ExitMonitorStmt)) {
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
 			}
+			generateNewCriteriaForTheCallToThisMethod(method);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -673,6 +722,8 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/24 01:21:00  venku
+   - coding convention.
    Revision 1.12  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.
@@ -681,7 +732,6 @@ public class SlicingEngine {
      so that they can be used by the residualizers.  This is where
      published interface annotation is required.
    - ripple effect of the above refactoring.
-
    Revision 1.11  2003/11/22 00:43:34  venku
    - split initialize() into many setter methods.
    - initialize() now just does sanity check on the runtime configuration

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.transformations.slicer;
+package edu.ksu.cis.indus.slicer;
 
 import soot.Scene;
 import soot.SootClass;
@@ -30,7 +30,8 @@ import soot.jimple.TableSwitchStmt;
 
 import soot.tagkit.Tag;
 
-import edu.ksu.cis.indus.slicer.SlicingEngine;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -57,7 +59,7 @@ import java.util.List;
  * @version $Revision$ $Date$
  */
 public class TaggingBasedSliceResidualizer
-  extends AbstractSliceResidualizer {
+  implements ISliceResidualizer {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
@@ -94,6 +96,12 @@ public class TaggingBasedSliceResidualizer
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
 	private String tagName = SLICING_TAG;
+
+    private Object sliceType;
+
+    private Collection taggedMethods = new HashSet();
+    
+    private BasicBlockGraphMgr bbgMgr;
 
 	/**
 	 * DOCUMENT ME!
@@ -360,10 +368,13 @@ public class TaggingBasedSliceResidualizer
 
 	/**
 	 * {@inheritDoc}  This implementation can handle all slice types defined in <code>SlicingEngine</code> be it executable
-	 * or non-executable.
+	 * or non-executable except executable forward slices.
 	 */
 	public boolean handleSliceType(final Object theSliceType, final boolean executableSlice) {
-		return SlicingEngine.SLICE_TYPES.contains(theSliceType);
+        sliceType = theSliceType;
+        boolean result = SlicingEngine.SLICE_TYPES.contains(theSliceType);
+        result &= !(theSliceType.equals(SlicingEngine.FORWARD_SLICE) && executableSlice);
+        return result;
 	}
 
 	/**
@@ -392,13 +403,25 @@ public class TaggingBasedSliceResidualizer
 	 * @see edu.ksu.cis.indus.transformations.slicer.ISliceResidualizer#makeExecutable()
 	 */
 	public void makeExecutable() {
+        if (sliceType.equals(SlicingEngine.BACKWARD_SLICE))
+            makeBackwardSliceExecutable();
 	}
 
-	/**
+    private void makeBackwardSliceExecutable() {
+        for (Iterator i = taggedMethods.iterator(); i.hasNext(); ) {
+            SootMethod sm = (SootMethod) i.next();
+            BasicBlockGraph bbg = bbgMgr.getBasicBlockGraph(sm);
+            
+            
+        }
+    }
+
+    /**
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
 	 */
 	public void reset() {
 		tagName = SLICING_TAG;
+        taggedMethods.clear();
 	}
 
 	/**
@@ -441,12 +464,14 @@ public class TaggingBasedSliceResidualizer
 	private void tagMethod(final SootMethod method, final SlicingTag theTag) {
 		if (method.getTag(tagName) == null) {
 			method.addTag(theTag);
+            taggedMethods.add(method);
 		}
 
 		SootClass sc = method.getDeclaringClass();
 
 		if (sc.getTag(tagName) == null) {
 			sc.addTag(theTag);
+            System.out.println("Tagged: "  + sc.getName());
 		}
 
 		if (sc.hasSuperclass()) {
@@ -457,6 +482,29 @@ public class TaggingBasedSliceResidualizer
 			}
 		}
 	}
+    
+    /**
+     * Marks the given criteria as included in the slice.  {@inheritDoc}
+     *
+     * @param seedcriteria DOCUMENT ME!
+     *
+     * @see edu.ksu.cis.indus.slicer.ISliceResidualizer#processSeedCriteria(java.util.Collection)
+     */
+    public void processSeedCriteria(final Collection seedcriteria) {
+        for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
+            AbstractSliceCriterion crit = (AbstractSliceCriterion) i.next();
+
+            if (crit instanceof SliceExpr) {
+                SliceExpr expr = (SliceExpr) crit;
+                transformSeed((ValueBox) expr.getCriterion(), expr.getOccurringStmt(), expr.getOccurringMethod());
+            } else if (crit instanceof SliceStmt) {
+                SliceStmt stmt = (SliceStmt) crit;
+                transformSeed((Stmt) stmt.getCriterion(), stmt.getOccurringMethod());
+            }
+            crit.sliced();
+        }
+    }
+    
 
 	/**
 	 * DOCUMENT ME!
@@ -532,6 +580,9 @@ public class TaggingBasedSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/24 07:31:03  venku
+   - deleted method2locals, executable, and sliceType as they were not used.
+
    Revision 1.1  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.
