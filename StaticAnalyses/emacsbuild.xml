@@ -14,7 +14,7 @@
 <property name="docs" value="docs"/>
 <property name="gui" value="GUI"/>
 <property name="package" value="edu.ksu.cis.indus"/>
-<property name="jdklink" value="http://127.0.0.1/docs/java/jdk-1.4.1/api/"/>
+<property name="jdklink" value="http://127.0.0.1/docs/java/jdk-1.4.2/api/"/>
 <property name="sootlink" value="http://127.0.0.1/docs/compilers/soot-0.x/"/>
 
 <path id="src">
@@ -82,7 +82,20 @@
 </project>
 
 <!--
+ChangeLog:
+
+$Log$
+Revision 1.3  2003/08/11 04:30:44  venku
+*** empty log message ***
+
+Revision 1.2  2003/08/10 03:47:59  venku
+*** empty log message ***
+
+-->
+
+<!--
 Local Variables:
 mode: sgml
 End:
 -->
+
