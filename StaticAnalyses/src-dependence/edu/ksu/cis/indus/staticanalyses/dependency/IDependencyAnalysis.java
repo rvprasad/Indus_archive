@@ -15,15 +15,11 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * The interface to dependency analysis information.
  *
  * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
@@ -116,4 +112,11 @@ public interface IDependencyAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/14 09:02:57  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
+
  */

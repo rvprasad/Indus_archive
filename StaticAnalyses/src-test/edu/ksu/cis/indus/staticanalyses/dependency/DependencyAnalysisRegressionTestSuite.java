@@ -72,9 +72,7 @@ public class DependencyAnalysisRegressionTestSuite
 	private static final Log LOGGER = LogFactory.getLog(DependencyAnalysisRegressionTestSuite.class);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The property that maps a dependency class to the class that should be used to test its output.
 	 */
 	private static final Properties TEST_CLASSES_PROPERTIES = new Properties();
 
@@ -132,13 +130,12 @@ public class DependencyAnalysisRegressionTestSuite
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the test instance to test the given analysis instance.
 	 *
-	 * @param analysis DOCUMENT ME!
+	 * @param analysis is the instance whose output should be tested.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the test instance.
+	 * @pre analysis != null
 	 */
 	private static Test getDATestFor(final IDependencyAnalysis analysis) {
 		Test _result = null;
@@ -271,6 +268,13 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/05/14 09:02:56  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
+
    Revision 1.10  2004/05/14 06:27:26  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.9  2004/04/25 21:18:38  venku

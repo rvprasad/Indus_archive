@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.IndusTestCase;
+
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.Iterator;
@@ -27,9 +28,7 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides the basic infrastructure to test dependency analyses.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -39,21 +38,17 @@ public abstract class AbstractDependencyAnalysisTest
   extends IndusTestCase
   implements IDependencyAnalysisTest {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The analysis to test.
 	 */
 	private IDependencyAnalysis da;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The environment in which the analysis executed.
 	 */
 	private IEnvironment env;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 */
 	protected AbstractDependencyAnalysisTest() {
 		super();
@@ -61,20 +56,18 @@ public abstract class AbstractDependencyAnalysisTest
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Sets the analysis to test.
 	 *
-	 * @param analysis DOCUMENT ME!
+	 * @param analysis to test.
+	 *
+	 * @pre analysis != null
 	 */
 	public final void setDA(final IDependencyAnalysis analysis) {
 		da = analysis;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Tests the dependency analysis.
 	 */
 	public final void testDependencyAnalysis() {
 		for (final Iterator _i = env.getClasses().iterator(); _i.hasNext();) {
@@ -118,21 +111,22 @@ public abstract class AbstractDependencyAnalysisTest
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Verify the results of the analysis for the given statement and method.
 	 *
-	 * @param unit DOCUMENT ME!
-	 * @param sm DOCUMENT ME!
+	 * @param unit is the focus of the test.
+	 * @param sm is the method in which <code>unit</code> occurs.
 	 *
-	 * @throws IllegalStateException DOCUMENT ME!
+	 * @throws IllegalStateException when the implementation reached a state which cannot handle.  For example, in cases
+	 * 		   where a test  instance is used to test an analysis which it cannot handle.
+	 *
+	 * @pre unit != null and sm != null
 	 */
 	protected abstract void verifyDAFor(final Stmt unit, final SootMethod sm);
 
 	/**
-	 * DOCUMENT ME!
+	 * Returns the analysis being tested.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the analysis being tested.
 	 */
 	protected final IDependencyAnalysis getDa() {
 		return da;
@@ -142,6 +136,12 @@ public abstract class AbstractDependencyAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/14 09:02:56  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
    Revision 1.1  2004/05/14 06:28:25  venku
    - added a new class AbstractDependencyAnalysisTest to perform unit
      tests on dependency analysis.

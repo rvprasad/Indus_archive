@@ -6,8 +6,7 @@ import java.util.Collections;
 
 
 /**
- * DOCUMENT ME!
- * <p></p>
+ * This class is a mere container/provider of the identifiers of dependency analyses. 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -15,7 +14,7 @@ import java.util.Collections;
  */
 public final class DependencyAnalysisUtil {
 	/** 
-	 * <p>DOCUMENT ME! </p>
+	 * The collection of analysis identifiers.
 	 */
 	public static final Collection IDENTIFIERS;
 
@@ -43,4 +42,11 @@ public final class DependencyAnalysisUtil {
 ChangeLog:
 
 $Log$
+Revision 1.1  2004/05/14 09:02:57  venku
+- refactored:
+  - The ids are available in IDependencyAnalysis, but their collection is
+    available via a utility class, DependencyAnalysisUtil.
+  - DependencyAnalysis will have a sanity check via Unit Tests.
+- ripple effect.
+
 */

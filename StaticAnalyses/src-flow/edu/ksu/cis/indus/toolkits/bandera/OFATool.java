@@ -102,9 +102,10 @@ public final class OFATool
 	private ICallGraphInfo callgraph;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * A map from reachable classes to a collection of reachabled fields in them.
+	 *
+	 * @invariant reachableClass2Fields.oclIsKindOf(Map(SootClass, Collection(SootFields)))
+	 * @invariant reachableClass2Fields.values()->forall(o | o->forall(p | p is reachable))
 	 */
 	private final Map reachableClass2Fields = new HashMap();
 
@@ -347,12 +348,14 @@ public final class OFATool
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the reachable classes and the fields these classes.
 	 *
-	 * @param valueAnalyzer DOCUMENT ME!
-	 * @param tagiName DOCUMENT ME!
+	 * @param valueAnalyzer used to determine reachability.
+	 * @param tagName used to identify reachable parts.
+	 *
+	 * @pre valueAnalyzer != null and tagName != null
 	 */
-	private void retrieveReachableClassesAndFields(final IValueAnalyzer valueAnalyzer, final String tagiName) {
+	private void retrieveReachableClassesAndFields(final IValueAnalyzer valueAnalyzer, final String tagName) {
 		final Collection _temp = new HashSet();
 
 		for (final Iterator _i = valueAnalyzer.getEnvironment().getClasses().iterator(); _i.hasNext();) {
@@ -362,7 +365,7 @@ public final class OFATool
 			for (final Iterator _j = _sc.getFields().iterator(); _j.hasNext();) {
 				final SootField _sf = (SootField) _j.next();
 
-				if (_sf.hasTag(tagiName)) {
+				if (_sf.hasTag(tagName)) {
 					_temp.add(_sf);
 				}
 			}

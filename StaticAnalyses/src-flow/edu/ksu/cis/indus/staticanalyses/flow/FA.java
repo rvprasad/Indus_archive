@@ -78,9 +78,7 @@ public class FA
 	private final AbstractAnalyzer analyzer;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of workbags used in tandem during analysis.
 	 */
 	private final IWorkBag[] workBags;
 
@@ -112,9 +110,7 @@ public class FA
 	private final ITokenManager tokenManager;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The current work bag among the collection of work bags being used.
 	 */
 	private IWorkBag currWorkBag;
 
@@ -585,6 +581,9 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/05/20 07:30:15  venku
+   - added logging to track work bag switching.
+
    Revision 1.18  2004/05/19 06:50:30  venku
    - changes to use two-level worklist iteration.  That is, while processing
      work peice in a worklist, any newly generated work is added to another

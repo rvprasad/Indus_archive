@@ -29,9 +29,7 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class tests results from dependency analysis which can be queried for dependence on a statement in a method. 
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -88,4 +86,11 @@ class StmtAndMethodBasedDependencyAnalysisTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/14 09:02:56  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
+
  */

@@ -119,9 +119,9 @@ public final class AliasedUseDefInfo
 	 *
 	 * @param iva is the object flow analyzer to be used in the analysis.
 	 * @param cg is the call graph of the system.
-	 * @param bbgManager DOCUMENT ME!
+	 * @param bbgManager is the basic block graph manager to use.
 	 *
-	 * @pre analyzer != null and cg != null
+	 * @pre analyzer != null and cg != null and bbgMgr != null
 	 */
 	public AliasedUseDefInfo(final IValueAnalyzer iva, final ICallGraphInfo cg, final BasicBlockGraphMgr bbgManager) {
 		use2defsMap = new HashMap();
@@ -249,7 +249,7 @@ public final class AliasedUseDefInfo
 								+ _defMethod);
 						}
 
-						boolean _related = areDefUseRelated(_contextDef, _contextUse, _defStmt, _useStmt);
+						final boolean _related = areDefUseRelated(_contextDef, _contextUse, _defStmt, _useStmt);
 
 						if (_related) {
 							/*
@@ -267,6 +267,7 @@ public final class AliasedUseDefInfo
 								// TODO: determine if the use method is reachable via a call-site in the 
 								// def method that is reachable from the def site in the def method.  
 								// If so, set _flag to true
+							    ;
 							}
 
 							if (_flag) {
@@ -397,6 +398,12 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
    Revision 1.28  2004/05/21 10:25:47  venku
    - logic to determine if instance field references were related was incorrect.  FIXED.
    - refactoring.
