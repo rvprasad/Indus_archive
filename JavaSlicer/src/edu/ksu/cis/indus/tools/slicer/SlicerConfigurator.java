@@ -55,6 +55,22 @@ public final class SlicerConfigurator
 	}
 
 	/**
+	 * Checks if <code>toolConfiguration</code> can be handled by this configurator.
+	 *
+	 * @param toolConfiguration is the configuration to be check.
+	 *
+	 * @throws RuntimeException when <code>toolConfiguration</code> is an unhandled type of exception.
+	 *
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#validateConfiguration(AbstractToolConfiguration)
+	 */
+	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {
+		if (!(toolConfiguration instanceof SlicerConfiguration)) {
+			throw new RuntimeException(
+				"The toolConfiguration has to be of type edu.ksu.cis.indus.tools.slicer.SlicerConfiguration.");
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected void initialize() {
@@ -203,27 +219,13 @@ public final class SlicerConfigurator
 		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_RULE1_IN_READYDA, button,
 				configuration));
 	}
-
-	/**
-	 * Checks if <code>toolConfiguration</code> can be handled by this configurator.
-	 *
-	 * @param toolConfiguration is the configuration to be check.
-	 *
-	 * @throws RuntimeException when <code>toolConfiguration</code> is an unhandled type of exception.
-	 *
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#validateConfiguration(AbstractToolConfiguration)
-	 */
-	protected void checkConfiguration(final AbstractToolConfiguration toolConfiguration) {
-		if (!(toolConfiguration instanceof SlicerConfiguration)) {
-			throw new RuntimeException(
-				"The toolConfiguration has to be of type edu.ksu.cis.indus.tools.slicer.SlicerConfiguration.");
-		}
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/10/14 02:58:21  venku
+   - ripple effect of changes to AbstractToolConfigurator.
    Revision 1.9  2003/10/13 01:01:45  venku
    - Split transformations.slicer into 2 packages
       - transformations.slicer
