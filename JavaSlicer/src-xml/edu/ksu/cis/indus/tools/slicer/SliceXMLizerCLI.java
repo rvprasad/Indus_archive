@@ -459,8 +459,6 @@ public class SliceXMLizerCLI
 				_printer.write(_sc, outputDirectory);
 			} catch (final IOException _e) {
 				LOGGER.error("Error while writing " + _sc, _e);
-			} catch (final RuntimeException _e) {
-				LOGGER.error("Error while writing " + _sc, _e);
 			} finally {
 				if (_writer != null) {
 					_writer.flush();
@@ -512,6 +510,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/03 10:09:42  venku
+   - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
    Revision 1.3  2004/03/03 08:07:52  venku
    - coding convention.
    Revision 1.2  2004/03/03 08:07:31  venku
@@ -526,156 +526,156 @@ public class SliceXMLizerCLI
    - deleted dependency xmlization and test classes.
    - ripple effect.
    Revision 1.10  2004/02/09 06:49:27  venku
- *** empty log message ***
-         Revision 1.9  2004/02/09 04:39:57  venku
-         -
-         Revision 1.8  2004/02/09 02:21:51  venku
-         - ripple effect of refactoring xmlizing framework.
-         Revision 1.7  2004/02/08 03:06:16  venku
-         - refactoring of xmlizers in staticanalyses.
-         Revision 1.6  2004/01/22 13:07:30  venku
-         - check on output directory missing.  FIXED.
-         Revision 1.5  2004/01/22 01:06:32  venku
-         - coding convention.
-         Revision 1.4  2004/01/17 23:52:04  venku
-         - minor command line fix.
-         Revision 1.3  2004/01/13 10:59:42  venku
-         - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
-           It was deleted.
-         - ripple effect.
-         Revision 1.2  2004/01/09 23:13:42  venku
-         - formatting
-         - coding convention
-         - logging
-         Revision 1.1  2004/01/09 07:02:11  venku
-         - Made -o mandatory in SliceDriver.
-         - all information is dumped into directory specified via -o.
-         - Renamed SliceDriver to SliceXMLizerCLI.
-         Revision 1.31  2003/12/27 20:07:45  venku
-         - fixed xmlizers/driver to not throw exception
-           when -h is specified
-         Revision 1.30  2003/12/16 12:43:04  venku
-         - changed jimple/class file dumping code.
-         Revision 1.29  2003/12/16 00:29:21  venku
-         - documentation.
-         Revision 1.28  2003/12/15 16:35:29  venku
-         - added option to dump jimple.
-         Revision 1.27  2003/12/15 02:11:11  venku
-         - added exception handling at outer most level.
-         Revision 1.26  2003/12/13 19:46:45  venku
-         - documentation.
-         Revision 1.25  2003/12/13 02:29:16  venku
-         - Refactoring, documentation, coding convention, and
-           formatting.
-         Revision 1.24  2003/12/09 12:23:48  venku
-         - added support to control synchronicity of method runs.
-         - ripple effect.
-         Revision 1.23  2003/12/09 12:10:17  venku
-         - retrieval of config file from jar fails. FIXED.
-         Revision 1.22  2003/12/09 09:50:54  venku
-         - amended output of string output to be XML compliant.
-           This means some characters that are unrepresentable in
-           XML are omitted.
-         Revision 1.21  2003/12/09 04:22:14  venku
-         - refactoring.  Separated classes into separate packages.
-         - ripple effect.
-         Revision 1.20  2003/12/08 12:20:48  venku
-         - moved some classes from staticanalyses interface to indus interface package
-         - ripple effect.
-         Revision 1.19  2003/12/08 12:16:05  venku
-         - moved support package from StaticAnalyses to Indus project.
-         - ripple effect.
-         - Enabled call graph xmlization.
-         Revision 1.18  2003/12/02 09:42:18  venku
-         - well well well. coding convention and formatting changed
-           as a result of embracing checkstyle 3.2
-         Revision 1.17  2003/12/01 04:20:10  venku
-         - tag name should be provided for the engine before execution.
-         Revision 1.16  2003/11/30 09:02:01  venku
-         - incorrect processing filter used during xmlization. FIXED.
-         Revision 1.15  2003/11/30 02:38:44  venku
-         - changed the name of SLICING_TAG.
-         Revision 1.14  2003/11/30 00:10:20  venku
-         - Major refactoring:
-           ProcessingController is more based on the sort it controls.
-           The filtering of class is another concern with it's own
-           branch in the inheritance tree.  So, the user can tune the
-           controller with a filter independent of the sort of processors.
-         Revision 1.13  2003/11/28 22:12:53  venku
-         - dumps call graph.
-         - logging.
-         Revision 1.12  2003/11/28 16:37:42  venku
-         - slicer tool was initialized after setup and this erased previous
-           configuration info. FIXED.
-         - config file opening and defaulting logic was broken. FIXED.
-         Revision 1.11  2003/11/24 10:12:03  venku
-         - there are no residualizers now.  There is a very precise
-           slice collector which will collect the slice via tags.
-         - architectural change. The slicer is hard-wired wrt to
-           slice collection.  Residualization is outside the slicer.
-         Revision 1.10  2003/11/24 09:01:07  venku
-         - closed the jimple output stream.
-         Revision 1.9  2003/11/24 01:21:57  venku
-         - added command line option for jiimple output.
-         Revision 1.8  2003/11/24 00:11:42  venku
-         - moved the residualizers/transformers into transformation
-           package.
-         - Also, renamed the transformers as residualizers.
-         - opened some methods and classes in slicer to be public
-           so that they can be used by the residualizers.  This is where
-           published interface annotation is required.
-         - ripple effect of the above refactoring.
-         Revision 1.7  2003/11/20 07:42:07  venku
-         - added command line option "-p" to specify classpath for
-           soot.
-         Revision 1.6  2003/11/17 17:56:21  venku
-         - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
-           way to intialize the tool independent of how it's dependent
-           parts (such as configuration) were instantiated and intialized.
-         Revision 1.5  2003/11/17 16:58:12  venku
-         - populateDAs() needs to be called from outside the constructor.
-         - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
-         Revision 1.4  2003/11/17 15:25:17  venku
-         - added new method to AbstractSliceXMLizer to flush writer.
-         - called flush on xmlizer from the driver.
-         - erroneous file name was being constructed. FIXED.
-         - added tabbing and new line to output in TagBasedSliceXMLizer.
-         Revision 1.3  2003/11/17 03:22:55  venku
-         - added junit test support for Slicing.
-         - refactored code in test for dependency to make it more
-           simple.
-         Revision 1.2  2003/11/17 02:23:52  venku
-         - documentation.
-         - xmlizers require streams/writers to be provided to them
-           rather than they constructing them.
-         Revision 1.1  2003/11/17 01:39:42  venku
-         - added slice XMLization support.
-         Revision 1.7  2003/11/09 07:58:33  venku
-         - default configuration has been put into file instead
-           of embedding it into the source code.
-         Revision 1.6  2003/11/05 08:26:42  venku
-         - changed the xml schema for the slicer configuration.
-         - The configruator, driver, and the configuration handle
-           these changes.
-         Revision 1.5  2003/11/03 08:05:34  venku
-         - lots of changes
-           - changes to get the configuration working with JiBX
-           - changes to make configuration amenable to CompositeConfigurator
-           - added EquivalenceClassBasedAnalysis
-           - added fix for Thread's start method
-         Revision 1.4  2003/10/21 08:42:44  venku
-         - added code to actually drive the slicer by considering
-           main() methods as root methods.  This is temporary.
-           Eventually, there will be an analysis tool configurator.
-         Revision 1.3  2003/10/20 13:55:25  venku
-         - Added a factory to create new configurations.
-         - Simplified AbstractToolConfigurator methods.
-         - The driver manages the shell.
-         - Got all the gui parts running EXCEPT for changing
-           the name of the configuration.
-         Revision 1.2  2003/10/14 05:35:41  venku
-         - documentation.
-         Revision 1.1  2003/10/14 05:33:26  venku
-         - First cut at slicer driver.  This will be used to drive the testing
-           of the slicer.
+   - empty log message
+     Revision 1.9  2004/02/09 04:39:57  venku
+     -
+     Revision 1.8  2004/02/09 02:21:51  venku
+     - ripple effect of refactoring xmlizing framework.
+     Revision 1.7  2004/02/08 03:06:16  venku
+     - refactoring of xmlizers in staticanalyses.
+     Revision 1.6  2004/01/22 13:07:30  venku
+     - check on output directory missing.  FIXED.
+     Revision 1.5  2004/01/22 01:06:32  venku
+     - coding convention.
+     Revision 1.4  2004/01/17 23:52:04  venku
+     - minor command line fix.
+     Revision 1.3  2004/01/13 10:59:42  venku
+     - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
+       It was deleted.
+     - ripple effect.
+     Revision 1.2  2004/01/09 23:13:42  venku
+     - formatting
+     - coding convention
+     - logging
+     Revision 1.1  2004/01/09 07:02:11  venku
+     - Made -o mandatory in SliceDriver.
+     - all information is dumped into directory specified via -o.
+     - Renamed SliceDriver to SliceXMLizerCLI.
+     Revision 1.31  2003/12/27 20:07:45  venku
+     - fixed xmlizers/driver to not throw exception
+       when -h is specified
+     Revision 1.30  2003/12/16 12:43:04  venku
+     - changed jimple/class file dumping code.
+     Revision 1.29  2003/12/16 00:29:21  venku
+     - documentation.
+     Revision 1.28  2003/12/15 16:35:29  venku
+     - added option to dump jimple.
+     Revision 1.27  2003/12/15 02:11:11  venku
+     - added exception handling at outer most level.
+     Revision 1.26  2003/12/13 19:46:45  venku
+     - documentation.
+     Revision 1.25  2003/12/13 02:29:16  venku
+     - Refactoring, documentation, coding convention, and
+       formatting.
+     Revision 1.24  2003/12/09 12:23:48  venku
+     - added support to control synchronicity of method runs.
+     - ripple effect.
+     Revision 1.23  2003/12/09 12:10:17  venku
+     - retrieval of config file from jar fails. FIXED.
+     Revision 1.22  2003/12/09 09:50:54  venku
+     - amended output of string output to be XML compliant.
+       This means some characters that are unrepresentable in
+       XML are omitted.
+     Revision 1.21  2003/12/09 04:22:14  venku
+     - refactoring.  Separated classes into separate packages.
+     - ripple effect.
+     Revision 1.20  2003/12/08 12:20:48  venku
+     - moved some classes from staticanalyses interface to indus interface package
+     - ripple effect.
+     Revision 1.19  2003/12/08 12:16:05  venku
+     - moved support package from StaticAnalyses to Indus project.
+     - ripple effect.
+     - Enabled call graph xmlization.
+     Revision 1.18  2003/12/02 09:42:18  venku
+     - well well well. coding convention and formatting changed
+       as a result of embracing checkstyle 3.2
+     Revision 1.17  2003/12/01 04:20:10  venku
+     - tag name should be provided for the engine before execution.
+     Revision 1.16  2003/11/30 09:02:01  venku
+     - incorrect processing filter used during xmlization. FIXED.
+     Revision 1.15  2003/11/30 02:38:44  venku
+     - changed the name of SLICING_TAG.
+     Revision 1.14  2003/11/30 00:10:20  venku
+     - Major refactoring:
+       ProcessingController is more based on the sort it controls.
+       The filtering of class is another concern with it's own
+       branch in the inheritance tree.  So, the user can tune the
+       controller with a filter independent of the sort of processors.
+     Revision 1.13  2003/11/28 22:12:53  venku
+     - dumps call graph.
+     - logging.
+     Revision 1.12  2003/11/28 16:37:42  venku
+     - slicer tool was initialized after setup and this erased previous
+       configuration info. FIXED.
+     - config file opening and defaulting logic was broken. FIXED.
+     Revision 1.11  2003/11/24 10:12:03  venku
+     - there are no residualizers now.  There is a very precise
+       slice collector which will collect the slice via tags.
+     - architectural change. The slicer is hard-wired wrt to
+       slice collection.  Residualization is outside the slicer.
+     Revision 1.10  2003/11/24 09:01:07  venku
+     - closed the jimple output stream.
+     Revision 1.9  2003/11/24 01:21:57  venku
+     - added command line option for jiimple output.
+     Revision 1.8  2003/11/24 00:11:42  venku
+     - moved the residualizers/transformers into transformation
+       package.
+     - Also, renamed the transformers as residualizers.
+     - opened some methods and classes in slicer to be public
+       so that they can be used by the residualizers.  This is where
+       published interface annotation is required.
+     - ripple effect of the above refactoring.
+     Revision 1.7  2003/11/20 07:42:07  venku
+     - added command line option "-p" to specify classpath for
+       soot.
+     Revision 1.6  2003/11/17 17:56:21  venku
+     - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
+       way to intialize the tool independent of how it's dependent
+       parts (such as configuration) were instantiated and intialized.
+     Revision 1.5  2003/11/17 16:58:12  venku
+     - populateDAs() needs to be called from outside the constructor.
+     - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
+     Revision 1.4  2003/11/17 15:25:17  venku
+     - added new method to AbstractSliceXMLizer to flush writer.
+     - called flush on xmlizer from the driver.
+     - erroneous file name was being constructed. FIXED.
+     - added tabbing and new line to output in TagBasedSliceXMLizer.
+     Revision 1.3  2003/11/17 03:22:55  venku
+     - added junit test support for Slicing.
+     - refactored code in test for dependency to make it more
+       simple.
+     Revision 1.2  2003/11/17 02:23:52  venku
+     - documentation.
+     - xmlizers require streams/writers to be provided to them
+       rather than they constructing them.
+     Revision 1.1  2003/11/17 01:39:42  venku
+     - added slice XMLization support.
+     Revision 1.7  2003/11/09 07:58:33  venku
+     - default configuration has been put into file instead
+       of embedding it into the source code.
+     Revision 1.6  2003/11/05 08:26:42  venku
+     - changed the xml schema for the slicer configuration.
+     - The configruator, driver, and the configuration handle
+       these changes.
+     Revision 1.5  2003/11/03 08:05:34  venku
+     - lots of changes
+       - changes to get the configuration working with JiBX
+       - changes to make configuration amenable to CompositeConfigurator
+       - added EquivalenceClassBasedAnalysis
+       - added fix for Thread's start method
+     Revision 1.4  2003/10/21 08:42:44  venku
+     - added code to actually drive the slicer by considering
+       main() methods as root methods.  This is temporary.
+       Eventually, there will be an analysis tool configurator.
+     Revision 1.3  2003/10/20 13:55:25  venku
+     - Added a factory to create new configurations.
+     - Simplified AbstractToolConfigurator methods.
+     - The driver manages the shell.
+     - Got all the gui parts running EXCEPT for changing
+       the name of the configuration.
+     Revision 1.2  2003/10/14 05:35:41  venku
+     - documentation.
+     Revision 1.1  2003/10/14 05:33:26  venku
+     - First cut at slicer driver.  This will be used to drive the testing
+       of the slicer.
  */
