@@ -17,28 +17,50 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
 
-import org.apache.commons.collections.set.ListOrderedSet;
-
 
 /**
  * This class encapsulates the index creation logic.  It is abstract and it provides an interface through which new indices
  * can be obtained.  The sub classes should provide the logic for the actual creation of the indices.
- * 
- * <p>
- * Created: Tue Jan 22 04:54:38 2002
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @version $Revision$
+ * @author $Author$
+ * @version $Revision$ $Date$
  */
 public abstract class AbstractIndexManager
   implements IIndexManager {
 	/** 
-	 * The collection of indices managed by this object.
-	 *
-	 * @invariant indices != null
+	 * The value of <code>INDEX_MANAGEMENT_STRATEGY_PROPERTY</code> to use memory intensive index management strategy.
 	 */
-	protected final ListOrderedSet indices = new ListOrderedSet();
+	public static final String MEMORY_INTENSIVE_INDEX_MANAGEMENT = "MEMORY_INTENSIVE_INDEX_MANAGEMENT";
+
+	/** 
+	 * The value of <code>INDEX_MANAGEMENT_STRATEGY_PROPERTY</code> to use processor intensive index management strategy.
+	 */
+	public static final String PROCESSOR_INTENSIVE_INDEX_MANAGEMENT = "PROCESSOR_INTENSIVE_INDEX_MANAGEMENT";
+
+	/** 
+	 * The name of the property via which index management strategy can be altered. 
+	 */
+	public static final String INDEX_MANAGEMENT_STRATEGY =
+		"edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager.indexManagementStrategy";
+
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private final IIndexManagementStrategy strategizedIndexMgr;
+
+	/**
+	 * Creates a new AbstractIndexManager object.
+	 */
+	public AbstractIndexManager() {
+		final String _prop = System.getProperty(INDEX_MANAGEMENT_STRATEGY);
+
+		if (_prop != null && _prop.equals(MEMORY_INTENSIVE_INDEX_MANAGEMENT)) {
+			strategizedIndexMgr = new MemoryIntensiveStrategy();
+		} else {
+			strategizedIndexMgr = new ProcessorIntensiveStrategy();
+		}
+	}
 
 	/**
 	 * This operation is unsupported.
@@ -78,22 +100,14 @@ public abstract class AbstractIndexManager
 	 */
 	public final IIndex getIndex(final Object o, final Context c) {
 		final IIndex _temp = createIndex(o, c);
-		final IIndex _result;
-
-		if (indices.contains(_temp)) {
-			_result = (IIndex) indices.get(indices.indexOf(_temp));
-		} else {
-			_result = _temp;
-			indices.add(_temp);
-		}
-		return _result;
+		return strategizedIndexMgr.getEquivalentIndex(_temp);
 	}
 
 	/**
 	 * @see IIndexManager#reset()
 	 */
 	public void reset() {
-		indices.clear();
+		strategizedIndexMgr.reset();
 	}
 
 	/**
