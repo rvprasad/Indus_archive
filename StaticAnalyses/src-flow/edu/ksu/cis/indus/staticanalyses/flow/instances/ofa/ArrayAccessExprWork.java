@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,17 +30,17 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import soot.ArrayType;
+import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
 import soot.jimple.NullConstant;
-import soot.Value;
-import soot.ValueBox;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.BFA;
@@ -56,7 +56,11 @@ import java.util.Iterator;
 
 /**
  * This class is the counter part of <code>FieldAccessExprWork</code>.  It encapsulates the logic to instrument the flow
- * values through array components.  Created: Wed Mar  6 12:31:07 2002.
+ * values through array components.
+ * 
+ * <p>
+ * Created: Wed Mar  6 12:31:07 2002.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -71,28 +75,35 @@ public class ArrayAccessExprWork
 	/**
 	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
 	 * primary.
+	 *
+	 * @invariant ast != null
 	 */
 	protected final IFGNode ast;
 
 	/**
 	 * The connector to be used to connect the ast and non-ast node.
+	 *
+	 * @invariant connector != null
 	 */
 	protected final IFGNodeConnector connector;
 
 	/**
 	 * Creates a new <code>ArrayAccessExprWork</code> instance.
 	 *
-	 * @param caller the method in which the access occurs.
-	 * @param accessExprBox the array access expression program point.
-	 * @param context the context in which the access occurs.
-	 * @param astArg the flow graph node associated with the access expression.
-	 * @param connector the connector to use to connect the ast node to the non-ast node.
+	 * @param callerMethod the method in which the access occurs.
+	 * @param accessProgramPoint the array access expression program point.
+	 * @param accessContext the context in which the access occurs.
+	 * @param accessNode the flow graph node associated with the access expression.
+	 * @param connectorToUse the connector to use to connect the ast node to the non-ast node.
+	 *
+	 * @pre callerMethod != null and accessProgramPoint != null and accessContext != null and accessNode != null and
+	 * 		connectorToUse != null
 	 */
-	public ArrayAccessExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, IFGNode astArg,
-		IFGNodeConnector connector) {
-		super(caller, accessExprBox, context);
-		this.ast = astArg;
-		this.connector = connector;
+	public ArrayAccessExprWork(final MethodVariant callerMethod, final ValueBox accessProgramPoint,
+		final Context accessContext, final IFGNode accessNode, final IFGNodeConnector connectorToUse) {
+		super(callerMethod, accessProgramPoint, accessContext);
+		this.ast = accessNode;
+		this.connector = connectorToUse;
 	}
 
 	/**
@@ -126,13 +137,16 @@ public class ArrayAccessExprWork
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.6  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+    
+   Revision 1.6  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
@@ -47,7 +47,11 @@ import java.util.Iterator;
 
 /**
  * This class represents the flow graph node that accumulates objects as their entities would refer to objects at run-time.
- * This is an Object-flow analysis specific implementation.  Created: Thu Jan 31 00:42:34 2002
+ * This is an Object-flow analysis specific implementation.
+ * 
+ * <p>
+ * Created: Thu Jan 31 00:42:34 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -58,8 +62,10 @@ public class OFAFGNode
 	 * Creates a new <code>OFAFGNode</code> instance.
 	 *
 	 * @param wl the worklist associated with the instance of the framework within which this node exists.
+	 *
+	 * @pre wl != null
 	 */
-	public OFAFGNode(WorkList wl) {
+	public OFAFGNode(final WorkList wl) {
 		super(wl);
 	}
 
@@ -71,22 +77,26 @@ public class OFAFGNode
 		/**
 		 * Creates a new <code>SendValuesWork</code> instance.
 		 *
-		 * @param node the node into which the values need to be injected.
-		 * @param values a collection containing the values to be injected.
+		 * @param toNode the node into which the values need to be injected.
+		 * @param valuesToBeSent a collection containing the values to be injected.
+		 *
+		 * @pre toNode != null and valuesToBeSent != null
 		 */
-		SendValuesWork(IFGNode node, Collection values) {
-			super(node, values);
+		SendValuesWork(final IFGNode toNode, final Collection valuesToBeSent) {
+			super(toNode, valuesToBeSent);
 		}
 
 		/**
 		 * Creates a new <code>SendValuesWork</code> instance.
 		 *
-		 * @param node the node into which the values need to be injected.
-		 * @param value the value to be injected.
+		 * @param toNode the node into which the values need to be injected.
+		 * @param valueToBeSent the value to be injected.
+		 *
+		 * @pre toNode != null and valueToBeSent != null
 		 */
-		SendValuesWork(IFGNode node, Object value) {
-			super(node, new HashSet());
-			addValue(value);
+		SendValuesWork(final IFGNode toNode, final Object valueToBeSent) {
+			super(toNode, new HashSet());
+			addValue(valueToBeSent);
 		}
 
 		/**
@@ -98,12 +108,28 @@ public class OFAFGNode
 	}
 
 	/**
+	 * Returns a new instance of this class.
+	 *
+	 * @param o the <code>WorkList</code> to be passed to the constructor of this class.
+	 *
+	 * @return a new instance of this class parameterized by <code>o</code>.
+	 *
+	 * @pre o != null
+	 * @post result != null and result.oclIsKindOf(OFAFGNode)
+	 */
+	public Object getClone(final Object o) {
+		return new OFAFGNode((WorkList) o);
+	}
+
+	/**
 	 * Adds a new work to the worklist to propogate the values in this node to <code>succ</code>.  Only the difference values
 	 * are propogated.
 	 *
 	 * @param succ the successor node that was added to this node.
+	 *
+	 * @pre succ != null
 	 */
-	public void onNewSucc(IFGNode succ) {
+	public void onNewSucc(final IFGNode succ) {
 		Collection temp = diffValues(succ);
 
 		if (filter != null) {
@@ -119,8 +145,10 @@ public class OFAFGNode
 	 * Adds a new work to the worklist to propogate <code>value</code> in this node to it's successor nodes.
 	 *
 	 * @param value the value to be propogated to the successor node.
+	 *
+	 * @pre value != null
 	 */
-	public void onNewValue(Object value) {
+	public void onNewValue(final Object value) {
 		for (Iterator i = succs.iterator(); i.hasNext();) {
 			IFGNode succ = (IFGNode) i.next();
 
@@ -133,42 +161,38 @@ public class OFAFGNode
 	/**
 	 * Adds a new work to the worklist to propogate <code>values</code> in this node to it's successor nodes.
 	 *
-	 * @param values the values to be propogated to the successor node.  The collection contains object of type
-	 *           <code>Object</code>.
+	 * @param arrivingValues the values to be propogated to the successor node.  The collection contains object of type
+	 * 		  <code>Object</code>.
+	 *
+	 * @pre arrivingValues != null
 	 */
-	public void onNewValues(Collection values) {
+	public void onNewValues(final Collection arrivingValues) {
+		Collection temp = arrivingValues;
+
 		if (filter != null) {
-			values = filter.filter(values);
+			temp = filter.filter(temp);
 		}
 
 		for (Iterator i = succs.iterator(); i.hasNext();) {
 			IFGNode succ = (IFGNode) i.next();
 
 			if (!diffValues(succ).isEmpty()) {
-				worklist.addWork(new SendValuesWork(succ, values));
+				worklist.addWork(new SendValuesWork(succ, temp));
 			}
 		}
 	}
-
-	/**
-	 * Returns a new instance of this class.
-	 *
-	 * @param o the <code>WorkList</code> to be passed to the constructor of this class.
-	 *
-	 * @return a new instance of this class parameterized by <code>o</code>.
-	 */
-	public Object getClone(Object o) {
-		return new OFAFGNode((WorkList) o);
-	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 1.6  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
+   $Log$
 
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
 
-*****/
+   Revision 1.6  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

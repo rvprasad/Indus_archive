@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
@@ -51,6 +51,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.Allocati
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.flow.FlowSensitiveIndexManager;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -61,7 +62,10 @@ import java.util.Iterator;
  * <p>
  * The values returned on querying this analysis are AST chunks corresponding to object allocation/creation sites.
  * </p>
+ * 
+ * <p>
  * Created: Wed Jan 30 18:49:43 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -69,18 +73,18 @@ import java.util.Iterator;
 public final class OFAnalyzer
   extends AbstractAnalyzer {
 	/**
-	 * <p>
 	 * Creates a new <code>OFAnalyzer</code> instance.
-	 * </p>
 	 *
 	 * @param astim the prototype of the index manager to be used in conjunction with AST nodes.
 	 * @param allocationim the prototype of the index manager to be used in conjunction with fields and arrays.
 	 * @param lexpr the LHS expression visitor prototype.
 	 * @param rexpr the RHS expression visitor prototype.
 	 * @param stmt the statement visitor prototype.
+	 *
+	 * @pre astim != null and allocationim != null and lexpr != null and rexpr != null and stmt != null
 	 */
-	private OFAnalyzer(AbstractIndexManager astim, AbstractIndexManager allocationim, AbstractExprSwitch lexpr,
-		AbstractExprSwitch rexpr, AbstractStmtSwitch stmt) {
+	private OFAnalyzer(final AbstractIndexManager astim, final AbstractIndexManager allocationim,
+		final AbstractExprSwitch lexpr, final AbstractExprSwitch rexpr, final AbstractStmtSwitch stmt) {
 		super(new AllocationContext());
 
 		ModeFactory mf = new ModeFactory();
@@ -98,11 +102,11 @@ public final class OFAnalyzer
 	}
 
 	/**
-	 * <p>
 	 * Returns the analyzer that operates in flow insensitive and allocation-site insensitive modes.
-	 * </p>
 	 *
 	 * @return the instance of analyzer correponding to the given name.
+	 *
+	 * @post result != null
 	 */
 	public static OFAnalyzer getFIOIAnalyzer() {
 		AbstractIndexManager temp = new IndexManager();
@@ -114,11 +118,11 @@ public final class OFAnalyzer
 	}
 
 	/**
-	 * <p>
 	 * Returns the analyzer that operates in flow insensitive and allocation-site sensitive modes.
-	 * </p>
 	 *
 	 * @return the instance of analyzer correponding to the given name.
+	 *
+	 * @post result != null
 	 */
 	public static OFAnalyzer getFIOSAnalyzer() {
 		OFAnalyzer temp =
@@ -131,11 +135,11 @@ public final class OFAnalyzer
 	}
 
 	/**
-	 * <p>
 	 * Returns the analyzer that operates in flow sensitive and allocation-site insensitive modes.
-	 * </p>
 	 *
 	 * @return the instance of analyzer correponding to the given name.
+	 *
+	 * @post result != null
 	 */
 	public static OFAnalyzer getFSOIAnalyzer() {
 		return new OFAnalyzer(new FlowSensitiveIndexManager(), new IndexManager(),
@@ -145,11 +149,11 @@ public final class OFAnalyzer
 	}
 
 	/**
-	 * <p>
 	 * Returns the analyzer that operates in flow sensitive and allocation-site sensitive modes.
-	 * </p>
 	 *
 	 * @return the instance of analyzer correponding to the given name.
+	 *
+	 * @post result != null
 	 */
 	public static OFAnalyzer getFSOSAnalyzer() {
 		OFAnalyzer temp =
@@ -161,17 +165,18 @@ public final class OFAnalyzer
 	}
 
 	/**
-	 * <p>
 	 * Returns values associated with the given field associated with the given allocation sites.
-	 * </p>
 	 *
 	 * @param f the field reqarding which information is requested.
 	 * @param sites the collection of allocation sites that are of interest when extracting field information.
 	 *
 	 * @return a collection of values the field <code>f</code> may evaluate when associated with object created at allocation
 	 * 		   sites given by <code>sites</code>.
+	 *
+	 * @pre f != null and sites != null
+	 * @pre sites.oclIsKindOf(Collection(Object))
 	 */
-	public Collection getValues(SootField f, Collection sites) {
+	public Collection getValues(final SootField f, final Collection sites) {
 		Object temp = null;
 		Collection retValues;
 		AllocationContext ctxt = (AllocationContext) context;
@@ -188,31 +193,34 @@ public final class OFAnalyzer
 			}
 			ctxt.setAllocationSite(temp);
 		}
-		return retValues;
+		return retValues.isEmpty() ? Collections.EMPTY_SET
+								   : retValues;
 	}
 
 	/**
-	 * <p>
 	 * Checks if the <code>method</code> was analyzed in the <code>context</code> in this analysis.
-	 * </p>
 	 *
 	 * @param method to be checked if it was analyzed.
 	 * @param ctxt in which the method was analyzed.
 	 *
 	 * @return <code>true</code> if <code>method</code> was analyzed; <code>false</code>, otherwise.
+	 *
+	 * @pre method != null and ctxt != null
 	 */
-	public boolean wasAnalyzed(SootMethod method, AllocationContext ctxt) {
+	public boolean wasAnalyzed(final SootMethod method, final AllocationContext ctxt) {
 		return bfa.queryMethodVariant(method, ctxt) != null;
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/07 06:40:24  venku
-Major:
- - Moved the package under indus umbrella.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.2  2003/08/09 21:52:57  venku
+   Change parameter names.
+   
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */

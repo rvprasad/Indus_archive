@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
@@ -43,14 +43,13 @@ import org.apache.log4j.Logger;
 import java.util.Collection;
 
 
-// FGAccessNode.java
-
 /**
- * <p>
  * This class extends the flow graph node by associating a work peice with it.  This optimizes the worklist by adding new
  * values to the work peice already on the work list and not generating a new work peice.
- * </p>
+ * 
+ * <p>
  * Created: Tue Jan 22 04:30:32 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -58,74 +57,75 @@ import java.util.Collection;
 public class FGAccessNode
   extends OFAFGNode {
 	/**
-	 * <p>
 	 * An instance of <code>Logger</code> used for logging purpose.
-	 * </p>
 	 */
 	private static final Logger LOGGER = Logger.getLogger(FGAccessNode.class.getName());
 
 	/**
-	 * <p>
 	 * The work associated with this node.
-	 * </p>
+	 *
+	 * @invariant work != null
 	 */
 	private final AbstractWork work;
 
 	/**
-	 * <p>
 	 * Creates a new <code>FGAccessNode</code> instance.
-	 * </p>
 	 *
-	 * @param work the work peice associated with this node.
-	 * @param worklist the worklist in which <code>work</code> will be placed.
+	 * @param workPeice the work peice associated with this node.
+	 * @param worklistToUse the worklist in which <code>work</code> will be placed.
+	 *
+	 * @pre workPeice != null and worklistToUse != null
 	 */
-	public FGAccessNode(AbstractWork work, WorkList worklist) {
-		super(worklist);
-		this.work = work;
+	public FGAccessNode(final AbstractWork workPeice, final WorkList worklistToUse) {
+		super(worklistToUse);
+		this.work = workPeice;
 	}
 
 	/**
-	 * <p>
 	 * Adds the given value to the work peice for processing.
-	 * </p>
 	 *
-	 * @param value the value that needs to be processed at the given node.
+	 * @param newValue the value that needs to be processed at the given node.
+	 *
+	 * @pre newValue != null
 	 */
-	public void onNewValue(Object value) {
-		super.onNewValue(value);
+	public void onNewValue(final Object newValue) {
+		super.onNewValue(newValue);
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Value: " + value + "\nSuccessors: " + succs);
+			LOGGER.debug("Value: " + newValue + "\nSuccessors: " + succs);
 		}
-		work.addValue(value);
+		work.addValue(newValue);
 		worklist.addWork(work);
 	}
 
 	/**
-	 * <p>
 	 * Adds the given values to the work peice for processing.
-	 * </p>
 	 *
-	 * @param values the collection of values that need to be processed at the given node.
+	 * @param newValues the collection of values that need to be processed at the given node.
+	 *
+	 * @pre newValues != null and newValues
 	 */
-	public void onNewValues(Collection values) {
-		super.onNewValues(values);
+	public void onNewValues(final Collection newValues) {
+		super.onNewValues(newValues);
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Values: " + values + "\nSuccessors: " + succs);
+			LOGGER.debug("Values: " + newValues + "\nSuccessors: " + succs);
 		}
-		work.addValues(values);
+		work.addValues(newValues);
 		worklist.addWork(work);
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 1.6  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
+   $Log$
 
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
 
-*****/
+   Revision 1.6  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
@@ -43,7 +43,6 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
-import soot.VoidType;
 
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.Jimple;
@@ -65,7 +64,11 @@ import java.util.Iterator;
 
 /**
  * This class represents a peice of work that plugin new fragments of flow graph as new types which provide new
- * implementations flow into the receiver at the associated call-site.  Created: Mon Jan 28 12:36:18 2002
+ * implementations flow into the receiver at the associated call-site.
+ * 
+ * <p>
+ * Created: Mon Jan 28 12:36:18 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -84,34 +87,42 @@ public class InvokeExprWork
 
 	/**
 	 * The expression visitor that created this object.  This is used to plugin a new method call into the flow graph.
+	 *
+	 * @invariant exprSwitch != null
 	 */
 	protected AbstractExprSwitch exprSwitch;
 
 	/**
 	 * Indicates if the method represented by this object returns a value of with reference-like type.
+	 *
+	 * @invariant returnsRefLikeType != null
 	 */
 	protected final boolean returnsRefLikeType;
 
 	/**
 	 * Creates a new <code>InvokeExprWork</code> instance.
 	 *
-	 * @param caller the method in which the call occurs.
-	 * @param accessExprBox the expression in which the invocation occurs.
-	 * @param context the context in which the invocation occurs.
-	 * @param exprSwitch the expression visitor to be used for visiting expressions.
+	 * @param callerMethod the method in which the call occurs.
+	 * @param invocationExpr expression in which the invocation occurs.
+	 * @param callContext the context in which the invocation occurs.
+	 * @param exprSwitchParam the expression visitor to be used for visiting expressions.
 	 *
 	 * @throws IllegalArgumentException when <code>accessExprBox</code> does not wrap an <code>InstanceInvokeExpr</code>
 	 * 		   object.
+	 *
+	 * @pre callerMethod != null and invocationExpr != null and callContext != null
 	 */
-	public InvokeExprWork(MethodVariant caller, ValueBox accessExprBox, Context context, AbstractExprSwitch exprSwitch)
-	  throws IllegalArgumentException {
-		super(caller, accessExprBox, context);
+	public InvokeExprWork(final MethodVariant callerMethod, final ValueBox invocationExpr, final Context callContext,
+		final AbstractExprSwitch exprSwitchParam) {
+		super(callerMethod, invocationExpr, callContext);
 
-		if (!(accessExprBox.getValue() instanceof InstanceInvokeExpr)) {
+		if (!(invocationExpr.getValue() instanceof InstanceInvokeExpr)) {
 			throw new IllegalArgumentException("accessExprBox has to contain a InstanceInvokeExpr object as value.");
 		}
-		this.exprSwitch = exprSwitch;
-		this.returnsRefLikeType = (((InstanceInvokeExpr) accessExprBox.getValue()).getMethod().getReturnType() instanceof RefLikeType);
+		this.exprSwitch = exprSwitchParam;
+
+		InstanceInvokeExpr ie = (InstanceInvokeExpr) invocationExpr.getValue();
+		this.returnsRefLikeType = ie.getMethod().getReturnType() instanceof RefLikeType;
 	}
 
 	/**
@@ -201,15 +212,20 @@ public class InvokeExprWork
 	 * Returns a stringized representation of this object.
 	 *
 	 * @return the stringized representation of this object.
+	 *
+	 * @post result != null
 	 */
 	public String toString() {
 		return "InvokeExprWork: " + caller._METHOD + "@" + accessExprBox.getValue();
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
+   $Log$
 
-*****/
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+ */

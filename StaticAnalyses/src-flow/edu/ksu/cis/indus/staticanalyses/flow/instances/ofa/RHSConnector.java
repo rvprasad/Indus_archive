@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
@@ -40,11 +40,12 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 
 
 /**
- * <p>
  * This class encapsulates the logic to connect ast flow graph nodes with non-ast flow graph nodes when the ast nodes
  * correspond to r-values.
- * </p>
+ * 
+ * <p>
  * Created: Wed Jan 30 15:19:44 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -52,25 +53,26 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 public class RHSConnector
   implements IFGNodeConnector {
 	/**
-	 * <p>
-	 * Connects the given non-ast flow graph node to the ast flow graph node.
-	 * </p>
+	 * Connects the given non-ast flow graph node to the ast flow graph node.  This is used to connect flow nodes
+	 * corresponding to RHS expressions.
 	 *
 	 * @param ast the ast flow graph node to be connected.
 	 * @param nonast the non-ast flow graph node to be connnected.
+	 *
+	 * @pre ast != null and nonast != null
 	 */
-	public void connect(IFGNode ast, IFGNode nonast) {
+	public void connect(final IFGNode ast, final IFGNode nonast) {
 		nonast.addSucc(ast);
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.5  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+   Revision 1.5  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */
