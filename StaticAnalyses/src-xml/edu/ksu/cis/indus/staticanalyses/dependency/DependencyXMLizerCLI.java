@@ -152,12 +152,6 @@ public class DependencyXMLizerCLI
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 
-		final DivergenceDA _fipdda = DivergenceDA.getForwardDivergenceDA();
-		_fipdda.setConsiderCallSites(true);
-
-		final DivergenceDA _bipdda = DivergenceDA.getBackwardDivergenceDA();
-		_bipdda.setConsiderCallSites(true);
-
 		final NonTerminationSensitiveEntryControlDA _ncda = new NonTerminationSensitiveEntryControlDA();
 		final Object[][] _dasOptions =
 			{
@@ -181,10 +175,8 @@ public class DependencyXMLizerCLI
 				{ "ida1", "Interference dependence v1", new InterferenceDAv1() },
 				{ "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "fdda", "Forward Divergence dependence", DivergenceDA.getForwardDivergenceDA() },
-				{ "bdda", "Backward Divergence dependence", DivergenceDA.getBackwardDivergenceDA() },
-				{ "fpdda", "Forward Interprocedural Divergence dependence", _fipdda },
-				{ "bpdda", "Backward Interprocedural Divergence dependence", _bipdda },
+				{ "fpdda", "Forward Interprocedural Divergence dependence", DivergenceDA.getForwardDivergenceDA() },
+				{ "bpdda", "Backward Interprocedural Divergence dependence", DivergenceDA.getBackwardDivergenceDA() },
 			};
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
