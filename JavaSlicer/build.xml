@@ -77,7 +77,6 @@
 			<param name="jdklink" value="${remote_jdklink}" />
 			<param name="srcpath" value="${ant.project.name}.docsrcpath" />
 			<param name="exclude" value="yes" />
-			<param name="source" value="1.4"/>			
 		</antcall>
 		<antcall target="doxydocs">
 			<param name="configFile" value="Doxyfile" />
@@ -92,7 +91,6 @@
 			<param name="jdklink" value="${local_jdklink}" />
 			<param name="srcpath" value="${ant.project.name}.srcpath" />
 			<param name="exclude" value="no" />
-			<param name="source" value="1.4"/>			
 		</antcall>
 		<antcall target="doxydocs">
 			<param name="configFile" value="privateDoxyfile" />
@@ -119,6 +117,7 @@
 		         header="&lt;b> &lt;a href='http://indus.projects.cis.ksu.edu'>Indus &lt;/a>, a &lt;a href='http://www.cis.ksu.edu/santos'>SAnToS laboratory &lt;/a> project.&lt;/b>"
 		         doctitle="&lt;b>Indus, a toolkit to customize and adapt Java programs.&lt;/b>"
 		         overview="src/overview.html"
+				 source="1.4"
 		>
 			<classpath refid="${ant.project.name}.classpath" />
 			<sourcepath refid="${srcpath}" />
@@ -170,6 +169,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.36  2004/08/23 15:31:49  venku
+- enabled 1.4 compatibility for javadoc compilation.
+
 Revision 1.35  2004/08/16 17:14:12  venku
 - bumped up the class file compatibility and source file compatibility to v1.4.
 
