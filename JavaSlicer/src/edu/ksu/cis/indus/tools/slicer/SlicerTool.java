@@ -202,6 +202,8 @@ public final class SlicerTool
 	 */
 	private Init2NewExprMapper initMapper;
 
+    private AliasedUseDefInfo aliasUD;
+
 	/**
 	 * Creates a new SlicerTool object.
 	 */
@@ -234,10 +236,11 @@ public final class SlicerTool
 
 		// set up data required for dependency analyses.
 		Map info = new HashMap();
+        aliasUD = new AliasedUseDefInfo(ofa);
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
 		info.put(IEnvironment.ID, ofa.getEnvironment());
-		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(ofa));
+		info.put(IUseDefInfo.ID, aliasUD);
 		info.put(Pair.PairManager.ID, new Pair.PairManager());
 		info.put(IValueAnalyzer.ID, ofa);
 		info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
@@ -458,7 +461,9 @@ public final class SlicerTool
 
 			// process escape analyses.
 			ecba.hookup(cgBasedPreProcessCtrl);
+            aliasUD.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
+            aliasUD.unhook(cgBasedPreProcessCtrl);
 			ecba.unhook(cgBasedPreProcessCtrl);
 			ecba.execute();
 			phase.nextMajorPhase();
@@ -630,6 +635,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2003/11/24 22:51:09  venku
+   - deleted transformer field as it was not used.
+
    Revision 1.32  2003/11/24 10:11:32  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.
