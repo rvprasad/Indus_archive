@@ -223,11 +223,10 @@ public class EntryControlDA
 		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final SootMethod _method = (SootMethod) _entry.getKey();
-			_localEdgeCount = 0;
-			_localEntryPointDep = 0;
-
 			final List _stmts = getStmtList(_method);
 			final List _cd = (List) _entry.getValue();
+			_localEdgeCount = 0;
+			_localEntryPointDep = _stmts.size();
 
 			for (int _j = 0; _j < _stmts.size(); _j++) {
 				if (_cd == null) {
@@ -239,8 +238,7 @@ public class EntryControlDA
 				if (_dees != null) {
 					_temp.append("\t\t" + _stmts.get(_j) + " --> " + _dees + "\n");
 					_localEdgeCount += _dees.size();
-				} else {
-					_localEntryPointDep++;
+					_localEntryPointDep--;
 				}
 			}
 
@@ -575,6 +573,10 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/07/08 07:41:22  venku
+   - tokens contributed by parentNode was not excluded when propagating tokens
+     from parentNode to its children nodes.  FIXED.
+
    Revision 1.24  2004/06/22 01:01:37  venku
    - BitSet(1) creates an empty bitset.  Instead we use BitSet() to create a
      bit set that contains a long array of length 1.

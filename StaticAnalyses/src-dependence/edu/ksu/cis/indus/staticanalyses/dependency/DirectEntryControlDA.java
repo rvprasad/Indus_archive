@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.graph.INode;
 
 import java.util.BitSet;
@@ -39,18 +37,17 @@ public class DirectEntryControlDA
 	// TODO: Link to documentation describing direct entry-based intraprocedural control dependence needs to be added.
 
 	/*
-	 * In this class, instead of propagating all tokens (as done in EntryControlDA), only tokens corresponding to nodes with
-	 * multiple children are propagated to their children.  Only when a node accumulates all tokens of a control point node,
-	 * the tokens at the control point are injected into the token set of the node (accumulateTokensAtNode)
+	 * In this class, the tokens corresponding to ancestors are blocked at control points. Only when a node accumulates all 
+	 * tokens of a control point node, the tokens at the control point corresponding to the ancestor of the control point are 
+	 * injected into the token set of the node.
 	 */
 
 	/**
 	 * @see EntryControlDA#processNode(INode,BitSet[][])
 	 */
 	protected Collection processNode(final INode node, final BitSet[][] tokenSets) {
-		accumulateTokensAtNode(node, tokenSets);
-
 		final Collection _result;
+		accumulateTokensAtNode(node, tokenSets);
 
 		if (!nodesWithChildrenCache.contains(node)) {
 			_result = super.processNode(node, tokenSets);
@@ -58,7 +55,7 @@ public class DirectEntryControlDA
 			/*
 			 * Say B and C are control points, A is the control merge point of B, and A and B are dependent on C.
 			 * It is possible that node A accumulated all tokens from control point B when tokens from control point C had
-			 * not reached B.  In such cases, we need to add nodes such as A to the workbag for processing.
+			 * not reached B.  In such cases, we need to find and add nodes such as A to the workbag for processing.
 			 */
 			_result = new HashSet();
 
@@ -69,7 +66,7 @@ public class DirectEntryControlDA
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final BitSet _bitSet = tokenSets[_iIndex][_nodeIndex];
 
-				if (_bitSet != null && _bitSet.cardinality() == _succsSize) {
+				if (_bitSet != null && _bitSet.cardinality() == _succsSize && _nodeIndex != _iIndex) {
 					_result.add(nodesCache.get(_iIndex));
 				}
 			}
@@ -85,28 +82,17 @@ public class DirectEntryControlDA
 	 * @param node at which to accumulate tokens.
 	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
-	 * @return <code>true</code> if new tokens were accumulated at <code>node</code>; <code>false</code>, otherwise.
-	 *
 	 * @pre node != null and tokenSets != null
 	 */
-	private boolean accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
+	private void accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
 		final int _nodeIndex = nodesCache.indexOf(node);
-		boolean _result = false;
-		final IWorkBag _wb = new LIFOWorkBag();
-		_wb.addAllWork(nodesWithChildrenCache);
-
-		while (_wb.hasWork()) {
-			final INode _cpNode = (INode) _wb.getWork();
-			final int _cpNodeIndex = nodesCache.indexOf(_cpNode);
-			final BitSet _nodeAndCPBitSet = tokenSets[_nodeIndex][_cpNodeIndex];
-
-			if (_nodeAndCPBitSet != null && _nodeAndCPBitSet.cardinality() == _cpNode.getSuccsOf().size()) {
-				final Collection _t = copyAncestorBitSetsFromTo(_cpNodeIndex, _nodeIndex, tokenSets);
-				_wb.addAllWorkNoDuplicates(_t);
-				_result = _result || !_t.isEmpty();
-			}
-		}
-		return _result;
+		for (int _ctrlPointNodeIndex = nodesCache.size() - 1; _ctrlPointNodeIndex >= 0; _ctrlPointNodeIndex--) {
+		    final BitSet _nodesCtrlPointBitSet = tokenSets[_nodeIndex][_ctrlPointNodeIndex];
+		    final INode _ctrlPointNode = (INode) nodesCache.get(_ctrlPointNodeIndex);
+		    if (_nodesCtrlPointBitSet != null && _nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size() && _nodeIndex != _ctrlPointNodeIndex) {
+		        copyAncestorBitSetsFromTo(_ctrlPointNodeIndex, _nodeIndex, tokenSets);
+		    }
+        }
 	}
 
 	/**
@@ -117,45 +103,43 @@ public class DirectEntryControlDA
 	 * @param dest is the index of the node into which the tokens will be propagated to.
 	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
-	 * @return <code>true</code> if any new tokens were injected into the token sets of node indicated by <code>dest</code>;
-	 * 		   <code>false</code>, otherwise.
-	 *
 	 * @pre tokenSets != null
 	 * @pre 0 &lt;= src &lt; tokensSets.length
 	 * @pre 0 &lt;= dest &lt; tokensSets.length
 	 */
-	private Collection copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
+	private void copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
 		final BitSet[] _srcBitSets = tokenSets[src];
 		final BitSet[] _destBitSets = tokenSets[dest];
 		final BitSet _temp = new BitSet();
-		final Collection _result = new HashSet();
 		final Iterator _i = nodesWithChildrenCache.iterator();
 		final int _iEnd = nodesWithChildrenCache.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final INode _ancestor = (INode) _i.next();
 			final int _ancestorIndex = nodesCache.indexOf(_ancestor);
-			final BitSet _srcAndAncestorBitSet = _srcBitSets[_ancestorIndex];
+			final BitSet _srcsAncestorBitSet = _srcBitSets[_ancestorIndex];
 
-			if (_srcAndAncestorBitSet != null) {
+			if (_srcsAncestorBitSet != null) {
 				final BitSet _destAndAncestorBitSet = getBitSetAtLocation(_destBitSets, _ancestorIndex);
 				_temp.clear();
-				_temp.or(_srcAndAncestorBitSet);
+				_temp.or(_srcsAncestorBitSet);
 				_temp.andNot(_destAndAncestorBitSet);
 
 				if (_temp.cardinality() > 0) {
-					_result.add(_ancestor);
-					_destAndAncestorBitSet.or(_srcAndAncestorBitSet);
+					_destAndAncestorBitSet.or(_srcsAncestorBitSet);
 				}
 			}
 		}
-		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/06/22 01:01:37  venku
+   - BitSet(1) creates an empty bitset.  Instead we use BitSet() to create a
+     bit set that contains a long array of length 1.
+
    Revision 1.3  2004/06/06 08:33:37  venku
    - completed implementation and documentation.
 
