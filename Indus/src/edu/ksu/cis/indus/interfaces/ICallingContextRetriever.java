@@ -45,19 +45,17 @@ public interface ICallingContextRetriever
 		};
 
 	/** 
-	 * This identifies the contexts of the program point. The client of the retriever can provide information for this ID and
-	 * the subclasses can use it.
+	 * This identifies the entity at the program point.
 	 */
-	Object CONTEXT = "Context of the program point";
+	Object SRC_ENTITY = "Entity at the program point";
 
 	/** 
-	 * This identifies the entity at the program point. The client of the retriever can provide information for this ID and
-	 * the subclasses can use it.
+	 * This identifies the method enclosing the program point.
 	 */
-	Object ENTITY = "Entity at the program point";
+	Object SRC_METHOD = "Method enclosing the program point";
 
 	/**
-	 * Retrieves the calling contexts for the given program point
+	 * Retrieves the calling contexts for the given program point.
 	 *
 	 * @param programPoint of interest.
 	 *
