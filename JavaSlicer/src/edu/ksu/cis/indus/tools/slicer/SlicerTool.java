@@ -23,6 +23,7 @@ import soot.jimple.Stmt;
 import soot.toolkits.graph.UnitGraph;
 
 import edu.ksu.cis.indus.common.CompleteUnitGraphFactory;
+import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
@@ -209,8 +210,10 @@ public final class SlicerTool
 
 		// create the pre processor for thread graph construction.
 		cgBasedPreProcessCtrl = new CGBasedProcessingController(callGraph);
+        cgBasedPreProcessCtrl.setAnalyzer(ofa);
 
 		bbgMgr = new BasicBlockGraphMgr();
+        bbgMgr.setUnitGraphProvider(new TrapUnitGraphFactory());
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
 
@@ -356,6 +359,7 @@ public final class SlicerTool
 		Phase ph = (Phase) phaseParam;
 
 		if (ph.equalsMajor(Phase.STARTING_PHASE)) {
+            phase.reset();
 			// do the flow analyses
 			bbgMgr.reset();
 			ofa.reset();
@@ -380,6 +384,7 @@ public final class SlicerTool
 			cgBasedPreProcessCtrl.process();
 			threadGraph.unhook(cgBasedPreProcessCtrl);
 			phase.nextMajorPhase();
+            ph = phase;
 		}
 
 		movingToNextPhase();
@@ -397,6 +402,7 @@ public final class SlicerTool
 			daController.initialize();
 			daController.execute();
 			phase.nextMajorPhase();
+            ph = phase;
 		}
 
 		movingToNextPhase();
@@ -480,6 +486,15 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/10/21 06:00:19  venku
+   - Split slicing type into 2 sets:
+        b/w, f/w, and complete
+        executable and non-executable.
+   - Extended transformer classes to handle these
+     classification.
+   - Added a new class to house the logic for fixing
+     return statements in case of backward executable slice.
+
    Revision 1.13  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.
