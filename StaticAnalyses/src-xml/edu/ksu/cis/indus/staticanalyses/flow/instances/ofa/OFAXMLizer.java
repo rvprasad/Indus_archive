@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.IProcessingFilter;
 import edu.ksu.cis.indus.processing.IProcessor;
@@ -49,10 +50,8 @@ import org.apache.commons.logging.LogFactory;
 import org.znerd.xmlenc.XMLOutputter;
 
 import soot.SootClass;
-import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
-
 import soot.jimple.Stmt;
 
 
@@ -78,7 +77,7 @@ public final class OFAXMLizer
 	 * @version $Revision$ $Date$
 	 */
 	private final class OFAXMLizingProcessor
-	  implements IProcessor {
+	  extends AbstractProcessor {
 		/**
 		 * The id generator to be used during xmlization.
 		 */
@@ -137,22 +136,17 @@ public final class OFAXMLizer
 			Collections.sort(_temp);
 
 			try {
+                final Stmt _stmt = context.getStmt();
+                final SootMethod _method = context.getCurrentMethod();
 				for (final Iterator _i = (new HashSet(_temp)).iterator(); _i.hasNext();) {
 					xmlWriter.startTag("instance");
-					xmlWriter.attribute("id",
-						idGenerator.getIdForValueBox(vBox, context.getStmt(), context.getCurrentMethod()));
+					xmlWriter.attribute("instId", idGenerator.getIdForValueBox(vBox, _stmt, _method));
 					xmlWriter.attribute("expr", xmlizeString((String) _i.next()));
 					xmlWriter.endTag();
 				}
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
 			}
-		}
-
-		/**
-		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
-		 */
-		public void callback(final Stmt stmt, final Context context) {
 		}
 
 		/**
@@ -193,12 +187,6 @@ public final class OFAXMLizer
 			}
 
 			processingMethod = false;
-		}
-
-		/**
-		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
-		 */
-		public void callback(final SootField field) {
 		}
 
 		/**
@@ -290,6 +278,15 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.6  2004/03/07 20:28:55  venku
    - made the class public due to other refactoring.
    Revision 1.5  2004/03/05 11:59:45  venku

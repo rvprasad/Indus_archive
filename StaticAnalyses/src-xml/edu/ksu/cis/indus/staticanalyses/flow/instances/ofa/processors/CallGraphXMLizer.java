@@ -100,7 +100,7 @@ final class CallGraphXMLizer
 				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
 					final SootMethod _callee = (SootMethod) _j.next();
 					_xmlWriter.startTag("callee");
-					_xmlWriter.attribute("id", getIdGenerator().getIdForMethod(_callee));
+					_xmlWriter.attribute("calleID", getIdGenerator().getIdForMethod(_callee));
 					_xmlWriter.endTag();
 				}
 
@@ -114,7 +114,7 @@ final class CallGraphXMLizer
 				for (final Iterator _j = _filter.filterMethods(_temp).iterator(); _j.hasNext();) {
 					final SootMethod _caller = (SootMethod) _j.next();
 					_xmlWriter.startTag("caller");
-					_xmlWriter.attribute("id", getIdGenerator().getIdForMethod(_caller));
+					_xmlWriter.attribute("callerID", getIdGenerator().getIdForMethod(_caller));
 					_xmlWriter.endTag();
 				}
 
@@ -134,6 +134,9 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/03/07 12:26:17  venku
+   - format of xml output was shabby. FIXED.
+
    Revision 1.11  2004/03/05 11:59:45  venku
    - documentation.
    Revision 1.10  2004/02/11 10:00:16  venku
