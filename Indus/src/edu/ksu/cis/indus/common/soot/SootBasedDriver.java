@@ -131,7 +131,7 @@ public class SootBasedDriver {
 		/**
 		 * This is the type of <code>String[]</code> in Soot type system.
 		 */
-		public static final ArrayType STR_ARRAY_TYPE = ArrayType.v(RefType.v("java.lang.String"), 1);
+		private final ArrayType strArrayType = ArrayType.v(RefType.v("java.lang.String"), 1);
 
 		/**
 		 * The names of the classes which can contribute entry points.
@@ -195,7 +195,7 @@ public class SootBasedDriver {
 			if (sm.getName().equals("main")
 				  && sm.isStatic()
 				  && sm.getParameterCount() == 1
-				  && sm.getParameterType(0).equals(STR_ARRAY_TYPE)) {
+				  && sm.getParameterType(0).equals(strArrayType)) {
 				_result = true;
 			}
 			return _result;
@@ -405,6 +405,15 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.15  2004/03/26 00:07:26  venku
    - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
    - ripple effect in classes and method names.
