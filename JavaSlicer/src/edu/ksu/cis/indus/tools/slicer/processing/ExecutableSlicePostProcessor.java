@@ -159,7 +159,7 @@ public final class ExecutableSlicePostProcessor
 			}
 		}
 
-		fixupClassHierarchy();
+		fixupAbstractMethodsInClassHierarchy();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("AFTER SLICE: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
@@ -178,19 +178,12 @@ public final class ExecutableSlicePostProcessor
 	/**
 	 * Fix up class hierarchy such that all abstract methods have an implemented counterpart in the slice.
 	 */
-	private void fixupClassHierarchy() {
-		final Map _class2abstractMethods = new HashMap();
-		final Collection _temp = new HashSet();
-
-		// include the ancestor classes of all the collected classes.
-		for (final Iterator _i = collector.getClassesInSlice().iterator(); _i.hasNext();) {
-			_temp.addAll(Util.getAncestors((SootClass) _i.next()));
-		}
-		collector.includeInSlice(_temp);
-
+	private void fixupAbstractMethodsInClassHierarchy() {
 		// setup the variables for fixing the class hierarchy
 		final Collection _classesInSlice = collector.getClassesInSlice();
 		final Collection _topologicallyOrderedClasses = Util.getClassesInTopologicallySortedOrder(_classesInSlice, true);
+        final Map _class2abstractMethods = new HashMap();
+
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Fixing Class Hierarchy");
@@ -245,7 +238,7 @@ public final class ExecutableSlicePostProcessor
 		}
 	}
 
-	/**
+    /**
 	 * Gathers the collected abstract methods that belong to the super classes/interface of the given class.
 	 *
 	 * @param class2abstractMethods maps classes to collected abstract methods.
@@ -278,7 +271,7 @@ public final class ExecutableSlicePostProcessor
 			final SootClass _superClass = clazz.getSuperclass();
 
 			if (collector.hasBeenCollected(_superClass)) {
-				final Collection _abstractMethods = ((Collection) class2abstractMethods.get(_superClass));
+				final Collection _abstractMethods = (Collection) class2abstractMethods.get(_superClass);
 
 				if (_abstractMethods != null) {
 					_methods.addAll(_abstractMethods);
