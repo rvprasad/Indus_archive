@@ -7,9 +7,7 @@
 	<import file="prelocalbuild.xml" />
 	
 	<condition property="doxygen.present">
-		<not>
-			<equals arg1="${doxygen.jar}" arg2="" />
-		</not>
+		<isset property="${doxygen.jar}"/>
 	</condition>
 	
 	<condition property="docbook.present">
