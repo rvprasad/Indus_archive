@@ -20,7 +20,7 @@ Required software:
         - Polyglot 1.1.0	
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]        
     SWT (3.0 >= M7)
-        (swt.jar) [http://www.eclipse.org]
+        (swt.jar, swt-pi.jar) [http://www.eclipse.org]
     xmlenc (0.44)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)	

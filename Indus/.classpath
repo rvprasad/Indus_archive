@@ -9,15 +9,16 @@
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.platform.source.linux.gtk.x86_3.0.0/src/org.eclipse.swt.gtk_3.0.0/ws/gtk/swtsrc.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/common-collections.jar" kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/junit.jar" kind="var" path="ECLIPSE_HOME/plugins/org.junit_3.8.1/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-lang.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
+	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/trove.jar" kind="var" path="JAVACLASSES/trove.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/swt/swt-pi.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

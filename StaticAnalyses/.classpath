@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="var" path="CLOVER_RUNTIME"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-flow"/>
 	<classpathentry kind="src" path="src-dependence"/>
@@ -7,7 +8,6 @@
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="src" path="src-xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="CLOVER_RUNTIME"/>
 	<classpathentry sourcepath="JAVACLASSES/src/commons-pool.jar" kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/commons-collections.jar" kind="var" path="JAVACLASSES/commons-collections.jar"/>
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
