@@ -27,12 +27,14 @@ import edu.ksu.cis.indus.common.scoping.TypeSpecification;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.preferencedata.ExceptionListStore;
 import edu.ksu.cis.indus.kaveri.scoping.IScopeDialogMorphConstants;
 import edu.ksu.cis.indus.kaveri.scoping.ScopePropertiesSelectionDialog;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.InputDialog;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
@@ -61,6 +63,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 //import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -70,6 +74,8 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.jibx.runtime.JiBXException;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * The Indus preference page. Allows for management of configurations, views and
@@ -86,9 +92,19 @@ public class PluginPreference extends PreferencePage implements
     private CheckboxTableViewer viewer;
 
     /**
+     * The table showing the list of exceptions.
+     */
+    private Table exceptionTable; 
+    
+    /**
      * The set of scope specifications.
      */
     private SpecificationBasedScopeDefinition sbsd;
+    
+    /**
+     * The exception store.
+     */
+    private ExceptionListStore exceptionStore;
 
     /**
      * Creates a new PluginPreference object.
@@ -130,7 +146,19 @@ public class PluginPreference extends PreferencePage implements
             }
 
         }
-
+        if (exceptionStore != null) {
+            final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
+            final XStream _xstream = new XStream();
+            _xstream.alias("ExceptionListStore", ExceptionListStore.class);
+            final String _val = _xstream.toXML(exceptionStore);
+            KaveriPlugin.getDefault().getPreferenceStore().setValue(
+                    _exceptionKey, _val);
+            if (exceptionStore.getExceptionCollection().size() > 0) {
+                KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());
+            }
+        }
+        
+        
         KaveriPlugin.getDefault().storeConfiguration();
         KaveriPlugin.getDefault().savePluginPreferences();
         return super.performOk();
@@ -168,6 +196,10 @@ public class PluginPreference extends PreferencePage implements
         _itemButtonConfigs.setText("Slice Button Configurations");
         _itemButtonConfigs.setControl(createSliceButtonConfig(_folder));
 
+        final TabItem _itemExceptions = new  TabItem(_folder, SWT.NONE);
+        _itemExceptions.setText("Exceptions");
+        _itemExceptions.setControl(createExceptionIgnoreSet(_folder));
+        
         /*
          * final TabItem _item2 = new TabItem(_folder, SWT.NONE);
          * _item2.setText(Messages.getString("PluginPreference.1"));
@@ -180,6 +212,110 @@ public class PluginPreference extends PreferencePage implements
          */
 
         return _top;
+    }
+
+    /**
+     * Displays the set of exceptions that are ignored.
+     * @param folder
+     * @return
+     */
+    private Control createExceptionIgnoreSet(TabFolder folder) {
+        final Composite _comp = new Composite(folder, SWT.NONE);
+        _comp.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        final GridLayout _layout = new GridLayout();
+        _layout.numColumns = 1;
+        _comp.setLayout(_layout);
+        
+        final Group _grp = new Group(_comp, SWT.BORDER);
+        _grp.setText("Exception Ignore List");
+        GridData _gd = new GridData(GridData.FILL_BOTH);
+        _gd.horizontalSpan = 1;
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.grabExcessVerticalSpace = true;
+        _grp.setLayoutData(_gd);
+        _grp.setLayout(new GridLayout(1, true));
+        
+        exceptionTable = new Table(_grp, SWT.FULL_SELECTION | SWT.SINGLE);
+        exceptionTable.setLinesVisible(true);
+        exceptionTable.setHeaderVisible(true);
+        _gd = new GridData(GridData.FILL_BOTH);
+        _gd.horizontalSpan = 1;
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.grabExcessVerticalSpace = true;
+        exceptionTable.setLayoutData(_gd);
+        
+        /*final TableColumn _col1 = new TableColumn(exceptionTable, SWT.CENTER);
+        _col1.setText("!");*/
+        final TableColumn _col2 = new TableColumn(exceptionTable, SWT.NONE);
+        _col2.setText("Fully Qualified Exception Name");
+        
+        initExceptionList();
+        
+        final Composite _rowComp = new Composite(_comp, SWT.BORDER);
+        _gd = new GridData(GridData.FILL_HORIZONTAL);
+        _gd.horizontalSpan = 1;
+        _gd.grabExcessHorizontalSpace = true;
+        _rowComp.setLayoutData(_gd);
+        
+        _rowComp.setLayout(new RowLayout());
+        final Button _btnAdd = new Button(_rowComp, SWT.PUSH);
+        _btnAdd.setText("Add Exception");
+        _btnAdd.addSelectionListener(
+                new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {
+                        final Shell _shell = Display.getCurrent().getActiveShell();                        
+                       final InputDialog _id = new InputDialog(_shell, "Exception Name", 
+                               "Enter the fully qualified name of the exception", 
+                               "java.lang.IllegalArgumentException", null);
+                       if (_id.open() == IDialogConstants.OK_ID) {
+                           final TableItem _item = new TableItem(exceptionTable, SWT.NONE);
+                           _item.setText(0, _id.getValue());
+                           _item.setData(_id.getValue());                
+                           exceptionStore.addException(_id.getValue());
+                       }
+                    }
+                }
+                );
+        final Button _btnDelete = new Button(_rowComp, SWT.PUSH);
+        _btnDelete.setText("Delete");
+        _btnDelete.addSelectionListener(
+                new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {
+                        if (exceptionTable.getSelectionCount() == 1) {
+                            	final TableItem _item = exceptionTable.getSelection()[0];
+                            	final String _exceptionName = (String)  _item.getData();
+                            	exceptionStore.removeException(_exceptionName);
+                        }
+                    }
+                }
+                );
+        
+        return _comp;
+    }
+
+    /**
+     * Initialize the exception ignore table.
+     */
+    private void initExceptionList() {
+        final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
+        final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+        String _val  = _ps.getString(_exceptionKey);
+        final XStream _xstream = new XStream();
+        _xstream.alias("ExceptionListStore", ExceptionListStore.class);
+        if (_val.equals("")) {
+            exceptionStore  = new ExceptionListStore();            
+            _val = _xstream.toXML(exceptionStore);
+        } else {
+            exceptionStore = (ExceptionListStore) _xstream.fromXML(_val);
+        }
+        for (Iterator iter = exceptionStore.getExceptionCollection().iterator(); iter.hasNext();) {
+            final String _exName  = (String) iter.next();
+            final TableItem _ti = new TableItem(exceptionTable, SWT.NONE);
+            _ti.setText(0, _exName);
+            
+        }
+        
     }
 
     /**
@@ -221,6 +357,17 @@ public class PluginPreference extends PreferencePage implements
         }
         KaveriPlugin.getDefault().storeConfiguration();
         KaveriPlugin.getDefault().savePluginPreferences();
+        if (exceptionStore != null) {
+            final String _exceptionKey = "edu.ksu.cis.indus.kaveri.exceptionignorelist";
+            final XStream _xstream = new XStream();
+            _xstream.alias("ExceptionListStore", ExceptionListStore.class);
+            final String _val = _xstream.toXML(exceptionStore);
+            KaveriPlugin.getDefault().getPreferenceStore().setValue(
+                    _exceptionKey, _val);
+            if (exceptionStore.getExceptionCollection().size() > 0) {
+                KaveriPlugin.getDefault().createNewSlicer(exceptionStore.getExceptionCollection());
+            }
+        }
         super.performApply();
     }
 

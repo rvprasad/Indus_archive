@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 
 import java.net.URL;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -286,12 +287,13 @@ public class KaveriPlugin extends AbstractUIPlugin {
     }
 
     /**
-     *  
+     *  Create a new instance of the slicer.
+     *  @param ignoreExceptionList The list of exceptions to ignore.
      */
-    public void createNewSlicer() {
+    public void createNewSlicer(final Collection ignoreExceptionList) {
         slicerTool = new SlicerTool(TokenUtil
                 .getTokenManager(new SootValueTypeManager()),
-                new ExceptionFlowSensitiveStmtGraphFactory());
+                new ExceptionFlowSensitiveStmtGraphFactory(ignoreExceptionList ,true));
         loadConfigurations();
     }
 

@@ -105,6 +105,7 @@ public class SliceProgressBar extends ProgressMonitorDialog {
     public void addSliceMessage(String message) {
         if (!progressList.isDisposed()) {
             progressList.add(message);
+            progressList.setSelection(progressList.getItemCount() - 1);
         }
     }
 
