@@ -747,17 +747,6 @@ public final class TagBasedDestructiveSliceResidualizer
 			_body.getLocals().retainAll(localsToKeep);
 			_body.getTraps().retainAll(trapsToRetain);
 
-			// transformations built into Soot
-			NopEliminator.v().transform(_body);
-			UnreachableCodeEliminator.v().transform(_body);
-			ConditionalBranchFolder.v().transform(_body);
-			UnconditionalBranchFolder.v().transform(_body);
-			UnusedLocalEliminator.v().transform(_body);
-			_body.validateLocals();
-			_body.validateTraps();
-			_body.validateUnitBoxes();
-			_body.validateUses();
-
 			/*
 			 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
 			 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to be executable.
@@ -777,6 +766,17 @@ public final class TagBasedDestructiveSliceResidualizer
 					_temp.add(_jimple.newReturnStmt(Util.getDefaultValueFor(_retType)));
 				}
 			}
+			
+			// transformations built into Soot
+			NopEliminator.v().transform(_body);
+			UnreachableCodeEliminator.v().transform(_body);
+			ConditionalBranchFolder.v().transform(_body);
+			UnconditionalBranchFolder.v().transform(_body);
+			UnusedLocalEliminator.v().transform(_body);
+			_body.validateLocals();
+			_body.validateTraps();
+			_body.validateUnitBoxes();
+			_body.validateUses();			
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -837,6 +837,10 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/06/14 04:31:17  venku
+   - added method to check tags on a collection of hosts in Util.
+   - ripple effect.
+
    Revision 1.11  2004/06/12 06:47:28  venku
    - documentation.
    - refactoring.
