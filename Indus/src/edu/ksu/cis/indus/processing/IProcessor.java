@@ -106,6 +106,11 @@ public interface IProcessor {
 	void processingBegins();
 
 	/**
+	 * Resets the processor.
+	 */
+	void reset();
+
+	/**
 	 * This method will be called by the application.  The  processor should unregister it's interest with the controller via
 	 * this method after it has participated in processing.
 	 *

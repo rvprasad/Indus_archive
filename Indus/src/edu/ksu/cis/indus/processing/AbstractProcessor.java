@@ -90,6 +90,12 @@ public abstract class AbstractProcessor
 	 */
 	public void processingBegins() {
 	}
+
+	/**
+	 * @see IProcessor#reset()
+	 */
+	public void reset() {
+	}
 }
 
 // End of File
