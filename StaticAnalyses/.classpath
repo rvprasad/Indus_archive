@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="var" path="CLOVER_RUNTIME"/>
-	<classpathentry kind="src" path="/Indus"/>
+	<classpathentry kind="src" path="/Indus-old"/>
 	<classpathentry excluding=".cono" kind="src" path="src"/>
 	<classpathentry excluding=".cono" kind="src" path="src-flow"/>
 	<classpathentry excluding=".cono" kind="src" path="src-dependence"/>
