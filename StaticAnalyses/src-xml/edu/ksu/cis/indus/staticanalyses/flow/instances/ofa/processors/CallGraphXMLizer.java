@@ -160,7 +160,7 @@ public class CallGraphXMLizer
 	/**
 	 * Xmlize the given system.
 	 */
-	private void execute() {
+	public void execute() {
 		setLogger(LOGGER);
 
 		final String _tagName = "CallGraphXMLizer:FA";
@@ -214,6 +214,10 @@ public class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/08 03:05:46  venku
+   - renamed xmlizer packages to be in par with the packages
+     that contain the classes whose data is being xmlized.
+
    Revision 1.5  2003/12/27 20:07:40  venku
    - fixed xmlizers/driver to not throw exception
      when -h is specified
