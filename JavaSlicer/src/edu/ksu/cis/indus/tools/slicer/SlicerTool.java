@@ -122,6 +122,11 @@ public final class SlicerTool
 	 */
 	private static final int INDENT = 4;
 
+	/** 
+	 * The tag used to identify the parts touched by flow analysis.
+	 */
+	public static final String FLOW_ANALYSIS_TAG_NAME = "SlicerTool:FA";
+
 	/**
 	 * This controls dependency analysis.
 	 *
@@ -227,13 +232,12 @@ public final class SlicerTool
 		criteria = new HashSet();
 
 		// create the flow analysis.
-		final String _tagName = "SlicerTool:FA";
-		ofa = OFAnalyzer.getFSOSAnalyzer(_tagName);
+		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME);
 
 		// create the pre processor for call graph construction.
 		cgPreProcessCtrl = new ValueAnalyzerBasedProcessingController();
 		cgPreProcessCtrl.setAnalyzer(ofa);
-		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
+		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(FLOW_ANALYSIS_TAG_NAME));
 
 		// create the call graph.
 		callGraph = new CallGraph();
@@ -664,6 +668,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.49  2003/12/14 16:48:27  venku
+   - retrieves sync points only from application classes.
    Revision 1.48  2003/12/13 19:52:41  venku
    - renamed Init2NewExprMapper to NewExpr2InitMapper.
    - ripple effect.
