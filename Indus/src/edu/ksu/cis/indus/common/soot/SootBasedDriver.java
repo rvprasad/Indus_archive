@@ -117,7 +117,7 @@ public class SootBasedDriver {
 	protected SootBasedDriver() {
 		cfgProvider = getUnitGraphFactory();
 		bbm = new BasicBlockGraphMgr();
-		bbm.setUnitGraphProvider(cfgProvider);
+		bbm.setUnitGraphFactory(cfgProvider);
 	}
 
 	/**
@@ -377,6 +377,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/28 03:17:54  venku
+   - checking if the class exists in a collection of class names.  FIXED.
+
    Revision 1.7  2003/12/28 02:08:29  venku
    - the specified rootclasses overrides the selection of
      root methods from application classes.

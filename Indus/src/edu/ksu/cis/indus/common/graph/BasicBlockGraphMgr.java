@@ -105,7 +105,7 @@ public final class BasicBlockGraphMgr {
 	 *
 	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
-	public void setUnitGraphProvider(final IUnitGraphFactory cfgProvider) {
+	public void setUnitGraphFactory(final IUnitGraphFactory cfgProvider) {
 		unitGraphProvider = cfgProvider;
 	}
 
@@ -120,6 +120,10 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.4  2003/12/09 04:42:42  venku
    - unit graph factories are responsible to construct empty
      bodies for methods not BasicBlockGraphMgr.  FIXED.

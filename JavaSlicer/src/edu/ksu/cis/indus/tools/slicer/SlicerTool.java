@@ -280,7 +280,7 @@ public final class SlicerTool
 
 		unitGraphProvider = new TrapUnitGraphFactory();
 		bbgMgr = new BasicBlockGraphMgr();
-		bbgMgr.setUnitGraphProvider(unitGraphProvider);
+		bbgMgr.setUnitGraphFactory(unitGraphProvider);
 		// create the thread graph.
 		threadGraph = new ThreadGraph(callGraph, new CFGAnalysis(callGraph, bbgMgr));
 		// create equivalence class-based escape analysis.
@@ -742,6 +742,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.57  2004/01/13 10:11:04  venku
+   - the check for valid combination of slice direction and executability
+     of the slice is done in checkConfiguration().
+
    Revision 1.56  2004/01/13 08:37:55  venku
    - implemented  postProcessSlice().
    Revision 1.55  2004/01/13 04:36:22  venku
