@@ -58,7 +58,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
-import org.eclipse.swt.layout.FillLayout;
+
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -187,10 +187,20 @@ public class IndusConfigurationDialog
 
 		final Group _group = new Group(_composite, SWT.NONE);
 		_group.setText(Messages.getString("IndusConfigurationDialog.3"));  //$NON-NLS-1$
-
-		final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
-		_group.setLayout(_fl);
+		final GridLayout _gl = new GridLayout();
+		_gl.numColumns = 1;
+		_group.setLayout(_gl);
+		
+//		final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
+//		_group.setLayout(_fl);
 		criteriaTable = new Table(_group, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
+		final GridData _gd = new GridData();
+		_gd.horizontalSpan = 1;
+		_gd.grabExcessHorizontalSpace = true;
+		_gd.grabExcessVerticalSpace = true;
+		_gd.horizontalAlignment = GridData.FILL_BOTH;
+		criteriaTable.setLayoutData(_gd);
+		
 		criteriaTable.setLinesVisible(true);
 		criteriaTable.setHeaderVisible(true);
 

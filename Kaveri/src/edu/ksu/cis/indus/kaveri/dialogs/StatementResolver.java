@@ -22,7 +22,9 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 
 import org.eclipse.swt.SWT;
 
-import org.eclipse.swt.layout.FillLayout;
+
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 
 import org.eclipse.swt.widgets.Button;
@@ -87,19 +89,35 @@ public class StatementResolver
 	 */
 	protected Control createDialogArea(final Composite parent) {
 		final Composite _composite = new Composite(parent, SWT.NONE);
-		final RowLayout _rl = new RowLayout(SWT.VERTICAL);
-		_composite.setLayout(_rl);
+		final GridLayout _gl = new GridLayout();
+		_gl.numColumns = 2;
+		_composite.setLayout(_gl);
 
 		final Group _group1 = new Group(_composite, SWT.NONE);
 		_group1.setText(Messages.getString("StatementResolver.1"));  //$NON-NLS-1$
+		GridData _gd = new GridData();
+		_gd.grabExcessHorizontalSpace = true;
+		_gd.horizontalSpan = 2;
+		_gd.horizontalAlignment = GridData.FILL_BOTH;
+		_group1.setLayoutData(_gd);
 
-		final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
-		_group1.setLayout(_fl);
+		final GridLayout _g = new GridLayout();
+		_g.numColumns = 1;
+		_group1.setLayout(_g);
+		
+//		final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
+//		_group1.setLayout(_fl);
 		jimpleList = new List(_group1, SWT.BORDER | SWT.V_SCROLL);
+		_gd = new GridData();
+		_gd.grabExcessHorizontalSpace = true;
+		_gd.horizontalSpan = 1;
+		_gd.horizontalAlignment = GridData.FILL_BOTH;
+		jimpleList.setLayoutData(_gd);
 
-		final int _wh = 400;
+		/*final int _wh = 400;
 		jimpleList.setBounds(0, 0, _wh, _wh);
-
+		*/
+		
 		for (int _i = 0; _i < stmtList.size(); _i++) {
 			final Stmt _stmt = (Stmt) stmtList.get(_i);
 			jimpleList.add(_stmt.toString());
@@ -107,9 +125,14 @@ public class StatementResolver
 
 		final Group _group2 = new Group(_composite, SWT.BORDER);
 		_group2.setText("Advanced options");
+		_gd = new GridData();
+		_gd.grabExcessHorizontalSpace = true;
+		_gd.horizontalSpan = 2;
+		_gd.horizontalAlignment = GridData.FILL_BOTH;
+		_group2.setLayoutData(_gd);
 
-		final RowLayout _rl2 = new RowLayout(SWT.HORIZONTAL);
-		_group2.setLayout(_rl2);
+		final RowLayout _rl = new RowLayout(SWT.HORIZONTAL);
+		_group2.setLayout(_rl);
 		btnConsiderExecution = new Button(_group2, SWT.CHECK);
 		btnConsiderExecution.setText("Consider the execution");
 
