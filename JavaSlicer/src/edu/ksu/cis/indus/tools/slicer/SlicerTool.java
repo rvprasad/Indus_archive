@@ -29,10 +29,13 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
+import edu.ksu.cis.indus.slicer.*;
 import edu.ksu.cis.indus.slicer.AbstractSliceCriterion;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
+import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
+import edu.ksu.cis.indus.slicer.processing.*;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
@@ -52,6 +55,7 @@ import edu.ksu.cis.indus.tools.CompositeToolConfiguration;
 import edu.ksu.cis.indus.tools.CompositeToolConfigurator;
 import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.Phase;
+import edu.ksu.cis.indus.tools.slicer.processing.*;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -666,16 +670,39 @@ public final class SlicerTool
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Process the slice to massage it as per properties such as executability.
 	 */
 	private void postProcessSlice() {
-        // TODO: Implement me
+		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
+		final Object _sliceType = _slicerConfig.getSliceType();
+		ISlicePostProcessor _postProcessor = null;
+		AbstractSliceGotoProcessor _gotoProcessor = null;
+		SliceCollector _collector = engine.getCollector();
+
+		if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+			_postProcessor = new BackwardSlicePostProcessor();
+			_gotoProcessor = new BackwardSliceGotoProcessor(_collector);
+		} else if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+			_postProcessor = new ForwardSlicePostProcessor();
+			_gotoProcessor = new ForwardSliceGotoProcessor(_collector);
+		} else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+			_postProcessor = new CompleteSlicePostProcessor();
+			_gotoProcessor = new CompleteSliceGotoProcessor(_collector);
+		}
+
+		final Collection _methods = _collector.getMethodsInSlice();
+		_postProcessor.process(_methods, bbgMgr, _collector);
+		_gotoProcessor.process(_methods, bbgMgr);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.55  2004/01/13 04:36:22  venku
+   - Now the slicing engine just generates the slice.  The application
+     should later on massage the slice for it's needs.  This is triggered
+     via postProcessSlice() in SlicerTool.
    Revision 1.54  2004/01/11 00:01:23  venku
    - formatting and coding convention.
    Revision 1.53  2004/01/06 00:17:05  venku
