@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.collections.FilteredCollectionTestCase;
 import edu.ksu.cis.indus.common.collections.FilteredListIteratorTestCase;
 import edu.ksu.cis.indus.common.collections.FilteredListTestCase;
 import edu.ksu.cis.indus.common.collections.FilteredMapTest;
+import edu.ksu.cis.indus.common.collections.RetrievableSetTestCase;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -72,6 +73,7 @@ public final class CommonUnitTestSuite {
 		_suite.addTestSuite(FilteredCollectionTestCase.class);
 		_suite.addTestSuite(FilteredListTestCase.class);
 		_suite.addTestSuite(FilteredListIteratorTestCase.class);
+        _suite.addTestSuite(RetrievableSetTestCase.class);
 		//$JUnit-END$
 		TestHelper.appendSuiteNameToTestsIn(_suite, true);
 		_suite.setName(CommonUnitTestSuite.class.getName());
