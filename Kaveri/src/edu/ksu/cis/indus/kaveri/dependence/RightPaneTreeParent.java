@@ -12,16 +12,16 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.dependence;
 
 import java.util.ArrayList;
 
 /**
  * @author ganeshan
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * 
+ * TODO To change the template for this generated type comment go to Window -
+ * Preferences - Java - Code Style - Code Templates
  */
 public class RightPaneTreeParent extends RightPaneTreeObject {
     private ArrayList children;
@@ -43,8 +43,7 @@ public class RightPaneTreeParent extends RightPaneTreeObject {
 
     public void removeAllChildren() {
         for (int i = 0; i < children.size(); i++) {
-            RightPaneTreeObject child = (RightPaneTreeObject) children
-                    .get(i);
+            RightPaneTreeObject child = (RightPaneTreeObject) children.get(i);
             child.setParent(null);
         }
         children.clear();

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -41,128 +40,131 @@ import org.eclipse.swt.widgets.Display;
 
 import org.eclipse.ui.IDecoratorManager;
 
-
 /**
  * Decorates the resources if the slice includes the file.
- *
+ * 
  * @author Ganeshan
  */
-public class IndusDecorator
-  extends LabelProvider
-  implements ILightweightLabelDecorator {
-		
-	
-	/**
-	 * Returns the static instance of the decorator.
-	 *
-	 * @return IndusDecorator The decorator.
-	 */
-	public static IndusDecorator getIndusDecorator() {
-		final IDecoratorManager _manager = KaveriPlugin.getDefault().getWorkbench().getDecoratorManager();
-		IndusDecorator _decorator = null;
+public class IndusDecorator extends LabelProvider implements
+        ILightweightLabelDecorator {
 
-		if (_manager.getEnabled("edu.ksu.cis.indus.kaveri.decorator")) {
-			_decorator =
-				(IndusDecorator) KaveriPlugin.getDefault()
-					.getWorkbench().getDecoratorManager().getBaseLabelProvider(
-							"edu.ksu.cis.indus.kaveri.decorator");
-		}
-		return _decorator;
-	}
+    /**
+     * Returns the static instance of the decorator.
+     * 
+     * @return IndusDecorator The decorator.
+     */
+    public static IndusDecorator getIndusDecorator() {
+        final IDecoratorManager _manager = KaveriPlugin.getDefault()
+                .getWorkbench().getDecoratorManager();
+        IndusDecorator _decorator = null;
 
-	/**
-	 * Decorates the java files in Eclipse if they are included in the slice.
-	 *
-	 * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object,
-	 * 		org.eclipse.jface.viewers.IDecoration)
-	 */
-	public void decorate(final Object element, final IDecoration decoration) {
-		//  System.out.println(element);
-		//final IResource _resource = getResource(element);
-		IResource _resource = null;
+        if (_manager.getEnabled("edu.ksu.cis.indus.kaveri.decorator")) {
+            _decorator = (IndusDecorator) KaveriPlugin.getDefault()
+                    .getWorkbench().getDecoratorManager().getBaseLabelProvider(
+                            "edu.ksu.cis.indus.kaveri.decorator");
+        }
+        return _decorator;
+    }
 
-		if (element instanceof IFile) {
-			_resource = (IFile) element;
-		}
+    /**
+     * Decorates the java files in Eclipse if they are included in the slice.
+     * 
+     * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object,
+     *      org.eclipse.jface.viewers.IDecoration)
+     */
+    public void decorate(final Object element, final IDecoration decoration) {
+        //  System.out.println(element);
+        //final IResource _resource = getResource(element);
+        IResource _resource = null;
 
-		final List _filelst = KaveriPlugin.getDefault().getIndusConfiguration().getSliceFileList();
+        if (element instanceof IFile) {
+            _resource = (IFile) element;
+        }
 
-		if (_filelst.size() > 0) {			
-			
-			if (_resource != null
-				  && _resource.getType() == IResource.FILE
-				  && _resource.getFileExtension().equalsIgnoreCase("java")
-			) {
-				if (_filelst.contains(_resource) && isFileOkToDecorate(_resource)) {
-					decoration.addOverlay(KaveriPlugin.getDefault().getIndusConfiguration().getSliceDecorator());
-				}
-			}
-		}
-	}
+        final List _filelst = KaveriPlugin.getDefault().getIndusConfiguration()
+                .getSliceFileList();
 
+        if (_filelst.size() > 0) {
 
-	/**
-	 * Refresh.
-	 */
-	public void refesh() {
-		final IndusDecorator _decorator = getIndusDecorator();
+            if (_resource != null && _resource.getType() == IResource.FILE
+                    && _resource.getFileExtension().equalsIgnoreCase("java")) {
+                if (_filelst.contains(_resource)
+                        && isFileOkToDecorate(_resource)) {
+                    decoration.addOverlay(KaveriPlugin.getDefault()
+                            .getIndusConfiguration().getSliceDecorator());
+                }
+            }
+        }
+    }
 
-		if (_decorator != null) {
-			_decorator.fireLabelEvent(new LabelProviderChangedEvent(_decorator));
-		}
-	}
+    /**
+     * Refresh.
+     */
+    public void refesh() {
+        final IndusDecorator _decorator = getIndusDecorator();
 
-	/**
-	 * Determines if any of the classes in the Java file have a slice associated so that the file can be annotated.
-	 *
-	 * @param resource The Java file
-	 * 
-	 *
-	 * @return boolean True if the file should be decorated.
-	 */
-	private boolean isFileOkToDecorate(final IResource resource) {
-		boolean _isFileOk = false;
-		final IFile _file  = (IFile) resource;
-		final IProject _project = KaveriPlugin.getDefault().getIndusConfiguration()
-		.getSliceProject();
-		final IProject _sliceProject = _file.getProject();
-		if (_project != null && _project == _sliceProject) {
-			final Map decorateMap = KaveriPlugin.getDefault().getCacheMap();
-			final List _lst = SECommons.getClassesInFile(_file);
-			for (int _i = 0; _i < _lst.size(); _i++) {
-				final String _classname = (String) _lst.get(_i);
-				
-				if (decorateMap.get(_classname) != null) {
-					_isFileOk = true; break;
-				}
-			}
-			final Map _map = TagToAnnotationMapper.getAnnotationLinesForFile(_file);
-			if (_map.size() > 0) {			    
-			    final Set _entrySet = _map.entrySet();
-			    for (Iterator iter = _entrySet.iterator(); iter.hasNext();) {
+        if (_decorator != null) {
+            _decorator
+                    .fireLabelEvent(new LabelProviderChangedEvent(_decorator));
+        }
+    }
+
+    /**
+     * Determines if any of the classes in the Java file have a slice associated
+     * so that the file can be annotated.
+     * 
+     * @param resource
+     *            The Java file
+     * 
+     * 
+     * @return boolean True if the file should be decorated.
+     */
+    private boolean isFileOkToDecorate(final IResource resource) {
+        boolean _isFileOk = false;
+        final IFile _file = (IFile) resource;
+        final IProject _project = KaveriPlugin.getDefault()
+                .getIndusConfiguration().getSliceProject();
+        final IProject _sliceProject = _file.getProject();
+        if (_project != null && _project == _sliceProject) {
+            final Map decorateMap = KaveriPlugin.getDefault().getCacheMap();
+            final List _lst = SECommons.getClassesInFile(_file);
+            for (int _i = 0; _i < _lst.size(); _i++) {
+                final String _classname = (String) _lst.get(_i);
+
+                if (decorateMap.get(_classname) != null) {
+                    _isFileOk = true;
+                    break;
+                }
+            }
+            final Map _map = TagToAnnotationMapper
+                    .getAnnotationLinesForFile(_file);
+            if (_map.size() > 0) {
+                final Set _entrySet = _map.entrySet();
+                for (Iterator iter = _entrySet.iterator(); iter.hasNext();) {
                     final Map.Entry _entry = (Map.Entry) iter.next();
                     final Map _value = (Map) _entry.getValue();
-                	if (_value.size() > 0) {
-						decorateMap.put(_entry.getKey(), _value);
-						_isFileOk = true;
-					}    
-                }																								
-								
-			}
-		}
-		return _isFileOk;
-	}
+                    if (_value.size() > 0) {
+                        decorateMap.put(_entry.getKey(), _value);
+                        _isFileOk = true;
+                    }
+                }
 
-	/**
-	 * Fires the label provider change event causing the decoration.
-	 *
-	 * @param event The label provider changed event
-	 */
-	private void fireLabelEvent(final LabelProviderChangedEvent event) {
-		Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					fireLabelProviderChanged(event);
-				}
-			});
-	}
+            }
+        }
+        return _isFileOk;
+    }
+
+    /**
+     * Fires the label provider change event causing the decoration.
+     * 
+     * @param event
+     *            The label provider changed event
+     */
+    private void fireLabelEvent(final LabelProviderChangedEvent event) {
+        Display.getDefault().syncExec(new Runnable() {
+            public void run() {
+                fireLabelProviderChanged(event);
+            }
+        });
+    }
 }

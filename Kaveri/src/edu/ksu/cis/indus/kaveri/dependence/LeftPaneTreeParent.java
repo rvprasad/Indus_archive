@@ -12,17 +12,16 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.dependence;
 
 import java.util.ArrayList;
 
-
 /**
  * @author ganeshan
- *
+ *  
  */
-public  class  LeftPaneTreeParent extends LeftPaneTreeObject {
+public class LeftPaneTreeParent extends LeftPaneTreeObject {
     private ArrayList children;
 
     public LeftPaneTreeParent(String name) {

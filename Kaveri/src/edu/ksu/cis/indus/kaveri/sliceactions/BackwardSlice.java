@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -20,11 +19,8 @@
  */
 package edu.ksu.cis.indus.kaveri.sliceactions;
 
-
-
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jface.action.IAction;
-
 
 import org.eclipse.jface.viewers.ISelection;
 
@@ -34,62 +30,63 @@ import org.eclipse.ui.IEditorPart;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 
-
-
 /**
  * Runs a backward slice on the chosen Java statement.
- *
+ * 
  * @author Ganeshan Runs the backward slice
  */
-public class BackwardSlice
-  extends BasicSliceFunctions implements IEditorActionDelegate {
-	
-	/** 
-	 * The Java editor.
-	 */
-	protected CompilationUnitEditor editor;
+public class BackwardSlice extends BasicSliceFunctions implements
+        IEditorActionDelegate {
 
-	/** 
-	 * The text selection.
-	 */
-	protected ISelection textSelection;
+    /**
+     * The Java editor.
+     */
+    protected CompilationUnitEditor editor;
 
-	/**
-	 * Sets the current editor.
-	 *
-	 * @see org.eclipse.ui.IEditorActionDelegate#setActiveEditor(org.eclipse.jface.action.IAction,
-	 * 		org.eclipse.ui.IEditorPart)
-	 */
-	public void setActiveEditor(final IAction action, final IEditorPart targetEditor) {
-		editor = (CompilationUnitEditor) targetEditor;
-	}
+    /**
+     * The text selection.
+     */
+    protected ISelection textSelection;
 
-	/**
-	 * Run the backward slice action.
-	 *
-	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
-	 */
-	public void run(final IAction action) {
-		Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-				    final String _sbConfigKey = "edu.ksu.cis.indus.kaveri.sbConfig";
-				    String _configName = KaveriPlugin.getDefault()
-				    .getPreferenceStore().getString(_sbConfigKey);				  
-				    if (_configName.equals("")) {
-				        _configName = "backward-executable-deadlock";
-				    }
-					runSlice(_configName, editor, textSelection);
-				}
-			});
-	}
+    /**
+     * Sets the current editor.
+     * 
+     * @see org.eclipse.ui.IEditorActionDelegate#setActiveEditor(org.eclipse.jface.action.IAction,
+     *      org.eclipse.ui.IEditorPart)
+     */
+    public void setActiveEditor(final IAction action,
+            final IEditorPart targetEditor) {
+        editor = (CompilationUnitEditor) targetEditor;
+    }
 
-	/**
-	 * Stores the new selection.
-	 *
-	 * @see org.eclipse.ui.IActionDelegate     #selectionChanged(org.eclipse.jface.action.IAction,
-	 * 		org.eclipse.jface.viewers.ISelection)
-	 */
-	public void selectionChanged(final IAction action, final ISelection selection) {
-		this.textSelection = selection;		
-	}
+    /**
+     * Run the backward slice action.
+     * 
+     * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+     */
+    public void run(final IAction action) {
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run() {
+                final String _sbConfigKey = "edu.ksu.cis.indus.kaveri.sbConfig";
+                String _configName = KaveriPlugin.getDefault()
+                        .getPreferenceStore().getString(_sbConfigKey);
+                if (_configName.equals("")) {
+                    _configName = "backward-executable-deadlock";
+                }
+                runSlice(_configName, editor, textSelection);
+            }
+        });
+    }
+
+    /**
+     * Stores the new selection.
+     * 
+     * @see org.eclipse.ui.IActionDelegate
+     *      #selectionChanged(org.eclipse.jface.action.IAction,
+     *      org.eclipse.jface.viewers.ISelection)
+     */
+    public void selectionChanged(final IAction action,
+            final ISelection selection) {
+        this.textSelection = selection;
+    }
 }

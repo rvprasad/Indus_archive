@@ -100,11 +100,11 @@ public final class SootConvertor {
                     "getStmtForLine expects non-null arguments");
         }
 
-        final SootClass _sootclass = loadClass(theclass); 
+        final SootClass _sootclass = loadClass(theclass);
 
-            if (_sootclass != null) {
-                _stmtlist = getStmtLine(_sootclass, themethod, theline);
-            }        
+        if (_sootclass != null) {
+            _stmtlist = getStmtLine(_sootclass, themethod, theline);
+        }
 
         //G.reset();
         return _stmtlist;
@@ -258,7 +258,7 @@ public final class SootConvertor {
             // Need to catch this to have a proper
             // method mapping. Would be better if soot
             // threw a user defined exception
-            
+
             if (_ame.getMessage().equals(Messages.getString("SootConvertor.7"))) {
                 _method = getCorrSootMethod(themethod, sootclass);
             }
@@ -348,54 +348,57 @@ public final class SootConvertor {
                 //_nLine = Integer.parseInt(_lntag.toString());
                 _nLine = _lntag.getLineNumber();
             }
-        }        
+        }
         return _nLine;
     }
-    
-    
+
     /**
      * Get the soot method for the given JDT Method.
-     * @param method The JDT method.
+     * 
+     * @param method
+     *            The JDT method.
      * @return
      */
     public static SootMethod getSootMethod(final IMethod method) {
         SootMethod _sm = null;
         final IType _type = method.getDeclaringType();
         if (Scene.v().containsClass(_type.getFullyQualifiedName())) {
-            _sm = getCorrSootMethod(method, Scene.v().getSootClass(_type.getFullyQualifiedName()));            
+            _sm = getCorrSootMethod(method, Scene.v().getSootClass(
+                    _type.getFullyQualifiedName()));
         } else {
             //  Load the class.
             final SootClass _sootClass = loadClass(method.getDeclaringType());
             if (_sootClass != null) {
                 _sm = getCorrSootMethod(method, _sootClass);
-            }            
+            }
         }
-        
+
         return _sm;
     }
-    
-    
+
     /**
      * Load the given JDT class.
+     * 
      * @param javaClass
      * @return
      */
     private static SootClass loadClass(final IType javaClass) {
         SootClass _sootclass = null;
-        final ICompilationUnit _unit  = javaClass.getCompilationUnit();
-        if (_unit == null)  {
+        final ICompilationUnit _unit = javaClass.getCompilationUnit();
+        if (_unit == null) {
             System.out.println("Nothing found");
             return _sootclass;
         }
         IFile _file = null;
         try {
-        _file = (IFile) _unit.getCorrespondingResource();
+            _file = (IFile) _unit.getCorrespondingResource();
         } catch (JavaModelException _jme) {
             SECommons.handleException(_jme);
             KaveriErrorLog.logException("Java Model Exception", _jme);
         }
-        if (_file == null) return _sootclass;
-        
+        if (_file == null)
+            return _sootclass;
+
         IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
                 .getString("SootConvertor.1")); //$NON-NLS-1$
         _jreclasspath = JavaCore.getClasspathVariable(Messages
@@ -427,7 +430,7 @@ public final class SootConvertor {
             final Scene _scene = Scene.v();
             Options.v().parse(Util.getSootOptions());
             // Fix for the soot.CompilationDeathError.
-           // Options.v().set_src_prec(Options.src_prec_java);
+            // Options.v().set_src_prec(Options.src_prec_java);
             Options.v().set_keep_line_number(true);
 
             String _cpString = _scene.getSootClassPath();
@@ -455,5 +458,5 @@ public final class SootConvertor {
 
         return _sootclass;
     }
-    
+
 }

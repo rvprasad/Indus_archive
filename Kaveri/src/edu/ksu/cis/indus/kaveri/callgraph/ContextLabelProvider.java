@@ -12,7 +12,7 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.callgraph;
 
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -21,34 +21,51 @@ import org.eclipse.swt.graphics.Image;
 
 /**
  * @author ganeshan
- *
+ * 
  * Provide the labels for the context dialog viewer.
  */
-public class ContextLabelProvider extends LabelProvider 
-implements ITableLabelProvider {
+public class ContextLabelProvider extends LabelProvider implements
+        ITableLabelProvider {
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
+    /**
+     * Constructor.
+     *
      */
-    public Image getColumnImage(Object element, int columnIndex) {        
+    public ContextLabelProvider() {
+        
+    }
+    
+    /**
+     * (non-Javadoc).
+     * 
+     * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object,
+     *      int)
+     */
+    public Image getColumnImage(final Object element, final int columnIndex) {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)
+    /**
+     * (non-Javadoc).
+     * 
+     * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object,
+     *      int)
      */
-    public String getColumnText(Object element, int columnIndex) {
+    public String getColumnText(final Object element, final int columnIndex) {
         String _retString = "";
         if (element instanceof MethodCallContext) {
-            switch (columnIndex) {            	
-            	case 1:
-            	    _retString = ((MethodCallContext) element).getCallSource().getElementName();
-            	    break;
-            	case 2:
-            	    _retString = ((MethodCallContext) element).getCallRoot().getElementName();
-            	    break;
+            switch (columnIndex) {
+            case 1:
+                _retString = ((MethodCallContext) element).getCallSource()
+                        .getElementName();
+                break;
+            case 2:
+                _retString = ((MethodCallContext) element).getCallRoot()
+                        .getElementName();
+                break;
+            default: break;   
             }
-        } 
+        }
         return _retString;
     }
 

@@ -73,7 +73,7 @@ import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
  * or not. This view is only active after slicing has been performed.
  * </p>
  */
-public class PartialSliceView extends ViewPart  {
+public class PartialSliceView extends ViewPart {
     /**
      * <p>
      * The table viewer for this view.
@@ -176,7 +176,8 @@ public class PartialSliceView extends ViewPart  {
                         && _crt.getStrMethodName().equals(_methodName)
                         && _crt.getNLineNo() == _nLineno) {
                     // Found a criteria at the given point, hooray!
-                    crtList.put(_jimpleList.get(_crt.getNJimpleIndex()), Boolean.valueOf(_crt.isBConsiderValue()));
+                    crtList.put(_jimpleList.get(_crt.getNJimpleIndex()),
+                            Boolean.valueOf(_crt.isBConsiderValue()));
 
                 }
             }
@@ -354,10 +355,10 @@ public class PartialSliceView extends ViewPart  {
                 final Boolean _bConsiderVal = (Boolean) crtList.get(element);
                 if (_bConsiderVal.booleanValue()) {
                     return KaveriPlugin.getDefault().getIndusConfiguration()
-                        .getRManager().getColor(new RGB(0, 0, 189));                    
+                            .getRManager().getColor(new RGB(0, 0, 189));
                 } else {
                     return KaveriPlugin.getDefault().getIndusConfiguration()
-                    .getRManager().getColor(new RGB(255, 0, 0));
+                            .getRManager().getColor(new RGB(255, 0, 0));
                 }
             }
             return null;
@@ -369,7 +370,7 @@ public class PartialSliceView extends ViewPart  {
          * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
          */
         public Color getBackground(Object element) {
-             
+
             return null;
         }
     }
@@ -467,7 +468,8 @@ public class PartialSliceView extends ViewPart  {
                     this.setImageDescriptor(_desc);
                     isReady = true;
                     this.setToolTipText("Track Java Statements (Active)");
-                    viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList());
+                    viewer.setInput(KaveriPlugin.getDefault()
+                            .getIndusConfiguration().getStmtList());
                 }
             }
         };
@@ -492,14 +494,14 @@ public class PartialSliceView extends ViewPart  {
                         MessageDialog.openError(null, "Error",
                                 "Duplicate Criteria are not allowed!");
                     } else {
-                        addToCriteria(viewer.getTable().getSelectionIndex(), false);
+                        addToCriteria(viewer.getTable().getSelectionIndex(),
+                                false);
                         crtList.put(_stmt, new Boolean(false));
                         viewer.refresh();
                     }
                 }
             }
 
-            
         };
 
         _actionAddCriteriaTop.setToolTipText("Add as criteria (Control)");
@@ -509,7 +511,6 @@ public class PartialSliceView extends ViewPart  {
         _actionAddCriteriaTop.setImageDescriptor(_descCrt);
         manager.add(_actionAddCriteriaTop);
 
-        
         Action _actionAddCriteriaBottom = new Action() {
             public void run() {
                 if (viewer.getTable().getSelectionIndex() != -1
@@ -523,14 +524,14 @@ public class PartialSliceView extends ViewPart  {
                         MessageDialog.openError(null, "Error",
                                 "Duplicate Criteria are not allowed!");
                     } else {
-                        addToCriteria(viewer.getTable().getSelectionIndex(), true);
+                        addToCriteria(viewer.getTable().getSelectionIndex(),
+                                true);
                         crtList.put(_stmt, new Boolean(true));
                         viewer.refresh();
                     }
                 }
             }
 
-            
         };
 
         _actionAddCriteriaBottom.setToolTipText("Add as criteria (Value)");
@@ -560,7 +561,6 @@ public class PartialSliceView extends ViewPart  {
                 }
             }
 
-            
         };
 
         _actionRemoveCriteria.setToolTipText("Remove criteria");
@@ -569,11 +569,12 @@ public class PartialSliceView extends ViewPart  {
                         "data/icons/remCriteria.gif");
         _actionRemoveCriteria.setImageDescriptor(_descCrtRem);
         manager.add(_actionRemoveCriteria);
-        
+
     }
 
     /**
      * Removes the statement as specified by the index from the criteria.
+     * 
      * @param selectionIndex
      */
     protected void removeCriteria(int selectionIndex) {
@@ -586,8 +587,7 @@ public class PartialSliceView extends ViewPart  {
         _xstream.alias("CriteriaData", CriteriaData.class);
 
         try {
-            final String _propVal = _resource
-                    .getPersistentProperty(_name);
+            final String _propVal = _resource.getPersistentProperty(_name);
 
             if (_propVal == null) {
                 _data = new CriteriaData();
@@ -595,17 +595,19 @@ public class PartialSliceView extends ViewPart  {
             } else {
                 _data = (CriteriaData) _xstream.fromXML(_propVal);
             }
-            
-            for (Iterator iter = _data.getCriterias().iterator(); iter.hasNext();) {
+
+            for (Iterator iter = _data.getCriterias().iterator(); iter
+                    .hasNext();) {
                 final Criteria _c = (Criteria) iter.next();
-                if (_c.getStrClassName().equals(partialData.getClassName()) 
-                      && _c.getStrMethodName().equals(partialData.getMethodName())
-                	  && _c.getNLineNo() == partialData.getLineNo()
-                	  && _c.getNJimpleIndex() == selectionIndex) {
-                	      _data.getCriterias().remove(_c);
-                	      break;
-                	  }
-                	               
+                if (_c.getStrClassName().equals(partialData.getClassName())
+                        && _c.getStrMethodName().equals(
+                                partialData.getMethodName())
+                        && _c.getNLineNo() == partialData.getLineNo()
+                        && _c.getNJimpleIndex() == selectionIndex) {
+                    _data.getCriterias().remove(_c);
+                    break;
+                }
+
             }
 
             final String _xml = _xstream.toXML(_data);
@@ -614,13 +616,14 @@ public class PartialSliceView extends ViewPart  {
             SECommons.handleException(_e);
             KaveriErrorLog.logException("Core Exception", _e);
         }
-       
-        
+
     }
 
     /**
      * Add the criteria as specified by the given jimple index.
-     * @param considerVal Consider the value.
+     * 
+     * @param considerVal
+     *            Consider the value.
      * @param selectionIndex
      */
     private void addToCriteria(int selectionIndex, final boolean considerVal) {
@@ -633,8 +636,7 @@ public class PartialSliceView extends ViewPart  {
         _xstream.alias("CriteriaData", CriteriaData.class);
 
         try {
-            final String _propVal = _resource
-                    .getPersistentProperty(_name);
+            final String _propVal = _resource.getPersistentProperty(_name);
 
             if (_propVal == null) {
                 _data = new CriteriaData();
@@ -647,8 +649,8 @@ public class PartialSliceView extends ViewPart  {
             _c.setStrMethodName(partialData.getMethodName());
             _c.setNLineNo(partialData.getLineNo());
             _c.setNJimpleIndex(selectionIndex);
-            _c.setBConsiderValue(considerVal); 
-            
+            _c.setBConsiderValue(considerVal);
+
             _data.getCriterias().add(_c);
 
             final String _xml = _xstream.toXML(_data);
@@ -658,7 +660,7 @@ public class PartialSliceView extends ViewPart  {
             SECommons.handleException(_e);
         }
     }
-    
+
     /**
      * @param _table
      */
@@ -697,7 +699,9 @@ public class PartialSliceView extends ViewPart  {
         return _table;
     }
 
-    /** (non-Javadoc)
+    /**
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.ui.IWorkbenchPart#dispose()
      */
     public void dispose() {

@@ -1,66 +1,65 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>Concepts</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s04.html" title="Install / Uninstall"><link rel="next" href="ar01s06.html" title="Setup"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Concepts</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s04.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s06.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="concepts"></a>Concepts</h2></div></div><div></div></div><p>
-			</p><div class="variablelist"><dl><dt><span class="term"><span class="bold"><b>Configuration</b></span> </span></dt><dd><p>
-							The Indus Java Slicer requires a configuration to specify details such as the type of slice to be performed (backward, forward or complete), the types of dependencies to track in the slice (ready, divergence, interference) 
-							[<span class="citation">HatcliffSAS99</span>]
-							and the parameters for each dependency. In short, it is the configuration of the slicer. To learn more about the configuration please look at the 
-							<a href="http://projects.cis.ksu.edu/docman/view.php/12/71/slicer-ug.pdf" target="_top">Indus Java Slicer Documentation</a>
-							 . 
-						</p></dd><dt><span class="term"><span class="bold"><b>Jimple</b></span> </span></dt><dd><p>
-							Jimple is a typed 3-address intermediate representation of Java 
-							[<span class="citation">VH98</span>]
-							and Indus slicer operates on Jimple. Hence, all the Java code is converted into Jimple and then fed to the Slicer. The slicer calculates the slice of the given system in terms of Jimple. 
-							</p><div class="example"><a name="d0e123"></a><p class="title"><b>Example&nbsp;1.&nbsp;Example conversion of Java into Jimple</b></p><p>
-									Consider 
-									<tt class="code">nw++</tt>
-									, a Java expression. Following is a Jimple representation of this expression: 
-									</p><div class="itemizedlist"><ul type="disc"><li><tt class="code">$i2 = r0.&lt;myPackage.Monitor: int nw&gt;</tt></li><li><tt class="code">$i3 = $i2 + 1</tt></li><li><tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; = $i3</tt></li></ul></div><p>
-									In the first statement, the reference from 
-									<tt class="code">monitor</tt>
-									field is assigned to a local variable 
-									<tt class="code">i2.</tt>
-									In the next statement, the local variable 
-									<tt class="code">i3</tt>
-									is assigned the incremented value of 
-									<tt class="code">i2</tt>
-									and finally the original field is updated. 
-								</p></div><p>
-						</p><p>
-							As the Indus Java Slicer works on Jimple, the criteria for slicing is specified as Jimple chunks. From the above illustration, a Java statement can map to many Jimple statements. Therefore, when a Java statement/expression needs to be used as a slice criteria in 
-							<span class="emphasis"><em>Kaveri</em></span>
-							 , the user has to pick one or more of the Jimple statements to which the Java statement/expression is mapped to. For more information about Jimple please refer to 
-							[<span class="citation">VH98</span>]
-							. For more exposition about how to pick criteria closest to your requirements, please refer to 
-							<span class="bold"><b><a href="ar01s09.html">Appendix - How to pick criteria</a>.</b></span>
- 						</p></dd><dt><span class="term"><span class="bold"><b>Value of the expression</b></span> </span></dt><dd><p>
-							When an expression / statement is specified as a criteria, does this mean that: 
-							</p><div class="itemizedlist"><ul type="disc"><li>The value of the expression should be preserved (the expression is executed) or</li><li>The control reaching the expression should be preserved (the expression is not executed) </li></ul></div><p>
-							In the former we consider all those statements which might affect the computed value of the expression while in the latter we consider only those statements through which control can reach the selected expression or statement. 
-							</p><div class="example"><a name="d0e181"></a><p class="title"><b>Example&nbsp;2.&nbsp;Example to show the influence of control or value while choosing a criteria</b></p><p>
-									Consider the following fragment of code. 
-									</p><pre class="programlisting">
+   <title>Concepts</title><meta name="generator" content="DocBook XSL Stylesheets V1.65.1"><link rel="home" href="index.html" title="Indus - Kaveri"><link rel="up" href="index.html" title="Indus - Kaveri"><link rel="previous" href="ar01s04.html" title="Install / Uninstall"><link rel="next" href="ar01s06.html" title="Setup"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Concepts</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s04.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ar01s06.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="concepts"></a>Concepts</h2></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+					<span class="bold"><b>Configuration</b></span>
+					 - The Indus Java Slicer requires a configuration to specify details such as the type of slice to be performed (backward, forward or complete), the types of dependencies to track in the slice (ready, divergence, interference) 
+					[<span class="citation">HatcliffSAS99</span>]
+					and the parameters for each dependency. In short, it is the configuration of the slicer. To learn more about the configuration please look at the 
+					<a href="http://projects.cis.ksu.edu/docman/view.php/12/71/slicer-ug.pdf" target="_top">Indus Java Slicer Documentation</a>
+ 				</p></li><li><span class="bold"><b>Jimple</b></span>
+				 - Jimple is a typed 3-address intermediate representation of Java and Indus slicer operates on Jimple. Hence, all the Java code is converted into Jimple and then fed to the Slicer. The slicer calculates the slice of the given system in terms of Jimple. 
+				<div class="example"><a name="d0e119"></a><p class="title"><b>Example&nbsp;1.&nbsp;Example conversion of Java into Jimple</b></p><p>
+						Consider 
+						<tt class="code">nw++</tt>
+						, a Java expression. Following is a Jimple representation of this expression: 
+						</p><div class="itemizedlist"><ul type="circle"><li><tt class="code">$i2 = r0.&lt;myPackage.Monitor: int nw&gt;</tt></li><li><tt class="code">$i3 = $i2 + 1</tt></li><li><tt class="code">r0.&lt;myPackage.Monitor: int nw&gt; = $i3</tt></li></ul></div><p>
+						In the first statement, the reference from 
+						<tt class="code">monitor</tt>
+						field is assigned to a local variable 
+						<tt class="code">i2.</tt>
+						In the next statement, the local variable 
+						<tt class="code">i3</tt>
+						is assigned the incremented value of 
+						<tt class="code">i2</tt>
+						and finally the original field is updated. 
+					</p></div><p>
+					As the Indus Java Slicer works on Jimple, the criteria for slicing is specified as Jimple chunks. From the above illustration, a Java statement can map to many Jimple statements. Therefore, when a Java statement/expression needs to be used as a slice criteria in 
+					<span class="emphasis"><em>Kaveri</em></span>
+					 , the user has to pick one or more of the Jimple statements to which the Java statement/expression is mapped to. For more information about Jimple please refer to 
+					[<span class="citation">VH98</span>]
+					. For more exposition about how to pick criteria closest to your requirements, please refer to 
+					<span class="bold"><b><a href="ar01s10.html">Appendix - How to pick criteria</a>.</b></span>
+ 				</p></li><li><p>
+					<span class="bold"><b>Value of the expression</b></span>
+					 - When an expression / statement is specified as a criteria, does this mean that: 
+					</p><div class="itemizedlist"><ul type="circle"><li>The value of the expression should be preserved (the expression is executed) or</li><li>The control reaching the expression should be preserved (the expression is not executed) </li></ul></div><p>
+					In the former we consider all those statements which might affect the computed value of the expression while in the latter we consider only those statements through which control can reach the selected expression or statement. 
+					</p><div class="example"><a name="d0e174"></a><p class="title"><b>Example&nbsp;2.&nbsp;Example to show the influence of control or value while choosing a criteria</b></p><p>
+							Consider the following fragment of code. 
+							</p><pre class="programlisting">
 public static void main(final String[] args) { 
 int a, b; 
 a = b =1 + randInt(); 
 if (a ==2) { 
-     a = 10; 
+	a = 10; 
 } 
 else { 
-    b = 20; 
+	b = 20; 
 } 
 a = a + b;
 } 
-                                </pre><p>
-									If the statement 
-									<tt class="code">a = a + b</tt>
-									is chosen as the criteria, picking control or value causes different slices to be generated. If 
-									<span class="emphasis"><em>control</em></span>
-									 is picked, the statements corresponding to 
-									<tt class="code">if</tt>
-									conditional will be ignored in the slice as they don't affect the reachability of the chosen statement. However if the 
-									<span class="emphasis"><em>value of the expression</em></span>
-									 is picked then the conditional statements have to be included as they affect the computed value of the expression. 
-								</p></div><p>
-						</p></dd></dl></div><p>
-		</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s04.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s06.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Install / Uninstall&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Setup</td></tr></table></div></body></html>
+							</pre><p>
+							If the statement 
+							<tt class="code">a = a + b</tt>
+							is chosen as the criteria, picking control or value causes different slices to be generated. If 
+							<span class="emphasis"><em>control</em></span>
+							 is picked, the statements corresponding to 
+							<tt class="code">if</tt>
+							conditional will be ignored in the slice as they don't affect the reachability of the chosen statement. However if the 
+							<span class="emphasis"><em>value of the expression</em></span>
+							 is picked then the conditional statements have to be included as they affect the computed value of the expression. 
+						</p></div><p>
+				</p></li><li><p><span class="bold"><b>Scope Specification</b></span> - A scope specification restricts the scope that the slicer considers while performing a slice. When a criteria is embedded within a scope, the slicer does not consider elements outside the scope, while calculating the slice. For example, if a backward slice if performed with a criteria <span class="emphasis"><em>C</em></span> which is present in a method <span class="emphasis"><em>foo</em></span> and the method <span class="emphasis"><em>foo</em></span> is specified as a scope and suppose that no other functions are called in <span class="emphasis"><em>foo</em></span>. Then the backward slice only contains elements withing the method <span class="emphasis"><em>foo</em></span>. </p><p>
+					Kaveri allows three types of entities to be added to the scope: 
+					</p><div class="variablelist"><dl><dt><span class="term"><span class="bold"><b>Classes</b></span> </span></dt><dd><p>The class scope specification defines the class or classes that should be considering as defining a scope, while performing the slice. The scope specification is given a <span class="emphasis"><em>Scope Name </em></span> to identify it from the other scope specifications. The class scope specification also allows the scope around the class to be specified. These include: </p><p><span class="bold"><b>Just this class</b></span> - Only consider the class and not the relatives of the class. In this case, the class type specification can be entered as a regular expression. All the classes whose names match the expression are added to the scope. For example, giving a type of "foo.bar.*" will match all classes in the package "foo.bar". </p><p><span class="bold"><b>Ancestors excluding this class</b></span> - Consider all the ancestors of this class for scoping, but ignore the chosen class. In this case, the class type should be the fully qualified name of the class. </p><p><span class="bold"><b>Ancestors including this class</b></span> - Consider all the ancestors of this class for scoping, including the chosen class. In this case, the class type should be the fully qualified name of the class. </p><p><span class="bold"><b>Descendants excluding this class</b></span> - Consider all the descendants of this class for scoping, but ignore the chosen class. In this case, the class type should be the fully qualified name of the class. </p><p><span class="bold"><b>Descendants including this class</b></span> - Consider all the descendants of this class for scoping, including the chosen class. In this case, the class type should be the fully qualified name of the class. </p></dd><dt><span class="term"><span class="bold"><b>Methods</b></span> </span></dt><dd>The method scope specification defines the method that should be considered as a scope while performing the slice. The scope specification is given a <span class="emphasis"><em>Scope Name </em></span> to identify it from the other scope specifications. </dd><dt><span class="term"><span class="bold"><b>Fields</b></span> </span></dt><dd>The field scope specification defines the field that should be considered as a scope while performing the slice. The scope specification is given a <span class="emphasis"><em>Scope Name </em></span> to identify it from the other scope specifications. </dd></dl></div><p>
+				</p></li></ul></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s04.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ar01s06.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Install / Uninstall&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Setup</td></tr></table></div></body></html>

@@ -12,13 +12,13 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.scoping;
 
 /**
  * @author ganeshan
- *
- * This interface defines constants that define how the 
+ * 
+ * This interface defines constants that define how the
  * ScopePropertiesSelectionDialog is displayed.
  */
 public interface IScopeDialogMorphConstants {
@@ -26,14 +26,15 @@ public interface IScopeDialogMorphConstants {
      * Only the scope name.
      */
     int SCOPE_NAME_ONLY = 1;
+
     /**
      * Scope name and the regular expression for the entity name
      */
     int SCOPE_NAME_REGEX = 2;
     /**
      * Scope name and class scope properties.
+     * 
      * @author ganeshan
      */
-   // int SCOPE_NAME_PROP = 3;
-    
+    // int SCOPE_NAME_PROP = 3;
 }

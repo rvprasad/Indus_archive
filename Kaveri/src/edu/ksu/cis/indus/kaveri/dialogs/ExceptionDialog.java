@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -29,75 +28,78 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-
 /**
  * This dialog is responsible for showing the exception trace.
- *
+ * 
  * @author Ganeshan
  */
-public class ExceptionDialog
-  extends Dialog {
-	/** 
-	 * The exception trace to show.
-	 */
-	private String exceptionTrace;
+public class ExceptionDialog extends Dialog {
+    /**
+     * The exception trace to show.
+     */
+    private String exceptionTrace;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param parentShell The parent shell.
-	 * @param expTrace The exception trace.
-	 */
-	public ExceptionDialog(final Shell parentShell, final String expTrace) {
-		super(parentShell);
-		exceptionTrace = expTrace;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param parentShell
+     *            The parent shell.
+     * @param expTrace
+     *            The exception trace.
+     */
+    public ExceptionDialog(final Shell parentShell, final String expTrace) {
+        super(parentShell);
+        exceptionTrace = expTrace;
+    }
 
-	/**
-	 * Configures the shell.
-	 *
-	 * @param newShell The current shell.
-	 */
-	protected void configureShell(final Shell newShell) {
-		super.configureShell(newShell);
-		newShell.setText(Messages.getString("ExceptionDialog.0"));  //$NON-NLS-1$
-	}
+    /**
+     * Configures the shell.
+     * 
+     * @param newShell
+     *            The current shell.
+     */
+    protected void configureShell(final Shell newShell) {
+        super.configureShell(newShell);
+        newShell.setText(Messages.getString("ExceptionDialog.0")); //$NON-NLS-1$
+    }
 
-	/**
-	 * Creates the OK button.
-	 *
-	 * @see org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse.swt.widgets.Composite)
-	 */
-	protected void createButtonsForButtonBar(final Composite parent) {
-		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
-	}
+    /**
+     * Creates the OK button.
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse.swt.widgets.Composite)
+     */
+    protected void createButtonsForButtonBar(final Composite parent) {
+        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+                true);
+    }
 
-	/**
-	 * Creates the dialog area.
-	 *
-	 * @param parent The parent control
-	 *
-	 * @return Control The new control
-	 */
-	protected Control createDialogArea(final Composite parent) {
-		final Composite _composite = new Composite(parent, SWT.NONE);
-		final RowLayout _rl = new RowLayout(SWT.HORIZONTAL);
-		_composite.setLayout(_rl);
+    /**
+     * Creates the dialog area.
+     * 
+     * @param parent
+     *            The parent control
+     * 
+     * @return Control The new control
+     */
+    protected Control createDialogArea(final Composite parent) {
+        final Composite _composite = new Composite(parent, SWT.NONE);
+        final RowLayout _rl = new RowLayout(SWT.HORIZONTAL);
+        _composite.setLayout(_rl);
 
-		final Group _group1 = new Group(_composite, SWT.NONE);
-		_group1.setText(Messages.getString("ExceptionDialog.1"));  //$NON-NLS-1$
+        final Group _group1 = new Group(_composite, SWT.NONE);
+        _group1.setText(Messages.getString("ExceptionDialog.1")); //$NON-NLS-1$
 
-		final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
-		_group1.setLayout(_fl);
+        final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
+        _group1.setLayout(_fl);
 
-		final Text _expList;
-		_expList = new Text(_group1, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        final Text _expList;
+        _expList = new Text(_group1, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 
-		final int _wh = 400;
-		_expList.setBounds(0, 0, _wh, _wh);
-		_expList.setText(exceptionTrace);
-		_expList.setEditable(false);
+        final int _wh = 400;
+        _expList.setBounds(0, 0, _wh, _wh);
+        _expList.setText(exceptionTrace);
+        _expList.setEditable(false);
 
-		return _composite;
-	}
+        return _composite;
+    }
 }

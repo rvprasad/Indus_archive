@@ -1,4 +1,3 @@
- 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -22,156 +21,165 @@ package edu.ksu.cis.indus.kaveri.preferencedata;
 
 /**
  * Encapsulates the chosen criteria.
- *
+ * 
  * @author Ganeshan
  */
 public class Criteria {
-	/** 
-	 * The class name.
-	 */
-	private String strClassName;
+    /**
+     * The class name.
+     */
+    private String strClassName;
 
-	/** 
-	 * The method name.
-	 */
-	private String strMethodName;
+    /**
+     * The method name.
+     */
+    private String strMethodName;
 
-	/** 
-	 * Consider the exceution.
-	 */
-	private boolean bConsiderValue;
+    /**
+     * Consider the exceution.
+     */
+    private boolean bConsiderValue;
 
-	/**
-	 * The serialized criteria.
-	 */
-	private String criteriaSpec;
-	
-	
-	/** 
-	 * The index of the Jimple Stmt.
-	 */
-	private int nJimpleIndex;
+    /**
+     * The serialized criteria.
+     */
+    private String criteriaSpec;
 
-	/** 
-	 * The Java line number.
-	 */
-	private int nLineNo;
+    /**
+     * The index of the Jimple Stmt.
+     */
+    private int nJimpleIndex;
 
-	/**
-	 * Set consider excecution to considerValue.
-	 *
-	 * @param considerValue The bConsiderValue to set.
-	 */
-	public void setBConsiderValue(final boolean considerValue) {
-		bConsiderValue = considerValue;
-	}
+    /**
+     * The Java line number.
+     */
+    private int nLineNo;
 
-	/**
-	 * Returns whether consider execution is enabled.
-	 *
-	 * @return Returns the bConsiderValue.
-	 */
-	public boolean isBConsiderValue() {
-		return bConsiderValue;
-	}
+    /**
+     * Set consider excecution to considerValue.
+     * 
+     * @param considerValue
+     *            The bConsiderValue to set.
+     */
+    public void setBConsiderValue(final boolean considerValue) {
+        bConsiderValue = considerValue;
+    }
 
-	/**
-	 * Sets the Jimple index.
-	 *
-	 * @param jimpleIndex The nJimpleIndex to set.
-	 */
-	public void setNJimpleIndex(final int jimpleIndex) {
-		nJimpleIndex = jimpleIndex;
-	}
+    /**
+     * Returns whether consider execution is enabled.
+     * 
+     * @return Returns the bConsiderValue.
+     */
+    public boolean isBConsiderValue() {
+        return bConsiderValue;
+    }
 
-	/**
-	 * Get the chosen Jimple index.
-	 *
-	 * @return int Returns the index.
-	 */
-	public int getNJimpleIndex() {
-		return nJimpleIndex;
-	}
+    /**
+     * Sets the Jimple index.
+     * 
+     * @param jimpleIndex
+     *            The nJimpleIndex to set.
+     */
+    public void setNJimpleIndex(final int jimpleIndex) {
+        nJimpleIndex = jimpleIndex;
+    }
 
-	/**
-	 * Sets the line number.
-	 *
-	 * @param lineNo The line number.
-	 */
-	public void setNLineNo(final int lineNo) {
-		nLineNo = lineNo;
-	}
+    /**
+     * Get the chosen Jimple index.
+     * 
+     * @return int Returns the index.
+     */
+    public int getNJimpleIndex() {
+        return nJimpleIndex;
+    }
 
-	/**
-	 * Returns the line number.
-	 *
-	 * @return int The line number.
-	 */
-	public int getNLineNo() {
-		return nLineNo;
-	}
+    /**
+     * Sets the line number.
+     * 
+     * @param lineNo
+     *            The line number.
+     */
+    public void setNLineNo(final int lineNo) {
+        nLineNo = lineNo;
+    }
 
-	/**
-	 * Sets the classname to strClass.
-	 *
-	 * @param strClass The class name
-	 */
-	public void setStrClassName(final String strClass) {
-		this.strClassName = strClass;
-	}
+    /**
+     * Returns the line number.
+     * 
+     * @return int The line number.
+     */
+    public int getNLineNo() {
+        return nLineNo;
+    }
 
-	/**
-	 * Returns the class name in which the criteria is present.
-	 *
-	 * @return String The classname
-	 */
-	public String getStrClassName() {
-		return strClassName;
-	}
+    /**
+     * Sets the classname to strClass.
+     * 
+     * @param strClass
+     *            The class name
+     */
+    public void setStrClassName(final String strClass) {
+        this.strClassName = strClass;
+    }
 
-	/**
-	 * Sets the method name to strMethod.
-	 *
-	 * @param strMethod The method name.
-	 */
-	public void setStrMethodName(final String strMethod) {
-		this.strMethodName = strMethod;
-	}
+    /**
+     * Returns the class name in which the criteria is present.
+     * 
+     * @return String The classname
+     */
+    public String getStrClassName() {
+        return strClassName;
+    }
 
-	/**
-	 * Returns the name of the method in which the criteria is present.
-	 *
-	 * @return String The method name.
-	 */
-	public String getStrMethodName() {
-		return strMethodName;
-	}
-	
-	/**
-	 * Returns the serialized criteria string.
-	 * @return Returns the criteriaSpec.
-	 */
-	public String getCriteriaSpec() {
-		return criteriaSpec;
-	}
-	
-	/**
-	 * Sets the serialized form of the criteria.
-	 * @param criteriaSpec The criteriaSpec to set.
-	 */
-	public void setCriteriaSpec(String criteriaSpec) {
-		this.criteriaSpec = criteriaSpec;
-	}
-	
-    /* (non-Javadoc)
+    /**
+     * Sets the method name to strMethod.
+     * 
+     * @param strMethod
+     *            The method name.
+     */
+    public void setStrMethodName(final String strMethod) {
+        this.strMethodName = strMethod;
+    }
+
+    /**
+     * Returns the name of the method in which the criteria is present.
+     * 
+     * @return String The method name.
+     */
+    public String getStrMethodName() {
+        return strMethodName;
+    }
+
+    /**
+     * Returns the serialized criteria string.
+     * 
+     * @return Returns the criteriaSpec.
+     */
+    public String getCriteriaSpec() {
+        return criteriaSpec;
+    }
+
+    /**
+     * Sets the serialized form of the criteria.
+     * 
+     * @param criteriaSpec
+     *            The criteriaSpec to set.
+     */
+    public void setCriteriaSpec(String criteriaSpec) {
+        this.criteriaSpec = criteriaSpec;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
         if (obj instanceof Criteria) {
-         final Criteria _c = (Criteria) obj;
-         return (_c.getStrClassName().equals(strClassName) &&
-                 _c.getStrMethodName().equals(strMethodName) &&
-                 _c.getNLineNo() == nLineNo && _c.getNJimpleIndex() == nJimpleIndex);
+            final Criteria _c = (Criteria) obj;
+            return (_c.getStrClassName().equals(strClassName)
+                    && _c.getStrMethodName().equals(strMethodName)
+                    && _c.getNLineNo() == nLineNo && _c.getNJimpleIndex() == nJimpleIndex);
         } else {
             return super.equals(obj);
         }

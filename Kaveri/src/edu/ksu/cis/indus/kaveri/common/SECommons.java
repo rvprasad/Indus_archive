@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -64,12 +63,13 @@ import edu.ksu.cis.indus.kaveri.driver.Messages;
  * @author ganeshan
  */
 public final class SECommons {
-    
-    /** Map between class names and the IFile they belong to */
+
+    /** Map between class names and the IFile they belong to. */
     private static Map classNameToFileMap = new HashMap();
 
+    /** The java file to Document map. */
     private static Map javaFileToDocumentMap = new HashMap();
-    
+
     /**
      * Constructor.
      */
@@ -140,27 +140,29 @@ public final class SECommons {
      * Returns a set of strings indicating the class path.
      * 
      * @author Daniel Berg jdt-dev@eclipse.org.
-     * @param jproject
-     * @param visitedProjects
-     * @return
+     * @param jproject The java project.
+     * @param visitedProjects The set of visited projets.
+     * @param exported Whether the entry is exported.
+     * @return Set The set of all the classpaths.
      */
     public static Set getClassPathForProject(final IJavaProject jproject,
-            Set visitedProjects, boolean exported) {
+            final Set visitedProjects, final boolean exported) {
         final Set _retSet = new HashSet();
         final String _pathseparator = System.getProperty(Messages
                 .getString("SootConvertor.3")); //$NON-NLS-1$		
-        if (jproject == null || visitedProjects.contains(jproject))
+        if (jproject == null || visitedProjects.contains(jproject)) {
             return _retSet;
+        }
         visitedProjects.add(jproject);
         try {
-            IClasspathEntry[] entries = jproject.getResolvedClasspath(true);
-            for (int i = 0; i < entries.length; i++) {
+            final IClasspathEntry[] _entries = jproject.getResolvedClasspath(true);
+            for (int _i = 0; _i < _entries.length; _i++) {
                 if (!exported
-                        || entries[i].isExported()
-                        || entries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                    switch (entries[i].getEntryKind()) {
+                        || _entries[_i].isExported()
+                        || _entries[_i].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                    switch (_entries[_i].getEntryKind()) {
                     case IClasspathEntry.CPE_SOURCE:
-                        IPath _opLoc = entries[i].getOutputLocation();
+                        IPath _opLoc = _entries[_i].getOutputLocation();
                         if (_opLoc == null) {
                             _opLoc = jproject.getOutputLocation();
                         }
@@ -176,7 +178,7 @@ public final class SECommons {
                                     .toOSString()
                                     + _pathseparator);
                         }
-                        IPath _srcpath = entries[i].getPath();
+                        IPath _srcpath = _entries[_i].getPath();
                         if (_srcpath.segmentCount() == 1) {
                             _srcpath = jproject.getProject().getLocation();
                         } else {
@@ -190,22 +192,23 @@ public final class SECommons {
                     case IClasspathEntry.CPE_LIBRARY:
                         final IContainer parent = jproject.getProject()
                                 .getParent();
-                        IPath _libPath = parent.getFile(entries[i].getPath())
+                        IPath _libPath = parent.getFile(_entries[_i].getPath())
                                 .getLocation();
                         if (_libPath == null) {
-                            _libPath = entries[i].getPath();
+                            _libPath = _entries[_i].getPath();
                         }
                         _retSet.add(_libPath.toOSString() + _pathseparator);
                         break;
                     case IClasspathEntry.CPE_PROJECT:
                         final IProject _dProject = ResourcesPlugin
                                 .getWorkspace().getRoot().getProject(
-                                        entries[i].getPath().segment(0));
+                                        _entries[_i].getPath().segment(0));
                         final IJavaProject _jdproject = JavaCore
                                 .create(_dProject);
                         _retSet.addAll(getClassPathForProject(_jdproject,
                                 visitedProjects, true));
                         break;
+                     default: break;   
 
                     }
                 }
@@ -497,7 +500,8 @@ public final class SECommons {
                     final String _classname = (String) lst.get(_i);
                     _scene.loadClassAndSupport(_classname);
                 } catch (RuntimeException _rme) {
-                    KaveriErrorLog.logException("Error loading soot class ", _rme);
+                    KaveriErrorLog.logException("Error loading soot class ",
+                            _rme);
                     SECommons.handleException(_rme);
                     throw _rme;
                 }
@@ -575,24 +579,23 @@ public final class SECommons {
         return _file;
     }
 
-    
-    
     public static Document getDocumentForJavaFile(final IFile javaFile) {
         Document _d = (Document) javaFileToDocumentMap.get(javaFile);
         if (_d == null) {
             try {
-                _d = new Document(JavaCore.createCompilationUnitFrom(javaFile).getSource());
+                _d = new Document(JavaCore.createCompilationUnitFrom(javaFile)
+                        .getSource());
                 javaFileToDocumentMap.put(javaFile, _d);
             } catch (JavaModelException e) {
                 KaveriErrorLog.logException("Java Model Exception", e);
-               SECommons.handleException(e);
+                SECommons.handleException(e);
             }
-            
-        } 
-        
+
+        }
+
         return _d;
     }
-   
+
     /**
      * @param _sm
      * @param statement
@@ -600,10 +603,10 @@ public final class SECommons {
      * @param lineNumber
      * @return
      */
-    public static String getUniqueSignature(SootMethod _sm, String statement, int lineNumber) {
-        return _sm.hashCode() + _sm.getSignature() + statement + "" + lineNumber;
+    public static String getUniqueSignature(SootMethod _sm, String statement,
+            int lineNumber) {
+        return _sm.hashCode() + _sm.getSignature() + statement + ""
+                + lineNumber;
     }
 }
-
-
 

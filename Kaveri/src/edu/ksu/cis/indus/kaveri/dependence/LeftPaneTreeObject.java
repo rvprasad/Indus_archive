@@ -12,20 +12,19 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.dependence;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 
-
 /**
  * 
  * @author ganeshan
- *
  * 
+ *  
  */
-public class LeftPaneTreeObject implements IAdaptable {    
+public class LeftPaneTreeObject implements IAdaptable {
 
     private LeftPaneTreeParent parent;
 
@@ -36,14 +35,13 @@ public class LeftPaneTreeObject implements IAdaptable {
     private int lineNumber;
 
     /*
-     * The index into the set of jimple statements represented by 
-     * this object. -1 for the root.
+     * The index into the set of jimple statements represented by this object.
+     * -1 for the root.
      */
     private int jimpleIndex;
-    
 
     public LeftPaneTreeObject(String stmt) {
-        this.statement = stmt;        
+        this.statement = stmt;
     }
 
     public void setParent(LeftPaneTreeParent parent) {
@@ -61,7 +59,6 @@ public class LeftPaneTreeObject implements IAdaptable {
     public Object getAdapter(Class key) {
         return null;
     }
-   
 
     /**
      * @return Returns the file.
@@ -106,8 +103,10 @@ public class LeftPaneTreeObject implements IAdaptable {
     public int getJimpleIndex() {
         return jimpleIndex;
     }
+
     /**
-     * @param jimpleIndex The jimpleIndex to set.
+     * @param jimpleIndex
+     *            The jimpleIndex to set.
      */
     public void setJimpleIndex(int jimpleIndex) {
         this.jimpleIndex = jimpleIndex;

@@ -12,7 +12,7 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.callgraph;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -20,32 +20,50 @@ import org.eclipse.jface.viewers.Viewer;
 
 /**
  * @author ganeshan
- *
+ * 
  * Provide the content for the context dialog viewer.
  */
 public class ContextContentProvider implements IStructuredContentProvider {
 
-    /* (non-Javadoc)
+    /**
+     * Constructor.
+     *
+     */
+    public ContextContentProvider() {
+        
+    }
+    
+    /**
+     * (non-Javadoc).
+     * 
      * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
      */
-    public Object[] getElements(Object inputElement) {
+    public Object[] getElements(final Object inputElement) {
+        Object[] _retObj = null; 
         if (inputElement instanceof ContextRepository) {
-            return ((ContextRepository) inputElement).getContexts().toArray();
+            _retObj = ((ContextRepository) inputElement).getContexts().toArray();
+        } else {
+            _retObj = new Object[0];
         }
-        return new Object[0];
+        return _retObj;
     }
 
-    /* (non-Javadoc)
+    /**
+     * (non-Javadoc).
+     * 
      * @see org.eclipse.jface.viewers.IContentProvider#dispose()
      */
-    public void dispose() {       
+    public void dispose() {
 
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
+    /**
+     * (non-Javadoc).
+     * 
+     * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer,
+     *      java.lang.Object, java.lang.Object)
      */
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {                
+    public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
     }
 
 }

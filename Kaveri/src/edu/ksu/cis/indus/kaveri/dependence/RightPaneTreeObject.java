@@ -12,17 +12,16 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.dependence;
 
 import org.eclipse.core.runtime.IAdaptable;
 
 import soot.SootMethod;
 
-
 /**
  * @author ganeshan
- *
+ * 
  * The right pane tree object.
  */
 public class RightPaneTreeObject implements IAdaptable {
@@ -32,13 +31,11 @@ public class RightPaneTreeObject implements IAdaptable {
 
     private String statement;
 
-    
-
     /*
      * The soot method this object represents.
      */
     private SootMethod sm;
-    
+
     private int lineNumber;
 
     public RightPaneTreeObject(String stmt) {
@@ -60,8 +57,6 @@ public class RightPaneTreeObject implements IAdaptable {
     public Object getAdapter(Class key) {
         return null;
     }
-
-
 
     /**
      * @return Returns the lineNumber.
@@ -91,8 +86,10 @@ public class RightPaneTreeObject implements IAdaptable {
     public SootMethod getSm() {
         return sm;
     }
+
     /**
-     * @param sm The sm to set.
+     * @param sm
+     *            The sm to set.
      */
     public void setSm(SootMethod sm) {
         this.sm = sm;

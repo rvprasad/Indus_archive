@@ -20,7 +20,6 @@
  */
 package edu.ksu.cis.indus.kaveri.presentation;
 
-
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
@@ -72,13 +71,12 @@ public class SliceAnnotate implements IEditorActionDelegate {
      * The previous file chosen
      */
     private IFile prevFile;
-    
+
     /**
      * The previous line number chosen, used to avoid redundant calls.
      */
     private int nLineno = -1;
-    
-    
+
     /**
      * Indicates the current java editor.
      * 
@@ -87,7 +85,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
      */
     public void setActiveEditor(final IAction action,
             final IEditorPart targetEditor) {
-        this.editor = (CompilationUnitEditor) targetEditor;        
+        this.editor = (CompilationUnitEditor) targetEditor;
         Display.getDefault().asyncExec(new Runnable() {
             public void run() {
                 final IFile _file = ((IFileEditorInput) editor.getEditorInput())
@@ -188,22 +186,28 @@ public class SliceAnnotate implements IEditorActionDelegate {
      *      org.eclipse.jface.viewers.ISelection)
      */
     public void selectionChanged(final IAction action,
-            final ISelection selection) {        
-        if (selection != null && !selection.isEmpty()
+            final ISelection selection) {
+        if (selection != null
+                && !selection.isEmpty()
                 && KaveriPlugin.getDefault().getIndusConfiguration()
                         .getStmtList().isListenersPresent()) {
-            if (KaveriPlugin.getDefault().getIndusConfiguration()
-                        .getStmtList().isListenersReady() && editor != null) {
-                if (prevFile != null && ((IFileEditorInput) editor.getEditorInput()).getFile().equals(prevFile)) {
+            if (KaveriPlugin.getDefault().getIndusConfiguration().getStmtList()
+                    .isListenersReady()
+                    && editor != null) {
+                if (prevFile != null
+                        && ((IFileEditorInput) editor.getEditorInput())
+                                .getFile().equals(prevFile)) {
                     final ITextSelection _tsel = (ITextSelection) selection;
-                    if (_tsel.getLength() == 0 || nLineno == _tsel.getStartLine()) {
+                    if (_tsel.getLength() == 0
+                            || nLineno == _tsel.getStartLine()) {
                         return;
-                    } else {                        
+                    } else {
                         nLineno = _tsel.getStartLine();
                     }
-                    
+
                 } else {
-                    prevFile = ((IFileEditorInput) editor.getEditorInput()).getFile();
+                    prevFile = ((IFileEditorInput) editor.getEditorInput())
+                            .getFile();
                     nLineno = ((ITextSelection) selection).getStartLine();
                 }
                 handleSelectionForSliceView(selection);
@@ -248,14 +252,15 @@ public class SliceAnnotate implements IEditorActionDelegate {
 
                     if (_stmtlist != null && _stmtlist.size() >= 3) {
                         final PartialStmtData _psd = KaveriPlugin.getDefault()
-                                .getIndusConfiguration().getStmtList();                       
-                        
+                                .getIndusConfiguration().getStmtList();
+
                         _psd.setJavaFile(_file);
                         _psd.setSelectedStatement(_text);
                         _psd.setClassName(PrettySignature.getSignature(_type));
-                        _psd.setMethodName(PrettySignature.getSignature((IMethod) _element));
+                        _psd.setMethodName(PrettySignature
+                                .getSignature((IMethod) _element));
                         _psd.setLineNo(_nSelLine);
-                        _psd.setStmtList(_stmtlist);                                
+                        _psd.setStmtList(_stmtlist);
                     }
                 }
             } catch (JavaModelException e) {

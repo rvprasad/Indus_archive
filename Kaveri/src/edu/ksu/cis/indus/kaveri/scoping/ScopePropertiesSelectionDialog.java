@@ -12,7 +12,7 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
- 
+
 package edu.ksu.cis.indus.kaveri.scoping;
 
 import java.util.regex.Pattern;
@@ -41,349 +41,371 @@ import org.eclipse.swt.widgets.Text;
 
 /**
  * @author ganeshan
- *
  * 
+ *  
  */
 public class ScopePropertiesSelectionDialog extends Dialog {
-    
+
     private Button btnExclusiveAncs;
+
     private Button btnExclusiveDcs;
+
     private Button btnInclusiveAncs;
+
     private Button btnInclusiveDcs;
+
     private Button btnIdentity;
+
     private Label lblWarning;
-    
+
     private Text txtRegex;
+
     private Text txtScopeName;
-    
+
     private String strChoice = "";
+
     private String strScopeName = "";
+
     private String strClassRegex = "";
+
     private String strDefaultScopeName = "";
+
     private String strDefaultClassName = "";
-    
+
     private VerifyListener regexVerifier;
+
     private VerifyListener noRegexVerifier;
-    
+
     private int dialogType = IScopeDialogMorphConstants.SCOPE_NAME_ONLY;
-    
+
     /**
      * Constructor
+     * 
      * @param shell
-     * @param dialogProperties The type of the dialog @see IScopeDialogMorphConstants
-     * @param defaultScopeName The default scope name.     
+     * @param dialogProperties
+     *            The type of the dialog
+     * @see IScopeDialogMorphConstants
+     * @param defaultScopeName
+     *            The default scope name.
      */
-    public ScopePropertiesSelectionDialog(final Shell shell, final int dialogProperties, final String defaultScopeName) {
+    public ScopePropertiesSelectionDialog(final Shell shell,
+            final int dialogProperties, final String defaultScopeName) {
         super(shell);
-        switch(dialogProperties) {
-        	case IScopeDialogMorphConstants.SCOPE_NAME_ONLY:        	
-        	case IScopeDialogMorphConstants.SCOPE_NAME_REGEX:
-        	    dialogType = dialogProperties;
-        	    break;
-        	default: throw new IllegalArgumentException("Invalid parameters to the dialog");   
-        }        
+        switch (dialogProperties) {
+        case IScopeDialogMorphConstants.SCOPE_NAME_ONLY:
+        case IScopeDialogMorphConstants.SCOPE_NAME_REGEX:
+            dialogType = dialogProperties;
+            break;
+        default:
+            throw new IllegalArgumentException(
+                    "Invalid parameters to the dialog");
+        }
         this.strDefaultScopeName = defaultScopeName;
     }
-    
-    
-    
-    /** Configure the title
+
+    /**
+     * Configure the title
+     * 
      * @see org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets.Shell)
      */
     protected void configureShell(Shell newShell) {
-        newShell.setText("Scope Properties");        
+        newShell.setText("Scope Properties");
         super.configureShell(newShell);
     }
-    /** Create the Dialog area contents.
+
+    /**
+     * Create the Dialog area contents.
+     * 
      * @see org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets.Composite)
      */
     protected Control createDialogArea(Composite parent) {
         final Composite _comp = (Composite) super.createDialogArea(parent);
-		_comp.setLayout(new GridLayout(1, true));
-		
-		switch(dialogType) {
-			case IScopeDialogMorphConstants.SCOPE_NAME_ONLY:
-			    createScopeNameOnly(_comp);
-			    break;
-			
-			case IScopeDialogMorphConstants.SCOPE_NAME_REGEX:
-			    createScopeNameOnly(_comp);
-				createScopeNameAndRegexInput(_comp);
-				createScopeNameAndProperties(_comp);			    
-			    break;
-		}
-		return _comp;
+        _comp.setLayout(new GridLayout(1, true));
+
+        switch (dialogType) {
+        case IScopeDialogMorphConstants.SCOPE_NAME_ONLY:
+            createScopeNameOnly(_comp);
+            break;
+
+        case IScopeDialogMorphConstants.SCOPE_NAME_REGEX:
+            createScopeNameOnly(_comp);
+            createScopeNameAndRegexInput(_comp);
+            createScopeNameAndProperties(_comp);
+            break;
+        }
+        return _comp;
     }
-    
-	/**
-	 * Create the scope name and regex input type dialog. 
-     * @param comp The parent componenet
+
+    /**
+     * Create the scope name and regex input type dialog.
+     * 
+     * @param comp
+     *            The parent componenet
      */
     private void createScopeNameAndRegexInput(Composite comp) {
-       // createScopeNameOnly(comp);
+        // createScopeNameOnly(comp);
         // Create the regex part.
         final Group _grp = new Group(comp, SWT.BORDER);
-		_grp.setText("Enter the expression for the class(es)");
-		_grp.setLayout(new GridLayout(1, true));		
-		
-		GridData _gd = new GridData();
-		_gd.grabExcessHorizontalSpace = true;
-		_gd.horizontalSpan = 1;
-		_gd.horizontalAlignment = GridData.FILL;
-		_gd.grabExcessVerticalSpace = true;
-		_gd.verticalAlignment = GridData.FILL;
-		_gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
-		
-		_grp.setLayoutData(_gd);
-		
-         txtRegex = new Text(_grp, SWT.LEFT | SWT.BORDER);
-         txtRegex.setTextLimit(100);
-         regexVerifier = new VerifyListener() {
-             public void verifyText(VerifyEvent e) {
-                 lblWarning.setText("");     
-                 if (!e.text.equals("")) {
-                     final String _currString = txtRegex.getText() +  e.text;                 
-                     try {
-                         Pattern.compile(_currString);                     
-                     } catch (PatternSyntaxException _pe)  {
-                         lblWarning.setText(e.text + " is not allowed in this context");
-                     }                        
-                     
-                 }
-              }
-         };
-         
-         noRegexVerifier = new VerifyListener() {
+        _grp.setText("Enter the expression for the class(es)");
+        _grp.setLayout(new GridLayout(1, true));
+
+        GridData _gd = new GridData();
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.horizontalSpan = 1;
+        _gd.horizontalAlignment = GridData.FILL;
+        _gd.grabExcessVerticalSpace = true;
+        _gd.verticalAlignment = GridData.FILL;
+        _gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+
+        _grp.setLayoutData(_gd);
+
+        txtRegex = new Text(_grp, SWT.LEFT | SWT.BORDER);
+        txtRegex.setTextLimit(100);
+        regexVerifier = new VerifyListener() {
+            public void verifyText(VerifyEvent e) {
+                lblWarning.setText("");
+                if (!e.text.equals("")) {
+                    final String _currString = txtRegex.getText() + e.text;
+                    try {
+                        Pattern.compile(_currString);
+                    } catch (PatternSyntaxException _pe) {
+                        lblWarning.setText(e.text
+                                + " is not allowed in this context");
+                    }
+
+                }
+            }
+        };
+
+        noRegexVerifier = new VerifyListener() {
             public void verifyText(VerifyEvent e) {
                 lblWarning.setText("");
                 if (!e.text.equals("")) {
                     final String _curString = txtRegex.getText() + e.text;
-                    final Status _status = (Status) JavaConventions.validateJavaTypeName(_curString);
+                    final Status _status = (Status) JavaConventions
+                            .validateJavaTypeName(_curString);
                     final int _sev = _status.getSeverity();
                     if (_sev == IStatus.ERROR || _sev == IStatus.WARNING) {
-                        txtRegex.setToolTipText(_status.getMessage());                       
+                        txtRegex.setToolTipText(_status.getMessage());
                         lblWarning.setText(_status.getMessage());
                     } else {
                         e.doit = true;
                     }
-                    
+
                 }
             }
-         };         
-         
-         _gd = new GridData();
-         _gd.grabExcessHorizontalSpace = true;
- 		_gd.horizontalSpan = 1;
- 		_gd.horizontalAlignment = GridData.FILL;
- 		txtRegex.setLayoutData(_gd);
- 		txtRegex.setText(strDefaultClassName);
- 		lblWarning = new Label(_grp, SWT.LEFT);
- 		_gd = new GridData(GridData.FILL_BOTH);
- 		_gd.grabExcessHorizontalSpace = true;
- 		_gd.horizontalSpan = 1;
- 		_gd.grabExcessVerticalSpace = true;
- 		
- 		lblWarning.setLayoutData(_gd); 		
- 		txtRegex.addVerifyListener(regexVerifier);
+        };
+
+        _gd = new GridData();
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.horizontalSpan = 1;
+        _gd.horizontalAlignment = GridData.FILL;
+        txtRegex.setLayoutData(_gd);
+        txtRegex.setText(strDefaultClassName);
+        lblWarning = new Label(_grp, SWT.LEFT);
+        _gd = new GridData(GridData.FILL_BOTH);
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.horizontalSpan = 1;
+        _gd.grabExcessVerticalSpace = true;
+
+        lblWarning.setLayoutData(_gd);
+        txtRegex.addVerifyListener(regexVerifier);
     }
-
-
 
     /**
      * Create the scopename and the properties.
+     * 
      * @param comp
      */
     private void createScopeNameAndProperties(Composite comp) {
         //createScopeNameOnly(comp);
-        
-        final Group _grp = new Group(comp, SWT.BORDER);
-		_grp.setText("Scope around the specified type");
-		_grp.setLayout(new RowLayout(SWT.VERTICAL));		
-		
-		GridData _gd = new GridData();
-		_gd.grabExcessHorizontalSpace = true;
-		_gd.horizontalSpan = 1;
-		_gd.horizontalAlignment = GridData.FILL;
-		_gd.grabExcessVerticalSpace = true;
-		_gd.verticalAlignment = GridData.FILL;
-		_gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
-		//_gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4;
-		_grp.setLayoutData(_gd);
-		
-		btnIdentity = new Button(_grp, SWT.RADIO);
-		btnIdentity.setText("Just this class");		
-		btnIdentity.setSelection(true);
-		btnIdentity.addSelectionListener(
-		        new SelectionAdapter() {
-		            public void widgetSelected(SelectionEvent e) {
-		                lblWarning.setText("");
-		                txtRegex.removeVerifyListener(noRegexVerifier);
-		                txtRegex.addVerifyListener(regexVerifier);
-		            }
-		        }
-		        );	
-		
-		
-		btnExclusiveAncs = new Button(_grp, SWT.RADIO);
-		btnExclusiveAncs.setText("Ancestors excluding this class");
-		btnExclusiveAncs.addSelectionListener(
-		        new SelectionAdapter() {
-		            public void widgetSelected(SelectionEvent e) {
-		                lblWarning.setText("");
-		                txtRegex.removeVerifyListener(regexVerifier);
-		                txtRegex.addVerifyListener(noRegexVerifier);
-		            }
-		        }
-		        );
-		btnInclusiveAncs = new Button(_grp, SWT.RADIO);
-		btnInclusiveAncs.setText("Ancestors including this class");
-		btnInclusiveAncs.addSelectionListener(
-		        new SelectionAdapter() {
-		            public void widgetSelected(SelectionEvent e) {
-		                lblWarning.setText("");
-		                txtRegex.removeVerifyListener(regexVerifier);
-		                txtRegex.addVerifyListener(noRegexVerifier);
-		            }
-		        }
-		        );
 
-		btnExclusiveDcs = new Button(_grp, SWT.RADIO);
-		btnExclusiveDcs.setText("Descendants excluding this class");
-		btnExclusiveDcs.addSelectionListener(
-		        new SelectionAdapter() {
-		            public void widgetSelected(SelectionEvent e) {
-		                lblWarning.setText("");
-		                txtRegex.removeVerifyListener(regexVerifier);
-		                txtRegex.addVerifyListener(noRegexVerifier);
-		            }
-		        }
-		        );
-		
-								
-		btnInclusiveDcs = new Button(_grp, SWT.RADIO);		
-		btnInclusiveDcs.setText("Descendants including this class");
-		btnInclusiveDcs.addSelectionListener(
-		        new SelectionAdapter() {
-		            public void widgetSelected(SelectionEvent e) {
-		                lblWarning.setText("");
-		                txtRegex.removeVerifyListener(regexVerifier);
-		                txtRegex.addVerifyListener(noRegexVerifier);
-		            }
-		        }
-		        );
+        final Group _grp = new Group(comp, SWT.BORDER);
+        _grp.setText("Scope around the specified type");
+        _grp.setLayout(new RowLayout(SWT.VERTICAL));
+
+        GridData _gd = new GridData();
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.horizontalSpan = 1;
+        _gd.horizontalAlignment = GridData.FILL;
+        _gd.grabExcessVerticalSpace = true;
+        _gd.verticalAlignment = GridData.FILL;
+        _gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+        //_gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH * 3 / 4;
+        _grp.setLayoutData(_gd);
+
+        btnIdentity = new Button(_grp, SWT.RADIO);
+        btnIdentity.setText("Just this class");
+        btnIdentity.setSelection(true);
+        btnIdentity.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                lblWarning.setText("");
+                txtRegex.removeVerifyListener(noRegexVerifier);
+                txtRegex.addVerifyListener(regexVerifier);
+            }
+        });
+
+        btnExclusiveAncs = new Button(_grp, SWT.RADIO);
+        btnExclusiveAncs.setText("Ancestors excluding this class");
+        btnExclusiveAncs.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                lblWarning.setText("");
+                txtRegex.removeVerifyListener(regexVerifier);
+                txtRegex.addVerifyListener(noRegexVerifier);
+            }
+        });
+        btnInclusiveAncs = new Button(_grp, SWT.RADIO);
+        btnInclusiveAncs.setText("Ancestors including this class");
+        btnInclusiveAncs.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                lblWarning.setText("");
+                txtRegex.removeVerifyListener(regexVerifier);
+                txtRegex.addVerifyListener(noRegexVerifier);
+            }
+        });
+
+        btnExclusiveDcs = new Button(_grp, SWT.RADIO);
+        btnExclusiveDcs.setText("Descendants excluding this class");
+        btnExclusiveDcs.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                lblWarning.setText("");
+                txtRegex.removeVerifyListener(regexVerifier);
+                txtRegex.addVerifyListener(noRegexVerifier);
+            }
+        });
+
+        btnInclusiveDcs = new Button(_grp, SWT.RADIO);
+        btnInclusiveDcs.setText("Descendants including this class");
+        btnInclusiveDcs.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                lblWarning.setText("");
+                txtRegex.removeVerifyListener(regexVerifier);
+                txtRegex.addVerifyListener(noRegexVerifier);
+            }
+        });
     }
 
-
-
-    
     /**
      * Create the scope name acceptor.
+     * 
      * @param comp
-     */	
-    private void createScopeNameOnly(Composite comp) {        
+     */
+    private void createScopeNameOnly(Composite comp) {
         final Group _grp = new Group(comp, SWT.BORDER);
-		_grp.setText("Scope Name");
-		_grp.setLayout(new GridLayout(1, true));		
-		
-		GridData _gd = new GridData();
-		_gd.grabExcessHorizontalSpace = true;
-		_gd.horizontalSpan = 1;
-		_gd.horizontalAlignment = GridData.FILL;
-		_gd.grabExcessVerticalSpace = true;
-		_gd.verticalAlignment = GridData.FILL;
-		_gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
-		
-		_grp.setLayoutData(_gd);
-		
-		txtScopeName = new Text(_grp, SWT.LEFT | SWT.BORDER);		
-		txtScopeName.setTextLimit(100);
-		_gd = new GridData();
-		_gd.grabExcessHorizontalSpace = true;
-		_gd.horizontalSpan = 1;
-		_gd.horizontalAlignment = GridData.FILL;
-		txtScopeName.setLayoutData(_gd);
-		txtScopeName.setText(strDefaultScopeName);
+        _grp.setText("Scope Name");
+        _grp.setLayout(new GridLayout(1, true));
+
+        GridData _gd = new GridData();
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.horizontalSpan = 1;
+        _gd.horizontalAlignment = GridData.FILL;
+        _gd.grabExcessVerticalSpace = true;
+        _gd.verticalAlignment = GridData.FILL;
+        _gd.widthHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
+
+        _grp.setLayoutData(_gd);
+
+        txtScopeName = new Text(_grp, SWT.LEFT | SWT.BORDER);
+        txtScopeName.setTextLimit(100);
+        _gd = new GridData();
+        _gd.grabExcessHorizontalSpace = true;
+        _gd.horizontalSpan = 1;
+        _gd.horizontalAlignment = GridData.FILL;
+        txtScopeName.setLayoutData(_gd);
+        txtScopeName.setText(strDefaultScopeName);
     }
 
-
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.jface.dialogs.Dialog#okPressed()
      */
     protected void okPressed() {
-        switch(dialogType) {
-        	case IScopeDialogMorphConstants.SCOPE_NAME_ONLY:
-        	    strScopeName = txtScopeName.getText();        		
-        	    break;        
-        	case IScopeDialogMorphConstants.SCOPE_NAME_REGEX:
-        	    strScopeName = txtScopeName.getText();
-        		strClassRegex = txtRegex.getText();        		
-        		if (btnExclusiveAncs.getSelection()) {
-        		    final IStatus _status = (Status) JavaConventions.validateJavaTypeName(strClassRegex);
-        		    if (_status.getSeverity() == IStatus.ERROR) {
-        		        lblWarning.setText(strClassRegex + " is not a FQN");
-        		        return;
-        		    }
-        		    strChoice = "EXCLUSIVE_ANCESTORS";
-        		} else if (btnExclusiveDcs.getSelection()) {
-        		    final IStatus _status = JavaConventions.validateJavaTypeName(strClassRegex);
-        		    if (_status.getSeverity() == IStatus.ERROR) {
-        		        lblWarning.setText(strClassRegex + " is not a FQN");
-        		        return;
-        		    }
-        		    strChoice = "EXCLUSIVE_DESCENDANTS";
-        		} else if (btnInclusiveAncs.getSelection()) {
-        		    final IStatus _status = JavaConventions.validateJavaTypeName(strClassRegex);
-        		    if (_status.getSeverity() == IStatus.ERROR) {
-        		        lblWarning.setText(strClassRegex + " is not a FQN");
-        		        return;
-        		    }
-        		    strChoice = "INCLUSIVE_ANCESTORS";
-        		} else if (btnInclusiveDcs.getSelection()) {
-        		    final IStatus _status = JavaConventions.validateJavaTypeName(strClassRegex);
-        		    if (_status.getSeverity() == IStatus.ERROR) {
-        		        lblWarning.setText(strClassRegex + " is not a FQN");
-        		        return;
-        		    }
-        		    strChoice = "INCLUSIVE_DESCENDANTS";
-        		} else if (btnIdentity.getSelection()) {
-        		    try {
-            		    Pattern.compile(strClassRegex);
-            		    } catch(PatternSyntaxException _pe) {
-            		        lblWarning.setText(strClassRegex = " is not a valid regular expression");
-            		        return;
-            		    }
-        		    strChoice = "IDENTITY";
-        		}
-        	    break;
+        switch (dialogType) {
+        case IScopeDialogMorphConstants.SCOPE_NAME_ONLY:
+            strScopeName = txtScopeName.getText();
+            break;
+        case IScopeDialogMorphConstants.SCOPE_NAME_REGEX:
+            strScopeName = txtScopeName.getText();
+            strClassRegex = txtRegex.getText();
+            if (btnExclusiveAncs.getSelection()) {
+                final IStatus _status = (Status) JavaConventions
+                        .validateJavaTypeName(strClassRegex);
+                if (_status.getSeverity() == IStatus.ERROR) {
+                    lblWarning.setText(strClassRegex + " is not a FQN");
+                    return;
+                }
+                strChoice = "EXCLUSIVE_ANCESTORS";
+            } else if (btnExclusiveDcs.getSelection()) {
+                final IStatus _status = JavaConventions
+                        .validateJavaTypeName(strClassRegex);
+                if (_status.getSeverity() == IStatus.ERROR) {
+                    lblWarning.setText(strClassRegex + " is not a FQN");
+                    return;
+                }
+                strChoice = "EXCLUSIVE_DESCENDANTS";
+            } else if (btnInclusiveAncs.getSelection()) {
+                final IStatus _status = JavaConventions
+                        .validateJavaTypeName(strClassRegex);
+                if (_status.getSeverity() == IStatus.ERROR) {
+                    lblWarning.setText(strClassRegex + " is not a FQN");
+                    return;
+                }
+                strChoice = "INCLUSIVE_ANCESTORS";
+            } else if (btnInclusiveDcs.getSelection()) {
+                final IStatus _status = JavaConventions
+                        .validateJavaTypeName(strClassRegex);
+                if (_status.getSeverity() == IStatus.ERROR) {
+                    lblWarning.setText(strClassRegex + " is not a FQN");
+                    return;
+                }
+                strChoice = "INCLUSIVE_DESCENDANTS";
+            } else if (btnIdentity.getSelection()) {
+                try {
+                    Pattern.compile(strClassRegex);
+                } catch (PatternSyntaxException _pe) {
+                    lblWarning
+                            .setText(strClassRegex = " is not a valid regular expression");
+                    return;
+                }
+                strChoice = "IDENTITY";
+            }
+            break;
         }
-               
+
         super.okPressed();
     }
-    
+
     /**
      * Returns the choice made by the user.
+     * 
      * @return Returns the strChoice.
      */
     public String getStrChoice() {
         return strChoice;
     }
+
     /**
      * Returns the class regular expression.
+     * 
      * @return Returns the strClassRegex.
      */
     public String getStrClassRegex() {
         return strClassRegex;
     }
+
     /**
      * Returns the Scope name.
+     * 
      * @return Returns the strScopeName.
      */
     public String getStrScopeName() {
         return strScopeName;
     }
+
     /**
-     * @param strDefaultClassName The strDefaultClassName to set.
+     * @param strDefaultClassName
+     *            The strDefaultClassName to set.
      */
     public void setStrDefaultClassName(String strDefaultClassName) {
         this.strDefaultClassName = strDefaultClassName;

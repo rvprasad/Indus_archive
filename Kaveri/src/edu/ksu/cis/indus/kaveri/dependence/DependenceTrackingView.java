@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.kaveri.dependence;
 
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
@@ -129,8 +128,6 @@ public class DependenceTrackingView extends ViewPart {
      */
     private boolean isActive = false;
 
-    
-
     /** The input to the right pane */
     private DependenceStmtData dsd;
 
@@ -151,7 +148,7 @@ public class DependenceTrackingView extends ViewPart {
      */
     public DependenceTrackingView() {
         dsd = new DependenceStmtData();
-    
+
     }
 
     /**
@@ -248,11 +245,11 @@ public class DependenceTrackingView extends ViewPart {
                 tvRight.collapseAll();
             }
         };
-        
+
         normalMode = new Action() {
-        	public void run() {
-        		tvRight.expandToLevel(3);
-        	}
+            public void run() {
+                tvRight.expandToLevel(3);
+            }
         };
         normalMode.setText("Normal Mode");
         contractAll.setText("Collapse All");
@@ -270,6 +267,7 @@ public class DependenceTrackingView extends ViewPart {
                     tvRight.addFilter(controlFilterBck);
                 }
             }
+
         };
         controlFilterActionBck.setChecked(true);
 
@@ -358,74 +356,95 @@ public class DependenceTrackingView extends ViewPart {
                                 final CompilationUnitEditor _editor;
                                 try {
                                     _editor = (CompilationUnitEditor) JavaUI
-                                            .openInEditor(_unit);                                
-                                if (_editor != null) {
-                                    final IRegion _region = _editor
-                                            .getDocumentProvider().getDocument(
-                                                    _editor.getEditorInput())
-                                            .getLineInformation(nLineNo - 1);
-                                    final String _text = _editor
-                                            .getDocumentProvider().getDocument(
-                                                    _editor.getEditorInput())
-                                            .get(_region.getOffset(),
-                                                    _region.getLength());
-                                    final String _trimmedString = _text.trim();
-                                    PartialStmtData _psd = KaveriPlugin
-                                            .getDefault()
-                                            .getIndusConfiguration()
-                                            .getStmtList();
-                                    final DependenceHistoryData _dhd = KaveriPlugin.getDefault().getIndusConfiguration().getDepHistory();
-                                    
-                                    final DependenceStackData _depS = new DependenceStackData(
-                                            _psd);
-                                    Pair _pair = null;
-                                    _editor.selectAndReveal(
-                                            _region.getOffset(), _region
-                                                    .getLength());
-                                    
-                                    if (_dhd.getSize() == 0) {
-                                        _pair = new Pair(_depS, "Starting Program Point");
-                                        KaveriPlugin.getDefault()
-                                        .getIndusConfiguration()
-                                        .setDepHistory(_pair);
-                                        
-                                    } else {
-                                        final DependenceStackData _dOlS = (DependenceStackData) _dhd.getCurrentItem().getFirst();
-                                        if (!_dOlS.equals(_depS)) {
-                                            _pair = new Pair(_depS, "Starting Program Point");
+                                            .openInEditor(_unit);
+                                    if (_editor != null) {
+                                        final IRegion _region = _editor
+                                                .getDocumentProvider()
+                                                .getDocument(
+                                                        _editor
+                                                                .getEditorInput())
+                                                .getLineInformation(nLineNo - 1);
+                                        final String _text = _editor
+                                                .getDocumentProvider()
+                                                .getDocument(
+                                                        _editor
+                                                                .getEditorInput())
+                                                .get(_region.getOffset(),
+                                                        _region.getLength());
+                                        final String _trimmedString = _text
+                                                .trim();
+                                        PartialStmtData _psd = KaveriPlugin
+                                                .getDefault()
+                                                .getIndusConfiguration()
+                                                .getStmtList();
+                                        final DependenceHistoryData _dhd = KaveriPlugin
+                                                .getDefault()
+                                                .getIndusConfiguration()
+                                                .getDepHistory();
+
+                                        final DependenceStackData _depS = new DependenceStackData(
+                                                _psd);
+                                        Pair _pair = null;
+                                        _editor.selectAndReveal(_region
+                                                .getOffset(), _region
+                                                .getLength());
+
+                                        if (_dhd.getSize() == 0) {
+                                            _pair = new Pair(_depS,
+                                                    "Starting Program Point");
                                             KaveriPlugin.getDefault()
-                                            .getIndusConfiguration()
-                                            .setDepHistory(_pair);
-                                        }                                            
+                                                    .getIndusConfiguration()
+                                                    .setDepHistory(_pair);
+
+                                        } else {
+                                            final DependenceStackData _dOlS = (DependenceStackData) _dhd
+                                                    .getCurrentItem()
+                                                    .getFirst();
+                                            if (!_dOlS.equals(_depS)) {
+                                                _pair = new Pair(_depS,
+                                                        "Starting Program Point");
+                                                KaveriPlugin
+                                                        .getDefault()
+                                                        .getIndusConfiguration()
+                                                        .setDepHistory(_pair);
+                                            }
+                                        }
+                                        _psd = KaveriPlugin.getDefault()
+                                                .getIndusConfiguration()
+                                                .getStmtList();
+                                        RightPaneTreeParent _rtp = _rto
+                                                .getParent();
+                                        if (_rtp.getSm() != null) {
+                                            _rtp = _rtp.getParent();
+                                        }
+                                        String _depLink = _rtp.toString() + " ";
+                                        if (_rtp.getParent().toString().equals(
+                                                "Dependents")) {
+                                            _depLink += "Dependent";
+                                        } else if (_rtp.getParent().toString()
+                                                .equals("Dependees")) {
+                                            _depLink += "Dependee";
+                                        }
+                                        final DependenceStackData _dCurr = new DependenceStackData(
+                                                _psd);
+                                        _pair = new Pair(_dCurr, _depLink);
+                                        KaveriPlugin.getDefault()
+                                                .getIndusConfiguration()
+                                                .setDepHistory(_pair);
+
                                     }
-                                    _psd = KaveriPlugin
-                                    .getDefault()
-                                    .getIndusConfiguration()
-                                    .getStmtList();
-                                    RightPaneTreeParent _rtp = _rto.getParent();
-                                    if (_rtp.getSm() !=  null) {
-                                        _rtp = _rtp.getParent();
-                                    }
-                                    String _depLink = _rtp.toString() + " ";
-                                    if (_rtp.getParent().toString().equals("Dependents")) {
-                                        _depLink += "Dependent";
-                                    } else if (_rtp.getParent().toString().equals("Dependees")) {
-                                        _depLink += "Dependee";
-                                    }
-                                    final DependenceStackData _dCurr = new DependenceStackData(_psd);
-                                    _pair = new Pair(_dCurr, _depLink);
-                                    KaveriPlugin.getDefault().getIndusConfiguration().setDepHistory(_pair);
-                                                                                                                                                                                                                       
-                                }
-                                
+
                                 } catch (PartInitException e) {
-                                    KaveriErrorLog.logException("Par Init Exception", e);
-                                  SECommons.handleException(e);
+                                    KaveriErrorLog.logException(
+                                            "Par Init Exception", e);
+                                    SECommons.handleException(e);
                                 } catch (JavaModelException e) {
-                                    KaveriErrorLog.logException("Java Model Exception", e);
+                                    KaveriErrorLog.logException(
+                                            "Java Model Exception", e);
                                     SECommons.handleException(e);
                                 } catch (BadLocationException e) {
-                                    KaveriErrorLog.logException("Bad Location Exception", e);
+                                    KaveriErrorLog.logException(
+                                            "Bad Location Exception", e);
                                     SECommons.handleException(e);
                                 }
 
@@ -556,7 +575,7 @@ public class DependenceTrackingView extends ViewPart {
             public void menuAboutToShow(IMenuManager manager) {
                 manager.add(expandAll);
                 manager.add(normalMode);
-                manager.add(contractAll);                				
+                manager.add(contractAll);
                 manager.add(new Separator(
                         IWorkbenchActionConstants.MB_ADDITIONS));
             }

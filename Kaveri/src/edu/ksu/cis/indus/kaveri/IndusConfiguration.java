@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 //import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IJavaElement;
@@ -47,444 +45,472 @@ import org.eclipse.jface.resource.ImageDescriptor;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-
 /**
- * This class is used to temporarily store the various parameters to be used 
- * for the slice. It acts as a global slice settings holder.
- *
+ * This class is used to temporarily store the various parameters to be used for
+ * the slice. It acts as a global slice settings holder.
+ * 
  * @author Ganeshan
  */
 public class IndusConfiguration {
-	/** 
-	 * <p>
-	 * The Indus Annotation manager instance.
-	 * </p>
-	 * 
-	 */
-	private AddIndusAnnotation indusAnnotationManager;
+    /**
+     * <p>
+     * The Indus Annotation manager instance.
+     * </p>
+     *  
+     */
+    private AddIndusAnnotation indusAnnotationManager;
 
-	/** 
-	 * <p>
-	 * The eclipse indus driver.
-	 * </p>
-	 */
-	private EclipseIndusDriver eclipseIndusDriver;
+    /**
+     * <p>
+     * The eclipse indus driver.
+     * </p>
+     */
+    private EclipseIndusDriver eclipseIndusDriver;
 
-	/** 
-	 * The slice decorator.
-	 */
-	private ImageDescriptor sliceDecorator;
+    /**
+     * The slice decorator.
+     */
+    private ImageDescriptor sliceDecorator;
 
-	/**
-	 * The selected line for viewing the slice.
-	 * 	
-	 */
-	private String selectedStatement;
-	
-	
-	/**
-	 * The collection of chosen contexts.
-	 */
-	private Collection chosenContext;
-	/**
-	 * The project which has been recently sliced.
-	 */
-	private IProject sliceProject;
-	/** 
-	 * The set of criteria.
-	 */
-	private List criteria;
+    /**
+     * The selected line for viewing the slice.
+     *  
+     */
+    private String selectedStatement;
 
-	/**
-	 * Maintains a cache of the scoped elements.
-	 */
-	private Map scopeMap;
-	
-	/**
-	 * Resource Manager. Used to cache system resources.
-	 */
-	private ResourceManager rManager;
-	
-	
-	/**
-	 * Holds the xml representation of the scope.
-	 */
-	private String scopeSpecification;
-	
-	/**
-	 * The list of statements for partial slice view.
-	 */	
-	private PartialStmtData stmtList;
+    /**
+     * The collection of chosen contexts.
+     */
+    private Collection chosenContext;
 
-	/**
-	 * The context repository.
-	 */
-	private ContextRepository ctxRepository;
-	
-	/**
-	 * The dependence history.
-	 */
-	private DependenceHistoryData depHistory;
-	/** 
-	 * The list of files requested for slicing.
-	 */
-	private List sliceFileList;
+    /**
+     * The project which has been recently sliced.
+     */
+    private IProject sliceProject;
 
-	/** 
-	 * The map of classname to line numbers.
-	 */
-	private Map lineNumbers;
+    /**
+     * The set of criteria.
+     */
+    private List criteria;
 
-	/** 
-	 * The current configuration for the slice. Set by IndusConfigurationDialog.
-	 */
-	private String currentConfiguration;
+    /**
+     * Maintains a cache of the scoped elements.
+     */
+    private Map scopeMap;
 
-	/**
-	 * Holds the list of current dependencies tracked.
-	 */
-	private HashSet depLinkSet = new HashSet();
-	/** 
-	 * <p>
-	 * The number of times a slice has been run.
-	 * </p>	 
-	 */
-	private int nNoOfSlicesRun;
+    /**
+     * Resource Manager. Used to cache system resources.
+     */
+    private ResourceManager rManager;
 
-	/** 
-	 * Indicates if additive slicing is to be performed.
-	 */
-	private boolean additive;
+    /**
+     * Holds the xml representation of the scope.
+     */
+    private String scopeSpecification;
 
-	/**
-	 * Creates a new IndusConfiguration object.
-	 */
-	public IndusConfiguration() {
-		eclipseIndusDriver = new EclipseIndusDriver();
-		indusAnnotationManager = new AddIndusAnnotation();
-		currentConfiguration = "";
-		sliceDecorator =
-			AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-				"data/icons/indus-decorator.gif");
-		sliceFileList = new LinkedList();
-		criteria = new ArrayList();
-		stmtList = new PartialStmtData();
-		depHistory = new DependenceHistoryData();
-		selectedStatement = "            ";
-		rManager = new ResourceManager();
-		scopeMap = new HashMap();
-		scopeSpecification = "";
-		ctxRepository = new ContextRepository();
-		chosenContext = new ArrayList();
-		nNoOfSlicesRun = 0;
-	}
+    /**
+     * The list of statements for partial slice view.
+     */
+    private PartialStmtData stmtList;
 
-	/**
-	 * set / reset additive slicing.
-	 *
-	 * @param badditive The additive to set.
-	 */
-	public void setAdditive(final boolean badditive) {
-		this.additive = badditive;
-	}
+    /**
+     * The context repository.
+     */
+    private ContextRepository ctxRepository;
 
-	/**
-	 * Indicates if additive slicing is to be performed.
-	 *
-	 * @return Returns the additive.
-	 */
-	public boolean isAdditive() {
-		return additive;
-	}
+    /**
+     * The dependence history.
+     */
+    private DependenceHistoryData depHistory;
 
-	/**
-	 * Sets the criteria.
-	 *
-	 * @param criterialist The criteria to set. 
-	 * Precondition: CriteriaList.firstElement.kindOf(String: classname)
-	 * 		  CriteriaList.secondElement.kindOf(String: methodname) CriteriaList.thirdElement.kindOf(int: linenumber)
-	 * 		  CriteriaList.fourthElement.kindOf(int: jimple index)
-	 */
-	public void setCriteria(final Criteria criterialist) {
-		this.criteria.add(criterialist);
-	}
+    /**
+     * The list of files requested for slicing.
+     */
+    private List sliceFileList;
 
-	/**
-	 * Returns the set of chosen criteria.
-	 *
-	 * @return Returns the criteria.
-	 */
-	public List getCriteria() {
-		return criteria;
-	}
+    /**
+     * The map of classname to line numbers.
+     */
+    private Map lineNumbers;
 
-	/**
-	 * Sets the current configuration to be used.
-	 *
-	 * @param cConfiguration The currentConfiguration to set.
-	 */
-	public void setCurrentConfiguration(final String cConfiguration) {
-		this.currentConfiguration = cConfiguration;
-	}
+    /**
+     * The current configuration for the slice. Set by IndusConfigurationDialog.
+     */
+    private String currentConfiguration;
 
-	/**
-	 * Returns the current configuration.
-	 *
-	 * @return Returns the currentConfiguration.
-	 */
-	public String getCurrentConfiguration() {
-		return currentConfiguration;
-	}
+    /**
+     * Holds the list of current dependencies tracked.
+     */
+    private Set depLinkSet = new HashSet();
 
-	/**
-	 * <p>
-	 * Returns the eclipse indus driver instance.
-	 * </p>	 
-	 *
-	 * @return Returns the eclipseIndusDriver.
-	 */
-	public EclipseIndusDriver getEclipseIndusDriver() {
-		return eclipseIndusDriver;
-	}
+    /**
+     * <p>
+     * The number of times a slice has been run.
+     * </p>
+     */
+    private int nNoOfSlicesRun;
 
-	/**
-	 * <p>
-	 * Returns the Indus annotation manager instance.
-	 * </p>
-	 *
-	 * @return Returns the indusAnnotationManager.
-	 */
-	public final AddIndusAnnotation getIndusAnnotationManager() {
-		return indusAnnotationManager;
-	}
+    /**
+     * Indicates if additive slicing is to be performed.
+     */
+    private boolean additive;
 
-	
-	/**
-	 * Sets the line number map.
-	 *
-	 * @param lineNumbersMap The map of classnames to line numbers.
-	 */
-	public void setLineNumbers(final Map lineNumbersMap) {
-		this.lineNumbers = lineNumbersMap;
-	}
+    /**
+     * Creates a new IndusConfiguration object.
+     */
+    public IndusConfiguration() {
+        eclipseIndusDriver = new EclipseIndusDriver();
+        indusAnnotationManager = new AddIndusAnnotation();
+        currentConfiguration = "";
+        sliceDecorator = AbstractUIPlugin.imageDescriptorFromPlugin(
+                "edu.ksu.cis.indus.kaveri", "data/icons/indus-decorator.gif");
+        sliceFileList = new LinkedList();
+        criteria = new ArrayList();
+        stmtList = new PartialStmtData();
+        depHistory = new DependenceHistoryData();
+        selectedStatement = "            ";
+        rManager = new ResourceManager();
+        scopeMap = new HashMap();
+        scopeSpecification = "";
+        ctxRepository = new ContextRepository();
+        chosenContext = new ArrayList();
+        nNoOfSlicesRun = 0;
+    }
 
-	/**
-	 * Returns the line number map.
-	 *
-	 * @return Returns the lineNumbers.
-	 */
-	public Map getLineNumbers() {
-		return lineNumbers;
-	}
+    /**
+     * set / reset additive slicing.
+     * 
+     * @param badditive
+     *            The additive to set.
+     */
+    public void setAdditive(final boolean badditive) {
+        this.additive = badditive;
+    }
 
-	/**
-	 * <p>
-	 * Increments the slice count. After a predefined number 
-	 * is reached perform a cleanup.
-	 * </p>	 
-	 *
-	 * @param outputdir The output directory
-	 */
-	public int incrementSliceCount() {
-		nNoOfSlicesRun++;
-		return nNoOfSlicesRun;
-	}
+    /**
+     * Indicates if additive slicing is to be performed.
+     * 
+     * @return Returns the additive.
+     */
+    public boolean isAdditive() {
+        return additive;
+    }
 
-		
+    /**
+     * Sets the criteria.
+     * 
+     * @param criterialist
+     *            The criteria to set. Precondition:
+     *            CriteriaList.firstElement.kindOf(String: classname)
+     *            CriteriaList.secondElement.kindOf(String: methodname)
+     *            CriteriaList.thirdElement.kindOf(int: linenumber)
+     *            CriteriaList.fourthElement.kindOf(int: jimple index)
+     */
+    public void setCriteria(final Criteria criterialist) {
+        this.criteria.add(criterialist);
+    }
 
-	/**
-	 * Returns the slice image decoration.
-	 *
-	 * @return Returns the sliceDecorator.
-	 */
-	public ImageDescriptor getSliceDecorator() {
-		return sliceDecorator;
-	}
+    /**
+     * Returns the set of chosen criteria.
+     * 
+     * @return Returns the criteria.
+     */
+    public List getCriteria() {
+        return criteria;
+    }
 
-	/**
-	 * Sets the list of files chosen for slicing.
-	 * Used by the decorator to tag the files in the display.
-	 * @param sliceList The sliceFileList to set.
-	 */
-	public void setSliceFileList(final List sliceList) {
-		this.sliceFileList.addAll(sliceList);
-	}
+    /**
+     * Sets the current configuration to be used.
+     * 
+     * @param cConfiguration
+     *            The currentConfiguration to set.
+     */
+    public void setCurrentConfiguration(final String cConfiguration) {
+        this.currentConfiguration = cConfiguration;
+    }
 
-	/**
-	 * Returns the list of files chosen for slicing.
-	 *
-	 * @return Returns the sliceFileList.
-	 */
-	public List getSliceFileList() {
-		return sliceFileList;
-	}
+    /**
+     * Returns the current configuration.
+     * 
+     * @return Returns the currentConfiguration.
+     */
+    public String getCurrentConfiguration() {
+        return currentConfiguration;
+    }
 
-	/**
-	 * <p>
-	 * Reset the internal variables to their defaults.
-	 * </p>
-	 */
-	public void reset() {		
-		lineNumbers = null;
-		selectedStatement = "         ";
-		
-		if (!additive) {
-		//	System.out.println("Resetting");
-			indusAnnotationManager.reset();
-		}
-		sliceFileList.clear();
-		sliceProject = null;
-		stmtList.setStmtList(null);
-		//criteria.clear();	
-		KaveriPlugin.getDefault().reset();
-		depHistory.reset();		
-		//ctxRepository.reset();
-		//chosenContext.clear();
-	}
-	
-	/**
-	 * Reset the chosen contexts.
-	 *
-	 */
-	public void resetChosenContext() {
-	    chosenContext.clear();
-	}
-	/**
-	 * Returns the set of statements.
-	 * @return Returns the stmtList.
-	 */
-	public PartialStmtData getStmtList() {
-		return stmtList;
-	}
-	/**
-	 * Sets the list of statements.
-	 * @param stmtsList The stmtList to set.
-	 */
-	public void setStmtList(final List stmtsList) {
-		this.stmtList.setStmtList(stmtsList);
-	}
-	/**
-	 * @return Returns the sliceProject.
-	 */
-	public IProject getSliceProject() {
-		return sliceProject;
-	}
-	/**
-	 * @param sliceProject The sliceProject to set.
-	 */
-	public void setSliceProject(IProject sliceProject) {
-		this.sliceProject = sliceProject;
-	}
-	/**
-	 * @return Returns the selectedStatement.
-	 */
-	public String getSelectedStatement() {
-		return selectedStatement;
-	}
-	/**
-	 * @param selectedStatement The selectedStatement to set.
-	 */
-	public void setSelectedStatement(String selectedStatement) {
-		this.selectedStatement = selectedStatement;
-	}
-	/**
-	 * @return Returns the depHistory.
-	 */
-	public DependenceHistoryData getDepHistory() {
-		return depHistory;
-	}
-	/**
-	 * @param history The depHistory to set.
-	 */
-	public void setDepHistory(Pair history) {
-		this.depHistory.addHistory(history);
-	}
-	/**
-	 * @return Returns the depLinkSet.
-	 */
-	public HashSet getDepLinkSet() {
-		return depLinkSet;
-	}
-	/**
-	 * @param line The line number to add.
-	 */
-	public void addToDepLinkSet(Object line) {
-		depLinkSet.add(line);
-	}
-	/**
-	 * @return Returns the rManager.
-	 */
-	public ResourceManager getRManager() {
-		return rManager;
-	}
-	/**
-	 * @return Returns the scopeMap.
-	 */
-	public Map getScopeMap() {
-		return scopeMap;
-	}
-	/**
-	 * Adds the given method to the scope cache.
-	 * @param method The java method to add to the scope.
-	 */
-	public void addToScopeMap(IMethod method) {
-		final IJavaElement _class =  method.getParent();
-	    if (_class != null) {
-	    	if (scopeMap.containsKey(_class)) {
-	    		final Set _set = (Set) scopeMap.get(_class);
-	    		_set.add(method);
-	    	} else {
-	    		final Set _set = new HashSet();
-	    		_set.add(method);
-	    		scopeMap.put(_class, _set);
-	    	}
-	    }
-	}
-	/**
-	 * @return Returns the scopeSpecification.
-	 */
-	public String getScopeSpecification() {
-		return scopeSpecification;
-	}
-	/**
-	 * @param scopeSpecification The scopeSpecification to set.
-	 */
-	public void setScopeSpecification(String scopeSpecification) {
-		this.scopeSpecification = scopeSpecification;
-	}
-	
+    /**
+     * <p>
+     * Returns the eclipse indus driver instance.
+     * </p>
+     * 
+     * @return Returns the eclipseIndusDriver.
+     */
+    public EclipseIndusDriver getEclipseIndusDriver() {
+        return eclipseIndusDriver;
+    }
+
+    /**
+     * <p>
+     * Returns the Indus annotation manager instance.
+     * </p>
+     * 
+     * @return Returns the indusAnnotationManager.
+     */
+    public final AddIndusAnnotation getIndusAnnotationManager() {
+        return indusAnnotationManager;
+    }
+
+    /**
+     * Sets the line number map.
+     * 
+     * @param lineNumbersMap
+     *            The map of classnames to line numbers.
+     */
+    public void setLineNumbers(final Map lineNumbersMap) {
+        this.lineNumbers = lineNumbersMap;
+    }
+
+    /**
+     * Returns the line number map.
+     * 
+     * @return Returns the lineNumbers.
+     */
+    public Map getLineNumbers() {
+        return lineNumbers;
+    }
+
+    /**
+     * Returns the slice image decoration.
+     * 
+     * @return Returns the sliceDecorator.
+     */
+    public ImageDescriptor getSliceDecorator() {
+        return sliceDecorator;
+    }
+
+    /**
+     * Sets the list of files chosen for slicing. Used by the decorator to tag
+     * the files in the display.
+     * 
+     * @param sliceList
+     *            The sliceFileList to set.
+     */
+    public void setSliceFileList(final List sliceList) {
+        this.sliceFileList.addAll(sliceList);
+    }
+
+    /**
+     * Returns the list of files chosen for slicing.
+     * 
+     * @return Returns the sliceFileList.
+     */
+    public List getSliceFileList() {
+        return sliceFileList;
+    }
+
+    /**
+     * <p>
+     * Reset the internal variables to their defaults.
+     * </p>
+     */
+    public void reset() {
+        lineNumbers = null;
+        selectedStatement = "         ";
+
+        if (!additive) {
+            //	System.out.println("Resetting");
+            indusAnnotationManager.reset();
+        }
+        sliceFileList.clear();
+        sliceProject = null;
+        stmtList.setStmtList(null);
+        //criteria.clear();
+        KaveriPlugin.getDefault().reset();
+        depHistory.reset();
+        //ctxRepository.reset();
+        //chosenContext.clear();
+    }
+
+    /**
+     * Reset the chosen contexts.
+     *  
+     */
+    public void resetChosenContext() {
+        chosenContext.clear();
+    }
+
+    /**
+     * Returns the set of statements.
+     * 
+     * @return Returns the stmtList.
+     */
+    public PartialStmtData getStmtList() {
+        return stmtList;
+    }
+
+    /**
+     * Sets the list of statements.
+     * 
+     * @param stmtsList
+     *            The stmtList to set.
+     */
+    public void setStmtList(final List stmtsList) {
+        this.stmtList.setStmtList(stmtsList);
+    }
+
+    /**
+     * @return Returns the sliceProject.
+     */
+    public IProject getSliceProject() {
+        return sliceProject;
+    }
+
+    /**
+     * @param project
+     *            The sliceProject to set.
+     */
+    public void setSliceProject(final IProject project) {
+        this.sliceProject = project;
+    }
+
+    /**
+     * @return Returns the selectedStatement.
+     */
+    public String getSelectedStatement() {
+        return selectedStatement;
+    }
+
+    /**
+     * @param statement
+     *            The selectedStatement to set.
+     */
+    public void setSelectedStatement(final String statement) {
+        this.selectedStatement = statement;
+    }
+
+    /**
+     * @return Returns the depHistory.
+     */
+    public DependenceHistoryData getDepHistory() {
+        return depHistory;
+    }
+
+    /**
+     * @param history
+     *            The depHistory to set.
+     */
+    public void setDepHistory(final Pair history) {
+        this.depHistory.addHistory(history);
+    }
+
+    /**
+     * @return Returns the depLinkSet.
+     */
+    public Set getDepLinkSet() {
+        return depLinkSet;
+    }
+
+    /**
+     * @param line
+     *            The line number to add.
+     */
+    public void addToDepLinkSet(final Object line) {
+        depLinkSet.add(line);
+    }
+
+    /**
+     * @return Returns the rManager.
+     */
+    public ResourceManager getRManager() {
+        return rManager;
+    }
+
+    /**
+     * @return Returns the scopeMap.
+     */
+    public Map getScopeMap() {
+        return scopeMap;
+    }
+
+    /**
+     * Adds the given method to the scope cache.
+     * 
+     * @param method
+     *            The java method to add to the scope.
+     */
+    public void addToScopeMap(final IMethod method) {
+        final IJavaElement _class = method.getParent();
+        if (_class != null) {
+            if (scopeMap.containsKey(_class)) {
+                final Set _set = (Set) scopeMap.get(_class);
+                _set.add(method);
+            } else {
+                final Set _set = new HashSet();
+                _set.add(method);
+                scopeMap.put(_class, _set);
+            }
+        }
+    }
+
+    /**
+     * @return Returns the scopeSpecification.
+     */
+    public String getScopeSpecification() {
+        return scopeSpecification;
+    }
+
+    /**
+     * @param specification
+     *            The scopeSpecification to set.
+     */
+    public void setScopeSpecification(final String specification) {
+        this.scopeSpecification = specification;
+    }
+
     /**
      * Reset the slice count.
-     * 
+     *  
      */
-   public void resetSliceCount() {
+    public void resetSliceCount() {
         nNoOfSlicesRun = 0;
     }
 
     /**
      * Adds the given context to the repository.
-     * @param context The context
+     * 
+     * @param context
+     *            The context
      */
-    public void addContext(MethodCallContext context) {
-        ctxRepository.addCallStack(context);        
+    public void addContext(final MethodCallContext context) {
+        ctxRepository.addCallStack(context);
     }
-    
+
     /**
      * Returns the repository instance.
+     * 
      * @return Returns the ctxRepository.
      */
     public ContextRepository getCtxRepository() {
         return ctxRepository;
     }
+
+    /**
+     * Get the chosen context.
+     * 
+     * @return Collection The set of contexts.
+     */
     public Collection getChosenContext() {
         return chosenContext;
     }
-    
+
     /**
      * Adds the given contexts to the chosen list.
+     * 
      * @pre mychosenContext.oclIsKindOf(Collection(MethodContext))
+     * @param myChosenContext
+     *            The collection of contexts.
      */
-    public void addToChosenContext(Collection myChosenContext) {
+    public void addToChosenContext(final Collection myChosenContext) {
         chosenContext.addAll(myChosenContext);
     }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -21,19 +20,20 @@
 package edu.ksu.cis.indus.kaveri.views;
 
 /**
- * This interface is implemented by any viewers which want  to listen to changes in PartialStmtData model.
- *
+ * This interface is implemented by any viewers which want to listen to changes
+ * in PartialStmtData model.
+ * 
  * @author ganeshan
  */
 public interface IDeltaListener {
-	/**
-	 * The property has changed.  Update the stuff.
-	 */
-	void propertyChanged();
-	
-	/**
-	 * The received is ready to receive the data
-	 *
-	 */
-	boolean isReady();
+    /**
+     * The property has changed. Update the stuff.
+     */
+    void propertyChanged();
+
+    /**
+     * The received is ready to receive the data
+     *  
+     */
+    boolean isReady();
 }

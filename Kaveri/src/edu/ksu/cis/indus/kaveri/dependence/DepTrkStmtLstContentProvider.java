@@ -15,14 +15,12 @@
 
 package edu.ksu.cis.indus.kaveri.dependence;
 
-
 import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-
 
 import soot.jimple.Stmt;
 
@@ -44,7 +42,6 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
     private PartialStmtData psd;
 
     private LeftPaneTreeParent invisibleRoot;
-
 
     /*
      * (non-Javadoc)
@@ -137,9 +134,10 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
     public void propertyChanged() {
         if (tvLeft != null && isActive) {
             initialize();
-            tvLeft.refresh();        
+            tvLeft.refresh();
             tvLeft.expandAll();
-            tvLeft.setSelection(new StructuredSelection(invisibleRoot.getChildren()[0]), true);            
+            tvLeft.setSelection(new StructuredSelection(invisibleRoot
+                    .getChildren()[0]), true);
         }
     }
 
@@ -148,7 +146,7 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
      */
     private void initialize() {
         if (invisibleRoot != null && psd.getSelectedStatement() != null
-        		&& psd.getStmtList() != null) {
+                && psd.getStmtList() != null) {
             invisibleRoot.removeAllChildren();
             final String _mainHeading = psd.getSelectedStatement() + " ("
                     + psd.getJavaFile().getName() + ")";
@@ -157,16 +155,16 @@ public class DepTrkStmtLstContentProvider implements ITreeContentProvider,
             _tParent.setFile(psd.getJavaFile());
             _tParent.setJimpleIndex(-1);
             _tParent.setLineNumber(psd.getLineNo());
-            
+
             final List _stmtList = psd.getStmtList().subList(2,
-                    psd.getStmtList().size());            
-            for (int _i =0; _i < _stmtList.size(); _i++) {
+                    psd.getStmtList().size());
+            for (int _i = 0; _i < _stmtList.size(); _i++) {
                 final Stmt _stmt = (Stmt) _stmtList.get(_i);
                 final LeftPaneTreeObject _tChild = new LeftPaneTreeObject(_stmt
                         .toString());
                 _tChild.setFile(psd.getJavaFile());
                 _tChild.setJimpleIndex(_i);
-                _tChild.setLineNumber(psd.getLineNo());                
+                _tChild.setLineNumber(psd.getLineNo());
                 _tParent.addChild(_tChild);
             }
             invisibleRoot.addChild(_tParent);

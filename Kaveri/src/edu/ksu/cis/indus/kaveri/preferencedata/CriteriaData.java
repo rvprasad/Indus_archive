@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
@@ -22,33 +21,34 @@ package edu.ksu.cis.indus.kaveri.preferencedata;
 
 import java.util.List;
 
-
 /**
  * This class holds the list of criteria for a project.
- *
+ * 
  * @author Ganeshan
  */
 public class CriteriaData {
-	/** 
-	 * The list of criteria.
-	 */
-	private List criterias;
+    /**
+     * The list of criteria.
+     */
+    private List criterias;
 
-	/**
-	 * Sets the criteria.
-	 *
-	 * @param criteria The criterias to set.
-	 */
-	public void setCriterias(final List criteria) {
-		this.criterias = criteria;
-	}
+    /**
+     * Sets the criteria.
+     * 
+     * @param criteria
+     *            The criterias to set.
+     */
+    public void setCriterias(final List criteria) {
+        this.criterias = criteria;
+    }
 
-	/**
-	 * Returns the list of criteria. Postcondition: result.oclIsKindOf(List) and result.elements.oclIsKindOf(Criteria)
-	 *
-	 * @return List The list of criteria.
-	 */
-	public List getCriterias() {
-		return criterias;
-	}
+    /**
+     * Returns the list of criteria. Postcondition: result.oclIsKindOf(List) and
+     * result.elements.oclIsKindOf(Criteria)
+     * 
+     * @return List The list of criteria.
+     */
+    public List getCriterias() {
+        return criterias;
+    }
 }

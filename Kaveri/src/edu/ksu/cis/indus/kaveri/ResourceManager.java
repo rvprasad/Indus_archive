@@ -9,53 +9,87 @@ import org.eclipse.swt.graphics.RGB;
 
 /*
  * Created on Jan 3, 2005
- *
  * 
-package edu.ksu.cis.indus.kaveri;
-
-/**
  * 
- * Responsible for maintaining the system resources used by Kaveri.
- * Call dispose() when the plugin is shutting down to dispose of the resources.
+ * package edu.ksu.cis.indus.kaveri;
+ * 
+ * /**
+ * 
+ * Responsible for maintaining the system resources used by Kaveri. Call
+ * dispose() when the plugin is shutting down to dispose of the resources.
  * @author ganeshan
  */
- 
+
+/**
+ * The resource manager.
+ * @author ganeshan
+ *
+ * Manages all the gui resources used in Kaveri.
+ */
 public class ResourceManager {
-	/**
-	 * Map between SWT.RGB and SWT.Color values used by the dependence history view.
-	 */
-	private Map colorMap;
-	
-	public ResourceManager() {
-		colorMap = new HashMap();
-	}
-	
-	private Color addColor(RGB rgbColor) {	
-		final Color _color = new Color(null, rgbColor);
-		colorMap.put(rgbColor, _color);
-		return _color;
-	}
-	
-	public boolean isColorPresent(RGB rgbColor) {
-		return colorMap.containsKey(rgbColor);
-	}
-	
-	public Color getColor(RGB rgbColor) {
-		Color _c = (Color) colorMap.get(rgbColor);
-		if (_c == null) {
-			_c = addColor(rgbColor);			
-		} 
-		return _c;		
-	}
-	
-	public void dispose() {
-		disposeColors();
-	}
-	
-	private void disposeColors() {		
-		for (Iterator iter = colorMap.values().iterator(); iter.hasNext();) {
-			final Color _element = (Color) iter.next();
-			_element.dispose();
-		}
-	}
+    /**
+     * Map between SWT.RGB and SWT.Color values used by the dependence history
+     * view.
+     */
+    private Map colorMap;
+
+    /**
+     * Constructor.
+     *
+     */
+    public ResourceManager() {
+        colorMap = new HashMap();
+    }
+
+    /**
+     * Adds the given color to the map.
+     * @param rgbColor The color to add.
+     * @return Color The color corresponding to the rgbColor.
+     */
+    private Color addColor(final RGB rgbColor) {
+        final Color _color = new Color(null, rgbColor);
+        colorMap.put(rgbColor, _color);
+        return _color;
+    }
+
+    /**
+     * Indicates if the color is present in the map.
+     * @param rgbColor The color to check
+     * @return boolean The presence of the color.
+     */
+    public boolean isColorPresent(final RGB rgbColor) {
+        return colorMap.containsKey(rgbColor);
+    }
+
+    /**
+     * Get the color corresponding to the color, create if none present.
+     * @param rgbColor The color of the Color.
+     * @return Color The color for the given rgbColor.
+     */
+    public Color getColor(final RGB rgbColor) {
+        Color _c = (Color) colorMap.get(rgbColor);
+        if (_c == null) {
+            _c = addColor(rgbColor);
+        }
+        return _c;
+    }
+
+    /**
+     * Dispose the resources.
+     *
+     */
+    public void dispose() {
+        disposeColors();
+    }
+
+    /**
+     * Dispose of the colors.
+     *
+     */
+    private void disposeColors() {
+        for (final Iterator _iter = colorMap.values().iterator(); _iter.hasNext();) {
+            final Color _element = (Color) _iter.next();
+            _element.dispose();
+        }
+    }
 }
