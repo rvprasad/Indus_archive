@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.Local;
 import soot.Modifier;
+import soot.RefType;
 import soot.Scene;
 import soot.SootField;
 import soot.SootMethod;
@@ -495,7 +496,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 			} else {
 				argASs = new ArrayList();
 
-				for (int i = 0; i < sm.getParameterCount(); i++) {
+				for (int i = sm.getParameterCount() - 1; i >= 0; i--) {
 					Value val = v.getArg(i);
 					Object temp = null;
 
@@ -568,6 +569,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 						mc = (MethodContext) mc.clone();
 					} catch (CloneNotSupportedException e) {
 						LOGGER.error("Hell NO!  This should not happen.", e);
+                        throw new RuntimeException(e);
 					}
 				}
 				sc.unify(mc, unifyAll);
@@ -582,6 +584,8 @@ public class EquivalenceClassBasedEscapeAnalysis
 						if (as.isNotified() && as.isWaitedOn()) {
 							as.setReadyEntity();
 						}
+                        if (as.isAccessed())
+                            as.setEscapes();
 					}
 				}
 			}
@@ -689,7 +693,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 			throw new IllegalArgumentException(enterMethod + " was not processed.");
 		}
 
-		return isShared(exitStmt.getOp(), exitMethod) && isShared(enterStmt.getOp(), enterMethod);
+		return escapes(exitStmt.getOp(), exitMethod) && escapes(enterStmt.getOp(), enterMethod);
 	}
 
 	/**
@@ -702,7 +706,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 *
 	 * @pre v != null and sm != null
 	 */
-	public boolean isShared(final Value v, final SootMethod sm) {
+	public boolean escapes(final Value v, final SootMethod sm) {
 		boolean result = true;
 
 		try {
@@ -710,8 +714,8 @@ public class EquivalenceClassBasedEscapeAnalysis
 			// allocation sites which are executed only once. 
 			if (AliasSet.canHaveAliasSet(v.getType())) {
 				if (CollectionUtils.intersection(tgi.getMultiThreadAllocSites(), tgi.getExecutionThreads(sm)).isEmpty()) {
-					result = getAliasSetFor(v, sm).isShared();
-				}
+                    result = getAliasSetFor(v, sm).escapes();
+   				}
 			} else {
 				result = false;
 			}
@@ -761,6 +765,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 		SimpleNodeGraph sng = cgi.getCallGraph();
 		Collection sccs = sng.getSCCs(false);
 		WorkBag wb = new WorkBag(WorkBag.FIFO);
+        Collection processed = new HashSet();
 
 		// Phase 2: The SCCs are ordered bottom up. 
 		for (Iterator i = sccs.iterator(); i.hasNext();) {
@@ -803,10 +808,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 				}
 
 				BasicBlockGraph bbg = bbm.getBasicBlockGraph(sm);
-				Collection processed = new HashSet();
 				wb.clear();
+                processed.clear();
 				wb.addAllWork(bbg.getHeads());
-
 				while (wb.hasWork()) {
 					BasicBlock bb = (BasicBlock) wb.getWork();
 					processed.add(bb);
@@ -864,11 +868,12 @@ public class EquivalenceClassBasedEscapeAnalysis
 						}
 					}
 				}
+                
 			}
 		}
 
 		// Phase 3
-		Collection processed = new HashSet();
+		processed.clear();
 		wb.addAllWork(cgi.getHeads());
 
 		while (wb.hasWork()) {
@@ -980,6 +985,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/09/29 06:36:31  venku
+   - added reset() method.
+
    Revision 1.12  2003/09/28 06:20:39  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates

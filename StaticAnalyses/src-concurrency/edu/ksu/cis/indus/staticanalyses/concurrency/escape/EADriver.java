@@ -22,8 +22,6 @@ import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
 
-import soot.options.Options;
-
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -91,12 +89,6 @@ public final class EADriver
 	 * Drives escape analysis. It executes FA first, followed by any post process analysis, followed by the escape analysis.
 	 */
 	protected void execute() {
-		String[] options = new String[3];
-		options[0] = "-p";
-		options[1] = "jb";
-		options[2] = "use-original-names:true";
-		Options.v().parse(options);
-
 		Scene scm = loadupClassesAndCollectMains(args);
 		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
 		Collection rm = new ArrayList();
@@ -218,6 +210,9 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/29 09:04:30  venku
+   - dump formatting.
+
    Revision 1.8  2003/09/29 07:30:51  venku
    - added support to spit out local variables names as they occur
      in the source rather than jimplified names.
