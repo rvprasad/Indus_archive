@@ -16,8 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
-import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
@@ -26,12 +26,14 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import soot.Body;
 import soot.Local;
+import soot.PatchingChain;
 import soot.Value;
 import soot.ValueBox;
 
@@ -49,11 +51,6 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$ $Date$
  */
 public final class LocalUseDefAnalysis {
-	/**
-	 * A manager of Pair objects.
-	 */
-	private static final PairManager PAIR_MGR = new PairManager();
-
 	/**
 	 * A map from local and statement pair to a collection of def statement.
 	 *
@@ -89,9 +86,10 @@ public final class LocalUseDefAnalysis {
 	 */
 	public LocalUseDefAnalysis(final UnitGraph graph) {
 		final Body _body = graph.getBody();
-		final BitSet[][] _l2defs = new BitSet[_body.getUnits().size()][_body.getLocalCount()];
+		final PatchingChain _stmts = _body.getUnits();
+		final BitSet[][] _l2defs = new BitSet[_stmts.size()][_body.getLocalCount()];
 		stmtList = new ArrayList();
-		stmtList.addAll(_body.getUnits());
+		stmtList.addAll(_stmts);
 
 		final List _listOfLocals = new ArrayList();
 		_listOfLocals.addAll(_body.getLocals());
@@ -115,7 +113,7 @@ public final class LocalUseDefAnalysis {
 	 */
 	public Collection getDefsOf(final Local local, final Stmt stmt) {
 		return Collections.unmodifiableCollection((Collection) CollectionsUtilities.getFromMap(defInfo,
-				PAIR_MGR.getUnOptimizedPair(local, stmt), Collections.EMPTY_LIST));
+				new Pair(local, stmt), Collections.EMPTY_LIST));
 	}
 
 	/**
@@ -157,51 +155,53 @@ public final class LocalUseDefAnalysis {
 	 * @pre listOfLocals.oclIsKindOf(List(Local))
 	 */
 	private void analyze(final BitSet[][] local2defs, final List listOfLocals) {
+		final IWorkBag _wb = new FIFOWorkBag();
 		final BitSet _temp = new BitSet();
-		final IWorkBag _wb = new LIFOWorkBag();
-		_wb.addAllWork(seedDefInfo(local2defs, listOfLocals));
+		final Map _stmt2localIndices = new HashMap();
+
+		_wb.addAllWork(seedDefInfo(local2defs, listOfLocals, _stmt2localIndices));
 
 		while (_wb.hasWork()) {
-			final Pair _pair = (Pair) _wb.getWork();
-			final Stmt _stmt = (Stmt) _pair.getFirst();
-			final Integer _localIndexValue = (Integer) _pair.getSecond();
-			final int _localIndex = (_localIndexValue).intValue();
+			final Stmt _stmt = (Stmt) _wb.getWork();
 			final BitSet[] _defsAtStmt = local2defs[stmtList.indexOf(_stmt)];
-			int _killIndex = -1;
+			final Collection _localIndices = (Collection) _stmt2localIndices.get(_stmt);
 
+			// if the current statement is a def stmt then remove the index of the local being killed via definition 
 			if (_stmt instanceof DefinitionStmt) {
 				final Value _leftOp = ((DefinitionStmt) _stmt).getLeftOp();
 
 				if (_leftOp instanceof Local) {
-					_killIndex = listOfLocals.indexOf(_leftOp);
+					_localIndices.remove(new Integer(listOfLocals.indexOf(_leftOp)));
 				}
 			}
 
-			if (_killIndex != _localIndex) {
-				for (final Iterator _i = unitGraph.getSuccsOf(_stmt).iterator(); _i.hasNext();) {
-					final Stmt _succ = (Stmt) _i.next();
+			// propagate the local defs to the successors
+			for (final Iterator _i = _localIndices.iterator(); _i.hasNext();) {
+				final Integer _localIndexValue = (Integer) _i.next();
+				final int _localIndex = _localIndexValue.intValue();
+				final BitSet _defsOfLocalAtStmt = _defsAtStmt[_localIndex];
+
+				for (final Iterator _j = unitGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
+					final Stmt _succ = (Stmt) _j.next();
 					final int _succIndex = stmtList.indexOf(_succ);
 					final BitSet[] _defsAtSucc = local2defs[_succIndex];
-					boolean _flag = false;
 
-					final BitSet _defsOfLocalAtStmt = _defsAtStmt[_localIndex];
-
-					if (_defsOfLocalAtStmt != null) {
-						if (_defsAtSucc[_localIndex] == null) {
-							_defsAtSucc[_localIndex] = new BitSet();
-						}
-						_temp.clear();
-						_temp.or(_defsOfLocalAtStmt);
-						_temp.andNot(_defsAtSucc[_localIndex]);
-						_flag |= _temp.cardinality() > 0;
-						_defsAtSucc[_localIndex].or(_defsOfLocalAtStmt);
+					if (_defsAtSucc[_localIndex] == null) {
+						_defsAtSucc[_localIndex] = new BitSet();
 					}
 
-					if (_flag) {
-						_wb.addWorkNoDuplicates(PAIR_MGR.getOptimizedPair(_succ, _localIndexValue));
+					_temp.clear();
+					_temp.or(_defsOfLocalAtStmt);
+					_temp.andNot(_defsAtSucc[_localIndex]);
+
+					if (_temp.cardinality() > 0) {
+						_defsAtSucc[_localIndex].or(_defsOfLocalAtStmt);
+						_wb.addWorkNoDuplicates(_succ);
+						((Collection) _stmt2localIndices.get(_succ)).add(_localIndexValue);
 					}
 				}
 			}
+			_localIndices.clear();
 		}
 	}
 
@@ -216,6 +216,7 @@ public final class LocalUseDefAnalysis {
 	 */
 	private void extract(final BitSet[][] local2defs, final List localList) {
 		final Collection _cache = new ArrayList();
+		final PairManager _pairMgr = new PairManager();
 
 		for (final Iterator _i = unitGraph.iterator(); _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
@@ -238,7 +239,7 @@ public final class LocalUseDefAnalysis {
 							_cache.add(_defStmt);
 							CollectionsUtilities.getListFromMap(useInfo, _defStmt).add(_stmt);
 						}
-						CollectionsUtilities.putAllIntoSetInMap(defInfo, PAIR_MGR.getUnOptimizedPair(_local, _stmt), _cache);
+						CollectionsUtilities.putAllIntoSetInMap(defInfo, _pairMgr.getUnOptimizedPair(_local, _stmt), _cache);
 					}
 				}
 			}
@@ -250,38 +251,48 @@ public final class LocalUseDefAnalysis {
 	 *
 	 * @param local2defs maps a statment to a collection of def sets of each locals in the method.
 	 * @param listOfLocals is a list of the locals.
+	 * @param stmt2localIndices maps a stmt to the set of local indices
 	 *
 	 * @return a collection of definition statements.
 	 *
-	 * @pre local2defs != null and listOfLocals != null
+	 * @pre local2defs != null and listOfLocals != null and stmt2localIndices != null
 	 * @pre listOfLocals.oclIsKindOf(List(Local))
 	 * @post result != null and result.oclIsKindOf(Collection(DefinitionStmt))
+	 * @post stmt2localIndices.oclIsKindOf(Stmt, Collection(Integer))
 	 */
-	private Collection seedDefInfo(final BitSet[][] local2defs, final List listOfLocals) {
+	private Collection seedDefInfo(final BitSet[][] local2defs, final List listOfLocals, final Map stmt2localIndices) {
 		final Collection _result = new ArrayList();
+		final Collection _defStmts = new ArrayList();
 
 		for (final Iterator _i = unitGraph.iterator(); _i.hasNext();) {
 			final Stmt _stmt = (Stmt) _i.next();
+			stmt2localIndices.put(_stmt, new HashSet());
 
 			if (_stmt instanceof DefinitionStmt) {
-				final Value _value = ((DefinitionStmt) _stmt).getLeftOp();
+				_defStmts.add(_stmt);
+			}
+		}
 
-				if (_value instanceof Local) {
-					final int _localIndex = listOfLocals.indexOf(_value);
-					final int _stmtIndex = stmtList.indexOf(_stmt);
+		for (final Iterator _i = _defStmts.iterator(); _i.hasNext();) {
+			final Stmt _stmt = (Stmt) _i.next();
+			final Value _value = ((DefinitionStmt) _stmt).getLeftOp();
 
-					for (final Iterator _j = unitGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
-						final Stmt _succ = (Stmt) _j.next();
-						final int _succIndex = stmtList.indexOf(_succ);
-						BitSet _temp = local2defs[_succIndex][_localIndex];
+			if (_value instanceof Local) {
+				final int _localIndex = listOfLocals.indexOf(_value);
+				final int _stmtIndex = stmtList.indexOf(_stmt);
 
-						if (_temp == null) {
-							_temp = new BitSet();
-							local2defs[_succIndex][_localIndex] = _temp;
-						}
-						_temp.set(_stmtIndex, true);
-						_result.add(PAIR_MGR.getOptimizedPair(_succ, new Integer(_localIndex)));
+				for (final Iterator _j = unitGraph.getSuccsOf(_stmt).iterator(); _j.hasNext();) {
+					final Stmt _succ = (Stmt) _j.next();
+					final int _succIndex = stmtList.indexOf(_succ);
+					BitSet _temp = local2defs[_succIndex][_localIndex];
+
+					if (_temp == null) {
+						_temp = new BitSet();
+						local2defs[_succIndex][_localIndex] = _temp;
 					}
+					_temp.set(_stmtIndex, true);
+					_result.add(_succ);
+					((Collection) stmt2localIndices.get(_succ)).add(new Integer(_localIndex));
 				}
 			}
 		}
@@ -292,6 +303,8 @@ public final class LocalUseDefAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/06/23 05:05:21  venku
+   - improved the algorithm for performance.
    Revision 1.2  2004/06/15 10:28:32  venku
    - when the unit graph is used as basis for analysis, the units should be
      extracted from it as well.
