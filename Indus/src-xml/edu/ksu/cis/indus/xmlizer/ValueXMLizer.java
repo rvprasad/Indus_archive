@@ -172,7 +172,7 @@ public class ValueXMLizer
 	 */
 	public final void caseCastExpr(CastExpr v) {
 		try {
-			out.write(tabs + "<cast id=\"" + newId + "\" " + idGenerator.getIdForType(v.getCastType()) + " \">\n");
+			out.write(tabs + "<cast id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getCastType()) + "\">\n");
 			apply(v.getOpBox());
 			out.write(tabs + "</cast >\n");
 		} catch (IOException e) {
@@ -185,8 +185,8 @@ public class ValueXMLizer
 	 */
 	public final void caseCaughtExceptionRef(CaughtExceptionRef v) {
 		try {
-			out.write(tabs + "<caught_exception_ref id=\"" + newId + " exceptionTypeId=\""
-				+ idGenerator.getIdForType(v.getType()) + "\">\n");
+			out.write(tabs + "<caught_exception_ref id=\"" + newId + "\" exceptionTypeId=\""
+				+ idGenerator.getIdForType(v.getType()) + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -676,7 +676,7 @@ public class ValueXMLizer
 		try {
 			incrementTabs();
 			out.write(tabs + "<field id=\"" + idGenerator.getIdForField(field) + "\" signature=\"" + field.getSubSignature()
-				+ "\">\n");
+				+ "\"/>\n");
 			decrementTabs();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -738,6 +738,9 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/24 06:28:04  venku
+   - static invoke expr is also routed through writeInvokeExpr().
+
    Revision 1.4  2003/11/24 01:20:27  venku
    - enhanced output formatting.
    Revision 1.3  2003/11/17 15:57:03  venku

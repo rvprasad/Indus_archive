@@ -165,7 +165,7 @@ public class JimpleXMLizer
 				processingMethod = true;
 			}
 
-			xmlizedSystem.write("\t\t<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
+			xmlizedSystem.write("\t\t<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;") + "\" id=\""
 				+ idGenerator.getIdForMethod(method) + "\">\n");
 
 			if (method.isConcrete()) {
@@ -279,6 +279,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/24 06:27:54  venku
+   - static invoke expr is also routed through writeInvokeExpr().
+
    Revision 1.14  2003/11/24 01:20:27  venku
    - enhanced output formatting.
 

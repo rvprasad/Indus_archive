@@ -167,7 +167,7 @@ public class StmtXMLizer
 	 */
 	public final void caseIdentityStmt(IdentityStmt v) {
 		try {
-			out.write("\t\t\t<identity_stmt  id=\"" + newId + "\">\n");
+			out.write("\t\t\t<identity_stmt id=\"" + newId + "\">\n");
 			out.write("\t\t\t\t<lhs>\n");
 			valueXMLizer.apply(v.getLeftOpBox());
 			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
@@ -184,8 +184,8 @@ public class StmtXMLizer
 	 */
 	public final void caseIfStmt(IfStmt v) {
 		try {
-			out.write("\t\t\t<if_stmt id=\"" + newId + " true_target id=\"" + idGenerator.getIdForStmt(v.getTarget(), currMethod)
-				+ "\"/>\n");
+			out.write("\t\t\t<if_stmt id=\"" + newId + "\" trueTargetId=\"" + idGenerator.getIdForStmt(v.getTarget(), currMethod)
+				+ "\">\n");
 			out.write("\t\t\t\t<condition>\n");
 			valueXMLizer.apply(v.getConditionBox());
 			out.write("\t\t\t\t</condition>\n");
@@ -352,6 +352,9 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/24 06:27:18  venku
+   - closing tag of assign element was incorrent. FIXED.
+
    Revision 1.4  2003/11/24 01:20:27  venku
    - enhanced output formatting.
 
