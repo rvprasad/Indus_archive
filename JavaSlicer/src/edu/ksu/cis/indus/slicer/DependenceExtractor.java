@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.slicer;
 
+import edu.ksu.cis.indus.common.MembershipPredicate;
 import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,7 +49,8 @@ import soot.jimple.Stmt;
 
 
 /**
- * This class encapsulates the logic to extract dependencies from a dependence analysis based on slice direction.
+ * This class encapsulates the logic to extract dependencies from a dependence analysis based on slice direction. This  class
+ * is meant for internal use only.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -61,14 +64,14 @@ public final class DependenceExtractor
 	private static final Log LOGGER = LogFactory.getLog(DependenceExtractor.class);
 
 	/** 
-	 * The context in which the trigger occurs.
-	 */
-	protected Object context;
-
-	/** 
 	 * The entity which is the trigger.
 	 */
 	protected Object entity;
+
+	/** 
+	 * The context in which the trigger occurs.
+	 */
+	protected SootMethod occurringMethod;
 
 	/** 
 	 * The collection of criteria based on the flow of control reaching (exclusive) or leaving (exclusive) the statement.
@@ -104,6 +107,13 @@ public final class DependenceExtractor
 	 */
 	private IDependenceRetriver retriever;
 
+	/** 
+	 * The calling context leading to the set triggers (entity + occurringMethod).
+	 *
+	 * @invariant callingContext.oclIsKindOf(Stack(CallTriple))
+	 */
+	private Stack callingContext;
+
 	/**
 	 * Creates a new CriteriaClosure object.
 	 */
@@ -111,8 +121,8 @@ public final class DependenceExtractor
 		newCriteria = new HashMap();
 		trueCriteria = new HashSet();
 		falseCriteria = new HashSet();
-		newCriteria.put(Boolean.TRUE, trueCriteria);
-		newCriteria.put(Boolean.FALSE, falseCriteria);
+		newCriteria.put(Boolean.TRUE, Collections.unmodifiableCollection(trueCriteria));
+		newCriteria.put(Boolean.FALSE, Collections.unmodifiableCollection(falseCriteria));
 	}
 
 	/**
@@ -128,14 +138,14 @@ public final class DependenceExtractor
 		 *
 		 * @param analysis is the analysis from which to retrieve the dependences.
 		 * @param entity for which the dependences are requested.
-		 * @param context in which <code>stmt</code> occurs.
+		 * @param method in which <code>stmt</code> occurs.
 		 *
 		 * @return a collection of dependences.
 		 *
-		 * @pre analysis != null and entity != null and context != null
+		 * @pre analysis != null and entity != null and method != null
 		 * @post result != null and result.oclIsKindOf(Collection)
 		 */
-		Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final Object context);
+		Collection getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method);
 	}
 
 	/**
@@ -186,7 +196,7 @@ public final class DependenceExtractor
 	 */
 	public void execute(final Object analysis) {
 		final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
-		final Collection _dependences = retriever.getDependences(_da, entity, context);
+		final Collection _dependences = retriever.getDependences(_da, entity, occurringMethod);
 		final Collection _ids = _da.getIds();
 
 		if (_ids.contains(IDependencyAnalysis.READY_DA)) {
@@ -195,16 +205,13 @@ public final class DependenceExtractor
 			_dependences.removeAll(_specials);
 		}
 		trueCriteria.addAll(_dependences);
-
-		if (CollectionUtils.containsAny(depID2ctxtRetriever.keySet(), _ids)) {
-			populateCriteriaBaseToContextsMap(_da);
-		}
+		populateCriteriaBaseToContextsMap(_da);
 
 		if (LOGGER.isDebugEnabled()) {
 			final StringBuffer _sb = new StringBuffer();
-			_sb.append("Criteria bases for " + entity + "@" + context + " from " + _da.getClass() + " are :\n[");
+			_sb.append("Criteria bases for " + entity + "@" + occurringMethod + " from " + _da.getClass() + " are :\n[");
 
-			for (final Iterator _j = retriever.getDependences(_da, entity, context).iterator(); _j.hasNext();) {
+			for (final Iterator _j = retriever.getDependences(_da, entity, occurringMethod).iterator(); _j.hasNext();) {
 				_sb.append("\n\t->" + _j.next());
 			}
 			_sb.append("\n]");
@@ -237,13 +244,16 @@ public final class DependenceExtractor
 	 * Sets the dependee/dependent.  It also clears information pertaining to the previous trigger.
 	 *
 	 * @param theEntity is the dependent/dependee.
-	 * @param theContext in which the entity occurs.
+	 * @param method in which the entity occurs.
+	 * @param callStack obviously.
 	 *
-	 * @pre theEntity != null and theContext != null
+	 * @pre theEntity != null and method != null
+	 * @pre callingStack.oclIsKindOf(Stack(CallTriple))
 	 */
-	void setTrigger(final Object theEntity, final Object theContext) {
+	void setTrigger(final Object theEntity, final SootMethod method, final Stack callStack) {
 		entity = theEntity;
-		context = theContext;
+		occurringMethod = method;
+		callingContext = callStack;
 		trueCriteria.clear();
 		falseCriteria.clear();
 		criteriabase2contexts.clear();
@@ -258,69 +268,65 @@ public final class DependenceExtractor
 	 * @post criteriabase2contexts.oclIsKindOf(Map(Object, Collection(Stack(CallTriple))))
 	 */
 	private void populateCriteriaBaseToContextsMap(final IDependencyAnalysis da) {
-		final Iterator _ids = da.getIds().iterator();
-		final int _idsEnd = da.getIds().size();
+		final Collection _ids = da.getIds();
+		final Object _id = CollectionUtils.find(depID2ctxtRetriever.keySet(), new MembershipPredicate(true, _ids));
+		final ICallingContextRetriever _ctxtRetriever;
 
-		for (int _idsIndex = 0; _idsIndex < _idsEnd; _idsIndex++) {
-			final Object _id = _ids.next();
+		if (_id != null) {
+			_ctxtRetriever = (ICallingContextRetriever) depID2ctxtRetriever.get(_id);
+		} else {
+			_ctxtRetriever = ICallingContextRetriever.NULL_CONTEXT_RETRIEVER;
+		}
+		_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_ENTITY, entity);
+		_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_METHOD, occurringMethod);
+		_ctxtRetriever.setInfoFor(ICallingContextRetriever.SRC_CALLING_CONTEXT, callingContext);
 
-			final ICallingContextRetriever _ctxtRetriever = (ICallingContextRetriever) depID2ctxtRetriever.get(_id);
+		final Iterator _i = falseCriteria.iterator();
+		final int _iEnd = falseCriteria.size();
 
-			if (_ctxtRetriever != null) {
-				_ctxtRetriever.setInfoFor(ICallingContextRetriever.ENTITY, entity);
-				_ctxtRetriever.setInfoFor(ICallingContextRetriever.CONTEXT, context);
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Object _t = _i.next();
 
-				final Iterator _i = falseCriteria.iterator();
-				final int _iEnd = falseCriteria.size();
+			if (_t instanceof Pair) {
+				final Collection _ctxts = _ctxtRetriever.getCallingContextsForThis((SootMethod) ((Pair) _t).getSecond());
+				CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
+					CollectionsUtilities.HASH_SET_FACTORY);
+			}
+		}
 
-				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-					final Object _t = _i.next();
+		final Context _context = new Context();
+		final Iterator _j = trueCriteria.iterator();
+		final int _jEnd = trueCriteria.size();
 
-					if (_t instanceof Pair) {
-						final Collection _ctxts =
-							_ctxtRetriever.getCallingContextsForThis((SootMethod) ((Pair) _t).getSecond());
-						CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
-							CollectionsUtilities.HASH_SET_FACTORY);
-					}
-				}
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			final Object _t = _j.next();
+			final boolean _containsKey = criteriabase2contexts.containsKey(_t);
 
-				final Context _context = new Context();
-				final Iterator _j = trueCriteria.iterator();
-				final int _jEnd = trueCriteria.size();
+			if (_t instanceof Pair && !(_containsKey && ((Collection) criteriabase2contexts.get(_t)).contains(null))) {
+				final Pair _pair = (Pair) _t;
+				final Stmt _stmt = (Stmt) _pair.getFirst();
+				_context.setStmt(_stmt);
+				_context.setRootMethod((SootMethod) _pair.getSecond());
 
-				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final Object _t = _j.next();
-					final boolean _containsKey = criteriabase2contexts.containsKey(_t);
-					final boolean _doesNotContainNull =
-						_containsKey && !((Collection) criteriabase2contexts.get(_t)).contains(null);
+				final Collection _programPoints = _stmt.getUseAndDefBoxes();
+				final Iterator _k = _programPoints.iterator();
+				final int _kEnd = _programPoints.size();
 
-					if (_t instanceof Pair && (!_containsKey || _doesNotContainNull)) {
-						final Pair _pair = (Pair) _t;
-						final Stmt _stmt = (Stmt) _pair.getFirst();
-						_context.setStmt(_stmt);
-						_context.setRootMethod((SootMethod) _pair.getSecond());
+				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+					_context.setProgramPoint((ValueBox) _k.next());
 
-						final Collection _programPoints = _stmt.getUseAndDefBoxes();
-						final Iterator _k = _programPoints.iterator();
-						final int _kEnd = _programPoints.size();
-
-						for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-							_context.setProgramPoint((ValueBox) _k.next());
-
-							final Collection _ctxts = _ctxtRetriever.getCallingContextsForProgramPoint(_context);
-							CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
-								CollectionsUtilities.HASH_SET_FACTORY);
-						}
-					}
+					final Collection _ctxts = _ctxtRetriever.getCallingContextsForProgramPoint(_context);
+					CollectionsUtilities.putAllIntoCollectionInMap(criteriabase2contexts, _t, _ctxts,
+						CollectionsUtilities.HASH_SET_FACTORY);
 				}
 			}
+		}
 
-			if (LOGGER.isDebugEnabled()) {
-				final List _t = new ArrayList(da.getIds());
-				Collections.sort(_t);
-				LOGGER.debug("populateDependenceToContextsMap(da = " + _t.toString() + ") : - dependence2contexts - "
-					+ criteriabase2contexts);
-			}
+		if (LOGGER.isDebugEnabled()) {
+			final List _t = new ArrayList(_ids);
+			Collections.sort(_t);
+			LOGGER.debug("populateDependenceToContextsMap(da = " + _t.toString() + ") : - dependence2contexts - "
+				+ criteriabase2contexts);
 		}
 	}
 }

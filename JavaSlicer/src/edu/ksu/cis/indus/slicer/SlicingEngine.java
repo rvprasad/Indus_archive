@@ -67,6 +67,8 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
+import soot.tagkit.Host;
+
 
 /**
  * This class accepts slice criterions and generates slices of the given system.
@@ -613,7 +615,7 @@ public final class SlicingEngine {
 			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller) " + method);
 		}
 
-		if (!collector.hasBeenCollected(method)) {
+		if (isNotIncludedInSlice(method)) {
 			includeMethodAndDeclaringClassInSlice(method);
 		}
 
@@ -677,7 +679,7 @@ public final class SlicingEngine {
 	 */
 	void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
-		if (!collector.hasBeenCollected(valueBox)) {
+		if (isNotIncludedInSlice(valueBox)) {
 			final Collection _sliceCriteria =
 				SliceCriteriaFactory.getFactory().getCriteria(method, stmt, valueBox, considerExecution);
 			setContext(_sliceCriteria);
@@ -710,7 +712,7 @@ public final class SlicingEngine {
 	 * @pre stmt != null and method != null
 	 */
 	void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
-		if (!collector.hasBeenCollected(stmt)) {
+		if (isNotIncludedInSlice(stmt)) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method, stmt, considerExecution);
 			setContext(_sliceCriteria);
 			workbag.addAllWorkNoDuplicates(_sliceCriteria);
@@ -756,10 +758,10 @@ public final class SlicingEngine {
 	 * @pre method != null
 	 */
 	void includeMethodAndDeclaringClassInSlice(final SootMethod method) {
-		collector.includeInSlice(method);
+		includeInSlice(method);
 
 		final SootClass _sc = method.getDeclaringClass();
-		includeClassInSlice(_sc);
+		includeInSlice(_sc);
 
 		final Collection _types = new HashSet(method.getParameterTypes());
 		_types.add(method.getReturnType());
@@ -771,7 +773,7 @@ public final class SlicingEngine {
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootClass _exception = (SootClass) _i.next();
-			includeClassInSlice(_exception);
+			includeInSlice(_exception);
 		}
 	}
 
@@ -802,6 +804,19 @@ public final class SlicingEngine {
 				((AbstractSliceCriterion) _criterion).setCallStack((Stack) callStackCache.clone());
 			}
 		}
+	}
+
+	/**
+	 * Checks if the given host is not included in the slice.
+	 *
+	 * @param host to be checked.
+	 *
+	 * @return <code>true</code> if the host is not included in the slice; <code>false</code>, otherwise.
+	 *
+	 * @pre host != null
+	 */
+	private boolean isNotIncludedInSlice(final Host host) {
+		return !collector.hasBeenCollected(host);
 	}
 
 	/**
@@ -866,7 +881,7 @@ public final class SlicingEngine {
 				final ValueBox _vBox = (ValueBox) _k.next();
 				final Local _local = (Local) _vBox.getValue();
 				final Pair _pair = new Pair(stmt, _local);
-				dependenceExtractor.setTrigger(_pair, method);
+				dependenceExtractor.setTrigger(_pair, method, getCopyOfCallStackCache());
 				CollectionUtils.forAllDo(_analyses, dependenceExtractor);
 
 				final Collection _valuesSet = dependenceExtractor.getDependenceMap().values();
@@ -946,7 +961,7 @@ public final class SlicingEngine {
 			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
 		}
 
-		dependenceExtractor.setTrigger(stmt, method);
+		dependenceExtractor.setTrigger(stmt, method, getCopyOfCallStackCache());
 		CollectionUtils.forAllDo(das, dependenceExtractor);
 
 		for (final Iterator _i = dependenceExtractor.getDependenceMap().entrySet().iterator(); _i.hasNext();) {
@@ -982,14 +997,15 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Includes the given class in the slice.
+	 * Includes the given host in the slice.
 	 *
-	 * @param clazz to be included in the slice.
+	 * @param host to be included in the slice.
 	 *
-	 * @pre clazz != null
+	 * @pre host != null
+	 * @post not isNotIncludedInSlice(host)
 	 */
-	private void includeClassInSlice(final SootClass clazz) {
-		collector.includeInSlice(clazz);
+	private void includeInSlice(final Host host) {
+		collector.includeInSlice(host);
 	}
 
 	/**
@@ -1004,9 +1020,9 @@ public final class SlicingEngine {
 			final Type _type = (Type) _i.next();
 
 			if (_type instanceof RefType) {
-				includeClassInSlice(((RefType) _type).getSootClass());
+				includeInSlice(((RefType) _type).getSootClass());
 			} else if (_type instanceof ArrayType && ((ArrayType) _type).baseType instanceof RefType) {
-				includeClassInSlice(((RefType) ((ArrayType) _type).baseType).getSootClass());
+				includeInSlice(((RefType) ((ArrayType) _type).baseType).getSootClass());
 			}
 		}
 	}
@@ -1086,7 +1102,7 @@ public final class SlicingEngine {
 		}
 
 		// capture control flow based dependences.
-		if (!collector.hasBeenCollected(stmt)) {
+		if (isNotIncludedInSlice(stmt)) {
 			generateStmtMethodCriteria(stmt, method, controlflowBasedDAs);
 		}
 
@@ -1094,7 +1110,7 @@ public final class SlicingEngine {
 		generateCriteriaForTheCallToMethod(method);
 
 		// collect the statement
-		collector.includeInSlice(stmt);
+		includeInSlice(stmt);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
@@ -1134,8 +1150,8 @@ public final class SlicingEngine {
 		for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
 			final ValueBox _vBox = (ValueBox) _i.next();
 
-			if (!collector.hasBeenCollected(_vBox)) {
-				collector.includeInSlice(_vBox);
+			if (isNotIncludedInSlice(_vBox)) {
+				includeInSlice(_vBox);
 
 				final Value _value = _vBox.getValue();
 
@@ -1150,8 +1166,8 @@ public final class SlicingEngine {
 
 					if (_value instanceof FieldRef) {
 						final SootField _field = ((FieldRef) _vBox.getValue()).getField();
-						collector.includeInSlice(_field);
-						includeClassInSlice(_field.getDeclaringClass());
+						includeInSlice(_field);
+						includeInSlice(_field.getDeclaringClass());
 					}
 				} else if (_value instanceof Local) {
 					_locals.add(_vBox);
