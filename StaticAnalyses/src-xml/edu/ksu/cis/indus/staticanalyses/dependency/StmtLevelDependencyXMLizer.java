@@ -31,6 +31,7 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.znerd.xmlenc.XMLOutputter;
 
 import soot.SootClass;
 import soot.SootMethod;
@@ -49,6 +50,7 @@ import soot.jimple.Stmt;
  */
 final class StmtLevelDependencyXMLizer
   extends AbstractProcessor {
+    //  TODO: roll all xml emitting fragments to use xmlenc
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -67,7 +69,7 @@ final class StmtLevelDependencyXMLizer
 	/**
 	 * This is the writer used to write the xml information.
 	 */
-	private Writer writer;
+	private XMLOutputter writer;
 
 	/**
 	 * This indicates if a class is being processed.
@@ -87,13 +89,13 @@ final class StmtLevelDependencyXMLizer
 	/**
 	 * Creates a new StmtLevelDependencyXMLizer object.
 	 *
-	 * @param out is the stream into which xml data should be written
+	 * @param out is the writer to be used to write xml data.
 	 * @param generator to be used to generate id's.
 	 * @param depAnalysis is the analysis whose information should be xmlized.
 	 *
 	 * @pre out != null and generator != null and depAnalysis != null
 	 */
-	public StmtLevelDependencyXMLizer(final Writer out, final IJimpleIDGenerator generator,
+	public StmtLevelDependencyXMLizer(final XMLOutputter out, final IJimpleIDGenerator generator,
 		final DependencyAnalysis depAnalysis) {
 		writer = out;
 		idGenerator = generator;
@@ -110,33 +112,42 @@ final class StmtLevelDependencyXMLizer
 
 		try {
 			if (!(_dependents.isEmpty() && _dependees.isEmpty())) {
-				writer.write("\t\t\t<dependency_info stmtId=\"" + idGenerator.getIdForStmt(stmt, _method) + "\">\n");
+			    writer.startTag("dependency_info");
+			    writer.attribute("stmtId", idGenerator.getIdForStmt(stmt, _method));
 				totalDependences += _dependents.size();
 
 				for (final Iterator _i = _dependents.iterator(); _i.hasNext();) {
 					final Object _o = _i.next();
-
+					String _tid = null;
 					if (_o instanceof Pair) {
 						final Pair _pair = (Pair) _o;
-						writer.write("\t\t\t\t<dependent tid=\""
-							+ idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond()) + "\"/>\n");
+						_tid = idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond());
 					} else if (_o instanceof Stmt) {
-						writer.write("\t\t\t\t<dependent tid=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
+					    _tid = idGenerator.getIdForStmt((Stmt) _o, _method);
+					}
+					if (_tid != null) {
+					writer.startTag("dependent");
+					writer.attribute("tid", _tid);
+					writer.endTag();
 					}
 				}
 
 				for (final Iterator _i = _dependees.iterator(); _i.hasNext();) {
 					final Object _o = _i.next();
-
+					String _eid = null;
 					if (_o instanceof Pair) {
 						final Pair _pair = (Pair) _o;
-						writer.write("\t\t\t\t<dependee eid=\""
-							+ idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond()) + "\"/>\n");
+						_eid = idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond());
 					} else if (_o instanceof Stmt) {
-						writer.write("\t\t\t\t<dependee eid=\"" + idGenerator.getIdForStmt((Stmt) _o, _method) + "\"/>\n");
+					    _eid = idGenerator.getIdForStmt((Stmt) _o, _method);
 					}
+					if (_eid != null) {
+						writer.startTag("dependent");
+						writer.attribute("eid", _eid);
+						writer.endTag();
+						}
 				}
-				writer.write("\t\t\t</dependency_info>\n");
+				writer.endTag();
 			}
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -151,15 +162,16 @@ final class StmtLevelDependencyXMLizer
 	public void callback(final SootClass clazz) {
 		try {
 			if (processingMethod) {
-				writer.write("\t\t</method>\n");
+				writer.endTag();
 			}
 
 			if (processingClass) {
-				writer.write("\t</class>\n");
+				writer.endTag();
 			} else {
 				processingClass = true;
 			}
-			writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
+			writer.startTag("class");
+			writer.attribute("id", idGenerator.getIdForClass(clazz));
 			processingMethod = false;
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -174,12 +186,13 @@ final class StmtLevelDependencyXMLizer
 	public void callback(final SootMethod method) {
 		try {
 			if (processingMethod) {
-				writer.write("\t\t</method>\n");
+				writer.endTag();
 			} else {
 				processingMethod = true;
 			}
-			writer.write("\t\t<method id=\"" + idGenerator.getIdForMethod(method) + "\">\n");
-		} catch (IOException _e) {
+			writer.startTag("method");
+			writer.attribute("id", idGenerator.getIdForMethod(method));
+		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
 			}
@@ -192,15 +205,16 @@ final class StmtLevelDependencyXMLizer
 	public void consolidate() {
 		try {
 			if (processingMethod) {
-				writer.write("\t\t</method>\n");
+				writer.endTag();
 			}
 
 			if (processingClass) {
-				writer.write("\t</class>\n");
+				writer.endTag();
 			}
-			writer.write("\t<count>" + getTotalNumberOfDependences() + "</count>\n");
-			writer.write("</dependency>\n");
-		} catch (IOException _e) {
+			writer.startTag("count");
+			writer.pcdata(String.valueOf(totalDependences));
+			writer.endDocument();
+		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
 			}
@@ -220,9 +234,11 @@ final class StmtLevelDependencyXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			writer.write("<dependency id=\"" + analysis.getId() + "\" class=\"" + analysis.getClass().getName().toString()
-				+ "\">\n");
-		} catch (IOException _e) {
+		    writer.startTag("dependency");
+		    writer.attribute("id", String.valueOf(analysis.getId()));
+		    writer.attribute("class", analysis.getClass().getName().toString());
+		    writer.endTag();
+		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
 			}
@@ -236,18 +252,14 @@ final class StmtLevelDependencyXMLizer
 		ppc.unregisterForAllStmts(this);
 		ppc.unregister(this);
 	}
-
-	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyXMLizer#getTotalNumberOfDependences()
-	 */
-	private int getTotalNumberOfDependences() {
-		return totalDependences;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/04/25 23:18:18  venku
+   - coding conventions.
+
    Revision 1.7  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.

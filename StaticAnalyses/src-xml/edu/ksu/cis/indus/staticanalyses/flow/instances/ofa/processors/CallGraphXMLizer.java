@@ -121,8 +121,6 @@ final class CallGraphXMLizer
 
 				_xmlWriter.endTag();
 			}
-			_xmlWriter.endTag();
-			_xmlWriter.close();
 			_xmlWriter.endDocument();
 			_writer.flush();
 			_writer.close();
@@ -135,6 +133,13 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.13  2004/04/01 20:57:49  venku
    - changed id attributed to xxxxID as it confused xmlunit.
 

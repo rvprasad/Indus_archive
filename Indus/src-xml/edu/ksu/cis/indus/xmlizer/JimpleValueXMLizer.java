@@ -114,6 +114,11 @@ public class JimpleValueXMLizer
 	 */
 	private Stmt currStmt;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private final String nameOfTag;
+
 	/**
 	 * This is the outputter to be used to write xml data.
 	 */
@@ -127,7 +132,20 @@ public class JimpleValueXMLizer
 	 * @pre generator != null
 	 */
 	JimpleValueXMLizer(final IJimpleIDGenerator generator) {
+		this(generator, null);
+	}
+
+	/**
+	 * Creates a new JimpleValueXMLizer object.
+	 *
+	 * @param generator to be used generate ids during xmlization.
+	 * @param tagName DOCUMENT ME!
+	 *
+	 * @pre generator != null
+	 */
+	JimpleValueXMLizer(final IJimpleIDGenerator generator, final String tagName) {
 		idGenerator = generator;
+		nameOfTag = tagName;
 	}
 
 	/**
@@ -794,6 +812,8 @@ public class JimpleValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/06 09:31:01  venku
+   - used xmlenc library to write xml instead of manual tag generation.
    Revision 1.1  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 import java.util.Iterator;
 
@@ -92,14 +91,9 @@ public class JimpleXMLizer
 	private String fileSuffix;
 
 	/**
-	 * The stream into which the xmlized data is written into.
-	 */
-	private Writer xmlizedSystem;
-
-	/** 
 	 * The outputter to be used to write xml data.
 	 */
-	private XMLOutputter xmlOutputter;
+	private XMLOutputter writer;
 
 	/**
 	 * This indicates if the processing of a class has begun.  This is  set in the callback for a class.
@@ -163,66 +157,46 @@ public class JimpleXMLizer
 	public final void callback(final SootMethod method) {
 		try {
 			if (processingMethod) {
-				xmlizedSystem.write("\t\t</method>\n");
+				writer.endTag();
 			} else {
 				processingMethod = true;
 			}
-			xmlizedSystem.write("\t\t<method name=\"" + method.getName().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;")
-				+ "\" id=\"" + idGenerator.getIdForMethod(method) + "\"\n");
+			writer.startTag("method");
+			writer.attribute("name", AbstractXMLizer.xmlizeString(method.getName()));
+			writer.attribute("id", idGenerator.getIdForMethod(method));
 
 			// capture info about modifiers
-			xmlizedSystem.write("\t\t  abstract=\"" + method.isAbstract() + "\"\n");
-			xmlizedSystem.write("\t\t  static=\"" + method.isStatic() + "\"\n");
-			xmlizedSystem.write("\t\t  native=\"" + method.isNative() + "\"\n");
-			xmlizedSystem.write("\t\t  synchronized=\"" + method.isSynchronized() + "\"\n");
+			writer.attribute("abstract", String.valueOf(method.isAbstract()));
+			writer.attribute("static", String.valueOf(method.isStatic()));
+			writer.attribute("native", String.valueOf(method.isNative()));
+			writer.attribute("synchronize", String.valueOf(method.isSynchronized()));
 
-			xmlizedSystem.write("\t\t  accessSpec=\"" + getAccessSpecifier(method.getModifiers()) + "\">\n");
+			writer.attribute("accessSpec", getAccessSpecifier(method.getModifiers()));
 
 			// capture info about signature
-			xmlizedSystem.write("\t\t\t<signature>\n");
-
-			final String _indent = "\t\t\t\t";
-			xmlizedSystem.write(_indent + "<returnType typeId=\"" + idGenerator.getIdForType(method.getReturnType())
-				+ "\"/>\n");
+			writer.startTag("signature");
+			writer.startTag("returnType");
+			writer.attribute("typeId", idGenerator.getIdForType(method.getReturnType()));
+			writer.endTag();
 
 			int _j = 0;
 
 			for (final Iterator _i = method.getParameterTypes().iterator(); _i.hasNext();) {
-				xmlizedSystem.write(_indent + "<paramType typeId=\"" + idGenerator.getIdForType((Type) _i.next())
-					+ "\" position=\"" + _j++ + "\"/>\n");
+				writer.startTag("paramType");
+				writer.attribute("typeId", idGenerator.getIdForType((Type) _i.next()));
+				writer.attribute("position", String.valueOf(_j++));
+				writer.endTag();
 			}
 
 			for (final Iterator _i = method.getExceptions().iterator(); _i.hasNext();) {
-				xmlizedSystem.write(_indent + "<exception typeId=\"" + idGenerator.getIdForClass((SootClass) _i.next())
-					+ "\"/>\n");
+				writer.startTag("exception");
+				writer.attribute("typeId", idGenerator.getIdForType((Type) _i.next()));
+				writer.endTag();
 			}
-			xmlizedSystem.write("\t\t\t</signature>\n");
+			writer.endTag();
 
 			if (method.isConcrete()) {
-				final Body _body = method.retrieveActiveBody();
-
-				final Chain _traps = _body.getTraps();
-
-				// capture info about traps
-				if (!_traps.isEmpty()) {
-					xmlizedSystem.write("\t\t\t<traplist>\n");
-
-					for (final Iterator _i = _traps.iterator(); _i.hasNext();) {
-						final Trap _trap = (Trap) _i.next();
-						xmlizedSystem.write("\t\t\t\t<trap typeId=\"" + idGenerator.getIdForClass(_trap.getException())
-							+ "\" beginId=\"" + idGenerator.getIdForStmt((Stmt) _trap.getBeginUnit(), method) + "\" endId=\""
-							+ idGenerator.getIdForStmt((Stmt) _trap.getEndUnit(), method) + "\" handlerId=\""
-							+ idGenerator.getIdForStmt((Stmt) _trap.getHandlerUnit(), method) + "\"/>\n");
-					}
-					xmlizedSystem.write("\t\t\t</traplist>\n");
-				}
-
-				// capture info about locals
-				for (final Iterator _i = _body.getLocals().iterator(); _i.hasNext();) {
-					final Local _l = (Local) _i.next();
-					xmlizedSystem.write("\t\t\t<local id=\"" + idGenerator.getIdForLocal(_l, method) + "\" name=\""
-						+ _l.getName() + "\" typeId=\"" + idGenerator.getIdForType(_l.getType()) + "\"/>\n");
-				}
+				xmlizeTrapListAndLocals(method);
 			}
 		} catch (IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -236,17 +210,8 @@ public class JimpleXMLizer
 	 */
 	public final void callback(final SootClass clazz) {
 		try {
-			if (processingMethod) {
-				xmlizedSystem.write("\t\t</method>\n");
-			}
-
 			if (processingClass) {
-				xmlizedSystem.write("\t</" + currType + ">\n");
-
-				if (dumpDirectory != null) {
-					xmlizedSystem.flush();
-					xmlizedSystem.close();
-				}
+				writer.endDocument();
 			} else {
 				processingClass = true;
 			}
@@ -259,26 +224,30 @@ public class JimpleXMLizer
 			} else {
 				currType = "class";
 			}
-			xmlizedSystem.write("\t<" + currType + " name=\"" + clazz.getJavaStyleName() + "\" id=\"" + _classId
-				+ "\" package=\"" + clazz.getJavaPackageName() + "\"\n");
-
-			xmlizedSystem.write("\t  abstract=\"" + clazz.isAbstract() + "\"\n");
-
-			xmlizedSystem.write("\t  accessSpec=\"" + getAccessSpecifier(clazz.getModifiers()) + "\">\n");
+			writer.startTag(currType);
+			writer.attribute("name", clazz.getJavaStyleName());
+			writer.attribute("id", _classId);
+			writer.attribute("package", clazz.getJavaPackageName());
+			writer.attribute("abstract", String.valueOf(clazz.isAbstract()));
+			writer.attribute("accessSpec", getAccessSpecifier(clazz.getModifiers()));
 
 			if (clazz.hasSuperclass()) {
 				final SootClass _sc = clazz.getSuperclass();
-				xmlizedSystem.write("\t\t<superclass typeId=\"" + idGenerator.getIdForClass(_sc) + "\"/>\n");
+				writer.startTag("superclass");
+				writer.attribute("typeId", idGenerator.getIdForClass(_sc));
+				writer.endTag();
 			}
 
 			if (clazz.getInterfaceCount() > 0) {
-				xmlizedSystem.write("\t\t<interfaceList>\n");
+				writer.startTag("interfaceList");
 
 				for (final Iterator _i = clazz.getInterfaces().iterator(); _i.hasNext();) {
 					final SootClass _inter = (SootClass) _i.next();
-					xmlizedSystem.write("\t\t\t<superinterface typeId=\"" + idGenerator.getIdForClass(_inter) + "\"/>\n");
+					writer.startTag("superinterface");
+					writer.attribute("typeId", idGenerator.getIdForClass(_inter));
+					writer.endTag();
 				}
-				xmlizedSystem.write("\t\t</interfaceList>\n");
+				writer.endTag();
 			}
 
 			processingMethod = false;
@@ -292,10 +261,12 @@ public class JimpleXMLizer
 	 */
 	public final void callback(final SootField field) {
 		try {
-			xmlizedSystem.write("\t\t<field name=\"" + field.getName() + "\" id=\"" + idGenerator.getIdForField(field)
-				+ "\" typeId=\"" + idGenerator.getIdForType(field.getType()) + "\"\n");
-			xmlizedSystem.write("\t\t  static=\"" + field.isStatic() + "\"\n");
-			xmlizedSystem.write("\t\t  final=\"" + field.isFinal() + "\"\n");
+			writer.startTag("field");
+			writer.attribute("name", field.getName());
+			writer.attribute("id", idGenerator.getIdForField(field));
+			writer.attribute("typeId", idGenerator.getIdForType(field.getType()));
+			writer.attribute("static", String.valueOf(field.isStatic()));
+			writer.attribute("final", String.valueOf(field.isFinal()));
 
 			String _accessSpec = "";
 
@@ -306,8 +277,9 @@ public class JimpleXMLizer
 			} else if (field.isProtected()) {
 				_accessSpec = "proctected";
 			}
-			xmlizedSystem.write("\t\t  accessSpec=\"" + _accessSpec + "\"/>\n");
-		} catch (IOException _e) {
+			writer.attribute("accessSpec", _accessSpec);
+			writer.endTag();
+		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", _e);
 			}
@@ -319,16 +291,9 @@ public class JimpleXMLizer
 	 */
 	public final void consolidate() {
 		try {
-			if (processingMethod) {
-				xmlizedSystem.write("\t\t</method>\n");
-			}
-
-			if (processingClass) {
-				xmlizedSystem.write("\t</" + currType + ">\n");
-				xmlizedSystem.flush();
-				xmlizedSystem.close();
-			}
-		} catch (IOException _e) {
+			writer.endDocument();
+			writer.getWriter().close();
+		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", _e);
 			}
@@ -389,19 +354,25 @@ public class JimpleXMLizer
 	  throws IOException {
 		final String _classId = idGenerator.getIdForClass(clazz);
 
-		if (dumpDirectory == null && xmlizedSystem == null) {
-			xmlizedSystem = new BufferedWriter(new OutputStreamWriter(System.out));
-			xmlOutputter = new CustomXMLOutputter(xmlizedSystem, "UTF-8");
-			stmtXmlizer.setWriter(xmlOutputter);
-		} else if (dumpDirectory != null) {
+		if (dumpDirectory == null) {
+			if (writer == null) {
+				writer = new CustomXMLOutputter(new BufferedWriter(new OutputStreamWriter(System.out)), "UTF-8");
+			} else {
+				writer.reset(writer.getWriter(), "UTF-8");
+			}
+			stmtXmlizer.setWriter(writer);
+		} else {
 			final String _filename = dumpDirectory + File.separator + _classId + fileSuffix + ".xml";
 
 			try {
+				if (writer.getWriter() != null) {
+					writer.getWriter().close();
+				}
+
 				final File _file = new File(_filename);
-				xmlizedSystem = new BufferedWriter(new FileWriter(_file));
-				xmlOutputter = new CustomXMLOutputter(xmlizedSystem, "UTF-8");
-				stmtXmlizer.setWriter(xmlOutputter);
-				xmlizedSystem.write("<!DOCTYPE class PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
+				writer = new CustomXMLOutputter(new BufferedWriter(new FileWriter(_file)), "UTF-8");
+				stmtXmlizer.setWriter(writer);
+				writer.dtd("class", "-//ANT//DTD project//EN", "jimple.dtd");
 			} catch (final IOException _e) {
 				LOGGER.error("Exception while trying to open " + _filename, _e);
 				throw _e;
@@ -409,11 +380,56 @@ public class JimpleXMLizer
 		}
 		return _classId;
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 *
+	 * @param method
+	 */
+	private void xmlizeTrapListAndLocals(final SootMethod method) {
+		final Body _body = method.retrieveActiveBody();
+
+		final Chain _traps = _body.getTraps();
+
+		try {
+			// capture info about traps
+			if (!_traps.isEmpty()) {
+				writer.startTag("traplist");
+
+				for (final Iterator _i = _traps.iterator(); _i.hasNext();) {
+					final Trap _trap = (Trap) _i.next();
+					writer.startTag("trap");
+					writer.attribute("typeId", idGenerator.getIdForClass(_trap.getException()));
+					writer.attribute("beginId", idGenerator.getIdForStmt((Stmt) _trap.getBeginUnit(), method));
+					writer.attribute("endId", idGenerator.getIdForStmt((Stmt) _trap.getEndUnit(), method));
+					writer.attribute("handlerId", idGenerator.getIdForStmt((Stmt) _trap.getHandlerUnit(), method));
+					writer.endTag();
+				}
+				writer.endTag();
+			}
+
+			// capture info about locals
+			for (final Iterator _i = _body.getLocals().iterator(); _i.hasNext();) {
+				final Local _l = (Local) _i.next();
+				writer.startTag("local");
+				writer.attribute("id", idGenerator.getIdForLocal(_l, method));
+				writer.attribute("name", _l.getName());
+				writer.attribute("typeId", idGenerator.getIdForType(_l.getType()));
+				writer.endTag();
+			}
+		} catch (final IOException _e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing xmlized jimple info.", _e);
+			}
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/05/06 09:31:01  venku
+   - used xmlenc library to write xml instead of manual tag generation.
    Revision 1.34  2004/04/25 23:18:21  venku
    - coding conventions.
    Revision 1.33  2004/04/25 21:18:39  venku

@@ -26,11 +26,13 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.CustomXMLOutputter;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 import java.util.ArrayList;
@@ -153,6 +155,35 @@ public final class DependencyXMLizer
 	}
 
 	/**
+	 * Retrives the xmlizer for the given dependence analysis based on the properties.
+	 *
+	 * @param writer to be used by the xmlizer.
+	 * @param da is the dependence analysis for which the xmlizer is requested.
+	 *
+	 * @return the xmlizer.
+	 *
+	 * @pre writer != null and da != null
+	 * @post result != null
+	 */
+	private StmtLevelDependencyXMLizer getXMLizerFor(final Writer writer, final DependencyAnalysis da) {
+		StmtLevelDependencyXMLizer _result = null;
+		final String _xmlizerId = da.getId().toString();
+
+		final String _temp = PROPERTIES.getProperty(_xmlizerId);
+
+		if (_temp.equals(DependencyXMLizer.STMT_LEVEL_DEPENDENCY)) {
+			try {
+				_result = new StmtLevelDependencyXMLizer(new CustomXMLOutputter(writer, "UTF-8"), getIdGenerator(), da);
+			} catch (final UnsupportedEncodingException _e) {
+				LOGGER.error("UTF-8 encoding is unsupported.  Now, this contradicts the documentation!!", _e);
+			}
+		} else {
+			LOGGER.error("Unknown dependency xmlizer type requested.  Bailing on this.");
+		}
+		return _result;
+	}
+
+	/**
 	 * Initializes the xmlizers.
 	 *
 	 * @param info is the name of the root method.
@@ -212,43 +243,19 @@ public final class DependencyXMLizer
 		}
 		return _result;
 	}
-
-	/**
-	 * Retrives the xmlizer for the given dependence analysis based on the properties.
-	 *
-	 * @param writer to be used by the xmlizer.
-	 * @param da is the dependence analysis for which the xmlizer is requested.
-	 *
-	 * @return the xmlizer.
-	 *
-	 * @pre writer != null and da != null
-	 * @post result != null
-	 */
-	private StmtLevelDependencyXMLizer getXMLizerFor(final Writer writer, final DependencyAnalysis da) {
-		StmtLevelDependencyXMLizer _result = null;
-		final String _xmlizerId = da.getId().toString();
-
-		final String _temp = PROPERTIES.getProperty(_xmlizerId);
-
-		if (_temp.equals(DependencyXMLizer.STMT_LEVEL_DEPENDENCY)) {
-			_result = new StmtLevelDependencyXMLizer(writer, getIdGenerator(), da);
-		} else {
-			LOGGER.error("Unknown dependency xmlizer type requested.  Bailing on this.");
-		}
-		return _result;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/04/25 23:18:18  venku
+   - coding conventions.
    Revision 1.15  2004/04/25 21:18:37  venku
    - refactoring.
      - created new classes from previously embedded classes.
      - xmlized jimple is fragmented at class level to ease comparison.
      - id generation is embedded into the testing framework.
      - many more tiny stuff.
-
    Revision 1.14  2004/04/18 08:58:58  venku
    - enabled test support for slicer.
    Revision 1.13  2004/03/29 09:32:25  venku

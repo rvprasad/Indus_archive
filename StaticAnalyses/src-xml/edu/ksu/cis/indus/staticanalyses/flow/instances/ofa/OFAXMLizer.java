@@ -204,7 +204,6 @@ public final class OFAXMLizer
 		 */
 		public void consolidate() {
 			try {
-				xmlWriter.close();
 				xmlWriter.endDocument();
 			} catch (final IOException _e) {
 				LOGGER.error("Error while xmlizing OFA information ", _e);
@@ -288,6 +287,13 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/04/25 21:18:37  venku
+   - refactoring.
+     - created new classes from previously embedded classes.
+     - xmlized jimple is fragmented at class level to ease comparison.
+     - id generation is embedded into the testing framework.
+     - many more tiny stuff.
+
    Revision 1.10  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
