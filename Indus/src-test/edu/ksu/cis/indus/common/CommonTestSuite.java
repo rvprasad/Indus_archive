@@ -60,18 +60,21 @@ public final class CommonTestSuite {
 	 * @post result != null
 	 */
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for edu.ksu.cis.indus.common");
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common");
 
 		//$JUnit-BEGIN$
-		suite.addTestSuite(CollectionsModifierTest.class);
+		_suite.addTestSuite(CollectionsModifierTest.class);
 		//$JUnit-END$
-		return suite;
+		return _suite;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/28 23:03:09  venku
+   - added clover source code directives.
+
    Revision 1.1  2004/01/28 22:55:23  venku
    - added test suites for classes in common package.
 

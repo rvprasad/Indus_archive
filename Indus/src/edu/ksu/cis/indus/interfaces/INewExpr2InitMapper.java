@@ -21,11 +21,15 @@ public interface INewExpr2InitMapper {
      *
      * @post result != null and result.contains(InvokeExpr) and result.getInvokeExpr().oclIsKindOf(SpecialInvokeExpr)
      */
-    public Stmt getInitCallStmtForNewExprStmt(final Stmt newExprStmt, final SootMethod method);
+    Stmt getInitCallStmtForNewExprStmt(final Stmt newExprStmt, final SootMethod method);
 }
 
 /*
  ChangeLog:
 
  $Log$
+ Revision 1.1  2004/02/01 23:33:47  venku
+ - extracted the interface of NewExpr2InitMapper to make the
+   end analyses configurable.
+
  */
