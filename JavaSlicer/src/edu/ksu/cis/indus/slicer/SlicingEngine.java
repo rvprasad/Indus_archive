@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
@@ -33,7 +34,6 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.NewExpr2InitMapper;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -212,7 +212,7 @@ public final class SlicingEngine {
 	/**
 	 * This maps new expressions to corresponding init call sites.
 	 */
-	private NewExpr2InitMapper initMapper;
+	private INewExpr2InitMapper initMapper;
 
 	/**
 	 * This collects the parts of the system that make up the slice.
@@ -465,7 +465,7 @@ public final class SlicingEngine {
 	 *
 	 * @pre mapper != null
 	 */
-	public void setInitMapper(final NewExpr2InitMapper mapper) {
+	public void setInitMapper(final INewExpr2InitMapper mapper) {
 		initMapper = mapper;
 	}
 
@@ -1397,6 +1397,11 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.67  2004/02/01 22:16:16  venku
+   - renamed set/getSlicedBBGMgr to set/getBasicBlockGraphManager
+     in SlicingEngine.
+   - ripple effect.
+
    Revision 1.66  2004/01/31 01:50:21  venku
    - logging.
 
