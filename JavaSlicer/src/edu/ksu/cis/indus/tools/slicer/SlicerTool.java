@@ -476,6 +476,10 @@ public final class SlicerTool
 	 */
 	public void execute(final Object phaseParam)
 	  throws InterruptedException {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("BEGIN: Execution of the slicer tool");
+		}
+
 		Phase _ph = phase;
 
 		if (phaseParam != null && ((Phase) phaseParam).isEarlierThan(phase)) {
@@ -586,6 +590,10 @@ public final class SlicerTool
 			}
 		}
 		phase.finished();
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: Execution of the slicer tool");
+		}
 	}
 
 	/**
@@ -789,6 +797,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.72  2004/02/23 04:40:17  venku
+   - uses ExceptionFlowSensitiveStmtGraph as the default unit graph.
    Revision 1.71  2004/02/01 22:16:16  venku
    - renamed set/getSlicedBBGMgr to set/getBasicBlockGraphManager
      in SlicingEngine.
