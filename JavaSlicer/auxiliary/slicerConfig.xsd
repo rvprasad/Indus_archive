@@ -22,9 +22,11 @@
       <xsd:extension base="indus:configuration">
         <xsd:sequence>
           <xsd:element name="criteria" type="slicer:criteria"/>
+          <xsd:element name="control" type="slicer:control"/>
           <xsd:element name="interference" type="slicer:interference"/>
           <xsd:element name="divergence" type="slicer:divergence"/>
           <xsd:element name="ready" type="slicer:ready"/>
+          <xsd:element name="synchronization" type="slicer:synchronization"/>
         </xsd:sequence>
         <xsd:attribute name="executableSlice" type="xsd:boolean" use="required"/>
         <xsd:attribute name="slicetype" type="slicer:slicingType" use="required"/>
@@ -75,7 +77,7 @@
 	<xsd:attribute name="sliceToPreserveAssertions" type="xsd:boolean" use="required"/>
   </xsd:complexType>	    
   
-  <xsd:simpleType id="natureOfInterThreadAnalysis1" name="natureOfInterThreadAnalysis1">
+  <xsd:simpleType id="natureOfInterThreadAnalysis" name="natureOfInterThreadAnalysis">
     <xsd:annotation>
       <xsd:documentation> This captures the information to be used in dependences such as interference and ready
         dependence. </xsd:documentation>
@@ -87,16 +89,35 @@
     </xsd:restriction>
   </xsd:simpleType>
   
+  <xsd:simpleType id="proceduralBoundaryProperty" name="proceduralBoundaryProperty">
+    <xsd:annotation>
+      <xsd:documentation> This represents the property pertaining to procedural boundary. </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="INTRA_PROCEDURAL"/>
+      <xsd:enumeration value="INTER_PROCEDURAL"/>
+      <xsd:enumeration value="INTRA_AND_INTER_PROCEDURAL"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
   <xsd:attribute default="SYMBOL_AND_EQUIVCLS_BASED_INFO" name="natureOfInterThreadAnalysis"
-    type="slicer:natureOfInterThreadAnalysis1"/>
+    type="slicer:natureOfInterThreadAnalysis"/>
     
   <xsd:attribute name="active" type="xsd:boolean"/>
+  
+  <xsd:complexType id="control" name="control">
+    <xsd:annotation>
+      <xsd:documentation> This captures control dependence information. </xsd:documentation>
+   	</xsd:annotation>
+   	<xsd:attribute name="nonTerminationSensitive" type="xsd:boolean" use="required"/>
+  </xsd:complexType>
   
   <xsd:complexType id="divergence" name="divergence">
     <xsd:annotation>
       <xsd:documentation> This captures divergence dependence information. </xsd:documentation>
     </xsd:annotation>
-    <xsd:attribute name="interprocedural" type="xsd:boolean" use="required"/>
+    <xsd:attribute default="INTRA_PROCEDURAL" name="natureOfDivergenceAnalysis"
+      type="slicer:proceduralBoundaryProperty"/>
     <xsd:attribute ref="slicer:active" use="required"/>
   </xsd:complexType>
   
@@ -122,4 +143,9 @@
     <xsd:attribute name="useOFA" type="xsd:boolean" use="required"/>
     <xsd:attribute id="useSafeLockAnalysis" name="useSafeLockAnalysis" type="xsd:boolean" use="required"/>
   </xsd:complexType>
+  
+  <xsd:complexType id="synchronization" name="synchronization">  	
+	<xsd:attribute ref="slicer:active" use="required"/>
+  </xsd:complexType>	    
+  
 </xsd:schema>

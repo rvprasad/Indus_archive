@@ -32,21 +32,24 @@
 					set-method="setSliceToPreserveAssertions" get-method="getSliceToPreserveAssertions" default="false"/>
 			</structure>
 		</structure>
+		<structure name="control">
+			<value style="attribute" name="nonTerminationSensitive" type="boolean" 
+				set-method="useNonTerminationSensitiveControlDependence" 
+				get-method="isNonTerminationSensitiveControlDependenceUsed"/>
+		</structure>
 		<structure name="interference">
 			<value style="attribute" name="active" type="boolean" set-method="useInterferenceDepAnalysis" 
 				get-method="isInterferenceDepAnalysisUsed"/>
 			<value style="attribute" name="natureOfInterThreadAnalysis" type="java.lang.String" 
-				set-method="setNatureOfInterferenceDepAnalysis" 
-                get-method="getNatureOfInterferenceDepAnalysis"/>
-            <value style="attribute" name="useOFA" type="boolean" set-method="setUseOFAForInterference"
+				set-method="setNatureOfInterferenceDepAnalysis" get-method="getNatureOfInterferenceDepAnalysis"/>
+            <value style="attribute" name="useOFA" type="boolean" set-method="useOFAForInterference"
                 get-method="isOFAUsedForInterference"/>    
 		</structure>
 		<structure name="divergence">
 			<value style="attribute" name="active" type="boolean" set-method="useDivergenceDepAnalysis" 
 				get-method="isDivergenceDepAnalysisUsed"/>
-			<value style="attribute" name="interprocedural" type="boolean" 
-				set-method="useInterproceduralDivergenceDepAnalysis" 
-				get-method="isInterproceduralDivergenceDepAnalysisUsed"/>
+			<value style="attribute" name="natureOfDivergenceAnalysis" type="java.lang.String" 
+				set-method="setNatureOfDivergenceDepAnalysis" get-method="getNatureOfDivergenceDepAnalysis"/>
 		</structure> 
 		<structure name="ready">
 			<value style="attribute" name="active" type="boolean" 
@@ -61,10 +64,14 @@
 				set-method="useReadyRule3" get-method="isReadyRule3Used" />
 			<value style="attribute" name="rule4" type="boolean" 
 				set-method="useReadyRule4" get-method="isReadyRule4Used"/>	
-			<value style="attribute" name="useOFA" type="boolean" set-method="setUseOFAForReady"
+			<value style="attribute" name="useOFA" type="boolean" set-method="useOFAForReady"
                 get-method="isOFAUsedForReady"/> 	
-			<value style="attribute" name="useSafeLockAnalysis" type="boolean" set-method="setUseSafeLockAnalysisForReady"
+			<value style="attribute" name="useSafeLockAnalysis" type="boolean" set-method="useSafeLockAnalysisForReady"
                 get-method="isSafeLockAnalysisUsedForReady"/> 	                
+		</structure>		
+		<structure name="synchronization">
+			<value style="attribute" name="active" type="boolean" 
+				set-method="useSynchronizationDepAnalysis" get-method="isSynchronizationDepAnalysisUsed"/>
 		</structure>		
 	</mapping>
 </binding>

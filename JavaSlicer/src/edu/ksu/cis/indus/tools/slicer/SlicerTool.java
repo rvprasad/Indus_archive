@@ -41,8 +41,9 @@ import edu.ksu.cis.indus.staticanalyses.concurrency.MonitorAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.ThreadEscapeInfoBasedCallingContextRetriever;
-import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationInsensitiveEntryControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfov2;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -438,7 +439,7 @@ public final class SlicerTool
 	 */
 	public Collection getDAs() {
 		final Collection _result = new LinkedHashSet();
-		final SlicerConfiguration _config = ((SlicerConfiguration) getActiveConfiguration());
+		final SlicerConfiguration _config = (SlicerConfiguration) getActiveConfiguration();
 		final List _daNames = new ArrayList(_config.getIDsOfDAsToUse());
 		Collections.sort(_daNames);
 
@@ -764,7 +765,11 @@ public final class SlicerTool
 		final Collection _controlDAs = slicerConfig.getDependenceAnalyses(IDependencyAnalysis.CONTROL_DA);
 
 		if (slicerConfig.getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-			_controlDAs.add(new NonTerminationSensitiveEntryControlDA());
+			if (slicerConfig.isNonTerminationSensitiveControlDependenceUsed()) {
+				_controlDAs.add(new NonTerminationSensitiveEntryControlDA());
+			} else {
+				_controlDAs.add(new NonTerminationInsensitiveEntryControlDA());
+			}
 		}
 		CollectionsUtilities.getSetFromMap(info, IDependencyAnalysis.CONTROL_DA).addAll(_controlDAs);
 
@@ -784,7 +789,8 @@ public final class SlicerTool
 		daController.execute();
 
 		final String _deadlockCriteriaSelectionStrategy = slicerConfig.getDeadlockCriteriaSelectionStrategy();
-        if (!slicerConfig.getPropertyAware()
+
+		if (!slicerConfig.getPropertyAware()
 			  && !_deadlockCriteriaSelectionStrategy.equals(SlicerConfiguration.CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS)) {
 			ecba.flushSiteContexts();
 		}

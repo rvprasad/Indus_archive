@@ -21,12 +21,14 @@ import edu.ksu.cis.indus.slicer.SlicingEngine;
 
 import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv3;
+import edu.ksu.cis.indus.staticanalyses.dependency.InterProceduralDivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
+import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationInsensitiveEntryControlDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.NonTerminationSensitiveEntryControlDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
@@ -102,12 +104,6 @@ public final class SlicerConfiguration
 	static final Object NATURE_OF_READY_DA = "nature of ready dependence";
 
 	/** 
-	 * This identifies the property that indicates if interprocedural divergence dependence should be used instead of mere
-	 * intraprocedural divergent dependence.
-	 */
-	static final Object INTERPROCEDURAL_DIVERGENCEDA = "interprocedural divergence dependence";
-
-	/** 
 	 * This identifies the property that indicates if interference dependence should be considered for slicing.
 	 */
 	static final Object USE_INTERFERENCEDA = "use interference dependence";
@@ -122,6 +118,11 @@ public final class SlicerConfiguration
 	 * and n occur in the same thread and n is an enter monitor statement.
 	 */
 	static final Object USE_RULE1_IN_READYDA = "use rule1 in ready dependence";
+
+	/** 
+	 * This identifies the property that indicates if ready dependence should be considered for slicing.
+	 */
+	static final Object USE_SYNCHRONIZATIONDA = "use synchronization dependences";
 
 	/** 
 	 * This identifies the property that indicates if rule2 of ready dependence be used.  Rule 2: m is dependent on n if m
@@ -146,6 +147,34 @@ public final class SlicerConfiguration
 	 * This identifies the property that indicates if divergence dependence should be considered for slicing.
 	 */
 	static final Object USE_DIVERGENCEDA = "use divergence dependence";
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	static final Object NATURE_OF_DIVERGENCE_DA = "nature of divergence dependence";
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	static final Object INTRA_PROCEDURAL = "INTRA_PROCEDURAL";
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	static final Object INTER_PROCEDURAL = "INTER_PROCEDURAL";
+
+	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	static final Object INTRA_AND_INTER_PROCEDURAL = "INTRA_AND_INTER_PROCEDURAL";
 
 	/** 
 	 * This identifies the property that indicates if slice criteria should be automatically picked to preserve the
@@ -215,6 +244,11 @@ public final class SlicerConfiguration
 	static final Object PROPERTY_AWARE = "property aware slicing";
 
 	/** 
+	 * This identifies the property that determines if the slice is non-termination sensitive.
+	 */
+	static final Object NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE = "Non termination sensitive";
+
+	/** 
 	 * This is the factory object to create configurations.
 	 */
 	private static final IToolConfigurationFactory FACTORY_SINGLETON = new SlicerConfiguration();
@@ -254,10 +288,8 @@ public final class SlicerConfiguration
 	 * Creates a new SlicerConfiguration object.
 	 */
 	protected SlicerConfiguration() {
-		propertyIds.add(INTERPROCEDURAL_DIVERGENCEDA);
 		propertyIds.add(NATURE_OF_INTERFERENCE_DA);
 		propertyIds.add(USE_OFA_FOR_INTERFERENCE_DA);
-		propertyIds.add(USE_DIVERGENCEDA);
 		propertyIds.add(USE_INTERFERENCEDA);
 		propertyIds.add(USE_READYDA);
 		propertyIds.add(NATURE_OF_READY_DA);
@@ -273,6 +305,13 @@ public final class SlicerConfiguration
 		propertyIds.add(SLICE_TYPE);
 		propertyIds.add(EXECUTABLE_SLICE);
 		propertyIds.add(PROPERTY_AWARE);
+		propertyIds.add(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE);
+		propertyIds.add(USE_DIVERGENCEDA);
+		propertyIds.add(NATURE_OF_DIVERGENCE_DA);
+		propertyIds.add(INTRA_PROCEDURAL);
+		propertyIds.add(INTRA_AND_INTER_PROCEDURAL);
+		propertyIds.add(INTER_PROCEDURAL);
+		propertyIds.add(USE_SYNCHRONIZATIONDA);
 	}
 
 	/**
@@ -355,13 +394,32 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Checks if interprocedural divergence dependence analysis is enabled in this configuration.
+	 * Sets the nature of divergence dependence analysis to be used.
 	 *
-	 * @return <code>true</code> if the use of interprocedural divergence dependence analysis is enabled; <code>false</code>,
-	 * 		   otherwise.
+	 * @param use specifies the nature of analysis.  It has to be one of values defined by
+	 * 		  <code>INTRA_PROCEDURAL_DIVERGENCE</code>,  <code>INTER_PROCEDURAL_DIVERGENCE</code>, and
+	 * 		  <code>INTRA_AND_INTER_PROCEDURAL_DIVERGENCE</code>.
+	 *
+	 * @pre use != null
 	 */
-	public boolean isInterproceduralDivergenceDepAnalysisUsed() {
-		return getBooleanProperty(INTERPROCEDURAL_DIVERGENCEDA);
+	public void setNatureOfDivergenceDepAnalysis(final String use) {
+		super.setProperty(NATURE_OF_DIVERGENCE_DA, use);
+	}
+
+	/**
+	 * Retrieves the nature of divergence dependence analysis specified by this configuration.
+	 *
+	 * @return the nature of divergence dependence analysis.
+	 *
+	 * @post result != null
+	 */
+	public String getNatureOfDivergenceDepAnalysis() {
+		String _result = (String) properties.get(NATURE_OF_DIVERGENCE_DA);
+
+		if (_result == null) {
+			_result = INTRA_PROCEDURAL.toString();
+		}
+		return _result;
 	}
 
 	/**
@@ -415,6 +473,16 @@ public final class SlicerConfiguration
 			_result = SYMBOL_AND_EQUIVCLS_BASED_INFO.toString();
 		}
 		return _result;
+	}
+
+	/**
+	 * Checks if non-termination sensitive control dependence should be used.
+	 *
+	 * @return <code>true</code> if non-termination sensitive control dependence should be used; <code>false</code>,
+	 * 		   otherwise.
+	 */
+	public boolean isNonTerminationSensitiveControlDependenceUsed() {
+		return ((Boolean) getProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE)).booleanValue();
 	}
 
 	/**
@@ -564,14 +632,25 @@ public final class SlicerConfiguration
 
 			if (type.equals(SlicingEngine.BACKWARD_SLICE)) {
 				_c.clear();
-				_c.add(new NonTerminationSensitiveEntryControlDA());
+
+				if (isNonTerminationSensitiveControlDependenceUsed()) {
+					_c.add(new NonTerminationSensitiveEntryControlDA());
+				} else {
+					_c.add(new NonTerminationInsensitiveEntryControlDA());
+				}
 			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
 				_c.clear();
 				_c.add(new ExitControlDA());
 				setProperty(EXECUTABLE_SLICE, Boolean.FALSE);
 			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
 				_c.clear();
-				_c.add(new NonTerminationSensitiveEntryControlDA());
+
+				if (isNonTerminationSensitiveControlDependenceUsed()) {
+					_c.add(new NonTerminationSensitiveEntryControlDA());
+				} else {
+					_c.add(new NonTerminationInsensitiveEntryControlDA());
+				}
+
 				_c.add(new ExitControlDA());
 			}
 		}
@@ -589,30 +668,12 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Sets if OFA should be used during interference dependence calculation.
+	 * Checks if synchronization dependence analysis is enabled in this configuration.
 	 *
-	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
+	 * @return <code>true</code> if the use of synchronization dependence analysis is enabled; <code>false</code>, otherwise.
 	 */
-	public void setUseOFAForInterference(final boolean use) {
-		processPropertyHelper(USE_OFA_FOR_INTERFERENCE_DA, use);
-	}
-
-	/**
-	 * Sets if OFA should be used during ready dependence calculation.
-	 *
-	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
-	 */
-	public void setUseOFAForReady(final boolean use) {
-		processPropertyHelper(USE_OFA_FOR_READY_DA, use);
-	}
-
-	/**
-	 * Sets if Safe Lock Analysis should be used during ready dependence calculation.
-	 *
-	 * @param use <code>true</code> if SLA should be used; <code>false</code>, otherwise.
-	 */
-	public void setUseSafeLockAnalysisForReady(final boolean use) {
-		processPropertyHelper(USE_SLA_FOR_READY_DA, use);
+	public boolean isSynchronizationDepAnalysisUsed() {
+		return ((Boolean) properties.get(USE_SYNCHRONIZATIONDA)).booleanValue();
 	}
 
 	/**
@@ -659,7 +720,9 @@ public final class SlicerConfiguration
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
-		// set default values for certain properties
+		// set default values for certain properties.  The ordering is important.
+		setProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE, Boolean.TRUE);
+		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 		setProperty(EXECUTABLE_SLICE, Boolean.TRUE);
 		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
@@ -675,8 +738,8 @@ public final class SlicerConfiguration
 		setProperty(USE_RULE3_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_RULE4_IN_READYDA, Boolean.TRUE);
 		setProperty(USE_SLA_FOR_READY_DA, Boolean.TRUE);
-		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(PROPERTY_AWARE, Boolean.FALSE);
+        setProperty(USE_SYNCHRONIZATIONDA, Boolean.FALSE);
 
 		id2critGenerators.put(DEADLOCK_PRESERVING_CRITERIA_GENERATOR_ID, new DeadlockPreservingCriteriaGenerator());
 		setProperty(DEADLOCK_CRITERIA_SELECTION_STRATEGY, CONTEXT_SENSITIVE_ESCAPING_SYNC_CONSTRUCTS);
@@ -688,10 +751,6 @@ public final class SlicerConfiguration
 		dependencesToUse.add(IDependencyAnalysis.REFERENCE_BASED_DATA_DA);
 		id2dependencyAnalyses.put(IDependencyAnalysis.REFERENCE_BASED_DATA_DA,
 			Collections.singleton(new ReferenceBasedDataDA()));
-		dependencesToUse.add(IDependencyAnalysis.SYNCHRONIZATION_DA);
-		id2dependencyAnalyses.put(IDependencyAnalysis.SYNCHRONIZATION_DA, Collections.singleton(new SynchronizationDA()));
-		dependencesToUse.add(IDependencyAnalysis.INTERFERENCE_DA);
-		dependencesToUse.add(IDependencyAnalysis.READY_DA);
 		dependencesToUse.add(IDependencyAnalysis.CONTROL_DA);
 	}
 
@@ -714,12 +773,31 @@ public final class SlicerConfiguration
 	}
 
 	/**
-	 * Configures if interprocedural dependence dependence analysis should be used during slicing.
+	 * Sets if non-termination sensitive or non-termination insensitive control dependence should be used.
 	 *
-	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 * @param value <code>true</code> indicates non-termination sensitive control dependence should be used;
+	 * 		  <code>false</code>, otherwise.
 	 */
-	public void useInterproceduralDivergenceDepAnalysis(final boolean use) {
-		processPropertyHelper(INTERPROCEDURAL_DIVERGENCEDA, use);
+	public void useNonTerminationSensitiveControlDependence(final boolean value) {
+		setProperty(NON_TERMINATION_SENSITIVE_CONTROL_DEPENDENCE, Boolean.valueOf(value));
+	}
+
+	/**
+	 * Sets if OFA should be used during interference dependence calculation.
+	 *
+	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
+	 */
+	public void useOFAForInterference(final boolean use) {
+		processPropertyHelper(USE_OFA_FOR_INTERFERENCE_DA, use);
+	}
+
+	/**
+	 * Sets if OFA should be used during ready dependence calculation.
+	 *
+	 * @param use <code>true</code> if OFA should be used; <code>false</code>, otherwise.
+	 */
+	public void useOFAForReady(final boolean use) {
+		processPropertyHelper(USE_OFA_FOR_READY_DA, use);
 	}
 
 	/**
@@ -768,6 +846,24 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Sets if Safe Lock Analysis should be used during ready dependence calculation.
+	 *
+	 * @param use <code>true</code> if SLA should be used; <code>false</code>, otherwise.
+	 */
+	public void useSafeLockAnalysisForReady(final boolean use) {
+		processPropertyHelper(USE_SLA_FOR_READY_DA, use);
+	}
+
+	/**
+	 * Configures if synchronization dependence analysis should be used during slicing.
+	 *
+	 * @param use <code>true</code> if it should be used; <code>false</code>, otherwise.
+	 */
+	public void useSynchronizationDepAnalysis(final boolean use) {
+		processPropertyHelper(USE_SYNCHRONIZATIONDA, use);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 *
 	 * @pre value != null
@@ -788,6 +884,8 @@ public final class SlicerConfiguration
 			_result = processRDANatureProperty(value);
 		} else if (propertyID.equals(DEADLOCK_CRITERIA_SELECTION_STRATEGY)) {
 			processDeadlockCriteriaSelectionStrategy(value);
+		} else if (propertyID.equals(NATURE_OF_DIVERGENCE_DA)) {
+			_result = processDDANatureProperty(value);
 		}
 		return _result;
 	}
@@ -887,12 +985,68 @@ public final class SlicerConfiguration
 			}
 		} else if (propertyID.equals(USE_DIVERGENCEDA)) {
 			processUseDivergenceProperty(booleanValue);
-		} else if (propertyID.equals(INTERPROCEDURAL_DIVERGENCEDA)) {
-			processInterProceduralDivergenceDAProperty();
+		} else if (propertyID.equals(USE_SYNCHRONIZATIONDA)) {
+			processUseSynchronizationProperty(booleanValue);
 		} else {
 			processInterferenceDARelatedProperties(propertyID, booleanValue);
 			processReadyDARelatedProperties(propertyID, booleanValue);
 		}
+	}
+
+	/**
+	 * Processes the property that dictates the nature of the divergence dependence.
+	 *
+	 * @param property is the property.
+	 *
+	 * @return <code>true</code> if the property value was a valid;  <code>false</code>, otherwise.
+	 *
+	 * @pre property != null
+	 */
+	private boolean processDDANatureProperty(final Object property) {
+		boolean _result = true;
+
+		final Object _direction;
+
+		if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
+			_direction = IDependencyAnalysis.FORWARD_DIRECTION;
+		} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
+			_direction = IDependencyAnalysis.BACKWARD_DIRECTION;
+		} else {
+			_direction = null;
+		}
+
+		final boolean _interProcedural = property.equals(INTRA_AND_INTER_PROCEDURAL);
+
+		if (_direction != null) {
+			if (property.equals(INTER_PROCEDURAL)) {
+				id2dependencyAnalyses.put(IDependencyAnalysis.DIVERGENCE_DA,
+					Collections.singleton(InterProceduralDivergenceDA.getDivergenceDA(_direction)));
+			} else if (property.equals(INTRA_PROCEDURAL) || _interProcedural) {
+				final DivergenceDA _divergenceDA = DivergenceDA.getDivergenceDA(_direction);
+				id2dependencyAnalyses.put(IDependencyAnalysis.DIVERGENCE_DA, Collections.singleton(_divergenceDA));
+				_divergenceDA.setConsiderCallSites(_interProcedural);
+			}
+		} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
+			final Collection _das = new ArrayList();
+
+			if (property.equals(INTER_PROCEDURAL)) {
+				_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION));
+				_das.add(InterProceduralDivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION));
+			} else if (property.equals(INTRA_PROCEDURAL) || _interProcedural) {
+				final DivergenceDA _forwardDivergenceDA = DivergenceDA.getDivergenceDA(IDependencyAnalysis.FORWARD_DIRECTION);
+				final DivergenceDA _backwardDivergenceDA =
+					DivergenceDA.getDivergenceDA(IDependencyAnalysis.BACKWARD_DIRECTION);
+				_das.add(_forwardDivergenceDA);
+				_das.add(_backwardDivergenceDA);
+				_forwardDivergenceDA.setConsiderCallSites(_interProcedural);
+				_backwardDivergenceDA.setConsiderCallSites(_interProcedural);
+			}
+
+			id2dependencyAnalyses.put(IDependencyAnalysis.DIVERGENCE_DA, _das);
+		} else {
+			_result = false;
+		}
+		return _result;
 	}
 
 	/**
@@ -951,24 +1105,6 @@ public final class SlicerConfiguration
 			_result = false;
 		}
 		return _result;
-	}
-
-	/**
-	 * Processes the property that indicates if the divergence dependence should be interprocedural.
-	 */
-	private void processInterProceduralDivergenceDAProperty() {
-		final Boolean _bool = (Boolean) properties.get(USE_DIVERGENCEDA);
-
-		if (_bool != null && _bool.booleanValue()) {
-			final Collection _c = (Collection) id2dependencyAnalyses.get(IDependencyAnalysis.DIVERGENCE_DA);
-			final boolean _temp = _bool.booleanValue();
-
-			for (final Iterator _iter = _c.iterator(); _iter.hasNext();) {
-				final DivergenceDA _dda = (DivergenceDA) _iter.next();
-
-				_dda.setConsiderCallSites(_temp);
-			}
-		}
 	}
 
 	/**
@@ -1146,17 +1282,26 @@ public final class SlicerConfiguration
 
 		if (val.booleanValue()) {
 			dependencesToUse.add(_id);
+			processDDANatureProperty(getNatureOfDivergenceDepAnalysis());
+		} else {
+			dependencesToUse.remove(_id);
+			id2dependencyAnalyses.remove(_id);
+		}
+	}
 
-			if (getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
-				id2dependencyAnalyses.put(_id, Collections.singleton(DivergenceDA.getForwardDivergenceDA()));
-			} else if (getSliceType().equals(SlicingEngine.BACKWARD_SLICE)) {
-				id2dependencyAnalyses.put(_id, Collections.singleton(DivergenceDA.getBackwardDivergenceDA()));
-			} else if (getSliceType().equals(SlicingEngine.COMPLETE_SLICE)) {
-				final Collection _temp = new HashSet();
-				_temp.add(DivergenceDA.getForwardDivergenceDA());
-				_temp.add(DivergenceDA.getBackwardDivergenceDA());
-				id2dependencyAnalyses.put(_id, _temp);
-			}
+	/**
+	 * Process property that indicates if synchronization dependence analysis should be used.
+	 *
+	 * @param val is the boolean that indicates the inclusion/exclusion of the analysis.
+	 *
+	 * @pre val != null
+	 */
+	private void processUseSynchronizationProperty(final Boolean val) {
+		final Object _id = IDependencyAnalysis.SYNCHRONIZATION_DA;
+
+		if (val.booleanValue()) {
+			dependencesToUse.add(_id);
+			id2dependencyAnalyses.put(_id, Collections.singleton(new SynchronizationDA()));
 		} else {
 			dependencesToUse.remove(_id);
 			id2dependencyAnalyses.remove(_id);

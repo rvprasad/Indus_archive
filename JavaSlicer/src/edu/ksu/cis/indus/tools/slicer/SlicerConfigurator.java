@@ -94,12 +94,12 @@ public final class SlicerConfigurator
 		_sliceInfoTab.setControl(_sliceInfoTabComposite);
 		_sliceInfoTab.setText("Slice");
 
-		final TabItem _interferenceDATab = new TabItem(_tabFolder, SWT.NONE);
-		final Composite _interferenceDATabComposite = new Composite(_tabFolder, SWT.NONE);
-		setupInteferenceDepUI(_interferenceDATabComposite);
-		_interferenceDATabComposite.pack();
-		_interferenceDATab.setControl(_interferenceDATabComposite);
-		_interferenceDATab.setText("Intereference");
+		final TabItem _dependenceDATab = new TabItem(_tabFolder, SWT.NONE);
+		final Composite _dependenceDAComposite = new Composite(_tabFolder, SWT.NONE);
+		setupDependenceDepUI(_dependenceDAComposite);
+		_dependenceDAComposite.pack();
+		_dependenceDATab.setControl(_dependenceDAComposite);
+		_dependenceDATab.setText("General Dependence");
 
 		final TabItem _divergenceDATab = new TabItem(_tabFolder, SWT.NONE);
 		final Composite _divergenceDAComposite = new Composite(_tabFolder, SWT.NONE);
@@ -107,6 +107,13 @@ public final class SlicerConfigurator
 		_divergenceDAComposite.pack();
 		_divergenceDATab.setControl(_divergenceDAComposite);
 		_divergenceDATab.setText("Divergence");
+
+		final TabItem _interferenceDATab = new TabItem(_tabFolder, SWT.NONE);
+		final Composite _interferenceDATabComposite = new Composite(_tabFolder, SWT.NONE);
+		setupInteferenceDepUI(_interferenceDATabComposite);
+		_interferenceDATabComposite.pack();
+		_interferenceDATab.setControl(_interferenceDATabComposite);
+		_interferenceDATab.setText("Intereference");
 
 		final TabItem _readyDATab = new TabItem(_tabFolder, SWT.NONE);
 		final Composite _readyDATabComposite = new Composite(_tabFolder, SWT.NONE);
@@ -120,9 +127,40 @@ public final class SlicerConfigurator
 	}
 
 	/**
+	 * Sets up tab corresponding to general dependencein the configurator composite.
+	 *
+	 * @param composite to layout the general dependence configuration widgets.
+	 *
+	 * @pre composite != null
+	 */
+	private void setupDependenceDepUI(final Composite composite) {
+		final RowLayout _rowLayout = new RowLayout(SWT.VERTICAL);
+		composite.setLayout(_rowLayout);
+
+		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
+        
+		final Button _useNonTerminationSensitiveCDAButton = new Button(composite, SWT.CHECK);
+		_useNonTerminationSensitiveCDAButton.setText("use non-termination sensitive control dependence");
+		_useNonTerminationSensitiveCDAButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_DIVERGENCEDA))
+			  .booleanValue());
+		_useNonTerminationSensitiveCDAButton.addSelectionListener(new BooleanPropertySelectionListener(
+				SlicerConfiguration.USE_DIVERGENCEDA,
+				_useNonTerminationSensitiveCDAButton,
+				_cfg));
+
+		final Button _useSyncDepButton = new Button(composite, SWT.CHECK);
+		_useSyncDepButton.setText("use synchronization dependence");
+		_useSyncDepButton.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_SYNCHRONIZATIONDA)).booleanValue());
+		_useSyncDepButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_SYNCHRONIZATIONDA,
+				_useSyncDepButton, _cfg));
+	}
+
+	/**
 	 * Sets up row corresponding to Divergence DA in the configurator composite.
 	 *
-	 * @param composite
+	 * @param composite to layout the divergence dependence configuration widgets.
+	 *
+	 * @pre composite != null
 	 */
 	private void setupDivergenceDepUI(final Composite composite) {
 		final RowLayout _rowLayout = new RowLayout(SWT.VERTICAL);
@@ -136,43 +174,90 @@ public final class SlicerConfigurator
 		_useDDAButton.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_DIVERGENCEDA,
 				_useDDAButton, _cfg));
 
-		final Button _interProceduralDivergenceDAButton = new Button(composite, SWT.CHECK);
-		_interProceduralDivergenceDAButton.setText("use interprocedural variant");
+		//Sets up the composite and buttons pertaining to precision control.        
+		final Group _natureOfDDAGroup = new Group(composite, SWT.SHADOW_ETCHED_IN);
+		final RowLayout _rowLayout3 = new RowLayout(SWT.VERTICAL);
+		_natureOfDDAGroup.setLayout(_rowLayout3);
+		_natureOfDDAGroup.setText("Nature of Divergence dependence");
 
-		if (_useDDAButton.getSelection()) {
-			final Boolean _interProceduralDDA = (Boolean) _cfg.getProperty(SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA);
+		final Button _intraProceduralDDA = new Button(_natureOfDDAGroup, SWT.RADIO);
+		_intraProceduralDDA.setText("intra-procedural only");
 
-			if (_interProceduralDDA != null) {
-				_interProceduralDivergenceDAButton.setSelection(_interProceduralDDA.booleanValue());
-			} else {
-				_interProceduralDivergenceDAButton.setSelection(false);
-			}
-		} else {
-			_interProceduralDivergenceDAButton.setEnabled(false);
-		}
-		_interProceduralDivergenceDAButton.addSelectionListener(new BooleanPropertySelectionListener(
-				SlicerConfiguration.INTERPROCEDURAL_DIVERGENCEDA,
-				_interProceduralDivergenceDAButton,
-				_cfg));
-		_useDDAButton.addSelectionListener(new SelectionListener() {
+		final Button _interProceduralDDA = new Button(_natureOfDDAGroup, SWT.RADIO);
+		_interProceduralDDA.setText("inter-procedural only");
+
+		final Button _intraAndInterProceduralDDA = new Button(_natureOfDDAGroup, SWT.RADIO);
+		_intraAndInterProceduralDDA.setText("intra- and inter-procedural");
+
+		final SelectionListener _sl2 =
+			new SelectionListener() {
 				public void widgetSelected(final SelectionEvent evt) {
-					if (_useDDAButton.getSelection()) {
-						_interProceduralDivergenceDAButton.setEnabled(true);
-					} else {
-						_interProceduralDivergenceDAButton.setEnabled(false);
+					Object _value = null;
+
+					if (evt.widget == _intraProceduralDDA) {
+						_value = SlicerConfiguration.INTRA_PROCEDURAL;
+					} else if (evt.widget == _interProceduralDDA) {
+						_value = SlicerConfiguration.INTER_PROCEDURAL;
+					} else if (evt.widget == _intraAndInterProceduralDDA) {
+						_value = SlicerConfiguration.INTRA_AND_INTER_PROCEDURAL;
+					}
+
+					if (_value != null) {
+						_cfg.setProperty(SlicerConfiguration.NATURE_OF_DIVERGENCE_DA, _value);
 					}
 				}
 
 				public void widgetDefaultSelected(final SelectionEvent evt) {
 					widgetSelected(evt);
 				}
+			};
+		_intraAndInterProceduralDDA.addSelectionListener(_sl2);
+		_interProceduralDDA.addSelectionListener(_sl2);
+		_intraProceduralDDA.addSelectionListener(_sl2);
+
+		final Object _temp = _cfg.getProperty(SlicerConfiguration.NATURE_OF_DIVERGENCE_DA);
+
+		if (_temp == null || _temp.equals(SlicerConfiguration.INTER_PROCEDURAL)) {
+			_interProceduralDDA.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.INTRA_AND_INTER_PROCEDURAL)) {
+			_intraAndInterProceduralDDA.setSelection(true);
+		} else if (_temp.equals(SlicerConfiguration.INTRA_PROCEDURAL)) {
+			_intraProceduralDDA.setSelection(true);
+		}
+
+		//Links up the buttons via selection listener to control toggling based on the user's decision 
+		// to use interference DA.
+		_useDDAButton.addSelectionListener(new SelectionListener() {
+				public void widgetSelected(final SelectionEvent evt) {
+					boolean _val = false;
+
+					if (_useDDAButton.getSelection()) {
+						_val = true;
+					}
+					_natureOfDDAGroup.setEnabled(_val);
+					_interProceduralDDA.setEnabled(_val);
+					_intraProceduralDDA.setEnabled(_val);
+					_intraAndInterProceduralDDA.setEnabled(_val);
+				}
+
+				public void widgetDefaultSelected(final SelectionEvent evt) {
+					widgetSelected(evt);
+				}
 			});
+
+		final boolean _selection = _useDDAButton.getSelection();
+		_natureOfDDAGroup.setEnabled(_selection);
+		_interProceduralDDA.setEnabled(_selection);
+		_intraProceduralDDA.setEnabled(_selection);
+		_intraAndInterProceduralDDA.setEnabled(_selection);
 	}
 
 	/**
 	 * Sets up row corresponding Interference DA in the configurator composite.
 	 *
-	 * @param composite
+	 * @param composite to layout the interference dependence configuration widgets.
+	 *
+	 * @pre composite != null
 	 */
 	private void setupInteferenceDepUI(final Composite composite) {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
@@ -292,28 +377,27 @@ public final class SlicerConfigurator
 				}
 			});
 
-		if (_useIDAButton.getSelection()) {
+		final boolean _selection = _useIDAButton.getSelection();
+		_useOFAForInterference.setEnabled(_selection);
+
+		_natureOfIDAGroup.setEnabled(_selection);
+		_typedIDA.setEnabled(_selection);
+		_equivalenceClassBasedEscapeAnalysisBasedIDA.setEnabled(_selection);
+		_symbolBasedEscapeAnalysisBasedIDA.setEnabled(_selection);
+		_precisionGroup.setEnabled(_selection);
+
+		if (_selection) {
 			final Boolean _b = (Boolean) _cfg.getProperty(SlicerConfiguration.USE_OFA_FOR_READY_DA);
 			_useOFAForInterference.setSelection(_b.booleanValue());
-			_natureOfIDAGroup.setEnabled(true);
-			_typedIDA.setEnabled(true);
-			_equivalenceClassBasedEscapeAnalysisBasedIDA.setEnabled(true);
-			_symbolBasedEscapeAnalysisBasedIDA.setEnabled(true);
-			_precisionGroup.setEnabled(true);
-		} else {
-			_useOFAForInterference.setEnabled(false);
-			_natureOfIDAGroup.setEnabled(false);
-			_typedIDA.setEnabled(false);
-			_equivalenceClassBasedEscapeAnalysisBasedIDA.setEnabled(false);
-			_symbolBasedEscapeAnalysisBasedIDA.setEnabled(false);
-			_precisionGroup.setEnabled(false);
 		}
 	}
 
 	/**
 	 * Sets up row corresponding to Ready DA in the configurator composite.
 	 *
-	 * @param composite
+	 * @param composite to layout the ready dependence configuration widgets.
+	 *
+	 * @pre composite != null
 	 */
 	private void setupReadyDepUI(final Composite composite) {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
@@ -498,7 +582,9 @@ public final class SlicerConfigurator
 	/**
 	 * Sets up row to configure deadlock preserving slicing  and slice type.
 	 *
-	 * @param composite
+	 * @param composite to layout the slice configuration widgets.
+	 *
+	 * @pre composite != null
 	 */
 	private void setupSliceInfoUI(final Composite composite) {
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
