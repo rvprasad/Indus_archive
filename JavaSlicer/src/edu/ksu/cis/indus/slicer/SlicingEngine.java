@@ -46,6 +46,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.ArrayType;
+import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -526,6 +528,11 @@ public final class SlicingEngine {
 			exitTransformedMethods.add(callee);
 			_result = true;
 		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Consider Method exit for method " + callee + " is " + _result);
+		}
+
 		return _result;
 	}
 
@@ -618,20 +625,29 @@ public final class SlicingEngine {
 	 */
 	private void generateNewCriteriaBasedOnMethodExit(final Stmt invocationStmt, final SootMethod caller,
 		final boolean considerReturnValue, final SootMethod callee, final BasicBlockGraph calleeBasicBlockGraph) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Generating criteria for method called at " + invocationStmt + " in " + caller);
+		}
+
 		final InvokeExpr _invokeExpr = invocationStmt.getInvokeExpr();
 
 		// check if criteria to consider the exit points of the method should be generated.
 		if (considerMethodExitForCriteriaGeneration(callee)) {
 			markAsInvoked(callee);
-			processSuperInitInInit(callee, calleeBasicBlockGraph);
 
-			for (final Iterator _j = calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
-				final BasicBlock _bb = (BasicBlock) _j.next();
-				final Stmt _trailer = _bb.getTrailerStmt();
+			if (callee.isConcrete()) {
+				processSuperInitInInit(callee, calleeBasicBlockGraph);
 
-				// TODO: we are considering both throws and returns as return points. This should change when we consider 
-				// ip control-flow based on exceptions.
-				generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
+				for (final Iterator _j = calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
+					final BasicBlock _bb = (BasicBlock) _j.next();
+					final Stmt _trailer = _bb.getTrailerStmt();
+
+					// TODO: we are considering both throws and returns as return points. This should change when we consider 
+					// ip control-flow based on exceptions.
+					generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
+				}
+			} else {
+				includeMethodAndClassHierarchyInSlice(callee);
 			}
 		} else {
 			/*
@@ -852,6 +868,8 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding expr [" + considerExecution + "] " + valueBox.getValue() + " at " + stmt + " in "
 					+ method.getSignature() + " to workbag.");
 			}
+		} else if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Already collected expr " + stmt + " in " + method.getSignature());
 		}
 	}
 
@@ -879,6 +897,8 @@ public final class SlicingEngine {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " to workbag.");
 			}
+		} else if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Already collected stmt " + stmt + " in " + method.getSignature());
 		}
 	}
 
@@ -893,54 +913,43 @@ public final class SlicingEngine {
 	 * @pre clazz != null
 	 */
 	private Collection includeClassHierarchyInSlice(final SootClass clazz) {
-		SootClass _temp = clazz;
-		collector.includeInSlice(_temp);
-
 		final Collection _result = new HashSet();
-
-		final Collection _collection = new HashSet();
-
-		while (_temp.hasSuperclass()) {
-			_temp = _temp.getSuperclass();
-			collector.includeInSlice(_temp);
-			_result.add(_temp);
-
-			if (_temp.declaresMethodByName("<clinit>") && !collector.hasBeenCollected(_temp.getMethodByName("<clinit>"))) {
-				_collection.add(_temp.getMethodByName("<clinit>"));
-			}
-		}
-
-		for (final Iterator _i = _collection.iterator(); _i.hasNext();) {
-			final SootMethod _clinit = (SootMethod) _i.next();
-
-			if (considerMethodExitForCriteriaGeneration(_clinit)) {
-				markAsInvoked(_clinit);
-
-				for (final Iterator _j = getSlicedBasicBlockGraphMgr().getBasicBlockGraph(_clinit).getTails().iterator();
-					  _j.hasNext();) {
-					final BasicBlock _bb = (BasicBlock) _j.next();
-					final Stmt _trailer = _bb.getTrailerStmt();
-
-					// TODO: we are considering both throws and returns as return points. This should change when we consider 
-					// ip control-flow based on exceptions.
-					generateSliceStmtCriterion(_trailer, _clinit, true);
-				}
-			}
-		}
-
 		final IWorkBag _wb = new FIFOWorkBag();
-		_wb.addAllWork(clazz.getInterfaces());
-		_collection.clear();
+		_wb.addWork(clazz);
 
 		while (_wb.hasWork()) {
 			final SootClass _sc = (SootClass) _wb.getWork();
 
-			if (_collection.contains(_sc)) {
+			if (_result.contains(_sc)) {
 				continue;
 			}
-			_collection.add(_sc);
+			_result.add(_sc);
+			collector.includeInSlice(_sc);
+
+			if (_sc.declaresMethodByName("<clinit>")) {
+				final SootMethod _clinit = _sc.getMethodByName("<clinit>");
+
+				if (considerMethodExitForCriteriaGeneration(_clinit) && !collector.hasBeenCollected(_clinit)) {
+					markAsInvoked(_clinit);
+
+					for (final Iterator _j = getSlicedBasicBlockGraphMgr().getBasicBlockGraph(_clinit).getTails().iterator();
+						  _j.hasNext();) {
+						final BasicBlock _bb = (BasicBlock) _j.next();
+						final Stmt _trailer = _bb.getTrailerStmt();
+
+						// TODO: we are considering both throws and returns as return points. This should change when we consider 
+						// ip control-flow based on exceptions.
+						generateSliceStmtCriterion(_trailer, _clinit, true);
+					}
+				}
+			}
+
+			if (_sc.hasSuperclass()) {
+				_wb.addWorkNoDuplicates(_sc.getSuperclass());
+			}
 			_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
 		}
+		_result.remove(clazz);
 		return _result;
 	}
 
@@ -954,6 +963,10 @@ public final class SlicingEngine {
 	 */
 	private void includeMethodAndClassHierarchyInSlice(final SootMethod method) {
 		collector.includeInSlice(method);
+
+		final Collection _types = new HashSet(method.getParameterTypes());
+		_types.add(method.getReturnType());
+		includeTypesInSlice(_types);
 
 		final SootClass _sc = method.getDeclaringClass();
 		final Collection _superClasses = includeClassHierarchyInSlice(_sc);
@@ -969,6 +982,25 @@ public final class SlicingEngine {
 				if (_superClass.declaresMethod(_name, _paramTypes, _retType)) {
 					collector.includeInSlice(_superClass.getMethod(_name, _paramTypes, _retType));
 				}
+			}
+		}
+	}
+
+	/**
+	 * Includes the class associated with the given types.
+	 *
+	 * @param types to be included in the slice.
+	 *
+	 * @pre types != null and types.oclIsKindOf(Collection(Type))
+	 */
+	private void includeTypesInSlice(final Collection types) {
+		for (final Iterator _i = types.iterator(); _i.hasNext();) {
+			final Type _type = (Type) _i.next();
+
+			if (_type instanceof RefType) {
+				includeClassHierarchyInSlice(((RefType) _type).getSootClass());
+			} else if (_type instanceof ArrayType && ((ArrayType) _type).baseType instanceof RefType) {
+				includeClassHierarchyInSlice(((RefType) ((ArrayType) _type).baseType).getSootClass());
 			}
 		}
 	}
@@ -1103,6 +1135,7 @@ public final class SlicingEngine {
 			LOGGER.debug("BEGIN: Transforming value boxes" + vBoxes);
 		}
 
+		final Collection _types = new HashSet();
 		final Collection _das = new ArrayList();
 		_das.addAll(controller.getAnalyses(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA));
 
@@ -1127,8 +1160,10 @@ public final class SlicingEngine {
 						includeClassHierarchyInSlice(_field.getDeclaringClass());
 					}
 				}
+				_types.add(_value.getType());
 			}
 		}
+		includeTypesInSlice(_types);
 
 		// create new slice criteria
 		generateNewCriteria(stmt, method, _das);
@@ -1233,6 +1268,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2003/12/16 00:48:14  venku
+   - optimization.
    Revision 1.42  2003/12/16 00:46:23  venku
    - included super classes/interfaces and methods in them
      when a method with the same signature in the subclass
