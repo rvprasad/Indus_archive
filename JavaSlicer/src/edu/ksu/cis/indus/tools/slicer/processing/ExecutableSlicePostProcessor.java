@@ -318,8 +318,8 @@ public final class ExecutableSlicePostProcessor
 				final BasicBlock _bb = (BasicBlock) _j.next();
 				final Stmt _stmt = _bb.getTrailerStmt();
 				final Collection _dependees = cd.getDependees(_stmt, method);
-				boolean _flag = _dependees.isEmpty() || !Util.getHostsWithTag(_dependees, _tagName).isEmpty();
-				
+				final boolean _flag = _dependees.isEmpty() || !Util.getHostsWithTag(_dependees, _tagName).isEmpty();
+
 				if (!_stmt.hasTag(_tagName) && _flag) {
 					collector.includeInSlice(_stmt);
 
@@ -464,28 +464,25 @@ public final class ExecutableSlicePostProcessor
 		while (stmtWorkBag.hasWork()) {
 			final Stmt _stmt = (Stmt) stmtWorkBag.getWork();
 
-			//processedStmtCache.add(_stmt);
-			if (collector.hasBeenCollected(_stmt)) {
-				if (_stmt instanceof IdentityStmt) {
-					processIdentityStmt(method, (IdentityStmt) _stmt);
-				} else if (_stmt.containsInvokeExpr()
-					  && collector.hasBeenCollected(_stmt)
-					  && !(_stmt.getInvokeExpr() instanceof StaticInvokeExpr)) {
-					/*
-					 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
-					 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
-					 * This can be fixed by sucking all the method definitions that need to make the system verifiable
-					 * and empty bodies will be substituted for such methods.
-					 */
-					processMethods(_stmt.getInvokeExpr().getMethod());
+			if (_stmt instanceof IdentityStmt) {
+				processIdentityStmt(method, (IdentityStmt) _stmt);
+			} else if (collector.hasBeenCollected(_stmt)
+				  && _stmt.containsInvokeExpr()
+				  && !(_stmt.getInvokeExpr() instanceof StaticInvokeExpr)) {
+				/*
+				 * If an invoke expression occurs in the slice, the slice will include only the invoked method and not any
+				 * incarnations of it in it's ancestral classes.  This will lead to unverifiable system of classes.
+				 * This can be fixed by sucking all the method definitions that need to make the system verifiable
+				 * and empty bodies will be substituted for such methods.
+				 */
+				processMethods(_stmt.getInvokeExpr().getMethod());
 
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
-					}
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Included method invoked at " + _stmt + " in " + method);
 				}
-				processHandlers(method, _stmt);
-				stmtCollected = true;
 			}
+			processHandlers(method, _stmt);
+			stmtCollected = true;
 		}
 	}
 }
@@ -493,10 +490,12 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/06/14 04:31:17  venku
+   - added method to check tags on a collection of hosts in Util.
+   - ripple effect.
    Revision 1.23  2004/05/31 21:38:11  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
-
    Revision 1.22  2004/05/04 01:01:40  venku
    - NPE. FIXED.
    Revision 1.21  2004/04/24 07:49:23  venku
