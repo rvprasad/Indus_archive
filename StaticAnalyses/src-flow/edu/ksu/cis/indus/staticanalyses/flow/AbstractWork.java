@@ -35,7 +35,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Collection;
 
 
@@ -53,7 +53,7 @@ public abstract class AbstractWork {
 	/**
 	 * The collection of values to be processed.
 	 */
-	protected final Collection values = new ArrayList();
+	protected final Collection values = new HashSet();
 
 	/**
 	 * The flow graph node associated with this work.
@@ -114,6 +114,9 @@ public abstract class AbstractWork {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/18 11:08:00  venku
+   Name change for pooling support.
+
    
    Revision 1.3  2003/08/17 11:19:13  venku
    Placed the simple SendValuesWork class into a separate file.
