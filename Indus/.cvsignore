@@ -9,3 +9,4 @@ indus-src.jar
 temp
 .clover
 dist
+localbuild.properties

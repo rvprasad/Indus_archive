@@ -8,7 +8,7 @@
 
 <target name="init">
     <tstamp/>
-    <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${drishti.jar}"/>
+    <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${doxygen.jar}"/>
 </target>
 
 <target name="localbuild" depends="init">
@@ -149,6 +149,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.30  2004/05/11 03:45:31  venku
+*** empty log message ***
+
 Revision 1.29  2004/04/19 05:09:05  venku
 .xml files should also be copied into build directory. ;-)
 

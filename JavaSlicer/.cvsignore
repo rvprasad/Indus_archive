@@ -17,3 +17,4 @@ slicer-src.jar
 .clover
 temp
 *.tgz
+localbuild.properties

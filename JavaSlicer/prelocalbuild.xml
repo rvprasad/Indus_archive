@@ -1,5 +1,6 @@
 <project>
     <property file="antbuild.properties"/>
+    <property file="localbuild.properties"/>
     <property name="package" value="edu.ksu.cis.indus"/>
     <property name="ant.project.name" value="indus.javaslicer"/>
 
@@ -18,29 +19,29 @@
     </path>
     
     <path id="indus.javaslicer.classpath">
-        <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
-        <pathelement location="/usr/local/javaclasses/junit.jar"/>
-        <pathelement location="/usr/local/javaclasses/jibx-run.jar"/>
-        <pathelement location="/usr/local/javaclasses/xpp3.jar"/>  
-        <pathelement location="/usr/local/javaclasses/commons-cli.jar"/>
-        <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
-        <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
-        <pathelement location="/usr/local/javaclasses/commons-lang.jar"/>
-        <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
+        <pathelement location="${jars.dir}/sootclasses.jar"/>
+        <pathelement location="${jars.dir}/junit.jar"/>
+        <pathelement location="${jars.dir}/jibx-run.jar"/>
+        <pathelement location="${jars.dir}/xpp3.jar"/>  
+        <pathelement location="${jars.dir}/commons-cli.jar"/>
+        <pathelement location="${jars.dir}/commons-logging-api.jar"/>
+        <pathelement location="${jars.dir}/commons-pool.jar"/>
+        <pathelement location="${jars.dir}/commons-lang.jar"/>
+        <pathelement location="${jars.dir}/commons-collections.jar"/>
         <pathelement location="/home/venku/projects/Misc/banderaNG/lib/banderaCommons/banderaCommons.jar"/>        
         <pathelement location="/home/venku/projects/Misc/banderaNG/lib/banderaToolFramework/banderaToolFramework.jar"/>
-        <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>
-        <pathelement location="/usr/local/javaclasses/xmlunit.jar"/>
-        <pathelement location="/usr/local/javaclasses/xmlenc.jar"/>
+        <pathelement location="${jars.dir}/swt/swt.jar"/>
+        <pathelement location="${jars.dir}/xmlunit.jar"/>
+        <pathelement location="${jars.dir}/xmlenc.jar"/>
     	<pathelement location="../Indus/${build.dir}/"/>
 	    <pathelement location="../StaticAnalyses/${build.dir}/"/>        
     </path>    
     
     <path id="bind.classpath">
-      <pathelement location="/usr/local/javaclasses/bcel.jar"/>
-      <pathelement location="/usr/local/javaclasses/jibx-bind.jar"/>
-      <pathelement location="/usr/local/javaclasses/jibx-run.jar"/>
-      <pathelement location="/usr/local/javaclasses/xpp3.jar"/>  
+      <pathelement location="${jars.dir}/bcel.jar"/>
+      <pathelement location="${jars.dir}/jibx-bind.jar"/>
+      <pathelement location="${jars.dir}/jibx-run.jar"/>
+      <pathelement location="${jars.dir}/xpp3.jar"/>  
     </path>
    
     <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask">

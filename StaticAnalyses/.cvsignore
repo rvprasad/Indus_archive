@@ -14,4 +14,4 @@ temp
 analyses.jar
 staticanalyses.jar
 staticanalyses-src.jar
-.clover
+localbuild.properties
