@@ -589,7 +589,7 @@ public class ValueXMLizer
 	 */
 	void apply(final ValueBox vBox) {
 		Object temp = newId;
-		newId = idGenerator.getIdForValue(vBox, currStmt, currMethod);
+		newId = idGenerator.getIdForValueBox(vBox, currStmt, currMethod);
 		incrementTabs();
 		vBox.getValue().apply(this);
 		decrementTabs();
@@ -740,6 +740,9 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/28 09:41:49  venku
+   - tags and attribute names were changed.
+
    Revision 1.7  2003/11/26 18:26:08  venku
    - capture a whole lot more information for classes and methods.
    - removed unnecessary info from the attributes.

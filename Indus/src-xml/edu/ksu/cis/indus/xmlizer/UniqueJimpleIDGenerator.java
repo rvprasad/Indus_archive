@@ -175,7 +175,7 @@ public class UniqueJimpleIDGenerator
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public String getIdForValue(ValueBox box, Stmt stmt, SootMethod method) {
+	public String getIdForValueBox(ValueBox box, Stmt stmt, SootMethod method) {
 		List vBoxes = stmt.getUseAndDefBoxes();
 		return getIdForStmt(stmt, method) + "_v" + vBoxes.indexOf(box);
 	}
@@ -195,6 +195,9 @@ public class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/28 09:40:55  venku
+   - id generation for types changed.
+
    Revision 1.3  2003/11/26 18:25:32  venku
    - modified the id returned for types.
 
