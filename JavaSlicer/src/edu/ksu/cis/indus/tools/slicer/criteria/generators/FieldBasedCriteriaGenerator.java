@@ -34,14 +34,14 @@ public final class FieldBasedCriteriaGenerator
 	/**
 	 * @see AbstractStmtBasedSliceCriteriaGenerator#getEntityForCriteriaFiltering(soot.jimple.Stmt, soot.SootMethod)
 	 */
-	protected final Object getEntityForCriteriaFiltering(final Stmt stmt, final SootMethod sm) {
+	protected Object getEntityForCriteriaFiltering(final Stmt stmt, final SootMethod sm) {
 		return stmt.getFieldRef().getField();
 	}
 
 	/**
 	 * @see AbstractStmtBasedSliceCriteriaGenerator#shouldConsiderStmt(soot.jimple.Stmt)
 	 */
-	protected final boolean shouldConsiderStmt(final Stmt stmt) {
+	protected boolean shouldConsiderStmt(final Stmt stmt) {
 		return stmt.containsFieldRef();
 	}
 }

@@ -168,24 +168,24 @@ public class StaticFieldUseDefInfo
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final SootField _field = (SootField) _i.next();
-			final Map defsite2uses = CollectionsUtilities.getMapFromMap(def2usesMap, _field);
-			final Map usesite2defs = CollectionsUtilities.getMapFromMap(use2defsMap, _field);
-			final Set _usesiteKeySet = usesite2defs.keySet();
-			final Set _defsiteKeySet = defsite2uses.keySet();
+			final Map _defsite2uses = CollectionsUtilities.getMapFromMap(def2usesMap, _field);
+			final Map _usesite2defs = CollectionsUtilities.getMapFromMap(use2defsMap, _field);
+			final Set _usesiteKeySet = _usesite2defs.keySet();
+			final Set _defsiteKeySet = _defsite2uses.keySet();
 
 			if (!_defsiteKeySet.isEmpty() && !_usesiteKeySet.isEmpty()) {
 				final Iterator _j = _usesiteKeySet.iterator();
 				final int _jEnd = _usesiteKeySet.size();
 
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					usesite2defs.put(_j.next(), _defsiteKeySet);
+					_usesite2defs.put(_j.next(), _defsiteKeySet);
 				}
 
 				final Iterator _k = _defsiteKeySet.iterator();
 				final int _kEnd = _defsiteKeySet.size();
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					defsite2uses.put(_k.next(), _usesiteKeySet);
+					_defsite2uses.put(_k.next(), _usesiteKeySet);
 				}
 			}
 		}
@@ -237,11 +237,11 @@ public class StaticFieldUseDefInfo
 				int _localEdgeCount = 0;
 
 				if (_defs != null) {
-					for (final Iterator _j = (_defs).iterator(); _j.hasNext();) {
+					for (final Iterator _j = _defs.iterator(); _j.hasNext();) {
 						final Object _def = _j.next();
 						_temp.append("\t\t" + _use + " <== " + _def + "\n");
 					}
-					_localEdgeCount += (_defs).size();
+					_localEdgeCount += _defs.size();
 				}
 
 				final Object _key = _entry1.getKey();

@@ -493,7 +493,7 @@ public class SafeLockAnalysis
 	 */
 	private boolean safeByCondition1(final Triple monitor, final IMonitorGraph monitorGraph) {
 		final Collection _waitMethods = new HashSet();
-		final Collection _waits = ((Collection) MapUtils.getObject(monitor2waits, monitor, Collections.EMPTY_SET));
+		final Collection _waits = (Collection) MapUtils.getObject(monitor2waits, monitor, Collections.EMPTY_SET);
 
 		for (final Iterator _i = _waits.iterator(); _i.hasNext();) {
 			final Pair _pair = (Pair) _i.next();
@@ -572,7 +572,7 @@ public class SafeLockAnalysis
 			_context.setStmt(_waitStmt);
 			_context.setProgramPoint(_invokeExpr.getBaseBox());
 
-			final Collection _c2 = iva.getValues((_invokeExpr).getBase(), _context);
+			final Collection _c2 = iva.getValues(_invokeExpr.getBase(), _context);
 
 			_safe = _c1.size() == 1 && _c1.equals(_c2);
 		}

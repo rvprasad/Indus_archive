@@ -784,7 +784,7 @@ final class AliasSet
 	 * @pre represented != null
 	 */
 	private void unifyThreadEscapeInfo(final AliasSet represented) {
-		shared |= (accessed && represented.accessed);
+		shared |= accessed && represented.accessed;
 
 		if ((waits && represented.notifies) || (notifies && represented.waits)) {
 			if (readyEntities == null) {

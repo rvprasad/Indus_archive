@@ -15,8 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.tokens;
 
-import org.omg.PortableInterceptor.SUCCESSFUL;
-
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 
 import soot.jimple.StringConstant;
