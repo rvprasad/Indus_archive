@@ -40,7 +40,9 @@ import soot.SootMethod;
 
 
 /**
- * This class provides direct intraprocedural backward control dependence information.
+ * This class provides direct intraprocedural backward control dependence information.  For more information about the 
+ * dependence calculated in this implementation, please refer to 
+ * <a href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -53,8 +55,6 @@ import soot.SootMethod;
  */
 public final class EntryControlDA
   extends AbstractControlDA {
-	// TODO: Link to documentation describing entry-based intraprocedural control dependence needs to be added.
-
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -222,10 +222,12 @@ public final class EntryControlDA
 	 */
 	private void accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
 		final int _nodeIndex = nodesCache.indexOf(node);
+        final Iterator _ctrlPoints = nodesWithChildrenCache.iterator();
 
-		for (int _ctrlPointNodeIndex = nodesCache.size() - 1; _ctrlPointNodeIndex >= 0; _ctrlPointNodeIndex--) {
+		for (int _iIndex = nodesWithChildrenCache.size() - 1; _iIndex >= 0; _iIndex--) {
+            final INode _ctrlPointNode = (INode) _ctrlPoints.next();
+            final int _ctrlPointNodeIndex = nodesCache.indexOf(_ctrlPointNode);
 			final BitSet _nodesCtrlPointBitSet = tokenSets[_nodeIndex][_ctrlPointNodeIndex];
-			final INode _ctrlPointNode = (INode) nodesCache.get(_ctrlPointNodeIndex);
 
 			if (_nodesCtrlPointBitSet != null
 				  && _nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size()
@@ -320,7 +322,6 @@ public final class EntryControlDA
 	private void copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
 		final BitSet[] _srcBitSets = tokenSets[src];
 		final BitSet[] _destBitSets = tokenSets[dest];
-		final BitSet _temp = new BitSet();
 		final Iterator _i = nodesWithChildrenCache.iterator();
 		final int _iEnd = nodesWithChildrenCache.size();
 
@@ -331,13 +332,7 @@ public final class EntryControlDA
 
 			if (_srcsAncestorBitSet != null) {
 				final BitSet _destAndAncestorBitSet = getBitSetAtLocation(_destBitSets, _ancestorIndex);
-				_temp.clear();
-				_temp.or(_srcsAncestorBitSet);
-				_temp.andNot(_destAndAncestorBitSet);
-
-				if (_temp.cardinality() > 0) {
-					_destAndAncestorBitSet.or(_srcsAncestorBitSet);
-				}
+				_destAndAncestorBitSet.or(_srcsAncestorBitSet);
 			}
 		}
 	}
@@ -477,10 +472,9 @@ public final class EntryControlDA
 			 */
 			_result = new HashSet();
 
-			final int _iEnd = nodesCache.size();
 			final int _nodeIndex = nodesCache.indexOf(node);
 			final int _succsSize = node.getSuccsOf().size();
-
+			final int _iEnd = nodesCache.size();
 			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 				final BitSet _bitSet = tokenSets[_iIndex][_nodeIndex];
 
@@ -523,7 +517,7 @@ public final class EntryControlDA
 				final int _ancIndex = nodesCache.indexOf(_ancestor);
 				final BitSet _nodeAncestorTokenSet = tokenSets[_nodeIndex][_ancIndex];
 
-				if (_nodeAncestorTokenSet != null && _nodeIndex != _ancIndex) {
+				if (_nodeAncestorTokenSet != null) {
 					_result.addAll(propagateTokensIntoNodes(_nodeAncestorTokenSet, _succsOf, _ancIndex, tokenSets));
 				}
 			}
