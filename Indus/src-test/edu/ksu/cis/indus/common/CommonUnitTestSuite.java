@@ -16,6 +16,11 @@
 package edu.ksu.cis.indus.common;
 
 import edu.ksu.cis.indus.TestHelper;
+import edu.ksu.cis.indus.common.collections.CollectionsUtilitiesTest;
+import edu.ksu.cis.indus.common.collections.FilteredCollectionTestCase;
+import edu.ksu.cis.indus.common.collections.FilteredListIteratorTestCase;
+import edu.ksu.cis.indus.common.collections.FilteredListTestCase;
+import edu.ksu.cis.indus.common.collections.FilteredMapTest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
