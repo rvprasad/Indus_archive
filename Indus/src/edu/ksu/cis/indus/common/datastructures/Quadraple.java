@@ -72,32 +72,6 @@ public final class Quadraple
 	private int hashCode;
 
 	/**
-	 * Creates a new Quadraple object.
-	 *
-	 * @param firstParam the first object of this quadraple.
-	 * @param secondParam the second object of this quadraple.
-	 * @param thirdParam the third object of this quadraple
-	 * @param fourthParam fourth element of the requested quadraple.
-	 * @param optimized <code>true</code> indicates that the stringized representation and the hashcode of this object should
-	 * 		  be calculated and cached for the rest of it's lifetime. <code>false</code> indicates that these values shoudl
-	 * 		  be calculated on the fly upon request.
-	 *
-	 * @post optimized == false implies str == null
-	 * @post optimized == true implies str != null
-	 */
-	public Quadraple(final Object firstParam, final Object secondParam, final Object thirdParam, final Object fourthParam,
-		final boolean optimized) {
-		this.first = firstParam;
-		this.second = secondParam;
-		this.third = thirdParam;
-		this.fourth = fourthParam;
-
-		if (optimized) {
-			optimize();
-		}
-	}
-
-	/**
 	 * Creates a new optimized Quadraple object.
 	 *
 	 * @param firstParam the first object of this quadraple.
@@ -308,6 +282,10 @@ public final class Quadraple
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/28 00:17:51  venku
+   - documentation.
+   - removed QuadrapleManager.
+
    Revision 1.2  2004/01/25 15:39:20  venku
    - when the elements were null, a NPE could occur. FIXED.
    Revision 1.1  2004/01/06 00:17:10  venku
