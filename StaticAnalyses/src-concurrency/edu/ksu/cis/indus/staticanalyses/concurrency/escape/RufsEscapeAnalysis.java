@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.ArrayType;
 import soot.Local;
@@ -243,7 +243,7 @@ public class RufsEscapeAnalysis
 	private final Collection threadAllocSitesSingle;
 
 	/**
-	 * Creates a new EquivalenceClassBasedAnalysis object.
+	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
 	 * @param scm DOCUMENT ME!
 	 * @param cgi DOCUMENT ME!
@@ -1339,21 +1339,21 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.escape.IEscapeAnalysis#isMethodEscaping( soot.jimple.NewExpr)
+	 * @see edu.ksu.cis.indus.staticanalyses.concurrency.escape.IEscapeAnalysis#isMethodEscaping( soot.jimple.NewExpr)
 	 */
 	public boolean isMethodEscaping(NewExpr allocSite) {
 		return true;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.escape.IEscapeAnalysis#isSingleThreadSynchronized( soot.jimple.Stmt)
+	 * @see edu.ksu.cis.indus.staticanalyses.concurrency.escape.IEscapeAnalysis#isSingleThreadSynchronized( soot.jimple.Stmt)
 	 */
 	public boolean isSingleThreadSynchronized(Stmt stmt) {
 		return false;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.escape.IEscapeAnalysis#isThreadEscaping( soot.jimple.NewExpr)
+	 * @see edu.ksu.cis.indus.staticanalyses.concurrency.escape.IEscapeAnalysis#isThreadEscaping( soot.jimple.NewExpr)
 	 */
 	public boolean isThreadEscaping(NewExpr allocSite) {
 		return false;
@@ -1764,6 +1764,9 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 06:29:07  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.1  2003/08/07 06:39:07  venku
    Major:
     - Moved the package under indus umbrella.

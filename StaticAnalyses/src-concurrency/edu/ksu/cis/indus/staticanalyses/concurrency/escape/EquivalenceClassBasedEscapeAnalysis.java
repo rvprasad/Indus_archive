@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.Local;
 import soot.Modifier;
@@ -116,7 +116,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class EquivalenceClassBasedAnalysis
+public class EquivalenceClassBasedEscapeAnalysis
   extends AbstractProcessor {
 	/*
 	 * xxxCache variables do not capture state of the object.  Rather they are used cache values across method calls.  Hence,
@@ -131,7 +131,7 @@ public class EquivalenceClassBasedAnalysis
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedAnalysis.class);
+	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
 
 	/**
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.
@@ -228,7 +228,7 @@ public class EquivalenceClassBasedAnalysis
 	private final Collection threadAllocSitesSingle;
 
 	/**
-	 * Creates a new EquivalenceClassBasedAnalysis object.
+	 * Creates a new EquivalenceClassBasedEscapeAnalysis object.
 	 *
 	 * @param scmPrm provides and manages the classes to be analysed.
 	 * @param cgiPrm provides call-graph information.
@@ -236,7 +236,7 @@ public class EquivalenceClassBasedAnalysis
 	 *
 	 * @pre scm != null and cgi != null and tgi != null
 	 */
-	public EquivalenceClassBasedAnalysis(final Scene scmPrm, final ICallGraphInfo cgiPrm, final IThreadGraphInfo tgiPrm) {
+	public EquivalenceClassBasedEscapeAnalysis(final Scene scmPrm, final ICallGraphInfo cgiPrm, final IThreadGraphInfo tgiPrm) {
 		this.scm = scmPrm;
 		this.cgi = cgiPrm;
 		this.tgi = tgiPrm;
@@ -1061,6 +1061,10 @@ public class EquivalenceClassBasedAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 08:49:34  venku
+   Javadoc documentation errors were fixed.
+   Some classes were documented.
+
    Revision 1.2  2003/08/11 06:29:07  venku
    Changed format of change log accumulation at the end of the file
 

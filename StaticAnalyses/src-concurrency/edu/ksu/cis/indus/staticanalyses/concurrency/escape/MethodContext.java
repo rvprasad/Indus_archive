@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.SootMethod;
 import soot.Type;
@@ -416,6 +416,9 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 06:29:07  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.

@@ -33,25 +33,25 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.Local;
+import soot.Modifier;
 import soot.Scene;
 import soot.SootClass;
+import soot.SootField;
 import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
 
+import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -61,53 +61,62 @@ import java.util.Map;
 
 
 /**
- * This class drives escape analysis and displays the calculated information.
+ * This is the driver for Ruf's escape analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
+ *
+ * @deprecated However, this is not documented as it is not used by our framework. This is rather a comparison implementation
+ * 			   which will not be supported.
  */
-public final class EADriver
+public final class RufEATester
   extends Driver {
 	/**
+	 * <p>
 	 * The logger used by instances of this class to log messages.
+	 * </p>
 	 */
-	private static final Log LOGGER = LogFactory.getLog(EADriver.class);
+	private static final Log LOGGER = LogFactory.getLog(RufEATester.class);
 
 	/**
-	 * The provided command line arguments.
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	private String[] args;
+	private final String[] args;
 
 	/**
-	 * Creates a new EADriver object.
+	 * Creates a new RufEATester object.
 	 *
-	 * @param argsParam is the command line arguments.
-	 *
-	 * @post args.oclAsType(Sequence(String)) == argsParam.oclAsType(Sequence(String))
+	 * @param argsParam DOCUMENT ME!
 	 */
-	private EADriver(final String[] argsParam) {
+	private RufEATester(final String[] argsParam) {
 		this.args = argsParam;
 	}
 
 	/**
-	 * Entry point to the test driver.
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
-	 * @param argsParam is the command line arguments.
+	 * @param argsParam DOCUMENT ME!
 	 */
 	public static void main(final String[] argsParam) {
 		if (argsParam.length == 0) {
 			System.out.println("Please specify a class to consider for the analysis.");
 		}
-		(new EADriver(argsParam)).execute();
+		(new RufEATester(argsParam)).execute();
 	}
 
 	/**
-	 * Drives escape analysis. It executes FA first, followed by any post process analysis, followed by the escape analysis.
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	protected void execute() {
 		Scene scm = loadupClassesAndCollectMains(args);
-		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
+		AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: FA analysis");
@@ -126,51 +135,46 @@ public final class EADriver
 		ProcessingController ppc = new ProcessingController();
 		ppc.setAnalyzer(aa);
 
-		// Create call graph
 		CallGraph cg = new CallGraph();
 		cg.hookup(ppc);
+
+		ThreadGraph tg = new ThreadGraph(cg);
+		tg.hookup(ppc);
+
+		RufsEscapeAnalysis ea1 = new RufsEscapeAnalysis(scm, cg, tg);
+		ea1.hookup(ppc);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: FA postprocessing");
 		}
 		start = System.currentTimeMillis();
-		ppc.process();
-		cg.unhook(ppc);
 
-		ppc = new CGBasedProcessingController(cg);
-		ppc.setAnalyzer(aa);
-
-		// Create Thread graph 
-		ThreadGraph tg = new ThreadGraph(cg);
-		tg.hookup(ppc);
-		ppc.process();
-		tg.unhook(ppc);
-
-		// Perform equivalence-class-based escape analysis
-		EquivalenceClassBasedAnalysis analysis = new EquivalenceClassBasedAnalysis(scm, cg, tg);
-		analysis.hookup(ppc);
 		ppc.process();
 		stop = System.currentTimeMillis();
-		analysis.unhook(ppc);
+		addTimeLog(", FA postprocessing took ", stop - start);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: FA postprocessing");
 		}
-		addTimeLog("FA postprocessing took ", stop - start);
+
+		ea1.unhook(ppc);
+		tg.unhook(ppc);
+		cg.unhook(ppc);
 		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
 		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: " + analysis.getClass().getName() + " processing");
+			LOGGER.info("BEGIN: " + ea1.getClass().getName() + " processing");
 		}
 		start = System.currentTimeMillis();
-		analysis.execute();
+
+		ea1.execute();
 		stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: " + analysis.getClass().getName() + " processing");
+			LOGGER.info("END: " + ea1.getClass().getName() + " processing");
 		}
-		addTimeLog(analysis.getClass().getName(), stop - start);
+		addTimeLog(ea1.getClass().getName(), stop - start);
 
 		int count = 1;
 		Map threadMap = new HashMap();
@@ -192,23 +196,25 @@ public final class EADriver
 			SootClass sc = scm.getSootClass(args[i]);
 			System.out.println("Info for class " + sc.getName() + "\n");
 
-			for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
-				  j.hasNext();) {
+			for (Iterator j = sc.getFields().iterator(); j.hasNext();) {
+				SootField sf = (SootField) j.next();
+
+				if (Modifier.isStatic(sf.getModifiers())) {
+					System.out.println("Info for static field " + sf.getName() + ":" + sf.getType() + "\n"
+						+ ea1.tpgetInfo(sf, threadMap) + "\n");
+				}
+			}
+
+			for (Iterator j = sc.getMethods().iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
-				System.out.println("\nInfo for Method " + sm.getSignature());
+				System.out.println("Info for Method " + sm.getSignature() + "\n" + ea1.tpgetInfo(sm, threadMap));
 
-				if (sm.isConcrete()) {
-					JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
+				JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
 
-					for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
-						Local local = (Local) k.next();
-						System.out.println(" Local " + local + ":" + local.getType() + " -> shared:"
-							+ analysis.isShared(local, sm));
-					}
-				} else {
-					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info(sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
-					}
+				for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
+					Local local = (Local) k.next();
+					System.out.println("Info for Local " + local + ":" + local.getType() + "\n"
+						+ ea1.tpgetInfo(sm, local, threadMap) + "\n");
 				}
 			}
 		}
@@ -219,6 +225,10 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+
    Revision 1.3  2003/08/11 06:29:07  venku
    Changed format of change log accumulation at the end of the file
 
@@ -232,7 +242,11 @@ public final class EADriver
     - Moved the package under indus umbrella.
    Minor:
     - changes to accomodate ripple effect from support package.
-   Revision 1.1  2003/07/30 08:27:03  venku
-   Renamed IATester to EADriver.
-   Also, staged various analyses.
+   Revision 1.3  2003/07/30 08:30:31  venku
+   Refactoring ripple.
+   Also fixed a subtle bug in isShared() which caused wrong results.
+   Revision 1.2  2003/07/27 21:15:22  venku
+   Minor:
+    - arg name changes.
+    - comment changes.
  */

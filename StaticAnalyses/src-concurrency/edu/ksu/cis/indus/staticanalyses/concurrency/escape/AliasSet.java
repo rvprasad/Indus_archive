@@ -33,7 +33,7 @@
  *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.indus.staticanalyses.escape;
+package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import soot.RefLikeType;
 import soot.Type;
@@ -455,6 +455,9 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 06:29:07  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.1  2003/08/07 06:39:07  venku
    Major:
     - Moved the package under indus umbrella.
