@@ -28,8 +28,8 @@
         <pathelement location="${jars.dir}/commons-pool.jar"/>
         <pathelement location="${jars.dir}/commons-lang.jar"/>
         <pathelement location="${jars.dir}/commons-collections.jar"/>
-        <pathelement location="/home/venku/projects/Misc/banderaNG/lib/banderaCommons/banderaCommons.jar"/>        
-        <pathelement location="/home/venku/projects/Misc/banderaNG/lib/banderaToolFramework/banderaToolFramework.jar"/>
+        <pathelement location="${banderaCommons.jars.dir}/banderaCommons.jar"/>        
+        <pathelement location="${banderaFramework.jars.dir}/banderaToolFramework.jar"/>
         <pathelement location="${jars.dir}/swt/swt.jar"/>
         <pathelement location="${jars.dir}/xmlunit.jar"/>
         <pathelement location="${jars.dir}/xmlenc.jar"/>
