@@ -19,7 +19,7 @@ import soot.ArrayType;
 
 
 /**
- * This class represents variants of arrays.
+ * This class represents variants of array components.
  * 
  * <p>
  * Created: Fri Jan 25 16:05:27 2002
@@ -54,6 +54,10 @@ public class ArrayVariant
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/02 09:42:35  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.4  2003/09/28 03:16:33  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
