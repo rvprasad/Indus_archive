@@ -132,7 +132,7 @@ public class AnalysesController {
 	 *
 	 * @post result != null and result->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
 	 */
-	public final Collection getAnalysis(final Object id) {
+	public final Collection getAnalyses(final Object id) {
 		Collection result = null;
 
 		if (participatingAnalyses != null) {
@@ -175,7 +175,7 @@ public class AnalysesController {
 	}
 
 	/**
-	 * Initializes the controller. Analyses are initialized and then driven to preprocess the system.  
+	 * Initializes the controller. Analyses are initialized and then driven to preprocess the system.
 	 */
 	public void initialize() {
 		Collection failed = new ArrayList();
@@ -202,7 +202,7 @@ public class AnalysesController {
 				c.remove(i.next());
 			}
 		}
-        preprocessController.process();
+		preprocessController.process();
 	}
 
 	/**
@@ -227,13 +227,13 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/11/02 22:11:17  venku
+   - initialization needs to happen before any processing. FIXED.
    Revision 1.22  2003/11/02 20:18:25  venku
    - documentation.
-
    Revision 1.21  2003/11/01 23:51:27  venku
    - each analysis id can be associated with multiple
      implementations that can provide the same analysis.
-
    Revision 1.20  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
    Revision 1.19  2003/09/28 03:16:20  venku
