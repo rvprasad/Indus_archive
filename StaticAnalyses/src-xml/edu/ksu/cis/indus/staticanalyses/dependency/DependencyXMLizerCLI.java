@@ -165,7 +165,11 @@ public class DependencyXMLizerCLI
 				{ "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
 				{ "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
 				{ "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
-				{ "ncda", "Entry control dependence", _ncda },
+				{ "nscda", "Non-termination sensitive Entry control dependence", _ncda },
+				{
+					"nicda", "Non-termination insensitive Entry control dependence",
+					new NonTerminationInsensitiveEntryControlDA()
+				},
 				{ "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "sda", "Synchronization dependence", new SynchronizationDA() },
 				{ "frda1", "Forward Ready dependence v1", ReadyDAv1.getForwardReadyDA() },
@@ -242,14 +246,16 @@ public class DependencyXMLizerCLI
 			}
 			_xmlizerCLI.setClassNames(_classNames);
 
-			if (_cl.hasOption(_dasOptions[5][0].toString())) {
+			final int _exitControlDAIndex = 6;
+
+			if (_cl.hasOption(_dasOptions[_exitControlDAIndex][0].toString())) {
 				_xmlizerCLI.das.add(_ncda);
+
 				for (final Iterator _i = _ncda.getIds().iterator(); _i.hasNext();) {
-                    final Object _id = _i.next();
-                    CollectionsUtilities.putIntoCollectionInMap(_xmlizerCLI.info, _id, _ncda,
-        					CollectionsUtilities.HASH_SET_FACTORY);    
-                }
-				
+					final Object _id = _i.next();
+					CollectionsUtilities.putIntoCollectionInMap(_xmlizerCLI.info, _id, _ncda,
+						CollectionsUtilities.HASH_SET_FACTORY);
+				}
 			}
 
 			boolean _flag = true;
@@ -396,9 +402,10 @@ public class DependencyXMLizerCLI
 
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
+
 			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
-                final Object _id = _i2.next();
-                _ac.addAnalyses(_id, Collections.singleton(_da1));
+				final Object _id = _i2.next();
+				_ac.addAnalyses(_id, Collections.singleton(_da1));
 			}
 		}
 
@@ -408,9 +415,10 @@ public class DependencyXMLizerCLI
 		// write xml
 		for (final Iterator _i1 = das.iterator(); _i1.hasNext();) {
 			final IDependencyAnalysis _da1 = (IDependencyAnalysis) _i1.next();
+
 			for (final Iterator _i2 = _da1.getIds().iterator(); _i2.hasNext();) {
-                final Object _id = _i2.next();
-                CollectionsUtilities.putIntoListInMap(info, _id, _da1);
+				final Object _id = _i2.next();
+				CollectionsUtilities.putIntoListInMap(info, _id, _da1);
 			}
 		}
 		xmlizer.setGenerator(new UniqueJimpleIDGenerator());
