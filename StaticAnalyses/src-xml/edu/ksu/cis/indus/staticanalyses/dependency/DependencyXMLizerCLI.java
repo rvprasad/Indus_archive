@@ -152,6 +152,12 @@ public class DependencyXMLizerCLI
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
 		_options.addOption(_option);
 
+		final DivergenceDA _fidda = DivergenceDA.getForwardDivergenceDA();
+		_fidda.setConsiderCallSites(true);
+
+		final DivergenceDA _bidda = DivergenceDA.getBackwardDivergenceDA();
+		_bidda.setConsiderCallSites(true);
+
 		final NonTerminationSensitiveEntryControlDA _ncda = new NonTerminationSensitiveEntryControlDA();
 		final Object[][] _dasOptions =
 			{
@@ -175,8 +181,18 @@ public class DependencyXMLizerCLI
 				{ "ida1", "Interference dependence v1", new InterferenceDAv1() },
 				{ "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
-				{ "fpdda", "Forward Interprocedural Divergence dependence", DivergenceDA.getForwardDivergenceDA() },
-				{ "bpdda", "Backward Interprocedural Divergence dependence", DivergenceDA.getBackwardDivergenceDA() },
+				{ "fdda", "Forward Intraprocedural Divergence dependence", DivergenceDA.getForwardDivergenceDA() },
+				{ "bdda", "Backward Intraprocedural Divergence dependence", DivergenceDA.getBackwardDivergenceDA() },
+				{ "fidda", "Forward Intra+Interprocedural Divergence dependence", _fidda },
+				{ "bidda", "Backward Intra+Interprocedural Divergence dependence", _bidda },
+				{
+					"fpidda", "Forward Interprocedural Divergence dependence",
+					InterProceduralDivergenceDA.getForwardDivergenceDA()
+				},
+				{
+					"bpidda", "Backward Interprocedural Divergence dependence",
+					InterProceduralDivergenceDA.getBackwardDivergenceDA()
+				},
 			};
 		_option = new Option("h", "help", false, "Display message.");
 		_option.setOptionalArg(false);
