@@ -24,12 +24,18 @@ package edu.ksu.cis.indus.tools;
  */
 public interface ToolConfigurator {
 	/**
-	 * Displays the editor widget.
+	 * Displays the editor widget.  The widget can be hidden by calling <code>hide()</code>.
 	 */
 	public void display();
 
 	/**
-	 * Hides the editor widget.
+	 * Disposes the editor widget. If the widget is displayed, it will be hidden and the widget will not respond to any
+	 * subsequent method calls.
+	 */
+	public void dispose();
+
+	/**
+	 * Hides the editor widget.  The widget can be redisplayed by calling <code>display()</code>.
 	 */
 	public void hide();
 }
@@ -37,8 +43,11 @@ public interface ToolConfigurator {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/24 07:03:02  venku
+   - Renamed ToolConfigurationEditor to ToolConfigurator.
+   - Added property id creation support, via factory method, to ToolConfiguration.
+   - Changed the interface in Tool.
    Revision 1.1  2003/09/24 02:38:55  venku
    - Added Interfaces to expose the components of Indus as a
      tool and configure it.
-
  */

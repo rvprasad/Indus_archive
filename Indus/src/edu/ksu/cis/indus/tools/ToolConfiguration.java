@@ -15,17 +15,46 @@
 
 package edu.ksu.cis.indus.tools;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
+
 /**
  * This class should be extended by a configuration instance of a tool.  It provides methods to programmatically configure
  * the tool.  It also provides a method to stringize the configuration if required by the toolkits/IDEs.  Some toolkits/IDE
- * may support persistence of only string-based configurations.  For sake of usability, we recommend the implementors of
- * this interface to support a non-null returning <code>java.lang.toString()</code> method always.
+ * may support persistence of only string-based properties.  To this end, we explicitly provide a
+ * <code>stringizeConfiguration</code> and <code>destringizeConfiguration</code> methods in <code>Tool</code> interface that
+ * should be used to set and get the information in an instance of this class as a string suitable for serialization.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public abstract class ToolConfiguration {
+	/**
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ToolConfiguration.class);
+
+	/**
+	 * This is set of property ids recognized by this configuration.
+	 */
+	protected final Collection PROPERTY_IDS = new HashSet();
+
+    protected String NAME;
+    
+	/**
+	 * This maps properties of this configuration to their values.
+	 *
+	 * @invariant properties != null
+	 */
+	protected final Map properties = new HashMap();
+
 	/**
 	 * This identifies a property.  It does not represent a property.
 	 *
@@ -50,25 +79,32 @@ public abstract class ToolConfiguration {
 	}
 
 	/**
-	 * A factory method to create a property identifier. 
+	 * Sets a property of the configuration. The given <code>propertyID</code> should be a valid property id declared in this
+	 * class.  If not, an exception will be raised.
 	 *
-	 * @param id of the property.
-	 *
-	 * @return a property identifier.
-	 */
-	protected static PropertyIdentifier createPropertyIdentifier(final Object id) {
-		return new PropertyIdentifier(id);
-	}
-
-	/**
-	 * Sets a property of the configuration.
-	 *
-	 * @param property to be set.
+	 * @param propertyID to be set.
 	 * @param value to be assigned to the property.
+	 *
+	 * @return <code>true</code> if the property was added; <code>false</code>, otherwise.
+	 *
+	 * @throws IllegalArgumentException when an invalid property identifier is specified.
 	 *
 	 * @pre property != null and value != null
 	 */
-	public abstract void setProperty(final PropertyIdentifier property, final Object value);
+	public boolean setProperty(final PropertyIdentifier propertyID, final Object value) {
+		if (!PROPERTY_IDS.contains(propertyID)) {
+			String message = "Invalid property identifier specified: " + propertyID;
+			LOGGER.error(message);
+			throw new IllegalArgumentException(message);
+		}
+
+		boolean result = processProperty(propertyID, value);
+
+		if (result) {
+			properties.put(propertyID, value);
+		}
+		return result;
+	}
 
 	/**
 	 * Retrieves the value of the given property, if it exists.
@@ -79,12 +115,42 @@ public abstract class ToolConfiguration {
 	 *
 	 * @pre key != null
 	 */
-	public abstract Object getProperty(final PropertyIdentifier id);
+	public Object getProperty(final PropertyIdentifier id) {
+		return properties.get(id);
+	}
+
+	/**
+	 * Processes the given property.  This should be overriden by subclasses to handle alter configuration.  Only a return
+	 * value of <code>true</code> will result in the property being added to the configuration.
+	 *
+	 * @param propertyID is the identifier of the property.
+	 * @param value of the property.
+	 *
+	 * @return <code>true</code> if the property was successfully processed; <code>false</code>, otherwise.
+	 *
+	 * @pre propertyID != null
+	 */
+	protected abstract boolean processProperty(final PropertyIdentifier propertyID, final Object value);
+
+	/**
+	 * A factory method to create a property identifier.
+	 *
+	 * @param id of the property.
+	 *
+	 * @return a property identifier.
+	 */
+	protected static PropertyIdentifier createPropertyIdentifier(final Object id) {
+		return new PropertyIdentifier(id);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/24 07:03:02  venku
+   - Renamed ToolConfigurationEditor to ToolConfigurator.
+   - Added property id creation support, via factory method, to ToolConfiguration.
+   - Changed the interface in Tool.
    Revision 1.1  2003/09/24 02:38:55  venku
    - Added Interfaces to expose the components of Indus as a
      tool and configure it.

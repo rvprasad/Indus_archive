@@ -16,36 +16,12 @@
 package edu.ksu.cis.indus.toolkits.bandera;
 
 import soot.Scene;
-import soot.SootMethod;
-
-import soot.jimple.Stmt;
-
-import soot.toolkits.graph.UnitGraph;
 
 import edu.ksu.cis.bandera.tool.Tool;
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
-import edu.ksu.cis.indus.staticanalyses.AnalysesController;
-import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IEnvironment;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IMonitorInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo;
-import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
-import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
-import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.staticanalyses.support.Pair;
-import edu.ksu.cis.indus.staticanalyses.support.Triple;
 import edu.ksu.cis.indus.transformations.slicer.SliceCriteriaFactory;
-import edu.ksu.cis.indus.transformations.slicer.SlicingEngine;
-import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -240,6 +215,11 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/24 07:33:24  venku
+   - Nightly commit.
+   - Need to wrap the indus tool api in ways specific to bandera
+     tool api.
+
    Revision 1.1  2003/09/24 01:43:45  venku
    - Renamed edu.ksu.cis.indus.tools to edu.ksu.cis.indus.toolkits.
      This package is to house adaptation of each tools for each toolkits.
