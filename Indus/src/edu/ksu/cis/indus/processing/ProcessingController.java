@@ -127,7 +127,7 @@ public class ProcessingController {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private static final Collection STMT_CLASSES;
+	public static final Collection STMT_CLASSES;
 
 	static {
 		Collection t = new HashSet();
@@ -203,7 +203,7 @@ public class ProcessingController {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private static final Collection VALUE_CLASSES;
+	public static final Collection VALUE_CLASSES;
 
 	/**
 	 * The collection of processors registered with this controller to process interfaces (class/method).   This maintains
@@ -1053,6 +1053,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/06 08:33:36  venku
+   - previous optimization had subtle bugs. FIXED.
+
    Revision 1.4  2003/11/06 07:57:10  venku
    - optimized processing depending on the processors.
    Revision 1.3  2003/11/06 06:22:12  venku
