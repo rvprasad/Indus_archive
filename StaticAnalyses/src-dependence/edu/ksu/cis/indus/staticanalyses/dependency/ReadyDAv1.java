@@ -735,7 +735,6 @@ public class ReadyDAv1
 
 			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				Object o = j.next();
-				dependeeMap.put(o, Collections.EMPTY_LIST);
 				temp.add(pairMgr.getOptimizedPair(o, method));
 			}
 		}
@@ -770,7 +769,7 @@ public class ReadyDAv1
 					if (!xSet.isEmpty()) {
 						Collection exitSet = (Collection) dependeeMap.get(exit);
 
-						if (exitSet.equals(Collections.EMPTY_LIST)) {
+						if (exitSet == null) {
 							exitSet = new ArrayList();
 							dependeeMap.put(exit, exitSet);
 						}
@@ -779,9 +778,7 @@ public class ReadyDAv1
 				}
 
 				// add dependent to dependee information
-				if (nSet.isEmpty()) {
-					dependentMap.put(enter, Collections.EMPTY_LIST);
-				} else {
+				if (!nSet.isEmpty()) {
 					dependentMap.put(enter, new ArrayList(nSet));
 				}
 			}
@@ -832,9 +829,7 @@ public class ReadyDAv1
 				}
 
 				// add dependent to dependee information
-				if (dependents.size() == 0) {
-					dependentMap.put(wait, Collections.EMPTY_LIST);
-				} else {
+				if (!dependents.isEmpty()) {
 					dependentMap.put(wait, new ArrayList(dependents));
 				}
 			}
@@ -845,6 +840,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/09/28 03:16:48  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.18  2003/09/24 15:52:53  venku
    - documentation.
    Revision 1.17  2003/09/24 15:41:33  venku
