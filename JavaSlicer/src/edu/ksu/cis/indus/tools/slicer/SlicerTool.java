@@ -764,7 +764,7 @@ public final class SlicerTool
 		phase.nextMinorPhase();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Thread Graph:\n" + threadGraph.dumpGraph());
+			LOGGER.debug("Thread Graph:\n" + threadGraph.toString());
 		}
 
 		movingToNextPhase();
@@ -911,6 +911,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.106  2004/07/28 16:52:06  venku
+   - documentation.
+
    Revision 1.105  2004/07/28 09:09:35  venku
    - changed aliased use def analysis to consider thread.
    - also fixed a bug in the same analysis.

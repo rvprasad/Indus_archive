@@ -343,7 +343,7 @@ public class DependencyXMLizerCLI
 		_processors.add(_tgi);
 		_cgipc.reset();
 		_cgipc.driveProcessors(_processors);
-		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).dumpGraph());
+		writeInfo("THREAD GRAPH:\n" + ((ThreadGraph) _tgi).toString());
 
 		_aliasUD.hookup(_cgipc);
 		_cgipc.process();
@@ -391,6 +391,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/07/30 07:05:18  venku
+   - documentation.
+
    Revision 1.38  2004/07/28 09:09:27  venku
    - changed aliased use def analysis to consider thread.
    - also fixed a bug in the same analysis.
@@ -671,6 +674,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.39  2004/07/30 07:05:18  venku
+   - documentation.
+
    Revision 1.38  2004/07/28 09:09:27  venku
    - changed aliased use def analysis to consider thread.
    - also fixed a bug in the same analysis.
