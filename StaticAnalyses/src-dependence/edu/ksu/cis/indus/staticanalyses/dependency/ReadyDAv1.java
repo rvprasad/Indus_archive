@@ -175,8 +175,9 @@ public class ReadyDAv1
 
 	/**
 	 * This is the <code>java.lang.Object.wait()</code> method.
+     * @invariant waitMethods.oclIsKindOf(Collection(SootMethod))
 	 */
-	SootMethod waitMethod;
+	static Collection waitMethods;
 
 	/**
 	 * This provides call graph of the system being analyzed.
@@ -278,7 +279,7 @@ public class ReadyDAv1
 					VirtualInvokeExpr invokeExpr = (VirtualInvokeExpr) expr;
 					SootMethod callee = invokeExpr.getMethod();
 
-					if (waitMethod.equals(callee)) {
+					if (waitMethods.contains(callee)) {
 						map = waits;
 					} else if (notifyMethods.contains(callee)) {
 						map = notifies;
@@ -530,34 +531,31 @@ public class ReadyDAv1
 	  throws InitializationException {
 		super.setup();
 
-		if (waitMethod == null) {
-			for (Iterator i = env.getClasses().iterator(); i.hasNext();) {
-				SootClass sc = (SootClass) i.next();
-
-				if (sc.getName().equals("java.lang.Object")) {
-					List temp = sc.getMethods();
-
-					for (Iterator j = temp.iterator(); j.hasNext();) {
-						SootMethod sm = (SootMethod) j.next();
-
-						if (sm.getName().equals("wait")) {
-							waitMethod = sm;
-						}
-					}
-
-					notifyMethods = new ArrayList();
-					notifyMethods.add(sc.getMethod("notify"));
-					notifyMethods.add(sc.getMethod("notifyAll"));
-					notifyMethods = Collections.unmodifiableCollection(notifyMethods);
-				}
-			}
-		}
-
 		env = (IEnvironment) info.get(IEnvironment.ID);
 
 		if (env == null) {
 			throw new InitializationException(IEnvironment.ID + " was not provided in info.");
 		}
+        
+        if (waitMethods == null) {
+            for (Iterator i = env.getClasses().iterator(); i.hasNext();) {
+                SootClass sc = (SootClass) i.next();
+
+                if (sc.getName().equals("java.lang.Object")) {
+                    waitMethods = new ArrayList();
+                    waitMethods.add(sc.getMethod("void wait()"));
+                    waitMethods.add(sc.getMethod("void wait(long)"));
+                    waitMethods.add(sc.getMethod("void wait(long,int)"));
+
+                    notifyMethods = new ArrayList();
+                    System.out.println(sc.getMethods());
+                    notifyMethods.add(sc.getMethodByName("notify"));
+                    notifyMethods.add(sc.getMethodByName("notifyAll"));
+                    notifyMethods = Collections.unmodifiableCollection(notifyMethods);
+                }
+            }
+        }
+        
 		callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
 
 		if (callgraph == null) {
@@ -801,7 +799,7 @@ public class ReadyDAv1
 			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				Object o = j.next();
 				dependeeMap.put(o, Collections.EMPTY_LIST);
-				temp.add(pairMgr.getOptimizedPair(method, o));
+				temp.add(pairMgr.getOptimizedPair(o, method));
 			}
 		}
 
@@ -910,6 +908,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/08/25 10:04:04  venku
+   Renamed setInterProcedural() to setConsiderCallSites().
+
    Revision 1.8  2003/08/25 09:15:51  venku
    Initialization of interProcedural was missing in ReadyDAv1.
    Ripple effect of this and previous change in ReadyDAv1/2 in RDADriver.

@@ -51,7 +51,7 @@ import java.util.ArrayList;
  * @version $Revision$
  */
 public final class RDADriver
-  extends IDADriver {
+  extends DADriver {
 	/**
 	 * Creates a new RDADriver object.
 	 *
@@ -83,6 +83,10 @@ public final class RDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/25 09:15:52  venku
+   Initialization of interProcedural was missing in ReadyDAv1.
+   Ripple effect of this and previous change in ReadyDAv1/2 in RDADriver.
+
    Revision 1.4  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
 

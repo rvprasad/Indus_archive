@@ -41,8 +41,8 @@ import soot.SootMethod;
 import soot.toolkits.graph.CompleteUnitGraph;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -197,12 +197,18 @@ public abstract class DADriver
 		for (Iterator i = cgi.getReachableMethods().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 
-			try {
-				CompleteUnitGraph sg = new CompleteUnitGraph(method.retrieveActiveBody());
-				method2cmpltStmtGraph.put(method, sg);
-			} catch (RuntimeException e) {
+			if (method.isConcrete()) {
+				try {
+					CompleteUnitGraph sg = new CompleteUnitGraph(method.retrieveActiveBody());
+					method2cmpltStmtGraph.put(method, sg);
+				} catch (RuntimeException e) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("Method " + method.getSignature() + " may not have body.", e);
+					}
+				}
+			} else {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("Method " + method.getSignature() + " may not have body.", e);
+					LOGGER.warn("Method " + method.getSignature() + " is not concrete.");
 				}
 			}
 		}
@@ -359,13 +365,17 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/21 01:25:21  venku
+    - Renamed src-escape to src-concurrency to as to group all concurrency
+      issue related analyses into a package.
+    - Renamed escape package to concurrency.escape.
+    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+   Changes due to the ripple effect of the above changes are being committed.
    Revision 1.5  2003/08/17 10:48:34  venku
    Renamed BFA to FA.  Also renamed bfa variables to fa.
    Ripple effect was huge.
-
    Revision 1.4  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.3  2003/08/10 03:43:26  venku
    Renamed Tester to Driver.
    Refactored logic to pick entry points.
