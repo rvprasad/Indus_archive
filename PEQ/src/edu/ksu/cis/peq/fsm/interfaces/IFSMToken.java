@@ -45,4 +45,10 @@ public interface IFSMToken {
      * @post Result.oclisKindOf(HashMap) and Result.size == 0 <=> isEmpty() == true
      */
     Map getSubstituitionMap();
+    
+    /**
+     * Returns the parent token; used for finding the path traversed.
+     * @return IFSMTokem The parent toke, if present else null
+     */
+    IFSMToken getParent();
 }

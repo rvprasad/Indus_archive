@@ -20,6 +20,7 @@ import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
 import edu.ksu.cis.peq.fsm.interfaces.ITransition;
 import edu.ksu.cis.peq.graph.interfaces.IEdge;
 
+
 /**
  * @author ganeshan
  * This is the interface for the label matcher.
@@ -32,4 +33,11 @@ public interface IMatcher {
          * @post Result.isEmpty() => No match was possible else returns the mapping in the token
          */
         IFSMToken getMatch(final IEdge edge, final ITransition transition);
+        
+        /**
+         * Merges the maps in the token if there is no conflict.
+         * @pre sourceToken != null and childToken != null
+         * @post Result.isEmpty() => Substitutionmap not mergeable
+         */
+        IFSMToken merge(final IFSMToken sourceToken, final IFSMToken childToken);
 }

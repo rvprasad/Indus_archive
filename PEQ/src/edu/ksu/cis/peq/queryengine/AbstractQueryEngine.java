@@ -18,8 +18,12 @@
 package edu.ksu.cis.peq.queryengine;
 
 import edu.ksu.cis.peq.fsm.interfaces.IFSM;
+import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
+import edu.ksu.cis.peq.fsm.interfaces.IState;
 import edu.ksu.cis.peq.graph.interfaces.IGraphEngine;
+import edu.ksu.cis.peq.graph.interfaces.INode;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author ganeshan
@@ -58,6 +62,30 @@ public abstract class AbstractQueryEngine {
      * @post Result.size > 0 => Result.oclIsKindOf(Collection(Sequence(IFSMToken)))
      */
     public abstract Collection getResults();    
+    
+    /*
+     * Matches the labels on the edges from node to the transitions from state.
+     * Subclasses may override this method to perform a more optimal matching.
+     * @param node The current node
+     * @param state The current FSM state
+     * @return Set The result of match
+     * @pre node != null and state != null
+     * @post Result.oclIsKindOf(Set(IFSMToken))
+     */
+    protected abstract Set matchNodeAndState(final INode node, final IState state);
+    
+    /*
+     * Matches the labels on the edges from node to the transitions from state for the reach nodes.
+     * New tokens are added only if the extended map does not violate the parent substitution map
+     * Subclasses may override this method to perform a more optimal matching.
+     * @param node The current node
+     * @param state The current FSM state
+     * @param IFSMToken The parent token
+     * @return Set The result of match
+     * @pre node != null and state != null
+     * @post Result.oclIsKindOf(Set(IFSMToken))
+     */
+    protected abstract Set matchAndMergeReach(final INode node, final IState state, final IFSMToken parent);
     
     /** Run the query engine */
     public abstract void execute();
