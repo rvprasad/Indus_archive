@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public interface IDirectedGraph {
 	/**
-	 * Checks if the given nodes have ancestral relationship.  A node is considered as the ancestor of itself.
+	 * Checks if the given nodes have ancestral relationship.  A node is considered as an ancestor of itself.
 	 *
 	 * @param ancestor in the relationship.
 	 * @param descendent in the relationship.
