@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
 import soot.Scene;
 
+import soot.options.Options;
+
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
@@ -91,12 +93,12 @@ public abstract class DADriver
 	 */
 	protected boolean ecbaRequired;
 
-	/** 
+	/**
 	 * This provides equivalence class based escape analysis.
 	 */
 	EquivalenceClassBasedEscapeAnalysis ecba = null;
 
-	/** 
+	/**
 	 * This provides call-graph based processing controller.
 	 */
 	ProcessingController cgipc;
@@ -147,6 +149,12 @@ public abstract class DADriver
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Loading classes....");
 		}
+
+		String[] options = new String[3];
+		options[0] = "-p";
+		options[1] = "jb";
+		options[2] = "use-original-names:true";
+		Options.v().parse(options);
 
 		scm = loadupClassesAndCollectMains(args);
 		aa = OFAnalyzer.getFSOSAnalyzer();
@@ -299,7 +307,7 @@ public abstract class DADriver
 
 		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
-            da.reset();
+			da.reset();
 			da.setBasicBlockGraphManager(bbm);
 
 			if (da.doesPreProcessing()) {
@@ -353,6 +361,8 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/09/29 06:37:31  venku
+   - Each driver now handles each root method separately.
    Revision 1.20  2003/09/29 04:20:30  venku
    - coding convention.
    Revision 1.19  2003/09/28 07:32:30  venku

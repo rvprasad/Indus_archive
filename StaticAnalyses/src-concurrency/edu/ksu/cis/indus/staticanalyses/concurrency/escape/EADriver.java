@@ -22,6 +22,8 @@ import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
 
+import soot.options.Options;
+
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
@@ -89,6 +91,12 @@ public final class EADriver
 	 * Drives escape analysis. It executes FA first, followed by any post process analysis, followed by the escape analysis.
 	 */
 	protected void execute() {
+		String[] options = new String[3];
+		options[0] = "-p";
+		options[1] = "jb";
+		options[2] = "use-original-names:true";
+		Options.v().parse(options);
+
 		Scene scm = loadupClassesAndCollectMains(args);
 		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
 		Collection rm = new ArrayList();
@@ -210,6 +218,8 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/29 06:37:31  venku
+   - Each driver now handles each root method separately.
    Revision 1.6  2003/09/29 04:20:57  venku
    - coding convention.
    Revision 1.5  2003/09/28 07:32:30  venku
