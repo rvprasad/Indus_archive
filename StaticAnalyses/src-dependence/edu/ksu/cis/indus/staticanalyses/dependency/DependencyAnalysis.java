@@ -29,7 +29,8 @@ import java.util.Map;
  * <p>
  * It is an abstract class as it does not implement the method that actually does the analysis. Also, it contains member data
  * that are necessary to store any sort dependency information. However, it is the responsibility of the subclasses to store
- * the data and provide the same via concrete implementation of abstract methods.
+ * the data and provide the same via concrete implementation of abstract methods.  It is required to call
+ * <code>initialize()</code> before any processing is triggered on the analysis.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -154,6 +155,9 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/02 09:42:37  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
    Revision 1.11  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
