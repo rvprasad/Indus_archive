@@ -23,16 +23,12 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
 
-import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.Stmt;
 
@@ -75,18 +71,24 @@ public class ReferenceBasedDataDA
 	 * @post result->forall(o | o.getFirst().getLeftOf().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getLeftOf().oclIsKindOf(ArrayRef))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependees(java.lang.Object,
+	 * 		java.lang.Object)
 	 */
 	public Collection getDependees(final Object stmt, final Object method) {
-		contextCache.setRootMethod((SootMethod) method);
-
-		Collection _result = Collections.EMPTY_LIST;
+		final Collection _result;
 		final Stmt _theStmt = (Stmt) stmt;
-
+		
 		if (_theStmt.containsArrayRef() || _theStmt.containsFieldRef()) {
 			contextCache.setRootMethod((SootMethod) method);
 			_result = aliasedUD.getDefs(_theStmt, contextCache);
+		} else {
+		    _result = Collections.EMPTY_LIST;
 		}
+		
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getDependees(stmt = " + stmt + ", method = " + method + ") - _result = " + _result);
+        }
+
 		return _result;
 	}
 
@@ -103,19 +105,24 @@ public class ReferenceBasedDataDA
 	 * @post result->forall(o | o.getFirst().getRightOp().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getRightOp().oclIsKindOf(ArrayRef))
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents(java.lang.Object,
+	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
-
-		if (stmt instanceof AssignStmt) {
-			final AssignStmt _assign = (AssignStmt) stmt;
-
-			if (_assign.containsArrayRef() || _assign.containsFieldRef()) {
+		final Collection _result;
+		final Stmt _theStmt = (Stmt) stmt;
+		
+		if (stmt instanceof DefinitionStmt && (_theStmt.containsArrayRef() || _theStmt.containsFieldRef())) {
 				contextCache.setRootMethod((SootMethod) method);
 				_result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
-			}
+		} else {
+		    _result = Collections.EMPTY_LIST;
 		}
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getDependents(stmt = " + stmt + ", method = " + method + ") - _result = " + _result);
+        }
+
 		return _result;
 	}
 
@@ -123,7 +130,7 @@ public class ReferenceBasedDataDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public Object getId() {
-		return AbstractDependencyAnalysis.REFERENCE_BASED_DATA_DA;
+		return IDependencyAnalysis.REFERENCE_BASED_DATA_DA;
 	}
 
 	/**
@@ -144,7 +151,7 @@ public class ReferenceBasedDataDA
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
 		}
-		
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Reference Based Data Dependence processing");
 		}
@@ -156,38 +163,7 @@ public class ReferenceBasedDataDA
 	 * @return a stringized representation of this object.
 	 */
 	public String toString() {
-		final StringBuffer _result =
-			new StringBuffer("Statistics for Reference-based Data dependence as calculated by " + this.getClass().getName()
-				+ "\n");
-		int _localEdgeCount = 0;
-		int _edgeCount = 0;
-
-		final StringBuffer _temp = new StringBuffer();
-
-		for (final Iterator _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			_localEdgeCount = 0;
-
-			final List _stmts = getStmtList((SootMethod) _entry.getKey());
-			int _count = 0;
-
-			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
-				final Collection _c = (Collection) _j.next();
-				final Stmt _stmt = (Stmt) _stmts.get(_count++);
-
-				for (final Iterator _k = _c.iterator(); _k.hasNext();) {
-					_temp.append("\t\t" + _stmt + " <-- " + _k.next() + "\n");
-				}
-				_localEdgeCount += _c.size();
-			}
-			_result.append("\tFor " + _entry.getKey() + " there are " + _localEdgeCount
-				+ " Reference-based Data dependence edges.\n");
-			_result.append(_temp);
-			_temp.delete(0, _temp.length());
-			_edgeCount += _localEdgeCount;
-		}
-		_result.append("A total of " + _edgeCount + " Reference-based Data dependence edges exist.");
-		return _result.toString();
+		return aliasedUD + "";
 	}
 
 	/**
@@ -215,18 +191,17 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/06/16 14:30:12  venku
+   - logging.
    Revision 1.21  2004/05/14 06:27:24  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.20  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent
-
    Revision 1.19  2004/03/03 02:17:46  venku
    - added a new method to ICallGraphInfo interface.
    - implemented the above method in CallGraph.
    - made aliased use-def call-graph sensitive.
-
    Revision 1.18  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
