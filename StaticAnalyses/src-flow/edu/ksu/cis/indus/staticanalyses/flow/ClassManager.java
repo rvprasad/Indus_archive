@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.processing.Context;
 
@@ -101,7 +102,7 @@ public class ClassManager {
 			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(classes);
 			final Collection _temp = new HashSet();
 
-			if (sc.hasSuperclass()) {
+			if (Util.hasSuperclass(sc)) {
 				_temp.add(sc.getSuperclass());
 			}
 			_temp.addAll(sc.getInterfaces());
@@ -117,7 +118,7 @@ public class ClassManager {
 				includeClassInitializer(_sc);
 				_temp.clear();
 
-				if (_sc.hasSuperclass()) {
+				if (Util.hasSuperclass(_sc)) {
 					_temp.add(_sc.getSuperclass());
 				}
 				_temp.addAll(_sc.getInterfaces());
