@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.datastructures;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -43,7 +44,7 @@ public class FastUnionFindElement {
 	protected Object type;
 
 	/**
-	 * Checks if this element has any children. 
+	 * Checks if this element has any children.
 	 *
 	 * @return <code>true</code> if it has children; <code>false</code>, otherwise.
 	 */
@@ -52,12 +53,33 @@ public class FastUnionFindElement {
 	}
 
 	/**
-	 * Checks if this element is bound to a type.  
+	 * Checks if this element is bound to a type.
 	 *
-	 * @return <code>true</code> if it is bound to a type; <code>false</code>, otherwise. 
+	 * @return <code>true</code> if it is bound to a type; <code>false</code>, otherwise.
 	 */
 	public final boolean isBound() {
-		return type != null;
+		return find().type != null;
+	}
+
+	/**
+	 * Set the type of the element.
+	 *
+	 * @param theType of the element.
+	 *
+	 * @throws IllegalStateException when the type of the element is already set.
+	 *
+	 * @pre theType != null
+	 */
+	public final void setType(final Object theType) {
+		if (set == null) {
+			if (type == null) {
+				type = theType;
+			} else {
+				throw new IllegalStateException("Cannot set a type on an element with a fixed type.");
+			}
+		} else {
+			find().setType(theType);
+		}
 	}
 
 	/**
@@ -67,6 +89,20 @@ public class FastUnionFindElement {
 	 */
 	public final Object getType() {
 		return find().type;
+	}
+
+	/**
+	 * Adds a new child to this element.
+	 *
+	 * @param child to be added.
+	 *
+	 * @pre child != null
+	 */
+	public final void addChild(final FastUnionFindElement child) {
+		if (children == null) {
+			children = new ArrayList();
+		}
+		children.add(child);
 	}
 
 	/**
@@ -100,7 +136,12 @@ public class FastUnionFindElement {
 	 * @pre e != null
 	 */
 	public final boolean sameType(final FastUnionFindElement e) {
-		return e.type.equals(type);
+		boolean _result = false;
+
+		if (e.type != null && type != null) {
+			_result = e.type.equals(type);
+		}
+		return _result;
 	}
 
 	/**
@@ -179,15 +220,15 @@ public class FastUnionFindElement {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/06 15:06:23  venku
+   - started to add test case for data structures.
    Revision 1.1  2004/01/06 00:17:10  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.2  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
@@ -204,7 +245,7 @@ public class FastUnionFindElement {
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
    Revision 1.3  2003/08/11 07:13:58  venku
-    empty log message 
+    empty log message
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.
