@@ -59,11 +59,16 @@ public class InterferenceDAv2
 	 * @pre dependent.getFirst().oclIsTypeOf(AssignStmt) and dependent.getSecond().oclIsTypeOf(SootMethod)
 	 */
 	protected boolean isDependentOn(final Pair dependent, final Pair dependee) {
-		SootMethod deMethod = (SootMethod) dependee.getSecond();
-		SootMethod dtMethod = (SootMethod) dependent.getSecond();
-		Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
-		Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
-		return ecba.escapes(de, deMethod) && ecba.escapes(dt, dtMethod);
+		boolean result = super.isDependentOn(dependent, dependee);
+
+		if (result) {
+			SootMethod deMethod = (SootMethod) dependee.getSecond();
+			SootMethod dtMethod = (SootMethod) dependent.getSecond();
+			Value de = ((AssignStmt) dependee.getFirst()).getLeftOp();
+			Value dt = ((AssignStmt) dependent.getFirst()).getRightOp();
+			result = ecba.escapes(de, deMethod) && ecba.escapes(dt, dtMethod);
+		}
+		return result;
 	}
 
 	/**
@@ -90,10 +95,11 @@ public class InterferenceDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/09/29 13:37:25  venku
+ *** empty log message ***
    Revision 1.11  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.10  2003/09/08 02:28:02  venku
    - ifDependentOn() was changed to isDependentOn().
    Revision 1.9  2003/08/21 03:56:08  venku
