@@ -131,8 +131,8 @@ public final class BitSetTokenManager
 
 		/** 
 		 * The token manager associated with this instance of collection of tokens.
-		 *
-		 * @pre tokenMgr != null
+		 * 
+		 * @invariant tokenMgr != null
 		 */
 		private final BitSetTokenManager tokenMgr;
 

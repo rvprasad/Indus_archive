@@ -82,7 +82,7 @@ public class IntegerTokenManager
 		/** 
 		 * The type of values to let through the filter.
 		 *
-		 * @pre filterType != null
+		 * @invariant filterType != null
 		 */
 		final Object filterType;
 
@@ -193,7 +193,7 @@ public class IntegerTokenManager
 		/** 
 		 * The token manager associated with this instance of collection of tokens.
 		 *
-		 * @pre tokenMgr != null
+		 * @invariant tokenMgr != null
 		 */
 		private IntegerTokenManager tokenMgr;
 
