@@ -54,6 +54,7 @@
         <param name="access" value="protected"/>
         <param name="sootlink" value="${remote_sootlink}"/>
         <param name="jdklink" value="${remote_jdklink}"/>
+		<param name="srcpath" value="${ant.project.name}.docsrcpath"/>        
         <param name="exclude" value="yes"/>
     </antcall>
     <antcall target="doxydocs">
@@ -66,6 +67,7 @@
         <param name="access" value="private"/>
         <param name="sootlink" value="${local_sootlink}"/>
         <param name="jdklink" value="${local_jdklink}"/>
+		<param name="srcpath" value="${ant.project.name}.srcpath"/>
         <param name="exclude" value="no"/>
     </antcall>
     <antcall target="doxydocs">
@@ -88,12 +90,8 @@
              doctitle="&lt;b>Indus, a toolkit to customize and adapt Java programs.&lt;/b>"
              overview="src/overview.html"
              >
-             <classpath refid="classpath"/>
-             <sourcepath refid="srcpath"/>
-             <fileset>
-                <exclude name="**/*Test*/**"/>
-                <exclude name="**/*Test"/>
-             </fileset>
+             <classpath refid="${ant.project.name}.classpath"/>
+             <sourcepath refid="${srcpath}"/>
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
              <tag name="pre" description="Precondition:" scope="constructors,methods"/>
@@ -123,7 +121,8 @@
     <delete includeEmptyDirs="true" quiet="true">
 	    <fileset dir="${build.dir}" includes="**/*.class"/>
     </delete>
-    <delete dir="${docs}" quiet="true"/>
+    <delete dir="${docs}/javadocs" quiet="true"/>
+    <delete dir="${docs}/doxydocs" quiet="true"/>
 </target>
 
 </project>
@@ -132,6 +131,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.22  2004/01/14 12:14:20  venku
+*** empty log message ***
+
 Revision 1.21  2004/01/06 21:23:12  venku
 *** empty log message ***
 

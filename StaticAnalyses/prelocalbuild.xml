@@ -3,13 +3,17 @@
     <property name="package" value="edu.ksu.cis.indus.staticanalyses"/>
     <property name="ant.project.name" value="indus.staticanalyses"/>
     
-    <path id="indus.staticanalyses.srcpath">
+    <path id="indus.staticanalyses.docsrcpath">
     	<pathelement location="../StaticAnalyses/src"/>
 	    <pathelement location="../StaticAnalyses/src-flow"/>
     	<pathelement location="../StaticAnalyses/src-dependence"/>
 	    <pathelement location="../StaticAnalyses/src-concurrency"/>
-    	<pathelement location="../StaticAnalyses/src-test"/>
        	<pathelement location="../StaticAnalyses/src-xml"/>
+    </path>
+
+    <path id="indus.staticanalyses.srcpath">
+        <path refid="indus.staticanalyses.docsrcpath"/>
+       	<pathelement location="../StaticAnalyses/src-test"/>
     </path>
     
     <path id="indus.staticanalyses.classpath">

@@ -6,9 +6,13 @@
     <import file="../StaticAnalyses/prelocalbuild.xml"/>
     <import file="../JavaSlicer/prelocalbuild.xml"/>
 
-    <path id="indus.srcpath">
+    <path id="indus.docsrcpath">
         <pathelement location="src"/>
    	    <pathelement location="src-xml"/>
+    </path>
+
+    <path id="indus.srcpath">
+        <path refid="indus.docsrcpath"/>
    	    <pathelement location="src-test"/>
     </path>
 
