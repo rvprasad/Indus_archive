@@ -528,6 +528,7 @@ public class OFAToolTest
 			fail(_message);
 		} catch (final IllegalArgumentException _iae) {
 			// success
+		    ;
 		} catch (final Exception e) {
 			fail(_message + "  Got instead: " + e.toString());
 		}
