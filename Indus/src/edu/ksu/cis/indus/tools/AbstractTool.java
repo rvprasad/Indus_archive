@@ -22,16 +22,14 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * This is the facade interface exposed by a tool in Indus.  The tool will expose the configurationCollection via
- * <code>AbstractToolConfiguration</code>, hence, this api forces the tool implementation to handle the interaction with the
- * environment for issues such as persistence of the configurationCollection.
+ * This is an abstract implementation of ITool which the concrete implementations are encouraged to extend.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public abstract class AbstractTool
-  implements IStatus {
+  implements IStatus, ITool {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -66,28 +64,6 @@ public abstract class AbstractTool
 	 * The thread in which the tools is running or ran previously.
 	 */
 	private Thread thread;
-
-	/**
-	 * Populate this object with the information in given in string form.
-	 *
-	 * @param stringizedForm contains the information to be loaded into this object.
-	 *
-	 * @return <code>true</code> if the configuration could be constructed from the given stringized form. <code>false</code>
-	 * 		   if the configuration could not be constructed from the given stringized form.  In the latter case, the
-	 * 		   implementation  can load a default configuration.
-	 *
-	 * @pre stringizedForm != null
-	 */
-	public abstract boolean destringizeConfiguration(final String stringizedForm);
-
-	/**
-	 * Returns a stringized from of the information in the object suitable for serialization.
-	 *
-	 * @return a stringized representation of the infornmation in the collection.
-	 *
-	 * @post result != null
-	 */
-	public abstract String stringizeConfiguration();
 
 	/**
 	 * Retrieves an object that represents the active configuration of the tool.
@@ -144,18 +120,6 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Retursn the current phase in which the tool was executing.
-	 *
-	 * @return the current phase.
-	 */
-	public abstract Object getPhase();
-
-	/**
-	 * Initialize the tool.  This is called once on the tool.
-	 */
-	public abstract void initialize();
-
-	/**
 	 * Aborts the execution of the tool.
 	 */
 	public final void abort() {
@@ -176,11 +140,6 @@ public abstract class AbstractTool
 		pause = false;
 		control.notify();
 	}
-
-	/**
-	 * Reset the tool.  All state related information should be erased.
-	 */
-	public abstract void reset();
 
 	/**
 	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running. {@inheritDoc}
@@ -219,6 +178,10 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
+
    Revision 1.9  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

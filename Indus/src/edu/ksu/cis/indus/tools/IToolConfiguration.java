@@ -26,14 +26,14 @@ public interface IToolConfiguration {
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @param string
+	 * @param string DOCUMENT ME!
 	 */
 	void setConfigName(String string);
 
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @return
+	 * @return DOCUMENT ME!
 	 */
 	String getConfigName();
 
@@ -73,4 +73,8 @@ public interface IToolConfiguration {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
+
  */
