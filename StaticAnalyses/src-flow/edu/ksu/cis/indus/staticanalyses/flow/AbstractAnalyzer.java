@@ -253,7 +253,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final ArrayType a) {
-		final ArrayVariant _v = fa.queryArrayVariant(a);
+		final ValuedVariant _v = fa.queryArrayVariant(a);
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_v != null) {
@@ -302,7 +302,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final SootField sf) {
-		final FieldVariant _fv = fa.queryFieldVariant(sf);
+		final ValuedVariant _fv = fa.queryFieldVariant(sf);
 		Collection _temp = Collections.EMPTY_SET;
 
 		if (_fv != null) {

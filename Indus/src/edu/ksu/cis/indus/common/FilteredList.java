@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -39,14 +39,14 @@ import org.apache.commons.collections.list.AbstractListDecorator;
  */
 public final class FilteredList
   extends AbstractListDecorator {
-	/**
+	/** 
 	 * The delegate collection instance that does the filtering.
 	 *
 	 * @invariant filteredCollection != null
 	 */
 	private final FilteredCollection filteredCollection;
 
-	/**
+	/** 
 	 * The predicate that defines the filtering criterion.
 	 *
 	 * @invariant predicate != null
@@ -269,14 +269,4 @@ public final class FilteredList
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2004/06/29 01:59:46  venku
-   - added more operations via delegation.
-
-   Revision 1.2  2004/06/28 15:53:30  venku
-   - documentation.
-   Revision 1.1  2004/06/28 08:08:27  venku
-   - new collections classes for filtered access and update.
- */
+// End of File

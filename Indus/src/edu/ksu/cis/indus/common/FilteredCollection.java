@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -45,7 +45,7 @@ import org.apache.commons.collections.iterators.FilterIterator;
  */
 class FilteredCollection
   extends AbstractCollectionDecorator {
-	/**
+	/** 
 	 * The predicate that defines the filtering criterion.
 	 *
 	 * @invariant predicate != null
@@ -268,14 +268,4 @@ class FilteredCollection
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2004/06/28 15:38:32  venku
-   - documentation.
-   Revision 1.2  2004/06/28 08:08:27  venku
-   - new collections classes for filtered access and update.
-   Revision 1.1  2004/06/27 23:23:11  venku
-   - initial commit.
-   - This version has update methods as well.
- */
+// End of File

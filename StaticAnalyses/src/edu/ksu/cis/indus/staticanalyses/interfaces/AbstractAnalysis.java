@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -193,80 +193,4 @@ public abstract class AbstractAnalysis
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.23  2004/08/16 14:18:27  venku
-   - refactored getStmtList() method to use cached behavior.
-
-   Revision 1.22  2004/07/24 09:57:49  venku
-   - extracted interface from AbstractAnalysis.
-   - ripple effect.
-   Revision 1.21  2004/07/11 09:42:14  venku
-   - Changed the way status information was handled the library.
-     - Added class AbstractStatus to handle status related issues while
-       the implementations just announce their status.
-   Revision 1.20  2004/05/31 21:38:09  venku
-   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
-   - ripple effect.
-   Revision 1.19  2003/12/09 04:37:26  venku
-   - returns an empty list for a method without body.
-   Revision 1.18  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.17  2003/12/08 12:15:59  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.16  2003/12/02 09:42:39  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.15  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.14  2003/11/01 23:50:34  venku
-   - documentation.
-   Revision 1.13  2003/09/28 06:20:38  venku
-   - made the core independent of hard code used to create unit graphs.
-     The core depends on the environment to provide a factory that creates
-     these unit graphs.
-   Revision 1.12  2003/09/28 03:08:03  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.11  2003/09/13 05:42:07  venku
-   - What if the unit graphs for all methods are unavailable?  Hence,
-     added a method to AbstractAnalysis to retrieve the methods to
-     process.  The subclasses work only on this methods.
-   Revision 1.10  2003/09/12 22:33:09  venku
-   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
-   - Ripple effect of the above changes.
-   Revision 1.9  2003/09/12 01:21:30  venku
-   - documentation changes.
-   Revision 1.8  2003/09/10 10:52:44  venku
-   - new basic block graphs can be added.
-   Revision 1.7  2003/09/09 01:13:58  venku
-   - made basic block graph manager configurable in AbstractAnalysis
-   - ripple effect of the above change in DADriver.  This should also affect Slicer.
-   Revision 1.6  2003/08/21 01:35:05  venku
-   Documentation changes.
-   reset() is not called in initialize.  The user needs to do this.
-   Revision 1.5  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.4  2003/08/17 10:37:08  venku
-   Fixed holes in documentation.
-   Removed addRooMethods in FA and added the equivalent logic into analyze() methods.
-   Revision 1.3  2003/08/16 02:41:37  venku
-   Renamed AController to AbstractController.
-   Renamed AAnalysis to AbstractAnalysis.
-   Revision 1.2  2003/08/11 07:46:09  venku
-   Finalized the parameters.
-   Spruced up Documentation and Specification.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
- */
+// End of File

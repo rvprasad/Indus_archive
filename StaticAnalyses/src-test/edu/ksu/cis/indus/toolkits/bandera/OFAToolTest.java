@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -45,12 +45,12 @@ public class OFAToolTest
 	 * Strings.  This has a whole slew of possible configs.
 	 */
 	public void setNonEmptyConfigurations() {
-		final OFATool __cgt = new OFATool();
+		final OFATool _cgt = new OFATool();
 		final String[] _configurationStrings =
 			new String[] { "a", "1", "#", ".", "<configuration/>", "someConfigurationString" };
 
 		for (int _i = 0; _i < _configurationStrings.length; _i++) {
-			__cgt.setConfiguration(_configurationStrings[_i]);
+			_cgt.setConfiguration(_configurationStrings[_i]);
 		}
 	}
 
@@ -194,7 +194,8 @@ public class OFAToolTest
 	public void testsetInputMapWithEmptySceneAndEmptyEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (empty scene, empty entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (empty scene, empty entry points) "
+			+ "should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -216,7 +217,8 @@ public class OFAToolTest
 	public void testsetInputMapWithEmptySceneAndNoEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (empty scene, no entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (empty scene, no entry points) "
+			+ "should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -237,7 +239,8 @@ public class OFAToolTest
 	public void testsetInputMapWithEmptySceneAndNullEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (empty scene, null entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (empty scene, null entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -259,7 +262,8 @@ public class OFAToolTest
 	public void testsetInputMapWithEmptySceneAndObjectEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (empty scene, Object entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (empty scene, Object entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -281,7 +285,8 @@ public class OFAToolTest
 	public void testsetInputMapWithEmptySceneAndValidEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (empty scene, valid entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (empty scene, valid entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -306,7 +311,8 @@ public class OFAToolTest
 	public void testsetInputMapWithNoSceneAndEmptyEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (no scene, empty entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (no scene, empty entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -348,7 +354,8 @@ public class OFAToolTest
 	public void testsetInputMapWithNoSceneAndObjectEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (no scene, Object entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (no scene, Object entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -369,7 +376,8 @@ public class OFAToolTest
 	public void testsetInputMapWithNoSceneAndValidEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (no scene, valid entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (no scene, valid entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -393,7 +401,8 @@ public class OFAToolTest
 	public void testsetInputMapWithNullSceneAndEmptyEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (null scene, empty entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (null scene, empty entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -436,7 +445,8 @@ public class OFAToolTest
 	public void testsetInputMapWithNullSceneAndNullEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (null scene, null entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (null scene, null entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -458,7 +468,8 @@ public class OFAToolTest
 	public void testsetInputMapWithNullSceneAndObjectEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (null scene, Object entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (null scene, Object entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -480,7 +491,8 @@ public class OFAToolTest
 	public void testsetInputMapWithNullSceneAndValidEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (null scene, valid entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (null scene, valid entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -505,7 +517,8 @@ public class OFAToolTest
 	public void testsetInputMapWithObjectSceneAndEmptyEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (Object scene, empty entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (Object scene, empty entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -527,7 +540,8 @@ public class OFAToolTest
 	public void testsetInputMapWithObjectSceneAndNoEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (Object scene, no entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (Object scene, no entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -548,7 +562,8 @@ public class OFAToolTest
 	public void testsetInputMapWithObjectSceneAndNullEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (Object scene, null entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (Object scene, null entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -570,7 +585,8 @@ public class OFAToolTest
 	public void testsetInputMapWithObjectSceneAndObjectEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (Object scene, Object entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (Object scene, Object entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -592,7 +608,8 @@ public class OFAToolTest
 	public void testsetInputMapWithObjectSceneAndValidEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (Object scene, valid entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (Object scene, valid entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -617,7 +634,8 @@ public class OFAToolTest
 	public void testsetInputMapWithValidSceneAndEmptyEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (valid scene, empty entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (valid scene, empty entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -639,7 +657,8 @@ public class OFAToolTest
 	public void testsetInputMapWithValidSceneAndNoEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (valid scene, no entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (valid scene, no entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -660,7 +679,8 @@ public class OFAToolTest
 	public void testsetInputMapWithValidSceneAndNullEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (valid scene, null entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (valid scene, null entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -682,7 +702,8 @@ public class OFAToolTest
 	public void testsetInputMapWithValidSceneAndObjectEntryPoints() {
 		final OFATool _cgt = new OFATool();
 		final String _message =
-			"Calling setInputMap with an invalid Map (valid scene, Object entry points) should throw an IllegalArgumentException.";
+			"Calling setInputMap with an invalid Map (valid scene, Object entry points)"
+			+ " should throw an IllegalArgumentException.";
 
 		try {
 			final Map _inputMap = new HashMap(1);
@@ -697,3 +718,5 @@ public class OFAToolTest
 		}
 	}
 }
+
+// End of File

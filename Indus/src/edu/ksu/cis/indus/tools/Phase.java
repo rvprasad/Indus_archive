@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -205,23 +205,4 @@ public final class Phase
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2004/01/28 23:02:32  venku
-   - equal should have been equals.  FIXED.
-   - added hashCode.
-   Revision 1.5  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.4  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.3  2003/11/18 21:40:00  venku
-   - added a new method to check ordering relation between 2 phase object.
-   Revision 1.2  2003/09/26 15:00:01  venku
-   - The configuration of tools in Indus has been placed in this package.
-   - Formatting.
-   Revision 1.1  2003/09/26 05:56:10  venku
-   - a checkpoint commit.
- */
+// End of File

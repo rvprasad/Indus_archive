@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -16,8 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.indus.staticanalyses.flow.instances.AbstractXMLBasedValueAnalysisTest;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizer;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
 import edu.ksu.cis.indus.xmlizer.IXMLizer;
@@ -33,7 +31,7 @@ import edu.ksu.cis.indus.xmlizer.IXMLizer;
 public class XMLBasedOFATest
   extends AbstractXMLBasedValueAnalysisTest {
 	/**
-	 * @see IFAProcessorTest#setAnalyzer(IValueAnalyzer)
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
 		if (valueAnalyzer instanceof OFAnalyzer) {
@@ -53,11 +51,4 @@ public class XMLBasedOFATest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2004/03/07 20:27:54  venku
-   - refactoring! refactoring!
-   - generalized OFA Test base to be applicable to any value flow
-     analysis built on top of FA.
- */
+// End of File

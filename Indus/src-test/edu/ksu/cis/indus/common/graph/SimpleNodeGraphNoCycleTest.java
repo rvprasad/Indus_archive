@@ -20,8 +20,6 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.collections.CollectionUtils;
-
 
 /**
  * Tests to tests graphs with no cycle.

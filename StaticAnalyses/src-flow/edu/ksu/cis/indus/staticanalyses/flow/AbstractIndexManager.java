@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public abstract class AbstractIndexManager
   implements IPrototype {
-	/**
+	/** 
 	 * The collection of indices managed by this object.
 	 *
 	 * @invariant indices != null
@@ -93,13 +93,13 @@ public abstract class AbstractIndexManager
 	 * @pre o != null and c != null
 	 */
 	final IIndex queryIndex(final Object o, final Context c) {
-		IIndex temp = getIndex(o, c);
+		final IIndex _temp = getIndex(o, c);
 
-		if (!indices.contains(temp)) {
-			indices.add(temp);
+		if (!indices.contains(_temp)) {
+			indices.add(_temp);
 		}
 
-		return temp;
+		return _temp;
 	}
 
 	/**
@@ -110,29 +110,4 @@ public abstract class AbstractIndexManager
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.5  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.4  2003/08/20 18:14:38  venku
-   Log4j was used instead of logging.  That is fixed.
-   Revision 1.3  2003/08/17 09:59:03  venku
-   Spruced up documentation and specification.
-   Documentation changes to FieldVariant.
-   Revision 1.2  2003/08/12 18:39:56  venku
-   Ripple effect of moving IPrototype to Indus.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Revision 0.10  2003/05/22 22:18:32  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -51,7 +51,7 @@ import junit.textui.TestRunner;
  */
 public final class ValueAnalysisRegressionTestSuite
   extends TestCase {
-	/**
+	/** 
 	 * This is the property via which the ofa test accepts input.  Refer to ValueAnalysisTest.properties for format.
 	 */
 	public static final String VALUE_ANALYSIS_TEST_PROPERTIES_FILE =
@@ -109,7 +109,7 @@ public final class ValueAnalysisRegressionTestSuite
 			_props.load(new FileInputStream(new File(propFileName)));
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
-			final IStmtGraphFactory stmtGraphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
+			final IStmtGraphFactory _stmtGraphFactory = new ExceptionFlowSensitiveStmtGraphFactory();
 
 			for (int _i = 0; _i < _configs.length; _i++) {
 				final String _config = _configs[_i];
@@ -137,7 +137,7 @@ public final class ValueAnalysisRegressionTestSuite
 						final ValueAnalysisTestSetup _test = new ValueAnalysisTestSetup(_temp, _classNames, _classpath);
 						_test.setIdGenerator(new UniqueJimpleIDGenerator());
 						_test.setJimpleXMLDumpLocation(_jimpleDumpDir);
-						_test.setStmtGraphFactory(stmtGraphFactory);
+						_test.setStmtGraphFactory(_stmtGraphFactory);
 						_test.setXMLTestDir(_xmlTestDir);
 						_test.setXMLControlDir(_xmlControlDir);
 						suite.addTest(_test);
@@ -152,97 +152,4 @@ public final class ValueAnalysisRegressionTestSuite
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.17  2004/05/28 21:53:19  venku
-   - added a method to ExceptionFlowSensitiveGraphFactory to create
-     default factory objects.
-   Revision 1.16  2004/04/25 21:18:37  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.15  2004/04/22 10:03:58  venku
-   - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
-   Revision 1.14  2004/04/22 08:00:19  venku
-   - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
-   Revision 1.13  2004/04/21 04:13:19  venku
-   - jimple dumping takes time.  Instead, the user can control this
-     per configuration.
-   Revision 1.12  2004/04/20 06:53:17  venku
-   - documentation.
-   Revision 1.11  2004/04/20 05:27:14  venku
-   - renamed checkExecutability() to checkXMLBasedTestExecutability().
-   Revision 1.10  2004/04/18 00:17:20  venku
-   - added support to dump jimple.xml while testing. (bug fix)
-   Revision 1.9  2004/04/17 23:35:42  venku
-   - failures due to unavailable resources were not flagged. FIXED
-     - added a new class which always errs.
-     - this new class is used to setup a test case for cases where an error should occur.
-     - ripple effect.
-   Revision 1.8  2004/04/17 22:07:34  venku
-   - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
-   - ripple effect in interfaces, classes, and property files.
-   Revision 1.7  2004/04/05 23:16:33  venku
-   - textui.TestRunner cannot be run via start(). FIXED.
-   Revision 1.6  2004/04/05 22:26:48  venku
-   - used textui.TestRunner instead of swingui.TestRunner.
-   Revision 1.5  2004/04/01 22:33:49  venku
-   - test suite name was incorrect.
-   Revision 1.4  2004/04/01 22:28:19  venku
-   - test suite name was incorrect.
-   Revision 1.3  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.2  2004/03/08 03:09:09  venku
-   - documentation.
-   Revision 1.1  2004/03/07 20:27:54  venku
-   - refactoring! refactoring!
-   - generalized OFA Test base to be applicable to any value flow
-     analysis built on top of FA.
-   Revision 1.8  2004/03/05 11:59:45  venku
-   - documentation.
-   Revision 1.7  2004/02/11 09:37:18  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.6  2004/02/09 06:49:02  venku
-   - deleted dependency xmlization and test classes.
-   Revision 1.5  2004/02/09 01:20:10  venku
-   - coding convention.
-   - added a new abstract class contain the logic required for xml-based
-     testing.  (AbstractXMLBasedTest)
-   - added a new xml-based call graph testing class.
-   Revision 1.4  2004/02/09 00:32:16  venku
-   - all test cases in indus extends IndusTestCase.
-   - RegressionTestSuites alter the name of the test instances
-     via appendSuiteTestName().
-   Revision 1.3  2004/02/08 21:31:41  venku
-   - test refactoring to enable same test case to be used as
-     unit test case and regression test case
-   Revision 1.2  2004/02/08 19:17:19  venku
-   - test refactoring for regression testing.
-   Revision 1.1  2004/02/08 04:53:10  venku
-   - refactoring!!!
-   - All regression tests implement IXMLBasedTest.
-   - All test setups extends AbstractXMLBasedTestSetup.
-   - coding convention.
-   - all tests occur at the same package as the classes
-     being tested.
-   Revision 1.2  2004/02/08 01:48:54  venku
-   - documentation and coding convention.
-   Revision 1.1  2004/02/08 01:14:33  venku
-   - added clover source directives.
-   - renamed DependencyTestSuite to OFAProcessorArgTestSuite.
-   Revision 1.1  2004/02/08 01:10:33  venku
-   - renamed TestSuite classes to ArgTestSuite classes.
-   - added OFAProcessorArgTestSuite.
- */
+// End of File

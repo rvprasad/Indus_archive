@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -59,28 +59,4 @@ public class InitializationException
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.3  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.2  2003/08/11 08:12:26  venku
-   Major changes in equals() method of Context, Pair, Marker, and Triple.
-   Similar changes in hashCode()
-   Spruced up Documentation and Specification.
-   Formatted code.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
-   Revision 1.3  2003/05/22 22:18:32  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

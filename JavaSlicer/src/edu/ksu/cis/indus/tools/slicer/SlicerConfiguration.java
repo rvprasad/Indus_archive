@@ -796,6 +796,32 @@ public final class SlicerConfiguration
 	}
 
 	/**
+	 * Processes the property that dictates the strategy use to select deadlock criteria.
+	 *
+	 * @param property is the property.
+	 *
+	 * @return <code>true</code> if the property value was a valid;  <code>false</code>, otherwise.
+	 *
+	 * @pre property != null
+	 */
+	private boolean processDeadlockCriteriaSelectionStrategy(final Object property) {
+		boolean _result = false;
+
+		if (getSliceForDeadlock()) {
+			_result = true;
+
+			if (property.equals(ALL_SYNC_CONSTRUCTS)) {
+				criteriaGenerator = new DeadlockPreservingCriteriaGenerator();
+			} else if (property.equals(ESCAPING_SYNC_CONSTRUCTS)) {
+				criteriaGenerator = new DeadlockPreservingCriteriaGeneratorv2();
+			} else {
+				_result = false;
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Processes the property that dictates the nature of the interference dependence.
 	 *
 	 * @param property is the property.
@@ -835,32 +861,6 @@ public final class SlicerConfiguration
 				_dda.setConsiderCallSites(_temp);
 			}
 		}
-	}
-
-	/**
-	 * Processes the property that dictates the strategy use to select deadlock criteria.
-	 *
-	 * @param property is the property.
-	 *
-	 * @return <code>true</code> if the property value was a valid;  <code>false</code>, otherwise.
-	 *
-	 * @pre property != null
-	 */
-	private boolean processDeadlockCriteriaSelectionStrategy(final Object property) {
-		boolean _result = false;
-
-		if (getSliceForDeadlock()) {
-			_result = true;
-
-			if (property.equals(ALL_SYNC_CONSTRUCTS)) {
-				criteriaGenerator = new DeadlockPreservingCriteriaGenerator();
-			} else if (property.equals(ESCAPING_SYNC_CONSTRUCTS)) {
-				criteriaGenerator = new DeadlockPreservingCriteriaGeneratorv2();
-			} else {
-				_result = false;
-			}
-		}
-		return _result;
 	}
 
 	/**

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -50,28 +50,28 @@ import soot.jimple.Stmt;
  */
 public final class UniqueJimpleIDGenerator
   implements IJimpleIDGenerator {
-	/**
+	/** 
 	 * This maps classes to a sequence of fields that occur in it.  This is used to generate unique id.
 	 *
 	 * @invariant class2fields.oclIsKindOf(Map(SootClass, Sequence(SootField)))
 	 */
 	private final Map class2fields = new HashMap();
 
-	/**
+	/** 
 	 * This maps classes to a sequence of methods that occur in it.  This is used to generate unique id.
 	 *
 	 * @invariant class2methods.oclIsKindOf(Map(SootClass, Sequence(SootMethod)))
 	 */
 	private final Map class2methods = new HashMap();
 
-	/**
+	/** 
 	 * This maps methods to a sequence of locals that occur in it.  This is used to generate unique id.
 	 *
 	 * @invariant method2locals.oclIsKindOf(Map(SootMethod, Sequence(Local)))
 	 */
 	private final Map method2locals = new HashMap();
 
-	/**
+	/** 
 	 * This is a sequence of classes.  This is used to generate unique id.
 	 */
 	private List classes = new ArrayList();
@@ -199,54 +199,14 @@ public final class UniqueJimpleIDGenerator
 	 */
 	private List sort(final Collection collection) {
 		final List _result = new ArrayList(collection);
-		Collections.sort(_result, new Comparator() {
-		   public int compare(final Object o1, final Object o2) {
-		       return o1.toString().compareTo(o2.toString());
-		   }
-		});
+		Collections.sort(_result,
+			new Comparator() {
+				public int compare(final Object o1, final Object o2) {
+					return o1.toString().compareTo(o2.toString());
+				}
+			});
 		return _result;
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.13  2004/04/25 21:18:39  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-
-   Revision 1.12  2004/02/24 22:25:56  venku
-   - documentation
-   Revision 1.11  2003/12/28 01:05:46  venku
-   - removed unnecessary object creation.
-   Revision 1.10  2003/12/28 00:44:15  venku
-   - coding convention.
-   Revision 1.9  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.8  2003/12/02 11:36:16  venku
-   - coding convention.
-   Revision 1.7  2003/12/02 09:42:24  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.6  2003/12/02 01:30:58  venku
-   - coding conventions and formatting.
-   Revision 1.5  2003/11/30 09:44:53  venku
-   - renamed getIdForValue to getIdForValueBox.
-   Revision 1.4  2003/11/28 09:40:55  venku
-   - id generation for types changed.
-   Revision 1.3  2003/11/26 18:25:32  venku
-   - modified the id returned for types.
-   Revision 1.2  2003/11/17 15:57:03  venku
-   - removed support to retrieve new statement ids.
-   - added support to retrieve id for value boxes.
-   Revision 1.1  2003/11/16 18:37:42  venku
-   - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
-   Revision 1.1  2003/11/07 11:14:44  venku
-   - Added generator class for xmlizing purpose.
-   - XMLizing of Jimple works, but takes long.
-     Probably, reachable method dump should fix it.  Another rainy day problem.
- */
+// End of File

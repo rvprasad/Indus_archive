@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -27,7 +27,7 @@ import java.util.Comparator;
  */
 public final class ToStringBasedComparator
   implements Comparator {
-	/**
+	/** 
 	 * A single of this class.
 	 */
 	public static final Comparator SINGLETON = new ToStringBasedComparator();
@@ -50,11 +50,4 @@ public final class ToStringBasedComparator
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/01/21 00:38:52  venku
-   - made this class singleton based.
-   Revision 1.1  2004/01/19 23:50:16  venku
-   - added a toString() based comparator.
- */
+// End of File

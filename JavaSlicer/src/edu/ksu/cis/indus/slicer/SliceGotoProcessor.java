@@ -107,7 +107,7 @@ public final class SliceGotoProcessor {
 	 */
 	private void process(final SootMethod theMethod, final BasicBlockGraph bbg) {
 		method = theMethod;
-	
+
 		// process basic blocks to include all gotos in basic blocks with slice statements.
 		final Collection _bbInSlice = processForIntraBasicBlockGotos(bbg);
 		final IObjectDirectedGraph _dag = bbg.getDAG();
@@ -127,20 +127,22 @@ public final class SliceGotoProcessor {
 		// find basic blocks that are part of cycles (partially or completely) in the slice.
 		final Collection _cycles = bbg.getCycles();
 		final Iterator _k = _cycles.iterator();
-        final int _kEnd = _cycles.size();
-        for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-            final Collection _cycle = (Collection) _k.next();
-            if (CollectionUtils.containsAny(_cycle, _bbInSlice)) { 
-                _bbToBeIncludedInSlice.addAll(_cycle);
-            }            
-        }
-		
-        // include the gotos in the found basic blocks in the slice.
+		final int _kEnd = _cycles.size();
+
+		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+			final Collection _cycle = (Collection) _k.next();
+
+			if (CollectionUtils.containsAny(_cycle, _bbInSlice)) {
+				_bbToBeIncludedInSlice.addAll(_cycle);
+			}
+		}
+
+		// include the gotos in the found basic blocks in the slice.
 		final Iterator _j = _bbToBeIncludedInSlice.iterator();
 		final int _jEnd = _bbToBeIncludedInSlice.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-		    final BasicBlock _bb = ((BasicBlock) _j.next());
+			final BasicBlock _bb = ((BasicBlock) _j.next());
 			final List _stmtsOf = new ArrayList(_bb.getStmtsOf());
 			CollectionUtils.filter(_stmtsOf, GOTO_STMT_PREDICATE);
 			sliceCollector.includeInSlice(_stmtsOf);

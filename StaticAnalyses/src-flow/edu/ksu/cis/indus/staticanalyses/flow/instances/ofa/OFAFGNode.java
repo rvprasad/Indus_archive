@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -37,7 +37,7 @@ import java.util.Collections;
  */
 class OFAFGNode
   extends AbstractFGNode {
-	/**
+	/** 
 	 * The token manager that manages the tokens whose flow is being instrumented.
 	 *
 	 * @invariant tokenMgr != null
@@ -80,62 +80,4 @@ class OFAFGNode
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.14  2004/05/19 06:50:30  venku
-   - changes to use two-level worklist iteration.  That is, while processing
-     work peice in a worklist, any newly generated work is added to another
-     worklist which is processed next.  The worklist are switched till both are
-     empty.
-   Revision 1.13  2004/05/19 05:15:11  venku
-   - changed the interface of FGNode to enable piggy-backing more work
-     on the current unprocessed work piece.
-   Revision 1.12  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-   Revision 1.11  2004/04/02 21:59:54  venku
-   - refactoring.
-     - all classes except OFAnalyzer is package private.
-     - refactored work class hierarchy.
-   Revision 1.10  2004/04/02 09:58:28  venku
-   - refactoring.
-     - collapsed flow insensitive and sensitive parts into common classes.
-     - coding convention
-     - documentation.
-   Revision 1.9  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.8  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.7  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.6  2003/08/25 11:26:14  venku
-   Major bug: Added the original set of values instead of the filtered values. FIXED.
-   Revision 1.5  2003/08/17 11:54:19  venku
-   Formatting and documentation.
-   Revision 1.4  2003/08/17 11:19:13  venku
-   Placed the simple SendTokensWork class into a separate file.
-   Extended it with work pool support.
-   Amended AbstractTokenProcessingWork and WorkList to enable work pool support.
-   Revision 1.3  2003/08/17 10:33:03  venku
-   WorkList does not inherit from IWorkBag rather contains an instance of IWorkBag.
-   Ripple effect of the above change.
-   Revision 1.2  2003/08/15 03:39:53  venku
-   Spruced up documentation and specification.
-   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
-   Renamed a few fields/parameter variables to avoid name confusion.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Revision 1.6  2003/05/22 22:18:31  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

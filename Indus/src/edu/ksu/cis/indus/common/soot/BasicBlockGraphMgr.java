@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -15,9 +15,6 @@
 
 package edu.ksu.cis.indus.common.soot;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.ksu.cis.indus.common.Constants;
 
 import java.lang.ref.SoftReference;
@@ -27,6 +24,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import soot.SootMethod;
 
@@ -41,11 +41,10 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public final class BasicBlockGraphMgr {
-
-    /**
-     * The logger used by instances of this class to log messages.
-     */
-    private static final Log LOGGER = LogFactory.getLog(BasicBlockGraphMgr.class);
+	/** 
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(BasicBlockGraphMgr.class);
 
 	/** 
 	 * This maps methods to basic block graphs.
@@ -78,7 +77,7 @@ public final class BasicBlockGraphMgr {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("getBasicBlockGraph(method = " + sm + ")");
 		}
-	    
+
 		if (stmtGraphProvider == null) {
 			throw new IllegalStateException("You need to set the unit graph provider via setStmtGraphProvider() before "
 				+ "calling this method.");
@@ -104,6 +103,30 @@ public final class BasicBlockGraphMgr {
 			method2graph.put(sm, new SoftReference(_result));
 		}
 		return _result;
+	}
+
+	/**
+	 * Provides the unit graph for the given method.  This is retrieved from the unit graph provider set via
+	 * <code>setUnitGraphProvider</code>.
+	 *
+	 * @param method for which the unit graph is requested.
+	 *
+	 * @return the unit graph for the method.
+	 *
+	 * @pre method != null
+	 * @post result != null
+	 */
+	public UnitGraph getStmtGraph(final SootMethod method) {
+		return stmtGraphProvider.getStmtGraph(method);
+	}
+
+	/**
+	 * Sets the unit graph provider.
+	 *
+	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
+	 */
+	public void setStmtGraphFactory(final IStmtGraphFactory cfgProvider) {
+		stmtGraphProvider = cfgProvider;
 	}
 
 	/**
@@ -137,30 +160,6 @@ public final class BasicBlockGraphMgr {
 	}
 
 	/**
-	 * Provides the unit graph for the given method.  This is retrieved from the unit graph provider set via
-	 * <code>setUnitGraphProvider</code>.
-	 *
-	 * @param method for which the unit graph is requested.
-	 *
-	 * @return the unit graph for the method.
-	 *
-	 * @pre method != null
-	 * @post result != null
-	 */
-	public UnitGraph getStmtGraph(final SootMethod method) {
-		return stmtGraphProvider.getStmtGraph(method);
-	}
-
-	/**
-	 * Sets the unit graph provider.
-	 *
-	 * @param cfgProvider provides <code>UnitGraph</code>s required to construct the basic block graphs.
-	 */
-	public void setStmtGraphFactory(final IStmtGraphFactory cfgProvider) {
-		stmtGraphProvider = cfgProvider;
-	}
-
-	/**
 	 * Resets the internal data structures.
 	 */
 	public void reset() {
@@ -169,94 +168,4 @@ public final class BasicBlockGraphMgr {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2004/08/16 16:48:56  venku
-   - changed the names of the methods that set and get UnitGraph or related classes to
-     contain StmtGraph instead of UnitGraph.
-
-   Revision 1.3  2004/08/16 14:13:47  venku
-   - added a new method to retrieve statement lists of methods.  This may not
-     be the best place to store this information (may be statement graph factory is)
-     but this suffices for now.
-
-   Revision 1.2  2004/08/08 10:11:39  venku
-   - added a new class to configure constants used when creating data structures.
-   - ripple effect.
-   Revision 1.1  2004/05/31 21:38:12  venku
-   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
-   - ripple effect.
-   Revision 1.9  2004/03/26 00:22:31  venku
-   - renamed getUnitGraph() to getStmtGraph() in IStmtGraphFactory.
-   - ripple effect.
-   - changed logic in ExceptionFlowSensitiveStmtGraph.
-   Revision 1.8  2004/01/22 00:53:32  venku
-   - formatting and coding convention.
-   Revision 1.7  2004/01/17 00:38:00  venku
-   - Weak references are claimed too quickly.  So, we now
-     use SoftReferences.
-   Revision 1.6  2004/01/16 21:18:57  venku
-   - renamed setUnitGraphProvider() to setUnitGraphFactory()
-     in BasicBlockGraphMgr.
-   - ripple effect.
-   Revision 1.5  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.4  2003/12/09 04:42:42  venku
-   - unit graph factories are responsible to construct empty
-     bodies for methods not BasicBlockGraphMgr.  FIXED.
-   Revision 1.3  2003/12/09 04:32:09  venku
-   - empty method body needs a method to be associated with it.  FIXED.
-   Revision 1.2  2003/12/09 04:23:49  venku
-   - used IUnitGraphFactory instead of AbstractGraphUnitFactory.
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.2  2003/12/09 04:02:43  venku
-   - empty body is used for methods with no body.
-   Revision 1.1  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.12  2003/12/08 10:26:30  venku
-   - ensured bbg's are returned when the method has concrete implementation.
-   - removed a method whose logic is now dependent on the factory.
-   - ripple effect.
-   Revision 1.11  2003/11/06 05:04:02  venku
-   - renamed WorkBag to IWorkBag and the ripple effect.
-   Revision 1.10  2003/09/28 07:31:28  venku
-   - ensured that null graph is returned if the method does not
-     have a body.
-   Revision 1.9  2003/09/28 06:54:17  venku
-   - one more small change to the interface.
-   Revision 1.8  2003/09/28 06:46:49  venku
-   - Some more changes to extract unit graphs from the enviroment.
-   Revision 1.7  2003/09/28 06:20:38  venku
-   - made the core independent of hard code used to create unit graphs.
-     The core depends on the environment to provide a factory that creates
-     these unit graphs.
-   Revision 1.6  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.5  2003/09/15 02:21:24  venku
-   - added reset method.
-   Revision 1.4  2003/09/10 10:51:07  venku
-   - documentation.
-   - removed unnecessary typecast.
-   Revision 1.3  2003/08/11 06:40:54  venku
-   Changed format of change log accumulation at the end of the file.
-   Spruced up Documentation and Specification.
-   Formatted source.
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
-   Revision 1.5  2003/05/22 22:18:31  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

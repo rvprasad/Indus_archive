@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -27,7 +27,7 @@ import soot.tagkit.Tag;
  */
 public class NamedTag
   implements Tag {
-	/**
+	/** 
 	 * The name of this tag.
 	 */
 	protected final String name;
@@ -84,24 +84,4 @@ public class NamedTag
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.4  2003/12/03 21:44:20  venku
-   - added support for equals() and hashCode() methods.
-   Revision 1.3  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.2  2003/12/02 01:30:59  venku
-   - coding conventions and formatting.
-   Revision 1.1  2003/11/30 00:46:58  venku
-   - added a new tag which can be identified by name.
-   - ripple effect.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -31,7 +31,7 @@ import java.util.List;
  */
 public abstract class AbstractWorkBagTest
   extends IndusTestCase {
-	/**
+	/** 
 	 * The workbag.
 	 */
 	protected IWorkBag wb;
@@ -122,22 +122,4 @@ public abstract class AbstractWorkBagTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.5  2004/02/09 00:28:33  venku
-   - added a new class, IndusTestCase, that extends TestCase
-     to differentiate between the test method name and the
-     test instance name.
-   - all test cases in indus extends IndusTestCase.
-   - added a new method TestHelper to append container's name
-     to the test cases.
-   Revision 1.4  2004/02/07 16:13:29  venku
-   - coding conventions.
-   Revision 1.3  2004/01/28 22:44:16  venku
-   empty message.
-   Revision 1.2  2004/01/28 22:42:27  venku
-   empty log message
-   Revision 1.1  2004/01/28 00:18:45  venku
-   - added unit tests for classes in data structures package.
- */
+// End of File

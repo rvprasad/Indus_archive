@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -30,13 +30,13 @@ public interface IDependenceRetriever {
 	 * This retriever can be used to retrieve dependence from analysis that return pairs of statement and method when
 	 * dependence info is retrieved.
 	 */
-	public static final IDependenceRetriever PAIR_DEP_RETRIEVER = new PairRetriever();
+	IDependenceRetriever PAIR_DEP_RETRIEVER = new PairRetriever();
 
 	/** 
 	 * This retriever can be used to retrieve dependence from analysis that return statements when dependence info is
 	 * retrieved.
 	 */
-	public static final IDependenceRetriever STMT_DEP_RETRIEVER = new StmtRetriever();
+	IDependenceRetriever STMT_DEP_RETRIEVER = new StmtRetriever();
 
 	/**
 	 * Retrieves the dependees based on <code>dependence</code> from <code>da</code>.
@@ -69,7 +69,4 @@ public interface IDependenceRetriever {
 	Collection getDependents(final IDependencyAnalysis da, final Object dependence, final Object origContext);
 }
 
-/*
-   ChangeLog:
-   $Log$
- */
+// End of File

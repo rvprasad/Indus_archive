@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -63,7 +63,7 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 		// add loop edges
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("b"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("b"));
-        setSNG(_sng);
+		setSNG(_sng);
 	}
 
 	/**
@@ -86,48 +86,4 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2004/01/06 01:51:06  venku
-   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
-
-   Revision 1.3  2003/12/30 10:04:25  venku
-   - sng in SimpleNodeGraphTest should track dg or the otherway
-     round to make the hierarchy of test work.  This has
-     been fixed by adding setSNG().
-
-   Revision 1.2  2003/12/30 09:24:59  venku
-   - Refactored DirectedAndSimpleNodeGraphTest into
-      - AbstractDirectedGraphTest
-      - SimpleNodeGraphTest
-   - Introduced SimpleNodeGraphNoCycleTest
-   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
-   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     GraphNoArgTestSuite.
-   - added checks to test exceptional behavior as well.
-
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.3  2003/12/02 09:42:34  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.2  2003/11/10 03:40:50  venku
-   - renamed DirectedAndSimpleNodeGraphTest1 to
-     AbstractDirectedGraphTest.
-   Revision 1.1  2003/11/10 03:39:53  venku
-   - renamed test2 and test3 to JikesBased and JavacBased tests.
-   Revision 1.3  2003/09/28 23:19:36  venku
- *** empty log message ***
-     Revision 1.2  2003/09/11 12:31:00  venku
-     - made ancestral relationship antisymmetric
-     - added testcases to test the relationship.
-     Revision 1.1  2003/09/11 02:37:12  venku
-     - added a test case for javac compilation of Divergent04 test.
-     - created test suite to test directed and simple node graph.
- */
+// End of File

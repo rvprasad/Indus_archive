@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -94,79 +94,4 @@ public class ValueAnalysisTestSetup
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.9  2004/04/21 04:13:19  venku
-   - jimple dumping takes time.  Instead, the user can control this
-     per configuration.
-   Revision 1.8  2004/04/20 06:53:17  venku
-   - documentation.
-   Revision 1.7  2004/04/18 02:05:18  venku
-   - memory leak fixes.
-   Revision 1.6  2004/04/18 00:42:56  venku
-   - references to objects had leaked after test. FIXED.
-   Revision 1.5  2004/04/18 00:02:19  venku
-   - added support to dump jimple.xml while testing.
-   Revision 1.4  2004/03/29 04:54:21  venku
-   - coding convention.
-   Revision 1.3  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.2  2004/03/09 18:40:03  venku
-   - refactoring.
-   - moved methods common to XMLBased Test into AbstractXMLBasedTest.
-   Revision 1.1  2004/03/07 20:27:54  venku
-   - refactoring! refactoring!
-   - generalized OFA Test base to be applicable to any value flow
-     analysis built on top of FA.
-   Revision 1.6  2004/02/11 09:37:18  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.5  2004/02/09 01:20:10  venku
-   - coding convention.
-   - added a new abstract class contain the logic required for xml-based
-     testing.  (AbstractXMLBasedTest)
-   - added a new xml-based call graph testing class.
-   Revision 1.4  2004/02/08 21:31:41  venku
-   - test refactoring to enable same test case to be used as
-     unit test case and regression test case
-   Revision 1.3  2004/02/08 19:53:31  venku
-   - it should be tearDown and not teardown. FIXED.
-   Revision 1.2  2004/02/08 19:17:19  venku
-   - test refactoring for regression testing.
-   Revision 1.1  2004/02/08 04:53:10  venku
-   - refactoring!!!
-   - All regression tests implement IXMLBasedTest.
-   - All test setups extends AbstractXMLBasedTestSetup.
-   - coding convention.
-   - all tests occur at the same package as the classes
-     being tested.
-   Revision 1.1  2004/02/08 02:21:21  venku
-   - renamed package instances.ofa.processors to instances.ofa.
-   - renamed OFAProcessorArgTestSuite to OFAProcessorTestSuite.
-   Revision 1.2  2004/02/08 02:08:25  venku
-   - coding conventions.
-   Revision 1.1  2004/02/08 01:10:33  venku
-   - renamed TestSuite classes to ArgTestSuite classes.
-   - added DependencyArgTestSuite.
-   Revision 1.2  2004/01/03 19:52:54  venku
-   - renamed CallGraphInfoTest to CallGraphTest
-   - all tests of a kind have to be exposed via a suite like
-     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
-     automated testing.
-   - all properties should start with indus and not edu.ksu.cis.indus...
-   Revision 1.1  2003/12/31 08:48:59  venku
-   - Refactoring.
-   - Setup classes setup each tests by data created by a common setup.
-   - Tests and Setups are structured such that if test A requires
-     data that can be tested by test B then testSetup B can
-     be used to drive test A as well.
- */
+// End of File

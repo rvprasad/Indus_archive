@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -326,30 +326,4 @@ public final class LocalUseDefAnalysis
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.7  2004/07/22 09:42:40  venku
-   - altered IUseDefInfo to use tighter types.
-   - ripple effect.
-   Revision 1.6  2004/07/21 11:36:26  venku
-   - Extended IUseDefInfo interface to provide both local and non-local use def info.
-   - ripple effect.
-   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
-     ECBA and AliasedUseDefInfo analysis.
-   - Added new faster implementation of LocalUseDefAnalysisv2
-   - Used LocalUseDefAnalysisv2
-   Revision 1.5  2004/07/17 23:32:18  venku
-   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
-   - ripple effect.
-   Revision 1.4  2004/06/24 06:27:48  venku
-   - previous performance improvement was buggy. FIXED.
-   Revision 1.3  2004/06/23 05:05:21  venku
-   - improved the algorithm for performance.
-   Revision 1.2  2004/06/15 10:28:32  venku
-   - when the unit graph is used as basis for analysis, the units should be
-     extracted from it as well.
-   Revision 1.1  2004/06/15 08:54:48  venku
-   - implemented method local use-def info analysis.
-   - implemented identified based dependence analysis based on above analysis.
- */
+// End of File

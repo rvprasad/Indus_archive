@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -53,17 +53,17 @@ import soot.SootMethod;
 public final class CallGraphTest
   extends AbstractDirectedGraphTest
   implements IFAProcessorTest {
-	/**
+	/** 
 	 * The call graph to be tested.
 	 */
 	private ICallGraphInfo cgi;
 
-	/**
+	/** 
 	 * The object flow analysis used to construct the call graph.
 	 */
 	private OFAnalyzer ofa;
 
-	/**
+	/** 
 	 * The call graph.
 	 */
 	private SimpleNodeGraph cg;
@@ -75,7 +75,7 @@ public final class CallGraphTest
 	 *
 	 * @pre valueAnalyzer != null
 	 *
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setFA(IValueAnalyzer)
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFAProcessorTest#setAnalyzer(IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
 		ofa = (OFAnalyzer) valueAnalyzer;
@@ -369,118 +369,4 @@ public final class CallGraphTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.12  2004/04/17 09:16:34  venku
-   - coding convention.
-   Revision 1.11  2004/03/29 08:48:58  venku
-   - all nodes reachable should be represented in the embedded graph in
-     the call graph.  FIXED.
-   Revision 1.10  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.9  2004/02/11 09:37:18  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.8  2004/02/09 07:35:04  venku
-   - coding conventions.
-   Revision 1.7  2004/02/08 21:31:41  venku
-   - test refactoring to enable same test case to be used as
-     unit test case and regression test case
-   Revision 1.6  2004/02/08 19:32:09  venku
-   - test refactoring for regression testing.
-   Revision 1.5  2004/02/08 04:53:10  venku
-   - refactoring!!!
-   - All regression tests implement IXMLBasedTest.
-   - All test setups extends AbstractXMLBasedTestSetup.
-   - coding convention.
-   - all tests occur at the same package as the classes
-     being tested.
-   Revision 1.1  2004/02/08 02:21:21  venku
-   - renamed package instances.ofa.processors to instances.ofa.
-   - renamed OFAProcessorArgTestSuite to OFAProcessorTestSuite.
-   Revision 1.3  2004/02/08 01:10:33  venku
-   - renamed TestSuite classes to ArgTestSuite classes.
-   - added DependencyArgTestSuite.
-   Revision 1.2  2004/01/06 01:51:55  venku
-   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
-   Revision 1.1  2004/01/03 19:52:54  venku
-   - renamed CallGraphInfoTest to CallGraphTest
-   - all tests of a kind have to be exposed via a suite like
-     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
-     automated testing.
-   - all properties should start with indus and not edu.ksu.cis.indus...
-   Revision 1.1  2003/12/31 08:48:59  venku
-   - Refactoring.
-   - Setup classes setup each tests by data created by a common setup.
-   - Tests and Setups are structured such that if test A requires
-     data that can be tested by test B then testSetup B can
-     be used to drive test A as well.
-   Revision 1.19  2003/12/30 10:04:18  venku
-   - sng in SimpleNodeGraphTest should track dg or the otherway
-     round to make the hierarchy of test work.  This has
-     been fixed by adding setSNG().
-   Revision 1.18  2003/12/30 09:24:55  venku
-   - Refactored DirectedAndSimpleNodeGraphTest into
-      - AbstractDirectedGraphTest
-      - SimpleNodeGraphTest
-   - Introduced SimpleNodeGraphNoCycleTest
-   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
-   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     GraphNoArgTestSuite.
-   - added checks to test exceptional behavior as well.
-   Revision 1.17  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.16  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.15  2003/12/09 03:35:48  venku
-   - formatting and removal of stdouts.
-   Revision 1.14  2003/12/08 13:31:49  venku
-   - used JUnit defined assert functions.
-   Revision 1.13  2003/12/08 12:20:44  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.12  2003/12/08 12:15:58  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.11  2003/12/07 14:04:43  venku
-   - made FATest command-line compatible.
-   - made use of AbstractDirectedGraphTest in
-     CallGraphTest to test the constructed call graphs.
-   Revision 1.10  2003/12/05 21:34:01  venku
-   - formatting.
-   - more tests.
-   Revision 1.9  2003/12/05 15:28:12  venku
-   - added test case for trivial tagging test in FA.
-   Revision 1.8  2003/12/05 11:48:19  venku
-   - added one more check while testing SCC.
-   Revision 1.7  2003/12/02 09:42:39  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.6  2003/11/30 01:38:52  venku
-   - incorporated tag based filtering during CG construction.
-   Revision 1.5  2003/11/30 01:07:57  venku
-   - added name tagging support in FA to enable faster
-     post processing based on filtering.
-   - ripple effect.
-   Revision 1.4  2003/11/30 00:21:48  venku
-   - coding convention.
-   Revision 1.3  2003/11/29 09:48:14  venku
-   - 2 SCC should be disjoint.  intersection should be used
-     instead of subtract.  FIXED.
-   Revision 1.2  2003/11/29 09:44:20  venku
-   - changed the check for getCallees(InvokeExpr,..).
-   Revision 1.1  2003/11/29 09:35:44  venku
-   - added test support for processors.  CallGraph, in particular.
- */
+// End of File

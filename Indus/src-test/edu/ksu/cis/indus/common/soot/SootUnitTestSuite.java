@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -73,34 +73,4 @@ public final class SootUnitTestSuite {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.8  2004/04/05 23:16:37  venku
-   - textui.TestRunner cannot be run via start(). FIXED.
-
-   Revision 1.7  2004/04/05 22:26:30  venku
-   - used textui.TestRunner instead of swingui.TestRunner.
-
-   Revision 1.6  2004/04/01 22:33:45  venku
-   - test suite name was incorrect.
-
-   Revision 1.5  2004/02/09 01:39:50  venku
-   - changed test naming for report purposes.
-
-   Revision 1.4  2004/02/09 00:39:50  venku
-   - output formatting.
-   - UnitTestSuites alter the name of the test instances
-     via appendSuiteTestName().
-   Revision 1.3  2004/02/08 20:58:58  venku
-   - class loading during testing was fixed.
-   Revision 1.2  2004/02/08 20:52:22  venku
-   - changed the way unit test suites can be run as applications.
-   - renamed GraphUnitestSuite to GraphUnitTestSuite.
-   Revision 1.1  2004/02/08 03:34:30  venku
-   - renamed NoArgTestSuite to UnitTestSuite
-   Revision 1.1  2004/02/08 01:04:12  venku
-   - renamed TestSuite classes to NoArgTestSuite classes.
-   Revision 1.1  2004/01/28 22:45:07  venku
-   - added new test cases for testing classes in soot package.
- */
+// End of File

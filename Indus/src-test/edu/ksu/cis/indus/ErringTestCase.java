@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -27,7 +27,7 @@ import junit.framework.TestCase;
  */
 public final class ErringTestCase
   extends TestCase {
-	/**
+	/** 
 	 * The exception to be thrown.
 	 */
 	final RuntimeException exception;
@@ -49,12 +49,4 @@ public final class ErringTestCase
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/04/17 23:35:43  venku
-   - failures due to unavailable resources were not flagged. FIXED
-     - added a new class which always errs.
-     - this new class is used to setup a test case for cases where an error should occur.
-     - ripple effect.
- */
+// End of File

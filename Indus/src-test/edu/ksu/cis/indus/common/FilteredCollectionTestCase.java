@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -27,123 +27,117 @@ import edu.ksu.cis.indus.IndusTestCase;
  */
 public class FilteredCollectionTestCase
   extends IndusTestCase {
-	/*
-	 * Class under test for boolean addAll(Collection)
+	/**
+	 * Tests <code>addAll(Collection)</code>.
 	 */
 	public final void testAddAllCollection() {
 		//TODO: Implement addAll().
 	}
 
-	/*
-	 * Class under test for boolean add(Object)
+	/**
+	 * Tests <code>add(Object)</code>.
 	 */
 	public final void testAddObject() {
 		//TODO: Implement add().
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>clear()</code>.
 	 */
 	public final void testClear() {
 		//TODO: Implement clear().
 	}
 
-	/*
-	 * Class under test for boolean containsAll(Collection)
+	/**
+	 * Tests <code>containsAll(Collection)</code>.
 	 */
 	public final void testContainsAllCollection() {
 		//TODO: Implement containsAll().
 	}
 
-	/*
-	 * Class under test for boolean contains(Object)
+	/**
+	 * Tests <code>contains(Object)</code>.
 	 */
 	public final void testContainsObject() {
 		//TODO: Implement contains().
 	}
 
-	/*
-	 * Class under test for boolean equals(Object)
+	/**
+	 * Tests <code>equals(Object)</code>.
 	 */
 	public final void testEqualsObject() {
 		//TODO: Implement equals().
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>hashCode()</code>.
 	 */
 	public final void testHashCode() {
 		//TODO: Implement hashCode().
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>isEmpty()</code>.
 	 */
 	public final void testIsEmpty() {
 		//TODO: Implement isEmpty().
 	}
 
-	/*
-	 * Class under test for Iterator iterator()
+	/**
+	 * Tests <code>iterator()</code>.
 	 */
 	public final void testIterator() {
 		//TODO: Implement iterator().
 	}
 
-	/*
-	 * Class under test for boolean removeAll(Collection)
+	/**
+	 * Tests <code>removeAll(Collection)</code>.
 	 */
 	public final void testRemoveAllCollection() {
 		//TODO: Implement removeAll().
 	}
 
-	/*
-	 * Class under test for boolean remove(Object)
+	/**
+	 * Tests <code>remove(Object)</code>.
 	 */
 	public final void testRemoveObject() {
 		//TODO: Implement remove().
 	}
 
-	/*
-	 * Class under test for boolean retainAll(Collection)
+	/**
+	 * Tests <code>retainAll(Collection)</code>.
 	 */
 	public final void testRetainAllCollection() {
 		//TODO: Implement retainAll().
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>size()</code>.
 	 */
 	public final void testSize() {
 		//TODO: Implement size().
 	}
 
-	/*
-	 * Class under test for Object[] toArray()
+	/**
+	 * Tests <code>toArray()</code>.
 	 */
 	public final void testToArray() {
 		//TODO: Implement toArray().
 	}
 
-	/*
-	 * Class under test for Object[] toArray(Object[])
+	/**
+	 * Tests <code>toArray(Object[])</code>.
 	 */
 	public final void testToArrayObjectArray() {
 		//TODO: Implement toArray().
 	}
 
-	/*
-	 * Class under test for String toString()
+	/**
+	 * Tests <code>toString()</code>.
 	 */
 	public final void testToString() {
 		//TODO: Implement toString().
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/06/29 02:00:23  venku
-   - added test cases for FilteredXXXX classes.  These need to be implemented.
-
- */
+// End of File

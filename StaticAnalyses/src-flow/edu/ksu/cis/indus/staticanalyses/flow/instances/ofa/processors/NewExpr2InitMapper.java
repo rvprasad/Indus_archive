@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -52,17 +52,17 @@ import soot.jimple.Stmt;
 public class NewExpr2InitMapper
   extends AbstractValueAnalyzerBasedProcessor
   implements INewExpr2InitMapper {
-	/**
+	/** 
 	 * This is a cache of the context.
 	 */
 	private Context contextCache = new Context();
 
-	/**
+	/** 
 	 * This is the object flow information to be used to improve precision.
 	 */
 	private IValueAnalyzer ofa;
 
-	/**
+	/** 
 	 * This maps methods to a map from new expression occurring statement to init invocation expression occurring statement.
 	 *
 	 * @invariant method2map != null
@@ -161,32 +161,4 @@ public class NewExpr2InitMapper
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.5  2004/07/07 10:23:09  venku
-   - formatting and coding convention.
-
-   Revision 1.4  2004/05/14 04:39:22  venku
-   - added reset method.
-   Revision 1.3  2004/02/25 00:04:02  venku
-   - documenation.
-   Revision 1.2  2004/02/01 23:33:43  venku
-   - extracted the interface of NewExpr2InitMapper to make the
-     end analyses configurable.
-   Revision 1.1  2003/12/13 19:52:45  venku
-   - renamed Init2NewExprMapper to NewExpr2InitMapper.
-   - ripple effect.
-   Revision 1.3  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.2  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.1  2003/11/22 00:42:22  venku
-   - renamed InitResolved to NewExpr2InitMapper.
-   - added logic to realize the functionality.
-   Revision 1.1  2003/11/20 08:22:33  venku
-   - added support to include calls to <init> based on new expressions.
-   - need to implement the class that provides this information.
- */
+// End of File

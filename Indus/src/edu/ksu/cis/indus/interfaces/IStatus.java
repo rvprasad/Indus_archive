@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -43,17 +43,4 @@ public interface IStatus {
 	boolean isStable();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.3  2003/09/27 23:21:42  venku
- *** empty log message ***
-         Revision 1.2  2003/08/21 03:54:41  venku
-         Documentation.
-         Revision 1.1  2003/08/21 03:30:34  venku
-         Added a new interface to query stableness of objects.
-         Analyses/Engine/Transformation objects in particular.
- */
+// End of File

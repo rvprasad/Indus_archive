@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -147,52 +147,4 @@ public final class TestHelper {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.13  2004/04/20 05:27:16  venku
-   - renamed checkExecutability() to checkXMLBasedTestExecutability().
-   Revision 1.12  2004/04/18 08:59:02  venku
-   - enabled test support for slicer.
-   Revision 1.11  2004/04/17 23:35:43  venku
-   - failures due to unavailable resources were not flagged. FIXED
-     - added a new class which always errs.
-     - this new class is used to setup a test case for cases where an error should occur.
-     - ripple effect.
-   Revision 1.10  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.9  2004/02/17 05:46:20  venku
-   - coding convention.
-   Revision 1.8  2004/02/14 23:16:49  venku
-   - coding convention.
-   Revision 1.7  2004/02/09 07:32:41  venku
-   - added support to differentiate test method name and test name.
-   - added logic to change name of AbstractXMLBasedTest tests as well.
-   Revision 1.6  2004/02/09 01:39:50  venku
-   - changed test naming for report purposes.
-   Revision 1.5  2004/02/09 00:42:29  venku
-   - output formatting.
-   Revision 1.4  2004/02/09 00:39:50  venku
-   - output formatting.
-   - UnitTestSuites alter the name of the test instances
-     via appendSuiteTestName().
-   Revision 1.3  2004/02/09 00:28:33  venku
-   - added a new class, IndusTestCase, that extends TestCase
-     to differentiate between the test method name and the
-     test instance name.
-   - all test cases in indus extends IndusTestCase.
-   - added a new method TestHelper to append container's name
-     to the test cases.
-   Revision 1.2  2004/01/06 00:17:10  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.1  2003/12/31 08:46:07  venku
-   - provides helper functions to make setup flexible and pluggable.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -68,24 +68,4 @@ public final class CustomXMLOutputter
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2004/05/13 03:12:33  venku
-   - CustomXMLOutputter defaults to UTF-8 encoding.
-   - Added a new method to AbstractXMLizer to encode strings.
-   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
-   - ripple effect.
-   Revision 1.3  2004/05/10 12:31:00  venku
-   - a pretty printer should be used while viewing the xml doc rather
-     than writing the XML doc in pretty format.  Fixed CustomXMLOutputter
-     to output lean-mean XML document.
-   Revision 1.2  2004/05/09 08:23:31  venku
-   - generalized creation logic.
-   Revision 1.1  2004/04/25 21:18:39  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
- */
+// End of File

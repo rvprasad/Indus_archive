@@ -47,7 +47,7 @@ public abstract class AbstractTokenManager
 	 * Creates an instance of this class.
 	 *
 	 * @param typeManager manages the types of the tokens managed by this object.  The client should relinquish ownership of
-	 * the given argument.  This argument is provided for configurability.
+	 * 		  the given argument.  This argument is provided for configurability.
 	 *
 	 * @pre typeManager != null
 	 */
@@ -96,16 +96,4 @@ public abstract class AbstractTokenManager
 	protected abstract ITokenFilter getNewFilterForType(final IType type);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/08/18 12:07:33  venku
-   - type manager was not reset when the token manager was reset. FIXED.
-   - refactoring.
-
-   Revision 1.1  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -188,93 +188,4 @@ public class ReferenceBasedDataDA
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.30  2004/08/11 03:45:42  venku
-   - logging.
-   Revision 1.29  2004/07/22 09:42:40  venku
-   - altered IUseDefInfo to use tighter types.
-   - ripple effect.
-   Revision 1.28  2004/07/21 11:36:26  venku
-   - Extended IUseDefInfo interface to provide both local and non-local use def info.
-   - ripple effect.
-   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
-     ECBA and AliasedUseDefInfo analysis.
-   - Added new faster implementation of LocalUseDefAnalysisv2
-   - Used LocalUseDefAnalysisv2
-   Revision 1.27  2004/07/11 23:34:03  venku
-   -
-    coding conventions.
-   Revision 1.26  2004/07/11 09:42:13  venku
-   - Changed the way status information was handled the library.
-     - Added class AbstractStatus to handle status related issues while
-       the implementations just announce their status.
-   Revision 1.25  2004/07/10 07:55:53  venku
-   - logging.
-   Revision 1.24  2004/07/09 09:43:23  venku
-   - added clover tags to control coverage of toSting()
-   Revision 1.23  2004/07/08 11:03:59  venku
-   - coding conventions.
-   - rely on AliasedUseDef analysis for toString() output.
-   Revision 1.22  2004/06/16 14:30:12  venku
-   - logging.
-   Revision 1.21  2004/05/14 06:27:24  venku
-   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-   Revision 1.20  2004/03/03 10:07:24  venku
-   - renamed dependeeMap as dependent2dependee
-   - renamed dependentmap as dependee2dependent
-   Revision 1.19  2004/03/03 02:17:46  venku
-   - added a new method to ICallGraphInfo interface.
-   - implemented the above method in CallGraph.
-   - made aliased use-def call-graph sensitive.
-   Revision 1.18  2003/12/08 12:20:44  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.17  2003/12/02 09:42:36  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.16  2003/11/25 19:03:40  venku
-   - added more stringent tests to check if the underlying
-     info should be used.
-   Revision 1.15  2003/11/16 18:41:03  venku
-   - incorrect ID was returned.  FIXED.
-   Revision 1.14  2003/11/12 03:56:32  venku
-   - requires DefinitionStmt as input for getDependents()
-   Revision 1.13  2003/11/12 01:04:54  venku
-   - each analysis implementation has to identify itself as
-     belonging to a analysis category via an id.
-   Revision 1.12  2003/11/10 02:26:29  venku
-   - coding convention.
-   Revision 1.11  2003/11/10 02:24:30  venku
-   - coding convention.
-   Revision 1.10  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.9  2003/11/05 00:44:51  venku
-   - added logging statements to track the execution.
-   Revision 1.8  2003/09/28 03:16:48  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.7  2003/09/14 23:29:32  venku
-   - deferred status changes to contained AliasedUseDefInfo analysis.
-   Revision 1.6  2003/09/12 22:33:09  venku
-   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
-   - Ripple effect of the above changes.
-   Revision 1.5  2003/08/25 09:30:41  venku
-   Renamed AliasedDataDA to ReferenceBasedDataDA.
-   Renamed NonAliasedDataDA to IdentifierBasedDataDA.
-   Renamed the IDs for the above analyses.
-   Revision 1.4  2003/08/20 18:14:38  venku
-   Log4j was used instead of logging.  That is fixed.
-   Revision 1.3  2003/08/11 06:34:52  venku
-   Changed format of change log accumulation at the end of the file
-   Revision 1.2  2003/08/11 06:31:55  venku
-   Changed format of change log accumulation at the end of the file
-   Revision 1.1  2003/08/09 23:29:09  venku
-   Renamed InterProceduralDataDAv1 to AliasedDataDA
-   Renamed IntraProceduralDataDA to NonAliasedDataDA
- */
+// End of File

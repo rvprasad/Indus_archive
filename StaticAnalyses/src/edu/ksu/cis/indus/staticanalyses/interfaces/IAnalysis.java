@@ -1,6 +1,7 @@
+
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -11,6 +12,7 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
+
 package edu.ksu.cis.indus.staticanalyses.interfaces;
 
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -81,13 +83,4 @@ public interface IAnalysis
 	void reset();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/08/07 11:52:24  venku
-   - IAnalysis extends IStatus.
-   - AnalysesController extended AbstractStatus. Now, I wonder why. It has been removed.
-   Revision 1.1  2004/07/24 09:57:49  venku
-   - extracted interface from AbstractAnalysis.
-   - ripple effect.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -40,7 +40,7 @@ import soot.Value;
  */
 public class SootValueTypeManager
   implements ITypeManager {
-	/**
+	/** 
 	 * This maps soot types to user's type.
 	 */
 	private final Map sootType2Type = new HashMap(Constants.getNumOfClassesInApplication());
@@ -96,15 +96,4 @@ public class SootValueTypeManager
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/04/20 06:53:17  venku
-   - documentation.
-
-   Revision 1.1  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
- */
+// End of File

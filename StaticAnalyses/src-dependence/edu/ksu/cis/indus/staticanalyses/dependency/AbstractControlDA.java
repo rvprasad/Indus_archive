@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -29,7 +29,7 @@ import soot.SootMethod;
 
 
 /**
- * This class contains implementation that can be used by various control dependence implementation. 
+ * This class contains implementation that can be used by various control dependence implementation.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -37,7 +37,7 @@ import soot.SootMethod;
  */
 public abstract class AbstractControlDA
   extends AbstractDependencyAnalysis {
-	/**
+	/** 
 	 * This provides the call graph information.
 	 */
 	protected ICallGraphInfo callgraph;
@@ -185,10 +185,4 @@ public abstract class AbstractControlDA
 	///CLOVER:ON
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/07/11 11:20:50  venku
-   - refactored code to simplify control dependence implementation.
-
- */
+// End of File

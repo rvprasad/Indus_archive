@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -43,7 +43,7 @@ import junit.textui.TestRunner;
  */
 public final class SlicerRegressionTestSuite
   extends TestCase {
-	/**
+	/** 
 	 * The properties file containing the test configuration is specified via this property.
 	 */
 	private static final String SLICER_TEST_PROPERTIES_FILE = "indus.slicer.XMLBasedSlicerTest.properties.file";
@@ -141,19 +141,4 @@ public final class SlicerRegressionTestSuite
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2004/04/22 10:04:00  venku
-   - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
-   Revision 1.5  2004/04/22 08:00:20  venku
-   - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
-   Revision 1.4  2004/04/20 06:53:15  venku
-   - documentation.
-   Revision 1.3  2004/04/20 05:27:13  venku
-   - renamed checkExecutability() to checkXMLBasedTestExecutability().
-   Revision 1.2  2004/04/18 09:08:18  venku
-   - changed property name.
-   Revision 1.1  2004/04/18 08:59:00  venku
-   - enabled test support for slicer.
- */
+// End of File

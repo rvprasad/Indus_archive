@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -77,28 +77,4 @@ public class CollectionsUtilitiesTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/06/14 04:55:04  venku
-   - documentation.
-   - coding conventions.
-   Revision 1.1  2004/05/21 22:11:48  venku
-   - renamed CollectionsModifier as CollectionUtilities.
-   - added new specialized methods along with a method to extract
-     filtered maps.
-   - ripple effect.
-   Revision 1.4  2004/04/21 02:24:04  venku
-   - test clean up code was added.
-   Revision 1.3  2004/02/09 00:28:33  venku
-   - added a new class, IndusTestCase, that extends TestCase
-     to differentiate between the test method name and the
-     test instance name.
-   - all test cases in indus extends IndusTestCase.
-   - added a new method TestHelper to append container's name
-     to the test cases.
-   Revision 1.2  2004/02/07 16:13:29  venku
-   - coding conventions.
-   Revision 1.1  2004/01/28 22:55:23  venku
-   - added test suites for classes in common package.
- */
+// End of File

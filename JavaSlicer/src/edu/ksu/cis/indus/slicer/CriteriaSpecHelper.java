@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -112,11 +112,4 @@ public final class CriteriaSpecHelper {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/07/02 09:00:08  venku
-   - added support to serialize/deserialize slice criteria. (feature #397)
-   - used the above support in SliceXMLizerCLI.
-   - used Jakarta Commons IO library.
- */
+// End of File

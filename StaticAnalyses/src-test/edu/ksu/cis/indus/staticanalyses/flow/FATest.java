@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -43,23 +43,23 @@ import soot.SootMethod;
 public final class FATest
   extends IndusTestCase
   implements IFATest {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(FATest.class);
 
-	/**
+	/** 
 	 * The flow analysis framework instance to test.
 	 */
 	private FA fa;
 
-	/**
+	/** 
 	 * The name of that tag used to identify parts of the system that was touched by the analysis.
 	 */
 	private String faTagName;
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IFATest#setAnalyzer(edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer)
+	 * @see IFATest#setAnalyzer(edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer)
 	 */
 	public void setAnalyzer(final IValueAnalyzer valueAnalyzer) {
 	}
@@ -195,84 +195,4 @@ public final class FATest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.9  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-
-   Revision 1.8  2004/02/11 09:37:18  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.7  2004/02/09 00:32:16  venku
-   - all test cases in indus extends IndusTestCase.
-   - RegressionTestSuites alter the name of the test instances
-     via appendSuiteTestName().
-   Revision 1.6  2004/02/08 21:31:41  venku
-   - test refactoring to enable same test case to be used as
-     unit test case and regression test case
-   Revision 1.5  2004/02/08 19:17:19  venku
-   - test refactoring for regression testing.
-   Revision 1.4  2004/02/08 04:53:10  venku
-   - refactoring!!!
-   - All regression tests implement IXMLBasedTest.
-   - All test setups extends AbstractXMLBasedTestSetup.
-   - coding convention.
-   - all tests occur at the same package as the classes
-     being tested.
-   Revision 1.3  2004/02/08 01:10:33  venku
-   - renamed TestSuite classes to ArgTestSuite classes.
-   - added DependencyArgTestSuite.
-   Revision 1.2  2004/01/06 00:17:01  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.1  2004/01/03 19:52:54  venku
-   - renamed CallGraphInfoTest to CallGraphTest
-   - all tests of a kind have to be exposed via a suite like
-     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
-     automated testing.
-   - all properties should start with indus and not edu.ksu.cis.indus...
-   Revision 1.11  2003/12/31 08:48:59  venku
-   - Refactoring.
-   - Setup classes setup each tests by data created by a common setup.
-   - Tests and Setups are structured such that if test A requires
-     data that can be tested by test B then testSetup B can
-     be used to drive test A as well.
-   Revision 1.10  2003/12/30 10:06:41  venku
-    empty log message
-   Revision 1.9  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.8  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.7  2003/12/08 13:31:49  venku
-   - used JUnit defined assert functions.
-   Revision 1.6  2003/12/08 12:15:57  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.5  2003/12/07 14:04:43  venku
-   - made FATest command-line compatible.
-   - made use of AbstractDirectedGraphTest in
-     CallGraphInfoTester to test the constructed call graphs.
-   Revision 1.4  2003/12/07 08:39:23  venku
-   - added more tests.
-   Revision 1.3  2003/12/07 03:32:21  venku
-   - added new tests.
-   - formatting.
-   Revision 1.2  2003/12/05 21:34:01  venku
-   - formatting.
-   - more tests.
-   Revision 1.1  2003/12/05 15:28:12  venku
-   - added test case for trivial tagging test in FA.
- */
+// End of File

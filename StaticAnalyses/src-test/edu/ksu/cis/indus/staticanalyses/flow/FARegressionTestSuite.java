@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.TestHelper;
+
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.File;
@@ -42,7 +43,7 @@ public class FARegressionTestSuite
   extends TestCase {
 	///CLOVER:OFF
 
-	/**
+	/** 
 	 * The name of the property via which the names of the classes to be used to drive the test is specified.
 	 */
 	public static final String FA_TEST_PROPERTIES_FILE = "indus.staticanalyses.flow.FATest.properties.file";
@@ -110,7 +111,7 @@ public class FARegressionTestSuite
 					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 					final FATestSetup _test = new FATestSetup(_temp, _classNames, _classpath);
-                    _test.setIdGenerator(new UniqueJimpleIDGenerator());
+					_test.setIdGenerator(new UniqueJimpleIDGenerator());
 					_test.setJimpleXMLDumpLocation(_jimpleXMLDumpDir);
 					suite.addTest(_test);
 				} catch (IllegalArgumentException _e) {
@@ -123,55 +124,4 @@ public class FARegressionTestSuite
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.11  2004/04/22 10:03:59  venku
-   - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
-
-   Revision 1.10  2004/04/21 04:13:20  venku
-   - jimple dumping takes time.  Instead, the user can control this
-     per configuration.
-
-   Revision 1.9  2004/04/20 06:53:17  venku
-   - documentation.
-   Revision 1.8  2004/04/05 23:16:33  venku
-   - textui.TestRunner cannot be run via start(). FIXED.
-   Revision 1.7  2004/04/05 22:26:48  venku
-   - used textui.TestRunner instead of swingui.TestRunner.
-   Revision 1.6  2004/04/01 22:33:49  venku
-   - test suite name was incorrect.
-   Revision 1.5  2004/02/09 01:20:10  venku
-   - coding convention.
-   - added a new abstract class contain the logic required for xml-based
-     testing.  (AbstractXMLBasedTest)
-   - added a new xml-based call graph testing class.
-   Revision 1.4  2004/02/09 00:32:16  venku
-   - all test cases in indus extends IndusTestCase.
-   - RegressionTestSuites alter the name of the test instances
-     via appendSuiteTestName().
-   Revision 1.3  2004/02/08 21:31:41  venku
-   - test refactoring to enable same test case to be used as
-     unit test case and regression test case
-   Revision 1.2  2004/02/08 19:17:19  venku
-   - test refactoring for regression testing.
-   Revision 1.1  2004/02/08 04:53:11  venku
-   - refactoring!!!
-   - All regression tests implement IXMLBasedTest.
-   - All test setups extends AbstractXMLBasedTestSetup.
-   - coding convention.
-   - all tests occur at the same package as the classes
-     being tested.
-   Revision 1.3  2004/02/08 01:14:33  venku
-   - added clover source directives.
-   - renamed DependencyTestSuite to DependencyArgTestSuite.
-   Revision 1.2  2004/02/08 01:10:33  venku
-   - renamed TestSuite classes to ArgTestSuite classes.
-   - added DependencyArgTestSuite.
-   Revision 1.1  2004/01/03 19:52:54  venku
-   - renamed CallGraphInfoTest to CallGraphTest
-   - all tests of a kind have to be exposed via a suite like
-     FATestSuite or OFAProcessorArgTestSuite.  This is to enable
-     automated testing.
-   - all properties should start with indus and not edu.ksu.cis.indus...
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -44,12 +44,12 @@ import soot.jimple.NullConstant;
  */
 abstract class AbstractMemberDataAccessExprWork
   extends AbstractAccessExprWork {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractMemberDataAccessExprWork.class);
 
-	/**
+	/** 
 	 * The ast flow graph node which needs to be connected to non-ast nodes depending on the values that occur at the
 	 * primary.
 	 *
@@ -57,7 +57,7 @@ abstract class AbstractMemberDataAccessExprWork
 	 */
 	protected final IFGNode ast;
 
-	/**
+	/** 
 	 * The connector to be used to connect the ast and non-ast node.
 	 *
 	 * @invariant connector != null
@@ -101,7 +101,7 @@ abstract class AbstractMemberDataAccessExprWork
 			}
 
 			if (context instanceof AllocationContext) {
-			    ((AllocationContext) context).setAllocationSite(_v);
+				((AllocationContext) context).setAllocationSite(_v);
 			}
 
 			final IFGNode _nonast = getFGNodeForMemberData();
@@ -119,20 +119,4 @@ abstract class AbstractMemberDataAccessExprWork
 	protected abstract IFGNode getFGNodeForMemberData();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2004/08/20 15:44:25  venku
-   - logging.
-
-   Revision 1.2  2004/04/16 20:10:38  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-
-   Revision 1.1  2004/04/02 21:59:54  venku
-   - refactoring.
-     - all classes except OFAnalyzer is package private.
-     - refactored work class hierarchy.
- */
+// End of File

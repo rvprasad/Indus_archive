@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -57,19 +57,19 @@ import soot.jimple.NullConstant;
  */
 class InvokeExprWork
   extends AbstractAccessExprWork {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(InvokeExprWork.class);
 
-	/**
+	/** 
 	 * Indicates if the method represented by this object returns a value of with reference-like type.
 	 *
 	 * @invariant returnsRefLikeType != null
 	 */
 	protected final boolean returnsRefLikeType;
 
-	/**
+	/** 
 	 * The collection of variants already processed/installed at the given access expression.  We do not want to process
 	 * variants again and again.
 	 *
@@ -214,62 +214,4 @@ class InvokeExprWork
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.16  2004/04/16 20:10:38  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-
-   Revision 1.15  2004/04/02 21:59:54  venku
-   - refactoring.
-     - all classes except OFAnalyzer is package private.
-     - refactored work class hierarchy.
-   Revision 1.14  2004/04/02 09:58:28  venku
-   - refactoring.
-     - collapsed flow insensitive and sensitive parts into common classes.
-     - coding convention
-     - documentation.
-   Revision 1.13  2003/12/07 05:02:34  venku
-   - formatting.
-   Revision 1.12  2003/12/05 21:13:56  venku
-   - special invokes are treated just like virtual invoke.
-   Revision 1.11  2003/12/05 02:27:20  venku
-   - unnecessary methods and fields were removed. Like
-       getCurrentProgramPoint()
-       getCurrentStmt()
-   - context holds current information and only it must be used
-     to retrieve this information.  No auxiliary arguments. FIXED.
-   Revision 1.10  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.9  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.8  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.7  2003/08/25 11:24:22  venku
-   Coding convention.
-   Revision 1.6  2003/08/24 12:58:11  venku
-   Formatting.
-   Revision 1.5  2003/08/20 18:14:38  venku
-   Log4j was used instead of logging.  That is fixed.
-   Revision 1.4  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.3  2003/08/16 21:55:14  venku
-   Ripple effect of changing FA._FA to FA._fa
-   Revision 1.2  2003/08/15 03:39:53  venku
-   Spruced up documentation and specification.
-   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
-   Renamed a few fields/parameter variables to avoid name confusion.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
- */
+// End of File

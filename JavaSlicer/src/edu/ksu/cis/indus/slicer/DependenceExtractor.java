@@ -168,10 +168,4 @@ class DependenceExtractor
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/08/20 02:13:05  venku
-   - refactored slicer based on slicing direction.
-
- */
+// End of File

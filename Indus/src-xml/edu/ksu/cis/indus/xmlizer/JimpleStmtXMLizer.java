@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -50,31 +50,31 @@ import soot.jimple.ThrowStmt;
  */
 final class JimpleStmtXMLizer
   extends AbstractStmtSwitch {
-	/**
+	/** 
 	 * The xmlizer used to xmlize jimple <code>Value</code> types.
 	 *
 	 * @invariant valueXMLizer != null
 	 */
 	JimpleValueXMLizer valueXMLizer;
 
-	/**
+	/** 
 	 * This provides the id to be used during xmlization.
 	 *
 	 * @invariant idGenerator != null
 	 */
 	private final IJimpleIDGenerator idGenerator;
 
-	/**
-	 * The body of the method currently being processed. 
+	/** 
+	 * The body of the method currently being processed.
 	 */
 	private Body currMethodBody;
 
-	/**
+	/** 
 	 * This is the method whose statements are being processed.
 	 */
 	private SootMethod currMethod;
 
-	/**
+	/** 
 	 * The instance used to write xml data.
 	 */
 	private XMLOutputter xmlWriter;
@@ -391,54 +391,4 @@ final class JimpleStmtXMLizer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2004/06/01 01:12:16  venku
-   - added a new testcase to test BasicBlockGraph.
-   - documentation.
-   - added iterator() method to ExceptionFlowSensitiveStmtGraph to
-     return only statement captured in the graph.
-
-   Revision 1.5  2004/05/25 22:04:54  venku
-   - changed the targets dumped for IfStmt.
-
-   Revision 1.4  2004/05/09 09:28:18  venku
-   - documentation.
-   Revision 1.3  2004/05/09 08:24:08  venku
-   - all xmlizers use xmlenc to write xml data.
-   Revision 1.2  2004/05/06 09:31:00  venku
-   - used xmlenc library to write xml instead of manual tag generation.
-   Revision 1.1  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.10  2003/12/02 11:36:16  venku
-   - coding convention.
-   Revision 1.9  2003/12/02 09:42:24  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.8  2003/12/02 01:30:58  venku
-   - coding conventions and formatting.
-   Revision 1.7  2003/11/28 09:39:22  venku
-   - added support to indicate labels.
-   Revision 1.6  2003/11/24 06:45:23  venku
-   - corrected xml encoding errors along with tag name emission errors.
-   Revision 1.5  2003/11/24 06:27:18  venku
-   - closing tag of assign element was incorrent. FIXED.
-   Revision 1.4  2003/11/24 01:20:27  venku
-   - enhanced output formatting.
-   Revision 1.3  2003/11/17 15:57:03  venku
-   - removed support to retrieve new statement ids.
-   - added support to retrieve id for value boxes.
-   Revision 1.2  2003/11/07 11:14:44  venku
-   - Added generator class for xmlizing purpose.
-   - XMLizing of Jimple works, but takes long.
-     Probably, reachable method dump should fix it.  Another rainy day problem.
-   Revision 1.1  2003/11/07 06:27:03  venku
-   - Made the XMLizer classes concrete by moving out the
-     id generation logic outside.
-   - Added an interface which provides the id required for
-     xmlizing Jimple.
-   Revision 1.1  2003/11/06 10:01:25  venku
-   - created support for xmlizing Jimple in a customizable manner.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -40,12 +40,12 @@ import soot.Scene;
  * @version $Revision$ $Date$
  */
 public final class SliceCriteriaParser {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceCriteriaParser.class);
 
-	/**
+	/** 
 	 * Indentation to be used during serialization.
 	 */
 	private static final int INDENT = 4;
@@ -143,7 +143,4 @@ public final class SliceCriteriaParser {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.interfaces.IPrototype;
 
 import edu.ksu.cis.indus.processing.Context;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -46,24 +47,24 @@ import soot.tagkit.Tag;
  */
 public class ClassManager
   implements IPrototype {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ClassManager.class);
 
-	/**
+	/** 
 	 * The collection of classes for which the information has been processed.
 	 */
 	final Collection classes;
 
-	/**
+	/** 
 	 * Describe variable <code>context</code> here.
 	 *
 	 * @invariant context != null
 	 */
 	private final Context context;
 
-	/**
+	/** 
 	 * The instance of the framework in which this object is used.
 	 *
 	 * @invariant fa != null
@@ -120,9 +121,9 @@ public class ClassManager
 	 */
 	protected void process(final SootClass sc) {
 		if (!classes.contains(sc)) {
-			Tag theTag = fa.getTag();
+			final Tag _theTag = fa.getTag();
 			classes.add(sc);
-			sc.addTag(theTag);
+			sc.addTag(_theTag);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("considered " + sc.getName());
@@ -130,31 +131,31 @@ public class ClassManager
 
 			includeClassInitializer(sc);
 
-			IWorkBag wb = new HistoryAwareFIFOWorkBag(classes);
-			Collection temp = new HashSet();
+			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(classes);
+			final Collection _temp = new HashSet();
 
 			if (sc.hasSuperclass()) {
-				temp.add(sc.getSuperclass());
+				_temp.add(sc.getSuperclass());
 			}
-			temp.addAll(sc.getInterfaces());
-			wb.addAllWorkNoDuplicates(temp);
+			_temp.addAll(sc.getInterfaces());
+			_wb.addAllWorkNoDuplicates(_temp);
 
-			while (wb.hasWork()) {
-				final SootClass _sc = (SootClass) wb.getWork();
-				_sc.addTag(theTag);
+			while (_wb.hasWork()) {
+				final SootClass _sc = (SootClass) _wb.getWork();
+				_sc.addTag(_theTag);
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("considered " + _sc.getName());
 				}
 				includeClassInitializer(_sc);
-				temp.clear();
+				_temp.clear();
 
 				if (_sc.hasSuperclass()) {
-					temp.add(_sc.getSuperclass());
+					_temp.add(_sc.getSuperclass());
 				}
-				temp.addAll(_sc.getInterfaces());
+				_temp.addAll(_sc.getInterfaces());
 
-				wb.addAllWorkNoDuplicates(temp);
+				_wb.addAllWorkNoDuplicates(_temp);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
@@ -179,79 +180,15 @@ public class ClassManager
 	 */
 	private void includeClassInitializer(final SootClass sc) {
 		if (sc.declaresMethodByName("<clinit>")) {
-			SootMethod method = sc.getMethodByName("<clinit>");
+			final SootMethod _method = sc.getMethodByName("<clinit>");
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("considered " + method);
+				LOGGER.debug("considered " + _method);
 			}
 
-			fa.getMethodVariant(method, context);
+			fa.getMethodVariant(_method, context);
 		}
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.21  2004/01/09 21:13:22  venku
-   - formatting and documentation.
-   Revision 1.20  2004/01/06 00:17:01  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.19  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.18  2003/12/08 12:15:58  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.17  2003/12/07 09:37:10  venku
-   - changed the logic to handle super classes and their <clinit>s.
-   Revision 1.16  2003/12/07 03:22:48  venku
-   - processing logic did not consider interfaces.  FIXED.
-   Revision 1.15  2003/12/02 09:42:35  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.14  2003/11/30 01:07:58  venku
-   - added name tagging support in FA to enable faster
-     post processing based on filtering.
-   - ripple effect.
-   Revision 1.13  2003/11/26 02:00:24  venku
-   - logging.
-   Revision 1.12  2003/11/26 01:23:59  venku
-   - getMethod() is used instead of getMethodByName(). FIXED.
-   Revision 1.11  2003/11/25 22:16:30  venku
-   - logging
-   - super classes were not being added to classes. FIXED.
-   Revision 1.10  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.9  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.8  2003/08/30 23:15:17  venku
-   Added support to display statistics in managers.
-   Revision 1.7  2003/08/30 22:39:20  venku
-   Added support to query statistics of the managers.
-   Revision 1.6  2003/08/21 10:53:38  venku
-   There was recursion bug - FIXED.
-   Revision 1.5  2003/08/20 18:14:38  venku
-   Log4j was used instead of logging.  That is fixed.
-   Revision 1.4  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.3  2003/08/16 03:02:42  venku
-   Spruced up documentation and specification.
-   Revision 1.2  2003/08/12 18:39:56  venku
-   Ripple effect of moving IPrototype to Indus.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Revision 1.8  2003/05/22 22:18:31  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -192,50 +192,4 @@ public final class OFAnalyzer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.14  2004/04/02 09:59:46  venku
-   - coding convention.
-   Revision 1.13  2004/04/02 09:58:28  venku
-   - refactoring.
-     - collapsed flow insensitive and sensitive parts into common classes.
-     - coding convention
-     - documentation.
-   Revision 1.12  2004/04/01 19:18:29  venku
-   - stmtGraphFactory was not set.
-   Revision 1.11  2004/02/26 08:31:21  venku
-   - refactoring - moved OFAnalyzer.isReferenceType() to Util.
-   Revision 1.10  2003/12/13 19:38:58  venku
-   - removed unnecessary imports.
-   Revision 1.9  2003/12/05 00:53:09  venku
-   - removed unused method and restricted access to certain methods.
-   Revision 1.8  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.7  2003/11/30 01:07:57  venku
-   - added name tagging support in FA to enable faster
-     post processing based on filtering.
-   - ripple effect.
-   Revision 1.6  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.5  2003/08/26 17:53:56  venku
-   Actually we can use the types to cut down the number of edges
-   between the flow nodes. The current fix uses a method in OFAnalyzer
-   to check for reference types, only if the type matches the given expression
-   is processed.  However, this does not apply for staticfield, instancefield, and
-   array access expressions.
-   Revision 1.4  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.3  2003/08/15 03:39:53  venku
-   Spruced up documentation and specification.
-   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
-   Renamed a few fields/parameter variables to avoid name confusion.
-   Revision 1.2  2003/08/09 21:52:57  venku
-   Change parameter names.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
- */
+// End of File

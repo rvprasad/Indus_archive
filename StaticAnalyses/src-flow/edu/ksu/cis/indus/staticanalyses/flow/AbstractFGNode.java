@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -41,12 +41,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class AbstractFGNode
   implements IFGNode {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractFGNode.class);
 
-	/**
+	/** 
 	 * The set of immediate successor nodes, i.e., there is direct edge from this node to the successor nodes, of this node.
 	 * The elements in the set are of type <code>IFGNode</code>.
 	 *
@@ -54,19 +54,19 @@ public abstract class AbstractFGNode
 	 */
 	protected final Set succs = new HashSet();
 
-	/**
+	/** 
 	 * A filter that controls the outflow of values from this node.
 	 */
 	protected ITokenFilter filter;
 
-	/**
+	/** 
 	 * The set of tokens that will be used to store tokens at this node.
 	 *
 	 * @invariant tokens != null
 	 */
 	protected final ITokens tokens;
 
-	/**
+	/** 
 	 * The work bag provided associated with the enclosing instance of the framework.  This is required if subclasses will
 	 * want to generate new work depending on the new values or new successors that may occur.
 	 *
@@ -74,7 +74,7 @@ public abstract class AbstractFGNode
 	 */
 	protected final IWorkBagProvider workbagProvider;
 
-	/**
+	/** 
 	 * This refers to the work piece which will inject tokens in to this node.  The protocol is that if this field is
 	 * <code>null</code> then there are no tokens to be injected into this node.  If this field is not-<code>null</code>
 	 * then there is are some  tokens waiting to be injected into this node.  So, any new tokens to be injected at that
@@ -283,36 +283,4 @@ public abstract class AbstractFGNode
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.8  2004/05/19 05:15:11  venku
-   - changed the interface of FGNode to enable piggy-backing more work
-     on the current unprocessed work piece.
-   Revision 1.7  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-   Revision 1.6  2003/12/02 09:42:36  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.5  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.4  2003/08/26 16:53:34  venku
-   diffValues() used to get values() on src inside the loop.  However,
-   this was loop invariant, hence, has been hoisted outside the loop.
-   Revision 1.3  2003/08/17 09:59:03  venku
-   Spruced up documentation and specification.
-   Documentation changes to FieldVariant.
-   Revision 1.2  2003/08/16 02:50:22  venku
-   Spruced up documentation and specification.
-   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Revision 0.10  2003/05/22 22:18:32  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

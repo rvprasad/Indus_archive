@@ -19,8 +19,6 @@ import edu.ksu.cis.indus.AbstractXMLBasedTest;
 
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.processing.Environment;
-
 import edu.ksu.cis.indus.xmlizer.IXMLizer;
 
 

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -256,55 +256,4 @@ public final class CompositeToolConfigurator
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.16  2004/05/29 00:11:43  venku
-   - moved the OK button out of the composite configurator.
-   - the client will provide a composite to the configurator to display and
-     collect info and the client will handle the closing of the composite's parent.
-   Revision 1.15  2004/03/22 00:42:32  venku
-   - refactoring.
-   - enabled configuration name editing.
-   Revision 1.14  2004/02/12 21:28:52  venku
-   - automatically generated configuration name was tied to the slicer.  FIXED.
-   Revision 1.13  2003/12/28 03:08:19  venku
-   - changed the name of the unused parameter in
-     extension method to be of length one.
-   Revision 1.12  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.11  2003/12/02 11:31:57  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-   Revision 1.10  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.9  2003/12/02 01:30:59  venku
-   - coding conventions and formatting.
-   Revision 1.8  2003/11/03 07:59:26  venku
-   - documentation.
-   Revision 1.7  2003/10/20 13:55:25  venku
-   - Added a factory to create new configurations.
-   - Simplified AbstractToolConfigurator methods.
-   - The driver manages the shell.
-   - Got all the gui parts running EXCEPT for changing
-     the name of the configuration.
-   Revision 1.6  2003/10/14 02:57:10  venku
-   - ripple effect of changes to AbstractToolConfigurator.
-   Revision 1.5  2003/09/27 01:27:47  venku
-   - documentation.
-   Revision 1.4  2003/09/27 01:09:36  venku
-   - changed AbstractToolConfigurator and CompositeToolConfigurator
-     such that the composite to display the interface on is provided by the application.
-   - documentation.
-   Revision 1.3  2003/09/26 23:03:13  venku
-   - Added OK button.
-   Revision 1.2  2003/09/26 15:00:01  venku
-   - The configuration of tools in Indus has been placed in this package.
-   - Formatting.
-   Revision 1.1  2003/09/26 13:58:43  venku
-   - checkpoint commit.
-   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
-   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -50,13 +50,13 @@ import soot.SootMethod;
  */
 final class CallGraphXMLizer
   extends AbstractXMLizer {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
 
 	/**
-	 * @see IXMLizer#getFileName(String)
+	 * @see edu.ksu.cis.indus.xmlizer.IXMLizer#getFileName(String)
 	 */
 	public String getFileName(final String name) {
 		return "callgraph_" + xmlizeString(name) + ".xml";
@@ -139,101 +139,4 @@ final class CallGraphXMLizer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.22  2004/05/25 19:11:31  venku
-   - added option to control class path and dump reachables.
-
-   Revision 1.21  2004/05/13 07:34:25  venku
-   - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
-
-   Revision 1.20  2004/05/13 06:50:59  venku
-   - renamed .xsd's to XML.xsd's.
-   - ripple effect.
-
-   Revision 1.19  2004/05/13 03:32:04  venku
-   - documentation.  refactoring of getFileName() in IXMLizer.
-
-   Revision 1.18  2004/05/13 03:12:33  venku
-   - CustomXMLOutputter defaults to UTF-8 encoding.
-   - Added a new method to AbstractXMLizer to encode strings.
-   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
-   - ripple effect.
-
-   Revision 1.17  2004/05/13 01:14:20  venku
-   - added declaration and dtd content to all xml documents.
-   - removed redundant value element, the child of string constant.
-
-   Revision 1.16  2004/05/10 11:44:26  venku
-   - incorrect attributes were being written. FIXED.
-   Revision 1.15  2004/05/09 08:24:08  venku
-   - all xmlizers use xmlenc to write xml data.
-   Revision 1.14  2004/04/25 21:18:37  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.13  2004/04/01 20:57:49  venku
-   - changed id attributed to xxxxID as it confused xmlunit.
-   Revision 1.12  2004/03/07 12:26:17  venku
-   - format of xml output was shabby. FIXED.
-   Revision 1.11  2004/03/05 11:59:45  venku
-   - documentation.
-   Revision 1.10  2004/02/11 10:00:16  venku
-   - added a new custom xml outputter class.
-   Revision 1.9  2004/02/11 09:37:18  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.8  2004/02/09 17:40:53  venku
-   - dependence and call graph info serialization is done both ways.
-   - refactored the xmlization framework.
-     - Each information type has a xmlizer (XMLizer)
-     - Each information type has a xmlizer driver (XMLizerCLI)
-     - Tests use the XMLizer.
-   Revision 1.7  2004/02/09 07:32:38  venku
-   - added support to differentiate test method name and test name.
-   - added logic to change name of AbstractXMLBasedTest tests as well.
-   Revision 1.6  2004/02/09 06:49:02  venku
-   - deleted dependency xmlization and test classes.
-   Revision 1.5  2004/02/09 04:39:36  venku
-   - refactoring test classes still..
-   - need to make xmlizer classes independent of their purpose.
-     Hence, they need to be highly configurable.
-   - For each concept, test setup should be in TestSetup
-     rather than in the XMLizer.
-   Revision 1.4  2004/02/09 02:19:05  venku
-    - first stab at refactoring xmlizer framework to be amenable
-     to testing and standalone execution.
-   Revision 1.3  2004/02/09 02:00:14  venku
-   - changed AbstractXMLizer.
-   - ripple effect.
-   Revision 1.2  2004/02/09 01:21:03  venku
-   - publicized execute() to be used in regression testing.
-   Revision 1.1  2004/02/08 03:05:46  venku
-   - renamed xmlizer packages to be in par with the packages
-     that contain the classes whose data is being xmlized.
-   Revision 1.5  2003/12/27 20:07:40  venku
-   - fixed xmlizers/driver to not throw exception
-     when -h is specified
-   Revision 1.4  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.3  2003/12/08 12:20:44  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.2  2003/12/08 12:15:59  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.1  2003/12/08 11:59:47  venku
-   - added a new class AbstractXMLizer which will host
-     primary logic to xmlize analyses information.
-   - DependencyXMLizerDriver inherits from this new class.
-   - added a new class CallGraphXMLizer to xmlize
-     call graph information.  The logic to write out the call
-     graph is empty.
- */
+// End of File

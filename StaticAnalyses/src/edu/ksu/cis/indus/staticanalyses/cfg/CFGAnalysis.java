@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -177,65 +177,4 @@ public final class CFGAnalysis {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.17  2004/05/31 21:38:07  venku
-   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
-   - ripple effect.
-   Revision 1.16  2004/01/21 02:36:41  venku
-   - coding convention.
-   Revision 1.15  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.14  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.13  2003/12/08 12:19:47  venku
-   - coding convention.
-   Revision 1.12  2003/12/08 12:16:00  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.11  2003/12/07 08:41:45  venku
-   - deleted getCallGraph() from ICallGraphInfo interface.
-   - made getSCCs() direction sensitive.
-   - ripple effect.
-   Revision 1.10  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.9  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.8  2003/09/28 06:46:49  venku
-   - Some more changes to extract unit graphs from the enviroment.
-   Revision 1.7  2003/09/08 02:20:12  venku
-   - it now only requires call graph info and basic block graph manager
-   - checkForLoopEnclosedNewExpr() is now applicable to any allocation sites
-   - added a new method to extract basic block graph
-   Revision 1.6  2003/09/07 21:59:31  venku
-   - missing documentation.  FIXED.
-   Revision 1.5  2003/09/01 11:56:20  venku
-   - instantiated occursInCycle()
-   - added executedMultipleTimes() for Stmt and SootMethod.
-   Revision 1.4  2003/08/24 12:04:32  venku
-   Removed occursInCycle() method from DirectedGraph.
-   Installed occursInCycle() method in CFGAnalysis.
-   Converted performTopologicalsort() and getFinishTimes() into instance methods.
-   Ripple effect of the above changes.
-   Revision 1.3  2003/08/14 05:00:48  venku
-   Spruced up specification.
-   Revision 1.2  2003/08/11 08:49:34  venku
-   Javadoc documentation errors were fixed.
-   Some classes were documented.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
-   Revision 1.3  2003/05/22 22:18:32  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

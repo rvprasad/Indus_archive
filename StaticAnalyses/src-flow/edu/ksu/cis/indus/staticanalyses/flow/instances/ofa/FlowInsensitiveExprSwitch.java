@@ -20,10 +20,10 @@ import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractTokenProcessingWork;
-import edu.ksu.cis.indus.staticanalyses.flow.ArrayVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
+import edu.ksu.cis.indus.staticanalyses.flow.ValuedVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 
@@ -266,7 +266,7 @@ class FlowInsensitiveExprSwitch
 
 		for (int _i = _arrayType.numDimensions, _sizes = e.getSizeCount(); _i > 0 && _sizes > 0; _i--, _sizes--) {
 			final ArrayType _aType = ArrayType.v(_baseType, _i);
-			final ArrayVariant _array = fa.getArrayVariant(_aType, context);
+			final ValuedVariant _array = fa.getArrayVariant(_aType, context);
 			process(e.getSizeBox(_sizes - 1));
 			_array.getFGNode().injectValue(e);
 		}
@@ -487,90 +487,4 @@ class FlowInsensitiveExprSwitch
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.8  2004/08/20 21:24:44  venku
-   - sizes were not processed in NewMultiArrayExpr.  FIXED.
-   Revision 1.7  2004/08/17 16:59:52  venku
-   - code cleanup.
-   Revision 1.6  2004/05/20 07:29:42  venku
-   - optimized the token set to be optimal when created.
-   - added new method to retrieve empty token sets (getNewTokenSet()).
-   Revision 1.5  2004/05/19 06:50:30  venku
-   - changes to use two-level worklist iteration.  That is, while processing
-     work peice in a worklist, any newly generated work is added to another
-     worklist which is processed next.  The worklist are switched till both are
-     empty.
-   Revision 1.4  2004/05/19 05:11:48  venku
-   - coding convention.
-   Revision 1.3  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-   Revision 1.2  2004/04/02 21:59:54  venku
-   - refactoring.
-     - all classes except OFAnalyzer is package private.
-     - refactored work class hierarchy.
-   Revision 1.1  2004/04/02 09:58:28  venku
-   - refactoring.
-     - collapsed flow insensitive and sensitive parts into common classes.
-     - coding convention
-     - documentation.
-   Revision 1.14  2004/02/26 08:31:21  venku
-   - refactoring - moved OFAnalyzer.isReferenceType() to Util.
-   Revision 1.13  2003/12/16 00:19:25  venku
-   - specialinvoke was handled incorrectly.  FIXED
-     It behaves like virtual in cases when a non-instance
-     initialization method is invoked.  Otherwise, it acts
-     like static invocation. We deal with the first case
-     by treating it as virtual invocation and the second
-     case as static invoke expr but only with a primary.
-   Revision 1.12  2003/12/07 08:40:29  venku
-   - declared class was not being processed in case of
-     virtual invoke.  FIXED.
-   Revision 1.11  2003/12/07 03:23:21  venku
-   - interfaces and classes involved in interface/special invokes
-     are not being processed.  FIXED.
-   Revision 1.10  2003/12/05 02:27:20  venku
-   - unnecessary methods and fields were removed. Like
-       getCurrentProgramPoint()
-       getCurrentStmt()
-   - context holds current information and only it must be used
-     to retrieve this information.  No auxiliary arguments. FIXED.
-   Revision 1.9  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.8  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.7  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.6  2003/08/26 17:55:45  venku
-   Well, we used typing info for triggering static field expression.  However,
-   this was incorrect as the flow to the primary is cut off.  FIXED.
-   Revision 1.5  2003/08/26 17:53:55  venku
-   Actually we can use the types to cut down the number of edges
-   between the flow nodes. The current fix uses a method in OFAnalyzer
-   to check for reference types, only if the type matches the given expression
-   is processed.  However, this does not apply for staticfield, instancefield, and
-   array access expressions.
-   Revision 1.4  2003/08/20 18:14:38  venku
-   Log4j was used instead of logging.  That is fixed.
-   Revision 1.3  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.2  2003/08/15 02:54:06  venku
-   Spruced up specification and documentation for flow-insensitive classes.
-   Changed names in AbstractExprSwitch.
-   Ripple effect of above change.
-   Formatting changes to IPrototype.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -66,7 +66,7 @@ import soot.jimple.Stmt;
  */
 public final class OFAXMLizer
   extends AbstractXMLizer {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(OFAXMLizer.class);
@@ -80,27 +80,27 @@ public final class OFAXMLizer
 	 */
 	private final class OFAXMLizingProcessor
 	  extends AbstractProcessor {
-		/**
+		/** 
 		 * The id generator to be used during xmlization.
 		 */
 		private final IJimpleIDGenerator idGenerator;
 
-		/**
+		/** 
 		 * The OFA instance whose information should be xmlized.
 		 */
 		private OFAnalyzer ofa;
 
-		/**
+		/** 
 		 * The instance used to write xml data.
 		 */
 		private XMLOutputter xmlWriter;
 
-		/**
+		/** 
 		 * This indicates if a class is being processed.
 		 */
 		private boolean processingClass;
 
-		/**
+		/** 
 		 * This indicates if a method is being processed.
 		 */
 		private boolean processingMethod;
@@ -285,66 +285,4 @@ public final class OFAXMLizer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.17  2004/05/13 07:34:25  venku
-   - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
-   Revision 1.16  2004/05/13 06:50:59  venku
-   - renamed .xsd's to XML.xsd's.
-   - ripple effect.
-   Revision 1.15  2004/05/13 03:32:04  venku
-   - documentation.  refactoring of getFileName() in IXMLizer.
-   Revision 1.14  2004/05/13 03:12:33  venku
-   - CustomXMLOutputter defaults to UTF-8 encoding.
-   - Added a new method to AbstractXMLizer to encode strings.
-   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
-   - ripple effect.
-   Revision 1.13  2004/05/13 01:14:21  venku
-   - added declaration and dtd content to all xml documents.
-   - removed redundant value element, the child of string constant.
-   Revision 1.12  2004/05/09 08:24:08  venku
-   - all xmlizers use xmlenc to write xml data.
-   Revision 1.11  2004/04/25 21:18:37  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.10  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-   Revision 1.9  2004/04/01 22:37:53  venku
-   - changed output format.
-   Revision 1.8  2004/04/01 20:57:49  venku
-   - changed id attributed to xxxxID as it confused xmlunit.
-   Revision 1.7  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.6  2004/03/07 20:28:55  venku
-   - made the class public due to other refactoring.
-   Revision 1.5  2004/03/05 11:59:45  venku
-   - documentation.
-   Revision 1.4  2004/02/11 10:00:16  venku
-   - added a new custom xml outputter class.
-   Revision 1.3  2004/02/11 09:37:18  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.2  2004/02/09 17:40:53  venku
-   - dependence and call graph info serialization is done both ways.
-   - refactored the xmlization framework.
-     - Each information type has a xmlizer (XMLizer)
-     - Each information type has a xmlizer driver (XMLizerCLI)
-     - Tests use the XMLizer.
-   Revision 1.1  2004/02/09 07:46:37  venku
-   - added new class to xmlize OFA info.
- */
+// End of File

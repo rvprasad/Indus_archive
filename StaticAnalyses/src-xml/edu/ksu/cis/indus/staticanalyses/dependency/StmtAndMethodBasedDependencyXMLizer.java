@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -30,6 +30,7 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.znerd.xmlenc.XMLOutputter;
 
 import soot.SootClass;
@@ -49,37 +50,37 @@ import soot.jimple.Stmt;
  */
 final class StmtAndMethodBasedDependencyXMLizer
   extends AbstractProcessor {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(StmtAndMethodBasedDependencyXMLizer.class);
 
-	/**
+	/** 
 	 * This is the dependency analysis whose information should be xmlized.
 	 */
 	private IDependencyAnalysis analysis;
 
-	/**
+	/** 
 	 * This is used to generate id's for xml elements.
 	 */
 	private IJimpleIDGenerator idGenerator;
 
-	/**
+	/** 
 	 * This is the writer used to write the xml information.
 	 */
 	private XMLOutputter writer;
 
-	/**
+	/** 
 	 * This indicates if a class is being processed.
 	 */
 	private boolean processingClass;
 
-	/**
+	/** 
 	 * This indicates if a method is being processed.
 	 */
 	private boolean processingMethod;
 
-	/**
+	/** 
 	 * This counts the number of dependences discovered.
 	 */
 	private int totalDependences;
@@ -110,40 +111,44 @@ final class StmtAndMethodBasedDependencyXMLizer
 
 		try {
 			if (!(_dependents.isEmpty() && _dependees.isEmpty())) {
-			    writer.startTag("dependency_info");
-			    writer.attribute("stmtId", idGenerator.getIdForStmt(stmt, _method));
+				writer.startTag("dependency_info");
+				writer.attribute("stmtId", idGenerator.getIdForStmt(stmt, _method));
 				totalDependences += _dependents.size();
 
 				for (final Iterator _i = _dependents.iterator(); _i.hasNext();) {
 					final Object _o = _i.next();
 					String _tid = null;
+
 					if (_o instanceof Pair) {
 						final Pair _pair = (Pair) _o;
 						_tid = idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond());
 					} else if (_o instanceof Stmt) {
-					    _tid = idGenerator.getIdForStmt((Stmt) _o, _method);
+						_tid = idGenerator.getIdForStmt((Stmt) _o, _method);
 					}
+
 					if (_tid != null) {
-					writer.startTag("dependent");
-					writer.attribute("tid", _tid);
-					writer.endTag();
+						writer.startTag("dependent");
+						writer.attribute("tid", _tid);
+						writer.endTag();
 					}
 				}
 
 				for (final Iterator _i = _dependees.iterator(); _i.hasNext();) {
 					final Object _o = _i.next();
 					String _eid = null;
+
 					if (_o instanceof Pair) {
 						final Pair _pair = (Pair) _o;
 						_eid = idGenerator.getIdForStmt((Stmt) _pair.getFirst(), (SootMethod) _pair.getSecond());
 					} else if (_o instanceof Stmt) {
-					    _eid = idGenerator.getIdForStmt((Stmt) _o, _method);
+						_eid = idGenerator.getIdForStmt((Stmt) _o, _method);
 					}
+
 					if (_eid != null) {
 						writer.startTag("dependee");
 						writer.attribute("eid", _eid);
 						writer.endTag();
-						}
+					}
 				}
 				writer.endTag();
 			}
@@ -232,10 +237,10 @@ final class StmtAndMethodBasedDependencyXMLizer
 	 */
 	public void processingBegins() {
 		try {
-		    writer.declaration();
-		    writer.startTag("dependency");
-		    writer.attribute("id", String.valueOf(analysis.getId()));
-		    writer.attribute("class", analysis.getClass().getName());
+			writer.declaration();
+			writer.startTag("dependency");
+			writer.attribute("id", String.valueOf(analysis.getId()));
+			writer.attribute("class", analysis.getClass().getName());
 		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
@@ -252,110 +257,4 @@ final class StmtAndMethodBasedDependencyXMLizer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/05/14 09:02:56  venku
-   - refactored:
-     - The ids are available in IDependencyAnalysis, but their collection is
-       available via a utility class, DependencyAnalysisUtil.
-     - DependencyAnalysis will have a sanity check via Unit Tests.
-   - ripple effect.
-
-   Revision 1.16  2004/05/14 06:27:23  venku
-   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
-   Revision 1.15  2004/05/13 07:34:25  venku
-   - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
-
-   Revision 1.14  2004/05/13 06:50:58  venku
-   - renamed .xsd's to XML.xsd's.
-   - ripple effect.
-
-   Revision 1.13  2004/05/13 01:14:21  venku
-   - added declaration and dtd content to all xml documents.
-   - removed redundant value element, the child of string constant.
-
-   Revision 1.12  2004/05/11 12:00:03  venku
-   - deleted a completed task tag.
-
-   Revision 1.11  2004/05/10 10:59:28  venku
-   - incorrect tag was being written. FIXED.
-
-   Revision 1.10  2004/05/10 09:39:35  venku
-   - another one of the early tag close errors. FIXED.
-
-   Revision 1.9  2004/05/09 08:24:08  venku
-   - all xmlizers use xmlenc to write xml data.
-
-   Revision 1.8  2004/04/25 23:18:18  venku
-   - coding conventions.
-
-   Revision 1.7  2004/04/25 21:18:37  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-
-   Revision 1.6  2004/03/29 09:33:37  venku
-   - using a "id" attrirbute can mess things up during xml comparison.
-     Hence, use it only if it is approriate. FIXED.
-   Revision 1.5  2004/02/25 23:34:29  venku
-   - classes that should not be visible should be invisible :-)
-   Revision 1.4  2004/02/25 00:04:02  venku
-   - documenation.
-   Revision 1.3  2004/02/09 17:40:53  venku
-   - dependence and call graph info serialization is done both ways.
-   - refactored the xmlization framework.
-     - Each information type has a xmlizer (XMLizer)
-     - Each information type has a xmlizer driver (XMLizerCLI)
-     - Tests use the XMLizer.
-   Revision 1.2  2004/02/09 06:49:02  venku
-   - deleted dependency xmlization and test classes.
-   Revision 1.1  2004/02/08 03:05:46  venku
-   - renamed xmlizer packages to be in par with the packages
-     that contain the classes whose data is being xmlized.
-   Revision 1.12  2004/01/06 00:17:00  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.11  2003/12/16 06:13:02  venku
-   - incorrect attribute emitted for class id. FIXED.
-   Revision 1.10  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.9  2003/12/09 04:22:09  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.8  2003/12/08 12:15:56  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.7  2003/12/08 10:57:59  venku
-   - outputs count and id of dependences.
-   Revision 1.6  2003/12/02 09:42:35  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.5  2003/11/17 17:17:57  venku
-   - dumb iteration error. FIXED.
-   Revision 1.4  2003/11/17 15:42:46  venku
-   - changed the signature of callback(Value,..) to callback(ValueBox,..)
-   Revision 1.3  2003/11/17 01:35:54  venku
-   - renamed out to writer in AbstractDependencyXMLizer
-   - added methods to spit out root element tags.
-   Revision 1.2  2003/11/12 10:45:36  venku
-   - soot class path can be set in SootBasedDriver.
-   - dependency tests are xmlunit based.
-   Revision 1.1  2003/11/12 05:18:54  venku
-   - moved xmlizing classes to a different class.
-   Revision 1.3  2003/11/12 05:05:45  venku
-   - Renamed SootDependentTest to SootBasedDriver.
-   - Switched the contents of DependencyXMLizerDriver and DependencyTest.
-   - Corrected errors which emitting xml tags.
-   - added a scrapbook.
-   Revision 1.2  2003/11/10 20:05:02  venku
-   - formatting.
-   Revision 1.1  2003/11/10 08:26:09  venku
-   - enabled XMLization of statement level dependency information.
- */
+// End of File

@@ -88,8 +88,7 @@ public final class SlicerConfigurator
 		parent.setLayout(_gridLayout);
 
 		final SlicerConfiguration _cfg = (SlicerConfiguration) configuration;
-
-		GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		_gridData.horizontalSpan = 2;
 
 		executableSliceButton = new Button(parent, SWT.CHECK);
@@ -173,7 +172,7 @@ public final class SlicerConfigurator
 		//_completeSlice.addSelectionListener(_sl);
 		_escapingSyncStrategy.addSelectionListener(_sl2);
 
-		Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
+		final Object _temp = _cfg.getDeadlockCriteriaSelectionStrategy();
 
 		if (_temp.equals(SlicerConfiguration.ALL_SYNC_CONSTRUCTS)) {
 			_allSycnStrategy.setSelection(true);
@@ -200,11 +199,11 @@ public final class SlicerConfigurator
 		final Group _group2 = new Group(parent, SWT.SHADOW_ETCHED_IN);
 		_group2.setText("Slice Type");
 
-		GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		final GridData _gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		_gridData.horizontalSpan = 1;
 		_group2.setLayoutData(_gridData);
 
-		RowLayout _rowLayout = new RowLayout();
+		final RowLayout _rowLayout = new RowLayout();
 		_rowLayout.type = SWT.VERTICAL;
 		_group2.setLayout(_rowLayout);
 

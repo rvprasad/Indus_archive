@@ -77,36 +77,21 @@ public class FA
 	private final AbstractAnalyzer analyzer;
 
 	/** 
-	 * The collection of workbags used in tandem during analysis.
-	 */
-	private final IWorkBag[] workBags;
-
-	/** 
-	 * The manager of array variants.
-	 */
-	private ArrayVariantManager arrayVariantManager;
-
-	/** 
-	 * The manager of class related primitive information and processing.
-	 */
-	private ClassManager classManager;
-
-	/** 
-	 * The manager of instance field variants.
-	 */
-	private FieldVariantManager instanceFieldVariantManager;
-
-	/** 
-	 * The manager of static field variants.
-	 */
-	private FieldVariantManager staticFieldVariantManager;
-
-	/** 
 	 * The token manager that manages the tokens whose flow is instrumented by the flow analysis.
 	 *
 	 * @invariant tokenManager != null
 	 */
 	private final ITokenManager tokenManager;
+
+	/** 
+	 * The collection of workbags used in tandem during analysis.
+	 */
+	private final IWorkBag[] workBags;
+
+	/** 
+	 * The manager of class related primitive information and processing.
+	 */
+	private ClassManager classManager;
 
 	/** 
 	 * The environment which provides the set of class to be analyzed.
@@ -132,6 +117,21 @@ public class FA
 	 * The tag used to identify the elements of the AST touched by this framework instance.
 	 */
 	private NamedTag tag;
+
+	/** 
+	 * The manager of array variants.
+	 */
+	private ValuedVariantManager arrayVariantManager;
+
+	/** 
+	 * The manager of instance field variants.
+	 */
+	private ValuedVariantManager instanceFieldVariantManager;
+
+	/** 
+	 * The manager of static field variants.
+	 */
+	private ValuedVariantManager staticFieldVariantManager;
 
 	/**
 	 * Creates a new <code>FA</code> instance.
@@ -176,7 +176,7 @@ public class FA
 	 * @pre a != null
 	 * @post result != null
 	 */
-	public final ArrayVariant getArrayVariant(final ArrayType a) {
+	public final ValuedVariant getArrayVariant(final ArrayType a) {
 		return getArrayVariant(a, analyzer.context);
 	}
 
@@ -192,9 +192,9 @@ public class FA
 	 * @pre a != null and context != null
 	 * @post result != null
 	 */
-	public final ArrayVariant getArrayVariant(final ArrayType a, final Context context) {
+	public final ValuedVariant getArrayVariant(final ArrayType a, final Context context) {
 		processType(a.baseType);
-		return (ArrayVariant) arrayVariantManager.select(a, context);
+		return (ValuedVariant) arrayVariantManager.select(a, context);
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class FA
 	 * @pre sf != null
 	 * @post result != null
 	 */
-	public final FieldVariant getFieldVariant(final SootField sf) {
+	public final ValuedVariant getFieldVariant(final SootField sf) {
 		return getFieldVariant(sf, analyzer.context);
 	}
 
@@ -247,7 +247,7 @@ public class FA
 	 * @pre sf != null and context != null
 	 * @post result != null
 	 */
-	public final FieldVariant getFieldVariant(final SootField sf, final Context context) {
+	public final ValuedVariant getFieldVariant(final SootField sf, final Context context) {
 		IVariant _temp = null;
 		processClass(sf.getDeclaringClass());
 		processType(sf.getType());
@@ -257,7 +257,7 @@ public class FA
 		} else {
 			_temp = instanceFieldVariantManager.select(sf, context);
 		}
-		return (FieldVariant) _temp;
+		return (ValuedVariant) _temp;
 	}
 
 	/**
@@ -419,7 +419,7 @@ public class FA
 	 * @pre a != null
 	 * @post result != null
 	 */
-	final ArrayVariant queryArrayVariant(final ArrayType a) {
+	final ValuedVariant queryArrayVariant(final ArrayType a) {
 		return queryArrayVariant(a, analyzer.context);
 	}
 
@@ -434,8 +434,8 @@ public class FA
 	 * @pre a != null and context != null
 	 * @post result != null
 	 */
-	final ArrayVariant queryArrayVariant(final ArrayType a, final Context context) {
-		return (ArrayVariant) arrayVariantManager.query(a, context);
+	final ValuedVariant queryArrayVariant(final ArrayType a, final Context context) {
+		return (ValuedVariant) arrayVariantManager.query(a, context);
 	}
 
 	/**
@@ -449,7 +449,7 @@ public class FA
 	 * @pre sf != null
 	 * @post result != null
 	 */
-	final FieldVariant queryFieldVariant(final SootField sf) {
+	final ValuedVariant queryFieldVariant(final SootField sf) {
 		return queryFieldVariant(sf, analyzer.context);
 	}
 
@@ -464,7 +464,7 @@ public class FA
 	 * @pre sf != null and context != null
 	 * @post result != null
 	 */
-	final FieldVariant queryFieldVariant(final SootField sf, final Context context) {
+	final ValuedVariant queryFieldVariant(final SootField sf, final Context context) {
 		IVariant _temp = null;
 
 		if (Modifier.isStatic(sf.getModifiers())) {
@@ -472,7 +472,7 @@ public class FA
 		} else {
 			_temp = instanceFieldVariantManager.query(sf, context);
 		}
-		return (FieldVariant) _temp;
+		return (ValuedVariant) _temp;
 	}
 
 	/**
@@ -512,10 +512,10 @@ public class FA
 	void setModeFactory(final ModeFactory mf) {
 		modeFactory = mf;
 		this.classManager = mf.getClassManager(this);
-		arrayVariantManager = new ArrayVariantManager(this, mf.getArrayIndexManager());
-		instanceFieldVariantManager = new FieldVariantManager(this, mf.getInstanceFieldIndexManager());
+		arrayVariantManager = new ValuedVariantManager(this, mf.getArrayIndexManager());
+		instanceFieldVariantManager = new ValuedVariantManager(this, mf.getInstanceFieldIndexManager());
 		methodVariantManager = new MethodVariantManager(this, mf.getMethodIndexManager(), modeFactory.getASTIndexManager());
-		staticFieldVariantManager = new FieldVariantManager(this, mf.getStaticFieldIndexManager());
+		staticFieldVariantManager = new ValuedVariantManager(this, mf.getStaticFieldIndexManager());
 	}
 
 	/**

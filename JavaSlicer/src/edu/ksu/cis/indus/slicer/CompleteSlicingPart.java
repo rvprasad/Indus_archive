@@ -126,6 +126,14 @@ public class CompleteSlicingPart
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
+	 */
+	public void reset() {
+		backwardPart.reset();
+		forwardPart.reset();
+	}
+
+	/**
 	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox, Stmt)
 	 */
 	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox, final Stmt stmt) {
@@ -144,30 +152,6 @@ public class CompleteSlicingPart
 		_result.addAll(forwardPart.retrieveValueBoxesToTransformStmt(stmt));
 		return _result;
 	}
-
-    /** 
-     * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#reset()
-     */
-    public void reset() {
-        backwardPart.reset();
-        forwardPart.reset();
-    }
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2004/08/24 23:25:44  venku
-   - if b2 in b2=b1; was the criterion expression in backward slice then b2=b1; is not
-     included in the slice by virtue of classical reaching-defs.  FIXED.
-   - added a new method to SliceCollector to retrieve uncollected hosts.
-
-   Revision 1.3  2004/08/23 17:55:11  venku
-   - local processing compared incorrect value types.  FIXED.
-
-   Revision 1.2  2004/08/23 03:46:08  venku
-   - documentation.
-
-   Revision 1.1  2004/08/20 02:13:05  venku
-   - refactored slicer based on slicing direction.
- */
+// End of File

@@ -138,40 +138,4 @@ public class SendTokensWork
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/05/19 05:15:11  venku
-   - changed the interface of FGNode to enable piggy-backing more work
-     on the current unprocessed work piece.
-   Revision 1.1  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-   Revision 1.9  2004/04/02 21:59:54  venku
-   - refactoring.
-     - all classes except OFAnalyzer is package private.
-     - refactored work class hierarchy.
-   Revision 1.8  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.7  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.6  2003/08/21 12:43:28  venku
-   Previous values were not cleared when the work peice was retrieved from the pool - FIXED.
-   Revision 1.5  2003/08/18 11:07:46  venku
-   Name change for pooling support.
-   Revision 1.4  2003/08/18 08:34:20  venku
-   Well, used the object pool as available from jakarta commons implementation.
-   Revision 1.3  2003/08/18 07:09:13  venku
-   The way objects were removed from the pool was incorrect.  I had used get() instead of remove().
-   This will not remove the object from the pool.  This has been fixed.
-   Revision 1.2  2003/08/18 01:01:18  venku
-   Trying to fix CVS's erratic behavior.
-   Revision 1.1  2003/08/17 11:19:13  venku
-   Placed the simple SendTokensWork class into a separate file.
-   Extended it with work pool support.
-   Amended AbstractTokenProcessingWork and WorkList to enable work pool support.
- */
+// End of File

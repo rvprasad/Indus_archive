@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -109,42 +109,4 @@ public class ExceptionFlowSensitiveStmtGraphFactory
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.7  2004/06/14 08:39:29  venku
-   - added a property to SootBasedDriver to control the type of statement graph
-     factory to be used.
-   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
-   - ripple effect.
-   Revision 1.6  2004/06/12 20:42:21  venku
-   - renaming of methods.
-   Revision 1.5  2004/05/28 21:41:58  venku
-   - added a new method to create default factory instances implementation.
-   Revision 1.4  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.3  2004/03/26 00:07:26  venku
-   - renamed XXXXUnitGraphFactory to XXXXStmtGraphFactory.
-   - ripple effect in classes and method names.
-   Revision 1.5  2004/03/07 20:30:23  venku
-   - documentation.
-   Revision 1.4  2004/03/05 11:59:40  venku
-   - documentation.
-   Revision 1.3  2004/03/04 11:56:48  venku
-   - renamed a method.
-   - added a valid empty body into native methods.
-   Revision 1.2  2004/02/23 08:27:21  venku
-   - the graphs were created as complete unit graphs. FIXED.
-   Revision 1.1  2004/02/17 05:59:15  venku
-   - renamed ExceptionFlowSensitiveStmtGraphXXXX to
-     ExceptionFlowSensitiveUnitGraph.
-   Revision 1.1  2004/02/17 05:45:34  venku
-   - added the logic to create stmt graphs whose structure can be
-     tuned to consider the flow of control due to certain exceptions.
- */
+// End of File

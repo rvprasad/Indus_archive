@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -34,7 +34,7 @@ import org.apache.commons.collections.Predicate;
  */
 public class FilteredMapTest
   extends TestCase {
-	/**
+	/** 
 	 * The map used for testing.
 	 */
 	private Map map;
@@ -73,14 +73,11 @@ public class FilteredMapTest
 		assertTrue(_entrySet.size() == 1);
 
 		final Iterator _iterator = _entrySet.iterator();
-        final Map.Entry _entry = (Map.Entry) _iterator.next();
+		final Map.Entry _entry = (Map.Entry) _iterator.next();
 		assertEquals(_entry.getKey(), new String("Hello"));
 		assertEquals(_entry.getValue(), new Integer(2));
-		
 	}
 
-	
-	
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
@@ -103,13 +100,4 @@ public class FilteredMapTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/05/21 22:11:48  venku
-   - renamed CollectionsModifier as CollectionUtilities.
-   - added new specialized methods along with a method to extract
-     filtered maps.
-   - ripple effect.
-
- */
+// End of File

@@ -1,6 +1,7 @@
+
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -11,6 +12,7 @@
  *     234 Nichols Hall
  *     Manhattan, KS 66506, USA
  */
+
 package edu.ksu.cis.indus.staticanalyses;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
@@ -222,122 +224,4 @@ public class AnalysesController {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.42  2004/08/07 11:52:23  venku
-   - IAnalysis extends IStatus.
-   - AnalysesController extended AbstractStatus. Now, I wonder why. It has been removed.
-
-   Revision 1.41  2004/08/07 11:33:01  venku
-   - coding convention.
-
-   Revision 1.40  2004/08/07 11:13:37  venku
-   - deleted performance logging statements.
-
-   Revision 1.39  2004/07/24 09:57:49  venku
-   - extracted interface from AbstractAnalysis.
-   - ripple effect.
-   Revision 1.38  2004/07/20 04:59:06  venku
-   - documentation.
-   Revision 1.37  2004/07/11 14:46:18  venku
-   - coding conventions.
-   - timing information via logging.
-   Revision 1.36  2004/07/11 14:34:37  venku
-   - coding conventions.
-   Revision 1.35  2004/07/11 14:17:39  venku
-   - added a new interface for identification purposes (IIdentification)
-   - all classes that have an id implement this interface.
-   Revision 1.34  2004/05/31 21:38:07  venku
-   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
-   - ripple effect.
-   Revision 1.33  2004/02/12 21:31:18  venku
-   - analyses are initialized and then preprocessing begins.
-   Revision 1.32  2004/01/21 00:29:39  venku
-   - preprocessors were not being unhooked.
-   Revision 1.31  2004/01/20 22:26:08  venku
-   - AnalysisController can now set basic block graph managers
-     on the controlled analyses.
-   - SlicerTool uses the above feature.
-   Revision 1.30  2003/12/16 07:38:33  venku
-   - moved preprocessing of analyses into initialization.
-   Revision 1.29  2003/12/13 19:38:57  venku
-   - removed unnecessary imports.
-   Revision 1.28  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.27  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.26  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.25  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.24  2003/11/03 07:56:42  venku
-   - renamed getAnalysis() to getAnalyses().
-   Revision 1.23  2003/11/02 22:11:17  venku
-   - initialization needs to happen before any processing. FIXED.
-   Revision 1.22  2003/11/02 20:18:25  venku
-   - documentation.
-   Revision 1.21  2003/11/01 23:51:27  venku
-   - each analysis id can be associated with multiple
-     implementations that can provide the same analysis.
-   Revision 1.20  2003/09/28 06:46:49  venku
-   - Some more changes to extract unit graphs from the enviroment.
-   Revision 1.19  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.18  2003/09/12 22:33:08  venku
-   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
-   - Ripple effect of the above changes.
-   Revision 1.17  2003/09/12 01:22:17  venku
-   - coding conventions.
-   Revision 1.16  2003/09/09 00:44:33  venku
-   - removed unnecessay field.
-   Revision 1.15  2003/08/25 08:51:45  venku
-   Coding convention and Formatting.
-   Revision 1.14  2003/08/25 08:40:47  venku
-   Formatting.
-   Revision 1.13  2003/08/25 08:39:58  venku
-   Well, it does not make sense to specify a set of IDs and expect only
-   analyses of these IDs to be controlled.  This is more like application
-   logic than framework logic.
-   Revision 1.12  2003/08/25 08:06:39  venku
-   Renamed participatingAnalysesNames to participatingAnalysesIDs.
-   AbstractAnalysesController now has a method to extract the above field.
-   Revision 1.11  2003/08/25 07:28:01  venku
-   Ripple effect of renaming AbstractController to AbstractAnalysesController.
-   Revision 1.10  2003/08/18 04:44:35  venku
-   Established an interface which will provide the information about the underlying system as required by transformations.
-   It is called ISystemInfo.
-   Ripple effect of the above change.
-   Revision 1.9  2003/08/18 04:10:10  venku
-   Documentation change.
-   Revision 1.8  2003/08/18 04:08:22  venku
-   Removed unnecessary method.
-   Revision 1.7  2003/08/18 00:59:50  venku
-   Changed specification to fit the last change.
-   Revision 1.6  2003/08/18 00:59:11  venku
-   Changed the type of the IDs to java.lang.Object to provide extensibility.
-   Ripple effect of that happens in AbstractController.
-   Revision 1.5  2003/08/16 02:41:37  venku
-   Renamed AController to AbstractController.
-   Renamed AAnalysis to AbstractAnalysis.
-   Revision 1.4  2003/08/15 08:23:09  venku
-   Renamed getDAnalysis to getAnalysis.
-   Revision 1.3  2003/08/11 08:49:34  venku
-   Javadoc documentation errors were fixed.
-   Some classes were documented.
-   Revision 1.2  2003/08/11 07:46:09  venku
-   Finalized the parameters.
-   Spruced up Documentation and Specification.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
- */
+// End of File

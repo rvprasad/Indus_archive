@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -111,6 +111,11 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 
 	/** 
+	 * This is the unique string identifier that can be used to identify an instance of this class.
+	 */
+	public static final String ID = "Shared Access Information";
+
+	/** 
 	 * The logger used by instances of <code>ValueProcessor</code> class to log messages.
 	 */
 	static final Log VALUE_PROCESSOR_LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.ValueProcessor.class);
@@ -121,14 +126,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	static final Log STMT_PROCESSOR_LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.StmtProcessor.class);
 
 	/** 
-	 * This is the unique string identifier that can be used to identify an instance of this class.
-	 */
-	public static final String ID = "Shared Access Information";
-
-	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
+	static final Log LOGGER = LogFactory.getLog(EquivalenceClassBasedEscapeAnalysis.class);
 
 	/** 
 	 * This manages the basic block graphs corresponding to the methods in being analyzed.
@@ -1227,231 +1227,4 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.66  2004/08/05 08:26:29  venku
-   - fixed the nagging bug in alias set cloning.
-   Revision 1.65  2004/08/04 10:51:11  venku
-   - INTERIM commit to enable working acorss sites.
-   Revision 1.64  2004/08/02 10:30:26  venku
-   - resolved few more issues in escape analysis.
-   Revision 1.63  2004/08/01 22:58:25  venku
-   - ECBA was erroneous for 2 reasons.
-     - top-down propagation was not complete. FIXED.
-     - cloning of alias sets was not complete. FIXED.
-   - optimized certain other aspects of ECBA.
-   - removed RufsEscapeAnalysis.
-   Revision 1.62  2004/07/30 07:47:35  venku
-   - there was a bug in escape analysis cloning and union algorithm.  FIXED.
-   Revision 1.61  2004/07/28 07:32:52  venku
-   - logging and toString() implementation.
-   Revision 1.60  2004/07/27 07:08:25  venku
-   - revamped IMonitorInfo interface.
-   - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
-   - deleted WaitNotifyAnalysis
-   - ripple effect in EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.59  2004/07/24 10:06:19  venku
-   - moved methods from WaitNotifyAnalysis to SafeLockAnalysis - ripple effect.
-   Revision 1.58  2004/07/24 10:02:46  venku
-   - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
-     preprocessor hierarchy tree.
-   Revision 1.57  2004/07/23 13:09:44  venku
-   - Refactoring in progress.
-     - Extended IMonitorInfo interface.
-     - Teased apart the logic to calculate monitor info from SynchronizationDA
-       into MonitorAnalysis.
-     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
-     - ripple effect.
-     - Implemented safelock analysis to handle intraprocedural processing.
-   Revision 1.56  2004/07/21 11:36:26  venku
-   - Extended IUseDefInfo interface to provide both local and non-local use def info.
-   - ripple effect.
-   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
-     ECBA and AliasedUseDefInfo analysis.
-   - Added new faster implementation of LocalUseDefAnalysisv2
-   - Used LocalUseDefAnalysisv2
-   Revision 1.55  2004/07/18 19:22:32  venku
-   - site contexts are not required after the analysis.  Hence, these are discarded
-     from method2triple map at the end of performPhase3.
-   Revision 1.54  2004/07/17 20:21:35  venku
-   -  removed rogue printlns.
-   Revision 1.53  2004/07/17 19:37:18  venku
-   - ECBA was incorrect for the following reasons.
-     - it fails if the start sites are not in the same method.
-     - it fails if the access in the threads occur in methods other than the
-       one in which the new thread is started.
-     - The above issues were addressed.
-   Revision 1.51  2004/07/17 06:05:47  venku
-   - coding conventions.
-   Revision 1.50  2004/07/11 14:17:40  venku
-   - added a new interface for identification purposes (IIdentification)
-   - all classes that have an id implement this interface.
-   Revision 1.49  2004/05/31 21:38:08  venku
-   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
-   - ripple effect.
-   Revision 1.48  2004/04/22 09:49:46  venku
-   - added logic to discard fast-union-find elements which serve as levels of indirections.
-   Revision 1.47  2004/03/29 01:55:03  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.46  2004/02/28 22:06:06  venku
-   - variables in cast expressions were ignored. FIXED.
-   Revision 1.45  2004/02/27 23:04:10  venku
-   - wait/notify trapping was incorrect. FIXED.
-   Revision 1.44  2004/02/25 00:04:02  venku
-   - documenation.
-   Revision 1.43  2004/01/21 13:35:26  venku
-   - removed isReadyDependent() variant used for enter and
-     exit monitor based ready dependence.
-   - added a new method, thisEscapes(), to check if the this
-     variable of a method is marked as escaping.
-   Revision 1.42  2004/01/20 16:46:29  venku
-   - use hashset instead of arraylist for notifyMethods and waitMethods.
-   Revision 1.41  2004/01/20 16:01:46  venku
-   - logging.
-   Revision 1.40  2004/01/09 01:00:15  venku
-   - throwStmt() in StmtProcessor() did not check if the processing
-     of the thrown expression could yeild null alias set. FIXED.
-   Revision 1.39  2004/01/06 00:17:00  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.38  2003/12/16 06:28:14  venku
-   - removed the valueprocessor.accessed field and defaulted
-     it to true always.
-   Revision 1.37  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.36  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.35  2003/12/08 12:20:44  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.34  2003/12/08 12:15:59  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.33  2003/12/08 10:46:45  venku
-   - added logging support when processing statements and values.
-   - accessed field of valueProcessor is true independent of
-     the method as such setting can lead to incorrect results.
-   - only Object.wait() was being considered and other variants
-     were not being considered. FIXED.
-   Revision 1.32  2003/12/07 08:41:32  venku
-   - deleted getCallGraph() from ICallGraphInfo interface.
-   - made getSCCs() direction sensitive.
-   - ripple effect.
-   Revision 1.31  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.30  2003/11/26 06:57:59  venku
-   - subtle error in shared.  If the values are static field references
-     they will escape but their sharedEntities set will be empty.
-     This leads to incorrect results.  FIXED.
-   Revision 1.29  2003/11/25 21:47:30  venku
-   - logging.
-   Revision 1.28  2003/11/16 19:06:50  venku
-   - documentation.
-   Revision 1.27  2003/11/10 03:17:19  venku
-   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
-   - ripple effect.
-   Revision 1.26  2003/11/07 12:20:36  venku
-   - added information logging.
-   Revision 1.25  2003/11/06 05:59:17  venku
-   - coding convention.
-   Revision 1.24  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.23  2003/11/05 09:28:34  venku
-   - ripple effect of splitting IWorkBag.
-   Revision 1.22  2003/11/02 22:09:57  venku
-   - changed the signature of the constructor of
-     EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.21  2003/11/01 23:50:00  venku
-   - documentation.
-   Revision 1.20  2003/10/31 01:02:04  venku
-   - added code for extracting data for CC04 paper.
-   Revision 1.19  2003/10/21 04:29:23  venku
-   - subtle bug emanated from the order in which the
-     statements were processed.  As a fix, all start call-sites
-     in a method are processed after all statements of the
-      method have been processed.
-   Revision 1.18  2003/10/09 00:17:40  venku
-   - changes to instrumetn statistics numbers.
-   Revision 1.17  2003/10/05 16:22:25  venku
-   - Interference dependence is now symbol based.
-   - Both interference and ready dependence consider
-     loop information in a more sound manner.
-   - ripple effect of the above.
-   Revision 1.16  2003/10/05 06:31:35  venku
-   - Things work.  The bug was the order in which the
-     parameter alias sets were being accessed.  FIXED.
-   Revision 1.15  2003/10/04 22:53:45  venku
-   - backup commit.
-   Revision 1.14  2003/09/29 14:54:46  venku
-   - don't use "use-orignal-names" option with Jimple.
-     The variables referring to objects need to be unique if the
-     results of the analyses should be meaningful.
-   Revision 1.13  2003/09/29 06:36:31  venku
-   - added reset() method.
-   Revision 1.12  2003/09/28 06:20:39  venku
-   - made the core independent of hard code used to create unit graphs.
-     The core depends on the environment to provide a factory that creates
-     these unit graphs.
-   Revision 1.11  2003/09/28 03:17:13  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.10  2003/09/27 01:27:46  venku
-   - documentation.
-   Revision 1.9  2003/09/12 08:13:40  venku
-   - added todo item.
-   Revision 1.8  2003/09/08 02:24:27  venku
-   - uses IThreadGraphInfo to calculate multi executed thread
-     allocation site.
-   Revision 1.7  2003/09/01 12:01:30  venku
-   Major:
-   - Ready dependence info in ECBA was flaky as it did not consider
-     impact of multiple call sites with contradicting wait/notify use of
-     the primary.  FIXED.
-   Revision 1.6  2003/08/27 12:40:35  venku
-   It is possible that in ill balanced wait/notify lead to a situation
-   where there are no entities to match them, hence, we got a
-   NullPointerException.  FIXED.
-   It now flags a log error indicating the source has anamolies.
-   Revision 1.5  2003/08/25 11:58:43  venku
-   Deleted a debug statement.
-   Revision 1.4  2003/08/24 12:04:32  venku
-   Removed occursInCycle() method from DirectedGraph.
-   Installed occursInCycle() method in CFGAnalysis.
-   Converted performTopologicalsort() and getFinishTimes() into instance methods.
-   Ripple effect of the above changes.
-   Revision 1.3  2003/08/24 06:06:34  venku
-   logging added.
-   Revision 1.2  2003/08/21 03:56:44  venku
-   Formatting.
-   Revision 1.1  2003/08/21 01:24:25  venku
-    - Renamed src-escape to src-concurrency to as to group all concurrency
-      issue related analyses into a package.
-    - Renamed escape package to concurrency.escape.
-    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.3  2003/08/11 08:49:34  venku
-   Javadoc documentation errors were fixed.
-   Some classes were documented.
-   Revision 1.2  2003/08/11 06:29:07  venku
-   Changed format of change log accumulation at the end of the file
-   Revision 1.1  2003/08/07 06:39:07  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Minor:
-    - changes to accomodate ripple effect from support package.
- */
+// End of File

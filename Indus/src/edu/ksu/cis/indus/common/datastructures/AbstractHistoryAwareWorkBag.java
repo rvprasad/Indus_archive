@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -27,7 +27,7 @@ import java.util.Collection;
  */
 public abstract class AbstractHistoryAwareWorkBag
   extends AbstractWorkBag {
-	/**
+	/** 
 	 * The container that remembers the items that were processed by this work bag.
 	 */
 	private final Collection processedWorkPieces;
@@ -64,16 +64,4 @@ public abstract class AbstractHistoryAwareWorkBag
 	protected abstract void subAddWork(final Object o);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-
- */
+// End of File

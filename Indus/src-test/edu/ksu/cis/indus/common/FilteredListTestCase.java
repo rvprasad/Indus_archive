@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -24,74 +24,68 @@ package edu.ksu.cis.indus.common;
  */
 public class FilteredListTestCase
   extends FilteredCollectionTestCase {
-	/*
-	 * Class under test for boolean addAll(int, Collection)
+	/**
+	 * Tests <code>addAll(int, Collection)</code>.
 	 */
 	public final void testAddAllintCollection() {
 		//TODO: Implement addAll().
 	}
 
-	/*
-	 * Class under test for void add(int, Object)
+	/**
+	 * Tests <code>add(int, Object)</code>.
 	 */
 	public final void testAddintObject() {
 		//TODO: Implement add().
 	}
 
-	/*
-	 * Class under test for Object get(int)
+	/**
+	 * Tests <code>get(int)</code>.
 	 */
 	public final void testGetint() {
 		//TODO: Implement get().
 	}
 
-	/*
-	 * Class under test for int indexOf(Object)
+	/**
+	 * Tests <code>indexOf(Object)</code>.
 	 */
 	public final void testIndexOfObject() {
 		//TODO: Implement indexOf().
 	}
 
-	/*
-	 * Class under test for int lastIndexOf(Object)
+	/**
+	 * Tests <code>lastIndexOf(Object)</code>.
 	 */
 	public final void testLastIndexOfObject() {
 		//TODO: Implement lastIndexOf().
 	}
 
-	/*
-	 * Class under test for ListIterator listIterator()
+	/**
+	 * Tests <code>listIterator()</code>.
 	 */
 	public final void testListIterator() {
 		//TODO: Implement listIterator().
 	}
 
-	/*
-	 * Class under test for ListIterator listIterator(int)
+	/**
+	 * Tests <code>listIterator(int)</code>.
 	 */
 	public final void testListIteratorint() {
 		//TODO: Implement listIterator().
 	}
 
-	/*
-	 * Class under test for Object set(int, Object)
+	/**
+	 * Tests <code>set(int, Object)</code>.
 	 */
 	public final void testSetintObject() {
 		//TODO: Implement set().
 	}
 
-	/*
-	 * Class under test for List subList(int, int)
+	/**
+	 * Tests <code>subList(int, int)</code>.
 	 */
 	public final void testSubListintint() {
 		//TODO: Implement subList().
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/06/29 02:00:23  venku
-   - added test cases for FilteredXXXX classes.  These need to be implemented.
-
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -51,7 +51,7 @@ import soot.jimple.ThrowStmt;
  */
 class StmtSwitch
   extends AbstractStmtSwitch {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(StmtSwitch.class);
@@ -249,41 +249,4 @@ class StmtSwitch
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/04/02 09:58:28  venku
-   - refactoring.
-     - collapsed flow insensitive and sensitive parts into common classes.
-     - coding convention
-     - documentation.
-
-   Revision 1.8  2004/02/26 08:31:21  venku
-   - refactoring - moved OFAnalyzer.isReferenceType() to Util.
-   Revision 1.7  2003/12/07 09:59:50  venku
-   - logging.
-   - rhs of assign/identity stmt is executed when it
-     is an invoke expression.
-   Revision 1.6  2003/12/05 15:31:05  venku
-   - identity and assignment statements skipped certain values.  FIXED.
-   Revision 1.5  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.4  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.3  2003/08/26 17:53:55  venku
-   Actually we can use the types to cut down the number of edges
-   between the flow nodes. The current fix uses a method in OFAnalyzer
-   to check for reference types, only if the type matches the given expression
-   is processed.  However, this does not apply for staticfield, instancefield, and
-   array access expressions.
-   Revision 1.2  2003/08/15 02:54:06  venku
-   Spruced up specification and documentation for flow-insensitive classes.
-   Changed names in AbstractExprSwitch.
-   Ripple effect of above change.
-   Formatting changes to IPrototype.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -41,10 +41,4 @@ public interface IPoolable {
 	void returnToPool();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2003/12/04 09:45:29  venku
-   - added interface and it's abstract implementation to
-     support pooling of objects.
- */
+// End of File

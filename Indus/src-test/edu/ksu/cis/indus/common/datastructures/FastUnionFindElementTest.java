@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -27,12 +27,12 @@ import edu.ksu.cis.indus.IndusTestCase;
  */
 public final class FastUnionFindElementTest
   extends IndusTestCase {
-	/**
+	/** 
 	 * One of the test element.
 	 */
 	private FastUnionFindElement f1;
 
-	/**
+	/** 
 	 * Other test element.
 	 */
 	private FastUnionFindElement f2;
@@ -174,26 +174,4 @@ public final class FastUnionFindElementTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.5  2004/02/09 00:28:33  venku
-   - added a new class, IndusTestCase, that extends TestCase
-     to differentiate between the test method name and the
-     test instance name.
-   - all test cases in indus extends IndusTestCase.
-   - added a new method TestHelper to append container's name
-     to the test cases.
-
-   Revision 1.4  2004/01/28 00:18:45  venku
-   - added unit tests for classes in data structures package.
-
-   Revision 1.3  2004/01/27 16:27:16  venku
-   - added setType() and addChild() methods.
-   - added test logic to test the class.
-
-   Revision 1.2  2004/01/25 09:05:57  venku
-   - coding convention.
-   Revision 1.1  2004/01/06 15:06:23  venku
-   - started to add test case for data structures.
- */
+// End of File

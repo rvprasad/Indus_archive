@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -151,6 +151,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	final Map stmt2predecessors = new HashMap();
 
 	/** 
+	 * The system to be residualized.
+	 */
+	IEnvironment environment;
+
+	/** 
 	 * Local use-def analysis to be used during residualization.
 	 */
 	IUseDefInfo localUseDef;
@@ -159,11 +164,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * The tag that identify the parts of the system that shall be residualized.
 	 */
 	NamedTag tagToResidualize;
-
-	/** 
-	 * The system to be residualized.
-	 */
-	IEnvironment environment;
 
 	/** 
 	 * The method being processed.
@@ -1053,154 +1053,4 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.26  2004/08/22 10:44:01  venku
-   - value returned from Jimple.v() should not be cached.  Evil Soot. FIXED.
-
-   Revision 1.25  2004/08/16 21:08:40  venku
-   - Traps were sucked in based on TrapManager which was transparent to the
-     shape of the stmt graph.  This has been fixed.
-
-   Revision 1.24  2004/08/15 00:02:13  venku
-   - previous changes addressing "classes of types used in cast and instanceof expressions
-     were being ignored during residualization" is more of an executability problem.  Hence, this
-     is now handled in ExecutableSlicePostProcessing instead of TagBasedDestructiveSliceResidualizer.
-   Revision 1.23  2004/08/13 16:56:01  venku
-   - classes of types used in cast and instanceof expressions
-     were being ignored during residualization.  FIXED.
-   Revision 1.22  2004/08/08 10:11:37  venku
-   - added a new class to configure constants used when creating data structures.
-   - ripple effect.
-   Revision 1.21  2004/08/06 14:43:35  venku
-   - a hack to fix dangling nop statement block was added.
-   Revision 1.20  2004/08/02 07:33:46  venku
-   - small but significant change to the pair manager.
-   - ripple effect.
-   Revision 1.19  2004/07/25 01:34:36  venku
-   - if a throw was marked and not the exception value, then the code to create
-     a value is injected independent of the fact that the thrown value is in the slice.
-     This was fixed by using local use def analysis.  FIXED.
-   Revision 1.18  2004/07/23 11:28:22  venku
-   - jimple specific residualization fixes.
-   Revision 1.17  2004/07/21 07:09:26  venku
-   - residualization failed when a invoke statement was tagged and none of
-     its AST descendents were tagged.  FIXED.
-   Revision 1.16  2004/07/17 23:32:19  venku
-   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
-   - ripple effect.
-   Revision 1.15  2004/07/10 00:52:44  venku
-   - throw statements need to suck in the class of the exception that is thrown. FIXED.
-   Revision 1.14  2004/07/09 09:15:35  venku
-   - refactoring.
-   Revision 1.13  2004/07/08 22:15:18  venku
-   - moved the method body validation code to the end so that it
-     considers any newly introduced code as well.
-   Revision 1.12  2004/06/14 04:31:17  venku
-   - added method to check tags on a collection of hosts in Util.
-   - ripple effect.
-   Revision 1.11  2004/06/12 06:47:28  venku
-   - documentation.
-   - refactoring.
-   - coding conventions.
-   - catered feature request 384, 385, and 386.
-   Revision 1.10  2004/05/21 22:11:48  venku
-   - renamed CollectionsModifier as CollectionUtilities.
-   - added new specialized methods along with a method to extract
-     filtered maps.
-   - ripple effect.
-   Revision 1.9  2004/04/24 08:25:46  venku
-   - methodsToKill belonging to the enclosing class was altered in
-     prepareInit() method.  However, this is not true.  FIXED.
-   Revision 1.8  2004/04/20 00:43:40  venku
-   - The processing during residualization was driven by a graph.  This
-     caused errors when the graph did not cover all of the statements.
-     Hence, during residualization we will visit all parts of a method.
-   Revision 1.7  2004/04/19 19:10:01  venku
-   - we cannot delete locals before processing the statements. Likewise,
-     we cannot delete methods in a class as it may be referred to in a
-     class we process later.
-   - batched the deletion of method locals, methods, and fields.
-   Revision 1.6  2004/03/29 01:55:08  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.5  2004/03/04 14:02:44  venku
-   - locals should be processed for methods with body. FIXED.
-   Revision 1.4  2004/03/03 10:09:42  venku
-   - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
-   Revision 1.3  2004/02/28 22:45:27  venku
-     empty log message
-   Revision 1.2  2004/02/27 09:41:29  venku
-   - added logic to massage the slice while residualizing to avoid
-     idioms such as throw null.
-   Revision 1.1  2004/02/25 23:33:40  venku
-   - well package naming convention was inconsistent. FIXED.
-   Revision 1.20  2004/02/23 09:10:54  venku
-   - depending on the unit graph used the body may be inconsistent in
-     terms of control/data flow paths as the data analyses are based
-     on the unit graph.  Hence, soot transformers are used to bring the
-     body into a consistent state and then the validity tests are performed.
-   Revision 1.19  2004/02/23 04:43:39  venku
-   - jumps were not fixed properly when old statements were
-     replaced with new statements.
-   Revision 1.18  2004/02/04 04:33:41  venku
-   - locals in empty methods need to be removed as well. FIXED.
-   Revision 1.17  2004/01/31 01:48:18  venku
-   - for odd reasons, various transformers provided in SOOT fail,
-     hence, they are not used anymore.
-   Revision 1.16  2004/01/30 23:57:11  venku
-   - uses various body transformers to optimize the body.
-   - uses entry control DA to pick only the required exit
-     points while making the slice executable.
-   Revision 1.15  2004/01/25 07:50:20  venku
-   - changes to accomodate class hierarchy fixup and handling of
-     statements which are marked as true but in which none of the
-     expressions are marked as true.
-   Revision 1.14  2004/01/24 01:43:40  venku
-   - moved getDefaultValueFor() to Util.
-   Revision 1.13  2004/01/22 01:07:00  venku
-   - coding convention.
-   Revision 1.12  2004/01/22 01:06:13  venku
-   - coding convention.
-   Revision 1.11  2004/01/17 23:25:20  venku
-   - value was being cast into a Host.  FIXED.
-   Revision 1.10  2004/01/14 12:01:02  venku
-   - documentation.
-   - error was not flagged when incorrect slice is detected. FIXED.
-   Revision 1.9  2004/01/13 10:59:42  venku
-   - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
-     It was deleted.
-   - ripple effect.
-   Revision 1.8  2004/01/11 03:38:03  venku
-   - entire method bodies may be deleted or not included in the
-     first place (due to inheritance).  If so, a suitable return
-     statement is injected.
-   - We now only process methods which are tagged with
-     tagToResidualize rather than systemTagName.
-   Revision 1.7  2004/01/09 23:15:37  venku
-   - chnaged the method,field, and class kill logic.
-   - changed method and class finishing logic.
-   - removed unnecessary residualization when some
-     properties about statements such as enter monitor
-     and invoke expr are known.
-   Revision 1.6  2004/01/09 07:03:07  venku
-   - added annotations for code to be removed.
-   Revision 1.5  2003/12/16 12:43:33  venku
-   - fixed many errors during destruction of the system.
-   Revision 1.4  2003/12/15 16:30:57  venku
-   - safety checks and formatting.
-   Revision 1.3  2003/12/14 17:00:51  venku
-   - enabled nop elimination
-   - fixed return statement in methods.
-   Revision 1.2  2003/12/14 16:40:30  venku
-   - added residualization logic.
-   - incorporate the residualizer in the tool.
-   Revision 1.1  2003/12/09 11:02:38  venku
-   - synchronization forced commit.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -742,15 +742,16 @@ public final class Util {
 	}
 
 	/**
-	 * This is a helper method to check if <code>invokedMethod</code> is called at the site in the given statement
-	 * and method in the given callgraph.
-	 * 
+	 * This is a helper method to check if <code>invokedMethod</code> is called at the site in the given statement and method
+	 * in the given callgraph.
+	 *
 	 * @param invokedMethod is the target method.
 	 * @param stmt containing the invocation site.
 	 * @param method containing <code>stmt</code>.
 	 * @param cgi to be used for method resolution.
 	 *
 	 * @return <code>true</code> if <code> invokedMethod</code> is invoked; <code>false</code>, otherwise.
+	 *
 	 * @pre invokedMethod != null and stmt != null and method != null and cgi != null
 	 */
 	private static boolean wasMethodInvocationHelper(final SootMethod invokedMethod, final InvokeStmt stmt,
@@ -772,112 +773,4 @@ public final class Util {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.30  2004/07/30 07:07:52  venku
-   - documentation.
-
-   Revision 1.29  2004/07/30 05:16:43  venku
-   - moved the methods to check for wait(), notify(), and start() invocations into Util.
-
-   Revision 1.28  2004/07/20 06:12:07  venku
-   - error while getting array types. FIXED.
-   Revision 1.27  2004/07/02 05:15:17  venku
-   - added a new method to retrieve type objects based on names.
-   Revision 1.26  2004/06/14 04:31:17  venku
-   - added method to check tags on a collection of hosts in Util.
-   - ripple effect.
-   Revision 1.25  2004/04/22 20:08:45  venku
-   - fixed soot options, again.
-   Revision 1.24  2004/04/22 19:58:59  venku
-   - coding conventions.
-   Revision 1.23  2004/04/22 18:50:01  venku
-   - soot options were wrongly set.  FIXED.
-   Revision 1.22  2004/04/16 17:42:04  venku
-   - coding convention
-   - enabled the user to pass soot options while initializing the driver.
-   Revision 1.21  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.20  2004/03/21 02:54:28  venku
-   - unit graph cannot be modified outside it's constructor or subclasses.
-     Moved the method to prune exception based edges to ExceptionFlowSensitiveUnitGraph.
-   Revision 1.19  2004/03/08 02:10:14  venku
-   - enabled preliminary support to prune exception based intraprocedural
-     control flow edges.
-   Revision 1.18  2004/03/07 00:42:49  venku
-   - added a new method to extract the options to be used by
-     soot to use Indus.
-   Revision 1.17  2004/02/27 07:53:04  venku
-   - logging.
-   Revision 1.16  2004/02/26 08:31:26  venku
-   - refactoring - moved OFAnalyzer.isReferenceType() to Util.
-   Revision 1.15  2004/02/05 18:21:02  venku
-   - moved getClassesInTopologicalSortedOrder() into Util.
-   - logging.
-   - getClassesInTopologicalSortedOrder() was collecting the
-     retain methods rather than the methods from which
-     to retain. FIXED.
-   Revision 1.14  2004/01/25 09:02:46  venku
-   - coding convention.
-   Revision 1.13  2004/01/24 01:42:50  venku
-   - added methods to filter graphs based on identical-ness
-     of signature.
-   - added method to extract default "Value"s for soot types.
-   Revision 1.12  2004/01/20 17:10:44  venku
-   - added a new method to collect ancestors of a given class.
-   Revision 1.11  2004/01/19 22:44:04  venku
-   - added method declarations in interfaces to be found by
-     findMethodsInClassesAndInterfaces().
-   Revision 1.10  2004/01/19 11:38:03  venku
-   - moved findMethodInSuperClasses into Util.
-   Revision 1.9  2004/01/08 23:44:09  venku
-   - SootClass.hasSuperclass() is finicky.  I have introduced a
-     simple local version.
-   Revision 1.8  2003/12/31 10:32:26  venku
-   - safe fixing of thread method is desired.  FIXED.
-   Revision 1.7  2003/12/31 10:05:08  venku
-   - only application classes can be modified. So,
-     we shall make Thread one.
-   Revision 1.6  2003/12/31 10:01:16  venku
-   - removed unused code.
-   Revision 1.5  2003/12/31 09:52:20  venku
-   - removed unused code.
-   Revision 1.4  2003/12/31 09:34:22  venku
-   - formatting and clover directives.
-   Revision 1.3  2003/12/31 09:30:18  venku
-   - removed unused code.
-   Revision 1.2  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.6  2003/11/06 05:04:02  venku
-   - renamed WorkBag to IWorkBag and the ripple effect.
-   Revision 1.5  2003/11/02 20:14:33  venku
-   - thread body is fixed external to the driver in Util.
-   Revision 1.4  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.3  2003/08/11 07:13:58  venku
-     empty log message
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:42:16  venku
-    Major:
-     - Moved the package under indus umbrella.
-     - Renamed isEmpty() to hasWork() in IWorkBag.
- */
+// End of File

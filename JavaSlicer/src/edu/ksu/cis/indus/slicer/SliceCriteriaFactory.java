@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -84,23 +84,26 @@ import soot.jimple.Stmt;
  * @version $Revision$
  */
 public final class SliceCriteriaFactory {
-	/**
+	/** 
 	 * This stores a reference to the factory object.
 	 */
 	private static final SliceCriteriaFactory SINGLETON = new SliceCriteriaFactory();
 
 	///CLOVER:OFF
+
 	/**
 	 * Creates a new SliceCriteriaFactory object.
 	 */
 	private SliceCriteriaFactory() {
 	}
+
 	///CLOVER:ON
-	
+
 	/**
 	 * Retrieves the factory object.
 	 *
 	 * @return the factory object.
+	 *
 	 * @post result != null
 	 */
 	public static SliceCriteriaFactory getFactory() {
@@ -279,66 +282,4 @@ public final class SliceCriteriaFactory {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.9  2004/07/09 05:05:25  venku
-   - refactored the code to enable the criteria creation to be completely hidden
-     from the user.
-   - exposed the setting of the considerExecution flag of the criteria in the factory.
-   - made SliceCriteriaFactory a singleton.
-
-   Revision 1.8  2004/06/26 09:53:15  venku
-   - documentation.
-   Revision 1.7  2004/05/10 08:12:03  venku
-   - streamlined the names of tags that are used.
-   - deleted SlicingTag class.  NamedTag is used instead.
-   - ripple effect.
-   - SliceCriteriaFactory's interface is enhanced to generate individual
-     slice criterion as well as criteria set for all nodes in the given AST chunk.
-   Revision 1.6  2003/12/13 02:29:16  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.5  2003/12/02 19:20:50  venku
-   - coding convention and formatting.
-   Revision 1.4  2003/12/02 09:42:18  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.3  2003/12/01 12:18:25  venku
-   - as criteria creation is only the function of the factory
-     and as setConsider..() method is available, the
-     responsibility to tweak the purpose of the criteria
-     is pushed out of the factory.
-   Revision 1.2  2003/11/05 08:31:33  venku
-   - we only support before and after type of criteria.  This
-     includes the cases of inclusion in slice.
-   - the factory only creates criteria at a coarse level as
-     specified by the expression/statement.  It relies on
-     the slicing algorithm to drill down into the expr/stmt
-     for more criteria.
-   Revision 1.1  2003/10/13 00:58:04  venku
-   - empty log message
-   Revision 1.11  2003/09/27 22:38:30  venku
-   - package documentation.
-   - formatting.
-   Revision 1.10  2003/09/15 08:09:17  venku
-   - fixed param dependency.  However, this needs to be addressed
-     in a generic setting.  Also, the theoretics concerned to inclusion
-     should be dealt appropriately.
-   Revision 1.9  2003/08/21 09:31:52  venku
-   - If the SliceExpr was created based on a Def Box, it would not have
-     included the statement.  This was fixed.
-   Revision 1.8  2003/08/20 18:31:22  venku
-   - Documentation errors fixed.
-   Revision 1.7  2003/08/18 12:14:13  venku
-   - Well, to start with the slicer implementation is complete.
-     Although not necessarily bug free, hoping to stabilize it quickly.
-   Revision 1.6  2003/08/18 05:01:45  venku
-   - Committing package name change in source after they were moved.
-   Revision 1.5  2003/08/18 04:56:47  venku
-   - Spruced up Documentation and specification.
-     But committing before moving slicer under transformation umbrella of Indus.
-   Revision 1.4  2003/05/22 22:23:49  venku
-   - Changed interface names to start with a "I".
-     Formatting.
- */
+// End of File

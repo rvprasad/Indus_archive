@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -46,18 +46,4 @@ public final class IdentifierBasedDataDAv3
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/07/21 11:40:22  venku
-   - documentation.
-
-   Revision 1.1  2004/07/21 11:36:26  venku
-   - Extended IUseDefInfo interface to provide both local and non-local use def info.
-   - ripple effect.
-   - deleted ContainmentPredicate.  Instead, used CollectionUtils.containsAny() in
-     ECBA and AliasedUseDefInfo analysis.
-   - Added new faster implementation of LocalUseDefAnalysisv2
-   - Used LocalUseDefAnalysisv2
-
- */
+// End of File

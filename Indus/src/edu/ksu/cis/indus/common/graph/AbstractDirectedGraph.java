@@ -218,7 +218,7 @@ public abstract class AbstractDirectedGraph
 			final INode _node1 = (INode) _i.next();
 			final Collection _descendants = getReachablesFrom(_node1, true);
 			final Collection _intersection = CollectionUtils.intersection(nodes, _descendants);
-            final Iterator _j = _intersection.iterator();
+			final Iterator _j = _intersection.iterator();
 			final int _jEnd = _intersection.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
@@ -230,9 +230,9 @@ public abstract class AbstractDirectedGraph
 					_result.add(_node2);
 				}
 			}
-			
+
 			if (_jEnd > 0) {
-			    _result.add(_node1);
+				_result.add(_node1);
 			}
 		}
 		return _result;

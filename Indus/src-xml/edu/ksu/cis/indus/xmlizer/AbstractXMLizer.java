@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -36,38 +36,38 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class AbstractXMLizer
   implements IXMLizer {
-	/**
+	/** 
 	 * The id used to retrieve the file name from the info map in <code>writeXML</code>.
 	 */
 	public static final Object FILE_NAME_ID = "FILE_NAME_ID";
 
-	/**
+	/** 
 	 * The mask used to extract the lower nibble of a byte.
 	 */
 	private static final int LOWER_NIBBLE_MASK = 0x0f;
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractXMLizer.class);
 
-	/**
+	/** 
 	 * The hexadecimal digits!
 	 */
 	private static final char[] HEX_DIGITS =
 		{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-	/**
+	/** 
 	 * The number of places to shift to get the higher nibble into the lower nibble position in a byte.
 	 */
 	private static final int NO_SHIFTS_FROM_HIGHER_TO_LOWER_NIBBLE = 4;
 
-	/**
+	/** 
 	 * This is the id generator used during xmlization.
 	 */
 	private IJimpleIDGenerator idGenerator;
 
-	/**
+	/** 
 	 * This is the directory in which the file containing the xmlized data will be placed.
 	 */
 	private String xmlOutDir;
@@ -273,88 +273,4 @@ search:
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.25  2004/05/13 03:32:20  venku
-   - documentation.  refactoring of getFileName() in IXMLizer.
-   Revision 1.24  2004/05/13 03:30:03  venku
-   - coding convention.
-   - documentation.
-   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
-   Revision 1.23  2004/05/13 03:12:33  venku
-   - CustomXMLOutputter defaults to UTF-8 encoding.
-   - Added a new method to AbstractXMLizer to encode strings.
-   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
-   - ripple effect.
-   Revision 1.22  2004/04/25 23:18:21  venku
-   - coding conventions.
-   Revision 1.21  2004/04/25 21:18:39  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.20  2004/04/22 23:32:31  venku
-   - xml file name were setup incorrectly.  FIXED.
-   Revision 1.19  2004/04/22 23:02:49  venku
-   - moved writeXML into IXMLizer.
-   Revision 1.18  2004/04/22 22:12:09  venku
-   - made changes to jimple xmlizer to dump each class into a separate file.
-   - ripple effect.
-   Revision 1.17  2004/04/18 08:59:02  venku
-   - enabled test support for slicer.
-   Revision 1.16  2004/04/01 22:34:19  venku
-   - changed xmlization logic.
-   Revision 1.15  2004/03/26 07:15:49  venku
-   - documentation.
-   Revision 1.14  2004/03/05 11:59:40  venku
-   - documentation.
-   Revision 1.13  2004/02/14 23:16:49  venku
-   - coding convention.
-   Revision 1.12  2004/02/11 10:00:20  venku
-   - added a new custom xml outputter class.
-   Revision 1.11  2004/02/11 09:37:21  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.10  2004/02/09 17:40:57  venku
-   - dependence and call graph info serialization is done both ways.
-   - refactored the xmlization framework.
-     - Each information type has a xmlizer (XMLizer)
-     - Each information type has a xmlizer driver (XMLizerCLI)
-     - Tests use the XMLizer.
-   Revision 1.9  2004/02/09 06:49:05  venku
-   - deleted dependency xmlization and test classes.
-   Revision 1.8  2004/02/09 04:39:40  venku
-   - refactoring test classes still..
-   - need to make xmlizer classes independent of their purpose.
-     Hence, they need to be highly configurable.
-   - For each concept, test setup should be in TestSetup
-     rather than in the XMLizer.
-   Revision 1.7  2004/02/09 02:00:11  venku
-   - changed AbstractXMLizer.
-   - ripple effect.
-   Revision 1.6  2003/12/28 00:41:48  venku
-   - logging.
-   Revision 1.5  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.4  2003/12/09 10:20:49  venku
-   - formatting.
-   Revision 1.3  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.2  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.1  2003/12/08 11:59:44  venku
-   - added a new class AbstractXMLizer which will host
-     primary logic to xmlize analyses information.
-   - DependencyXMLizer inherits from this new class.
-   - added a new class CallGraphXMLizer to xmlize
-     call graph information.  The logic to write out the call
-     graph is empty.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -59,8 +59,6 @@ public interface IXMLizer {
 	 *
 	 * @param xmlOutputDir is the directory into which xml data should be dumped.
 	 *
-	 * @throws IllegalArgumentException when the given directory does not exist or cannot be written into.
-	 *
 	 * @pre xmlOutputDir != null
 	 */
 	void setXmlOutputDir(final String xmlOutputDir);
@@ -82,26 +80,4 @@ public interface IXMLizer {
 	void writeXML(final Map info);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.7  2004/05/13 03:32:20  venku
-   - documentation.  refactoring of getFileName() in IXMLizer.
-
-   Revision 1.6  2004/05/13 03:30:03  venku
-   - coding convention.
-   - documentation.
-   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
-   Revision 1.5  2004/04/22 23:02:49  venku
-   - moved writeXML into IXMLizer.
-   Revision 1.4  2004/02/09 02:00:11  venku
-   - changed AbstractXMLizer.
-   - ripple effect.
-   Revision 1.3  2004/02/08 19:08:03  venku
-   - documentation
-   Revision 1.2  2003/12/16 00:29:12  venku
-   - documentation.
-   Revision 1.1  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
- */
+// End of File

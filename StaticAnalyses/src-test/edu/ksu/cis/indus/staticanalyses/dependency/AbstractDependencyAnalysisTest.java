@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -37,12 +37,12 @@ import soot.jimple.Stmt;
 public abstract class AbstractDependencyAnalysisTest
   extends IndusTestCase
   implements IDependencyAnalysisTest {
-	/**
+	/** 
 	 * The analysis to test.
 	 */
 	private IDependencyAnalysis da;
 
-	/**
+	/** 
 	 * The environment in which the analysis executed.
 	 */
 	private IEnvironment env;
@@ -101,7 +101,7 @@ public abstract class AbstractDependencyAnalysisTest
 	}
 
 	/**
-	 * @see TestCase#tearDown()
+	 * @see IndusTestCase#tearDown()
 	 */
 	protected void tearDown()
 	  throws Exception {
@@ -115,9 +115,6 @@ public abstract class AbstractDependencyAnalysisTest
 	 *
 	 * @param unit is the focus of the test.
 	 * @param sm is the method in which <code>unit</code> occurs.
-	 *
-	 * @throws IllegalStateException when the implementation reached a state which cannot handle.  For example, in cases
-	 * 		   where a test  instance is used to test an analysis which it cannot handle.
 	 *
 	 * @pre unit != null and sm != null
 	 */
@@ -133,17 +130,4 @@ public abstract class AbstractDependencyAnalysisTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/05/14 09:02:56  venku
-   - refactored:
-     - The ids are available in IDependencyAnalysis, but their collection is
-       available via a utility class, DependencyAnalysisUtil.
-     - DependencyAnalysis will have a sanity check via Unit Tests.
-   - ripple effect.
-   Revision 1.1  2004/05/14 06:28:25  venku
-   - added a new class AbstractDependencyAnalysisTest to perform unit
-     tests on dependency analysis.
-   - refactored IDependencyAnalysisTest.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.interfaces.IIdentification;
+import edu.ksu.cis.indus.interfaces.IStatus;
 
 import java.util.Collection;
 
@@ -41,7 +42,8 @@ import java.util.Collection;
  * @version $Revision$
  */
 public interface IDependencyAnalysis
-  extends IIdentification {
+  extends IIdentification,
+	  IStatus {
 	/** 
 	 * This identifies backward directional analaysis.
 	 */
@@ -162,31 +164,4 @@ public interface IDependencyAnalysis
 	void reset();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.7  2004/08/15 08:37:27  venku
-   - REFACTORING pertaining to feature request #426
-     - refactored dependence retriever interface.
-     - refactored direction sensitive dependence information creation.
-   Revision 1.6  2004/07/20 06:36:12  venku
-   - documentation.
-   - deleted BI_DIRECTIONAL as it is rarely true that a dependence is bi-directional.
-   Revision 1.5  2004/07/11 14:17:39  venku
-   - added a new interface for identification purposes (IIdentification)
-   - all classes that have an id implement this interface.
-   Revision 1.4  2004/07/11 11:45:54  venku
-   - renamed constants.
-   Revision 1.3  2004/07/11 09:42:13  venku
-   - Changed the way status information was handled the library.
-     - Added class AbstractStatus to handle status related issues while
-       the implementations just announce their status.
-   Revision 1.2  2004/05/21 22:30:53  venku
-   - documentation.
-   Revision 1.1  2004/05/14 09:02:57  venku
-   - refactored:
-     - The ids are available in IDependencyAnalysis, but their collection is
-       available via a utility class, DependencyAnalysisUtil.
-     - DependencyAnalysis will have a sanity check via Unit Tests.
-   - ripple effect.
- */
+// End of File

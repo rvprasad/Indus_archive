@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -319,22 +319,4 @@ final class FilteredMap
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2004/07/17 23:24:16  venku
-   - documentation.
-   Revision 1.5  2004/06/28 16:33:28  venku
-   - coding convention.
-   Revision 1.4  2004/06/28 15:53:30  venku
-   - documentation.
-   Revision 1.3  2004/06/28 08:08:27  venku
-   - new collections classes for filtered access and update.
-   Revision 1.2  2004/06/27 05:02:30  venku
-   - documentation.
-   Revision 1.1  2004/05/21 22:11:49  venku
-   - renamed CollectionsModifier as CollectionUtilities.
-   - added new specialized methods along with a method to extract
-     filtered maps.
-   - ripple effect.
- */
+// End of File

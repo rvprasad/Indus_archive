@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -130,17 +130,17 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public class ProcessingController {
-	/**
+	/** 
 	 * A collection of all possible Jimple statement types for which a processor can register interest.
 	 */
 	public static final Collection STMT_CLASSES;
 
-	/**
+	/** 
 	 * A collection of all possible Jimple value types for which a processor can register interest.
 	 */
 	public static final Collection VALUE_CLASSES;
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ProcessingController.class);
@@ -214,7 +214,7 @@ public class ProcessingController {
 		VALUE_CLASSES = Collections.unmodifiableCollection(_t);
 	}
 
-	/**
+	/** 
 	 * The collection of processors registered with this controller to process interfaces (class/method).   This maintains
 	 * the insertion order.
 	 *
@@ -222,12 +222,12 @@ public class ProcessingController {
 	 */
 	protected final Collection interfaceProcessors = new ArrayList();
 
-	/**
+	/** 
 	 * The context in which the AST chunk is visited during post processing.
 	 */
 	protected Context context = new Context();
 
-	/**
+	/** 
 	 * This maps a class to the post processors interested in processing the analysis information pertaining to AST nodes of
 	 * class type.
 	 *
@@ -235,32 +235,32 @@ public class ProcessingController {
 	 */
 	protected final Map class2processors = new HashMap();
 
-	/**
+	/** 
 	 * This walks over the statements for processing.
 	 */
 	protected final StmtSwitcher stmtSwitcher = new StmtSwitcher(new ValueSwitcher());
 
-	/**
+	/** 
 	 * This indicates if statements are being processed.
 	 */
 	boolean processStmts;
 
-	/**
+	/** 
 	 * This indicates if values are being processed.
 	 */
 	boolean processValues;
 
-	/**
+	/** 
 	 * This defines the environment in which the processing runs.
 	 */
 	private IEnvironment env;
 
-	/**
+	/** 
 	 * The filter used to filter the classes that select the classes and methods to be processed.
 	 */
 	private IProcessingFilter processingFilter;
 
-	/**
+	/** 
 	 * The factory that provides statement graphs (CFGs).  This should be set before process is called.
 	 */
 	private IStmtGraphFactory stmtGraphFactory;
@@ -274,7 +274,7 @@ public class ProcessingController {
 	 */
 	private final class StmtSwitcher
 	  extends AbstractStmtSwitch {
-		/**
+		/** 
 		 * This walks expressions in the statement.
 		 */
 		private final ValueSwitcher valueSwitcher;
@@ -1282,131 +1282,4 @@ public class ProcessingController {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.35  2004/05/03 22:54:04  venku
-   Syntax error.
-   Revision 1.34  2004/05/03 22:39:00  venku
-   Changed info level logging to debug level logging.
-   Revision 1.33  2004/04/20 00:42:23  venku
-   - Processing required a stmtGraphFactory to detect locally reachable statements
-     However, this will fail in certain case.  Instead, one should be able to use this
-     feature or just process all statements.  FIXED.
-   Revision 1.32  2004/03/29 01:55:15  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.31  2004/02/09 04:39:40  venku
-   - refactoring test classes still..
-   - need to make xmlizer classes independent of their purpose.
-     Hence, they need to be highly configurable.
-   - For each concept, test setup should be in TestSetup
-     rather than in the XMLizer.
-   Revision 1.30  2003/12/28 00:40:37  venku
-   - coding convention.
-   Revision 1.29  2003/12/16 09:57:25  venku
-   - removed redundant object and local.
-   Revision 1.28  2003/12/15 02:16:47  venku
-   - logging.
-   Revision 1.27  2003/12/14 16:43:44  venku
-   - extended ProcessingController to filter fields as well.
-   - ripple effect.
-   Revision 1.26  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.25  2003/12/08 09:17:55  venku
-   - added a reset() method.
-   Revision 1.24  2003/12/05 15:34:17  venku
-   - logging and optimization.
-   Revision 1.23  2003/12/05 03:10:07  venku
-   - iteration in the wrong direction. FIXED.
-   Revision 1.22  2003/12/05 03:08:56  venku
-   - size expressions in new array and multi array were
-     being ignored.  FIXED.
-   Revision 1.21  2003/12/02 11:31:57  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-   Revision 1.20  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.19  2003/12/02 01:30:58  venku
-   - coding conventions and formatting.
-   Revision 1.18  2003/12/01 11:34:28  venku
-   - op1's box was used while processing op2 of binary expressions.  FIXED.
-   Revision 1.17  2003/12/01 02:02:31  venku
-   - coding convention.
-   Revision 1.16  2003/11/30 13:20:51  venku
-   - sub-expressions of complex expressions were not being
-     processed.  FIXED.
-   Revision 1.15  2003/11/30 00:21:11  venku
-   - methodFilter fields was removed.
-   - error in logic while filtering methods. FIXED.
-   Revision 1.14  2003/11/30 00:10:17  venku
-   - Major refactoring:
-     ProcessingController is more based on the sort it controls.
-     The filtering of class is another concern with it's own
-     branch in the inheritance tree.  So, the user can tune the
-     controller with a filter independent of the sort of processors.
-   Revision 1.13  2003/11/17 15:58:58  venku
-   - coding conventions.
-   Revision 1.12  2003/11/17 15:42:49  venku
-   - changed the signature of callback(Value,..) to callback(ValueBox,..)
-   Revision 1.11  2003/11/17 01:44:01  venku
-   - documentation.
-   Revision 1.10  2003/11/15 21:19:36  venku
-   - added methods to register/unregister for all value types.
-   Revision 1.9  2003/11/10 08:09:02  venku
-   - documentation.
-   Revision 1.8  2003/11/10 07:56:20  venku
-   - calls processingBegins() on processors.
-   Revision 1.7  2003/11/10 02:41:30  venku
-   - added a utility method to register for all statements.
-   Revision 1.6  2003/11/07 09:24:42  venku
-   - exposed the collection of statement and value classes
-     to the public.
-   Revision 1.5  2003/11/06 08:33:36  venku
-   - previous optimization had subtle bugs. FIXED.
-   Revision 1.4  2003/11/06 07:57:10  venku
-   - optimized processing depending on the processors.
-   Revision 1.3  2003/11/06 06:22:12  venku
-   - documentation.
-   Revision 1.2  2003/11/06 05:31:08  venku
-   - moved IProcessor to processing package from interfaces.
-   - ripple effect.
-   - fixed documentation errors.
-   Revision 1.1  2003/11/06 05:15:05  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.8  2003/10/21 08:41:04  venku
-   - Changed the methods/classes get filtered.
-   Revision 1.7  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.6  2003/09/08 02:21:16  venku
-   - processors will need to register separately for functional procesing
-     and inteface processing.
-   Revision 1.5  2003/08/25 08:36:27  venku
-   Coding convention.
-   Revision 1.4  2003/08/25 08:07:26  venku
-   Extracts the classes for processing from the environment.
-   It now has support to be driven by the environment alone.
-   Revision 1.3  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.2  2003/08/11 06:38:25  venku
-   Changed format of change log accumulation at the end of the file.
-   Spruced up Documentation and Specification.
-   Formatted source.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
- */
+// End of File

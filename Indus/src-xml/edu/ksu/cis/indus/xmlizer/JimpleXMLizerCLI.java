@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -50,7 +50,7 @@ import soot.SootClass;
  * @version $Revision$ $Date$
  */
 public final class JimpleXMLizerCLI {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(JimpleXMLizerCLI.class);
@@ -163,38 +163,4 @@ public final class JimpleXMLizerCLI {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.11  2004/06/14 04:55:04  venku
-   - documentation.
-   - coding conventions.
-   Revision 1.10  2004/06/14 04:31:17  venku
-   - added method to check tags on a collection of hosts in Util.
-   - ripple effect.
-   Revision 1.9  2004/06/12 06:45:22  venku
-   - magically, the exception without "+ 10" in helpformatter of  CLI vanished.
-   Revision 1.8  2004/06/03 03:50:35  venku
-   - changed the way help will be output on command line classes.
-   Revision 1.7  2004/05/28 21:53:21  venku
-   - added a method to ExceptionFlowSensitiveGraphFactory to create
-     default factory objects.
-   Revision 1.6  2004/05/13 03:30:03  venku
-   - coding convention.
-   - documentation.
-   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
-   Revision 1.5  2004/05/12 18:09:59  venku
-   - coding convention.
-   Revision 1.4  2004/05/11 21:58:51  venku
-   - xml is generated only for the specified classes.
-   Revision 1.3  2004/05/11 21:49:29  venku
-   - added class path specification feature to CLI.
-   Revision 1.2  2004/05/10 11:28:24  venku
-   - Jimple is dumped only for the reachable parts of the system.
-   Revision 1.1  2004/04/25 21:18:39  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -102,7 +102,7 @@ public final class Constants {
 	}
 
 	///CLOVER:ON
-	 
+
 	/**
 	 * Returns the approximate number of classes that the application may contain.  This defaults to 1000.
 	 *
@@ -166,10 +166,4 @@ public final class Constants {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/08/08 10:11:39  venku
-   - added a new class to configure constants used when creating data structures.
-   - ripple effect.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -55,52 +55,52 @@ import soot.util.Chain;
  */
 public class JimpleXMLizer
   extends AbstractProcessor {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(JimpleXMLizer.class);
 
-	/**
+	/** 
 	 * The id generator used during xmlization of the jimple.
 	 *
 	 * @invariant idGenerator != null
 	 */
 	private final IJimpleIDGenerator idGenerator;
 
-	/**
+	/** 
 	 * The Jimple statement xmlizer.
 	 *
 	 * @invariant stmtXmlizer != null
 	 */
 	private final JimpleStmtXMLizer stmtXmlizer;
 
-	/**
+	/** 
 	 * This indicates if the type that is being processed at present or just befor this point in time is a class or an
 	 * interface.
 	 */
 	private String currType;
 
-	/**
+	/** 
 	 * The directory in which xmlized jimple will be dumped.  If <code>null</code>, it will be redirected to standard output.
 	 */
 	private String dumpDirectory;
 
-	/**
+	/** 
 	 * The suffix to be added to jimple files when they dumped.
 	 */
 	private String fileSuffix;
 
-	/**
+	/** 
 	 * The outputter to be used to write xml data.
 	 */
 	private XMLOutputter writer;
 
-	/**
+	/** 
 	 * This indicates if the processing of a class has begun.  This is  set in the callback for a class.
 	 */
 	private boolean processingClass;
 
-	/**
+	/** 
 	 * This indicates if the processing of a method has begun.  This is  set in the callback for a method.
 	 */
 	private boolean processingMethod;
@@ -427,128 +427,4 @@ public class JimpleXMLizer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.41  2004/05/13 03:12:33  venku
-   - CustomXMLOutputter defaults to UTF-8 encoding.
-   - Added a new method to AbstractXMLizer to encode strings.
-   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
-   - ripple effect.
-
-   Revision 1.40  2004/05/13 01:14:46  venku
-   - it should be synchronized.
-
-   Revision 1.39  2004/05/13 01:14:21  venku
-   - added declaration and dtd content to all xml documents.
-   - removed redundant value element, the child of string constant.
-
-   Revision 1.38  2004/05/09 09:59:25  venku
-   - logical error. FIXED.
-
-   Revision 1.37  2004/05/09 09:28:18  venku
-   - documentation.
-
-   Revision 1.36  2004/05/09 08:24:08  venku
-   - all xmlizers use xmlenc to write xml data.
-   Revision 1.35  2004/05/06 09:31:01  venku
-   - used xmlenc library to write xml instead of manual tag generation.
-   Revision 1.34  2004/04/25 23:18:21  venku
-   - coding conventions.
-   Revision 1.33  2004/04/25 21:18:39  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.32  2004/04/22 23:32:31  venku
-   - xml file name were setup incorrectly.  FIXED.
-   Revision 1.31  2004/04/22 22:12:09  venku
-   - made changes to jimple xmlizer to dump each class into a separate file.
-   - ripple effect.
-   Revision 1.30  2004/04/20 06:53:18  venku
-   - documentation.
-   Revision 1.29  2004/04/18 00:02:18  venku
-   - added support to dump jimple.xml while testing.
-   Revision 1.28  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.27  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.26  2003/12/09 09:50:46  venku
-   - amended output of string output to be XML compliant.
-     This means some characters that are unrepresentable in
-     XML are omitted.
-   Revision 1.25  2003/12/02 11:36:16  venku
-   - coding convention.
-   Revision 1.24  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.23  2003/12/02 01:30:58  venku
-   - coding conventions and formatting.
-   Revision 1.22  2003/11/30 02:12:41  venku
-   - root element specification of the DOCTYPE changed.
-   Revision 1.21  2003/11/30 01:17:11  venku
-   - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
-   - renamed XMLizingController to XMLizingProcessingFilter.
-   - ripple effect.
-   Revision 1.20  2003/11/30 00:10:17  venku
-   - Major refactoring:
-     ProcessingController is more based on the sort it controls.
-     The filtering of class is another concern with it's own
-     branch in the inheritance tree.  So, the user can tune the
-     controller with a filter independent of the sort of processors.
-   Revision 1.19  2003/11/28 09:40:38  venku
-   - the way information is captured is changed.
-      Revision 1.18  2003/11/26 18:26:08  venku
-      - capture a whole lot more information for classes and methods.
-      - removed unnecessary info from the attributes.
-      Revision 1.17  2003/11/25 19:10:08  venku
-      - added type attribute to local variables.
-      Revision 1.16  2003/11/24 06:45:23  venku
-      - corrected xml encoding errors along with tag name emission errors.
-      Revision 1.15  2003/11/24 06:27:54  venku
-      - static invoke expr is also routed through writeInvokeExpr().
-      Revision 1.14  2003/11/24 01:20:27  venku
-      - enhanced output formatting.
-      Revision 1.13  2003/11/24 00:54:03  venku
-      - deleted  getstream() method as it was not used.
-      Revision 1.12  2003/11/17 15:57:03  venku
-      - removed support to retrieve new statement ids.
-      - added support to retrieve id for value boxes.
-      Revision 1.11  2003/11/16 18:37:42  venku
-      - renamed UniqueIDGenerator to UniqueJimpleIDGenerator.
-      Revision 1.10  2003/11/12 04:47:12  venku
-      - < needed to be escaped. FIXED.
-      Revision 1.9  2003/11/12 04:40:06  venku
-      - emitted wrong tag for method and classes. FIXED.
-      Revision 1.8  2003/11/10 07:52:58  venku
-      - beginning tag for xmlized jimple element was missing. FIXED.
-      Revision 1.7  2003/11/10 07:49:22  venku
-      - documentation.
-      Revision 1.6  2003/11/10 03:29:51  venku
-      - logged exceptions.
-      Revision 1.5  2003/11/10 03:13:04  venku
-      - uses abstract implementation of IProcessor.
-      Revision 1.4  2003/11/10 03:04:17  venku
-      - method and class elements were closed incorrectly. FIXED.
-      Revision 1.3  2003/11/10 02:42:00  venku
-      - uses register/unregister for all statements.
-      Revision 1.2  2003/11/07 11:14:44  venku
-      - Added generator class for xmlizing purpose.
-      - XMLizing of Jimple works, but takes long.
-        Probably, reachable method dump should fix it.  Another rainy day problem.
-      Revision 1.1  2003/11/07 06:27:03  venku
-      - Made the XMLizer classes concrete by moving out the
-        id generation logic outside.
-      - Added an interface which provides the id required for
-        xmlizing Jimple.
-      Revision 1.1  2003/11/06 10:01:25  venku
-      - created support for xmlizing Jimple in a customizable manner.
- */
+// End of File

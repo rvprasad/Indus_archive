@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -27,60 +27,54 @@ import edu.ksu.cis.indus.IndusTestCase;
  */
 public class FilteredListIteratorTestCase
   extends IndusTestCase {
-	/*
-	 * Class under test for void add(Object)
+	/**
+	 * Tests <code>add(Object)</code>.
 	 */
 	public final void testAddObject() {
 		//TODO: Implement add().
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>hasNext()</code>.
 	 */
 	public final void testHasNext() {
 		//TODO: Implement hasNext().
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>hasPrevious()</code>.
 	 */
 	public final void testHasPrevious() {
 		//TODO: Implement hasPrevious().
 	}
 
-	/*
-	 * Class under test for Object next()
+	/**
+	 * Tests <code>next()</code>.
 	 */
 	public final void testNext() {
 		//TODO: Implement next().
 	}
 
-	/*
-	 * Class under test for Object previous()
+	/**
+	 * Tests <code>previous()</code>.
 	 */
 	public final void testPrevious() {
 		//TODO: Implement previous().
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * Tests <code>remove()</code>.
 	 */
 	public final void testRemove() {
 		//TODO: Implement remove().
 	}
 
-	/*
-	 * Class under test for void set(Object)
+	/**
+	 * Tests <code>set(Object)</code>.
 	 */
 	public final void testSetObject() {
 		//TODO: Implement set().
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/06/29 02:00:23  venku
-   - added test cases for FilteredXXXX classes.  These need to be implemented.
-
- */
+// End of File

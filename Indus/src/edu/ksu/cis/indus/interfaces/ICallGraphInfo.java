@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -239,83 +239,4 @@ public interface ICallGraphInfo
 	List getSCCs(boolean topDown);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.10  2004/07/23 09:53:22  venku
-   - extended call graph interface to extract methods in topologically sorted order.
-
-   Revision 1.9  2004/07/11 14:17:41  venku
-   - added a new interface for identification purposes (IIdentification)
-   - all classes that have an id implement this interface.
-   Revision 1.8  2004/07/07 10:08:27  venku
-   - altered the method to calculate reachability.
-   - documented CallGraph
-   - altered CallGraph to adhere to coding conventions.
-   Revision 1.7  2004/03/03 02:17:50  venku
-   - added a new method to ICallGraphInfo interface.
-   - implemented the above method in CallGraph.
-   - made aliased use-def call-graph sensitive.
-   Revision 1.6  2004/01/20 21:23:41  venku
-   - the return value of getSCCs needs to be ordered if
-     it accepts a direction parameter.  FIXED.
-   Revision 1.5  2004/01/06 00:17:10  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.4  2003/12/30 09:16:33  venku
-   - CallTriple/NewExprTriple are optimized after creation.
-   Revision 1.3  2003/12/13 02:28:54  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.2  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:20:40  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.12  2003/12/08 12:15:59  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.11  2003/12/07 08:41:32  venku
-   - deleted getCallGraph() from ICallGraphInfo interface.
-   - made getSCCs() direction sensitive.
-   - ripple effect.
-   Revision 1.10  2003/11/29 09:34:59  venku
-   - removed getCycles() method as it was not being used.
-   Revision 1.9  2003/11/29 09:30:37  venku
-   - removed getRecursionRoots() method as it was not being used.
-   - modified pruning algorithmm.
-   - modified getCallees(InvokeExpr,Context) method.
-   Revision 1.8  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.7  2003/09/28 03:08:03  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.6  2003/08/21 03:32:37  venku
-   Incorporated IStatus interface into any interface that provides analysis information.
-   Revision 1.5  2003/08/13 08:29:40  venku
-   Spruced up documentation and specification.
-   Revision 1.4  2003/08/11 07:46:09  venku
-   Finalized the parameters.
-   Spruced up Documentation and Specification.
-   Revision 1.3  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.2  2003/08/09 23:26:20  venku
-   - Added an interface to provide use-def information.
-   - Added an implementation to the above interface.
-   - Extended call graph processor to retrieve call tree information rooted at arbitrary node.
-   - Modified IValueAnalyzer interface such that only generic queries are possible.
-     If required, this can be extended in the future.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
- */
+// End of File

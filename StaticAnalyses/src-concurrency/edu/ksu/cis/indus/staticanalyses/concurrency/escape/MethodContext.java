@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -537,106 +537,4 @@ final class MethodContext
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.24  2004/08/11 08:47:24  venku
-   - changed logging levels.
-   Revision 1.23  2004/08/11 08:21:50  venku
-   - inlined unifyParameters().
-   - changed the way alias sets of global variables were handled during cloning in fixUpFieldMapsOfClone().
-   Revision 1.22  2004/08/05 08:26:28  venku
-   - fixed the nagging bug in alias set cloning.
-   Revision 1.21  2004/08/04 10:51:11  venku
-   - INTERIM commit to enable working acorss sites.
-   Revision 1.20  2004/08/02 10:30:26  venku
-   - resolved few more issues in escape analysis.
-   Revision 1.19  2004/08/01 22:58:25  venku
-   - ECBA was erroneous for 2 reasons.
-     - top-down propagation was not complete. FIXED.
-     - cloning of alias sets was not complete. FIXED.
-   - optimized certain other aspects of ECBA.
-   - removed RufsEscapeAnalysis.
-   Revision 1.18  2004/07/30 07:47:35  venku
-   - there was a bug in escape analysis cloning and union algorithm.  FIXED.
-   Revision 1.17  2004/07/17 19:37:18  venku
-   - ECBA was incorrect for the following reasons.
-     - it fails if the start sites are not in the same method.
-     - it fails if the access in the threads occur in methods other than the
-       one in which the new thread is started.
-     - The above issues were addressed.
-   Revision 1.16  2004/04/22 09:49:46  venku
-   - added logic to discard fast-union-find elements which serve as levels of indirections.
-   Revision 1.15  2004/01/21 09:58:16  venku
-   - throw alias sets were being unified via AliasSet.unify().  Used
-     unifyAliasSets() instead.
-   Revision 1.14  2004/01/06 00:17:00  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.13  2004/01/03 21:20:06  venku
-   - deleted unused methods.
-   Revision 1.12  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.11  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.10  2003/12/08 12:15:59  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.9  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.8  2003/11/06 05:31:08  venku
-   - moved IProcessor to processing package from interfaces.
-   - ripple effect.
-   - fixed documentation errors.
-   Revision 1.7  2003/10/05 16:22:25  venku
-   - Interference dependence is now symbol based.
-   - Both interference and ready dependence consider
-     loop information in a more sound manner.
-   - ripple effect of the above.
-   Revision 1.6  2003/10/05 06:31:35  venku
-   - Things work.  The bug was the order in which the
-     parameter alias sets were being accessed.  FIXED.
-   Revision 1.5  2003/09/29 13:32:27  venku
-   - @#@%
-   Revision 1.4  2003/09/29 11:29:08  venku
-   - added more log information.
-   Revision 1.3  2003/09/01 12:01:30  venku
-   Major:
-   - Ready dependence info in ECBA was flaky as it did not consider
-     impact of multiple call sites with contradicting wait/notify use of
-     the primary.  FIXED.
-   Revision 1.2  2003/09/01 08:01:59  venku
-   Major:
-   - It is possible for call sites to pass null arguments. In such cases,
-     there need not be alias sets corresponding to these arguments.
-     Hence, while unification and propogation it is possible to have null
-     and non-null alias set references.  This has been made safe. FIXED.
-    - Ripple effect in AliasSet.
-   Revision 1.1  2003/08/21 01:24:25  venku
-    - Renamed src-escape to src-concurrency to as to group all concurrency
-      issue related analyses into a package.
-    - Renamed escape package to concurrency.escape.
-    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.3  2003/08/11 06:29:07  venku
-   Changed format of change log accumulation at the end of the file
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:39:07  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Minor:
-    - changes to accomodate ripple effect from support package.
-   Revision 1.2  2003/07/27 21:22:14  venku
-   Minor:
-    - removed unnecessary casts.
-   Revision 1.1  2003/07/27 20:52:39  venku
-   First of the many refactoring while building towards slicer release.
-   This is the escape analysis refactored and implemented as per to tech report.
- */
+// End of File

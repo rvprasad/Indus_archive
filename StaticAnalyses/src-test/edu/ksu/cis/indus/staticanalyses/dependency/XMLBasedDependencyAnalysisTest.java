@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -35,23 +35,24 @@ import java.util.Collections;
  */
 public class XMLBasedDependencyAnalysisTest
   extends AbstractXMLBasedTest
-  implements IDependencyAnalysisTest, IXMLBasedTest {
-	/**
-	 * The instance of the analysis being tested.
-	 */
-	private IDependencyAnalysis da;
-
-	/**
+  implements IDependencyAnalysisTest,
+	  IXMLBasedTest {
+	/** 
 	 * The instance of the xmlizer used to generate the test data.
 	 */
 	private DependencyXMLizer xmlizer;
 
-	/**
+	/** 
 	 * The call graph of the test input system.
 	 */
 	private ICallGraphInfo cgi;
 
-	/**
+	/** 
+	 * The instance of the analysis being tested.
+	 */
+	private IDependencyAnalysis da;
+
+	/** 
 	 * The environment which the analysis analyzed.
 	 */
 	private IEnvironment env;
@@ -88,9 +89,9 @@ public class XMLBasedDependencyAnalysisTest
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysisTest#setEnvironment(edu.ksu.cis.indus.interfaces.IEnvironment)
+	 * @see IDependencyAnalysisTest#setEnvironment(edu.ksu.cis.indus.interfaces.IEnvironment)
 	 */
-	public void setEnvironment(IEnvironment environment) {
+	public void setEnvironment(final IEnvironment environment) {
 		env = environment;
 	}
 
@@ -125,23 +126,4 @@ public class XMLBasedDependencyAnalysisTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2004/05/14 06:27:25  venku
-   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
-   Revision 1.5  2004/05/13 03:30:03  venku
-   - coding convention.
-   - documentation.
-   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
-
-   Revision 1.4  2004/04/19 05:10:26  venku
-   - NPE's in test setup caused by unchecked reseting.
-   Revision 1.3  2004/04/18 02:05:18  venku
-   - memory leak fixes.
-   Revision 1.2  2004/03/29 09:44:41  venku
-   - finished the xml-based testing framework for dependence.
-   Revision 1.1  2004/03/09 19:10:40  venku
-   - preliminary commit of test setup for dependency analyses.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -40,7 +40,7 @@ import soot.jimple.Stmt;
  */
 class FlowSensitiveExprSwitch
   extends edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.FlowInsensitiveExprSwitch {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(FlowSensitiveExprSwitch.class);
@@ -105,44 +105,4 @@ class FlowSensitiveExprSwitch
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/04/02 09:58:28  venku
-   - refactoring.
-     - collapsed flow insensitive and sensitive parts into common classes.
-     - coding convention
-     - documentation.
-
-   Revision 1.9  2003/12/05 15:31:41  venku
-   - deleted method as it contained redundant logic.
-   Revision 1.8  2003/12/05 02:27:20  venku
-   - unnecessary methods and fields were removed. Like
-       getCurrentProgramPoint()
-       getCurrentStmt()
-   - context holds current information and only it must be used
-     to retrieve this information.  No auxiliary arguments. FIXED.
-   Revision 1.7  2003/12/02 09:42:39  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.6  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.5  2003/08/20 18:14:38  venku
-   Log4j was used instead of logging.  That is fixed.
-   Revision 1.4  2003/08/15 02:54:06  venku
-   Spruced up specification and documentation for flow-insensitive classes.
-   Changed names in AbstractExprSwitch.
-   Ripple effect of above change.
-   Formatting changes to IPrototype.
-   Revision 1.3  2003/08/13 08:58:25  venku
-   Formatted with Jalopy.
-   Revision 1.2  2003/08/13 08:58:04  venku
-   Spruced up documentation and specification.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Revision 1.6  2003/05/22 22:18:32  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

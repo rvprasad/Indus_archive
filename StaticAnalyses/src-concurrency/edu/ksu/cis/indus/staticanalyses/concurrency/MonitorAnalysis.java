@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -237,9 +237,9 @@ public final class MonitorAnalysis
 
 
 	/**
-	 * This represents monitor enclosure as a graph with each monitor represented as a node and an edge representing that 
+	 * This represents monitor enclosure as a graph with each monitor represented as a node and an edge representing that
 	 * the monitor of the source node encloses the monitor of the destination node.
-	 * 
+	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$ $Date$
@@ -1224,36 +1224,4 @@ outerloop:
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.8  2004/08/09 10:14:41  venku
-   - refactoring to represent monitor graphs.
-
-   Revision 1.7  2004/08/08 10:11:35  venku
-   - added a new class to configure constants used when creating data structures.
-   - ripple effect.
-   Revision 1.6  2004/08/06 14:53:12  venku
-   - a subtle error while adding elements to collection. FIXED.
-   Revision 1.5  2004/08/02 07:33:45  venku
-   - small but significant change to the pair manager.
-   - ripple effect.
-   Revision 1.4  2004/07/27 11:07:20  venku
-   - updated project to use safe lock analysis.
-   Revision 1.3  2004/07/27 07:08:25  venku
-   - revamped IMonitorInfo interface.
-   - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
-   - deleted WaitNotifyAnalysis
-   - ripple effect in EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.2  2004/07/25 10:27:27  venku
-   - extended MonitorInfo interface with convenience methods.
-   - implemented the above methods in MonitorAnalysis.
-   Revision 1.1  2004/07/23 13:09:44  venku
-   - Refactoring in progress.
-     - Extended IMonitorInfo interface.
-     - Teased apart the logic to calculate monitor info from SynchronizationDA
-       into MonitorAnalysis.
-     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
-     - ripple effect.
-     - Implemented safelock analysis to handle intraprocedural processing.
- */
+// End of File

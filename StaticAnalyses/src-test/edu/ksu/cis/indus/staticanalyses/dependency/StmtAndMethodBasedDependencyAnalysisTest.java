@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -37,7 +37,7 @@ import soot.jimple.Stmt;
  */
 class StmtAndMethodBasedDependencyAnalysisTest
   extends AbstractDependencyAnalysisTest {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(StmtAndMethodBasedDependencyAnalysisTest.class);
@@ -150,15 +150,4 @@ class StmtAndMethodBasedDependencyAnalysisTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/05/21 22:30:54  venku
-   - documentation.
-   Revision 1.1  2004/05/14 09:02:56  venku
-   - refactored:
-     - The ids are available in IDependencyAnalysis, but their collection is
-       available via a utility class, DependencyAnalysisUtil.
-     - DependencyAnalysis will have a sanity check via Unit Tests.
-   - ripple effect.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -23,7 +23,9 @@ import edu.ksu.cis.indus.processing.IProcessor;
  * the analyzed system and calls the interested processors at each value and statement in the analyzed system.  Upon
  * callback, the processors suitably collect/process the information available from the low-level analyzer.
  * 
- * <p>Objects that provide this interface can be used with <code>ValueAnalyzerBasedProcessingController</code>.</p>
+ * <p>
+ * Objects that provide this interface can be used with <code>ValueAnalyzerBasedProcessingController</code>.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -41,31 +43,4 @@ public interface IValueAnalyzerBasedProcessor
 	void setAnalyzer(IValueAnalyzer analyzer);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2003/12/02 09:42:38  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-
-   Revision 1.2  2003/11/06 05:31:08  venku
-   - moved IProcessor to processing package from interfaces.
-   - ripple effect.
-   - fixed documentation errors.
-   Revision 1.1  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.3  2003/09/28 03:08:03  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.2  2003/08/11 07:46:09  venku
-   Finalized the parameters.
-   Spruced up Documentation and Specification.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
- */
+// End of File

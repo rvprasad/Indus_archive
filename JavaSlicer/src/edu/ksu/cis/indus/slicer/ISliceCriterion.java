@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -51,27 +51,4 @@ public interface ISliceCriterion
   extends IPoolable {
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.5  2004/07/01 00:40:12  venku
-   - added setConsiderExecution(boolean) to the public interface of SliceCriterion.
-   Revision 1.4  2004/06/26 10:16:35  venku
-   - bug #389. FIXED.
-   Revision 1.3  2004/06/24 06:53:53  venku
-   - refactored SliceConfiguration
-     - added processBooleanProperty()
-     - renamed getNamesOfDAToUse() to getIDOfDAToUse()
-   - ripple effect
-   - made AbstractSliceCriterion package private
-   - made ISliceCriterion public
-   Revision 1.2  2004/05/10 08:12:03  venku
-   - streamlined the names of tags that are used.
-   - deleted SlicingTag class.  NamedTag is used instead.
-   - ripple effect.
-   - SliceCriteriaFactory's interface is enhanced to generate individual
-     slice criterion as well as criteria set for all nodes in the given AST chunk.
-   Revision 1.1  2003/12/13 02:29:16  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
- */
+// End of File

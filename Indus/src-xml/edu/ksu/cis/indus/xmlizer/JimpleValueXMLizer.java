@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -85,36 +85,36 @@ import soot.jimple.XorExpr;
  */
 public class JimpleValueXMLizer
   extends AbstractJimpleValueSwitch {
-	/**
+	/** 
 	 * This is used to maintain tabbing the output xml.
 	 *
 	 * @invariant tabs != null
 	 */
 	final StringBuffer tabs = new StringBuffer("\t\t\t");
 
-	/**
+	/** 
 	 * This is used generate ids used during xmlization.
 	 *
 	 * @pre idGenerator != null
 	 */
 	private final IJimpleIDGenerator idGenerator;
 
-	/**
+	/** 
 	 * This caches the id of the current value/expression/program point being processed.
 	 */
 	private Object newId;
 
-	/**
+	/** 
 	 * The current method being processed.
 	 */
 	private SootMethod currMethod;
 
-	/**
+	/** 
 	 * The current statement being processed.
 	 */
 	private Stmt currStmt;
 
-	/**
+	/** 
 	 * This is the outputter to be used to write xml data.
 	 */
 	private XMLOutputter xmlWriter;
@@ -789,66 +789,4 @@ public class JimpleValueXMLizer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.7  2004/05/13 03:12:33  venku
-   - CustomXMLOutputter defaults to UTF-8 encoding.
-   - Added a new method to AbstractXMLizer to encode strings.
-   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
-   - ripple effect.
-   Revision 1.6  2004/05/13 01:14:21  venku
-   - added declaration and dtd content to all xml documents.
-   - removed redundant value element, the child of string constant.
-   Revision 1.5  2004/05/12 18:18:08  venku
-   - the value of string is stored as a CDATA element rather than as a attribute.
-   Revision 1.4  2004/05/09 09:28:18  venku
-   - documentation.
-   Revision 1.3  2004/05/09 08:24:08  venku
-   - all xmlizers use xmlenc to write xml data.
-   Revision 1.2  2004/05/06 09:31:01  venku
-   - used xmlenc library to write xml instead of manual tag generation.
-   Revision 1.1  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.14  2003/12/09 09:50:46  venku
-   - amended output of string output to be XML compliant.
-     This means some characters that are unrepresentable in
-     XML are omitted.
-   Revision 1.13  2003/12/02 11:36:16  venku
-   - coding convention.
-   Revision 1.12  2003/12/02 09:42:24  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.11  2003/12/02 01:30:58  venku
-   - coding conventions and formatting.
-   Revision 1.10  2003/11/30 12:49:28  venku
-   - tabbing in the output.
-   Revision 1.9  2003/11/30 09:44:53  venku
-   - renamed getIdForValue to getIdForValueBox.
-   Revision 1.8  2003/11/28 09:41:49  venku
-   - tags and attribute names were changed.
-   Revision 1.7  2003/11/26 18:26:08  venku
-   - capture a whole lot more information for classes and methods.
-   - removed unnecessary info from the attributes.
-   Revision 1.6  2003/11/24 06:45:23  venku
-   - corrected xml encoding errors along with tag name emission errors.
-   Revision 1.5  2003/11/24 06:28:04  venku
-   - static invoke expr is also routed through writeInvokeExpr().
-   Revision 1.4  2003/11/24 01:20:27  venku
-   - enhanced output formatting.
-   Revision 1.3  2003/11/17 15:57:03  venku
-   - removed support to retrieve new statement ids.
-   - added support to retrieve id for value boxes.
-   Revision 1.2  2003/11/07 11:14:44  venku
-   - Added generator class for xmlizing purpose.
-   - XMLizing of Jimple works, but takes long.
-     Probably, reachable method dump should fix it.  Another rainy day problem.
-   Revision 1.1  2003/11/07 06:27:03  venku
-   - Made the XMLizer classes concrete by moving out the
-     id generation logic outside.
-   - Added an interface which provides the id required for
-     xmlizing Jimple.
-   Revision 1.1  2003/11/06 10:01:25  venku
-   - created support for xmlizing Jimple in a customizable manner.
- */
+// End of File

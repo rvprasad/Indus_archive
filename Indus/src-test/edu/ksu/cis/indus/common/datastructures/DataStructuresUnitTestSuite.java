@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -79,43 +79,4 @@ public final class DataStructuresUnitTestSuite {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.8  2004/04/05 22:26:31  venku
-   - used textui.TestRunner instead of swingui.TestRunner.
-
-   Revision 1.7  2004/04/01 22:33:45  venku
-   - test suite name was incorrect.
-
-   Revision 1.6  2004/03/29 01:55:15  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-
-   Revision 1.5  2004/02/09 01:39:50  venku
-   - changed test naming for report purposes.
-   Revision 1.4  2004/02/09 00:39:50  venku
-   - output formatting.
-   - UnitTestSuites alter the name of the test instances
-     via appendSuiteTestName().
-   Revision 1.3  2004/02/08 20:58:58  venku
-   - class loading during testing was fixed.
-   Revision 1.2  2004/02/08 20:52:22  venku
-   - changed the way unit test suites can be run as applications.
-   - renamed GraphUnitestSuite to GraphUnitTestSuite.
-   Revision 1.1  2004/02/08 03:34:30  venku
-   - renamed NoArgTestSuite to UnitTestSuite
-   Revision 1.1  2004/02/08 01:04:13  venku
-   - renamed TestSuite classes to NoArgTestSuite classes.
-   Revision 1.3  2004/01/28 00:18:45  venku
-   - added unit tests for classes in data structures package.
-   Revision 1.2  2004/01/13 23:26:32  venku
-   - documentation.
-   Revision 1.1  2004/01/06 15:06:23  venku
-   - started to add test case for data structures.
- */
+// End of File

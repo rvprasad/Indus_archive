@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -61,48 +61,28 @@ public class ASTVariantManager
 	 * @post (not o.oclIsKindOf(InvokeExpr)) implies result.oclType = ASTVariant
 	 */
 	protected IVariant getNewVariant(final Object o) {
-		IVariant result;
+		final IVariant _result;
 
 		if (o instanceof InvokeExpr) {
-			InvokeExpr expr = (InvokeExpr) o;
-			SootMethod sm = expr.getMethod();
-			Map exception2node = new HashMap();
+			final InvokeExpr _expr = (InvokeExpr) o;
+			final SootMethod _sm = _expr.getMethod();
+			final Map _exception2node = new HashMap();
 
 			/*
 			 * for an invoke expression the exceptions thrown by the methods at run-time has to be a subset of those thrown
 			 * by the static method mentioned in the invoke expression.  So, it suffices to create nodes for only the
 			 *  exception classes mentioned at the invoke expression.
 			 */
-			for (Iterator i = sm.getExceptions().iterator(); i.hasNext();) {
-				SootClass exception = (SootClass) i.next();
-				exception2node.put(exception, fa.getNewFGNode());
+			for (final Iterator _i = _sm.getExceptions().iterator(); _i.hasNext();) {
+				final SootClass _exception = (SootClass) _i.next();
+				_exception2node.put(_exception, fa.getNewFGNode());
 			}
-			result = new InvocationVariant(fa.getNewFGNode(), exception2node);
+			_result = new InvocationVariant(fa.getNewFGNode(), _exception2node);
 		} else {
-			result = new ValuedVariant(fa.getNewFGNode());
+			_result = new ValuedVariant(fa.getNewFGNode());
 		}
-		return result;
+		return _result;
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.3  2003/08/17 10:48:33  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.2  2003/08/16 21:50:51  venku
-   Removed ASTVariant as it did not contain any data that was used.
-   Concretized AbstractValuedVariant and renamed it to ValuedVariant.
-   Ripple effect of the above change in some.
-   Spruced up documentation and specification.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Revision 0.7  2003/05/22 22:18:31  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

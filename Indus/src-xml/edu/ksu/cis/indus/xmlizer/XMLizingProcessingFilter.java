@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -173,56 +173,4 @@ public final class XMLizingProcessingFilter
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.10  2004/03/26 07:50:27  venku
-   - optimization.
-
-   Revision 1.9  2004/02/24 22:25:56  venku
-   - documentation
-   Revision 1.8  2004/02/11 09:37:21  venku
-   - large refactoring of code based  on testing :-)
-   - processing filters can now be chained.
-   - ofa xmlizer was implemented.
-   - xml-based ofa tester was implemented.
-   Revision 1.7  2004/02/09 07:31:21  venku
-   - in cases where fields and methods from different classes are
-     compared, a fixed ordering may not result. FIXED.
-   Revision 1.6  2003/12/14 16:43:45  venku
-   - extended ProcessingController to filter fields as well.
-   - ripple effect.
-   Revision 1.5  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.4  2003/12/02 09:42:24  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.3  2003/12/02 01:30:58  venku
-   - coding conventions and formatting.
-   Revision 1.2  2003/11/30 09:03:58  venku
-   - inner classes are visible when they are not used outside.  FIXED.
-   Revision 1.1  2003/11/30 01:17:11  venku
-   - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
-   - renamed XMLizingController to XMLizingProcessingFilter.
-   - ripple effect.
-   Revision 1.6  2003/11/30 00:10:17  venku
-   - Major refactoring:
-     ProcessingController is more based on the sort it controls.
-     The filtering of class is another concern with it's own
-     branch in the inheritance tree.  So, the user can tune the
-     controller with a filter independent of the sort of processors.
-   Revision 1.5  2003/11/17 16:58:19  venku
-   - populateDAs() needs to be called from outside the constructor.
-   - filterClasses() was called in CGBasedXMLizingController instead of filterMethods. FIXED.
-   Revision 1.4  2003/11/17 02:24:00  venku
-   - documentation.
-   - xmlizers require streams/writers to be provided to them
-     rather than they constructing them.
-   Revision 1.3  2003/11/12 03:59:41  venku
-   - exposed inner classes as static classes.
-   Revision 1.2  2003/11/07 11:13:06  venku
-   - used class comparator instead of method comparator. FIXED.
-   Revision 1.1  2003/11/06 10:01:25  venku
-   - created support for xmlizing Jimple in a customizable manner.
- */
+// End of File

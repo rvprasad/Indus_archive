@@ -1,6 +1,7 @@
+
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -22,36 +23,47 @@ package edu.ksu.cis.indus.staticanalyses.tokens;
  * @version $Revision$ $Date$
  */
 public final class TokenUtil {
-	/**
+	/** 
 	 * The name of the property the user can use to configure the token manager class.
 	 */
 	public static final String INDUS_STATICANALYSES_TOKENMANAGERTYPE = "indus.staticanalyses.TokenManagerClass";
 
 	///CLOVER:OFF
 
-    /**
-     * <i>Prevents creation instances of this class.</i>
-     */
+	/**
+	 * <i>Prevents creation instances of this class.</i>
+	 */
 	private TokenUtil() {
 	}
 
 	///CLOVER:ON
 
 	/**
-	 * Retrieves a token manager based on the value of the system property "indus.staticanalyses.TokenManagerClass".  The user
-	 * can specify the name of the class of the manager to instanstiate via this property.  It has to be one of the following.
+	 * Retrieves a token manager based on the value of the system property "indus.staticanalyses.TokenManagerClass".  The
+	 * user can specify the name of the class of the manager to instanstiate via this property.  It has to be one of the
+	 * following.
+	 * 
 	 * <ul>
-	 *   <li>edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager</li>
-	 *   <li>edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager</li>
-	 *   <li>edu.ksu.cis.indus.staticanalyses.tokens.IntegerTokenManager</li>
+	 * <li>
+	 * edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager
+	 * </li>
+	 * <li>
+	 * edu.ksu.cis.indus.staticanalyses.tokens.CollectionTokenManager
+	 * </li>
+	 * <li>
+	 * edu.ksu.cis.indus.staticanalyses.tokens.IntegerTokenManager
+	 * </li>
 	 * </ul>
-	 * <p>By default, an instance of <code>edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager</code> is returned.</p>
+	 * 
+	 * <p>
+	 * By default, an instance of <code>edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager</code> is returned.
+	 * </p>
 	 *
 	 * @return a token manager.
 	 *
 	 * @post result != null
 	 * @post result.oclIsKindOf(BitSetTokenManager) or result.oclIsKindOf(CollectionTokenManager) or
-	 *       result.oclIsKindOf(IntegerTokenManager)
+	 * 		 result.oclIsKindOf(IntegerTokenManager)
 	 */
 	public static ITokenManager getTokenManager() {
 		ITokenManager _tokenMgr = null;
@@ -72,13 +84,4 @@ public final class TokenUtil {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/06/09 19:32:18  venku
-   Documentation
-
-   Revision 1.1  2004/04/24 08:23:35  venku
-   - moved OFAXMLizerCLI.getTokenManager() into this utility class.
-
- */
+// End of File

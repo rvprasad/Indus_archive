@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -244,79 +244,4 @@ public interface IMonitorInfo
 	Collection getUnenclosedStmtsOf(final SootMethod method);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.14  2004/08/08 10:48:11  venku
-   - documentation.
-   Revision 1.13  2004/08/08 10:21:37  venku
-   - documentation.
-   Revision 1.12  2004/07/27 07:21:11  venku
-   - coding conventions and documentation.
-   Revision 1.11  2004/07/27 07:08:14  venku
-   - revamped IMonitorInfo interface.
-   - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
-   - deleted WaitNotifyAnalysis
-   - ripple effect in EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.10  2004/07/25 10:44:53  venku
-   - documentation.
-   - coding conventions.
-   Revision 1.9  2004/07/25 10:27:27  venku
-   - extended MonitorInfo interface with convenience methods.
-   - implemented the above methods in MonitorAnalysis.
-   Revision 1.8  2004/07/23 13:10:06  venku
-   - Refactoring in progress.
-     - Extended IMonitorInfo interface.
-     - Teased apart the logic to calculate monitor info from SynchronizationDA
-       into MonitorAnalysis.
-     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
-     - ripple effect.
-     - Implemented safelock analysis to handle intraprocedural processing.
-   Revision 1.7  2004/07/22 07:18:47  venku
-   - extended interface to query for enclosed statements in sychronized methods.
-   - provided suitable implementation in SychronizationDA.
-   Revision 1.6  2004/07/22 06:59:26  venku
-   - loosened the specification to extract enclosed statements of synced methods.
-   Revision 1.5  2004/07/21 02:09:44  venku
-   - spruced up IMonitorInfo interface with method to extract more information.
-   - updated SynchronizationDA to provide the methods introduced in IMonitorInfo.
-   Revision 1.4  2004/07/11 14:17:41  venku
-   - added a new interface for identification purposes (IIdentification)
-   - all classes that have an id implement this interface.
-   Revision 1.3  2003/12/13 02:28:54  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.2  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:20:40  venku
-   - moved some classes from staticanalyses interface to indus interface package
-   - ripple effect.
-   Revision 1.7  2003/12/08 12:15:59  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.6  2003/12/02 09:42:39  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.5  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.4  2003/09/28 03:08:03  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.3  2003/08/21 03:32:37  venku
-   Incorporated IStatus interface into any interface that provides analysis information.
-   Revision 1.2  2003/08/11 07:46:09  venku
-   Finalized the parameters.
-   Spruced up Documentation and Specification.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
-   Revision 1.1  2003/05/22 22:16:45  venku
-   All the interfaces were renamed to start with an "I".
- */
+// End of File

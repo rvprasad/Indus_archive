@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -66,12 +66,12 @@ import soot.toolkits.scalar.SimpleLocalDefs;
  */
 public class MethodVariant
   implements IVariant {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(MethodVariant.class);
 
-	/**
+	/** 
 	 * The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
 	 * locations in the AST as it serves the purpose of AST representation.
 	 *
@@ -79,14 +79,14 @@ public class MethodVariant
 	 */
 	protected final AbstractVariantManager astvm;
 
-	/**
+	/** 
 	 * The statement visitor used to process in the statement in the correpsonding method.
 	 *
 	 * @invariant stmt != null
 	 */
 	protected AbstractStmtSwitch stmt;
 
-	/**
+	/** 
 	 * The flow graph node associated with an abstract single return point of the corresponding method.  This will be
 	 * <code>null</code>, if the associated method's return type is any non-ref type.
 	 *
@@ -95,7 +95,7 @@ public class MethodVariant
 	 */
 	protected final IFGNode returnVar;
 
-	/**
+	/** 
 	 * The flow graph nodes associated with the this variable of the corresponding method.  This will be <code>null</code>,
 	 * if the associated method is <code>static</code>.
 	 *
@@ -104,7 +104,7 @@ public class MethodVariant
 	 */
 	protected final IFGNode thisVar;
 
-	/**
+	/** 
 	 * The array of flow graph nodes associated with the parameters of thec corresponding method.
 	 *
 	 * @invariant parameters.oclIsKindOf(Sequence(IFGNode))
@@ -116,32 +116,32 @@ public class MethodVariant
 	 */
 	protected final IFGNode[] parameters;
 
-	/**
+	/** 
 	 * This is a weak reference to the local def information and it provides the def sites for local variables in the
 	 * associated method.  This is used in conjunction with flow-sensitive information calculation.
 	 */
 	protected WeakReference defs = new WeakReference(null);
 
-	/**
+	/** 
 	 * This indicates if the method variant is unretrievale due to various reasons such as non-concrete body.
 	 */
 	protected boolean unRetrievable;
 
-	/**
+	/** 
 	 * The context which resulted in the creation of this variant.
 	 *
 	 * @invariant context != null
 	 */
 	private final Context context;
 
-	/**
+	/** 
 	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
 	 *
 	 * @invariant fa != null
 	 */
 	private final FA fa;
 
-	/**
+	/** 
 	 * The method represented by this variant.
 	 *
 	 * @invariant method != null
@@ -196,8 +196,6 @@ public class MethodVariant
 			 * is false to assume that all such objects can be considered as receivers for all run() implementations plugged
 			 * into the run() site.
 			 */
-
-			//thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), fa));
 			final ITokenManager _tokenMgr = fa.getTokenManager();
 			final RefType _sootType = sm.getDeclaringClass().getType();
 			thisVar.setFilter(_tokenMgr.getTypeBasedFilter(_tokenMgr.getTypeManager().getTypeForIRType(_sootType)));
@@ -350,60 +348,7 @@ public class MethodVariant
 				stmt.process((Stmt) _i.next());
 			}
 
-			final Collection _caught = new HashSet();
-			boolean _flag = false;
-			InvokeExpr _expr = null;
-
-			for (final Iterator _i = _jb.getTraps().iterator(); _i.hasNext();) {
-				final Trap _trap = (Trap) _i.next();
-				final Stmt _begin = (Stmt) _trap.getBeginUnit();
-				final Stmt _end = (Stmt) _trap.getEndUnit();
-
-				// we assume that the first statement in the handling block will be the identity statement that retrieves the 
-				// caught expression.
-				final CaughtExceptionRef _catchRef =
-					(CaughtExceptionRef) ((IdentityStmt) _trap.getHandlerUnit()).getRightOp();
-				final SootClass _exception = _trap.getException();
-
-				final int _k = _stmtList.indexOf(_end);
-
-				for (int _j = _stmtList.indexOf(_begin); _j < _k; _j++) {
-					final Stmt _tmp = (Stmt) _stmtList.get(_j);
-
-					if (_tmp instanceof ThrowStmt) {
-						final ThrowStmt _ts = (ThrowStmt) _tmp;
-
-						if (!_caught.contains(_ts)) {
-							final SootClass _scTemp = fa.getClass(((RefType) _ts.getOp().getType()).getClassName());
-
-							if (Util.isDescendentOf(_scTemp, _exception)) {
-								context.setStmt(_ts);
-
-								final IFGNode _throwNode = getASTNode(_ts.getOp(), context);
-								_throwNode.addSucc(getASTNode(_catchRef));
-								_caught.add(_ts);
-							}
-						}
-					} else if (_tmp.containsInvokeExpr()) {
-						_expr = _tmp.getInvokeExpr();
-						_flag = true;
-					}
-
-					if (_flag) {
-						_flag = false;
-
-						if (!_caught.contains(_tmp)) {
-							context.setStmt(_tmp);
-
-							final IFGNode _tempNode = queryThrowNode(_expr, _exception);
-
-							if (_tempNode != null) {
-								_tempNode.addSucc(getASTNode(_catchRef));
-							}
-						}
-					}
-				}
-			}
+			processBody(_jb, _stmtList);
 		} else {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug(method + " is not a concrete method. Hence, it's body could not be retrieved.");
@@ -552,86 +497,70 @@ public class MethodVariant
 	final ValuedVariant getASTVariant(final Value v, final Context ctxt) {
 		return (ValuedVariant) astvm.select(v, ctxt);
 	}
+
+	/**
+	 * Process the body.
+	 *
+	 * @param body to be processed.
+	 * @param stmtList is the list of statements that make up the body.
+	 *
+	 * @pre body != null and stmtList != null
+	 */
+	private void processBody(final JimpleBody body, final List stmtList) {
+		final Collection _caught = new HashSet();
+		boolean _flag = false;
+		InvokeExpr _expr = null;
+
+		for (final Iterator _i = body.getTraps().iterator(); _i.hasNext();) {
+			final Trap _trap = (Trap) _i.next();
+			final Stmt _begin = (Stmt) _trap.getBeginUnit();
+			final Stmt _end = (Stmt) _trap.getEndUnit();
+
+			// we assume that the first statement in the handling block will be the identity statement that retrieves the 
+			// caught expression.
+			final CaughtExceptionRef _catchRef = (CaughtExceptionRef) ((IdentityStmt) _trap.getHandlerUnit()).getRightOp();
+			final SootClass _exception = _trap.getException();
+
+			final int _k = stmtList.indexOf(_end);
+
+			for (int _j = stmtList.indexOf(_begin); _j < _k; _j++) {
+				final Stmt _tmp = (Stmt) stmtList.get(_j);
+
+				if (_tmp instanceof ThrowStmt) {
+					final ThrowStmt _ts = (ThrowStmt) _tmp;
+
+					if (!_caught.contains(_ts)) {
+						final SootClass _scTemp = fa.getClass(((RefType) _ts.getOp().getType()).getClassName());
+
+						if (Util.isDescendentOf(_scTemp, _exception)) {
+							context.setStmt(_ts);
+
+							final IFGNode _throwNode = getASTNode(_ts.getOp(), context);
+							_throwNode.addSucc(getASTNode(_catchRef));
+							_caught.add(_ts);
+						}
+					}
+				} else if (_tmp.containsInvokeExpr()) {
+					_expr = _tmp.getInvokeExpr();
+					_flag = true;
+				}
+
+				if (_flag) {
+					_flag = false;
+
+					if (!_caught.contains(_tmp)) {
+						context.setStmt(_tmp);
+
+						final IFGNode _tempNode = queryThrowNode(_expr, _exception);
+
+						if (_tempNode != null) {
+							_tempNode.addSucc(getASTNode(_catchRef));
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.22  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
-
-   Revision 1.21  2004/04/02 09:58:28  venku
-   - refactoring.
-     - collapsed flow insensitive and sensitive parts into common classes.
-     - coding convention
-     - documentation.
-   Revision 1.20  2004/01/09 21:13:22  venku
-   - formatting and documentation.
-   Revision 1.19  2003/12/31 10:35:53  venku
-   - logging.
-   Revision 1.18  2003/12/13 02:29:08  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.17  2003/12/09 04:22:10  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.16  2003/12/08 13:30:35  venku
-   - cosmetic.
-   Revision 1.15  2003/12/08 12:15:58  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.14  2003/12/07 05:02:18  venku
-   - formatting.
-   Revision 1.13  2003/12/05 21:22:15  venku
-   - delayed construction of local use-def info
-   - process all types known at the interface of the method
-     at a single location.
-   Revision 1.12  2003/12/05 02:27:20  venku
-   - unnecessary methods and fields were removed. Like
-       getCurrentProgramPoint()
-       getCurrentStmt()
-   - context holds current information and only it must be used
-     to retrieve this information.  No auxiliary arguments. FIXED.
-   Revision 1.11  2003/12/02 09:42:35  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.10  2003/11/30 01:11:28  venku
-   - types associated with locals are processed.
-   - methods are tagged with a named tag retrieved
-     from the framework instance.
-   Revision 1.9  2003/11/25 23:04:51  venku
-   - local variable access is faster than fields.  FIXED.
-   Revision 1.8  2003/11/25 23:03:54  venku
-   - removed a variant of getASTvariant() as it was not being used.
-   - added call to _fa.processClass() in getASTVariant().
-   - logging and name change to used field variable.
-   Revision 1.7  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.6  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.5  2003/08/20 18:14:38  venku
-   Log4j was used instead of logging.  That is fixed.
-   Revision 1.4  2003/08/17 10:48:33  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.3  2003/08/16 21:50:51  venku
-   Removed ASTVariant as it did not contain any data that was used.
-   Concretized AbstractValuedVariant and renamed it to ValuedVariant.
-   Ripple effect of the above change in some.
-   Spruced up documentation and specification.
-   Revision 1.2  2003/08/16 02:50:22  venku
-   Spruced up documentation and specification.
-   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
- */
+// End of File

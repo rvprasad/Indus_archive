@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -135,16 +135,4 @@ public interface ITool {
 	String stringizeConfiguration();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2004/08/12 02:48:58  venku
-   - catered feature request #411.
-   Revision 1.3  2004/07/20 00:30:30  venku
-   - added a new exception to be thrown when configuration fails.
-   Revision 1.2  2003/12/09 12:23:52  venku
-   - added support to control synchronicity of method runs.
-   - ripple effect.
-   Revision 1.1  2003/12/02 11:47:19  venku
-   - raised the tool to an interface ITool.
- */
+// End of File

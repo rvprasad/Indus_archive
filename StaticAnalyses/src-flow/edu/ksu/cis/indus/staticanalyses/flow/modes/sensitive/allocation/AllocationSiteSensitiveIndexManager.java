@@ -70,30 +70,4 @@ public class AllocationSiteSensitiveIndexManager
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2003/12/02 09:42:39  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.5  2003/11/06 05:15:07  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.4  2003/09/28 03:16:33  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.3  2003/08/13 08:02:28  venku
-   Fixed Checkstyle formatting errors.
-   Revision 1.2  2003/08/12 18:47:50  venku
-   Spruced up documentation and specification.
-   Changed equals() and hashCode() in AllocationContext.
-   Revision 1.1  2003/08/07 06:40:24  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Revision 1.5  2003/05/22 22:18:32  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

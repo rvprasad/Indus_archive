@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -39,12 +39,12 @@ import soot.Scene;
  * @version $Revision$ $Date$
  */
 public final class SliceCriteriaSpec {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceCriteriaSpec.class);
 
-	/**
+	/** 
 	 * The collection of criterion specification.
 	 *
 	 * @invariant criteria.oclIsKindOf(Sequence(SliceCriterionSpec))
@@ -55,7 +55,7 @@ public final class SliceCriteriaSpec {
 	 * Creates an instance of this class.
 	 */
 	private SliceCriteriaSpec() {
-	    criteria = createCriteriaContainer();
+		criteria = createCriteriaContainer();
 	}
 
 	/**
@@ -119,12 +119,4 @@ public final class SliceCriteriaSpec {
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.1  2004/07/02 09:00:08  venku
-   - added support to serialize/deserialize slice criteria. (feature #397)
-   - used the above support in SliceXMLizerCLI.
-   - used Jakarta Commons IO library.
-
- */
+// End of File

@@ -190,18 +190,4 @@ public final class CollectionTokenManager
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2004/08/09 03:11:49  venku
-   - each type-based filter is dependent on the values of that type.  As these do
-     not change in an analysis, it is wise to cache these filters for reuse.
-   Revision 1.2  2004/05/20 07:29:41  venku
-   - optimized the token set to be optimal when created.
-   - added new method to retrieve empty token sets (getNewTokenSet()).
-   Revision 1.1  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
- */
+// End of File

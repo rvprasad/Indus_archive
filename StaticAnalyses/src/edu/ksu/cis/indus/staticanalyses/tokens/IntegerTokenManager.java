@@ -327,40 +327,4 @@ public class IntegerTokenManager
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.10  2004/08/09 03:11:49  venku
-   - each type-based filter is dependent on the values of that type.  As these do
-     not change in an analysis, it is wise to cache these filters for reuse.
-   Revision 1.9  2004/08/08 10:11:35  venku
-   - added a new class to configure constants used when creating data structures.
-   - ripple effect.
-   Revision 1.8  2004/07/17 23:32:18  venku
-   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
-   - ripple effect.
-   Revision 1.7  2004/05/21 22:11:47  venku
-   - renamed CollectionsModifier as CollectionUtilities.
-   - added new specialized methods along with a method to extract
-     filtered maps.
-   - ripple effect.
-   Revision 1.6  2004/05/20 07:29:41  venku
-   - optimized the token set to be optimal when created.
-   - added new method to retrieve empty token sets (getNewTokenSet()).
-   Revision 1.5  2004/05/19 00:20:49  venku
-   - optimized getTokens() method.
-   Revision 1.4  2004/05/06 22:27:29  venku
-   - optimized getTokens() by avoiding redundant calls when adding the values
-     to the end of the list.
-   Revision 1.3  2004/04/17 20:28:38  venku
-   - coding conventions.
-   Revision 1.2  2004/04/17 09:17:44  venku
-   - introduced the mutable counterpart of Integer class.
-   - used that in this manager.
-   - fixed some "counting" errors.
-   Revision 1.1  2004/04/16 20:10:39  venku
-   - refactoring
-    - enabled bit-encoding support in indus.
-    - ripple effect.
-    - moved classes to related packages.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -14,7 +14,6 @@
  */
 
 package edu.ksu.cis.indus.common.datastructures;
-
 
 /**
  * This class represents a quadraple of objects.  The hashcode/stringized rep. of this object is derived from it's
@@ -41,32 +40,32 @@ package edu.ksu.cis.indus.common.datastructures;
  */
 public final class Quadraple
   implements Cloneable {
-	/**
+	/** 
 	 * The first object in this quadraple.
 	 */
 	protected Object first;
 
-	/**
+	/** 
 	 * The fourth object in this quadraple.
 	 */
 	protected Object fourth;
 
-	/**
+	/** 
 	 * The second object in this quadraple.
 	 */
 	protected Object second;
 
-	/**
+	/** 
 	 * The third object in this quadraple.
 	 */
 	protected Object third;
 
-	/**
+	/** 
 	 * A cached copy of the stringized representation of this object.
 	 */
 	private String str;
 
-	/**
+	/** 
 	 * A cached copy of the hash code of this object.
 	 */
 	private int hashCode;
@@ -278,37 +277,4 @@ public final class Quadraple
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2004/06/03 00:47:01  venku
-   - deleted the constructor with optimize argument.
-
-   Revision 1.3  2004/01/28 00:17:51  venku
-   - documentation.
-   - removed QuadrapleManager.
-
-   Revision 1.2  2004/01/25 15:39:20  venku
-   - when the elements were null, a NPE could occur. FIXED.
-   Revision 1.1  2004/01/06 00:17:10  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.3  2003/12/28 03:07:04  venku
-   - renamed field triple/quadraple to tripleCache/quadrapleCache.
-   Revision 1.2  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.2  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.1  2003/09/02 12:29:59  venku
-   - Installed a new component to represent tuples of size 4.
- */
+// End of File

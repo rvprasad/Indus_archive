@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -30,12 +30,12 @@ import org.apache.commons.pool.ObjectPool;
  */
 public abstract class AbstractPoolable
   implements IPoolable {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(AbstractPoolable.class);
 
-	/**
+	/** 
 	 * The pool to which this object should be returned to.
 	 */
 	private ObjectPool pool;
@@ -69,17 +69,4 @@ public abstract class AbstractPoolable
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.3  2003/12/13 02:28:54  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-
-   Revision 1.2  2003/12/04 11:13:20  venku
-   - well, an abstract implementation of an interface
-     did not implement that interface!  FIXED.
-   Revision 1.1  2003/12/04 09:45:29  venku
-   - added interface and it's abstract implementation to
-     support pooling of objects.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -14,7 +14,6 @@
  */
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
-
 
 import java.util.Collection;
 
@@ -49,7 +48,4 @@ final class StmtRetriever
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
- */
+// End of File

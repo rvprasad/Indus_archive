@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -47,10 +47,10 @@ import soot.jimple.Stmt;
 
 /**
  * This class is the criterion specification. <i>This is intended for internal use only.  Clients should not depend on or use
- * this class.</i> 
+ * this class.</i>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
- * @author $Author$ 
+ * @author $Author$
  * @version $Revision$ $Date$
  */
 public final class SliceCriterionSpec
@@ -338,34 +338,4 @@ public final class SliceCriterionSpec
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.7  2004/08/16 14:17:33  venku
-   - changed access specifiers as required for serialization.
-
-   Revision 1.6  2004/08/16 01:05:04  venku
-   - fixed bug report 434.  We assumed SootClass.getJavaStyleName() returned the FQN. But,
-     as always with Soot, it does not provide what you think it provides.  There is some bizarre
-     setting that needs to be tweaked to get this right.  We have a fix in place, but this may again
-     be affected by some setting.  One more reason for Espina.
-
-   Revision 1.5  2004/07/22 21:32:23  venku
-   - documentation.
-   Revision 1.4  2004/07/21 06:28:06  venku
-   - changed the signature of methods in SliceCriteriaFactory.
-   - When creating expression-based criteria the criteria for the enclosing statement
-     is not generated.
-   Revision 1.3  2004/07/09 05:05:24  venku
-   - refactored the code to enable the criteria creation to be completely hidden
-     from the user.
-   - exposed the setting of the considerExecution flag of the criteria in the factory.
-   - made SliceCriteriaFactory a singleton.
-   Revision 1.2  2004/07/03 00:14:45  venku
-   - optional structures are not fully supported in JiBX.  Hence, a "solution"
-     to handle this situation was coded in.
-   Revision 1.1  2004/07/02 09:00:08  venku
-   - added support to serialize/deserialize slice criteria. (feature #397)
-   - used the above support in SliceXMLizerCLI.
-   - used Jakarta Commons IO library.
- */
+// End of File

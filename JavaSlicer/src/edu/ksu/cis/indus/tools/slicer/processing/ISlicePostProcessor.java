@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -42,21 +42,4 @@ public interface ISlicePostProcessor {
 	void process(final Collection methods, final BasicBlockGraphMgr basicBlockMgr, final SliceCollector theCollector);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/01/21 13:52:15  venku
-   - documentation.
-   Revision 1.1  2004/01/13 07:53:51  venku
-   - as post processing beyond retention of semantics of slice is
-     particular to the application or the tool.  Hence, moved the
-     post processors into processing package under slicer tool.
-   - added a new method to AbstractSliceGotoProcessor to
-     process a collection of methods given a basic block graph
-     manager.
-   Revision 1.1  2004/01/13 04:35:08  venku
-   - added a new package called "processing" and it will house
-     all processing done on the slice to ensure the slice satisfies
-     certain properties such as executability.
-   - Moved GotoProcessors into processing package.
- */
+// End of File

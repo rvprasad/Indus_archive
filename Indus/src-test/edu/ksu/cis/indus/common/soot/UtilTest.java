@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -58,22 +58,22 @@ import soot.jimple.NullConstant;
  */
 public class UtilTest
   extends IndusTestCase {
-	/**
+	/** 
 	 * The scene.
 	 */
 	private static Scene scene;
 
-	/**
+	/** 
 	 * The soot class.
 	 */
 	private static SootClass sc;
 
-	/**
+	/** 
 	 * The number of tests in this suite.
 	 */
 	private static final int NUMBER_OF_TESTS = 12;
 
-	/**
+	/** 
 	 * Count the number of tests in this suite.  This is used to trigger logic in <code>teardown</code>.
 	 */
 	private static int count;
@@ -252,32 +252,4 @@ public class UtilTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-
-   Revision 1.5  2004/02/09 00:28:33  venku
-   - added a new class, IndusTestCase, that extends TestCase
-     to differentiate between the test method name and the
-     test instance name.
-   - all test cases in indus extends IndusTestCase.
-   - added a new method TestHelper to append container's name
-     to the test cases.
-   Revision 1.4  2004/02/08 01:53:20  venku
-   - documentation and coding convention.
-   Revision 1.3  2004/02/08 01:46:44  venku
-   - <init>, <clinit>, and clone were unaccounted for while
-     removing and retaining methods.
-   Revision 1.2  2004/02/07 16:13:29  venku
-   - coding conventions.
-   Revision 1.1  2004/01/28 22:45:07  venku
-   - added new test cases for testing classes in soot package.
- */
+// End of File

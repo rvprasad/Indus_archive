@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -75,9 +75,12 @@ public final class AliasedUseDefInfov2
 	/**
 	 * {@inheritDoc}
 	 *
+	 * @param iva is the value analyzer to use.
 	 * @param cg is the call graph to use.
 	 * @param tg is the thread graph to use.  If this parameter is <code>null</code> then it is assumed all methods execute
 	 * 		  in the same thread.
+	 * @param bbgManager is the basic block graph manager to use.
+	 * @param pairManager is the pair object manager to use.
 	 *
 	 * @pre iva != null and cg != null and bbgManager != null and pairManager != null
 	 */
@@ -133,7 +136,7 @@ public final class AliasedUseDefInfov2
 			/*
 			 * Check if the control can reach from the def method to the use method via some common ancestor in the
 			 * call-graph.  We cannot assume that the previous two conditions need to be false to evaluate this block.  The
-			 * reason being that there may be a call chain from the defMethod to the useMethod but the invocation site in 
+			 * reason being that there may be a call chain from the defMethod to the useMethod but the invocation site in
 			 * defMethod may occur prior to the defStmt.  The same holds for condition two.
 			 */
 			if (!_result) {
@@ -243,8 +246,8 @@ public final class AliasedUseDefInfov2
 				/*
 				 * We cannot just require !_callees.contains(useMethod) as it is possible that useMethod is reachable from
 				 * defMethod but the defStmt may not be (see comments in isReachableViaInterProceduralControlFlow).  However,
-				 * we can strenghten the condition to avoid unnecessary explorations by requiring either the useMethod be not 
-				 * reachable from the invocation site or it be reachable via the defMethod also. 
+				 * we can strenghten the condition to avoid unnecessary explorations by requiring either the useMethod be not
+				 * reachable from the invocation site or it be reachable via the defMethod also.
 				 */
 				if (_callees.contains(defMethod) && (!_callees.contains(useMethod) ^ _flag)) {
 					_result = doesControlFlowPathExistsBetween(_sm, _stmt, useMethod, true);
@@ -255,28 +258,4 @@ public final class AliasedUseDefInfov2
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2004/08/11 09:22:44  venku
-   - changed the method name in the subclass but not in the parent :-) FIXED.
-   - the way we decided on exploring various paths in v2 was not incorrect.  FIXED.
-
-   Revision 1.5  2004/08/07 13:16:56  venku
-   - documentation
-   - if tgi is absent, occursInSameThread() should return true. FIXED.
-   Revision 1.4  2004/08/06 07:37:33  venku
-   - thread-graph based optimization.
-   Revision 1.3  2004/08/02 07:33:45  venku
-   - small but significant change to the pair manager.
-   - ripple effect.
-   Revision 1.2  2004/07/28 09:09:27  venku
-   - changed aliased use def analysis to consider thread.
-   - also fixed a bug in the same analysis.
-   - ripple effect.
-   - deleted entry control dependence and renamed direct entry control da as
-     entry control da.
-   Revision 1.1  2004/07/16 06:38:47  venku
-   - added  a more precise implementation of aliased use-def information.
-   - ripple effect.
- */
+// End of File

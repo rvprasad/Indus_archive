@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -59,19 +59,19 @@ import soot.jimple.Stmt;
  */
 public final class TagBasedSliceXMLizer
   extends AbstractXMLizer {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(TagBasedSliceXMLizer.class);
 
-	/**
+	/** 
 	 * The name of the tag to residualize.
 	 *
 	 * @invariant tagName != null
 	 */
 	final String tagName;
 
-	/**
+	/** 
 	 * The processor used while xmlization.
 	 *
 	 * @invariant processor != null
@@ -101,27 +101,27 @@ public final class TagBasedSliceXMLizer
 	 */
 	private class TagBasedSliceProcessor
 	  extends AbstractProcessor {
-		/**
+		/** 
 		 * This is the file/stream into which the xml output will be written into.
 		 */
 		protected XMLOutputter writer;
 
-		/**
+		/** 
 		 * This generates ids for jimple entities.
 		 */
 		private final IJimpleIDGenerator idGenerator;
 
-		/**
+		/** 
 		 * This indicates if classes are being processed.
 		 */
 		private boolean processingClass;
 
-		/**
+		/** 
 		 * This indicates if methods are being processed.
 		 */
 		private boolean processingMethod;
 
-		/**
+		/** 
 		 * This indicates if statements are being processed.
 		 */
 		private boolean processingStmt;
@@ -351,91 +351,4 @@ public final class TagBasedSliceXMLizer
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.27  2004/06/12 06:47:27  venku
-   - documentation.
-   - refactoring.
-   - coding conventions.
-   - catered feature request 384, 385, and 386.
-
-   Revision 1.26  2004/05/13 07:34:24  venku
-   - the presence of dtds in the xml files hinder testing.  Hence, no dtd declaration is written.
-   Revision 1.25  2004/05/13 03:32:04  venku
-   - documentation.  refactoring of getFileName() in IXMLizer.
-   Revision 1.24  2004/05/13 03:12:34  venku
-   - CustomXMLOutputter defaults to UTF-8 encoding.
-   - Added a new method to AbstractXMLizer to encode strings.
-   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
-   - ripple effect.
-   Revision 1.23  2004/05/13 01:14:21  venku
-   - added declaration and dtd content to all xml documents.
-   - removed redundant value element, the child of string constant.
-   Revision 1.22  2004/05/10 08:12:03  venku
-   - streamlined the names of tags that are used.
-   - deleted SlicingTag class.  NamedTag is used instead.
-   - ripple effect.
-   - SliceCriteriaFactory's interface is enhanced to generate individual
-     slice criterion as well as criteria set for all nodes in the given AST chunk.
-   Revision 1.21  2004/05/09 09:59:59  venku
-   - closed tags prematurely.  FIXED.
-   Revision 1.20  2004/05/09 08:24:38  venku
-   - all xmlizers use xmlenc to write xml data.
-   - Hence, new library dependence on xmlenc.jar.
-   Revision 1.19  2004/04/23 00:42:37  venku
-   - trying to get canonical xmlized Jimple representation.
-   Revision 1.18  2004/04/22 23:32:32  venku
-   - xml file name were setup incorrectly.  FIXED.
-   Revision 1.17  2004/04/22 22:59:58  venku
-   - coding conventions.
-   Revision 1.16  2004/04/20 06:53:15  venku
-   - documentation.
-   Revision 1.15  2004/04/18 08:59:00  venku
-   - enabled test support for slicer.
-   Revision 1.14  2003/12/13 02:29:16  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.13  2003/12/02 09:42:18  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.12  2003/11/30 09:46:38  venku
-   - coding conventions.
-   Revision 1.11  2003/11/30 09:45:35  venku
-   - tag check on statement was used while tagging valueBox. FIXED.
-   Revision 1.10  2003/11/25 16:23:08  venku
-   - closing tag missing for statements. FIXED.
-   Revision 1.9  2003/11/24 16:51:34  venku
-   - ripple effect of moving inner classes in TaggingBasedSliceCollector as external classes.
-   Revision 1.8  2003/11/24 10:12:03  venku
-   - there are no residualizers now.  There is a very precise
-     slice collector which will collect the slice via tags.
-   - architectural change. The slicer is hard-wired wrt to
-     slice collection.  Residualization is outside the slicer.
-   Revision 1.7  2003/11/24 00:11:42  venku
-   - moved the residualizers/transformers into transformation
-     package.
-   - Also, renamed the transformers as residualizers.
-   - opened some methods and classes in slicer to be public
-     so that they can be used by the residualizers.  This is where
-     published interface annotation is required.
-   - ripple effect of the above refactoring.
-   Revision 1.6  2003/11/23 19:41:04  venku
-   - incorrect tags were being emitted.  FIXED.
-   Revision 1.5  2003/11/17 15:56:56  venku
-   - removed support to retrieve new statement ids.
-   - added support to retrieve id for value boxes.
-   Revision 1.4  2003/11/17 15:42:42  venku
-   - changed the signature of callback(Value,..) to callback(ValueBox,..)
-   Revision 1.3  2003/11/17 15:25:17  venku
-   - added new method to AbstractSliceXMLizer to flush writer.
-   - called flush on xmlizer from the driver.
-   - erroneous file name was being constructed. FIXED.
-   - added tabbing and new line to output in TagBasedSliceXMLizer.
-   Revision 1.2  2003/11/17 02:23:52  venku
-   - documentation.
-   - xmlizers require streams/writers to be provided to them
-     rather than they constructing them.
-   Revision 1.1  2003/11/17 01:39:42  venku
-   - added slice XMLization support.
- */
+// End of File

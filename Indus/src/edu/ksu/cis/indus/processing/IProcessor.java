@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -116,38 +116,4 @@ public interface IProcessor {
 	void unhook(final ProcessingController ppc);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.5  2003/12/02 01:30:59  venku
-   - coding conventions and formatting.
-   Revision 1.4  2003/11/17 15:58:12  venku
-   - coding conventions.
-   Revision 1.3  2003/11/17 15:42:49  venku
-   - changed the signature of callback(Value,..) to callback(ValueBox,..)
-   Revision 1.2  2003/11/10 07:53:56  venku
-   - added support to indicate the beginning of processing to the processors.
-   Revision 1.1  2003/11/06 05:31:08  venku
-   - moved IProcessor to processing package from interfaces.
-   - ripple effect.
-   - fixed documentation errors.
-   Revision 1.1  2003/11/06 05:15:06  venku
-   - Refactoring, Refactoring, Refactoring.
-   - Generalized the processing controller to be available
-     in Indus as it may be useful outside static anlaysis. This
-     meant moving IProcessor, Context, and ProcessingController.
-   - ripple effect of the above changes was large.
-   Revision 1.3  2003/09/28 03:08:03  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.2  2003/08/11 07:46:09  venku
-   Finalized the parameters.
-   Spruced up Documentation and Specification.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in WorkBag.
- */
+// End of File

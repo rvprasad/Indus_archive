@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -37,27 +37,27 @@ import junit.framework.TestSuite;
 public class AbstractXMLBasedTestSetup
   extends TestSetup
   implements IXMLBasedTest {
-	/**
+	/** 
 	 * ID generator used while xmlizing documents which will often be the case (xmlize and test the xmlized data).
 	 */
 	protected IJimpleIDGenerator idGenerator;
 
-	/**
+	/** 
 	 * This is the location where the jimple xml should be dumpled.
 	 */
 	protected String dumpLocation;
 
-	/**
+	/** 
 	 * The statement graph (CFG) factory used during testing.
 	 */
 	private IStmtGraphFactory stmtGraphFactory;
 
-	/**
+	/** 
 	 * The directory in which one of the xml-based testing input is read from.
 	 */
 	private String xmlFirstInputDir;
 
-	/**
+	/** 
 	 * The directory in which the other xml-based testing input is read from.
 	 */
 	private String xmlSecondInputDir;
@@ -177,58 +177,4 @@ public class AbstractXMLBasedTestSetup
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.14  2004/05/14 04:44:17  venku
-   - enhanced tearDown() method.
-   Revision 1.13  2004/04/25 21:18:39  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.12  2004/04/20 06:53:18  venku
-   - documentation.
-   Revision 1.11  2004/04/19 05:10:27  venku
-   - NPE's in test setup caused by unchecked reseting.
-   Revision 1.10  2004/04/18 08:59:02  venku
-   - enabled test support for slicer.
-   Revision 1.9  2004/04/18 02:05:19  venku
-   - memory leak fixes.
-   Revision 1.8  2004/04/18 00:42:55  venku
-   - references to objects had leaked after test. FIXED.
-   Revision 1.7  2004/04/17 22:07:37  venku
-   - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
-   - ripple effect in interfaces, classes, and property files.
-   Revision 1.6  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.5  2004/03/05 11:59:40  venku
-   - documentation.
-   Revision 1.4  2004/02/14 23:16:49  venku
-   - coding convention.
-   Revision 1.3  2004/02/09 04:39:40  venku
-   - refactoring test classes still..
-   - need to make xmlizer classes independent of their purpose.
-     Hence, they need to be highly configurable.
-   - For each concept, test setup should be in TestSetup
-     rather than in the XMLizer.
-   Revision 1.2  2004/02/09 01:20:06  venku
-   - coding convention.
-   - added a new abstract class contain the logic required for xml-based
-     testing.  (AbstractXMLBasedTest)
-   - added a new xml-based call graph testing class.
-   Revision 1.1  2004/02/08 04:53:14  venku
-   - refactoring!!!
-   - All regression tests implement IXMLBasedTest.
-   - All test setups extends AbstractXMLBasedTestSetup.
-   - coding convention.
-   - all tests occur at the same package as the classes
-     being tested.
- */
+// End of File

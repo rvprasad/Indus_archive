@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -51,27 +51,27 @@ import soot.toolkits.graph.UnitGraph;
  */
 public class BasicBlockGraphTest
   extends AbstractDirectedGraphTest {
-	/**
+	/** 
 	 * The factory used to extract statement graphs.
 	 */
 	IStmtGraphFactory factory;
 
-	/**
+	/** 
 	 * The scene to extract the method bodies from.
 	 */
 	Scene scene;
 
-	/**
+	/** 
 	 * The basic block graph to test with.
 	 */
 	private BasicBlockGraph bbGraph;
 
-	/**
+	/** 
 	 * The name of the class containing the method to be used for testing.
 	 */
 	private String className;
 
-	/**
+	/** 
 	 * The name of the method used for testing.
 	 */
 	private String methodName;
@@ -239,29 +239,4 @@ public class BasicBlockGraphTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.6  2004/07/09 05:42:31  venku
-   - deleted CollectionsUtilities.addAllFromTo().
-   - used CollectionUtils.addAll() instead of CollectionsUtilities.addAllFromTo().
-
-   Revision 1.5  2004/06/14 08:39:29  venku
-   - added a property to SootBasedDriver to control the type of statement graph
-     factory to be used.
-   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
-   - ripple effect.
-
-   Revision 1.4  2004/06/14 04:55:04  venku
-   - documentation.
-   - coding conventions.
-   Revision 1.3  2004/06/01 08:13:02  venku
-   - changed the name of the tests.
-   Revision 1.2  2004/06/01 08:05:12  venku
-   - changed the name of the tests.
-   Revision 1.1  2004/06/01 01:12:16  venku
-   - added a new testcase to test BasicBlockGraph.
-   - documentation.
-   - added iterator() method to ExceptionFlowSensitiveStmtGraph to
-     return only statement captured in the graph.
- */
+// End of File

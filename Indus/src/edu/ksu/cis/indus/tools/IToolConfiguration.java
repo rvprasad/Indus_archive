@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -49,8 +49,6 @@ public interface IToolConfiguration {
 	 *
 	 * @return <code>true</code> if the property was added; <code>false</code>, otherwise.
 	 *
-	 * @throws IllegalArgumentException when an invalid property identifier is specified.
-	 *
 	 * @pre propertyID != null and value != null
 	 */
 	boolean setProperty(final Object propertyID, final Object value);
@@ -73,12 +71,4 @@ public interface IToolConfiguration {
 	void initialize();
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2003/12/02 11:47:19  venku
-   - raised the tool to an interface ITool.
-   Revision 1.1  2003/12/02 11:31:57  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -211,50 +211,4 @@ public final class CompositeToolConfiguration
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.15  2004/08/03 22:28:12  venku
-   - active configuration was ignored. FIXED.
-   Revision 1.14  2003/12/28 03:18:51  venku
-   - jibx supports abstract types during binding.  Whoa!
-   Revision 1.13  2003/12/02 11:31:57  venku
-   - Added Interfaces for ToolConfiguration and ToolConfigurator.
-   - coding convention and formatting.
-   Revision 1.12  2003/12/02 09:42:25  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.11  2003/12/02 01:30:59  venku
-   - coding conventions and formatting.
-   Revision 1.10  2003/10/19 20:16:23  venku
-   - jibx binding fixes.
-   Revision 1.9  2003/10/19 19:11:57  venku
-   - empty message
-   Revision 1.8  2003/10/14 05:39:25  venku
-   - well, jibx doesnot support abstract types for fields even with
-     factories or I do not know how to tell it to use the factory.
-     Right now, the fix is to use concrete types.
-   Revision 1.7  2003/09/27 01:27:47  venku
-   - documentation.
-   Revision 1.6  2003/09/27 01:09:36  venku
-   - changed AbstractToolConfigurator and CompositeToolConfigurator
-     such that the composite to display the interface on is provided by the application.
-   - documentation.
-   Revision 1.5  2003/09/26 15:30:39  venku
-   - removed PropertyIdentifier class.
-   - ripple effect of the above change.
-   - formatting
-   Revision 1.4  2003/09/26 15:16:40  venku
-   - coding conventions.
-   Revision 1.3  2003/09/26 15:05:01  venku
-   - binding related errors fixed.
-   Revision 1.2  2003/09/26 15:00:01  venku
-   - The configuration of tools in Indus has been placed in this package.
-   - Formatting.
-   Revision 1.1  2003/09/26 13:58:43  venku
-   - checkpoint commit.
-   - Renamed ToolConfigurationCollection to CompositeToolConfiguration
-   - Renamed CollectiveToolConfigurator to CompositeToolConfigurator
-   Revision 1.1  2003/09/26 05:56:10  venku
-   - a checkpoint commit.
- */
+// End of File

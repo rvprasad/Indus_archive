@@ -21,8 +21,6 @@ import edu.ksu.cis.indus.TestHelper;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
-import edu.ksu.cis.indus.processing.Environment;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.XMLBasedDependencyAnalysisTest;
