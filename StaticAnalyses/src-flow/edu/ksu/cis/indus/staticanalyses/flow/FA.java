@@ -25,6 +25,7 @@ import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
 
+import edu.ksu.cis.indus.staticanalyses.flow.optimizations.SCCBasedOptimizer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 

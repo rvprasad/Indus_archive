@@ -13,7 +13,9 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow;
+package edu.ksu.cis.indus.staticanalyses.flow.indexmanagement;
+
+import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 /**
  * This strategy does not reuse indices.  It returns the incoming argument passed to  <code>getEquivalentIndex</code>. There
@@ -23,7 +25,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class MemoryIntensiveStrategy
+public final class MemoryIntensiveIndexManagementStrategy
   implements IIndexManagementStrategy {
 	/**
 	 * @see IIndexManagementStrategy#getEquivalentIndex(IIndex)

@@ -16,6 +16,9 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.processing.Context;
+import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStrategy;
+import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.MemoryIntensiveIndexManagementStrategy;
+import edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.ProcessorIntensiveIndexManagementStrategy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,9 +66,9 @@ public abstract class AbstractIndexManager
 		final String _prop = System.getProperty(INDEX_MANAGEMENT_STRATEGY);
 
 		if (_prop != null && _prop.equals(MEMORY_INTENSIVE_INDEX_MANAGEMENT)) {
-			strategizedIndexMgr = new MemoryIntensiveStrategy();
+			strategizedIndexMgr = new MemoryIntensiveIndexManagementStrategy();
 		} else {
-			strategizedIndexMgr = new ProcessorIntensiveStrategy();
+			strategizedIndexMgr = new ProcessorIntensiveIndexManagementStrategy();
 		}
 
 		if (LOGGER.isDebugEnabled()) {

@@ -13,8 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow;
+package edu.ksu.cis.indus.staticanalyses.flow.optimizations;
 
+import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
+import edu.ksu.cis.indus.staticanalyses.flow.IMutableFGNode;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
@@ -37,6 +39,10 @@ import org.apache.commons.logging.LogFactory;
  * This class contains the logic to optimize flow graphs based on SCCs in the graph.
  * 
  * <p>
+ * This class is not for external use.
+ * </p>
+ * 
+ * <p>
  * This class relies on data(sccRelatedData) associated with flow graph nodes.
  * </p>
  * 
@@ -50,7 +56,7 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class SCCBasedOptimizer {
+public class SCCBasedOptimizer {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -87,13 +93,6 @@ class SCCBasedOptimizer {
 	private int numberingDomain = NEGATIVE_DOMAIN;
 
 	/**
-	 * Reset internal data structures.
-	 */
-	public void reset() {
-		numberingDomain = NEGATIVE_DOMAIN;
-	}
-
-	/**
 	 * Starting from the given nodes, optimize the graph based on SCC.
 	 *
 	 * @param rootNodes are the nodes that serve as root nodes for SCC detection.
@@ -102,7 +101,7 @@ class SCCBasedOptimizer {
 	 * @pre rootNodes != null and tokenMgr != null
 	 * @pre rootNodes.oclIsKindOf(Collection(IFGNode))
 	 */
-	void optimize(final Collection rootNodes, final ITokenManager tokenMgr) {
+	public void optimize(final Collection rootNodes, final ITokenManager tokenMgr) {
 		final Collection _sccs = getSCCs(rootNodes);
 		final Iterator _i = _sccs.iterator();
 		final int _iEnd = _sccs.size();
@@ -118,6 +117,13 @@ class SCCBasedOptimizer {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Reset internal data structures.
+	 */
+	public void reset() {
+		numberingDomain = NEGATIVE_DOMAIN;
 	}
 
 	/**

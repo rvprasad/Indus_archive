@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow;
+package edu.ksu.cis.indus.staticanalyses.flow.optimizations;
 
 /**
  * This is data structure class to represent strongly connected component data used by flow analysis framework.  Each node
@@ -24,7 +24,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class SCCRelatedData {
+public final class SCCRelatedData {
 	/** 
 	 * The number of the component to which the associated node belongs to.
 	 */

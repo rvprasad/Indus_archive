@@ -13,9 +13,10 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow;
+package edu.ksu.cis.indus.staticanalyses.flow.indexmanagement;
 
 import edu.ksu.cis.indus.common.collections.RetrievableSet;
+import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 /**
  * This strategy tries to reuse indices.  It returns the same object for identical indices passed as arguments to
@@ -25,7 +26,7 @@ import edu.ksu.cis.indus.common.collections.RetrievableSet;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ProcessorIntensiveStrategy
+public class ProcessorIntensiveIndexManagementStrategy
   implements IIndexManagementStrategy {
 	/** 
 	 * The collection of indices managed by this object.
@@ -50,7 +51,7 @@ public class ProcessorIntensiveStrategy
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.flow.IIndexManagementStrategy#reset()
+	 * @see edu.ksu.cis.indus.staticanalyses.flow.indexmanagement.IIndexManagementStrategy#reset()
 	 */
 	public void reset() {
 		indices.clear();

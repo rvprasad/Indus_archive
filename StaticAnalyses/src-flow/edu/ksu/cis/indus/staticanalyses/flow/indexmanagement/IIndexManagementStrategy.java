@@ -13,7 +13,9 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.flow;
+package edu.ksu.cis.indus.staticanalyses.flow.indexmanagement;
+
+import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 /**
  * This interface enables to plug in index management strategy.  
@@ -22,7 +24,7 @@ package edu.ksu.cis.indus.staticanalyses.flow;
  * @author $Author$
  * @version $Revision$
  */
-interface IIndexManagementStrategy {
+public interface IIndexManagementStrategy {
 	/**
 	 * Retrieves an index equivalent to the given index.
 	 *
