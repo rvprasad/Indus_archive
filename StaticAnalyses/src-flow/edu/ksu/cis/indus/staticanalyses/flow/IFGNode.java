@@ -35,6 +35,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.interfaces.*;
+
 import java.util.Collection;
 
 
@@ -187,6 +189,10 @@ public interface IFGNode
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:40:24  venku
+Major:
+ - Moved the package under indus umbrella.
+
 Revision 1.1  2003/05/22 22:18:32  venku
 All the interfaces were renamed to start with an "I".
 Optimizing changes related Strings were made.

@@ -35,6 +35,9 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.interfaces.*;
+import edu.ksu.cis.indus.interfaces.*;
+
 /**
  * <p>
  * An implementation of <i>Abstract Factory</i> pattern given in Gang of Four book.  It "creates" various compoments required
@@ -301,5 +304,9 @@ public class ModeFactory {
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:40:24  venku
+Major:
+ - Moved the package under indus umbrella.
+
 
 *****/
