@@ -359,12 +359,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	final class ValueProcessor
 	  extends AbstractJimpleValueSwitch {
 		/**
-		 * This provides the value to be associated with <code>accessed</code> field of any alias set created during
-		 * processing.
-		 */
-		boolean accessed;
-
-		/**
 		 * This indicates if the value should be marked as being read or written.  <code>true</code> indicates that the
 		 * values should be marked as being read from.  <code>false</code> indicates that the values should be marked as
 		 * being written into.
@@ -395,7 +389,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 
 			if (_elt != null) {
-				_elt.setAccessedTo(accessed);
+				_elt.setAccessedTo(true);
 				setReadOrWritten(_elt);
 			}
 
@@ -424,7 +418,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 
 			if (_field != null) {
-				_field.setAccessedTo(accessed);
+				_field.setAccessedTo(true);
 				setReadOrWritten(_field);
 			}
 
@@ -453,7 +447,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			}
 
 			if (_s != null) {
-				_s.setAccessedTo(accessed);
+				_s.setAccessedTo(true);
 				setReadOrWritten(_s);
 			}
 
@@ -1129,15 +1123,6 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				scCache = (Map) _triple.getThird();
 				context.setRootMethod(_sm);
 
-				if (_sm.getName().equals("<init>")) {
-					// TODO: This value was set to false previously.  However, that optimization is incorrect. After 
-					// verification.  The accessed flag in valueProcessor should be removed and a default value of "true" 
-					// should be used in it's place.
-					valueProcessor.accessed = true;
-				} else {
-					valueProcessor.accessed = true;
-				}
-
 				final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(_sm);
 				_wb.clear();
 				_processed.clear();
@@ -1241,6 +1226,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.36  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
