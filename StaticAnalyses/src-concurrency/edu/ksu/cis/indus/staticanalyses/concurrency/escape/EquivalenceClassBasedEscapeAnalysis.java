@@ -33,6 +33,7 @@ import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
+import edu.ksu.cis.indus.staticanalyses.concurrency.SafeLockAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.WaitNotifyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
@@ -736,9 +737,9 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				  && callee.getParameterCount() == 0) {
 				// unify alias sets after all statements are processed if "start" is being invoked.
 				_delayUnification = true;
-			} else if (WaitNotifyAnalysis.isWaitMethod(callee)) {
+			} else if (SafeLockAnalysis.isWaitMethod(callee)) {
 				primaryAliasSet.setWaits();
-			} else if (WaitNotifyAnalysis.isNotifyMethod(callee)) {
+			} else if (SafeLockAnalysis.isNotifyMethod(callee)) {
 				primaryAliasSet.setNotifies();
 			}
 			return _delayUnification;
@@ -862,7 +863,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 			final SootMethod _wSM = _wTemp.getMethod();
 			final SootMethod _nSM = _nTemp.getMethod();
 
-			if (WaitNotifyAnalysis.isWaitMethod(_wSM) && WaitNotifyAnalysis.isNotifyMethod(_nSM)) {
+			if (SafeLockAnalysis.isWaitMethod(_wSM) && SafeLockAnalysis.isNotifyMethod(_nSM)) {
 				final AliasSet _as1 = (AliasSet) ((Map) _trp1.getSecond()).get(_wTemp.getBase());
 				final AliasSet _as2 = (AliasSet) ((Map) _trp2.getSecond()).get(_nTemp.getBase());
 
@@ -1299,6 +1300,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.58  2004/07/24 10:02:46  venku
+   - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
+     preprocessor hierarchy tree.
+
    Revision 1.57  2004/07/23 13:09:44  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
