@@ -15,13 +15,14 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
@@ -568,7 +569,7 @@ public class ReadyDAv1
 					waitMethods.add(sc.getMethod("void wait()"));
 					waitMethods.add(sc.getMethod("void wait(long)"));
 					waitMethods.add(sc.getMethod("void wait(long,int)"));
-                    waitMethods = Collections.unmodifiableCollection(waitMethods);
+					waitMethods = Collections.unmodifiableCollection(waitMethods);
 
 					notifyMethods = new ArrayList();
 					notifyMethods.add(sc.getMethodByName("notify"));
@@ -647,11 +648,9 @@ public class ReadyDAv1
 			}
 		}
 
-		if (waits.size() == 0 ^ notifies.size() == 0) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
-					+ "wait()s that occur in different threads.");
-			}
+		if ((waits.size() == 0 ^ notifies.size() == 0) && LOGGER.isWarnEnabled()) {
+			LOGGER.warn("There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
+				+ "wait()s that occur in different threads.");
 		}
 
 		for (Iterator i = map.keySet().iterator(); i.hasNext();) {
@@ -815,42 +814,42 @@ public class ReadyDAv1
 		/*
 		 * Iterate thru wait() call-sites and record dependencies, in both direction, between each notify() call-sites.
 		 */
-		for (Iterator iter = waits.entrySet().iterator(); iter.hasNext();) {
-			Map.Entry entry = (Map.Entry) iter.next();
-			SootMethod wMethod = (SootMethod) entry.getKey();
+		for (Iterator iter = notifies.entrySet().iterator(); iter.hasNext();) {
+			final Map.Entry _nEntry = (Map.Entry) iter.next();
+			SootMethod nMethod = (SootMethod) _nEntry.getKey();
 
-			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
-				InvokeStmt wait = (InvokeStmt) j.next();
-				Pair wPair = pairMgr.getOptimizedPair(wait, wMethod);
+			for (Iterator j = ((Collection) _nEntry.getValue()).iterator(); j.hasNext();) {
+				InvokeStmt notify = (InvokeStmt) j.next();
+				Pair nPair = pairMgr.getOptimizedPair(notify, nMethod);
 				dependents.clear();
 
 				// add dependee to dependent information
-				for (Iterator k = notifies.entrySet().iterator(); k.hasNext();) {
-					entry = (Map.Entry) k.next();
+				for (Iterator k = waits.entrySet().iterator(); k.hasNext();) {
+					final Map.Entry _wEntry = (Map.Entry) k.next();
 
-					SootMethod nMethod = (SootMethod) entry.getKey();
+					SootMethod wMethod = (SootMethod) _wEntry.getKey();
 
-					for (Iterator l = ((Collection) entry.getValue()).iterator(); l.hasNext();) {
-						InvokeStmt notify = (InvokeStmt) l.next();
+					for (Iterator l = ((Collection) _wEntry.getValue()).iterator(); l.hasNext();) {
+						InvokeStmt wait = (InvokeStmt) l.next();
 
-						Pair nPair = pairMgr.getOptimizedPair(notify, nMethod);
+						Pair wPair = pairMgr.getOptimizedPair(wait, wMethod);
 
 						if (ifDependentOnByRule4(wPair, nPair)) {
-							Collection temp = (Collection) dependeeMap.get(notify);
+							Collection temp = (Collection) dependeeMap.get(wait);
 
 							if (temp == null) {
 								temp = new ArrayList();
-								dependeeMap.put(notify, temp);
+								dependeeMap.put(wait, temp);
 							}
-							temp.add(wPair);
-							dependents.add(nPair);
+							temp.add(nPair);
+							dependents.add(wPair);
 						}
 					}
 				}
 
 				// add dependent to dependee information
 				if (!dependents.isEmpty()) {
-					dependentMap.put(wait, new ArrayList(dependents));
+					dependentMap.put(notify, new ArrayList(dependents));
 				}
 			}
 		}
@@ -860,32 +859,28 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/01/18 00:02:01  venku
+   - more logging info.
    Revision 1.35  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.34  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.33  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
-
    Revision 1.32  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.
-
    Revision 1.31  2003/12/08 12:15:57  venku
    - moved support package from StaticAnalyses to Indus project.
    - ripple effect.
    - Enabled call graph xmlization.
-
    Revision 1.30  2003/12/02 09:42:36  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.29  2003/11/12 01:04:54  venku
    - each analysis implementation has to identify itself as
      belonging to a analysis category via an id.
