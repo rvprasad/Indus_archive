@@ -80,17 +80,6 @@ public class DirectedAndSimpleNodeGraphTest1
 	protected SimpleNodeGraph dg;
 
 	/**
-	 * Returns a suite of tests defined in this class.
-	 *
-	 * @return the suite of tests.
-	 */
-	public static TestSuite suite() {
-		TestSuite suite = new TestSuite("suite of tests in DirectedAndSimpleNodeGraphTest1");
-		suite.addTestSuite(DirectedAndSimpleNodeGraphTest1.class);
-		return suite;
-	}
-
-	/**
 	 * Tests <code>addEdgeFromTo</code> method.
 	 */
 	public final void testAddEdgeFromTo() {
@@ -473,6 +462,11 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/11 01:52:07  venku
+   - prenum, postnum, and back edges support has been added.
+   - added test case to test the above addition.
+   - corrected subtle bugs in test1
+   - refactored test1 so that setup local testing can be added by subclasses.
    Revision 1.5  2003/09/09 01:14:29  venku
    - spruced up getSCCs() test for both true and false arguments.
    Revision 1.4  2003/09/02 02:46:39  venku
