@@ -1,6 +1,6 @@
 indus.jar
-*/docs/*
-*docs*
+*/docs/javadocs
+*/docs/doxydocs
 build
 docs
 packaging

@@ -5,7 +5,10 @@ tgz
 tgz*
 dist
 dist*
-docs
+docs/javadocs
+docs/javadocs*
+docs/doxydocs
+docs/doxydocs*
 build
 test.jpage
 slice.jar
