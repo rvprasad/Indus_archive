@@ -30,6 +30,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.tools.Phase;
+import edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaParser;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +42,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.jibx.runtime.JiBXException;
 
 import soot.Scene;
 
@@ -71,6 +74,11 @@ public final class SlicerTool
 	public static final Object CRITERIA = "slicingCriteria";
 
 	/**
+	 * This identifies the slicing criteria specification in the input arguments.
+	 */
+	public static final Object CRITERIA_SPECIFICATION = "slicingCriteriaSpecification";
+
+	/**
 	 * The collection of input argument identifiers.
 	 */
 	private static final List IN_ARGUMENTS_IDS;
@@ -85,6 +93,7 @@ public final class SlicerTool
 		IN_ARGUMENTS_IDS.add(SCENE);
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
 		IN_ARGUMENTS_IDS.add(CRITERIA);
+		IN_ARGUMENTS_IDS.add(CRITERIA_SPECIFICATION);
 		OUT_ARGUMENTS_IDS = new ArrayList();
 		OUT_ARGUMENTS_IDS.add(SCENE);
 	}
@@ -141,6 +150,7 @@ public final class SlicerTool
 	 * @param inputArgs maps the input argument identifiers to the arguments.
 	 *
 	 * @pre inputArgs.get(SCENE) != null and inputArgs.get(SCENE).oclIsKindOf(Scene)
+	 * @pre inputArgs.get(CRITERIA_SPECIFICATION).oclIsKindOf(String)
 	 * @pre inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.AbstractSliceCriterion))
 	 * @pre inputArgs.get(ROOT_METHODS) != null and inputArgs.get(ROOT_METHODS).oclIsKindOf(Collection(SootMethod))
 	 *
@@ -174,11 +184,29 @@ public final class SlicerTool
 			}
 		}
 
+		final String _criteriaSpec = (String) inputArgs.get(CRITERIA_SPECIFICATION);
+
+		if (_criteriaSpec == null) {
+			LOGGER.info("No criteria specification provided.");
+		} else {
+			try {
+				tool.setCriteria(SliceCriteriaParser.deserialize(_criteriaSpec, _theScene));
+			} catch (final JiBXException _e) {
+				final String _msg = "Error occurred while deserializing the provided criteria specification.";
+				LOGGER.error(_msg);
+
+				final IllegalArgumentException _t = new IllegalArgumentException(_msg);
+				_t.initCause(_e);
+				throw _t;
+			}
+		}
+
 		final Collection _rootMethods = (Collection) inputArgs.get(ROOT_METHODS);
 
 		if (_rootMethods == null || _rootMethods.isEmpty()) {
-			LOGGER.error("Atleast one method should be specified as the entry-point into the system.");
-			throw new IllegalArgumentException("Atleast one method should be specified as the entry-point into the system.");
+			final String _msg = "Atleast one method should be specified as the entry-point into the system.";
+			LOGGER.error(_msg);
+			throw new IllegalArgumentException(_msg);
 		}
 		tool.setRootMethods(_rootMethods);
 	}
@@ -251,6 +279,11 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/06/14 08:39:29  venku
+   - added a property to SootBasedDriver to control the type of statement graph
+     factory to be used.
+   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
+   - ripple effect.
    Revision 1.33  2004/06/12 06:10:02  venku
    - documentation.
    Revision 1.32  2004/05/28 21:53:20  venku

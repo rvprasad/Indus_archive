@@ -9,12 +9,12 @@
 
 	<xsd:element id="criteria" name="criteria">
 		<xsd:annotation>
-        <xsd:appinfo>
-          Collection of Criterion
-        </xsd:appinfo>
-        <xsd:documentation>
-          This is a set of criterion specifications.
-        </xsd:documentation>
+			<xsd:appinfo>
+	          Collection of Criterion
+    	    </xsd:appinfo>
+	        <xsd:documentation>
+    	      This is a set of criterion specifications.
+        	</xsd:documentation>
       </xsd:annotation>
       <xsd:complexType>
         <xsd:sequence>
@@ -26,15 +26,32 @@
 	<xsd:attribute name="index" type="xsd:nonNegativeInteger"/>			
 
 	<xsd:complexType name="stmt">
-		<xsd:attribute ref="slicer:index" use="required"/>
+		<xsd:attribute ref="slicer:index" use="required">
+			<xsd:annotation>
+		        <xsd:documentation>
+    		      This is 0-offset index of the statement in the statement list of the enclosing method.
+        		</xsd:documentation>
+	      </xsd:annotation>
+		</xsd:attribute>
 		<xsd:attribute name="considerEntireStmt" type="xsd:boolean" use="required"/>
 	</xsd:complexType>
 
 	<xsd:complexType name="expr">
-		<xsd:attribute ref="slicer:index" use="required"/>
+		<xsd:attribute ref="slicer:index" use="required">
+			<xsd:annotation>
+		        <xsd:documentation>
+    		      This is 0-offset index of the expression in the list of use-def boxes of the enclosing statement.
+        		</xsd:documentation>
+	     	</xsd:annotation>
+		</xsd:attribute>
 	</xsd:complexType>
 
 	<xsd:complexType id="criterion" name="criterion">
+		<xsd:annotation>
+	        <xsd:documentation>
+    	      This is the criterion.
+      		</xsd:documentation>
+	   	</xsd:annotation>		
 		<xsd:sequence>
 			<xsd:element name="className" type="xsd:string"/>
 			<xsd:element name="method" type="slicer:method"/>
