@@ -1062,6 +1062,33 @@ public class EquivalenceClassBasedEscapeAnalysis
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param v DOCUMENT ME!
+	 * @param sm DOCUMENT ME!
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	boolean isGlobal(final Value v, final SootMethod sm) {
+		boolean result = true;
+
+		try {
+			if (AliasSet.canHaveAliasSet(v.getType())) {
+				result = getAliasSetFor(v, sm).isGlobal();
+			} else {
+				result = false;
+			}
+		} catch (RuntimeException e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("There is no information about " + v + " occurring in " + sm
+					+ ".  So, providing pessimistic info (true).", e);
+			}
+		}
+
+		return result;
+	}
+
+	/**
 	 * Adds the given contexts to the set of contexts to be processed later on.  This is called by the tree walker.
 	 *
 	 * @param siteContext is the context associated with the site.
@@ -1092,6 +1119,11 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2003/10/21 04:29:23  venku
+   - subtle bug emanated from the order in which the
+     statements were processed.  As a fix, all start call-sites
+     in a method are processed after all statements of the
+      method have been processed.
    Revision 1.18  2003/10/09 00:17:40  venku
    - changes to instrumetn statistics numbers.
    Revision 1.17  2003/10/05 16:22:25  venku

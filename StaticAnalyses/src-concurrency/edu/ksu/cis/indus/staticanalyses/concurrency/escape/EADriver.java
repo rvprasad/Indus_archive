@@ -25,6 +25,9 @@ import soot.ValueBox;
 import soot.jimple.ArrayRef;
 import soot.jimple.FieldRef;
 import soot.jimple.JimpleBody;
+import soot.jimple.NewArrayExpr;
+import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -184,6 +187,7 @@ public final class EADriver
 
 			Collection abstractObjects = new HashSet();
 			int accessSites = 0;
+			int allocationSites = 0;
 
 			for (int i = 0; i < args.length; i++) {
 				SootClass sc = scm.getSootClass(args[i]);
@@ -199,8 +203,8 @@ public final class EADriver
 
 						for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
 							Local local = (Local) k.next();
-							System.out.println(" Local " + local + ":" + local.getType() + " escapes -> "
-								+ analysis.escapes(local, sm));
+							System.out.println(" Local " + local + ":" + local.getType() + "\n" + " escapes -> "
+								+ analysis.escapes(local, sm) + "\n" + " global -> " + analysis.isGlobal(local, sm));
 						}
 
 						for (Iterator k = body.getUseAndDefBoxes().iterator(); k.hasNext();) {
@@ -216,11 +220,13 @@ public final class EADriver
 									if (!abstractObjects.contains(as)) {
 										abstractObjects.add(as);
 									}
-								}
 
-								if (analysis.escapes(v, sm)) {
-									accessSites++;
+									if (analysis.escapes(v, sm)) {
+										accessSites++;
+									}
 								}
+							} else if (v instanceof NewExpr || v instanceof NewArrayExpr || v instanceof NewMultiArrayExpr) {
+								allocationSites++;
 							}
 						}
 					} else {
@@ -230,8 +236,9 @@ public final class EADriver
 					}
 				}
 			}
-			System.out.println("Total number of abstract objects are " + abstractObjects.size());
-			System.out.println("Total number of shared accesses based on escape information are " + accessSites);
+			System.out.println("Total number of abstract objects is " + abstractObjects.size());
+			System.out.println("Total numbef of allocation sites is " + allocationSites);
+			System.out.println("Total number of shared accesses based on escape information is " + accessSites);
 			System.out.println("Total classes loaded: " + scm.getClasses().size());
 			printTimingStats(System.out);
 		}
@@ -241,6 +248,8 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/10/09 00:17:39  venku
+   - changes to instrumetn statistics numbers.
    Revision 1.11  2003/10/05 06:31:35  venku
    - Things work.  The bug was the order in which the
      parameter alias sets were being accessed.  FIXED.

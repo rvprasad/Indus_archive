@@ -21,23 +21,37 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Value;
+import soot.ValueBox;
 
+import soot.jimple.ArrayRef;
+import soot.jimple.FieldRef;
 import soot.jimple.JimpleBody;
+import soot.jimple.NewArrayExpr;
+import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
 
+import edu.ksu.cis.indus.common.TrapUnitGraphFactory;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo.NewExprTriple;
+import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
+import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingController;
 import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.staticanalyses.support.Driver;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -97,143 +111,274 @@ public final class RufEATester
 	 * <p></p>
 	 */
 	protected void execute() {
+		/*
+		   Scene scm = loadupClassesAndCollectMains(args);
+		   AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
+		   Collection rm = new ArrayList();
+		   for (Iterator l = rootMethods.iterator(); l.hasNext();) {
+		       rm.clear();
+		       rm.add(l.next());
+		       if (LOGGER.isInfoEnabled()) {
+		           LOGGER.info("BEGIN: FA analysis");
+		       }
+		       long start = System.currentTimeMillis();
+		       aa.reset();
+		       aa.analyze(scm, rm);
+		       long stop = System.currentTimeMillis();
+		       if (LOGGER.isInfoEnabled()) {
+		           LOGGER.info("END: FA analysis");
+		       }
+		       addTimeLog("FA analysis", stop - start);
+		       ProcessingController ppc = new ProcessingController();
+		       ppc.setAnalyzer(aa);
+		       CallGraph cg = new CallGraph();
+		       cg.hookup(ppc);
+		       BasicBlockGraphMgr bbgMgr = new BasicBlockGraphMgr();
+		       bbgMgr.setUnitGraphProvider(new TrapUnitGraphFactory());
+		       ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, bbgMgr));
+		       tg.hookup(ppc);
+		       RufsEscapeAnalysis ea1 = new RufsEscapeAnalysis(scm, cg, tg);
+		       ea1.hookup(ppc);
+		       if (LOGGER.isInfoEnabled()) {
+		           LOGGER.info("BEGIN: FA postprocessing");
+		       }
+		       start = System.currentTimeMillis();
+		       ppc.process();
+		       stop = System.currentTimeMillis();
+		       addTimeLog(", FA postprocessing took ", stop - start);
+		       if (LOGGER.isInfoEnabled()) {
+		           LOGGER.info("END: FA postprocessing");
+		       }
+		       ea1.unhook(ppc);
+		       tg.unhook(ppc);
+		       cg.unhook(ppc);
+		       System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
+		       System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
+		       if (LOGGER.isInfoEnabled()) {
+		           LOGGER.info("BEGIN: " + ea1.getClass().getName() + " processing");
+		       }
+		       start = System.currentTimeMillis();
+		       ea1.execute();
+		       stop = System.currentTimeMillis();
+		       if (LOGGER.isInfoEnabled()) {
+		           LOGGER.info("END: " + ea1.getClass().getName() + " processing");
+		       }
+		       addTimeLog(ea1.getClass().getName(), stop - start);
+		       int count = 1;
+		       Map threadMap = new HashMap();
+		       System.out.println("\nThread mapping:");
+		       for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
+		           NewExprTriple element = (NewExprTriple) j.next();
+		           String tid = "T" + count++;
+		           threadMap.put(element, tid);
+		           if (element.getMethod() == null) {
+		               System.out.println(tid + " -> " + element.getExpr().getType());
+		           } else {
+		               System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
+		           }
+		       }
+		       for (int i = 0; i < args.length; i++) {
+		           SootClass sc = scm.getSootClass(args[i]);
+		           System.out.println("Info for class " + sc.getName() + "\n");
+		           for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
+		                 j.hasNext();) {
+		               SootMethod sm = (SootMethod) j.next();
+		               System.out.println("Info for Method " + sm.getSignature());  // + "\n" + ea1.tpgetInfo(sm, threadMap));
+		               if (sm.isConcrete()) {
+		                   JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
+		                   for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
+		                       Local local = (Local) k.next();
+		                       System.out.println("Local " + local + ":" + local.getType()
+		                           + "\n"  //+ ea1.tpgetInfo(sm, local, threadMap) + "\n");
+		                           + " escapes -> " + ea1.escapes(sm, local) + "\n" + " global -> " + ea1.isGlobal(sm, local));
+		                   }
+		               }
+		           }
+		       }
+		       printTimingStats(System.out);
+		   }
+		 */
 		Scene scm = loadupClassesAndCollectMains(args);
-		AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
+		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
+		Collection rm = new ArrayList();
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: FA analysis");
-		}
+		for (Iterator l = rootMethods.iterator(); l.hasNext();) {
+			rm.clear();
+			rm.add(l.next());
 
-		long start = System.currentTimeMillis();
-		aa.analyze(scm, rootMethods);
-
-		long stop = System.currentTimeMillis();
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: FA analysis");
-		}
-		addTimeLog("FA analysis", stop - start);
-
-		ProcessingController ppc = new ProcessingController();
-		ppc.setAnalyzer(aa);
-
-		CallGraph cg = new CallGraph();
-		cg.hookup(ppc);
-
-		ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, new BasicBlockGraphMgr()));
-		tg.hookup(ppc);
-
-		RufsEscapeAnalysis ea1 = new RufsEscapeAnalysis(scm, cg, tg);
-		ea1.hookup(ppc);
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: FA postprocessing");
-		}
-		start = System.currentTimeMillis();
-
-		ppc.process();
-		stop = System.currentTimeMillis();
-		addTimeLog(", FA postprocessing took ", stop - start);
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: FA postprocessing");
-		}
-
-		ea1.unhook(ppc);
-		tg.unhook(ppc);
-		cg.unhook(ppc);
-		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
-		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: " + ea1.getClass().getName() + " processing");
-		}
-		start = System.currentTimeMillis();
-
-		ea1.execute();
-		stop = System.currentTimeMillis();
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: " + ea1.getClass().getName() + " processing");
-		}
-		addTimeLog(ea1.getClass().getName(), stop - start);
-
-		int count = 1;
-		Map threadMap = new HashMap();
-		System.out.println("\nThread mapping:");
-
-		for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
-			NewExprTriple element = (NewExprTriple) j.next();
-			String tid = "T" + count++;
-			threadMap.put(element, tid);
-
-			if (element.getMethod() == null) {
-				System.out.println(tid + " -> " + element.getExpr().getType());
-			} else {
-				System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: FA analysis");
 			}
-		}
 
-		for (int i = 0; i < args.length; i++) {
-			SootClass sc = scm.getSootClass(args[i]);
-			System.out.println("Info for class " + sc.getName() + "\n");
+			long start = System.currentTimeMillis();
+			aa.reset();
+			aa.analyze(scm, rm);
 
-			for (Iterator j = sc.getFields().iterator(); j.hasNext();) {
-				SootField sf = (SootField) j.next();
+			long stop = System.currentTimeMillis();
 
-				if (Modifier.isStatic(sf.getModifiers())) {
-					System.out.println("Info for static field " + sf.getName() + ":" + sf.getType() + "\n"
-						+ ea1.tpgetInfo(sf, threadMap) + "\n");
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: FA analysis");
+			}
+			addTimeLog("FA analysis", stop - start);
+
+			ProcessingController ppc = new ProcessingController();
+			ppc.setAnalyzer(aa);
+
+			// Create call graph
+			CallGraph cg = new CallGraph();
+			cg.hookup(ppc);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: FA postprocessing");
+			}
+			start = System.currentTimeMillis();
+			ppc.process();
+			cg.unhook(ppc);
+
+			ppc = new CGBasedProcessingController(cg);
+			ppc.setAnalyzer(aa);
+
+			// Create Thread graph
+			ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, bbm));
+			tg.hookup(ppc);
+			ppc.process();
+			tg.unhook(ppc);
+
+			// Perform equivalence-class-based escape analysis
+			RufsEscapeAnalysis analysis = new RufsEscapeAnalysis(scm, cg, tg);
+			analysis.hookup(ppc);
+			ppc.process();
+			stop = System.currentTimeMillis();
+			analysis.unhook(ppc);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: FA postprocessing");
+			}
+			addTimeLog("FA postprocessing took ", stop - start);
+			System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
+			System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: " + analysis.getClass().getName() + " processing");
+			}
+			start = System.currentTimeMillis();
+			analysis.execute();
+			stop = System.currentTimeMillis();
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: " + analysis.getClass().getName() + " processing");
+			}
+			addTimeLog(analysis.getClass().getName(), stop - start);
+
+			int count = 1;
+			Map threadMap = new HashMap();
+			System.out.println("\nThread mapping:");
+
+			for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
+				NewExprTriple element = (NewExprTriple) j.next();
+				String tid = "T" + count++;
+				threadMap.put(element, tid);
+
+				if (element.getMethod() == null) {
+					System.out.println(tid + " -> " + element.getExpr().getType());
+				} else {
+					System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
 				}
 			}
 
-			for (Iterator j = sc.getMethods().iterator(); j.hasNext();) {
-				SootMethod sm = (SootMethod) j.next();
-				System.out.println("Info for Method " + sm.getSignature() + "\n" + ea1.tpgetInfo(sm, threadMap));
+			Collection abstractObjects = new HashSet();
+			int accessSites = 0;
+			int allocationSites = 0;
 
-				JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
+			for (int i = 0; i < args.length; i++) {
+				SootClass sc = scm.getSootClass(args[i]);
+				System.out.println("Info for class " + sc.getName() + "\n");
 
-				for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
-					Local local = (Local) k.next();
-					System.out.println("Info for Local " + local + ":" + local.getType() + "\n"
-						+ ea1.tpgetInfo(sm, local, threadMap) + "\n");
+				for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
+					  j.hasNext();) {
+					SootMethod sm = (SootMethod) j.next();
+					System.out.println("\nInfo for Method " + sm.getSignature());
+
+					if (sm.isConcrete()) {
+						JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
+
+						for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
+							Local local = (Local) k.next();
+							System.out.println(" Local " + local + ":" + local.getType() + "\n" + " escapes -> "
+								+ analysis.escapes(sm, local) + "\n" + " global -> " + analysis.isGlobal(sm, local));
+						}
+
+						for (Iterator k = body.getUseAndDefBoxes().iterator(); k.hasNext();) {
+							ValueBox box = (ValueBox) k.next();
+							Value v = box.getValue();
+
+							if (v instanceof ArrayRef || v instanceof FieldRef) {
+								RufsEscapeAnalysis.AliasSet as = analysis.getAliasSetFor(v, sm);
+
+								if (as != null) {
+									as = (RufsEscapeAnalysis.AliasSet) as.find();
+
+									if (!abstractObjects.contains(as)) {
+										abstractObjects.add(as);
+									}
+
+									if (as.isSynced()) {
+										accessSites++;
+									}
+								}
+							} else if (v instanceof NewExpr || v instanceof NewArrayExpr || v instanceof NewMultiArrayExpr) {
+								allocationSites++;
+							}
+						}
+					} else {
+						if (LOGGER.isInfoEnabled()) {
+							LOGGER.info(sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
+						}
+					}
 				}
 			}
+			System.out.println("Total number of abstract objects is " + abstractObjects.size());
+			System.out.println("Total number of allocation sites is " + allocationSites);
+			System.out.println("Total number of shared accesses based on escape information is " + accessSites);
+			System.out.println("Total classes loaded: " + scm.getClasses().size());
+			printTimingStats(System.out);
 		}
-		printTimingStats(System.out);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/28 03:17:13  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.2  2003/09/08 02:23:24  venku
  *** empty log message ***
-   Revision 1.1  2003/08/21 01:24:25  venku
-    - Renamed src-escape to src-concurrency to as to group all concurrency
-      issue related analyses into a package.
-    - Renamed escape package to concurrency.escape.
-    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-   Revision 1.4  2003/08/17 10:48:34  venku
-   Renamed BFA to FA.  Also renamed bfa variables to fa.
-   Ripple effect was huge.
-   Revision 1.3  2003/08/11 06:29:07  venku
-   Changed format of change log accumulation at the end of the file
-   Revision 1.2  2003/08/10 03:43:26  venku
-   Renamed Tester to Driver.
-   Refactored logic to pick entry points.
-   Provided for logging timing stats into any specified stream.
-   Ripple effect in others.
-   Revision 1.1  2003/08/07 06:39:07  venku
-   Major:
-    - Moved the package under indus umbrella.
-   Minor:
-    - changes to accomodate ripple effect from support package.
-   Revision 1.3  2003/07/30 08:30:31  venku
-   Refactoring ripple.
-   Also fixed a subtle bug in isShared() which caused wrong results.
-   Revision 1.2  2003/07/27 21:15:22  venku
-   Minor:
-    - arg name changes.
-    - comment changes.
+           Revision 1.1  2003/08/21 01:24:25  venku
+            - Renamed src-escape to src-concurrency to as to group all concurrency
+              issue related analyses into a package.
+            - Renamed escape package to concurrency.escape.
+            - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+           Revision 1.4  2003/08/17 10:48:34  venku
+           Renamed BFA to FA.  Also renamed bfa variables to fa.
+           Ripple effect was huge.
+           Revision 1.3  2003/08/11 06:29:07  venku
+           Changed format of change log accumulation at the end of the file
+           Revision 1.2  2003/08/10 03:43:26  venku
+           Renamed Tester to Driver.
+           Refactored logic to pick entry points.
+           Provided for logging timing stats into any specified stream.
+           Ripple effect in others.
+           Revision 1.1  2003/08/07 06:39:07  venku
+           Major:
+            - Moved the package under indus umbrella.
+           Minor:
+            - changes to accomodate ripple effect from support package.
+           Revision 1.3  2003/07/30 08:30:31  venku
+           Refactoring ripple.
+           Also fixed a subtle bug in isShared() which caused wrong results.
+           Revision 1.2  2003/07/27 21:15:22  venku
+           Minor:
+            - arg name changes.
+            - comment changes.
  */
