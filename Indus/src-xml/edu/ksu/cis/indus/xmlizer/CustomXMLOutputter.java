@@ -53,14 +53,17 @@ public final class CustomXMLOutputter
 	 */
 	private void initialize() {
 		setEscaping(true);
-		setIndentation("  ");
-		setLineBreak(LineBreak.UNIX);
+		setIndentation(DEFAULT_INDENTATION);
+		setLineBreak(LineBreak.NONE);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/09 08:23:31  venku
+   - generalized creation logic.
+
    Revision 1.1  2004/04/25 21:18:39  venku
    - refactoring.
      - created new classes from previously embedded classes.
