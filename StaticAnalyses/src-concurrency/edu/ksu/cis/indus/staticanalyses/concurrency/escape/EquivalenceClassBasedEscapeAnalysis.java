@@ -1178,8 +1178,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				_result = false;
 			}
 		} catch (final NullPointerException _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("There is no information about " + v + " occurring in " + sm
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("There is no information about " + v + " occurring in " + sm
 					+ ".  So, providing pessimistic info (true).", _e);
 			}
 		}
@@ -1229,8 +1229,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 				final Collection _o2 = getAliasSetFor(v2, sm2).getShareEntities();
 				_result = (_o1 != null) && (_o2 != null) && CollectionUtils.containsAny(_o1, _o2);
 			} catch (final NullPointerException _e) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("There is no information about " + v1 + "/" + v2 + " occurring in " + sm1 + "/" + sm2
 						+ ".  So, providing pessimistic info (true).", _e);
 				}
 			}
@@ -1253,8 +1253,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		boolean _result = true;
 		final Triple _triple = (Triple) method2Triple.get(method);
 
-		if (_triple == null && LOGGER.isWarnEnabled()) {
-			LOGGER.warn("There is no information about " + method + ".  So, providing pessimistic info (true).");
+		if (_triple == null && LOGGER.isDebugEnabled()) {
+			LOGGER.debug("There is no information about " + method + ".  So, providing pessimistic info (true).");
 		} else {
 			final AliasSet _as1 = ((MethodContext) _triple.getFirst()).getThisAS();
 
