@@ -109,11 +109,16 @@ public class FATestSetup
 	 */
 	protected void setUp()
 	  throws Exception {
-        super.setUp();
-		final String _classes = System.getProperty(CLASSES_PROPERTY);
+		super.setUp();
 
-		if (_classes == null || _classes.length() == 0) {
-			throw new RuntimeException(CLASSES_PROPERTY + " property is invalid.  Aborting.");
+		String _classes = classNames;
+
+		if (_classes == null) {
+			_classes = System.getProperty(CLASSES_PROPERTY);
+
+			if (_classes == null || _classes.length() == 0) {
+				throw new RuntimeException(CLASSES_PROPERTY + " property is invalid.  Aborting.");
+			}
 		}
 
 		final StringBuffer _sb = new StringBuffer(_classes);
@@ -160,6 +165,13 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/08 04:53:10  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
    Revision 1.4  2004/02/08 02:38:19  venku
    - added a new constructor for batch testing.
    Revision 1.3  2004/02/08 01:10:33  venku
