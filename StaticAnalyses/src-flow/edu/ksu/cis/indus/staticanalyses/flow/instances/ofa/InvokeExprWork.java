@@ -133,7 +133,7 @@ public class InvokeExprWork
 	public synchronized void execute() {
 		InstanceInvokeExpr e = (InstanceInvokeExpr) accessExprBox.getValue();
 		SootMethod sm = e.getMethod();
-		BFA bfa = caller._BFA;
+		BFA bfa = caller._bfa;
 		SootClass sc;
 		ValueBox vb = context.getProgramPoint();
 
@@ -216,7 +216,7 @@ public class InvokeExprWork
 	 * @post result != null
 	 */
 	public String toString() {
-		return "InvokeExprWork: " + caller._METHOD + "@" + accessExprBox.getValue();
+		return "InvokeExprWork: " + caller._method + "@" + accessExprBox.getValue();
 	}
 }
 
@@ -224,6 +224,11 @@ public class InvokeExprWork
    ChangeLog:
 
    $Log$
+   Revision 1.2  2003/08/15 03:39:53  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
+   Renamed a few fields/parameter variables to avoid name confusion.
+
 
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

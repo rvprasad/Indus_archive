@@ -111,7 +111,7 @@ public class ArrayAccessExprWork
 	 */
 	public synchronized void execute() {
 		ArrayType atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
-		BFA bfa = caller._BFA;
+		BFA bfa = caller._bfa;
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype
@@ -141,6 +141,11 @@ public class ArrayAccessExprWork
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/15 03:39:53  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
+   Renamed a few fields/parameter variables to avoid name confusion.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
