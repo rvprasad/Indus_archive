@@ -60,8 +60,7 @@ public class ExitControlDA
 	private IDependencyAnalysis entryControlDA;
 
 	/**
-	 * {@inheritDoc}
-	 * This implementation will return <code>FORWARD_DIRECTION</code>.
+	 * {@inheritDoc} This implementation will return <code>FORWARD_DIRECTION</code>.
 	 */
 	public Object getDirection() {
 		return FORWARD_DIRECTION;
@@ -151,45 +150,6 @@ public class ExitControlDA
 	}
 
 	/**
-	 * Calculates the dependees of the control sinks.
-	 *
-	 * @param bbg is the basic block graph in which control sink dependees need to be calculated.
-	 * @param method of <code>bbg</code>.
-	 *
-	 * @return the collection of basic blocks that are backward control dependees of the control sinks in <code>bbg</code>.
-	 *
-	 * @pre bbg != null and method != null
-	 * @post result != null;
-	 * @post result.oclIsKindOf(Collection(BasicBlock))
-	 * @post bbg.getNodes().containsAll(result)
-	 */
-	private Collection calculateEntryControlDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
-		final Collection _result;
-		final Collection _sinks = new ArrayList();
-		_sinks.addAll(bbg.getTails());
-		_sinks.addAll(bbg.getPseudoTails());
-
-		if (_sinks.size() > 1) {
-			_result = new HashSet();
-
-			for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
-				final BasicBlock _sink = (BasicBlock) _i.next();
-				final Stmt _stmt = _sink.getLeaderStmt();
-				final Collection _dependees = entryControlDA.getDependees(_stmt, method);
-
-				for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
-					final Stmt _dependee = (Stmt) _j.next();
-					final BasicBlock _dependeeBB = bbg.getEnclosingBlock(_dependee);
-					_result.add(_dependeeBB);
-				}
-			}
-		} else {
-			_result = Collections.EMPTY_SET;
-		}
-		return _result;
-	}
-
-	/**
 	 * Calculates the dependence information at the level of basic blocks.
 	 *
 	 * @param bbg is the basic block graph for which dependence need to be calculated.
@@ -229,6 +189,7 @@ public class ExitControlDA
 		final List _methodLocalDent2Dee = CollectionsUtilities.getListFromMap(dependent2dependee, method);
 		final List _stmtList = getStmtList(method);
 		final int _noOfStmtsInMethod = _stmtList.size();
+		final List _dependeeBBStmtst = new ArrayList();
 		CollectionsUtilities.ensureSize(_methodLocalDee2Dent, _noOfStmtsInMethod, null);
 		CollectionsUtilities.ensureSize(_methodLocalDent2Dee, _noOfStmtsInMethod, null);
 
@@ -236,42 +197,108 @@ public class ExitControlDA
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			final BasicBlock _dependeeBB = (BasicBlock) _entry.getKey();
 			final Stmt _dependee = _dependeeBB.getTrailerStmt();
+
+			//record dependnece within dependee block
 			final Collection _dependents =
 				(Collection) CollectionsUtilities.getSetAtIndexFromList(_methodLocalDee2Dent, _stmtList.indexOf(_dependee));
+			_dependeeBBStmtst.clear();
+			_dependeeBBStmtst.addAll(_dependeeBB.getStmtsOf());
+			_dependeeBBStmtst.remove(_dependee);
+			_dependents.addAll(_dependeeBBStmtst);
+			recordDependence(_methodLocalDent2Dee, _stmtList, _dependee, _dependeeBBStmtst);
+
+			// record dependence for dependent blocks
 			final Collection _dependentBBs = (Collection) _entry.getValue();
 			final Iterator _j = _dependentBBs.iterator();
 			final int _jEnd = _dependentBBs.size();
 
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final BasicBlock _dependentBB = (BasicBlock) _j.next();
-				final List _stmtsOf = _dependentBB.getStmtsOf();
-				final Iterator _k = _stmtsOf.iterator();
-				final int _kEnd = _stmtsOf.size();
-
-				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final Stmt _dependent = (Stmt) _k.next();
-					final Collection _dependees =
-						(Collection) CollectionsUtilities.getSetAtIndexFromList(_methodLocalDent2Dee,
-							_stmtList.indexOf(_dependent));
-					_dependees.add(_dependee);
-				}
-				_dependents.addAll(_stmtsOf);
+				final List _dependentBBStmts = _dependentBB.getStmtsOf();
+				_dependents.addAll(_dependentBBStmts);
+				recordDependence(_methodLocalDent2Dee, _stmtList, _dependee, _dependentBBStmts);
 			}
 		}
 		dependent2dependee.put(method, _methodLocalDent2Dee);
 		dependee2dependent.put(method, _methodLocalDee2Dent);
+	}
+
+	/**
+	 * Calculates the dependees of the control sinks.
+	 *
+	 * @param bbg is the basic block graph in which control sink dependees need to be calculated.
+	 * @param method of <code>bbg</code>.
+	 *
+	 * @return the collection of basic blocks that are backward control dependees of the control sinks in <code>bbg</code>.
+	 *
+	 * @pre bbg != null and method != null
+	 * @post result != null;
+	 * @post result.oclIsKindOf(Collection(BasicBlock))
+	 * @post bbg.getNodes().containsAll(result)
+	 */
+	private Collection calculateEntryControlDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
+		final Collection _result;
+		final Collection _sinks = new ArrayList();
+		_sinks.addAll(bbg.getTails());
+		_sinks.addAll(bbg.getPseudoTails());
+
+		if (_sinks.size() > 1) {
+			_result = new HashSet();
+
+			for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
+				final BasicBlock _sink = (BasicBlock) _i.next();
+				final Stmt _stmt = _sink.getLeaderStmt();
+				final Collection _dependees = entryControlDA.getDependees(_stmt, method);
+
+				for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
+					final Stmt _dependee = (Stmt) _j.next();
+					final BasicBlock _dependeeBB = bbg.getEnclosingBlock(_dependee);
+					_result.add(_dependeeBB);
+				}
+			}
+		} else {
+			_result = Collections.EMPTY_SET;
+		}
+		return _result;
+	}
+
+	/**
+	 * Record dependent to dependee direction of dependence.
+	 *
+	 * @param methodDependent2Dependee maps dependent to collection of dependees.
+	 * @param stmts is the list of statements in the method.
+	 * @param dependee obviously.
+	 * @param dependents obviously.
+	 *
+	 * @pre methodDependent2Dependee != null
+	 * @pre methodDependent2Dependee.oclIsKindOf(Map(Stmt, Collection(Stmt)))
+	 * @pre stmts != null and stmts.oclIsKindOf(Sequence(Stmt))
+	 * @pre dependee != null
+	 * @pre dependents != null and dependents.oclIsKindOf(Sequence(Stmt))
+	 */
+	private void recordDependence(final List methodDependent2Dependee, final List stmts, final Stmt dependee,
+		final List dependents) {
+		final Iterator _k = dependents.iterator();
+		final int _kEnd = dependents.size();
+
+		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+			final Stmt _dependent = (Stmt) _k.next();
+			final Collection _dependees =
+				(Collection) CollectionsUtilities.getSetAtIndexFromList(methodDependent2Dependee, stmts.indexOf(_dependent));
+			_dependees.add(dependee);
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/07/20 07:25:43  venku
+   - then-else logic was inverted. FIXED.
    Revision 1.19  2004/07/20 01:20:08  venku
    - documentation.
-
    Revision 1.18  2004/07/11 23:02:29  venku
    - documentation.
-
    Revision 1.17  2004/07/11 14:50:59  venku
    - commit more logging.
    Revision 1.16  2004/07/11 14:17:39  venku
