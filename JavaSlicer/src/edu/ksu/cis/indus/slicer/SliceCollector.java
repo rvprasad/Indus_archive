@@ -15,13 +15,13 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+
 import edu.ksu.cis.indus.slicer.processing.*;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,6 +79,17 @@ public final class SliceCollector {
 	 */
 	SliceCollector(final SlicingEngine theEngine) {
 		engine = theEngine;
+	}
+
+	/**
+	 * Retrieves the methods included in the slice.
+	 *
+	 * @return a collection of methods included in the slice.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 */
+	public Collection getMethodsInSlice() {
+		return Collections.unmodifiableCollection(taggedMethods);
 	}
 
 	/**
@@ -177,17 +188,7 @@ public final class SliceCollector {
 		}
 
 		final BasicBlockGraphMgr _bbgMgr = engine.getSlicedBasicBlockGraphMgr();
-
-		// include all gotos required to recreate the control flow of the system.
-		for (final Iterator _i = taggedMethods.iterator(); _i.hasNext();) {
-			final SootMethod _sm = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_sm);
-
-			if (_bbg == null) {
-				continue;
-			}
-			_gotoProcessor.process(_sm, _bbg);
-		}
+		_gotoProcessor.process(taggedMethods, _bbgMgr);
 	}
 
 	/**
@@ -204,9 +205,8 @@ public final class SliceCollector {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Ensures that the control flow between the program points included in the slice preserve the semantics.  Gotos give
+	 * rise to this situation.
 	 */
 	void completeSlicing() {
 		processGotos();
@@ -223,6 +223,13 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/13 04:33:39  venku
+   - Renamed TaggingBasedSliceCollector to SliceCollector.
+   - Ripple effect in the engine.
+   - SlicingEngine does not handle issues such as executability
+     as they do not affect the generated slice.  The slice can be
+     transformed independent of the slice via postprocessing to
+     adhere to such properties.
    Revision 1.18  2004/01/11 03:44:50  venku
    - ripple effect of changes to GotoProcessors.
    Revision 1.17  2003/12/16 12:44:49  venku
