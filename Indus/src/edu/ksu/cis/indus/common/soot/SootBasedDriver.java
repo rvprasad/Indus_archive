@@ -47,10 +47,10 @@ import soot.options.Options;
  * 
  * <p>
  * The classes in which to search for root methods can be configured via setting 1 system property named
- * "edu.ksu.cis.indus.common.soot.rootClasses".  The syntax of this property is a comma separated list of fully qualified
- * names of that class in which the methods should occur.  This can be a regular expression which will be matched against
- * the name of the class in which the method is declared.  So, "edu.ksu.cis.indus.processing" will find root methods
- * occurring in classes defined in edu.ksu.cis.indus and having names starting with "processing".
+ * "edu.ksu.cis.indus.common.soot.SootBasedDriver.rootClasses".  The syntax of this property a regular expression which will
+ * be matched against the name of the class in which the method is declared.  Note if this is unspecified, then root methods
+ * are searched only in the classes specified and not the classes which are required.  So, "edu.ksu.cis.indus.processing"
+ * will find root methods occurring in classes defined in edu.ksu.cis.indus and having names starting with "processing".
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -58,11 +58,6 @@ import soot.options.Options;
  * @version $Revision$ $Date$
  */
 public class SootBasedDriver {
-	/**
-	 * This is the type of <code>String[]</code> in Soot type system.
-	 */
-	public static final ArrayType STR_ARRAY_TYPE = ArrayType.v(RefType.v("java.lang.String"), 1);
-
 	/**
 	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably.
 	 */
@@ -134,6 +129,11 @@ public class SootBasedDriver {
 	 */
 	public static class RootMethodTrapper {
 		/**
+		 * This is the type of <code>String[]</code> in Soot type system.
+		 */
+		public static final ArrayType STR_ARRAY_TYPE = ArrayType.v(RefType.v("java.lang.String"), 1);
+
+		/**
 		 * The names of the classes which can contribute entry points.
 		 */
 		protected Collection theClassNames;
@@ -147,12 +147,12 @@ public class SootBasedDriver {
 		 * Creates a new RootMethodTrapper object.
 		 */
 		protected RootMethodTrapper() {
-			final String _theRootClasses = System.getProperty("edu.ksu.cis.indus.common.SootBasedDriver.rootClasses");
+			final String _theRootClasses = System.getProperty("edu.ksu.cis.indus.common.soot.SootBasedDriver.rootClasses");
 
 			if (_theRootClasses != null) {
 				rootClasses = Pattern.compile(_theRootClasses);
 			} else {
-				rootClasses = Pattern.compile(".*");
+				rootClasses = null;
 			}
 		}
 
@@ -167,9 +167,11 @@ public class SootBasedDriver {
 		 * @pre sc != null
 		 */
 		protected final boolean considerClassForEntryPoint(final SootClass sc) {
-			boolean _result = rootClasses.matcher(sc.getName()).matches();
+			boolean _result = false;
 
-			if (!_result && theClassNames != null) {
+			if (rootClasses != null) {
+				_result = rootClasses.matcher(sc.getName()).matches();
+			} else if (theClassNames != null) {
 				_result = theClassNames.contains(sc);
 			}
 			return _result;
@@ -378,6 +380,8 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/12/28 01:32:21  venku
+   - coding convention.
    Revision 1.5  2003/12/28 01:08:04  venku
    - exposed rootMethodTrapper to children classes.
    Revision 1.4  2003/12/28 01:07:33  venku
