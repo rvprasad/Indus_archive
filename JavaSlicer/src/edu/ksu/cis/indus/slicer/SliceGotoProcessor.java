@@ -134,21 +134,8 @@ public final class SliceGotoProcessor {
 		}
 
 		// find basic blocks between slice basic blocks to include the gotos in them into the slice.
-		final Collection _bbToBeIncludedInSlice = _dag.getNodesInPathBetween(_temp);
+		final Collection _bbToBeIncludedInSlice = _dag.getNodesOnPathBetween(_temp);
 		CollectionUtils.transform(_bbToBeIncludedInSlice, IObjectDirectedGraph.OBJECT_EXTRACTOR);
-
-		// find basic blocks that are part of cycles (partially or completely) in the slice.
-		final Collection _cycles = bbg.getCycles();
-		final Iterator _k = _cycles.iterator();
-		final int _kEnd = _cycles.size();
-
-		for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-			final Collection _cycle = (Collection) _k.next();
-
-			if (CollectionUtils.containsAny(_cycle, _bbInSlice)) {
-				_bbToBeIncludedInSlice.addAll(_cycle);
-			}
-		}
 
 		// include the gotos in the found basic blocks in the slice.
 		final Iterator _j = _bbToBeIncludedInSlice.iterator();
