@@ -76,7 +76,7 @@ public abstract class AbstractUnitGraphFactory
 			if (_result == null) {
 				final Body _body = Jimple.v().newBody();
 				_body.setMethod(method);
-				_result = new UnitGraph(_body, false);
+				_result = getMethodForBody(_body);
 			}
 
 			method2UnitGraph.put(method, new WeakReference(_result));
@@ -90,6 +90,18 @@ public abstract class AbstractUnitGraphFactory
 	public final void reset() {
 		method2UnitGraph.clear();
 	}
+
+	/**
+	 * Retreives the unit graph (of a particular implementation) for the given body.
+	 *
+	 * @param body to be represented as a graph.
+	 *
+	 * @return a unit graph.
+	 *
+	 * @pre body != null
+	 * @post result != null
+	 */
+	protected abstract UnitGraph getMethodForBody(final Body body);
 
 	/**
 	 * Get the unit graph associated with the method.
@@ -106,10 +118,11 @@ public abstract class AbstractUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/31 09:30:18  venku
+   - removed unused code.
    Revision 1.3  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.2  2003/12/09 04:42:42  venku
    - unit graph factories are responsible to construct empty
      bodies for methods not BasicBlockGraphMgr.  FIXED.

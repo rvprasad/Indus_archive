@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.common.soot;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Body;
 import soot.SootMethod;
 
 import soot.toolkits.graph.TrapUnitGraph;
@@ -39,6 +40,13 @@ public final class TrapUnitGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(TrapUnitGraphFactory.class);
 
 	/**
+	 * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getMethodForBody(soot.Body)
+	 */
+	protected UnitGraph getMethodForBody(final Body body) {
+		return new TrapUnitGraph(body);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
@@ -58,9 +66,10 @@ public final class TrapUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/31 10:01:05  venku
+   - coding convention.
    Revision 1.6  2003/12/31 09:52:30  venku
    - clover directives.
-
    Revision 1.5  2003/12/31 09:21:32  venku
    - logging level.
    Revision 1.4  2003/12/15 02:07:08  venku

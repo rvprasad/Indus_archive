@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.common.soot;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Body;
 import soot.SootMethod;
 
 import soot.toolkits.graph.CompleteUnitGraph;
@@ -51,11 +52,21 @@ public final class CompleteUnitGraphFactory
 		}
 		return _result;
 	}
+
+    /**
+     * @see edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory#getMethodForBody(soot.Body)
+     */
+    protected UnitGraph getMethodForBody(final Body body) {
+            return new CompleteUnitGraph(body);
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/31 09:21:32  venku
+   - logging level.
+
    Revision 1.4  2003/12/15 02:07:08  venku
    - logging.
 
