@@ -64,24 +64,6 @@ public interface IMonitorInfo
 	Collection getEnclosedStmts(final Triple monitorTriple, final boolean transitive);
 
 	/**
-	 * Retrieves the monitor triples for monitors enclosing in the given statement in the given method. Only the monitors
-	 * occurring in the method in which the statement occurs are returned.
-	 *
-	 * @param stmt obviously.
-	 * @param method in which the monitor occurs.
-	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
-	 *
-	 * @return a collection of triples
-	 *
-	 * @pre stmt != null and method != null
-	 * @post result != null and result.oclIsKindOf(Collection(Triple))
-	 * @post result->forall(o | o.getFirst() != null implies o.getFirst().oclIsKindOf(EnterMonitorStmt))
-	 * @post result->forall(o | o.getSecond() != null implies o.getSecond().oclIsKindOf(ExitMonitorStmt))
-	 * @post result->forall(o | o.getThird() != null and o.getThird().oclIsKindOf(SootMethod))
-	 */
-	Collection getEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive);
-
-	/**
 	 * Retrieves the monitor statements enclosing in the given statement in the given method. Only the monitors occurring in
 	 * the method in which the statement occurs are returned.
 	 *
@@ -104,17 +86,36 @@ public interface IMonitorInfo
 	 * @param stmt obviously.
 	 * @param method in which the monitor occurs.
 	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
-	 * @param callgraph to be used.
 	 *
 	 * @return a collection of triples
 	 *
 	 * @pre stmt != null and method != null
-	 * @pre callgraph != null
-	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Triple(EnterMonitorStmt, ExitMonitorStmt, SootMethod)))
-	 * @post (not transitive) implies result.size() = 1 
+	 * @post result != null and result.oclIsKindOf(Collection(Triple))
+	 * @post result->forall(o | o.getFirst() != null implies o.getFirst().oclIsKindOf(EnterMonitorStmt))
+	 * @post result->forall(o | o.getSecond() != null implies o.getSecond().oclIsKindOf(ExitMonitorStmt))
+	 * @post result->forall(o | o.getThird() != null and o.getThird().oclIsKindOf(SootMethod))
 	 */
-	Map getInterProcedurallyEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive,
-		final ICallGraphInfo callgraph);
+	Collection getEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive);
+
+	/**
+	 * Retrieves the statements enclosed by the given monitor triple.
+	 *
+	 * @param monitorTriple describes the monitor of interest.
+	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
+	 * @param callgraphInfo to be used.
+	 *
+	 * @return a map from a method to the statements of that method that are enclosed by the given monitor.
+	 *
+	 * @pre monitorTriple != null and monitorTriple.getThird() != null
+	 * @pre monitorTriple.getFirst.oclIsKindOf(EnterMonitorStmt)
+	 * @pre monitorTriple.getSecond().oclIsKindOf(ExitMonitorStmt)
+	 * @pre monitorTriple.getThird().oclIsKindOf(SootMethod)
+	 * @pre callgraphInfo != null
+	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
+	 * @post (not transitive) implies result.size() = 1
+	 */
+	Map getInterProcedurallyEnclosedStmts(final Triple monitorTriple, final boolean transitive,
+		final ICallGraphInfo callgraphInfo);
 
 	/**
 	 * Retrieves the monitor statements enclosing in the given statement in the given method. Only the monitors occurring in
@@ -129,30 +130,31 @@ public interface IMonitorInfo
 	 *
 	 * @pre stmt != null and method != null
 	 * @pre callgraph != null
-	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Triple(EnterMonitorStmt, ExitMonitorStmt, SootMethod)))
+	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Triple(EnterMonitorStmt, ExitMonitorStmt,
+	 * 		 SootMethod)))
 	 * @post (not transitive) implies result.size() = 1
 	 */
 	Map getInterProcedurallyEnclosingMonitorStmts(final Stmt stmt, final SootMethod method, final boolean transitive,
 		final ICallGraphInfo callgraph);
 
 	/**
-	 * Retrieves the statements enclosed by the given monitor triple.
+	 * Retrieves the monitor triples for monitors enclosing in the given statement in the given method. Only the monitors
+	 * occurring in the method in which the statement occurs are returned.
 	 *
-	 * @param monitorTriple describes the monitor of interest.
+	 * @param stmt obviously.
+	 * @param method in which the monitor occurs.
 	 * @param transitive <code>true</code> indicates transitive closure is required; <code>false</code>, otherwise.
 	 * @param callgraph to be used.
 	 *
-	 * @return a map from a method to the statements of that method that are enclosed by the given monitor. 
+	 * @return a collection of triples
 	 *
-	 * @pre monitorTriple != null and monitorTriple.getThird() != null
-	 * @pre monitorTriple.getFirst.oclIsKindOf(EnterMonitorStmt)
-	 * @pre monitorTriple.getSecond().oclIsKindOf(ExitMonitorStmt)
-	 * @pre monitorTriple.getThird().oclIsKindOf(SootMethod)
+	 * @pre stmt != null and method != null
 	 * @pre callgraph != null
-	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
+	 * @post result != null and result.oclIsKindOf(Map(SootMethod, Collection(Triple(EnterMonitorStmt, ExitMonitorStmt,
+	 * 		 SootMethod)))
 	 * @post (not transitive) implies result.size() = 1
 	 */
-	Map getInterProcedurallyEnclosedStmts(final Triple monitorTriple, final boolean transitive,
+	Map getInterProcedurallyEnclosingMonitorTriples(final Stmt stmt, final SootMethod method, final boolean transitive,
 		final ICallGraphInfo callgraph);
 
 	/**
@@ -182,9 +184,6 @@ public interface IMonitorInfo
 	 * @post result->forall(o | o.getThird() ! = null)
 	 */
 	Collection getMonitorTriples();
-	
-	/**
-	Collection getUnenclosedStmtsOf(final SootMethod method);
 
 	/**
 	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
@@ -235,13 +234,14 @@ public interface IMonitorInfo
 	 * @post monitor.getFirst() = null implies resutl.isEmpty()
 	 */
 	Collection getStmtsOfMonitor(final Triple monitor);
-	
+
 	/**
-	 * 
 	 * Retreives the statements of the given method not enclosed by a monitor in that method.
-	 * 
+	 *
 	 * @param method of interest.
+	 *
 	 * @return the collection of statements.
+	 *
 	 * @pre method != null
 	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
 	 */
@@ -251,6 +251,11 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/07/27 07:08:14  venku
+   - revamped IMonitorInfo interface.
+   - ripple effect in MonitorAnalysis, SafeLockAnalysis, and SychronizationDA.
+   - deleted WaitNotifyAnalysis
+   - ripple effect in EquivalenceClassBasedEscapeAnalysis.
    Revision 1.10  2004/07/25 10:44:53  venku
    - documentation.
    - coding conventions.
