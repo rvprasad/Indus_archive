@@ -91,7 +91,7 @@ public final class Constants {
 	/** 
 	 * This contains the constants.
 	 */
-	private static Properties configuration = new Properties();
+	private static final Properties configuration = new Properties();
 
 	static {
 		final String _propFileName = System.getProperty(CONSTANTS_CONFIGURATION_FILE_PROPERTY);
