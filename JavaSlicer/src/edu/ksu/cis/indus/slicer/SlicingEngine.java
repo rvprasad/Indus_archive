@@ -574,13 +574,6 @@ public final class SlicingEngine {
 				stmtToBeIncluded = (Stmt) _o;
 				methodToBeIncluded = method;
 			}
-
-			/*
-			   if (!markedAsRequired(methodToBeIncluded)) {
-			       invoked.remove(methodToBeIncluded);
-			       required.add(methodToBeIncluded);
-			   }
-			 */
 			generateSliceStmtCriterion(stmtToBeIncluded, methodToBeIncluded, true);
 		}
 	}
@@ -955,7 +948,7 @@ public final class SlicingEngine {
 
 						if (_sc1 == _sc2 || (_sc1.hasSuperclass() && _sc1.getSuperclass() == _sc2)) {
 							generateSliceStmtCriterion(_stmt, callee, true);
-                            break;
+							break;
 						}
 					}
 				}
@@ -1032,7 +1025,7 @@ public final class SlicingEngine {
 		}
 
 		// collect the expresssion
-		collect(_vBox, _method);
+		collector.collect(_vBox);
 
 		// include any sub expressions and generate criteria from them
 		transformAndGenerateCriteriaForVBoxes(_value.getUseBoxes(), _stmt, _method);
@@ -1073,7 +1066,7 @@ public final class SlicingEngine {
 		}
 
 		// collect the statement
-		collect(stmt, method);
+		collector.collect(stmt);
 
 		// transform the statement
 		if (considerExecution) {
@@ -1096,6 +1089,8 @@ public final class SlicingEngine {
 		generateNewCriteriaForTheCallToEnclosingMethod(method);
 		generateNewCriteria(stmt, method, controlDAs);
 
+		collector.collect(method);
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
 		}
@@ -1105,6 +1100,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/12/05 15:33:35  venku
+   - more logging and logic to handle inter procedural slicing.
+     Getting there.
    Revision 1.26  2003/12/04 12:10:12  venku
    - changes that take a stab at interprocedural slicing.
    Revision 1.25  2003/12/02 09:42:17  venku
