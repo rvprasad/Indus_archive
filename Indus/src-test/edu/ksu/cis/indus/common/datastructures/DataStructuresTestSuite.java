@@ -64,6 +64,13 @@ public final class DataStructuresTestSuite {
 
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(FastUnionFindElementTest.class);
+		_suite.addTestSuite(LIFOWorkBagTest.class);
+		_suite.addTestSuite(FIFOWorkBagTest.class);
+		_suite.addTestSuite(PoolAwareWorkBagTest.class);
+		_suite.addTestSuite(PairTest.class);
+		_suite.addTestSuite(TripleTest.class);
+		_suite.addTestSuite(QuadrapleTest.class);
+        _suite.addTestSuite(MarkerTest.class);
 		//$JUnit-END$
 		return _suite;
 	}
@@ -72,7 +79,8 @@ public final class DataStructuresTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/13 23:26:32  venku
+   - documentation.
    Revision 1.1  2004/01/06 15:06:23  venku
    - started to add test case for data structures.
-
  */

@@ -67,9 +67,9 @@ public final class FastUnionFindElementTest
 
 		try {
 			f1.setType(_object);
-			// CLOVER: OFF
+			///CLOVER:OFF
 			fail("This is incorrect.");
-			// CLOVER: ON
+			///CLOVER:ON
 		} catch (IllegalStateException _e) {
 			_e.printStackTrace();
 		}
@@ -177,6 +177,10 @@ public final class FastUnionFindElementTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/27 16:27:16  venku
+   - added setType() and addChild() methods.
+   - added test logic to test the class.
+
    Revision 1.2  2004/01/25 09:05:57  venku
    - coding convention.
    Revision 1.1  2004/01/06 15:06:23  venku
