@@ -89,7 +89,7 @@ public abstract class AbstractDependencyAnalysis
 	 * {@inheritDoc} This implementation indicates the analysis is <code>BI_DIRECTIONAL</code>.
 	 */
 	public Object getDirection() {
-		return BI_DIRECTIONAL;
+		return BACKWARD_DIRECTION;
 	}
 
 	/**
@@ -107,6 +107,10 @@ public abstract class AbstractDependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/11 14:17:39  venku
+   - added a new interface for identification purposes (IIdentification)
+   - all classes that have an id implement this interface.
+
    Revision 1.3  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
