@@ -168,7 +168,7 @@ public final class SlicerTool
 	 *
 	 * @pre inputArgs.get(SCENE) != null and inputArgs.get(SCENE).oclIsKindOf(Scene)
 	 * @pre inputArgs.get(CRITERIA_SPECIFICATION).oclIsKindOf(String)
-	 * @pre inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.AbstractSliceCriterion))
+	 * @pre inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.ISliceCriterion))
 	 * @pre inputArgs.get(ROOT_METHODS) != null and inputArgs.get(ROOT_METHODS).oclIsKindOf(Collection(SootMethod))
 	 * @pre inputArgs.get(CONFIGURATION_SPECIFICATION).oclIsKindOf(String)
 	 * @pre inputArgs.get(ID_OF_CONFIGURATION_TO_USE).oclIsKindOf(String)
