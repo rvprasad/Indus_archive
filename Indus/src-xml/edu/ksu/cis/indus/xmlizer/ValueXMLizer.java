@@ -675,8 +675,7 @@ public class ValueXMLizer
 	private void writeField(SootField field) {
 		try {
 			incrementTabs();
-			out.write(tabs + "<field id=\"" + idGenerator.getIdForField(field) + "\" signature=\"" + field.getSubSignature()
-				+ "\"/>\n");
+			out.write(tabs + "<field id=\"" + idGenerator.getIdForField(field) + "\"/>\n");
 			decrementTabs();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -696,6 +695,7 @@ public class ValueXMLizer
 			SootMethod method = v.getMethod();
 			incrementTabs();
 			out.write(tabs + "<method id=\"" + idGenerator.getIdForMethod(method) + "\"/>\n");
+			decrementTabs();
 
 			if (v instanceof InstanceInvokeExpr) {
 				writeBase(((InstanceInvokeExpr) v).getBaseBox());
@@ -709,7 +709,6 @@ public class ValueXMLizer
 				}
 				out.write(tabs + "\t</arguments>\n");
 			}
-			decrementTabs();
 			out.write(tabs + "</invoke_expr>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -738,9 +737,10 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/24 06:45:23  venku
+   - corrected xml encoding errors along with tag name emission errors.
    Revision 1.5  2003/11/24 06:28:04  venku
    - static invoke expr is also routed through writeInvokeExpr().
-
    Revision 1.4  2003/11/24 01:20:27  venku
    - enhanced output formatting.
    Revision 1.3  2003/11/17 15:57:03  venku

@@ -21,8 +21,12 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Trap;
+import soot.Type;
 
 import soot.jimple.Stmt;
+
+import soot.util.Chain;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -68,6 +72,13 @@ public class JimpleXMLizer
 	 * </p>
 	 */
 	private final StmtXMLizer stmtXmlizer;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private String currType;
 
 	/**
 	 * <p>
@@ -165,17 +176,74 @@ public class JimpleXMLizer
 				processingMethod = true;
 			}
 
-			xmlizedSystem.write("\t\t<method signature=\""
-				+ method.getSubSignature().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;") + "\" id=\""
-				+ idGenerator.getIdForMethod(method) + "\">\n");
+			xmlizedSystem.write("\t\t<method name=\"" + method.getName().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;")
+				+ "\" id=\"" + idGenerator.getIdForMethod(method) + "\">\n");
+
+			// capture info about modifiers
+			if (method.isAbstract()) {
+				xmlizedSystem.write("\t\t\t<abstract/>\n");
+			}
+
+			if (method.isNative()) {
+				xmlizedSystem.write("\t\t\t<native/>\n");
+			}
+
+			if (method.isStatic()) {
+				xmlizedSystem.write("\t\t\t<static/>\n");
+			}
+
+			if (method.isSynchronized()) {
+				xmlizedSystem.write("\t\t\t<synchronized/>\n");
+			}
+
+			if (method.isPublic()) {
+				xmlizedSystem.write("\t\t\t<public/>\n");
+			} else if (method.isPrivate()) {
+				xmlizedSystem.write("\t\t\t<private/>\n");
+			} else if (method.isProtected()) {
+				xmlizedSystem.write("\t\t\t<protected/>\n");
+			} else {
+				xmlizedSystem.write("\t\t\t<package_private/>\n");
+			}
+
+			// capture info about signature
+			xmlizedSystem.write("\t\t\t<signature>\n");
+			xmlizedSystem.write("\t\t\t\t<returnType typeId=\"" + idGenerator.getIdForType(method.getReturnType()) + "\"/>\n");
+
+			if (method.getParameterCount() > 0) {
+				int j = 0;
+
+				for (Iterator i = method.getParameterTypes().iterator(); i.hasNext();) {
+					xmlizedSystem.write("\t\t\t\t<paramType typeId=\"" + idGenerator.getIdForType((Type) i.next())
+						+ "\" position=\"" + j++ + "\"/>\n");
+				}
+			}
+			xmlizedSystem.write("\t\t\t</signature>\n");
 
 			if (method.isConcrete()) {
 				Body body = method.retrieveActiveBody();
 
+				Chain traps = body.getTraps();
+
+				// capture info about traps
+				if (!traps.isEmpty()) {
+					xmlizedSystem.write("\t\t\t<traplist>\n");
+
+					for (Iterator i = traps.iterator(); i.hasNext();) {
+						Trap trap = (Trap) i.next();
+						xmlizedSystem.write("\t\t\t\t<trap typeId=\"" + idGenerator.getIdForClass(trap.getException())
+							+ "\" beginId=\"" + idGenerator.getIdForStmt((Stmt) trap.getBeginUnit(), method) + "\" endId=\""
+							+ idGenerator.getIdForStmt((Stmt) trap.getEndUnit(), method) + "\" handlerId=\""
+							+ idGenerator.getIdForStmt((Stmt) trap.getHandlerUnit(), method) + "\"/>\n");
+					}
+					xmlizedSystem.write("\t\t\t</traplist>\n");
+				}
+
+				// capture info about locals
 				for (Iterator i = body.getLocals().iterator(); i.hasNext();) {
 					Local l = (Local) i.next();
 					xmlizedSystem.write("\t\t\t<local id=\"" + idGenerator.getIdForLocal(l, method) + "\" name=\""
-						+ l.getName() + "\" type=\"" + l.getType() + "\"/>\n");
+						+ l.getName() + "\" typeId=\"" + idGenerator.getIdForType(l.getType()) + "\"/>\n");
 				}
 			}
 		} catch (IOException e) {
@@ -197,12 +265,47 @@ public class JimpleXMLizer
 			}
 
 			if (processingClass) {
-				xmlizedSystem.write("\t</class>\n");
+				xmlizedSystem.write("\t</" + currType + ">\n");
 			} else {
 				processingClass = true;
 			}
-			xmlizedSystem.write("\t<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz)
-				+ "\">\n");
+
+			if (clazz.isInterface()) {
+				currType = "interface";
+			} else {
+				currType = "class";
+			}
+			xmlizedSystem.write("\t<" + currType + " name=\"" + clazz.getName() + "\" id=\""
+				+ idGenerator.getIdForClass(clazz) + "\" package=\"" + clazz.getJavaPackageName() +"\">\n");
+            
+			if (clazz.isAbstract()) {
+				xmlizedSystem.write("\t\t<abstract/>\n");
+			}
+
+			if (clazz.isPublic()) {
+				xmlizedSystem.write("\t\t<public/>\n");
+			} else if (clazz.isPrivate()) {
+				xmlizedSystem.write("\t\t<private/>\n");
+			} else if (clazz.isProtected()) {
+				xmlizedSystem.write("\t\t<protected/>\n");
+			} else {
+				xmlizedSystem.write("\t\t<package_private/>\n");
+			}
+
+			if (clazz.hasSuperclass()) {
+				xmlizedSystem.write("\t\t<superclass typeId=\"" + idGenerator.getIdForClass(clazz.getSuperclass()) + "\"/>\n");
+			}
+
+			if (clazz.getInterfaceCount() > 0) {
+				xmlizedSystem.write("\t\t<interfaceList>\n");
+
+				for (Iterator i = clazz.getInterfaces().iterator(); i.hasNext();) {
+					SootClass inter = (SootClass) i.next();
+					xmlizedSystem.write("\t\t<interface typeId=\"" + idGenerator.getIdForClass(inter) + "\"/>\n");
+				}
+				xmlizedSystem.write("\t\t</interfaceList>\n");
+			}
+
 			processingMethod = false;
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -216,8 +319,8 @@ public class JimpleXMLizer
 	 */
 	public final void callback(SootField field) {
 		try {
-			xmlizedSystem.write("\t\t<field signature=\"" + field.getSubSignature() + "\" id=\""
-				+ idGenerator.getIdForField(field) + "\"/>\n");
+			xmlizedSystem.write("\t\t<field name=\"" + field.getName() + "\" id=\"" + idGenerator.getIdForField(field)
+				+ "\" typeId=\"" + idGenerator.getIdForType(field.getType()) + "\"/>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", e);
@@ -235,7 +338,7 @@ public class JimpleXMLizer
 			}
 
 			if (processingClass) {
-				xmlizedSystem.write("\t</class>\n");
+				xmlizedSystem.write("\t</" + currType + ">\n");
 			}
 			xmlizedSystem.write("</jimple>\n");
 		} catch (IOException e) {
@@ -280,6 +383,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/11/25 19:10:08  venku
+   - added type attribute to local variables.
    Revision 1.16  2003/11/24 06:45:23  venku
    - corrected xml encoding errors along with tag name emission errors.
    Revision 1.15  2003/11/24 06:27:54  venku
