@@ -357,7 +357,13 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = src/edu/ksu/cis/indus
+INPUT                  = src/ \
+                         ../StaticAnalyses/src/ \
+                         ../StaticAnalyses/src-flow/ \
+                         ../StaticAnalyses/src-concurrency/ \
+                         ../StaticAnalyses/src-dependence/ \
+                         ../StaticAnalyses/src-test/ \
+                         ../JavaSlicer/src/
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 

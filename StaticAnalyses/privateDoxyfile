@@ -360,7 +360,8 @@ WARN_LOGFILE           =
 INPUT                  = src \
                          src-dependence \
                          src-flow \
-                         src-escape
+                         src-concurrency \
+                         src-test
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
