@@ -1,21 +1,31 @@
 package edu.ksu.cis.bandera.bfa.analysis.ofa;
 
-import edu.ksu.cis.bandera.bfa.Context;
-import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.AbstractFGNode;
-import edu.ksu.cis.bandera.bfa.MethodVariant;
-import edu.ksu.cis.bandera.bfa.MethodVariantManager;
-import edu.ksu.cis.bandera.bfa.BFA;
+
+
+
 
 import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
+import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootMethod;
+import ca.mcgill.sable.soot.jimple.Jimple;
+import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.soot.jimple.NonStaticInvokeExpr;
 import ca.mcgill.sable.soot.jimple.SpecialInvokeExpr;
 import ca.mcgill.sable.soot.jimple.Value;
-
+import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
+import ca.mcgill.sable.util.VectorList;
+import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
+import edu.ksu.cis.bandera.bfa.FGNode;
+import edu.ksu.cis.bandera.bfa.BFA;
+import edu.ksu.cis.bandera.bfa.Context;
+import edu.ksu.cis.bandera.bfa.MethodVariant;
+import edu.ksu.cis.bandera.bfa.MethodVariantManager;
+import edu.ksu.cis.bandera.bfa.Util;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -30,10 +40,20 @@ import org.apache.log4j.Logger;
 
 public class InvokeExprWork extends AbstractAccessExprWork {
 
-	private static final Logger logger = Logger.getLogger(InvokeExprWork.class.getName());
+	private static final Logger logger = LogManager.getLogger(InvokeExprWork.class.getName());
 
-	public InvokeExprWork (MethodVariant caller, Value accessExpr, Context context) {
+	protected Collection knownCallChains;
+
+	protected AbstractExprSwitch exprSwitch;
+
+	protected static final Jimple jimple = Jimple.v();
+
+	public InvokeExprWork (MethodVariant caller, NonStaticInvokeExpr accessExpr, Context context,
+						   AbstractExprSwitch exprSwitch) {
 		super(caller, accessExpr, context);
+		this.exprSwitch = exprSwitch;
+		knownCallChains = new ArrayList(1);
+		knownCallChains.add(new NativeMethodCall("java.lang.Thread", "start", "run"));
 	}
 
 	public void execute() {
@@ -41,6 +61,7 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 		SootMethod sm = e.getMethod();
 		BFA bfa = caller.bfa;
 		SootClass sc;
+		SootClassManager scm = bfa.getSootClassManager();
 
 		logger.debug("Expr:" + accessExpr + "   Values:" + values + "   Method:" + sm);
 
@@ -57,28 +78,56 @@ public class InvokeExprWork extends AbstractAccessExprWork {
 			 MethodVariant mv = bfa.getMethodVariant(sm, context);
 
 			 if (!installedVariants.contains(mv)) {
-				 AbstractFGNode param, arg;
+				 FGNode param, arg;
 
 				 for (int j = 0; j < sm.getParameterCount(); j++) {
 					 param = mv.getParameterNode(j);
-					 arg = caller.getASTNode(e.getArg(j));
+					 arg = caller.getASTNode(e.getArg(j), context);
 					 arg.addSucc(param);
 				 } // end of for (int i = 0; i < sm.getArgCount(); i++)
 
 				 param = mv.getThisNode();
-				 arg = caller.getASTNode(e.getBase());
+				 arg = caller.getASTNode(e.getBase(), context);
 				 arg.addSucc(param);
 
 				 if (AbstractExprSwitch.isNonVoid(sm)) {
 					 arg = mv.getReturnNode();
-					 param = caller.getASTNode(e);
+					 param = caller.getASTNode(e, context);
 					 arg.addSucc(param);
 				 } // end of if (isNonVoid(sm))
 
 				 installedVariants.add(mv);
 			 } // end of if (!installedVariants.contains(mv))
 
-		} // end of for (Iterator i = values.iterator(); i.hasNext();)
+			 for (Iterator j = knownCallChains.iterator(); j.hasNext();) {
+				 NativeMethodCall temp = (NativeMethodCall)j.next();
+				 if (Util.isAncestorOf(sm.getDeclaringClass(), temp.declClassName) &&
+					 sm.getName().equals(temp.nativeMethodName)) {
+					  SootClass runClass =
+						  Util.getDeclaringClass(scm.getClass(e.getBase().getType().toString()), temp.calledJavaMethodName);
+					  VirtualInvokeExpr v1 = jimple.newVirtualInvokeExpr((Local)e.getBase(),
+																		 runClass.getMethod(temp.calledJavaMethodName),
+																		 new VectorList());
+					  exprSwitch.caseVirtualInvokeExpr(v1);
+					  logger.debug("Plugging a call to run method of class" + e.getBase().getType().toString() + ".");
+				 } // end of for (Iterator j = values.iterator(); j.hasNext();)
+			 } // end of if
+		} // end of for (Iterator i = knownCallChains.iterator(); i.hasNext();)
+	}
+
+	protected class NativeMethodCall {
+
+		String declClassName;
+
+		String nativeMethodName;
+
+		String calledJavaMethodName;
+
+		public NativeMethodCall(String declClassName, String nativeMethodName, String calledJavaMethodName) {
+			this.declClassName = declClassName;
+			this.nativeMethodName = nativeMethodName;
+			this.calledJavaMethodName = calledJavaMethodName;
+		}
 	}
 
 }// InvokeExprWork

@@ -33,7 +33,7 @@ public abstract class AbstractAccessExprWork extends AbstractWork {
 	protected final Set installedVariants = new HashSet();
 
 	protected AbstractAccessExprWork (MethodVariant caller, Value accessExpr, Context context) {
-		this(null, new ArrayList(), caller, accessExpr, context);
+		this(null, new ArrayList(), caller, accessExpr, (Context)context.clone());
 	}
 
 	protected AbstractAccessExprWork (AbstractFGNode node, Collection values, MethodVariant caller,
@@ -41,7 +41,7 @@ public abstract class AbstractAccessExprWork extends AbstractWork {
 		super(node, values);
 		this.accessExpr = accessExpr;
 		this.caller = caller;
-		this.context = context;
+		this.context = (Context)context.clone();
 	}
 
 }// AbstractAccessExprWork

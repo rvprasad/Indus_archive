@@ -80,6 +80,7 @@ public class StmtSwitch extends AbstractStmtSwitch {
 
 	public void caseReturnStmt(ReturnStmt stmt) {
 		rexpr.process(stmt.getReturnValueBox());
+		((AbstractFGNode)rexpr.getResult()).addSucc(method.getReturnNode());
 	}
 
 	public void caseTableSwitchStmt(TableSwitchStmt stmt) {

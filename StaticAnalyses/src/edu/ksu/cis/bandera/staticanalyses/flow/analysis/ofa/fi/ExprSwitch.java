@@ -27,14 +27,18 @@ import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 import ca.mcgill.sable.soot.jimple.VirtualInvokeExpr;
 import edu.ksu.cis.bandera.bfa.AbstractExprSwitch;
-import edu.ksu.cis.bandera.bfa.AbstractFGNode;
+import edu.ksu.cis.bandera.bfa.FGNode;
 import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
 import edu.ksu.cis.bandera.bfa.AbstractValuedVariant;
 import edu.ksu.cis.bandera.bfa.AbstractWork;
 import edu.ksu.cis.bandera.bfa.ArrayVariant;
+import edu.ksu.cis.bandera.bfa.Context;
 import edu.ksu.cis.bandera.bfa.FGNodeConnector;
+import edu.ksu.cis.bandera.bfa.FieldVariant;
 import edu.ksu.cis.bandera.bfa.MethodVariant;
+import edu.ksu.cis.bandera.bfa.analysis.ofa.ArrayAccessExprWork;
 import edu.ksu.cis.bandera.bfa.analysis.ofa.FGAccessNode;
+import edu.ksu.cis.bandera.bfa.analysis.ofa.FieldAccessExprWork;
 import edu.ksu.cis.bandera.bfa.analysis.ofa.InvokeExprWork;
 import edu.ksu.cis.bandera.jext.ChooseExpr;
 import edu.ksu.cis.bandera.jext.ComplementExpr;
@@ -42,8 +46,10 @@ import edu.ksu.cis.bandera.jext.InExpr;
 import edu.ksu.cis.bandera.jext.LocalExpr;
 import edu.ksu.cis.bandera.jext.LogicalAndExpr;
 import edu.ksu.cis.bandera.jext.LogicalOrExpr;
+import java.util.Collection;
+import java.util.Iterator;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import edu.ksu.cis.bandera.bfa.Context;
 
 /**
  * ExprSwitch.java
@@ -57,17 +63,23 @@ import edu.ksu.cis.bandera.bfa.Context;
 
 public class ExprSwitch extends AbstractExprSwitch {
 
-	private static final Logger logger = Logger.getLogger(ExprSwitch.class.getName());
+	private static final Logger logger = LogManager.getLogger(ExprSwitch.class);
 
 	public ExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
 		super(stmt, connector);
 	}
 
 	public void caseArrayRef(ArrayRef e) {
-		AbstractFGNode ast = method.getASTNode(e);
-		AbstractFGNode nonast = bfa.getArrayVariant((ArrayType)e.getBase().getType(), context).getFGNode();
-		connector.connect(ast, nonast);
         process(e.getBaseBox());
+		logger.debug(e.getBaseBox());
+		FGNode baseNode = (FGNode)getResult();
+		FGNode ast = method.getASTNode(e);
+		AbstractWork work = new ArrayAccessExprWork(method, e, context, ast, connector);
+		FGAccessNode temp = new FGAccessNode(work, getWorkList());
+		baseNode.addSucc(temp);
+		work.setFGNode(temp);
+		logger.debug("Temp node  " + temp);
+
 		process(e.getIndexBox());
 		setResult(ast);
 	}
@@ -91,7 +103,13 @@ public class ExprSwitch extends AbstractExprSwitch {
 
 	public void caseInstanceFieldRef(InstanceFieldRef e) {
 		process(e.getBaseBox());
-		processField(e);
+		FGNode baseNode = (FGNode)getResult();
+		FGNode ast = method.getASTNode(e);
+		AbstractWork work = new FieldAccessExprWork(method, e, context, ast, connector);
+		FGAccessNode temp = new FGAccessNode(work, getWorkList());
+		baseNode.addSucc(temp);
+		work.setFGNode(temp);
+		setResult(ast);
 	}
 
 	public void caseInstanceOfExpr(InstanceOfExpr e) {
@@ -104,6 +122,7 @@ public class ExprSwitch extends AbstractExprSwitch {
 
 	public void caseLocal(Local e) {
 		setResult(method.getASTNode(e));
+		logger.debug("Local " + e + " - " + getResult() + "\n" + context);
 	}
 
 	public void caseLocalExpr(LocalExpr e) {
@@ -121,14 +140,14 @@ public class ExprSwitch extends AbstractExprSwitch {
 	}
 
 	public void caseNewExpr(NewExpr e) {
-		AbstractFGNode ast = method.getASTNode(e);
+		FGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
 	}
 
 	public void caseNewArrayExpr(NewArrayExpr e ) {
         process(e.getSizeBox());
-		AbstractFGNode ast = method.getASTNode(e);
+		FGNode ast = method.getASTNode(e);
 		bfa.getArrayVariant((ArrayType)e.getType(), context);
 		ast.addValue(e);
 		setResult(ast);
@@ -147,13 +166,13 @@ public class ExprSwitch extends AbstractExprSwitch {
 			} // end of if (sizes > 0)
 		} // end of for (int i = 0; i < e.getSizeCount(); i++)
 
-		AbstractFGNode ast = method.getASTNode(e);
+		FGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
 	}
 
 	public void caseNullConstant(NullConstant e) {
-		AbstractFGNode ast = method.getASTNode(e);
+		FGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
 	}
@@ -167,21 +186,25 @@ public class ExprSwitch extends AbstractExprSwitch {
 	}
 
 	public void caseStaticFieldRef(StaticFieldRef e) {
-		processField(e);
+		SootField field = e.getField();
+		FGNode ast = method.getASTNode(e);
+		FGNode nonast =  bfa.getFieldVariant(field).getFGNode();
+		connector.connect(ast, nonast);
+		setResult(ast);
 	}
 
 	public void caseStaticInvokeExpr(StaticInvokeExpr e) {
 		MethodVariant callee = bfa.getMethodVariant(e.getMethod(), context);
-		AbstractFGNode argNode;
+		FGNode argNode;
 
 		for (int i = 0; i < e.getArgCount(); i++) {
 			process(e.getArgBox(i));
-			argNode = (AbstractFGNode)getResult();
+			argNode = (FGNode)getResult();
 			argNode.addSucc(callee.getParameterNode(i));
 		}
 
 		if (isNonVoid(e.getMethod())) {
-			AbstractFGNode ast = method.getASTNode(e);
+			FGNode ast = method.getASTNode(e);
 			callee.getReturnNode().addSucc(ast);
 			setResult(ast);
 		} else {
@@ -190,7 +213,7 @@ public class ExprSwitch extends AbstractExprSwitch {
 	}
 
 	public void caseStringConstant(StringConstant e) {
-		AbstractFGNode ast = method.getASTNode(e);
+		FGNode ast = method.getASTNode(e);
 		ast.addValue(e);
 		setResult(ast);
 	}
@@ -219,27 +242,17 @@ public class ExprSwitch extends AbstractExprSwitch {
 		} // end of else
 	}
 
-	protected void processField(FieldRef e) {
-		SootField field = e.getField();
-		AbstractFGNode nonast = bfa.getFieldVariant(field, context).getFGNode();
-		AbstractFGNode ast = method.getASTNode(e);
-		connector.connect(ast, nonast);
-		setResult(ast);
-	}
-
 	protected void processNonStaticInvokeExpr(NonStaticInvokeExpr e) {
 		process(e.getBaseBox());
+		FGNode temp = (FGNode)getResult();
 
-		AbstractWork work = new InvokeExprWork(method, e, (Context)context.clone());
+		AbstractWork work = new InvokeExprWork(method, e, (Context)context.clone(), this);
 		FGAccessNode baseNode = new FGAccessNode(work, getWorkList());
-		((AbstractFGNode)getResult()).addSucc(baseNode);
 		work.setFGNode(baseNode);
-		((AbstractValuedVariant)method.getASTVariant(e)).setFGNode(baseNode);
+		temp.addSucc(baseNode);
 
-		AbstractFGNode[] argNodes = new AbstractFGNode[e.getArgCount()];
 		for (int i = 0; i < e.getArgCount(); i++) {
 			process(e.getArgBox(i));
-			argNodes[i] = (AbstractFGNode)getResult();
 		} // end of for (int i = 0; i < e.getArgCount(); i++)
 
 		if (isNonVoid(e.getMethod())) {

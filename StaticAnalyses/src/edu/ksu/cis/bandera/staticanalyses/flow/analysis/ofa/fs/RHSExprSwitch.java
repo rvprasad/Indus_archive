@@ -1,18 +1,14 @@
 package edu.ksu.cis.bandera.bfa.analysis.ofa.fs;
 
-import edu.ksu.cis.bandera.bfa.AbstractFGNode;
-import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.bfa.FGNodeConnector;
-
-import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
 import ca.mcgill.sable.soot.jimple.DefinitionStmt;
 import ca.mcgill.sable.soot.jimple.Local;
-import ca.mcgill.sable.soot.jimple.SimpleLocalDefs;
-import ca.mcgill.sable.soot.jimple.StmtBody;
-import ca.mcgill.sable.soot.jimple.StmtList;
 import ca.mcgill.sable.util.Iterator;
-
-import org.apache.log4j.Category;
+import edu.ksu.cis.bandera.bfa.FGNode;
+import edu.ksu.cis.bandera.bfa.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.bfa.FGNodeConnector;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import ca.mcgill.sable.soot.jimple.ValueBox;
 
 /**
  * RHSExprSwitch.java
@@ -26,23 +22,24 @@ import org.apache.log4j.Category;
 
 public class RHSExprSwitch extends ExprSwitch {
 
-	private static final Category cat = Category.getInstance(RHSExprSwitch.class.getName());
+	private static final Logger logger = LogManager.getLogger(RHSExprSwitch.class);
 
 	public RHSExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
 		super(stmt, connector);
 	}
 
 	public void caseLocal(Local e) {
-		StmtList list = ((StmtBody)method.sm.getBody(method.bodyrep)).getStmtList();
-		SimpleLocalDefs defs = new SimpleLocalDefs(new CompleteStmtGraph(list));
-		AbstractFGNode ast = method.getASTNode(e);
-		for (Iterator i = defs.getDefsOfAt(e, stmt.getStmt()).iterator(); i.hasNext();) {
+		FGNode ast = method.getASTNode(e);
+		logger.debug("Local:" + e + "\n" + ast);
+		ValueBox temp = context.getProgramPoint();
+		for (Iterator i = method.defs.getDefsOfAt(e, stmt.getStmt()).iterator(); i.hasNext();) {
 			DefinitionStmt defStmt = (DefinitionStmt)i.next();
 			context.setProgramPoint(defStmt.getLeftOpBox());
-			AbstractFGNode defNode = method.getASTNode(defStmt.getLeftOp());
+			FGNode defNode = method.getASTNode(defStmt.getLeftOp());
+			logger.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
 			defNode.addSucc(ast);
 		} // end of for (Iterator i = defs.getDefsOfAt(e, stmt.stmt).iterator(); i.hasNext();)
-
+		context.setProgramPoint(temp);
 		setResult(ast);
 	}
 
