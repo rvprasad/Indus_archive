@@ -49,8 +49,16 @@ import soot.jimple.Stmt;
 /**
  * This class provides divergence dependency information.  This implementation refers to the technical report <a
  * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
- * with JVM Concurrency Primitives"</a>.  This implementation by default does not consider call-sites for dependency
- * calculation.
+ * with JVM Concurrency Primitives"</a>.
+ * 
+ * <p>
+ * This implementation by default does not consider call-sites for dependency calculation.
+ * </p>
+ * 
+ * <p>
+ * This implementation does not capture intraprocedural dependence within loops.  Hence, if there is a loop inside a loop,
+ * then the statements in the outer loop are not flagged as being dependent on the inner loop.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -68,6 +76,12 @@ public final class DivergenceDA
 	 * The length of the sequence is equal to the number of statements in the method.  The statement collection at a location
 	 * in this sequence corresponds to statements related via dependency to the statement at the same location in the
 	 * statement list of the method. The collection is a singleton in case of dependee information.
+	 */
+	/*
+	 * This implementation does not capture intraprocedural dependence within loops.  Hence, if there is a loop inside a loop,
+	 * then the statements in the outer loop are not flagged as being dependent on the inner loop. This can be remedied by
+	 *  - improving the precision of pre-divergence point identification.
+	 *  - using loop information in getValidSuccs() to control which successors should be considered for dependence.
 	 */
 
 	/**
@@ -322,7 +336,10 @@ public final class DivergenceDA
 			_dependents.clear();
 
 			if (!preDivPoints.contains(_leaderStmt)) {
-				for (final Iterator _i = _bb.getStmtsFrom(_leaderIndex + 1).iterator(); _i.hasNext();) {
+				final List _bbStmts = _bb.getStmtsFrom(_leaderStmt);
+				_bbStmts.remove(_leaderStmt);  // remove the leader from the list
+
+				for (final Iterator _i = _bbStmts.iterator(); _i.hasNext();) {
 					final Stmt _stmt = (Stmt) _i.next();
 					_dependents.add(_stmt);
 
@@ -336,7 +353,7 @@ public final class DivergenceDA
 				final Collection _succs = recordDepAcrossBB(method, preDivPoints, _dependees, _dependents, _bb.getSuccsOf());
 				_wb.addAllWorkNoDuplicates(_succs);
 			} else {
-			    recordDependenceInfoInBB(_dependees, method, _dependents);
+				recordDependenceInfoInBB(_dependees, method, _dependents);
 			}
 		}
 
@@ -378,7 +395,10 @@ public final class DivergenceDA
 			}
 			_dependents.clear();
 
-			for (final Iterator _j = _bb.getStmtsFrom(_sl.indexOf(_divPoint) + 1).iterator(); _j.hasNext();) {
+			final List _bbStmts = _bb.getStmtsFrom(_divPoint);
+			_bbStmts.remove(_divPoint);  // remove the pre-divergence point from the list
+
+			for (final Iterator _j = _bbStmts.iterator(); _j.hasNext();) {
 				final Stmt _stmt = (Stmt) _j.next();
 				_dependents.add(_stmt);
 
@@ -562,6 +582,9 @@ public final class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/07/04 11:58:12  venku
+   - renamed getStmtFrom() to getStmtsFrom().
+   - fixed Divergence Dependence.
    Revision 1.33  2004/05/31 21:38:08  venku
    - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
    - ripple effect.
