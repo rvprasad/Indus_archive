@@ -49,9 +49,9 @@ public final class BackwardDirectionSensitiveInfo
 	/**
 	 * {@inheritDoc}  This provides information for backward direciton.
 	 */
-	public List getIntraBBDependents(final BasicBlock bb, final Stmt divPoint) {
-		final List _stmtsFrom = bb.getStmtsFrom(divPoint);
-		_stmtsFrom.remove(divPoint);
+	public List getIntraBBDependents(final BasicBlock bb, final Stmt stmt) {
+		final List _stmtsFrom = bb.getStmtsFrom(stmt);
+		_stmtsFrom.remove(stmt);
 		return _stmtsFrom;
 	}
 }

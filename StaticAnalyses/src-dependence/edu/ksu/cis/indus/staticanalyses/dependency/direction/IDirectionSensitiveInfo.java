@@ -56,17 +56,17 @@ public interface IDirectionSensitiveInfo {
 	Collection getFollowersOfBB(BasicBlock bb);
 
 	/**
-	 * Retrieves the dependents of the given divergence point in the given basic block.
+	 * Retrieves the dependents of the given statement in the given basic block.
 	 *
-	 * @param bb is the basic block containing <code>divPoint</code>.
-	 * @param divPoint is the divergence point.
+	 * @param bb is the basic block containing <code>stmt</code>.
+	 * @param stmt is the divergence point.
 	 *
 	 * @return the collection of statements.
 	 *
-	 * @pre bb != null and divPoint != null
-	 * @pre bb.getStmtsOf().contains(divPoint)
+	 * @pre bb != null and stmt != null
+	 * @pre bb.getStmtsOf().contains(stmt)
 	 */
-	List getIntraBBDependents(final BasicBlock bb, final Stmt divPoint);
+	List getIntraBBDependents(final BasicBlock bb, final Stmt stmt);
 }
 
 // End of File
