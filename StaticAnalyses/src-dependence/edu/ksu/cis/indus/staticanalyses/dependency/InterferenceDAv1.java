@@ -272,7 +272,7 @@ public class InterferenceDAv1
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Interference Dependence processing");
+			LOGGER.info("BEGIN: Interference Dependence [" + this.getClass() + "] processing");
 		}
 
 		// we return immediately if there are no start sites in the system.
@@ -501,6 +501,11 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.29  2003/12/16 06:52:47  venku
    - optimization when there are no threads.
 

@@ -424,7 +424,7 @@ public class ReadyDAv1
 		stable = false;
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: Ready Dependence processing");
+			LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + " processing");
 		}
 
 		if (!threadgraph.getStartSites().isEmpty()) {
@@ -860,6 +860,11 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
+
    Revision 1.34  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
