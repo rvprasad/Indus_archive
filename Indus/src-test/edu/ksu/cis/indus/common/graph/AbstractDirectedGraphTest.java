@@ -249,6 +249,25 @@ public abstract class AbstractDirectedGraphTest
 	}
 
 	/**
+	 * Tests <code>getReachablesFrom()</code> method.
+	 */
+	public final void testgetReachablesFrom() {
+		final Collection _nodes = dg.getNodes();
+
+		for (final Iterator _i = _nodes.iterator(); _i.hasNext();) {
+			final INode _src = (INode) _i.next();
+			final Collection _fReachables = dg.getReachablesFrom(_src, true);
+			final Collection _rReachables = dg.getReachablesFrom(_src, false);
+
+			for (final Iterator _j = _nodes.iterator(); _j.hasNext();) {
+				final INode _dest = (INode) _j.next();
+				assertTrue(_fReachables.contains(_dest) == dg.isReachable(_src, _dest, true));
+				assertTrue(_rReachables.contains(_dest) == dg.isReachable(_src, _dest, false));
+			}
+		}
+	}
+
+	/**
 	 * Extracts the predecessors and successors of the given graph into the given maps.
 	 *
 	 * @param graph from which to extract information.
@@ -354,6 +373,9 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/06/14 04:55:04  venku
+   - documentation.
+   - coding conventions.
    Revision 1.11  2004/06/04 04:50:21  venku
    - check for more constraints for backedges.
    Revision 1.10  2004/02/09 00:28:33  venku

@@ -128,6 +128,21 @@ public interface IDirectedGraph {
 	boolean isReachable(final INode src, final INode dest, final boolean forward);
 
 	/**
+	 * Retrieves the nodes reachable from <code>root</code> in the requested direction.
+	 *
+	 * @param root is the node from which the reachability needs to be calculated.
+	 * @param forward <code>true</code> indicates that nodes reachable by following the edges from <code>root</code> are
+	 * 		  requirested.  <code>false</code> indicates that nodes reachables by following the edges in the reverse
+	 * 		  direction from <code>root</code> are required.
+	 *
+	 * @return the collection of reachable nodes.
+	 *
+	 * @pre root != null
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 */
+	Collection getReachablesFrom(final INode root, final boolean forward);
+
+	/**
 	 * Returns a sequence of strongly-connected components in this graph.
 	 *
 	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
@@ -177,6 +192,11 @@ public interface IDirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/22 08:15:55  venku
+   - added a new method to calculated pseudo tails.
+   - added a new method that can be used to indicate the
+     graph has changed shape, hence, marking any cached
+     data as stale.
    Revision 1.3  2004/01/20 21:23:18  venku
    - the return value of getSCCs needs to be ordered if
      it accepts a direction parameter.  FIXED.

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
@@ -294,6 +295,33 @@ public abstract class AbstractDirectedGraph
 				break;
 			}
 			_workbag.addAllWorkNoDuplicates(_node.getSuccsNodesInDirection(forward));
+		}
+		return _result;
+	}
+
+	/**
+	 * @see IDirectedGraph#getReachablesFrom(INode, boolean)
+	 */
+	public final Collection getReachablesFrom(final INode root, final boolean forward) {
+		final Collection _result = new HashSet();
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_result);
+
+		if (forward) {
+			_wb.addAllWork(root.getSuccsOf());
+		} else {
+			_wb.addAllWork(root.getPredsOf());
+		}
+
+		while (_wb.hasWork()) {
+			final INode _node = (INode) _wb.getWork();
+			final Collection _succs;
+
+			if (forward) {
+				_succs = _node.getSuccsOf();
+			} else {
+				_succs = _node.getPredsOf();
+			}
+			_wb.addAllWorkNoDuplicates(_succs);
 		}
 		return _result;
 	}
@@ -704,6 +732,8 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/07/04 04:56:27  venku
+   - made findCycles() public and static.
    Revision 1.17  2004/07/03 07:56:56  venku
    - improved the algorithm to calculate cycles.
    Revision 1.16  2004/06/04 04:49:50  venku
