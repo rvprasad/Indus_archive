@@ -21,13 +21,12 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Value;
 
 import soot.jimple.Stmt;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.Environment;
-import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.Iterator;
  * @version $Revision$ $Date$
  */
 public class JimpleXMLizer
-  implements IProcessor {
+  extends AbstractProcessor {
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -149,19 +148,10 @@ public class JimpleXMLizer
 	}
 
 	/**
-	 * This does nothing.
-	 *
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.Value, edu.ksu.cis.indus.processing.Context)
-	 */
-	public final void callback(Value value, Context context) {
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
 	public final void callback(Stmt stmt, Context context) {
+		stmtXmlizer.setMethod(context.getCurrentMethod());
 		stmtXmlizer.apply(stmt);
 	}
 
@@ -180,7 +170,6 @@ public class JimpleXMLizer
 
 			xmlizedSystem.write("<method signature=\"" + method.getSubSignature() + "\" id=\""
 				+ idGenerator.getIdForMethod(method) + "\"/>");
-			stmtXmlizer.setMethod(method);
 			idGenerator.resetStmtCounter();
 
 			if (method.isConcrete()) {
@@ -274,6 +263,8 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/10 03:04:17  venku
+   - method and class elements were closed incorrectly. FIXED.
    Revision 1.3  2003/11/10 02:42:00  venku
    - uses register/unregister for all statements.
    Revision 1.2  2003/11/07 11:14:44  venku

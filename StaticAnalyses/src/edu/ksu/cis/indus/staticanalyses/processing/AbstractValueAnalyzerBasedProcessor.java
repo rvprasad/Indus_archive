@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.processing;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 
@@ -27,6 +28,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
  * @version $Revision$
  */
 public abstract class AbstractValueAnalyzerBasedProcessor
+  extends AbstractProcessor
   implements IValueAnalyzerBasedProcessor {
 	/**
 	 * Does nothing.
@@ -40,6 +42,8 @@ public abstract class AbstractValueAnalyzerBasedProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/10 03:15:19  venku
+   - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    Revision 1.8  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
