@@ -325,7 +325,7 @@ final class TagBasedSliceXMLizer
 	 * @pre info != null
 	 * @pre info.containsKey(IStmtGraphFactory.ID) and info.containsKey(IEnvironment.ID) and info.containsKey(FILE_NAME_ID)
 	 */
-	public final void writeXML(final Map info) {
+	public void writeXML(final Map info) {
 		final ProcessingController _ctrl = new ProcessingController();
 		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
 		_ctrl.setEnvironment((IEnvironment) info.get(IEnvironment.ID));
@@ -347,7 +347,7 @@ final class TagBasedSliceXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#getFileName(java.lang.String)
 	 */
-	public String getFileName(String name) {
+	public String getFileName(final String name) {
 		return "slice_" + xmlizeString(name) + ".xml";
 	}
 }
@@ -355,6 +355,9 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/04/20 06:53:15  venku
+   - documentation.
+
    Revision 1.15  2004/04/18 08:59:00  venku
    - enabled test support for slicer.
    Revision 1.14  2003/12/13 02:29:16  venku
