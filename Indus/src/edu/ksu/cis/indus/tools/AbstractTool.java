@@ -43,6 +43,11 @@ public abstract class AbstractTool
 	 */
 	static final Log LOGGER = LogFactory.getLog(AbstractTool.class);
 
+    /** 
+     * This an object used to control the execution of the tool.
+     */
+    protected final Object control = new Object();
+    
 	/** 
 	 * This is the configuration information associated with this tool instance. Subclasses should provide a valid reference.
 	 *
@@ -151,8 +156,10 @@ public abstract class AbstractTool
 	/**
 	 * Pauses the execution of the tool.
 	 */
-	public final synchronized void pause() {
-		pause = true;
+	public final void pause() {
+        synchronized (control) {
+            pause = true;
+        }
 	}
 
 	/**
@@ -165,9 +172,11 @@ public abstract class AbstractTool
 	/**
 	 * Resumes the execution of the tool.
 	 */
-	public final synchronized void resume() {
-		pause = false;
-		notify();
+	public final void resume() {
+        synchronized (control) {
+            pause = false;
+            control.notify();
+        }
 	}
 
 	/**
@@ -320,11 +329,13 @@ public abstract class AbstractTool
 	 *
 	 * @throws InterruptedException when the thread in which the tool has paused is interrupted.
 	 */
-	protected final synchronized void movingToNextPhase()
+	protected final void movingToNextPhase()
 	  throws InterruptedException {
-		if (pause) {
-			wait();
-		}
+        synchronized (control) {
+    		if (pause) {
+    			control.wait();
+    		}
+        }
 	}
 
 	/**
