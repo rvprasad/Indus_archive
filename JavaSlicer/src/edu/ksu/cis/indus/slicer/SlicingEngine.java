@@ -20,8 +20,6 @@ import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
-import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -34,21 +32,18 @@ import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,20 +59,12 @@ import soot.Value;
 import soot.ValueBox;
 
 import soot.jimple.ArrayRef;
-import soot.jimple.AssignStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
-import soot.jimple.InvokeStmt;
-import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
-import soot.toolkits.graph.CompleteUnitGraph;
-
-import soot.toolkits.scalar.SimpleLocalDefs;
-import soot.toolkits.scalar.SimpleLocalUses;
-import soot.toolkits.scalar.UnitValueBoxPair;
 
 
 /**
@@ -125,26 +112,20 @@ public final class SlicingEngine {
 	}
 
 	/** 
-	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced.
-	 */
-	BasicBlockGraphMgr bbgMgr;
-
-	/** 
-	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
-	 *
-	 * @invariant sliceTypes.contains(sliceType)
-	 */
-	Object sliceType = BACKWARD_SLICE;
-
-	/** 
 	 * The controller used to access the dependency analysis info during slicing.
 	 */
 	private AnalysesController controller;
 
 	/** 
-	 * This is the collection of methods whose exits were transformed.
+	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced.
 	 */
-	private final Collection exitTransformedMethods = new HashSet();
+	private BasicBlockGraphMgr bbgMgr;
+
+	/** 
+	 * The closure used to extract dependence information based on slice direction.  See <code>setSliceType()</code> for
+	 * details.
+	 */
+	private final DependenceExtractor dependenceExtractor = new DependenceExtractor();
 
 	/** 
 	 * The work bag used during slicing.
@@ -169,6 +150,18 @@ public final class SlicingEngine {
 	private ICallGraphInfo cgi;
 
 	/** 
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private IDirectionSensitivePartOfSlicingEngine directionSensitiveInfo;
+
+	/** 
+	 * This maps new expressions to corresponding init call sites.
+	 */
+	private INewExpr2InitMapper initMapper;
+
+	/** 
 	 * The list of slice criteria.
 	 *
 	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
@@ -176,23 +169,23 @@ public final class SlicingEngine {
 	private List criteria = new ArrayList();
 
 	/** 
-	 * This maps methods to methods to a bitset that indicates which of the parameters of the method is required in the
-	 * slice.
+	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
 	 *
-	 * @invariant method2params.oclIsKindOf(Map(SootMethod, BitSet))
-	 * @invariant method2params->forall(o | o.getValue().size() = o.getKey().getParameterCount())
+	 * @invariant sliceTypes.contains(sliceType)
 	 */
-	private final Map method2params = new HashMap();
+	private Object sliceType = BACKWARD_SLICE;
 
 	/** 
-	 * The closure used to generate criteria based on slice direction. See <code>setSliceType()</code> for details.
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
-	private DependenceClosure criteriaClosure;
-
-	/** 
-	 * This maps new expressions to corresponding init call sites.
-	 */
-	private INewExpr2InitMapper initMapper;
+	private Predicate nonStartMethodPredicate =
+		new Predicate() {
+			public boolean evaluate(final Object object) {
+				return !Util.isStartMethod((SootMethod) object);
+			}
+		};
 
 	/** 
 	 * This collects the parts of the system that make up the slice.
@@ -202,238 +195,13 @@ public final class SlicingEngine {
 	/** 
 	 * This caches the call stack of the criteria currently being processed.
 	 */
-	private Stack callStackCache = new Stack();
+	private Stack callStackCache;
 
 	/**
 	 * Creates a new SlicingEngine object.
 	 */
 	public SlicingEngine() {
 		collector = new SliceCollector(this);
-	}
-
-	/**
-	 * This class provides implementation to retrieve criteria required for calculating backward slice.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	private static class BackwardSliceDependenceClosure
-	  implements DependenceClosure.IDependenceRetriver {
-		/**
-		 * @see DependenceClosure.IDependenceRetriver#getDependences(IDependencyAnalysis,Stmt,SootMethod)
-		 */
-		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
-			final Collection _result = new HashSet();
-			final Object _direction = da.getDirection();
-
-			if (_direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)
-				  || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)
-				  || _direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-				_result.addAll(da.getDependees(stmt, method));
-			} else if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction.");
-			}
-
-			return _result;
-		}
-	}
-
-
-	/**
-	 * This class provides implementation to retrieve criteria required for calculating complete slice.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	private static class CompleteSliceDependenceClosure
-	  implements DependenceClosure.IDependenceRetriver {
-		/**
-		 * @see DependenceClosure.IDependenceRetriver#getDependences(IDependencyAnalysis,Stmt,SootMethod)
-		 */
-		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
-			final Collection _result = new HashSet();
-			final Object _direction = da.getDirection();
-
-			if (_direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
-				_result.addAll(da.getDependees(stmt, method));
-			} else if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)
-				  || _direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
-				_result.addAll(da.getDependees(stmt, method));
-			} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-				_result.addAll(da.getDependees(stmt, method));
-				_result.addAll(da.getDependents(stmt, method));
-			}
-			return _result;
-		}
-	}
-
-
-	/**
-	 * This class encapsulates the logic to extract dependencies from a dependence analysis based on slice direction.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	private static class DependenceClosure
-	  implements Closure {
-		/** 
-		 * The method in which the trigger occurs.
-		 */
-		protected SootMethod method;
-
-		/** 
-		 * The statement which is the trigger.
-		 */
-		protected Stmt stmt;
-
-		/** 
-		 * The collection of criteria based on the flow of control reaching (exclusive) or leaving the statement.
-		 */
-		private final Collection falseCriteria;
-
-		/** 
-		 * The collection of criteria based on the flow of control reaching and leaving the statement.
-		 */
-		private final Collection trueCriteria;
-
-		/** 
-		 * The object that actually retrieves the dependences from the given dependence analysis.
-		 */
-		private final IDependenceRetriver retriever;
-
-		/** 
-		 * This maps truth values (true/false) to a collection of criteria based on reachability of control flow.
-		 */
-		private final Map newCriteria;
-
-		/**
-		 * Creates a new CriteriaClosure object.
-		 *
-		 * @param dependenceRetriever to be used to extract dependence from the dependence analysis.
-		 *
-		 * @pre dependenceRetriever != null
-		 */
-		protected DependenceClosure(final IDependenceRetriver dependenceRetriever) {
-			newCriteria = new HashMap();
-			trueCriteria = new HashSet();
-			falseCriteria = new HashSet();
-			retriever = dependenceRetriever;
-			newCriteria.put(Boolean.TRUE, trueCriteria);
-			newCriteria.put(Boolean.FALSE, falseCriteria);
-		}
-
-		/**
-		 * This interface enables to retrieve dependences.
-		 *
-		 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-		 * @author $Author$
-		 * @version $Revision$
-		 */
-		static interface IDependenceRetriver {
-			/**
-			 * Retrieves the dependencies.
-			 *
-			 * @param analysis is the analysis from which to retrieve the dependences.
-			 * @param stmt for which the dependences are requested.
-			 * @param method in which <code>stmt</code> occurs.
-			 *
-			 * @return a collection of dependences.
-			 *
-			 * @pre analysis != null and stmt != null and method != null
-			 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
-			 */
-			Collection getDependences(final IDependencyAnalysis analysis, final Stmt stmt, final SootMethod method);
-		}
-
-		/**
-		 * Populates the criteria based on the provided analysis.
-		 *
-		 * @param analysis from which to extract the criteria.
-		 *
-		 * @pre analysis != null and analysis.oclIsKindOf(AbstractDependencyAnalysis)
-		 */
-		public final void execute(final Object analysis) {
-			final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
-			final Collection _criteria = retriever.getDependences(_da, stmt, method);
-
-			if (_da.getId().equals(IDependencyAnalysis.READY_DA)) {
-				final Collection _specials = ((ReadyDAv1) _da).getSynchronizedMethodEntryExitPoints(_criteria);
-				falseCriteria.addAll(_specials);
-				_criteria.removeAll(_specials);
-			}
-			trueCriteria.addAll(_criteria);
-
-			if (LOGGER.isDebugEnabled()) {
-				final StringBuffer _sb = new StringBuffer();
-				_sb.append("Criteria bases for " + stmt + "@" + method + " from " + _da.getClass() + " are :\n[");
-
-				for (final Iterator _j = retriever.getDependences(_da, stmt, method).iterator(); _j.hasNext();) {
-					_sb.append("\n\t->" + _j.next());
-				}
-				_sb.append("\n]");
-				LOGGER.debug(_sb.toString());
-			}
-		}
-
-		/**
-		 * Retrieves the criteria mapping truth values (true/false indicating the execution effect of the criteria is
-		 * considered) to collection of dependence pairs.
-		 *
-		 * @return a mapping of truth values to criteria.
-		 *
-		 * @post result != null and result.oclIsKindOf(Map(Boolean, Collection(Pair(Stmt, SootMethod))))
-		 */
-		final Map getCriteriaMap() {
-			return Collections.unmodifiableMap(newCriteria);
-		}
-
-		/**
-		 * Sets the dependee/dependent.
-		 *
-		 * @param dependeXX is the dependent/dependee.
-		 * @param theMethod in which <code>dependeXX</code> occurs.
-		 *
-		 * @pre dependeXX != null and theMethod != null
-		 */
-		final void setTrigger(final Stmt dependeXX, final SootMethod theMethod) {
-			stmt = dependeXX;
-			method = theMethod;
-			trueCriteria.clear();
-			falseCriteria.clear();
-		}
-	}
-
-
-	/**
-	 * This class provides implementation to retrieve criteria required for calculating forrward slice.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
-	 */
-	private static class ForwardSliceDependenceClosure
-	  implements DependenceClosure.IDependenceRetriver {
-		/**
-		 * @see DependenceClosure.IDependenceRetriver#getDependences(IDependencyAnalysis,Stmt,SootMethod)
-		 */
-		public Collection getDependences(final IDependencyAnalysis da, final Stmt stmt, final SootMethod method) {
-			final Collection _result = new HashSet();
-			final Object _direction = da.getDirection();
-
-			if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)
-				  || _direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
-				_result.addAll(da.getDependees(stmt, method));
-			} else if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-				_result.addAll(da.getDependents(stmt, method));
-			} else if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Trying to retrieve FORWARD dependence from a dependence analysis that is BACKWARD direction.");
-			}
-
-			return _result;
-		}
 	}
 
 	/**
@@ -578,13 +346,14 @@ public final class SlicingEngine {
 
 		sliceType = theSliceType;
 
-		if (sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
-			criteriaClosure = new DependenceClosure(new BackwardSliceDependenceClosure());
-		} else if (sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
-			criteriaClosure = new DependenceClosure(new ForwardSliceDependenceClosure());
-		} else if (sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
-			criteriaClosure = new DependenceClosure(new CompleteSliceDependenceClosure());
+		if (theSliceType.equals(BACKWARD_SLICE)) {
+			directionSensitiveInfo = new BackwardSlicingPart(this);
+		} else if (theSliceType.equals(FORWARD_SLICE)) {
+			directionSensitiveInfo = new ForwardSlicingPart(this);
+		} else if (theSliceType.equals(COMPLETE_SLICE)) {
+			directionSensitiveInfo = new CompleteSlicingPart(this);
 		}
+		dependenceExtractor.setRetriever(directionSensitiveInfo);
 	}
 
 	/**
@@ -619,10 +388,8 @@ public final class SlicingEngine {
 	public void reset() {
 		cgi = null;
 		collector.reset();
-		callStackCache.clear();
+		callStackCache = null;
 		criteria.clear();
-		method2params.clear();
-		exitTransformedMethods.clear();
 
 		// clear the work bag of slice criterion
 		while (workbag.hasWork()) {
@@ -637,7 +404,6 @@ public final class SlicingEngine {
 	public void slice() {
 		for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
 			final ISliceCriterion _crit = (ISliceCriterion) _i.next();
-			((AbstractSliceCriterion) _crit).setCallStack(callStackCache);
 			workbag.addWorkNoDuplicates(_crit);
 		}
 
@@ -657,7 +423,6 @@ public final class SlicingEngine {
 				callStackCache = _sliceStmt.getCallStack();
 				transformAndGenerateNewCriteriaForStmt(_stmt, _sm, _sliceStmt.isConsiderExecution());
 			}
-			((AbstractSliceCriterion) _work).reset();
 			((IPoolable) _work).returnToPool();
 		}
 
@@ -676,373 +441,39 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Sets the direction and the calling context on the given criteria.
+	 * Sets the value of <code>callStackCache</code>.
 	 *
-	 * @param theCriteria a collection of criteria
-	 *
-	 * @pre theCriteria != null and theCriteria.oclIsKindOf(Collection(ISliceCriterion))
+	 * @param callStack the new value of <code>callStackCache</code>.
 	 */
-	private void setContext(final Collection theCriteria) {
-		final Iterator _i = theCriteria.iterator();
-		final int _iEnd = theCriteria.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final ISliceCriterion _criterion = ((ISliceCriterion) _i.next());
-			((AbstractSliceCriterion) _criterion).setCallStack((Stack) callStackCache.clone());
-		}
+	void setCallStackCache(final Stack callStack) {
+		callStackCache = callStack;
 	}
 
 	/**
-	 * Retrieves the method(s) to be used to retrieve dependence information from the given analysis.
+	 * Retrieves the value in <code>callStackCache</code>.
 	 *
-	 * @param analysis of interest.
-	 *
-	 * @return 0 indicates use <code>getDependees()</code>.  1 indicates use <code>getDependents()</code>. 2 indicates
-	 * 		   <code>getDependees()</code> and <code>getDependents()</code>. -1 indicates illegal state.
-	 *
-	 * @pre analysis != null and analysis.getId().equals(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA)
+	 * @return the value in <code>callStackCache</code>.
 	 */
-	private int getRetrievalMethodForIdentifierBasedDataDA(final IDependencyAnalysis analysis) {
-		int _combo = -1;
-		final Object _direction = analysis.getDirection();
-
-		if (_direction.equals(IDependencyAnalysis.DIRECTIONLESS)) {
-			_combo = 0;
-		} else {
-			if (sliceType.equals(BACKWARD_SLICE)) {
-				if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)
-					  || _direction.equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
-					_combo = 0;
-				}
-			} else if (sliceType.equals(FORWARD_SLICE)) {
-				if (_direction.equals(IDependencyAnalysis.BI_DIRECTIONAL)) {
-					_combo = 1;
-				} else if (_direction.equals(IDependencyAnalysis.FORWARD_DIRECTION)) {
-					_combo = 0;
-				}
-			} else if (sliceType.equals(COMPLETE_SLICE)) {
-				_combo = 2;
-			}
-		}
-		return _combo;
+	Stack getCallStackCache() {
+		return callStackCache;
 	}
 
 	/**
-	 * Checks if the given called method's return points should be considered to generate new slice criterion. The callee
-	 * should be marked as invoked or required before calling this method.
+	 * Retrieves the value in <code>cgi</code>.
 	 *
-	 * @param callee is the method in question.
-	 *
-	 * @return <code>true</code> if method's return points of callee should be considered to generate new slice criterion;
-	 * 		   <code>false</code>, otherwise.
+	 * @return the value in <code>cgi</code>.
 	 */
-	private boolean considerMethodExitForCriteriaGeneration(final SootMethod callee) {
-		boolean _result = false;
-
-		if (!exitTransformedMethods.contains(callee)) {
-			exitTransformedMethods.add(callee);
-			_result = true;
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Consider Method exit for method " + callee + " is " + _result);
-		}
-
-		return _result;
+	ICallGraphInfo getCgi() {
+		return cgi;
 	}
 
 	/**
-	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
-	 * the given dependency analyses.
+	 * Retrieves the value in <code>initMapper</code>.
 	 *
-	 * @param stmt that will trigger the dependence.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param das is a collection of dependency analyses.
-	 *
-	 * @pre stmt != null and method != null and das != null
-	 * @pre das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
-	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
+	 * @return the value in <code>initMapper</code>.
 	 */
-	private void generateNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
-		}
-
-		criteriaClosure.setTrigger(stmt, method);
-		CollectionUtils.forAllDo(das, criteriaClosure);
-
-		final Stack _emptyStack = new Stack();
-
-		for (final Iterator _i = criteriaClosure.getCriteriaMap().entrySet().iterator(); _i.hasNext();) {
-			final Map.Entry _entry = (Map.Entry) _i.next();
-			final boolean _considerExecution = ((Boolean) _entry.getKey()).booleanValue();
-
-			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
-				final Object _o = _j.next();
-				final Stmt _stmtToBeIncluded;
-				final SootMethod _methodToBeIncluded;
-
-				if (_o instanceof Pair) {
-					final Pair _pair = (Pair) _o;
-					_stmtToBeIncluded = (Stmt) _pair.getFirst();
-					_methodToBeIncluded = (SootMethod) _pair.getSecond();
-				} else {
-					_stmtToBeIncluded = (Stmt) _o;
-					_methodToBeIncluded = method;
-				}
-
-				if (_methodToBeIncluded.equals(method)) {
-					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
-				} else {
-					final Stack _temp = callStackCache;
-					callStackCache = _emptyStack;
-					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
-					callStackCache = _temp;
-				}
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating Criteria based on dependences");
-		}
-	}
-
-	/**
-	 * Generates new slice criteria for return points of the method called at the given expression.
-	 *
-	 * @param invocationStmt is the statment containing the invocation.
-	 * @param caller is the method in which <code>invocationStmt</code> occurs.
-	 * @param considerReturnValue indicates if the return value of the statement should be considered to generate slice
-	 * 		  criterion.
-	 * @param callee is the method being invoked.
-	 * @param calleeBasicBlockGraph is the basic block graph of the callee.
-	 *
-	 * @pre invocationStmt !=  null and caller != null and callee != null and calleeBasicBlockGraph != null
-	 */
-	private void generateNewCriteriaBasedOnMethodExit(final Stmt invocationStmt, final SootMethod caller,
-		final boolean considerReturnValue, final SootMethod callee, final BasicBlockGraph calleeBasicBlockGraph) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for method called at " + invocationStmt + " in " + caller + "["
-				+ considerReturnValue + "]");
-		}
-
-		// check if a criteria to consider the exit points of the method should be generated.
-		if (considerMethodExitForCriteriaGeneration(callee)) {
-			if (callee.isConcrete()) {
-				callStackCache.push(new CallTriple(caller, invocationStmt, invocationStmt.getInvokeExpr()));
-				processSuperInitInInit(callee, calleeBasicBlockGraph);
-
-				for (final Iterator _j = calleeBasicBlockGraph.getTails().iterator(); _j.hasNext();) {
-					final BasicBlock _bb = (BasicBlock) _j.next();
-					final Stmt _trailer = _bb.getTrailerStmt();
-
-					// TODO: we are considering both throws and returns as return points. This should change when we consider 
-					// if control-flow based on exceptions.
-					generateSliceStmtCriterion(_trailer, callee, considerReturnValue);
-				}
-				callStackCache.pop();
-			} else {
-				includeMethodAndDeclaringClassInSlice(callee);
-
-				// HACK: to suck in arguments to a native method.
-				final InvokeExpr _expr = invocationStmt.getInvokeExpr();
-
-				for (int _i = _expr.getArgCount() - 1; _i >= 0; _i--) {
-					generateSliceExprCriterion(_expr.getArgBox(_i), invocationStmt, caller, true);
-				}
-			}
-		} else {
-			/*
-			 * if not, then check if any of the method parameters are marked as required.  If so, include them.
-			 * It is possible that the return statements are not affected by the parameters in which case _params will be
-			 * null.  On the other hand, may be the return statements have been included but not yet processed in which case
-			 * _params will be null again.  In the latter case, we postpone for callee-caller propogation to generate
-			 * criteria to consider suitable argument expressions.
-			 */
-			final BitSet _params = (BitSet) method2params.get(callee);
-			final InvokeExpr _invokeExpr = invocationStmt.getInvokeExpr();
-
-			if (_params != null && callee.getParameterCount() > 0) {
-				for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
-					generateSliceExprCriterion(_invokeExpr.getArgBox(_j), invocationStmt, caller, true);
-				}
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating criteria for method called at " + invocationStmt + " in " + caller);
-		}
-	}
-
-	/**
-	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression (caller-callee).  By
-	 * nature of Jimple, only one invoke expression can occur in a statement, hence, the arguments.
-	 *
-	 * @param stmt in which the field occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 * @param considerReturnValue indicates if the return value expression should be considered for the slice.
-	 *
-	 * @pre stmt != null and method != null
-	 * @pre stmt.containsInvokeExpr() == true
-	 */
-	private void generateNewCriteriaForInvokeExprIn(final Stmt stmt, final SootMethod method,
-		final boolean considerReturnValue) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for invocation expressions (caller-callee)");
-		}
-
-		final InvokeExpr _expr = stmt.getInvokeExpr();
-		final SootMethod _sm = _expr.getMethod();
-		final Collection _callees = new HashSet();
-
-		if (_sm.isStatic()) {
-			_callees.add(_sm);
-		} else {
-			final Context _context = new Context();
-			_context.setRootMethod(method);
-			_context.setStmt(stmt);
-			_callees.addAll(cgi.getCallees(_expr, _context));
-		}
-
-		// add exit points of callees as the slice criteria
-		for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
-			final SootMethod _callee = (SootMethod) _i.next();
-			final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_callee);
-
-			/*
-			 * we do not want to include a dependence on return statement in java.lang.Thread.start() method
-			 * as it will occur in a different thread and cannot affect the sequential flow of control in the current thread.
-			 */
-			if (!Util.isStartMethod(_callee) && _bbg != null) {
-				generateNewCriteriaBasedOnMethodExit(stmt, method, considerReturnValue, _callee, _bbg);
-			} else if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Did not process " + _callee.getSignature() + " as it may be the start() method or it has no"
-					+ " basic block graph.");
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating criteria for invocation expressions (caller-callee)");
-		}
-	}
-
-	/**
-	 * Generates criteria for locals based on identifier based data dependence.
-	 *
-	 * @param locals for which criteria should be generated.
-	 * @param stmt in which <code>locals</code> occurs.
-	 * @param method in which <code>stmt</code> occurs.
-	 *
-	 * @throws IllegalStateException when criteria from the available identifier analysis for the configured slice direction
-	 * 		   cannot be extracted.
-	 *
-	 * @pre locals != null and locals.oclIsKindOf(Collection(Local))
-	 * @pre stmt != null and method != null
-	 */
-	private void generateNewCriteriaForLocal(final Collection locals, final Stmt stmt, final SootMethod method) {
-		final Collection _analyses = controller.getAnalyses(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
-
-		if (_analyses.size() > 0) {
-			final Collection _temp = new HashSet();
-			final Iterator _i = _analyses.iterator();
-			final int _iEnd = _analyses.size();
-
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final IDependencyAnalysis _analysis = (IDependencyAnalysis) _i.next();
-				final int _combo = getRetrievalMethodForIdentifierBasedDataDA(_analysis);
-
-				final Iterator _k = locals.iterator();
-				final int _kEnd = locals.size();
-
-				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-					final Local _local = (Local) _k.next();
-					final Pair _pair = new Pair(stmt, _local);
-
-					switch (_combo) {
-						case 0 :
-							_temp.addAll(_analysis.getDependees(_pair, method));
-							break;
-
-						case 1 :
-							_temp.addAll(_analysis.getDependents(_pair, method));
-							break;
-
-						case 2 :
-							_temp.addAll(_analysis.getDependees(_pair, method));
-							_temp.addAll(_analysis.getDependents(_pair, method));
-							break;
-
-						default :
-							throw new IllegalStateException("_combo cannot be " + _combo);
-					}
-				}
-
-				final Iterator _j = _temp.iterator();
-				final int _jEnd = _temp.size();
-
-				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
-					final Stmt _stmt = (Stmt) _j.next();
-					generateSliceStmtCriterion(_stmt, method, true);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Generates new slicing criteria which captures inter-procedural dependences due to call-sites.
-	 *
-	 * @param pBox is the parameter reference to be sliced on.
-	 * @param callee in which<code>pBox</code> occurs.
-	 *
-	 * @pre pBox != null and method != null
-	 */
-	private void generateNewCriteriaForParam(final ValueBox pBox, final SootMethod callee) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for parameters");
-		}
-
-		/*
-		 * Note that this will cause us to include all caller sites as slicing criteria and this is not desired.
-		 */
-		final ParameterRef _param = (ParameterRef) pBox.getValue();
-		final int _index = _param.getIndex();
-
-		BitSet _params = (BitSet) method2params.get(callee);
-
-		if (_params == null) {
-			// we size the bitset on a maximum sane value for arguments to improve efficiency. 
-			final int _maxArguments = 8;
-			_params = new BitSet(_maxArguments);
-			method2params.put(callee, _params);
-		}
-		_params.set(_param.getIndex());
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Parameters required for " + callee + " are " + _params);
-		}
-
-		if (!callStackCache.isEmpty()) {
-			final CallTriple _temp = (CallTriple) callStackCache.pop();
-			final SootMethod _caller = _temp.getMethod();
-			final Stmt _stmt = _temp.getStmt();
-			final ValueBox _argBox = _temp.getExpr().getArgBox(_index);
-			generateSliceExprCriterion(_argBox, _stmt, _caller, true);
-			callStackCache.push(_temp);
-		} else {
-			for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
-				final CallTriple _ctrp = (CallTriple) _i.next();
-				final SootMethod _caller = _ctrp.getMethod();
-				final Stmt _stmt = _ctrp.getStmt();
-				final ValueBox _argBox = _ctrp.getExpr().getArgBox(_index);
-				generateSliceExprCriterion(_argBox, _stmt, _caller, true);
-			}
-		}
-
-		generateNewCriteriaForTheCallToMethod(callee);
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Generating criteria for parameters");
-		}
+	INewExpr2InitMapper getInitMapper() {
+		return initMapper;
 	}
 
 	/**
@@ -1052,7 +483,7 @@ public final class SlicingEngine {
 	 *
 	 * @pre callee != null
 	 */
-	private void generateNewCriteriaForTheCallToMethod(final SootMethod callee) {
+	void generateCriteriaForTheCallToMethod(final SootMethod callee) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating criteria for call-sites (callee-caller) " + callee);
 		}
@@ -1061,58 +492,24 @@ public final class SlicingEngine {
 		if (!collector.hasBeenCollected(callee)) {
 			includeMethodAndDeclaringClassInSlice(callee);
 
-			if (!callStackCache.isEmpty()) {
+			if (callStackCache != null && !callStackCache.isEmpty()) {
 				final CallTriple _temp = (CallTriple) callStackCache.pop();
 				final SootMethod _caller = _temp.getMethod();
 				final Stmt _stmt = _temp.getStmt();
-				generateNewCriteriaForTheCallToMethodHelper1(callee, _caller, _stmt);
+				directionSensitiveInfo.generateCriteriaForTheCallToMethod(callee, _caller, _stmt);
 				callStackCache.push(_temp);
 			} else {
 				for (final Iterator _i = cgi.getCallers(callee).iterator(); _i.hasNext();) {
 					final CallTriple _ctrp = (CallTriple) _i.next();
 					final SootMethod _caller = _ctrp.getMethod();
 					final Stmt _stmt = _ctrp.getStmt();
-
-					generateNewCriteriaForTheCallToMethodHelper1(callee, _caller, _stmt);
+					directionSensitiveInfo.generateCriteriaForTheCallToMethod(callee, _caller, _stmt);
 				}
 			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for call-sites (callee-caller)");
-		}
-	}
-
-	/**
-	 * This is a helper method to <code>generateNewCriteriaForTheCallToMethod</code> to reduce method complexity.
-	 *
-	 * @param callee obviously.
-	 * @param caller obviously.
-	 * @param callStmt obviously.
-	 *
-	 * @pre calle != null and caller != null and callStmt != null
-	 */
-	private void generateNewCriteriaForTheCallToMethodHelper1(final SootMethod callee, final SootMethod caller,
-		final Stmt callStmt) {
-		/*
-		 * _stmt may be an assignment statement.  Hence, we want the control to reach the statement but not leave
-		 * it.  However, the execution of the invoke expression should be considered as it is requied to reach the
-		 * callee.  Likewise, we want to include the expression but not all arguments.  We rely on the reachable
-		 * parameters to suck in the arguments.  So, we generate criteria only for the invocation expression and
-		 * not the arguments.  Refer to transformAndGenerateToNewCriteriaForXXXX for information about how
-		 * invoke expressions are handled differently.
-		 */
-		generateSliceStmtCriterion(callStmt, caller, false);
-		collector.includeInSlice(callStmt.getInvokeExprBox());
-
-		if (!callee.isStatic()) {
-			final ValueBox _vBox = ((InstanceInvokeExpr) callStmt.getInvokeExpr()).getBaseBox();
-			generateSliceExprCriterion(_vBox, callStmt, caller, true);
-		}
-
-		if (!sliceType.equals(BACKWARD_SLICE) && callStmt instanceof AssignStmt) {
-			final AssignStmt _defStmt = (AssignStmt) callStmt;
-			generateSliceExprCriterion(_defStmt.getLeftOpBox(), callStmt, caller, true);
 		}
 	}
 
@@ -1127,7 +524,7 @@ public final class SlicingEngine {
 	 *
 	 * @pre valueBox != null and stmt != null and method != null
 	 */
-	private void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
+	void generateSliceExprCriterion(final ValueBox valueBox, final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
 		if (!collector.hasBeenCollected(valueBox)) {
 			final Collection _sliceCriteria =
@@ -1141,7 +538,7 @@ public final class SlicingEngine {
 			}
 		} else {
 			if (valueBox.getValue() instanceof InvokeExpr) {
-				generateNewCriteriaForInvokeExprIn(stmt, method, considerExecution);
+				generateCriteriaForInvokeExprIn(stmt, method);
 			}
 
 			if (LOGGER.isDebugEnabled()) {
@@ -1161,7 +558,7 @@ public final class SlicingEngine {
 	 *
 	 * @pre stmt != null and method != null
 	 */
-	private void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
+	void generateSliceStmtCriterion(final Stmt stmt, final SootMethod method, final boolean considerExecution) {
 		if (!collector.hasBeenCollected(stmt)) {
 			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method, stmt, considerExecution);
 			setContext(_sliceCriteria);
@@ -1171,7 +568,8 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " to workbag.");
 			}
 		} else {
-			if (considerExecution) {
+			if (((considerExecution && (sliceType.equals(BACKWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)))
+				  || (!considerExecution && (sliceType.equals(FORWARD_SLICE) || sliceType.equals(COMPLETE_SLICE))))) {
 				final Collection _temp = new HashSet(stmt.getUseAndDefBoxes());
 
 				// if it contains an invocation expression, we do not want to include the arguments/sub-expressions.
@@ -1198,24 +596,13 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Includes the given class in the slice.
-	 *
-	 * @param clazz to be included in the slice.
-	 *
-	 * @pre clazz != null
-	 */
-	private void includeClassInSlice(final SootClass clazz) {
-		collector.includeInSlice(clazz);
-	}
-
-	/**
 	 * Includes the given method and it's declaring class in the slice.
 	 *
 	 * @param method to be included in the slice.
 	 *
 	 * @pre method != null
 	 */
-	private void includeMethodAndDeclaringClassInSlice(final SootMethod method) {
+	void includeMethodAndDeclaringClassInSlice(final SootMethod method) {
 		collector.includeInSlice(method);
 
 		final SootClass _sc = method.getDeclaringClass();
@@ -1224,6 +611,179 @@ public final class SlicingEngine {
 		final Collection _types = new HashSet(method.getParameterTypes());
 		_types.add(method.getReturnType());
 		includeTypesInSlice(_types);
+
+		final List _exceptions = method.getExceptions();
+		final Iterator _i = _exceptions.iterator();
+		final int _iEnd = _exceptions.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _exception = (SootClass) _i.next();
+			includeClassInSlice(_exception);
+		}
+	}
+
+	/**
+	 * Sets the direction and the calling context on the given criteria.
+	 *
+	 * @param theCriteria a collection of criteria
+	 *
+	 * @pre theCriteria != null and theCriteria.oclIsKindOf(Collection(ISliceCriterion))
+	 */
+	private void setContext(final Collection theCriteria) {
+		final Iterator _i = theCriteria.iterator();
+		final int _iEnd = theCriteria.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final ISliceCriterion _criterion = ((ISliceCriterion) _i.next());
+
+			if (callStackCache != null) {
+				((AbstractSliceCriterion) _criterion).setCallStack((Stack) callStackCache.clone());
+			}
+		}
+	}
+
+	/**
+	 * Generates new slice criteria based on what affects the given occurrence of the invoke expression (caller-callee).  By
+	 * nature of Jimple, only one invoke expression can occur in a statement, hence, the arguments.
+	 *
+	 * @param stmt in which the field occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre stmt != null and method != null
+	 * @pre stmt.containsInvokeExpr() == true
+	 */
+	private void generateCriteriaForInvokeExprIn(final Stmt stmt, final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating criteria for invocation expressions (caller-callee)");
+		}
+
+		final InvokeExpr _expr = stmt.getInvokeExpr();
+		final SootMethod _sm = _expr.getMethod();
+		final Collection _callees = new HashSet();
+
+		if (_sm.isStatic()) {
+			_callees.add(_sm);
+		} else {
+			final Context _context = new Context();
+			_context.setRootMethod(method);
+			_context.setStmt(stmt);
+			_callees.addAll(cgi.getCallees(_expr, _context));
+		}
+
+		CollectionUtils.filter(_callees, nonStartMethodPredicate);
+		directionSensitiveInfo.generateCriteriaToIncludeCallees(stmt, method, _callees);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating criteria for invocation expressions (caller-callee)");
+		}
+	}
+
+	/**
+	 * Generates criteria for locals based on identifier based data dependence.
+	 *
+	 * @param locals for which criteria should be generated.
+	 * @param stmt in which <code>locals</code> occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre locals != null and locals.oclIsKindOf(Collection(Local))
+	 * @pre stmt != null and method != null
+	 */
+	private void generateCriteriaForLocals(final Collection locals, final Stmt stmt, final SootMethod method) {
+		final Collection _analyses = controller.getAnalyses(IDependencyAnalysis.IDENTIFIER_BASED_DATA_DA);
+
+		if (_analyses.size() > 0) {
+			final Iterator _k = locals.iterator();
+			final int _kEnd = locals.size();
+
+			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+				final ValueBox _vBox = (ValueBox) _k.next();
+				final Local _local = (Local) _vBox.getValue();
+				final Pair _pair = new Pair(stmt, _local);
+				dependenceExtractor.setTrigger(_pair, method);
+				CollectionUtils.forAllDo(_analyses, dependenceExtractor);
+
+				final Collection _valuesSet = dependenceExtractor.getCriteriaMap().values();
+				final Iterator _l = _valuesSet.iterator();
+				final int _lEnd = _valuesSet.size();
+
+				for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
+					final Collection _values = (Collection) _l.next();
+					final Iterator _j = _values.iterator();
+					final int _jEnd = _values.size();
+
+					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+						final Stmt _depStmt = (Stmt) _j.next();
+
+						directionSensitiveInfo.processLocalAt(_vBox, _depStmt, method);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Generates new criteria based on the entities that influence or are influenced by the given statement as indicated by
+	 * the given dependency analyses.
+	 *
+	 * @param stmt that will trigger the dependence.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param das is a collection of dependency analyses.
+	 *
+	 * @pre stmt != null and method != null and das != null
+	 * @pre das.oclIsKindOf(Collection(AbstractDependencyAnalysis))
+	 * @post workbag$pre.getWork() != workbag.getWork() or workbag$pre.getWork() == workbag.getWork()
+	 */
+	private void generateStmtMethodCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
+		}
+
+		dependenceExtractor.setTrigger(stmt, method);
+		CollectionUtils.forAllDo(das, dependenceExtractor);
+
+		for (final Iterator _i = dependenceExtractor.getCriteriaMap().entrySet().iterator(); _i.hasNext();) {
+			final Map.Entry _entry = (Map.Entry) _i.next();
+			final boolean _considerExecution = ((Boolean) _entry.getKey()).booleanValue();
+
+			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
+				final Object _o = _j.next();
+				final Stmt _stmtToBeIncluded;
+				final SootMethod _methodToBeIncluded;
+
+				if (_o instanceof Pair) {
+					final Pair _pair = (Pair) _o;
+					_stmtToBeIncluded = (Stmt) _pair.getFirst();
+					_methodToBeIncluded = (SootMethod) _pair.getSecond();
+				} else {
+					_stmtToBeIncluded = (Stmt) _o;
+					_methodToBeIncluded = method;
+				}
+
+				if (_methodToBeIncluded.equals(method)) {
+					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
+				} else {
+					final Stack _temp = callStackCache;
+					callStackCache = null;
+					generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, _considerExecution);
+					callStackCache = _temp;
+				}
+			}
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating Criteria based on dependences");
+		}
+	}
+
+	/**
+	 * Includes the given class in the slice.
+	 *
+	 * @param clazz to be included in the slice.
+	 *
+	 * @pre clazz != null
+	 */
+	private void includeClassInSlice(final SootClass clazz) {
+		collector.includeInSlice(clazz);
 	}
 
 	/**
@@ -1246,83 +806,6 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Processes new expressions to include corresponding init statements into the slice.
-	 *
-	 * @param stmt is the statement containing the new expression.
-	 * @param method contains <code>stmt</code>.
-	 *
-	 * @pre stmt != null and method != null
-	 */
-	private void processForNewExpr(final Stmt stmt, final SootMethod method) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Processing for new expr");
-		}
-
-		/*
-		 * Here we make some assumptions.  new expressions will always be assigned to a variable in order to call the
-		 * constructor. Hence, they will always occur in assignment statement.  It is common practice in compilers to emit
-		 * code to construct the instance just after emitting for creating the instance.  Hence, we should be able to find the
-		 * <init> call site by following use-def chain. However, this may fail in case where the <init> call is made on
-		 * a variable other than the one to which the new expression was assigned to.
-		 *     r1 = new <X>;
-		 *     r2 = r1;
-		 *     r2.<init>();
-		 * To handle such cases, we use OFA.
-		 *
-		 */
-		if (stmt instanceof AssignStmt) {
-			final AssignStmt _as = (AssignStmt) stmt;
-
-			if (_as.getRightOp() instanceof NewExpr) {
-				final Stmt _def = initMapper.getInitCallStmtForNewExprStmt(stmt, method);
-				transformAndGenerateNewCriteriaForStmt(_def, method, true);
-			}
-		}
-
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("END: Processing for new expr");
-		}
-	}
-
-	/**
-	 * Processes the init call to the super class inside init method.
-	 *
-	 * @param callee is the init method.
-	 * @param bbg is the basic block graph of <code>callee</code>.
-	 *
-	 * @pre callee != null and bbg != null
-	 */
-	private void processSuperInitInInit(final SootMethod callee, final BasicBlockGraph bbg) {
-		/*
-		 * if we are sucking in an init we better suck in the super <init> invoke expression as well. By JLS, this has to
-		 * be the first statement in the constructor.  However, if it accepts arguments, the arguments will be set up
-		 * before the call.  Hence, it is safe to suck in the first <init> invoke expression in the <init> method being
-		 * sucked in.  However, care must be taken to suck in the first <init> invocation that is invokes <init> from the same
-		 * class as the enclosing <init> method. As we process invocation expressions, we are bound to suck in any other
-		 * required <init>'s from other higher super classes.
-		 */
-		if (callee.getName().equals("<init>") && callee.getDeclaringClass().hasSuperclass()) {
-			final CompleteUnitGraph _ug = new CompleteUnitGraph(callee.getActiveBody());
-			final SimpleLocalUses _sul = new SimpleLocalUses(_ug, new SimpleLocalDefs(_ug));
-			final List _uses = _sul.getUsesOf(bbg.getHead().getLeaderStmt());
-
-			for (final Iterator _i = _uses.iterator(); _i.hasNext();) {
-				final UnitValueBoxPair _ubp = (UnitValueBoxPair) _i.next();
-				final Stmt _stmt = (Stmt) _ubp.getUnit();
-
-				if (_stmt instanceof InvokeStmt) {
-					final SootMethod _called = _stmt.getInvokeExpr().getMethod();
-
-					if (_called.getName().equals("<init>")
-						  && _called.getDeclaringClass().equals(callee.getDeclaringClass().getSuperclass())) {
-						generateSliceStmtCriterion(_stmt, callee, true);
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * Generates immediate slice for the given expression.
 	 *
 	 * @param expr is the expression-level slice criterion.
@@ -1334,7 +817,6 @@ public final class SlicingEngine {
 		final Stmt _stmt = expr.getOccurringStmt();
 		final SootMethod _method = expr.getOccurringMethod();
 		final ValueBox _vBox = (ValueBox) expr.getCriterion();
-		final Value _value = _vBox.getValue();
 		final boolean _considerExecution = expr.isConsiderExecution();
 
 		if (LOGGER.isDebugEnabled()) {
@@ -1346,20 +828,16 @@ public final class SlicingEngine {
 		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
 
 		// generate new slice criteria
-		if (_considerExecution) {
-			final Collection _temp = new HashSet();
-			_temp.add(_vBox);
-
-			// if it is an invocation expression, we do not want to include the arguments/sub-expressions. 
-			// in case of instance invocation, we do want to include the receiver position expression.
-			if (!(_value instanceof InvokeExpr)) {
-				_temp.addAll(_value.getUseBoxes());
-			} else if (_value instanceof InstanceInvokeExpr) {
-				_temp.add(((InstanceInvokeExpr) _value).getBaseBox());
-			}
+		if (((_considerExecution && (sliceType.equals(BACKWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)))
+			  || (!_considerExecution && (sliceType.equals(FORWARD_SLICE) || sliceType.equals(COMPLETE_SLICE))))) {
+			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformExpr(_vBox);
 
 			// include any sub expressions and generate criteria from them
-			transformAndGenerateToConsiderExecution(_stmt, _method, _temp);
+			transformAndGenerateToConsiderExecution(_stmt, _method, _valueBoxes);
+
+			if (_vBox.getValue() instanceof InvokeExpr) {
+				generateCriteriaForInvokeExprIn(_stmt, _method);
+			}
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -1386,32 +864,20 @@ public final class SlicingEngine {
 		}
 
 		// transform the statement
-		if (considerExecution) {
-			// generate new slice criteria
-			processForNewExpr(stmt, method);
+		if ((considerExecution && (sliceType.equals(BACKWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)))
+			  || (!considerExecution && (sliceType.equals(FORWARD_SLICE) || sliceType.equals(COMPLETE_SLICE)))) {
+			directionSensitiveInfo.processNewExpr(stmt, method);
 
-			final Collection _temp = new HashSet(stmt.getUseAndDefBoxes());
-
-			// if it contains an invocation expression, we do not want to include the arguments/sub-expressions.
-			if (stmt.containsInvokeExpr()) {
-				final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
-				_temp.removeAll(_invokeExpr.getUseBoxes());
-
-				// in case of instance invocation, we do want to include the receiver position expression.
-				if (_invokeExpr instanceof InstanceInvokeExpr) {
-					_temp.add(((InstanceInvokeExpr) _invokeExpr).getBaseBox());
-				}
-			}
-			transformAndGenerateToConsiderExecution(stmt, method, _temp);
+			final Collection _valueBoxes = directionSensitiveInfo.retrieveValueBoxesToTransformStmt(stmt);
+			transformAndGenerateToConsiderExecution(stmt, method, _valueBoxes);
 
 			if (stmt.containsInvokeExpr()) {
-				generateNewCriteriaForInvokeExprIn(stmt, method, stmt instanceof AssignStmt);
+				generateCriteriaForInvokeExprIn(stmt, method);
 			}
 		}
 
 		// generate new slice criteria
-		generateNewCriteriaForTheCallToMethod(method);
-		generateNewCriteria(stmt, method, controlflowBasedDAs);
+		generateCriteriaForTheCallToMethod(method);
 		includeMethodAndDeclaringClassInSlice(method);
 
 		// collect the statement
@@ -1449,7 +915,7 @@ public final class SlicingEngine {
 		}
 
 		final Collection _types = new HashSet();
-		final Collection _das = new ArrayList();
+		final Collection _das = new ArrayList(controlflowBasedDAs);
 		final Collection _locals = new HashSet();
 
 		for (final Iterator _i = vBoxes.iterator(); _i.hasNext();) {
@@ -1461,7 +927,7 @@ public final class SlicingEngine {
 				final Value _value = _vBox.getValue();
 
 				if (_value instanceof ParameterRef) {
-					generateNewCriteriaForParam(_vBox, method);
+					directionSensitiveInfo.processParameterRef(_vBox, method);
 				} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
 					_das.addAll(controller.getAnalyses(IDependencyAnalysis.REFERENCE_BASED_DATA_DA));
 					_das.addAll(controller.getAnalyses(IDependencyAnalysis.INTERFERENCE_DA));
@@ -1472,7 +938,7 @@ public final class SlicingEngine {
 						includeClassInSlice(_field.getDeclaringClass());
 					}
 				} else if (_value instanceof Local) {
-					_locals.add(_value);
+					_locals.add(_vBox);
 				}
 				_types.add(_value.getType());
 			}
@@ -1480,10 +946,12 @@ public final class SlicingEngine {
 		includeTypesInSlice(_types);
 
 		// create new slice criteria based on statement level dependence.
-		generateNewCriteria(stmt, method, _das);
+		if (!collector.hasBeenCollected(stmt)) {
+			generateStmtMethodCriteria(stmt, method, _das);
+		}
 
 		// create new criteria based on program point level dependence (identifier based dependence).
-		generateNewCriteriaForLocal(_locals, stmt, method);
+		generateCriteriaForLocals(_locals, stmt, method);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming value boxes");
@@ -1494,6 +962,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.92  2004/08/18 09:10:34  venku
+   - made slicing more interprocedural.
    Revision 1.91  2004/08/17 16:13:01  venku
    - While extracting backward dependence closure the logic to handle bi-directional
      dependence implementation was incorrect.  FIXED.
