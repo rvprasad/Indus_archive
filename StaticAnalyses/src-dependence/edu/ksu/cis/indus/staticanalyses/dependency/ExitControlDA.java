@@ -101,7 +101,6 @@ public class ExitControlDA
 			final SootMethod _sm = (SootMethod) _i.next();
 			final BasicBlockGraph _bbg = getBasicBlockGraph(_sm);
 			final Collection _dependeeBBs = calculateDependeesOfSinksIn(_bbg, _sm);
-
 			if (!_dependeeBBs.isEmpty()) {
 				calculateDependenceForStmts(calculateDependenceForBBs(_bbg, _dependeeBBs), _sm);
 			}
@@ -249,6 +248,9 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/07/11 11:54:40  venku
+   - optimization.
+
    Revision 1.14  2004/07/11 11:20:50  venku
    - refactored code to simplify control dependence implementation.
    Revision 1.13  2004/07/11 11:06:54  venku

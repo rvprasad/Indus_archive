@@ -228,7 +228,7 @@ public class DependencyAnalysisTestSetup
 		ecba.unhook(cgipc);
 		aliasUD.unhook(cgipc);
 
-		ecba.execute();
+		ecba.analyze();
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
@@ -243,6 +243,10 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/05/31 21:38:07  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
+
    Revision 1.15  2004/05/21 22:11:47  venku
    - renamed CollectionsModifier as CollectionUtilities.
    - added new specialized methods along with a method to extract

@@ -93,15 +93,6 @@ public abstract class AbstractDependencyAnalysis
 	}
 
 	/**
-	 * Returns the ID of the analysis implementation.  This has to be one of the XXXX_DA constants defined in this class.
-	 *
-	 * @return the id of the implementation.
-	 *
-	 * @post result != null
-	 */
-	public abstract Object getId();
-
-	/**
 	 * Resets all internal data structures.  General protocol is that data acquired via setup is not reset or forgotten.
 	 *
 	 * @post dependent2dependee.size() == 0 and dependee2dependent.size() == 0
@@ -116,6 +107,10 @@ public abstract class AbstractDependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.2  2004/05/14 09:02:57  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is

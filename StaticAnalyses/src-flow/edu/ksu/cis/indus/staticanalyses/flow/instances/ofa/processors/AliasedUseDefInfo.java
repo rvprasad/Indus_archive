@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.IIdentification;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -70,10 +71,10 @@ import soot.jimple.Stmt;
  */
 public final class AliasedUseDefInfo
   extends AbstractValueAnalyzerBasedProcessor
-  implements IUseDefInfo {
-    
-    // TODO: The info needs to be INTRA-THREAD and INTER-PROCEDURAL.  This is not the case at this time.
-    
+  implements IUseDefInfo,
+	  IIdentification {
+	// TODO: The info needs to be INTRA-THREAD and INTER-PROCEDURAL.  This is not the case at this time.
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -148,7 +149,12 @@ public final class AliasedUseDefInfo
 		return _result;
 	}
 
-
+	/**
+	 * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
+	 */
+	public Object getId() {
+		return IUseDefInfo.ID;
+	}
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
@@ -283,7 +289,7 @@ public final class AliasedUseDefInfo
 	 * Reset internal data structures.
 	 */
 	public void reset() {
-	    unstable();
+		unstable();
 		def2usesMap.clear();
 		use2defsMap.clear();
 		pairMgr.reset();
@@ -455,13 +461,15 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.36  2004/07/11 09:42:14  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.35  2004/07/10 07:58:35  venku
    - used useMethod instead of useStmt when trying to determine
      ordering of statements in doesDefReachUse(). FIXED.
-
    Revision 1.34  2004/07/08 11:07:46  venku
    - INTERIM COMMIT.
-
    Revision 1.33  2004/06/28 22:44:26  venku
    - null was returned when no info was available. FIXED.
    Revision 1.32  2004/06/28 08:07:19  venku

@@ -31,13 +31,19 @@ import soot.jimple.Stmt;
 /**
  * This interface provides call graph information pertaining to the analyzed system.   It is adviced that any post processor
  * which provides Call graph information should provide it via this interface.
+ * 
+ * <p>
+ * Subtypes of this class have to return the constant <code>ID</code> defined in this class as a result of
+ * <code>getId</code>.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface ICallGraphInfo
-  extends IStatus {
+  extends IStatus,
+	  IIdentification {
 	/**
 	 * The id of this interface.
 	 */
@@ -225,6 +231,10 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/07/07 10:08:27  venku
+   - altered the method to calculate reachability.
+   - documented CallGraph
+   - altered CallGraph to adhere to coding conventions.
    Revision 1.7  2004/03/03 02:17:50  venku
    - added a new method to ICallGraphInfo interface.
    - implemented the above method in CallGraph.

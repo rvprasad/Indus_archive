@@ -655,11 +655,23 @@ public class CallGraph
 		}
 		return _result;
 	}
+
+    /** 
+     * @see edu.ksu.cis.indus.interfaces.IIdentification#getId()
+     */
+    public Object getId() {
+        return ICallGraphInfo.ID;
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.57  2004/07/11 09:42:14  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
+
    Revision 1.56  2004/07/08 09:46:02  venku
    - logging.
 

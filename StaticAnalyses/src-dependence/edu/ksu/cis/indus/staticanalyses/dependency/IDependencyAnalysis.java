@@ -15,17 +15,25 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.interfaces.IIdentification;
+
 import java.util.Collection;
 
 
 /**
  * The interface to dependency analysis information.
+ * 
+ * <p>
+ * Subtypes of this class have to return one of the XXXX_DA constants defined in this class as a result of
+ * <code>getId</code>.
+ * </p>
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface IDependencyAnalysis {
+public interface IDependencyAnalysis
+  extends IIdentification {
 	/**
 	 * This identifies backward directional analaysis.
 	 */
@@ -112,15 +120,6 @@ public interface IDependencyAnalysis {
 	Object getDirection();
 
 	/**
-	 * Returns the ID of the analysis implementation.  This has to be one of the XXXX_DA constants defined in this class.
-	 *
-	 * @return the id of the implementation.
-	 *
-	 * @post result != null
-	 */
-	Object getId();
-
-	/**
 	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
 	 */
 	boolean isStable();
@@ -136,11 +135,12 @@ public interface IDependencyAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/11 11:45:54  venku
+   - renamed constants.
    Revision 1.3  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
        the implementations just announce their status.
-
    Revision 1.2  2004/05/21 22:30:53  venku
    - documentation.
    Revision 1.1  2004/05/14 09:02:57  venku

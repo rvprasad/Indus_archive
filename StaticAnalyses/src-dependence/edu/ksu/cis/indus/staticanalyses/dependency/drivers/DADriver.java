@@ -341,7 +341,7 @@ public abstract class DADriver
 
 		if (ecbaRequired) {
 			ecba.unhook(cgipc);
-			ecba.execute();
+			ecba.analyze();
 		}
 
 		for (Iterator i = das.iterator(); i.hasNext();) {
@@ -357,6 +357,10 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.44  2004/06/23 06:16:42  venku
+   - deleted  SootBasedDriver.setClassNames(String[])
+   - ripple effect.
+
    Revision 1.43  2004/05/14 06:27:26  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.42  2004/04/16 20:10:39  venku

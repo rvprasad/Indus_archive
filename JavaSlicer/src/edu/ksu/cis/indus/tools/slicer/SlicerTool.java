@@ -638,7 +638,7 @@ public final class SlicerTool
 		for (final Iterator _i = slicerConfig.getIDsOfDAsToUse().iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 			final Collection _c = slicerConfig.getDependenceAnalysis(_id);
-			daController.setAnalyses(_id, _c);
+			daController.addAnalyses(_id, _c);
 		}
 		daController.initialize();
 		daController.execute();
@@ -763,7 +763,7 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl.process();
 		aliasUD.unhook(cgBasedPreProcessCtrl);
 		ecba.unhook(cgBasedPreProcessCtrl);
-		ecba.execute();
+		ecba.analyze();
 		phase.nextMajorPhase();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -882,6 +882,12 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.93  2004/07/09 05:05:25  venku
+   - refactored the code to enable the criteria creation to be completely hidden
+     from the user.
+   - exposed the setting of the considerExecution flag of the criteria in the factory.
+   - made SliceCriteriaFactory a singleton.
+
    Revision 1.92  2004/07/04 11:09:00  venku
    - headless and multiple headed methods cause issue with statement graphs and basic blocks.  FIXED.
 

@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.processing.IProcessor;
@@ -101,15 +102,15 @@ public class AnalysesController {
 	}
 
 	/**
-	 * Sets the implementation to be used for an analysis.
+	 * Adds the implementations to be used for analysis.
 	 *
 	 * @param id of the analysis.
 	 * @param analyses are the implementations of the named analysis.
 	 *
 	 * @pre id != null and analyses != null and analysis->forall(o | o != null and o.oclIsKindOf(AbstractAnalysis))
 	 */
-	public final void setAnalyses(final Object id, final Collection analyses) {
-		participatingAnalyses.put(id, analyses);
+	public final void addAnalyses(final Object id, final Collection analyses) {
+		CollectionsUtilities.putAllIntoListInMap(participatingAnalyses, id, analyses);
 	}
 
 	/**
@@ -218,12 +219,12 @@ public class AnalysesController {
 	 * the Object Flow Analysis instance.
 	 */
 	public void reset() {
-		for (Iterator i = participatingAnalyses.values().iterator(); i.hasNext();) {
-			Collection c = (Collection) i.next();
+		for (final Iterator _i = participatingAnalyses.values().iterator(); _i.hasNext();) {
+			final Collection _c = (Collection) _i.next();
 
-			for (Iterator j = c.iterator(); j.hasNext();) {
-				AbstractAnalysis analysis = (AbstractAnalysis) j.next();
-				analysis.reset();
+			for (final Iterator _j = _c.iterator(); _j.hasNext();) {
+				final AbstractAnalysis _analysis = (AbstractAnalysis) _j.next();
+				_analysis.reset();
 			}
 		}
 		participatingAnalyses.clear();
@@ -233,6 +234,10 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/05/31 21:38:07  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
+
    Revision 1.33  2004/02/12 21:31:18  venku
    - analyses are initialized and then preprocessing begins.
    Revision 1.32  2004/01/21 00:29:39  venku

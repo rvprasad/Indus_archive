@@ -183,7 +183,7 @@ public final class EADriver
 				LOGGER.info("BEGIN: " + _analysis.getClass().getName() + " processing");
 			}
 			_start = System.currentTimeMillis();
-			_analysis.execute();
+			_analysis.analyze();
 			_stop = System.currentTimeMillis();
 
 			if (LOGGER.isInfoEnabled()) {
@@ -257,6 +257,10 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/06/23 06:16:42  venku
+   - deleted  SootBasedDriver.setClassNames(String[])
+   - ripple effect.
+
    Revision 1.29  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.

@@ -888,7 +888,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * propogating the  alias set information in a collective fashion. It then propogates the information top-down in the
 	 * call-graph.
 	 */
-	public void execute() {
+	public void analyze() {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Equivalence Class-based and Symbol-based Escape Analysis");
 		}
@@ -1284,6 +1284,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.49  2004/05/31 21:38:08  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
+
    Revision 1.48  2004/04/22 09:49:46  venku
    - added logic to discard fast-union-find elements which serve as levels of indirections.
    Revision 1.47  2004/03/29 01:55:03  venku

@@ -25,13 +25,19 @@ import soot.jimple.Stmt;
 
 /**
  * This interface will be used to retrieve use-def information of a system.
+ * 
+ * <p>
+ * Subtypes of this class have to return the constant <code>ID</code> defined in this class as a result of
+ * <code>getId</code>.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface IUseDefInfo
-  extends IStatus {
+  extends IStatus,
+	  IIdentification {
 	/**
 	 * This is the ID of this interface.
 	 */
@@ -65,6 +71,8 @@ public interface IUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 19:08:03  venku
+   - documentation
    Revision 1.2  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -30,13 +30,19 @@ import soot.jimple.Stmt;
 /**
  * This interface provides thread graph information pertaining to the analyzed system. It is adviced that any post processor
  * which provides Thread graph information should provide it via this interface.
+ * 
+ * <p>
+ * Subtypes of this class have to return the constant <code>ID</code> defined in this class as a result of
+ * <code>getId</code>.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface IThreadGraphInfo
-  extends IStatus {
+  extends IStatus,
+	  IIdentification {
 	/**
 	 * The id of this interface.
 	 */
@@ -169,9 +175,12 @@ public interface IThreadGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.4  2003/12/30 09:16:33  venku
    - CallTriple/NewExprTriple are optimized after creation.
-
    Revision 1.3  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.

@@ -20,13 +20,19 @@ import java.util.Collection;
 
 /**
  * This interface provides the information pertaining to Java monitors in the analyzed system.
+ * 
+ * <p>
+ * Subtypes of this class have to return the constant <code>ID</code> defined in this class as a result of
+ * <code>getId</code>.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 public interface IMonitorInfo
-  extends IStatus {
+  extends IStatus,
+	  IIdentification {
 	/**
 	 * The id of this interface.
 	 */
@@ -49,6 +55,9 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.2  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

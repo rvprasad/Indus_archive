@@ -27,7 +27,7 @@ import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
-import edu.ksu.cis.indus.staticanalyses.InitializationException;
+import edu.ksu.cis.indus.staticanalyses.AnalysesController;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
@@ -44,6 +44,7 @@ import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -142,12 +143,13 @@ public class DependencyXMLizerCLI
 		final DivergenceDA _ipdda = new DivergenceDA();
 		_ipdda.setConsiderCallSites(true);
 
-		final EntryControlDA _ncda = new EntryControlDA();
+		final EntryControlDA _incda = new EntryControlDA();
+		final DirectEntryControlDA _dncda = new DirectEntryControlDA();
 		final Object[][] _dasOptions =
 			{
 				{ "a", "ibdda", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
 				{ "b", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
-				{ "d", "dncda", "Direct Entry control dependence", new DirectEntryControlDA() },
+				{ "d", "dncda", "Direct Entry control dependence", _dncda },
 				{ "e", "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "f", "sda", "Synchronization dependence", new SynchronizationDA() },
 				{ "g", "rda1", "Ready dependence v1", new ReadyDAv1() },
@@ -157,7 +159,7 @@ public class DependencyXMLizerCLI
 				{ "m", "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "n", "ida3", "Interference dependence v3", new InterferenceDAv3() },
 				{ "q", "dda", "Divergence dependence", new DivergenceDA() },
-				{ "r", "incda", "Indirect Entry control dependence", _ncda },
+				{ "r", "incda", "Indirect Entry control dependence", _incda },
 				{ "s", "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
 				{ "t", "ipdda", "Interprocedural Divergence dependence", _ipdda },
 			};
@@ -222,8 +224,9 @@ public class DependencyXMLizerCLI
 				}
 			}
 
-			if (_cl.hasOption(_dasOptions[12][0].toString())) {
-				_cli.info.put(IDependencyAnalysis.CONTROL_DA, _ncda);
+			if (_cl.hasOption(_dasOptions[3][0].toString())) {
+				_cli.das.add(_incda);
+				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _incda.getId(), _incda, new ArrayList());
 			}
 
 			if (_flag) {
@@ -237,7 +240,7 @@ public class DependencyXMLizerCLI
 			final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
 			(new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 			System.exit(1);
-		} catch (Throwable _e) {
+		} catch (final Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
 			throw new RuntimeException(_e);
 		}
@@ -326,59 +329,35 @@ public class DependencyXMLizerCLI
 	 * Sets up the dependence analyses to be driven.
 	 */
 	private void setupDependencyAnalyses() {
-		final Collection _failed = new ArrayList();
+		final AnalysesController _ac = new AnalysesController(info, cgipc, getBbm());
 
 		for (final Iterator _i = das.iterator(); _i.hasNext();) {
 			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
-			_da.reset();
-			_da.setBasicBlockGraphManager(getBbm());
-
-			try {
-				_da.initialize(info);
-			} catch (InitializationException _e) {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn(_da.getClass() + " failed to initialize, hence, will not be executed.", _e);
-				}
-				_failed.add(_da);
-			}
-
-			if (!_failed.contains(_da) && _da.doesPreProcessing()) {
-				_da.getPreProcessor().hookup(cgipc);
-			}
+			_ac.addAnalyses(_da.getId(), Collections.singleton(_da));
 		}
-		das.removeAll(_failed);
-		aliasUD.reset();
 		aliasUD.hookup(cgipc);
-
-		ecba.reset();
 		ecba.hookup(cgipc);
-
 		writeInfo("BEGIN: preprocessing for dependency analyses");
 
 		final long _start = System.currentTimeMillis();
-		cgipc.process();
+		_ac.initialize();
+		_ac.execute();
 
 		final long _stop = System.currentTimeMillis();
 		addTimeLog("Dependency preprocessing", _stop - _start);
 		writeInfo("END: preprocessing for dependency analyses");
+		ecba.analyze();
 
-		ecba.unhook(cgipc);
-		ecba.execute();
-		aliasUD.unhook(cgipc);
-
-		for (final Iterator _i = das.iterator(); _i.hasNext();) {
-			final AbstractDependencyAnalysis _da = (AbstractDependencyAnalysis) _i.next();
-
-			if (_da.getPreProcessor() != null) {
-				_da.getPreProcessor().unhook(cgipc);
-			}
-		}
+		aliasUD.hookup(cgipc);
+		ecba.hookup(cgipc);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/07/11 11:21:29  venku
+   - incorporated changes to drive forward control dependence analysis.
    Revision 1.20  2004/07/04 11:00:50  venku
    - added cli option for interprocedural divergence dependence.
    Revision 1.19  2004/06/23 06:17:25  venku
@@ -596,6 +575,8 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/07/11 11:21:29  venku
+   - incorporated changes to drive forward control dependence analysis.
    Revision 1.20  2004/07/04 11:00:50  venku
    - added cli option for interprocedural divergence dependence.
    Revision 1.19  2004/06/23 06:17:25  venku
