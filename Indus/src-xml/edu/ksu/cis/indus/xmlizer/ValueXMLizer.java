@@ -85,6 +85,11 @@ import java.io.Writer;
  */
 public class ValueXMLizer
   extends AbstractJimpleValueSwitch {
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	StringBuffer tabs = new StringBuffer("\t\t\t\t");
+
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -148,12 +153,12 @@ public class ValueXMLizer
 	 */
 	public final void caseArrayRef(ArrayRef v) {
 		try {
-			out.write("<array_ref id=\"" + newId + "\">");
+			out.write(tabs + "<array_ref id=\"" + newId + "\">\n");
 			writeBase(v.getBaseBox());
-			out.write("<index>");
+			out.write("<index>\n");
 			apply(v.getIndexBox());
-			out.write("</index>");
-			out.write("</array_ref>");
+			out.write("</index>\n");
+			out.write(tabs + "</array_ref>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -164,9 +169,9 @@ public class ValueXMLizer
 	 */
 	public final void caseCastExpr(CastExpr v) {
 		try {
-			out.write("<cast id=\"" + newId + "\" " + idGenerator.getIdForType(v.getCastType()) + " \">");
+			out.write(tabs + "<cast id=\"" + newId + "\" " + idGenerator.getIdForType(v.getCastType()) + " \">\n");
 			apply(v.getOpBox());
-			out.write("</cast >");
+			out.write(tabs + "</cast >\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -177,8 +182,8 @@ public class ValueXMLizer
 	 */
 	public final void caseCaughtExceptionRef(CaughtExceptionRef v) {
 		try {
-			out.write("<caught_exception_ref id=\"" + newId + " exceptionTypeId=\"" + idGenerator.getIdForType(v.getType())
-				+ "\">");
+			out.write(tabs + "<caught_exception_ref id=\"" + newId + " exceptionTypeId=\""
+				+ idGenerator.getIdForType(v.getType()) + "\">\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -217,7 +222,7 @@ public class ValueXMLizer
 	 */
 	public final void caseDoubleConstant(DoubleConstant v) {
 		try {
-			out.write("<double id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+			out.write(tabs + "<double id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -235,7 +240,7 @@ public class ValueXMLizer
 	 */
 	public final void caseFloatConstant(FloatConstant v) {
 		try {
-			out.write("<float id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+			out.write(tabs + "<float id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -260,10 +265,10 @@ public class ValueXMLizer
 	 */
 	public final void caseInstanceFieldRef(InstanceFieldRef v) {
 		try {
-			out.write("<instance_field_ref id=\"" + newId + "\">");
+			out.write(tabs + "<instance_field_ref id=\"" + newId + "\">\n");
 			writeBase(v.getBaseBox());
 			writeField(v.getField());
-			out.write("</instance_field_ref>");
+			out.write(tabs + "</instance_field_ref>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -274,9 +279,10 @@ public class ValueXMLizer
 	 */
 	public final void caseInstanceOfExpr(InstanceOfExpr v) {
 		try {
-			out.write("<instanceof id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getCheckType()) + "\">");
+			out.write(tabs + "<instanceof id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getCheckType())
+				+ "\">\n");
 			apply(v.getOpBox());
-			out.write("</instanceof>");
+			out.write(tabs + "</instanceof>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -287,7 +293,7 @@ public class ValueXMLizer
 	 */
 	public final void caseIntConstant(IntConstant v) {
 		try {
-			out.write("<integer id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+			out.write(tabs + "<integer id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -319,7 +325,7 @@ public class ValueXMLizer
 	 */
 	public final void caseLocal(Local v) {
 		try {
-			out.write("<local id=\"" + newId + "\" localId=\"" + idGenerator.getIdForLocal(v, currMethod) + "\"/>");
+			out.write(tabs + "<local id=\"" + newId + "\" localId=\"" + idGenerator.getIdForLocal(v, currMethod) + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -330,7 +336,7 @@ public class ValueXMLizer
 	 */
 	public final void caseLongConstant(LongConstant v) {
 		try {
-			out.write("<long id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+			out.write(tabs + "<long id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -369,9 +375,10 @@ public class ValueXMLizer
 	 */
 	public final void caseNewArrayExpr(NewArrayExpr v) {
 		try {
-			out.write("<new_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(v.getBaseType()) + "\">");
+			out.write(tabs + "<new_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(v.getBaseType())
+				+ "\">\n");
 			writeDimensionSize(1, v.getSizeBox());
-			out.write("</new_array>");
+			out.write(tabs + "</new_array>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -382,7 +389,7 @@ public class ValueXMLizer
 	 */
 	public final void caseNewExpr(NewExpr v) {
 		try {
-			out.write("<new id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getType()) + "\"/>");
+			out.write(tabs + "<new id=\"" + newId + "\" typeId=\"" + idGenerator.getIdForType(v.getType()) + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -395,13 +402,13 @@ public class ValueXMLizer
 		ArrayType type = v.getBaseType();
 
 		try {
-			out.write("<new_multi_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(type.baseType)
-				+ "\" dimension=\"" + type.numDimensions + "\">");
+			out.write(tabs + "<new_multi_array id=\"" + newId + "\" baseTypeId=\"" + idGenerator.getIdForType(type.baseType)
+				+ "\" dimension=\"" + type.numDimensions + "\">\n");
 
 			for (int i = 0; i < type.numDimensions; i++) {
 				writeDimensionSize(i + 1, v.getSizeBox(i));
 			}
-			out.write("</new_multi_array>");
+			out.write(tabs + "</new_multi_array>");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -412,7 +419,7 @@ public class ValueXMLizer
 	 */
 	public final void caseNullConstant(NullConstant v) {
 		try {
-			out.write("<null/>");
+			out.write(tabs + "<null/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -430,7 +437,7 @@ public class ValueXMLizer
 	 */
 	public final void caseParameterRef(ParameterRef v) {
 		try {
-			out.write("<parameter_ref id=\"" + newId + "\" position=\"" + v.getIndex() + "\"/>");
+			out.write(tabs + "<parameter_ref id=\"" + newId + "\" position=\"" + v.getIndex() + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -469,9 +476,9 @@ public class ValueXMLizer
 	 */
 	public final void caseStaticFieldRef(StaticFieldRef v) {
 		try {
-			out.write("<static_field_ref id=\"" + newId + "\">");
+			out.write(tabs + "<static_field_ref id=\"" + newId + "\">\n");
 			writeField(v.getField());
-			out.write("</static_field_ref>");
+			out.write(tabs + "</static_field_ref>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -482,15 +489,18 @@ public class ValueXMLizer
 	 */
 	public final void caseStaticInvokeExpr(StaticInvokeExpr v) {
 		try {
-			out.write("<invoke_expr name=\"static\" id=\"" + newId + "\">");
-			out.write("<method id=\"" + idGenerator.getIdForMethod(v.getMethod()) + "\"/>");
-			out.write("<arguments>");
+			out.write(tabs + "<invoke_expr name=\"static\" id=\"" + newId + "\">\n");
+			out.write("<method id=\"" + idGenerator.getIdForMethod(v.getMethod()) + "\"/>\n");
 
-			for (int i = 0; i < v.getArgCount(); i++) {
-				apply(v.getArgBox(i));
+			if (v.getArgCount() > 0) {
+				out.write("<arguments>\n");
+
+				for (int i = 0; i < v.getArgCount(); i++) {
+					apply(v.getArgBox(i));
+				}
+				out.write("</arguments>\n");
 			}
-			out.write("</arguments>");
-			out.write("</invoke_expr>");
+			out.write(tabs + "</invoke_expr>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -501,7 +511,7 @@ public class ValueXMLizer
 	 */
 	public final void caseStringConstant(StringConstant v) {
 		try {
-			out.write("<string id=\"" + newId + "\" value=\"" + v.value + "\"/>");
+			out.write(tabs + "<string id=\"" + newId + "\" value=\"" + v.value + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -519,7 +529,7 @@ public class ValueXMLizer
 	 */
 	public final void caseThisRef(ThisRef v) {
 		try {
-			out.write("<this id=\"" + newId + "\"/>");
+			out.write(tabs + "<this id=\"" + newId + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -589,8 +599,24 @@ public class ValueXMLizer
 	void apply(final ValueBox vBox) {
 		Object temp = newId;
 		newId = idGenerator.getIdForValue(vBox, currStmt, currMethod);
+		incrementTabs();
 		vBox.getValue().apply(this);
+		decrementTabs();
 		newId = temp;
+	}
+
+	/**
+	 *
+	 */
+	private void decrementTabs() {
+		tabs.deleteCharAt(0);
+	}
+
+	/**
+	 *
+	 */
+	private void incrementTabs() {
+		tabs.append("\t");
 	}
 
 	/**
@@ -600,9 +626,11 @@ public class ValueXMLizer
 	 */
 	private void writeBase(ValueBox v) {
 		try {
-			out.write("<base>");
+			incrementTabs();
+			out.write(tabs + "<base>\n");
 			apply(v);
-			out.write("</base>");
+			out.write(tabs + "</base>\n");
+			decrementTabs();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -616,14 +644,16 @@ public class ValueXMLizer
 	 */
 	private void writeBinaryExpr(String operatorName, BinopExpr v) {
 		try {
-			out.write("<binary_expr id=\"" + newId + "\" op=\"" + operatorName + "\">");
-			out.write("<left_op>");
+			out.write(tabs + "<binary_expr id=\"" + newId + "\" op=\"" + operatorName + "\">\n");
+			incrementTabs();
+			out.write(tabs + "<left_op>\n");
 			apply(v.getOp1Box());
-			out.write("</left_op>");
-			out.write("<right_op>");
+			out.write(tabs + "</left_op>\n");
+			out.write(tabs + "<right_op>\n");
 			apply(v.getOp2Box());
-			out.write("</right_op>");
-			out.write("</binary_expr>");
+			out.write(tabs + "</right_op>\n");
+			decrementTabs();
+			out.write(tabs + "</binary_expr>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -639,9 +669,11 @@ public class ValueXMLizer
 	 */
 	private void writeDimensionSize(int i, ValueBox v) {
 		try {
-			out.write("<size dimension=\"" + i + "\">");
+			incrementTabs();
+			out.write(tabs + "<size dimension=\"" + i + "\">\n");
 			apply(v);
-			out.write("</size>");
+			out.write(tabs + "</size>\n");
+			decrementTabs();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -654,7 +686,10 @@ public class ValueXMLizer
 	 */
 	private void writeField(SootField field) {
 		try {
-			out.write("<field id=\"" + idGenerator.getIdForField(field) + "\" signature=\"" + field.getSubSignature() + "\">");
+			incrementTabs();
+			out.write(tabs + "<field id=\"" + idGenerator.getIdForField(field) + "\" signature=\"" + field.getSubSignature()
+				+ "\">\n");
+			decrementTabs();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -668,18 +703,23 @@ public class ValueXMLizer
 	 */
 	private void writeInstanceInvokeExpr(String name, InstanceInvokeExpr v) {
 		try {
-			out.write("<invoke_expr name=\"" + name + "\" id=\"" + newId + "\">");
+			out.write(tabs + "<invoke_expr name=\"" + name + "\" id=\"" + newId + "\">\n");
 
 			SootMethod method = v.getMethod();
-			out.write("<method id=\"" + idGenerator.getIdForMethod(method) + "\"/>");
+			incrementTabs();
+			out.write(tabs + "<method id=\"" + idGenerator.getIdForMethod(method) + "\"/>\n");
 			writeBase(v.getBaseBox());
-			out.write("<arguments>");
 
-			for (int i = 0; i < v.getArgCount(); i++) {
-				apply(v.getArgBox(i));
+			if (v.getArgCount() > 0) {
+				out.write(tabs + "\t<arguments>\n");
+
+				for (int i = 0; i < v.getArgCount(); i++) {
+					apply(v.getArgBox(i));
+				}
+				out.write(tabs + "\t</arguments>\n");
 			}
-			out.write("</arguments>");
-			out.write("</invoke_expr>");
+			decrementTabs();
+			out.write(tabs + "</invoke_expr>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -693,9 +733,11 @@ public class ValueXMLizer
 	 */
 	private void writeUnaryExpr(String operatorName, UnopExpr value) {
 		try {
-			out.write("<unary_expr name=\"" + operatorName + "\" id=\"" + newId + "\">");
+			incrementTabs();
+			out.write(tabs + "<unary_expr name=\"" + operatorName + "\" id=\"" + newId + "\">\n");
 			apply(value.getOpBox());
-			out.write("</" + operatorName + ">");
+			out.write(tabs + "</unary_expr>\n");
+			decrementTabs();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -705,6 +747,9 @@ public class ValueXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 15:57:03  venku
+   - removed support to retrieve new statement ids.
+   - added support to retrieve id for value boxes.
    Revision 1.2  2003/11/07 11:14:44  venku
    - Added generator class for xmlizing purpose.
    - XMLizing of Jimple works, but takes long.

@@ -101,13 +101,13 @@ public class StmtXMLizer
 	 */
 	public final void caseAssignStmt(AssignStmt v) {
 		try {
-			out.write("<assign_stmt  id=\"" + newId + "\">");
-			out.write("<lhs>");
+			out.write("\t\t\t<assign_stmt  id=\"" + newId + "\">\n");
+			out.write("\t\t\t\t<lhs>\n");
 			valueXMLizer.apply(v.getLeftOpBox());
-			out.write("</lhs><rhs>");
+			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
 			valueXMLizer.apply(v.getRightOpBox());
-			out.write("</rhs>");
-			out.write("</assignstmt>");
+			out.write("\t\t\t\t</rhs>\n");
+			out.write("\t\t\t</assignstmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -118,7 +118,7 @@ public class StmtXMLizer
 	 */
 	public final void caseBreakpointStmt(BreakpointStmt v) {
 		try {
-			out.write("<breakpoint_stmt id=\"" + newId + "\"/>");
+			out.write("\t\t\t<breakpoint_stmt id=\"" + newId + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -129,9 +129,9 @@ public class StmtXMLizer
 	 */
 	public final void caseEnterMonitorStmt(EnterMonitorStmt v) {
 		try {
-			out.write("<entermonitor_stmt id=\"" + newId + "\">");
+			out.write("\t\t\t<entermonitor_stmt id=\"" + newId + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
-			out.write("</entermonitor_stmt>");
+			out.write("\t\t\t</entermonitor_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -142,9 +142,9 @@ public class StmtXMLizer
 	 */
 	public final void caseExitMonitorStmt(ExitMonitorStmt v) {
 		try {
-			out.write("<exitmonitor_stmt id=\"" + newId + "\">");
+			out.write("\t\t\t<exitmonitor_stmt id=\"" + newId + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
-			out.write("</exitmonitor_stmt>");
+			out.write("\t\t\t</exitmonitor_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -155,8 +155,8 @@ public class StmtXMLizer
 	 */
 	public final void caseGotoStmt(GotoStmt v) {
 		try {
-			out.write("<goto_stmt id=\"" + newId + "\" target=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getTarget(), currMethod) + "\"/>");
+			out.write("\t\t\t<goto_stmt id=\"" + newId + "\" target=\""
+				+ idGenerator.getIdForStmt((Stmt) v.getTarget(), currMethod) + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -167,13 +167,13 @@ public class StmtXMLizer
 	 */
 	public final void caseIdentityStmt(IdentityStmt v) {
 		try {
-			out.write("<identity_stmt  id=\"" + newId + "\">");
-			out.write("<lhs>");
+			out.write("\t\t\t<identity_stmt  id=\"" + newId + "\">\n");
+			out.write("\t\t\t\t<lhs>\n");
 			valueXMLizer.apply(v.getLeftOpBox());
-			out.write("</lhs><rhs>");
+			out.write("\t\t\t\t</lhs>\n\t\t\t\t<rhs>\n");
 			valueXMLizer.apply(v.getRightOpBox());
-			out.write("</rhs>");
-			out.write("</identity_stmt>");
+			out.write("\t\t\t\t</rhs>\n");
+			out.write("\t\t\t</identity_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -184,12 +184,12 @@ public class StmtXMLizer
 	 */
 	public final void caseIfStmt(IfStmt v) {
 		try {
-			out.write("<if_stmt id=\"" + newId + " true_target id=\"" + idGenerator.getIdForStmt(v.getTarget(), currMethod)
-				+ "\"/>");
-			out.write("<condition>");
+			out.write("\t\t\t<if_stmt id=\"" + newId + " true_target id=\"" + idGenerator.getIdForStmt(v.getTarget(), currMethod)
+				+ "\"/>\n");
+			out.write("\t\t\t\t<condition>\n");
 			valueXMLizer.apply(v.getConditionBox());
-			out.write("</condition>");
-			out.write("</if_stmt>");
+			out.write("\t\t\t\t</condition>\n");
+			out.write("\t\t\t</if_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -200,9 +200,9 @@ public class StmtXMLizer
 	 */
 	public final void caseInvokeStmt(InvokeStmt v) {
 		try {
-			out.write("<invoke_stmt id=\"" + newId + "\">");
+			out.write("\t\t\t<invoke_stmt id=\"" + newId + "\">\n");
 			valueXMLizer.apply(v.getInvokeExprBox());
-			out.write("</invoke_stmt>");
+			out.write("\t\t\t</invoke_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -213,17 +213,17 @@ public class StmtXMLizer
 	 */
 	public final void caseLookupSwitchStmt(LookupSwitchStmt v) {
 		try {
-			out.write("<lookupswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\">");
-			out.write("<key>");
+			out.write("\t\t\t<lookupswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
+				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\">\n");
+			out.write("\t\t\t\t<key>\n");
 			valueXMLizer.apply(v.getKeyBox());
-			out.write("</key>");
+			out.write("\t\t\t\t</key>\n");
 
 			for (int i = 0; i < v.getTargetCount(); i++) {
-				out.write("<case value=\"" + v.getLookupValue(i) + "\" targetId=\""
-					+ idGenerator.getIdForStmt((Stmt) v.getTarget(i), currMethod) + "\"/>");
+				out.write("\t\t\t\t<case value=\"" + v.getLookupValue(i) + "\" targetId=\""
+					+ idGenerator.getIdForStmt((Stmt) v.getTarget(i), currMethod) + "\"/>\n");
 			}
-			out.write("</lookupswitch_stmt>");
+			out.write("\t\t\t</lookupswitch_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -234,7 +234,7 @@ public class StmtXMLizer
 	 */
 	public final void caseNopStmt(NopStmt v) {
 		try {
-			out.write("<nop_stmt id=\"" + newId + "\"/>");
+			out.write("\t\t\t<nop_stmt id=\"" + newId + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -245,9 +245,9 @@ public class StmtXMLizer
 	 */
 	public final void caseRetStmt(RetStmt v) {
 		try {
-			out.write("<ret_stmt id=\"" + newId + "\">");
+			out.write("\t\t\t<ret_stmt id=\"" + newId + "\">\n");
 			valueXMLizer.apply(v.getStmtAddressBox());
-			out.write("</ret_stmt>");
+			out.write("\t\t\t</ret_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -258,9 +258,9 @@ public class StmtXMLizer
 	 */
 	public final void caseReturnStmt(ReturnStmt v) {
 		try {
-			out.write("<return_stmt id=\"" + newId + "\">");
+			out.write("\t\t\t<return_stmt id=\"" + newId + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
-			out.write("</return_stmt>");
+			out.write("\t\t\t</return_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -271,7 +271,7 @@ public class StmtXMLizer
 	 */
 	public final void caseReturnVoidStmt(ReturnVoidStmt v) {
 		try {
-			out.write("<returnvoid_stmt id=\"" + newId + "\"/>");
+			out.write("\t\t\t<returnvoid_stmt id=\"" + newId + "\"/>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -282,17 +282,17 @@ public class StmtXMLizer
 	 */
 	public final void caseTableSwitchStmt(TableSwitchStmt v) {
 		try {
-			out.write("<tableswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
-				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\">");
-			out.write("<key>");
+			out.write("\t\t\t<tableswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
+				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\"\n");
+			out.write("\t\t\t\t<key>\n");
 			valueXMLizer.apply(v.getKeyBox());
-			out.write("</key>");
+			out.write("\t\t\t\t</key>\n");
 
 			for (int i = 0; i < v.getHighIndex() - v.getLowIndex(); i++) {
-				out.write("<case value=\"" + i + "\" targetId=\""
-					+ idGenerator.getIdForStmt((Stmt) v.getTarget(i), currMethod) + "\"/>");
+				out.write("\t\t\t\t<case value=\"" + i + "\" targetId=\""
+					+ idGenerator.getIdForStmt((Stmt) v.getTarget(i), currMethod) + "\"/>\n");
 			}
-			out.write("</tableswitch_stmt>");
+			out.write("\t\t\t</tableswitch_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -303,9 +303,9 @@ public class StmtXMLizer
 	 */
 	public final void caseThrowStmt(ThrowStmt v) {
 		try {
-			out.write("<throw_stmt id=\"" + newId + "\">");
+			out.write("\t\t\t<throw_stmt id=\"" + newId + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
-			out.write("</throw_stmt>");
+			out.write("\t\t\t</throw_stmt>\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -352,6 +352,10 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/11/17 15:57:03  venku
+   - removed support to retrieve new statement ids.
+   - added support to retrieve id for value boxes.
+
    Revision 1.2  2003/11/07 11:14:44  venku
    - Added generator class for xmlizing purpose.
    - XMLizing of Jimple works, but takes long.

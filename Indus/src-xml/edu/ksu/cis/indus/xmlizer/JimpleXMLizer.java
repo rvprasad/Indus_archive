@@ -160,21 +160,21 @@ public class JimpleXMLizer
 	public final void callback(SootMethod method) {
 		try {
 			if (processingMethod) {
-				xmlizedSystem.write("</method>");
+				xmlizedSystem.write("\t\t</method>\n");
 			} else {
 				processingMethod = true;
 			}
 
-			xmlizedSystem.write("<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
-				+ idGenerator.getIdForMethod(method) + "\">");
+			xmlizedSystem.write("\t\t<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
+				+ idGenerator.getIdForMethod(method) + "\">\n");
 
 			if (method.isConcrete()) {
 				Body body = method.retrieveActiveBody();
 
 				for (Iterator i = body.getLocals().iterator(); i.hasNext();) {
 					Local l = (Local) i.next();
-					xmlizedSystem.write("<local id=\"" + idGenerator.getIdForLocal(l, method) + "\" name=\"" + l.getName()
-						+ "\"/>");
+					xmlizedSystem.write("\t\t\t<local id=\"" + idGenerator.getIdForLocal(l, method) + "\" name=\"" + l.getName()
+						+ "\"/>\n");
 				}
 			}
 		} catch (IOException e) {
@@ -192,16 +192,16 @@ public class JimpleXMLizer
 	public final void callback(SootClass clazz) {
 		try {
 			if (processingMethod) {
-				xmlizedSystem.write("</method>");
+				xmlizedSystem.write("\t\t</method>\n");
 			}
 
 			if (processingClass) {
-				xmlizedSystem.write("</class>");
+				xmlizedSystem.write("\t</class>\n");
 			} else {
 				processingClass = true;
 			}
-			xmlizedSystem.write("<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz)
-				+ "\">");
+			xmlizedSystem.write("\t<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz)
+				+ "\">\n");
 			processingMethod = false;
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -215,8 +215,8 @@ public class JimpleXMLizer
 	 */
 	public final void callback(SootField field) {
 		try {
-			xmlizedSystem.write("<field signature=\"" + field.getSubSignature() + "\" id=\""
-				+ idGenerator.getIdForField(field) + "\"/>");
+			xmlizedSystem.write("\t\t<field signature=\"" + field.getSubSignature() + "\" id=\""
+				+ idGenerator.getIdForField(field) + "\"/>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", e);
@@ -230,13 +230,13 @@ public class JimpleXMLizer
 	public final void consolidate() {
 		try {
 			if (processingMethod) {
-				xmlizedSystem.write("</method>");
+				xmlizedSystem.write("\t\t</method>\n");
 			}
 
 			if (processingClass) {
-				xmlizedSystem.write("</class>");
+				xmlizedSystem.write("\t</class>\n");
 			}
-			xmlizedSystem.write("</jimple>");
+			xmlizedSystem.write("</jimple>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", e);
@@ -267,7 +267,7 @@ public class JimpleXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			xmlizedSystem.write("<jimple>");
+			xmlizedSystem.write("<jimple>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing xmlized jimple info.", e);
@@ -279,6 +279,9 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/24 00:54:03  venku
+   - deleted  getstream() method as it was not used.
+
    Revision 1.12  2003/11/17 15:57:03  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
