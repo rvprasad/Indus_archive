@@ -785,6 +785,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			LOGGER.debug("Pruning locals in " + method);
 		}
 
+        if (method.hasActiveBody()) {
 		final Body _body = method.getActiveBody();
 		final Collection _localsToKeep = new ArrayList();
 
@@ -801,19 +802,23 @@ public final class TagBasedDestructiveSliceResidualizer
 					}
 				}
 			}
-		}
+		}        
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Locals " + _body.getLocals());
 			LOGGER.debug("Retaining:" + _localsToKeep);
 		}
 		_body.getLocals().retainAll(_localsToKeep);
+        }
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/03/03 10:09:42  venku
+   - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
+
    Revision 1.3  2004/02/28 22:45:27  venku
  *** empty log message ***
          Revision 1.2  2004/02/27 09:41:29  venku
