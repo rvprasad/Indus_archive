@@ -653,6 +653,10 @@ public final class SlicerTool
 			LOGGER.error("Forward Executable slice is unsupported.");
 			throw new IllegalStateException("Forward Executable slice is unsupported.");
 		}
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("checkConfiguration() - " + _slicerConf.getConfigName());
+        }
 	}
 
 	/**
@@ -911,6 +915,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.108  2004/08/01 21:30:15  venku
+   - ECBA was made independent of ThreadGraph Analysis.
+
    Revision 1.107  2004/08/01 21:07:16  venku
    - renamed dumpGraph() as toString()
    - refactored ThreadGraph.
