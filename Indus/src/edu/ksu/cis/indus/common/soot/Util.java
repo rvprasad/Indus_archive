@@ -444,6 +444,70 @@ public final class Util {
 	}
 
 	/**
+	 * Retrieves the methods that can be invoked externally (this rules out execution of super methods) on instances of the
+	 * given classes.
+	 *
+	 * @param newClasses is a collection of classes to be processed.
+	 *
+	 * @return the resolved methods
+	 *
+	 * @pre newClasses.oclIsKindOf(Collection(SootClass))
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 */
+	public static Collection getResolvedMethods(final Collection newClasses) {
+		final Collection _col = new HashSet();
+		final Collection _temp = new HashSet();
+		final Iterator _i = newClasses.iterator();
+		final int _iEnd = newClasses.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final SootClass _sc = (SootClass) _i.next();
+			final Collection _methods = _sc.getMethods();
+			_col.addAll(_methods);
+			_temp.clear();
+
+			final Iterator _l = _methods.iterator();
+			final int _lEnd = _methods.size();
+
+			for (int _lIndex = 0; _lIndex < _lEnd; _lIndex++) {
+				final SootMethod _sm = (SootMethod) _l.next();
+				_temp.add(_sm.getSubSignature());
+			}
+
+			SootClass _super = _sc;
+
+			while (hasSuperclass(_super)) {
+				_super = _super.getSuperclass();
+
+				final Iterator _j = _super.getMethods().iterator();
+				final int _jEnd = _super.getMethods().size();
+
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final SootMethod _superMethod = (SootMethod) _j.next();
+
+					if (!_temp.contains(_superMethod.getSubSignature())) {
+						_temp.add(_superMethod.getSubSignature());
+						_col.add(_superMethod);
+					}
+				}
+			}
+		}
+
+		final Iterator _j = _col.iterator();
+		final int _jEnd = _col.size();
+
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			final SootMethod _sm = (SootMethod) _j.next();
+
+			if (_sm.getName().equals("<init>") && !newClasses.contains(_sm.getDeclaringClass())) {
+				_j.remove();
+			}
+		}
+
+		return _col;
+	}
+
+	/**
 	 * Checks if type <code>t1</code> is the same/sub-type of type <code>t2</code>.
 	 *
 	 * @param t1 is the type to be checked for equivalence or sub typing.
@@ -718,8 +782,8 @@ public final class Util {
 	 * @return <code>true</code> if <code>sc</code> has a superclass; <code>false</code>, otherwise.
 	 *
 	 * @pre sc != null
-	 * @post sc.getName().equals("java.lang.Object") implies result = true
-	 * @post (not sc.getName().equals("java.lang.Object")) implies result = false
+	 * @post sc.getName().equals("java.lang.Object") implies result = false
+	 * @post (not sc.getName().equals("java.lang.Object")) implies result = true
 	 */
 	public static boolean hasSuperclass(final SootClass sc) {
 		boolean _result = false;
