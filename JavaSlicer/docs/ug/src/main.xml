@@ -1,4 +1,6 @@
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"-->
+<!DOCTYPE article SYSTEM "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd">
 <article class="productsheet">
   <title>Indus - Java Program Slicer</title>
   <articleinfo>
@@ -159,7 +161,7 @@
             processing strategy.</listitem>
         </varlistentry>
         <varlistentry>
-          <term>transformations.slicer</term>
+          <term>slicer.transformations</term>
           <listitem>This module contains classes that transform the program based on the identified slice. One may use
             other transformations which may be driven by the identified slice but was not intended to be driven by it.
             However, the basic intention was to capture the transformations that are specific to slicing in this module.

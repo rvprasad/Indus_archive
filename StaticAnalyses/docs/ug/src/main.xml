@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd">
+<!--DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"-->
+<!DOCTYPE article SYSTEM "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd">
 <article class="productsheet">
-  <title>Indus - Static analyses</title>
+  <title>Indus - StaticAnalyses</title>
   <articleinfo>
-    <title>Indus - Static analyses</title>
-    <pubdate/>
+    <title>Indus - StaticAnalyses</title>
+    <pubdate></pubdate>
     <author>
       <firstname>Venkatesh Prasad</firstname>
       <surname>Ranganath</surname>
@@ -16,9 +17,261 @@
   </articleinfo>
   <sect1 id="Introduction">
     <title>Introduction</title>
-    <para>Each section of this document will provide an introduction to a concept and then provide sufficient exposition
-      to enable the reader to use the implementation along with the supplement material. The implementation is available
-      as <emphasis>StaticAnalyses </emphasis> modules from <emphasis>Indus</emphasis>.</para>
+    <para>
+      <emphasis>StaticAnalyses</emphasis> is a subproject of Indus<footnote>http://indus.projects.cis.ksu.edu</footnote>
+      which provides static analyses that can be used in other program analyses and program transformations. At present
+      it provides the following analyses and framework.</para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          <emphasis>Value Flow Analysis (VFA) framework</emphasis> provides a generic framework that can be used to
+          implement analyses that have data flow flavour. <emphasis>Object Flow Analysis (OFA)</emphasis> is an instance
+          of this framework that calculates points-to information.</para>
+      </listitem>
+      <listitem>
+        <para>
+          <emphasis>Escape analysis</emphasis> calculates "thread escaping" information for objects of a given system.</para>
+      </listitem>
+      <listitem>
+        <para>
+          <emphasis>Dependence analysis</emphasis> calculates the information pertaining to various notions of
+          dependence for a given system.</para>
+      </listitem>
+    </itemizedlist>
+    <para>The next section will outline the packages and their prime purpose. This will be followed by a detailed
+      section on each of the above mentioned analyses.</para>
+    <sect2>
+      <title>Packages</title>
+      <para>The following is a list of packages in StaticAnalyses subproject along with their description. All the
+        packages are rooted in a package called <emphasis>edu.ksu.cis.indus</emphasis>. All classes in the packages
+        listed below with <emphasis>DOCUMENT ME!</emphasis> is better left unused as it does not have documentation and
+        may be it is incomplete! Likewise any package not mentioned here is clearly already on its way out.</para>
+      <variablelist>
+        <varlistentry>
+          <term>staticanalyses</term>
+          <listitem>
+            <para>This package contains classes that are common to various analyses. In general, if some class is used
+              in more than one analysis and it is general then it will exist here before being moved into a specific
+              package. However, this movement will not be visible to the user.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.cfg</term>
+          <listitem>
+            <para>This package will house the classes that contain logic and functionality pertaining to control flow
+              analysis. This is usually uninteresting by themselves but may be interesting in more than one analysis
+              more than once. For example, there are various information required by analysis that can be calculated
+              just based the control flow graph of the method(s). This is provided by <emphasis>CFGAnalysis</emphasis>
+              in this package.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.concurrency</term>
+          <listitem>
+            <para>This package contains classes that analyze the system to discover properties/information about it
+              pertaining to it's concurrent nature. It can contain packages that are concerned with a particular
+              concurrency aspect.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.concurrency.escape</term>
+          <listitem>
+            <para>This package contains classes that deal with analyses that calculate escape information pertaining to
+              objects in the system.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.dependency</term>
+          <listitem>
+            <para>This contains analyses that calculate dependence information as required primarily for the purposes of
+              program slicing. However, there may be more variants of these analyses that will be included for the
+              purpose of customization and adaptation.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow</term>
+          <listitem>
+            <para>This package contains a framework that can be used to implement value flow analysis in the same
+              flavour as data flow analysis. All instances of this framework are housed as subpackages of this package.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow.instances.ofa</term>
+          <listitem>
+            <para>As mentioned earlier, object flow analysis is a points-to analysis for Java implemented as an instance
+              of value flow analysis framework provided by the parent package. This is used primarily to calculate a
+              precise call graph and conservative thread graph.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow.instances.ofa.fi</term>
+          <listitem>
+            <para>This package contains the specialized instances of flow framework classes to enable flow insensitive
+              object flow analysis.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow.instances.ofa.fs</term>
+          <listitem>
+            <para>This package contains the specialized instances of flow framework classes to enable flow sensitive
+              object flow analysis.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow.instances.ofa.processors</term>
+          <listitem>
+            <para>This package contains classes which process the raw information calculated by OFA to create more
+              accessible information such as call graphs and thread graphs.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow.modes.insensitive</term>
+          <listitem>
+            <para>This package contains classes that are specific to the flow framework which can be used to alter
+              perform "context" unaware analysis. This basically means that these classes can be used to render a
+              particular aspect of the flow analysis insensitive like flow insensitive.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow.modes.sensitive</term>
+          <listitem>
+            <para>This package contains classes that are specific to the flow framework which can be used to alter
+              perform "context" aware analysis. This basically means that these classes can be used to render a
+              particular aspect of the flow analysis sensitive like flow sensitive.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow.modes.sensitive.allocation</term>
+          <listitem>
+            <para>This package contains classes that are specific to the flow framework which can be used to perform
+              allocation site sensitive analysis. This is useful in particular when the flow analysis instance
+              differentiates the summary for a field or method based of the value taken on by the receiver or the primary.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.flow.modes.sensitive.flow</term>
+          <listitem>
+            <para>This package contains classes that are specific to the flow framework which can be used to perform
+              flow sensitive analysis.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.interfaces</term>
+          <listitem>
+            <para>This package contains interfaces that should be used to expose various static analyses implementation;
+              this way new implementation can be plugged into a system that has been using a static analysis.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>staticanalyses.processing</term>
+          <listitem>
+            <para>This package is the counterpart of the processing package in Indus subproject. It provides filters,
+              processors, and controllers that are </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </sect2>
+  </sect1>
+  <sect1 id="vfa">
+    <title>Value Flow Analysis</title>
+    <sect2>
+      <title>Idea</title>
+      <para>Data flow analysis is a common form of program analysis. Usually each developer rigs an implementation of a
+        flow analysis or uses a framework such as one in Soot based on flow sets to implement a flow analysis. When
+        developing VFA, the flow analysis framework in Soot was not available (pre Soot 1.2 era), hence we rolled out
+        our own flow analysis framework. The reason we made it a framework rather than a single purpose implementation
+        was that we had in mind other analyses which can be cast as a flow analysis problem, hence, the framework could
+        be used to avoid common work that occurs in such implementation.</para>
+      <para>Although VFA framework is a data flow analysis implementation framework, the representation of the analysis
+        instance and the constraints or equations is simple as it is graph based. Each summary set is denoted as a node
+        in the graph and the edges connecting the nodes provide the path along which the values flow in the graph. This
+        simplicity has its cost which will be addressed over time. The basic idea is to walk the system from a given set
+        of entry points to create a flow graph as required. At the same time values are pushed along the edges to
+        instrument the flow. This means the flow graph can grow. However, when the graph and the flow stabilizes, the
+        analysis is done.</para>
+    </sect2>
+    <sect2>
+      <title>Implementation</title>
+      <para>The framework provides classes that are required to construct the graph, map program points to nodes/summary
+        sets, manage the key/index used to by the previous mapping in way particular to the "context", and abstract
+        implementations that encapsulate common behavior required or exposed by all instances of the framework.</para>
+      <para>We use the term <emphasis>variant</emphasis> to represent the information/summary set/instance of a program
+        point in a particular context. The framework provides <emphasis>manager</emphasis>s to manage the variants. They
+        just maintain mapping from a syntactic entity in a particular context to its variant. The managers are extended
+        to handled various sorts of syntactic entities such as fields, AST chunks, methods, etc. Likewise, the variants
+        are extended too. The managers rely on the <emphasis>index managers</emphasis> to manage the index of the
+        program points in a particular context. This demarcation enables one to just vary the index managers in an
+        instance and vary the sensitivity of the analysis. The framework also provides walkers/visitors that extend the
+        Soot visitors by providing the common methods required by these visitor instances to create the flow graph and
+        enable the flow in the framework. It also provides connectors to provide the developer control over the
+        direction of the flow.</para>
+      <para>The actual instrumentation of the flow is done by a work list algorithm. Hence, the framework defines the
+        interface of the work object to be used by its instances to instrument the flow. It has been our experience that
+        due to the type system in Java the flow needs to be regulated based on types. To this end the framework provides
+        a filter that filters values based on types.</para>
+      <para>The framework itself is represented by the class <emphasis>FA</emphasis> and it requires a
+        <emphasis>ModeFactory</emphasis> instance that provides the instances of various components of the framework to
+        construct the flow graph and instrument the flow.</para>
+      <para>As for implementating an instance of the framework, the developer needs to provide classes of the nodes in
+        the graph and the visitors which are used to walk the system and trigger the creation of the graph. In the
+        visitors, the developer creates the nodes accordingly and delegates to the parent implementation to plug these
+        nodes together. If the developer is interested in controlling the direction of the flow, he/she can provide a
+        suitable <emphasis>connector</emphasis> implementation. As for instantiating an instance of the framework, the
+        user needs to provide a mode factory instance that can create the required components according to the demands
+        of the framework. That's it!</para>
+      <para>Please read the next section for more details on how to use the framework to implement an analysis.</para>
+    </sect2>
+    <sect2 id="ofa">
+      <title>Object Flow Analysis - an instance</title>
+      <para>OFA is an instance of VFA. It uses VFA framework to track the flow of objects in a system. Each object
+        allocation site is treated as an abstract object and its flow through the system is tracked. This information is
+        invaluable in constructing the call graph of the system. Please refer to
+        <citation>RanganathMSThesis2002</citation> for nitty gritty details about OFA.</para>
+      <para>All classes refered in this section are rooted in the package <emphasis>edu.ksu.cis.indus.staticanalyses.flow.instances.ofa</emphasis>.</para>
+      <para>
+        <emphasis>OFAnalyzer</emphasis> exposes the analysis to the client application. It provides various methods to
+        extract an instance that has a preconfigured sensitivity. The client may use
+        <emphasis>getFIOSAnalyzer(String)</emphasis> to extract an instance which is performs flow insensitive and
+        objcec allocation site sensitive analysis. The flow analysis framework will use a tag to annotate parts of the
+        system that has been "seen" by the analysis and the name of this tag can be specified when obtaining an instance
+        of the analysis. Underneth the hood, OFAnalyzer class just creates suitable prototypes of the classes that need
+        to be used to put together the flow graph in the framework along with the various index managers that control
+        the sensitivity.</para>
+      <para>Upon obtaining an instance, the client can provide a Jimple representation of the system for analysis via
+        <emphasis>analyze()</emphasis> method. Once the analysis is complete the client can query values for various
+        entities in different context via the getter methods.</para>
+      <sect3>
+        <title>Under the hood</title>
+        <para>OFA provides 2 pair of walkers/visitors. An expression level visitor and statement level visitor to
+          operate in flow insensitive/sensitive mode. These rely on the instance of a
+          <emphasis>IFGNodeConnector</emphasis> to connect various nodes during the flow graph construction depending on
+          the sensitivity setting. Hence, while instantiating the framework, the prototypes of the connectors are also
+          provided. When the visitors create the nodes, they also may associate a work piece with them. This work piece
+          is like a hook to be executed when a value flows into the node. These work pieces inject work into the
+          frameworks work list to instrument the flow. For instance, the primary of a field expression is associated
+          with a work piece that will be executed when new values arrive at the primary and this execution will connect
+          the variant of field corresponding to the new abstract object to be connected with the variant of the ast
+          chunk representing the field. In short, work pieces connect the nodes in the graph on a need basis.</para>
+        <para>As mentioned before the major chunk of work is done while post processing the information calculated by
+          OFA. This is done by classes in <emphasis>processors</emphasis> package. These classes are driven by the
+          processing infrastructure of Indus to visit parts of the system to create high-level information based on the
+          OFA information. <emphasis>call graph, thread graph, and new-expression-to-init-site-mapper</emphasis> are the
+          existing processors that calculated call graph inforamtion for the system, the call graph for each thread
+          along with threading hierarchy for the system, and a mapping of which &lt;init&gt; invocation is
+          associated to which new expression/allocation site.</para>
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1 id="escape-analysis">
+    <title>Escape analysis</title>
+    <para>
+      <emphasis>Escape analysis</emphasis> detects if an object escapes the method in which it is created and/or if it
+      escapes the thread in which it is created. We have implemented Ruf's analysis and an extended version of Ruf's
+      analysis. It is the latter we support and it is used to detect if an object is thread escaping. It is based on the
+      processing infrastructure in Indus. Hence, before executing the analysis, it needs to walk the system via the
+      processing infrastructure. After the execution, the client can query about the escaping nature of a soot value in
+      a method.</para>
+    <para> Please refer to <citation>RanganathCC04</citation> for details about the extension to Rufs analysis.</para>
   </sect1>
   <sect1 id="dependences">
     <title>Dependences</title>
@@ -27,10 +280,7 @@
       <para>The concept of a program point affecting/affected by another program point is captured as dependences.
         <emphasis>Dependence</emphasis> can be thought of as a relation between two program points x and y that
         indicates if x depends on y. In a dependence relation between x and y where x depends on y, we refer to x as the
-        <emphasis>dependent</emphasis> and y as the <emphasis>dependee</emphasis>
-        <footnote>
-          <para>We shall often refer to dependent program points as the dependent and dependee program point as the dependee.</para>
-        </footnote>. </para>
+        <emphasis>dependent</emphasis> and y as the <emphasis>dependee</emphasis>. </para>
       <para>There are many notions of dependences and <emphasis>data</emphasis> and <emphasis>control</emphasis>
         dependence are the most common and simple notions of dependences that can occur even in simple non-procedural
         sequential programs. In a simple setting <emphasis>data dependence</emphasis> indicates if the variable being
@@ -78,6 +328,14 @@
     </sect2>
     <sect2 id="dependence-implementation">
       <title>Implementation</title>
+      <para>All dependence analyses extend <emphasis>DependencyAnalysis</emphasis> class which provides the generic
+        interface via which information from the analyses can be queried. Each analysis requires a set of information
+        prior to starting execution. This is provided via a id to value mapping via <emphasis>setup()</emphasis> method.
+        The id is based on notions of dependences and all implementations that provide info about a notion of dependence
+        will have the same id. This is a system native to Indus project. This is followed by executing the analyses via
+        an instance of <emphasis>AnalysisController</emphasis> as it considers any interdependencies between the
+        analyses being executed to determine if all analyses have infact completed. That's it, the analyses are ready to
+        be queried.</para>
     </sect2>
   </sect1>
   <bibliography>
@@ -145,6 +403,33 @@
         <title>Proceedings ACM SIGPLAN/SIGFSOFT Workshop on Program Analysis for Software Tools and Engineering (PASTE'98)</title>
         <artpagenums>35-42</artpagenums>
         <pubdate>June 1998</pubdate>
+      </biblioset>
+    </biblioentry>
+    <biblioentry xreflabel="RanganathMSThesis02">
+      <author>
+        <firstname>Venkatesh Prasad</firstname>
+        <surname>Ranganath</surname>
+      </author>
+      <title>Object-Flow Analysis for Optimizing Finite-State Models of Java Software</title>
+      <orgname>Kansas State University</orgname>
+      <date>2002</date>
+    </biblioentry>
+    <biblioentry xreflabel="RanganathCC04">
+      <biblioset relation="article">
+        <author>
+          <firstname>Venkatesh Prasad</firstname>
+          <surname>Ranganath</surname>
+        </author>
+        <author>
+          <firstname>John</firstname>
+          <surname>Hatcliff</surname>
+        </author>
+        <citetitle>Pruning Interference and Ready Dependences for Slicing Concurrent Java Programs</citetitle>
+      </biblioset>
+      <biblioset relation="proceedings">
+        <editor>Evelyn Duesterwald</editor>
+        <title>Proceedings of Compiler Construction (CC'04)</title>
+        <pubdate>2004</pubdate>
       </biblioset>
     </biblioentry>
   </bibliography>
