@@ -95,7 +95,7 @@ public final class OFAXMLizerCLI
 
 			if (_cl.hasOption("h")) {
 			    final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
-			    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
+			    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 				System.exit(1);
 			}
 
@@ -118,7 +118,7 @@ public final class OFAXMLizerCLI
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 		    final String _cmdLineSyn = "java " + OFAXMLizerCLI.class.getName();
-		    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "");
+		    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
 		}
 	}
 
@@ -196,6 +196,9 @@ public final class OFAXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/06/03 03:50:34  venku
+   - changed the way help will be output on command line classes.
+
    Revision 1.11  2004/05/10 11:28:25  venku
    - Jimple is dumped only for the reachable parts of the system.
 

@@ -102,7 +102,7 @@ public final class CallGraphXMLizerCLI
 
 			if (_cl.hasOption('h')) {
 			    final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
-			    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
+			    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 				System.exit(1);
 			}
 
@@ -130,7 +130,7 @@ public final class CallGraphXMLizerCLI
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 		    final String _cmdLineSyn = "java " + CallGraphXMLizerCLI.class.getName();
-		    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "");
+		    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
 		}
 	}
 
@@ -207,6 +207,9 @@ public final class CallGraphXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/06/03 03:50:33  venku
+   - changed the way help will be output on command line classes.
+
    Revision 1.13  2004/05/25 21:20:44  venku
    - changed the root name used to dump files.
 

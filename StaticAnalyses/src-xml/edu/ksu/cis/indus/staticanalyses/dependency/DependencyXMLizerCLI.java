@@ -182,7 +182,7 @@ public class DependencyXMLizerCLI
 
 			if (_cl.hasOption("h")) {
 			    final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
-			    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "");
+			    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "");
 				System.exit(1);
 			}
 
@@ -227,7 +227,7 @@ public class DependencyXMLizerCLI
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line.", _e);
 		    final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName();
-		    (new HelpFormatter()).printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
+		    (new HelpFormatter()).printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 			System.exit(1);
 		} catch (Throwable _e) {
 			LOGGER.error("Beyond our control. May day! May day!", _e);
@@ -371,6 +371,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/06/05 09:52:24  venku
+   - INTERIM COMMIT
+     - Reimplemented EntryControlDA.  It provides indirect control dependence info.
+     - DirectEntryControlDA provides direct control dependence info.
+     - ExitControlDA will follow same suite as EntryControlDA with new implementation
+       and new class for direct dependence.
+
    Revision 1.14  2004/06/03 03:50:34  venku
    - changed the way help will be output on command line classes.
 
@@ -576,6 +583,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/06/05 09:52:24  venku
+   - INTERIM COMMIT
+     - Reimplemented EntryControlDA.  It provides indirect control dependence info.
+     - DirectEntryControlDA provides direct control dependence info.
+     - ExitControlDA will follow same suite as EntryControlDA with new implementation
+       and new class for direct dependence.
+
    Revision 1.14  2004/06/03 03:50:34  venku
    - changed the way help will be output on command line classes.
 

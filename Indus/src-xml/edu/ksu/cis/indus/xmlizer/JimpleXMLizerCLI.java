@@ -101,7 +101,7 @@ public final class JimpleXMLizerCLI {
 
 			if (_cl.hasOption('h')) {
 			    final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
-			    _help.printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
+			    _help.printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 			} else {
 				if (_args.length > 0) {
 					if (_cl.hasOption('p')) {
@@ -136,7 +136,7 @@ public final class JimpleXMLizerCLI {
 		} catch (ParseException _e) {
 			LOGGER.error("Error while parsing command line");
 		    final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
-		    _help.printHelp(_cmdLineSyn.length() + 10, _cmdLineSyn, "", _options, "", true);
+		    _help.printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
 		}
 	}
 
@@ -175,6 +175,9 @@ public final class JimpleXMLizerCLI {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/06/03 03:50:35  venku
+   - changed the way help will be output on command line classes.
+
    Revision 1.7  2004/05/28 21:53:21  venku
    - added a method to ExceptionFlowSensitiveGraphFactory to create
      default factory objects.
