@@ -68,7 +68,7 @@ public class BasicBlockGraph
 	/**
 	 * The control flow graph of the method represented by this graph.
 	 */
-	final UnitGraph stmtGraph;
+	public final UnitGraph _stmtGraph;
 
 	/**
 	 * The collection of basic block nodes in this graph.
@@ -90,8 +90,8 @@ public class BasicBlockGraph
 	 * @pre stmtGraphParam != null
 	 */
 	BasicBlockGraph(final UnitGraph stmtGraphParam) {
-		this.stmtGraph = stmtGraphParam;
-		stmtList = Collections.unmodifiableList(new ArrayList(stmtGraph.getBody().getUnits()));
+		this._stmtGraph = stmtGraphParam;
+		stmtList = Collections.unmodifiableList(new ArrayList(_stmtGraph.getBody().getUnits()));
 
 		int numOfStmt = stmtList.size();
 
@@ -125,8 +125,8 @@ public class BasicBlockGraph
 			Stmt pred = stmt;
 
 			while (true) {
-				Collection preds = stmtGraph.getPredsOf(stmt);
-				Collection succs = stmtGraph.getSuccsOf(stmt);
+				Collection preds = _stmtGraph.getPredsOf(stmt);
+				Collection succs = _stmtGraph.getSuccsOf(stmt);
 				int succsSize = succs.size();
 
 				if (preds.size() > 1 && pred != stmt) {
@@ -145,7 +145,7 @@ public class BasicBlockGraph
 					break;
 				}
 				pred = stmt;
-				stmt = (Stmt) stmtGraph.getSuccsOf(pred).get(0);
+				stmt = (Stmt) _stmtGraph.getSuccsOf(pred).get(0);
 			}
 
 			BasicBlock bblock = new BasicBlock(leader, trailer, stmts);
@@ -161,7 +161,7 @@ public class BasicBlockGraph
 			BasicBlock block = (BasicBlock) i.next();
 			Stmt stmt = block.getTrailerStmt();
 
-			for (Iterator j = stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
+			for (Iterator j = _stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
 				Stmt nStmt = (Stmt) j.next();
 				BasicBlock nBlock = getEnclosingBlock(nStmt);
 				addEdgeFromTo(block, nBlock);
@@ -169,10 +169,10 @@ public class BasicBlockGraph
 		}
 
 		// Setup the head of the graph.
-		heads.add(getEnclosingBlock((Stmt) stmtGraph.getHeads().get(0)));
+		heads.add(getEnclosingBlock((Stmt) _stmtGraph.getHeads().get(0)));
 
 		// Setup the tails of the graph.
-		for (Iterator i = stmtGraph.getTails().iterator(); i.hasNext();) {
+		for (Iterator i = _stmtGraph.getTails().iterator(); i.hasNext();) {
 			tails.add(getEnclosingBlock((Stmt) i.next()));
 		}
 	}
@@ -276,16 +276,16 @@ public class BasicBlockGraph
 
 				Stmt stmt = begStmt;
 
-				while (stmtGraph.getSuccsOf(stmt).size() == 1) {
-					Object o = stmtGraph.getSuccsOf(stmt).get(0);
+				while (_stmtGraph.getSuccsOf(stmt).size() == 1) {
+					Object o = _stmtGraph.getSuccsOf(stmt).get(0);
 
 					if (o.equals(endStmt)) {
+                        result.add(endStmt);
 						break;
 					}
 					result.add(o);
 					stmt = (Stmt) o;
 				}
-				result.add(endStmt);
 			}
 			return result;
 		}
@@ -370,6 +370,11 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/02 07:39:54  venku
+   - getStmtFromTo() was off by one at the end.  Also, it relied on Stmt list to calculate this info.
+     Now it uses the unit graph to calculate this info.
+   - added getLeaderStmt() method.
+
    Revision 1.5  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.
