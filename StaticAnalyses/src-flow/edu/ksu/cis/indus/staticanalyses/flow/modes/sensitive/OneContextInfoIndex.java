@@ -113,8 +113,14 @@ public class OneContextInfoIndex
 	 */
 	public int hashCode() {
 		int result = 17;
-		result = 37 * result + v.hashCode();
-		result = 37 * result + contextInfo.hashCode();
+
+		if (v != null) {
+			result = 37 * result + v.hashCode();
+		}
+
+		if (contextInfo != null) {
+			result = 37 * result + contextInfo.hashCode();
+		}
 		return result;
 	}
 
@@ -130,13 +136,14 @@ public class OneContextInfoIndex
 
 /*
    ChangeLog:
-
    $Log$
-
+   Revision 1.2  2003/08/12 18:55:51  venku
+   Spruced up documentation and specification.
+   Changed equals() and hashCode() in AllocationContext.
+   Removed cached versions of hashCode() and equals().
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-
    Revision 1.8  2003/05/22 22:18:32  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.

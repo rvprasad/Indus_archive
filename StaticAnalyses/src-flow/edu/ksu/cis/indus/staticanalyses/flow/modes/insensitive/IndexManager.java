@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.modes.insensitive;
@@ -41,12 +41,13 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 
 
 /**
- * <p>
  * This class implements insensitive index manager.  In simple words, it generates indices such that entities can be
  * differentiated solely on their credentials and not on any other auxiliary information such as program point or call
  * stack.
- * </p>
+ * 
+ * <p>
  * Created: Fri Jan 25 13:11:19 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -54,58 +55,62 @@ import edu.ksu.cis.indus.staticanalyses.flow.IIndex;
 public class IndexManager
   extends AbstractIndexManager {
 	/**
-	 * <p>
 	 * This class represents an index that identifies an entity independent of any context information..
-	 * </p>
 	 */
 	class DummyIndex
 	  implements IIndex {
 		/**
-		 * <p>
 		 * The entity that this index identifies.
-		 * </p>
 		 */
 		Object object;
 
 		/**
-		 * <p>
 		 * Creates a new <code>DummyIndex</code> instance.
-		 * </p>
 		 *
-		 * @param object the entity being identified by this index.
+		 * @param o the entity being identified by this index.
 		 */
-		DummyIndex(Object o) {
+		DummyIndex(final Object o) {
 			this.object = o;
 		}
 
 		/**
-		 * <p>
 		 * Compares if the given object is the same as this object.
-		 * </p>
 		 *
-		 * @param object the object to be compared with.
+		 * @param o the object to be compared with.
 		 *
 		 * @return <code>true</code> if <code>object</code> is the same as this object; <code>false</code> otherwise.
 		 */
-		public boolean equals(Object o) {
-			return this.object.hashCode() == o.hashCode();
+		public boolean equals(final Object o) {
+			boolean result = false;
+
+			if (o != null && o instanceof DummyIndex) {
+				DummyIndex di = (DummyIndex) o;
+
+				if (object != null) {
+					result = object.equals(di.object);
+				} else {
+					result = object == di.object;
+				}
+			}
+			return result;
 		}
 
 		/**
-		 * <p>
 		 * Returns the hash code for this object.
-		 * </p>
 		 *
 		 * @return returns the hash code for this object.
 		 */
 		public int hashCode() {
-			return object.hashCode();
+			int result = 17;
+
+			if (object != null) {
+				result = 37 * result * object.hashCode();
+			}
+			return result;
 		}
 
 		/**
-		 * <p>
 		 * Returns the stringized representation of this object.
-		 * </p>
 		 *
 		 * @return the stringized representation of this object.
 		 */
@@ -115,9 +120,7 @@ public class IndexManager
 	}
 
 	/**
-	 * <p>
 	 * Returns a new instance of this class.
-	 * </p>
 	 *
 	 * @return a new instance of this class.
 	 */
@@ -126,42 +129,39 @@ public class IndexManager
 	}
 
 	/**
-	 * <p>
 	 * This method throws an <code>UnsupportedOperationException</code> exception.
-	 * </p>
 	 *
-	 * @param object (This parameter is ignored.)
+	 * @param o <i>ignored</i>.
 	 *
 	 * @return (This method throws an exception.)
 	 *
 	 * @throws UnsupportedOperationException as this method is not supported.
 	 */
-	public Object getClone(Object o) throws UnsupportedOperationException {
+	public Object getClone(final Object o)
+	  throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Single parameter prototype() is not supported.");
 	}
 
 	/**
-	 * <p>
 	 * Returns an index corresponding to the given entity.
-	 * </p>
 	 *
-	 * @param object the entity for which the index in required.
-	 * @param c this parameter is ignored.  This can be <code>null</code>.
+	 * @param o the entity for which the index in required.
+	 * @param c <i>ignored</i>..
 	 *
-	 * @return the index that uniquely identifies <code>object</code>.
+	 * @return the index that uniquely identifies <code>o</code>.
 	 */
-	protected IIndex getIndex(Object o, Context c) {
+	protected IIndex getIndex(final Object o, final Context c) {
 		return new DummyIndex(o);
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 0.10  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+   Revision 0.10  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

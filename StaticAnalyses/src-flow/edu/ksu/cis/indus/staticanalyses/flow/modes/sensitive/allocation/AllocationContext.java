@@ -112,6 +112,7 @@ public class AllocationContext
 	 */
 	public int hashCode() {
         int result = 17;
+        if (allocationSite != null)
         result = 37 * result + allocationSite.hashCode();
         result = 37 * result + super.hashCode();
 		return result;
@@ -122,6 +123,10 @@ public class AllocationContext
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/12 18:47:50  venku
+   Spruced up documentation and specification.
+   Changed equals() and hashCode() in AllocationContext.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
