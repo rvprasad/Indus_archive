@@ -62,7 +62,7 @@ public abstract class AbstractWorkBag
 	 */
 	public final Collection addAllWorkNoDuplicates(final Collection c) {
 		final Collection _result = CollectionUtils.intersection(c, container);
-		addAllWork(CollectionUtils.subtract(c, container));
+		addAllWork(CollectionUtils.subtract(c, _result));
 		return _result;
 	}
 
@@ -103,6 +103,9 @@ public abstract class AbstractWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/06/06 02:27:27  venku
+   - added toString().
+
    Revision 1.3  2004/03/29 01:55:16  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
