@@ -63,7 +63,7 @@ public final class FieldBasedCriteriaGenerator
 	 */
 	public Collection getCriteriaTemplateMethod() {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: creating deadlock criteria.");
+			LOGGER.debug("BEGIN: creating field criteria.");
 		}
 
 		final SlicerTool _slicer = getSlicerTool();
