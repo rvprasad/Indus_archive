@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,17 +30,15 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.fs;
 
-import soot.jimple.DefinitionStmt;
 import soot.Local;
 import soot.ValueBox;
 
-import java.util.Iterator;
-import java.util.List;
+import soot.jimple.DefinitionStmt;
 
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractStmtSwitch;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
@@ -49,10 +47,16 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import java.util.Iterator;
+import java.util.List;
+
 
 /**
- * This is the RHS expression visitor.  It provides implementation to handle locals on RHS in flow sensitive mode. Created:
- * Sun Jan 27 14:29:14 2002
+ * This is the RHS expression visitor.  It provides implementation to handle locals on RHS in flow sensitive mode.
+ * 
+ * <p>
+ * Created: Sun Jan 27 14:29:14 2002
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
@@ -67,11 +71,28 @@ public class RHSExprSwitch
 	/**
 	 * Creates a new <code>RHSExprSwitch</code> instance.
 	 *
-	 * @param stmt the statement visitor which uses this instance of expression visitor.
-	 * @param connector the connector to be used to connect the ast and non-ast nodes.
+	 * @param stmtSwitch the statement visitor which uses this instance of expression visitor.
+	 * @param nodeConnector the connector to be used to connect the ast and non-ast nodes.
+	 *
+	 * @pre stmtSwitch != null and nodeConnector != null
 	 */
-	public RHSExprSwitch(AbstractStmtSwitch stmt, IFGNodeConnector connector) {
-		super(stmt, connector);
+	public RHSExprSwitch(final AbstractStmtSwitch stmtSwitch, final IFGNodeConnector nodeConnector) {
+		super(stmtSwitch, nodeConnector);
+	}
+
+	/**
+	 * Returns a new instance of this class.
+	 *
+	 * @param o the statement visitor which shall use the created visitor instance.  This is of type
+	 * 		  <code>AbstractStmtSwitch</code>.
+	 *
+	 * @return the new visitor instance.
+	 *
+	 * @pre o != null
+	 * @post result.oclIsKindOf(AbstractExprSwitch)
+	 */
+	public Object getClone(final Object o) {
+		return new RHSExprSwitch((AbstractStmtSwitch) o, connector);
 	}
 
 	/**
@@ -79,8 +100,10 @@ public class RHSExprSwitch
 	 * of the locals to the nodes corresponding to the  use sites of the locals.
 	 *
 	 * @param e the local to be visited.
+	 *
+	 * @pre e != null
 	 */
-	public void caseLocal(Local e) {
+	public void caseLocal(final Local e) {
 		IFGNode ast = method.getASTNode(e);
 
 		if (LOGGER.isDebugEnabled()) {
@@ -107,27 +130,15 @@ public class RHSExprSwitch
 		}
 		setResult(ast);
 	}
-
-	/**
-	 * Returns a new instance of this class.
-	 *
-	 * @param o the statement visitor which shall use the created visitor instance.  This is of type
-	 *           <code>AbstractStmtSwitch</code>.
-	 *
-	 * @return the new visitor instance.
-	 */
-	public Object getClone(Object o) {
-		return new RHSExprSwitch((AbstractStmtSwitch) o, connector);
-	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.5  2003/05/22 22:18:32  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:40:24  venku
+   Major:
+    - Moved the package under indus umbrella.
+   Revision 1.5  2003/05/22 22:18:32  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */
