@@ -17,7 +17,9 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,6 +78,23 @@ public abstract class DependencyAnalysis
 	 * This identifies synchronization dependency analysis.
 	 */
 	public static final Object SYNCHRONIZATION_DA = "SYNCHRONIZATION_DA";
+
+	/** 
+	 * This is the collection of dependency ids.
+	 */
+	public static final Collection ids;
+
+	static {
+		final Collection _ids = new ArrayList();
+		_ids.add(SYNCHRONIZATION_DA);
+		_ids.add(CONTROL_DA);
+		_ids.add(REFERENCE_BASED_DATA_DA);
+		_ids.add(DIVERGENCE_DA);
+		_ids.add(INTERFERENCE_DA);
+		_ids.add(IDENTIFIER_BASED_DATA_DA);
+		_ids.add(READY_DA);
+		ids = Collections.unmodifiableCollection(_ids);
+	}
 
 	/**
 	 * This can used to store dependent->dependee direction of dependence information.  Hence, it is recommended that the
@@ -155,6 +174,8 @@ public abstract class DependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/16 06:53:04  venku
+   - documentation.
    Revision 1.12  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
