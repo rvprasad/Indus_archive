@@ -39,7 +39,6 @@ import ca.mcgill.sable.soot.Modifier;
 import ca.mcgill.sable.soot.NoSuchMethodException;
 import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
-import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.Type;
 import ca.mcgill.sable.soot.VoidType;
@@ -183,14 +182,13 @@ public class Util {
 	}
 
 	/**
-	 * Hooks in a <i>non-native</i> <code>start</code> method to facilitate smooth callgraph construction.
+	 * Hooks in a <i>non-native</i><code>start</code> method to facilitate smooth callgraph construction.
 	 *
 	 * @param sm is the method to be changed.  It is changed only if the method is <code>java.lang.Thread.start</code>.
-	 * @param scm is the class manager in which <code>sm</code> occurs.
 	 *
 	 * @return <code>true</code> if the body of <code>sm</code> changed; <code>false</code>, otherwise.
 	 */
-	public static boolean setThreadStartBody(SootMethod sm, SootClassManager scm) {
+	public static boolean setThreadStartBody(SootMethod sm) {
 		boolean result = false;
 		SootClass declClass = sm.getDeclaringClass();
 

@@ -93,7 +93,7 @@ import java.util.Set;
  * @invariant dependentMap.oclIsKindOf(Map(SootField, Map(Pair(Stmt, SootMethod), Collection(Stmt, SootMethod))))
  * @invariant dependeeMap.oclIsKindOf(Map(SootField, Map(SootMeethod, Map(Stmt, Collection(Stmt, SootMethod))))
  */
-public class InterferenceDA
+public class InterferenceDAv2
   extends DependencyAnalysis {
 	/**
 	 * This stores the methods that are being processed as the analysis proceeds.
@@ -812,5 +812,9 @@ public class InterferenceDA
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 16:03:36  venku
+Well, minor changes like formatting before I split these into
+implementations that provide info in increasing order.
+
 
 *****/

@@ -59,8 +59,8 @@ public class SimpleNodeGraph
 	 */
 	private List nodes = new ArrayList();
 
-	/** 
-	 * This maps objects to their representative nodes. 
+	/**
+	 * This maps objects to their representative nodes.
 	 */
 	private Map object2nodes = new HashMap();
 
@@ -73,13 +73,13 @@ public class SimpleNodeGraph
 	 */
 	public static class SimpleNode
 	  implements Node {
-	  	
-	  	public final Object object;
-	  	
-	  	SimpleNode(Object o) {
-	  		this.object = o;
-	  	}
-	  	
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
+		 */
+		public final Object object;
+
 		/**
 		 * The collection of nodes which precede this node in the graph.
 		 */
@@ -89,6 +89,15 @@ public class SimpleNodeGraph
 		 * The collection of nodes which succeed this node in the graph.
 		 */
 		private final Set successors = new HashSet();
+
+		/**
+		 * Creates a new SimpleNode object.
+		 *
+		 * @param o DOCUMENT ME!
+		 */
+		SimpleNode(Object o) {
+			this.object = o;
+		}
 
 		/**
 		 * Returns the predecessor nodes of this node.
@@ -161,10 +170,11 @@ public class SimpleNodeGraph
 	 *
 	 * @return the node representing <code>o</code>.
 	 *
-	 * @post object2nodes\@pre.get(o) = null implies object2nodes.get(o) = result
+	 * @post object2nodes\
+	 * @pre.get(o) = null implies object2nodes.get(o) = result
 	 */
 	public Node getNode(Object o) {
-		Node result = (Node)object2nodes.get(o);
+		Node result = (Node) object2nodes.get(o);
 
 		if(result == null) {
 			result = new SimpleNode(o);

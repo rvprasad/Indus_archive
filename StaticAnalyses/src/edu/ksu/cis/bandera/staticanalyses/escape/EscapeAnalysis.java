@@ -41,15 +41,18 @@ import ca.mcgill.sable.soot.jimple.Stmt;
 
 /**
  * DOCUMENT ME!
- * <p></p>
  * 
- * @version $Revision$ 
+ * <p></p>
+ *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface EscapeAnalysis {
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param allocSite DOCUMENT ME!
 	 *
@@ -70,7 +73,9 @@ public interface EscapeAnalysis {
 	boolean isSingleThreadSynchronized(Stmt stmt);
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param allocSite DOCUMENT ME!
 	 *

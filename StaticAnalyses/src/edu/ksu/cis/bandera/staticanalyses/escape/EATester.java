@@ -53,12 +53,12 @@ import edu.ksu.cis.bandera.staticanalyses.flow.PostProcessingController;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.postprocessors.CallGraph;
 import edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.postprocessors.ThreadGraph;
-import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo.CallTriple;
 import edu.ksu.cis.bandera.staticanalyses.flow.interfaces.ThreadGraphInfo.NewExprTriple;
 import edu.ksu.cis.bandera.staticanalyses.support.Tester;
 
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * DOCUMENT ME!
@@ -69,7 +69,8 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class EATester extends Tester {
+public class EATester
+  extends Tester {
 	/**
 	 * <p>
 	 * DOCUMENT ME!
@@ -94,7 +95,7 @@ public class EATester extends Tester {
 	 * @param args DOCUMENT ME!
 	 */
 	public static void main(String args[]) {
-		if (args.length == 0) {
+		if(args.length == 0) {
 			System.out.println("Please specify a class to consider for the analysis.");
 		}
 		(new EATester(args)).execute();
@@ -131,36 +132,32 @@ public class EATester extends Tester {
 		Map threadMap = new HashMap();
 		System.out.println("\nThread mapping:");
 
-		for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
+		for(java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
 			NewExprTriple element = (NewExprTriple) j.next();
 			String tid = "T" + count++;
 			threadMap.put(element, tid);
-			if (element.getMethod() == null)
+
+			if(element.getMethod() == null) {
 				System.out.println(tid + " -> " + element.getExpr().getType());
-			else
+			} else {
 				System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
+			}
 		}
 
-		for (int i = 0; i < args.length; i++) {
+		for(int i = 0; i < args.length; i++) {
 			SootClass sc = scm.getClass(args[i]);
 			System.out.println("Info for class " + sc.getName() + "\n");
 
-			for (Iterator j = sc.getFields().iterator(); j.hasNext();) {
+			for(Iterator j = sc.getFields().iterator(); j.hasNext();) {
 				SootField sf = (SootField) j.next();
 
-				if (Modifier.isStatic(sf.getModifiers())) {
-					System.out.println(
-						"Info for static field "
-							+ sf.getName()
-							+ ":"
-							+ sf.getType()
-							+ "\n"
-							+ ea.tpgetInfo(sf, threadMap)
-							+ "\n");
+				if(Modifier.isStatic(sf.getModifiers())) {
+					System.out.println("Info for static field " + sf.getName() + ":" + sf.getType() + "\n"
+						+ ea.tpgetInfo(sf, threadMap) + "\n");
 				}
 			}
 
-			for (Iterator j = sc.getMethods().iterator(); j.hasNext();) {
+			for(Iterator j = sc.getMethods().iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
 				System.out.println("Info for Method " + sm.getSignature() + "\n" + ea.tpgetInfo(sm, threadMap));
 
@@ -168,26 +165,27 @@ public class EATester extends Tester {
 
 				try {
 					body = (JimpleBody) sm.getBody(Jimple.v());
-				} catch (Exception e) {
+				} catch(Exception e) {
 					try {
 						body = new JimpleBody(sm, sm.getBody(ClassFile.v()), 0);
-					} catch (Exception ee) {
+					} catch(Exception ee) {
 						continue;
 					}
 				}
 
-				for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
+				for(Iterator k = body.getLocals().iterator(); k.hasNext();) {
 					Local local = (Local) k.next();
-					System.out.println(
-						"Info for Local " + local + ":" + local.getType() + "\n" + ea.tpgetInfo(sm, local, threadMap) + "\n");
+					System.out.println("Info for Local " + local + ":" + local.getType() + "\n"
+						+ ea.tpgetInfo(sm, local, threadMap) + "\n");
 				}
+
 				/*
-				for (java.util.Iterator l = cg.getCallees(sm).iterator(); l.hasNext();) {
-					CallTriple ctrp = (CallTriple) l.next();
-					ctrp = new CallTriple(sm, ctrp.getStmt(), ctrp.getExpr()); 
-					System.out.println("Info for call site " + ctrp.getStmt() + "\n" + ea.tpgetInfo(ctrp, threadMap));
-				}
-				*/
+				   for (java.util.Iterator l = cg.getCallees(sm).iterator(); l.hasNext();) {
+				       CallTriple ctrp = (CallTriple) l.next();
+				       ctrp = new CallTriple(sm, ctrp.getStmt(), ctrp.getExpr());
+				       System.out.println("Info for call site " + ctrp.getStmt() + "\n" + ea.tpgetInfo(ctrp, threadMap));
+				   }
+				 */
 			}
 		}
 	}

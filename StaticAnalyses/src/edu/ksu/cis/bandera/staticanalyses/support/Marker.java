@@ -43,8 +43,10 @@ package edu.ksu.cis.bandera.staticanalyses.support;
  * @version $Revision$
  */
 public class Marker {
-	/** 
-	 * <p>Any content to be stored in the marker.</p>
+	/**
+	 * <p>
+	 * Any content to be stored in the marker.
+	 * </p>
 	 */
 	public final Object content;
 
@@ -65,9 +67,9 @@ public class Marker {
 	}
 
 	/**
-	 * Checks if <code>o</code> is equal to this object.  If the <code>content</code> field of both the objects
-	 * are equal to <code>null</code>, then <i>referential equality</i> is used.  If not, the equality of <code>content</code>
-	 * fields is considered as the equality between this object and <code>o</code>.
+	 * Checks if <code>o</code> is equal to this object.  If the <code>content</code> field of both the objects are equal to
+	 * <code>null</code>, then <i>referential equality</i> is used.  If not, the equality of <code>content</code> fields is
+	 * considered as the equality between this object and <code>o</code>.
 	 *
 	 * @param o is the object to be checked for equality.
 	 *
@@ -81,8 +83,9 @@ public class Marker {
 
 			if(temp == null && content == null) {
 				result = this == o;
-			} else if (content != null && temp != null)
+			} else if(content != null && temp != null) {
 				result = content.equals(temp);
+			}
 		}
 		return result;
 	}

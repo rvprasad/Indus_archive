@@ -106,22 +106,27 @@ import java.util.Map;
 
 /**
  * DOCUMENT ME!
+ * 
  * <p></p>
  *
- * @version $Revision$
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
+ * @version $Revision$
  */
 public class RufsEscapeAnalysis
   extends AbstractPostProcessor
   implements EscapeAnalysis {
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	static final String ARRAY_FIELD = "$ELT";
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	static final String THIS = "$THIS";
 
@@ -132,65 +137,89 @@ public class RufsEscapeAnalysis
 	 */
 	static final Log LOGGER = LogFactory.getLog(RufsEscapeAnalysis.class);
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	final CallGraphInfo cgi;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	final Context context;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	final Map globalASs;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	final Map methodCtxt2triple;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	final SootClassManager scm;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	final StmtProcessor stmtProcessor;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	final ThreadGraphInfo tgi;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	final ValueProcessor valueProcessor;
 
 	// Cache variables do not capture state of the object.  Rather they are used cache values across method calls.
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	Map localASsCache;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	Map scCache;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	MethodContext methodCtxtCache;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private final BasicBlockGraphMgr bbm;
 
@@ -208,8 +237,10 @@ public class RufsEscapeAnalysis
 	 */
 	private final Collection threadAllocSitesSingle;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
 	 */
 	private OFAnalyzer ofa;
 
@@ -236,22 +267,27 @@ public class RufsEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * <p></p>
 	 *
-	 * @version $Revision$
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
+	 * @version $Revision$
 	 */
 	class AliasSet
 	  extends FastUnionFindElement
 	  implements Cloneable {
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		Map fieldMap;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		private Collection syncThreads;
 
@@ -262,28 +298,38 @@ public class RufsEscapeAnalysis
 		 */
 		private final Log LOGGER = LogFactory.getLog(AliasSet.class);
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		private Object theClone = null;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		private boolean global;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		private boolean propogating = false;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		private boolean stringifying = false;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		private boolean synced;
 
@@ -297,7 +343,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
 		 *
@@ -346,7 +394,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param field DOCUMENT ME!
 		 *
@@ -357,7 +407,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 */
 		void setGlobal() {
 			if(isGlobal()) {
@@ -374,7 +426,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
 		 */
@@ -383,7 +437,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 */
 		void setSynced() {
 			AliasSet rep = (AliasSet) find();
@@ -391,7 +447,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
 		 */
@@ -400,7 +458,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param threads DOCUMENT ME!
 		 */
@@ -409,7 +469,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param as DOCUMENT ME!
 		 */
@@ -439,7 +501,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param field DOCUMENT ME!
 		 * @param as DOCUMENT ME!
@@ -453,7 +517,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param tabbing DOCUMENT ME!
 		 * @param threadMap DOCUMENT ME!
@@ -505,7 +571,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param a DOCUMENT ME!
 		 */
@@ -572,37 +640,48 @@ public class RufsEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * <p></p>
 	 *
-	 * @version $Revision$
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
+	 * @version $Revision$
 	 */
 	class MethodContext
 	  extends FastUnionFindElement
 	  implements Cloneable {
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		AliasSet ret;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		AliasSet thisAS;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		AliasSet thrown;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		List argAlSets;
 
-		/** 
-		 * <p>DOCUMENT ME! </p>
+		/**
+		 * <p>
+		 * DOCUMENT ME!
+		 * </p>
 		 */
 		SootMethod method;
 
@@ -642,7 +721,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
 		 *
@@ -687,7 +768,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param index DOCUMENT ME!
 		 *
@@ -698,7 +781,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
 		 */
@@ -707,7 +792,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
 		 */
@@ -716,7 +803,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @return DOCUMENT ME!
 		 */
@@ -725,7 +814,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param mc DOCUMENT ME!
 		 */
@@ -752,9 +843,13 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param p DOCUMENT ME!
+		 *
+		 * @throws IllegalStateException DOCUMENT ME!
 		 */
 		void unify(MethodContext p) {
 			if(p == null) {
@@ -796,7 +891,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param s DOCUMENT ME!
 		 * @param d DOCUMENT ME!
@@ -819,7 +916,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param clonee2clone DOCUMENT ME!
 		 */
@@ -853,11 +952,12 @@ public class RufsEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * <p></p>
 	 *
-	 * @version $Revision$
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
+	 * @version $Revision$
 	 */
 	class StmtProcessor
 	  extends AbstractStmtSwitch {
@@ -970,11 +1070,12 @@ public class RufsEscapeAnalysis
 
 	/**
 	 * DOCUMENT ME!
+	 * 
 	 * <p></p>
 	 *
-	 * @version $Revision$
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
+	 * @version $Revision$
 	 */
 	class ValueProcessor
 	  extends AbstractJimpleValueSwitch {
@@ -1095,7 +1196,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param o DOCUMENT ME!
 		 */
@@ -1104,7 +1207,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param m DOCUMENT ME!
 		 * @param p DOCUMENT ME!
@@ -1132,7 +1237,9 @@ public class RufsEscapeAnalysis
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
 		 *
 		 * @param v DOCUMENT ME!
 		 */
@@ -1329,7 +1436,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 */
 	public void execute() {
 		SimpleNodeGraph sng = cgi.getCallGraph();
@@ -1414,7 +1523,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param sc DOCUMENT ME!
 	 *
@@ -1436,7 +1547,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param type DOCUMENT ME!
 	 *
@@ -1464,7 +1577,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param sm DOCUMENT ME!
 	 * @param thisAS DOCUMENT ME!
@@ -1485,7 +1600,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param sf DOCUMENT ME!
 	 * @param threadMap DOCUMENT ME!
@@ -1498,7 +1615,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param sm DOCUMENT ME!
 	 * @param l DOCUMENT ME!
@@ -1525,7 +1644,9 @@ public class RufsEscapeAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param sm DOCUMENT ME!
 	 * @param threadMap DOCUMENT ME!

@@ -36,20 +36,21 @@
 package edu.ksu.cis.bandera.staticanalyses.support;
 
 import ca.mcgill.sable.soot.ArrayType;
+import ca.mcgill.sable.soot.ClassFile;
 import ca.mcgill.sable.soot.RefType;
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootClassManager;
 import ca.mcgill.sable.soot.SootMethod;
-import ca.mcgill.sable.soot.ClassFile;
+
 import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.JimpleBody;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.Collection;
+import java.util.HashSet;
+
 
 /**
  * DOCUMENT ME!
@@ -61,10 +62,10 @@ import org.apache.commons.logging.LogFactory;
  * @version $Revision$
  */
 public abstract class Tester {
-
 	/**
-	 * <p>The logger used by instances of this class to log messages.</p>
-	 * 
+	 * <p>
+	 * The logger used by instances of this class to log messages.
+	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(Tester.class);
 
@@ -102,22 +103,26 @@ public abstract class Tester {
 		SootClassManager result = new SootClassManager();
 		Jimple jimple = Jimple.v();
 		ClassFile classfile = ClassFile.v();
-		for (int i = 0; i < args.length; i++) {
+
+		for(int i = 0; i < args.length; i++) {
 			result.getClass(args[i]);
 		}
+
 		ca.mcgill.sable.util.Collection mc = new ca.mcgill.sable.util.HashSet();
 		mc.addAll(result.getClasses());
-		for (ca.mcgill.sable.util.Iterator i = mc.iterator(); i.hasNext();) {
+
+		for(ca.mcgill.sable.util.Iterator i = mc.iterator(); i.hasNext();) {
 			SootClass sc = (SootClass) i.next();
 			ca.mcgill.sable.util.Collection methods = sc.getMethods();
 
-			for (ca.mcgill.sable.util.Iterator j = methods.iterator(); j.hasNext();) {
+			for(ca.mcgill.sable.util.Iterator j = methods.iterator(); j.hasNext();) {
 				SootMethod sm = (SootMethod) j.next();
+
 				try {
 					JimpleBody body = new JimpleBody(sm, sm.getBody(classfile), 0);
 					sm.storeBody(jimple, body);
-					populateRootMethods(sm, result);
-				} catch (Exception e) {
+					populateRootMethods(sm);
+				} catch(Exception e) {
 					LOGGER.warn("Method " + sm + " doesnot have body.", e);
 				}
 			}
@@ -131,13 +136,12 @@ public abstract class Tester {
 	 * <p></p>
 	 *
 	 * @param sm DOCUMENT ME!
-	 * @param scm DOCUMENT ME!
 	 */
-	protected void populateRootMethods(SootMethod sm, SootClassManager scm) {
-		if (sm.getName().equals("main") && sm.getParameterCount() == 1 && sm.getParameterType(0).equals(strArray)) {
+	protected void populateRootMethods(SootMethod sm) {
+		if(sm.getName().equals("main") && sm.getParameterCount() == 1 && sm.getParameterType(0).equals(strArray)) {
 			rootMethods.add(sm);
 		}
-		Util.setThreadStartBody(sm, scm);
+		Util.setThreadStartBody(sm);
 	}
 }
 

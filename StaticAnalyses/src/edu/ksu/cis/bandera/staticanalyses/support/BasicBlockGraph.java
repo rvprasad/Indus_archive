@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+
 /**
  * This class represents the basic block graph for a given method.
  *
@@ -53,7 +54,8 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$
  */
-public class BasicBlockGraph extends DirectedGraph {
+public class BasicBlockGraph
+  extends DirectedGraph {
 	/**
 	 * The 3-address format body of the method represented by this graph.
 	 */
@@ -88,46 +90,49 @@ public class BasicBlockGraph extends DirectedGraph {
 		int numOfStmt = stmtList.size();
 		stmt2BlockMap = new BasicBlock[numOfStmt];
 
-		int leader = 0, trailer = numOfStmt;
+		int leader = 0;
+		int trailer = numOfStmt;
 
 		// Create basic blocks in the graph.
-		for (int i = 0; i < numOfStmt; i++) {
+		for(int i = 0; i < numOfStmt; i++) {
 			Stmt stmt = (Stmt) stmtList.get(i);
 			trailer = i;
 
-			if (stmtGraph.getPredsOf(stmt).size() > 1) {
+			if(stmtGraph.getPredsOf(stmt).size() > 1) {
 				BasicBlock bblock = new BasicBlock(leader, trailer - 1, this);
 
-				for (int j = leader; j < trailer; j++) {
+				for(int j = leader; j < trailer; j++) {
 					stmt2BlockMap[j] = bblock;
 				}
 				leader = trailer;
 				blocks.add(bblock);
 			}
-			if (stmtGraph.getSuccsOf(stmt).size() > 1) {
+
+			if(stmtGraph.getSuccsOf(stmt).size() > 1) {
 				BasicBlock bblock = new BasicBlock(leader, trailer, this);
 
-				for (int j = leader; j <= trailer; j++) {
+				for(int j = leader; j <= trailer; j++) {
 					stmt2BlockMap[j] = bblock;
 				}
 				leader = ++trailer;
 				blocks.add(bblock);
-			} 
+			}
 		}
+
 		// fix up the last set of statements into a block
 		BasicBlock bblock = new BasicBlock(leader, trailer, this);
 
-		for (int j = leader; j <= trailer; j++) {
+		for(int j = leader; j <= trailer; j++) {
 			stmt2BlockMap[j] = bblock;
 		}
 		blocks.add(bblock);
 
 		// Connect the nodes of the graph.
-		for (Iterator i = blocks.iterator(); i.hasNext();) {
+		for(Iterator i = blocks.iterator(); i.hasNext();) {
 			BasicBlock block = (BasicBlock) i.next();
 			Stmt stmt = (Stmt) stmtList.get(block.trailer);
 
-			for (ca.mcgill.sable.util.Iterator j = stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
+			for(ca.mcgill.sable.util.Iterator j = stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
 				Stmt nStmt = (Stmt) j.next();
 				BasicBlock nBlock = getEnclosingBlock(nStmt);
 				block.addSuccessors(nBlock);
@@ -139,7 +144,7 @@ public class BasicBlockGraph extends DirectedGraph {
 		heads.add(getEnclosingBlock((Stmt) stmtGraph.getHeads().get(0)));
 
 		// Setup the tails of the graph.
-		for (ca.mcgill.sable.util.Iterator i = stmtGraph.getTails().iterator(); i.hasNext();) {
+		for(ca.mcgill.sable.util.Iterator i = stmtGraph.getTails().iterator(); i.hasNext();) {
 			tails.add(getEnclosingBlock((Stmt) i.next()));
 		}
 	}
@@ -151,7 +156,8 @@ public class BasicBlockGraph extends DirectedGraph {
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public class BasicBlock extends SimpleNodeGraph.SimpleNode {
+	public class BasicBlock
+	  extends SimpleNodeGraph.SimpleNode {
 		/**
 		 * The graph in which this node occurs.
 		 */
@@ -196,12 +202,12 @@ public class BasicBlockGraph extends DirectedGraph {
 		public final List getStmtFrom(int start) {
 			List result = Collections.EMPTY_LIST;
 
-			if (start >= leader && start < trailer) {
+			if(start >= leader && start < trailer) {
 				result = new ArrayList();
 
 				StmtList sl = graph.jimpleBody.getStmtList();
 
-				for (int i = start; i <= trailer; i++) {
+				for(int i = start; i <= trailer; i++) {
 					result.add(sl.get(i));
 				}
 			}
@@ -222,12 +228,12 @@ public class BasicBlockGraph extends DirectedGraph {
 		public final Collection getStmtFromTo(int start, int end) {
 			Collection result = Collections.EMPTY_LIST;
 
-			if (start >= leader && end <= trailer && start < end) {
+			if(start >= leader && end <= trailer && start < end) {
 				result = new ArrayList();
 
 				StmtList sl = graph.jimpleBody.getStmtList();
 
-				for (int i = start; i < end; i++) {
+				for(int i = start; i < end; i++) {
 					result.add(sl.get(i));
 				}
 			}
@@ -243,7 +249,7 @@ public class BasicBlockGraph extends DirectedGraph {
 			StmtList sl = graph.jimpleBody.getStmtList();
 			Collection result = new ArrayList();
 
-			for (int i = leader; i < -trailer; i++) {
+			for(int i = leader; i < -trailer; i++) {
 				result.add(sl.get(i));
 			}
 			return result;

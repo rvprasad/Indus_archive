@@ -76,7 +76,7 @@ public class BasicBlockGraphMgr {
 			ref = new WeakReference(new BasicBlockGraph(stmtGraph));
 			method2graph.put(method, ref);
 		}
-		return (BasicBlockGraph)ref.get();
+		return (BasicBlockGraph) ref.get();
 	}
 }
 

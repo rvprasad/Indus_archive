@@ -404,9 +404,10 @@ public abstract class DirectedGraph {
 			//Node temp = (Node) wb.getWork();
 			Node temp = null;
 			Object o = wb.getWork();
+
 			try {
-				temp = (Node)o;
-			} catch (ClassCastException e) {
+				temp = (Node) o;
+			} catch(ClassCastException e) {
 				System.out.println(o.getClass());
 			}
 
@@ -455,8 +456,7 @@ public abstract class DirectedGraph {
 	}
 
 	/**
-	 * Calculates the finish times for the nodes of this graph. 
-	 * version should be coded.
+	 * Calculates the finish times for the nodes of this graph.  version should be coded.
 	 *
 	 * @param nodes in this graph.
 	 * @param node to start dfs from.
