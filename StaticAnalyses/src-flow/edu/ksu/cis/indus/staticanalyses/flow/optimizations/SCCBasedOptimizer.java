@@ -102,6 +102,10 @@ public class SCCBasedOptimizer {
 	 * @pre rootNodes.oclIsKindOf(Collection(IFGNode))
 	 */
 	public void optimize(final Collection rootNodes, final ITokenManager tokenMgr) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Collapsing SCCs...");
+        }
+
 		final Collection _sccs = getSCCs(rootNodes);
 		final Iterator _i = _sccs.iterator();
 		final int _iEnd = _sccs.size();
