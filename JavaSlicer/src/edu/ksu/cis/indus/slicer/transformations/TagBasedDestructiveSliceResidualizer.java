@@ -60,6 +60,7 @@ import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
+import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
@@ -68,9 +69,11 @@ import soot.jimple.LookupSwitchStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.SpecialInvokeExpr;
+import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
+import soot.jimple.VirtualInvokeExpr;
 
 import soot.jimple.toolkits.scalar.ConditionalBranchFolder;
 import soot.jimple.toolkits.scalar.LocalCreation;
@@ -192,6 +195,12 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	private SootClass currClass;
 
+	/** 
+	 * This is used to create new AST chunks.
+	 */
+	final Jimple jimple = Jimple.v();
+
+	
 	/**
 	 * This class residualizes statements.
 	 *
@@ -220,11 +229,6 @@ public final class TagBasedDestructiveSliceResidualizer
 					return new Pair(new ArrayList(), new ArrayList());
 				}
 			};
-
-		/** 
-		 * This is used to create new AST chunks.
-		 */
-		private final Jimple jimple = Jimple.v();
 
 		/**
 		 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
@@ -486,7 +490,55 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	private final class ValueResidualizer
 	  extends AbstractJimpleValueSwitch {
+        /** 
+         * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
+         */
+        public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
+            residualize(v.getBaseBox());
+            residualizeInvokeExpr(v);
+        }
+        /** 
+         * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
+         */
+        public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
+            residualize(v.getBaseBox());
+            residualizeInvokeExpr(v);
+        }
+        /** 
+         * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
+         */
+        public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
+            residualizeInvokeExpr(v);
+        }
+        /** 
+         * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
+         */
+        public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
+            residualize(v.getBaseBox());
+            residualizeInvokeExpr(v);
+        }
 		/**
+         * Residualizes the invocation expression in manner that is safe to the Jimple implementation.  
+         * 
+         * @param v is the expression to residualize.
+         * 
+         * @pre v != null
+         */
+        private void residualizeInvokeExpr(final InvokeExpr v) {
+            /*
+             * HACK: This is required because in jimple the value boxes are "kinded".  You cannot stick a NullConstant into
+             * a value box that held a local because the LocalBox cannot hold an Immediate unlike a ImmediateBox. Instead you
+             * need to go through the context enclosing containing the box to fix the contents of the box. 
+             */
+            for (int _i = v.getArgCount() - 1; _i >= 0; _i--) {
+                final ValueBox _vb = v.getArgBox(_i);
+                if (!_vb.hasTag(theNameOfTagToResidualize)) {
+                    v.setArg(_i, Util.getDefaultValueFor(_vb.getValue().getType()));
+                }
+            }            
+        }
+        
+        /**
 		 * @see soot.jimple.RefSwitch#defaultCase(java.lang.Object)
 		 */
 		public void defaultCase(final Object v) {
@@ -911,6 +963,10 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/07/21 07:09:26  venku
+   - residualization failed when a invoke statement was tagged and none of
+     its AST descendents were tagged.  FIXED.
+
    Revision 1.16  2004/07/17 23:32:19  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.
