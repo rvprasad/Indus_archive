@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.slicer.SlicingTag;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
+import edu.ksu.cis.indus.xmlizer.CustomXMLOutputter;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
@@ -40,6 +41,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.znerd.xmlenc.XMLOutputter;
 
 import soot.SootClass;
 import soot.SootField;
@@ -103,7 +106,7 @@ final class TagBasedSliceXMLizer
 		/**
 		 * This is the file/stream into which the xml output will be written into.
 		 */
-		protected Writer writer;
+		protected XMLOutputter writer;
 
 		/**
 		 * This generates ids for jimple entities.
@@ -147,7 +150,9 @@ final class TagBasedSliceXMLizer
 				final SlicingTag _tag = (SlicingTag) vBox.getTag(tagName);
 
 				if (_tag != null) {
-					writer.write("\t\t\t\t<value id=\"" + idGenerator.getIdForValueBox(vBox, _stmt, _method) + "\"/>\n");
+					writer.startTag("value");
+					writer.attribute("id", idGenerator.getIdForValueBox(vBox, _stmt, _method));
+					writer.endTag();
 				}
 			} catch (IOException _e) {
 				LOGGER.error("Exception while writing information about " + vBox + " occurring in " + _stmt + " and "
@@ -163,14 +168,16 @@ final class TagBasedSliceXMLizer
 
 			try {
 				if (processingStmt) {
-					writer.write("\t\t\t</stmt>\n");
+					writer.endTag();
 					processingStmt = false;
 				}
 
 				final SlicingTag _tag = (SlicingTag) stmt.getTag(tagName);
 
 				if (_tag != null) {
-					writer.write("\t\t\t<stmt id=\"" + idGenerator.getIdForStmt(stmt, _method) + "\">\n");
+					writer.startTag("stmt");
+					writer.attribute("id", idGenerator.getIdForStmt(stmt, _method));
+					writer.endTag();
 					processingStmt = true;
 				}
 			} catch (IOException _e) {
@@ -185,19 +192,21 @@ final class TagBasedSliceXMLizer
 		public void callback(final SootMethod method) {
 			try {
 				if (processingStmt) {
-					writer.write("\t\t\t</stmt>\n");
+					writer.endTag();
 					processingStmt = false;
 				}
 
 				if (processingMethod) {
-					writer.write("\t\t</method>\n");
+					writer.endTag();
 					processingMethod = false;
 				}
 
 				final SlicingTag _tag = (SlicingTag) method.getTag(tagName);
 
 				if (_tag != null) {
-					writer.write("\t\t<method id=\"" + idGenerator.getIdForMethod(method) + "\">\n");
+					writer.startTag("method");
+					writer.attribute("id", idGenerator.getIdForMethod(method));
+					writer.endTag();
 					processingMethod = true;
 				}
 			} catch (IOException _e) {
@@ -211,24 +220,26 @@ final class TagBasedSliceXMLizer
 		public void callback(final SootClass clazz) {
 			try {
 				if (processingStmt) {
-					writer.write("\t\t\t</stmt>\n");
+					writer.endTag();
 					processingStmt = false;
 				}
 
 				if (processingMethod) {
-					writer.write("\t\t</method>\n");
+					writer.endTag();
 					processingMethod = false;
 				}
 
 				if (processingClass) {
-					writer.write("\t</class>\n");
+					writer.endTag();
 					processingClass = false;
 				}
 
 				final SlicingTag _tag = (SlicingTag) clazz.getTag(tagName);
 
 				if (_tag != null) {
-					writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
+					writer.startTag("class");
+					writer.attribute("id", idGenerator.getIdForClass(clazz));
+					writer.endTag();
 					processingClass = true;
 				}
 			} catch (IOException _e) {
@@ -244,7 +255,9 @@ final class TagBasedSliceXMLizer
 
 			if (_tag != null) {
 				try {
-					writer.write("\t\t<field id=\"" + idGenerator.getIdForField(field) + "\"/>\n");
+					writer.startTag("field");
+					writer.attribute("id", idGenerator.getIdForField(field));
+					writer.endTag();
 				} catch (IOException _e) {
 					LOGGER.error("Exception while writing xml information about " + field.getSignature(), _e);
 				}
@@ -256,33 +269,9 @@ final class TagBasedSliceXMLizer
 		 */
 		public void consolidate() {
 			try {
-				if (processingStmt) {
-					writer.write("\t\t</stmt>\n");
-				}
-
-				if (processingMethod) {
-					writer.write("\t\t</method>\n");
-				}
-
-				if (processingClass) {
-					writer.write("\t</class>\n");
-				}
-
-				writer.write("</system>\n");
+				writer.endDocument();
 			} catch (IOException _e) {
 				LOGGER.error("Exception while finishing up writing xml information.", _e);
-			}
-		}
-
-		/**
-		 * Flushes and closes the associated stream.
-		 */
-		public void flush() {
-			try {
-				writer.flush();
-				writer.close();
-			} catch (IOException _e) {
-				LOGGER.error("Exception while closing slice xmlization stream.", _e);
 			}
 		}
 
@@ -302,7 +291,7 @@ final class TagBasedSliceXMLizer
 		 */
 		public void processingBegins() {
 			try {
-				writer.write("<system>\n");
+				writer.startTag("system");
 			} catch (IOException _e) {
 				LOGGER.error("Exception while starting up writing xml information.", _e);
 			}
@@ -346,17 +335,20 @@ final class TagBasedSliceXMLizer
 		final ProcessingController _ctrl = new ProcessingController();
 		_ctrl.setStmtGraphFactory((IStmtGraphFactory) info.get(IStmtGraphFactory.ID));
 		_ctrl.setEnvironment((IEnvironment) info.get(IEnvironment.ID));
-        final IProcessingFilter _filter = new TagBasedProcessingFilter(tagName);  
-        _filter.chain(new XMLizingProcessingFilter());
-        _ctrl.setProcessingFilter(_filter);
+
+		final IProcessingFilter _filter = new TagBasedProcessingFilter(tagName);
+		_filter.chain(new XMLizingProcessingFilter());
+		_ctrl.setProcessingFilter(_filter);
 
 		try {
-            final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
-			processor.writer = new FileWriter(_f);
+			final File _f = new File(getXmlOutputDir() + File.separator + getFileName((String) info.get(FILE_NAME_ID)));
+			final FileWriter _writer = new FileWriter(_f);
+			processor.writer = new CustomXMLOutputter(_writer, "UTF-8");
 			processor.hookup(_ctrl);
 			_ctrl.process();
 			processor.unhook(_ctrl);
-			processor.flush();
+			_writer.flush();
+			_writer.close();
 		} catch (IOException _e) {
 			LOGGER.error("Error while xmlizing OFA information ", _e);
 		}
@@ -366,9 +358,10 @@ final class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/04/23 00:42:37  venku
+   - trying to get canonical xmlized Jimple representation.
    Revision 1.18  2004/04/22 23:32:32  venku
    - xml file name were setup incorrectly.  FIXED.
-
    Revision 1.17  2004/04/22 22:59:58  venku
    - coding conventions.
    Revision 1.16  2004/04/20 06:53:15  venku

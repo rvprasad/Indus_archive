@@ -31,6 +31,7 @@
         <pathelement location="/home/venku/projects/Misc/banderaNG/lib/banderaToolFramework/banderaToolFramework.jar"/>
         <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>
         <pathelement location="/usr/local/javaclasses/xmlunit.jar"/>
+        <pathelement location="/usr/local/javaclasses/xmlenc.jar"/>
     	<pathelement location="../Indus/${build.dir}/"/>
 	    <pathelement location="../StaticAnalyses/${build.dir}/"/>        
     </path>    
