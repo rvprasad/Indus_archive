@@ -116,18 +116,18 @@ public class SimpleNodeGraphTest
 		// connect them now
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("a"), (SimpleNode) name2node.get("b"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
-        _sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("f"));
-        _sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("e"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("f"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("e"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("d"));
-        _sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("g"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("c"), (SimpleNode) name2node.get("g"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("c"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("h"));
-        _sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("f"));
-        _sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("a"));
-        _sng.addEdgeFromTo((SimpleNode) name2node.get("f"), (SimpleNode) name2node.get("g"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("f"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("a"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("f"), (SimpleNode) name2node.get("g"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("h"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("g"), (SimpleNode) name2node.get("f"));
-        _sng.addEdgeFromTo((SimpleNode) name2node.get("h"), (SimpleNode) name2node.get("h"));
+		_sng.addEdgeFromTo((SimpleNode) name2node.get("h"), (SimpleNode) name2node.get("h"));
 		setSNG(_sng);
 	}
 
@@ -193,6 +193,13 @@ public class SimpleNodeGraphTest
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetCycles()
+	 */
+	protected void localtestGetCycles() {
+		assertFalse(dg.getCycles().isEmpty());
+	}
+
+	/**
 	 * @see AbstractDirectedGraphTest#localtestGetHeads
 	 */
 	protected void localtestGetHeads() {
@@ -206,6 +213,16 @@ public class SimpleNodeGraphTest
 		final Collection _dtails = dg.getPseudoTails();
 		assertTrue(_dtails.size() == 1);
 		assertTrue(_dtails.contains(name2node.get("h")));
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetSCCs()
+	 */
+	protected void localtestGetSCCs() {
+		final Collection _sccsTrue = dg.getSCCs(true);
+		final Collection _sccsFalse = dg.getSCCs(false);
+		assertFalse(_sccsTrue.isEmpty());
+		assertFalse(_sccsFalse.isEmpty());
 	}
 
 	/**
@@ -241,23 +258,22 @@ public class SimpleNodeGraphTest
 	protected void tearDown()
 	  throws Exception {
 		dg = null;
-        sng = null;
+		sng = null;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/02/08 01:04:12  venku
+   - renamed TestSuite classes to NoArgTestSuite classes.
    Revision 1.9  2004/02/05 18:17:29  venku
    - getPseudoTails() is incorrect when the pseudo tails are mutually
      reachable.  FIXED.
-
    Revision 1.8  2004/02/05 16:12:36  venku
    - added a new test case for testing pseudoTails.
-
    Revision 1.7  2004/01/22 08:18:55  venku
    - added test methods to handle getPseudoTails().
-
    Revision 1.6  2004/01/22 05:19:29  venku
    - coding convention.
    Revision 1.5  2004/01/06 01:51:06  venku

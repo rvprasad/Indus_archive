@@ -91,15 +91,15 @@ public abstract class AbstractDirectedGraphTest
 	/**
 	 * Tests <code>getCycles()</code> method.
 	 */
-	public void testGetCycles() {
+	public final void testGetCycles() {
 		final Collection _cycles = dg.getCycles();
-		assertFalse(_cycles.isEmpty());
 
 		for (final Iterator _i = _cycles.iterator(); _i.hasNext();) {
 			final Collection _cycle = (Collection) _i.next();
 			final INode _node = (INode) _cycle.iterator().next();
 			assertTrue(dg.isReachable(_node, _node, true));
 		}
+		localtestGetCycles();
 	}
 
 	/**
@@ -149,18 +149,15 @@ public abstract class AbstractDirectedGraphTest
 	/**
 	 * Tests <code>getSCCs()</code> method.
 	 */
-	public void testGetSCCs() {
+	public final void testGetSCCs() {
 		final Collection _sccsTrue = dg.getSCCs(true);
-		assertFalse(_sccsTrue.isEmpty());
-
 		checkSCCReachability(_sccsTrue);
 
 		final Collection _sccsFalse = dg.getSCCs(false);
-		assertFalse(_sccsFalse.isEmpty());
-
 		checkSCCReachability(_sccsFalse);
 		assertTrue(_sccsTrue.containsAll(_sccsFalse));
 		assertTrue(_sccsFalse.containsAll(_sccsTrue));
+		localtestGetSCCs();
 	}
 
 	/**
@@ -273,6 +270,12 @@ public abstract class AbstractDirectedGraphTest
 	}
 
 	/**
+	 * Checks <code>getCycles()</code> on the local graph instance.
+	 */
+	protected void localtestGetCycles() {
+	}
+
+	/**
 	 * Checks <code>getHeads()</code> on the local graph instance.
 	 */
 	protected void localtestGetHeads() {
@@ -282,6 +285,12 @@ public abstract class AbstractDirectedGraphTest
 	 * Tests <code>getPseudoTails()</code> method.
 	 */
 	protected void localtestGetPseudoTails() {
+	}
+
+	/**
+	 * Checks <code>getSCCs()</code> on the local graph instance.
+	 */
+	protected void localtestGetSCCs() {
 	}
 
 	/**
@@ -340,9 +349,10 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/08 01:04:12  venku
+   - renamed TestSuite classes to NoArgTestSuite classes.
    Revision 1.7  2004/01/22 08:18:55  venku
    - added test methods to handle getPseudoTails().
-
    Revision 1.6  2004/01/06 01:51:06  venku
    - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
    Revision 1.5  2004/01/06 00:17:10  venku

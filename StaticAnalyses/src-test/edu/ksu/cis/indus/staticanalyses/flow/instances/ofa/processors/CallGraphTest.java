@@ -257,9 +257,7 @@ public final class CallGraphTest
 	/**
 	 * Tests <code>getSCCs()</code>.
 	 */
-	public void testGetSCCs() {
-		super.testGetSCCs();
-
+	protected void localtestGetSCCs() {
 		final Collection _sccs = cgi.getSCCs(true);
 		final Collection _reachables = cgi.getReachableMethods();
 		assertNotNull(_sccs);
@@ -367,6 +365,14 @@ public final class CallGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/02/08 04:53:10  venku
+   - refactoring!!!
+   - All regression tests implement IXMLBasedTest.
+   - All test setups extends AbstractXMLBasedTestSetup.
+   - coding convention.
+   - all tests occur at the same package as the classes
+     being tested.
+
    Revision 1.1  2004/02/08 02:21:21  venku
    - renamed package instances.ofa.processors to instances.ofa.
    - renamed OFAProcessorArgTestSuite to OFAProcessorTestSuite.

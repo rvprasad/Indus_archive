@@ -28,13 +28,6 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 public class SimpleNodeGraphNoCycleTest
   extends SimpleNodeGraphTest {
 	/**
-	 * Tests <code>getCycles()</code> method.
-	 */
-	public final void testGetCycles() {
-		assertTrue(sng.getCycles().isEmpty());
-	}
-
-	/**
 	 * @see JikesBasedDirectedAndSimpleNodeGraphTest#setUp()
 	 */
 	protected void setUp()
@@ -58,6 +51,13 @@ public class SimpleNodeGraphNoCycleTest
 	 * Does nothing.
 	 */
 	protected final void localtestAddEdgeFromTo() {
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestGetCycles()
+	 */
+	protected void localtestGetCycles() {
+		assertTrue(dg.getCycles().isEmpty());
 	}
 
 	/**
@@ -112,28 +112,29 @@ public class SimpleNodeGraphNoCycleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/08 01:04:12  venku
+   - renamed TestSuite classes to NoArgTestSuite classes.
    Revision 1.6  2004/01/22 08:18:55  venku
    - added test methods to handle getPseudoTails().
-
    Revision 1.5  2004/01/06 01:51:06  venku
    - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
    Revision 1.4  2003/12/31 10:02:02  venku
  *** empty log message ***
-     Revision 1.3  2003/12/31 08:29:58  venku
-     - changed the graph.
-     - added localtestAddEdgeFromTo() to override that
-       defined in the super class.
-     Revision 1.2  2003/12/30 10:04:25  venku
-     - sng in SimpleNodeGraphTest should track dg or the otherway
-       round to make the hierarchy of test work.  This has
-       been fixed by adding setSNG().
-     Revision 1.1  2003/12/30 09:24:59  venku
-     - Refactored DirectedAndSimpleNodeGraphTest into
-        - AbstractDirectedGraphTest
-        - SimpleNodeGraphTest
-     - Introduced SimpleNodeGraphNoCycleTest
-     - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
-     - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-       GraphNoArgTestSuite.
-     - added checks to test exceptional behavior as well.
+         Revision 1.3  2003/12/31 08:29:58  venku
+         - changed the graph.
+         - added localtestAddEdgeFromTo() to override that
+           defined in the super class.
+         Revision 1.2  2003/12/30 10:04:25  venku
+         - sng in SimpleNodeGraphTest should track dg or the otherway
+           round to make the hierarchy of test work.  This has
+           been fixed by adding setSNG().
+         Revision 1.1  2003/12/30 09:24:59  venku
+         - Refactored DirectedAndSimpleNodeGraphTest into
+            - AbstractDirectedGraphTest
+            - SimpleNodeGraphTest
+         - Introduced SimpleNodeGraphNoCycleTest
+         - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
+         - Renamed DirectedAndSiimpleNodeGraphTestSuite to
+           GraphNoArgTestSuite.
+         - added checks to test exceptional behavior as well.
  */
