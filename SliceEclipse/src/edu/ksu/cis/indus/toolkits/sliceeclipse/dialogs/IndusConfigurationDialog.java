@@ -309,14 +309,13 @@ public class IndusConfigurationDialog
 	private void handleDelete(final Button btnDelete, final IJavaProject theproject) {
 		btnDelete.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(final SelectionEvent e) {
-					if (criteriaList.getSelectionCount() == 1) {
-						final String _selectedString = criteriaList.getSelection()[0];
-						removeSelection(_selectedString, theproject, criteriaList.getSelectionIndex());
-						criteriaList.remove(criteriaList.getSelectionIndex());
+					if (criteriaTable.getSelectionCount() == 1) {						
+						removeSelection(theproject, criteriaTable.getSelectionIndex());
+						criteriaTable.remove(criteriaTable.getSelectionIndex());
 					}
 				}
 
-				private void removeSelection(final String selectedString, final IJavaProject theproject, final int index) {
+				private void removeSelection(final IJavaProject theproject, final int index) {
 					IResource _resource;
 
 					try {

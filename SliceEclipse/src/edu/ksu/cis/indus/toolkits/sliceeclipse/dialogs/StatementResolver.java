@@ -100,7 +100,7 @@ public class StatementResolver extends Dialog {
 		final RowLayout _rl2 = new RowLayout(SWT.HORIZONTAL);
 		_group2.setLayout(_rl2);
 		btnConsiderExecution = new Button(_group2, SWT.CHECK);
-		btnConsiderExecution.setText("Consider the computed value");
+		btnConsiderExecution.setText("Consider the execution");
 		final IDialogSettings _settings  = SliceEclipsePlugin.getDefault().getDialogSettings();
 		final boolean _considerValue = _settings.getBoolean("edu.ksu.indus.sliceeclipse.considervalue");
 		btnConsiderExecution.setSelection(_considerValue);
