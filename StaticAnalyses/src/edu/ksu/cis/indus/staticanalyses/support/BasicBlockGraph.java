@@ -286,6 +286,17 @@ public class BasicBlockGraph
 		public final List getStmtsOf() {
 			return Collections.unmodifiableList(stmts);
 		}
+
+		/**
+		 * Returns the trailer statement of this basic block.
+		 *
+		 * @return the trailer statement
+		 *
+		 * @post result != null
+		 */
+		public final Stmt getTrailer() {
+			return getStmtAt(_trailer);
+		}
 	}
 
 	/**
@@ -338,6 +349,10 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 06:40:54  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.
