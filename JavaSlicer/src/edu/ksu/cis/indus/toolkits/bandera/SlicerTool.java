@@ -21,9 +21,9 @@ import edu.ksu.cis.bandera.tool.Tool;
 import edu.ksu.cis.bandera.tool.ToolConfigurationView;
 import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
+import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
-import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -154,10 +154,7 @@ public class SlicerTool
 
 		Collection criteria = (Collection) inputArgs.get(CRITERIA);
 
-		if (criteria == null) {
-			LOGGER.error("Atlease one slicing criteria should be specified.");
-			throw new IllegalArgumentException("Atlease one slicing criteria should be specified.");
-		} else if (criteria.isEmpty()) {
+		if (criteria == null || criteria.isEmpty()) {
 			LOGGER.warn("Deadlock criteria will be used.");
 		} else {
 			tool.setCriteria(criteria);
@@ -239,16 +236,16 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/10/14 02:58:53  venku
+   - changed tag name.
    Revision 1.10  2003/10/13 01:01:45  venku
    - Split transformations.slicer into 2 packages
       - transformations.slicer
       - slicer
    - Ripple effect of the above changes.
-
    Revision 1.9  2003/10/12 19:45:05  venku
     - Changed valus of input/output args Ids as per the suggestion
       of Todd.
-
    Revision 1.8  2003/09/28 23:16:18  venku
    - documentation
    Revision 1.7  2003/09/27 22:38:30  venku
