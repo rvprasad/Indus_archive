@@ -92,11 +92,11 @@ public class DependencyXMLizer
 		STMT_LEVEL_DEPENDENCY = "STMT_LEVEL_DEPENDENCY";
 		PROPERTIES = new Properties();
 
-		String propFileName = System.getProperty("indus.dependencytest.properties.file");
+		String propFileName = System.getProperty("indus.dependencyxmlizer.properties.file");
 
 		if (propFileName == null) {
 			propFileName =
-				ClassLoader.getSystemResource("edu/ksu/cis/indus/staticanalyses/dependency/DependencyTest.properties")
+				ClassLoader.getSystemResource("edu/ksu/cis/indus/staticanalyses/dependency/DependencyXMLizer.properties")
 							 .getFile();
 		}
 
@@ -565,6 +565,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/12 05:05:45  venku
+   - Renamed SootDependentTest to SootBasedDriver.
+   - Switched the contents of DependencyXMLizer and DependencyTest.
+   - Corrected errors which emitting xml tags.
+   - added a scrapbook.
    Revision 1.1  2003/11/11 10:11:27  venku
    - in the process of making XMLization a user
      application and at the same time a tester application.
