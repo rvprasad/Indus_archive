@@ -337,11 +337,15 @@ public class ThreadGraph
 
 					// It is possible that the same thread allocation site(loop enclosed) be associated with multiple target 
 					// object 
-					for (Iterator j = analyzer.getValues(threadClass.getField("target"), t).iterator(); j.hasNext();) {
-						NewExpr temp = (NewExpr) j.next();
-						scTemp = env.getClass((temp.getBaseType()).getClassName());
-						methods.addAll(transitiveThreadCallClosure(scTemp.getMethod("run", Collections.EMPTY_LIST,
-									VoidType.v())));
+					for (Iterator j = analyzer.getValues(threadClass.getFieldByName("target"), t).iterator(); j.hasNext();) {
+						Object obj = j.next();
+
+						if (t instanceof NewExpr) {
+							NewExpr temp = (NewExpr) obj;
+							scTemp = env.getClass((temp.getBaseType()).getClassName());
+							methods.addAll(transitiveThreadCallClosure(scTemp.getMethod("run", Collections.EMPTY_LIST,
+										VoidType.v())));
+						}
 					}
 				} else {
 					methods = transitiveThreadCallClosure(sc.getMethod("run", Collections.EMPTY_LIST, VoidType.v()));
@@ -548,6 +552,8 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/25 09:31:39  venku
+   Enabled reset() support for these classes.
    Revision 1.4  2003/08/21 03:43:56  venku
    Ripple effect of adding IStatus.
    Revision 1.3  2003/08/13 08:29:40  venku
