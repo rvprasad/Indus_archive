@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.interfaces;
 
-import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.common.graph.IObjectDirectedGraph;
 
@@ -130,7 +129,8 @@ public interface IMonitorInfo
 	/**
 	 * Retrieves the monitor graph based on the shape of the call graph and the monitors in the method.  Each monitor triple
 	 * is represented as a node.  An outgoing edges indicates that the monitor represented by the destination node is
-	 * reachable from within the monitor represented by the source node.
+	 * reachable from within the monitor (it is directly nested or nested in a method reachable via a call in the monitor)
+	 * in the source node.
 	 *
 	 * @param callgraphInfo to be used to generate an interprocedural graph.  If this parameter is <code>null</code>,
 	 * 		  intraprocedural monitor graph is generated.
@@ -209,6 +209,10 @@ public interface IMonitorInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/07/25 10:27:27  venku
+   - extended MonitorInfo interface with convenience methods.
+   - implemented the above methods in MonitorAnalysis.
+
    Revision 1.8  2004/07/23 13:10:06  venku
    - Refactoring in progress.
      - Extended IMonitorInfo interface.
