@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.TestHelper;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -103,9 +105,9 @@ public class FARegressionTestSuite
 				final String _classpath = _props.getProperty(_config + ".classpath");
 
 				try {
-					final TestSuite _temp = new TestSuite();
-					_temp.setName(_config);
+					final TestSuite _temp = new TestSuite(_config);
 					_temp.addTestSuite(FATest.class);
+					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 					FATestSetup _test = new FATestSetup(_temp, _classNames, _classpath);
 					suite.addTest(_test);
@@ -122,6 +124,9 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 21:31:41  venku
+   - test refactoring to enable same test case to be used as
+     unit test case and regression test case
    Revision 1.2  2004/02/08 19:17:19  venku
    - test refactoring for regression testing.
    Revision 1.1  2004/02/08 04:53:11  venku

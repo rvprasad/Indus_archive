@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.TestHelper;
+
 import edu.ksu.cis.indus.staticanalyses.flow.FATest;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraphTest;
 
@@ -128,10 +130,10 @@ public final class OFARegressionTestSuite
 				}
 
 				try {
-					final TestSuite _temp = new TestSuite();
-					_temp.setName(_config);
+					final TestSuite _temp = new TestSuite(_config);
 					_temp.addTestSuite(CallGraphTest.class);
 					_temp.addTestSuite(FATest.class);
+					TestHelper.appendSuiteNameToTestsIn(_temp, true);
 
 					OFATestSetup _test = new OFATestSetup(_temp, _classNames, _classpath);
 					_test.setXMLOutputDir(_xmlOutputDir);
@@ -150,6 +152,9 @@ public final class OFARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/08 21:31:41  venku
+   - test refactoring to enable same test case to be used as
+     unit test case and regression test case
    Revision 1.2  2004/02/08 19:17:19  venku
    - test refactoring for regression testing.
    Revision 1.1  2004/02/08 04:53:10  venku

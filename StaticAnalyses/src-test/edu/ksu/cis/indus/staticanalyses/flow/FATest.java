@@ -15,10 +15,10 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.IndusTestCase;
+
 import java.util.Collection;
 import java.util.Iterator;
-
-import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +39,7 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public final class FATest
-  extends TestCase {
+  extends IndusTestCase {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -189,6 +189,9 @@ public final class FATest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/08 21:31:41  venku
+   - test refactoring to enable same test case to be used as
+     unit test case and regression test case
    Revision 1.5  2004/02/08 19:17:19  venku
    - test refactoring for regression testing.
    Revision 1.4  2004/02/08 04:53:10  venku
