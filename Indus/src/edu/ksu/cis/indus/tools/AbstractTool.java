@@ -37,11 +37,6 @@ public abstract class AbstractTool
 	static final Log LOGGER = LogFactory.getLog(AbstractTool.class);
 
 	/**
-	 * This is the unit of time it the tool thread sleeps while trying to provide a synchronous view of the run() call.
-	 */
-	private static final int SYCHRONOUS_CALL_WAIT_TIME = 500;
-
-	/**
 	 * This an object used to control the execution of the tool.
 	 */
 	protected final Object control = new Object();
@@ -60,6 +55,11 @@ public abstract class AbstractTool
 	 * @invariant configurator != null
 	 */
 	protected IToolConfigurator configurator;
+
+	/**
+	 * This variable is used by the child thread to communicate exception state to the parent thread.
+	 */
+	Throwable childException;
 
 	/**
 	 * This indicates if the tool should pause execution.
@@ -100,12 +100,13 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running. {@inheritDoc}
+	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running or after a run in which
+	 * the tool failed. {@inheritDoc}
 	 *
 	 * @return <code>true</code> if the tool is not active; <code>false</code>, otherwise.
 	 */
 	public final synchronized boolean isStable() {
-		return thread == null || !thread.isAlive();
+		return isNotAlive() || childException == null;
 	}
 
 	/**
@@ -141,14 +142,29 @@ public abstract class AbstractTool
 	 * @throws IllegalStateException when this method called on a paused tool.
 	 */
 	public final synchronized void run(final Object phase, final boolean synchronous) {
-		if (!pause || isStable()) {
+		if (!pause || isNotAlive()) {
+			childException = null;
+
+			final AbstractTool _parent = this;
 			thread =
 				new Thread() {
 						public final void run() {
+							Throwable _temp = null;
+
 							try {
 								execute(phase);
 							} catch (InterruptedException _e) {
-								LOGGER.error("InterruptedException occurred.  Resetting the execution pipeline.", _e);
+								LOGGER.fatal("Interrupted while executing the tool.", _e);
+								_temp = _e;
+							} catch (Throwable _e) {
+								LOGGER.fatal("This is not good.", _e);
+								_temp = _e;
+							} finally {
+								if (_temp != null) {
+									synchronized (_parent) {
+										_parent.childException = _temp;
+									}
+								}
 								pause = false;
 							}
 						}
@@ -156,13 +172,20 @@ public abstract class AbstractTool
 			thread.start();
 
 			if (synchronous) {
-				while (!isStable()) {
-					try {
-						Thread.sleep(SYCHRONOUS_CALL_WAIT_TIME);
-					} catch (InterruptedException _e) {
-						LOGGER.error("Interrupted while waiting on the run to complete.", _e);
-						pause = false;
+				try {
+					thread.join();
+
+					if (childException != null) {
+						if (childException instanceof RuntimeException) {
+							throw (RuntimeException) childException;
+						} else {
+							throw new RuntimeException(childException);
+						}
 					}
+				} catch (InterruptedException _e) {
+					LOGGER.error("Interrupted while waiting on the run to complete.", _e);
+				} finally {
+					pause = false;
 				}
 			}
 		} else {
@@ -193,11 +216,23 @@ public abstract class AbstractTool
 			control.wait();
 		}
 	}
+
+	/**
+	 * Checks if the tool's thread is not alive. {@inheritDoc}
+	 *
+	 * @return <code>true</code> if the tool is not alive; <code>false</code>, otherwise.
+	 */
+	private final boolean isNotAlive() {
+		return thread == null || !thread.isAlive();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.12  2003/12/09 12:18:18  venku
    - added support to control synchronicity of method runs.
    Revision 1.11  2003/12/02 11:47:19  venku
