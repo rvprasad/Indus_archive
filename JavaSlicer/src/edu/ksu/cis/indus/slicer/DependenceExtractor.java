@@ -35,7 +35,7 @@ import org.apache.commons.collections.Closure;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class DependenceExtractor
+final class DependenceExtractor
   implements Closure {
 	/** 
 	 * The context in which the trigger occurs.
@@ -66,7 +66,7 @@ class DependenceExtractor
 	 * This maps truth values (true/false) to a collection of criteria based on reachability of control flow.
 	 */
 	private final Map newCriteria;
-
+	
 	/**
 	 * Creates a new CriteriaClosure object.
 	 */
@@ -108,7 +108,7 @@ class DependenceExtractor
 	 *
 	 * @pre analysis != null and analysis.oclIsKindOf(AbstractDependencyAnalysis)
 	 */
-	public final void execute(final Object analysis) {
+	public void execute(final Object analysis) {
 		final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
 		final Collection _criteria = retriever.getDependences(_da, entity, context);
 
@@ -132,14 +132,14 @@ class DependenceExtractor
 	}
 
 	/**
-	 * Retrieves the criteria mapping truth values (true/false indicating the execution effect of the criteria is considered)
-	 * to collection of dependence pairs.
+	 * Retrieves the mapping from truth values (true/false indicating the execution effect of the criteria is considered)
+	 * to collection of dependence pairs based on last trigger set.
 	 *
 	 * @return a mapping of truth values to criteria.
 	 *
 	 * @post result != null and result.oclIsKindOf(Map(Boolean, Collection(Pair(Stmt, SootMethod))))
 	 */
-	final Map getCriteriaMap() {
+	Map getDependenceMap() {
 		return Collections.unmodifiableMap(newCriteria);
 	}
 
@@ -153,14 +153,14 @@ class DependenceExtractor
 	}
 
 	/**
-	 * Sets the dependee/dependent.
+	 * Sets the dependee/dependent.  It also clears information pertaining to the previous trigger.
 	 *
 	 * @param theEntity is the dependent/dependee.
 	 * @param theContext in which <code>dependeXX</code> occurs.
 	 *
 	 * @pre theEntity != null and theContext != null
 	 */
-	final void setTrigger(final Object theEntity, final Object theContext) {
+	void setTrigger(final Object theEntity, final Object theContext) {
 		entity = theEntity;
 		context = theContext;
 		trueCriteria.clear();
