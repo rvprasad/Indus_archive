@@ -1035,7 +1035,6 @@ public final class SlicingEngine {
 		final Collection _types = new HashSet(method.getParameterTypes());
 		_types.add(method.getReturnType());
 		includeTypesInSlice(_types);
-		collector.includeInSlice(method);
 	}
 
 	/**
@@ -1297,6 +1296,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.79  2004/06/14 02:57:23  venku
+   - documentation.
+
    Revision 1.78  2004/06/13 07:31:22  venku
    - documentation.
 
