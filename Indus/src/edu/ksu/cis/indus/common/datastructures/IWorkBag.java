@@ -34,7 +34,9 @@ public interface IWorkBag {
 	 *
 	 * @return a work piece.
 	 *
-	 * @post self$pre->exists(o | result == o)
+	 * @throws IllegalStateException when the workbag is empty.
+	 *
+	 * @post hasWork() implies self$pre->exists(o | result == o)
 	 */
 	Object getWork();
 
@@ -108,10 +110,13 @@ public interface IWorkBag {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.2  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

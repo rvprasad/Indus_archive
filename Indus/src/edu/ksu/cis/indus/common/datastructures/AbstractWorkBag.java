@@ -41,6 +41,9 @@ public abstract class AbstractWorkBag
 	 * @see edu.ksu.cis.indus.common.datastructures.IWorkBag#getWork()
 	 */
 	public final Object getWork() {
+		if (container.isEmpty()) {
+			throw new IllegalStateException("The workbag is empty.");
+		}
 		return container.remove(0);
 	}
 
@@ -92,10 +95,13 @@ public abstract class AbstractWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.1  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
