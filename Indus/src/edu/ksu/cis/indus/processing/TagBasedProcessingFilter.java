@@ -135,7 +135,7 @@ public class TagBasedProcessingFilter
 	}
 
 	/**
-	 * Checks if the given host can should be filtered or not.
+	 * Checks if the given host is the filtrate or not.
 	 *
 	 * @param host to be filtered.
 	 *
@@ -151,6 +151,9 @@ public class TagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/14 20:36:05  venku
+   - the filtering methods were incorrect in TagBased... FIXED.
+
    Revision 1.8  2003/12/14 16:43:44  venku
    - extended ProcessingController to filter fields as well.
    - ripple effect.
