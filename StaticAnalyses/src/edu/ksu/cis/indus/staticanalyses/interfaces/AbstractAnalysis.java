@@ -83,7 +83,7 @@ public abstract class AbstractAnalysis {
 	private final BasicBlockGraphMgr graphManager = new BasicBlockGraphMgr();
 
 	/**
-	 * Analyzes the given methods and classes for dependency information.
+	 * Analyzes the given methods and classes for "some" information.
 	 *
 	 * @return <code>true</code> if the analysis completed; <code>false</code>, otherwise.  This is useful if the analysis
 	 * 		   will proceed in stages/phases.
@@ -102,9 +102,9 @@ public abstract class AbstractAnalysis {
 	}
 
 	/**
-	 * Returns the statistics about dependency analysis in the form of a <code>String</code>.
+	 * Returns the statistics about this analysis in the form of a <code>String</code>.
 	 *
-	 * @return the statistics about dependency analysis.
+	 * @return the statistics about this analysis.
 	 */
 	public String getStatistics() {
 		return getClass() + " does not implement this method.";
@@ -122,8 +122,7 @@ public abstract class AbstractAnalysis {
 	}
 
 	/**
-	 * Initializes the dependency analyzer with the information from the system to perform the analysis.  This will also
-	 * reset the analysis.
+	 * Initializes the analyzer with the information from the system to perform the analysis.
 	 *
 	 * @param method2stmtGraphParam maps methods that constitute that analyzed system to their control flow graphs.
 	 * @param infoParam contains the value for the member variable<code>info</code>. Refer to {@link #info info} and subclass
@@ -136,7 +135,6 @@ public abstract class AbstractAnalysis {
 	 */
 	public final void initialize(final Map method2stmtGraphParam, final Map infoParam)
 	  throws InitializationException {
-		reset();
 		this.info.putAll(infoParam);
 		this.method2stmtGraph.putAll(method2stmtGraphParam);
 		setup();
@@ -214,6 +212,10 @@ public abstract class AbstractAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/17 10:48:34  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
+
    Revision 1.4  2003/08/17 10:37:08  venku
    Fixed holes in documentation.
    Removed addRooMethods in FA and added the equivalent logic into analyze() methods.
