@@ -16,8 +16,8 @@
 package edu.ksu.cis.indus.staticanalyses;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
-import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 
+import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -167,6 +168,7 @@ public class AnalysesController {
 	 */
 	public void initialize() {
 		Collection failed = new ArrayList();
+		Collection preprocessors = new HashSet();
 		stable = false;
 
 		for (Iterator k = participatingAnalyses.keySet().iterator(); k.hasNext();) {
@@ -179,6 +181,7 @@ public class AnalysesController {
 				if (analysis.doesPreProcessing()) {
 					IValueAnalyzerBasedProcessor p = analysis.getPreProcessor();
 					p.hookup(preprocessController);
+					preprocessors.add(p);
 				}
 
 				try {
@@ -192,6 +195,10 @@ public class AnalysesController {
 						LOGGER.warn(analysis.getClass() + " failed to initialize, hence, it will not executed.", e);
 					}
 					failed.add(key);
+
+					if (analysis.doesPreProcessing()) {
+						preprocessors.remove(analysis.getPreProcessor());
+					}
 				}
 			}
 
@@ -200,6 +207,10 @@ public class AnalysesController {
 			}
 		}
 		preprocessController.process();
+
+		for (final Iterator _i = preprocessors.iterator(); _i.hasNext();) {
+			((IProcessor) _i.next()).unhook(preprocessController);
+		}
 	}
 
 	/**
@@ -222,6 +233,10 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.31  2004/01/20 22:26:08  venku
+   - AnalysisController can now set basic block graph managers
+     on the controlled analyses.
+   - SlicerTool uses the above feature.
    Revision 1.30  2003/12/16 07:38:33  venku
    - moved preprocessing of analyses into initialization.
    Revision 1.29  2003/12/13 19:38:57  venku
