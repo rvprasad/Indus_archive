@@ -43,8 +43,8 @@ import soot.SootMethod;
  * Does this mean that any object that implements this interface is a valid slice criterion?  NO!  In other words, all slice
  * criteria accepted by the slicing engine will implement this interface but not all objects implementing this interface can
  * be slicing criteria.  Hence, the user may use this interface to identify if an object is  a slicing criterion.  However,
- * he/she may not use this interface to provide a new implementation of the slicing criterion as the slicing engine places
- * certain requirements on the implementation of the criterion and this is not exposed to the user.
+ * he/she should not use this interface to provide a new implementation of the slicing criterion as the slicing engine places
+ * certain internal requirements on the implementation of the criterion.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
