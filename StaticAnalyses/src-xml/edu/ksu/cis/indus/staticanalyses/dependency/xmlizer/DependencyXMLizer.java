@@ -614,17 +614,17 @@ public class DependencyXMLizer
 			_da.reset();
 			_da.setBasicBlockGraphManager(bbm);
 
-			if (_da.doesPreProcessing()) {
-				_da.getPreProcessor().hookup(cgipc);
-			}
-
 			try {
 				_da.initialize(info);
 			} catch (InitializationException _e) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn(_da.getClass() + " failed to initialize, hence, will not be executed.", _e);
-					_failed.add(_da);
 				}
+				_failed.add(_da);
+			}
+
+			if (!_failed.contains(_da) && _da.doesPreProcessing()) {
+				_da.getPreProcessor().hookup(cgipc);
 			}
 		}
 		das.removeAll(_failed);
@@ -664,12 +664,12 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2003/12/16 06:15:40  venku
+   - jimple filename was indistinct. FIXED.
    Revision 1.32  2003/12/16 00:29:29  venku
    - documentation.
-
    Revision 1.31  2003/12/15 16:34:40  venku
    - added help switch to command line.
-
    Revision 1.30  2003/12/15 02:11:15  venku
    - added exception handling at outer most level.
    Revision 1.29  2003/12/13 02:29:08  venku
