@@ -15,10 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency.drivers;
 
-
-//import edu.ksu.cis.indus.common.soot.Driver;
-import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -157,7 +155,7 @@ public abstract class DADriver
 		Collection rm = new ArrayList();
 		cgipc = new ValueAnalyzerBasedProcessingController();
 		cgipc.setProcessingFilter(new CGBasedProcessingFilter(cgi));
-		aliasUD = new AliasedUseDefInfo(aa, cgi);
+		aliasUD = new AliasedUseDefInfo(aa, cgi, bbm);
 
 		pc.setAnalyzer(aa);
 		pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
@@ -310,9 +308,10 @@ public abstract class DADriver
 					failed.add(da);
 				}
 			}
-            if (!failed.contains(da) && da.doesPreProcessing()) {
-                da.getPreProcessor().hookup(cgipc);
-            }            
+
+			if (!failed.contains(da) && da.doesPreProcessing()) {
+				da.getPreProcessor().hookup(cgipc);
+			}
 		}
 		das.removeAll(failed);
 
@@ -355,18 +354,19 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/03/03 02:17:46  venku
+   - added a new method to ICallGraphInfo interface.
+   - implemented the above method in CallGraph.
+   - made aliased use-def call-graph sensitive.
    Revision 1.39  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
    - indus.structures was renamed to indus.datastructures.
-
    Revision 1.38  2003/12/16 07:28:54  venku
    - moved preprocessing of analyses after initialization.
-
    Revision 1.37  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.36  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

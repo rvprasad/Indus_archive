@@ -248,7 +248,7 @@ public class DependencyXMLizerCLI
 		_xmlcgipc.setEnvironment(aa.getEnvironment());
 		_xmlcgipc.setProcessingFilter(new CGBasedXMLizingProcessingFilter(_cgi));
 
-		aliasUD = new AliasedUseDefInfo(aa, _cgi);
+		aliasUD = new AliasedUseDefInfo(aa, _cgi, bbm);
 		info.put(ICallGraphInfo.ID, _cgi);
 		info.put(IThreadGraphInfo.ID, _tgi);
 		info.put(PairManager.ID, new PairManager());
@@ -353,6 +353,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/03 02:17:46  venku
+   - added a new method to ICallGraphInfo interface.
+   - implemented the above method in CallGraph.
+   - made aliased use-def call-graph sensitive.
+
    Revision 1.2  2004/02/25 23:34:29  venku
    - classes that should not be visible should be invisible :-)
 
@@ -512,6 +517,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/03 02:17:46  venku
+   - added a new method to ICallGraphInfo interface.
+   - implemented the above method in CallGraph.
+   - made aliased use-def call-graph sensitive.
+
    Revision 1.2  2004/02/25 23:34:29  venku
    - classes that should not be visible should be invisible :-)
 

@@ -291,7 +291,7 @@ public final class SlicerTool
 
 		// set up data required for dependency analyses.
 		final Map _info = new HashMap();
-		aliasUD = new AliasedUseDefInfo(ofa, callGraph);
+		aliasUD = new AliasedUseDefInfo(ofa, callGraph, bbgMgr);
 		_info.put(ICallGraphInfo.ID, callGraph);
 		_info.put(IThreadGraphInfo.ID, threadGraph);
 		_info.put(IEnvironment.ID, ofa.getEnvironment());
@@ -822,6 +822,11 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.76  2004/03/03 02:17:54  venku
+   - added a new method to ICallGraphInfo interface.
+   - implemented the above method in CallGraph.
+   - made aliased use-def call-graph sensitive.
+
    Revision 1.75  2004/02/27 10:15:51  venku
    - incorrect initialization of seed criteria. FIXED.
 

@@ -16,6 +16,9 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IUseDefInfo;
@@ -96,12 +99,14 @@ public final class AliasedUseDefInfo
 	/**
 	 * This provides the call graph of the system.
 	 */
-	private ICallGraphInfo cgi;
+	private final ICallGraphInfo cgi;
 
 	/**
 	 * This indicates if the analysis has stabilized.  If so, it is safe to query this object for information.
 	 */
 	private boolean stable;
+
+    private final BasicBlockGraphMgr bbgMgr;
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
@@ -111,11 +116,12 @@ public final class AliasedUseDefInfo
 	 *
 	 * @pre analyzer != null and cg != null
 	 */
-	public AliasedUseDefInfo(final IValueAnalyzer iva, final ICallGraphInfo cg) {
+	public AliasedUseDefInfo(final IValueAnalyzer iva, final ICallGraphInfo cg, final BasicBlockGraphMgr bbgManager) {
 		use2defsMap = new HashMap();
 		def2usesMap = new HashMap();
 		analyzer = iva;
 		cgi = cg;
+        bbgMgr = bbgManager;
 	}
 
 	/**
@@ -280,19 +286,26 @@ public final class AliasedUseDefInfo
 						}
 
 						if (_useDef) {
+							boolean _flag = _useDef;
+
 							if (_useMethod.equals(_defMethod)) {
-								// TODO:
-								// check if there is a path from _defStmt to _useStmt in the CFG of _useMethod.  
+								final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_useMethod);
+								final BasicBlock _bbUse = _bbg.getEnclosingBlock(_useStmt);
+								final BasicBlock _bbDef = _bbg.getEnclosingBlock(_defStmt);
+								_flag = _bbUse == _bbDef || _bbg.isReachable(_bbDef, _bbUse, true);
+                                
 							}
 
-							Collection _defs = (Collection) _useStmt2defStmts.getValue();
+							if (_flag) {
+								Collection _defs = (Collection) _useStmt2defStmts.getValue();
 
-							if (_defs.equals(Collections.EMPTY_SET)) {
-								_defs = new HashSet();
-								_useStmt2defStmts.setValue(_defs);
+								if (_defs.equals(Collections.EMPTY_SET)) {
+									_defs = new HashSet();
+									_useStmt2defStmts.setValue(_defs);
+								}
+								_defs.add(pairMgr.getOptimizedPair(_defStmt, _defMethod));
+								_uses.add(pairMgr.getOptimizedPair(_useStmt, _useMethod));
 							}
-							_defs.add(pairMgr.getOptimizedPair(_defStmt, _defMethod));
-							_uses.add(pairMgr.getOptimizedPair(_useStmt, _useMethod));
 						}
 					}
 				}
@@ -338,6 +351,10 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/03/03 02:17:46  venku
+   - added a new method to ICallGraphInfo interface.
+   - implemented the above method in CallGraph.
+   - made aliased use-def call-graph sensitive.
    Revision 1.25  2004/02/25 00:04:02  venku
    - documenation.
    Revision 1.24  2004/01/06 00:17:01  venku
