@@ -15,6 +15,14 @@
  
 package edu.ksu.cis.indus.kaveri.callgraph;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodWrapper;
 import org.eclipse.jdt.internal.ui.callhierarchy.CallHierarchyViewPart;
 import org.eclipse.jface.action.IAction;
@@ -49,12 +57,14 @@ public class AddToContext implements IViewActionDelegate {
         if (sSel != null) {
             if (sSel.getFirstElement() instanceof MethodWrapper) {
                 MethodWrapper _mw = (MethodWrapper) (sSel.getFirstElement());
-                String _callChain = _mw.getName();                
-                while(_mw.getParent() != null) {
-                    _mw = _mw.getParent();
-                    _callChain += "->" + _mw.getName();
+                final IJavaElement _method = (IJavaElement) _mw.getAdapter(IJavaElement.class);
+                if (_method != null && _method.getElementType() == IJavaElement.METHOD) {
+                    final IMethod _jmethod = (IMethod) _method;
+                    final ASTParser _parser = ASTParser.newParser(AST.JLS2);
+                    _parser.setSource(_jmethod.getCompilationUnit());
+                    final CompilationUnit _cu = (CompilationUnit) _parser.createAST(null);
+                    _cu.accept(new MyAstVistor(_cu));
                 }
-               MessageDialog.openInformation(null, "Call Chain", _callChain);
             }
         }
 

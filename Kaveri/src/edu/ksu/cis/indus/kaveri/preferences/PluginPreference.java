@@ -455,7 +455,7 @@ public class PluginPreference extends PreferencePage implements
             try {
                 SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition
                         .deserialize(_scopeSpec);
-                //_sbsd.createSpecContainer()
+               
             } catch (JiBXException _jbe) {
                 SECommons.handleException(_jbe);
             }
