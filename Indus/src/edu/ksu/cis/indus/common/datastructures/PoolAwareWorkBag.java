@@ -91,16 +91,18 @@ public final class PoolAwareWorkBag
 	 *
 	 * @param o is the work peice.
 	 *
-	 * @return <code>true</code>.
+	 * @return <code>true</code> if the work peice was added to the work bag; <code>false</code>, otherwise.  In the latter
+	 * 		   case the work peice is returned to he pool.
 	 *
 	 * @pre o != null and o.oclIsKindOf(IPoolable)
-	 * @post result == true
 	 */
 	public boolean addWorkNoDuplicates(final Object o) {
-		if (!container.addWorkNoDuplicates(o)) {
+		boolean _result = container.addWorkNoDuplicates(o);
+
+		if (!_result) {
 			((IPoolable) o).returnToPool();
 		}
-		return true;
+		return _result;
 	}
 
 	/**
@@ -121,10 +123,13 @@ public final class PoolAwareWorkBag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/06 00:17:10  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.1  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
