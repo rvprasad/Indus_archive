@@ -27,9 +27,7 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides the logic to detect parts of a complete (backward and forward) slice.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -38,30 +36,26 @@ import soot.jimple.Stmt;
 public class CompleteSlicingPart
   implements IDirectionSensitivePartOfSlicingEngine {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This part provides the backward slice creation logic.
 	 */
 	private final BackwardSlicingPart backwardPart;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This part provides the forward slice creation logic.
 	 */
 	private final ForwardSlicingPart forwardPart;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The engine with which this part is a part of.
 	 */
 	private final SlicingEngine engine;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param theEngine
+	 * @param theEngine of which this part is a part of.
+	 *
+	 * @pre theEngine != null
 	 */
 	public CompleteSlicingPart(final SlicingEngine theEngine) {
 		engine = theEngine;
@@ -107,11 +101,7 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param local
-	 * @param stmt
-	 * @param method
+	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(ValueBox, Stmt, SootMethod)
 	 */
 	public void processLocalAt(final ValueBox local, final Stmt stmt, final SootMethod method) {
 		backwardPart.processLocalAt(local, stmt, method);
@@ -119,10 +109,7 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param stmt
-	 * @param method
+	 * @see IDirectionSensitivePartOfSlicingEngine#processNewExpr(Stmt, SootMethod)
 	 */
 	public void processNewExpr(final Stmt stmt, final SootMethod method) {
 		backwardPart.processNewExpr(stmt, method);
@@ -130,10 +117,7 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param box
-	 * @param method
+	 * @see IDirectionSensitivePartOfSlicingEngine#processParameterRef(ValueBox, SootMethod)
 	 */
 	public void processParameterRef(final ValueBox box, final SootMethod method) {
 		backwardPart.processParameterRef(box, method);
@@ -141,11 +125,7 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param valueBox
-	 *
-	 * @return
+	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformExpr(ValueBox)
 	 */
 	public Collection retrieveValueBoxesToTransformExpr(final ValueBox valueBox) {
 		final Collection _result = new HashSet();
@@ -155,11 +135,7 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param stmt
-	 *
-	 * @return
+	 * @see IDirectionSensitivePartOfSlicingEngine#retrieveValueBoxesToTransformStmt(Stmt)
 	 */
 	public Collection retrieveValueBoxesToTransformStmt(final Stmt stmt) {
 		final Collection _result = new HashSet();
@@ -172,4 +148,6 @@ public class CompleteSlicingPart
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/08/20 02:13:05  venku
+   - refactored slicer based on slicing direction.
  */

@@ -45,9 +45,7 @@ import soot.jimple.ThisRef;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides the logic to detect parts of a forward slice.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -61,16 +59,16 @@ public class ForwardSlicingPart
 	private static final Log LOGGER = LogFactory.getLog(ForwardSlicingPart.class);
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The engine with which this part is a part of.
 	 */
 	private final SlicingEngine engine;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param theEngine
+	 * @param theEngine of which this part is a part of.
+	 *
+	 * @pre theEngine != null
 	 */
 	ForwardSlicingPart(final SlicingEngine theEngine) {
 		engine = theEngine;
@@ -204,7 +202,7 @@ public class ForwardSlicingPart
 				}
 				engine.getCallStackCache().push(new CallTriple(method, stmt, stmt.getInvokeExpr()));
 
-				generateCriteriaToIncludeArgument(_index, _callees);
+				generateCriteriaToIncludeArgumentReadStmts(_index, _callees);
 				engine.getCallStackCache().pop();
 
 				if (engine.getCallStackCache().isEmpty()) {
@@ -257,12 +255,16 @@ public class ForwardSlicingPart
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Generates criteria to include statements that pop the arguments of the call stack in the callees.
 	 *
-	 * @param argIndex
-	 * @param callees
+	 * @param argIndex is the index of the argument whose read should be included.
+	 * @param callees are the methods called.
+	 *
+	 * @pre argIndex != null and callees != null
+	 * @pre callees.oclIsKindOf(Collection(SootMethod))
+	 * @pre callees->forall(o | o.getParameterCount() > argIndex)
 	 */
-	private void generateCriteriaToIncludeArgument(final int argIndex, final Collection callees) {
+	private void generateCriteriaToIncludeArgumentReadStmts(final int argIndex, final Collection callees) {
 		final Iterator _i = callees.iterator();
 		final int _iEnd = callees.size();
 
@@ -290,6 +292,8 @@ public class ForwardSlicingPart
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/08/20 02:13:05  venku
+   - refactored slicer based on slicing direction.
    Revision 1.1  2004/08/18 09:54:49  venku
    - adding first cut classes from refactoring for feature 427.  This is not included in v0.3.2.
  */

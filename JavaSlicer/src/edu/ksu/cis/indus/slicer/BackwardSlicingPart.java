@@ -54,9 +54,7 @@ import soot.toolkits.scalar.UnitValueBoxPair;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class provides the logic to detect parts of a backward slice.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -84,16 +82,16 @@ public class BackwardSlicingPart
 	private final Map method2params = new HashMap();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The engine with which this part is a part of.
 	 */
 	private final SlicingEngine engine;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param theEngine
+	 * @param theEngine of which this part is a part of.
+	 *
+	 * @pre theEngine != null
 	 */
 	BackwardSlicingPart(final SlicingEngine theEngine) {
 		engine = theEngine;
@@ -401,18 +399,19 @@ public class BackwardSlicingPart
 
 		generateCriteriaForReceiver(invocationStmt, caller, callee);
 
-
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Generating criteria for method called at " + invocationStmt + " in " + caller);
 		}
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Generates criteria to include the receiver of the callee at the given invocation statement.
 	 *
-	 * @param invocationStmt
-	 * @param caller
-	 * @param callee
+	 * @param invocationStmt at which the invocation occurs.
+	 * @param caller in which the invocation occurs.
+	 * @param callee is the method that is invoked.
+	 *
+	 * @pre invocationStmt != null and caller != null and callee != null
 	 */
 	private void generateCriteriaForReceiver(final Stmt invocationStmt, final SootMethod caller, final SootMethod callee) {
 		if (!callee.isStatic()) {
@@ -467,6 +466,8 @@ public class BackwardSlicingPart
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/08/20 02:13:05  venku
+   - refactored slicer based on slicing direction.
    Revision 1.1  2004/08/18 09:54:49  venku
    - adding first cut classes from refactoring for feature 427.  This is not included in v0.3.2.
  */

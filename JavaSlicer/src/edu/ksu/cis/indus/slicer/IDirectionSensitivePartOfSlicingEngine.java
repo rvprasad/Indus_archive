@@ -24,76 +24,95 @@ import soot.jimple.Stmt;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This interface provides methods to control the direction of slicing.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
 interface IDirectionSensitivePartOfSlicingEngine
   extends DependenceExtractor.IDependenceRetriver {
 	/**
-	 * DOCUMENT ME!
+	 * Generates new criteria to capture the call to the given method <code>callee</code>.
 	 *
-	 * @param callee
-	 * @param caller
-	 * @param callStmt
+	 * @param callee obviously.
+	 * @param caller obviously.
+	 * @param callStmt in the <code>caller</code> at which <code>callee</code> was called.
+	 *
+	 * @pre callee != null and caller != null and callStmt != null
+	 * @pre callStmt.containsInvokeExpr()
 	 */
 	void generateCriteriaForTheCallToMethod(SootMethod callee, SootMethod caller, Stmt callStmt);
 
 	/**
-	 * DOCUMENT ME!
+	 * Generate new criteria to include the given called methods at given statement in the caller.
 	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param caller DOCUMENT ME!
-	 * @param callees
+	 * @param callStmt at which the invocation occurs.
+	 * @param caller in which the invocation occurs.
+	 * @param callees that are invoked.
+	 *
+	 * @pre callStmt != null and caller != null and callees != null
+	 * @pre callStmt.containsInvokeExpr()
+	 * @pre callees.oclIsKindOf(Collection(SootMethod))
 	 */
-	void generateCriteriaToIncludeCallees(Stmt stmt, SootMethod caller, Collection callees);
+	void generateCriteriaToIncludeCallees(Stmt callStmt, SootMethod caller, Collection callees);
 
 	/**
-	 * DOCUMENT ME!
+	 * Process the local at program point <code>local</code> for inclusion in the slice.
 	 *
-	 * @param local
-	 * @param stmt
-	 * @param method
+	 * @param local is the program point at which the local occurs.
+	 * @param stmt in which <code>local</code> occurs.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre local != null and stmt != null and method != null
 	 */
 	void processLocalAt(ValueBox local, Stmt stmt, SootMethod method);
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Process the new expression that occurs in the given statement and method for inclusion in the slice.
 	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
+	 * @param stmt containing the new expression.
+	 * @param method containing <code>stamt</code>.
+	 *
+	 * @pre stmt != null and method != null
+	 * @pre stmt.getUseBoxes()->exists(o | o.getValue().oclIsKindOf(NewExpr))
 	 */
 	void processNewExpr(final Stmt stmt, final SootMethod method);
 
 	/**
-	 * DOCUMENT ME!
+	 * Process the parameter reference in <code>paramRef</code> for inclusion in the slice.
 	 *
-	 * @param box
-	 * @param method
+	 * @param paramRef is the program point that contains the parameter ref to be processed.
+	 * @param method containting <code>paramRef</code>.
+	 *
+	 * @pre paramRef != null and method != null
+	 * @pre paramRef.getValue().oclIsKindOf(ParameterRef))
 	 */
-	void processParameterRef(ValueBox box, SootMethod method);
+	void processParameterRef(ValueBox paramRef, SootMethod method);
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the value boxes reachable from the given program point (via containment relationship) that should be
+	 * considered while transforming the given program point.
 	 *
-	 * @param valueBox
+	 * @param valueBox is the program point being transformed.
 	 *
-	 * @return
+	 * @return a collection of value boxes.
+	 *
+	 * @pre valueBox != null
+	 * @post result != null and result.oclIsKindOf(Collection(ValueBox))
 	 */
 	Collection retrieveValueBoxesToTransformExpr(ValueBox valueBox);
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the value boxes reachable from the given statement (via containment relationship) that should be considered
+	 * while transforming the given statement.
 	 *
-	 * @param stmt
+	 * @param stmt is the statement being transformed.
 	 *
-	 * @return
+	 * @return a collection of value boxes.
+	 *
+	 * @pre stmt != null
+	 * @post result != null and result.oclIsKindOf(Collection(ValueBox))
 	 */
 	Collection retrieveValueBoxesToTransformStmt(Stmt stmt);
 }
@@ -101,6 +120,8 @@ interface IDirectionSensitivePartOfSlicingEngine
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/08/20 02:13:05  venku
+   - refactored slicer based on slicing direction.
    Revision 1.1  2004/08/18 09:54:49  venku
    - adding first cut classes from refactoring for feature 427.  This is not included in v0.3.2.
  */

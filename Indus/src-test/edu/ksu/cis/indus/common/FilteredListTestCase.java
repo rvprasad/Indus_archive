@@ -16,8 +16,7 @@
 package edu.ksu.cis.indus.common;
 
 /**
- * DOCUMENT ME!
- * <p></p>
+ * This tests <code>FilteredList</code>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -92,4 +91,7 @@ public class FilteredListTestCase
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/06/29 02:00:23  venku
+   - added test cases for FilteredXXXX classes.  These need to be implemented.
+
  */

@@ -66,7 +66,6 @@ import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 
 
-
 /**
  * This class accepts slice criterions and generates slices of the given system.
  *
@@ -150,9 +149,7 @@ public final class SlicingEngine {
 	private ICallGraphInfo cgi;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides the logic to determine parts of the slice that are direction dependent.
 	 */
 	private IDirectionSensitivePartOfSlicingEngine directionSensitiveInfo;
 
@@ -176,16 +173,9 @@ public final class SlicingEngine {
 	private Object sliceType = BACKWARD_SLICE;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This predicate is used to filter out java.lang.Thread.start methods from a set of methods.
 	 */
-	private Predicate nonStartMethodPredicate =
-		new Predicate() {
-			public boolean evaluate(final Object object) {
-				return !Util.isStartMethod((SootMethod) object);
-			}
-		};
+	private Predicate nonStartMethodPredicate = new NonStartMethodPredicate();
 
 	/** 
 	 * This collects the parts of the system that make up the slice.
@@ -202,6 +192,23 @@ public final class SlicingEngine {
 	 */
 	public SlicingEngine() {
 		collector = new SliceCollector(this);
+	}
+
+	/**
+	 * This predicate can be used to filter out java.lang.Thread.start methods from a set of methods.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	private static class NonStartMethodPredicate
+	  implements Predicate {
+		/**
+		 * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
+		 */
+		public boolean evaluate(final Object object) {
+			return !Util.isStartMethod((SootMethod) object);
+		}
 	}
 
 	/**
@@ -962,6 +969,8 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.93  2004/08/20 02:13:05  venku
+   - refactored slicer based on slicing direction.
    Revision 1.92  2004/08/18 09:10:34  venku
    - made slicing more interprocedural.
    Revision 1.91  2004/08/17 16:13:01  venku
