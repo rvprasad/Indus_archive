@@ -15,8 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
-import org.apache.commons.collections.set.ListOrderedSet;
-
+import edu.ksu.cis.indus.common.collections.RetrievableSet;
 
 /**
  * This strategy tries to reuse indices.  It returns the same object for identical indices passed as arguments to
@@ -33,7 +32,7 @@ public class ProcessorIntensiveStrategy
 	 *
 	 * @invariant indices != null and indices.oclIsKindOf(Set(IIndex))
 	 */
-	private final ListOrderedSet indices = new ListOrderedSet();
+	private final RetrievableSet indices = new RetrievableSet();
 
 	/**
 	 * @see IIndexManagementStrategy#getEquivalentIndex(edu.ksu.cis.indus.staticanalyses.flow.IIndex)
@@ -42,7 +41,7 @@ public class ProcessorIntensiveStrategy
 		final IIndex _result;
 
 		if (indices.contains(index)) {
-			_result = (IIndex) indices.get(indices.indexOf(index));
+			_result = (IIndex) indices.get(index);
 		} else {
 			_result = index;
 			indices.add(index);
