@@ -23,6 +23,7 @@ import soot.Type;
 import soot.Value;
 import soot.ValueBox;
 
+import soot.jimple.AssignStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -147,7 +148,8 @@ public class CallGraph
 
 	/**
 	 * This maps methods to classes which need to be initialized before or during the execution of the method.
-     * @invariant caller2clinitClasses.oclIsKindOf(Map(SootMethod, Collection(SootClass)))  
+	 *
+	 * @invariant caller2clinitClasses.oclIsKindOf(Map(SootMethod, Collection(SootClass)))
 	 */
 	private Map caller2clinitClasses = new HashMap();
 
@@ -544,29 +546,28 @@ public class CallGraph
 
 		while (wb.hasWork()) {
 			SootMethod sm = (SootMethod) wb.getWork();
+			reachables.add(sm);
 
-			if (!reachables.contains(sm)) {
-				reachables.add(sm);
+			// handle the <clinit> methods that are reachable
+			Collection clinitClasses = (Collection) caller2clinitClasses.get(sm);
 
-				// handle the <clinit> methods that are reachable
-				Collection clinitClasses = (Collection) caller2clinitClasses.get(sm);
+			if (clinitClasses != null) {
+				for (Iterator i = clinitClasses.iterator(); i.hasNext();) {
+					SootMethod head = ((SootClass) i.next()).getMethodByName("<clinit>");
+					heads.add(head);
 
-				if (clinitClasses != null) {
-					for (Iterator i = clinitClasses.iterator(); i.hasNext();) {
-						SootMethod head = ((SootClass) i.next()).getMethodByName("<clinit>");
-						heads.add(head);
+					if (!reachables.contains(head)) {
 						wb.addWorkNoDuplicates(head);
 					}
 				}
+			}
 
-				for (Iterator i = getCallees(sm).iterator(); i.hasNext();) {
-					CallTriple ctrp = (CallTriple) i.next();
-					SootMethod callee = ctrp.getMethod();
+			for (Iterator i = getCallees(sm).iterator(); i.hasNext();) {
+				CallTriple ctrp = (CallTriple) i.next();
+				SootMethod callee = ctrp.getMethod();
 
-					if (!reachables.contains(callee)) {
-						wb.addWorkNoDuplicates(callee);
-						reachables.add(callee);
-					}
+				if (!reachables.contains(callee)) {
+					wb.addWorkNoDuplicates(callee);
 				}
 			}
 		}
@@ -726,6 +727,8 @@ public class CallGraph
 		ppc.register(InterfaceInvokeExpr.class, this);
 		ppc.register(StaticInvokeExpr.class, this);
 		ppc.register(SpecialInvokeExpr.class, this);
+		ppc.register(AssignStmt.class, this);
+        ppc.register(this);
 	}
 
 	/**
@@ -752,6 +755,8 @@ public class CallGraph
 		ppc.unregister(InterfaceInvokeExpr.class, this);
 		ppc.unregister(StaticInvokeExpr.class, this);
 		ppc.unregister(SpecialInvokeExpr.class, this);
+		ppc.unregister(AssignStmt.class, this);
+        ppc.unregister(this);
 		stable = true;
 	}
 
@@ -809,7 +814,8 @@ public class CallGraph
 	 *
 	 * @param clazz is the class whose initializer should be invoked as a result of <code>caller</code>.
 	 * @param caller requires <code>clazz</code> to be initialized.
-     * @pre clazz != null and caller != null
+	 *
+	 * @pre clazz != null and caller != null
 	 */
 	private void processForClassInitializer(final SootClass clazz, final SootMethod caller) {
 		if (clazz.declaresMethodByName("<clinit>")) {
@@ -822,11 +828,19 @@ public class CallGraph
 			clinitClasses.add(clazz);
 		}
 	}
+    /**
+     * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
+     */
+    public void callback(SootMethod method) {
+processForClassInitializer(method.getDeclaringClass(), method);
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/11/25 23:48:23  venku
+   - added support to consider <clinit> methods as well.
    Revision 1.26  2003/11/17 15:42:46  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.25  2003/11/10 03:17:19  venku

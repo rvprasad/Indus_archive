@@ -65,7 +65,8 @@ import java.util.Set;
  * <code>NewExprTriple</code> with <code>null</code> for statement and method, but  a <code>NewExpr</code> which creates a
  * type with the name that starts with "MainThread:".  The rest of the name is a number followed by the signature of the
  * starting method in the thread. For example, "MainThread:2:[signature]" represents the second mainthread with the run
- * method given by signature.
+ * method given by signature.  Likewise, we assume that all class initializers are executed by a dedicated thread whose type
+ * name would start with "ClassInitThread:".
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -336,6 +337,10 @@ public class ThreadGraph
 		Collection values = analyzer.getValuesForThis(ctxt);
 		Map class2runCallees = new HashMap();
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("New thread expressions are: " + values);
+		}
+
 		for (Iterator i = values.iterator(); i.hasNext();) {
 			NewExpr value = (NewExpr) i.next();
 			SootClass sc = env.getClass(value.getBaseType().getClassName());
@@ -349,9 +354,7 @@ public class ThreadGraph
 				if (scTemp != null) {
 					flag = scTemp.getName().equals("java.lang.Thread");
 				} else {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("How can there be a descendent of java.lang.Thread without access to run() method.");
-					}
+					LOGGER.error("How can there be a descendent of java.lang.Thread without access to run() method.");
 					throw new RuntimeException("run() method is unavailable via " + sc
 						+ " even though it is a descendent of java.lang.Thread.");
 				}
@@ -382,6 +385,15 @@ public class ThreadGraph
 			}
 
 			NewExprTriple thread = extractNewExprTripleFor(value);
+
+			if (thread == null) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("thread cannot be null. This can happen if there are not "
+						+ "threads other than the main thread in the system." + value);
+				}
+				continue;
+			}
+
 			methods = (Collection) class2runCallees.get(sc);
 			thread2methods.put(thread, methods);
 
@@ -401,14 +413,33 @@ public class ThreadGraph
 		 * with no associated statement and method and use that to create a NewExprTriple.  This triple represents the thread
 		 * allocation site of main threads.  The triple would have null for the method and statement, but a NewExpr whose
 		 * type name starts with "MainThread:".
+		 *
+		 * Also, class initializers (<clinit> methods) need to be treated differently.  They execute either in the current
+		 * thread or another thread.  However, the interesting property is that class initializers are executed only once and
+		 * by atmost one thread (which can be any thread) via locking.  Hence, for thread-sensitive analyses this matters.
+		 * For other cases, we can assume that there is an arbitrary but same thread in the VM that just executes these
+		 * initializers.  Another alternative is that each initializer is executed in a new dedicated thread. Like in the case
+		 * of main threads we will use similar triples except "ClassInitThread:" is used as the type name prefix. We adapt
+		 * the first approach of one dedicated thread executes all intializers in the VM.  Hence, all <clinit> methods are
+		 * associated with an "ClassInitThread:".
 		 */
 		Collection heads = cgi.getHeads();
-		int k = 1;
+		int mainThreadCount = 1;
+		NewExprTriple classInitThread =
+			new NewExprTriple(null, null, Jimple.v().newNewExpr(RefType.v("ClassInitThread:1:_jvm_")));
 
-		for (Iterator i = heads.iterator(); i.hasNext(); k++) {
+		for (Iterator i = heads.iterator(); i.hasNext();) {
 			SootMethod head = (SootMethod) i.next();
-			NewExpr mainThreadNE = Jimple.v().newNewExpr(RefType.v("MainThread:" + k + ":" + head.getSignature()));
-			NewExprTriple thread = new NewExprTriple(null, null, mainThreadNE);
+			NewExprTriple thread = null;
+
+			if (head.getName().equals("<clinit>")) {
+				thread = classInitThread;
+			} else {
+				thread =
+					new NewExprTriple(null, null,
+						Jimple.v().newNewExpr(RefType.v("MainThread:" + mainThreadCount++ + ":" + head.getSignature())));
+			}
+
 			newThreadExprs.add(thread);
 
 			Collection methods = transitiveThreadCallClosure(head);
@@ -630,9 +661,10 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/17 16:47:50  venku
+    - class cast exception due to change from value to valuebox in callbacks.
    Revision 1.14  2003/11/17 15:42:46  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
-
    Revision 1.13  2003/11/10 03:17:18  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    - ripple effect.
