@@ -35,70 +35,45 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import soot.SootMethod;
-
-import soot.jimple.Stmt;
-
-
 /**
- * This class represents a statement as a slice criterion.
+ * This class represents a slice criterion.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public class SliceStmt
-  extends AbstractSliceCriterion {
+public abstract class AbstractSliceCriterion {
 	/**
-	 * The method in which <code>stmt</code> occurs.
-     * @invariant method != null
+	 * This indicates if this criterion is included in the slice or not.
 	 */
-	protected SootMethod method;
+	protected boolean inclusive;
 
 	/**
-	 * The statement associated with this criterion.
-     * @invariant stmt != null
-	 */
-	protected Stmt stmt;
-
-	/**
-	 * Creates a new SliceStmt object.
+	 * Creates a new AbstractSliceCriterion object.
 	 *
-	 * @param occurringMethod in which the slice criterion occurs.
-	 * @param criterion is the slice criterion.
-	 * @param shouldInclude <code>true</code> if the slice criterion should be included in the slice; <code>false</code>,
-	 * 		  otherwise.
-	 *
-	 * @pre method != null and stmt != null
+	 * @param shouldBeIncluded <code>true</code> indicates this criterion should be included in the slice;
+	 * 		  <code>false</code>, otherwise.
 	 */
-	protected SliceStmt(final SootMethod occurringMethod, final Stmt criterion, final boolean shouldInclude) {
-		super(shouldInclude);
-		this.method = occurringMethod;
-		this.stmt = criterion;
+	protected AbstractSliceCriterion(final boolean shouldBeIncluded) {
+		this.inclusive = shouldBeIncluded;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns the stored criterion object.
 	 *
-	 * @return the statement(<code>Stmt</code>) associated with this criterion.
-	 *
-	 * @post result != null and result.oclIsKindOf(jimple.Stmt)
-	 *
-	 * @see edu.ksu.cis.bandera.slicer.AbstractSliceCriterion#getCriterion()
-	 */
-	public Object getCriterion() {
-		return stmt;
-	}
-
-	/**
-	 * Provides the method in which criterion occurs.
-	 *
-	 * @return the method in which the slice statement occurs.
+	 * @return Object representing the criterion.
 	 *
 	 * @post result != null
 	 */
-	public SootMethod getOccurringMethod() {
-		return method;
+	public abstract Object getCriterion();
+
+	/**
+	 * Indicates if this criterion is included in the slice or not.
+	 *
+	 * @return <code>true</code> if this criterion is included in the slice; <code>false</code>, otherwise.
+	 */
+	public boolean isIncluded() {
+		return inclusive;
 	}
 
 	/**
@@ -111,13 +86,8 @@ public class SliceStmt
 	public boolean equals(final Object o) {
 		boolean result = false;
 
-		if (o != null && o instanceof SliceStmt) {
-			SliceStmt temp = (SliceStmt) o;
-			result = temp.stmt.equals(stmt);
-
-			if (result) {
-				result = temp.method.equals(method) && super.equals(temp);
-			}
+		if (o != null && o instanceof AbstractSliceCriterion) {
+			result = ((AbstractSliceCriterion) o).inclusive == inclusive;
 		}
 		return result;
 	}
@@ -128,10 +98,13 @@ public class SliceStmt
 	 * @return the hashcode for this object.
 	 */
 	public int hashCode() {
-		int result = 17;
-		result = 37 * result + stmt.hashCode();
-		result = 37 * result + method.hashCode();
-        result = 37 * result + super.hashCode();
+		int result;
+
+		if (inclusive) {
+			result = Boolean.TRUE.hashCode();
+		} else {
+			result = Boolean.FALSE.hashCode();
+		}
 		return result;
 	}
 }
@@ -139,7 +112,7 @@ public class SliceStmt
 /*
    ChangeLog:
    $Log$
-   Revision 1.3  2003/05/22 22:23:49  venku
+   Revision 1.4  2003/05/22 22:23:50  venku
    Changed interface names to start with a "I".
    Formatting.
  */

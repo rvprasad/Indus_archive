@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,17 +30,16 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.slicer;
+package edu.ksu.cis.indus.slicer;
 
-import ca.mcgill.sable.soot.SootMethod;
+import soot.PatchingChain;
+import soot.SootMethod;
 
-import ca.mcgill.sable.soot.jimple.Jimple;
-import ca.mcgill.sable.soot.jimple.JimpleBody;
-import ca.mcgill.sable.soot.jimple.Stmt;
-import ca.mcgill.sable.soot.jimple.StmtList;
+import soot.jimple.JimpleBody;
+import soot.jimple.Stmt;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,7 +47,10 @@ import java.util.Map;
 
 
 /**
- * This maintains the map of statements occurring in the unsliced and sliced version of methods.
+ * This maintains the map of statements occurring in the unsliced and sliced version of methods.  Things get twisted here.
+ * When we say "unsliced" version of a method we refer to the method before slicing.  Hence,  when we say "sliced" version
+ * of the method we refer to the method after slicing.  Just trying to keep it with english like in "This is the slice of
+ * the mango sliced earlier."
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -60,42 +62,48 @@ public class SliceMap {
 	 *
 	 * @invariant method2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
 	 * @invariant method2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
+	 * @invariant method2stmtMap != null
 	 */
 	private Map method2stmtMap = new HashMap();
 
 	/**
-	 * This maps statements in slice methods to their counterparts in the sliced version of the methods.
+	 * This maps statements in sliced version of methods to their counterparts in the unsliced version of the methods.
 	 *
-	 * @invariant sliceMethod2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
-	 * @invariant sliceMethod2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
+	 * @invariant slicedMethod2stmtMap.keySet()->forAll( o | o.isOclKindOf(SootMethod))
+	 * @invariant slicedMethod2stmtMap.values()->forAll( o | o.isOclKindOf(Map(Stmt, Stmt)))
+	 * @invariant slicedMethod2stmtMap != null
 	 */
-	private Map sliceMethod2stmtMap = new HashMap();
+	private Map slicedMethod2stmtMap = new HashMap();
 
 	/**
-	 * <p>
 	 * The slicer from which the map is extracted.
-	 * </p>
+	 *
+	 * @invariant slicer != null
 	 */
 	private Slicer slicer;
 
 	/**
 	 * Creates a new instance of this class.
 	 *
-	 * @param slicer in which this map exists.
+	 * @param associatedSlicer in which this map exists.
+	 *
+	 * @pre slicer != null
 	 */
-	protected SliceMap(Slicer slicer) {
-		this.slicer = slicer;
+	protected SliceMap(final Slicer associatedSlicer) {
+		this.slicer = associatedSlicer;
 	}
 
 	/**
-	 * Provides the statement corresponding to the given statement in the sliced version of the method.
+	 * Provides the sliced statement corresponding to the given statement in the unsliced version of the method.
 	 *
 	 * @param stmt in the unsliced version of <code>method</code>.
 	 * @param method in which <code>stmt</code> occurs.
 	 *
 	 * @return the sliced counterpart of the given statement. If the statement was sliced away, it returns <code>null</code>.
+	 *
+	 * @pre stmt != null and method != null
 	 */
-	public Stmt getSliceStmt(Stmt stmt, SootMethod method) {
+	public Stmt getSliceStmt(final Stmt stmt, final SootMethod method) {
 		Stmt result = null;
 		Map stmtMap = (Map) method2stmtMap.get(method);
 
@@ -106,18 +114,18 @@ public class SliceMap {
 	}
 
 	/**
-	 * Provides the statement corresponding to the given statement in the sliced version of the method.
+	 * Provides the unsliced statement corresponding to the given statement in the sliced of the method.
 	 *
 	 * @param sliceStmt in the sliced version of <code>method</code>.
 	 * @param method in which <code>stmt</code> occurs.
 	 *
 	 * @return the unsliced counterpart of the given statement.
 	 *
-	 * @post result != null
+	 * @pre sliceStmt != null and method != null
 	 */
-	public Stmt getStmt(Stmt sliceStmt, SootMethod method) {
+	public Stmt getStmt(final Stmt sliceStmt, final SootMethod method) {
 		Stmt result = null;
-		Map stmtMap = (Map) sliceMethod2stmtMap.get(method);
+		Map stmtMap = (Map) slicedMethod2stmtMap.get(method);
 
 		if (stmtMap != null) {
 			result = (Stmt) stmtMap.get(sliceStmt);
@@ -130,7 +138,7 @@ public class SliceMap {
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
 	protected void cleanup() {
-		for (Iterator i = sliceMethod2stmtMap.keySet().iterator(); i.hasNext();) {
+		for (Iterator i = slicedMethod2stmtMap.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			SootMethod sliceMethod = slicer.getCloneOf(method);
 
@@ -138,11 +146,11 @@ public class SliceMap {
 				method2stmtMap.put(method, null);
 			} else {
 				Map sliced = (Map) method2stmtMap.get(method);
-				Map slice = (Map) sliceMethod2stmtMap.get(sliceMethod);
-				StmtList slicedSl = ((JimpleBody) method.getBody(Jimple.v())).getStmtList();
-				StmtList sliceSl = ((JimpleBody) sliceMethod.getBody(Jimple.v())).getStmtList();
+				Map slice = (Map) slicedMethod2stmtMap.get(sliceMethod);
+				PatchingChain slicedSl = ((JimpleBody) method.getActiveBody()).getUnits();
+				PatchingChain sliceSl = ((JimpleBody) sliceMethod.getActiveBody()).getUnits();
 
-				for (ca.mcgill.sable.util.Iterator j = slicedSl.iterator(); j.hasNext();) {
+				for (Iterator j = slicedSl.iterator(); j.hasNext();) {
 					Stmt stmt = (Stmt) j.next();
 
 					if (!sliceSl.contains(sliced.get(stmt))) {
@@ -162,14 +170,15 @@ public class SliceMap {
 	 * @param unslicedMethod in which <code>stmt</code> occurs.
 	 *
 	 * @pre stmt != null and sliceStmt != null
+	 * @post getStmt(sliceStmt, slicer.getCloneOf(
 	 */
-	protected void put(Stmt stmt, Stmt sliceStmt, SootMethod unslicedMethod) {
+	protected void put(final Stmt stmt, final Stmt sliceStmt, final SootMethod unslicedMethod) {
 		Map stmtMap = (Map) method2stmtMap.get(unslicedMethod);
 
 		if (stmtMap != null) {
 			stmtMap.put(stmt, sliceStmt);
 		}
-		stmtMap = (Map) sliceMethod2stmtMap.get(slicer.getCloneOf(unslicedMethod));
+		stmtMap = (Map) slicedMethod2stmtMap.get(slicer.getCloneOf(unslicedMethod));
 
 		if (stmtMap != null) {
 			stmtMap.put(sliceStmt, stmt);
@@ -177,9 +186,11 @@ public class SliceMap {
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.5  2003/05/22 22:23:50  venku
+   Changed interface names to start with a "I".
+   Formatting.
+   
+ */

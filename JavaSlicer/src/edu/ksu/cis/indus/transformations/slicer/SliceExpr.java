@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,15 +30,15 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.slicer;
+package edu.ksu.cis.indus.slicer;
 
-import ca.mcgill.sable.soot.SootMethod;
+import soot.SootMethod;
+import soot.ValueBox;
 
-import ca.mcgill.sable.soot.jimple.Stmt;
-import ca.mcgill.sable.soot.jimple.ValueBox;
+import soot.jimple.Stmt;
 
 
 /**
@@ -52,23 +52,26 @@ public class SliceExpr
   extends SliceStmt {
 	/**
 	 * The expression associated with this criterion.
+	 *
+	 * @invariant expr != null
 	 */
 	protected ValueBox expr;
 
 	/**
 	 * Creates a new SliceExpr object.
 	 *
-	 * @param method in which the criterion containing statement occurs.
-	 * @param stmt in which the criterion containing expression occurs.
-	 * @param expr is the slicing criterion.
-	 * @param inclusive <code>true</code> if the slice criterion should be included in the slice; <code>false</code>,
-	 *           otherwise.
+	 * @param occurringMethod in which the criterion containing statement occurs.
+	 * @param occurringStmt in which the criterion containing expression occurs.
+	 * @param criterion is the slicing criterion.
+	 * @param shouldBeIncluded <code>true</code> if the slice criterion should be included in the slice; <code>false</code>,
+	 * 		  otherwise.
 	 *
-	 * @pre expr != null
+	 * @pre expr != null and stmt != null and method != null
 	 */
-	protected SliceExpr(SootMethod method, Stmt stmt, ValueBox expr, boolean inclusive) {
-		super(method, stmt, inclusive);
-		this.expr = expr;
+	protected SliceExpr(final SootMethod occurringMethod, final Stmt occurringStmt, final ValueBox criterion,
+		final boolean shouldBeIncluded) {
+		super(occurringMethod, occurringStmt, shouldBeIncluded);
+		this.expr = criterion;
 	}
 
 	/**
@@ -76,9 +79,9 @@ public class SliceExpr
 	 *
 	 * @return the expression(<code>ValueBox</code>) associated with criterion.
 	 *
-	 * @post result = expr and result.oclType = ca.mcgill.sable.soot.jimple.ValueBox
+	 * @post result != null and result.oclIsKindOf(ValueBox)
 	 *
-	 * @see edu.ksu.cis.bandera.slicer.SliceCriterion#getCriterion()
+	 * @see edu.ksu.cis.bandera.slicer.AbstractSliceCriterion#getCriterion()
 	 */
 	public Object getCriterion() {
 		return expr;
@@ -89,7 +92,7 @@ public class SliceExpr
 	 *
 	 * @return the statement in which the slice expression occurs.
 	 *
-	 * @post result = stmt
+	 * @post result != null
 	 */
 	public Stmt getOccurringStmt() {
 		return stmt;
@@ -102,10 +105,10 @@ public class SliceExpr
 	 *
 	 * @return <code>true</code> if <code>o</code> is equal to this object; <code>false</code>, otherwise.
 	 */
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		boolean result = false;
 
-		if (o instanceof SliceExpr) {
+		if (o != null && o instanceof SliceExpr) {
 			SliceExpr temp = (SliceExpr) o;
 			result = temp.expr.equals(expr) && super.equals(temp);
 		}
@@ -118,13 +121,17 @@ public class SliceExpr
 	 * @return the hashcode for this object.
 	 */
 	public int hashCode() {
-		return (expr.toString() + super.toString()).hashCode();
+		int result = 17;
+		result = 37 * result + expr.hashCode();
+		result = 37 * result + super.hashCode();
+		return result;
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.3  2003/05/22 22:23:50  venku
+   Changed interface names to start with a "I".
+   Formatting.
+ */
