@@ -4,21 +4,12 @@
 <!-- $Revision$ -->
 <project name="indus.javaslicer" default="build" basedir=".">
 
-<taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen"/>
-
-<property name="bin" value="bin"/>
-<property name="dist" value="dist"/>
-<property name="build" value="build"/>
-<property name="docs" value="docs"/>
-<property name="remote_jdklink" value="http://java.sun.com/j2se/1.4.2/docs/api/"/>
-<property name="remote_sootlink" value="http://www.sable.mcgill.ca/soot/doc/"/>
-<property name="local_jdklink" value="http://127.0.0.1/docs/java/jdk-1.4.2/api/"/>
-<property name="local_sootlink" value="http://127.0.0.1/docs/compilers/soot-2.0-api"/>
-
 <import file="localbuild.xml"/>
 
 <target name="init">
     <tstamp/>
+    <property file="antbuild.properties"/>
+    <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${drishti.jar}"/>
 </target>
 
 <target name="build" depends="init">
@@ -29,7 +20,7 @@
     </javac>
 </target>
 
-<target name="docs">
+<target name="docs" depends="init">
 	<antcall target="javadocs">
         <param name="access" value="protected"/>
         <param name="sootlink" value="${remote_sootlink}"/>
@@ -41,7 +32,7 @@
     </antcall>
 </target>
 
-<target name="privatedocs">
+<target name="privatedocs" depends="init">
 	<antcall target="javadocs">
         <param name="access" value="private"/>
         <param name="sootlink" value="${local_sootlink}"/>
@@ -70,12 +61,15 @@
              >
              <classpath refid="classpath"/>
              <sourcepath refid="srcpath"/>
+             <fileset>
+                <exclude name="**/*Test*/**"/>
+                <exclude name="**/*Test"/>
+             </fileset>
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
              <tag name="pre" description="Precondition:" scope="constructors,methods"/>
              <tag name="post" description="Postcondition:" scope="constructors,methods"/>
              <tag name="invariant" description="Invariant" scope="methods,types,fields"/>
-             <excludepackage name="**Test**"/>
     </javadoc>
 </target>
 
@@ -107,6 +101,10 @@
 ChangeLog:
 
 $Log$
+Revision 1.14  2003/11/10 01:13:18  venku
+- we now have a generalized build file which can be
+  customized per subproject via localbuild.xml.
+
 Revision 1.7  2003/09/28 06:52:22  venku
 *** empty log message ***
 
