@@ -18,11 +18,9 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
-import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
-import edu.ksu.cis.indus.staticanalyses.support.DirectedGraph;
 import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 
 import java.util.Collection;
@@ -313,6 +311,9 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/05 02:19:01  venku
+   - naming scheme was screwed up, hence, caused subtle bugs.  FIXED.
+
    Revision 1.16  2003/12/04 08:57:45  venku
    - added logic to attempt to provide information only if
      the query contains an array ref or field ref.
