@@ -229,12 +229,12 @@ public final class SlicerConfiguration
 	 *
 	 * @param value <code>true</code> indicates executable slice should be generated; <code>false</code>, otherwise.
 	 *
-	 * @throws IllegalStateException DOCUMENT ME!
+	 * @throws IllegalStateException when executability is set on forward slices.
 	 */
 	public void setExecutableSlice(final boolean value) {
 		if (!getSliceType().equals(SlicingEngine.FORWARD_SLICE)) {
 			setProperty(EXECUTABLE_SLICE, Boolean.valueOf(value));			
-		} else if (value){
+		} else if (value) {
 		    throw new IllegalStateException("Forward Executable Slices are not supported.");
 		}
 	}
@@ -836,6 +836,10 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/07/20 06:20:27  venku
+   - fixed a few more issues pertaining to serialized configuration and how the
+     configurator should treat illegal configurations.
+
    Revision 1.46  2004/07/20 05:20:28  venku
    - EntryControlDA needs to be added only for daController based execution
      and not for slicer execution purposes during forward slicing.  FIXED.
