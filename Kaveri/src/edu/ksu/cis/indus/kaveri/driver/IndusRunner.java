@@ -214,8 +214,11 @@ public class IndusRunner
 				if (fileList.size() > 0) {
 					final IFile _file = (IFile) fileList.get(0);
 					final IJavaProject _jproject = JavaCore.create(_file.getProject());
+					final IPath _path = _file.getProject().getLocation();
+					_sootClassPath += _path.toOSString();
+					_sootClassPath += _fileseparator + _pathseparator;
 					final IClasspathEntry entries[] = _jproject.getRawClasspath();
-					for (int _i = 0; _i < entries.length; _i++) {
+					/*for (int _i = 0; _i < entries.length; _i++) {
 						final IClasspathEntry _entry = entries[_i];
 					
 						if (_entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {							
@@ -223,7 +226,7 @@ public class IndusRunner
 							_sootClassPath += _path.toOSString();
 							_sootClassPath += _fileseparator + _pathseparator;
 						}
-					}					
+					}	*/				
 				}
 
 				driver.addToPath(_sootClassPath);

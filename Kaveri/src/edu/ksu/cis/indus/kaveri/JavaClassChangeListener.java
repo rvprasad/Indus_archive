@@ -29,11 +29,11 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 
+
+import soot.G;
 import soot.Scene;
 import soot.SootClass;
 
@@ -52,6 +52,7 @@ public class JavaClassChangeListener
 	 * @see org.eclipse.core.resources.IResourceChangeListener#resourceChanged(org.eclipse.core.resources.IResourceChangeEvent)
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
+		System.out.println(event.getType());
 		switch (event.getType()) {
 			case IResourceChangeEvent.POST_CHANGE:
 				try {
@@ -78,13 +79,16 @@ class JavaClassChangeVisitor implements IResourceDeltaVisitor
 				final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
 				switch (delta.getKind()) {
 				 case IResourceDelta.ADDED :				 	
-				 	_workspace.run(new ResourceChangeProcessor((IFile) _res, delta), null);
+				 	Thread t = new Thread(new ResourceChangeProcessor((IFile) _res, delta));
+				 	t.start();
 				 	break;
 				 case IResourceDelta.REMOVED:
-				 	_workspace.run(new ResourceChangeProcessor((IFile) _res, delta), null);				 	
+				 	t = new Thread(new ResourceChangeProcessor((IFile) _res, delta));
+				 	t.start();				 	
 				 	break;
 				 case IResourceDelta.CHANGED:				 	
-				 	_workspace.run(new ResourceChangeProcessor((IFile) _res, delta), null);
+				 	t = new Thread(new ResourceChangeProcessor((IFile) _res, delta));
+				 	t.start();
 				 	break;
 				}
 			}
@@ -96,7 +100,7 @@ class JavaClassChangeVisitor implements IResourceDeltaVisitor
 }
 
 
-class ResourceChangeProcessor implements IWorkspaceRunnable {
+class ResourceChangeProcessor implements Runnable {
  private IFile file;
  private IResourceDelta delta;
 	/**
@@ -109,9 +113,9 @@ class ResourceChangeProcessor implements IWorkspaceRunnable {
 	}
 	
 	/** Run the operation.
-	 * @see org.eclipse.core.resources.IWorkspaceRunnable#run(org.eclipse.core.runtime.IProgressMonitor)
+	 * 
 	 */
-	public void run(IProgressMonitor monitor) throws CoreException {
+	public void run()  {
 	 if (file != null && delta != null) {
 	 	final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
 	 	final Scene _scene =  KaveriPlugin.getDefault().getIndusConfiguration().
@@ -120,7 +124,8 @@ class ResourceChangeProcessor implements IWorkspaceRunnable {
 	 	case IResourceDelta.ADDED :		 			 	
 	 			if (_scene != null) {
 	 				final List _lst = SECommons.getClassesInFile(file);
-	 				if  (_lst != null && _lst.size() > 0) {	 					
+	 				if  (_lst != null && _lst.size() > 0) {
+	 					//G.reset();
 	 					handleClassesInFile(_lst, file, true, false);
 	 				}
 	 			}
@@ -128,17 +133,19 @@ class ResourceChangeProcessor implements IWorkspaceRunnable {
 		 case IResourceDelta.REMOVED:
  			if (_scene != null) {
  				if (_scene != null) {
+ 					//G.reset();
 	 				final List _lst = SECommons.getClassesInFile(file);
-	 				if  (_lst != null && _lst.size() > 0) {	 					
-	 					handleClassesInFile(_lst, file, false, false);
-	 				}
+	 				SECommons.loadupClasses(_lst, file);	 				
 	 			}
  			}
 		 	break;
 		 case IResourceDelta.CHANGED:		 	
  			if (_scene != null) {
+ 				//G.reset(); 				
  				final List _lst = SECommons.getClassesInFile(file);
+ 				SECommons.loadupClasses(_lst, file);
  				handleClassesInFile(_lst, file, false, true);
+ 				
  			}
 		 	break; 		 
 	 	}
@@ -151,7 +158,7 @@ class ResourceChangeProcessor implements IWorkspaceRunnable {
 	 * @param lst
 	 * @param jfile
 	 * @param addFiles Indicates if files are to be added
-	 * @param update Indicats that existing files are to be updated.
+	 * @param update Indicates that existing files are to be updated.
 	 */
 	private void handleClassesInFile(List lst, IFile jfile,
 			 boolean addFiles, boolean update) {

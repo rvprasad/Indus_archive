@@ -147,6 +147,9 @@ public class TagToAnnotationMapper {
 			} else if (_currLine == -1) {
 				_currLine = _nLine;
 				_atleastSlicePresent = isSliceTagPresent(_stmt);
+				if (!_atleastSlicePresent) {
+					_wasComplete = false;
+				}
 				continue;
 			}
 

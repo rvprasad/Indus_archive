@@ -31,10 +31,15 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.ui.part.ViewPart;
 
@@ -213,13 +218,53 @@ public class PartialSliceView
 	 * @param parent The parent control
 	 */
 	public void createPartControl(final Composite parent) {
-		final Table _table = createTable(parent);
-		viewer = new TableViewer(_table);
-
+		final Composite _comp = new Composite(parent, SWT.NONE);
+		final GridLayout _layout = new GridLayout();
+		_layout.numColumns = 2;
+		_comp.setLayout(_layout);
+		
+		final Composite _cp = new Composite(_comp, SWT.NONE);
+		GridData _data = new GridData();
+		_data.horizontalSpan = 2;
+		_cp.setLayoutData(_data);
+		final RowLayout _rr = new RowLayout(SWT.HORIZONTAL);
+		_cp.setLayout(_rr);
+		final Label _lbl = new Label(_cp, SWT.LEFT);
+		_lbl.setText("Statement:");
+		final Text _txt = new Text(_cp, SWT.CENTER);
+		_txt.setText("           ");
+		_txt.setEditable(false);
+		
+		//final Table _table = createTable(parent);
+		
+		viewer = new TableViewer(_comp);
+		final Table _table = viewer.getTable();
+		_data = new GridData();
+		_data.horizontalSpan = 2;
+		_table.setLayoutData(_data);
+		updateTable(_table);
 		//viewer = new CheckboxTableViewer(_table);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList());
+	}
+
+	/**
+	 * @param _table
+	 */
+	private void updateTable(Table _table) {
+		_table.setLinesVisible(true);
+		_table.setHeaderVisible(true);
+
+		final TableColumn _col1 = new TableColumn(_table, SWT.NONE);
+		_col1.setText("Statement");
+		final int _stmtWidth = 400;
+		final int  _infoWidth = 100;
+		_col1.setWidth(_stmtWidth);
+
+		final TableColumn _col2 = new TableColumn(_table, SWT.NONE);
+		_col2.setText("Part of Slice");
+		_col2.setWidth(_infoWidth);		
 	}
 
 	/**

@@ -245,6 +245,7 @@ public class IndusConfigurationDialog
 		final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
 		final String _additivename = "additiveSliceProperty";
 		_ps.setValue(_additivename, additive.getSelection());
+		KaveriPlugin.getDefault().savePluginPreferences();
 		super.okPressed();
 	}
 
@@ -346,7 +347,7 @@ public class IndusConfigurationDialog
 	private void initializeAdditive() {
 		final String _propName = "additiveSliceProperty";
 		final IPreferenceStore _store = KaveriPlugin.getDefault().getPreferenceStore();
-		final boolean _value = _store.getBoolean(_propName);
+		final boolean _value = _store.getBoolean(_propName);		
 		additive.setSelection(_value);
 	}
 

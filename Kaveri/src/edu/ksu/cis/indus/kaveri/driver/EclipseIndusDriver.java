@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.presentation.AnnotationData;
 
+import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
 
@@ -456,8 +457,8 @@ public class EclipseIndusDriver
 	 * </p>
 	 */
 	public void execute() {		
-		slicer.setTagName(nameOfSliceTag);
-		slicer.setSystem(scene);
+		slicer.setTagName(nameOfSliceTag);		
+		slicer.setSystem(new Environment(scene));
 		slicer.setRootMethods(rootMethods);
 		slicer.setCriteria(criteria);
 		slicer.run(Phase.STARTING_PHASE, true);
