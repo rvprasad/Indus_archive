@@ -120,7 +120,8 @@ public final class SlicerConfigurator
 		_assertionPreservingSliceButton.setSelection(_assertionsProperty.booleanValue());
 
 		final SelectionListener _sl2 =
-			new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, _assertionPreservingSliceButton, _cfg);
+			new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_TO_PRESERVE_ASSERTIONS,
+				_assertionPreservingSliceButton, _cfg);
 		_assertionPreservingSliceButton.addSelectionListener(_sl2);
 
 		setupSliceInfoUI();
