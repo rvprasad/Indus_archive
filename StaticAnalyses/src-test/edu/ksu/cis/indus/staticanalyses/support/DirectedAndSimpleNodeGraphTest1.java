@@ -38,7 +38,6 @@ package edu.ksu.cis.indus.staticanalyses.support;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import edu.ksu.cis.indus.staticanalyses.support.MutableDirectedGraph.MutableNode;
 import edu.ksu.cis.indus.staticanalyses.support.SimpleNodeGraph.SimpleNode;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -380,6 +379,9 @@ public class DirectedAndSimpleNodeGraphTest1
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/01 20:57:12  venku
+   - Deleted getForwardSuccsOf().
+
    Revision 1.2  2003/08/24 12:35:47  venku
    Documentation changes.
 
