@@ -160,7 +160,7 @@ public class WorkBag {
 		 *
 		 * @invariant container.isOclKindOf(Bag(Object))
 		 */
-		protected Collection container;
+		protected Collection containerImpl;
 
 		/**
 		 * Returns the filled status of this collection.
@@ -170,7 +170,7 @@ public class WorkBag {
 		 * @post result == (self->size() == 0)
 		 */
 		public boolean isEmpty() {
-			return container.isEmpty();
+			return containerImpl.isEmpty();
 		}
 
 		/**
@@ -184,7 +184,7 @@ public class WorkBag {
 		 * @post self->includesAll(c)
 		 */
 		public void addAll(final Collection c) {
-			container.addAll(c);
+			containerImpl.addAll(c);
 		}
 
 		/**
@@ -202,7 +202,7 @@ public class WorkBag {
 			for (Iterator i = c.iterator(); i.hasNext();) {
 				Object element = i.next();
 
-				if (container.contains(element)) {
+				if (containerImpl.contains(element)) {
 					continue;
 				}
 				add(element);
@@ -215,7 +215,7 @@ public class WorkBag {
 		 * @post self->size() == 0
 		 */
 		public void clear() {
-			container.clear();
+			containerImpl.clear();
 		}
 
 		/**
@@ -228,7 +228,7 @@ public class WorkBag {
 		 * @post result == self->includes(o)
 		 */
 		public boolean contains(final Object o) {
-			return container.contains(o);
+			return containerImpl.contains(o);
 		}
 	}
 
@@ -255,7 +255,7 @@ public class WorkBag {
 		 * @post self.AbstractCollecitonwrapper::container == queue.asBag()
 		 */
 		CWQueue() {
-			super.container = queue;
+			super.containerImpl = queue;
 		}
 
 		/**
@@ -305,7 +305,7 @@ public class WorkBag {
 		 * @post self::AbstractCollectionWrapper.container == stack->asBag(Object)
 		 */
 		CWStack() {
-			super.container = stack;
+			super.containerImpl = stack;
 		}
 
 		/**
@@ -441,6 +441,10 @@ public class WorkBag {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
+
    Revision 1.5  2003/08/17 10:33:03  venku
    WorkList does not inherit from WorkBag rather contains an instance of WorkBag.
    Ripple effect of the above change.
