@@ -1,8 +1,10 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.BodyRepresentation;
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.VoidType;
+
 import ca.mcgill.sable.soot.jimple.CompleteStmtGraph;
 import ca.mcgill.sable.soot.jimple.Jimple;
 import ca.mcgill.sable.soot.jimple.Local;
@@ -11,6 +13,7 @@ import ca.mcgill.sable.soot.jimple.Stmt;
 import ca.mcgill.sable.soot.jimple.StmtBody;
 import ca.mcgill.sable.soot.jimple.StmtList;
 import ca.mcgill.sable.soot.jimple.Value;
+
 import ca.mcgill.sable.util.ArrayList;
 import ca.mcgill.sable.util.Iterator;
 import ca.mcgill.sable.util.List;
@@ -18,7 +21,9 @@ import ca.mcgill.sable.util.List;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 //MethodVariant.java
+
 /**
  * <p>The variant that represents a method implementation.  It maintains variant specific information about local variables
  * and the AST nodes in associated method. It also maintains information about the parameters, this variable, and return
@@ -29,48 +34,13 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$ $Name$
  */
-
-public class MethodVariant implements Variant {
-
+public class MethodVariant
+  implements Variant {
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purposes.</p>
 	 *
 	 */
 	private static final Logger logger = LogManager.getLogger(MethodVariant.class.getName());
-
-	/**
-	 * <p>The statement visitor used to process in the statement in the correpsonding method.</p>
-	 *
-	 */
-	protected AbstractStmtSwitch stmt;
-
-	/**
-	 * <p>The array of flow graph nodes associated with the parameters of thec corresponding method.  This will be
-	 * <code>null</code>, if the associated method has not parameters..</p>
-	 *
-	 */
-	protected final FGNode[] parameters;
-
-	/**
-	 * <p>The flow graph nodes associated with the this variable of the corresponding method.  This will be
-	 * <code>null</code>, if the associated method is <code>static</code>.</p>
-	 *
-	 */
-	protected final FGNode thisVar;
-
-	/**
-	 * <p>The flow graph node associated with an abstract single return point of the corresponding method.  This will be
-	 * <code>null</code>, if the associated method's return type is <code>void</code>.</p>
-	 *
-	 */
-	protected final FGNode returnVar;
-
-	/**
-	 * <p>The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
-	 * locations in the AST as it serves the purpose of AST representation.</p>
-	 *
-	 */
-	protected final ASTVariantManager astvm;
 
 	/**
 	 * <p>This object is used to create <code>Jimple</code> representation of the associated method.  This is required to
@@ -98,6 +68,40 @@ public class MethodVariant implements Variant {
 	public final SootMethod sm;
 
 	/**
+	 * <p>The manager of AST node variants.  This is required as in Jimple, the same AST node instance may occur at different
+	 * locations in the AST as it serves the purpose of AST representation.</p>
+	 *
+	 */
+	protected final ASTVariantManager astvm;
+
+	/**
+	 * <p>The statement visitor used to process in the statement in the correpsonding method.</p>
+	 *
+	 */
+	protected AbstractStmtSwitch stmt;
+
+	/**
+	 * <p>The flow graph node associated with an abstract single return point of the corresponding method.  This will be
+	 * <code>null</code>, if the associated method's return type is <code>void</code>.</p>
+	 *
+	 */
+	protected final FGNode returnVar;
+
+	/**
+	 * <p>The flow graph nodes associated with the this variable of the corresponding method.  This will be
+	 * <code>null</code>, if the associated method is <code>static</code>.</p>
+	 *
+	 */
+	protected final FGNode thisVar;
+
+	/**
+	 * <p>The array of flow graph nodes associated with the parameters of thec corresponding method.  This will be
+	 * <code>null</code>, if the associated method has not parameters..</p>
+	 *
+	 */
+	protected final FGNode[] parameters;
+
+	/**
 	 * <p>This provides the def sites for local variables in the associated method.  This is used in conjunction with
 	 * flow-sensitive information calculation.</p>
 	 *
@@ -113,43 +117,39 @@ public class MethodVariant implements Variant {
 	 * @param bfa the instance of <code>BFA</code> which was responsible for the creation of this variant.  This parameter
 	 * cannot be <code>null</code>.
 	 */
-	protected MethodVariant (SootMethod sm, ASTVariantManager astvm, BFA bfa) {
-		this.sm = sm;
+	protected MethodVariant(SootMethod sm, ASTVariantManager astvm, BFA bfa) {
+		this.sm  = sm;
 		this.bfa = bfa;
-		context = (Context)bfa.analyzer.context.clone();
+		context  = (Context)bfa.analyzer.context.clone();
 		context.callNewMethod(sm);
-
 		logger.debug(">> Method:" + sm + context + "\n" + astvm.getClass());
-
 		bfa.classManager.process(sm);
 
-		if (!sm.isStatic()) {
+		if(!sm.isStatic()) {
 			thisVar = bfa.getFGNode();
 		} // end of if (!sm.isStatic())
 		else {
 			thisVar = null;
 		} // end of else
 
-		if (!(sm.getReturnType() instanceof VoidType)) {
+		if(!(sm.getReturnType() instanceof VoidType)) {
 			returnVar = bfa.getFGNode();
 		} // end of if (sm.getReturnType() instanceof VoidType)
 		else {
 			returnVar = null;
 		} // end of else
 
-		if (sm.getParameterCount() > 0) {
+		if(sm.getParameterCount() > 0) {
 			parameters = new AbstractFGNode[sm.getParameterCount()];
-			for (int i = 0; i < sm.getParameterCount(); i++) {
+
+			for(int i = 0; i < sm.getParameterCount(); i++) {
 				parameters[i] = bfa.getFGNode();
 			} // end of for (int i = 0; i < sm.getParameterCount(); i++)
 		} // end of if (sm.getParameterCount() > 0)
 		else {
 			parameters = new AbstractFGNode[0];
 		} // end of else
-
 		this.astvm = astvm;
-
-
 		logger.debug("<< Method:" + sm + context + "\n");
 	}
 
@@ -207,22 +207,25 @@ public class MethodVariant implements Variant {
 	 * @return the list of definitions of <code>l</code> that arrive at statement <code>s</code>.
 	 */
 	public List getDefsOfAt(Local l, Stmt s) {
-		if (defs == null)
+		if(defs == null) {
 			return new ArrayList();
-		else
+		} else {
 			return defs.getDefsOfAt(l, s);
+		}
 	}
 
 	/**
 	 * <p>Processes the body of the method implementation associated with this variant.</p>
 	 */
 	public void process() {
-		if (sm.isBodyStored(bodyrep)) {
+		if(sm.isBodyStored(bodyrep)) {
 			stmt = bfa.getStmt(this);
 			logger.debug(">>>> Starting processing statements of " + sm);
+
 			StmtList list = ((StmtBody)sm.getBody(bodyrep)).getStmtList();
 			defs = new SimpleLocalDefs(new CompleteStmtGraph(list));
-			for (Iterator i = list.iterator(); i.hasNext();) {
+
+			for(Iterator i = list.iterator(); i.hasNext();) {
 				stmt.process((Stmt)i.next());
 			} // end of for (Iterator i = list.iterator(); i.hasNext();)
 			logger.debug("<<<< Finished processing statements of " + sm);
@@ -252,11 +255,13 @@ public class MethodVariant implements Variant {
 	 * <code>null</code> is returned.
 	 */
 	public final FGNode queryASTNode(Value v, Context c) {
-		ASTVariant var = queryASTVariant(v, c);
-		FGNode temp = null;
-		if (var != null) {
+		ASTVariant var  = queryASTVariant(v, c);
+		FGNode     temp = null;
+
+		if(var != null) {
 			temp = var.getFGNode();
 		} // end of if (v != null)
+
 		return temp;
 	}
 
@@ -281,8 +286,11 @@ public class MethodVariant implements Variant {
 	 */
 	public final FGNode queryParameterNode(int index) {
 		FGNode temp = null;
-		if (index >= 0 && index <= sm.getParameterCount())
+
+		if(index >= 0 && index <= sm.getParameterCount()) {
 			temp = parameters[index];
+		}
+
 		return temp;
 	}
 
@@ -305,5 +313,4 @@ public class MethodVariant implements Variant {
 	public final FGNode queryThisNode() {
 		return thisVar;
 	}
-
-}// MethodVariant
+} // MethodVariant

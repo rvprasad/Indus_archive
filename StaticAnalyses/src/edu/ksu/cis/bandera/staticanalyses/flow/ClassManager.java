@@ -1,16 +1,17 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow;
-
-
-import edu.ksu.cis.bandera.staticanalyses.flow.Prototype;
 
 import ca.mcgill.sable.soot.SootClass;
 import ca.mcgill.sable.soot.SootMethod;
+
+import edu.ksu.cis.bandera.staticanalyses.flow.Prototype;
 
 import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
 
 //ClassManager.java
 
@@ -23,9 +24,8 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public class ClassManager implements Prototype {
-
+public class ClassManager
+  implements Prototype {
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
@@ -55,10 +55,10 @@ public class ClassManager implements Prototype {
 	 *
 	 * @param bfa the instance of the framework in which this object is used.  This cannot be <code>null</code>.
 	 */
-	public ClassManager (BFA bfa){
-		classes = new HashSet();
+	public ClassManager(BFA bfa) {
+		classes  = new HashSet();
 		this.bfa = bfa;
-		context = new Context();
+		context  = new Context();
 	}
 
 	/**
@@ -68,24 +68,23 @@ public class ClassManager implements Prototype {
 	 * @param sc the class to be processed.  This cannot be <code>null</code>.
 	 */
 	public void process(SootClass sc) {
-		if (!classes.contains(sc)) {
+		if(!classes.contains(sc)) {
 			classes.add(sc);
 
-			if (sc.declaresMethod("<clinit>")) {
+			if(sc.declaresMethod("<clinit>")) {
 				context.setRootMethod(sc.getMethod("<clinit>"));
 				bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
 			} // end of if (sc.declaresMethod("<clinit>"))
-			while (sc.hasSuperClass()) {
+
+			while(sc.hasSuperClass()) {
 				sc = sc.getSuperClass();
-				if (sc.declaresMethod("<clinit>")) {
+
+				if(sc.declaresMethod("<clinit>")) {
 					context.setRootMethod(sc.getMethod("<clinit>"));
 					bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
 				} // end of if (sc.declaresMethod("<clinit>"))
-
 			} // end of while (sc.hasSuperClass())
-
 		} // end of if (!classes.contains(sc))
-
 	}
 
 	/**
@@ -124,5 +123,4 @@ public class ClassManager implements Prototype {
 	public void reset() {
 		classes.clear();
 	}
-
-}// ClassManager
+} // ClassManager

@@ -1,7 +1,9 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
 
 //ModeFactory.java
 
@@ -15,9 +17,7 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
 public class ModeFactory {
-
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purposes.</p>
 	 *
@@ -25,16 +25,16 @@ public class ModeFactory {
 	private static final Logger logger = LogManager.getLogger(ModeFactory.class);
 
 	/**
-	 * <p>The prototype of index managers that manage indices related to AST nodes.</p>
-	 *
-	 */
-	private final Prototype astIndexManagerPrototype;
-
-	/**
 	 * <p>The prototype of index managers that manager indices related to arrays.</p>
 	 *
 	 */
 	private final Prototype arrayIndexManagerPrototype;
+
+	/**
+	 * <p>The prototype of index managers that manage indices related to AST nodes.</p>
+	 *
+	 */
+	private final Prototype astIndexManagerPrototype;
 
 	/**
 	 * <p>The prototype of class managers that manage class related primitive information and processing.  Processing of
@@ -100,29 +100,20 @@ public class ModeFactory {
 	 * @param classManagerPrototype the prototype to generate managers to manage class related primitive information and
 	 * processing.
 	 */
-	public ModeFactory (Prototype astIMPrototype, Prototype arrayIMPrototype, Prototype instanceFieldIMPrototype,
-						Prototype staticFieldIMPrototype, Prototype methodIMPrototype, Prototype nodePrototype,
-						Prototype stmtPrototype, Prototype lhsExprPrototype, Prototype rhsExprPrototype,
-						Prototype classManagerPrototype) {
-		astIndexManagerPrototype = astIMPrototype;
-		arrayIndexManagerPrototype  = arrayIMPrototype;
-		instanceFieldIndexManagerPrototype  = instanceFieldIMPrototype;
-		staticFieldIndexManagerPrototype  = staticFieldIMPrototype;
-		methodIndexManagerPrototype  = methodIMPrototype;
-		this.classManagerPrototype = classManagerPrototype;
-		this.nodePrototype = nodePrototype;
-		this.stmtPrototype = stmtPrototype;
-		this.lhsExprPrototype = lhsExprPrototype;
-		this.rhsExprPrototype = rhsExprPrototype;
-	}
-
-	/**
-	 * <p>Returns an index manager to manage indices related arrays.</p>
-	 *
-	 * @return an index manager related to arrays.
-	 */
-	public final AbstractIndexManager getArrayIndexManager() {
-		return (AbstractIndexManager)arrayIndexManagerPrototype.prototype();
+	public ModeFactory(Prototype astIMPrototype, Prototype arrayIMPrototype, Prototype instanceFieldIMPrototype, 
+					   Prototype staticFieldIMPrototype, Prototype methodIMPrototype, Prototype nodePrototype, 
+					   Prototype stmtPrototype, Prototype lhsExprPrototype, Prototype rhsExprPrototype, 
+					   Prototype classManagerPrototype) {
+		astIndexManagerPrototype           = astIMPrototype;
+		arrayIndexManagerPrototype         = arrayIMPrototype;
+		instanceFieldIndexManagerPrototype = instanceFieldIMPrototype;
+		staticFieldIndexManagerPrototype   = staticFieldIMPrototype;
+		methodIndexManagerPrototype        = methodIMPrototype;
+		this.classManagerPrototype         = classManagerPrototype;
+		this.nodePrototype                 = nodePrototype;
+		this.stmtPrototype                 = stmtPrototype;
+		this.lhsExprPrototype              = lhsExprPrototype;
+		this.rhsExprPrototype              = rhsExprPrototype;
 	}
 
 	/**
@@ -132,6 +123,15 @@ public class ModeFactory {
 	 */
 	public final AbstractIndexManager getASTIndexManager() {
 		return (AbstractIndexManager)astIndexManagerPrototype.prototype();
+	}
+
+	/**
+	 * <p>Returns an index manager to manage indices related arrays.</p>
+	 *
+	 * @return an index manager related to arrays.
+	 */
+	public final AbstractIndexManager getArrayIndexManager() {
+		return (AbstractIndexManager)arrayIndexManagerPrototype.prototype();
 	}
 
 	/**
@@ -211,5 +211,4 @@ public class ModeFactory {
 	public final AbstractStmtSwitch getStmt(MethodVariant m) {
 		return (AbstractStmtSwitch)stmtPrototype.prototype(m);
 	}
-
-}// ModeFactory
+} // ModeFactory

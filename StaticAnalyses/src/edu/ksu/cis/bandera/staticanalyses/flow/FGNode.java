@@ -1,6 +1,8 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import java.util.Collection;
+
 
 //FGNode.java
 
@@ -20,8 +22,14 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public interface FGNode extends Prototype {
+public interface FGNode
+  extends Prototype {
+	/**
+	 * <p>Returns the values in this node.</p>
+	 *
+	 * @return the values in this node.
+	 */
+	public Collection getValues();
 
 	/**
 	 * <p>Adds a successor node to this node.</p>
@@ -69,13 +77,6 @@ public interface FGNode extends Prototype {
 	public Collection diffValues(FGNode src);
 
 	/**
-	 * <p>Returns the values in this node.</p>
-	 *
-	 * @return the values in this node.
-	 */
-	public Collection getValues();
-
-	/**
 	 * <p>Performs a specific action when a successor node is added to this node.  This is a hook method provided to for
 	 * convenience of implementation.</p>
 	 *
@@ -106,5 +107,4 @@ public interface FGNode extends Prototype {
 	 * @param values the collection of values being added to this node.
 	 */
 	public void onNewValues(Collection values);
-
-}// FGNode
+} // FGNode

@@ -1,5 +1,5 @@
-package edu.ksu.cis.bandera.staticanalyses.flow;
 
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
 
 //AbstractFGNode.java
 
@@ -23,9 +24,8 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public abstract class AbstractFGNode implements FGNode {
-
+public abstract class AbstractFGNode
+  implements FGNode {
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
@@ -125,25 +125,16 @@ public abstract class AbstractFGNode implements FGNode {
 	 */
 	public final Collection diffValues(edu.ksu.cis.bandera.staticanalyses.flow.FGNode src) {
 		Set temp = new HashSet();
-		for (Iterator i = values.iterator(); i.hasNext();) {
+
+		for(Iterator i = values.iterator(); i.hasNext();) {
 			Object t = i.next();
-			if (!src.getValues().contains(t)) {
+
+			if(!src.getValues().contains(t)) {
 				temp.add(t);
 			} // end of if (!dest.values.contains(t))
 		} // end of for (Iterator i = dest.iterator(); i.hasNext();)
-		return temp;
-	}
 
-	/**
-	 * <p>Performs specific operation when new successor nodes are added to this node.  It internally calls
-	 * <code>onNewSucc</code> for each of the successor.</p>
-	 *
-	 * @param succs the set of <code>FGNode</code>s being added as successors to this node.
-	 */
-	public void onNewSuccs(Collection succs) {
-		for (Iterator i = succs.iterator(); i.hasNext();) {
-			 onNewSucc((FGNode)i.next());
-		} // end of for (Iterator i = values.iterator(); i.hasNext();)
+		return temp;
 	}
 
 	/**
@@ -154,7 +145,20 @@ public abstract class AbstractFGNode implements FGNode {
 	public Collection getValues() {
 		Set temp = new HashSet();
 		temp.addAll(values);
+
 		return temp;
+	}
+
+	/**
+	 * <p>Performs specific operation when new successor nodes are added to this node.  It internally calls
+	 * <code>onNewSucc</code> for each of the successor.</p>
+	 *
+	 * @param succs the set of <code>FGNode</code>s being added as successors to this node.
+	 */
+	public void onNewSuccs(Collection succs) {
+		for(Iterator i = succs.iterator(); i.hasNext();) {
+			onNewSucc((FGNode)i.next());
+		} // end of for (Iterator i = values.iterator(); i.hasNext();)
 	}
 
 	/**
@@ -184,5 +188,4 @@ public abstract class AbstractFGNode implements FGNode {
 	public String toString() {
 		return "FGNode:" + hashCode() + "\n";
 	}
-
-}// AbstractFGNode
+} // AbstractFGNode

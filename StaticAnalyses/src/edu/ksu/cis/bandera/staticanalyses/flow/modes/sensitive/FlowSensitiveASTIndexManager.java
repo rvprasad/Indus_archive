@@ -1,5 +1,5 @@
-package edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive;
 
+package edu.ksu.cis.bandera.staticanalyses.flow.modes.sensitive;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractIndexManager;
 import edu.ksu.cis.bandera.staticanalyses.flow.Context;
@@ -8,7 +8,9 @@ import edu.ksu.cis.bandera.staticanalyses.flow.Index;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 // FlowSensitiveASTIndexManager.java
+
 /**
  * <p>This class manages indices associated with AST node in flow sensitive mode.  In reality, it provides the implementation
  * to create new indices.</p>
@@ -18,14 +20,22 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public class FlowSensitiveASTIndexManager extends AbstractIndexManager {
-
+public class FlowSensitiveASTIndexManager
+  extends AbstractIndexManager {
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
 	 */
 	private static final Logger logger = LogManager.getLogger(FlowSensitiveASTIndexManager.class);
+
+	/**
+	 * <p>Returns a new instance of this class.</p>
+	 *
+	 * @return a new instance of this class.
+	 */
+	public Object prototype() {
+		return new FlowSensitiveASTIndexManager();
+	}
 
 	/**
 	 * <p>Returns an index corresponding to the given entity and context.</p>
@@ -37,16 +47,7 @@ public class FlowSensitiveASTIndexManager extends AbstractIndexManager {
 	 */
 	protected Index getIndex(Object o, Context c) {
 		logger.debug("Getting index for " + o + " in " + c);
+
 		return new OneContextInfoIndex(o, c.getProgramPoint());
 	}
-
-	/**
-	 * <p>Returns a new instance of this class.</p>
-	 *
-	 * @return a new instance of this class.
-	 */
-	public Object prototype() {
-		return new FlowSensitiveASTIndexManager();
-	}
-
-}// FlowSensitiveASTIndexManager
+} // FlowSensitiveASTIndexManager

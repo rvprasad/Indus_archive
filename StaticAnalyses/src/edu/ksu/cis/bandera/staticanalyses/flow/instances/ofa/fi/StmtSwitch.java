@@ -1,9 +1,5 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi;
-
-
-import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 
 import ca.mcgill.sable.soot.jimple.AssignStmt;
 import ca.mcgill.sable.soot.jimple.EnterMonitorStmt;
@@ -18,10 +14,16 @@ import ca.mcgill.sable.soot.jimple.TableSwitchStmt;
 import ca.mcgill.sable.soot.jimple.ThrowStmt;
 import ca.mcgill.sable.soot.jimple.ValueBox;
 
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 // StmtSwitch.java
+
 /**
  * <p>This is the statement visitor class.  It is used by the method variant to process statements in object flow analysis.
  * This class in turn uses a expression visitor process expressions that occur in a statement.</p>
@@ -31,9 +33,8 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public class StmtSwitch extends AbstractStmtSwitch {
-
+public class StmtSwitch
+  extends AbstractStmtSwitch {
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
@@ -45,7 +46,7 @@ public class StmtSwitch extends AbstractStmtSwitch {
 	 *
 	 * @param m the <code>MethodVariant</code> which uses this object.
 	 */
-	public StmtSwitch (MethodVariant m){
+	public StmtSwitch(MethodVariant m) {
 		super(m);
 	}
 
@@ -57,8 +58,10 @@ public class StmtSwitch extends AbstractStmtSwitch {
 	 */
 	public void caseAssignStmt(AssignStmt stmt) {
 		rexpr.process(stmt.getRightOpBox());
+
 		FGNode right = (FGNode)rexpr.getResult();
 		lexpr.process(stmt.getLeftOpBox());
+
 		FGNode left = (FGNode)lexpr.getResult();
 		right.addSucc(left);
 	}
@@ -89,8 +92,10 @@ public class StmtSwitch extends AbstractStmtSwitch {
 	 */
 	public void caseIdentityStmt(IdentityStmt stmt) {
 		rexpr.process(stmt.getRightOpBox());
+
 		FGNode right = (FGNode)rexpr.getResult();
 		lexpr.process(stmt.getLeftOpBox());
+
 		FGNode left = (FGNode)lexpr.getResult();
 		right.addSucc(left);
 	}
@@ -169,5 +174,4 @@ public class StmtSwitch extends AbstractStmtSwitch {
 	public Object prototype(Object o) {
 		return new StmtSwitch((MethodVariant)o);
 	}
-
-}// StmtSwitch
+} // StmtSwitch

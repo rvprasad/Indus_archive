@@ -1,5 +1,5 @@
-package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
+package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractFGNode;
 import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
@@ -13,7 +13,9 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+
 // OFAFGNode.java
+
 /**
  * <p>This class represents the flow graph node that accumulates objects as their entities would refer to objects at
  * run-time.  This is an Object-flow analysis specific implementation.</p>
@@ -23,76 +25,23 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public class OFAFGNode extends AbstractFGNode {
-
+public class OFAFGNode
+  extends AbstractFGNode {
 	/**
 	 * <p>Creates a new <code>OFAFGNode</code> instance.</p>
 	 *
 	 * @param wl the worklist associated with the instance of the framework within which this node exists.
 	 */
-	public OFAFGNode (WorkList wl){
+	public OFAFGNode(WorkList wl) {
 		super(wl);
-	}
-
-	/**
-	 * <p>Adds a new work to the worklist to propogate <code>value</code> in this node to it's successor nodes.</p>
-	 *
-	 * @param value the value to be propogated to the successor node.
-	 */
-	public void onNewValue(Object value) {
-		for (Iterator i = succs.iterator(); i.hasNext();) {
-			 FGNode succ = (FGNode)i.next();
-			 if (!succ.getValues().contains(value)) {
-				 worklist.addWork(new SendValuesWork(succ, value));
-			 } // end of if (!succ.contains(value))
-		} // end of for (Iterator i = succs.iterator(); i.hasNext();)
-	}
-
-	/**
-	 * <p>Adds a new work to the worklist to propogate <code>values</code> in this node to it's successor nodes.</p>
-	 *
-	 * @param values the values to be propogated to the successor node.  The collection contains object of type
-	 * <code>Object</code>.
-	 */
-	public void onNewValues(Collection values) {
-		for (Iterator i = succs.iterator(); i.hasNext();) {
-			 FGNode succ = (FGNode)i.next();
-			 if (!diffValues(succ).isEmpty()) {
-				 worklist.addWork(new SendValuesWork(succ, values));
-			 } // end of if (!succ.diffValues(values).empty())
-		} // end of for (Iterator i = succs.iterator(); i.hasNext();)
-	}
-
-	/**
-	 * <p>Adds a new work to the worklist to propogate the values in this node to <code>succ</code>.  Only the difference
-	 * values are propogated.</p>
-	 *
-	 * @param succ the successor node that was added to this node.
-	 */
-	public void onNewSucc(FGNode succ) {
-		Collection temp = diffValues(succ);
-		if (!temp.isEmpty()) {
-			worklist.addWork(new SendValuesWork(succ, temp));
-		}
-	}
-
-	/**
-	 * <p>Returns a new instance of this class.</p>
-	 *
-	 * @param o the <code>WorkList</code> to be passed to the constructor of this class.
-	 * @return a new instance of this class parameterized by <code>o</code>.
-	 */
-	public Object prototype(Object o) {
-		return new OFAFGNode((WorkList)o);
 	}
 
 	/**
 	 * <p>This class represents a peice of work to inject a set of values into a flow graph node.</p>
 	 *
 	 */
-	class SendValuesWork extends AbstractWork {
-
+	class SendValuesWork
+	  extends AbstractWork {
 		/**
 		 * <p>Creates a new <code>SendValuesWork</code> instance.</p>
 		 *
@@ -123,4 +72,58 @@ public class OFAFGNode extends AbstractFGNode {
 		}
 	}
 
-}// FGNode
+	/**
+	 * <p>Adds a new work to the worklist to propogate the values in this node to <code>succ</code>.  Only the difference
+	 * values are propogated.</p>
+	 *
+	 * @param succ the successor node that was added to this node.
+	 */
+	public void onNewSucc(FGNode succ) {
+		Collection temp = diffValues(succ);
+
+		if(!temp.isEmpty()) {
+			worklist.addWork(new SendValuesWork(succ, temp));
+		}
+	}
+
+	/**
+	 * <p>Adds a new work to the worklist to propogate <code>value</code> in this node to it's successor nodes.</p>
+	 *
+	 * @param value the value to be propogated to the successor node.
+	 */
+	public void onNewValue(Object value) {
+		for(Iterator i = succs.iterator(); i.hasNext();) {
+			FGNode succ = (FGNode)i.next();
+
+			if(!succ.getValues().contains(value)) {
+				worklist.addWork(new SendValuesWork(succ, value));
+			} // end of if (!succ.contains(value))
+		} // end of for (Iterator i = succs.iterator(); i.hasNext();)
+	}
+
+	/**
+	 * <p>Adds a new work to the worklist to propogate <code>values</code> in this node to it's successor nodes.</p>
+	 *
+	 * @param values the values to be propogated to the successor node.  The collection contains object of type
+	 * <code>Object</code>.
+	 */
+	public void onNewValues(Collection values) {
+		for(Iterator i = succs.iterator(); i.hasNext();) {
+			FGNode succ = (FGNode)i.next();
+
+			if(!diffValues(succ).isEmpty()) {
+				worklist.addWork(new SendValuesWork(succ, values));
+			} // end of if (!succ.diffValues(values).empty())
+		} // end of for (Iterator i = succs.iterator(); i.hasNext();)
+	}
+
+	/**
+	 * <p>Returns a new instance of this class.</p>
+	 *
+	 * @param o the <code>WorkList</code> to be passed to the constructor of this class.
+	 * @return a new instance of this class parameterized by <code>o</code>.
+	 */
+	public Object prototype(Object o) {
+		return new OFAFGNode((WorkList)o);
+	}
+} // FGNode

@@ -1,8 +1,11 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import java.util.Collection;
 
+
 //AbstractWork.java
+
 /**
  * A piece of work that can be processed by <code>WorkList</code>.
  *
@@ -11,9 +14,7 @@ import java.util.Collection;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
 public abstract class AbstractWork {
-
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
@@ -33,8 +34,23 @@ public abstract class AbstractWork {
 	 * @param values the walues associated with this work.
 	 */
 	protected AbstractWork(FGNode node, Collection values) {
-		this.node = node;
+		this.node   = node;
 		this.values = values;
+	}
+
+	/**
+	 * <p>The actual work that needs to be done when this work is executed should be in this method.</p>
+	 *
+	 */
+	public abstract void execute();
+
+	/**
+	 * <p>Associates a flow graph node with this work.</p>
+	 *
+	 * @param node the flow graph node to be associated.
+	 */
+	public final void setFGNode(FGNode node) {
+		this.node = node;
 	}
 
 	/**
@@ -54,20 +70,4 @@ public abstract class AbstractWork {
 	public final synchronized void addValues(Collection values) {
 		this.values.addAll(values);
 	}
-
-	/**
-	 * <p>The actual work that needs to be done when this work is executed should be in this method.</p>
-	 *
-	 */
-	public abstract void execute();
-
-	/**
-	 * <p>Associates a flow graph node with this work.</p>
-	 *
-	 * @param node the flow graph node to be associated.
-	 */
-	public final void setFGNode(FGNode node) {
-		this.node = node;
-	}
-
-}// AbstractWork
+} // AbstractWork

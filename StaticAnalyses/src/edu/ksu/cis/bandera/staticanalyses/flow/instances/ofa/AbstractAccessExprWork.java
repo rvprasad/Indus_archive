@@ -1,20 +1,21 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa;
 
-
-import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
-import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
-
 import ca.mcgill.sable.soot.jimple.ValueBox;
+
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractWork;
+import edu.ksu.cis.bandera.staticanalyses.flow.Context;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.MethodVariant;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+
 // AbstractAccessExprWork.java
+
 /**
  * <p>This class encapsulates the logic and data related to work to be done in correspondence to access expressions.</p>
  *
@@ -23,15 +24,8 @@ import java.util.Set;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public abstract class AbstractAccessExprWork extends AbstractWork {
-
-	/**
-	 * <p>The program point at which the entity occurs.</p>
-	 *
-	 */
-	protected final ValueBox accessExprBox;
-
+public abstract class AbstractAccessExprWork
+  extends AbstractWork {
 	/**
 	 * <p>The context in which the access occurs.</p>
 	 *
@@ -52,6 +46,12 @@ public abstract class AbstractAccessExprWork extends AbstractWork {
 	protected final Set installedVariants = new HashSet();
 
 	/**
+	 * <p>The program point at which the entity occurs.</p>
+	 *
+	 */
+	protected final ValueBox accessExprBox;
+
+	/**
 	 * <p>Creates a new <code>AbstractAccessExprWork</code> instance.</p>
 	 *
 	 * @param caller the method in which the access expression occurs.
@@ -59,7 +59,7 @@ public abstract class AbstractAccessExprWork extends AbstractWork {
 	 * <code>FieldRef</code>, <code>ArrayRef</code>, or <code>NonStaticInvokeExpr</code>.
 	 * @param context the context in which the access occurs.
 	 */
-	protected AbstractAccessExprWork (MethodVariant caller, ValueBox accessExprBox, Context context) {
+	protected AbstractAccessExprWork(MethodVariant caller, ValueBox accessExprBox, Context context) {
 		this(null, new ArrayList(), caller, accessExprBox, (Context)context.clone());
 	}
 
@@ -73,12 +73,11 @@ public abstract class AbstractAccessExprWork extends AbstractWork {
 	 * <code>FieldRef</code>, <code>ArrayRef</code>, or <code>NonStaticInvokeExpr</code>.
 	 * @param context the context in which the access occurs.
 	 */
-	protected AbstractAccessExprWork (FGNode node, Collection values, MethodVariant caller,
-									  ValueBox accessExprBox, Context context) {
+	protected AbstractAccessExprWork(FGNode node, Collection values, MethodVariant caller, ValueBox accessExprBox, 
+									 Context context) {
 		super(node, values);
 		this.accessExprBox = accessExprBox;
-		this.caller = caller;
-		this.context = (Context)context.clone();
+		this.caller        = caller;
+		this.context       = (Context)context.clone();
 	}
-
-}// AbstractAccessExprWork
+} // AbstractAccessExprWork

@@ -1,8 +1,9 @@
-package edu.ksu.cis.bandera.staticanalyses.flow;
 
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.SootMethod;
 import ca.mcgill.sable.soot.VoidType;
+
 import ca.mcgill.sable.soot.jimple.AbstractJimpleValueSwitch;
 import ca.mcgill.sable.soot.jimple.Value;
 import ca.mcgill.sable.soot.jimple.ValueBox;
@@ -22,7 +23,9 @@ import java.util.Stack;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 //AbstractExprSwitch.java
+
 /**
  * <p>The expression visitor class.  This class provides the default method implementations for all the expressions that need
  * to be dealt at Jimple level in Bandera framework.  The class is tagged as <code>abstract</code> to force the users to
@@ -34,20 +37,15 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch implements BanderaExprSwitch, Prototype {
-
+public abstract class AbstractExprSwitch
+  extends AbstractJimpleValueSwitch
+  implements BanderaExprSwitch,
+			 Prototype {
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
 	 */
 	private static final Logger logger = LogManager.getLogger(AbstractExprSwitch.class);
-
-	/**
-	 * <p>This visitor is used to visit the expressions in the <code>method</code> variant. </p>
-	 *
-	 */
-	protected final MethodVariant method;
 
 	/**
 	 * <p>This visitor is used by <code>stmt</code> to walk the embedded expressions.</p>
@@ -56,17 +54,16 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	protected final AbstractStmtSwitch stmt;
 
 	/**
+	 * <p>The instance of the framework in which this visitor exists.</p>
+	 *
+	 */
+	protected final BFA bfa;
+
+	/**
 	 * <p>This visitor works in the context given by <code>context</code>.</p>
 	 *
 	 */
 	protected final Context context;
-
-
-	/**
-	 * <p>This stores the program points as expressions are recursively processed.</p>
-	 *
-	 */
-	private final Stack programPoints = new Stack();
 
 	/**
 	 * <p>The object used to connect flow graph nodes corresponding to AST and non-AST entities.  This provides the
@@ -77,10 +74,16 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	protected final FGNodeConnector connector;
 
 	/**
-	 * <p>The instance of the framework in which this visitor exists.</p>
+	 * <p>This visitor is used to visit the expressions in the <code>method</code> variant. </p>
 	 *
 	 */
-	protected final BFA bfa;
+	protected final MethodVariant method;
+
+	/**
+	 * <p>This stores the program points as expressions are recursively processed.</p>
+	 *
+	 */
+	private final Stack programPoints = new Stack();
 
 	/**
 	 * <p>Creates a new <code>AbstractExprSwitch</code> instance.</p>
@@ -89,19 +92,47 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	 * @param connector the connector to be used by this expression visitor to connect flow graph nodes corresponding to AST
 	 * and non-AST entities.
 	 */
-	protected AbstractExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
-		this.stmt = stmt;
+	protected AbstractExprSwitch(AbstractStmtSwitch stmt, FGNodeConnector connector) {
+		this.stmt      = stmt;
 		this.connector = connector;
-		if (stmt != null) {
+
+		if(stmt != null) {
 			context = stmt.context;
-			method = stmt.method;
-			bfa = stmt.method.bfa;
+			method  = stmt.method;
+			bfa     = stmt.method.bfa;
 		} else {
 			context = null;
-			method = null;
-			bfa = null;
+			method  = null;
+			bfa     = null;
 		} // end of else
+	}
 
+	/**
+	 * <p>Checks if the return type of the given method is <code>void</code>. </p>
+	 *
+	 * @param sm the method whose return type is to be checked for voidness.
+	 * @return <code>true</code> if <code>sm</code>'s return type is <code>void</code>; <code>false</code> otherwise.
+	 */
+	public static final boolean isNonVoid(SootMethod sm) {
+		return !(sm.getReturnType() instanceof VoidType);
+	}
+
+	/**
+	 * <p>Returns the current program point.</p>
+	 *
+	 * @return Returns the current program point.
+	 */
+	public final ValueBox getCurrentProgramPoint() {
+		return (ValueBox)programPoints.peek();
+	}
+
+	/**
+	 * <p>Returns the <code>WorkList</code> associated with this visitor.</p>
+	 *
+	 * @return the <code>WorkList</code> associated with this visitor.
+	 */
+	public final WorkList getWorkList() {
+		return bfa.worklist;
 	}
 
 	/**
@@ -187,25 +218,6 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	}
 
 	/**
-	 * <p>Returns the <code>WorkList</code> associated with this visitor.</p>
-	 *
-	 * @return the <code>WorkList</code> associated with this visitor.
-	 */
-	public final WorkList getWorkList() {
-		return bfa.worklist;
-	}
-
-	/**
-	 * <p>Checks if the return type of the given method is <code>void</code>. </p>
-	 *
-	 * @param sm the method whose return type is to be checked for voidness.
-	 * @return <code>true</code> if <code>sm</code>'s return type is <code>void</code>; <code>false</code> otherwise.
-	 */
-	public static final boolean isNonVoid(SootMethod sm) {
-		return !(sm.getReturnType() instanceof VoidType);
-	}
-
-	/**
 	 * <p>Processes the expression at the given program point, <code>v</code>.</p>
 	 *
 	 * @param v the program point at which the to-be-processed expression occurs.
@@ -219,15 +231,6 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	}
 
 	/**
-	 * <p>Returns the current program point.</p>
-	 *
-	 * @return Returns the current program point.
-	 */
-	public final ValueBox getCurrentProgramPoint() {
-		return (ValueBox)programPoints.peek();
-	}
-
-	/**
 	 * <p>This method will throw <code>UnsupportedOperationException</code>.</p>
 	 *
 	 * @return (This method raises an exception.)
@@ -235,5 +238,4 @@ public abstract class AbstractExprSwitch extends AbstractJimpleValueSwitch imple
 	public final Object prototype() {
 		throw new UnsupportedOperationException("Parameterless prototype method is not supported.");
 	}
-
-}// AbstractExprSwitch
+} // AbstractExprSwitch

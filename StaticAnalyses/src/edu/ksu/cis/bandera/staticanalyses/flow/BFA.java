@@ -1,5 +1,5 @@
-package edu.ksu.cis.bandera.staticanalyses.flow;
 
+package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import ca.mcgill.sable.soot.ArrayType;
 import ca.mcgill.sable.soot.Modifier;
@@ -15,7 +15,9 @@ import java.util.Set;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 //BFA.java
+
 /**
  * <p>The instance of the framework which controls and manages the analysis on execution.  It acts the central repository for
  * information pertaining to various components of the framework when the analysis is in progress.  It also serves as the
@@ -26,9 +28,7 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
 public class BFA {
-
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purposes.</p>
 	 *
@@ -42,28 +42,16 @@ public class BFA {
 	private static final Map instances = new HashMap();
 
 	/**
-	 * <p>The <code>SootClassManager</code> which provides the set of class to be analyzed.</p>
-	 *
-	 */
-	private SootClassManager scm;
-
-	/**
-	 * <p>The worklist associated with this instance of the framework.</p>
-	 *
-	 */
-	final WorkList worklist;
-
-	/**
 	 * <p>The analyzer associated with this instance of the framework.</p>
 	 *
 	 */
 	public final AbstractAnalyzer analyzer;
 
 	/**
-	 * <p>The factory that provides the components during the analysis performed by this instance of the framework.</p>
+	 * <p>The worklist associated with this instance of the framework.</p>
 	 *
 	 */
-	private final ModeFactory modeFactory;
+	final WorkList worklist;
 
 	/**
 	 * <p>The manager of array variants.</p>
@@ -84,16 +72,28 @@ public class BFA {
 	FieldVariantManager instanceFieldManager;
 
 	/**
+	 * <p>The manager of static field variants.</p>
+	 *
+	 */
+	FieldVariantManager staticFieldManager;
+
+	/**
 	 * <p>The manager of method variants.</p>
 	 *
 	 */
 	MethodVariantManager methodManager;
 
 	/**
-	 * <p>The manager of static field variants.</p>
+	 * <p>The factory that provides the components during the analysis performed by this instance of the framework.</p>
 	 *
 	 */
-	FieldVariantManager staticFieldManager;
+	private final ModeFactory modeFactory;
+
+	/**
+	 * <p>The <code>SootClassManager</code> which provides the set of class to be analyzed.</p>
+	 *
+	 */
+	private SootClassManager scm;
 
 	/**
 	 * <p>Creates a new <code>BFA</code> instance.</p>
@@ -102,29 +102,33 @@ public class BFA {
 	 * @param analyzer the analyzer associated with this instance of the framework.
 	 * @param mf the factory object to be used in the instrumentation of the analysis by this instance of the framework.
 	 */
-	BFA (String name, AbstractAnalyzer analyzer, ModeFactory mf) {
-		worklist = new WorkList();
-		modeFactory = mf;
+	BFA(String name, AbstractAnalyzer analyzer, ModeFactory mf) {
+		worklist      = new WorkList();
+		modeFactory   = mf;
 		this.analyzer = analyzer;
 		BFA.instances.put(name, this);
-		this.classManager = modeFactory.getClassManager(this);
-
-		arrayManager = new ArrayVariantManager(this, modeFactory.getArrayIndexManager());
+		this.classManager    = modeFactory.getClassManager(this);
+		arrayManager         = new ArrayVariantManager(this, modeFactory.getArrayIndexManager());
 		instanceFieldManager = new FieldVariantManager(this, modeFactory.getInstanceFieldIndexManager());
-		methodManager = new MethodVariantManager(this, modeFactory.getMethodIndexManager(), modeFactory.getASTIndexManager());
-		staticFieldManager = new FieldVariantManager(this, modeFactory.getStaticFieldIndexManager());
+		methodManager        = new MethodVariantManager(this, modeFactory.getMethodIndexManager(), 
+														modeFactory.getASTIndexManager());
+		staticFieldManager   = new FieldVariantManager(this, modeFactory.getStaticFieldIndexManager());
 	}
 
 	/**
-	 * <p>Analyzes the given classes starting with <code>root</code> method.</p>
+	 * <p>Returns the instance of the framework associated with the given name.</p>
 	 *
-	 * @param scm <code>SootClassManager</code> object which contains the classes to be analyzed.
-	 * @param root the method to start the analysis from.
+	 * @param name the name of the framework that is to be returned.
+	 * @return the instance of the framework with given name.
 	 */
-	void analyze(SootClassManager scm, SootMethod root) {
-		this.scm = scm;
-		getMethodVariant(root);
-		worklist.process();
+	public static final BFA getBFA(String name) {
+		BFA temp = null;
+
+		if(instances.containsKey(name)) {
+			temp = (BFA)instances.get(name);
+		}
+
+		return temp;
 	}
 
 	/**
@@ -151,20 +155,6 @@ public class BFA {
 	}
 
 	/**
-	 * <p>Returns the instance of the framework associated with the given name.</p>
-	 *
-	 * @param name the name of the framework that is to be returned.
-	 * @return the instance of the framework with given name.
-	 */
-	public static final BFA getBFA(String name) {
-		BFA temp = null;
-		if (instances.containsKey(name)) {
-			temp = (BFA)instances.get(name);
-		}
-		return temp;
-	}
-
-	/**
 	 * <p>Returns the Jimple representation of the given class.</p>
 	 *
 	 * @param className the name of the class whose Jimple representation is to be returned.
@@ -172,6 +162,15 @@ public class BFA {
 	 */
 	public final SootClass getClass(String className) {
 		return scm.getClass(className);
+	}
+
+	/**
+	 * <p>Returns the flow graph node as created by the factory.</p>
+	 *
+	 * @return a new flow graph node.
+	 */
+	public final FGNode getFGNode() {
+		return modeFactory.getFGNode(worklist);
 	}
 
 	/**
@@ -195,21 +194,14 @@ public class BFA {
 	 */
 	public final FieldVariant getFieldVariant(SootField sf, Context context) {
 		Variant temp = null;
-		if (Modifier.isStatic(sf.getModifiers())) {
+
+		if(Modifier.isStatic(sf.getModifiers())) {
 			temp = staticFieldManager.select(sf, context);
 		} else {
 			temp = instanceFieldManager.select(sf, context);
 		} // end of else
-		return (FieldVariant)temp;
-	}
 
-	/**
-	 * <p>Returns the flow graph node as created by the factory.</p>
-	 *
-	 * @return a new flow graph node.
-	 */
-	public final FGNode getFGNode() {
-		return modeFactory.getFGNode(worklist);
+		return (FieldVariant)temp;
 	}
 
 	/**
@@ -316,11 +308,13 @@ public class BFA {
 	 */
 	public final FieldVariant queryFieldVariant(SootField sf, Context context) {
 		Variant temp = null;
-		if (Modifier.isStatic(sf.getModifiers())) {
+
+		if(Modifier.isStatic(sf.getModifiers())) {
 			temp = staticFieldManager.query(sf, context);
 		} else {
 			temp = instanceFieldManager.query(sf, context);
 		} // end of else
+
 		return (FieldVariant)temp;
 	}
 
@@ -354,9 +348,19 @@ public class BFA {
 		instanceFieldManager.reset();
 		methodManager.reset();
 		staticFieldManager.reset();
-
 		worklist.clear();
 		scm = null;
 	}
 
-}// BFA
+	/**
+	 * <p>Analyzes the given classes starting with <code>root</code> method.</p>
+	 *
+	 * @param scm <code>SootClassManager</code> object which contains the classes to be analyzed.
+	 * @param root the method to start the analysis from.
+	 */
+	void analyze(SootClassManager scm, SootMethod root) {
+		this.scm = scm;
+		getMethodVariant(root);
+		worklist.process();
+	}
+} // BFA

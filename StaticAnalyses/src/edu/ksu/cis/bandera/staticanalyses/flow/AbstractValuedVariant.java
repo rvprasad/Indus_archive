@@ -1,3 +1,4 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow;
 
 import java.util.Collection;
@@ -5,7 +6,9 @@ import java.util.Collection;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 //AbstractValuedVariant.java
+
 /**
  *
  * <p>Variant of entities associated with data such as AST nodes and fields.  All such data related variants should extend
@@ -16,8 +19,13 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public abstract class AbstractValuedVariant implements Variant {
+public abstract class AbstractValuedVariant
+  implements Variant {
+	/**
+	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
+	 *
+	 */
+	private static final Logger logger = LogManager.getLogger(AbstractValuedVariant.class);
 
 	/**
 	 * <p>The flow graph node associated with this variant.</p>
@@ -26,17 +34,11 @@ public abstract class AbstractValuedVariant implements Variant {
 	protected FGNode node;
 
 	/**
-	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
-	 *
-	 */
-	private static final Logger logger = LogManager.getLogger(AbstractValuedVariant.class);
-
-	/**
 	 * <p>Creates a new <code>AbstractValuedVariant</code> instance.</p>
 	 *
 	 * @param node the flow graph node associated with this variant.
 	 */
-	AbstractValuedVariant (FGNode node){
+	AbstractValuedVariant(FGNode node) {
 		this.node = node;
 	}
 
@@ -70,6 +72,6 @@ public abstract class AbstractValuedVariant implements Variant {
 	/**
 	 * <p>Performs nothing.  This will be called after a variant is created.</p>
 	 */
-	public void process() {}
-
-}// AbstractValuedVariant
+	public void process() {
+	}
+} // AbstractValuedVariant

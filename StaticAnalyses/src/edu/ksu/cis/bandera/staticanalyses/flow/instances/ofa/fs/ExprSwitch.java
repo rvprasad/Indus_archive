@@ -1,22 +1,25 @@
+
 package edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fs;
-
-
-import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
-import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
 
 import ca.mcgill.sable.soot.jimple.ArrayRef;
 import ca.mcgill.sable.soot.jimple.DefinitionStmt;
 import ca.mcgill.sable.soot.jimple.InstanceFieldRef;
 import ca.mcgill.sable.soot.jimple.Local;
 import ca.mcgill.sable.soot.jimple.ValueBox;
+
 import ca.mcgill.sable.util.Iterator;
+
+import edu.ksu.cis.bandera.staticanalyses.flow.AbstractStmtSwitch;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNode;
+import edu.ksu.cis.bandera.staticanalyses.flow.FGNodeConnector;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+
 // ExprSwitch.java
+
 /**
  * <p>The expression visitor used in flow sensitive mode of object flow analysis. </p>
  *
@@ -25,9 +28,8 @@ import org.apache.log4j.Logger;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-
-public class ExprSwitch extends edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.ExprSwitch {
-
+public class ExprSwitch
+  extends edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.fi.ExprSwitch {
 	/**
 	 * <p>An instance of <code>Logger</code> used for logging purpose.</p>
 	 *
@@ -40,7 +42,7 @@ public class ExprSwitch extends edu.ksu.cis.bandera.staticanalyses.flow.instance
 	 * @param stmt the statement visitor which uses this instance of expression visitor.
 	 * @param connector the connector to be used to connect the ast and non-ast nodes.
 	 */
-	public ExprSwitch (AbstractStmtSwitch stmt, FGNodeConnector connector){
+	public ExprSwitch(AbstractStmtSwitch stmt, FGNodeConnector connector) {
 		super(stmt, connector);
 	}
 
@@ -75,12 +77,14 @@ public class ExprSwitch extends edu.ksu.cis.bandera.staticanalyses.flow.instance
 	 * @param e the reference program point to be processed.
 	 */
 	public void postProcessBase(ValueBox e) {
-		Local l = (Local)e.getValue();
-		ValueBox backup = context.setProgramPoint(e);
-		FGNode localNode = method.getASTNode(l);
-		for (Iterator i = method.getDefsOfAt(l, stmt.getStmt()).iterator(); i.hasNext();) {
+		Local    l         = (Local)e.getValue();
+		ValueBox backup    = context.setProgramPoint(e);
+		FGNode   localNode = method.getASTNode(l);
+
+		for(Iterator i = method.getDefsOfAt(l, stmt.getStmt()).iterator(); i.hasNext();) {
 			DefinitionStmt defStmt = (DefinitionStmt)i.next();
 			context.setProgramPoint(defStmt.getLeftOpBox());
+
 			FGNode defNode = method.getASTNode(defStmt.getLeftOp());
 			logger.debug("Local Def:" + defStmt.getLeftOp() + "\n" + defNode + context);
 			defNode.addSucc(localNode);
@@ -109,5 +113,4 @@ public class ExprSwitch extends edu.ksu.cis.bandera.staticanalyses.flow.instance
 	public Object prototype(Object o) {
 		return new ExprSwitch((AbstractStmtSwitch)o, connector);
 	}
-
-}// ExprSwitch
+} // ExprSwitch
