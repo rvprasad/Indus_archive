@@ -28,13 +28,6 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 public class SimpleNodeGraphNoCycleTest
   extends SimpleNodeGraphTest {
 	/**
-	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#testAddEdgeFromTo()
-	 */
-	public void localtestAddEdgeFromTo() {
-		// we do nothing here as we do not want to change the graph.
-	}
-
-	/**
 	 * Tests <code>getCycles()</code> method.
 	 */
 	public final void testGetCycles() {
@@ -57,9 +50,15 @@ public class SimpleNodeGraphNoCycleTest
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("c"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("b"), (SimpleNode) name2node.get("d"));
 		_sng.addEdgeFromTo((SimpleNode) name2node.get("d"), (SimpleNode) name2node.get("e"));
+        _sng.addEdgeFromTo((SimpleNode) name2node.get("e"), (SimpleNode) name2node.get("c"));
         setSNG(_sng);
 	}
 
+    /**
+     * Does nothing.
+     */
+    protected final void localtestAddEdgeFromTo() {}
+    
     /**
      * @see TestCase#tearDown
      */
@@ -104,6 +103,11 @@ public class SimpleNodeGraphNoCycleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/30 10:04:25  venku
+   - sng in SimpleNodeGraphTest should track dg or the otherway
+     round to make the hierarchy of test work.  This has
+     been fixed by adding setSNG().
+
    Revision 1.1  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
       - AbstractDirectedGraphTest
