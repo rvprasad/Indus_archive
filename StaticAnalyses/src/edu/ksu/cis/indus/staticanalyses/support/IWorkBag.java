@@ -53,12 +53,16 @@ public interface IWorkBag {
 	 *
 	 * @param c the work pieces to be added.
 	 *
+	 * @return the work pieces that were rejected as duplicates.
+	 *
 	 * @invariant self->includesAll(self$pre)
 	 * @pre c.oclIsKindOf(Collection(Object))
 	 * @post self->includesAll(c)
 	 * @post self->forall( o | self->count() = 1)
+	 * @post result != null
+	 * @post result->forall(j | c.contains(j))
 	 */
-	void addAllWorkNoDuplicates(final Collection c);
+	Collection addAllWorkNoDuplicates(final Collection c);
 
 	/**
 	 * Adds a new work to the bag.  This will not check if the work exists in the bag.
@@ -75,11 +79,14 @@ public interface IWorkBag {
 	 *
 	 * @param o the work to be added.
 	 *
+	 * @return <code>true</code> if <code>o</code> was added to the bag; <code>false</code>, if <code>o</code> was a
+	 * 		   duplicate.
+	 *
 	 * @invariant self->includesAll(self$pre)
 	 * @post self->includes(o)
 	 * @post self->forall( o | self->count() = 1)
 	 */
-	void addWorkNoDuplicates(final Object o);
+	boolean addWorkNoDuplicates(final Object o);
 
 	/**
 	 * Removes all work pieces in this bag.
@@ -101,6 +108,8 @@ public interface IWorkBag {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 05:04:02  venku
+   - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.8  2003/11/05 09:27:10  venku
    - Split IWorkBag into an interface and an implementation
      for the sake of performance.

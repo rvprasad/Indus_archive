@@ -39,8 +39,10 @@ public class LIFOWorkBag
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addAllWorkNoDuplicates(java.util.Collection)
 	 */
-	public void addAllWorkNoDuplicates(final Collection c) {
+	public Collection addAllWorkNoDuplicates(final Collection c) {
+		Collection result = CollectionUtils.intersection(c, container);
 		container.addAll(0, CollectionUtils.subtract(c, container));
+		return result;
 	}
 
 	/**
@@ -53,22 +55,25 @@ public class LIFOWorkBag
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.support.IWorkBag#addWorkNoDuplicates(java.lang.Object)
 	 */
-	public void addWorkNoDuplicates(final Object o) {
-		if (!container.contains(o)) {
+	public boolean addWorkNoDuplicates(final Object o) {
+		boolean result = !container.contains(o);
+
+		if (result) {
 			container.add(0, o);
 		}
+		return result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/16 19:09:42  venku
+   - documentation.
    Revision 1.3  2003/11/06 05:04:02  venku
    - renamed WorkBag to IWorkBag and the ripple effect.
-
    Revision 1.2  2003/11/06 05:01:57  venku
    - finalized the parameters.
-
    Revision 1.1  2003/11/05 09:27:10  venku
    - Split IWorkBag into an interface and an implementation
      for the sake of performance.
