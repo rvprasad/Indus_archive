@@ -158,23 +158,7 @@ public abstract class AbstractDirectedGraph
 	 * @see IDirectedGraph#getCycles()
 	 */
 	public final Collection getCycles() {
-		Collection _result = new ArrayList();
-
-		for (final Iterator _i = getSCCs(true).iterator(); _i.hasNext();) {
-			final Collection _scc = (Collection) _i.next();
-
-			final Collection _temp = findCycles(_scc);
-
-			if (!_temp.isEmpty()) {
-				_result.addAll(_temp);
-			}
-		}
-
-		if (_result.isEmpty()) {
-			_result = Collections.EMPTY_LIST;
-		}
-
-		return _result;
+		return findCycles(getNodes());
 	}
 
 	/**
@@ -346,19 +330,37 @@ public abstract class AbstractDirectedGraph
 	public final List getSCCs(final boolean topDown) {
 		final List _result;
 		final List _nodes = getNodes();
+		_result = findSCCs(_nodes, topDown);
+		return _result;
+	}
+
+	/**
+	 * Finds strongly-connected components in the given nodes in the requested direction.
+	 *
+	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
+	 * 		  indicates bottom-up.
+	 * @param nodes in which the sccs should be detected.
+	 *
+	 * @return the sccs found in the given set of nodes in the requested direction.
+	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
+	 * @post result != null and result.oclIsKindOf(Collection(Collection(INode)))
+	 * @post result->forall(o | nodes->containsAll(o))
+	 */
+	public static List findSCCs(final Collection nodes, final boolean topDown) {
+		final List _result;
 		final Map _finishTime2node = new HashMap();
 		final Collection _processed = new HashSet();
 		int _time = 0;
 
-		for (final Iterator _i = _nodes.iterator(); _i.hasNext();) {
+		for (final Iterator _i = nodes.iterator(); _i.hasNext();) {
 			final INode _node = (INode) _i.next();
 
 			if (!_processed.contains(_node)) {
-				_time = getFinishTimes(_nodes, _node, _processed, _finishTime2node, _time, true);
+				_time = getFinishTimes(nodes, _node, _processed, _finishTime2node, _time, true);
 			}
 		}
 
-		final Map _fn2scc = constructSCCs(_finishTime2node);
+		final Map _fn2scc = constructSCCs(nodes, _finishTime2node);
 		final List _finishTimes = new ArrayList();
 		_finishTimes.addAll(_fn2scc.keySet());
 		Collections.sort(_finishTimes);
@@ -434,26 +436,21 @@ public abstract class AbstractDirectedGraph
 	public static Collection findCycles(final Collection nodes) {
 		final Collection _result = new ArrayList();
 
-		if (nodes.size() == 1) {
-			final INode _node = (INode) nodes.iterator().next();
+		final List _sccs = findSCCs(nodes, false);
+        final Iterator _j = _sccs.iterator();
+		final int _jEnd = _sccs.size();
 
-			if (_node.getSuccsOf().contains(_node)) {
-				_result.add(Collections.singleton(_node));
-			}
-		} else {
-			final Collection _considered = new HashSet();
-			final Collection _temp = new HashSet(nodes);
-			final Predicate _predicate =
-				new Predicate() {
-					public boolean evaluate(final Object object) {
-						return !_considered.contains(object);
-					}
-				};
+		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+			final List _scc = (List) _j.next();
 
-			for (final Iterator _i = IteratorUtils.filteredIterator(nodes.iterator(), _predicate); _i.hasNext();) {
-				final INode _root = (INode) _i.next();
-				_temp.removeAll(_considered);
-				findCyclesStartingFrom(_temp, _result, _considered, _root);
+			if (_scc.size() == 1) {
+				final INode _node = (INode) _scc.iterator().next();
+
+				if (_node.getSuccsOf().contains(_node)) {
+					_result.add(Collections.singleton(_node));
+				}
+			} else {
+				_result.addAll(findCyclesStartingFrom(_scc));
 			}
 		}
 		return _result;
@@ -488,26 +485,22 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-	 * Finds cycles containing only the given nodes starting from the given root.
+	 * Finds cycles containing only the given SCC.
 	 *
-	 * @param nodes in which the cycles should be detected.
-	 * @param cycles is an out parameter that will contain the cycles.
-	 * @param consideredNodes is an out paramter that will contain nodes that were included in some cycle.
-	 * @param root from which to start the detection.
+	 * @param scc in which the cycles should be detected.
 	 *
-	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
-	 * @pre cycles != null and cycles.oclIsKindOf(Collection(Sequence(INode)))
-	 * @pre consideredNodes != null and consideredNodes.oclIsKindOf(Collection(INode))
-	 * @pre root != null
-	 * @post (cycles - cycles$pre)->forall(o | nodes.containsAll(o))
-	 * @post nodes.containsAll(consideredNodes$pre - consideredNodes$pre)
+	 * @return a collection of cycles.
+	 *
+	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode)) and nodes.size() > 1
+	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
+	 * @post result->forall(o | nodes->containsAll(o))
 	 */
-	private static void findCyclesStartingFrom(final Collection nodes, final Collection cycles,
-		final Collection consideredNodes, final INode root) {
+	private static Collection findCyclesStartingFrom(final Collection scc) {
 		final IWorkBag _wb = new LIFOWorkBag();
 		final Stack _dfsPath = new Stack();
+		final Collection _result = new HashSet();
 
-		_wb.addWork(root);
+		_wb.addWork(scc.iterator().next());
 
 		while (_wb.hasWork()) {
 			final Object _o = _wb.getWork();
@@ -521,14 +514,12 @@ public abstract class AbstractDirectedGraph
 			} else if (_dfsPath.contains(_o)) {
 				final List _cycle = _dfsPath.subList(_dfsPath.indexOf(_o), _dfsPath.size());
 
-				if (!cycles.contains(_cycle)) {
-					cycles.add(new ArrayList(_cycle));
+				if (!_result.contains(_cycle)) {
+					_result.add(new ArrayList(_cycle));
 				}
 			} else {
-				consideredNodes.add(_o);
-
 				final INode _node = (INode) _o;
-				final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), nodes);
+				final Collection _succs = CollectionUtils.intersection(_node.getSuccsOf(), scc);
 
 				if (!_succs.isEmpty()) {
 					_dfsPath.push(_node);
@@ -547,6 +538,7 @@ public abstract class AbstractDirectedGraph
 				}
 			}
 		}
+		return _result;
 	}
 
 	/**
@@ -614,8 +606,8 @@ public abstract class AbstractDirectedGraph
 	 *
 	 * @pre getNodes().contains(node)
 	 */
-	private int getFinishTimes(final List nodes, final INode node, final Collection processed, final Map finishTime2node,
-		final int time, final boolean forward) {
+	private static int getFinishTimes(final Collection nodes, final INode node, final Collection processed,
+		final Map finishTime2node, final int time, final boolean forward) {
 		processed.add(node);
 
 		int _temp = time;
@@ -664,26 +656,26 @@ public abstract class AbstractDirectedGraph
 				}
 			}
 		}
-		reachability = true;		
+		reachability = true;
 	}
 
 	/**
 	 * Constructs the SCCS from the given information.
 	 *
+	 * @param nodes from which the SCC should be constructed.
 	 * @param finishTime2Node maps the finish time to nodes in the graph.
 	 *
 	 * @return a map from finish time to SCC.
 	 *
-	 * @pre finishTime2Node != null
+	 * @pre finishTime2Node != null and nodes != null
 	 * @pre finishTime2Node.oclIsKindOf(Map(Integer, INode))
 	 * @post result != null and result.oclIsKindOf(Map(Integer, Sequence(INode)))
 	 */
-	private Map constructSCCs(final Map finishTime2Node) {
+	private static Map constructSCCs(final Collection nodes, final Map finishTime2Node) {
 		final Stack _stack = new Stack();
 		final Map _fn2scc = new HashMap();
 		final Collection _processed = new HashSet();
 		final List _finishTimes = new ArrayList();
-		final Collection _nodesInGraph = getNodes();
 		_finishTimes.addAll(finishTime2Node.keySet());
 		Collections.sort(_finishTimes);
 		Collections.reverse(_finishTimes);
@@ -695,7 +687,7 @@ public abstract class AbstractDirectedGraph
 			_node2finishTime.put(finishTime2Node.get(_element), _element);
 		}
 
-		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext() && !_processed.containsAll(_nodesInGraph);) {
+		for (final Iterator _i = _finishTimes.iterator(); _i.hasNext() && !_processed.containsAll(nodes);) {
 			final Integer _fn = (Integer) _i.next();
 			INode _node = (INode) finishTime2Node.get(_fn);
 
@@ -714,7 +706,7 @@ public abstract class AbstractDirectedGraph
 				}
 				_scc.add(_node);
 				_processed.add(_node);
-				_stack.addAll(_node.getPredsOf());
+				_stack.addAll(CollectionUtils.intersection(_node.getPredsOf(), nodes));
 			}
 			_fn2scc.put(_fn, _scc);
 		}
@@ -822,13 +814,13 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/08/07 04:15:23  venku
+   - deleted a redundant check.
    Revision 1.23  2004/08/02 07:33:47  venku
    - small but significant change to the pair manager.
    - ripple effect.
-
    Revision 1.22  2004/07/26 08:27:34  venku
    - optimization.
-
    Revision 1.21  2004/07/25 10:26:35  venku
    - generalized findCycles() to a given set of nodes (not just a SCC).
    Revision 1.20  2004/07/11 13:42:05  venku
