@@ -99,15 +99,15 @@ public abstract class AbstractDependencyXMLizer
 	public void callback(final SootClass clazz) {
 		try {
 			if (processingMethod) {
-				out.write("</method>");
+				out.write("</method>\n");
 			}
 
 			if (processingClass) {
-				out.write("</class>");
+				out.write("</class>\n");
 			} else {
 				processingClass = true;
 			}
-			out.write("<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz) + "\"/>");
+			out.write("<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz) + "\">");
 			processingMethod = false;
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -122,12 +122,12 @@ public abstract class AbstractDependencyXMLizer
 	public void callback(final SootMethod method) {
 		try {
 			if (processingMethod) {
-				out.write("</method>");
+				out.write("</method>\n");
 			} else {
 				processingMethod = true;
 			}
-			out.write("<class signature=\"" + method.getSubSignature() + "\" id=\"" + idGenerator.getIdForMethod(method)
-				+ "\"/>");
+			out.write("<method signature=\"" + method.getSubSignature().replaceAll("\\<", "&lt;") + "\" id=\""
+				+ idGenerator.getIdForMethod(method) + "\">");
 			idGenerator.resetStmtCounter();
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -142,11 +142,11 @@ public abstract class AbstractDependencyXMLizer
 	public void consolidate() {
 		try {
 			if (processingMethod) {
-				out.write("</method>");
+				out.write("</method>\n");
 			}
 
 			if (processingClass) {
-				out.write("</class>");
+				out.write("</class>\n");
 			}
 			out.write("</dependency>");
 		} catch (IOException e) {
@@ -161,7 +161,7 @@ public abstract class AbstractDependencyXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			out.write("<dependency>");
+			out.write("<dependency>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", e);
@@ -173,4 +173,6 @@ public abstract class AbstractDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/10 08:26:09  venku
+   - enabled XMLization of statement level dependency information.
  */

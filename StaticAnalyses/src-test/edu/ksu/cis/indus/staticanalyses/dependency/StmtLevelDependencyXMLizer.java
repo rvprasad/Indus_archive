@@ -70,11 +70,17 @@ public class StmtLevelDependencyXMLizer
 				out.write("<dependency_info dependeeId=\"" + idGenerator.getIdForStmt(stmt, method) + "\">");
 
 				for (Iterator i = dependencies.iterator(); i.hasNext();) {
-					Pair pair = (Pair) i.next();
-					out.write("<dependent id=\""
-						+ idGenerator.getIdForStmt((Stmt) pair.getFirst(), (SootMethod) pair.getSecond()) + "\"/>");
+					Object o = i.next();
+
+					if (o instanceof Pair) {
+						Pair pair = (Pair) i.next();
+						out.write("<dependent id=\""
+							+ idGenerator.getIdForStmt((Stmt) pair.getFirst(), (SootMethod) pair.getSecond()) + "\"/>");
+					} else if (o instanceof Stmt) {
+						out.write("<dependent id=\"" + idGenerator.getIdForStmt((Stmt) o, method) + "\"/>");
+					}
 				}
-				out.write("</dependency_info>");
+				out.write("</dependency_info>\n");
 			}
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -103,6 +109,8 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/10 20:05:02  venku
+   - formatting.
    Revision 1.1  2003/11/10 08:26:09  venku
    - enabled XMLization of statement level dependency information.
  */
