@@ -36,6 +36,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -89,130 +91,137 @@ public final class EADriver
 	protected void execute() {
 		Scene scm = loadupClassesAndCollectMains(args);
 		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
+		Collection rm = new ArrayList();
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: FA analysis");
-		}
+		for (Iterator l = rootMethods.iterator(); l.hasNext();) {
+			rm.clear();
+			rm.add(l.next());
 
-		long start = System.currentTimeMillis();
-		aa.analyze(scm, rootMethods);
-
-		long stop = System.currentTimeMillis();
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: FA analysis");
-		}
-		addTimeLog("FA analysis", stop - start);
-
-		ProcessingController ppc = new ProcessingController();
-		ppc.setAnalyzer(aa);
-
-		// Create call graph
-		CallGraph cg = new CallGraph();
-		cg.hookup(ppc);
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: FA postprocessing");
-		}
-		start = System.currentTimeMillis();
-		ppc.process();
-		cg.unhook(ppc);
-
-		ppc = new CGBasedProcessingController(cg);
-		ppc.setAnalyzer(aa);
-
-		// Create Thread graph
-		ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, bbm));
-		tg.hookup(ppc);
-		ppc.process();
-		tg.unhook(ppc);
-
-		// Perform equivalence-class-based escape analysis
-		EquivalenceClassBasedEscapeAnalysis analysis = new EquivalenceClassBasedEscapeAnalysis(scm, cg, tg, bbm);
-		analysis.hookup(ppc);
-		ppc.process();
-		stop = System.currentTimeMillis();
-		analysis.unhook(ppc);
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: FA postprocessing");
-		}
-		addTimeLog("FA postprocessing took ", stop - start);
-		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
-		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: " + analysis.getClass().getName() + " processing");
-		}
-		start = System.currentTimeMillis();
-		analysis.execute();
-		stop = System.currentTimeMillis();
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: " + analysis.getClass().getName() + " processing");
-		}
-		addTimeLog(analysis.getClass().getName(), stop - start);
-
-		int count = 1;
-		Map threadMap = new HashMap();
-		System.out.println("\nThread mapping:");
-
-		for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
-			NewExprTriple element = (NewExprTriple) j.next();
-			String tid = "T" + count++;
-			threadMap.put(element, tid);
-
-			if (element.getMethod() == null) {
-				System.out.println(tid + " -> " + element.getExpr().getType());
-			} else {
-				System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: FA analysis");
 			}
-		}
 
-		for (int i = 0; i < args.length; i++) {
-			SootClass sc = scm.getSootClass(args[i]);
-			System.out.println("Info for class " + sc.getName() + "\n");
+			long start = System.currentTimeMillis();
+			aa.reset();
+			aa.analyze(scm, rm);
 
-			for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
-				  j.hasNext();) {
-				SootMethod sm = (SootMethod) j.next();
-				System.out.println("\nInfo for Method " + sm.getSignature());
+			long stop = System.currentTimeMillis();
 
-				if (sm.isConcrete()) {
-					JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: FA analysis");
+			}
+			addTimeLog("FA analysis", stop - start);
 
-					for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
-						Local local = (Local) k.next();
-						System.out.println(" Local " + local + ":" + local.getType() + " -> shared:"
-							+ analysis.isShared(local, sm));
-					}
+			ProcessingController ppc = new ProcessingController();
+			ppc.setAnalyzer(aa);
+
+			// Create call graph
+			CallGraph cg = new CallGraph();
+			cg.hookup(ppc);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: FA postprocessing");
+			}
+			start = System.currentTimeMillis();
+			ppc.process();
+			cg.unhook(ppc);
+
+			ppc = new CGBasedProcessingController(cg);
+			ppc.setAnalyzer(aa);
+
+			// Create Thread graph
+			ThreadGraph tg = new ThreadGraph(cg, new CFGAnalysis(cg, bbm));
+			tg.hookup(ppc);
+			ppc.process();
+			tg.unhook(ppc);
+
+			// Perform equivalence-class-based escape analysis
+			EquivalenceClassBasedEscapeAnalysis analysis = new EquivalenceClassBasedEscapeAnalysis(scm, cg, tg, bbm);
+			analysis.hookup(ppc);
+			ppc.process();
+			stop = System.currentTimeMillis();
+			analysis.unhook(ppc);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: FA postprocessing");
+			}
+			addTimeLog("FA postprocessing took ", stop - start);
+			System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
+			System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: " + analysis.getClass().getName() + " processing");
+			}
+			start = System.currentTimeMillis();
+			analysis.execute();
+			stop = System.currentTimeMillis();
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: " + analysis.getClass().getName() + " processing");
+			}
+			addTimeLog(analysis.getClass().getName(), stop - start);
+
+			int count = 1;
+			Map threadMap = new HashMap();
+			System.out.println("\nThread mapping:");
+
+			for (java.util.Iterator j = tg.getAllocationSites().iterator(); j.hasNext();) {
+				NewExprTriple element = (NewExprTriple) j.next();
+				String tid = "T" + count++;
+				threadMap.put(element, tid);
+
+				if (element.getMethod() == null) {
+					System.out.println(tid + " -> " + element.getExpr().getType());
 				} else {
-					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info(sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
+					System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
+				}
+			}
+
+			for (int i = 0; i < args.length; i++) {
+				SootClass sc = scm.getSootClass(args[i]);
+				System.out.println("Info for class " + sc.getName() + "\n");
+
+				for (Iterator j = CollectionUtils.intersection(cg.getReachableMethods(), sc.getMethods()).iterator();
+					  j.hasNext();) {
+					SootMethod sm = (SootMethod) j.next();
+					System.out.println("\nInfo for Method " + sm.getSignature());
+
+					if (sm.isConcrete()) {
+						JimpleBody body = (JimpleBody) sm.retrieveActiveBody();
+
+						for (Iterator k = body.getLocals().iterator(); k.hasNext();) {
+							Local local = (Local) k.next();
+							System.out.println(" Local " + local + ":" + local.getType() + " -> shared:"
+								+ analysis.isShared(local, sm));
+						}
+					} else {
+						if (LOGGER.isInfoEnabled()) {
+							LOGGER.info(sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
+						}
 					}
 				}
 			}
+			System.out.println("Total classes loaded: " + scm.getClasses().size());
+			printTimingStats(System.out);
 		}
-		printTimingStats(System.out);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/29 04:20:57  venku
+   - coding convention.
    Revision 1.5  2003/09/28 07:32:30  venku
    - many basic block graphs were being constructed. Now, there
      is only one that will be used.
-
    Revision 1.4  2003/09/28 06:20:39  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
      these unit graphs.
-
    Revision 1.3  2003/09/28 03:17:13  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
-
    Revision 1.2  2003/09/08 02:23:13  venku
    - Ripple effect of bbm support in Driver and change of constructor
      in ThreadGraph.

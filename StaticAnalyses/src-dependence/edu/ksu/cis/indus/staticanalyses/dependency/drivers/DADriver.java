@@ -79,7 +79,7 @@ public abstract class DADriver
 	 *
 	 * @invariant info.oclIsKindOf(Map(String, Object))
 	 */
-	protected Map info;
+	protected final Map info = new HashMap();
 
 	/**
 	 * This is the collection of classes to be analysed.
@@ -90,6 +90,16 @@ public abstract class DADriver
 	 * This indicates if EquivalenceClassBasedAnalysis should be executed.  Subclasses should set this appropriately.
 	 */
 	protected boolean ecbaRequired;
+
+	/** 
+	 * This provides equivalence class based escape analysis.
+	 */
+	EquivalenceClassBasedEscapeAnalysis ecba = null;
+
+	/** 
+	 * This provides call-graph based processing controller.
+	 */
+	ProcessingController cgipc;
 
 	/**
 	 * The command line arguments.
@@ -141,85 +151,101 @@ public abstract class DADriver
 		scm = loadupClassesAndCollectMains(args);
 		aa = OFAnalyzer.getFSOSAnalyzer();
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: FA");
-		}
-
-		long start = System.currentTimeMillis();
-		aa.analyze(scm, rootMethods);
-
-		long stop = System.currentTimeMillis();
-		addTimeLog("FA", stop - start);
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: FA");
-		}
-
 		ProcessingController pc = new ProcessingController();
-		pc.setAnalyzer(aa);
-
 		Collection processors = new ArrayList();
 		ICallGraphInfo cgi = new CallGraph();
-		processors.add(cgi);
-		process(pc, processors);
-		System.out.println("CALL GRAPH:\n" + ((CallGraph) cgi).dumpGraph());
-
-		pc = new CGBasedProcessingController(cgi);
-		pc.setAnalyzer(aa);
-
 		IThreadGraphInfo tgi = new ThreadGraph(cgi, new CFGAnalysis(cgi, bbm));
-		processors.clear();
-		processors.add(tgi);
-		process(pc, processors);
-		System.out.println("THREAD GRAPH:\n" + ((ThreadGraph) tgi).dumpGraph());
+		Collection rm = new ArrayList();
+		cgipc = new CGBasedProcessingController(cgi);
 
-		info = new HashMap();
+		pc.setAnalyzer(aa);
+		cgipc.setAnalyzer(aa);
+
 		info.put(ICallGraphInfo.ID, cgi);
 		info.put(IThreadGraphInfo.ID, tgi);
-
 		info.put(PairManager.ID, new PairManager());
 		info.put(IEnvironment.ID, aa.getEnvironment());
 		info.put(IValueAnalyzer.ID, aa);
 		info.put(IUseDefInfo.ID, new AliasedUseDefInfo(aa));
-		setupDependencyAnalyses();
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: dependency analyses");
+		if (ecbaRequired) {
+			ecba = new EquivalenceClassBasedEscapeAnalysis(scm, cgi, tgi, bbm);
+			info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 		}
 
-		for (Iterator i = das.iterator(); i.hasNext();) {
-			DependencyAnalysis da = (DependencyAnalysis) i.next();
-			start = System.currentTimeMillis();
-			da.analyze();
-			stop = System.currentTimeMillis();
-			addTimeLog(da.getClass().getName() + "[" + da.hashCode() + "] analysis", stop - start);
-		}
+		for (Iterator k = rootMethods.iterator(); k.hasNext();) {
+			rm.clear();
+			rm.add(k.next());
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: dependency analyses");
-		}
-
-		Map threadMap = new HashMap();
-		System.out.println("\nThread mapping:");
-
-		int count = 1;
-
-		for (java.util.Iterator j = tgi.getAllocationSites().iterator(); j.hasNext();) {
-			NewExprTriple element = (NewExprTriple) j.next();
-			String tid = "T" + count++;
-			threadMap.put(element, tid);
-
-			if (element.getMethod() == null) {
-				System.out.println(tid + " -> " + element.getExpr().getType());
-			} else {
-				System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: FA");
 			}
-		}
 
-		for (Iterator i = das.iterator(); i.hasNext();) {
-			System.out.println(i.next());
+			long start = System.currentTimeMillis();
+			aa.reset();
+			bbm.reset();
+			ecba.reset();
+			aa.analyze(scm, rm);
+
+			long stop = System.currentTimeMillis();
+			addTimeLog("FA", stop - start);
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: FA");
+			}
+
+			((CallGraph) cgi).reset();
+			processors.add(cgi);
+			process(pc, processors);
+			System.out.println("CALL GRAPH:\n" + ((CallGraph) cgi).dumpGraph());
+
+			processors.clear();
+			((ThreadGraph) tgi).reset();
+			processors.add(tgi);
+			process(cgipc, processors);
+			System.out.println("THREAD GRAPH:\n" + ((ThreadGraph) tgi).dumpGraph());
+
+			setupDependencyAnalyses();
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("BEGIN: dependency analyses");
+			}
+
+			for (Iterator i = das.iterator(); i.hasNext();) {
+				DependencyAnalysis da = (DependencyAnalysis) i.next();
+				start = System.currentTimeMillis();
+				da.analyze();
+				stop = System.currentTimeMillis();
+				addTimeLog(da.getClass().getName() + "[" + da.hashCode() + "] analysis", stop - start);
+			}
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("END: dependency analyses");
+			}
+
+			Map threadMap = new HashMap();
+			System.out.println("\nThread mapping:");
+
+			int count = 1;
+
+			for (java.util.Iterator j = tgi.getAllocationSites().iterator(); j.hasNext();) {
+				NewExprTriple element = (NewExprTriple) j.next();
+				String tid = "T" + count++;
+				threadMap.put(element, tid);
+
+				if (element.getMethod() == null) {
+					System.out.println(tid + " -> " + element.getExpr().getType());
+				} else {
+					System.out.println(tid + " -> " + element.getStmt() + "@" + element.getMethod());
+				}
+			}
+
+			for (Iterator i = das.iterator(); i.hasNext();) {
+				System.out.println(i.next());
+			}
+			System.out.println("Total classes loaded: " + scm.getClasses().size());
+			printTimingStats(System.out);
 		}
-		printTimingStats(System.out);
 	}
 
 	/**
@@ -269,25 +295,15 @@ public abstract class DADriver
 	 * Sets up the dependence analyses to be driven.
 	 */
 	protected void setupDependencyAnalyses() {
-		ICallGraphInfo cgi = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
-		IThreadGraphInfo tgi = (IThreadGraphInfo) info.get(IThreadGraphInfo.ID);
-		ProcessingController ppc = new CGBasedProcessingController(cgi);
 		Collection failed = new ArrayList();
-		EquivalenceClassBasedEscapeAnalysis ecba = null;
-
-		if (ecbaRequired) {
-			ecba = new EquivalenceClassBasedEscapeAnalysis(scm, cgi, tgi, bbm);
-			info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
-		}
-
-		ppc.setAnalyzer(aa);
 
 		for (Iterator i = das.iterator(); i.hasNext();) {
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
+            da.reset();
 			da.setBasicBlockGraphManager(bbm);
 
 			if (da.doesPreProcessing()) {
-				da.getPreProcessor().hookup(ppc);
+				da.getPreProcessor().hookup(cgipc);
 			}
 
 			try {
@@ -302,7 +318,7 @@ public abstract class DADriver
 		das.removeAll(failed);
 
 		if (ecbaRequired) {
-			ecba.hookup(ppc);
+			ecba.hookup(cgipc);
 		}
 
 		if (LOGGER.isInfoEnabled()) {
@@ -310,7 +326,7 @@ public abstract class DADriver
 		}
 
 		long start = System.currentTimeMillis();
-		ppc.process();
+		cgipc.process();
 
 		long stop = System.currentTimeMillis();
 		addTimeLog("Dependency preprocessing", stop - start);
@@ -320,7 +336,7 @@ public abstract class DADriver
 		}
 
 		if (ecbaRequired) {
-			ecba.unhook(ppc);
+			ecba.unhook(cgipc);
 			ecba.execute();
 		}
 
@@ -328,7 +344,7 @@ public abstract class DADriver
 			DependencyAnalysis da = (DependencyAnalysis) i.next();
 
 			if (da.getPreProcessor() != null) {
-				da.getPreProcessor().unhook(ppc);
+				da.getPreProcessor().unhook(cgipc);
 			}
 		}
 	}
@@ -337,18 +353,17 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/09/29 04:20:30  venku
+   - coding convention.
    Revision 1.19  2003/09/28 07:32:30  venku
    - many basic block graphs were being constructed. Now, there
      is only one that will be used.
-
    Revision 1.18  2003/09/28 06:46:49  venku
    - Some more changes to extract unit graphs from the enviroment.
-
    Revision 1.17  2003/09/28 06:20:38  venku
    - made the core independent of hard code used to create unit graphs.
      The core depends on the environment to provide a factory that creates
      these unit graphs.
-
    Revision 1.16  2003/09/28 03:16:48  venku
    - I don't know.  cvs indicates that there are no differences,
      but yet says it is out of sync.
