@@ -62,7 +62,7 @@ public class TaggingBasedSliceCollector {
 	/**
 	 * Default name of slicing tags.
 	 */
-	public static final String SLICING_TAG = "Slicing Tag";
+	public static final String SLICING_TAG_NAME = "Slicing Tag";
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -88,17 +88,17 @@ public class TaggingBasedSliceCollector {
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private SlicingTag seedTag = new SlicingTag(SLICING_TAG, true);
+	private SlicingTag seedTag = new SlicingTag(SLICING_TAG_NAME, true);
 
 	/**
 	 * The tag to be used during transformation.
 	 */
-	private SlicingTag tag = new SlicingTag(SLICING_TAG, false);
+	private SlicingTag tag = new SlicingTag(SLICING_TAG_NAME, false);
 
 	/**
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
-	private String tagName = SLICING_TAG;
+	private String tagName = SLICING_TAG_NAME;
 
 	/**
 	 * Creates a new TaggingBasedSliceCollector object.
@@ -249,7 +249,7 @@ public class TaggingBasedSliceCollector {
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
 	 */
 	public void reset() {
-		tagName = SLICING_TAG;
+		tagName = SLICING_TAG_NAME;
 		taggedMethods.clear();
 	}
 
@@ -355,6 +355,22 @@ public class TaggingBasedSliceCollector {
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param clazz DOCUMENT ME!
+	 * @param theTag DOCUMENT ME!
+	 */
+	private void tagClass(final SootClass clazz, final SlicingTag theTag) {
+		if (clazz.getTag(tagName) == null) {
+			clazz.addTag(theTag);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Tagged: " + clazz.getName());
+			}
+		}
+	}
+
+	/**
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
@@ -372,21 +388,14 @@ public class TaggingBasedSliceCollector {
 			}
 		}
 
-		SootClass sc = method.getDeclaringClass();
+		SootClass clazz = method.getDeclaringClass();
+		tagClass(clazz, theTag);
 
-		if (sc.getTag(tagName) == null) {
-			sc.addTag(theTag);
+		if (clazz.hasSuperclass()) {
+			clazz = clazz.getSuperclass();
 
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Tagged: " + sc.getName());
-			}
-		}
-
-		if (sc.hasSuperclass()) {
-			sc = sc.getSuperclass();
-
-			if (sc.declaresMethod(method.getName(), method.getParameterTypes(), method.getReturnType())) {
-				tagMethod(sc.getMethod(method.getName(), method.getParameterTypes(), method.getReturnType()), theTag);
+			if (clazz.declaresMethod(method.getName(), method.getParameterTypes(), method.getReturnType())) {
+				tagMethod(clazz.getMethod(method.getName(), method.getParameterTypes(), method.getReturnType()), theTag);
 			}
 		}
 	}
@@ -446,7 +455,9 @@ public class TaggingBasedSliceCollector {
 			vBox.addTag(theTag);
 
 			if (vBox instanceof FieldRef) {
-				((FieldRef) vBox).getField().addTag(theTag);
+				SootField field = ((FieldRef) vBox).getField();
+				field.addTag(theTag);
+				field.getDeclaringClass().addTag(theTag);
 			}
 
 			if (stmt.getTag(tagName) == null) {
@@ -465,6 +476,11 @@ public class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/25 00:00:45  venku
+   - added support to include gotos in the slice.
+   - added logic to include all tail points in the slice after slicing
+     and only in case of backward executable slice.
+   - added logic to include exceptions in a limited way.
    Revision 1.3  2003/11/24 18:21:30  venku
    - logging.
    Revision 1.2  2003/11/24 16:47:31  venku

@@ -195,7 +195,7 @@ public class SlicerDriver
 
 		try {
 			Writer out = new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
-			result = new TagBasedSliceXMLizer(out, TaggingBasedSliceCollector.SLICING_TAG, idGenerator);
+			result = new TagBasedSliceXMLizer(out, TaggingBasedSliceCollector.SLICING_TAG_NAME, idGenerator);
 		} catch (IOException e) {
 			LOGGER.error("Exception while opening file to write xml information.", e);
 			throw new RuntimeException(e);
@@ -454,6 +454,13 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/30 00:10:20  venku
+   - Major refactoring:
+     ProcessingController is more based on the sort it controls.
+     The filtering of class is another concern with it's own
+     branch in the inheritance tree.  So, the user can tune the
+     controller with a filter independent of the sort of processors.
+
    Revision 1.13  2003/11/28 22:12:53  venku
    - dumps call graph.
    - logging.
