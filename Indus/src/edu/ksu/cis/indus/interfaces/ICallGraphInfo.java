@@ -162,7 +162,7 @@ public interface ICallGraphInfo
 	Collection getHeads();
 
 	/**
-	 * Returns the methods that are reachable from the given invocation point.
+	 * Returns the methods that are reachable from the given invocation point via a call chain.
 	 *
 	 * @param stmt in which the method invocation occurs.
 	 * @param root in which the method invocation occurs.
@@ -173,19 +173,21 @@ public interface ICallGraphInfo
 	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 */
 	Collection getMethodsReachableFrom(Stmt stmt, SootMethod root);
-    
-    /**
-     * Returns the methods that are reachable from the given method.
-     *
-     * @param root in which the method invocation occurs.
-     *
-     * @return a collection of reachable methods.
-     *
-     * @pre root != null
-     * @post result != null and result.oclIsKindOf(Collection(SootMethod))
-     */
-    Collection getMethodsReachableFrom(SootMethod root);
-    
+
+	/**
+	 * Returns the methods that are reachable from withing the given method via a call chain.
+	 *
+	 * @param root in which the method invocation occurs.
+	 * @param forward <code>true</code> indicates that methods reachable by following a call chain from <code>root</code> are
+	 * 		  required.  <code>false</code> indicates that methods that can reach <code>root</code> by following a call
+	 * 		  chain are required.
+	 *
+	 * @return a collection of reachable methods.
+	 *
+	 * @pre root != null
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
+	 */
+	Collection getMethodsReachableFrom(SootMethod root, boolean forward);
 
 	/**
 	 * Checks if the <code>method</code> is reachable in the analyzed system.
@@ -223,6 +225,10 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/03/03 02:17:50  venku
+   - added a new method to ICallGraphInfo interface.
+   - implemented the above method in CallGraph.
+   - made aliased use-def call-graph sensitive.
    Revision 1.6  2004/01/20 21:23:41  venku
    - the return value of getSCCs needs to be ordered if
      it accepts a direction parameter.  FIXED.

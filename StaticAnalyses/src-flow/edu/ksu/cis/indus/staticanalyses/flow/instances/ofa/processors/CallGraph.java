@@ -16,8 +16,6 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
-import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
-import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
@@ -157,7 +155,7 @@ public class CallGraph
 		/**
 		 * @see Comparator#compare(Object,Object)
 		 */
-		public int compare(Object o1, Object o2) {
+		public int compare(final Object o1, final Object o2) {
 			return ((CallTriple) o1).getMethod().getSignature().compareTo(((CallTriple) o2).getMethod().getSignature());
 		}
 	}
@@ -186,18 +184,18 @@ public class CallGraph
 	 * @return a collection of call sites along with callees at those sites.
 	 *
 	 * @pre caller != null
-	 * @post result.oclIsKindOf(Collection(CallTriple))
+	 * @post result != null and result.oclIsKindOf(Collection(CallTriple))
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallees(SootMethod)
 	 */
 	public Collection getCallees(final SootMethod caller) {
-		Collection result = Collections.EMPTY_LIST;
-		Collection callees = (Collection) caller2callees.get(caller);
+		Collection _result = Collections.EMPTY_LIST;
+		final Collection _callees = (Collection) caller2callees.get(caller);
 
-		if (callees != null) {
-			result = Collections.unmodifiableCollection(callees);
+		if (_callees != null) {
+			_result = Collections.unmodifiableCollection(_callees);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -211,30 +209,30 @@ public class CallGraph
 	 * @pre invokeExpr != null and context != null
 	 * @pre context.getCurrentMethod() != null
 	 * @pre contet.getStmt() != null
-	 * @post result.oclIsKindOf(Collection(SootMethod))
+	 * @post result != null and result.oclIsKindOf(Collection(SootMethod))
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallees(InvokeExpr,Context)
 	 */
 	public Collection getCallees(final InvokeExpr invokeExpr, final Context context) {
-		Collection result;
+		final Collection _result;
 
-		Collection temp = (Collection) caller2callees.get(context.getCurrentMethod());
+		final Collection _temp = (Collection) caller2callees.get(context.getCurrentMethod());
 
-		if (temp != null && !temp.isEmpty()) {
-			result = new ArrayList();
+		if (_temp != null && !_temp.isEmpty()) {
+			_result = new ArrayList();
 
-			for (Iterator i = temp.iterator(); i.hasNext();) {
-				CallTriple ctrp = (CallTriple) i.next();
+			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = (CallTriple) _i.next();
 
-				if (ctrp.getExpr().equals(invokeExpr)) {
-					result.add(ctrp.getMethod());
+				if (_ctrp.getExpr().equals(invokeExpr)) {
+					_result.add(_ctrp.getMethod());
 				}
 			}
 		} else {
-			result = Collections.EMPTY_LIST;
+			_result = Collections.EMPTY_LIST;
 		}
 
-		return result;
+		return _result;
 	}
 
 	/**
@@ -245,18 +243,18 @@ public class CallGraph
 	 * @return a collection of call-sites at which <code>callee</code> is called.
 	 *
 	 * @pre callee != null
-	 * @post result->forall(o | o.oclIsKindOf(CallTriple))
+	 * @post result != null and result->forall(o | o.oclIsKindOf(CallTriple))
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getCallers(soot.SootMethod)
 	 */
 	public Collection getCallers(final SootMethod callee) {
-		Collection result = Collections.EMPTY_LIST;
-		Collection callers = (Collection) callee2callers.get(callee);
+		Collection _result = Collections.EMPTY_LIST;
+		final Collection _callers = (Collection) callee2callers.get(callee);
 
-		if (callers != null) {
-			result = Collections.unmodifiableCollection(callers);
+		if (_callers != null) {
+			_result = Collections.unmodifiableCollection(_callers);
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -264,7 +262,7 @@ public class CallGraph
 	 *
 	 * @return a collection of methods.
 	 *
-	 * @post result->forall(o | o.oclType = SootMethod)
+	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getHeads()
 	 */
@@ -273,49 +271,29 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.jimple.Stmt,     soot.SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.jimple.Stmt,soot.SootMethod)
 	 */
 	public Collection getMethodsReachableFrom(final Stmt stmt, final SootMethod root) {
-		InvokeExpr ie = stmt.getInvokeExpr();
-		Context context = new Context();
-		context.setRootMethod(root);
+		final InvokeExpr _ie = stmt.getInvokeExpr();
+		final Context _context = new Context();
+		_context.setRootMethod(root);
 
-		Collection result = new HashSet();
-		Collection callees = getCallees(ie, context);
+		final Collection _result = new HashSet();
+		final Collection _callees = getCallees(_ie, _context);
 
-		for (final Iterator _i = callees.iterator(); _i.hasNext();) {
-			result.addAll(getMethodsReachableFrom((SootMethod) _i.next()));
+		for (final Iterator _i = _callees.iterator(); _i.hasNext();) {
+			_result.addAll(getMethodsReachableFrom((SootMethod) _i.next(), true));
 		}
-		return result;
+		return _result;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.SootMethod,boolean)
 	 */
-	public Collection getMethodsReachableFrom(final SootMethod root) {
-		Collection result = new HashSet(getCallees(root));
-		IWorkBag wb = new FIFOWorkBag();
-
-		for (final Iterator _i = result.iterator(); _i.hasNext();) {
-			CallTriple _ctrp = (CallTriple) _i.next();
-			wb.addWork(_ctrp.getMethod());
-		}
-
-		while (wb.hasWork()) {
-			SootMethod callee = (SootMethod) wb.getWork();
-
-			if (!result.contains(callee)) {
-				Collection callees = CollectionUtils.subtract(getCallees(callee), result);
-
-				for (final Iterator _i = callees.iterator(); _i.hasNext();) {
-					final CallTriple _ctrp = (CallTriple) _i.next();
-					final SootMethod temp = _ctrp.getMethod();
-					wb.addWorkNoDuplicates(temp);
-					result.add(temp);
-				}
-			}
-		}
-		return result;
+	public Collection getMethodsReachableFrom(final SootMethod root, final boolean forward) {
+		final Collection _result = graphCache.getReachablesFrom(graphCache.getNode(root), forward);
+		CollectionUtils.transform(_result, SimpleNodeGraph.OBJECT_EXTRACTOR);
+		return _result;
 	}
 
 	/**
@@ -338,7 +316,7 @@ public class CallGraph
 	 *
 	 * @return a collection of methods.
 	 *
-	 * @post result->forall(o | o.oclType = SootMethod)
+	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.ICallGraphInfo#getReachableMethods()
 	 */
@@ -356,11 +334,11 @@ public class CallGraph
 			final List _temp = graphCache.getSCCs(true);
 
 			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-				Collection _scc = (Collection) _i.next();
+				final Collection _scc = (Collection) _i.next();
 				final List _l = new ArrayList();
 
-				for (Iterator j = _scc.iterator(); j.hasNext();) {
-					_l.add(((SimpleNode) j.next()).getObject());
+				for (final Iterator _j = _scc.iterator(); _j.hasNext();) {
+					_l.add(((SimpleNode) _j.next()).getObject());
 				}
 				topDownSCC.add(Collections.unmodifiableList(_l));
 			}
@@ -386,90 +364,44 @@ public class CallGraph
 	 * @param vBox is the AST node to be processed.
 	 * @param context in which value should be processed.
 	 *
-	 * @pre context != null
+	 * @pre context != null and vBox != null
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#callback(ValueBox,Context)
 	 */
 	public void callback(final ValueBox vBox, final Context context) {
-		Stmt stmt = context.getStmt();
-		SootMethod caller = context.getCurrentMethod();
-		SootMethod callee = null;
-		Set callees;
-		Set callers;
-		CallTriple triple;
-		Value value = vBox.getValue();
+		final Stmt _stmt = context.getStmt();
+		final SootMethod _caller = context.getCurrentMethod();
+		SootMethod _callee = null;
+		Set _callees;
+		Set _callers;
+		CallTriple _triple;
+		final Value _value = vBox.getValue();
 
-		if (value instanceof StaticInvokeExpr) {
-			InvokeExpr invokeExpr = (InvokeExpr) value;
-			callee = invokeExpr.getMethod();
+		if (_value instanceof StaticInvokeExpr) {
+			final InvokeExpr _invokeExpr = (InvokeExpr) _value;
+			_callee = _invokeExpr.getMethod();
 
-			if (caller2callees.containsKey(caller)) {
-				callees = (Set) caller2callees.get(caller);
+			if (caller2callees.containsKey(_caller)) {
+				_callees = (Set) caller2callees.get(_caller);
 			} else {
-				callees = new HashSet();
-				caller2callees.put(caller, callees);
+				_callees = new HashSet();
+				caller2callees.put(_caller, _callees);
 			}
-			triple = new CallTriple(callee, stmt, invokeExpr);
-			callees.add(triple);
+			_triple = new CallTriple(_callee, _stmt, _invokeExpr);
+			_callees.add(_triple);
 
-			if (callee2callers.containsKey(callee)) {
-				callers = (Set) callee2callers.get(callee);
+			if (callee2callers.containsKey(_callee)) {
+				_callers = (Set) callee2callers.get(_callee);
 			} else {
-				callers = new HashSet();
-				callee2callers.put(callee, callers);
+				_callers = new HashSet();
+				callee2callers.put(_callee, _callers);
 			}
-			triple = new CallTriple(caller, stmt, invokeExpr);
-			callers.add(triple);
-		} else if (value instanceof InterfaceInvokeExpr
-			  || value instanceof VirtualInvokeExpr
-			  || value instanceof SpecialInvokeExpr) {
-			InstanceInvokeExpr invokeExpr = (InstanceInvokeExpr) value;
-			SootMethod calleeMethod = invokeExpr.getMethod();
-			context.setProgramPoint(invokeExpr.getBaseBox());
-
-			Collection values = analyzer.getValues(invokeExpr.getBase(), context);
-
-			if (!values.isEmpty()) {
-				if (caller2callees.containsKey(caller)) {
-					callees = (Set) caller2callees.get(caller);
-				} else {
-					callees = new HashSet();
-					caller2callees.put(caller, callees);
-				}
-
-				CallTriple ctrp = new CallTriple(caller, stmt, invokeExpr);
-
-				for (Iterator i = values.iterator(); i.hasNext();) {
-					Object t = i.next();
-
-					if (!(t instanceof NewExpr || t instanceof StringConstant)) {
-						continue;
-					}
-
-					SootClass accessClass = null;
-
-					if (invokeExpr instanceof SpecialInvokeExpr && calleeMethod.getName().equals("<init>")) {
-						accessClass = calleeMethod.getDeclaringClass();
-					} else if (t instanceof NewExpr) {
-						NewExpr newExpr = (NewExpr) t;
-						accessClass = analyzer.getEnvironment().getClass(newExpr.getBaseType().getClassName());
-					} else if (t instanceof StringConstant) {
-						accessClass = analyzer.getEnvironment().getClass("java.lang.String");
-					}
-					callee = findMethodImplementation(accessClass, calleeMethod);
-
-					triple = new CallTriple(callee, stmt, invokeExpr);
-					callees.add(triple);
-
-					if (callee2callers.containsKey(callee)) {
-						callers = (Set) callee2callers.get(callee);
-					} else {
-						callers = new HashSet();
-						callee2callers.put(callee, callers);
-					}
-					callers.add(ctrp);
-				}
-			}
+			_triple = new CallTriple(_caller, _stmt, _invokeExpr);
+			_callers.add(_triple);
+		} else if (_value instanceof InterfaceInvokeExpr
+			  || _value instanceof VirtualInvokeExpr
+			  || _value instanceof SpecialInvokeExpr) {
+			callBackOnInstanceInvokeExpr(context, (InstanceInvokeExpr) _value);
 		}
 	}
 
@@ -495,13 +427,13 @@ public class CallGraph
 			LOGGER.info("BEGIN: call graph consolidation");
 		}
 
-		long start = System.currentTimeMillis();
+		final long _start = System.currentTimeMillis();
 		heads.addAll(analyzer.getEnvironment().getRoots());
 
 		// populate the caller2callees with head information in cases there are no calls in the system.
 		if (caller2callees.isEmpty()) {
-			for (Iterator i = heads.iterator(); i.hasNext();) {
-				final Object _head = i.next();
+			for (final Iterator _i = heads.iterator(); _i.hasNext();) {
+				final Object _head = _i.next();
 				caller2callees.put(_head, Collections.EMPTY_LIST);
 			}
 		}
@@ -513,26 +445,26 @@ public class CallGraph
 		// construct call graph 
 		graphCache = new SimpleNodeGraph();
 
-		for (Iterator i = reachables.iterator(); i.hasNext();) {
-			SootMethod sm = (SootMethod) i.next();
-			Collection temp = (Collection) caller2callees.get(sm);
-			INode callerNode = graphCache.getNode(sm);
+		for (final Iterator _i = reachables.iterator(); _i.hasNext();) {
+			final SootMethod _sm = (SootMethod) _i.next();
+			final Collection _temp = (Collection) caller2callees.get(_sm);
+			final INode _callerNode = graphCache.getNode(_sm);
 
-			if (temp != null) {
-				for (Iterator j = temp.iterator(); j.hasNext();) {
-					CallTriple ctrp = (CallTriple) j.next();
-					SootMethod method = ctrp.getMethod();
+			if (_temp != null) {
+				for (final Iterator _j = _temp.iterator(); _j.hasNext();) {
+					final CallTriple _ctrp = (CallTriple) _j.next();
+					final SootMethod _method = _ctrp.getMethod();
 
-					graphCache.addEdgeFromTo(callerNode, graphCache.getNode(method));
+					graphCache.addEdgeFromTo(_callerNode, graphCache.getNode(_method));
 				}
 			}
 		}
 
-		long stop = System.currentTimeMillis();
+		final long _stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: call graph consolidation");
-			LOGGER.info("TIMING: call graph consolidation took " + (stop - start) + "ms.");
+			LOGGER.info("TIMING: call graph consolidation took " + (_stop - _start) + "ms.");
 		}
 	}
 
@@ -542,54 +474,54 @@ public class CallGraph
 	 * @return stringized representation of the this call graphCache.
 	 */
 	public String dumpGraph() {
-		StringBuffer result = new StringBuffer();
+		final StringBuffer _result = new StringBuffer();
 
-		result.append("Root of the system: ");
+		_result.append("Root of the system: ");
 
-		for (Iterator i = getHeads().iterator(); i.hasNext();) {
-			result.append("\t" + ((SootMethod) i.next()).getSignature());
+		for (final Iterator _i = getHeads().iterator(); _i.hasNext();) {
+			_result.append("\t" + ((SootMethod) _i.next()).getSignature());
 		}
-		result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n");
-		result.append("Strongly Connected components in the system: " + getSCCs(true).size() + "\n");
-		result.append("top-down\n");
+		_result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n");
+		_result.append("Strongly Connected components in the system: " + getSCCs(true).size() + "\n");
+		_result.append("top-down\n");
 
 		final List _temp1 = new ArrayList();
 		final List _temp2 = new ArrayList();
 		_temp1.addAll(caller2callees.keySet());
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
-		for (Iterator i = _temp1.iterator(); i.hasNext();) {
-			SootMethod caller = (SootMethod) i.next();
-			result.append("\n" + caller.getSignature() + "\n");
+		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
+			final SootMethod _caller = (SootMethod) _i.next();
+			_result.append("\n" + _caller.getSignature() + "\n");
 			_temp2.clear();
-			_temp2.addAll((Collection) caller2callees.get(caller));
+			_temp2.addAll((Collection) caller2callees.get(_caller));
 			Collections.sort(_temp2, new CallTripleMethodToStringBasedComparator());
 
-			for (Iterator j = _temp2.iterator(); j.hasNext();) {
-				CallTriple ctrp = (CallTriple) j.next();
-				result.append("\t" + ctrp.getMethod().getSignature() + "\n");
+			for (final Iterator _j = _temp2.iterator(); _j.hasNext();) {
+				final CallTriple _ctrp = (CallTriple) _j.next();
+				_result.append("\t" + _ctrp.getMethod().getSignature() + "\n");
 			}
 		}
 
-		result.append("bottom-up\n");
+		_result.append("bottom-up\n");
 		_temp1.clear();
 		_temp1.addAll(callee2callers.keySet());
 		Collections.sort(_temp1, ToStringBasedComparator.SINGLETON);
 
-		for (Iterator i = _temp1.iterator(); i.hasNext();) {
-			SootMethod callee = (SootMethod) i.next();
-			result.append("\n" + callee.getSignature() + "\n");
+		for (final Iterator _i = _temp1.iterator(); _i.hasNext();) {
+			final SootMethod _callee = (SootMethod) _i.next();
+			_result.append("\n" + _callee.getSignature() + "\n");
 			_temp2.clear();
-			_temp2.addAll((Collection) callee2callers.get(callee));
+			_temp2.addAll((Collection) callee2callers.get(_callee));
 			Collections.sort(_temp2, new CallTripleMethodToStringBasedComparator());
 
-			for (Iterator j = _temp2.iterator(); j.hasNext();) {
-				CallTriple ctrp = (CallTriple) j.next();
-				result.append("\t" + ctrp.getMethod().getSignature() + "\n");
+			for (final Iterator _j = _temp2.iterator(); _j.hasNext();) {
+				final CallTriple _ctrp = (CallTriple) _j.next();
+				_result.append("\t" + _ctrp.getMethod().getSignature() + "\n");
 			}
 		}
 
-		return result.toString();
+		return _result.toString();
 	}
 
 	/**
@@ -640,20 +572,69 @@ public class CallGraph
 	}
 
 	/**
-	 * Finds the implementation of <code>method</code> when accessed via <code>accessClass</code>.
+	 * Called as a result of callback durign processing the AST when instance invoke expression is encountered.
 	 *
-	 * @param accessClass is the class via which <code>method</code> is accesed.
-	 * @param method being accessed/invoked.
+	 * @param context in which expression should be processed.
+	 * @param expr is the expression.
 	 *
-	 * @return the implementation of <code>method</code> if present in the class hierarchy; <code>null</code>, otherwise.
-	 *
-	 * @pre accessClass != null and method != null
+	 * @pre context != null and stmt != null and caller != null and expr != null
 	 */
-	private SootMethod findMethodImplementation(final SootClass accessClass, final SootMethod method) {
-		String methodName = method.getName();
-		List parameterTypes = method.getParameterTypes();
-		Type returnType = method.getReturnType();
-		return findMethodImplementation(accessClass, methodName, parameterTypes, returnType);
+	private void callBackOnInstanceInvokeExpr(final Context context, final InstanceInvokeExpr expr) {
+		final Stmt _stmt = context.getStmt();
+		final SootMethod _caller = context.getCurrentMethod();
+		final SootMethod _calleeMethod = expr.getMethod();
+		context.setProgramPoint(expr.getBaseBox());
+
+		final Collection _values = analyzer.getValues(expr.getBase(), context);
+
+		if (!_values.isEmpty()) {
+			final Set _callees;
+
+			if (caller2callees.containsKey(_caller)) {
+				_callees = (Set) caller2callees.get(_caller);
+			} else {
+				_callees = new HashSet();
+				caller2callees.put(_caller, _callees);
+			}
+
+			final CallTriple _ctrp = new CallTriple(_caller, _stmt, expr);
+
+			for (final Iterator _i = _values.iterator(); _i.hasNext();) {
+				final Object _t = _i.next();
+
+				if (!(_t instanceof NewExpr || _t instanceof StringConstant)) {
+					continue;
+				}
+
+				SootClass _accessClass = null;
+
+				if (expr instanceof SpecialInvokeExpr && _calleeMethod.getName().equals("<init>")) {
+					_accessClass = _calleeMethod.getDeclaringClass();
+				} else if (_t instanceof NewExpr) {
+					final NewExpr _newExpr = (NewExpr) _t;
+					_accessClass = analyzer.getEnvironment().getClass(_newExpr.getBaseType().getClassName());
+				} else if (_t instanceof StringConstant) {
+					_accessClass = analyzer.getEnvironment().getClass("java.lang.String");
+				}
+
+				final String _methodName = _calleeMethod.getName();
+				final List _parameterTypes = _calleeMethod.getParameterTypes();
+				final Type _returnType = _calleeMethod.getReturnType();
+				final SootMethod _callee = findMethodImplementation(_accessClass, _methodName, _parameterTypes, _returnType);
+				final CallTriple _triple = new CallTriple(_callee, _stmt, expr);
+				_callees.add(_triple);
+
+				final Set _callers;
+
+				if (callee2callers.containsKey(_callee)) {
+					_callers = (Set) callee2callers.get(_callee);
+				} else {
+					_callers = new HashSet();
+					callee2callers.put(_callee, _callers);
+				}
+				_callers.add(_ctrp);
+			}
+		}
 	}
 
 	/**
@@ -670,14 +651,14 @@ public class CallGraph
 	 */
 	private SootMethod findMethodImplementation(final SootClass accessClass, final String methodName,
 		final List parameterTypes, final Type returnType) {
-		SootMethod result = null;
+		SootMethod _result = null;
 
 		if (accessClass.declaresMethod(methodName, parameterTypes, returnType)) {
-			result = accessClass.getMethod(methodName, parameterTypes, returnType);
+			_result = accessClass.getMethod(methodName, parameterTypes, returnType);
 		} else {
 			if (accessClass.hasSuperclass()) {
-				SootClass superClass = accessClass.getSuperclass();
-				result = findMethodImplementation(superClass, methodName, parameterTypes, returnType);
+				final SootClass _superClass = accessClass.getSuperclass();
+				_result = findMethodImplementation(_superClass, methodName, parameterTypes, returnType);
 			} else {
 				if (LOGGER.isErrorEnabled()) {
 					LOGGER.error(methodName + "(" + parameterTypes + "):" + returnType + " is not accessible from "
@@ -685,13 +666,16 @@ public class CallGraph
 				}
 			}
 		}
-		return result;
+		return _result;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.54  2004/03/29 08:48:58  venku
+   - all nodes reachable should be represented in the embedded graph in
+     the call graph.  FIXED.
    Revision 1.53  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
