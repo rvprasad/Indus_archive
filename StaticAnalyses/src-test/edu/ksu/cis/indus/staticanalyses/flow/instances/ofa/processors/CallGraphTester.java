@@ -272,11 +272,13 @@ public class CallGraphTester
 	 */
 	public final void testGetSCCs() {
 		Collection sccs = cgi.getSCCs();
+        Collection reachables = cgi.getReachableMethods();
 		assertTrue(sccs != null);
 
 		for (Iterator i = sccs.iterator(); i.hasNext();) {
 			Collection scc1 = (Collection) i.next();
 			assertTrue(scc1 != null);
+            assertTrue(reachables.containsAll(scc1));
 
 			for (Iterator j = sccs.iterator(); j.hasNext();) {
 				Collection scc2 = (Collection) j.next();
@@ -398,6 +400,10 @@ public class CallGraphTester
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/12/02 09:42:39  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.6  2003/11/30 01:38:52  venku
    - incorporated tag based filtering during CG construction.
    Revision 1.5  2003/11/30 01:07:57  venku
