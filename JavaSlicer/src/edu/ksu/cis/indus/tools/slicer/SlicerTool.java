@@ -167,6 +167,11 @@ public final class SlicerTool
 	private static final int INDENT = 4;
 
 	/** 
+	 * The object used to realize the "active" part of this object.
+	 */
+	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
+
+	/** 
 	 * This controls dependency analysis.
 	 *
 	 * @invariant daController != null
@@ -318,7 +323,7 @@ public final class SlicerTool
 
 		// create the flow analysis.
 		ofa = OFAnalyzer.getFSOSAnalyzer(FLOW_ANALYSIS_TAG_NAME, tokenMgr);
-        addActivePart(ofa.getActivePart());
+		addActivePart(ofa.getActivePart());
 
 		stmtGraphFactory = stmtGraphFactoryToUse;
 
@@ -327,7 +332,7 @@ public final class SlicerTool
 		cgPreProcessCtrl.setAnalyzer(ofa);
 		cgPreProcessCtrl.setProcessingFilter(new TagBasedProcessingFilter(FLOW_ANALYSIS_TAG_NAME));
 		cgPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
-        addActivePart(cgPreProcessCtrl.getActivePart());
+		addActivePart(cgPreProcessCtrl.getActivePart());
 
 		// create pair manager
 		pairMgr = new Pair.PairManager(false, true);
@@ -339,7 +344,7 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl.setProcessingFilter(new CGBasedProcessingFilter(callGraph));
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 		cgBasedPreProcessCtrl.setStmtGraphFactory(getStmtGraphFactory());
-        addActivePart(cgBasedPreProcessCtrl.getActivePart());
+		addActivePart(cgBasedPreProcessCtrl.getActivePart());
 
 		// create basic block graph manager
 		bbgMgr = new BasicBlockGraphMgr();
@@ -371,23 +376,18 @@ public final class SlicerTool
 
 		// create dependency analyses controller 
 		daController = new AnalysesController(info, cgBasedPreProcessCtrl, bbgMgr);
-        addActivePart(daController.getActivePart());
+		addActivePart(daController.getActivePart());
 
 		// create the slicing engine.
 		engine = new SlicingEngine();
-        addActivePart(engine.getActivePart());
+		addActivePart(engine.getActivePart());
 
 		// create the <init> call to new expr mapper
 		initMapper = new NewExpr2InitMapper();
 
-        addActivePart(activePart);
+		addActivePart(activePart);
 	}
-    
-    /**
-     * The object used to realize the "active" part of this object.
-     */
-    private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
-    
+
 	/**
 	 * Sets configuration named by <code>configName</code> as the active configuration.
 	 *
@@ -651,6 +651,8 @@ public final class SlicerTool
 		movingToNextPhase();
 
 		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
+		setCurrentConfiguration(_slicerConfig);
+		_slicerConfig.setupForUse();
 
 		if (_ph.equalsMajor((Phase) DEPENDENCE_MAJOR_PHASE)) {
 			fireToolProgressEvent("Performing dependence analyses", _ph);
@@ -717,7 +719,7 @@ public final class SlicerTool
 		stmtGraphFactory.reset();
 		theTokenMgr.reset();
 		threadGraph.reset();
-        activePart.activate();
+		activePart.activate();
 	}
 
 	/**
@@ -940,8 +942,8 @@ public final class SlicerTool
 		// perform slicing
 		engine.reset();
 
-        fireToolProgressEvent("SLICING: adding criteria", phase);
-        
+		fireToolProgressEvent("SLICING: adding criteria", phase);
+
 		for (final Iterator _i = criteriaGenerators.iterator(); _i.hasNext();) {
 			final ISliceCriteriaGenerator _e = (ISliceCriteriaGenerator) _i.next();
 			criteria.addAll(_e.getCriteria(this));
@@ -953,8 +955,8 @@ public final class SlicerTool
 		}
 
 		if (!criteria.isEmpty()) {
-            fireToolProgressEvent("SLICING: Calculating the slice", phase);
-            
+			fireToolProgressEvent("SLICING: Calculating the slice", phase);
+
 			// setup the slicing engine and slice
 			engine.setCgi(callGraph);
 			engine.setSliceType(slicerConfig.getProperty(SlicerConfiguration.SLICE_TYPE));
@@ -978,7 +980,7 @@ public final class SlicerTool
 			engine.slice();
 			phase.nextMinorPhase();
 
-            fireToolProgressEvent("SLICING: Post processing the slice", phase);
+			fireToolProgressEvent("SLICING: Post processing the slice", phase);
 			// post process the slice as required
 			postProcessSlice();
 

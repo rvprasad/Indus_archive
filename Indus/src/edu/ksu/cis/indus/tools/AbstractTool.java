@@ -107,6 +107,11 @@ public abstract class AbstractTool
 	 */
 	private Collection activeParts = new HashSet();
 
+	/** 
+	 * The current configuration.  This is the configuration that is currently being used by the tool.
+	 */
+	private IToolConfiguration currentConfiguration;
+
 	/**
 	 * Creates a new AbstractTool object.
 	 */
@@ -115,7 +120,8 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Retrieves an object that represents the active configuration of the tool.
+	 * Retrieves an object that represents the active configuration of the tool.  This need not be the configuration
+	 * currently being used by this tool.  For that please use <code>getCurrentConfiguration()</code>.
 	 *
 	 * @return the active configuration of the tool.
 	 *
@@ -160,6 +166,19 @@ public abstract class AbstractTool
 	}
 
 	/**
+	 * Retrieves the configuration being used by this tool.  This may be the active configuration or another configuration
+	 * set the by tool.
+	 *
+	 * @return the current configuration.
+	 *
+	 * @post result != null
+	 */
+	public final IToolConfiguration getCurrentConfiguration() {
+		return currentConfiguration != null ? currentConfiguration
+											: getActiveConfiguration();
+	}
+
+	/**
 	 * Aborts the execution of the tool.
 	 */
 	public final void abort() {
@@ -174,7 +193,7 @@ public abstract class AbstractTool
 				_executor.deactivate();
 			}
 		}
-        resume();
+		resume();
 	}
 
 	/**
@@ -288,6 +307,19 @@ public abstract class AbstractTool
 		} else {
 			throw new IllegalStateException("run() should be called when the tool is paused or running.");
 		}
+	}
+
+	/**
+	 * Sets the current configuration.  This method should be called by the sub-classes each time after they have selected a
+	 * configuration to use.
+	 *
+	 * @param config to be considered as the current configuration.  This has to be one of the configuration associated with
+	 * 		  this tool.
+	 *
+	 * @pre config != null
+	 */
+	protected void setCurrentConfiguration(final IToolConfiguration config) {
+		currentConfiguration = config;
 	}
 
 	/**
