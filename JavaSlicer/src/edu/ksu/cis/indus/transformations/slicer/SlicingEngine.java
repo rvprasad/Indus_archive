@@ -55,6 +55,7 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
 import soot.jimple.LookupSwitchStmt;
+import soot.jimple.ParameterRef;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
@@ -222,8 +223,8 @@ public class SlicingEngine {
 	 *
 	 * @throws IllegalStateException when the given criterion are not of type<code>AbstractSliceCriterion</code>.
 	 *
-	 * @pre callgraph != null and dependenceInfoController != null and sliceCriteria != null and
-	 * 		sliceTransformer != null and dependenciesToUse != null
+	 * @pre callgraph != null and dependenceInfoController != null and sliceCriteria != null and     sliceTransformer != null
+	 * 		and dependenciesToUse != null
 	 * @pre dependeciesToUse->forall(o | controller.getAnalysis(o) != null)
 	 */
 	public void setSliceCriteria(final Collection sliceCriteria, final AbstractController dependenceInfoController,
@@ -623,9 +624,12 @@ public class SlicingEngine {
 
 			for (Iterator i = value.getUseBoxes().iterator(); i.hasNext();) {
 				ValueBox vBox = (ValueBox) i.next();
+				Value temp = vBox.getValue();
 
-				if (vBox.getValue() instanceof Local) {
+				if (temp instanceof Local) {
 					sliceLocal(vBox, stmt, method);
+				} else if (temp instanceof ParameterRef) {
+					sliceParam(vBox, stmt, method);
 				}
 			}
 
@@ -633,6 +637,16 @@ public class SlicingEngine {
 			sliceStmt(stmt, method, false);
 		}
 	}
+
+    private void sliceParam1(final ValueBox pBox, final Stmt stmt, final SootMethod method) {
+        Collection temp = cgi.getCallers(method);
+        InvokeExpr ie = stmt.getInvokeExpr();
+        int index = ie.getArgs().indexOf(pBox.getValue());
+        for (Iterator i = temp.iterator(); i.hasNext();) {
+            CallTriple ctrp = (CallTriple) i.next();
+            
+        }
+    } 
 
 	/**
 	 * Generates new slice criteria based on on what affects the given occurrence of the invoke expression.  By nature of
@@ -734,12 +748,10 @@ public class SlicingEngine {
 
 				if (value instanceof Local) {
 					sliceLocal(vBox, stmt, method);
+				} else if (value instanceof ParameterRef) {
+					sliceParam(vBox, stmt, method);
 				}
 			}
-
-			//Stmt slice = cloner.cloneASTFragment(stmt, method);
-			//writeIntoAt(slice, slicedSL, stmt, unslicedSL);
-			//slicemap.addMapping(slice, stmt, method);
 			transformer.transform(stmt, method);
 		}
 
@@ -763,9 +775,6 @@ public class SlicingEngine {
 			Stmt unsliced = (Stmt) i.next();
 
 			if (transformer.getTransformed(unsliced, method) == null) {
-				//Stmt sliced = cloner.cloneASTFragment(unsliced, method);
-				//writeIntoAt(sliced, slicedSL, unsliced, unslicedSL);
-				//slicemap.addMapping(sliced, unsliced, method);
 				transformer.transform(stmt, method);
 
 				SliceStmt sliceStmt = SliceStmt.getSliceStmt();
@@ -779,11 +788,14 @@ public class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/08/19 12:44:39  venku
+   Changed the signature of ITransformer.getLocal()
+   Introduced reset() in ITransformer.
+   Ripple effect of the above changes.
    Revision 1.11  2003/08/19 11:52:25  venku
    The following renaming have occurred ITransformMap to ITransformer, SliceMapImpl to SliceTransformer,
    and  Slicer to SliceEngine.
    Ripple effect of the above.
-
    Revision 1.10  2003/08/19 11:37:41  venku
    Major changes:
     - Changed ITransformMap extensively such that it now provides
