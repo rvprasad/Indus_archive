@@ -85,10 +85,16 @@ public class ReferenceBasedDataDA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
+	 */
+	public boolean isStable() {
+		return aliasedUD.isStable();
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
 	 */
 	public void analyze() {
-		stable = true;
 	}
 
 	/**
@@ -116,6 +122,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/12 22:33:09  venku
+   - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
+   - Ripple effect of the above changes.
    Revision 1.5  2003/08/25 09:30:41  venku
    Renamed AliasedDataDA to ReferenceBasedDataDA.
    Renamed NonAliasedDataDA to IdentifierBasedDataDA.
