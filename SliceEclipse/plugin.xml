@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="edu.ksu.cis.indus.toolkits.sliceEclipse"
+   name="SliceEclipse Java Slicer Plug-in"
+   version="1.0.0"
+   provider-name="SAnToS laboratory"
+   class="edu.ksu.cis.indus.toolkits.sliceeclipse.SliceEclipsePlugin">
+
+   <runtime>
+      <library name="SliceEclipse.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/commons-cli-1.0.jar"/>
+      <library name="lib/commons-collections-3.0.jar"/>
+      <library name="lib/commons-lang-2.0.jar"/>
+      <library name="lib/commons-logging.jar"/>
+      <library name="lib/commons-logging-api.jar"/>
+      <library name="lib/commons-pool-1.1.jar"/>
+      <library name="lib/indus.jar"/>
+      <library name="lib/jibx-run.jar"/>
+      <library name="lib/junit.jar"/>
+      <library name="lib/polyglot-1.1.0.jar"/>
+      <library name="lib/slicer.jar"/>
+      <library name="lib/staticanalyses.jar"/>
+      <library name="lib/swt.jar"/>
+      <library name="lib/swt.jar"/>
+      <library name="lib/xmlenc-0.42.jar"/>
+      <library name="lib/xmlunit1.0.jar"/>
+      <library name="lib/xpp3.jar"/>
+      <library name="lib/xstream.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/jasminclasses-sable-1.2.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/sootclasses-new.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.jdt"/>
+      <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.jdt.source"/>
+      <import plugin="org.eclipse.jdt.ui"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.search"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.jdt.launching"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+   </requires>
+
+
+<!--  This defines the popup menus for the slicer -->
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.ICompilationUnit"
+            nameFilter="*.java"
+            id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject">
+         <menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Slice Java File"
+               class="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.actions.RunIndus"
+               menubarPath="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu/group1"
+               enablesFor="1"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu.action.SliceNavigatorAction">
+         </action>
+      </objectContribution>
+      <objectContribution            
+            objectClass="org.eclipse.core.resources.IFile"
+            nameFilter="*.java"
+            id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainResourcePopupObject">
+		 <filter
+         name="projectNature"
+         value="org.eclipse.jdt.core.javanature">
+      	</filter>           
+      	<menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Slice Java File"
+               class="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.actions.RunIndus"
+               menubarPath="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu/group1"
+               enablesFor="1"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu.action.SliceNavigatorAction">
+         </action>
+      </objectContribution>
+      <objectContribution
+            adaptable="false"
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainProjectPopupObject">
+         <menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainProjectPopupObject.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Slice Project"
+               class="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.actions.RunIndusProject"
+               menubarPath="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainProjectPopupObject.menu/group1"
+               enablesFor="1"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu.action.SliceProjectNavigatorAction">
+         </action>
+      </objectContribution>
+            <objectContribution
+                  adaptable="false"
+                  objectClass="org.eclipse.core.resources.IProject"
+                  id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainResourceProjectPopupObject">
+         <menu
+               label="Indus"
+               path="additions"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainProjectPopupObject.menu">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Slice Project"
+               class="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.actions.RunIndusProject"
+               menubarPath="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainProjectPopupObject.menu/group1"
+               enablesFor="1"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu.action.SliceProjectNavigatorAction">
+         </action>
+      </objectContribution>
+            <viewerContribution
+                  targetID="#CompilationUnitEditorContext"
+                  id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.editorPopup">
+               <menu
+                     label="Indus"
+                     path="additons"
+                     id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.editorMenu.menu">
+                  <separator name="group1"/>
+               </menu>
+               <action
+                     enablesFor="+"
+                     label="Add to Criteria"
+                     class="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.actions.AddToCriteria"
+                     style="push"
+                     menubarPath="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.editorMenu.menu/group1"
+                     id="edu.ksu.cis.indus.toolkits.sliceeclipse.popup.mainPopupObject.menu.action.CriteriaSelectionAction"/>
+                     
+               
+            </viewerContribution>      
+   </extension>
+<!-- This extension shows additional information about the slice part chosen -->
+   <extension
+         point="org.eclipse.jdt.ui.javaEditorTextHovers">
+      <hover
+            label="Slice"
+            class="edu.ksu.cis.indus.toolkits.sliceeclipse.hover.SliceHover"
+            id="edu.ksu.cis.indus.toolkits.sliceeclipse.SliceHover">
+      </hover>
+   </extension>
+<!-- This extension enables highlighting of the slice elements -->
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification
+            textPreferenceKey="occurrenceIndication"
+            presentationLayer="3"
+            highlightPreferenceValue="true"
+            showInNextPrevDropdownToolbarAction="true"
+            textPreferenceValue="false"
+            isGoToPreviousNavigationTargetKey="isOccurrenceGoToPreviousNavigationTarget"
+            label="IndusSliceAnnotation"
+            colorPreferenceKey="occurrenceIndicationColor"
+            showInNextPrevDropdownToolbarActionKey="showOccurrenceInNextPrevDropdownToolbarAction"
+            annotationType="indus.slice.highlightAnnotation"
+            isGoToNextNavigationTargetKey="isOccurrenceGoToNextNavigationTarget"
+            isGoToNextNavigationTarget="false"
+            textStylePreferenceKey="indus.slice.highlight.style"
+            overviewRulerPreferenceKey="occurrenceIndicationInOverviewRuler"
+            verticalRulerPreferenceValue="false"
+            highlightPreferenceKey="occurrenceHighlighting"
+            isGoToPreviousNavigationTarget="false"
+            verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
+            textStylePreferenceValue="BOX"
+            colorPreferenceValue="0,255,205"
+            overviewRulerPreferenceValue="true">
+      </specification>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="org.eclipse.jdt.ui.CompilationUnitEditor"
+            id="edu.ksu.cis.indus.toolkits.sliceeclipse.editorContribution">
+         <action
+               enablesFor="+"
+               toolbarPath="Normal/additions"
+               label="Forward Slice"
+               class="edu.ksu.cis.indus.toolkits.sliceeclipse.execute.ForwardSlice"
+               tooltip="Runs a forward slice on the chosen element"
+               icon="data/icons/sf.gif"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.ForwardSlice">
+         </action>
+         <action
+               enablesFor="+"
+               toolbarPath="Normal/additions"
+               label="Backward Slice"
+               class="edu.ksu.cis.indus.toolkits.sliceeclipse.execute.BackwardSlice"
+               tooltip="Runs a backward slice on the chosen element"
+               icon="data/icons/sb.gif"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.BackwardSlice">
+         </action>
+         <action
+               label="Slice Annotation"
+               icon="data/icons/sa.gif"
+               tooltip="Enables or disables the slice annotations"
+               class="edu.ksu.cis.indus.toolkits.sliceeclipse.execute.SliceAnnotate"
+               toolbarPath="Normal/additions"
+               id="edu.ksu.cis.indus.toolkits.sliceeclipse.SliceAnnotate">
+         </action>
+      </editorContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Indus Preferences"
+            class="edu.ksu.cis.indus.toolkits.sliceeclipse.preferences.PluginPreference"
+            id="edu.ksu.cis.indus.toolkits.sliceeclipse.pluginpreference">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            lightweight="true"
+            adaptable="true"
+            objectClass="org.eclipse.core.resources.IResource"
+            label="SliceEclipse.Decorator"
+            class="edu.ksu.cis.indus.toolkits.sliceeclipse.decorator.IndusDecorator"
+            icon="data/icons/indus-decorator.gif"
+            location="TOP_LEFT"
+            id="edu.ksu.cis.indus.sliceeclipse.decorator">
+         <description/> The indus slice decorator.
+      </decorator>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            name="Indus"
+            class="edu.ksu.cis.indus.toolkits.sliceeclipse.preferences.ProjectPreference"
+            id="edu.ksu.cis.indus.toolkits.sliceeclipse.projectpreference">
+      </page>
+      <page
+            objectClass="org.eclipse.core.resources.IProject"
+            name="Indus"
+            class="edu.ksu.cis.indus.toolkits.sliceeclipse.preferences.ProjectPreference"
+            id="edu.ksu.cis.indus.toolkits.sliceeclipse.projectpreference">
+      </page>
+   </extension>
+   -->
+</plugin>

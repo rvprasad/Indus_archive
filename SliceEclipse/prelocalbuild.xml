@@ -1,0 +1,51 @@
+<project>
+    <property file="antbuild.properties"/>        
+    <property name="package" value="edu.ksu.cis.indus"/>
+    <property name="ant.project.name" value="indus.toolkits.sliceeclipse"/>
+   
+
+    <path id="indus.toolkits.sliceeclipse.srcpath">
+   	    <pathelement location="src"/>
+    </path>
+    
+    <path id="indus.toolkits.sliceeclipse.srcpath">
+        <pathelement location="src"/>
+    </path>
+    
+    <property name="eclipse.dir" value="c:/eclipse/eclipse"/>
+	<property name="eclipse.plugins.dir" value="${eclipse.dir}/plugins"/>
+	<property name="eclipse.version" value="1.0.0"/>
+    <property name="home" value="${basedir}"/>
+    
+      <path id="indus.toolkits.sliceeclipse.classpath">
+	    <pathelement location="${home}/lib/commons-cli-1.0.jar"/>
+	    <pathelement location="${home}/lib/commons-collections-3.0.jar"/>
+	    <pathelement location="${home}/lib/commons-lang-2.0.jar"/>	    	    
+	    <pathelement location="${home}/lib/commons-logging-api.jar"/>
+   	    <pathelement location="${home}/lib/commons-logging.jar"/>
+   	    <pathelement location="${home}/lib/commons-pool-1.1.jar"/>	    	    
+   	    <pathelement location="${home}/lib/indus.jar"/>   	    
+   	    <pathelement location="${home}/lib/jasminclasses-sable-1.2.jar"/>   	    
+   	    <pathelement location="${home}/lib/jibx-run.jar"/>   	    
+   	    <pathelement location="${home}/lib/junit.jar"/>   	    
+   	    <pathelement location="${home}/lib/polyglot-1.1.0.jar"/>   	    
+   	    <pathelement location="${home}/lib/slicer.jar"/>   	    
+   	    <pathelement location="${home}/lib/sootclasses-2.1.0.jar"/>   	    
+   	    <pathelement location="${home}/lib/staticanalyses.jar"/>   	    
+   	    <pathelement location="${home}/lib/swt.jar"/>   	    
+   	    <pathelement location="${home}/lib/xmlenc-0.42.jar"/>   	    
+   	    <pathelement location="${home}/lib/xmlunit1.0.jar"/>   	    
+   	    <pathelement location="${home}/lib/xpp3.jar"/>   
+   	    <pathelement location="${home}/lib/xstream.jar"/>
+   	    <fileset dir="${eclipse.dir}/plugins/">
+             <include name="**/*.jar"/>
+        </fileset>	            
+	 </path>  
+	 
+	 <path id="indus.toolkits.sliceeclipse.data">
+	  	<dirSet dir="${home}">		
+	  		<include name="data" />
+	  	</dirSet>
+	 </path>
+    
+</project>

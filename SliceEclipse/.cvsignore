@@ -1,0 +1,7 @@
+build
+*.externalToolBuilders
+.checkstyle
+.template
+.checkclipse
+slicebuild.xml
+.settings
