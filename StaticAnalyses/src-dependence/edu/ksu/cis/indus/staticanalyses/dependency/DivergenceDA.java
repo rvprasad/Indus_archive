@@ -36,14 +36,30 @@
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import soot.SootMethod;
+import soot.Value;
 
+import soot.jimple.InterfaceInvokeExpr;
+import soot.jimple.InvokeExpr;
+import soot.jimple.SpecialInvokeExpr;
+import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
+import soot.jimple.VirtualInvokeExpr;
 
+import soot.toolkits.graph.CompleteUnitGraph;
+
+import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.staticanalyses.processing.AbstractProcessor;
+import edu.ksu.cis.indus.staticanalyses.processing.ProcessingController;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
 import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.Pair.PairManager;
 import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,24 +71,44 @@ import java.util.List;
 import java.util.Map;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 /**
  * This class provides divergence dependency information.  This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
- * JVM Concurrency Primitives"</a>.  This implementation by default does not consider call-sites for dependency calculation.
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
+ * with JVM Concurrency Primitives"</a>.  This implementation by default does not consider call-sites for dependency
+ * calculation.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Sequence(Bag(Stmt))))
+ * @invariant dependentMap.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(Stmt))))
  * @invariant dependentMap.values()->forall(o | o.getValue().size = o.getKey().getBody(Jimple.v()).getStmtList().size())
- * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Bag(Stmt))))
+ * @invariant dependeeMap.oclIsKindOf(Map(SootMethod, Sequence(Collection(Stmt))))
  * @invariant dependeeMap.values()->forall(o | o.getValue().size = o.getKey().getBody(Jimple.v()).getStmtList().size())
  */
 public class DivergenceDA
   extends DependencyAnalysis {
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private static final Log LOGGER = LogFactory.getLog(DivergenceDA.class);
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	final Map method2callBasedPreDivPoints = new HashMap();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	PairManager pairMgr;
+
 	/*
 	 * The dependence information is stored as follows: For each method, a sequence of collection of statements is maintained.
 	 * The length of the sequence is equal to the number of statements in the method.  The statement collection at a location
@@ -92,9 +128,57 @@ public class DivergenceDA
 	 */
 	private boolean considerCallSites = false;
 
-    private static final Log LOGGER = LogFactory.getLog(DivergenceDA.class);
 	/**
-	 * Sets if the analyses should consider the effects of method calls.
+	 * DOCUMENT ME! This analysis does not require basic block graph manager for preprocessing.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	protected class Processor
+	  extends AbstractProcessor {
+		/*
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.Value, edu.ksu.cis.indus.staticanalyses.Context)
+		 */
+		public void callback(final Value value, final Context context) {
+			if (value instanceof InvokeExpr) {
+				SootMethod method = context.getCurrentMethod();
+				Collection c = (Collection) method2callBasedPreDivPoints.get(method);
+
+				if (c == null) {
+					c = new ArrayList();
+					method2callBasedPreDivPoints.put(method, c);
+				}
+
+				Stmt stmt = context.getStmt();
+				c.add(stmt);
+			}
+		}
+
+		/*
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
+		 */
+		public void hookup(final ProcessingController ppc) {
+			ppc.register(StaticInvokeExpr.class, this);
+			ppc.register(SpecialInvokeExpr.class, this);
+			ppc.register(VirtualInvokeExpr.class, this);
+			ppc.register(InterfaceInvokeExpr.class, this);
+		}
+
+		/*
+		 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
+		 */
+		public void unhook(final ProcessingController ppc) {
+			ppc.unregister(StaticInvokeExpr.class, this);
+			ppc.unregister(SpecialInvokeExpr.class, this);
+			ppc.unregister(VirtualInvokeExpr.class, this);
+			ppc.unregister(InterfaceInvokeExpr.class, this);
+		}
+	}
+
+	/**
+	 * Sets if the analyses should consider the effects of method calls.  This method may change the preprocessing
+	 * requirements of this analysis.  Hence, it should be called
 	 *
 	 * @param consider <code>true</code> indicates call-sites that invoke methods containing pre-divergence points should be
 	 * 		  considered as pre-divergence points; <code>false</code>, otherwise.
@@ -119,7 +203,23 @@ public class DivergenceDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependees(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object method) {
-		return getDependeXXHelper(dependeeMap, dependentStmt, method);
+		Collection result = Collections.EMPTY_LIST;
+		List list = (List) dependeeMap.get(method);
+
+		if (list != null) {
+			List sl = getStmtList((SootMethod) method);
+			int pos = sl.indexOf(dependentStmt);
+
+			if (pos != -1) {
+				Collection c = (Collection) list.get(pos);
+
+				if (c != null) {
+					result = c;
+				}
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -137,7 +237,18 @@ public class DivergenceDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#getDependents(java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object method) {
-		return getDependeXXHelper(dependentMap, dependeeStmt, method);
+		Collection result = Collections.EMPTY_LIST;
+		Map stmt2List = (Map) dependentMap.get(method);
+
+		if (stmt2List != null) {
+			Collection t = (Collection) stmt2List.get(dependeeStmt);
+
+			if (t != null) {
+				result = Collections.unmodifiableCollection(t);
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -148,160 +259,102 @@ public class DivergenceDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis#analyze()
 	 */
 	public boolean analyze() {
-		Map preDivPointsMap = new HashMap();
-		List stmt2ddents = new ArrayList();
-		List stmt2ddees = new ArrayList();
+		Map method2preDivPoints = new HashMap();
+		findPreDivPoints(method2preDivPoints);
 
-		// for each method
-		for (Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			SootMethod method = (SootMethod) entry.getKey();
-			BasicBlockGraph bbGraph = getBasicBlockGraph(method);
-			Collection sccs = bbGraph.getSCCs(false);
-			Collection preDivPoints = new ArrayList();
+		List dependents = new ArrayList();
+		WorkBag wb = new WorkBag(WorkBag.LIFO);
+		Collection preDivPointBBs = new HashSet();
+		Collection processed = new HashSet();
 
-			// calculate the pre-divergence points 
-			for (Iterator j = sccs.iterator(); j.hasNext();) {
-				Collection scc = (Collection) j.next();
-
-				for (Iterator k = scc.iterator(); k.hasNext();) {
-					BasicBlock bb = (BasicBlock) k.next();
-					Collection succs = bb.getSuccsOf();
-
-					if (succs.size() > 1 && !scc.containsAll(succs)) {
-						preDivPoints.add(bb);
-					}
-				}
-			}
-
-			if (!preDivPoints.isEmpty()) {
-				preDivPointsMap.put(method, new ArrayList(preDivPoints));
-				preDivPoints.clear();
-			}
-		}
-
-		WorkBag wb = new WorkBag(WorkBag.FIFO);
-		Collection collected = new ArrayList();
-		Collection temp = new HashSet();
-
-		for (Iterator i = preDivPointsMap.entrySet().iterator(); i.hasNext();) {
+		// Pass 2:Record dependence information from pre-divergence points to pre-divergence points or exits.
+		for (Iterator i = method2preDivPoints.entrySet().iterator(); i.hasNext();) {
+			// Pass 2.1: For each pre-divergence point, record dependence for statments following it in it's basic block.
 			Map.Entry entry = (Map.Entry) i.next();
 			SootMethod method = (SootMethod) entry.getKey();
 			Collection preDivPoints = (Collection) entry.getValue();
+			BasicBlockGraph bbg = getBasicBlockGraph(method);
+
+			if (bbg == null) {
+				bbg = getBasicBlockGraph(new CompleteUnitGraph(method.getActiveBody()));
+			}
+
 			List sl = getStmtList(method);
+			preDivPointBBs.clear();
+			wb.clear();
 
-if (LOGGER.isDebugEnabled()) {
-    LOGGER.debug("Processing method " + method.getSignature() + " " + method.getDeclaringClass());
-}
-			// if there are no pre-divergence points, then chug along. 
-			if (preDivPoints == null) {
-				dependeeMap.put(method, Collections.EMPTY_LIST);
-				dependentMap.put(method, Collections.EMPTY_LIST);
-			} else {
-				for (int j = sl.size(); j > 0; j--) {
-					stmt2ddees.add(Collections.EMPTY_LIST);
-					stmt2ddents.add(Collections.EMPTY_LIST);
+			Map spanningSuccs = bbg.getSpanningSuccs();
+
+			for (Iterator j = preDivPoints.iterator(); j.hasNext();) {
+				Stmt dependee = (Stmt) j.next();
+
+                BasicBlock bb = bbg.getEnclosingBlock(dependee);
+                preDivPointBBs.add(bb);
+
+				if (processed.contains(dependee)) {
+					continue;
 				}
 
-				for (Iterator j = preDivPoints.iterator(); j.hasNext();) {
-					stmt2ddents.set(((BasicBlock) j.next())._trailer, new HashSet());
-				}
+				List bbsl = bb.getStmtFrom(sl.indexOf(dependee));
+				bbsl.remove(0);
+				dependents.clear();
 
-				/*
-				 * For each pre-divergent basic block, traverse the path till the next pre-divergenct basic block.  At each
-				 * basic block including the last basic block that is pre-divergent, update the divergence dependence
-				 * information as obtained from it's predecessor.
-				 */
-				for (Iterator j = preDivPoints.iterator(); j.hasNext();) {
-					BasicBlock preDiv = (BasicBlock) j.next();
-					wb.addAllWork(preDiv.getSuccsOf());
+				// Inter-basic block pre-divergence points have to be call-sites leading to pre-divergent methods.  
+				// Hence, only in these cases can bbsl be non-empty and so it be processed. 
+				if (!bbsl.isEmpty()) {
+					for (Iterator k = bbsl.iterator(); k.hasNext();) {
+						Stmt dependent = (Stmt) k.next();
+						dependents.add(dependent);
 
-if (LOGGER.isDebugEnabled()) {
-    LOGGER.debug("Processing prediv point " + preDiv.getStmtsOf());
-}
-					while (wb.hasWork()) {
-						BasicBlock succBB = (BasicBlock) wb.getWork();
-                        
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Processing succs " + succBB.getStmtsOf());
-                        }
-						Collection set = (Collection) stmt2ddees.get(succBB._leader);
-
-						if (set.equals(Collections.EMPTY_LIST)) {
-							set = new HashSet();
-							stmt2ddees.set(succBB._leader, set);
-						}
-
-						if (preDivPoints.contains(succBB)) {
-							temp.clear();
-
-							for (Iterator k = succBB.getPredsOf().iterator(); k.hasNext();) {
-								BasicBlock pred = (BasicBlock) k.next();
-
-								if (succBB == pred) {
-									continue;
-								}
-								temp.addAll((Collection) stmt2ddees.get(pred._trailer));
-							}
-							temp.remove(succBB.getTrailerStmt());
-							set.addAll(temp);
-						} else {
-							for (Iterator k = succBB.getPredsOf().iterator(); k.hasNext();) {
-								BasicBlock pred = (BasicBlock) k.next();
-
-								if (preDivPoints.contains(pred)) {
-									set.add(sl.get(pred._trailer));
-								} else {
-									set.addAll((Collection) stmt2ddees.get(pred._trailer));
-								}
-							}
-						}
-
-						for (Iterator l = succBB.getStmtsOf().iterator(); l.hasNext();) {
-							Stmt stmt = (Stmt) l.next();
-							collected.add(stmt);
-							stmt2ddees.set(sl.indexOf(stmt), set);
-
-							if (stmt.containsInvokeExpr() && callsDivergentMethod(stmt, method, preDivPointsMap)) {
-								for (Iterator k = set.iterator(); k.hasNext();) {
-									int divPoint = sl.indexOf(k.next());
-									Collection ddents = (Collection) stmt2ddents.get(divPoint);
-
-									if (ddents.equals(Collections.EMPTY_LIST)) {
-										ddents = new ArrayList();
-										stmt2ddents.set(divPoint, ddents);
-									}
-									ddents.addAll(collected);
-								}
-								set = new HashSet();
-								set.add(stmt);
-							}
-						}
-
-						for (Iterator k = set.iterator(); k.hasNext();) {
-							int divPoint = sl.indexOf(k.next());
-							Collection ddents = (Collection) stmt2ddents.get(divPoint);
-
-							if (ddents.equals(Collections.EMPTY_LIST)) {
-								ddents = new ArrayList();
-								stmt2ddents.set(divPoint, ddents);
-							}
-							ddents.addAll(collected);
-						}
-						collected.clear();
-
-						if (!preDivPoints.contains(succBB)) {
-							for (Iterator k = succBB.getSuccsOf().iterator(); k.hasNext();) {
-								wb.addWorkNoDuplicates(k.next());
-							}
+						// handle pre-divergent call-sites.
+						if (considerCallSites && preDivPoints.contains(dependent)) {
+							recordDependenceInfo(dependee, method, dependents);
+							dependee = dependent;
+							dependents.clear();
+							processed.add(dependee);
 						}
 					}
 				}
-				dependentMap.put(method, new ArrayList(stmt2ddents));
-				dependeeMap.put(method, new ArrayList(stmt2ddees));
-				stmt2ddents.clear();
-				stmt2ddees.clear();
-				preDivPoints.clear();
+
+				recordDependenceInfo(dependee, method, dependents);
+				dependents.clear();
+                Collection succs = bb.getSuccsOf();
+				for (Iterator k = succs.iterator(); k.hasNext();) {
+					recordDependenceInfo(dependee, method, Collections.singleton(((BasicBlock) k.next()).getLeaderStmt()));
+				}
+				wb.addAllWork(succs);
+			}
+
+			// Pass 2.2: Propogate the pre-divergence information to the rest of the basic blocks.
+            
+			while (wb.hasWork()) {
+				BasicBlock bb = (BasicBlock) wb.getWork();
+System.out.println(method.getSignature() + " " + preDivPointBBs + " " + bb + "  " + bb.getStmtsOf());                
+				Collection dependees = getDependees(bb.getLeaderStmt(), method);
+				dependents.clear();
+				dependents.addAll(bb.getStmtsOf());
+				dependents.remove(0);
+
+				if (preDivPointBBs.contains(bb)) {
+					if (!dependents.isEmpty()) {
+						Object o = null;
+
+						for (Iterator j = dependents.iterator(); j.hasNext();) {
+							o = j.next();
+
+							if (preDivPoints.contains(o)) {
+								break;
+							}
+						}
+
+						List l = dependents.subList(0, dependents.indexOf(o));
+						l.add(o);
+						recordDependenceInfo(dependees, method, l);
+					}
+				} else {
+					recordDependenceInfo(dependees, method, dependents);
+					wb.addAllWork(bb.getSuccsOf());
+				}
 			}
 		}
 		return true;
@@ -330,24 +383,39 @@ if (LOGGER.isDebugEnabled()) {
 
 			for (int j = 0; j < stmts.size(); j++) {
 				Collection c = (Collection) dependees.get(j);
-				temp.append("\t\t" + stmts.get(j) + " --> " + c + "\n");
-				localEdgeCount += c.size();
+
+				if (c != null) {
+					temp.append("\t\t" + stmts.get(j) + " --> " + c + "\n");
+					localEdgeCount += c.size();
+				}
 			}
+
 			result.append("\tFor " + method + " there are " + localEdgeCount + " divergence dependence edges.\n");
 			result.append(temp);
 			temp.delete(0, temp.length());
 			edgeCount += localEdgeCount;
 		}
+
 		result.append("A total of " + edgeCount + " divergence dependence edges exist.");
+
 		return result.toString();
 	}
 
 	/**
+	 * Sets up internal data structures.
+	 *
+	 * @throws InitializationException when call graph service is not provided.
+	 *
+	 * @pre self.considerCallSites implies (info.get(ICallGraphInfo.ID) != null and
+	 * 		info.get(ICallGraphInfo.ID).oclIsTypeOf(ICallGraphInfo))
+	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setup()
 	 */
 	protected void setup()
 	  throws InitializationException {
 		super.setup();
+
+		pairMgr = (PairManager) info.get(PairManager.ID);
 
 		if (considerCallSites) {
 			callgraph = (ICallGraphInfo) info.get(ICallGraphInfo.ID);
@@ -359,68 +427,177 @@ if (LOGGER.isDebugEnabled()) {
 	}
 
 	/**
-	 * Helper method for <code>getDependeXX()</code> methods.
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
-	 * @param map from which the information should be retrieved.
-	 * @param stmt is the statement for which the information is requested.
-	 * @param context is the method in which <code>stmt</code> occurs.
-	 *
-	 * @return a collection of statement.
-	 *
-	 * @pre context.oclIsTypeOf(SootMethod)
-	 * @pre stmt.oclIsTypeOf(Stmt)
-	 * @pre map.oclIsTypeOf(Map(SootMethod, Sequence(Collection)))
+	 * @param method2preDivPoints DOCUMENT ME!
 	 */
-	private Collection getDependeXXHelper(final Map map, final Object stmt, final Object context) {
-		Collection result = Collections.EMPTY_LIST;
-		SootMethod method = (SootMethod) context;
-		List list = (List) map.get(method);
+	private void findPreDivPoints(final Map method2preDivPoints) {
+		WorkBag preDivMethods = null;
+		Collection temp = new ArrayList();
 
-		if (list != null) {
-			List sl = getStmtList(method);
-			int pos = sl.indexOf(stmt);
+		if (considerCallSites) {
+			preDivMethods = new WorkBag(WorkBag.LIFO);
+		}
 
-			if (pos != -1) {
-				result = Collections.unmodifiableCollection((Collection) list.get(pos));
+		// Pass 1: Calculate pre-divergence points
+		// Pass 1.1: Calculate intraprocedural pre-divergence points
+		for (Iterator i = method2stmtGraph.entrySet().iterator(); i.hasNext();) {
+			Map.Entry entry = (Map.Entry) i.next();
+			SootMethod method = (SootMethod) entry.getKey();
+			BasicBlockGraph bbGraph = getBasicBlockGraph(method);
+
+			if (bbGraph == null) {
+				bbGraph = getBasicBlockGraph(new CompleteUnitGraph(method.getActiveBody()));
+			}
+
+			Collection sccs = bbGraph.getSCCs(false);
+			Collection preDivPoints = new ArrayList();
+			boolean flag;
+
+			do {
+				flag = false;
+
+				// calculate the pre-divergence points 
+				for (Iterator j = sccs.iterator(); j.hasNext();) {
+					Collection scc = (Collection) j.next();
+
+					for (Iterator k = scc.iterator(); k.hasNext();) {
+						BasicBlock bb = (BasicBlock) k.next();
+						Collection succs = bb.getSuccsOf();
+
+						if ((succs.size() > 1) && !scc.containsAll(succs)) {
+							preDivPoints.add(bb.getTrailerStmt());
+							temp.add(bb);
+							flag = true;
+						}
+					}
+
+					if (flag) {
+						scc.removeAll(temp);
+						temp.clear();
+					}
+				}
+			} while (flag);
+
+			if (!preDivPoints.isEmpty()) {
+				method2preDivPoints.put(method, new ArrayList(preDivPoints));
+
+				if (considerCallSites) {
+					preDivMethods.addWork(method);
+				}
+
+				preDivPoints.clear();
 			}
 		}
-		return result;
-	}
 
-	/**
-	 * Checks if the given stmt contains a call-site.  If so, it checks if it results in the invocation of a
-	 * divergent-method.
-	 *
-	 * @param stmt that could result in the invocation of divergent-method via a call-chain.
-	 * @param caller in which <code>stmt</code> occurs.
-	 * @param preDivPointsMap is a map from methods to pre-divergence points that occur within them.
-	 *
-	 * @return <code>true</code> if <code>stmt</code> results in the invocation of a divergent-method via a call-chain;
-	 * 		   <code>false</code>, otherwise.
-	 *
-	 * @pre stmt != null and caller != null and stmt.containsInvokeExpr() == true and preDivPointsMap != null
-	 * @pre preDivPointsMap.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
-	 */
-	private boolean callsDivergentMethod(final Stmt stmt, final SootMethod caller, final Map preDivPointsMap) {
-		boolean result = false;
+		// Pass 1.2: In case of interprocedural analysis, filter out call-sites which do not lead to pre-divergent methods.
+		if (considerCallSites) {
+			Collection processed = new HashSet();
 
-		if (considerCallSites && stmt.containsInvokeExpr()) {
-			Collection callees = callgraph.getMethodsReachableFrom(stmt, caller);
+			while (preDivMethods.hasWork()) {
+				SootMethod callee = (SootMethod) preDivMethods.getWork();
+				processed.add(callee);
 
-			for (Iterator i = callees.iterator(); i.hasNext();) {
-				if (((Collection) preDivPointsMap.get(i.next())).size() > 0) {
-					result = true;
-					break;
+				for (Iterator j = callgraph.getCallers(callee).iterator(); j.hasNext();) {
+					CallTriple ctrp = (CallTriple) j.next();
+					SootMethod caller = ctrp.getMethod();
+					Collection c = (Collection) method2preDivPoints.get(caller);
+
+					if (c == null) {
+						c = new ArrayList();
+						method2preDivPoints.put(caller, c);
+					}
+
+					c.add(ctrp.getStmt());
+
+					if (!processed.contains(caller)) {
+						preDivMethods.addWork(caller);
+					}
 				}
 			}
 		}
-		return result;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param dependees DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 * @param dependents DOCUMENT ME!
+	 */
+	private void recordDependenceInfo(final Collection dependees, final SootMethod method, final Collection dependents) {
+		for (Iterator i = dependees.iterator(); i.hasNext();) {
+			recordDependenceInfo((Stmt) i.next(), method, dependents);
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param dependee DOCUMENT ME!
+	 * @param method DOCUMENT ME!
+	 * @param dependents DOCUMENT ME!
+	 */
+	private void recordDependenceInfo(final Stmt dependee, final SootMethod method, final Collection dependents) {
+		// record dependent information.
+		Map stmt2List = (Map) dependentMap.get(method);
+		Collection deList;
+
+		if (stmt2List == null) {
+			stmt2List = new HashMap();
+			dependentMap.put(method, stmt2List);
+			deList = new ArrayList();
+			stmt2List.put(dependee, deList);
+		} else {
+			deList = (Collection) stmt2List.get(dependee);
+
+			if (deList == null) {
+				deList = new ArrayList();
+				stmt2List.put(dependee, deList);
+			}
+		}
+
+		deList.addAll(dependents);
+
+		// record dependee information.
+		List stmt2dt = (List) dependeeMap.get(method);
+		List sl = getStmtList(method);
+
+		if (stmt2dt == null) {
+			stmt2dt = new ArrayList();
+			dependeeMap.put(method, stmt2dt);
+
+			for (int i = sl.size(); i > 0; i--) {
+				stmt2dt.add(null);
+			}
+		}
+
+		for (Iterator i = dependents.iterator(); i.hasNext();) {
+			Object o = i.next();
+			int pos = sl.indexOf(o);
+			Collection c = (Collection) stmt2dt.get(pos);
+
+			if (c == null) {
+				c = new HashSet();
+				stmt2dt.set(pos, c);
+			}
+			c.add(dependee);
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/09/09 00:17:35  venku
+   - This is a BUGGY version.  I am checking in as I want
+     to make some major changes.
    Revision 1.8  2003/08/25 10:04:04  venku
    Renamed setInterProcedural() to setConsiderCallSites().
    Revision 1.7  2003/08/25 09:58:57  venku
