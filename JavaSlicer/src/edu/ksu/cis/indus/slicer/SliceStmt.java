@@ -33,7 +33,7 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
  * @author $Author$
  * @version $Revision$
  */
-public class SliceStmt
+class SliceStmt
   extends AbstractSliceCriterion {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -68,30 +68,6 @@ public class SliceStmt
 	protected Stmt stmt;
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @return the statement(<code>Stmt</code>) associated with this criterion.
-	 *
-	 * @post result != null and result.oclIsKindOf(jimple.Stmt)
-	 *
-	 * @see AbstractSliceCriterion#getCriterion()
-	 */
-	public Object getCriterion() {
-		return stmt;
-	}
-
-	/**
-	 * Provides the method in which criterion occurs.
-	 *
-	 * @return the method in which the slice statement occurs.
-	 *
-	 * @post result != null
-	 */
-	public SootMethod getOccurringMethod() {
-		return method;
-	}
-
-	/**
 	 * Checks if the given object is "equal" to this object.
 	 *
 	 * @param o is the object to be compared.
@@ -119,18 +95,27 @@ public class SliceStmt
 	}
 
 	/**
-	 * Initializes this object.
+	 * {@inheritDoc}
 	 *
-	 * @param occurringMethod in which the slice criterion occurs.
-	 * @param criterion is the slice criterion.
-	 * @param shouldConsiderExecution refer to {@link AbstractSliceCriterion#initialize}
+	 * @return the statement(<code>Stmt</code>) associated with this criterion.
 	 *
-	 * @pre method != null and stmt != null
+	 * @post result != null and result.oclIsKindOf(jimple.Stmt)
+	 *
+	 * @see AbstractSliceCriterion#getCriterion()
 	 */
-	protected void initialize(final SootMethod occurringMethod, final Stmt criterion, final boolean shouldConsiderExecution) {
-		super.initialize(shouldConsiderExecution);
-		this.method = occurringMethod;
-		this.stmt = criterion;
+	Object getCriterion() {
+		return stmt;
+	}
+
+	/**
+	 * Provides the method in which criterion occurs.
+	 *
+	 * @return the method in which the slice statement occurs.
+	 *
+	 * @post result != null
+	 */
+	SootMethod getOccurringMethod() {
+		return method;
 	}
 
 	/**
@@ -155,15 +140,35 @@ public class SliceStmt
 		}
 		return result;
 	}
+
+	/**
+	 * Initializes this object.
+	 *
+	 * @param occurringMethod in which the slice criterion occurs.
+	 * @param criterion is the slice criterion.
+	 *
+	 * @pre method != null and stmt != null
+	 */
+	void initialize(final SootMethod occurringMethod, final Stmt criterion) {
+		this.method = occurringMethod;
+		this.stmt = criterion;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
    Revision 1.3  2003/11/05 08:28:49  venku
    - used more intuitive field names.
    - changed hashcode calculation.
-
    Revision 1.2  2003/11/03 08:03:25  venku
    - changed the way 2 instances are compared for equality.
    Revision 1.1  2003/10/13 00:58:03  venku

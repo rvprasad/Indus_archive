@@ -34,7 +34,7 @@ import org.apache.commons.pool.impl.SoftReferenceObjectPool;
  * @author $Author$
  * @version $Revision$
  */
-public class SliceExpr
+class SliceExpr
   extends SliceStmt {
 	/**
 	 * A pool of <code>SliceExpr</code> criterion objects.
@@ -64,30 +64,6 @@ public class SliceExpr
 	protected ValueBox expr;
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @return the expression(<code>ValueBox</code>) associated with criterion.
-	 *
-	 * @post result != null and result.oclIsKindOf(ValueBox)
-	 *
-	 * @see AbstractSliceCriterion#getCriterion()
-	 */
-	public Object getCriterion() {
-		return expr;
-	}
-
-	/**
-	 * Provides the statement in which the slice expression occurs.
-	 *
-	 * @return the statement in which the slice expression occurs.
-	 *
-	 * @post result != null
-	 */
-	public Stmt getOccurringStmt() {
-		return stmt;
-	}
-
-	/**
 	 * Checks if the given object is "equal" to this object.
 	 *
 	 * @param o is the object to be compared.
@@ -114,19 +90,27 @@ public class SliceExpr
 	}
 
 	/**
-	 * Initializes this object.
+	 * {@inheritDoc}
 	 *
-	 * @param occurringMethod in which the criterion containing statement occurs.
-	 * @param occurringStmt in which the criterion containing expression occurs.
-	 * @param criterion is the slicing criterion.
-	 * @param shouldConsiderExecution refer to {@link AbstractSliceCriterion#initialize}
+	 * @return the expression(<code>ValueBox</code>) associated with criterion.
 	 *
-	 * @pre expr != null and stmt != null and method != null
+	 * @post result != null and result.oclIsKindOf(ValueBox)
+	 *
+	 * @see AbstractSliceCriterion#getCriterion()
 	 */
-	protected void initialize(final SootMethod occurringMethod, final Stmt occurringStmt, final ValueBox criterion,
-		final boolean shouldConsiderExecution) {
-		super.initialize(occurringMethod, occurringStmt, shouldConsiderExecution);
-		this.expr = criterion;
+	Object getCriterion() {
+		return expr;
+	}
+
+	/**
+	 * Provides the statement in which the slice expression occurs.
+	 *
+	 * @return the statement in which the slice expression occurs.
+	 *
+	 * @post result != null
+	 */
+	Stmt getOccurringStmt() {
+		return stmt;
 	}
 
 	/**
@@ -151,15 +135,36 @@ public class SliceExpr
 		}
 		return result;
 	}
+
+	/**
+	 * Initializes this object.
+	 *
+	 * @param occurringMethod in which the criterion containing statement occurs.
+	 * @param occurringStmt in which the criterion containing expression occurs.
+	 * @param criterion is the slicing criterion.
+	 *
+	 * @pre expr != null and stmt != null and method != null
+	 */
+	void initialize(final SootMethod occurringMethod, final Stmt occurringStmt, final ValueBox criterion) {
+		super.initialize(occurringMethod, occurringStmt);
+		this.expr = criterion;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/24 00:01:14  venku
+   - moved the residualizers/transformers into transformation
+     package.
+   - Also, renamed the transformers as residualizers.
+   - opened some methods and classes in slicer to be public
+     so that they can be used by the residualizers.  This is where
+     published interface annotation is required.
+   - ripple effect of the above refactoring.
    Revision 1.3  2003/11/05 08:28:49  venku
    - used more intuitive field names.
    - changed hashcode calculation.
-
    Revision 1.2  2003/11/03 08:03:25  venku
    - changed the way 2 instances are compared for equality.
    Revision 1.1  2003/10/13 00:58:04  venku
