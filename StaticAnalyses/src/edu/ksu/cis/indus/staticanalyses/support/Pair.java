@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
@@ -40,7 +40,22 @@ import java.util.List;
 
 
 /**
- * This class represents a pair of objects.
+ * This class represents a pair of objects.  The hashcode/stringized rep. of this object is derived from it's constituents.
+ * 
+ * <p>
+ * Instances of this class can occur in <i>optimized</i> or <i>unoptimized</i> modes.  In optimized mode, the
+ * hashcode/stringized rep. are precalculated at creation time or on call to <code>optimize()</code>. Hence, any future
+ * calls to <code>hashCode()</code> and <code>toString()</code> will return this cached copy.  In the unoptimized mode, the
+ * hashcode/stringized rep. are calculated on the fly upon request.   It is possible to toggle an instance between optimized
+ * and unoptimized mode.
+ * </p>
+ * 
+ * <p>
+ * The above feature of this class can lead to a situation where the hashcode of an instance obtained via
+ * <code>hashCode()</code> in optimized mode is not equal to the hashcode of the instance if calculated on the fly.  This is
+ * not a serious ramification as this will not affect the equality test of instances rather only the preformance of
+ * container classes using these instances as keys.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -49,45 +64,66 @@ import java.util.List;
 public class Pair
   implements Cloneable {
 	/**
-	 * The first object of this pair.
+	 * The first element of this pair.
 	 */
 	protected Object first;
 
 	/**
-	 * The second object of this pair.
+	 * The second element of this pair.
 	 */
 	protected Object second;
 
 	/**
-	 * Cached copy of the stringified of this object.
+	 * A cached copy of the stringized representation of this object.
 	 */
 	private String str;
 
 	/**
-	 * Cached copy of the hash code of this object.
+	 * A cached copy of the hash code of this object.
 	 */
 	private int hashCode;
 
 	/**
 	 * Creates a new Pair object.
 	 *
-	 * @param first the first object of this pair.
-	 * @param second the second object of this pair.
+	 * @param firstParam the first element of this pair.
+	 * @param secondParam the second element of this pair.
+	 * @param optimized <code>true</code> indicates that the stringized representation and the hashcode of this object should
+	 * 		  be calculated and cached for the rest of it's lifetime. <code>false</code> indicates that these values shoudl
+	 * 		  be calculated on the fly upon request.
+	 *
+	 * @post optimized == false implies str == null
+	 * @post optimized == true implies str != null
 	 */
-	public Pair(Object first, Object second) {
-		this.first = first;
-		this.second = second;
-		fixup();
+	public Pair(final Object firstParam, final Object secondParam, final boolean optimized) {
+		this.first = firstParam;
+		this.second = secondParam;
+
+		if (optimized) {
+			optimize();
+		}
 	}
 
 	/**
-	 * This class manages a collection of <code>Pair</code> objects.  This realizes the <i>flyweight</i> pattern for pairs.  
+	 * Creates a new optimized Pair object.
+	 *
+	 * @param firstParam the first element of this pair.
+	 * @param secondParam the second element of this pair.
+	 *
+	 * @post str != null
+	 */
+	public Pair(final Object firstParam, final Object secondParam) {
+		this(firstParam, secondParam, true);
+	}
+
+	/**
+	 * This class manages a collection of pairs.  This realizes the <i>flyweight</i> pattern for pairs.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
 	 * @version $Revision$
 	 */
-	public static class PairManager {
+	public static final class PairManager {
 		/**
 		 * This is the id of this service.
 		 */
@@ -96,72 +132,102 @@ public class Pair
 		/**
 		 * The collection of managed pairs.
 		 */
-		private List pairs = new ArrayList();
+		private final List pairs = new ArrayList();
 
 		/**
 		 * The scratch pad pair object to be used for does-it-manage check.
 		 */
-		private final Pair pair = new Pair(null, null);
+		private final Pair pair = new Pair(null, null, false);
 
 		/**
-		 * Provides a <code>Pair</code> object wrapping 2 given objects.  However, while doing do it will check if there
-		 * exists a pair which wraps the given 2 object in the given order.  If so, it will provide the existing pair.  If
-		 * not, it will creat a new pair and return it.
+		 * Provides an optimized pair containing 2 given objects in the given order.
 		 *
-		 * @param first element of the requested pair.
-		 * @param second element of the requested pair.
+		 * @param firstParam first element of the requested pair.
+		 * @param secondParam second element of the requested pair.
 		 *
-		 * @return the pair wrapping <code>first</code> and <code>second</code>.
+		 * @return the optimized pair containing the given objects.
+		 *
+		 * @post result != null
 		 */
-		public Pair getPair(Object first, Object second) {
-			Pair result;
-			pair.first = first;
-			pair.second = second;
-			pair.fixup();
+		public final Pair getOptimizedPair(final Object firstParam, final Object secondParam) {
+			return getPair(firstParam, secondParam, true);
+		}
 
-			if (pairs.contains(pair)) {
-				result = (Pair) pairs.get(pairs.indexOf(pair));
-			} else {
-				result = new Pair(first, second);
-				pairs.add(0, result);
-			}
-			return result;
+		/**
+		 * Provides an unoptimized pair containing 2 given objects in the given order.
+		 *
+		 * @param firstParam first element of the requested pair.
+		 * @param secondParam second element of the requested pair.
+		 *
+		 * @return the unoptimized pair containing the given objects.
+		 *
+		 * @post result != null
+		 */
+		public final Pair getUnOptimizedPair(final Object firstParam, final Object secondParam) {
+			return getPair(firstParam, secondParam, true);
 		}
 
 		/**
 		 * Forgets about all managed pairs.
 		 */
-		public void reset() {
+		public final void reset() {
 			pairs.clear();
+		}
+
+		/**
+		 * Provides a pair containing 2 given objects in the given order.
+		 *
+		 * @param firstParam first element of the requested pair.
+		 * @param secondParam second element of the requested pair.
+		 * @param optimized <code>true</code> indicates that the stringized representation and the hashcode of this object
+		 * 		  should be calculated and cached for the rest of it's lifetime. <code>false</code> indicates that these
+		 * 		  values should be calculated on the fly upon request.
+		 *
+		 * @return the pair containing the given objects.
+		 *
+		 * @post result != null
+		 */
+		private final Pair getPair(final Object firstParam, final Object secondParam, final boolean optimized) {
+			Pair result;
+			pair.first = firstParam;
+			pair.second = secondParam;
+
+			if (pairs.contains(pair)) {
+				result = (Pair) pairs.get(pairs.indexOf(pair));
+			} else {
+				result = new Pair(firstParam, secondParam, optimized);
+				pairs.add(0, result);
+			}
+			return result;
 		}
 	}
 
 	/**
-	 * Returns the first object in the pair.
+	 * Returns the first element in the pair.
 	 *
-	 * @return the first object in the pair.
+	 * @return the first element in the pair.
 	 */
-	public Object getFirst() {
+	public final Object getFirst() {
 		return first;
 	}
 
 	/**
-	 * Returns the second object in the pair.
+	 * Returns the second element in the pair.
 	 *
-	 * @return the second object in the pair.
+	 * @return the second element in the pair.
 	 */
-	public Object getSecond() {
+	public final Object getSecond() {
 		return second;
 	}
 
 	/**
-	 * Clones this pair.
+	 * Clones this pair using shallow-copy semantics.
 	 *
 	 * @return a cloned copy of this pair.
 	 *
 	 * @throws CloneNotSupportedException will not be thrown.
 	 */
-	public Object clone()
+	public final Object clone()
 	  throws CloneNotSupportedException {
 		return (Pair) super.clone();
 	}
@@ -172,8 +238,11 @@ public class Pair
 	 * @param o is the object to be tested for equality with this pair.
 	 *
 	 * @return <code>true</code> if <code>o</code> is equal to this pair; <code>false</code>, otherwise.
+	 *
+	 * @post result == true implies o.oclTypeOf(Pair) and (o.first.equals(first) or o.first == first) and
+	 * 		 (o.second.equals(second) or o.second == second)
 	 */
-	public boolean equals(Object o) {
+	public final boolean equals(final Object o) {
 		boolean result = false;
 
 		if (o instanceof Pair) {
@@ -195,41 +264,93 @@ public class Pair
 	}
 
 	/**
-	 * Returns the hash code for this pair.
+	 * Returns the hash code for this pair. Depending on how the object was created the cached value or the value calculated
+	 * on the fly is returned.
 	 *
-	 * @return the hash code of this pair.  It is derived from the objects that constitute this pair.
+	 * @return the hash code of this pair.
 	 */
-	public int hashCode() {
-		return hashCode;
+	public final int hashCode() {
+		int result;
+
+		if (str == null) {
+			result = hash();
+		} else {
+			result = hashCode;
+		}
+		return result;
 	}
 
 	/**
-	 * Returns a stringified version of this object.
+	 * Optimizes this object with regard to hashCode and stringized representation retrival.  It (re)calculates the hashcode
+	 * and the stringized representation of this object and caches the new values.
 	 *
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
+	 * @post str != null
 	 */
-	public String toString() {
-		return str;
+	public final void optimize() {
+		hashCode = hash();
+		str = stringize();
 	}
 
 	/**
-	 * Fixes up the externally visible properties after any changes to the object.
+	 * Returns a stringified version of this object. Depending on how the object was created the cached value or the value
+	 * calculated on the fly is returned.
+	 *
+	 * @return a stringified version of this object.
 	 */
-	protected void fixup() {
-		str = "(" + first + ", " + second + ")";
-		hashCode = str.hashCode();
+	public final String toString() {
+		String result;
+
+		if (str == null) {
+			result = stringize();
+		} else {
+			result = str;
+		}
+		return result;
+	}
+
+	/**
+	 * Unoptimizes this object with regard to hashCode and stringized representation retrival.  It forgets any cached values
+	 * so that they calculates on the fly when requested next.
+	 *
+	 * @post str == null
+	 */
+	public final void unoptimize() {
+		str = null;
+	}
+
+	/**
+	 * Provides the hashcode of this object.  Subclasses may override this method to suit their needs.
+	 *
+	 * @return the hashcode of this object.
+	 */
+	protected int hash() {
+		int result = 17;
+		result = 37 * result + first.hashCode();
+		result = 37 * result + second.hashCode();
+		return result;
+	}
+
+	/**
+	 * Provides the stringized representation of this object.  Subclasses may override this method to suit their needs.
+	 *
+	 * @return the stringized representation of this object.
+	 */
+	protected String stringize() {
+		return "(" + first + ", " + second + ")";
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 1.4  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
+   $Log$
 
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
 
-*****/
+   Revision 1.4  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

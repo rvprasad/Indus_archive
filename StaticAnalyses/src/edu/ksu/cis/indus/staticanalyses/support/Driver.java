@@ -88,7 +88,7 @@ public abstract class Driver {
 	 *
 	 * @pre name != null
 	 */
-	protected void addTimeLog(String name, long milliseconds) {
+	protected void addTimeLog(final String name, final long milliseconds) {
 		times.put(getClass().getName() + ":" + name, new Long(milliseconds));
 	}
 
@@ -103,7 +103,7 @@ public abstract class Driver {
 	 *
 	 * @pre args != null
 	 */
-	protected final Scene loadupClassesAndCollectMains(String[] args) {
+	protected final Scene loadupClassesAndCollectMains(final String[] args) {
 		Scene result = Scene.v();
 		boolean flag = false;
 		Collection classNames = Arrays.asList(args);
@@ -150,7 +150,7 @@ public abstract class Driver {
 	 *
 	 * @pre sc != null and classNames != null and classNames.oclIsKindOf(Collection(String))
 	 */
-	protected boolean considerClassForEntryPoint(SootClass sc, Collection classNames) {
+	protected boolean considerClassForEntryPoint(final SootClass sc, final Collection classNames) {
 		return classNames.contains(sc.getName()) && sc.isPublic();
 	}
 
@@ -166,7 +166,7 @@ public abstract class Driver {
 	 *
 	 * @pre stream != null
 	 */
-	protected void printTimingStats(PrintStream stream) {
+	protected void printTimingStats(final PrintStream stream) {
 		stream.println("Timing statistics:");
 
 		for (Iterator i = times.keySet().iterator(); i.hasNext();) {
@@ -183,7 +183,7 @@ public abstract class Driver {
 	 * @post rootMethods->includes(sm) or not rootMethods->includes(sm)
 	 * @pre sm != null
 	 */
-	protected void trapRootMethods(SootMethod sm) {
+	protected void trapRootMethods(final SootMethod sm) {
 		if (sm.getName().equals("main")
 			  && sm.isStatic()
 			  && sm.getParameterCount() == 1
@@ -196,6 +196,12 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/10 03:43:26  venku
+   Renamed Tester to Driver.
+   Refactored logic to pick entry points.
+   Provided for logging timing stats into any specified stream.
+   Ripple effect in others.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

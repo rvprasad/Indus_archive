@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
@@ -38,6 +38,7 @@ package edu.ksu.cis.indus.staticanalyses.support;
 import soot.SootMethod;
 
 import soot.jimple.JimpleBody;
+
 import soot.toolkits.graph.UnitGraph;
 
 import java.lang.ref.WeakReference;
@@ -47,7 +48,7 @@ import java.util.Map;
 
 
 /**
- * This class manages a set of <code>BasicBlockGraph</code> instances.
+ * This class manages a set of basic block graphs.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -55,12 +56,13 @@ import java.util.Map;
  */
 public class BasicBlockGraphMgr {
 	/**
-	 * This maps methods(<code>SootMethod</code>) to <code>BasicBlockGraph</code>s.
+	 * This maps methods to basic block graphs.
+     * @invariant method2graph.oclIsKindOf(Map(SootMethod, BasicBlockGraph)) 
 	 */
 	private final Map method2graph = new HashMap();
 
 	/**
-	 * Provides the basic block graph corresponding to the given control flow graph.
+	 * Provides the basic block graph corresponding to the given control flow graph.  It creates one if none exists.
 	 *
 	 * @param stmtGraph is the control flow graph of interest.
 	 *
@@ -68,7 +70,7 @@ public class BasicBlockGraphMgr {
 	 *
 	 * @post result != null
 	 */
-	public BasicBlockGraph getBasicBlockGraph(UnitGraph stmtGraph) {
+	public BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
 		SootMethod method = ((JimpleBody) stmtGraph.getBody()).getMethod();
 		WeakReference ref = (WeakReference) method2graph.get(method);
 
@@ -85,11 +87,9 @@ public class BasicBlockGraphMgr {
 	 * @param sm is the method for which the graph is requested.
 	 *
 	 * @return the basic block graph corresponding to <code>sm</code>, if one exists.  <code>null</code> is returned
-	 *            otherwise.
-	 *
-	 * @post result == null || result != null;
+	 * 		   otherwise.
 	 */
-	public BasicBlockGraph getBasicBlockGraph(SootMethod sm) {
+	public BasicBlockGraph getBasicBlockGraph(final SootMethod sm) {
 		WeakReference ref = (WeakReference) method2graph.get(sm);
 		BasicBlockGraph result = null;
 
@@ -100,13 +100,17 @@ public class BasicBlockGraphMgr {
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.5  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+    
+   Revision 1.5  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

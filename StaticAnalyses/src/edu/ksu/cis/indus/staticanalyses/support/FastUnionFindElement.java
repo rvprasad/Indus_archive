@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,16 +30,17 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
+import java.util.List;
+
 
 /**
- * DOCUMENT ME!
- *
- * <p></p>
+ * This class provides the basic implementation for elements to be used in fast-union-find algorithm as  defined by Aho,
+ * Ullman, and Sethi in the "Dragon" book.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -47,40 +48,45 @@ package edu.ksu.cis.indus.staticanalyses.support;
  */
 public abstract class FastUnionFindElement {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the set to which this element belongs to.
 	 */
 	protected FastUnionFindElement set;
 
 	/**
-	 * DOCUMENT ME!
+	 * A sequence of children elements of this element.
+	 */
+	protected List children;
+
+	/**
+	 * This is the type associated with this element.
+	 */
+	protected Object type;
+
+	/**
+	 * Checks if this element has any children.  This implementation has none, hence, always returns <code>true</code>.
 	 *
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code>.
 	 */
 	public boolean isAtomic() {
-		return true;
+		return children == null || children.size() == 0;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if this element is bound to a type.  This implementation does not deal with types, hence, always returns
+	 * <code>false</code>.
 	 *
-	 * <p></p>
-	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>false</code>
 	 */
 	public boolean isBound() {
-		return false;
+		return type != null;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the element that represents the equivalence class to which this element belongs to.
 	 *
-	 * <p></p>
+	 * @return the representative element.
 	 *
-	 * @return DOCUMENT ME!
+	 * @post result != null
 	 */
 	public final FastUnionFindElement find() {
 		FastUnionFindElement result = this;
@@ -96,39 +102,88 @@ public abstract class FastUnionFindElement {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the type of this element.
 	 *
-	 * <p></p>
-	 *
-	 * @param e DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
+	 * @return the type of this element.
 	 */
-	public boolean sameType(FastUnionFindElement e) {
-		return e != e;
+	public Object getType() {
+		return find().type;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given element and this element represent the same type. As this implementation does not deal with types,
+	 * it assumes no two element belong to the same type, hence, always returns <code>false</code>.
 	 *
-	 * <p></p>
+	 * @param e is the element to checked for equivalence.
 	 *
-	 * @param e DOCUMENT ME!
+	 * @return <code>false</code>
 	 *
-	 * @return DOCUMENT ME!
+	 * @pre e != null
 	 */
-	public boolean unifyComponents(FastUnionFindElement e) {
-		return e == e;
+	public boolean sameType(final FastUnionFindElement e) {
+		return false;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Unifies the given element with this element.
 	 *
-	 * <p></p>
+	 * @param e is the element to be unified with this element.
 	 *
-	 * @param e DOCUMENT ME!
+	 * @return <code>true</code> if this element was unified with the given element; <code>false</code>, otherwise.
+	 *
+	 * @pre e != null
 	 */
-	public final void union(FastUnionFindElement e) {
+	public final boolean unify(final FastUnionFindElement e) {
+		boolean result = false;
+		FastUnionFindElement a = find();
+		FastUnionFindElement b = e.find();
+
+		if (a == b || a.sameType(b)) {
+			result = true;
+		} else if (!(a.isAtomic() || b.isAtomic())) {
+			a.union(b);
+			result = a.unifyChildren(b);
+		} else if (!(a.isBound() && b.isBound())) {
+			a.union(b);
+			result = true;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Unifies the children of this element with that of the given element.
+	 *
+	 * @param e is the element whose children needs to be unified with that of this element.
+	 *
+	 * @return <code>true</code>, if the tree rooted at this element and at <code>e</code> was unified successfully;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre e != null
+	 */
+	public boolean unifyChildren(final FastUnionFindElement e) {
+		boolean result = false;
+
+		if (children != null && e.children != null && children.size() == e.children.size()) {
+			result = true;
+
+			for (int i = children.size() - 1; i >= 0 && result; i--) {
+				FastUnionFindElement c1 = (FastUnionFindElement) children.get(i);
+				FastUnionFindElement c2 = (FastUnionFindElement) e.children.get(i);
+				result &= c1.unify(c2);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Merges the equivalence classes containing <code>e</code> and this element.
+	 *
+	 * @param e is the element in an equivalence class that needs to be merged.
+	 *
+	 * @pre e != null
+	 */
+	public final void union(final FastUnionFindElement e) {
 		FastUnionFindElement a = find();
 		FastUnionFindElement b = e.find();
 
@@ -140,44 +195,19 @@ public abstract class FastUnionFindElement {
 			}
 		}
 	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param e DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public boolean unify(FastUnionFindElement e) {
-		boolean result = false;
-		FastUnionFindElement a;
-		FastUnionFindElement b;
-		a = find();
-		b = e.find();
-
-		if (a == b || a.sameType(b)) {
-			result = true;
-		} else if (!(a.isAtomic() || b.isAtomic())) {
-			a.union(b);
-			result = a.unifyComponents(b);
-		} else if (!(a.isBound() && b.isBound())) {
-			a.union(b);
-			result = true;
-		}
-
-		return result;
-	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
-Revision 1.4  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
+   $Log$
 
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
 
-*****/
+   Revision 1.4  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

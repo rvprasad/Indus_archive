@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
@@ -47,19 +47,24 @@ import java.util.Collection;
  */
 public interface INode {
 	/**
-	 * Retrieves the set of predecessor nodes of this node.
+	 * Retrieves the predecessors of this node.
 	 *
-	 * @return the collection of predecessor nodes(<code>INode</code>) of this node.
+	 * @return the collection of predecessors of this node.
+     * @post result->forall(o | o.oclIsKindOf(INode))
+     * @post result->forall(o | o.getSuccsOf()->includes(this))
 	 */
 	Collection getPredsOf();
 
 	/**
-	 * Retrieves the set of successor nodes of this node.
+	 * Retrieves the successors of this node.
 	 *
 	 * @param forward <code>true</code> implies forward direction(successors); <code>false</code> implies backward direction
-	 *           (predecessors).
+	 * 		  (predecessors).
 	 *
-	 * @return the collection of successor nodes(<code>INode</code>) of this node.
+	 * @return the collection of successors of this node.
+     * @post result->forall(o | o.oclIsKindOf(INode))
+     * @post forward == true implies result->forall(o | o.getPredsOf()->includes(this))
+     * @post forward == false implies result->forall(o | o.getSuccsOf()->includes(this))
 	 */
 	Collection getSuccsNodesInDirection(boolean forward);
 
@@ -67,17 +72,23 @@ public interface INode {
 	 * Retrieves the set of successor nodes of this node.
 	 *
 	 * @return the collection of successor nodes(<code>INode</code>) of this node.
+     * @post result->forall(o | o.oclIsKindOf(INode))
+     * @post result->forall(o | o.getPredsOf()->includes(this))
 	 */
 	Collection getSuccsOf();
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+    
+   Revision 1.1  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

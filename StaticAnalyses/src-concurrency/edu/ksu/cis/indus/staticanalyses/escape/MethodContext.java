@@ -156,8 +156,8 @@ class MethodContext
 			argAliasSets = Collections.EMPTY_LIST;
 		}
 
-		Type type = sm.getReturnType();
-		ret = AliasSet.getASForType(type);
+		Type retType = sm.getReturnType();
+		ret = AliasSet.getASForType(retType);
 		thrown = AliasSet.createAliasSet();
 
 		if (!sm.isStatic()) {
@@ -418,6 +418,13 @@ class MethodContext
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:39:07  venku
+Major:
+ - Moved the package under indus umbrella.
+
+Minor:
+ - changes to accomodate ripple effect from support package.
+
 Revision 1.2  2003/07/27 21:22:14  venku
 Minor:
  - removed unnecessary casts.

@@ -140,7 +140,7 @@ public class InterferenceDAv1
 			}
 
 			if (temp != null) {
-				Pair p = pairMgr.getPair(as, method);
+				Pair p = pairMgr.getOptimizedPair(as, method);
 
 				if (temp.get(p) == null) {
 					temp.put(p, Collections.EMPTY_LIST);
@@ -397,5 +397,10 @@ public class InterferenceDAv1
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/09 23:32:40  venku
+- Utilized containsXXX() method in Stmt
+- Even with escape information there is an issue with sequential paths.
+  This issue has been injected as TODO item, but not addressed.
+
 
 *****/

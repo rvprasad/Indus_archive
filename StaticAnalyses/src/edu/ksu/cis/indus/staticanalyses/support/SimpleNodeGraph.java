@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,10 +30,13 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,12 +58,21 @@ import java.util.Set;
 public class SimpleNodeGraph
   extends DirectedGraph {
 	/**
-	 * The collection of nodes in this graph.
+	 * The logger used by instances of this class to log messages.
+	 */
+	private static final Log LOGGER = LogFactory.getLog(SimpleNodeGraph.class);
+
+	/**
+	 * The sequence of nodes in this graph.  They are stored in the order that the nodes are created.
+	 *
+	 * @invariant nodes.oclIsTypeOf(Sequence(SimpleNode))
 	 */
 	private List nodes = new ArrayList();
 
 	/**
 	 * This maps objects to their representative nodes.
+	 *
+	 * @invariant object2nodes.oclIsTypeOf(Map(Object, SimpleNode))
 	 */
 	private Map object2nodes = new HashMap();
 
@@ -74,9 +86,7 @@ public class SimpleNodeGraph
 	public static class SimpleNode
 	  implements INode {
 		/**
-		 * <p>
-		 * DOCUMENT ME!
-		 * </p>
+		 * The object being represetned by this node.
 		 */
 		public final Object _object;
 
@@ -93,18 +103,16 @@ public class SimpleNodeGraph
 		/**
 		 * Creates a new SimpleNode object.
 		 *
-		 * @param o DOCUMENT ME!
+		 * @param o is the object to be represented by this node.
 		 */
-		SimpleNode(Object o) {
+		SimpleNode(final Object o) {
 			this._object = o;
 		}
 
 		/**
-		 * Returns the predecessor nodes of this node.
+		 * Returns the immediate predecessors of this node.
 		 *
-		 * @return the collection of predecessor nodes of this node.
-		 *
-		 * @post result->forall(o | o.oclIsKindOf(INode))
+		 * @return the immediate predecessors of this node.
 		 *
 		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getPredsOf()
 		 */
@@ -117,13 +125,13 @@ public class SimpleNodeGraph
 		 * <code>forward</code>.
 		 *
 		 * @param forward <code>true</code> indicates following outgoing edges.  <code>false</code> indicates following
-		 *           incoming edges.
+		 * 		  incoming edges.
 		 *
 		 * @return the collection of successor nodes(<code>BasicBlock</code>) of this node.
 		 *
 		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getSuccsNodesInDirection(boolean)
 		 */
-		public final Collection getSuccsNodesInDirection(boolean forward) {
+		public final Collection getSuccsNodesInDirection(final boolean forward) {
 			if (forward) {
 				return getSuccsOf();
 			} else {
@@ -132,11 +140,9 @@ public class SimpleNodeGraph
 		}
 
 		/**
-		 * Returns the successors of this node.
+		 * Returns the immediate successors of this node.
 		 *
-		 * @return the collection of successor nodes of this node.
-		 *
-		 * @post result->forall(o | o.oclIsKindOf(INode))
+		 * @return the immediate successors of this node.
 		 *
 		 * @see edu.ksu.cis.indus.staticanalyses.support.INode#getSuccsOf()
 		 */
@@ -148,8 +154,10 @@ public class SimpleNodeGraph
 		 * Adds a predecessor to this node.
 		 *
 		 * @param node is the node to be added as the predecessor.
+		 *
+		 * @post self.getPredsOf()->includes(node)
 		 */
-		public final void addPredecessors(INode node) {
+		public final void addPredecessors(final INode node) {
 			predecessors.add(node);
 		}
 
@@ -157,23 +165,37 @@ public class SimpleNodeGraph
 		 * Adds a successor to this node.
 		 *
 		 * @param node is the node to be added as the successor.
+		 *
+		 * @post self.getSuccsOf()->includes(node)
 		 */
-		public final void addSuccessors(INode node) {
+		public final void addSuccessors(final INode node) {
 			successors.add(node);
 		}
 	}
 
 	/**
-	 * Returns a node that represents <code>o</code> in this graph.
+	 * Returns a node that represents <code>o</code> in this graph.  If no such node exists, then a new node is created.
 	 *
-	 * @param o is the object to be represented as a node in this graph.
+	 * @param o is the object being represented by a node in this graph.
 	 *
 	 * @return the node representing <code>o</code>.
 	 *
-	 * @post object2nodes
-	 * @pre.get(o) = null implies object2nodes.get(o) = result
+	 * @throws NullPointerException DOCUMENT ME!
+	 *
+	 * @pre o != null
+	 * @post object2nodes$pre.get(o) == null implies inclusion
+	 * @post inclusion: nodes->includes(result) and heads->includes(result) and tails->includes(result) and
+	 * 		 object2nodes.get(o) == result
+	 * @post result != null
 	 */
-	public INode getNode(Object o) {
+	public INode getNode(final Object o) {
+		if (o == null) {
+			if (LOGGER.isErrorEnabled()) {
+				LOGGER.error("object to be represented cannot be null.");
+			}
+			throw new NullPointerException("object to be represented cannot be null.");
+		}
+
 		INode result = (INode) object2nodes.get(o);
 
 		if (result == null) {
@@ -187,8 +209,6 @@ public class SimpleNodeGraph
 	}
 
 	/**
-	 * Returns the nodes in this graph.
-	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph#getNodes()
 	 */
 	public List getNodes() {
@@ -196,15 +216,18 @@ public class SimpleNodeGraph
 	}
 
 	/**
-	 * Adds an directed edge between the given nodes.  Both the nodes should have been obtained by calling
+	 * Adds a directed edge between the given nodes.  Both the nodes should have been obtained by calling
 	 * <code>getNode()</code> on this object.
 	 *
 	 * @param src is the source of the edge.
 	 * @param dest is the destination of the edge.
 	 *
 	 * @return <code>true</code> if an edge was added; <code>false</code>, otherwise.
+	 *
+	 * @pre src != null and dest != null
+	 * @post src.getSuccsOf()->includes(dest) and dest.getPredsOf()->includes(src)
 	 */
-	public boolean addEdgeFromTo(INode src, INode dest) {
+	public boolean addEdgeFromTo(final INode src, final INode dest) {
 		boolean result = false;
 
 		if (nodes.contains(src) && nodes.contains(dest)) {
@@ -226,13 +249,14 @@ public class SimpleNodeGraph
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.5  2003/05/22 22:18:31  venku
-All the interfaces were renamed to start with an "I".
-Optimizing changes related Strings were made.
-
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+   Revision 1.5  2003/05/22 22:18:31  venku
+   All the interfaces were renamed to start with an "I".
+   Optimizing changes related Strings were made.
+ */

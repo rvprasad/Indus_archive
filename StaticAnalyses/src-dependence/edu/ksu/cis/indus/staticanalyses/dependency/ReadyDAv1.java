@@ -709,7 +709,7 @@ public class ReadyDAv1
 				temp = new HashSet();
 
 				boolean shouldContinue = true;
-				Pair pair = pairMgr.getPair(dependee, method);
+				Pair pair = pairMgr.getOptimizedPair(dependee, method);
 
 				// add dependee to dependent direction information.
 				for (Iterator k = sl.iterator(); k.hasNext();) {
@@ -723,7 +723,7 @@ public class ReadyDAv1
 					t.add(pair);
 
 					// add dependent to dependee direction information
-					temp.add(pairMgr.getPair(stmt, method));
+					temp.add(pairMgr.getOptimizedPair(stmt, method));
 
 					/*
 					 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method call-site,
@@ -757,7 +757,7 @@ public class ReadyDAv1
 							t.add(pair);
 
 							// add dependent to dependee direction information
-							temp.add(pairMgr.getPair(stmt, method));
+							temp.add(pairMgr.getOptimizedPair(stmt, method));
 
 							/*
 							 * In case there is a statement that is a wait() call-site, enter-monitor, or a ready-method
@@ -797,7 +797,7 @@ public class ReadyDAv1
 			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				Object o = j.next();
 				dependeeMap.put(o, Collections.EMPTY_LIST);
-				temp.add(pairMgr.getPair(method, o));
+				temp.add(pairMgr.getOptimizedPair(method, o));
 			}
 		}
 
@@ -813,7 +813,7 @@ public class ReadyDAv1
 
 			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				EnterMonitorStmt enter = (EnterMonitorStmt) j.next();
-				Pair enterPair = pairMgr.getPair(enter, method);
+				Pair enterPair = pairMgr.getOptimizedPair(enter, method);
 				nSet.clear();
 
 				// add dependee to dependent information 
@@ -865,7 +865,7 @@ public class ReadyDAv1
 
 			for (Iterator j = ((Collection) entry.getValue()).iterator(); j.hasNext();) {
 				InvokeStmt wait = (InvokeStmt) j.next();
-				Pair wPair = pairMgr.getPair(wait, wMethod);
+				Pair wPair = pairMgr.getOptimizedPair(wait, wMethod);
 				dependents.clear();
 
 				// add dependee to dependent information
@@ -877,7 +877,7 @@ public class ReadyDAv1
 					for (Iterator l = ((Collection) entry.getValue()).iterator(); l.hasNext();) {
 						InvokeStmt notify = (InvokeStmt) l.next();
 
-						Pair nPair = pairMgr.getPair(notify, nMethod);
+						Pair nPair = pairMgr.getOptimizedPair(notify, nMethod);
 
 						if (ifDependentOnByRule4(wPair, nPair)) {
 							Collection temp = (Collection) dependeeMap.get(notify);
@@ -907,5 +907,9 @@ public class ReadyDAv1
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/09 23:33:30  venku
+ - Enabled ready dependency to be interprocedural.
+ - Utilized containsXXX() method in Stmt.
+
 
 *****/

@@ -311,13 +311,13 @@ public class ControlDA
 
 			if (l != -1) {
 				BasicBlock bb2 = graph.getEnclosingBlock((Stmt) sl.get(l));
-				mDependee.set(sl.indexOf(j), Collections.singletonList(sl.get(bb2._TRAILER)));
+				mDependee.set(sl.indexOf(j), Collections.singletonList(sl.get(bb2._trailer)));
 
-				ArrayList dependents = (ArrayList) mDependent.get(bb2._TRAILER);
+				ArrayList dependents = (ArrayList) mDependent.get(bb2._trailer);
 
 				if (dependents.equals(Collections.EMPTY_LIST)) {
 					dependents = new ArrayList();
-					mDependent.set(bb2._TRAILER, dependents);
+					mDependent.set(bb2._trailer, dependents);
 				}
 				dependents.add(j);
 			}
@@ -331,6 +331,9 @@ public class ControlDA
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/09 23:29:52  venku
+Ripple Effect of renaming Inter/Intra procedural data DAs to Aliased/NonAliased data DA.
+
 Revision 1.1  2003/08/07 06:38:05  venku
 Major:
  - Moved the packages under indus umbrella.

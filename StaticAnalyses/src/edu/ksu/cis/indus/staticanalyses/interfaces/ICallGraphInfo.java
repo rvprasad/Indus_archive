@@ -38,7 +38,6 @@ package edu.ksu.cis.indus.staticanalyses.interfaces;
 import soot.SootMethod;
 
 import soot.jimple.InvokeExpr;
-import soot.jimple.InvokeStmt;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
@@ -116,7 +115,7 @@ public interface ICallGraphInfo {
 		 *
 		 * @return stringized representation of this object.
 		 */
-		public String toString() {
+		protected String stringize() {
 			return getSecond() + "@" + getMethod();
 		}
 	}
@@ -236,6 +235,13 @@ public interface ICallGraphInfo {
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/09 23:26:20  venku
+- Added an interface to provide use-def information.
+- Added an implementation to the above interface.
+- Extended call graph processor to retrieve call tree information rooted at arbitrary node.
+- Modified IValueAnalyzer interface such that only generic queries are possible.
+  If required, this can be extended in the future.
+
 Revision 1.1  2003/08/07 06:42:16  venku
 Major:
  - Moved the package under indus umbrella.

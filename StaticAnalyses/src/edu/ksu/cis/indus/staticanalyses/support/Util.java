@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
@@ -69,29 +69,30 @@ public final class Util {
 	}
 
 	/**
-	 * Provides the <code>SootClass</code> which injects the given method into the specific branch of the inheritence
-	 * hierarchy which contains <code>sc</code>.
+	 * Provides the class which injects the given method into the specific branch of the inheritence hierarchy which contains
+	 * the given class.
 	 *
-	 * @param sc class that defines the branch in which the injecting class exists.
-	 * @param method name of the method (not the fully classified name).
+	 * @param sc is the class in or above which the method may be defined.
+	 * @param method is the name of the method (not the fully classified name).
 	 * @param parameterTypes list of type of the parameters of the method.
 	 * @param returnType return type of the method.
 	 *
-	 * @return If there is such a class then a <code>SootClass</code> object is returned; <code>null</code> otherwise.
-	 *
-	 * @throws NoSuchMethodException is thrown when no such method is declared in the given hierarchy.
+	 * @return if such a method exists, the class that injects the method is returned. <code>null</code> is returned,
+	 * 		   otherwise.
 	 *
 	 * @pre sc != null and method != null and parameterTypes != null and returnType != null
+	 * @pre parameterTypes->forall(o | o.oclIsKindOf(Type))
 	 */
-	public static SootClass getDeclaringClass(SootClass sc, String method, List parameterTypes, Type returnType)
-	  throws NoSuchMethodException {
+	public static SootClass getDeclaringClass(final SootClass sc, final String method, final List parameterTypes,
+		final Type returnType) {
 		SootClass contains = sc;
 
 		while (!contains.declaresMethod(method, parameterTypes, returnType)) {
 			if (contains.hasSuperclass()) {
 				contains = contains.getSuperclass();
 			} else {
-				throw new NoSuchMethodException(sc + " does not define " + method + ".");
+				contains = null;
+				break;
 			}
 		}
 
@@ -99,19 +100,19 @@ public final class Util {
 	}
 
 	/**
-	 * Provides the <code>SootClass</code> which injects the given method into the specific branch of the inheritence
-	 * hierarchy which contains <code>sc</code>.  This is a shorthand version of Util.getDeclaringClass() where the
+	 * Provides the class which injects the given method into the specific branch of the inheritence hierarchy which contains
+	 * the given class.  This is a shorthand version of <code>Util.getDeclaringClass()</code> where the
 	 * <code>parameterTypes</code> is empty and the returnType is <code>VoidType</code>.
 	 *
-	 * @param sc class in or above which the method may be defined.
-	 * @param method name of the method (not the fully classified name).
+	 * @param sc is the class in or above which the method may be defined.
+	 * @param method is the name of the method (not the fully classified name).
 	 *
-	 * @return If there is such a class then a <code>SootClass</code> object is returned; <code>null</code> otherwise.
-	 * @throws NoSuchMethodException when the given method is not declared in the given class or it's ancestors.
-	 * @pre sc <> null and method <> null
+	 * @return if such a method exists, the class that injects the method is returned. <code>null</code> is returned,
+	 * 		   otherwise.
+	 *
+	 * @pre sc != null and method != null
 	 */
-	public static SootClass getDeclaringClassFromName(SootClass sc, String method)
-	  throws NoSuchMethodException {
+	public static SootClass getDeclaringClassFromName(final SootClass sc, final String method) {
 		return getDeclaringClass(sc, method, Collections.EMPTY_LIST, VoidType.v());
 	}
 
@@ -122,20 +123,21 @@ public final class Util {
 	 * @param ancestor fully qualified name of the ancestor class.
 	 *
 	 * @return <code>true</code> if a class by the name of <code>ancestor</code> is indeed the ancestor of <code>child</code>
-	 *            class; false otherwise.
+	 * 		   class; false otherwise.
 	 *
-	 * @pre child <> null and ancestor <> null
+	 * @pre child != null and ancestor != null
+	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
 	 */
-	public static boolean isDescendentOf(SootClass child, String ancestor) {
+	public static boolean isDescendentOf(final SootClass child, final String ancestor) {
 		boolean retval = false;
 		SootClass temp = child;
 
 		while (!retval) {
-			if (child.getName().equals(ancestor)) {
+			if (temp.getName().equals(ancestor)) {
 				retval = true;
 			} else {
-				if (child.hasSuperclass()) {
-					child = child.getSuperclass();
+				if (temp.hasSuperclass()) {
+					temp = temp.getSuperclass();
 				} else {
 					break;
 				}
@@ -143,7 +145,7 @@ public final class Util {
 		}
 
 		if (!retval) {
-			retval = implementsInterface(temp, ancestor);
+			retval = implementsInterface(child, ancestor);
 		}
 
 		return retval;
@@ -156,11 +158,12 @@ public final class Util {
 	 * @param ancestor the ancestor class.
 	 *
 	 * @return <code>true</code> if <code>ancestor</code> class is indeed the ancestor of <code>child</code> class; false
-	 *            otherwise.
+	 * 		   otherwise.
 	 *
-	 * @pre child <> null and ancestor <> null
+	 * @pre child != null and ancestor != null
+	 * @post result == child.oclIsKindOf(ancestor)
 	 */
-	public static boolean isDescendentOf(SootClass child, SootClass ancestor) {
+	public static boolean isDescendentOf(final SootClass child, final SootClass ancestor) {
 		return isDescendentOf(child, ancestor.getName());
 	}
 
@@ -173,9 +176,10 @@ public final class Util {
 	 *
 	 * @return <code>true</code> if <code>class1</code> is reachable from <code>class2</code>; <code>false</code>, otherwise.
 	 *
-	 * @pre class1 <> null and class2 <> null
+	 * @pre class1 != null and class2 != null
+	 * @post result == (class1.oclIsKindOf(class2) or class2.oclIsKindOf(class1))
 	 */
-	public static boolean isHierarchicallyRelated(SootClass class1, SootClass class2) {
+	public static boolean isHierarchicallyRelated(final SootClass class1, final SootClass class2) {
 		return isDescendentOf(class1, class2.getName()) || isDescendentOf(class2, class1.getName());
 	}
 
@@ -187,8 +191,10 @@ public final class Util {
 	 * @param env in which these types exists.
 	 *
 	 * @return <code>true</code> if <code>t1</code> is same as or sub type of <code>t2</code>; <code>false</code>, otherwise.
+	 *
+	 * @post result == t1.oclIsKindOf(t2)
 	 */
-	public static boolean isSameOrSubType(Type t1, Type t2, IEnvironment env) {
+	public static boolean isSameOrSubType(final Type t1, final Type t2, final IEnvironment env) {
 		boolean result = false;
 
 		if (t1.equals(t2)) {
@@ -200,17 +206,18 @@ public final class Util {
 	}
 
 	/**
-	 * Checks if type <code>t1</code> is the same/sub-type of type <code>t2</code>.  For the typing relation to be
-	 * true the types should have the same dimension and the base types should have the subtyping relation in requested
-	 * direction.
+	 * Checks if type <code>t1</code> is the same/sub-type of type <code>t2</code>.  For the typing relation to be true the
+	 * types should have the same dimension and the base types should have the subtyping relation in requested direction.
 	 *
 	 * @param t1 is the array type to be checked for equivalence or sub typing.
 	 * @param t2 is the array type against which the check is conducted.
 	 * @param env in which these types exists.
 	 *
 	 * @return <code>true</code> if <code>t1</code> is same as or sub type of <code>t2</code>; <code>false</code>, otherwise.
+	 *
+	 * @post result == t1.oclIsKindOf(t2)
 	 */
-	public static boolean isSameOrSubType(ArrayType t1, ArrayType t2, IEnvironment env) {
+	public static boolean isSameOrSubType(final ArrayType t1, final ArrayType t2, final IEnvironment env) {
 		boolean result = false;
 
 		if (t1.equals(t2)) {
@@ -228,10 +235,10 @@ public final class Util {
 	 *
 	 * @return <code>true</code> if the body of <code>sm</code> changed; <code>false</code>, otherwise.
 	 */
-	public static boolean setThreadStartBody(SootMethod sm) {
+	public static boolean setThreadStartBody(final SootMethod sm) {
 		boolean result = false;
 		SootClass declClass = sm.getDeclaringClass();
-        declClass.setApplicationClass();
+		declClass.setApplicationClass();
 
 		if (sm.isNative()
 			  && sm.getName().equals("start")
@@ -240,7 +247,7 @@ public final class Util {
 			sm.setModifiers(sm.getModifiers() ^ Modifier.NATIVE);
 
 			Jimple jimple = Jimple.v();
-			JimpleBody threadStartBody = (JimpleBody) jimple.newBody(sm);
+			JimpleBody threadStartBody = jimple.newBody(sm);
 			PatchingChain sl = threadStartBody.getUnits();
 			Local thisRef = jimple.newLocal("$this", RefType.v(declClass.getName()));
 			VirtualInvokeExpr ve;
@@ -258,99 +265,35 @@ public final class Util {
 	}
 
 	/**
-	 * Creates a new object which is of type <code>util.Collection</code> and copies the contents of
-	 * <code>src</code> into it.
-	 *
-	 * @param targetType name of the class which implements <code>util.Collection</code> interface and which
-	 *           will be the actual type of the returned object.
-	 * @param src an object which implements <code>java.util.Collection</code> interface and contains values that need to be
-	 *           copied.
-	 *
-	 * @return an instance of type <code>targetType</code> which contains all the values in collection <code>src</code>.
-	 *
-	 * @invariant src.isOclKindOf(Bag(Object))
-	 * @post result->includesAll(src)
-	 *
-	             public static Collection convert(String targetType, Collection src) {
-	                 Collection retval = null;
-	                 try {
-	                     Class collect = Class.forName(targetType);
-	                     retval = (Collection) collect.newInstance();
-	                     if (src != null) {
-	                         Iterator i = src.iterator();
-	                         while (i.hasNext()) {
-	                             retval.add(i.next());
-	                         }
-	                     }
-	                 } catch (ClassCastException e) {
-	                     LOGGER.warn(targetType + " does not implement java.util.Collection.", e);
-	                 } catch (ClassNotFoundException e) {
-	                     LOGGER.warn("The class named " + targetType + " is not available in the class path.", e);
-	                 } catch (Exception e) {
-	                     LOGGER.warn("Error instantiating an object of class " + targetType + ".", e);
-	                 }
-	                 return retval;
-	             }
-	             /**
-	 * Creates a new object which is of type <code>java.util.Collection</code> and copies the contents of the
-	 * <code>src</code> into it.
-	 *
-	 * @param targetType name of the class which implements <code>java.util.Collection</code> interface and which will be the
-	 *           actual type of the returned object.
-	 * @param src an object which implements <code>util.Collection</code> interface and contains values that
-	 *           need to be copied.
-	 *
-	 * @return an instance of type <code>targetType</code> which contains all the values in collection <code>src</code>.
-	 *
-	 * @invariant src.isOclKindOf(Bag(Object))
-	 * @post result->includesAll(src)
-	 *
-	             public static Collection convert(String targetType, Collection src) {
-	                 Collection retval = null;
-	                 try {
-	                     Class collect = Class.forName(targetType);
-	                     retval = (Collection) collect.newInstance();
-	                     if (src != null) {
-	                         Iterator i = src.iterator();
-	                         while (i.hasNext()) {
-	                             retval.add(i.next());
-	                         }
-	                     }
-	                 } catch (ClassCastException e) {
-	                     LOGGER.warn(targetType + " does not implement java.util.Collection.", e);
-	                 } catch (ClassNotFoundException e) {
-	                     LOGGER.warn("The class named " + targetType + " is not available in the class path.", e);
-	                 } catch (Exception e) {
-	                     LOGGER.warn("Error instantiating an object of class " + targetType + ".", e);
-	                 }
-	                 return retval;
-	             }
-	 */
-	/**
 	 * Checks if the given class implements the named interface.
 	 *
 	 * @param child is the class to be tested for implementation.
 	 * @param ancestor is the fully qualified name of the interface to be checked for implementation.
 	 *
 	 * @return <code>true</code> if <code>child</code> implements the named interface; <code>false</code>, otherwise.
+	 *
+	 * @post result == (child.evaluationType().allSuperTypes()->forall(o | o.name() = ancestor))
 	 */
-	public static boolean implementsInterface(SootClass child, String ancestor) {
+	public static boolean implementsInterface(final SootClass child, final String ancestor) {
 		boolean result = false;
+		SootClass temp = child;
 
-		while (!result && (child.getInterfaceCount() > 0 || child.hasSuperclass())) {
-			if (child.implementsInterface(ancestor)) {
+		while (!result && (temp.getInterfaceCount() > 0 || temp.hasSuperclass())) {
+			if (temp.implementsInterface(ancestor)) {
 				result = true;
 			} else {
-				child = child.getSuperclass();
+				temp = temp.getSuperclass();
 			}
 		}
 		return result;
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+ */

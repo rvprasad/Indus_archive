@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,7 +30,7 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
 package edu.ksu.cis.indus.staticanalyses.support;
@@ -61,15 +61,17 @@ public class BasicBlockGraph
 	/**
 	 * The control flow graph of the method represented by this graph.
 	 */
-	protected final UnitGraph stmtGraph;
+	final UnitGraph stmtGraph;
 
-	/** 
-	 * <p>DOCUMENT ME! </p>
+	/**
+	 * The list of statements in the method being represented by this graph.
+     * @invariant stmtList.oclIsKindOf(Sequence(Stmt)) 
 	 */
 	final List stmtList;
 
 	/**
-	 * The collection of nodes(<code>BasicBlock</code>) in this graph.
+	 * The collection of basic block nodes in this graph.
+     * @invariant blocks.oclIsKindOf(Sequence(BasicBlock))
 	 */
 	private final List blocks;
 
@@ -81,10 +83,11 @@ public class BasicBlockGraph
 	/**
 	 * Creates a new BasicBlockGraph object.
 	 *
-	 * @param stmtGraph is the control flow graph being represented by this graph.
+	 * @param stmtGraphParam is the control flow graph being represented by this graph.
+     * @pre stmtGraphParam != null
 	 */
-	protected BasicBlockGraph(UnitGraph stmtGraph) {
-		this.stmtGraph = stmtGraph;
+	BasicBlockGraph(final UnitGraph stmtGraphParam) {
+		this.stmtGraph = stmtGraphParam;
 		stmtList = Collections.unmodifiableList(new ArrayList(stmtGraph.getBody().getUnits()));
 
 		int numOfStmt = stmtList.size();
@@ -153,7 +156,7 @@ public class BasicBlockGraph
 		// Connect the nodes of the graph.
 		for (Iterator i = blocks.iterator(); i.hasNext();) {
 			BasicBlock block = (BasicBlock) i.next();
-			Stmt stmt = (Stmt) stmtList.get(block._TRAILER);
+			Stmt stmt = (Stmt) stmtList.get(block._trailer);
 
 			for (Iterator j = stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
 				Stmt nStmt = (Stmt) j.next();
@@ -184,15 +187,16 @@ public class BasicBlockGraph
 		/**
 		 * An index into the statement list of the method.  It is the index of the leader statement of this block.
 		 */
-		public final int _LEADER;
+		public final int _leader;
 
 		/**
 		 * An index into the statement list of the method.  It is the index of the trailer statement of this block.
 		 */
-		public final int _TRAILER;
+		public final int _trailer;
 
 		/**
 		 * The list of statements represented by this block.
+         * @invariant stmts.oclIsKindOf(Sequence(Stmt))
 		 */
 		private final List stmts;
 
@@ -201,15 +205,15 @@ public class BasicBlockGraph
 		 *
 		 * @param leader is the index of the leader statement of this block in the statement list of the method.
 		 * @param trailer is the index of the trailer statement of this block in the statement list of the method.
-		 * @param stmts is the list of statements being represented by this block.
+		 * @param stmtsParam is the list of statements being represented by this block.
 		 *
-		 * @pre leader >= 0 && leader &lt; graph.numOfStmt && trailer >= leader && trailer &lt; graph.numOfStmt;
+		 * @pre leader >= 0 && leader &lt; stmtList.size() && trailer >= leader && trailer &lt; stmtList.size();
 		 */
-		protected BasicBlock(int leader, int trailer, List stmts) {
+		BasicBlock(final int leader, final int trailer, final List stmtsParam) {
 			super(null);
-			this._LEADER = leader;
-			this._TRAILER = trailer;
-			this.stmts = new ArrayList(stmts);
+			this._leader = leader;
+			this._trailer = trailer;
+			this.stmts = new ArrayList(stmtsParam);
 		}
 
 		/**
@@ -219,11 +223,11 @@ public class BasicBlockGraph
 		 * 		  statement list of the method and not the statement list of this block.
 		 *
 		 * @return a list of <code>Stmt</code>s.
-		 *
+		 * @post result != null 
 		 * @post (start &lt; leader or start >= trailer) implies (result.size() = 0)
 		 */
-		public final List getStmtFrom(int start) {
-			return getStmtFromTo(start, _TRAILER);
+		public final List getStmtFrom(final int start) {
+			return getStmtFromTo(start, _trailer);
 		}
 
 		/**
@@ -234,10 +238,10 @@ public class BasicBlockGraph
 		 * @param end is the ending index of the requested statement list.
 		 *
 		 * @return a list of <code>Stmt</code>s.
-		 *
+		 *@post result != null
 		 * @post ((start &lt; leader or end > trailer or start >= end)) implies (result.size() = 0)
 		 */
-		public final List getStmtFromTo(int start, int end) {
+		public final List getStmtFromTo(final int start, final int end) {
 			List result = Collections.EMPTY_LIST;
 			Stmt begStmt = getStmtAt(start);
 			Stmt endStmt = getStmtAt(end);
@@ -269,7 +273,8 @@ public class BasicBlockGraph
 		/**
 		 * Retrieves the statements in this block .
 		 *
-		 * @return a list of <code>Stmt</code>s.
+		 * @return a list of statements.
+         * @post result.oclIsKindOf(Sequence(Stmt))
 		 */
 		public final List getStmtsOf() {
 			return Collections.unmodifiableList(stmts);
@@ -282,8 +287,9 @@ public class BasicBlockGraph
 	 * @param stmt is the statement of interest.
 	 *
 	 * @return the basic block enclosing the statement.
+     * @pre stmt != null
 	 */
-	public final BasicBlock getEnclosingBlock(Stmt stmt) {
+	public final BasicBlock getEnclosingBlock(final Stmt stmt) {
 		return (BasicBlock) stmt2BlockMap.get(stmt);
 	}
 
@@ -293,6 +299,7 @@ public class BasicBlockGraph
 	 * @return the list of <code>BasicBlocks</code> that make up the nodes in the graph.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.support.DirectedGraph#getNodes()
+     * @post result != null 
 	 */
 	public List getNodes() {
 		return Collections.unmodifiableList(blocks);
@@ -314,14 +321,18 @@ public class BasicBlockGraph
 	 *
 	 * @return the statement occurring at the given index.
 	 */
-	Stmt getStmtAt(int index) {
+	Stmt getStmtAt(final int index) {
 		return (Stmt) stmtList.get(index);
 	}
 }
 
-/*****
- ChangeLog:
+/*
+   ChangeLog:
 
-$Log$
+   $Log$
 
-*****/
+   Revision 1.1  2003/08/07 06:42:16  venku
+   Major:
+    - Moved the package under indus umbrella.
+    - Renamed isEmpty() to hasWork() in WorkBag.
+ */

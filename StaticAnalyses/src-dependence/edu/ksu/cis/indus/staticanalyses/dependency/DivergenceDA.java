@@ -196,7 +196,7 @@ public class DivergenceDA
 				Collections.fill(stmt2ddents, Collections.EMPTY_LIST);
 
 				for (Iterator j = preDivPoints.iterator(); j.hasNext();) {
-					stmt2ddents.set(((BasicBlock) j.next())._TRAILER, new HashSet());
+					stmt2ddents.set(((BasicBlock) j.next())._trailer, new HashSet());
 				}
 
 				/*
@@ -210,21 +210,21 @@ public class DivergenceDA
 
 					while (wb.hasWork()) {
 						BasicBlock succBB = (BasicBlock) wb.getWork();
-						Collection set = (Collection) stmt2ddees.get(succBB._LEADER);
+						Collection set = (Collection) stmt2ddees.get(succBB._leader);
 						Collection stmts = succBB.getStmtsOf();
 
 						if (set.equals(Collections.EMPTY_LIST)) {
 							set = new HashSet();
-							stmt2ddees.set(succBB._LEADER, set);
+							stmt2ddees.set(succBB._leader, set);
 						}
 
 						for (Iterator k = succBB.getPredsOf().iterator(); k.hasNext();) {
 							BasicBlock pred = (BasicBlock) k.next();
 
 							if (preDivPoints.contains(pred)) {
-								set.add(sl.get(pred._TRAILER));
+								set.add(sl.get(pred._trailer));
 							} else {
-								set.addAll((Collection) stmt2ddees.get(pred._TRAILER));
+								set.addAll((Collection) stmt2ddees.get(pred._trailer));
 							}
 						}
 
@@ -383,5 +383,8 @@ public class DivergenceDA
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/08/09 23:30:28  venku
+Enabled divergence dependency to be interprocedural.
+
 
 *****/
