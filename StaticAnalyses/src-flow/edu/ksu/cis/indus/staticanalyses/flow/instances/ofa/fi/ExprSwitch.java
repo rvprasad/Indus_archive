@@ -193,6 +193,7 @@ public class ExprSwitch
 	 * @pre e != null
 	 */
 	public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr e) {
+        fa.processClass(e.getMethod().getDeclaringClass());
 		processInstanceInvokeExpr(e);
 	}
 
@@ -295,6 +296,7 @@ public class ExprSwitch
 	 * @param e the expression to be processed.
 	 */
 	public void caseSpecialInvokeExpr(final SpecialInvokeExpr e) {
+        fa.processClass(e.getMethod().getDeclaringClass());
 		processInstanceInvokeExpr(e);
 	}
 
@@ -448,6 +450,13 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/05 02:27:20  venku
+   - unnecessary methods and fields were removed. Like
+       getCurrentProgramPoint()
+       getCurrentStmt()
+   - context holds current information and only it must be used
+     to retrieve this information.  No auxiliary arguments. FIXED.
+
    Revision 1.9  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
