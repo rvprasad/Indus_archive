@@ -57,7 +57,7 @@ public interface IValueAnalyzer
 	/** 
 	 * The id of this interface.
 	 */
-	static final Object ID = "value flow analyzer";
+	Object ID = "value flow analyzer";
 
 	/**
 	 * Retrieves the enviroment in which the analysis operates.
@@ -124,6 +124,10 @@ public interface IValueAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/07 08:59:31  venku
+   - Introduced ID to enable use of value flow analyzers in
+     higher level analyses.
+
    Revision 1.6  2003/08/21 03:32:37  venku
    Incorporated IStatus interface into any interface that provides analysis information.
    Revision 1.5  2003/08/17 10:48:34  venku
