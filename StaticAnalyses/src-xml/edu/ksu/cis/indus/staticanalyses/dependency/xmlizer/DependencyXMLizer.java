@@ -222,7 +222,7 @@ public class DependencyXMLizer
 	 * @param s DOCUMENT ME!
 	 */
 	public static void main(final String[] s) {
-		Object[][] das =
+		Object[][] dasOptions =
 			{
 				{ "1", "ibdda", "Identifier based data dependence", new IdentifierBasedDataDA() },
 				{ "2", "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
@@ -250,8 +250,8 @@ public class DependencyXMLizer
 		options.addOption(option);
 		option.setRequired(false);
 
-		for (int i = 0; i < das.length; i++) {
-			option = new Option(das[i][0].toString(), das[i][1].toString(), false, das[i][2].toString());
+		for (int i = 0; i < dasOptions.length; i++) {
+			option = new Option(dasOptions[i][0].toString(), dasOptions[i][1].toString(), false, dasOptions[i][2].toString());
 			options.addOption(option);
 		}
 
@@ -272,9 +272,9 @@ public class DependencyXMLizer
 			xmlizer.setClassNames(cl.getOptionValues('c'));
 			xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 
-			for (int i = 0; i < das.length; i++) {
-				if (cl.hasOption(das[i][0].toString())) {
-					xmlizer.populateDA((DependencyAnalysis) das[i][3]);
+			for (int i = 0; i < dasOptions.length; i++) {
+				if (cl.hasOption(dasOptions[i][0].toString())) {
+					xmlizer.populateDA((DependencyAnalysis) dasOptions[i][3]);
 				}
 			}
 			xmlizer.initialize();
@@ -696,6 +696,8 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/12/01 13:33:20  venku
+   - added support to pick dependences to run from command line.
    Revision 1.14  2003/11/30 01:38:52  venku
    - incorporated tag based filtering during CG construction.
    Revision 1.13  2003/11/30 01:17:15  venku
