@@ -1,0 +1,577 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "file:/home/venku/bin/Oxygen/docbook/dtd/docbookx.dtd">
+<article class="productsheet">
+  <title>Indus Java Program Slicer</title>
+  <articleinfo>
+    <title>Indus Java Program Slicer</title>
+    <pubdate/>
+    <author>
+      <firstname>Venkatesh Prasad</firstname>
+      <surname>Ranganath</surname>
+      <affiliation>
+        <orgname>Kansas State University</orgname>
+      </affiliation>
+      <email>rvprasad@cis.ksu.edu</email>
+    </author>
+  </articleinfo>
+  <sect1 id="background">
+    <title>Background</title>
+    <sect2 id="program-slicing">
+      <title>Program Slicing</title>
+      <para>
+        <emphasis>Program slicing</emphasis> is a well known (at least in the research arena) program analysis technique
+        that can be used to find the program points<footnote>
+          <para>A program point may be an expression or a statement in a program.</para>
+        </footnote> affected by a given program point and vice versa. Given a program point the slicing algorithm
+        identifies the program points that affect the given program point. The program in which the slice is identified
+        is referred to as <emphasis>substrate program</emphasis>, the given program point is referred to as
+          <emphasis>slice criterion</emphasis>, and the identified program points constitute a <emphasis>program slice
+          w.r.t. the given criteria<footnote>
+            <para>We shall use criteria and slice criteria interchangeably. Likewise, we shall use slice and program
+              slice interchangeably.</para>
+          </footnote>
+        </emphasis>. </para>
+      <para>A program slice constructed by identifying <emphasis>program points that affect a given program
+        point</emphasis> is called a <emphasis>backward slice</emphasis>. A program slice composed of <emphasis>program
+          points affected by a program point</emphasis> is called a <emphasis>forward slice</emphasis>. We use the term
+          <emphasis>complete slice</emphasis> to indicate a program slice which is the union of both backward and
+        forward slice w.r.t the given criteria. We refer to this aspect of the slice as <emphasis>type of the
+        slice</emphasis>. It is clear to see that the program points identified as mentioned above may not constitute an
+        executable program. Hence, we introduce the term <emphasis>executable slice</emphasis> to indicate that a slice
+        is executable.</para>
+    </sect2>
+    <sect2 id="dependences">
+      <title>Dependences</title>
+      <para>The concept of a program point affecting/affected by another program point is captured as dependences.
+        <emphasis>Dependence</emphasis> can be thought of as a relation between two program points x and y that
+        indicates if x depends on y. In a dependence relation between x and y where x depends on y, we refer to x as the
+        <emphasis>dependent</emphasis> and y as the <emphasis>dependee</emphasis>
+        <footnote>
+          <para>We shall often refer to dependent program points as the dependent and dependee program point as the dependee.</para>
+        </footnote>. </para>
+      <para>There are many notions of dependences and <emphasis>data</emphasis> and <emphasis>control</emphasis>
+        dependence are the most common and simple notions of dependences that can occur even in simple non-procedural
+        sequential programs. In a simple setting <emphasis>data dependence</emphasis> indicates if the variable being
+        read at a program point is influenced by another program point at which the same variable is being written.
+        Similarly, <emphasis>control dependence</emphasis> indicates if the flow of control to a program point is
+        dependent on another program point. </para>
+      <para>Given the notion of dependences, a program slice can be thought of as the transitive closure of the slice
+        criteria based on dependence relation.</para>
+      <para>An important restriction on the above stated dependence was that there should be a control flow path between
+        the program points being considered. Hence, these simple notions need to be extended to be applicable in an
+        inter-procedural setting and it is usually achieved by inlining the methods and constructing a program control
+        flow graph for the entire program <citation>HorwitzPLDI88</citation>. The notions can again be extended in a
+        conservative/pessimistic way when dealing with programs that use concepts such as dynamic memory allocation and
+        reference variables. However, these notions fail when dealing with concurrent programs that use concepts such as
+        dynamic memory allocation and reference variables which is a common case in programs written OO languages such
+        as C++ and Java as there is not control flow between program points in different threads. If one were to attempt
+        to patch a control flow graph (CFG) that captures all possible interleavings of the program then the size of
+        such a CFG can be exponential as the number of interleavings in a concurrent program can be exponential (in the
+        worst case.) This limitation was identified and addressed by many <citation>HatcliffSAS99</citation>
+        <citation>KrinkePASTE98</citation> by introducing new notions of dependences that were applicable to concurrent programs.</para>
+      <para>
+        <emphasis>Interference Dependence</emphasis> is one such dependence. It can be defined as "if a variable
+        <emphasis>x</emphasis> is written at a program point <emphasis>m</emphasis> and <emphasis>x</emphasis> is read
+        at a program point <emphasis>n</emphasis> and <emphasis>m</emphasis> and <emphasis>n</emphasis> occur in
+        different threads then <emphasis>n</emphasis> is said to be <emphasis>interference dependent</emphasis> on <emphasis>m</emphasis>
+        <footnote>
+          <para>Note that this definition is not precise.</para>
+        </footnote>. This dependence is an extension of data dependence in which the restriction of the existence of a
+        control flow path is relaxed to capture data dependence between program points in different threads. Refer to
+        [cite John, Krinke] for more detail about this notion of dependence. <citation>HatcliffSAS99</citation> and
+        <citation>KrinkePASTE98</citation> provide details about this dependence.</para>
+      <para>Monitor-related constructs such as
+        <emphasis>java.lang.wait()/java.lang.notify()/java.lang.notifyAll()</emphasis> in Java introduce a new notion of
+        dependence between program points in different threads as the completion of execution of a wait statement is
+        dependent on a notify statement (ignoring exceptional completion). Similar situation occurs between
+          <emphasis>enter monitor</emphasis> and <emphasis>exit monitor</emphasis> program points. This dependence is
+        similar to control dependence except that it does not impose the restriction of existence of a control flow path
+        and it is concerned with the control leaving the dependent program point rather than reaching it. This notion of
+        dependence is defined as <emphasis>Ready Dependence</emphasis>. </para>
+      <para>Another form of ready dependence that is more similar to control dependence (as it relies on a control flow
+        path) relates the statements reachable in a CFG from statement containing <code>enter_montior</code> or calls to
+        <code>java.lang.Object.wait()</code>. The dependence captures the requirement of the completion of the dependee
+        statement for the control to reach the dependent statement. This dependence captures divergence relation based
+        on synchronization constructs unlike the <emphasis>conditional-based divergence dependence</emphasis>. These
+        dependences are discussed in greater detail in <citation>HatcliffSAS99</citation>
+      </para>
+    </sect2>
+    <sect2 id="program-slicer">
+      <title>Java Program Slicer</title>
+      <para>Most of the literature about program slicing concentrates on it's use for the purpose of program
+        understanding. Lately there have been efforts to apply slicing in areas such as error detection [cite
+        Snelting/Krinke] and model size reduction in model checking <citation>CorbettICSE00</citation>. The last
+        application has been our driving force to design and implement a program slicer for Java in Java.<footnote>
+          <para>In accordance with "Every good work of software starts by scratching a developer's personal itch", one
+            of the 7 lessons in "The Cathedral and The Bazaar" document. </para>
+        </footnote>. </para>
+      <para>Bandera is a tool kit that can be used to verify properties about a Java program via model checking. Given a
+        property various tools are used to extract a model of the program from the source and verify if it has the given
+        property, hence, verifying the program also has the property. During the process of extracting a model, we have
+        applied a program slicing to prune out parts of the program that are not necessary to discharge the existence of
+        the given property. </para>
+      <para>Our first implementation of a Java program slicer was unsuccessful from 2 reasons. One reason was it was
+        buggy. The second reason was that it was tightly coupled with Bandera. Both these reasons compelled us to design
+        and implement a Java program slicer from scratch, hence, the current product and the document you are reading!</para>
+    </sect2>
+  </sect1>
+  <sect1 id="design-architecture">
+    <title>Design and Architecture</title>
+    <sect2 id="design">
+      <title>Design Rationale</title>
+      <para>Any one with a mind for software engineering will realize that dependence information and program slicing
+        should not be tightly coupled as the latter depends on the former while the former does not depend on the
+        latter. Hence, we have separated the slicer from dependence analyses. This means that the slicer module depends
+        on "a" dependence module to provide the information it requires via a well defined "minimalistic" interface.
+        Hence, the slicer can be composed with any implementation of the specified interface. Similarly, any application
+        requiring dependence information can use the dependence analyses as is<footnote>
+          <para>May be with a thin interface adaptation layer.</para>
+        </footnote> The net effect being we were able to break down the previous single large chunk of the slicer into
+        two smaller reusable modules. </para>
+      <para>Our previous implementation of the slicer was monolithic as it was specifically designed and implemented for
+        Bandera. Hence, it was geared to generate executable backward slices. As mentioned before this is just one type
+        of a slice that can be generated. Our experience indicates that various types of slices and various properties
+        required of the slice can be combined in various ways and not all combinations are valid. For example, it may be
+        possible to collect minimal extra program points, such as return statements in procedures, along with minor
+        alterations to the slice into a backward slice to make it executable such that the behavior of the slice is
+        identical to that of the substrate program up until the program points that are the slice criteria. However, the
+        same is not true for forward slices as the future state of the program depends on the previous states beyond the
+        criteria, hence, requiring a backward slice from the criteria and this makes the slice a complete slice. This is
+        the reason we decoupled the generation of a type of a slice and ensuring any property, such as executability,
+        required of the slice. This is reflected "as is" in the design by having a module to generate the slice of a
+        type while another module "massages" the generated slice so that it possesses the required property. We refer to
+        the former module as the <emphasis>slicing engine</emphasis> and the latter is considered as part of <emphasis>
+          post processing phase</emphasis>.</para>
+      <figure id="fig01" xreflabel="Figure 1">
+        <title>The design of the Slicer</title>
+        <graphic fileref="images/design.png"/>
+      </figure>
+      <para>Most literature on slicing do not make the distinction between the identification of the slice and the
+        representation of the slice as they do not consider the end application. For those familiar with slicing this
+        may seem rather too subtle and artificial but it is not. The reason being that by definition a program slice is
+        the just some parts of the program picked based on some algorithm by tracking dependences and this process only
+        concerns the identification of these parts and nothing more. The application that uses the slice decides on the
+        representation of the slice. If the application is a visual program understanding tool, it may require the slice
+        to be represented as tagged AST nodes. An application that validates program slicers will require that the slice
+        to be residualized as a XML document which can be compared with another XML document containing the expected
+        slice. If slicing was used to remove unnecessary code, say logging, from the code base as a form of optimization
+        then slice will require the slice to residualized into executable form, say a class file in Java. This clearly
+        indicates that the process of identification of the slice and the representation of the slice are two different
+        activities and we have used this distinction to further modularize our design by breaking down the post
+        processing into <emphasis>slice post processing phase</emphasis> and <emphasis>residualization phase</emphasis>.</para>
+      <para>One major ramification of the above distinction is that it enables one to view program slicing as an
+        analysis contrary to the traditional view as a program transformation. This may enable other transformations
+        such as specialization to be combined with program slicing.</para>
+      <para>
+        <xref linkend="fig01"/> provides a graphical illustration of various parts of the slicer along with their
+        dependences based on control flow between them. This modularization of the slicer renders various parts of the
+        slicer to be libraries which leads to another benefit: <emphasis>customization</emphasis>. Given these library
+        modules the users will be able to assemble a slicer customized to their needs without much hassle.</para>
+    </sect2>
+    <sect2 id="architecture">
+      <title>Architecture</title>
+      <para>The slicer is available as a single unit with many modules. Each module is assigned a particular
+        functionality. The classes of a module may solely provide the functionality of the module or collaboratively
+        provide the functionality along with other classes in the module. Each module will also provide a well-defined
+        interface if the functionality is aimed for extension by the user. Based on this design principle, the following
+        modules exist in the slicer. <xref linkend="fig02"/> provides a UML style illustration of the modules and
+        dependences between them.</para>
+      <variablelist>
+        <varlistentry>
+          <term>slicer</term>
+          <listitem>
+            <para>This module is responsible for the identification of the slice, hence, it contains factory classes
+              required to generate slice criteria, classes that contain the algorithm to identify the slice, and classes
+              to collect the identify the slice. In our implementation, we have chosen to identify the slice by
+              annotating the AST nodes that are part of the slice. Note that as mentioned earlier, this is a plausible
+              representation technique as well.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>slicer.processing</term>
+          <listitem>This module contains various forms of post processing that can be performed on the identified slice
+            in the slice post processing phase. For example, the functionality of making a sliced executable is realized
+            as a class with a well-defined interface. The user can implement this interface to hook in another post
+            processing strategy.</listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>transformations.slicer</term>
+          <listitem>This module contains classes that transform the program based on the identified slice. One may use
+            other transformations which may be driven by the identified slice but was not intended to be driven by it.
+            However, the basic intention was to capture the transformations that are specific to slicing in this module.
+            Hence, the user would find classes that can be used to residualize a slice in this module.</listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>tools.slicer</term>
+          <listitem>
+            <para>This module contains classes that package all the relevant parts required for slicing as a "slicer"
+              facade or tool that can be readily used by the end application. The facades adhere to Indus Tool API for
+              the sake of consistency and compositionality.</para>
+            <para>Most first time users would want to start experimenting with the tool implementation available in this
+              module and later use these classes as examples to assemble a dedicated "slicer".</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>toolkits</term>
+          <listitem>This module contains adapter classes that adapt facade/tool classes available in
+            <emphasis>tools.slicer</emphasis> module to be amenable to a tool kit via preferably a tool API. For
+            example, we adapt the facades for Bandera in and plan to do the same for Eclipse.</listitem>
+        </varlistentry>
+      </variablelist>
+      <figure id="fig02" xreflabel="Figure 2">
+        <title>Architecture of the slicer</title>
+        <graphic fileref="images/architecture.png"/>
+      </figure>
+    </sect2>
+  </sect1>
+  <sect1 id="implementation">
+    <title>Implementation details</title>
+    <para>This implementation uses <emphasis>Jimple</emphasis> from the Soot toolkit as the intermediate representation.
+      Soot is available from the Sable group at McGill University. Hence, the object system should be represented in
+      Jimple to use this slicer. The reader should be comfortable with the basic concepts of Soot.</para>
+    <para>Each of the modules listed in <xref linkend="architecture"/> is a implemented as a Java package with the same
+      name rooted in the package <code>edu.ksu.cis.indus</code>. Hence, the fully qualified Java package name of the
+      module <emphasis>tools.slicer</emphasis> is <code>edu.ksu.cis.indus.tools.slicer</code>. However, we shall refer
+      to the packages via their module-based name rather than with their fully qualified Java name for the sake of simplicity.</para>
+    <para/>
+    <sect2 id="birds-eye-view">
+      <title>Bird's eye view</title>
+      <para>
+        <code>tools.slicer.SliceXMLizer</code> is a class that uses the <code>tools.slicer.SlicerTool</code>
+        <footnote>From here on, we shall refer to <emphasis>tools.slicer.SlicerTool</emphasis> as just
+        <emphasis>SlicerTool</emphasis>.</footnote> to generate the slice and it residualizes the slice as an XML
+        document and each class in the slice as a Jimple file and a class file. Following is a snippet of the main code
+        in this class. We will provide a walk through the main control flow of this class below.</para>
+      <programlistingco>
+        <areaspec>
+          <area coords="4" id="prg1.execute"/>
+          <area coords="5" id="prg1.writeXML"/>
+          <area coords="6" id="prg1.residualize"/>
+          <area coords="10" id="prg1.setTagName"/>
+          <area coords="11" id="prg1.setSystem"/>
+          <area coords="12" id="prg1.setRootMethods"/>
+          <area coords="13" id="prg1.setCriteria"/>
+          <area coords="14" id="prg1.run"/>
+        </areaspec>
+        <programlisting lang="java" linenumbering="unnumbered">      
+  public static void main(final String[] args) {
+    final SliceXMLizer _driver = .....
+    _driver.initialize();
+    _driver.execute();
+    _driver.writeXML();
+    _driver.residualize(); 
+  }
+  
+  protected final void execute() {
+    slicer.setTagName(nameOfSliceTag);
+    slicer.setSystem(scene);
+    slicer.setRootMethods(rootMethods);
+    slicer.setCriteria(Collections.EMPTY_LIST);
+    slicer.run(Phase.STARTING_PHASE, true);
+  }
+      </programlisting>
+        <calloutlist>
+          <callout arearefs="prg1.execute prg1.writeXML prg1.residualize">
+            <para>The XMLizer is created and initialized in the first 2 lines of <code>main</code>. This is followed by
+              the execution of the slicer which is followed by the writing of the slice and the substrate program as XML
+                document<footnote>The schema for these XML documents are home grown.</footnote>
+              <code>writeXML</code> and the residualization of the slice as <emphasis>Jimple</emphasis> files and
+              <emphasis>class</emphasis> files at <code>residualize</code>. These documents and class files are used as
+              artifacts in the regression test framework used to test the slicer.</para>
+          </callout>
+          <callout arearefs="prg1.setTagName">
+            <para>As we mentioned earlier we use a annotation-based approach to identify the slice. We use the inherent
+              support in Soot to tag AST nodes to identify the slice, hence, in this step we provide the name of the tag
+              that should be used to annotate AST nodes of the substrate program to identify them as belonging to the slice.</para>
+          </callout>
+          <callout arearefs="prg1.setSystem">
+            <para>Soot uses a <code>Scene</code> as a abstraction of the system that is being operated on. All the
+              classes and it's components can be accessed from the Scene via well defined interfaces. To use the slicer
+              the user loads up the classes that form the system into a <code>Scene</code> and provide it to the slice
+              in this step. </para>
+          </callout>
+          <callout arearefs="prg1.setRootMethods">
+            <para>Given just the criteria, the slicer can include parts of the system that may not be relevant in a
+              particular run. Although this information is useful in impact analysis, it is overly imprecise in most
+              cases. Hence, the user should identify the set of methods in the system that should be considered as entry
+              point while generating the slice. The identified entry point methods or root methods (from the view of a
+              call graph) is provided to the slicer in this step.</para>
+          </callout>
+          <callout arearefs="prg1.setCriteria">
+            <para>The slice criteria is set in this step. However, it may be shocking that the code is passing an empty
+              collection of criteria. As the slicer was designed and implemented as part of a larger model checking
+              project, the <code>SlicerTool</code> has the logic that can be switched on to auto generate criteria which
+              are crucial to detect deadlocks in the system. These criteria would correspond exactly to
+              <code>enter_monitor</code> and <code>exit_monitor</code> statements.</para>
+            <para>As for the part of toggling switches, <code>SlicerTool</code> is based on Indus Tool API which has
+              inherent support for configuration based on XML data via a SWT-based GUI. Hence, the
+              <code>tools.slicer</code> package comes with a default configuration that is used if none are specified
+              and it controls the toggling of various switches. This default configuration will use all possible
+              dependences in their most precise mode to calculate an executable backward slice that preserves the
+              deadlocking property of the system.</para>
+          </callout>
+          <callout arearefs="prg1.run">
+            <para>The wheels start to roll here. Although the invoked method is part of the Indus Tool API, the
+              simplified under-the-hood view is that the tool is asked to verify if it's current configuration. If so,
+              it is asked to execute. Please refer to the documentation of Indus for the details of the arguments. </para>
+            <para>The slicer tool executes in 3 stages: starting/initial, dependence calculation, and slicing. If it
+              seems that these phases depart from the phases mentioned earlier, it is because the tool is providing a
+              facade. A user just wanting to customize the residualization process can extend <code>SlicerTool</code> to
+              alter the post processing phase suitably and use the extended version. The classes from
+              <code>tools.slicer.processing</code> and <code>transformations.slicer</code> will be used in the post
+              processing phase. If he/she want more fine tuned customization then they are advised to put together a new
+              facade on lines similar to that of <code>SlicerTool</code> according to their needs.</para>
+            <para>We will get into the guts of the slicer in the next section.</para>
+          </callout>
+        </calloutlist>
+      </programlistingco>
+      <figure id="fig03" xreflabel="Figure 3">
+        <title>SlicerTool Configuration GUI</title>
+        <screenshot>
+          <graphic align="center" fileref="images/configuration.png"/>
+        </screenshot>
+      </figure>
+      <para>As the slicer adheres to Indus Tool API it comes with a built in configuration GUI (as illustrated in <xref
+        linkend="fig03"/>) that can be used from inside the application using the slicer. The configuration logic comes
+        with serialization and deserialization support as well.</para>
+    </sect2>
+    <sect2 id="the-details">
+      <title>The Details</title>
+      <para>In this section we shall deal with the implementation of the <code>SlicerTool</code>. In particular, we
+        shall only present the details of how the slicing engine is setup and driven to identify the slice which is
+        later massaged via post processing. The following snippet is the only sequence of method invocations required on
+        the slicing engine to identify a slice.</para>
+      <programlistingco>
+        <areaspec>
+          <area coords="4" id="prg2.setCgi"/>
+          <area coords="5" id="prg2.setSliceType"/>
+          <area coords="8" id="prg2.setInitMapper"/>
+          <area coords="9" id="prg2.setBBGMgr"/>
+          <area coords="10" id="prg2.setAnalyses"/>
+          <area coords="12" id="prg2.setSliceCriteria"/>
+          <area coords="13" id="prg2.initialize"/>
+          <area coords="14" id="prg2.slice"/>
+        </areaspec>
+        <programlisting>
+  void execute() {
+    ....
+    engine.setTagName(tagName);
+    engine.setCgi(callGraph);
+    engine.setSliceType(
+      _slicerConfig.getProperty(
+        SlicerConfiguration.SLICE_TYPE));
+    engine.setInitMapper(initMapper);
+    engine.engine.setBasicBlockGraphManager(bbgMgr);
+    engine.setAnalysesControllerAndDependenciesToUse(
+      daController, _slicerConfig.getNamesOfDAsToUse());
+    engine.setSliceCriteria(criteria);
+    engine.initialize();
+    engine.slice();
+    postProcessSlice();
+  }
+        </programlisting>
+        <calloutlist>
+          <callout arearefs="prg2.setCgi">
+            <para>The root methods/entry point methods set on the <code>SlicerTool</code> earlier will be used to
+              construct a call graph which will be used by the slicing algorithm to deal with interprocedural control
+              flow. Hence, the call graph provided by <code>ICallGraphInfo</code> interface defined in
+              <emphasis>StaticAnalysis</emphasis> project is provided to the engine in this step.</para>
+          </callout>
+          <callout arearefs="prg2.setSliceType">
+            <para>The type of the slice is set in this step. Note that this does not specify anything about any
+              additional property required of the slice.</para>
+          </callout>
+          <callout arearefs="prg2.setInitMapper">
+            <para>This is more of a residue of the fact that the instantiation of an object in Java is represented as 2
+              statements in Jimple. This is in accordance with the byte code format where the object is created by one
+              instruction and later one initialized by another instruction. Hence, the coupling between an allocation
+              site and the constructor invocation site needs to be explicated and this is provdied via an implementation
+              of <code>edu.ksu.cis.indus.interfaces.INewExpr2InitMapper</code> interface as it is done in this step. </para>
+          </callout>
+          <callout arearefs="prg2.setBBGMgr">
+            <para>As a matter of optimization, rather than creating basic blocks of the graphs every time it is
+              required, we cache the graphs via a <code>edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr</code> class
+              instance. Also, this makes it very easy to vary control flow graph representation used to create the basic
+              block graph across all analyses and transformations being used. This manager instance is provided to the
+              slicing engine in this step.</para>
+          </callout>
+          <callout arearefs="prg2.setAnalyses">
+            <para>In this step the slicing engine is provided with a analysis controller that was used to drive various
+              analyses along with the IDs of the dependence analyses that should be considered while slicing. The
+              analysis controller serves as reference container for the dependence analyses.</para>
+          </callout>
+          <callout arearefs="prg2.setSliceCriteria">
+            <para>The slicing criteria are provided to the slicing engine in this step. If the user wants to create
+              slicing criteria on his own then he/she should use the <code>slicer.SliceCriteriaFactory</code>.</para>
+          </callout>
+          <callout arearefs="prg2.initialize">
+            <para>In this step we request the slicing engine to initialize itself. This step should succeed for the
+              slicer to function assuming the provided objects are in valid states.</para>
+          </callout>
+          <callout arearefs="prg2.slice">
+            <para>The slicing engine identifies the slice in this step by annotating/tagging the AST nodes that belong
+              to the slice with a tag of the name provided to it.</para>
+          </callout>
+        </calloutlist>
+      </programlistingco>
+      <para> The call to <code>postProcessSlice</code> method in the <code>SlicerTool</code> combines various post
+        processing classes to massage the slice and the core of this method is given below.</para>
+      <programlistingco>
+        <areaspec>
+          <area coords="1" id="prg3.if1"/>
+          <area coords="7" id="prg3.if2"/>
+        </areaspec>
+        <programlisting>
+  if (((Boolean) _slicerConfig.getProperty(
+    SlicerConfiguration.EXECUTABLE_SLICE)).booleanValue()) {
+    final ISlicePostProcessor _postProcessor = 
+      new ExecutableSlicePostProcessor();
+    _postProcessor.process(_methods, bbgMgr, _collector);
+  }
+          
+  if (_sliceType.equals(SlicingEngine.FORWARD_SLICE)) {
+    _gotoProcessor = new ForwardSliceGotoProcessor(_collector);
+  } else if (_sliceType.equals(SlicingEngine.BACKWARD_SLICE)) {
+    _gotoProcessor = new BackwardSliceGotoProcessor(_collector);
+  } else if (_sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
+    _gotoProcessor = new CompleteSliceGotoProcessor(_collector);
+  }
+  
+  _gotoProcessor.process(_methods, bbgMgr);
+        </programlisting>
+        <calloutlist>
+          <callout arearefs="prg3.if1">
+            <para>The generated slice is massaged to make it executable, if required, in this step.</para>
+          </callout>
+          <callout arearefs="prg3.if2">
+            <para>Depending on the type of slice, a goto processor is picked. The purpose of this processing is to
+              ensure that the control flow skeletal of the slice is identical to that of the substrate program as
+              unconditional jumps are not considered by the slicing algorithm for the reason that they do not alter the
+              control flow during execution. The slice is processed through the selected goto processor to provide a
+              possibly extended slice.</para>
+            <para>For the interested reader, <code>_collector</code> is an object that is used by the slicing engine to
+              do bookkeeping operations pertaining to the identification of the slice. In particular, it annotates the
+              AST nodes that are part of the slice and maintains auxiliary information about the identified slice.
+              However, the users should be concerned with this class if they plan to add to the post processing phase.</para>
+          </callout>
+        </calloutlist>
+      </programlistingco>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Closing Note</title>
+    <para>The reader is encouraged to use the modules as is or to extend them as required. In the due process, the users
+      are urged to submit bug reports of any bugs uncovered with suitable information about the triggering input and
+      configuration. </para>
+    <para>The interface of the modules are not fixed as the development team has not forseen all possible applications
+      and tweaks to the slicer. Hence, the users are encouraged to raise change requests to the development team along
+      with any feature requests they may have. However, please note that the development team may not be able to
+      implement all requested features, but they will assist add provide the required alterations to enable the
+      requested features.</para>
+    <para>We hope you have a pleasant experience using our product.</para>
+  </sect1>
+  <bibliography>
+    <biblioentry xreflabel="CorbettICSE00">
+      <biblioset relation="article">
+        <author>
+          <firstname>James C.</firstname>
+          <surname>Corbett</surname>
+        </author>
+        <author>
+          <firstname>Matthew B.</firstname>
+          <surname>Dwyer</surname>
+        </author>
+        <author>
+          <firstname>John</firstname>
+          <surname>Hatcliff</surname>
+        </author>
+        <author>
+          <firstname>Shawn</firstname>
+          <surname>Laubach</surname>
+        </author>
+        <author>
+          <firstname>Corina S.</firstname>
+          <surname>Pasareanu</surname>
+        </author>
+        <author>
+          <firstname>Robby</firstname>
+        </author>
+        <author>
+          <firstname>Hongjun</firstname>
+          <surname>Zheng</surname>
+        </author>
+        <citetitle>Bandera: Extracting Finite-state Models from Java source code</citetitle>
+      </biblioset>
+      <biblioset relation="proceedings">
+        <title role="book">Proceedings of the 22nd International Conference on Software Engineering (ICSE'00)</title>
+        <artpagenums>439-448</artpagenums>
+        <pubdate>June 2000</pubdate>
+      </biblioset>
+    </biblioentry>
+    <biblioentry xreflabel="HorwitzPLDI88">
+      <biblioset relation="article">
+        <author>
+          <firstname>Susan</firstname>
+          <surname>Horwitz</surname>
+        </author>
+        <author>
+          <firstname>Thomas</firstname>
+          <surname>Reps</surname>
+        </author>
+        <author>
+          <firstname>David</firstname>
+          <surname>Binkley</surname>
+        </author>
+        <citetitle>Interprocedural slicing using Dependence Graphs</citetitle>
+      </biblioset>
+      <biblioset relation="proceedings">
+        <title role="book">Proceedings of the ACM SIGPLAN '88 Conference on Programming Language Design and
+          Implementation (PLDI'88)</title>
+        <artpagenums>35-46</artpagenums>
+        <pubdate>1988</pubdate>
+      </biblioset>
+    </biblioentry>
+    <biblioentry xreflabel="HatcliffSAS99">
+      <biblioset relation="article">
+        <author>
+          <firstname>John</firstname>
+          <surname>Hatcliff</surname>
+        </author>
+        <author>
+          <firstname>James C.</firstname>
+          <surname>Corbett</surname>
+        </author>
+        <author>
+          <firstname>Matthew B.</firstname>
+          <surname>Dwyer</surname>
+        </author>
+        <author>
+          <firstname>Stefan</firstname>
+          <surname>Sokolowski</surname>
+        </author>
+        <author>
+          <firstname>Hongjun</firstname>
+          <surname>Zheng</surname>
+        </author>
+        <citetitle>A Formal Study of Slicing for Multi-threaded Programs with JVM Concurrency Primitives</citetitle>
+      </biblioset>
+      <biblioset relation="proceedings">
+        <title role="book">Proceedings on the 1999 International Symposium on Static Analysis (SAS'99)</title>
+        <pubdate>Sep 2000</pubdate>
+      </biblioset>
+    </biblioentry>
+    <biblioentry xreflabel="KrinkePASTE98">
+      <biblioset relation="article">
+        <author>
+          <firstname>Jens</firstname>
+          <surname>Krinke</surname>
+        </author>
+        <citetitle>Static Slicing of Threaded Programs</citetitle>
+      </biblioset>
+      <biblioset relation="proceedings">
+        <title>Proceedings ACM SIGPLAN/SIGFSOFT Workshop on Program Analysis for Software Tools and Engineering (PASTE'98)</title>
+        <artpagenums>35-42</artpagenums>
+        <pubdate>June 1998</pubdate>
+      </biblioset>
+    </biblioentry>
+  </bibliography>
+</article>
