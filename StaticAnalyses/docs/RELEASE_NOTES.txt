@@ -24,6 +24,8 @@ Required software:
 Version 0.2
 -------------
 	- All xmlizers use classes from xmlenc library to generate xml documents.
+	- Reimplemented Entry Control dependence.
+	- Added new options to OFA and CallGraph CLI classes.
 
 
 Version 0.2a
