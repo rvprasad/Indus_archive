@@ -33,7 +33,7 @@ public abstract class AbstractSliceCriteriaPredicate
 	private SlicerTool slicerTool;
 
 	/**
-	 * @see edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate#setSlicerTool(edu.ksu.cis.indus.tools.slicer.SlicerTool)
+	 * @see ISliceCriteriaPredicate#setSlicerTool(edu.ksu.cis.indus.tools.slicer.SlicerTool)
 	 */
 	public void setSlicerTool(final SlicerTool slicer) {
 		slicerTool = slicer;

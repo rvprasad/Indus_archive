@@ -53,8 +53,6 @@ public class ScopeBasedPredicate
 	 * @return <code>true</code> if criteria should be generated; <code>false</code>, otherwise.
 	 *
 	 * @pre entity.oclIsKindOf(SootField)
-	 *
-	 * @see ISliceCriteriaPredicate#shouldGenerateCriteriaFrom(java.lang.Object)
 	 */
 	public boolean evaluate(final Object entity) {
 		return matcher.isInScope((SootField) entity, getSlicerTool().getSystem());
