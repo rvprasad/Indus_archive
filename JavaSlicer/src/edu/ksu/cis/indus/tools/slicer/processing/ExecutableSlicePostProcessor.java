@@ -133,6 +133,8 @@ public final class ExecutableSlicePostProcessor
 		final SliceCollector theCollector) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Post Processing.");
+			LOGGER.debug("SLICE BEFORE: " + ExecutableSlicePostProcessor.class.getClass() + "\n"
+				+ theCollector.toString());
 		}
 
 		collector = theCollector;
@@ -144,7 +146,6 @@ public final class ExecutableSlicePostProcessor
 		while (methodWorkBag.hasWork()) {
 			final SootMethod _method = (SootMethod) methodWorkBag.getWork();
 
-			//processedMethodCache.add(_method);
 			processMethods(_method);
 
 			if (_method.isConcrete()) {
@@ -167,6 +168,9 @@ public final class ExecutableSlicePostProcessor
 		fixupClassHierarchy();
 
 		if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("SLICE AFTER: " + ExecutableSlicePostProcessor.class.getClass() + "\n"
+                    + theCollector.toString());
+
 			LOGGER.debug("END: Post Processing.");
 		}
 	}
@@ -179,35 +183,7 @@ public final class ExecutableSlicePostProcessor
 		processedMethodCache.clear();
 	}
 
-	/*
-	 * Adds the given method to <code>methodWorkBag</code> if it was not processed earlier.
-	 *
-	 * @param method to be added.
-	 *
-	 * @pre method != null
-	 *
-	   private void addToMethodWorkBag(final SootMethod method) {
-	       if (!processedMethodCache.contains(method)) {
-	           methodWorkBag.addWorkNoDuplicates(method);
-	       }
-	   }
-	 */
-	/*
-	 * Adds the given statement to <code>stmtWorkBag</code>.
-	 *
-	 * @param stmt to be added.
-	 *
-	 * @pre stmt != null
-	 *
-	   private void addToStmtWorkBag(final Stmt stmt) {
-	       if (!processedStmtCache.contains(stmt)) {
-	           stmtWorkBag.addWorkNoDuplicates(stmt);
-	       }
-	   }       
-       */
-    
-    
-	   /**
+	/**
 	 * Fix up class hierarchy such that all abstract methods have an implemented counterpart in the slice.
 	 */
 	private void fixupClassHierarchy() {
@@ -397,7 +373,6 @@ public final class ExecutableSlicePostProcessor
 			collector.includeInSlice(_handlerUnit.getLeftOpBox());
 			collector.includeInSlice(_handlerUnit.getRightOpBox());
 			collector.includeInSlice(_trap.getException());
-			//addToStmtWorkBag(_handlerUnit);
 			stmtWorkBag.addWorkNoDuplicates(_handlerUnit);
 		}
 
@@ -469,8 +444,6 @@ public final class ExecutableSlicePostProcessor
 					}
 				}
 			}
-
-			//addToMethodWorkBag(_sm);
 			methodWorkBag.addWorkNoDuplicates(_sm);
 		}
 	}
@@ -524,6 +497,14 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/03/29 01:55:08  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.19  2004/03/03 10:09:42  venku
    - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
    Revision 1.18  2004/02/06 07:09:02  venku
