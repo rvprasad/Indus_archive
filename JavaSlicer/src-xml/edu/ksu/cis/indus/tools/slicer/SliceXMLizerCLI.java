@@ -79,7 +79,7 @@ import soot.tagkit.Tag;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class SliceXMLizer
+public class SliceXMLizerCLI
   extends SootBasedDriver {
 	/**
 	 * This is the suffix used for the files into which the slice information will be dumped in XML.
@@ -89,7 +89,7 @@ public class SliceXMLizer
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(SliceXMLizer.class);
+	private static final Log LOGGER = LogFactory.getLog(SliceXMLizerCLI.class);
 
 	/**
 	 * This is the name of the configuration file to use.
@@ -114,7 +114,7 @@ public class SliceXMLizer
 	/**
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
 	 */
-	private final String nameOfSliceTag = "SliceXMLizer";
+	private final String nameOfSliceTag = "SliceXMLizerCLI";
 
 	/**
 	 * This is the writer used to write the xmlized Jimple.
@@ -133,7 +133,7 @@ public class SliceXMLizer
 	 *
 	 * @pre generator != null
 	 */
-	protected SliceXMLizer(final IJimpleIDGenerator generator) {
+	protected SliceXMLizerCLI(final IJimpleIDGenerator generator) {
 		slicer = new SlicerTool();
 		idGenerator = generator;
 	}
@@ -147,7 +147,7 @@ public class SliceXMLizer
 	 */
 	public static void main(final String[] args) {
 		try {
-			final SliceXMLizer _driver = new SliceXMLizer(new UniqueJimpleIDGenerator());
+			final SliceXMLizerCLI _driver = new SliceXMLizerCLI(new UniqueJimpleIDGenerator());
 
 			// parse command line arguments
 			parseCommandLine(args, _driver);
@@ -273,7 +273,7 @@ public class SliceXMLizer
 	 *
 	 * @pre args != null and xmlizer != null
 	 */
-	private static void parseCommandLine(final String[] args, final SliceXMLizer xmlizer) {
+	private static void parseCommandLine(final String[] args, final SliceXMLizerCLI xmlizer) {
 		// create options
 		final Options _options = new Options();
 		Option _o =
@@ -319,7 +319,7 @@ public class SliceXMLizer
 		}
 
 		if (_exception != null || _cl.hasOption("h")) {
-			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SliceXMLizer <options> <class names>",
+			(new HelpFormatter()).printHelp("java edu.ksu.cis.indus.tools.slicer.SliceXMLizerCLI <options> <class names>",
 				_options, true);
 
 			if (_exception != null) {
@@ -536,6 +536,9 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/03/03 08:03:52  venku
+   - formatting.
+
    Revision 1.12  2004/02/25 23:40:31  venku
    - well package naming convention was inconsistent. FIXED.
    Revision 1.11  2004/02/09 06:54:18  venku
@@ -566,7 +569,7 @@ public class SliceXMLizer
    Revision 1.1  2004/01/09 07:02:11  venku
    - Made -o mandatory in SliceDriver.
    - all information is dumped into directory specified via -o.
-   - Renamed SliceDriver to SliceXMLizer.
+   - Renamed SliceDriver to SliceXMLizerCLI.
    Revision 1.31  2003/12/27 20:07:45  venku
    - fixed xmlizers/driver to not throw exception
      when -h is specified

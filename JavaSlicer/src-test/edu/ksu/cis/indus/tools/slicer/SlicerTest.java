@@ -63,7 +63,7 @@ public final class SlicerTest
 	/**
 	 * The slicer driver.
 	 */
-	SliceXMLizer driver;
+	SliceXMLizerCLI driver;
 
 	/**
 	 * The properties that define the test configuration.
@@ -83,7 +83,7 @@ public final class SlicerTest
 	 *
 	 * @pre driver != null and xmlInputDir != null
 	 */
-	public SlicerTest(final SliceXMLizer object, final String xmlInputDir) {
+	public SlicerTest(final SliceXMLizerCLI object, final String xmlInputDir) {
 		driver = object;
 		xmlInDir = xmlInputDir;
 	}
@@ -214,7 +214,7 @@ public final class SlicerTest
 				SlicerTest _test;
 
 				try {
-					_test = new SlicerTest(new SliceXMLizer(_idGenerator), _xmlInputDir);
+					_test = new SlicerTest(new SliceXMLizerCLI(_idGenerator), _xmlInputDir);
 					_test.driver.setClassNames(_temp);
 					_test.driver.setOutputDirectory(_xmlOutputDir);
 					_test.setProperties(_props);
@@ -250,10 +250,13 @@ public final class SlicerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/02/09 06:49:27  venku
+   *** empty log message ***
+
    Revision 1.5  2004/01/09 07:02:12  venku
    - Made -o mandatory in SliceDriver.
    - all information is dumped into directory specified via -o.
-   - Renamed SliceDriver to SliceXMLizer.
+   - Renamed SliceDriver to SliceXMLizerCLI.
 
    Revision 1.4  2003/12/13 02:29:16  venku
    - Refactoring, documentation, coding convention, and
