@@ -22,10 +22,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
-import soot.Body;
 import soot.SootMethod;
-
-import soot.jimple.Jimple;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -81,14 +78,8 @@ public final class BasicBlockGraphMgr {
 		}
 
 		if (flag) {
-			UnitGraph graph = unitGraphProvider.getUnitGraph(sm);
-
-			if (graph == null) {
-                final Body _body = Jimple.v().newBody();
-                _body.setMethod(sm);
-				graph = new UnitGraph(_body, false);
-			}
-			result = new BasicBlockGraph(graph);
+			final UnitGraph _graph = unitGraphProvider.getUnitGraph(sm);
+			result = new BasicBlockGraph(_graph);
 			method2graph.put(sm, new WeakReference(result));
 		}
 		return result;
@@ -129,6 +120,9 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/09 04:32:09  venku
+   - empty method body needs a method to be associated with it.  FIXED.
+
    Revision 1.2  2003/12/09 04:23:49  venku
    - used IUnitGraphFactory instead of AbstractGraphUnitFactory.
 

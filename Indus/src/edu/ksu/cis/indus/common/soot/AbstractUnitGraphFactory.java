@@ -22,7 +22,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import soot.Body;
 import soot.SootMethod;
+
+import soot.jimple.Jimple;
 
 import soot.toolkits.graph.UnitGraph;
 
@@ -77,7 +80,14 @@ public abstract class AbstractUnitGraphFactory
 		}
 
 		if (flag) {
-			result = getMethod(method);
+			result = getUnitGraphForMethod(method);
+
+			if (result == null) {
+				final Body _body = Jimple.v().newBody();
+				_body.setMethod(method);
+				result = new UnitGraph(_body, false);
+			}
+
 			method2UnitGraph.put(method, new WeakReference(result));
 		}
 		return result;
@@ -99,12 +109,15 @@ public abstract class AbstractUnitGraphFactory
 	 *
 	 * @pre not method.isConcrete() implies result == null
 	 */
-	protected abstract UnitGraph getMethod(SootMethod method);
+	protected abstract UnitGraph getUnitGraphForMethod(SootMethod method);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
    Revision 1.5  2003/12/08 10:16:26  venku
    - refactored classes such that the subclasses only provide the
      unit graphs whereas the parent class does the bookkeeping.

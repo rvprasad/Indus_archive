@@ -42,7 +42,7 @@ public class TrapUnitGraphFactory
     /**
      * {@inheritDoc}
      */
-    protected UnitGraph getMethod(final SootMethod method) {
+    protected UnitGraph getUnitGraphForMethod(final SootMethod method) {
         UnitGraph result = null;
 
         if (method.isConcrete()) {
@@ -59,6 +59,10 @@ public class TrapUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/12/09 04:22:03  venku
+   - refactoring.  Separated classes into separate packages.
+   - ripple effect.
+
    Revision 1.9  2003/12/08 10:16:26  venku
    - refactored classes such that the subclasses only provide the
      unit graphs whereas the parent class does the bookkeeping.
