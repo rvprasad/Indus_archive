@@ -39,13 +39,6 @@ public abstract class AbstractSliceCriterion {
 	protected ObjectPool pool;
 
 	/**
-	 * This indicates type of slicing being generated. It defaults to <code>SlicingEngine.BACKWARD_SLICE</code>.
-	 *
-	 * @invariant SlicingEngine.SLICE_TYPES.contains(sliceType)
-	 */
-	private Object sliceType = SlicingEngine.BACKWARD_SLICE;
-
-	/**
 	 * This indicates if the effect of executing the criterion should be considered for slicing.  By default it takes on  the
 	 * value <code>false</code> to indicate execution should not be considered.
 	 */
@@ -62,17 +55,6 @@ public abstract class AbstractSliceCriterion {
 	 */
 	public void setConsiderExecution(final boolean shouldConsiderExecution) {
 		considerExecution = shouldConsiderExecution;
-	}
-
-	/**
-	 * Sets the type of slice this criterion should be used with.
-	 *
-	 * @param theSliceType is type of slice.
-	 *
-	 * @pre theSliceType != null and SlicingEngine.SLICE_TYPES.contains(theSliceType)
-	 */
-	void setSliceType(final Object theSliceType) {
-		sliceType = theSliceType;
 	}
 
 	/**
@@ -111,17 +93,6 @@ public abstract class AbstractSliceCriterion {
 	abstract Object getCriterion();
 
 	/**
-	 * Provides the type of slice associated with this criterion.
-	 *
-	 * @return the slice type.
-	 *
-	 * @post result != null and SlicingEngine.SLICE_TYPES.contains(result)
-	 */
-	Object getSliceType() {
-		return sliceType;
-	}
-
-	/**
 	 * Indicates if the effect of execution of criterion should be considered.
 	 *
 	 * @return <code>true</code> if the effect of execution should be considered; <code>false</code>, otherwise.
@@ -151,6 +122,8 @@ public abstract class AbstractSliceCriterion {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/01 12:12:26  venku
+   - added support to carry slice type.
    Revision 1.3  2003/11/24 00:01:14  venku
    - moved the residualizers/transformers into transformation
      package.
