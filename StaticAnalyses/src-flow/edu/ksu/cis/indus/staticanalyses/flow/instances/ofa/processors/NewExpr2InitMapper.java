@@ -140,6 +140,16 @@ public class NewExpr2InitMapper
 	}
 
 	/**
+	 * Resets the data structures.
+	 */
+	public final void reset() {
+		method2map.clear();
+		contextCache.setStmt(null);
+		contextCache.setProgramPoint(null);
+		contextCache.setRootMethod(null);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
@@ -173,10 +183,11 @@ public class NewExpr2InitMapper
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/25 00:04:02  venku
+   - documenation.
    Revision 1.2  2004/02/01 23:33:43  venku
    - extracted the interface of NewExpr2InitMapper to make the
      end analyses configurable.
-
    Revision 1.1  2003/12/13 19:52:45  venku
    - renamed Init2NewExprMapper to NewExpr2InitMapper.
    - ripple effect.
