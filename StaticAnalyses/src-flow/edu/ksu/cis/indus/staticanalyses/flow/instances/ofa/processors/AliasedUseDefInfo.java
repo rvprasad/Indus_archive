@@ -231,10 +231,9 @@ public class AliasedUseDefInfo
 
 		for (final Iterator _i = def2usesMap.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
-			final Object _entity = _entry.getKey();
+			final Object _key = _entry.getKey();
 			final Map _defsite2usesites = (Map) _entry.getValue();
-
-			final Map _usesite2defsites = (Map) use2defsMap.get(_entity);
+			final Map _usesite2defsites = (Map) use2defsMap.get(_key);
 
 			if (_usesite2defsites != null) {
 				final Iterator _k = _defsite2usesites.keySet().iterator();
@@ -242,7 +241,6 @@ public class AliasedUseDefInfo
 
 				for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
 					final Pair _defSite = (Pair) _k.next();
-
 					final Iterator _l = _usesite2defsites.keySet().iterator();
 					final int _lEnd = _usesite2defsites.keySet().size();
 
@@ -464,6 +462,10 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/08/11 09:22:47  venku
+   - changed the method name in the subclass but not in the parent :-) FIXED.
+   - the way we decided on exploring various paths in v2 was not incorrect.  FIXED.
+
    Revision 1.46  2004/08/08 10:11:35  venku
    - added a new class to configure constants used when creating data structures.
    - ripple effect.
