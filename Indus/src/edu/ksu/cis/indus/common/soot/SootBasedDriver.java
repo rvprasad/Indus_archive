@@ -150,7 +150,8 @@ public class SootBasedDriver {
 	}
 
 	/**
-	 * Initialize the driver.  Loads up the classes and sets up the scene.
+	 * Initialize the driver.  Loads up the classes and sets up the scene.  The given classes are loaded up as application
+	 * classes.
 	 *
 	 * @throws RuntimeException when <code>setClassNames()</code> was not called before using this object.
 	 */
@@ -285,7 +286,8 @@ public class SootBasedDriver {
 		_result.setSootClassPath(_temp);
 
 		for (final Iterator _i = classNames.iterator(); _i.hasNext();) {
-			_result.loadClassAndSupport((String) _i.next());
+			final SootClass _sc = _result.loadClassAndSupport((String) _i.next());
+			_sc.setApplicationClass();
 		}
 
 		final Collection _mc = new HashSet();
@@ -311,6 +313,9 @@ public class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.1  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
