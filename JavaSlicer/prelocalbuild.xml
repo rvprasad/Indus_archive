@@ -24,6 +24,7 @@
         <pathelement location="/usr/local/javaclasses/commons-cli.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
+        <pathelement location="/usr/local/javaclasses/commons-lang.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
         <pathelement location="/home/venku/projects/Misc/banderaNG/lib/bandera/banderaTools.jar"/>        
         <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>

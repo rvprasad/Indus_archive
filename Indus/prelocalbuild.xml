@@ -26,6 +26,9 @@
         <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
+        <pathelement location="/usr/local/javaclasses/commons-lang.jar"/>
+        <pathelement location="/usr/local/javaclasses/commons-pool.jar"/>
+        <pathelement location="/usr/local/javaclasses/xmlenc.jar"/>
         <pathelement location="/usr/local/javaclasses/swt/swt.jar"/>    
     </path>
 

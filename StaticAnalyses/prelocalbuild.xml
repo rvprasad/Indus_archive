@@ -24,6 +24,7 @@
         <pathelement location="/usr/local/javaclasses/commons-cli.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
         <pathelement location="/usr/local/javaclasses/xmlunit.jar"/>
+        <pathelement location="/usr/local/javaclasses/xmlenc.jar"/>
         <pathelement location="../Indus/${build.dir}/"/>
     </path>
 </project>
