@@ -70,8 +70,6 @@ public final class JimpleXMLizerCLI {
 	 *
 	 * @param s is the command-line arguments.
 	 *
-	 * @throws RuntimeException DOCUMENT ME!
-	 *
 	 * @pre s != null
 	 */
 	public static void main(final String[] s) {
