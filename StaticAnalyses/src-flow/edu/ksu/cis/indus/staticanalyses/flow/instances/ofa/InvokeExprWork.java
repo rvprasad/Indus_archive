@@ -15,12 +15,12 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa;
 
+import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.processing.Context;
 
 import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
-import edu.ksu.cis.indus.staticanalyses.flow.MethodVariantManager;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 
 import java.util.Collection;
@@ -178,7 +178,7 @@ class InvokeExprWork
 		final SootMethod _sm;
 
 		try {
-			_sm = MethodVariantManager.findDeclaringMethod(_sc, expr.getMethod());
+			_sm = Util.findDeclaringMethod(_sc, expr.getMethod());
 		} catch (final IllegalStateException _excp) {
 			LOGGER.error(_sc + ":" + context.getCurrentMethod() + "@" + expr, _excp);
 			throw _excp;
