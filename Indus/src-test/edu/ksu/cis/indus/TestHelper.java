@@ -100,11 +100,11 @@ public final class TestHelper {
 				if (_suiteName != null) {
 					_t.setTestName(suite.getName() + ":" + _t.getName());
 				}
-			} else if (_test instanceof AbstractXMLBasedTest) {
-				final AbstractXMLBasedTest _t = (AbstractXMLBasedTest) _test;
+			} else if (_test instanceof IXMLBasedTest) {
+				final IXMLBasedTest _t = (IXMLBasedTest) _test;
 
 				if (_suiteName != null) {
-					_t.setTestName(suite.getName() + ":" + _t.getName());
+					((AbstractXMLBasedTest) _t).setTestName(suite.getName() + ":" + ((AbstractXMLBasedTest) _t).getName());
 				}
 			} else if (_test instanceof TestSuite) {
 				final TestSuite _t = (TestSuite) _test;
@@ -124,10 +124,11 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2004/02/14 23:16:49  venku
+   - coding convention.
    Revision 1.7  2004/02/09 07:32:41  venku
    - added support to differentiate test method name and test name.
    - added logic to change name of AbstractXMLBasedTest tests as well.
-
    Revision 1.6  2004/02/09 01:39:50  venku
    - changed test naming for report purposes.
    Revision 1.5  2004/02/09 00:42:29  venku
