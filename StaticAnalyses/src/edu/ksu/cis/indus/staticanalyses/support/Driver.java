@@ -64,6 +64,11 @@ public abstract class Driver {
 	 */
 	public static final ArrayType STR_ARRAY_TYPE = ArrayType.v(RefType.v("java.lang.String"), 1);
 
+	/** 
+	 * This manages basic block graphs of the methods being processed.  Subclasses should initialize this suitably. 
+	 */
+	protected BasicBlockGraphMgr bbm;
+
 	/**
 	 * This is the set of methods which serve as the entry point into the system being analyzed.
 	 *
@@ -196,6 +201,8 @@ public abstract class Driver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 07:13:58  venku
+ *** empty log message ***
    Revision 1.2  2003/08/11 04:20:19  venku
    - Pair and Triple were changed to work in optimized and unoptimized mode.
    - Ripple effect of the previous change.
