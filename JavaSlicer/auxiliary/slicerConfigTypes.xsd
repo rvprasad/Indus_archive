@@ -39,7 +39,21 @@
       </xsd:restriction>
     </xsd:simpleType>
 
-   <xsd:attribute name="equivalenceClassBased" type="xsd:boolean" default="true"/> 
+    <xsd:simpleType id="natureOfAnalysis1" name="slicingType">
+      <xsd:annotation>
+        <xsd:documentation>
+          This captures the type of information to be used in dependences such as interference and ready dependence.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:token">
+        <xsd:enumeration value="SYMBOL_AND_EQUIVCLS_BASED_INFO"/>
+        <xsd:enumeration value="EQUIVALENCE_CLASS_BASED_INFO"/>
+        <xsd:enumeration value="TYPE_BASED_INFO"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:attribute name="natureOfInterThreadAnalysis" type="slicer:natureOfAnalysis1" 
+        default="SYMBOL_AND_EQUIVALENCE_CLASS_BASED_INFO"/> 
    <xsd:attribute name="active" type="xsd:boolean" default="false"/> 
 
     <xsd:complexType id="divergence" name="divergence">
@@ -58,7 +72,7 @@
          This captures interference dependence information.
        </xsd:documentation>
      </xsd:annotation>
-     <xsd:attribute ref="slicer:equivalenceClassBased" use="required"/>
+     <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
     </xsd:complexType>
 
     <xsd:complexType id="ready" name="ready">
@@ -72,7 +86,7 @@
      <xsd:attribute id="rule3" name="rule3" use="required" type="xsd:boolean" default="true"/>
      <xsd:attribute id="rule4" name="rule4" use="required" type="xsd:boolean" default="true"/>
      <xsd:attribute ref="slicer:active" use="required"/>
-     <xsd:attribute ref="slicer:equivalenceClassBased" use="required"/>
+     <xsd:attribute ref="slicer:natureOfInterThreadAnalysis" use="required"/>
     </xsd:complexType>
 
 </xsd:schema>

@@ -69,9 +69,10 @@ public final class SlicerDriver {
 		+ "xsi:schemaLocation=\"http://indus.projects.cis.ksu.edu/slicer slicerConfig.xsd\" activeConfiguration=\"base\">"
 		+ "<configurationInfo executableSlice=\"true\" slicetype=\"BACKWARD_SLICE\" analysis=\"base\" name=\"first\" "
 		+ "sliceForDeadlock=\"true\">" + "<divergence active=\"true\" interprocedural=\"true\"/>"
-		+ "<interference equivalenceClassBased=\"true\"/>"
+		+ "<interference natureOfInterThreadAnalysis=\"SYMBOL_AND_EQUIVCLS_BASED_INFO\"/>"
 		+ "<ready active=\"true\" rule1=\"true\" rule2=\"true\" rule3=\"true\" rule4=\"true\" "
-		+ "equivalenceClassBased=\"true\"/>" + "</configurationInfo>" + "</slicerConfiguration>";
+		+ "natureOfInterThreadAnalysis=\"SYMBOL_AND_EQUIVCLS_BASED_INFO\"/>" + "</configurationInfo>"
+		+ "</slicerConfiguration>";
 
 	/**
 	 * This is the name of the directory into which the slicer will dump sliced artifacts into.
@@ -262,6 +263,12 @@ public final class SlicerDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/03 08:05:34  venku
+   - lots of changes
+     - changes to get the configuration working with JiBX
+     - changes to make configuration amenable to CompositeConfigurator
+     - added EquivalenceClassBasedAnalysis
+     - added fix for Thread's start method
    Revision 1.4  2003/10/21 08:42:44  venku
    - added code to actually drive the slicer by considering
      main() methods as root methods.  This is temporary.

@@ -22,14 +22,15 @@ import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
+import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
+import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
 import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 import edu.ksu.cis.indus.tools.AbstractToolConfiguration;
 import edu.ksu.cis.indus.tools.IToolConfigurationFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,91 +54,100 @@ public class SlicerConfiguration
 	 * This identifies the property that indicates if interprocedural divergence dependence should be used instead of mere
 	 * intraprocedural divergent dependence.
 	 */
-	public static final Object INTERPROCEDURAL_DIVERGENCEDA = "interprocedural divergence dependence";
+	static final Object INTERPROCEDURAL_DIVERGENCEDA = "interprocedural divergence dependence";
 
 	/**
 	 * This identifies the property that indicates if equivalence class based interference dependence should be used  instead
 	 * of naive type-based interference dependence.
 	 */
-	public static final Object EQUIVALENCE_CLASS_BASED_INTERFERENCEDA = "equivalence class based interference dependennce";
+	static final Object EQUIVALENCE_CLASS_BASED_INFO = "EQUIVALENCE_CLASS_BASED_INFO";
+
+	/**
+	 * This identifies the property that indicates if symbol and equivalence class based interference dependence should be
+	 * used  instead of naive type-based interference dependence.
+	 */
+	static final Object SYMBOL_AND_EQUIVCLS_BASED_INFO = "SYMBOL_AND_EQUIVCLS_BASED_INFO";
 
 	/**
 	 * This identifies the property that indicates if ready dependence should be considered for slicing.
 	 */
-	public static final Object USE_READYDA = "use ready dependence";
+	static final Object USE_READYDA = "use ready dependence";
 
 	/**
 	 * This identifies the property that indicates if rule1 of ready dependence be used.  Rule 1:  m is dependent on n if m
 	 * and n occur in the same thread and n is an enter monitor statement.
 	 */
-	public static final Object USE_RULE1_IN_READYDA = "use rule1 in ready dependence";
+	static final Object USE_RULE1_IN_READYDA = "use rule1 in ready dependence";
 
 	/**
 	 * This identifies the property that indicates if rule2 of ready dependence be used.  Rule 2: m is dependent on n if m
 	 * and n occur in different threads and m and n are is exit monitor and enter monitor statements, respectively.
 	 */
-	public static final Object USE_RULE2_IN_READYDA = "use rule2 in ready dependence";
+	static final Object USE_RULE2_IN_READYDA = "use rule2 in ready dependence";
 
 	/**
 	 * This identifies the property that indicates if rule3 of ready dependence be used.  Rule 3: m is dependent on n if m
 	 * and n occur in the same thread and m has a call to java.lang.Object.wait.
 	 */
-	public static final Object USE_RULE3_IN_READYDA = "use rule3 in ready dependence";
+	static final Object USE_RULE3_IN_READYDA = "use rule3 in ready dependence";
 
 	/**
 	 * This identifies the property that indicates if rule4 of ready dependence be used.  Rule 4: m is dependent on n if m
 	 * and n occur in the different thread and m and n have calls to java.lang.Object.wait(XXX) and
 	 * java.lang.Object.notifyXXX(), respectively..
 	 */
-	public static final Object USE_RULE4_IN_READYDA = "use rule4 in ready dependence";
-
-	/**
-	 * This identifies the property that indicates if equivalence class based ready dependence should be used instead of
-	 * naive type-based ready dependence.
-	 */
-	public static final Object EQUIVALENCE_CLASS_BASED_READYDA = "equivalence class based ready dependennce";
+	static final Object USE_RULE4_IN_READYDA = "use rule4 in ready dependence";
 
 	/**
 	 * This identifies the property that indicates if divergence dependence should be considered for slicing.
 	 */
-	public static final Object USE_DIVERGENCEDA = "use divergence dependence";
+	static final Object USE_DIVERGENCEDA = "use divergence dependence";
 
 	/**
 	 * This identifies the property that indicates if slice criteria should be automatically picked for slicing such that the
 	 * slice has the same deadlock behavior as the original program.
 	 */
-	public static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
+	static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	public static final Object EXECUTABLE_SLICE = "executable slice";
+	static final Object EXECUTABLE_SLICE = "executable slice";
 
 	/**
 	 * This identifies the property that indicates the slice type, i.e., forward or complete slice.
 	 */
-	public static final Object SLICE_TYPE = "slice type";
+	static final Object SLICE_TYPE = "slice type";
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
-	 */
-	private static final Collection PROPERTY_IDS_CACHE = new ArrayList();
-
-	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private static boolean uninitialized = true;
-
-	/** 
-	 * <p>DOCUMENT ME! </p>
 	 */
 	private static IToolConfigurationFactory factorySingleton = new SlicerConfiguration();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	static final Object TYPE_BASED_INFO = "TYPE_BASED_INFO";
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	static final Object NATURE_OF_INTERFERENCE_DA = "nature of interference dependence";
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	static final Object NATURE_OF_READY_DA = "nature of ready dependence";
 
 	/**
 	 * <p>
@@ -170,22 +180,18 @@ public class SlicerConfiguration
 	 * Creates a new SlicerConfiguration object.
 	 */
 	protected SlicerConfiguration() {
-		if (uninitialized) {
-			PROPERTY_IDS_CACHE.add(USE_DIVERGENCEDA);
-			PROPERTY_IDS_CACHE.add(INTERPROCEDURAL_DIVERGENCEDA);
-			PROPERTY_IDS_CACHE.add(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA);
-			PROPERTY_IDS_CACHE.add(USE_READYDA);
-			PROPERTY_IDS_CACHE.add(EQUIVALENCE_CLASS_BASED_READYDA);
-			PROPERTY_IDS_CACHE.add(USE_RULE1_IN_READYDA);
-			PROPERTY_IDS_CACHE.add(USE_RULE2_IN_READYDA);
-			PROPERTY_IDS_CACHE.add(USE_RULE3_IN_READYDA);
-			PROPERTY_IDS_CACHE.add(USE_RULE4_IN_READYDA);
-			PROPERTY_IDS_CACHE.add(SLICE_FOR_DEADLOCK);
-			PROPERTY_IDS_CACHE.add(SLICE_TYPE);
-			PROPERTY_IDS_CACHE.add(EXECUTABLE_SLICE);
-			uninitialized = false;
-		}
-		PROPERTY_IDS.addAll(PROPERTY_IDS_CACHE);
+		PROPERTY_IDS.add(USE_DIVERGENCEDA);
+		PROPERTY_IDS.add(INTERPROCEDURAL_DIVERGENCEDA);
+		PROPERTY_IDS.add(NATURE_OF_INTERFERENCE_DA);
+		PROPERTY_IDS.add(USE_READYDA);
+		PROPERTY_IDS.add(NATURE_OF_READY_DA);
+		PROPERTY_IDS.add(USE_RULE1_IN_READYDA);
+		PROPERTY_IDS.add(USE_RULE2_IN_READYDA);
+		PROPERTY_IDS.add(USE_RULE3_IN_READYDA);
+		PROPERTY_IDS.add(USE_RULE4_IN_READYDA);
+		PROPERTY_IDS.add(SLICE_FOR_DEADLOCK);
+		PROPERTY_IDS.add(SLICE_TYPE);
+		PROPERTY_IDS.add(EXECUTABLE_SLICE);
 	}
 
 	/**
@@ -202,7 +208,7 @@ public class SlicerConfiguration
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfiguration#initialize()
 	 */
 	public void initialize() {
-		setProperty(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, Boolean.TRUE);
+		setProperty(NATURE_OF_INTERFERENCE_DA, SYMBOL_AND_EQUIVCLS_BASED_INFO);
 		setProperty(USE_READYDA, Boolean.FALSE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
@@ -217,7 +223,7 @@ public class SlicerConfiguration
 		dependencesToUse.add(DependencyAnalysis.SYNCHRONIZATION_DA);
 		id2dependencyAnalyses.put(DependencyAnalysis.SYNCHRONIZATION_DA, Collections.singleton(new SynchronizationDA()));
 		dependencesToUse.add(DependencyAnalysis.INTERFERENCE_DA);
-        dependencesToUse.add(DependencyAnalysis.CONTROL_DA);
+		dependencesToUse.add(DependencyAnalysis.CONTROL_DA);
 	}
 
 	/**
@@ -234,26 +240,44 @@ public class SlicerConfiguration
 	 *
 	 * @return Should not be used!
 	 */
-	protected boolean isECBasedInterferenceDepAnalysisUsed() {
-		return ((Boolean) properties.get(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA)).booleanValue();
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
-	 *
-	 * @return Should not be used!
-	 */
-	protected boolean isECBasedReadyDepAnalysisUsed() {
-		return ((Boolean) properties.get(EQUIVALENCE_CLASS_BASED_READYDA)).booleanValue();
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
-	 *
-	 * @return Should not be used!
-	 */
 	protected boolean isInterproceduralDivergenceDepAnalysisUsed() {
 		return ((Boolean) properties.get(INTERPROCEDURAL_DIVERGENCEDA)).booleanValue();
+	}
+
+	/**
+	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 *
+	 * @param use Should not be used!
+	 */
+	protected void setNatureOfInterferenceDepAnalysis(final String use) {
+		super.setProperty(NATURE_OF_INTERFERENCE_DA, use);
+	}
+
+	/**
+	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 *
+	 * @return Should not be used!
+	 */
+	protected String getNatureOfInterferenceDepAnalysis() {
+		return (String) properties.get(NATURE_OF_INTERFERENCE_DA);
+	}
+
+	/**
+	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 *
+	 * @param use Should not be used!
+	 */
+	protected void setNatureOfReadyDepAnalysis(final String use) {
+		super.setProperty(NATURE_OF_READY_DA, use);
+	}
+
+	/**
+	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
+	 *
+	 * @return Should not be used!
+	 */
+	protected String getNatureOfReadyDepAnalysis() {
+		return (String) properties.get(NATURE_OF_READY_DA);
 	}
 
 	/**
@@ -319,7 +343,7 @@ public class SlicerConfiguration
 				} else {
 					c.clear();
 				}
-				c.add(new ControlDA(ControlDA.BACKWARD));
+				c.add(new ControlDA(ControlDA.FORWARD));
 			} else if (type.equals(SlicingEngine.FORWARD_SLICE)) {
 				Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
 
@@ -329,7 +353,7 @@ public class SlicerConfiguration
 				} else {
 					c.clear();
 				}
-				c.add(new ControlDA(ControlDA.FORWARD));
+				c.add(new ControlDA(ControlDA.BACKWARD));
 			} else if (type.equals(SlicingEngine.COMPLETE_SLICE)) {
 				Collection c = (Collection) id2dependencyAnalyses.get(DependencyAnalysis.CONTROL_DA);
 
@@ -365,19 +389,7 @@ public class SlicerConfiguration
 		if (value instanceof Boolean) {
 			Boolean val = (Boolean) value;
 
-			if (propertyID.equals(EQUIVALENCE_CLASS_BASED_READYDA)) {
-				if (val.booleanValue()) {
-					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv2()));
-				} else {
-					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv1()));
-				}
-			} else if (propertyID.equals(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA)) {
-				if (val.booleanValue()) {
-					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new InterferenceDAv2()));
-				} else {
-					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new InterferenceDAv1()));
-				}
-			} else if (propertyID.equals(USE_READYDA)) {
+			if (propertyID.equals(USE_READYDA)) {
 				if (val.booleanValue()) {
 					dependencesToUse.add(DependencyAnalysis.READY_DA);
 					id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv1()));
@@ -466,6 +478,26 @@ public class SlicerConfiguration
 			if (!SlicingEngine.SLICE_TYPES.contains(value)) {
 				result = false;
 			}
+		} else if (propertyID.equals(NATURE_OF_INTERFERENCE_DA)) {
+			if (value.equals(SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
+				id2dependencyAnalyses.put(DependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv3()));
+			} else if (value.equals(EQUIVALENCE_CLASS_BASED_INFO)) {
+				id2dependencyAnalyses.put(DependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv2()));
+			} else if (value.equals(TYPE_BASED_INFO)) {
+				id2dependencyAnalyses.put(DependencyAnalysis.INTERFERENCE_DA, Collections.singleton(new InterferenceDAv1()));
+			} else {
+				result = false;
+			}
+		} else if (propertyID.equals(NATURE_OF_READY_DA)) {
+			if (value.equals(SYMBOL_AND_EQUIVCLS_BASED_INFO)) {
+				id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv3()));
+			} else if (value.equals(EQUIVALENCE_CLASS_BASED_INFO)) {
+				id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv2()));
+			} else if (value.equals(TYPE_BASED_INFO)) {
+				id2dependencyAnalyses.put(DependencyAnalysis.READY_DA, Collections.singleton(new ReadyDAv1()));
+			} else {
+				result = false;
+			}
 		}
 		return result;
 	}
@@ -477,24 +509,6 @@ public class SlicerConfiguration
 	 */
 	protected void useDivergenceDepAnalysis(final boolean use) {
 		processPropertyHelper(USE_DIVERGENCEDA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useECBasedInterferenceDepAnalysis(final boolean use) {
-		processPropertyHelper(EQUIVALENCE_CLASS_BASED_INTERFERENCEDA, use);
-	}
-
-	/**
-	 * This method is used for java-xml binding <b>only</b>.  Hence, this is not part of the supported interface.
-	 *
-	 * @param use Should not be used!
-	 */
-	protected void useECBasedReadyDepAnalysis(final boolean use) {
-		processPropertyHelper(EQUIVALENCE_CLASS_BASED_READYDA, use);
 	}
 
 	/**
@@ -552,7 +566,9 @@ public class SlicerConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -561,7 +577,9 @@ public class SlicerConfiguration
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @return DOCUMENT ME!
 	 */
@@ -614,13 +632,14 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/11/05 02:46:54  venku
+   - added control dependence into the list of dependences to use.
    Revision 1.14  2003/11/03 08:05:34  venku
    - lots of changes
      - changes to get the configuration working with JiBX
      - changes to make configuration amenable to CompositeConfigurator
      - added EquivalenceClassBasedAnalysis
      - added fix for Thread's start method
-
    Revision 1.13  2003/10/21 06:07:01  venku
    - added support for executable slice.
    Revision 1.12  2003/10/21 06:00:19  venku

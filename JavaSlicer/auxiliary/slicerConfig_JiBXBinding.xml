@@ -21,15 +21,15 @@
 				get-method="isInterproceduralDivergenceDepAnalysisUsed"/>
 		</structure> 
 		<structure name="interference">
-			<value style="attribute" name="equivalenceClassBased" type="boolean" 
-				set-method="useECBasedInterferenceDepAnalysis" 
-				get-method="isECBasedInterferenceDepAnalysisUsed"/>
+			<value style="attribute" name="natureOfInterThreadAnalysis" type="java.lang.String" 
+				set-method="setNatureOfInterferenceDepAnalysis" 
+				get-method="getNatureOfInterferenceDepAnalysis"/>
 		</structure>
 		<structure name="ready">
 			<value style="attribute" name="active" type="boolean" 
 				set-method="useReadyDepAnalysis" get-method="isReadyDepAnalysisUsed"/>
-			<value style="attribute" name="equivalenceClassBased" type="boolean" 
-				set-method="useECBasedReadyDepAnalysis" get-method="isECBasedReadyDepAnalysisUsed"/>
+			<value style="attribute" name="natureOfInterThreadAnalysis" type="java.lang.String" 
+				set-method="setNatureOfReadyDepAnalysis" get-method="getNatureOfReadyDepAnalysis"/>
 			<value style="attribute" name="rule1" type="boolean" 
 				set-method="useReadyRule1" get-method="isReadyRule1Used"/>
 			<value style="attribute" name="rule2" type="boolean" 
