@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.interfaces;
 
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public abstract class AbstractUnitGraphFactory {
 	 *
 	 * @invariant method2UnitGraph != null and method2UnitGraph.oclIsKindOf(Map(SootMethod, UnitGraph))
 	 */
-	protected final Map method2UnitGraph = new HashMap();
+	private final Map method2UnitGraph = new HashMap();
 
 	/**
 	 * Provides the set of methods for which this object has provided graphs.
@@ -51,19 +52,51 @@ public abstract class AbstractUnitGraphFactory {
 	public final Collection getManagedMethods() {
 		return Collections.unmodifiableCollection(method2UnitGraph.keySet());
 	}
+    
+    /**
+     * Retrieves the unit graph of the given method.
+     *
+     * @param method for which the unit graph is requested.
+     *
+     * @return the requested unit graph.
+     *
+     * @post result != null
+     * @post method.isConcrete() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
+     */
+    public final UnitGraph getUnitGraph(final SootMethod method) {
+        final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
+        UnitGraph result = null;
+        boolean flag = false;
 
-	/**
-	 * Retrieves the unit graph of the given method.
-	 *
-	 * @param method for which the unit graph is requested.
-	 *
-	 * @return the requested unit graph.
-	 *
-	 * @post result != null
-	 */
-	public abstract UnitGraph getUnitGraph(final SootMethod method);
+        if (_ref == null) {
+            flag = true;
+        } else {
+            result = (UnitGraph) _ref.get();
 
+            if (result == null) {
+                flag = true;
+            }
+        }
+
+        if (flag) {
+            result = getMethod(method);
+            method2UnitGraph.put(method, new WeakReference(result));
+        }
+        return result;
+    }
+
+	
 	/**
+     * Get the unit graph associated with the method.
+     *
+     * @param method for which the unit graph is requested.
+     *
+     * @return the unit graph.
+     * @pre not method.isConcrete() implies result == null
+     */
+    protected abstract UnitGraph getMethod(SootMethod method);
+
+    /**
 	 * Resets all internal datastructures.
 	 */
 	public final void reset() {
@@ -74,6 +107,10 @@ public abstract class AbstractUnitGraphFactory {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/02 09:42:25  venku
+   - well well well. coding convention and formatting changed
+     as a result of embracing checkstyle 3.2
+
    Revision 1.3  2003/09/29 04:20:30  venku
    - coding convention.
    Revision 1.2  2003/09/28 06:54:17  venku

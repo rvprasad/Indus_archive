@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.common;
 
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
-import java.lang.ref.WeakReference;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -44,21 +42,15 @@ public class CompleteUnitGraphFactory
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
 	 */
-	public final UnitGraph getUnitGraph(final SootMethod method) {
-		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
-		UnitGraph result = (UnitGraph) _ref.get();
+	protected UnitGraph getMethod(final SootMethod method) {
+		UnitGraph result = null;
 
-		if (_ref == null || result == null) {
-			if (method.isConcrete()) {
-				result = new CompleteUnitGraph(method.retrieveActiveBody());
-				method2UnitGraph.put(method, new WeakReference(result));
+		if (method.isConcrete()) {
+			result = new CompleteUnitGraph(method.retrieveActiveBody());
 
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("Method " + method + " is not concrete.");
-				}
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Method " + method + " is not concrete.");
 			}
 		}
 		return result;
@@ -68,6 +60,10 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/08 10:03:29  venku
+   - changed the logic to obtain the reference, do the check on it,
+     and then reinstall it if it had gone bad.
+   - formatting.
    Revision 1.9  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
@@ -86,7 +82,7 @@ public class CompleteUnitGraphFactory
      have a body.
    Revision 1.2  2003/09/28 06:52:22  venku
  *** empty log message ***
-                 Revision 1.1  2003/09/28 06:22:54  venku
-                 - Added support to plug unit graphs from the environment when
-                   requested by the implementations.
+                     Revision 1.1  2003/09/28 06:22:54  venku
+                     - Added support to plug unit graphs from the environment when
+                       requested by the implementations.
  */

@@ -17,8 +17,6 @@ package edu.ksu.cis.indus.common;
 
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
-import java.lang.ref.WeakReference;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,32 +40,31 @@ public class TrapUnitGraphFactory
 	 */
 	private static final Log LOGGER = LogFactory.getLog(TrapUnitGraphFactory.class);
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(TrapUnitGraph)
-	 */
-	public final UnitGraph getUnitGraph(final SootMethod method) {
-		final WeakReference _ref = (WeakReference) method2UnitGraph.get(method);
-		UnitGraph result = (UnitGraph) _ref.get();
+    /**
+     * {@inheritDoc}
+     */
+    protected UnitGraph getMethod(final SootMethod method) {
+        UnitGraph result = null;
 
-		if (_ref == null || result == null) {
-			if (method.isConcrete()) {
-				result = new TrapUnitGraph(method.retrieveActiveBody());
-				method2UnitGraph.put(method, new WeakReference(result));
-			} else {
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("Method " + method + " is not concrete.");
-				}
-			}
-		}
-		return result;
-	}
+        if (method.isConcrete()) {
+            result = new TrapUnitGraph(method.retrieveActiveBody());
+
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Method " + method + " is not concrete.");
+            }
+        }
+        return result;
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/08 10:03:29  venku
+   - changed the logic to obtain the reference, do the check on it,
+     and then reinstall it if it had gone bad.
+   - formatting.
+
    Revision 1.7  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
