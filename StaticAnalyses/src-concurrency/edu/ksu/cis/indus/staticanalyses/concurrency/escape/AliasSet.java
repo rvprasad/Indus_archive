@@ -182,7 +182,6 @@ final class AliasSet
 		theClone = (AliasSet) super.clone();
 
 		// clone() does a shallow copy. So, change the fields in the clone suitably.
-		theClone.set = null;
 		theClone.fieldMap = new HashMap();
 
 		for (Iterator i = fieldMap.entrySet().iterator(); i.hasNext();) {
@@ -415,10 +414,13 @@ final class AliasSet
 			if (rep1.entity == null && ((rep1.waits && rep2.notifies) || (rep1.notifies && rep2.waits))) {
 				rep1.entity = new String("Entity:" + entityCount++);
 			}
+		} else {
+			rep1.shared |= rep2.shared;
 		}
 
+		rep1.waits |= rep2.waits;
+		rep1.notifies |= rep2.notifies;
 		rep1.accessed |= rep2.accessed;
-		rep1.shared |= rep2.shared;
 
 		Collection toBeProcessed = new HashSet();
 		Collection keySet = new ArrayList(rep2.fieldMap.keySet());
@@ -429,13 +431,13 @@ final class AliasSet
 			FastUnionFindElement field = (FastUnionFindElement) rep1.fieldMap.get(fieldName);
 
 			if (field != null) {
-				AliasSet repAS = (AliasSet) field.find();
+				AliasSet repAS = (AliasSet) field;
 				toBeProcessed.remove(fieldName);
 
 				FastUnionFindElement temp = (FastUnionFindElement) rep2.fieldMap.get(fieldName);
 
 				if (temp != null) {
-					repAS.unify((AliasSet) temp.find(), unifyAll);
+					repAS.unify((AliasSet) temp, unifyAll);
 				}
 			}
 		}
@@ -455,9 +457,13 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/21 01:24:25  venku
+    - Renamed src-escape to src-concurrency to as to group all concurrency
+      issue related analyses into a package.
+    - Renamed escape package to concurrency.escape.
+    - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
    Revision 1.2  2003/08/11 06:29:07  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.1  2003/08/07 06:39:07  venku
    Major:
     - Moved the package under indus umbrella.
