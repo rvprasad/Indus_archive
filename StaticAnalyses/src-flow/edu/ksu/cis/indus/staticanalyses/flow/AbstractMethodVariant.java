@@ -283,7 +283,7 @@ public abstract class AbstractMethodVariant
 		IFGNode _temp = null;
 
 		if (_var != null) {
-			_temp = _var.queryThrowNode();
+			_temp = _var.getThrowNode();
 		}
 		return _temp;
 	}

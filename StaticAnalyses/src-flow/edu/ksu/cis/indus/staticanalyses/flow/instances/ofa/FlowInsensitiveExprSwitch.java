@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2002, 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -23,6 +23,7 @@ import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.IMethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.ITokenProcessingWork;
+import edu.ksu.cis.indus.staticanalyses.flow.InvocationVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.ValuedVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
@@ -238,7 +239,8 @@ class FlowInsensitiveExprSwitch
 		Object _temp = null;
 
 		final boolean _flag = context instanceof AllocationContext;
-        if (_flag) {
+
+		if (_flag) {
 			_temp = ((AllocationContext) context).setAllocationSite(e);
 		}
 
@@ -281,7 +283,8 @@ class FlowInsensitiveExprSwitch
 		Object _temp = null;
 
 		final boolean _flag = context instanceof AllocationContext;
-        if (_flag) {
+
+		if (_flag) {
 			_temp = ((AllocationContext) context).setAllocationSite(e);
 		}
 
@@ -448,8 +451,15 @@ class FlowInsensitiveExprSwitch
 			process(e.getArgBox(_i));
 		}
 
+		final InvocationVariant _iv = (InvocationVariant) method.getASTVariant(e, context);
+		final IFGNode _ast = _iv.getFGNode();
+		final IType _baseType =
+			tokenMgr.getTypeManager().getTokenTypeForRepType(fa.getClass("java.lang.Throwable").getType());
+		final ITokenFilter _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
+		_ast.setOutFilter(_baseFilter);
+
 		if (Util.isReferenceType(e.getMethod().getReturnType())) {
-			setResult(method.getASTNode(e));
+			setResult(_ast);
 		} else {
 			setResult(null);
 		}
@@ -503,10 +513,17 @@ class FlowInsensitiveExprSwitch
 			}
 		}
 
-		if (Util.isReferenceType(e.getMethod().getReturnType())) {
-			final IFGNode _ast = method.getASTNode(e);
-			MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
+		final InvocationVariant _iv = (InvocationVariant) method.getASTVariant(e, context);
+        final IFGNode _throwNode = _iv.getThrowNode();		 
+		final IType _baseType =
+			tokenMgr.getTypeManager().getTokenTypeForRepType(fa.getClass("java.lang.Throwable").getType());
+		final ITokenFilter _baseFilter = tokenMgr.getTypeBasedFilter(_baseType);
+		_throwNode.setOutFilter(_baseFilter);
+        _callee.queryThrownNode().addSucc(_throwNode);
 
+		if (Util.isReferenceType(e.getMethod().getReturnType())) {
+            final IFGNode _ast = _iv.getFGNode();
+			MethodVariant.setOutFilterOfBasedOn(_ast, e.getType(), tokenMgr);
 			_callee.queryReturnNode().addSucc(_ast);
 			setResult(_ast);
 		} else {

@@ -197,9 +197,11 @@ class MethodVariant
 
 				if (_t.isEmpty()) {
 					final ThrowStmt _throwStmt = (ThrowStmt) _stmt;
+                    context.setProgramPoint(_throwStmt.getOpBox());
 					queryASTNode(_throwStmt.getOp(), context).addSucc(thrownNode);
 				}
 			} else if (_stmt.containsInvokeExpr()) {
+                context.setProgramPoint(_stmt.getInvokeExprBox());
 				queryThrowNode(_stmt.getInvokeExpr(), context).addSucc(thrownNode);
 			}
 		}

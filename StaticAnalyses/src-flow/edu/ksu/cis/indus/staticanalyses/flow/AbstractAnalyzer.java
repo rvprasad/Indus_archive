@@ -118,7 +118,7 @@ public abstract class AbstractAnalyzer
 			final InvocationVariant _iv = (InvocationVariant) _mv.getASTVariant(e, context);
 
 			if (_iv != null) {
-				_temp = _iv.queryThrowNode().getValues();
+				_temp = _iv.getThrowNode().getValues();
 			}
 		}
 		context = _tmpCtxt;

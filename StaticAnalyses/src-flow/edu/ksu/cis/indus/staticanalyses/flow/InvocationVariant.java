@@ -52,7 +52,7 @@ public class InvocationVariant
 	 *
 	 * @pre exception != null
 	 */
-	public IFGNode queryThrowNode() {
+	public IFGNode getThrowNode() {
 		return thrownExceptionNode;
 	}
 }

@@ -184,27 +184,29 @@ class InvokeExprWork
 		final IMethodVariant _mv = _fa.getMethodVariant(_sm, context);
 
 		if (!installedVariants.contains(_mv)) {
-			IFGNode _param;
-			IFGNode _arg;
-
 			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
 				if (_sm.getParameterType(_j) instanceof RefLikeType) {
-					_param = _mv.queryParameterNode(_j);
+					final IFGNode _param = _mv.queryParameterNode(_j);
 					context.setProgramPoint(expr.getArgBox(_j));
-					_arg = caller.queryASTNode(expr.getArg(_j), context);
+					final IFGNode _arg = caller.queryASTNode(expr.getArg(_j), context);
 					_arg.addSucc(_param);
 				}
 			}
-			_param = _mv.queryThisNode();
+            
+			final IFGNode _thisNode = _mv.queryThisNode();
 			context.setProgramPoint(expr.getBaseBox());
-			_arg = caller.queryASTNode(expr.getBase(), context);
-			_arg.addSucc(_param);
+			final IFGNode _receiverNode = caller.queryASTNode(expr.getBase(), context);
+			_receiverNode.addSucc(_thisNode);
 
+            final IFGNode _thrownNode = _mv.queryThrownNode();
+            context.setProgramPoint(accessExprBox);
+            final IFGNode _receivingNode = caller.queryThrowNode(expr, context);
+            _thrownNode.addSucc(_receivingNode);
+            
 			if (returnsRefLikeType) {
-				_arg = _mv.queryReturnNode();
-				context.setProgramPoint(accessExprBox);
-				_param = caller.queryASTNode(expr, context);
-				_arg.addSucc(_param);
+				final IFGNode _returnNode = _mv.queryReturnNode();
+				final IFGNode _returnValueNode = caller.queryASTNode(expr, context);
+				_returnNode.addSucc(_returnValueNode);
 			}
 			installedVariants.add(_mv);
 		}

@@ -65,6 +65,7 @@ public interface IMethodVariant
 	 * @return the variant associated with <code>v</code> in the context <code>c</code>.
 	 *
 	 * @pre v != null and ctxt != null
+	 * @post v.oclIsKindOf(InvokeExpr) implies result.oclIsKindOf(InvocationVariant)
 	 */
 	ValuedVariant getASTVariant(final Value v, final Context ctxt);
 
