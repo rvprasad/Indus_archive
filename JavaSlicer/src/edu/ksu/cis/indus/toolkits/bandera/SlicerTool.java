@@ -63,11 +63,6 @@ public class SlicerTool
 	public static final Object CRITERIA = "slicingCriteria";
 
 	/**
-	 * This identifies the slicing tag name in the input arguments.
-	 */
-	public static final String TAG_NAME = "slicingTagName";
-
-	/**
 	 * The collection of input argument identifiers.
 	 */
 	private static final List IN_ARGUMENTS_IDS;
@@ -82,7 +77,6 @@ public class SlicerTool
 		IN_ARGUMENTS_IDS.add(SCENE);
 		IN_ARGUMENTS_IDS.add(ROOT_METHODS);
 		IN_ARGUMENTS_IDS.add(CRITERIA);
-		IN_ARGUMENTS_IDS.add(TAG_NAME);
 		OUT_ARGUMENTS_IDS = new ArrayList();
 		OUT_ARGUMENTS_IDS.add(SCENE);
 	}
@@ -91,6 +85,11 @@ public class SlicerTool
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SlicerTool.class);
+
+	/**
+	 * The default tag name to be used.
+	 */
+	private static final String TAG_NAME = "Slicer:Bandera";
 
 	/**
 	 * The slicer tool that is adapted by this object.
@@ -109,7 +108,7 @@ public class SlicerTool
 		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool();
 
 		TagBasedSlicingTransformer tgsbt = new TagBasedSlicingTransformer();
-		tgsbt.setTagName("Slicer:Bandera");
+		tgsbt.setTagName(TAG_NAME);
 		tool.setTransformer(tgsbt);
 
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
@@ -136,9 +135,7 @@ public class SlicerTool
 	 * @param inputArgs maps the input argument identifiers to the arguments.
 	 *
 	 * @pre inputArgs.get(SCENE) != null and inputArgs.get(SCENE).oclIsKindOf(Scene)
-	 * @pre inputArgs.get(CRITERIA) != null and
-	 * 		inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.AbstractSliceCriterion))
-	 * @pre inputArgs.get(TAG_NAME) != null and inputArgs.get(TAG_NAME).oclIsKindOf(String)
+	 * @pre inputArgs.get(CRITERIA).oclIsKindOf(Collection(edu.ksu.cis.indus.slicer.AbstractSliceCriterion))
 	 * @pre inputArgs.get(ROOT_METHODS) != null and inputArgs.get(ROOT_METHODS).oclIsKindOf(Collection(SootMethod))
 	 *
 	 * @see edu.ksu.cis.bandera.tool.Tool#setInputMap(java.util.Map)
@@ -163,8 +160,8 @@ public class SlicerTool
 				Object o = i.next();
 
 				if (!SliceCriteriaFactory.isSlicingCriterion(o)) {
-					LOGGER.error(o + " is an invalid slicing criterion.  All slicing criterion should be created via "
-						+ "SliceCriteriaFactory.");
+					LOGGER.error(o + " is an invalid slicing criterion.  "
+						+ "All slicing criterion should be created via SliceCriteriaFactory.");
 					throw new IllegalArgumentException("Slicing criteion " + o + " was not created by SliceCriteriaFactory.");
 				}
 			}
@@ -172,10 +169,9 @@ public class SlicerTool
 
 		Collection rootMethods = (Collection) inputArgs.get(ROOT_METHODS);
 
-		if (criteria == null || criteria.isEmpty()) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("Atleast one method should be specified as the entry-point into the system.");
-			}
+		if (rootMethods == null || rootMethods.isEmpty()) {
+			LOGGER.error("Atleast one method should be specified as the entry-point into the system.");
+			throw new IllegalArgumentException("Atleast one method should be specified as the entry-point into the system.");
 		}
 		tool.setRootMethods(rootMethods);
 	}
@@ -236,6 +232,8 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/11/14 21:09:37  venku
+   - formatting.
    Revision 1.13  2003/11/14 21:08:17  venku
    - verify the type of criteria if atleast one is specified.
    Revision 1.12  2003/11/13 15:37:47  venku
