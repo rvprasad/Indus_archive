@@ -216,7 +216,18 @@ public class ASTCloner
 		 *
 		 * @return the clone of a class named <code>clazz</code>.
 		 */
-		public SootClass getCloneOfSootClass(String clazz);
+		public SootClass getCloneOf(String clazz);
+
+		/**
+		 * DOCUMENT ME!
+		 * 
+		 * <p></p>
+		 *
+		 * @param name DOCUMENT ME!
+		 * @param method DOCUMENT ME!
+		 * @return DOCUMENT ME!
+		 */
+		public Local getLocal(String name, SootMethod method);
 	}
 
 	/**
@@ -376,7 +387,7 @@ public class ASTCloner
 	 * @see ca.mcgill.sable.soot.jimple.JimpleValueSwitch#caseLocal(ca.mcgill.sable.soot.jimple.Local)
 	 */
 	public void caseLocal(Local l) {
-		resValue = jimple.newLocal(l.getName(), l.getType());
+		resValue = helper.getLocal(l.getName(), method);
 	}
 
 	/**
@@ -519,7 +530,7 @@ public class ASTCloner
 	 * @see ca.mcgill.sable.soot.jimple.RefSwitch#caseThisRef(ca.mcgill.sable.soot.jimple.ThisRef)
 	 */
 	public void caseThisRef(ThisRef v) {
-		resValue = jimple.newThisRef(helper.getCloneOfSootClass(((RefType) v.getType()).className));
+		resValue = jimple.newThisRef(helper.getCloneOf(((RefType) v.getType()).className));
 	}
 
 	/**
@@ -579,8 +590,7 @@ public class ASTCloner
 	 * @param v is the method invocation of interest.
 	 *
 	 * @return a collection of AST chunks.
-	 */
-	/*!
+	 *
 	 * @post result.size() = v.getArgCount()
 	 */
 	private ca.mcgill.sable.util.List getArgs(InvokeExpr v) {
@@ -598,8 +608,5 @@ public class ASTCloner
  ChangeLog:
 
 $Log$
-Revision 1.1.1.1  2003/02/17 23:59:51  venku
-Placing JavaSlicer under version control.
-
 
 *****/
