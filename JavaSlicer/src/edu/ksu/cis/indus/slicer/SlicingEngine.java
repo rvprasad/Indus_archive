@@ -15,13 +15,13 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -183,11 +183,6 @@ public final class SlicingEngine {
 	private final Collection dependencies = new HashSet();
 
 	/**
-	 * The dependency analyses to be considered for intra-procedural slicing.
-	 */
-	private final Collection intraProceduralDependencies = new ArrayList();
-
-	/**
 	 * The work bag used during slicing.
 	 *
 	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
@@ -196,12 +191,13 @@ public final class SlicingEngine {
 	private final IWorkBag workbag = new PoolAwareWorkBag(new FIFOWorkBag());
 
 	/**
-	 * The collection of control Dependence analysis to be used during slicing.
+	 * The collection of control based Dependence analysis to be used during slicing.  Synchronization, Divergence, and
+	 * Control dependences are such dependences.
 	 *
-	 * @invariant controlDAs->forall(o | o.oclIsKindOf(DependencyAnalysis) and
+	 * @invariant controlflowBasedDAs->forall(o | o.oclIsKindOf(DependencyAnalysis) and
 	 * 			  o.getId().equals(DependencyAnalysis.CONTROL_DA))
 	 */
-	private Collection controlDAs = new ArrayList();
+	private Collection controlflowBasedDAs = new ArrayList();
 
 	/**
 	 * This is the collection of methods whose exits were transformed.
@@ -274,18 +270,15 @@ public final class SlicingEngine {
 	public void setAnalysesControllerAndDependenciesToUse(final AnalysesController ctrl, final Collection dependenciesToUse) {
 		controller = ctrl;
 		dependencies.addAll(dependenciesToUse);
-		intraProceduralDependencies.clear();
-		controlDAs.clear();
+		controlflowBasedDAs.clear();
 
 		for (final Iterator _i = dependencies.iterator(); _i.hasNext();) {
 			final Object _id = _i.next();
 
-			if (_id.equals(DependencyAnalysis.IDENTIFIER_BASED_DATA_DA)
+			if (_id.equals(DependencyAnalysis.CONTROL_DA)
 				  || _id.equals(DependencyAnalysis.SYNCHRONIZATION_DA)
 				  || _id.equals(DependencyAnalysis.DIVERGENCE_DA)) {
-				intraProceduralDependencies.addAll(controller.getAnalyses(_id));
-			} else if (_id.equals(DependencyAnalysis.CONTROL_DA)) {
-				controlDAs.addAll(controller.getAnalyses(_id));
+				controlflowBasedDAs.addAll(controller.getAnalyses(_id));
 			}
 		}
 
@@ -683,12 +676,23 @@ public final class SlicingEngine {
 		}
 
 		final InvokeExpr _expr = stmt.getInvokeExpr();
-		final Context _context = new Context();
-		_context.setRootMethod(method);
-		_context.setStmt(stmt);
 
-		final Collection _callees = cgi.getCallees(_expr, _context);
-		generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method);
+		final SootMethod _sm = _expr.getMethod();
+
+		if (_sm.isStatic()) {
+			generateNewCriteriaForReturnPointOfMethods(Collections.singleton(_sm), stmt, method);
+		} else {
+			if (executableSlice) {
+				collector.includeInSlice(_sm);
+			}
+
+			final Context _context = new Context();
+			_context.setRootMethod(method);
+			_context.setStmt(stmt);
+
+			final Collection _callees = cgi.getCallees(_expr, _context);
+			generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method);
+		}
 
 		if (useReady) {
 			generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.READY_DA);
@@ -1254,7 +1258,7 @@ public final class SlicingEngine {
 
 		// generate new slice criteria
 		generateNewCriteriaForTheCallToEnclosingMethod(method);
-		generateNewCriteria(stmt, method, controlDAs);
+		generateNewCriteria(stmt, method, controlflowBasedDAs);
 
 		collector.includeInSlice(method);
 		includeMethodAndClassHierarchyInSlice(method);
@@ -1268,11 +1272,14 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.45  2004/01/06 00:17:05  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.44  2003/12/16 12:46:03  venku
    - changed the way return points of native method are
      handled.
    - changed the way class hierarchies are included into the slice.
-
    Revision 1.43  2003/12/16 00:48:14  venku
    - optimization.
    Revision 1.42  2003/12/16 00:46:23  venku
