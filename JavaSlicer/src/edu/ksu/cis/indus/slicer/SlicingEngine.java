@@ -49,6 +49,7 @@ import org.apache.commons.logging.LogFactory;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
@@ -793,8 +794,7 @@ public final class SlicingEngine {
 
 		// generate criteria to include invocation sites only if the method has not been collected.
 		if (!collector.hasBeenCollected(callee)) {
-			collector.includeInSlice(callee);
-			includeClassHierarchyInSlice(callee.getDeclaringClass());
+			includeMethodAndClassHierarchyInSlice(callee);
 
 			final boolean _notStatic = !callee.isStatic();
 
@@ -883,26 +883,34 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Includes the given class and it's ancestors into the slice.
 	 *
-	 * @param clazz DOCUMENT ME!
+	 * @param clazz to be included in the slice.
+	 *
+	 * @return the collection of classes which are the ancestors of the given class.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
+	 * @pre clazz != null
 	 */
-	private void includeClassHierarchyInSlice(final SootClass clazz) {
+	private Collection includeClassHierarchyInSlice(final SootClass clazz) {
 		SootClass _temp = clazz;
 		collector.includeInSlice(_temp);
 
-		final Collection _called = new HashSet();
+		final Collection _result = new HashSet();
+
+		final Collection _collection = new HashSet();
 
 		while (_temp.hasSuperclass()) {
 			_temp = _temp.getSuperclass();
 			collector.includeInSlice(_temp);
+			_result.add(_temp);
 
 			if (_temp.declaresMethodByName("<clinit>") && !collector.hasBeenCollected(_temp.getMethodByName("<clinit>"))) {
-				_called.add(_temp.getMethodByName("<clinit>"));
+				_collection.add(_temp.getMethodByName("<clinit>"));
 			}
 		}
 
-		for (final Iterator _i = _called.iterator(); _i.hasNext();) {
+		for (final Iterator _i = _collection.iterator(); _i.hasNext();) {
 			final SootMethod _clinit = (SootMethod) _i.next();
 
 			if (considerMethodExitForCriteriaGeneration(_clinit)) {
@@ -917,6 +925,47 @@ public final class SlicingEngine {
 					// ip control-flow based on exceptions.
 					generateSliceStmtCriterion(_trailer, _clinit, true);
 				}
+			}
+		}
+
+		final IWorkBag _wb = new FIFOWorkBag();
+		_wb.addAllWork(clazz.getInterfaces());
+		_collection.clear();
+
+		while (_wb.hasWork()) {
+			final SootClass _sc = (SootClass) _wb.getWork();
+
+			if (_collection.contains(_sc)) {
+				continue;
+			}
+			_collection.add(_sc);
+			_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
+		}
+		return _result;
+	}
+
+	/**
+	 * Includes the given method, it's classes and it's super classes/interfaces in the slice.  It also includes the method
+	 * declaration/definition of same signature defined in super classes/interfaces.
+	 *
+	 * @param method to be included in the slice.
+	 *
+	 * @pre method != null
+	 */
+	private void includeMethodAndClassHierarchyInSlice(final SootMethod method) {
+		collector.includeInSlice(method);
+
+		final SootClass _sc = method.getDeclaringClass();
+		final Collection _superClasses = includeClassHierarchyInSlice(_sc);
+		final String _name = method.getName();
+		final List _paramTypes = method.getParameterTypes();
+		final Type _retType = method.getReturnType();
+
+		for (final Iterator _i = _superClasses.iterator(); _i.hasNext();) {
+			final SootClass _superClass = (SootClass) _i.next();
+
+			if (_superClass.declaresMethod(_name, _paramTypes, _retType)) {
+				collector.includeInSlice(_superClass.getMethod(_name, _paramTypes, _retType));
 			}
 		}
 	}
@@ -1170,7 +1219,7 @@ public final class SlicingEngine {
 		generateNewCriteria(stmt, method, controlDAs);
 
 		collector.includeInSlice(method);
-		includeClassHierarchyInSlice(method.getDeclaringClass());
+		includeMethodAndClassHierarchyInSlice(method);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
@@ -1181,6 +1230,11 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2003/12/16 00:22:53  venku
+   - when we include invoke expressions leading to the
+     enclosed method (callee-caller), we need to consider
+     their execution to reach the callee.
+   - logging.
    Revision 1.40  2003/12/15 16:34:12  venku
    - teased out the logic to suck in the class initializers.
    - removed includeInSlice as it was not used.
