@@ -298,7 +298,7 @@ public final class SlicerTool
 		_info.put(EquivalenceClassBasedEscapeAnalysis.ID, ecba);
 
 		// create dependency analyses controller 
-		daController = new AnalysesController(_info, cgBasedPreProcessCtrl, unitGraphProvider);
+		daController = new AnalysesController(_info, cgBasedPreProcessCtrl, bbgMgr);
 
 		// create the slicing engine.
 		engine = new SlicingEngine();
@@ -534,11 +534,6 @@ public final class SlicerTool
 				final Object _id = _i.next();
 				final Collection _c = _slicerConfig.getDependenceAnalysis(_id);
 				daController.setAnalyses(_id, _c);
-
-				for (final Iterator _iter = _c.iterator(); _iter.hasNext();) {
-					final DependencyAnalysis _da = (DependencyAnalysis) _iter.next();
-					_da.setBasicBlockGraphManager(bbgMgr);
-				}
 			}
 			daController.initialize();
 			daController.execute();
@@ -757,6 +752,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.64  2004/01/20 00:46:36  venku
+   - criteria are sorted in SlicingEngine instead of SlicerTool.
+   - formatting and logging.
+
    Revision 1.63  2004/01/19 23:53:44  venku
    - moved the logic to order criteria to enforce pseudo-determinism
      during slicing into SlicingEngine.

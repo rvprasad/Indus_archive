@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses;
 
+import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -48,18 +49,10 @@ public class AnalysesController {
 	private static final Log LOGGER = LogFactory.getLog(AnalysesController.class);
 
 	/**
-	 * A map from methods(<code>SootMethod</code>) to their complete statement graph(<code>CompleteStmtGraph</code>).
-	 *
-	 * @invariant method2cmpltstmtGraph != null
-	 */
-
-	//protected final Map method2cmpltStmtGraph;
-
-	/**
 	 * The map of analysis being controlled by this object. It maps names of analysis to the analysis object.
 	 *
 	 * @invariant participatingAnalyses != null
-	 * @invariant participatingAnalyses.oclIsTypeOf(Map(Object, DependencyAnalysis)
+	 * @invariant participatingAnalyses.oclIsTypeOf(Map(Object, AbstractAnalysis)
 	 */
 	protected final Map participatingAnalyses;
 
@@ -77,9 +70,9 @@ public class AnalysesController {
 	protected boolean stable = false;
 
 	/**
-	 * This provides <code>UnitGraph</code>s for the analyses.
+	 * This provides basic block graphs for the analyses.
 	 */
-	private final IUnitGraphFactory stmtGraphProvider;
+	private BasicBlockGraphMgr basicBlockGraphMgr;
 
 	/**
 	 * This is a map of name to objects which provide information that maybe used by analyses, but is of no use to the
@@ -93,15 +86,17 @@ public class AnalysesController {
 	 * @param infoPrm is a map of name to objects which provide information that maybe used by analyses, but is of no use to
 	 * 		  the controller.
 	 * @param pc is the preprocessing controller.
-	 * @param cfgProvider provides <code>UnitGraph</code>s required by the analyses.
+	 * @param bbgMgr provides basic blocks graphs for methods.  If this is non-null then the analyses are initialized with
+	 * 		  this graph manager.  If not, the graph managers of the analyses will not be initialized.  Hence, it should be
+	 * 		  done by the application.
 	 *
-	 * @pre pc != null and cfgProvider != null
+	 * @pre pc != null
 	 */
-	public AnalysesController(final Map infoPrm, final ProcessingController pc, final IUnitGraphFactory cfgProvider) {
+	public AnalysesController(final Map infoPrm, final ProcessingController pc, final BasicBlockGraphMgr bbgMgr) {
 		participatingAnalyses = new HashMap();
 		info = infoPrm;
 		preprocessController = pc;
-		stmtGraphProvider = cfgProvider;
+		basicBlockGraphMgr = bbgMgr;
 	}
 
 	/**
@@ -188,6 +183,10 @@ public class AnalysesController {
 
 				try {
 					analysis.initialize(info);
+
+					if (basicBlockGraphMgr != null) {
+						analysis.setBasicBlockGraphManager(basicBlockGraphMgr);
+					}
 				} catch (InitializationException e) {
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn(analysis.getClass() + " failed to initialize, hence, it will not executed.", e);
@@ -217,14 +216,14 @@ public class AnalysesController {
 			}
 		}
 		participatingAnalyses.clear();
-		//		method2cmpltStmtGraph.clear();
-		stmtGraphProvider.reset();
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2003/12/16 07:38:33  venku
+   - moved preprocessing of analyses into initialization.
    Revision 1.29  2003/12/13 19:38:57  venku
    - removed unnecessary imports.
    Revision 1.28  2003/12/13 02:29:08  venku
