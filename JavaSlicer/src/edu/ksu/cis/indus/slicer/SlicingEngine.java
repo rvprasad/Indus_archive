@@ -22,6 +22,7 @@ import edu.ksu.cis.indus.common.datastructures.PoolAwareWorkBag;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
@@ -42,6 +43,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -855,7 +858,7 @@ public final class SlicingEngine {
 		if (!marked(method)) {
 			markAsInvoked(method);
 		}
-        
+
 		if (!collector.hasBeenCollected(stmt)) {
 			final SliceStmt _sliceCriterion = SliceStmt.getSliceStmt();
 			_sliceCriterion.initialize(method, stmt);
@@ -865,14 +868,15 @@ public final class SlicingEngine {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Adding [" + considerExecution + "] " + stmt + " in " + method.getSignature() + " to workbag.");
 			}
-		} else  {
-            if (considerExecution) {
-                for (final Iterator _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext(); ) {
-                    final ValueBox _valueBox = (ValueBox) _i.next();
-                    generateSliceExprCriterion(_valueBox, stmt, method, considerExecution);
-                } 
-            } else if (LOGGER.isDebugEnabled())        
-			LOGGER.debug("Already collected stmt " + stmt + " in " + method.getSignature());
+		} else {
+			if (considerExecution) {
+				for (final Iterator _i = stmt.getUseAndDefBoxes().iterator(); _i.hasNext();) {
+					final ValueBox _valueBox = (ValueBox) _i.next();
+					generateSliceExprCriterion(_valueBox, stmt, method, considerExecution);
+				}
+			} else if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Already collected stmt " + stmt + " in " + method.getSignature());
+			}
 		}
 	}
 
@@ -881,24 +885,16 @@ public final class SlicingEngine {
 	 *
 	 * @param clazz to be included in the slice.
 	 *
-	 * @return the collection of classes which are the ancestors of the given class.
-	 *
-	 * @post result != null and result.oclIsKindOf(Collection(SootClass))
 	 * @pre clazz != null
 	 */
-	private Collection includeClassHierarchyInSlice(final SootClass clazz) {
-		final Collection _result = new HashSet();
+	private void includeClassHierarchyInSlice(final SootClass clazz) {
+		final Collection _processed = new HashSet();
 		final IWorkBag _wb = new FIFOWorkBag();
 		_wb.addWork(clazz);
 
 		while (_wb.hasWork()) {
 			final SootClass _sc = (SootClass) _wb.getWork();
-
-			if (_result.contains(_sc)) {
-				continue;
-			}
-			_result.add(_sc);
-			collector.includeInSlice(_sc);
+			_processed.add(_sc);
 
 			if (_sc.declaresMethodByName("<clinit>")) {
 				final SootMethod _clinit = _sc.getMethodByName("<clinit>");
@@ -919,12 +915,18 @@ public final class SlicingEngine {
 			}
 
 			if (_sc.hasSuperclass()) {
-				_wb.addWorkNoDuplicates(_sc.getSuperclass());
+				final SootClass _temp = _sc.getSuperclass();
+
+				if (!_processed.contains(_temp) && !collector.hasBeenCollected(_temp)) {
+					_wb.addWorkNoDuplicates(_temp);
+				}
 			}
-			_wb.addAllWorkNoDuplicates(_sc.getInterfaces());
+
+			final Collection _temp = CollectionUtils.subtract(_sc.getInterfaces(), _processed);
+			CollectionUtils.filter(_temp, collector.filterOutTaggedHostPredicate);
+			_wb.addAllWorkNoDuplicates(_temp);
 		}
-		_result.remove(clazz);
-		return _result;
+		collector.includeInSlice(_processed);
 	}
 
 	/**
@@ -936,27 +938,16 @@ public final class SlicingEngine {
 	 * @pre method != null
 	 */
 	private void includeMethodAndClassHierarchyInSlice(final SootMethod method) {
-		collector.includeInSlice(method);
+		final SootClass _sc = method.getDeclaringClass();
+		includeClassHierarchyInSlice(_sc);
 
 		final Collection _types = new HashSet(method.getParameterTypes());
 		_types.add(method.getReturnType());
 		includeTypesInSlice(_types);
-
-		final SootClass _sc = method.getDeclaringClass();
-		final Collection _superClasses = includeClassHierarchyInSlice(_sc);
+		collector.includeInSlice(method);
 
 		if (!method.isPrivate()) {
-			final String _name = method.getName();
-			final List _paramTypes = method.getParameterTypes();
-			final Type _retType = method.getReturnType();
-
-			for (final Iterator _i = _superClasses.iterator(); _i.hasNext();) {
-				final SootClass _superClass = (SootClass) _i.next();
-
-				if (_superClass.declaresMethod(_name, _paramTypes, _retType)) {
-					collector.includeInSlice(_superClass.getMethod(_name, _paramTypes, _retType));
-				}
-			}
+			collector.includeInSlice(Util.findMethodInSuperClasses(method));
 		}
 	}
 
@@ -1242,9 +1233,13 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.50  2004/01/14 12:04:14  venku
+   - we check if the statement is collected to optimized.  However,
+     a statement may be collected but not all parts of it and a later
+     request to collect all of it will not include unincluded parts
+     into the slice due to check. FIXED.
    Revision 1.49  2004/01/13 23:25:04  venku
    - documentation.
-
    Revision 1.48  2004/01/13 10:03:31  venku
    - documentation.
    Revision 1.47  2004/01/13 04:33:39  venku
