@@ -42,12 +42,14 @@ import soot.toolkits.graph.UnitGraph;
 
 
 /**
- * This class provides intraprocedural data dependency information based on identifiers.  Local variables in a method enable such dependence.
- * Given a def site, the use site is tracked based on the id being defined and used. Hence, information about field/array
- * access via primaries which are local variables is inaccurate in such a setting, hence, it is not  provided by this class.
- * Please refer to {@link ReferenceBasedDataDA ReferenceBasedDataDA} for such information.
+ * This class provides intraprocedural data dependency information based on identifiers.  Local variables in a method enable
+ * such dependence. Given a def site, the use site is tracked based on the id being defined and used. Hence, information
+ * about field/array access via primaries which are local variables is inaccurate in such a setting, hence, it is not
+ * provided by this class. Please refer to {@link ReferenceBasedDataDA ReferenceBasedDataDA} for such information.
  * 
- * <p> This implementation is based on <code>edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysis</code> class. </p>
+ * <p>
+ * This implementation is based on <code>edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysis</code> class.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -173,9 +175,9 @@ public class IdentifierBasedDataDAv2
 		}
 		stable = true;
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("analyze() - " + toString());
-        }
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("analyze() - " + toString());
+		}
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END:  Identifier Based Data Dependence processing");
@@ -276,10 +278,11 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/06/23 04:44:59  venku
+   - arrow direction messed up comparison. FIXED.
    Revision 1.1  2004/06/15 08:54:48  venku
    - implemented method local use-def info analysis.
    - implemented identified based dependence analysis based on above analysis.
-
    Revision 1.35  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
    Revision 1.34  2004/03/04 13:08:15  venku
