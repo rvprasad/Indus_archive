@@ -1003,7 +1003,7 @@ public final class SlicingEngine {
 		 * class as the enclosing <init> method. As we process invocation expressions, we are bound to suck in any other
 		 * required <init>'s from other higher super classes.
 		 */
-		if (callee.getName().equals("<init>")) {
+		if (callee.getName().equals("<init>") && callee.getDeclaringClass().hasSuperclass()) {
 			final CompleteUnitGraph _ug = new CompleteUnitGraph(callee.getActiveBody());
 			final SimpleLocalUses _sul = new SimpleLocalUses(_ug, new SimpleLocalDefs(_ug));
 			final List _uses = _sul.getUsesOf(bbg.getHead().getLeaderStmt());
@@ -1168,6 +1168,11 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2003/12/15 08:09:09  venku
+   - incorrect way to detect super calls in init. FIXED.
+   - incorrect approximation when generating criteria
+     based on return points of method.  FIXED.
+
    Revision 1.37  2003/12/13 20:54:27  venku
    - it is possible that none of the parameters are used.
      In such cases, _params will be null in generateNewCriteriaForMethodExit()
