@@ -190,16 +190,88 @@ public abstract class AbstractXMLizer
 	 * @post result != null
 	 */
 	public final String xmlizeString(final String string) {
-		return string.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "");
+		if (string == null) {
+			return "";
+		}
+
+		final char[] _chars = string.toCharArray();
+
+		// if the string doesn't have any of the magic characters, leave
+		// it alone.
+		boolean _needsEncoding = false;
+
+search: 
+		for (int _i = 0; _i < _chars.length; _i++) {
+			switch (_chars[_i]) {
+				case '&' :
+				case '"' :
+				case '\'' :
+				case '<' :
+				case '>' :
+					_needsEncoding = true;
+					break search;
+
+				default :
+					continue;
+			}
+		}
+
+		String _ret = string;
+
+		if (_needsEncoding) {
+			final StringBuffer _strBuf = new StringBuffer();
+
+			for (int _i = 0; _i < _chars.length; _i++) {
+				switch (_chars[_i]) {
+					case '&' :
+						_strBuf.append("&amp;");
+						break;
+
+					case '\"' :
+						_strBuf.append("&quot;");
+						break;
+
+					case '\'' :
+						_strBuf.append("&apos;");
+						break;
+
+					case '<' :
+						_strBuf.append("&lt;");
+						break;
+
+					case '\r' :
+						_strBuf.append("&#xd;");
+						break;
+
+					case '>' :
+						_strBuf.append("&gt;");
+						break;
+
+					default :
+
+						if ((_chars[_i]) > 127) {
+							_strBuf.append("&#");
+							_strBuf.append((int) _chars[_i]);
+							_strBuf.append(";");
+						} else {
+							_strBuf.append(_chars[_i]);
+						}
+				}
+			}
+
+			_ret = _strBuf.toString();
+		}
+		return _ret.replaceAll(":", "_");
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/03/26 07:15:49  venku
+   - documentation.
    Revision 1.14  2004/03/05 11:59:40  venku
    - documentation.
-
    Revision 1.13  2004/02/14 23:16:49  venku
    - coding convention.
    Revision 1.12  2004/02/11 10:00:20  venku
