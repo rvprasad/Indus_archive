@@ -139,6 +139,8 @@ public abstract class AbstractDirectedGraphTest
 		localtestGetHeads();
 	}
 
+	///CLOVER:OFF
+
 	/**
 	 * Tests <code>getNode()</code> method.
 	 */
@@ -150,6 +152,8 @@ public abstract class AbstractDirectedGraphTest
 	 */
 	public void testGetNodes() {
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Tests <code>getSCCs()</code> method.
@@ -251,11 +255,15 @@ public abstract class AbstractDirectedGraphTest
 		}
 	}
 
+	///CLOVER:OFF
+
 	/**
 	 * Tests <code>size()</code> method.
 	 */
 	public void testSize() {
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Extracts the predecessors and successors of the given graph into the given maps.
@@ -274,6 +282,8 @@ public abstract class AbstractDirectedGraphTest
 			succs.put(_node, new ArrayList(_node.getSuccsOf()));
 		}
 	}
+
+	///CLOVER:OFF
 
 	/**
 	 * Tests <code>addEdgeFromTo</code> method on test local graph instance.
@@ -304,6 +314,8 @@ public abstract class AbstractDirectedGraphTest
 	 */
 	protected void localtestIsReachable() {
 	}
+
+	///CLOVER:ON
 
 	/**
 	 * Checks for the reachability of nodes in the SCCs.
@@ -341,6 +353,9 @@ public abstract class AbstractDirectedGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/12/31 08:45:23  venku
+   - formatting.
+   - minor refactorings.
    Revision 1.1  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
       - AbstractDirectedGraphTest
