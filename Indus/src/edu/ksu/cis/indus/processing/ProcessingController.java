@@ -1175,8 +1175,8 @@ public class ProcessingController {
 
 			if (_processBody && _sm.isConcrete()) {
 				processMethodBody(_sm);
-			} else if (LOGGER.isInfoEnabled()) {
-				LOGGER.info(_sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
+			} else if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(_sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
 			}
 		}
 	}
@@ -1215,6 +1215,10 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2003/12/14 16:43:44  venku
+   - extended ProcessingController to filter fields as well.
+   - ripple effect.
+
    Revision 1.26  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
