@@ -21,6 +21,7 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
 
+import soot.jimple.FieldRef;
 import soot.jimple.GotoStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.LookupSwitchStmt;
@@ -68,7 +69,7 @@ public class TagBasedSlicingTransformer
 	/**
 	 * Default name of slicing tags.
 	 */
-	private static final String SLICING_TAG = "Slicing Tag";
+	public static final String SLICING_TAG = "Slicing Tag";
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -455,6 +456,34 @@ public class TagBasedSlicingTransformer
 	 * 
 	 * <p></p>
 	 *
+	 * @param method DOCUMENT ME!
+	 * @param theTag DOCUMENT ME!
+	 */
+	private void tagMethod(final SootMethod method, final SlicingTag theTag) {
+		if (method.getTag(tagName) == null) {
+			method.addTag(theTag);
+		}
+
+		SootClass sc = method.getDeclaringClass();
+
+		if (sc.getTag(tagName) == null) {
+			sc.addTag(theTag);
+		}
+
+		if (sc.hasSuperclass()) {
+			sc = sc.getSuperclass();
+
+			if (sc.declaresMethod(method.getName(), method.getParameterTypes(), method.getReturnType())) {
+				tagMethod(sc.getMethod(method.getName(), method.getParameterTypes(), method.getReturnType()), theTag);
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
 	 * @param stmt DOCUMENT ME!
 	 * @param method DOCUMENT ME!
 	 * @param theTag DOCUMENT ME!
@@ -477,9 +506,10 @@ public class TagBasedSlicingTransformer
 				stmt.addTag(theTag);
 			}
 
-			if (method.getTag(tagName) == null) {
-				method.addTag(theTag);
+			if (stmt.containsFieldRef()) {
+				stmt.getFieldRef().getField().addTag(theTag);
 			}
+			tagMethod(method, theTag);
 
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("Tagged statement: " + stmt + "[" + stmt.hashCode() + "] | " + method.getSignature());
@@ -503,12 +533,13 @@ public class TagBasedSlicingTransformer
 		if (valueTag == null || (theTag != seedTag && valueTag.isSeed())) {
 			vBox.addTag(theTag);
 
+			if (vBox instanceof FieldRef) {
+				((FieldRef) vBox).getField().addTag(theTag);
+			}
+
 			if (stmt.getTag(tagName) == null) {
 				stmt.addTag(theTag);
-
-				if (method.getTag(tagName) == null) {
-					method.addTag(theTag);
-				}
+				tagMethod(method, theTag);
 			}
 
 			if (LOGGER.isInfoEnabled()) {
@@ -522,11 +553,12 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2003/11/16 23:12:17  venku
+   - coding convention.
    Revision 1.15  2003/11/16 22:55:31  venku
    - added new methods to support processing of seed criteria.
      This is not same as slicing seed criteria of which we do not
      make any distinction.
-
    Revision 1.14  2003/11/13 14:08:08  venku
    - added a new tag class for the purpose of recording branching information.
    - renamed fixReturnStmts() to makeExecutable() and raised it
