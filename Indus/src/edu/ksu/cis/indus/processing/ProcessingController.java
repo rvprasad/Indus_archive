@@ -83,7 +83,7 @@ import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
 
-import edu.ksu.cis.indus.interfaces.*;
+import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
@@ -874,7 +874,7 @@ public class ProcessingController {
 	 * <code>interest</code>.
 	 *
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
-	 * @param processor the instance of post processor.
+	 * @param processor the instance of processor.
 	 */
 	public void register(final Class interest, final IProcessor processor) {
 		Set temp = (Set) class2processors.get(interest);
@@ -889,7 +889,7 @@ public class ProcessingController {
 	/**
 	 * Registers the processor for class, fields, and method interface processing only.
 	 *
-	 * @param processor the instance of post processor.
+	 * @param processor the instance of processor.
 	 */
 	public void register(final IProcessor processor) {
 		if (!interfaceProcessors.contains(processor)) {
@@ -898,11 +898,23 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Registers the processor.  It indicates that the processor is interested in processing AST chunk of statement type.
+	 * Please refer to <code>STMT_CLASSES</code> for the actual types.
+	 *
+	 * @param processor the instance of processor.
+	 */
+	public void registerForAllStmts(IProcessor processor) {
+		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
+			register((Class) i.next(), processor);
+		}
+	}
+
+	/**
 	 * Unregisters the processor.  It indicates that the processor is no longer interested in processing AST chunk of type
 	 * <code>interest</code>.
 	 *
 	 * @param interest the class of AST node in which the <code>processor</code> is interested.
-	 * @param processor the instance of post processor.
+	 * @param processor the instance of processor.
 	 *
 	 * @throws IllegalArgumentException when there are no processors who have registered to process <code>interest</code>.
 	 */
@@ -918,10 +930,22 @@ public class ProcessingController {
 	/**
 	 * Unregisters the processor for class and method interface processing only.
 	 *
-	 * @param processor the instance of post processor.
+	 * @param processor the instance of processor.
 	 */
 	public void unregister(final IProcessor processor) {
 		interfaceProcessors.remove(processor);
+	}
+
+	/**
+	 * Unregisters the processor. It indicates that the processor is not interested in processing the statement types.
+	 * Please refer to <code>STMT_CLASSES</code> for the actual types.
+	 *
+	 * @param processor the instance of processor.
+	 */
+	public void unregisterForAllStmts(IProcessor processor) {
+		for (Iterator i = ProcessingController.STMT_CLASSES.iterator(); i.hasNext();) {
+			unregister((Class) i.next(), processor);
+		}
 	}
 
 	/**
@@ -1053,9 +1077,11 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/07 09:24:42  venku
+   - exposed the collection of statement and value classes
+     to the public.
    Revision 1.5  2003/11/06 08:33:36  venku
    - previous optimization had subtle bugs. FIXED.
-
    Revision 1.4  2003/11/06 07:57:10  venku
    - optimized processing depending on the processors.
    Revision 1.3  2003/11/06 06:22:12  venku
