@@ -78,6 +78,7 @@
 			<param name="jdklink" value="${remote_jdklink}" />
 			<param name="srcpath" value="${ant.project.name}.docsrcpath" />
 			<param name="exclude" value="yes" />
+			<param name="source" value="1.4"/>
 		</antcall>
 		<antcall target="doxydocs">
 			<param name="configFile" value="Doxyfile" />
@@ -92,6 +93,7 @@
 			<param name="jdklink" value="${local_jdklink}" />
 			<param name="srcpath" value="${ant.project.name}.srcpath" />
 			<param name="exclude" value="no" />
+			<param name="source" value="1.4"/>			
 		</antcall>
 		<antcall target="doxydocs">
 			<param name="configFile" value="privateDoxyfile" />
@@ -165,6 +167,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.37  2004/08/16 17:14:12  venku
+- bumped up the class file compatibility and source file compatibility to v1.4.
+
 Revision 1.36  2004/08/06 14:52:40  venku
 - changed the way tester classes were ignored during jarring.
 
