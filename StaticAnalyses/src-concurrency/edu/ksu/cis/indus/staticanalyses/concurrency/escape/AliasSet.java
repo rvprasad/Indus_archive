@@ -25,9 +25,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import soot.ArrayType;
 import soot.RefType;
 import soot.Type;
@@ -55,11 +52,6 @@ final class AliasSet
 	 * This constant identifies the cells of an array in the field map of it's alias set.
 	 */
 	static final String ARRAY_FIELD = "$ELT";
-
-	/**
-	 * The logger used by instances of this class to log messages.
-	 */
-	private static final Log LOGGER = LogFactory.getLog(AliasSet.class);
 
 	/**
 	 * This is used to generate unique share entities.
@@ -612,6 +604,10 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.16  2004/01/09 00:59:09  venku
+   - there is no point in unifying nulls and alias sets.  Hence, non-null
+     alias sets are a precondition for unify() method.
+
    Revision 1.15  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
