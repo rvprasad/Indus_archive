@@ -241,12 +241,16 @@ public class SimpleNodeGraphTest
 	protected void tearDown()
 	  throws Exception {
 		dg = null;
+        sng = null;
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/22 08:18:55  venku
+   - added test methods to handle getPseudoTails().
+
    Revision 1.6  2004/01/22 05:19:29  venku
    - coding convention.
    Revision 1.5  2004/01/06 01:51:06  venku

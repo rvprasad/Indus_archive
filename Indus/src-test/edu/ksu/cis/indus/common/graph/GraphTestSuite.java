@@ -65,9 +65,10 @@ public final class GraphTestSuite {
 
 		//$JUnit-BEGIN$
 		_suite.addTestSuite(SimpleNodeGraphTest.class);
-		_suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
+        _suite.addTestSuite(SimpleNodeGraphNoCycleTest.class);
+        _suite.addTestSuite(SimpleNodeGraphTest2.class);
+        _suite.addTestSuite(JikesBasedDirectedAndSimpleNodeGraphTest.class);
 		_suite.addTestSuite(JavacBasedDirectedAndSimpleNodeGraphTest.class);
-		_suite.addTestSuite(SimpleNodeGraphNoCycleTest.class);
 		//$JUnit-END$
 		return _suite;
 	}
@@ -76,6 +77,9 @@ public final class GraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/06 01:51:06  venku
+   - renamed DirectedGraphTestSuite to GraphTestSuite.
+
    Revision 1.1  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
       - AbstractDirectedGraphTest
