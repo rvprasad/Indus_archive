@@ -63,9 +63,7 @@ public abstract class AbstractTool
 	boolean pause = false;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The thread in which the tools is running or ran previously.
 	 */
 	private Thread thread;
 
@@ -182,7 +180,7 @@ public abstract class AbstractTool
 	/**
 	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running. {@inheritDoc}
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the tool is not active; <code>false</code>, otherwise.
 	 */
 	public boolean isStable() {
 		return thread == null || !thread.isAlive();
@@ -214,6 +212,9 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/15 21:54:24  venku
+   - added support to query status of tool.
+
    Revision 1.4  2003/11/15 21:26:08  venku
    - removed initialize() method as it was not used.
    Revision 1.3  2003/11/09 05:18:16  venku
