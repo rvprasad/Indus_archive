@@ -87,6 +87,10 @@ public class PluginPreference extends PreferencePage implements
      */
     private CheckboxTableViewer viewer;
     
+    /**
+     * The set of scope specifications.
+     */
+    private SpecificationBasedScopeDefinition sbsd;
 
 
     /**
@@ -116,6 +120,18 @@ public class PluginPreference extends PreferencePage implements
      * @return boolean Ok can go through.
      */
     public boolean performOk() {
+        final String _scopeKey = "edu.ksu.cis.indus.kaveri.scope";
+        if (sbsd != null) {
+            try {
+            final String _scopeSpec = SpecificationBasedScopeDefinition.serialize(sbsd);
+            KaveriPlugin.getDefault().getPreferenceStore().setValue(_scopeKey, _scopeSpec);
+            } catch (JiBXException _jbe) {
+                SECommons.handleException(_jbe);
+                KaveriErrorLog.logException("Jibx Exception", _jbe);
+            }
+            
+        }
+
         KaveriPlugin.getDefault().storeConfiguration();
         KaveriPlugin.getDefault().savePluginPreferences();
         return super.performOk();
@@ -190,7 +206,18 @@ public class PluginPreference extends PreferencePage implements
      * 
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
-    protected void performApply() {       
+    protected void performApply() {
+        final String _scopeKey = "edu.ksu.cis.indus.kaveri.scope";
+        if (sbsd != null) {
+            try {
+            final String _scopeSpec = SpecificationBasedScopeDefinition.serialize(sbsd);
+            KaveriPlugin.getDefault().getPreferenceStore().setValue(_scopeKey, _scopeSpec);
+            } catch (JiBXException _jbe) {
+                SECommons.handleException(_jbe);
+                KaveriErrorLog.logException("Jibx Exception", _jbe);
+            }
+            
+        }
         KaveriPlugin.getDefault().storeConfiguration();
         KaveriPlugin.getDefault().savePluginPreferences();
         super.performApply();
@@ -343,8 +370,9 @@ public class PluginPreference extends PreferencePage implements
             final GridLayout _layout = new GridLayout();
             _layout.numColumns = 1;
             _comp.setLayout(_layout);
-            final SlicerTool _stool = KaveriPlugin.getDefault().getSlicerTool();
+            final SlicerTool _stool = KaveriPlugin.getDefault().getSlicerTool();            
             _stool.getConfigurator().initialize(_comp);
+            _comp.pack();
             return _comp;
         } catch (IllegalArgumentException _ile) {
             KaveriErrorLog.logException("Illegal Configuration", _ile);
@@ -365,6 +393,8 @@ public class PluginPreference extends PreferencePage implements
         final Composite _comp = new Composite(folder, SWT.NONE);
         _comp.setLayoutData(new GridData(GridData.FILL_BOTH));
 
+        initializeScopeSpecification();
+        
         final GridLayout _layout = new GridLayout();
         _layout.numColumns = 1;
         _comp.setLayout(_layout);
@@ -406,7 +436,7 @@ public class PluginPreference extends PreferencePage implements
         _gd.horizontalAlignment = GridData.FILL;
         _gd.verticalAlignment = GridData.FILL;
         _table.setLayoutData(_gd);
-        viewer.setInput("Input");
+        viewer.setInput(sbsd);
         //setupScopeEntries(_table);
         // Buttons
         final Composite _rowComp = new Composite(_comp, SWT.BORDER);
@@ -430,42 +460,48 @@ public class PluginPreference extends PreferencePage implements
     }
 
     /**
+     * Initialize the variable sbsd with the specification stored in the project.
+     */
+    private void initializeScopeSpecification() {
+        final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+        final String _scopeSpecKey = "edu.ksu.cis.indus.kaveri.scope";
+        String _scopeSpec = _ps.getString(_scopeSpecKey);
+        if (_scopeSpec.equals("")) {
+            _scopeSpec = "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + 
+            "xmlns:indus=\"http://indus.projects.cis.ksu.edu/indus\"" +
+            "indus:specName=\"scope_spec\">";
+            _scopeSpec += "\n</indus:scopeSpec>";
+        }
+        try {
+            sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpec);
+        } catch (JiBXException _jbe) {
+            SECommons.handleException(_jbe);
+            KaveriErrorLog.logException("JiBx Exception", _jbe);
+            sbsd = null;
+        }
+        
+    }
+
+    /**
      * Handle the delete operation.
      * @param delete
      */
     private void handleScopeDelete(Button delete) {
         delete.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-                final String _scopeSpecKey = "edu.ksu.cis.indus.kaveri.scope";
-                String _scopeSpec = _ps.getString(_scopeSpecKey);
-                _ps.setValue(_scopeSpecKey, "");
-                KaveriPlugin.getDefault().savePluginPreferences();
-                /*
+            public void widgetSelected(SelectionEvent e) {                
                 final Object _chosenObj[] = viewer.getCheckedElements();                
-                if (!(_scopeSpec.equals("") && _chosenObj.length == 0)) {
-                    try {
-                    final SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpec);
+                if (sbsd != null) {                              
                     for (int i = 0; i < _chosenObj.length; i++) {
                         if (_chosenObj[i] instanceof ClassSpecification) {
-              
-                        } else if (_chosenObj[i] instanceof MethodSpecification) {
-                                                       
-                            _sbsd.getMethodSpecs().remove(_chosenObj[i]);
+                            sbsd.getClassSpecs().remove(_chosenObj[i]);
+                        } else if (_chosenObj[i] instanceof MethodSpecification) {                                                       
+                           sbsd.getMethodSpecs().remove(_chosenObj[i]);
                         } else if (_chosenObj[i] instanceof FieldSpecification) {
-                            _sbsd.getFieldSpecs().remove(_chosenObj[i]);
+                           sbsd.getFieldSpecs().remove(_chosenObj[i]);
                         }                        
                     }
-                    _scopeSpec = SpecificationBasedScopeDefinition.serialize(_sbsd);
-                    _ps.setValue(_scopeSpecKey, _scopeSpec);
-                    KaveriPlugin.getDefault().savePluginPreferences();
-                    viewer.setInput("Input");                    
-                    } catch(JiBXException _jbe) {
-                        SECommons.handleException(_jbe);
-                        KaveriErrorLog.logException("Error deserializing scope spec", _jbe);
-                    }
-                }*/
-                return;
+                    viewer.setInput(sbsd);                    
+                }
             }
         });       
     }
@@ -479,22 +515,15 @@ public class PluginPreference extends PreferencePage implements
     private void handleScopeAdd(Button addClasses) {
         addClasses.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
+                if (sbsd == null) {
+                    return;
+                }
+                
                 ScopePropertiesSelectionDialog _spsd = new ScopePropertiesSelectionDialog(
                         Display.getCurrent().getActiveShell(),
                         IScopeDialogMorphConstants.SCOPE_NAME_REGEX, "");
                 _spsd.setStrDefaultClassName("java.lang.*");
                 if (_spsd.open() == IDialogConstants.OK_ID) {
-                    final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-                    final String _scopeSpecKey = "edu.ksu.cis.indus.kaveri.scope";
-                    String _scopeSpec = _ps.getString(_scopeSpecKey);
-                    if (_scopeSpec.equals("")) {
-                        _scopeSpec = "<indus:scopeSpec xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + 
-                        "xmlns:indus=\"http://indus.projects.cis.ksu.edu/indus\"" +
-                        "indus:specName=\"scope_spec\">";
-                        _scopeSpec += "\n</indus:scopeSpec>";
-                    }
-                    try {
-                    final SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpec);
                     final ClassSpecification _cs = new ClassSpecification();
                     _cs.setInclusion(true);
                     _cs.setName(_spsd.getStrScopeName());
@@ -503,19 +532,11 @@ public class PluginPreference extends PreferencePage implements
                     _ts.setScopeExtension(_spsd.getStrChoice());
                     _ts.setNamePattern(_spsd.getStrClassRegex());
                     _cs.setTypeSpec(_ts);
-                    final Collection _collClass = _sbsd.getClassSpecs();
-                    _collClass.add(_cs);
-                    _scopeSpec = SpecificationBasedScopeDefinition.serialize(_sbsd);
-                    _ps.setValue(_scopeSpecKey, _scopeSpec);
-        			KaveriPlugin.getDefault().savePluginPreferences();
-        			viewer.setInput("Input");
-                    }
-                    catch (JiBXException _jbe) {
-                        KaveriErrorLog.logException("Error deserializing scope specification", _jbe);
-                        SECommons.handleException(_jbe);
-                    }
-
-                }
+                    final Collection _collClass = sbsd.getClassSpecs();
+                    _collClass.add(_cs);                    
+        			viewer.setInput(sbsd);
+                    }                   
+                
 
             }
         });
@@ -542,11 +563,8 @@ class ViewContentProvider implements IStructuredContentProvider {
 	public void dispose() {
 	}
 	public Object[] getElements(Object parent) {
-		final String _scopeKey = "edu.ksu.cis.indus.kaveri.scope";
-		final String _scopeSpec = KaveriPlugin.getDefault().getPreferenceStore().getString(_scopeKey);
-		if (_scopeSpec.equals("")) return new Object[0];
-		try {
-		    SpecificationBasedScopeDefinition _sbsd = SpecificationBasedScopeDefinition.deserialize(_scopeSpec);
+	    if (parent != null && parent instanceof SpecificationBasedScopeDefinition) {
+	        final SpecificationBasedScopeDefinition _sbsd = (SpecificationBasedScopeDefinition) parent;
 		    final List _lstSpecs = new LinkedList();
 		    final Collection _collClassSpecs = _sbsd.getClassSpecs();
 		    for (Iterator iter = _collClassSpecs.iterator(); iter.hasNext();) {
@@ -566,12 +584,11 @@ class ViewContentProvider implements IStructuredContentProvider {
                 _lstSpecs.add(_fs);                
             }
 		    return _lstSpecs.toArray();
+
+	    } else {
+	        return new Object[0];
+	    }
 		
-		} catch(JiBXException _jbe) {
-		    SECommons.handleException(_jbe);
-		    KaveriErrorLog.logException("Error deserializing scope spec", _jbe);
-		    return new Object[0];
-		}
 		
 	}
 }

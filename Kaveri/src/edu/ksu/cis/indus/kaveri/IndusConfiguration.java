@@ -335,7 +335,7 @@ public class IndusConfiguration {
 		sliceFileList.clear();
 		sliceProject = null;
 		stmtList.setStmtList(null);
-		criteria.clear();	
+		//criteria.clear();	
 		KaveriPlugin.getDefault().reset();
 		depHistory.reset();		
 		//ctxRepository.reset();

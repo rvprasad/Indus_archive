@@ -36,7 +36,6 @@ import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-import edu.ksu.cis.indus.tools.slicer.contextualizers.StaticSliceCriteriaContextualizer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -425,11 +424,12 @@ public class EclipseIndusDriver
 			SECommons.handleException(_jbe);
 			KaveriErrorLog.logException("Error while deserializing scope specification", _jbe);
 		}
-		
+
+		/*
 		if (contextCollection.size() > 0) {
 		    StaticSliceCriteriaContextualizer _sscc = new StaticSliceCriteriaContextualizer(contextCollection);
 		    _sscc.processCriteriaBasedOnProgramPoint(null, criteria);
-		}
+		}*/
 						
 		slicer.setCriteria(criteria);
 		slicer.run(Phase.STARTING_PHASE, true); // changed from true

@@ -321,10 +321,11 @@ public class IndusConfigurationDialog extends Dialog {
         _btnScope.setText("Setup Scope");
         handleScope(_btnScope);
         
+        /*
         final Button _btnCallStack = new Button(_subcomposite2, SWT.PUSH);
         _btnCallStack.setText("Setup Context");
         handleContext(_btnCallStack);
-
+        */
         // Add griddata
         GridData _data = new GridData();
         _data.horizontalSpan = 1;
@@ -339,7 +340,9 @@ public class IndusConfigurationDialog extends Dialog {
         // Reset the scope string
         KaveriPlugin.getDefault().getIndusConfiguration()
                 .setScopeSpecification("");
+        /*
         KaveriPlugin.getDefault().getIndusConfiguration().resetChosenContext();
+        */
         return _composite;
     }
 

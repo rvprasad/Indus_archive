@@ -107,7 +107,7 @@ abstract public class BasicSliceFunctions {
 			}
 			if (_jproject != null) {
 				final IndusConfigurationDialog _indusDialog = new IndusConfigurationDialog(new Shell(), _jproject);
-
+				KaveriPlugin.getDefault().getIndusConfiguration().getCriteria().clear();
 				if (_indusDialog.open() == IDialogConstants.OK_ID) {
 					if (_structuredSelection.getFirstElement() instanceof IJavaProject
 							|| _structuredSelection.getFirstElement() instanceof IProject) {
@@ -160,7 +160,7 @@ abstract public class BasicSliceFunctions {
 					KaveriPlugin.getDefault().getIndusConfiguration().setAdditive(false);
 					KaveriPlugin.getDefault().getIndusConfiguration().reset();
 					KaveriPlugin.getDefault().getIndusConfiguration().resetChosenContext();
-					KaveriPlugin.getDefault().getIndusConfiguration().getCriteria().clear();
+					KaveriPlugin.getDefault().getIndusConfiguration().getCriteria().clear();					
 					KaveriPlugin.getDefault().loadConfigurations();
 					KaveriPlugin.getDefault().getIndusConfiguration().setCurrentConfiguration(sliceType);
 					KaveriPlugin.getDefault().getIndusConfiguration().setCriteria(_c);

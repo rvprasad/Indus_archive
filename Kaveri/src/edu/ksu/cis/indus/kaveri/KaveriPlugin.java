@@ -164,7 +164,7 @@ public class KaveriPlugin
 			try {
 				final BufferedReader _configReader = new BufferedReader(new InputStreamReader(_url.openStream()));
 
-				while (_configReader.ready()) {
+				while (_configReader.ready()) {				    
 					_userConfiguration.append(_configReader.readLine());
 				}
 				_configReader.close();
@@ -172,6 +172,7 @@ public class KaveriPlugin
 				_ioe.printStackTrace();
 				KaveriErrorLog.logException("Error reading default configuration", _ioe);
 			}
+			
 			final String _configuration = _userConfiguration.toString();			
 			final boolean _result = slicerTool.destringizeConfiguration(_configuration);
 			if (!_result) {			     			    
@@ -188,11 +189,12 @@ public class KaveriPlugin
 	 throws IllegalArgumentException {
 		final IPreferenceStore _store = getPreferenceStore();
 		final String _config  = _store.getString("defaultConfiguration");
+		
 		if (_config.equals("")) {
 			loadDefaultConfigurations();
 		}
 		else {
-		    
+		    System.out.println(_config);
 			final boolean _result = slicerTool.destringizeConfiguration(_config);
 			if (!_result) {
 			    loadDefaultConfigurations();

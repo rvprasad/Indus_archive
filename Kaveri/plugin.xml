@@ -280,6 +280,7 @@
                      id="edu.ksu.cis.indus.kaveri.popup.mainPopupObject.menu.action.CPAction"/>
             </viewerContribution>
             -->
+            
             <objectContribution
                   adaptable="true"
                   objectClass="org.eclipse.jdt.core.IMember"
@@ -298,6 +299,7 @@
                      menubarPath="edu.ksu.cis.indus.kaveri.popup.scopePopupObject.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.popup.scopePopupObjectAction"/>
             </objectContribution>
+            <!--
             <viewerContribution
                   targetID="org.eclipse.jdt.callhierarchy.view"
                   id="edu.ksu.cis.indus.kaveri.callgraph">
@@ -314,35 +316,12 @@
                      menubarPath="edu.ksu.cis.indus.kaveri.callgraph.menu/group1"
                      id="edu.ksu.cis.indus.kaveri.callgraph.addContext"/>
             </viewerContribution>      
+            -->
    </extension>
 <!-- This extension shows additional information about the slice part chosen -->
 <!-- This extension enables highlighting of the slice elements -->
    <extension
-         point="org.eclipse.ui.editors.markerAnnotationSpecification">
-      <specification
-            verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
-            annotationType="indus.slice.highlightAnnotation"
-            textPreferenceKey="occurrenceIndication"
-            colorPreferenceKey="occurrenceIndicationColor"
-            highlightPreferenceKey="occurrenceHighlighting"
-            isGoToPreviousNavigationTarget="false"
-            includeOnPreferencePage="true"
-            textPreferenceValue="false"
-            isGoToNextNavigationTarget="false"
-            textStylePreferenceValue="IBEAM"
-            overviewRulerPreferenceKey="occurrenceIndicationInOverviewRuler"
-            showInNextPrevDropdownToolbarAction="true"
-            presentationLayer="3"
-            highlightPreferenceValue="true"
-            label="IndusSliceAnnotation"
-            colorPreferenceValue="0,255,0"
-            verticalRulerPreferenceValue="false"
-            isGoToPreviousNavigationTargetKey="isOccurrenceGoToPreviousNavigationTarget"
-            showInNextPrevDropdownToolbarActionKey="showOccurrenceInNextPrevDropdownToolbarAction"
-            overviewRulerPreferenceValue="true"
-            textStylePreferenceKey="indus.slice.highlight.style"
-            isGoToNextNavigationTargetKey="isOccurrenceGoToNextNavigationTarget">
-      </specification>    
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">    
       <specification            
             verticalRulerPreferenceKey="occurrencePartialIndicationInVerticalRuler"
             annotationType="indus.slice.partialhighlightAnnotation"
@@ -366,121 +345,30 @@
             overviewRulerPreferenceValue="true"
             textStylePreferenceKey="indus.slice.partialhighlight.style"
             isGoToNextNavigationTargetKey="isOccurrencePartialGoToNextNavigationTarget" />
-        <specification            
-            verticalRulerPreferenceKey="occurrenceControlDependenceIndicationInVerticalRuler"
-            annotationType="indus.slice.ControlDependencehighlightAnnotation"
-            textPreferenceKey="occurrenceControlDependenceIndication"
-            colorPreferenceKey="occurrenceControlDependenceIndicationColor"
-            highlightPreferenceKey="occurrenceControlDependenceHighlighting"
+      <specification
+            verticalRulerPreferenceKey="myoccurrenceIndicationInVerticalRuler"
+            annotationType="indus.slice.highlightAnnotation"
+            textPreferenceKey="myoccurrenceIndication"
+            colorPreferenceKey="myoccurrenceIndicationColor"
+            highlightPreferenceKey="myoccurrenceHighlighting"
             isGoToPreviousNavigationTarget="false"
             includeOnPreferencePage="true"
             textPreferenceValue="false"
             isGoToNextNavigationTarget="false"
             textStylePreferenceValue="IBEAM"
-            overviewRulerPreferenceKey="occurrenceControlDependenceIndicationInOverviewRuler"
+            overviewRulerPreferenceKey="myoccurrenceIndicationInOverviewRuler"
             showInNextPrevDropdownToolbarAction="true"
-            presentationLayer="3"
+            presentationLayer="4"
             highlightPreferenceValue="true"
-            label="IndusControlDependenceSliceAnnotation"
-            colorPreferenceValue="255,0,0"
-            verticalRulerPreferenceValue="false"
-            isGoToPreviousNavigationTargetKey="isOccurrenceControlDependenceGoToPreviousNavigationTarget"
-            showInNextPrevDropdownToolbarActionKey="showOccurrenceControlDependenceInNextPrevDropdownToolbarAction"
-            overviewRulerPreferenceValue="true"
-            textStylePreferenceKey="indus.slice.ControlDependencehighlight.style"
-            isGoToNextNavigationTargetKey="isOccurrenceControlDependenceGoToNextNavigationTarget" />
-		<specification            
-            verticalRulerPreferenceKey="occurrenceInterferenceDependenceIndicationInVerticalRuler"
-            annotationType="indus.slice.InterferenceDependencehighlightAnnotation"
-            textPreferenceKey="occurrenceInterferenceDependenceIndication"
-            colorPreferenceKey="occurrenceInterferenceDependenceIndicationColor"
-            highlightPreferenceKey="occurrenceInterferenceDependenceHighlighting"
-            isGoToPreviousNavigationTarget="false"
-            includeOnPreferencePage="true"
-            textPreferenceValue="false"
-            isGoToNextNavigationTarget="false"
-            textStylePreferenceValue="IBEAM"
-            overviewRulerPreferenceKey="occurrenceInterferenceDependenceIndicationInOverviewRuler"
-            showInNextPrevDropdownToolbarAction="true"
-            presentationLayer="3"
-            highlightPreferenceValue="true"
-            label="IndusInterferenceDependenceSliceAnnotation"
+            label="IndusSliceAnnotation"
             colorPreferenceValue="0,255,0"
             verticalRulerPreferenceValue="false"
-            isGoToPreviousNavigationTargetKey="isOccurrenceInterferenceDependenceGoToPreviousNavigationTarget"
-            showInNextPrevDropdownToolbarActionKey="showOccurrenceInterferenceDependenceInNextPrevDropdownToolbarAction"
+            isGoToPreviousNavigationTargetKey="ismyOccurrenceGoToPreviousNavigationTarget"
+            showInNextPrevDropdownToolbarActionKey="showmyOccurrenceInNextPrevDropdownToolbarAction"
             overviewRulerPreferenceValue="true"
-            textStylePreferenceKey="indus.slice.InterferenceDependencehighlight.style"
-            isGoToNextNavigationTargetKey="isOccurrenceInterferenceDependenceGoToNextNavigationTarget" />
-        <specification            
-            verticalRulerPreferenceKey="occurrenceReadyDependenceIndicationInVerticalRuler"
-            annotationType="indus.slice.ReadyDependencehighlightAnnotation"
-            textPreferenceKey="occurrenceReadyDependenceIndication"
-            colorPreferenceKey="occurrenceReadyDependenceIndicationColor"
-            highlightPreferenceKey="occurrenceReadyDependenceHighlighting"
-            isGoToPreviousNavigationTarget="false"
-            includeOnPreferencePage="true"
-            textPreferenceValue="false"
-            isGoToNextNavigationTarget="false"
-            textStylePreferenceValue="IBEAM"
-            overviewRulerPreferenceKey="occurrenceReadyDependenceIndicationInOverviewRuler"
-            showInNextPrevDropdownToolbarAction="true"
-            presentationLayer="3"
-            highlightPreferenceValue="true"
-            label="IndusReadyDependenceSliceAnnotation"
-            colorPreferenceValue="100,100,240"
-            verticalRulerPreferenceValue="false"
-            isGoToPreviousNavigationTargetKey="isOccurrenceReadyDependenceGoToPreviousNavigationTarget"
-            showInNextPrevDropdownToolbarActionKey="showOccurrenceReadyDependenceInNextPrevDropdownToolbarAction"
-            overviewRulerPreferenceValue="true"
-            textStylePreferenceKey="indus.slice.ReadyDependencehighlight.style"
-            isGoToNextNavigationTargetKey="isOccurrenceReadyDependenceGoToNextNavigationTarget" />
-        <specification            
-            verticalRulerPreferenceKey="occurrenceDivergenceDependenceIndicationInVerticalRuler"
-            annotationType="indus.slice.DivergenceDependencehighlightAnnotation"
-            textPreferenceKey="occurrenceDivergenceDependenceIndication"
-            colorPreferenceKey="occurrenceDivergenceDependenceIndicationColor"
-            highlightPreferenceKey="occurrenceDivergenceDependenceHighlighting"
-            isGoToPreviousNavigationTarget="false"
-            includeOnPreferencePage="true"
-            textPreferenceValue="false"
-            isGoToNextNavigationTarget="false"
-            textStylePreferenceValue="IBEAM"
-            overviewRulerPreferenceKey="occurrenceDivergenceDependenceIndicationInOverviewRuler"
-            showInNextPrevDropdownToolbarAction="true"
-            presentationLayer="3"
-            highlightPreferenceValue="true"
-            label="IndusDivergenceDependenceSliceAnnotation"
-            colorPreferenceValue="39,196,175"
-            verticalRulerPreferenceValue="false"
-            isGoToPreviousNavigationTargetKey="isOccurrenceDivergenceDependenceGoToPreviousNavigationTarget"
-            showInNextPrevDropdownToolbarActionKey="showOccurrenceDivergenceDependenceInNextPrevDropdownToolbarAction"
-            overviewRulerPreferenceValue="true"
-            textStylePreferenceKey="indus.slice.DivergenceDependencehighlight.style"
-            isGoToNextNavigationTargetKey="isOccurrenceDivergenceDependenceGoToNextNavigationTarget" />
-        <specification            
-            verticalRulerPreferenceKey="occurrenceSynchronizationDependenceIndicationInVerticalRuler"
-            annotationType="indus.slice.SynchronizationDependencehighlightAnnotation"
-            textPreferenceKey="occurrenceSynchronizationDependenceIndication"
-            colorPreferenceKey="occurrenceSynchronizationDependenceIndicationColor"
-            highlightPreferenceKey="occurrenceSynchronizationDependenceHighlighting"
-            isGoToPreviousNavigationTarget="false"
-            includeOnPreferencePage="true"
-            textPreferenceValue="false"
-            isGoToNextNavigationTarget="false"
-            textStylePreferenceValue="IBEAM"
-            overviewRulerPreferenceKey="occurrenceSynchronizationDependenceIndicationInOverviewRuler"
-            showInNextPrevDropdownToolbarAction="true"
-            presentationLayer="3"
-            highlightPreferenceValue="true"
-            label="IndusSynchronizationDependenceSliceAnnotation"
-            colorPreferenceValue="193,112,176"
-            verticalRulerPreferenceValue="false"
-            isGoToPreviousNavigationTargetKey="isOccurrenceSynchronizationDependenceGoToPreviousNavigationTarget"
-            showInNextPrevDropdownToolbarActionKey="showOccurrenceSynchronizationDependenceInNextPrevDropdownToolbarAction"
-            overviewRulerPreferenceValue="true"
-            textStylePreferenceKey="indus.slice.SynchronizationDependencehighlight.style"
-            isGoToNextNavigationTargetKey="isOccurrenceSynchronizationDependenceGoToNextNavigationTarget" />
+            textStylePreferenceKey="indus.slice.highlight.style"
+            isGoToNextNavigationTargetKey="ismyOccurrenceGoToNextNavigationTarget">
+      </specification>
    </extension>            
    
    
