@@ -66,7 +66,7 @@ import java.util.Stack;
 
 /**
  * This class provides synchronization dependency information.  This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program with
  * JVM Concurrency Primitives"</a>.
  * 
  * <p>
@@ -511,6 +511,9 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/08 02:25:04  venku
+   - Ripple effect of changes to ProcessingController.
+
    Revision 1.7  2003/09/07 09:02:13  venku
    - Synchronization dependence now handles exception based
      sync dep edges.  This requires a Value Flow analysis which can

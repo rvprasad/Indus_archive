@@ -77,7 +77,7 @@ import java.util.Map;
 
 /**
  * This class provides ready dependency information.  This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program with
  * JVM Concurrency Primitives"</a>. This implementation by default does not consider call-sites for dependency calculation.
  * 
  * <p>
@@ -922,6 +922,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/09/08 02:25:25  venku
+   - Ripple effect of changes to ProcessingController.
+
    Revision 1.12  2003/08/27 12:41:30  venku
    It is possible that in ill balanced wait/notify lead to a situation
    where there are no entities to match them, in particular, when

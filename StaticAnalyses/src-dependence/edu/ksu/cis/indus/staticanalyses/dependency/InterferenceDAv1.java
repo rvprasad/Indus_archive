@@ -62,7 +62,7 @@ import java.util.Set;
 
 /**
  * This class provides interference dependency information.  This implementation refers to the technical report <a
- * href="http://www.cis.ksu.edu/santos/papers/technicalReports">A Formal  Study of Slicing for Multi-threaded Program with
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program with
  * JVM Concurrency Primitives"</a>.  The calculated information is very pessimistic.  For fields, it assumes any assignment
  * to a field can affect any reference to the same field.  This is imprecise in the light of thread local objects and
  * unrelated primaries.
@@ -387,6 +387,11 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/08 02:19:38  venku
+   - it now only requires call graph info and basic block graph manager
+   - checkForLoopEnclosedNewExpr() is now applicable to any allocation sites
+   - added a new method to extract basic block graph
+
    Revision 1.6  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.
