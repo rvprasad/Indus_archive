@@ -1,0 +1,2 @@
+- Indus-Plugin version 0.3 (20040805)
+	This provides the framework for using the Indus 0.3 version library in eclipse.
