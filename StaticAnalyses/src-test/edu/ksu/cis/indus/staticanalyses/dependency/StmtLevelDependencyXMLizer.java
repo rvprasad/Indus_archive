@@ -36,8 +36,8 @@ import java.util.Iterator;
 
 /**
  * This xmlizes dependency info for dependencies at statement level.  The dependency is expressed as dependency between a
- * pair of statement and method and statements or pairs of statement and method as in Control, Divergence, Ready, and Synchronization
- * dependence are examples.
+ * pair of statement and method and statements or pairs of statement and method as in Control, Divergence, Ready, and
+ * Synchronization dependence are examples.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -103,4 +103,6 @@ public class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/10 08:26:09  venku
+   - enabled XMLization of statement level dependency information.
  */
