@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -15,13 +15,26 @@
 
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 
 
 /**
  * This implementation can be used to cater a set of statically determined criteria.
+ * 
+ * <p>
+ * This implementation is intended to be used with <code>StaticSliceCriteriaCallStackContextualizer</code>.
+ * </p>
+ * 
+ * <p>
+ * As the generator is unaware of the entity that each criterion is based on, the contextualization will be based on the
+ * method in which the criterion occurs.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -58,7 +71,19 @@ public class StaticSliceCriteriaGenerator
 	 * @see AbstractSliceCriteriaGenerator#getCriteriaTemplateMethod()
 	 */
 	protected Collection getCriteriaTemplateMethod() {
-		return staticCriteria;
+		final Collection _result = new HashSet();
+		final Collection _subResult = new ArrayList();
+
+		for (final Iterator _i = staticCriteria.iterator(); _i.hasNext();) {
+			_subResult.clear();
+
+			final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
+			_subResult.add(_criterion);
+			contextualizeCriteriaBasedOnThis(_criterion.getOccurringMethod(), _subResult);
+			_result.addAll(_subResult);
+		}
+
+		return _result;
 	}
 }
 

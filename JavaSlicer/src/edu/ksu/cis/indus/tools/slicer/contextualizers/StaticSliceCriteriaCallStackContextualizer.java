@@ -25,7 +25,12 @@ import soot.SootMethod;
 
 /**
  * This implementation can be used to combine the given set of contexts with the criteria.  This implementation will always
- * provide the same set of given contexts.
+ * provide the same set of given contexts.  These contexts will be same for both
+ * <code>getCallingContextsForProgramPoint</code> and <code>getCallingContextsForThis</code>.
+ * 
+ * <p>
+ * This implementation is intended to be used with <code>StaticSliceCriteriaGenerator</code>.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
