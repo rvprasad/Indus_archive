@@ -517,6 +517,10 @@ public final class SlicingEngine {
 	private void generateNewCriteria(final Stmt stmt, final SootMethod method, final Collection das) {
 		final Collection _newCriteria = new HashSet();
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("BEGIN: Generating Criteria based on dependences");
+		}
+
 		if (sliceType.equals(COMPLETE_SLICE)) {
 			for (final Iterator _i = das.iterator(); _i.hasNext();) {
 				final DependencyAnalysis _da = (DependencyAnalysis) _i.next();
@@ -583,6 +587,10 @@ public final class SlicingEngine {
 				_methodToBeIncluded = method;
 			}
 			generateSliceStmtCriterion(_stmtToBeIncluded, _methodToBeIncluded, true);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Generating Criteria based on dependences");
 		}
 	}
 
@@ -1232,9 +1240,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.61  2004/01/22 01:01:40  venku
+   - coding convention.
    Revision 1.60  2004/01/21 02:37:51  venku
    - logging.
-
    Revision 1.59  2004/01/20 17:32:28  venku
    - logging.
    Revision 1.58  2004/01/20 17:16:45  venku
