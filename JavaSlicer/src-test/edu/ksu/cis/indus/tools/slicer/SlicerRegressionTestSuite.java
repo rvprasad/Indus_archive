@@ -107,7 +107,7 @@ public final class SlicerRegressionTestSuite
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
 				final String _classpath = _props.getProperty(_config + ".classpath");
-                final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDirectory");
+                final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDir");
 				final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 				Test _test;
 
@@ -140,6 +140,9 @@ public final class SlicerRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/04/22 08:00:20  venku
+   - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
+
    Revision 1.4  2004/04/20 06:53:15  venku
    - documentation.
 

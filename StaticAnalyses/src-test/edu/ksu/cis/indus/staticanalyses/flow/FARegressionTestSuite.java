@@ -101,7 +101,7 @@ public class FARegressionTestSuite
 				final String _config = _configs[_i];
 				final String _classNames = _props.getProperty(_config + ".classNames");
 				final String _classpath = _props.getProperty(_config + ".classpath");
-				final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDirectory");
+				final String _jimpleXMLDumpDir = _props.getProperty(_config + ".jimpleXMLDumpDir");
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
@@ -124,6 +124,10 @@ public class FARegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/21 04:13:20  venku
+   - jimple dumping takes time.  Instead, the user can control this
+     per configuration.
+
    Revision 1.9  2004/04/20 06:53:17  venku
    - documentation.
    Revision 1.8  2004/04/05 23:16:33  venku
