@@ -22,6 +22,7 @@ import edu.ksu.cis.bandera.tool.ToolIconView;
 import edu.ksu.cis.bandera.util.BaseObservable;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.Util;
 
@@ -74,7 +75,12 @@ public final class OFATool
 	/** 
 	 * This key denotes the call graph in the given Scene from the given entry points.
 	 */
-	public static final String CALL_GRAPH_OUTPUT_KEY = "callgraph";
+	public static final String CALL_GRAPH_OUTPUT_KEY = "callGraph";
+
+	/** 
+	 * This key denotes the basic block graph manager.
+	 */
+	public static final String BASIC_BLOCK_GRAPH_MGR_OUTPUT_KEY = "basicBlockGraphMgr";
 
 	/** 
 	 * This key denotes the map of from reachable classes to the reachable fields in them in the given Scene from the given
@@ -111,7 +117,12 @@ public final class OFATool
 	private final Map reachableClass2Fields = new HashMap();
 
 	/** 
-	 * The Scene that holds the application to search in.
+	 * The basic block graph manager.
+	 */
+	private BasicBlockGraphMgr basicBlockGraphMgr = new BasicBlockGraphMgr();
+
+	/** 
+	 * The Scene that holds the application to be analyzed.
 	 */
 	private Scene scene;
 
@@ -236,6 +247,7 @@ public final class OFATool
 		final Map _m = new HashMap(1);
 		_m.put(CALL_GRAPH_OUTPUT_KEY, callgraph);
 		_m.put(REACHABLE_CLASSES_AND_FIELDS_OUTPUT_KEY, Collections.unmodifiableMap(reachableClass2Fields));
+		_m.put(BASIC_BLOCK_GRAPH_MGR_OUTPUT_KEY, basicBlockGraphMgr);
 		return _m;
 	}
 
@@ -309,10 +321,13 @@ public final class OFATool
 		final IValueAnalyzer _aa = OFAnalyzer.getFSOSAnalyzer(_tagName, TokenUtil.getTokenManager());
 		final ValueAnalyzerBasedProcessingController _pc = new ValueAnalyzerBasedProcessingController();
 		final Collection _processors = new ArrayList();
+		final ExceptionFlowSensitiveStmtGraphFactory _factory = new ExceptionFlowSensitiveStmtGraphFactory();
+		basicBlockGraphMgr.setStmtGraphFactory(_factory);
 		callgraph = new CallGraph(new PairManager(false, true));
 		_pc.setAnalyzer(_aa);
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(_tagName));
-		_pc.setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory());
+
+		_pc.setStmtGraphFactory(_factory);
 
 		final Map _info = new HashMap();
 		_info.put(ICallGraphInfo.ID, callgraph);
@@ -343,6 +358,7 @@ public final class OFATool
 	private static void initOutputParameters() {
 		outputParameterList = new ArrayList(1);
 		outputParameterList.add(CALL_GRAPH_OUTPUT_KEY);
+		outputParameterList.add(BASIC_BLOCK_GRAPH_MGR_OUTPUT_KEY);
 		outputParameterList.add(REACHABLE_CLASSES_AND_FIELDS_OUTPUT_KEY);
 	}
 
