@@ -135,8 +135,7 @@ public final class SliceCriteriaParser {
 			_writer.flush();
 			_result = _writer.toString();
 		} catch (final JiBXException _e) {
-			LOGGER.error("Error while unmarshalling Slicer configurationCollection. Recovering with new clean"
-				+ " configuration.", _e);
+			LOGGER.error("Error while marshalling Slicer configuration.", _e);
 			throw _e;
 		}
 		return _result;
