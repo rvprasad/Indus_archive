@@ -104,7 +104,7 @@ public class MethodVariantManager
 	 */
 	protected IVariant getNewVariant(final Object o) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("STATS: Processing method: " + o + "\t number: " + (auxGetVariantCount() + 1));
+			LOGGER.debug("STATS: Processing method: " + o + "\t number: " + (getVariantCount() + 1));
 		}
 
 		return new MethodVariant((SootMethod) o, new ASTVariantManager(fa, (AbstractIndexManager) astIMPrototype.getClone()),
