@@ -19,5 +19,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/soot-2.1.0-modified.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/log4jconfig.jar"/>
+	<classpathentry kind="lib" path="lib/indus-20040717.jar"/>
+	<classpathentry kind="lib" path="lib/slicer-20040717.jar"/>
+	<classpathentry kind="lib" path="lib/staticanalyses-20040717.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
