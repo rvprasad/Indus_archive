@@ -49,9 +49,11 @@ package edu.ksu.cis.indus.interfaces;
  */
 public interface IPrototype {
 	/**
-	 * Creates a concrete object from this prototype object.  Usually, it is a duplicate of this prototype object.
+	 * Creates a concrete object from this prototype object.
 	 *
 	 * @return concrete object based on this prototype object.
+	 *
+	 * @throws UnsupportedOperationException when this operation is not supported.
 	 */
 	Object getClone();
 
@@ -63,6 +65,8 @@ public interface IPrototype {
 	 *
 	 * @return concrete object based on this prototype object.
 	 *
+	 * @throws UnsupportedOperationException when this operation is not supported.
+	 *
 	 * @pre o != null
 	 */
 	Object getClone(Object o);
@@ -70,16 +74,23 @@ public interface IPrototype {
 
 /*
    ChangeLog:
-
+   
    $Log$
+   
+   Revision 1.2  2003/08/15 02:54:06  venku
+   Spruced up specification and documentation for flow-insensitive classes.
+   Changed names in AbstractExprSwitch.
+   Ripple effect of above change.
+   Formatting changes to IPrototype.
+   
    Revision 1.1  2003/08/12 18:33:41  venku
    Created an umbrella project to host generic interfaces related to design patterns.
    Moving prototype pattern interface under this umbrella.
-
+   
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-
+    
    Revision 1.1  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
