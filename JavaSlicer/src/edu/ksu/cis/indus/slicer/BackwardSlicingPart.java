@@ -625,6 +625,7 @@ public class BackwardSlicingPart
 			final SootMethod _callee = (SootMethod) _i.next();
 
 			if (considerMethodExitForCriteriaGeneration(_callee, closure == returnValueInclClosure)) {
+			    engine.collector.includeInSlice(_callee);
 				if (_callee.isConcrete()) {
 					final BasicBlockGraph _calleeBasicBlockGraph = _bbgMgr.getBasicBlockGraph(_callee);
 					final CallTriple _callTriple = new CallTriple(caller, stmt, stmt.getInvokeExpr());
