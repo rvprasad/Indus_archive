@@ -19,7 +19,6 @@ import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -36,7 +35,6 @@ import java.util.Map;
 
 import soot.SootMethod;
 
-import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Stmt;
 
@@ -97,9 +95,9 @@ public final class WaitNotifyAnalysis
 		public void callback(final Stmt stmt, final Context context) {
 			final SootMethod _currentMethod = context.getCurrentMethod();
 
-			if (isWaitInvocation((InvokeStmt) stmt, _currentMethod, callgraph)) {
+			if (SafeLockAnalysis.isWaitInvocation((InvokeStmt) stmt, _currentMethod, callgraph)) {
 				CollectionsUtilities.putIntoSetInMap(method2waits, _currentMethod, stmt);
-			} else if (isNotifyInvocation((InvokeStmt) stmt, _currentMethod, callgraph)) {
+			} else if (SafeLockAnalysis.isNotifyInvocation((InvokeStmt) stmt, _currentMethod, callgraph)) {
 				CollectionsUtilities.putIntoSetInMap(method2notifies, _currentMethod, stmt);
 			}
 		}
@@ -138,95 +136,6 @@ public final class WaitNotifyAnalysis
 		public void unhook(ProcessingController ppc) {
 			ppc.unregister(InvokeStmt.class, this);
 		}
-	}
-
-	/**
-	 * DOCUMENT ME! <p></p>
-	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param cgi DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public static boolean isNotifyInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
-		final InvokeExpr _expr = stmt.getInvokeExpr();
-		final SootMethod _sm = _expr.getMethod();
-		boolean _result = isNotifyMethod(_sm);
-
-		if (_result && method != null && cgi != null) {
-			final Context _context = new Context();
-			_context.setRootMethod(method);
-			_context.setStmt(stmt);
-
-			boolean _ObjectWaitWasCalled = false;
-			final Collection _callees = cgi.getCallees(_expr, _context);
-			final Iterator _iter = _callees.iterator();
-			final int _iterEnd = _callees.size();
-
-			for (int _iterIndex = 0; _iterIndex < _iterEnd && !_ObjectWaitWasCalled; _iterIndex++) {
-				final CallTriple _ctrp = (CallTriple) _iter.next();
-				_ObjectWaitWasCalled |= _ctrp.getMethod().equals(_sm);
-			}
-			_result = _ObjectWaitWasCalled;
-		}
-		return _result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param method
-	 *
-	 * @return
-	 */
-	public static boolean isNotifyMethod(final SootMethod method) {
-		return method.getDeclaringClass().getName().equals("java.lang.Object")
-		  && (method.getName().equals("notify") || method.getName().equals("notifyAll"));
-	}
-
-	/**
-	 * DOCUMENT ME! <p></p>
-	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param cgi DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public static boolean isWaitInvocation(final InvokeStmt stmt, final SootMethod method, final ICallGraphInfo cgi) {
-		final InvokeExpr _expr = stmt.getInvokeExpr();
-		final SootMethod _sm = _expr.getMethod();
-		boolean _result = isWaitMethod(_sm);
-
-		if (_result && method != null && cgi != null) {
-			final Context _context = new Context();
-			_context.setRootMethod(method);
-			_context.setStmt(stmt);
-
-			boolean _ObjectWaitWasCalled = false;
-			final Collection _callees = cgi.getCallees(_expr, _context);
-			final Iterator _iter = _callees.iterator();
-			final int _iterEnd = _callees.size();
-
-			for (int _iterIndex = 0; _iterIndex < _iterEnd && !_ObjectWaitWasCalled; _iterIndex++) {
-				final CallTriple _ctrp = (CallTriple) _iter.next();
-				_ObjectWaitWasCalled |= _ctrp.getMethod().equals(_sm);
-			}
-			_result = _ObjectWaitWasCalled;
-		}
-		return _result;
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * @param method
-	 *
-	 * @return
-	 */
-	public static boolean isWaitMethod(final SootMethod method) {
-		return method.getDeclaringClass().getName().equals("java.lang.Object") && method.getName().equals("wait");
 	}
 
 	/**
@@ -275,4 +184,13 @@ public final class WaitNotifyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/23 13:09:44  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
+
  */
