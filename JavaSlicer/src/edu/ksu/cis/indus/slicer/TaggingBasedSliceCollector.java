@@ -15,11 +15,9 @@
 
 package edu.ksu.cis.indus.slicer;
 
-import soot.SootField;
 import soot.SootMethod;
 import soot.ValueBox;
 
-import soot.jimple.FieldRef;
 import soot.jimple.Stmt;
 
 import soot.tagkit.Host;
@@ -37,29 +35,24 @@ import java.util.Iterator;
 
 
 /**
- * This residualizes the given system based on the decisions of a slicing engine.  The system is residualized by tagging
- * parts of the original system which occur in the slice.
+ * This collects the parts of the system that form the slice by tagging the AST of the system.  The residualization should be
+ * drivern by the tags in the AST.
  * 
  * <p>
  * After residualization, the application can query the system for tags of kind <code>SlicingTag</code> and retrieve slicing
- * information of the system.  However, as locals cannot be tagged, the application will have to obtain that information
- * from this class.
+ * information of the system.  However, as locals cannot be tagged, the application should use the references to locals in
+ * the slice to include them.  Similar technique should be used for catch table.
  * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class TaggingBasedSliceCollector {
+class TaggingBasedSliceCollector {
 	/**
 	 * An instance to be used to satisfy <code>Tag.getValue()</code> call on <code>SlicingTag</code> objects.
 	 */
 	static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-
-	/**
-	 * Default name of slicing tags.
-	 */
-	public static final String SLICING_TAG_NAME = "Slicing Tag";
 
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -95,7 +88,7 @@ public class TaggingBasedSliceCollector {
 	/**
 	 * The name of the tag instance active in this instance of the transformer.
 	 */
-	private String tagName = SLICING_TAG_NAME;
+	private String tagName;
 
 	/**
 	 * Creates a new TaggingBasedSliceCollector object.
@@ -104,29 +97,6 @@ public class TaggingBasedSliceCollector {
 	 */
 	TaggingBasedSliceCollector(final SlicingEngine theEngine) {
 		engine = theEngine;
-		setTagName(SLICING_TAG_NAME);
-	}
-
-	/**
-	 * Set the tag name to be used.
-	 *
-	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
-	 * 		  used.
-	 */
-	public void setTagName(final String theTagName) {
-		if (theTagName != null) {
-			seedTag = new SlicingTag(theTagName, true);
-			tag = new SlicingTag(theTagName, false);
-			tagName = theTagName;
-		}
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#reset()
-	 */
-	public void reset() {
-		tagName = SLICING_TAG_NAME;
-		taggedMethods.clear();
 	}
 
 	/**
@@ -147,62 +117,12 @@ public class TaggingBasedSliceCollector {
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
-	 *
-	 * @param untransformedStmt DOCUMENT ME!
-	 * @param untransformedMethod DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	protected boolean isTransformed(final Stmt untransformedStmt, final SootMethod untransformedMethod) {
-		return isTransformed(untransformedStmt) && isTransformed(untransformedMethod);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param vBox DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	protected boolean isTransformed(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		return isTransformed(vBox) && isTransformed(stmt, method);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
 	 */
 	protected void completeTransformation() {
 		if (engine.sliceType.equals(SlicingEngine.BACKWARD_SLICE) && engine.executableSlice) {
 			makeBackwardSliceExecutable();
 		}
 		processGotos();
-	}
-
-	/**
-	 * {@inheritDoc}  This implementation can handle all slice types defined in <code>SlicingEngine</code> be it executable
-	 * or non-executable except executable forward slices.
-	 */
-	protected boolean handleSliceType(final Object theSliceType, final boolean executableSlice) {
-		boolean result = SlicingEngine.SLICE_TYPES.contains(theSliceType);
-		result &= !(theSliceType.equals(SlicingEngine.FORWARD_SLICE) && executableSlice);
-		return result;
-	}
-
-	/**
-	 * Returns <code>true</code> as this transformer can handle partial inclusions.
-	 *
-	 * @return <code>true</code>
-	 *
-	 * @see edu.ksu.cis.indus.slicer.ISliceCollector#handlesPartialInclusions()
-	 */
-	protected boolean handlesPartialInclusions() {
-		return true;
 	}
 
 	/**
@@ -213,47 +133,40 @@ public class TaggingBasedSliceCollector {
 	 * @see edu.ksu.cis.indus.slicer.ISliceCollector#processSeedCriteria(java.util.Collection)
 	 */
 	protected void processSeedCriteria(final Collection seedcriteria) {
+		Collection temp = new HashSet();
+
 		for (Iterator i = seedcriteria.iterator(); i.hasNext();) {
 			AbstractSliceCriterion crit = (AbstractSliceCriterion) i.next();
 
 			if (crit instanceof SliceExpr) {
 				SliceExpr expr = (SliceExpr) crit;
-				transformSeed((ValueBox) expr.getCriterion(), expr.getOccurringStmt(), expr.getOccurringMethod());
+				temp.add(expr.getCriterion());
+				temp.add(expr.getOccurringStmt());
+				temp.add(expr.getOccurringMethod());
 			} else if (crit instanceof SliceStmt) {
 				SliceStmt stmt = (SliceStmt) crit;
-				transformSeed((Stmt) stmt.getCriterion(), stmt.getOccurringMethod());
+				temp.add(stmt.getCriterion());
+				temp.add(stmt.getOccurringMethod());
 			}
-			crit.sliced();
+		}
+
+		for (Iterator i = temp.iterator(); i.hasNext();) {
+			collectSeedCriteria(((Host) i.next()));
 		}
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
+	 * Set the tag name to be used.
+	 *
+	 * @param theTagName to be used during this transformation.  If none are specified, then a default built-in tag name is
+	 * 		  used.
 	 */
-	protected void transform(final Stmt stmt, final SootMethod method) {
-		tagStmt(stmt, method, false);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(ValueBox, Stmt, SootMethod)
-	 */
-	protected void transform(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		tagValueBox(vBox, stmt, method, false);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSliceResidualizer#transformSeed(soot.jimple.Stmt, soot.SootMethod)
-	 */
-	protected void transformSeed(final Stmt stmt, final SootMethod method) {
-		tagStmt(stmt, method, true);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSliceResidualizer#transformSeed(soot.ValueBox, soot.jimple.Stmt,
-	 * 		soot.SootMethod)
-	 */
-	protected void transformSeed(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
-		tagValueBox(vBox, stmt, method, true);
+	void setTagName(final String theTagName) {
+		if (theTagName != null) {
+			seedTag = new SlicingTag(theTagName, true);
+			tag = new SlicingTag(theTagName, false);
+			tagName = theTagName;
+		}
 	}
 
 	/**
@@ -265,6 +178,33 @@ public class TaggingBasedSliceCollector {
 	 */
 	String getTagName() {
 		return tagName;
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param host DOCUMENT ME!
+	 */
+	void collect(final Host host) {
+		tagHost(host, false);
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param host DOCUMENT ME!
+	 */
+	void collectSeedCriteria(final Host host) {
+		tagHost(host, true);
+	}
+
+	/**
+	 * Resets internal data structure.  Tag related information is not reset.
+	 */
+	void reset() {
+		taggedMethods.clear();
 	}
 
 	/**
@@ -286,7 +226,9 @@ public class TaggingBasedSliceCollector {
 				Stmt stmt = bb.getTrailerStmt();
 
 				if (stmt.getTag(tagName) == null) {
-					transform(stmt, method);
+					//collect(stmt, method);
+					collect(stmt);
+					collect(method);
 				}
 			}
 		}
@@ -334,84 +276,32 @@ public class TaggingBasedSliceCollector {
 	 * <p></p>
 	 *
 	 * @param host DOCUMENT ME!
-	 * @param theTag DOCUMENT ME!
-	 */
-	private void tagHost(final Host host, final SlicingTag theTag) {
-		if (host.getTag(tagName) != null) {
-			host.removeTag(tagName);
-		}
-		host.addTag(theTag);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
 	 * @param seed DOCUMENT ME!
 	 */
-	private void tagStmt(final Stmt stmt, final SootMethod method, final boolean seed) {
-		SlicingTag stmtTag = (SlicingTag) stmt.getTag(tagName);
+	private void tagHost(final Host host, final boolean seed) {
+		SlicingTag theTag;
 
-		if (stmtTag == null || (!seed && stmtTag.isSeed())) {
-			SlicingTag theTag;
-
-			if (seed) {
-				theTag = seedTag;
-			} else {
-				theTag = tag;
-			}
-			tagHost(stmt, theTag);
-			tagHost(method, theTag);
-			taggedMethods.add(method);
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Tagged statement: " + stmt + "[" + stmt.hashCode() + "] | " + method.getSignature());
-			}
+		if (seed) {
+			theTag = seedTag;
+		} else {
+			theTag = tag;
 		}
-	}
 
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param vBox DOCUMENT ME!
-	 * @param stmt DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param seed DOCUMENT ME!
-	 */
-	private void tagValueBox(final ValueBox vBox, final Stmt stmt, final SootMethod method, final boolean seed) {
-		SlicingTag valueTag = (SlicingTag) vBox.getTag(tagName);
+		SlicingTag hostTag = (SlicingTag) host.getTag(tagName);
 
-		if (valueTag == null || (!seed && valueTag.isSeed())) {
-			SlicingTag theTag;
-
-			if (seed) {
-				theTag = seedTag;
-			} else {
-				theTag = tag;
+		if (hostTag == null || (!seed && hostTag.isSeed())) {
+			if (host.getTag(tagName) != null) {
+				host.removeTag(tagName);
 			}
-
-			tagHost(vBox, theTag);
-
-			if (vBox instanceof FieldRef) {
-				SootField field = ((FieldRef) vBox).getField();
-				tagHost(field, theTag);
-				tagHost(field.getDeclaringClass(), theTag);
-			}
-
-			if (stmt.getTag(tagName) == null) {
-				tagHost(stmt, theTag);
-				tagHost(method, theTag);
-				taggedMethods.add(method);
-			}
+			host.addTag(theTag);
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Tagged value: " + vBox.getValue() + " | " + stmt + "[" + stmt.hashCode() + "] | "
-					+ method.getSignature() + " | " + seed);
+				Object o = host;
+
+				if (host instanceof ValueBox) {
+					o = ((ValueBox) host).getValue();
+				}
+				LOGGER.debug("Tagged: " + o);
 			}
 		}
 	}
@@ -420,6 +310,9 @@ public class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/30 13:21:35  venku
+   - removed uncalled method.
+   - changed the logic used to check tags of statements.
    Revision 1.5  2003/11/30 02:38:44  venku
    - changed the name of SLICING_TAG.
    Revision 1.4  2003/11/25 00:00:45  venku
