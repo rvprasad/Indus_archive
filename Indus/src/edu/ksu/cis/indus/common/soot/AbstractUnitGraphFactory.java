@@ -80,6 +80,7 @@ public abstract class AbstractUnitGraphFactory
 			_result = getUnitGraphForMethod(method);
 
 			if (_result == null) {
+                // stub in an empty graph.
 				final Jimple _jimple = Jimple.v();
 				final Body _body = _jimple.newBody();
 				_body.setMethod(method);
@@ -93,6 +94,7 @@ public abstract class AbstractUnitGraphFactory
 				}
 				_result = getUnitGraphForBody(_body);
 			} else {
+                // prune exception based control flow edges.
 				final Body _body = _result.getBody();
 
 				if (_body instanceof JimpleBody) {
@@ -139,6 +141,10 @@ public abstract class AbstractUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/03/08 02:10:14  venku
+   - enabled preliminary support to prune exception based intraprocedural
+     control flow edges.
+
    Revision 1.6  2004/03/04 11:56:48  venku
    - renamed a method.
    - added a valid empty body into native methods.
