@@ -487,6 +487,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		 */
 		public void caseStaticFieldRef(final StaticFieldRef v) {
 			setResult(globalASs.get(v.getField().getSignature()));
+			methodCtxtCache.globalDataWasWritten();
 		}
 
 		/**
@@ -1144,6 +1145,47 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 */
 	public static boolean canHaveAliasSet(final Type type) {
 		return type instanceof RefType || type instanceof ArrayType;
+	}
+
+	/**
+	 * @see ISideEffectInfo#doesInvocationAffectGlobalData(ICallGraphInfo.CallTriple)
+	 */
+	public boolean doesInvocationAffectGlobalData(final CallTriple callerTriple) {
+		final SootMethod _caller = callerTriple.getMethod();
+		final Triple _triple = (Triple) method2Triple.get(_caller);
+		final boolean _result;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			_result = _ctxt.isGlobalDataWritten();
+		} else {
+			_result = true;
+
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + _caller + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
+	}
+
+	/**
+	 * @see ISideEffectInfo#doesMethodAffectGlobalData(SootMethod)
+	 */
+	public boolean doesMethodAffectGlobalData(final SootMethod method) {
+		final Triple _triple = (Triple) method2Triple.get(method);
+		final boolean _result;
+
+		if (_triple != null) {
+			final MethodContext _ctxt = (MethodContext) _triple.getFirst();
+			_result = _ctxt.isGlobalDataWritten();
+		} else {
+			_result = true;
+
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("No recorded information for " + method + " is available.  Returning pessimistic (true) info.");
+			}
+		}
+		return _result;
 	}
 
 	/**

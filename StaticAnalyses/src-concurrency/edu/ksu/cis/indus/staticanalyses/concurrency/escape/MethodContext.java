@@ -93,6 +93,11 @@ final class MethodContext
 	 */
 	private List argAliasSets;
 
+	/** 
+	 * This indicates if the method/invocation context writes global data.
+	 */
+	private boolean globalDataWritten;
+
 	/**
 	 * Creates a new MethodContext object.
 	 *
@@ -330,6 +335,22 @@ final class MethodContext
 	}
 
 	/**
+     * Provides information if this method writes global data.
+     * 
+     * @return <code>true</code> if global data is written by this method; <code>false</code>, otherwise.
+	 */
+	boolean isGlobalDataWritten() {
+		return globalDataWritten;
+	}
+
+	/**
+	 * Marks this method as writing global data.
+	 */
+	void globalDataWasWritten() {
+		globalDataWritten = true;
+	}
+
+	/**
 	 * Marks all reachable alias sets as being crossing thread boundary, i.e, visible in multiple threads..
 	 */
 	void markAsCrossingThreadBoundary() {
@@ -462,6 +483,7 @@ final class MethodContext
 			} else {
 				_represented = _m;
 			}
+			_representative.globalDataWritten |= _represented.globalDataWritten;
 
 			final int _paramCount = method.getParameterCount();
 
@@ -546,8 +568,8 @@ final class MethodContext
 				} else {
 					_cloneFieldAS = getCloneOf(src2clone, _srcFieldAS);
 					_wb.addWork(_srcFieldAS);
-					assert (_clone.getASForField(_field) == null);
-					assert (_cloneFieldAS != null);
+					assert _clone.getASForField(_field) == null;
+					assert _cloneFieldAS != null;
 				}
 				_clone.putASForField(_field, _cloneFieldAS);
 			}

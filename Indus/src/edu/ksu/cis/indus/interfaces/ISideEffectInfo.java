@@ -178,6 +178,29 @@ public interface ISideEffectInfo
 	 */
 	boolean isThisSideAffected(final SootMethod method)
 	  throws IllegalArgumentException;
+
+	/**
+	 * Checks if the given invocation side affects any global data.
+	 *
+	 * @param callTriple is the invocation with the invocation expression, statement containing the invocation, and the
+	 * 		  method in which the invocation occurs.
+	 *
+	 * @return <code>true</code> if the invocation side-affects; <code>false</code>, otherwise.
+	 *
+	 * @pre callTriple != null
+	 */
+	boolean doesInvocationAffectGlobalData(final CallTriple callTriple);
+
+	/**
+	 * Checks if the given method side affects any global data.
+	 *
+	 * @param method of interest.
+	 *
+	 * @return <code>true</code> if the method side-affects; <code>false</code>, otherwise.
+	 *
+	 * @pre method != null
+	 */
+	boolean doesMethodAffectGlobalData(final SootMethod method);
 }
 
 // End of File
