@@ -419,7 +419,7 @@ public class DependencyXMLizer
 				try {
 					_writer =
 						new FileWriter(new File(getXmlOutDir() + File.separator
-								+ _rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "jimple.xml"));
+								+ _rootname.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + "_jimple.xml"));
 					_t.setWriter(_writer);
 					_t.hookup(_xmlcgipc);
 					_xmlcgipc.process();
@@ -664,6 +664,9 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2003/12/16 00:29:29  venku
+   - documentation.
+
    Revision 1.31  2003/12/15 16:34:40  venku
    - added help switch to command line.
 
