@@ -1156,15 +1156,17 @@ public class ProcessingController {
 				((IProcessor) _k.next()).callback(_sm);
 			}
 
-			if (_processBody) {
+			if (_processBody && _sm.isConcrete()) {
 				processMethodBody(_sm);
+			} else if (LOGGER.isInfoEnabled()) {
+				LOGGER.info(_sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
 			}
 		}
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * @param method DOCUMENT ME!
 	 */
 	private void processMethodBody(final SootMethod method) {
@@ -1174,23 +1176,19 @@ public class ProcessingController {
 
 		final List _sl = new ArrayList();
 
-		if (method.isConcrete()) {
-			try {
-				_sl.clear();
-				_sl.addAll(method.retrieveActiveBody().getUnits());
+		try {
+			_sl.clear();
+			_sl.addAll(method.retrieveActiveBody().getUnits());
 
-				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
-					final Stmt _stmt = (Stmt) _k.next();
-					context.setStmt(_stmt);
-					_stmt.apply(stmtSwitcher);
-				}
-			} catch (RuntimeException e) {
-				LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
-					+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
-					+ method.getSignature(), e);
+			for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
+				final Stmt _stmt = (Stmt) _k.next();
+				context.setStmt(_stmt);
+				_stmt.apply(stmtSwitcher);
 			}
-		} else if (LOGGER.isInfoEnabled()) {
-			LOGGER.info(method + " is not a concrete method.  Hence, it's body could not be retrieved.");
+		} catch (RuntimeException e) {
+			LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
+				+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
+				+ method.getSignature(), e);
 		}
 	}
 }
@@ -1198,10 +1196,11 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2003/12/05 03:10:07  venku
+   - iteration in the wrong direction. FIXED.
    Revision 1.22  2003/12/05 03:08:56  venku
    - size expressions in new array and multi array were
      being ignored.  FIXED.
-
    Revision 1.21  2003/12/02 11:31:57  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
