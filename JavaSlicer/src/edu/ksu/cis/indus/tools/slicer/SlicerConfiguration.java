@@ -578,7 +578,7 @@ public final class SlicerConfiguration
 	 */
 	static SlicerConfiguration makeToolConfiguration() {
 		final SlicerConfiguration _result = new SlicerConfiguration();
-		_result.setConfigName("configuration" + System.currentTimeMillis());
+		_result.setConfigName("tool_configuration_" + System.currentTimeMillis());
 		_result.initialize();
 		return _result;
 	}
@@ -765,6 +765,9 @@ public final class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/02/13 08:40:04  venku
+   - use ofa for interference/ready was being ignored. FIXED.
+
    Revision 1.28  2004/01/25 16:19:52  venku
    - enabled configuration support for using object flow information.
    Revision 1.27  2004/01/20 02:18:42  venku
