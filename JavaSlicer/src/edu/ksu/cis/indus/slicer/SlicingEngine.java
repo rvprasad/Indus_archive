@@ -77,35 +77,6 @@ import soot.toolkits.scalar.UnitValueBoxPair;
 
 /**
  * This class accepts slice criterions and generates slices of the given system.
- * 
- * <p>
- * The term "immediate slice" in the context of this file implies the slice containing only entities on which the given term
- * depends on, not the transitive closure.
- * </p>
- * 
- * <p>
- * There are 3 types of slices: forward, backward, and complete(forward and backward).  Also, there are 2  flavours of
- * slices: executable and non-executable.
- * </p>
- * 
- * <p>
- * Backward slicing is inclusion of anything that leads to the slice criterion from the given entry points to the system.
- * This can provide a executable system which will  simulate the given system along all paths from the entry points leading
- * to the slice criterion independent of the input. In case the input causes a divergence in this path then the simulation
- * ends there.
- * </p>
- * 
- * <p>
- * However, in case of forward slicing, one would include everything that is affected by the slice criterion.  This  will
- * never lead to an semantically meaningful executable slice as the part of the system that leads to the slice criterion is
- * not captured. Rather a more meaningful notion is that of a complete slice. This includes everything that affects the
- * given slice criterion and  everything affected by the slice criterion.
- * </p>
- * 
- * <p>
- * Due to the above view we only support non-executable slices of all types and only executable slices of backward and
- * complete type.
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -1263,6 +1234,14 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/01/13 04:33:39  venku
+   - Renamed TaggingBasedSliceCollector to SliceCollector.
+   - Ripple effect in the engine.
+   - SlicingEngine does not handle issues such as executability
+     as they do not affect the generated slice.  The slice can be
+     transformed independent of the slice via postprocessing to
+     adhere to such properties.
+
    Revision 1.46  2004/01/11 03:42:22  venku
    - synchronization, control, and divergence are now considered as
      control based DAs and are used instead of just control.
