@@ -54,7 +54,9 @@ public interface IThreadGraphInfo
 	  extends Triple {
 		/**
 		 * Creates a new NewExprTriple object.  Allocation sites that do not occur in the source code of the system can be
-		 * represented via a non-null <code>expr</code> coupled with a null method and statement.
+		 * represented via a non-null <code>expr</code> coupled with a null method and statement. It is assumed that none of
+		 * the components of this triple will not change their state  in ways that will affect equality test or hash code
+		 * value of the component.
 		 *
 		 * @param method in which the object is created.
 		 * @param stmt in which the allocation occurs.
@@ -64,6 +66,7 @@ public interface IThreadGraphInfo
 		 */
 		public NewExprTriple(final SootMethod method, final Stmt stmt, final NewExpr expr) {
 			super(expr, stmt, method);
+			optimize();
 		}
 
 		/**
@@ -166,6 +169,9 @@ public interface IThreadGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.2  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

@@ -54,7 +54,8 @@ public interface ICallGraphInfo
 	final class CallTriple
 	  extends Triple {
 		/**
-		 * Creates a new CallTriple object.
+		 * Creates a new CallTriple object.  It is assumed that none of the components of this triple will not change their
+		 * state  in ways that will affect equality test or hash code value of the component.
 		 *
 		 * @param method is the caller or the callee in the relation.
 		 * @param stmt in which the call occurs.
@@ -64,6 +65,7 @@ public interface ICallGraphInfo
 		 */
 		public CallTriple(final SootMethod method, final Stmt stmt, final InvokeExpr expr) {
 			super(expr, stmt, method);
+			optimize();
 		}
 
 		/**
@@ -207,6 +209,9 @@ public interface ICallGraphInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/13 02:28:54  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.2  2003/12/09 04:22:03  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
