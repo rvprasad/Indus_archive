@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.interfaces;
 /**
  * This interface is used to manage information based on ID.
  *
- * @author <a href="$user_web$">$user_name$</a>
+ * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
