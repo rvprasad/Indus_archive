@@ -272,7 +272,7 @@ public class IdentifierBasedDataDAv2
 	 *
 	 * @param stmt in which the locals occur for which the def info is requested.
 	 * @param useDefAnalysis to be used to retrieve the def into for each variable.
-	 * @param method DOCUMENT ME!
+	 * @param method of interest.
 	 *
 	 * @return a collection of definition statement.
 	 *
@@ -301,6 +301,10 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/07/22 09:42:40  venku
+   - altered IUseDefInfo to use tighter types.
+   - ripple effect.
+
    Revision 1.8  2004/07/21 20:31:33  venku
    documentation.
 
