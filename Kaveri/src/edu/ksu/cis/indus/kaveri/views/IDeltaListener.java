@@ -30,4 +30,10 @@ public interface IDeltaListener {
 	 * The property has changed.  Update the stuff.
 	 */
 	void propertyChanged();
+	
+	/**
+	 * The received is ready to receive the data
+	 *
+	 */
+	boolean isReady();
 }

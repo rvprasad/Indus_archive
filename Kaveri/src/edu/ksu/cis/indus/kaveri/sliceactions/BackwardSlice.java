@@ -82,6 +82,6 @@ public class BackwardSlice
 	 * 		org.eclipse.jface.viewers.ISelection)
 	 */
 	public void selectionChanged(final IAction action, final ISelection selection) {
-		this.textSelection = selection;
+		this.textSelection = selection;		
 	}
 }

@@ -23,6 +23,8 @@ package edu.ksu.cis.indus.kaveri.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+
 
 /**
  * This class maintains the set of partial jimple statements
@@ -33,9 +35,35 @@ import java.util.List;
  */
 public class PartialStmtData {
 	/**
-	 * The list of Jimple statements.
+	 * The list of Classname, method name and  Jimple statements.
 	 */
 	private List stmtList;
+	
+	/**
+	 * The selected Java statement
+	 */
+	private String selectedStatement;
+	
+	
+	/**
+	 * The class in which the statement was chosen.
+	 */
+	private String className;
+	
+	/**
+	 * The method in which the statement exists.
+	 */
+	private String methodName;
+	
+	/**
+	 * The line number of the statement. 
+	 */
+	private int lineNo;
+	/**
+	 * The current Java file.
+	 * 
+	 */
+	private IFile javaFile;
 	
 	/**
 	 * The viewers listening to this model.
@@ -48,7 +76,20 @@ public class PartialStmtData {
 	 */
 	public PartialStmtData() {
 		listeners = new ArrayList();
+		stmtList = new ArrayList();
 	}
+	
+	public boolean isListenersReady() {
+	    boolean _result = false;
+        for (int _i = 0; _i < listeners.size(); _i++) {
+            if (((IDeltaListener) listeners.get(_i)).isReady()) {
+                _result = true;
+                break;
+            }
+        }
+        return _result;
+    }
+	
 	/**
 	 * @return Returns the stmtList.
 	 */
@@ -76,6 +117,10 @@ public class PartialStmtData {
 		listeners.add(listener);
 	}
 	
+	public boolean isListenersPresent() {
+	    return listeners.size() > 0;
+	}
+	
 	/**
 	 * Removes the listener.
 	 * @param listener The listener to remove. 
@@ -84,4 +129,64 @@ public class PartialStmtData {
 	public void removeListener(final IDeltaListener listener) {
 		listeners.remove(listener);
 	}
+    /**
+     * @return Returns the javaFile.
+     */
+    public IFile getJavaFile() {
+        return javaFile;
+    }
+    /**
+     * @param javaFile The javaFile to set.
+     */
+    public void setJavaFile(IFile javaFile) {
+        this.javaFile = javaFile;
+    }
+    /**
+     * @return Returns the selectedStatement.
+     */
+    public String getSelectedStatement() {
+        return selectedStatement;
+    }
+    /**
+     * @param selectedStatement The selectedStatement to set.
+     */
+    public void setSelectedStatement(String selectedStatement) {
+        this.selectedStatement = selectedStatement;
+    }
+    /**
+     * @return Returns the className.
+     */
+    public String getClassName() {
+        return className;
+    }
+    /**
+     * @param className The className to set.
+     */
+    public void setClassName(String className) {
+        this.className = className;
+    }
+    /**
+     * @return Returns the lineNo.
+     */
+    public int getLineNo() {
+        return lineNo;
+    }
+    /**
+     * @param lineNo The lineNo to set.
+     */
+    public void setLineNo(int lineNo) {
+        this.lineNo = lineNo;
+    }
+    /**
+     * @return Returns the methodName.
+     */
+    public String getMethodName() {
+        return methodName;
+    }
+    /**
+     * @param methodName The methodName to set.
+     */
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
 }

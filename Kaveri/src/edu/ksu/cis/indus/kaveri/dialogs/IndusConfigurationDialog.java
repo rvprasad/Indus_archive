@@ -35,7 +35,7 @@ import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewConfiguration;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewData;
-import edu.ksu.cis.indus.kaveri.scoping.ScopeSelectionDialog;
+import edu.ksu.cis.indus.kaveri.scoping.ScopeDialog;
 
 
 
@@ -48,9 +48,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.ui.search.PrettySignature;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -203,6 +201,7 @@ public class IndusConfigurationDialog
 		_gd.horizontalSpan = 1;
 		_gd.grabExcessHorizontalSpace = true;
 		_gd.grabExcessVerticalSpace = true;
+		//_gd.heightHint = IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH;
 		_gd.horizontalAlignment = GridData.FILL;
 		_gd.verticalAlignment = GridData.FILL;
 		criteriaTable.setLayoutData(_gd);
@@ -369,6 +368,12 @@ public class IndusConfigurationDialog
 	private void handleScope(final Button btnScope) {
 		btnScope.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(final SelectionEvent e) {
+				final ScopeDialog _sd = new ScopeDialog(Display.getCurrent().getActiveShell());
+				if (_sd.open() == IDialogConstants.OK_ID) {
+					
+				}
+				
+				/*
 				ScopeSelectionDialog _sld = new ScopeSelectionDialog(Display.getCurrent().getActiveShell(),
 						 null, null);
 				if (_sld.open() == IDialogConstants.OK_ID) {
@@ -394,6 +399,7 @@ public class IndusConfigurationDialog
 						KaveriPlugin.getDefault().getIndusConfiguration().setScopeSpecification(_scopeSpec);
 					}
 				}
+				*/
 			}
 		});
 	}

@@ -281,7 +281,7 @@
             </viewerContribution>
             <objectContribution
                   adaptable="true"
-                  objectClass="org.eclipse.jdt.core.IMethod"
+                  objectClass="org.eclipse.jdt.core.IMember"
                   id="edu.ksu.cis.indus.kaveri.popup.scopePopupObject">
                <menu
                      label="Indus"
@@ -491,11 +491,11 @@
                id="edu.ksu.cis.indus.kaveri.BackwardSlice">
          </action>
          <action
-               label="Slice Annotation"
-               icon="data/icons/sa.gif"
-               tooltip="Enables or disables the slice annotations"
-               class="edu.ksu.cis.indus.kaveri.presentation.SliceAnnotate"
                toolbarPath="Normal/additions"
+               label="Slice Annotation"
+               class="edu.ksu.cis.indus.kaveri.presentation.SliceAnnotate"
+               tooltip="Enables or disables the slice annotations"
+               icon="data/icons/sa.gif"
                id="edu.ksu.cis.indus.kaveri.SliceAnnotate">
          </action>
       </editorContribution>

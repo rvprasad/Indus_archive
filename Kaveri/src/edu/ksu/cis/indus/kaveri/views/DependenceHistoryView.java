@@ -330,6 +330,14 @@ public class DependenceHistoryView
 			} 		
 			
 		}
+
+        /* (non-Javadoc)
+         * @see edu.ksu.cis.indus.kaveri.views.IDeltaListener#isReady()
+         */
+        public boolean isReady() {
+            return true;
+            
+        }
 	}
 
 
