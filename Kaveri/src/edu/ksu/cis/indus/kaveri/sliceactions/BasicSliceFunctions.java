@@ -113,6 +113,7 @@ abstract public class BasicSliceFunctions {
                         new Shell(), _jproject);
                 KaveriPlugin.getDefault().getIndusConfiguration().getCriteria()
                         .clear();
+                KaveriPlugin.getDefault().getIndusConfiguration().getChosenContext().clear();
                 if (_indusDialog.open() == IDialogConstants.OK_ID) {
                     if (_structuredSelection.getFirstElement() instanceof IJavaProject
                             || _structuredSelection.getFirstElement() instanceof IProject) {
