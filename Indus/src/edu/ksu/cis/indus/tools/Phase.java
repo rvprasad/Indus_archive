@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.tools;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,12 +32,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class Phase
   implements Cloneable {
-	/**
+	/** 
 	 * This represents the phase in which a tool/analyses/process starts.
 	 */
 	public static final Phase STARTING_PHASE;
 
-	/**
+	/** 
 	 * This represents the phase in which a tool/analyses/process finishes.
 	 */
 	public static final Phase FINISHED_PHASE;
@@ -48,22 +50,22 @@ public final class Phase
 		FINISHED_PHASE = _i;
 	}
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(Phase.class);
 
-	/**
+	/** 
 	 * This is the major phase.
 	 *
-	 * @invariant 0 leq _major
+	 * @invariant 0 &lt;= _major
 	 */
 	private int major;
 
-	/**
+	/** 
 	 * This is the minor phase.
 	 *
-	 * @invariant 0 leq _minor
+	 * @invariant 0 &lt;= _minor
 	 */
 	private int minor;
 
@@ -194,11 +196,21 @@ public final class Phase
 		major = 0;
 		minor = 0;
 	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).append("minor", this.minor).append("major", this.major).toString();
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/28 23:02:32  venku
+   - equal should have been equals.  FIXED.
+   - added hashCode.
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
