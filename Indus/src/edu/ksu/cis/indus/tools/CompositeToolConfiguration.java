@@ -201,7 +201,7 @@ public class CompositeToolConfiguration
 	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#processProperty(edu.ksu.cis.indus.tools.ToolConfiguration.PropertyIdentifier,
 	 * 		java.lang.Object)
 	 */
-	protected boolean processProperty(PropertyIdentifier propertyID, Object value) {
+	protected final boolean processProperty(PropertyIdentifier propertyID, Object value) {
 		return getActiveToolConfiguration().processProperty(propertyID, value);
 	}
 }
@@ -209,6 +209,10 @@ public class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/26 15:00:01  venku
+   - The configuration of tools in Indus has been placed in this package.
+   - Formatting.
+
    Revision 1.1  2003/09/26 13:58:43  venku
    - checkpoint commit.
    - Renamed ToolConfigurationCollection to CompositeToolConfiguration
