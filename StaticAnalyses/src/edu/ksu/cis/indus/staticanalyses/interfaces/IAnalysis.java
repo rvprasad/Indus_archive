@@ -15,6 +15,8 @@ package edu.ksu.cis.indus.staticanalyses.interfaces;
 
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
+import edu.ksu.cis.indus.interfaces.IStatus;
+
 import edu.ksu.cis.indus.processing.IProcessor;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -82,6 +84,9 @@ public interface IAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/08/07 11:52:24  venku
+   - IAnalysis extends IStatus.
+   - AnalysesController extended AbstractStatus. Now, I wonder why. It has been removed.
    Revision 1.1  2004/07/24 09:57:49  venku
    - extracted interface from AbstractAnalysis.
    - ripple effect.

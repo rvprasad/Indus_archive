@@ -154,7 +154,6 @@ public class AnalysesController {
 				}
 			}
 		} while (_analyzing);
-		stable();
 	}
 
 	/**
@@ -163,7 +162,6 @@ public class AnalysesController {
 	public void initialize() {
 		final Collection _failed = new ArrayList();
 		final Collection _preprocessors = new HashSet();
-		unstable();
 
 		for (final Iterator _k = participatingAnalyses.keySet().iterator(); _k.hasNext();) {
 			final Object _key = _k.next();
@@ -227,6 +225,10 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/08/07 11:52:23  venku
+   - IAnalysis extends IStatus.
+   - AnalysesController extended AbstractStatus. Now, I wonder why. It has been removed.
+
    Revision 1.41  2004/08/07 11:33:01  venku
    - coding convention.
 
