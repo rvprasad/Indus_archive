@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * This is an abstract implementation of <code>IWorkBag</code>.
  *
@@ -90,11 +91,27 @@ public abstract class AbstractWorkBag
 	public final boolean hasWork() {
 		return !container.isEmpty();
 	}
+    
+	/**
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return new ToStringBuilder(this).append("work pieces", container).toString();
+    }
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
+
    Revision 1.2  2004/01/28 00:16:55  venku
    - getWork() throws exception if the work bag is empty.
    Revision 1.1  2004/01/06 00:17:10  venku
