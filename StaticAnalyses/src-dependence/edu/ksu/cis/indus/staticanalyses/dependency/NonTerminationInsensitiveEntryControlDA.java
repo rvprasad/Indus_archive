@@ -64,6 +64,35 @@ public final class NonTerminationInsensitiveEntryControlDA
 	 */
 	private final NonTerminationSensitiveEntryControlDA entryControlDA = new NonTerminationSensitiveEntryControlDA();
 
+	/** 
+	 * This indicates which version, direct or indirect, of non-termination sensitive backward dependence should be used as
+	 * the basis of this analysis
+	 */
+	private final boolean useIndirectBackwardDependence;
+
+	/**
+	 * Creates a new NonTerminationInsensitiveEntryControlDA object in which the indirect version of non-termination
+	 * sensitive backward dependence will be used.
+	 */
+	public NonTerminationInsensitiveEntryControlDA() {
+		useIndirectBackwardDependence = true;
+	}
+
+	/**
+	 * Creates an instance of this class.
+	 *
+	 * @param indirect <code>true</code> indicates that indirect version of non-termination sensitive  backward dependence
+	 * 		  should be used as the basis of this analysis; <code>false</code> indicates the direct version of
+	 * 		  non-termination sensitive  backward dependence should be used as the basis of this analysis.  <i>Please note
+	 * 		  that this  constructor is  provided for experimentation only.  As discussed in <a
+	 * 		  href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>, only the
+	 * 		  results based on the indirect non-termination sensitive backward dependence will be  complete.</i>
+	 */
+	public NonTerminationInsensitiveEntryControlDA(boolean indirect) {
+		super();
+		this.useIndirectBackwardDependence = indirect;
+	}
+
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#setBasicBlockGraphManager(BasicBlockGraphMgr)
 	 */
@@ -112,12 +141,17 @@ public final class NonTerminationInsensitiveEntryControlDA
 			LOGGER.info("BEGIN: Entry Control Dependence processing");
 		}
 
-		//THINK: Can we use the direct version of entryControlDA?
-		final IDependencyAnalysis _indirectNDA = entryControlDA.getIndirectVersionOfDependence();
+		final IDependencyAnalysis _nda;
+
+		if (useIndirectBackwardDependence) {
+			_nda = entryControlDA.getIndirectVersionOfDependence();
+		} else {
+			_nda = entryControlDA;
+		}
 
 		for (final Iterator _i = methods.iterator(); _i.hasNext();) {
 			final SootMethod _method = (SootMethod) _i.next();
-			copyIndirectDAInfo(_method, _indirectNDA);
+			copyIndirectDAInfo(_method, _nda);
 			processMethod(_method);
 		}
 
