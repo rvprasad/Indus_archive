@@ -2,7 +2,7 @@
 <!--<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
 [<!ENTITY include SYSTEM "message.xml">]>-->
 <!-- $Revision$ -->
-<project name="indus" default="build" basedir=".">
+<project name="indus.indus" default="build" basedir=".">
 
 <import file="prelocalbuild.xml"/>
 
@@ -141,6 +141,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.25  2004/02/26 09:37:47  venku
+- added support for building docbook doc.
+
 Revision 1.24  2004/02/04 02:25:39  venku
 - changed ant build scripts.
 

@@ -1,18 +1,18 @@
 <project>
     <property file="antbuild.properties"/>        
     <property name="package" value="edu.ksu.cis.indus"/>
-    <property name="ant.project.name" value="indus"/>
+    <property name="ant.project.name" value="indus.indus"/>
 
     <import file="../StaticAnalyses/prelocalbuild.xml"/>
     <import file="../JavaSlicer/prelocalbuild.xml"/>
 
-    <path id="indus.docsrcpath">
+    <path id="indus.indus.docsrcpath">
         <pathelement location="src"/>
    	    <pathelement location="src-xml"/>
     </path>
 
-    <path id="indus.srcpath">
-        <path refid="indus.docsrcpath"/>
+    <path id="indus.indus.srcpath">
+        <path refid="${ant.project.name}.docsrcpath"/>
    	    <pathelement location="src-test"/>
     </path>
 
@@ -22,7 +22,7 @@
    	    <path refid="indus.javaslicer.srcpath"/>
     </path>
 
-    <path id="indus.classpath">
+    <path id="indus.indus.classpath">
         <pathelement location="/usr/local/javaclasses/sootclasses.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-logging-api.jar"/>
         <pathelement location="/usr/local/javaclasses/commons-collections.jar"/>
@@ -34,7 +34,7 @@
 
     <path id="classpath">
         <path refid="${ant.project.name}.classpath"/>
-        <path refid="${ant.project.name}.javaslicer.classpath"/>
-        <path refid="${ant.project.name}.staticanalyses.classpath"/>
+        <path refid="indus.javaslicer.classpath"/>
+        <path refid="indus.staticanalyses.classpath"/>
     </path>
 </project>
