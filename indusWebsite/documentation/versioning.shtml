@@ -1,0 +1,25 @@
+<!--#set var="menuItem" value="Documentation.VersioningReleaseGuidelines" -->
+<!--#set var="title" value="Versioning and Release guidelines" -->
+<!--#set var="description" value="Versioning and Release guidelines" -->
+
+<!--#include virtual="/header.shtml" -->
+<p>
+	This document provides normative way to do releases in project Indus.
+
+	<ol>
+	<li>Each project should start with a version tag <i>(XYZ_0_0)</i></li>
+	<li>After each "settled" change to the project, the project should be tagged via date tag.</li>
+	<li>When the project reaches a state that warrants a new version, the project should be tagged with a version tag.
+	<i>(XYZ_0_1)</i></li>
+	<li>Each release should have an associated date tag.</li>
+	<li>Each release artifact's name should reflect the date tag associated with it. <i>(module-XYZ-YYYYMMDD-HHMM)</i></li>
+	<li>In situations where multiple versions of a module are being maintained, the release artifact's name should contain the 
+	version number as well as the date tag information. <i>(module-XYZ_0_1-YYYYMMDD-HHMM)</i> </li>
+	<li>If an older version (XYZ_0_1) is updated then it is released as <i>module-XYZ_0_1_x</i>.</li>
+	</ol>
+
+According to the above guidelines, all changes pertaining to an upcoming version will be released as enhancement to the current 
+version. So, in case there are breaking API changes, the project should make an initial release of the upcoming version and 
+release the artifacts as part of this new version. This system does not allow for alpha/beta releases. This is intentional.
+</p>    
+<!--#include virtual="/footer.shtml" -->

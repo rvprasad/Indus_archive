@@ -3,8 +3,9 @@
     <property file="localbuild.properties"/>
 	<target name="website.ftp">
        	<scp todir="${login}@projects.cis.ksu.edu:../../groups/indus/htdocs/"
-       		keyfile="${user.home}/.ssh/id_rsa" passphrase="">
+       		keyfile="${user.home}/.ssh/id_rsa" passphrase="${passphrase}">
        	   	<fileset dir="${basedir}">
+       	   		<exclude name="localbuild.properties"/>
                 <exclude name=".project"/>
                 <exclude name=".cvsignore"/>
                 <exclude name="build.xml"/>
