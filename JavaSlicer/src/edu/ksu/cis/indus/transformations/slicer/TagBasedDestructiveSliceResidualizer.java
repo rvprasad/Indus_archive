@@ -16,10 +16,8 @@
 package edu.ksu.cis.indus.transformations.slicer;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
-import edu.ksu.cis.indus.processing.AntiTagBasedProcessingFilter;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.Environment;
-import edu.ksu.cis.indus.processing.IProcessor;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 
@@ -50,7 +48,6 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.ValueBox;
-import soot.VoidType;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
@@ -111,7 +108,12 @@ public final class TagBasedDestructiveSliceResidualizer
 	/**
 	 * The name of the tag used to identify the parts of the system to be residualized.
 	 */
-	String tagName;
+	String tagToResidualize;
+
+	/**
+	 * The collection of classes to be removed from the system after residualization.
+	 */
+	private final Collection classesToKill = new HashSet();
 
 	/**
 	 * This is used to process the statements during residualization.
@@ -136,37 +138,9 @@ public final class TagBasedDestructiveSliceResidualizer
 	private SootMethod currMethod;
 
 	/**
-	 * This class erases the body of classes.
-	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
+	 * The name of the tag that identifies the relevant part of the system.
 	 */
-	final class ErasingProcessor
-	  extends AbstractProcessor {
-		/**
-		 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
-		 */
-		public void callback(final SootClass clazz) {
-			clazz.getMethods().clear();
-			clazz.getFields().clear();
-		}
-
-		/**
-		 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
-		 */
-		public void hookup(final ProcessingController ppc) {
-			ppc.register(this);
-		}
-
-		/**
-		 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
-		 */
-		public void unhook(final ProcessingController ppc) {
-			ppc.unregister(this);
-		}
-	}
-
+	private String systemTagName;
 
 	/**
 	 * This class residualizes statements.
@@ -193,10 +167,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 		 */
 		public void caseEnterMonitorStmt(final EnterMonitorStmt stmt) {
-			final Value _v = stmt.getOp();
+			final ValueBox _vBox = stmt.getOpBox();
 
-			if (!((Host) _v).hasTag(tagName)) {
-				stmt.setOp(getDefaultValueFor(_v.getType()));
+			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+				stmt.setOp(getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -204,10 +178,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 		 */
 		public void caseExitMonitorStmt(final ExitMonitorStmt stmt) {
-			final Value _v = stmt.getOp();
+			final ValueBox _vBox = stmt.getOpBox();
 
-			if (!((Host) _v).hasTag(tagName)) {
-				stmt.setOp(getDefaultValueFor(_v.getType()));
+			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+				stmt.setOp(getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -222,10 +196,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseIfStmt(soot.jimple.IfStmt)
 		 */
 		public void caseIfStmt(final IfStmt stmt) {
-			final Value _v = stmt.getCondition();
+			final ValueBox _vBox = stmt.getConditionBox();
 
-			if (!((Host) _v).hasTag(tagName)) {
-				stmt.setCondition(getDefaultValueFor(_v.getType()));
+			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+				stmt.setCondition(getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -233,9 +207,9 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 		 */
 		public void caseInvokeStmt(final InvokeStmt stmt) {
-			final Value _v = stmt.getInvokeExpr();
+			final ValueBox _vBox = stmt.getInvokeExprBox();
 
-			if (!((Host) _v).hasTag(tagName)) {
+			if (!((Host) _vBox).hasTag(tagToResidualize)) {
 				final Jimple _jimple = Jimple.v();
 				final Value _t = _jimple.newStaticInvokeExpr(theScene.getSootClass("java.lang.System").getMethodByName("gc"));
 				stmt.setInvokeExpr(_t);
@@ -246,10 +220,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 		 */
 		public void caseLookupSwitchStmt(final LookupSwitchStmt stmt) {
-			final Value _v = stmt.getKey();
+			final ValueBox _vBox = stmt.getKeyBox();
 
-			if (!((Host) _v).hasTag(tagName)) {
-				stmt.setKey(getDefaultValueFor(_v.getType()));
+			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+				stmt.setKey(getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -257,10 +231,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 		 */
 		public void caseReturnStmt(final ReturnStmt stmt) {
-			final Value _v = stmt.getOp();
+			final ValueBox _vBox = stmt.getOpBox();
 
-			if (!((Host) _v).hasTag(tagName)) {
-				stmt.setOp(getDefaultValueFor(_v.getType()));
+			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+				stmt.setOp(getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -268,10 +242,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 		 */
 		public void caseTableSwitchStmt(final TableSwitchStmt stmt) {
-			final Value _v = stmt.getKey();
+			final ValueBox _vBox = stmt.getKeyBox();
 
-			if (!((Host) _v).hasTag(tagName)) {
-				stmt.setKey(getDefaultValueFor(_v.getType()));
+			if (!((Host) _vBox.getValue()).hasTag(tagToResidualize)) {
+				stmt.setKey(getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -279,10 +253,10 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 		 */
 		public void caseThrowStmt(final ThrowStmt stmt) {
-			final Value _v = stmt.getOp();
+			final ValueBox _vBox = stmt.getOpBox();
 
-			if (!((Host) _v).hasTag(tagName)) {
-				stmt.setOp(getDefaultValueFor(_v.getType()));
+			if (!((Host) _vBox).hasTag(tagToResidualize)) {
+				stmt.setOp(getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -299,7 +273,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		boolean residualize(final Stmt stmt) {
 			boolean _result = false;
 
-			if (stmt.hasTag(tagName)) {
+			if (stmt.hasTag(tagToResidualize)) {
 				setResult(null);
 				stmt.apply(this);
 
@@ -321,7 +295,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @pre stmt != null
 		 */
 		private void residualizeDefStmt(final DefinitionStmt stmt) {
-			if (!((Host) stmt.getLeftOp()).hasTag(tagName)) {
+			if (!((Host) stmt.getLeftOpBox()).hasTag(tagToResidualize)) {
 				final Jimple _jimple = Jimple.v();
 				final Value _expr = stmt.getRightOp();
 				final Stmt _stmt = _jimple.newInvokeStmt(_expr);
@@ -371,7 +345,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * @pre value != null and vBox != null
 		 */
 		public void residualize(final Value value, final ValueBox vBox) {
-			if (!((Host) value).hasTag(tagName)) {
+			if (!((Host) vBox).hasTag(tagToResidualize)) {
 				vBox.setValue(getDefaultValueFor(value.getType()));
 			} else {
 				setResult(null);
@@ -387,6 +361,17 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
+	 * Set the tag that identifies the relevant part of the given system.
+	 *
+	 * @param nameOfSystemTag of the tag.
+	 *
+	 * @pre nameOfSystemTag != null
+	 */
+	public void setSystemTag(final String nameOfSystemTag) {
+		systemTagName = nameOfSystemTag;
+	}
+
+	/**
 	 * Sets the name of that tag that identifies the parts of the system that need to be residualized.
 	 *
 	 * @param nameOfTagToResidualize is the name of the tag.
@@ -394,7 +379,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @pre nameOfTagToResidualize != null
 	 */
 	public void setTagToResidualize(final String nameOfTagToResidualize) {
-		tagName = nameOfTagToResidualize;
+		tagToResidualize = nameOfTagToResidualize;
 	}
 
 	/**
@@ -405,8 +390,8 @@ public final class TagBasedDestructiveSliceResidualizer
 	 *
 	 * @pre stmt != null
 	 */
-	public void callBack(final Stmt stmt, final Context ctxt) {
-		if (!stmtProcessor.residualize(stmt)) {
+	public void callback(final Stmt stmt, final Context ctxt) {
+		if (currMethod != null && !stmtProcessor.residualize(stmt)) {
 			stmtsToBeNOPed.add(stmt);
 		}
 	}
@@ -415,17 +400,53 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
 	public void callback(final SootMethod method) {
-		finishUpProcessingMethod();
-		currMethod = method;
+		if (currClass != null) {
+			finishUpProcessingMethod();
+
+			if (method.hasTag(tagToResidualize)) {
+				currMethod = method;
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Residualized method " + method);
+				}
+			} else {
+				currMethod = null;
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Deleted method " + method);
+				}
+			}
+		} else {
+			currMethod = null;
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Deleted method " + method);
+			}
+		}
 	}
 
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
 	public void callback(final SootClass clazz) {
+		finishUpProcessingMethod();
 		finishUpProcessingClass();
 
-		currClass = clazz;
+		if (clazz.hasTag(tagToResidualize)) {
+			currClass = clazz;
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Residualized class " + clazz);
+			}
+		} else {
+			classesToKill.add(clazz);
+			currClass = null;
+			currMethod = null;
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Deleted class " + clazz);
+			}
+		}
 	}
 
 	/**
@@ -433,6 +454,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	public void consolidate() {
 		finishUpProcessingMethod();
+		finishUpProcessingClass();
 	}
 
 	/**
@@ -449,6 +471,7 @@ public final class TagBasedDestructiveSliceResidualizer
 	public void processingBegins() {
 		currMethod = null;
 		currClass = null;
+		classesToKill.clear();
 	}
 
 	/**
@@ -462,18 +485,25 @@ public final class TagBasedDestructiveSliceResidualizer
 		theScene = scene;
 
 		final ProcessingController _pc = new ProcessingController();
-		_pc.setProcessingFilter(new TagBasedProcessingFilter(tagName));
+		_pc.setProcessingFilter(new TagBasedProcessingFilter(systemTagName));
 		_pc.setEnvironment(new Environment(scene));
 		hookup(_pc);
 		_pc.process();
 		unhook(_pc);
 		_pc.reset();
 
-        final IProcessor _erasure = new ErasingProcessor();
-        _pc.setProcessingFilter(new AntiTagBasedProcessingFilter(tagName));
-		_erasure.hookup(_pc);
-		_pc.process();
-		_erasure.unhook(_pc);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Removing classes: " + classesToKill);
+		}
+		scene.getClasses().removeAll(classesToKill);
+
+		/*
+		   final IProcessor _erasure = new ErasingProcessor();
+		   _pc.setProcessingFilter(new AntiTagBasedProcessingFilter(tagName));
+		   _erasure.hookup(_pc);
+		   _pc.process();
+		   _erasure.unhook(_pc);
+		 */
 	}
 
 	/**
@@ -526,52 +556,48 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
-	 * Erase the body of the given method.
-	 *
-	 * @param method whose body should be erased.
-	 *
-	 * @pre method != null
-	 */
-	private void eraseMethodBody(final SootMethod method) {
-		if (method.isConcrete()) {
-			final Jimple _jimple = Jimple.v();
-			final JimpleBody _jimpleBody = _jimple.newBody();
-			_jimpleBody.setMethod(method);
-
-			final Type _returnType = method.getReturnType();
-
-			if (!(_returnType instanceof VoidType)) {
-				_jimpleBody.getUnits().add(_jimple.newReturnStmt(getDefaultValueFor(_returnType)));
-			} else {
-				_jimpleBody.getUnits().add(_jimple.newReturnVoidStmt());
-			}
-			method.setActiveBody(_jimpleBody);
-		}
-	}
-
-	/**
 	 * Finish processing the current class by erasing the body of untagged methods and deleting fields.
 	 */
 	private void finishUpProcessingClass() {
 		if (currClass != null) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Finishing class " + currClass);
+			}
+
+			final Collection _temp = new HashSet();
+
 			for (final Iterator _i = currClass.getMethods().iterator(); _i.hasNext();) {
 				final SootMethod _sm = (SootMethod) _i.next();
 
-				if (!_sm.hasTag(tagName)) {
-					eraseMethodBody(_sm);
+				if (!_sm.hasTag(tagToResidualize)) {
+					_temp.add(_sm);
 				}
 			}
 
-			final Collection _fields = new HashSet();
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Erasing methods: " + _temp);
+			}
+
+			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+				currClass.removeMethod((SootMethod) _i.next());
+			}
+			_temp.clear();
 
 			for (final Iterator _j = currClass.getFields().iterator(); _j.hasNext();) {
 				final SootField _sf = (SootField) _j.next();
 
-				if (!_sf.hasTag(tagName)) {
-					_fields.add(_sf);
+				if (!_sf.hasTag(tagToResidualize)) {
+					_temp.add(_sf);
 				}
 			}
-			currClass.getFields().removeAll(_fields);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Erasing fields: " + _temp);
+			}
+
+			for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+				currClass.removeField((SootField) _i.next());
+			}
 		}
 	}
 
@@ -580,7 +606,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * processing.
 	 */
 	private void finishUpProcessingMethod() {
-		if (currMethod != null) {
+		if (currMethod != null && currMethod.isConcrete()) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Finishing method " + currMethod);
+			}
+
 			// replace statements marked as nop statements with nop statements.
 			final JimpleBody _body = (JimpleBody) currMethod.getActiveBody();
 			final Chain _ch = _body.getUnits();
@@ -590,18 +620,42 @@ public final class TagBasedDestructiveSliceResidualizer
 				final Stmt _stmt = (Stmt) _i.next();
 				final Object _pred = _ch.getPredOf(_stmt);
 				_ch.remove(_stmt);
-				_ch.insertAfter(_jimple.newNopStmt(), _pred);
+
+				final Stmt _newStmt = _jimple.newNopStmt();
+
+				if (_pred == null) {
+					_ch.addFirst(_newStmt);
+				} else {
+					_ch.insertAfter(_newStmt, _pred);
+				}
 			}
 			stmtsToBeNOPed.clear();
 
-			// replace statements with new statements.
+			// replace statements with new statements as recorded earlier.
 			for (final Iterator _i = oldStmt2newStmt.entrySet().iterator(); _i.hasNext();) {
 				final Map.Entry _entry = (Map.Entry) _i.next();
 				final Stmt _oldStmt = (Stmt) _entry.getKey();
 				final Object _pred = _ch.getPredOf(_oldStmt);
 				_ch.remove(_oldStmt);
-				_ch.insertAfter(_entry.getValue(), _pred);
+
+				final Object _newStmt = _entry.getValue();
+
+				if (_pred == null) {
+					_ch.addFirst(_newStmt);
+				} else {
+					_ch.insertAfter(_newStmt, _pred);
+				}
 			}
+			System.out.println("Method Body of " + currMethod);
+
+			for (final Iterator _i = _ch.iterator(); _i.hasNext();) {
+				try {
+					System.out.println(_i.next());
+				} catch (RuntimeException r) {
+					r.printStackTrace();
+				}
+			}
+
 			oldStmt2newStmt.clear();
 			_body.validateLocals();
 			_body.validateTraps();
@@ -615,6 +669,8 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/12/15 16:30:57  venku
+   - safety checks and formatting.
    Revision 1.3  2003/12/14 17:00:51  venku
    - enabled nop elimination
    - fixed return statement in methods.
