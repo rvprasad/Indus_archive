@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:attribute name="id" type="xs:string"/>
+	<xs:attribute name="name" type="xs:string"/>
+	<xs:complexType name="programPointType">
+		<xs:attribute ref="id" use="required"/>
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="object">
+				<xs:complexType>
+					<xs:attribute name="expr" type="xs:string"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="methodType">
+		<xs:attribute ref="id" use="required"/>
+		<xs:attribute ref="name" use="required"/>
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="program_point" type="programPointType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="classType">
+		<xs:attribute ref="id" use="required"/>
+		<xs:attribute ref="name" use="required"/>
+		<xs:sequence maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="method" type="methodType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ofaType">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="class" type="classType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="ofa" type="ofaType"/>
+</xs:schema>
