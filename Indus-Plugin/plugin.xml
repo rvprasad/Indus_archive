@@ -17,6 +17,7 @@
       <library name="lib/xmlunit1.0.jar"/>
       <library name="lib/xpp3.jar"/>
       <library name="lib/commons-io-1.0.jar"/>
+      <library name="lib/trove.jar"/>      
       <library name="lib/log4j-1.2.8.jar">
         <export name="*"/>
       </library>
