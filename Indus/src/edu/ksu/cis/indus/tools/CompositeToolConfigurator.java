@@ -92,7 +92,7 @@ public final class CompositeToolConfigurator
 	/**
 	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(edu.ksu.cis.indus.tools.IToolConfiguration)
 	 */
-	protected void checkConfiguration(final IToolConfiguration toolConfiguration) {
+	protected void checkConfiguration(final IToolConfiguration t) {
 	}
 
 	/**
@@ -197,6 +197,10 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/13 02:28:53  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.11  2003/12/02 11:31:57  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
