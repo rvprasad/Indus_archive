@@ -18,6 +18,7 @@ package edu.ksu.cis.indus.tools;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +44,7 @@ public final class CompositeToolConfiguration
 	 *
 	 * @invariant configurations->forall(o | o.oclIsKindOf(IToolConfiguration))
 	 */
-	final ArrayList configurations = new ArrayList();
+	final List configurations = new ArrayList();
 
 	/**
 	 * The active constituent configuration.
@@ -57,7 +58,7 @@ public final class CompositeToolConfiguration
 	 *
 	 * @post result != null
 	 */
-	public static ArrayList createConfigurations() {
+	public static List createConfigurations() {
 		return new ArrayList();
 	}
 
@@ -182,6 +183,10 @@ public final class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
+
    Revision 1.12  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
