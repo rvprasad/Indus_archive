@@ -49,7 +49,7 @@ public class AbstractToolTest
 		/** 
 		 * Synchronization flag.
 		 */
-		boolean finished = false;
+		boolean finished;
 
 		/**
 		 * @see edu.ksu.cis.indus.tools.ITool#getPhase()
@@ -96,9 +96,9 @@ public class AbstractToolTest
 	}
 
 	/**
-	 * Tests <code>pause()</code> and <code>resume()</code>.
+	 * Tests <code>pause()</code> and <code>resume()</code> in asynchronous mode.
 	 */
-	public final void testPauseAndResume() {
+	public final void testPauseAndResumeInAsyncMode() {
 		try {
 			testTool.pause();
 		} catch (final Exception _e) {
@@ -117,6 +117,39 @@ public class AbstractToolTest
 		}
 		assertTrue(_ph.isEarlierThan(testTool.localPH));
 	}
+    
+    /**
+     * Tests <code>pause()</code> and <code>resume()</code> in synchronous mode.
+     */
+    public final void testPauseAndResumeInSyncMode() {
+        try {
+            testTool.pause();
+        } catch (final Exception _e) {
+            fail("Should be able to pause tool that is not running.");
+        }
+
+        final Phase _ph = Phase.createPhase();
+        testTool.pause();
+        final Thread _thread = new Thread(new Runnable() {
+            public void run() {
+                testTool.run(_ph, true);       
+            }
+        });
+        try {
+            Thread.sleep(1000);
+        } catch (final InterruptedException _e) {
+            final IllegalStateException _t = new IllegalStateException();
+            _t.initCause(_e);
+            throw _t;
+        }
+
+        assertTrue(_ph.equalsMajor(testTool.localPH));
+        assertTrue(_ph.equalsMinor(testTool.localPH));
+        
+        _thread.interrupt();
+        
+        
+    }
 
 	/**
 	 * @see TestCase#setUp()

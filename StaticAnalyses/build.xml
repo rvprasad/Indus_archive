@@ -2,8 +2,22 @@
 <!-- $Revision$ -->
 <project name="indus.staticanalyses" default="build" basedir=".">
 
+	<!-- define all local properties in localbuild.properties -->
+	
 	<import file="prelocalbuild.xml" />
 
+	<condition property="doxygen.present">
+		<not>
+			<equals arg1="${doxygen.jar}" arg2="" />
+		</not>
+	</condition>
+	
+	<condition property="docbook.present">
+		<not>
+			<equals arg1="${docbook.base}" arg2="" />
+		</not>
+	</condition>
+	
 	<target name="init">
 		<tstamp />
 	</target>
@@ -95,7 +109,7 @@
 		<antcall target="docbook-doc" />
 	</target>
 
-	<target name="doxydocs" if="doxygen.jar" >
+	<target name="doxydocs" if="doxygen.present" >
 		<taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen" classpath="${doxygen.jar}" />
 		<delete dir="${docs}/doxydocs" />
 		<mkdir dir="${docs}/doxydocs" />
@@ -128,7 +142,7 @@
 		</javadoc>
 	</target>
 
-	<target name="docbook-doc" if="docbook.base">
+	<target name="docbook-doc" if="docbook.present">
 		<ant dir="docs/ug/" antfile="${docbook.base}/build.xml" target="pdf" />
 		<ant dir="docs/ug/" antfile="${docbook.base}/build.xml" target="html-single" />
 	</target>
