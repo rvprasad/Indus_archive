@@ -35,6 +35,8 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
 
+import soot.jimple.toolkits.callgraph.Units;
+
 import soot.toolkits.graph.UnitGraph;
 
 import soot.util.Chain;
@@ -51,6 +53,19 @@ import soot.util.Chain;
  */
 final class ExceptionFlowSensitiveStmtGraph
   extends UnitGraph {
+	/**
+	 * The CFG edges based on the exceptions named here should not be considered during CFG pruning.
+	 */
+	private static final List NAMES_OF_EXCEPTIONS_TO_IGNORE_WHILE_CFG_PRUNING;
+
+	static {
+		NAMES_OF_EXCEPTIONS_TO_IGNORE_WHILE_CFG_PRUNING = new ArrayList();
+		NAMES_OF_EXCEPTIONS_TO_IGNORE_WHILE_CFG_PRUNING.add("java.lang.RuntimeException");
+		NAMES_OF_EXCEPTIONS_TO_IGNORE_WHILE_CFG_PRUNING.add("java.lang.Exception");
+		NAMES_OF_EXCEPTIONS_TO_IGNORE_WHILE_CFG_PRUNING.add("java.lang.Throwable");
+		NAMES_OF_EXCEPTIONS_TO_IGNORE_WHILE_CFG_PRUNING.add("java.lang.Error");
+	}
+
 	/**
 	 * A cache of the nodes for which predecessors need to be fixed after processing.
 	 */
@@ -85,7 +100,7 @@ final class ExceptionFlowSensitiveStmtGraph
 		super(unitBody, true, exceptionEdges);
 		predsToBeProcessedCache = new HashSet();
 		succsToBeProcessedCache = new HashSet();
-		pruneExceptionalEdges(namesOfExceptionsToIgnore);
+		deleteEdgesResultingFromTheseExceptions(namesOfExceptionsToIgnore);
 		pruneExceptionBasedControlFlow();
 
 		for (final Iterator _i = succsToBeProcessedCache.iterator(); _i.hasNext();) {
@@ -99,6 +114,7 @@ final class ExceptionFlowSensitiveStmtGraph
 		}
 		predsToBeProcessedCache = null;
 		succsToBeProcessedCache = null;
+		fixupMapsAndIterator();
 	}
 
 	/**
@@ -108,85 +124,16 @@ final class ExceptionFlowSensitiveStmtGraph
 	 * @see soot.toolkits.graph.DirectedGraph#iterator()
 	 */
 	public Iterator iterator() {
-		if (nodes == null) {
-			final List _temp = new ArrayList();
-
-			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
-			_wb.addAllWork(getHeads());
-
-			while (_wb.hasWork()) {
-				final Stmt _unit = (Stmt) _wb.getWork();
-				_wb.addAllWork(getSuccsOf(_unit));
-			}
-
-			nodes = new ArrayList(getBody().getUnits());
-			nodes.retainAll(_temp);
-			nodes = Collections.unmodifiableList(nodes);
-		}
 		return nodes.iterator();
 	}
 
 	/**
-	 * Removes exception based control flow based on <code>throws</code> clause and exception inference based on the
-	 * expressions in the statements.
-	 *
-	 * @pre body != null
-	 */
-	private void pruneExceptionBasedControlFlow() {
-		// process each trapped unit
-		for (final Iterator _i = TrapManager.getTrappedUnitsOf(body).iterator(); _i.hasNext();) {
-			final Stmt _unit = (Stmt) _i.next();
-			final List _traps = TrapManager.getTrapsAt(_unit, body);
-
-			// gather all the exception types that is assumed to be thrown by the current unit.
-			for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
-				final Trap _trap = (Trap) _j.next();
-				final Stmt _handler = (Stmt) _trap.getHandlerUnit();
-				final boolean _hasArrayRef = _unit.containsArrayRef();
-				final boolean _hasFieldRef = _unit.containsFieldRef();
-				final boolean _hasInstanceFieldRef = _hasFieldRef && _unit.getFieldRef() instanceof InstanceFieldRef;
-				final boolean _hasInvokeExpr = _unit.containsInvokeExpr();
-				final InvokeExpr _invokeExpr = _hasInvokeExpr ? _unit.getInvokeExpr()
-															  : null;
-				final boolean _hasInstanceInvokeExpr = _hasInvokeExpr && _invokeExpr instanceof InstanceInvokeExpr;
-
-				// for the declared caught exception type validate the declaration and tailor the graph as needed.
-				final SootClass _exception = _trap.getException();
-				boolean _retainflag =
-					(_hasArrayRef || _hasInstanceFieldRef || _hasInstanceInvokeExpr)
-					  && Util.isDescendentOf(_exception, "java.lang.NullPointerException");
-				_retainflag |= _hasArrayRef && Util.isDescendentOf(_exception, "java.lang.ArrayIndexOutOfBoundsException");
-
-				if (_hasInvokeExpr) {
-					for (final Iterator _l = _invokeExpr.getMethod().getExceptions().iterator(); _l.hasNext();) {
-						final SootClass _thrown = (SootClass) _l.next();
-						_retainflag |= Util.isDescendentOf(_thrown, _exception);
-					}
-					_retainflag |= Util.isDescendentOf(_exception, "java.lang.RuntimeException");
-				}
-
-				if (!_retainflag) {
-					final List _preds = new ArrayList((List) unitToPreds.get(_handler));
-					_preds.remove(_unit);
-					unitToPreds.put(_handler, _preds);
-					predsToBeProcessedCache.add(_handler);
-
-					final List _succs = new ArrayList((List) unitToSuccs.get(_unit));
-					_succs.remove(_handler);
-					unitToSuccs.put(_unit, _succs);
-					succsToBeProcessedCache.add(_unit);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Removes all edges pertaining to exceptions named in <code>namesOfExceptionsToIgnore</code>.
+	 * Deletes all edges resulting from exceptions named in <code>namesOfExceptionsToIgnore</code>.
 	 *
 	 * @param namesOfExceptionsToIgnore is the fully qualified names of exceptions.  Control flow based on these exceptions
 	 * 		  is deleted from the graph.
 	 */
-	private void pruneExceptionalEdges(final Collection namesOfExceptionsToIgnore) {
+	private void deleteEdgesResultingFromTheseExceptions(final Collection namesOfExceptionsToIgnore) {
 		final Chain _traps = body.getTraps();
 		final Chain _units = body.getUnits();
 
@@ -213,14 +160,110 @@ final class ExceptionFlowSensitiveStmtGraph
 			}
 		}
 	}
+
+	/**
+	 * Fixes up the maps for unreachable statements and collects the reachable nodes to be made available for iterators.
+	 */
+	private void fixupMapsAndIterator() {
+		final List _temp = new ArrayList();
+		final IWorkBag _wb = new HistoryAwareFIFOWorkBag(_temp);
+
+		for (final Iterator _i = getHeads().iterator(); _i.hasNext();) {
+			final Stmt _head = (Stmt) _i.next();
+
+			if (_head == body.getUnits().getFirst()) {
+				_wb.addWork(_head);
+				break;
+			}
+		}
+
+		while (_wb.hasWork()) {
+			final Stmt _unit = (Stmt) _wb.getWork();
+			_wb.addAllWork(getSuccsOf(_unit));
+		}
+
+		nodes = new ArrayList(getBody().getUnits());
+		nodes.retainAll(_temp);
+		nodes = Collections.unmodifiableList(nodes);
+
+		// fix the maps such that there is no info pertaining to unreachable statements 
+		final Collection _stmts = new ArrayList(getBody().getUnits());
+		_stmts.removeAll(_temp);
+
+		for (final Iterator _i = _stmts.iterator(); _i.hasNext();) {
+			final Object _stmt = _i.next();
+			unitToPreds.remove(_stmt);
+			unitToSuccs.remove(_stmt);
+		}
+	}
+
+	/**
+	 * Removes control flow edges based on the matching of the exceptions resulting from source expression and the exception
+	 * being  handled.
+	 *
+	 * @pre body != null
+	 */
+	private void pruneExceptionBasedControlFlow() {
+		// process each trapped unit
+		for (final Iterator _i = TrapManager.getTrappedUnitsOf(body).iterator(); _i.hasNext();) {
+			final Stmt _unit = (Stmt) _i.next();
+			final List _traps = TrapManager.getTrapsAt(_unit, body);
+
+			// gather all the exception types that is assumed to be thrown by the current unit.
+			for (final Iterator _j = _traps.iterator(); _j.hasNext();) {
+				final Trap _trap = (Trap) _j.next();
+				final SootClass _exception = _trap.getException();
+
+				if (NAMES_OF_EXCEPTIONS_TO_IGNORE_WHILE_CFG_PRUNING.contains(_exception.getName())) {
+					continue;
+				}
+
+				final Stmt _handler = (Stmt) _trap.getHandlerUnit();
+				final boolean _hasArrayRef = _unit.containsArrayRef();
+				final boolean _hasFieldRef = _unit.containsFieldRef();
+				final boolean _hasInstanceFieldRef = _hasFieldRef && _unit.getFieldRef() instanceof InstanceFieldRef;
+				final boolean _hasInvokeExpr = _unit.containsInvokeExpr();
+				final InvokeExpr _invokeExpr = _hasInvokeExpr ? _unit.getInvokeExpr()
+															  : null;
+				final boolean _hasInstanceInvokeExpr = _hasInvokeExpr && _invokeExpr instanceof InstanceInvokeExpr;
+
+				// for the declared caught exception type validate the declaration and tailor the graph as needed.
+				boolean _retainflag =
+					(_hasArrayRef || _hasInstanceFieldRef || _hasInstanceInvokeExpr)
+					  && Util.isDescendentOf(_exception, "java.lang.NullPointerException");
+				_retainflag |= _hasArrayRef && Util.isDescendentOf(_exception, "java.lang.ArrayIndexOutOfBoundsException");
+
+				if (_hasInvokeExpr) {
+					for (final Iterator _l = _invokeExpr.getMethod().getExceptions().iterator(); _l.hasNext();) {
+						final SootClass _thrown = (SootClass) _l.next();
+						_retainflag |= Util.isDescendentOf(_thrown, _exception);
+					}
+				}
+
+				if (!_retainflag) {
+					final List _preds = new ArrayList((List) unitToPreds.get(_handler));
+					_preds.remove(_unit);
+					unitToPreds.put(_handler, _preds);
+					predsToBeProcessedCache.add(_handler);
+
+					final List _succs = new ArrayList((List) unitToSuccs.get(_unit));
+					_succs.remove(_handler);
+					unitToSuccs.put(_unit, _succs);
+					succsToBeProcessedCache.add(_unit);
+				}
+			}
+		}
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/06/14 04:55:04  venku
+   - documentation.
+   - coding conventions.
    Revision 1.11  2004/06/13 22:24:43  venku
    -  RuntimeExceptions were not being considered at invoke expr sites while pruning edges.  FIXED.
-
    Revision 1.10  2004/06/13 07:27:36  venku
    - ensured all collections stored in unitToXXXX mapping are unmodifiable.
    Revision 1.9  2004/06/12 20:42:21  venku
