@@ -367,22 +367,21 @@ public class ReadyDAv1
 	 * important details.
 	 *
 	 * @param dependentStmt is the statement for which the dependee info is requested.
-	 * @param context is ignored.
+	 * @param context is the method in which the statement occurs.
 	 *
 	 * @return a collection of statement.
 	 *
-	 * @pre dependentStmt.isOclKindOf(Stmt)
+	 * @pre dependentStmt.isOclKindOf(Stmt) and context.isOclIsKindOf(SootMethod)
 	 * @post result.isOclKindOf(Collection(Pair(Stmt, Method)))
 	 *
 	 * @see DependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
 	public Collection getDependees(final Object dependentStmt, final Object context) {
-		Collection _result = (Collection) dependent2dependee.get(dependentStmt);
+		final Map _temp = (Map) dependent2dependee.get(context);
+		Collection _result = Collections.EMPTY_LIST;
 
-		if (_result != null) {
-			_result = Collections.unmodifiableCollection(_result);
-		} else {
-			_result = Collections.EMPTY_SET;
+		if (_temp != null && _temp.containsKey(dependentStmt)) {
+			_result = Collections.unmodifiableCollection((Collection) _temp.get(dependentStmt));
 		}
 		return _result;
 	}
@@ -403,12 +402,11 @@ public class ReadyDAv1
 	 * 		java.lang.Object)
 	 */
 	public Collection getDependents(final Object dependeeStmt, final Object context) {
-		Collection _result = (Collection) dependee2dependent.get(dependeeStmt);
+		final Map _temp = (Map) dependee2dependent.get(context);
+		Collection _result = Collections.EMPTY_LIST;
 
-		if (_result != null) {
-			_result = Collections.unmodifiableCollection(_result);
-		} else {
-			_result = Collections.EMPTY_SET;
+		if (_temp != null && _temp.containsKey(dependeeStmt)) {
+			_result = Collections.unmodifiableCollection((Collection) _temp.get(dependeeStmt));
 		}
 		return _result;
 	}
@@ -538,26 +536,34 @@ public class ReadyDAv1
 
 		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
-			final Object _dependent = _entry.getKey();
+			final Object _method = _entry.getKey();
+			_result.append("In method " + _method + "\n ");
 
-			for (final Iterator _j = ((Collection) _entry.getValue()).iterator(); _j.hasNext();) {
-				final Object _dependee = _j.next();
-				_temp.append("\t\t" + _dependee + " <-- " + _dependent + "\n");
+			for (final Iterator _k = ((Map) _entry.getValue()).entrySet().iterator(); _k.hasNext();) {
+				Map.Entry _entry1 = (Map.Entry) _k.next();
+				final Object _dependent = _entry1.getKey();
+
+				int _localEdgeCount = 0;
+
+				for (final Iterator _j = ((Collection) _entry1.getValue()).iterator(); _j.hasNext();) {
+					final Object _dependee = _j.next();
+					_temp.append("\t\t" + _dependee + " <-- " + _dependent + "\n");
+				}
+				_localEdgeCount += ((Collection) _entry1.getValue()).size();
+
+				final Object _key = _entry1.getKey();
+				_result.append("\tFor " + _key + "[");
+
+				if (_key != null) {
+					_result.append(_key.hashCode());
+				} else {
+					_result.append(0);
+				}
+				_result.append("] there are " + _localEdgeCount + " Ready dependence edges.\n");
+				_result.append(_temp);
+				_temp.delete(0, _temp.length());
+				_edgeCount += _localEdgeCount;
 			}
-
-			int _localEdgeCount = ((Collection) _entry.getValue()).size();
-			final Object _key = _entry.getKey();
-			_result.append("\tFor " + _key + "[");
-
-			if (_key != null) {
-				_result.append(_key.hashCode());
-			} else {
-				_result.append(0);
-			}
-			_result.append("] there are " + _localEdgeCount + " Ready dependence edges.\n");
-			_result.append(_temp);
-			_temp.delete(0, _temp.length());
-			_edgeCount += _localEdgeCount;
 		}
 		_result.append("A total of " + _edgeCount + " Ready dependence edges exist.");
 		return _result.toString();
@@ -1010,19 +1016,21 @@ public class ReadyDAv1
 				+ "wait()s that occur in different threads.");
 		}
 
+		final Collection _temp = new HashSet();
+
 		for (final Iterator _i = _method2dependeeMap.keySet().iterator(); _i.hasNext();) {
 			final SootMethod _method = (SootMethod) _i.next();
 			final List _stmts = getStmtList(_method);
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
 			final Collection _dependees = (Collection) _method2dependeeMap.get(_method);
+			final Map _dents2dees = (Map) CollectionsModifier.getFromMap(dependent2dependee, _method, new HashMap());
 
 			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
 				final Stmt _dependee = (Stmt) _j.next();
 				BasicBlock _bb = _bbGraph.getEnclosingBlock(_dependee);
 				final List _sl = _bb.getStmtFrom(_stmts.indexOf(_dependee));
 				_sl.remove(0);  // remove the dependee from the list
-
-				final Collection _temp = new HashSet();
+				_temp.clear();
 
 				boolean _shouldContinue = true;
 				final Pair _pair = pairMgr.getOptimizedPair(_dependee, _method);
@@ -1030,7 +1038,8 @@ public class ReadyDAv1
 				// add dependent to dependee direction information.
 				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
 					final Stmt _stmt = (Stmt) _k.next();
-					CollectionsModifier.putIntoCollectionInMap(dependent2dependee, _stmt, _pair, new HashSet());
+
+					CollectionsModifier.putIntoCollectionInMap(_dents2dees, _stmt, _pair, new HashSet());
 
 					// record dependee to dependent direction information
 					_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
@@ -1058,7 +1067,8 @@ public class ReadyDAv1
 						// add dependent to dependee direction information.
 						for (final Iterator _k = _bb.getStmtsOf().iterator(); _k.hasNext();) {
 							final Stmt _stmt = (Stmt) _k.next();
-							CollectionsModifier.putIntoCollectionInMap(dependent2dependee, _stmt, _pair, new HashSet());
+
+							CollectionsModifier.putIntoCollectionInMap(_dents2dees, _stmt, _pair, new HashSet());
 
 							// record dependee to dependent direction information
 							_temp.add(pairMgr.getOptimizedPair(_stmt, _method));
@@ -1082,7 +1092,8 @@ public class ReadyDAv1
 				}
 
 				//add dependee to dependent direction information.
-				dependee2dependent.put(_dependee, _temp);
+				final Map _dees2dents = (Map) CollectionsModifier.getFromMap(dependee2dependent, _method, new HashMap());
+				CollectionsModifier.putAllIntoCollectionInMap(_dees2dents, _dependee, _temp, new HashSet());
 			}
 		}
 	}
@@ -1137,20 +1148,26 @@ public class ReadyDAv1
 
 						normalizeEntryInformation(_dtSet);
 
+						final SootMethod _exitMethod = (SootMethod) _exitPair.getSecond();
+
 						if (_exit.equals(SYNC_METHOD_PROXY_STMT)) {
 							_tails.clear();
 
-							final BasicBlockGraph _graph = getBasicBlockGraph((SootMethod) _exitPair.getSecond());
+							final BasicBlockGraph _graph = getBasicBlockGraph(_exitMethod);
 							_tails.addAll(_graph.getPseudoTails());
 							_tails.addAll(_graph.getTails());
 
 							for (final Iterator _l = _tails.iterator(); _l.hasNext();) {
 								final BasicBlock _bb = (BasicBlock) _l.next();
-								CollectionsModifier.putAllIntoCollectionInMap(dependee2dependent, _bb.getTrailerStmt(),
-									_dtSet, new HashSet());
+								final Map dees2dents =
+									(Map) CollectionsModifier.getFromMap(dependee2dependent, _exitMethod, new HashMap());
+								CollectionsModifier.putAllIntoCollectionInMap(dees2dents, _bb.getTrailerStmt(), _dtSet,
+									new HashSet());
 							}
 						} else {
-							CollectionsModifier.putAllIntoCollectionInMap(dependee2dependent, _exit, _dtSet, new HashSet());
+							final Map dees2dents =
+								(Map) CollectionsModifier.getFromMap(dependee2dependent, _exitMethod, new HashMap());
+							CollectionsModifier.putAllIntoCollectionInMap(dees2dents, _exit, _dtSet, new HashSet());
 						}
 					}
 				}
@@ -1159,17 +1176,20 @@ public class ReadyDAv1
 				if (!_deSet.isEmpty()) {
 					normalizeExitInformation(_deSet);
 
+					Object _key = _enter;
+
 					if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
 						final BasicBlock _headBB = getBasicBlockGraph(_enterMethod).getHead();
-						Stmt _head = null;
+						_key = null;
 
 						if (_headBB != null) {
-							_head = _headBB.getLeaderStmt();
+							_key = _headBB.getLeaderStmt();
 						}
-						CollectionsModifier.putAllIntoCollectionInMap(dependent2dependee, _head, _deSet, new HashSet());
-					} else {
-						CollectionsModifier.putAllIntoCollectionInMap(dependent2dependee, _enter, _deSet, new HashSet());
 					}
+
+					final Map dents2dees =
+						(Map) CollectionsModifier.getFromMap(dependent2dependee, _enterMethod, new HashMap());
+					CollectionsModifier.putAllIntoCollectionInMap(dents2dees, _key, _deSet, new HashSet());
 				}
 			}
 		}
@@ -1180,7 +1200,7 @@ public class ReadyDAv1
 	 * threads, the combination  of these to be  considered is determined by <code>ifRelatedByRule4()</code>.
 	 */
 	private void processRule4() {
-		final Collection _dependees = new HashSet();
+		final Collection _dependents = new HashSet();
 
 		/*
 		 * Iterate thru wait() call-sites and record dependencies, in both direction, between each notify() call-sites.
@@ -1192,7 +1212,7 @@ public class ReadyDAv1
 			for (final Iterator _j = ((Collection) _nEntry.getValue()).iterator(); _j.hasNext();) {
 				final InvokeStmt _notify = (InvokeStmt) _j.next();
 				final Pair _nPair = pairMgr.getOptimizedPair(_notify, _nMethod);
-				_dependees.clear();
+				_dependents.clear();
 
 				// add dependee to dependent information
 				for (final Iterator _k = waits.entrySet().iterator(); _k.hasNext();) {
@@ -1205,15 +1225,18 @@ public class ReadyDAv1
 						final Pair _wPair = pairMgr.getOptimizedPair(_wait, _wMethod);
 
 						if (ifDependentOnByRule4(_wPair, _nPair)) {
-							CollectionsModifier.putIntoCollectionInMap(dependee2dependent, _wait, _nPair, new ArrayList());
-							_dependees.add(_wPair);
+							final Map _dents2dees =
+								(Map) CollectionsModifier.getFromMap(dependent2dependee, _wMethod, new HashMap());
+							CollectionsModifier.putIntoCollectionInMap(_dents2dees, _wait, _nPair, new HashSet());
+							_dependents.add(_wPair);
 						}
 					}
 				}
 
-				// add dependent to dependee information
-				if (!_dependees.isEmpty()) {
-					dependent2dependee.put(_notify, new ArrayList(_dependees));
+				// add dependee to dependent information
+				if (!_dependents.isEmpty()) {
+					final Map _dees2dents = (Map) CollectionsModifier.getFromMap(dependee2dependent, _nMethod, new HashMap());
+					CollectionsModifier.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents, new HashSet());
 				}
 			}
 		}
@@ -1223,6 +1246,8 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.47  2004/03/03 10:11:40  venku
+   - formatting.
    Revision 1.46  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent

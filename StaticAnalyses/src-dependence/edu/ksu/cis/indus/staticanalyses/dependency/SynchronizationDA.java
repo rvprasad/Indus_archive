@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.CollectionsModifier;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -130,7 +131,7 @@ public final class SynchronizationDA
 		 */
 		public void callback(final SootMethod method) {
 			if (method.isSynchronized()) {
-				Triple _triple = new Triple(null, null, method);
+				final Triple _triple = new Triple(null, null, method);
 				_triple.optimize();
 				monitorTriples.add(_triple);
 			}
@@ -142,7 +143,7 @@ public final class SynchronizationDA
 		 * @param stmt is the enter/exit monitor statement.
 		 * @param context in which <code>stmt</code> occurs.  This contains the method that encloses <code>stmt</code>.
 		 *
-		 * @pre stmt.isOclTypeOf(EnterMonitorStmt) or stmt.isOclTypeOf(ExitMonitorStmt)
+		 * @pre stmt.isOclTypeOf(EnterMonitorStmt)
 		 * @pre context.getCurrentMethod() != null
 		 *
 		 * @see edu.ksu.cis.indus.interfaces.IProcessor#callback(Stmt,Context)
@@ -248,7 +249,7 @@ public final class SynchronizationDA
 		final Stack _stack = new Stack();
 		final Collection _processedStmts = new HashSet();
 		final Collection _processedMonitors = new HashSet();
-		final Collection _coupled = new HashSet();
+		final Collection _enterMonitors = new HashSet();
 
 		/*
 		 * Calculating Sync DA is not as simple as it looks in the presence of exceptions. The exit monitors are the tricky
@@ -261,20 +262,14 @@ public final class SynchronizationDA
 			Pair _pair = (Pair) _i.next();
 			final Stmt _enterMonitor = (Stmt) _pair.getFirst();
 			final SootMethod _method = (SootMethod) _pair.getSecond();
-			Map _stmt2ddents = (Map) dependee2dependent.get(_method);
-			Map _stmt2ddees;
 			final Context _context = new Context();
+			final Map _ddee2ddents = (Map) CollectionsModifier.getFromMap(dependee2dependent, _method, new HashMap());
 
-			if (_stmt2ddents == null) {
-				_stmt2ddents = new HashMap();
-				_stmt2ddees = new HashMap();
-				dependee2dependent.put(_method, _stmt2ddents);
-				dependent2dependee.put(_method, _stmt2ddees);
-			} else if (_stmt2ddents.get(_enterMonitor) != null) {
+			if (_ddee2ddents.get(_enterMonitor) != null) {
 				continue;
-			} else {
-				_stmt2ddees = (Map) dependent2dependee.get(_method);
 			}
+
+			final Map _dent2ddees = (Map) CollectionsModifier.getFromMap(dependent2dependee, _method, new HashMap());
 
 			final BasicBlockGraph _bbGraph = getBasicBlockGraph(_method);
 			final List _stmtList = getStmtList(_method);
@@ -283,6 +278,8 @@ public final class SynchronizationDA
 			_stack.clear();
 			_temp.clear();
 			_workbag.addWork(new Quadraple(_bbGraph.getEnclosingBlock(_enterMonitor), _enterMonitor, _stack, _temp, false));
+			_enterMonitors.clear();
+			_enterMonitors.add(_enterMonitor);
 
 nextBasicBlock: 
 			do {
@@ -295,7 +292,7 @@ nextBasicBlock:
 				for (final Iterator _j = _bb.getStmtFrom(_stmtList.indexOf(_leadStmt)).iterator(); _j.hasNext();) {
 					final Stmt _stmt = (Stmt) _j.next();
 
-					// This is to avoid processing induced by back-edgesr.
+					// This is to avoid processing induced by back-edges.
 					if (_processedStmts.contains(_stmt)) {
 						continue nextBasicBlock;
 					}
@@ -305,6 +302,7 @@ nextBasicBlock:
 						_currStmts.add(_stmt);
 						_enterStack.push(new Pair(_stmt, _currStmts));
 						_currStmts = new HashSet();
+						_enterMonitors.add(_stmt);
 					} else if (_stmt instanceof ExitMonitorStmt) {
 						_pair = (Pair) _enterStack.pop();
 
@@ -314,7 +312,7 @@ nextBasicBlock:
 						// If the current monitor was processed, we cannot add any more information to it. So, chug along.
 						if (_processedMonitors.contains(_enter)) {
 							_currStmts = (HashSet) _pair.getSecond();
-							_currStmts.add(_stmt);
+							_currStmts.add(_exit);
 							continue;
 						} else {
 							/*
@@ -336,33 +334,35 @@ nextBasicBlock:
 							if (_nValues.size() != _xValues.size() || !_nValues.containsAll(_xValues)) {
 								continue;
 							}
-						}
 
-						Collection _col = new HashSet();
-						_col.add(_enter);
-						_col.add(_stmt);
+							// add reflexive dependence information
+							_currStmts.add(_enter);
+							_currStmts.add(_exit);
 
-						for (final Iterator _k = _currStmts.iterator(); _k.hasNext();) {
-							final Stmt _curr = (Stmt) _k.next();
-							_stmt2ddees.put(_curr, _col);
-						}
-						_stmt2ddents.put(_stmt, new HashSet(_currStmts));
-						_col = (Collection) _stmt2ddents.get(_enter);
+							// add dependee information.
+							final Collection _dependees = new HashSet();
+							_dependees.add(_enter);
+							_dependees.add(_exit);
 
-						if (_col == null) {
-							_col = new HashSet();
-							_stmt2ddents.put(_enter, _col);
-						}
-						_col.addAll(_currStmts);
+							for (final Iterator _k = _currStmts.iterator(); _k.hasNext();) {
+								final Stmt _curr = (Stmt) _k.next();
+								CollectionsModifier.putAllIntoCollectionInMap(_dent2ddees, _curr, _dependees, new HashSet());
+							}
 
-						final Triple _triple = new Triple(_enter, ((ExitMonitorStmt) _stmt), _method);
-						monitorTriples.add(_triple);
-						_currStmts = (HashSet) _pair.getSecond();
-						_currStmts.add(_stmt);
-						_coupled.add(_stmt);
+							// add dependent information for enter monitor
+							CollectionsModifier.putAllIntoCollectionInMap(_ddee2ddents, _enter, _currStmts, new HashSet());
 
-						if (_enterStack.isEmpty()) {
-							break;
+							//add dependent information for exit monitor
+							CollectionsModifier.putAllIntoCollectionInMap(_ddee2ddents, _exit, _currStmts, new HashSet());
+
+							final Triple _triple = new Triple(_enter, _exit, _method);
+							monitorTriples.add(_triple);
+							_currStmts = (HashSet) _pair.getSecond();
+							_currStmts.add(_exit);
+
+							if (_enterStack.isEmpty()) {
+								break;
+							}
 						}
 					} else {
 						_currStmts.add(_stmt);
@@ -390,7 +390,7 @@ nextBasicBlock:
 					}
 				}
 			} while (_workbag.hasWork());
-			_processedMonitors.add(_enterMonitor);
+			_processedMonitors.addAll(_enterMonitors);
 		}
 
 		stable = true;
@@ -422,7 +422,7 @@ nextBasicBlock:
 
 		final StringBuffer _temp = new StringBuffer();
 
-		for (final Iterator _i = dependee2dependent.entrySet().iterator(); _i.hasNext();) {
+		for (final Iterator _i = dependent2dependee.entrySet().iterator(); _i.hasNext();) {
 			final Map.Entry _entry = (Map.Entry) _i.next();
 			_localEdgeCount = 0;
 
@@ -430,12 +430,12 @@ nextBasicBlock:
 
 			for (final Iterator _j = ((Map) _entry.getValue()).entrySet().iterator(); _j.hasNext();) {
 				final Map.Entry _entry2 = (Map.Entry) _j.next();
-				final Stmt _dependee = (Stmt) _entry2.getKey();
+				final Stmt _dependent = (Stmt) _entry2.getKey();
 
 				for (final Iterator _k = ((Collection) _entry2.getValue()).iterator(); _k.hasNext();) {
 					final Stmt _obj = (Stmt) _k.next();
-					_temp.append("\t\t" + _dependee + "[" + _dependee.hashCode() + "] <- " + _obj + "[" + _obj.hashCode()
-						+ "]\n");
+					_temp.append("\t\t" + _dependent + "[" + _dependent.hashCode() + "] -SDA-> " + _obj + "["
+						+ _obj.hashCode() + "]\n");
 				}
 				_localEdgeCount += ((Collection) _entry2.getValue()).size();
 			}
@@ -444,7 +444,15 @@ nextBasicBlock:
 			_temp.delete(0, _temp.length());
 			_edgeCount += _localEdgeCount;
 		}
-		_result.append("A total of " + _edgeCount + " synchronization dependence edges exist.\n");
+
+		int _edgeCount2 = 0;
+
+		for (final Iterator _i = dependent2dependee.values().iterator(); _i.hasNext();) {
+			for (final Iterator _j = ((Map) _i.next()).values().iterator(); _j.hasNext();) {
+				_edgeCount2 += ((Collection) _j.next()).size();
+			}
+		}
+		_result.append("A total of " + _edgeCount + "/" + _edgeCount2 + " synchronization dependence edges exist.\n");
 		_result.append("MonitorInfo follows:\n");
 
 		for (final Iterator _i = monitorTriples.iterator(); _i.hasNext();) {
@@ -512,6 +520,8 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/03/03 10:11:40  venku
+   - formatting.
    Revision 1.33  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent
