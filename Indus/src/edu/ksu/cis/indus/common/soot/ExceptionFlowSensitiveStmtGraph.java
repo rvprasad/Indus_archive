@@ -202,7 +202,7 @@ final class ExceptionFlowSensitiveStmtGraph
 					final List _succs = new ArrayList((List) unitToSuccs.get(_unit));
 					_succs.remove(_handler);
 					unitToSuccs.put(_unit, _succs);
-					succsToBeProcessedCache.add(_handler);
+					succsToBeProcessedCache.add(_unit);
 					_preds.remove(_unit);
 				}
 				unitToPreds.put(_handler, _preds);
@@ -216,6 +216,9 @@ final class ExceptionFlowSensitiveStmtGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/06/12 20:42:21  venku
+   - renaming of methods.
+
    Revision 1.8  2004/06/01 06:31:04  venku
    - made ExceptionFlowSensitiveStmtGraph.iterator() return ordered statement list.
    - ProcessingController uses UnitGraph.iterator() to visit the statements of a method.
