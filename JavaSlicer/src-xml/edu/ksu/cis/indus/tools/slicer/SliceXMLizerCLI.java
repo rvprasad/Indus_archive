@@ -67,9 +67,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import soot.Printer;
 import soot.SootClass;
-import soot.SootMethod;
-
-import soot.tagkit.Tag;
 
 
 /**
@@ -519,6 +516,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/03/03 08:07:31  venku
+   - removed portions marked as to be removed.
+
    Revision 1.1  2004/03/03 08:06:17  venku
    - renamed SliceXMLizer to SliceXMLizerCLI.
 
