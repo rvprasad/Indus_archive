@@ -19,7 +19,7 @@
 	</ol>
 
 According to the above guidelines, all changes pertaining to an upcoming version will be released as enhancement to the current 
-version. So, in case there are breaking API changes, the project should make an initial release of the upcoming version and 
-release the artifacts as part of this new version. This system does not allow for alpha/beta releases. This is intentional.
+version. <i>So, in case there are breaking API changes, the project should make an initial release of the upcoming version and 
+release the artifacts as part of this new version.</i> This system does not allow for alpha/beta releases. This is intentional.
 </p>    
 <!--#include virtual="/footer.shtml" -->
