@@ -68,9 +68,9 @@ public abstract class AbstractAnalyzer
 	/**
 	 * The instance of the framework performing the analysis and is being represented by this analyzer object.
 	 *
-	 * @invariant bfa != null
+	 * @invariant fa != null
 	 */
-	protected BFA bfa;
+	protected FA fa;
 
 	/**
 	 * The context to be used when analysis information is requested and a context is not provided.
@@ -89,7 +89,7 @@ public abstract class AbstractAnalyzer
 	 */
 	protected AbstractAnalyzer(final Context theContext) {
 		this.context = theContext;
-		bfa = new BFA(this);
+		fa = new FA(this);
 		active = false;
 	}
 
@@ -101,7 +101,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	public IEnvironment getEnvironment() {
-		return (IEnvironment) bfa;
+		return (IEnvironment) fa;
 	}
 
 	/**
@@ -116,7 +116,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	public final Collection getThrowValues(final InvokeExpr e, final SootClass exception) {
-		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
+		MethodVariant mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
 		if (mv != null) {
@@ -180,7 +180,7 @@ public abstract class AbstractAnalyzer
 		Context tmpCtxt = context;
 		context = ctxt;
 
-		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
+		MethodVariant mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_LIST;
 
 		if (mv != null) {
@@ -205,7 +205,7 @@ public abstract class AbstractAnalyzer
 			throw new IllegalStateException("Root method cannot be null.");
 		}
 		active = true;
-		bfa.analyze(scm, root);
+		fa.analyze(scm, root);
 		active = false;
 	}
 
@@ -231,7 +231,7 @@ public abstract class AbstractAnalyzer
 
 		for (Iterator i = roots.iterator(); i.hasNext();) {
 			SootMethod root = (SootMethod) i.next();
-			bfa.analyze(scm, root);
+			fa.analyze(scm, root);
 		}
 		active = false;
 	}
@@ -242,7 +242,7 @@ public abstract class AbstractAnalyzer
 	 */
 	public final void reset() {
 		resetAnalysis();
-		bfa.reset();
+		fa.reset();
 	}
 
 	/**
@@ -256,7 +256,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final ArrayType a) {
-		ArrayVariant v = bfa.queryArrayVariant(a);
+		ArrayVariant v = fa.queryArrayVariant(a);
 		Collection temp = Collections.EMPTY_SET;
 
 		if (v != null) {
@@ -277,7 +277,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final ParameterRef p) {
-		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
+		MethodVariant mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
 		if (mv != null) {
@@ -297,7 +297,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final SootField sf) {
-		FieldVariant fv = bfa.queryFieldVariant(sf);
+		FieldVariant fv = fa.queryFieldVariant(sf);
 		Collection temp = Collections.EMPTY_SET;
 
 		if (fv != null) {
@@ -317,7 +317,7 @@ public abstract class AbstractAnalyzer
 	 * @post result != null
 	 */
 	protected final Collection getValues(final Value v) {
-		MethodVariant mv = bfa.queryMethodVariant(context.getCurrentMethod());
+		MethodVariant mv = fa.queryMethodVariant(context.getCurrentMethod());
 		Collection temp = Collections.EMPTY_SET;
 
 		if (mv != null) {
@@ -338,7 +338,7 @@ public abstract class AbstractAnalyzer
 	 * @pre mf != null
 	 */
 	protected void setModeFactory(final ModeFactory mf) {
-		bfa.setModeFactory(mf);
+		fa.setModeFactory(mf);
 	}
 
 	/**
@@ -353,6 +353,10 @@ public abstract class AbstractAnalyzer
    ChangeLog:
    
    $Log$
+   Revision 1.4  2003/08/17 10:37:08  venku
+   Fixed holes in documentation.
+   Removed addRooMethods in FA and added the equivalent logic into analyze() methods.
+
    Revision 1.3  2003/08/17 09:59:03  venku
    Spruced up documentation and specification.
    Documentation changes to FieldVariant.
@@ -363,7 +367,7 @@ public abstract class AbstractAnalyzer
    Spruced up Documentation and Specification.
    Formatted source.
    Moved getRoots() into the environment.
-   Added support to inject new roots in BFA.
+   Added support to inject new roots in FA.
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

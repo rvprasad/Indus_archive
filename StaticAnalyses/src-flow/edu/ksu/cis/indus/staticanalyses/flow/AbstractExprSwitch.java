@@ -80,7 +80,7 @@ public abstract class AbstractExprSwitch
 	/**
 	 * The instance of the framework in which this visitor exists.
 	 */
-	protected final BFA bfa;
+	protected final FA fa;
 
 	/**
 	 * This visitor works in the context given by <code>context</code>.
@@ -119,11 +119,11 @@ public abstract class AbstractExprSwitch
 		if (stmtSwitch != null) {
 			context = stmtSwitch.context;
 			method = stmtSwitch.method;
-			bfa = stmtSwitch.method._bfa;
+			fa = stmtSwitch.method._fa;
 		} else {
 			context = null;
 			method = null;
-			bfa = null;
+			fa = null;
 		}
 	}
 
@@ -159,7 +159,7 @@ public abstract class AbstractExprSwitch
 	 * @post result != null
 	 */
 	public final WorkList getWorkList() {
-		return bfa.worklist;
+		return fa.worklist;
 	}
 
 	/**
@@ -212,6 +212,10 @@ public abstract class AbstractExprSwitch
    ChangeLog:
    
    $Log$
+   Revision 1.4  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
+
    
    Revision 1.3  2003/08/15 02:54:06  venku
    Spruced up specification and documentation for flow-insensitive classes.

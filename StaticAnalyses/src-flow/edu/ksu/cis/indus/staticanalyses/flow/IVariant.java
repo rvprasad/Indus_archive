@@ -36,7 +36,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 /**
- * A marker interface to be implemented by all variants used in BFA framework.
+ * A marker interface to be implemented by all variants used in FA framework.
  * 
  * <p>
  * Created: Tue Jan 22 13:05:25 2002
@@ -57,6 +57,10 @@ interface IVariant {
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/16 02:50:22  venku
+   Spruced up documentation and specification.
+   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

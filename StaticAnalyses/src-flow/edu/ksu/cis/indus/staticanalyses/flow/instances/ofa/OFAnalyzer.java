@@ -208,7 +208,7 @@ public final class OFAnalyzer
 	 * @pre method != null and ctxt != null
 	 */
 	public boolean wasAnalyzed(final SootMethod method, final AllocationContext ctxt) {
-		return bfa.queryMethodVariant(method, ctxt) != null;
+		return fa.queryMethodVariant(method, ctxt) != null;
 	}
 }
 
@@ -216,6 +216,11 @@ public final class OFAnalyzer
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/15 03:39:53  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosened later on in implementaions.
+   Renamed a few fields/parameter variables to avoid name confusion.
+
    
    Revision 1.2  2003/08/09 21:52:57  venku
    Change parameter names.

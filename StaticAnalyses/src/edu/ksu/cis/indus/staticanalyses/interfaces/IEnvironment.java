@@ -87,6 +87,13 @@ public interface IEnvironment {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 07:11:47  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+   Moved getRoots() into the environment.
+   Added support to inject new roots in FA.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

@@ -119,7 +119,7 @@ public final class RufEATester
 		AbstractAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: BFA analysis");
+			LOGGER.info("BEGIN: FA analysis");
 		}
 
 		long start = System.currentTimeMillis();
@@ -128,9 +128,9 @@ public final class RufEATester
 		long stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: BFA analysis");
+			LOGGER.info("END: FA analysis");
 		}
-		addTimeLog("BFA analysis", stop - start);
+		addTimeLog("FA analysis", stop - start);
 
 		ProcessingController ppc = new ProcessingController();
 		ppc.setAnalyzer(aa);
@@ -145,16 +145,16 @@ public final class RufEATester
 		ea1.hookup(ppc);
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: BFA postprocessing");
+			LOGGER.info("BEGIN: FA postprocessing");
 		}
 		start = System.currentTimeMillis();
 
 		ppc.process();
 		stop = System.currentTimeMillis();
-		addTimeLog(", BFA postprocessing took ", stop - start);
+		addTimeLog(", FA postprocessing took ", stop - start);
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: BFA postprocessing");
+			LOGGER.info("END: FA postprocessing");
 		}
 
 		ea1.unhook(ppc);
@@ -225,6 +225,9 @@ public final class RufEATester
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 06:29:07  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.2  2003/08/10 03:43:26  venku
    Renamed Tester to Driver.
    Refactored logic to pick entry points.

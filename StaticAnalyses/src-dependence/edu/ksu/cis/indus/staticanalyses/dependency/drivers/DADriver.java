@@ -163,17 +163,17 @@ public abstract class DADriver
 		aa = OFAnalyzer.getFSOSAnalyzer();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: BFA");
+			LOGGER.info("BEGIN: FA");
 		}
 
 		long start = System.currentTimeMillis();
 		aa.analyze(scm, rootMethods);
 
 		long stop = System.currentTimeMillis();
-		addTimeLog("BFA", stop - start);
+		addTimeLog("FA", stop - start);
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: BFA");
+			LOGGER.info("END: FA");
 		}
 
 		ProcessingController pc = new ProcessingController();
@@ -278,17 +278,17 @@ public abstract class DADriver
 		}
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: BFA post processing");
+			LOGGER.info("BEGIN: FA post processing");
 		}
 
 		long start = System.currentTimeMillis();
 		pc.process();
 
 		long stop = System.currentTimeMillis();
-		addTimeLog("BFA post processing", stop - start);
+		addTimeLog("FA post processing", stop - start);
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: BFA post processing");
+			LOGGER.info("END: FA post processing");
 		}
 
 		for (Iterator i = processors.iterator(); i.hasNext();) {
@@ -359,6 +359,9 @@ public abstract class DADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.3  2003/08/10 03:43:26  venku
    Renamed Tester to Driver.
    Refactored logic to pick entry points.

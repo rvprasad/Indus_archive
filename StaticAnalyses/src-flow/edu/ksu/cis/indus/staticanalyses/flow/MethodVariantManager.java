@@ -80,7 +80,7 @@ public class MethodVariantManager
 	 *
 	 * @pre theAnalysis != null and indexManager != null and astIndexManagerPrototype != null
 	 */
-	MethodVariantManager(final BFA theAnalysis, final AbstractIndexManager indexManager,
+	MethodVariantManager(final FA theAnalysis, final AbstractIndexManager indexManager,
 		final IPrototype astIndexManagerPrototype) {
 		super(theAnalysis, indexManager);
 		this.astIMPrototype = astIndexManagerPrototype;
@@ -127,13 +127,17 @@ public class MethodVariantManager
 	 */
 	protected IVariant getNewVariant(final Object o) {
 		return new MethodVariant((SootMethod) o,
-			new ASTVariantManager(bfa, (AbstractIndexManager) astIMPrototype.getClone()), bfa);
+			new ASTVariantManager(fa, (AbstractIndexManager) astIMPrototype.getClone()), fa);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/16 02:50:22  venku
+   Spruced up documentation and specification.
+   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.

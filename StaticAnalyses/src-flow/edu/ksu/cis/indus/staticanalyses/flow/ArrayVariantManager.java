@@ -58,7 +58,7 @@ public class ArrayVariantManager
 	 *
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ArrayVariantManager(final BFA theAnalysis, final AbstractIndexManager indexManager) {
+	ArrayVariantManager(final FA theAnalysis, final AbstractIndexManager indexManager) {
 		super(theAnalysis, indexManager);
 	}
 
@@ -70,7 +70,7 @@ public class ArrayVariantManager
 	 * @return a new <code>ArrayVariant</code> corresponding to <code>o</code>.
 	 */
 	protected IVariant getNewVariant(final Object o) {
-		return new ArrayVariant((ArrayType) o, bfa.getNewFGNode());
+		return new ArrayVariant((ArrayType) o, fa.getNewFGNode());
 	}
 }
 
@@ -78,6 +78,10 @@ public class ArrayVariantManager
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

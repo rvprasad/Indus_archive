@@ -109,8 +109,8 @@ public abstract class AbstractStmtSwitch
 		method = m;
 
 		context = m._context;
-		lexpr = m._bfa.getLHSExpr(this);
-		rexpr = m._bfa.getRHSExpr(this);
+		lexpr = m._fa.getLHSExpr(this);
+		rexpr = m._fa.getRHSExpr(this);
 	}
 
 	/**
@@ -177,6 +177,10 @@ public abstract class AbstractStmtSwitch
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
+
    
    Revision 1.2  2003/08/12 18:40:11  venku
    Ripple effect of moving IPrototype to Indus.

@@ -149,7 +149,7 @@ public class CallGraph
 	private Map caller2callees = new HashMap();
 
 	/**
-	 * The BFA instance which implements object flow analysis.  This instance is used to calculate call graphCache
+	 * The FA instance which implements object flow analysis.  This instance is used to calculate call graphCache
 	 * information.
      * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
@@ -701,6 +701,9 @@ public class CallGraph
    ChangeLog:
    
    $Log$
+   Revision 1.8  2003/08/15 23:23:32  venku
+   Removed redundant "implement IProcessor".
+
    Revision 1.7  2003/08/14 05:10:29  venku
    Fixed documentation links.
 

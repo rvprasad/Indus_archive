@@ -65,7 +65,7 @@ public class ASTVariantManager
 	 *
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	ASTVariantManager(final BFA theAnalysis, final AbstractIndexManager indexManager) {
+	ASTVariantManager(final FA theAnalysis, final AbstractIndexManager indexManager) {
 		super(theAnalysis, indexManager);
 	}
 
@@ -95,11 +95,11 @@ public class ASTVariantManager
              */
 			for (Iterator i = sm.getExceptions().iterator(); i.hasNext();) {
 				SootClass exception = (SootClass) i.next();
-				exception2node.put(exception, bfa.getNewFGNode());
+				exception2node.put(exception, fa.getNewFGNode());
 			}
-			result = new InvocationVariant(bfa.getNewFGNode(), exception2node);
+			result = new InvocationVariant(fa.getNewFGNode(), exception2node);
 		} else {
-			result = new ValuedVariant(bfa.getNewFGNode());
+			result = new ValuedVariant(fa.getNewFGNode());
 		}
 		return result;
 	}
@@ -109,6 +109,12 @@ public class ASTVariantManager
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/16 21:50:51  venku
+   Removed ASTVariant as it did not contain any data that was used.
+   Concretized AbstractValuedVariant and renamed it to ValuedVariant.
+   Ripple effect of the above change in some.
+   Spruced up documentation and specification.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

@@ -63,12 +63,12 @@ import java.util.HashSet;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public class BFA
+public class FA
   implements IEnvironment {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(BFA.class);
+	private static final Log LOGGER = LogFactory.getLog(FA.class);
 
 	/**
 	 * The analyzer associated with this instance of the framework.
@@ -127,13 +127,13 @@ public class BFA
 	private Scene scm;
 
 	/**
-	 * Creates a new <code>BFA</code> instance.
+	 * Creates a new <code>FA</code> instance.
 	 *
 	 * @param analyzer to be associated with this instance of the framework.
 	 *
 	 * @pre analyzer != null
 	 */
-	BFA(final AbstractAnalyzer analyzer) {
+	FA(final AbstractAnalyzer analyzer) {
 		worklist = new WorkList();
 		this._analyzer = analyzer;
 	}
@@ -507,6 +507,10 @@ public class BFA
    ChangeLog:
 
    $Log$
+   Revision 1.4  2003/08/17 10:37:08  venku
+   Fixed holes in documentation.
+   Removed addRooMethods in FA and added the equivalent logic into analyze() methods.
+
    Revision 1.3  2003/08/16 21:50:51  venku
    Removed ASTVariant as it did not contain any data that was used.
    Concretized AbstractValuedVariant and renamed it to ValuedVariant.
@@ -519,7 +523,7 @@ public class BFA
    Spruced up Documentation and Specification.
    Formatted source.
    Moved getRoots() into the environment.
-   Added support to inject new roots in BFA.
+   Added support to inject new roots in FA.
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

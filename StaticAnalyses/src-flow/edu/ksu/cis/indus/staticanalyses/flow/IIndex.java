@@ -36,7 +36,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 /**
- * A marker interface to be implemented by all classes whose instances will be used as indices in BFA framework.
+ * A marker interface to be implemented by all classes whose instances will be used as indices in FA framework.
  * 
  * <p>
  * Created: Tue Jan 22 04:55:30 2002
@@ -52,6 +52,10 @@ public interface IIndex {
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/16 02:50:22  venku
+   Spruced up documentation and specification.
+   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

@@ -51,7 +51,7 @@ import soot.jimple.SpecialInvokeExpr;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
 import edu.ksu.cis.indus.staticanalyses.flow.AbstractExprSwitch;
-import edu.ksu.cis.indus.staticanalyses.flow.BFA;
+import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariantManager;
@@ -133,7 +133,7 @@ public class InvokeExprWork
 	public synchronized void execute() {
 		InstanceInvokeExpr e = (InstanceInvokeExpr) accessExprBox.getValue();
 		SootMethod sm = e.getMethod();
-		BFA bfa = caller._bfa;
+		FA fa = caller._fa;
 		SootClass sc;
 		ValueBox vb = context.getProgramPoint();
 
@@ -158,9 +158,9 @@ public class InvokeExprWork
 				Type t = v.getType();
 
 				if (t instanceof RefType) {
-					sc = bfa.getClass(((RefType) v.getType()).getClassName());
+					sc = fa.getClass(((RefType) v.getType()).getClassName());
 				} else if (t instanceof ArrayType) {
-					sc = bfa.getClass("java.lang.Object");
+					sc = fa.getClass("java.lang.Object");
 				} else {
 					RuntimeException ee = new RuntimeException("Non-reference/array type flowing into invocation site.");
 					LOGGER.error(ee);
@@ -177,7 +177,7 @@ public class InvokeExprWork
 				throw ee;
 			}
 
-			MethodVariant mv = bfa.getMethodVariant(sm, context);
+			MethodVariant mv = fa.getMethodVariant(sm, context);
 
 			if (!installedVariants.contains(mv)) {
 				IFGNode param;
@@ -224,6 +224,9 @@ public class InvokeExprWork
    ChangeLog:
 
    $Log$
+   Revision 1.3  2003/08/16 21:55:14  venku
+   Ripple effect of changing FA._FA to FA._fa
+
    Revision 1.2  2003/08/15 03:39:53  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosened later on in implementaions.

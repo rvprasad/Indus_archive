@@ -103,14 +103,14 @@ public final class EADriver
 	}
 
 	/**
-	 * Drives escape analysis. It executes BFA first, followed by any post process analysis, followed by the escape analysis.
+	 * Drives escape analysis. It executes FA first, followed by any post process analysis, followed by the escape analysis.
 	 */
 	protected void execute() {
 		Scene scm = loadupClassesAndCollectMains(args);
 		IValueAnalyzer aa = OFAnalyzer.getFSOSAnalyzer();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: BFA analysis");
+			LOGGER.info("BEGIN: FA analysis");
 		}
 
 		long start = System.currentTimeMillis();
@@ -119,9 +119,9 @@ public final class EADriver
 		long stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: BFA analysis");
+			LOGGER.info("END: FA analysis");
 		}
-		addTimeLog("BFA analysis", stop - start);
+		addTimeLog("FA analysis", stop - start);
 
 		ProcessingController ppc = new ProcessingController();
 		ppc.setAnalyzer(aa);
@@ -131,7 +131,7 @@ public final class EADriver
 		cg.hookup(ppc);
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("BEGIN: BFA postprocessing");
+			LOGGER.info("BEGIN: FA postprocessing");
 		}
 		start = System.currentTimeMillis();
 		ppc.process();
@@ -154,9 +154,9 @@ public final class EADriver
 		analysis.unhook(ppc);
 
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("END: BFA postprocessing");
+			LOGGER.info("END: FA postprocessing");
 		}
-		addTimeLog("BFA postprocessing took ", stop - start);
+		addTimeLog("FA postprocessing took ", stop - start);
 		System.out.println("CALL GRAPH:\n" + cg.dumpGraph());
 		System.out.println("THREAD GRAPH:\n" + tg.dumpGraph());
 
@@ -219,6 +219,9 @@ public final class EADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 06:29:07  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.2  2003/08/10 03:43:26  venku
    Renamed Tester to Driver.
    Refactored logic to pick entry points.

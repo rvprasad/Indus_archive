@@ -41,14 +41,14 @@ import java.util.Collection;
 
 
 /**
- * The super interface to be implemented by all the flow graph node objects used in BFA framework.  It provides the basic
+ * The super interface to be implemented by all the flow graph node objects used in FA framework.  It provides the basic
  * methods to add a node into the flow graph and to add values the node.  Although the methods provide to add values, it
  * upto the implementation to process the values as it sees fit.  So, <code>addValue</code> means that a value arrived at
  * this node, and an implementation can create a store the incoming value or derive another value and store the derived
  * value.
  * 
  * <p>
- * The main purpose of this class in BFA framework is to represent the summary set, and hence, it provides mostly basic set
+ * The main purpose of this class in FA framework is to represent the summary set, and hence, it provides mostly basic set
  * operations.  However, it is possible to derive complex operations from these basic operations.  There is no support for
  * removing of nodes or values as it is designed to be used in an additive environment.  Moreover, removing of either nodes
  * or values will require other specific processing which is unknown at this level of abstraction.
@@ -141,6 +141,10 @@ public interface IFGNode
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/16 02:50:22  venku
+   Spruced up documentation and specification.
+   Moved onNewXXX() methods from IFGNode to AbstractFGNode.
+
    
    Revision 1.2  2003/08/12 18:39:56  venku
    Ripple effect of moving IPrototype to Indus.

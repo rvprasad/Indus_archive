@@ -43,7 +43,7 @@ import soot.jimple.ArrayRef;
 import soot.jimple.NullConstant;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
-import edu.ksu.cis.indus.staticanalyses.flow.BFA;
+import edu.ksu.cis.indus.staticanalyses.flow.FA;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNode;
 import edu.ksu.cis.indus.staticanalyses.flow.IFGNodeConnector;
 import edu.ksu.cis.indus.staticanalyses.flow.MethodVariant;
@@ -111,7 +111,7 @@ public class ArrayAccessExprWork
 	 */
 	public synchronized void execute() {
 		ArrayType atype = (ArrayType) ((ArrayRef) accessExprBox.getValue()).getBase().getType();
-		BFA bfa = caller._bfa;
+		FA fa = caller._fa;
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(values + " values arrived at base node of " + accessExprBox.getValue() + " of type " + atype
@@ -127,7 +127,7 @@ public class ArrayAccessExprWork
 
 			context.setAllocationSite(v);
 
-			IFGNode nonast = bfa.getArrayVariant(atype, context).getFGNode();
+			IFGNode nonast = fa.getArrayVariant(atype, context).getFGNode();
 			connector.connect(ast, nonast);
 
 			if (LOGGER.isDebugEnabled()) {
@@ -141,6 +141,9 @@ public class ArrayAccessExprWork
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/16 21:55:14  venku
+   Ripple effect of changing FA._FA to FA._fa
+
    Revision 1.2  2003/08/15 03:39:53  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosened later on in implementaions.

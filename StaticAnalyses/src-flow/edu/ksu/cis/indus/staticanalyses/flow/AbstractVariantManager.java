@@ -64,9 +64,9 @@ public abstract class AbstractVariantManager {
 	/**
 	 * The instance of the framework in which this object is used.
 	 *
-	 * @invariant bfa != null
+	 * @invariant fa != null
 	 */
-	protected final BFA bfa;
+	protected final FA fa;
 
 	/**
 	 * A manager of indices that map entities to variants.
@@ -90,8 +90,8 @@ public abstract class AbstractVariantManager {
 	 *
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	AbstractVariantManager(final BFA theAnalysis, final AbstractIndexManager indexManager) {
-		this.bfa = theAnalysis;
+	AbstractVariantManager(final FA theAnalysis, final AbstractIndexManager indexManager) {
+		this.fa = theAnalysis;
 		this.idxManager = indexManager;
 	}
 
@@ -126,20 +126,20 @@ public abstract class AbstractVariantManager {
 		IVariant temp = null;
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Entering - IIndex: " + index + "\n" + o + "\n" + context + "\n" + bfa._analyzer.active + "\n"
+			LOGGER.debug("Entering - IIndex: " + index + "\n" + o + "\n" + context + "\n" + fa._analyzer.active + "\n"
 				+ index.hashCode());
 		}
 
 		if (index2variant.containsKey(index)) {
 			temp = (IVariant) index2variant.get(index);
-		} else if (bfa._analyzer.active) {
+		} else if (fa._analyzer.active) {
 			temp = getNewVariant(o);
 			index2variant.put(index, temp);
 			temp.process();
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Exiting - IIndex: " + index + "\n" + o + "\n" + context + "\n" + bfa._analyzer.active);
+			LOGGER.debug("Exiting - IIndex: " + index + "\n" + o + "\n" + context + "\n" + fa._analyzer.active);
 		}
 
 		return temp;
@@ -174,6 +174,10 @@ public abstract class AbstractVariantManager {
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/17 09:59:03  venku
+   Spruced up documentation and specification.
+   Documentation changes to FieldVariant.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

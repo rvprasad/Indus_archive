@@ -60,9 +60,9 @@ public class ClassManager
 	/**
 	 * The instance of the framework in which this object is used.
 	 *
-	 * @pre bfa != null
+	 * @pre fa != null
 	 */
-	protected final BFA bfa;
+	protected final FA fa;
 
 	/**
 	 * The collection of classes for which the information has been processed.
@@ -83,9 +83,9 @@ public class ClassManager
 	 *
 	 * @pre theAnalysis != null
 	 */
-	public ClassManager(final BFA theAnalysis) {
+	public ClassManager(final FA theAnalysis) {
 		classes = new HashSet();
-		this.bfa = theAnalysis;
+		this.fa = theAnalysis;
 		context = new Context();
 	}
 
@@ -93,7 +93,7 @@ public class ClassManager
 	 * Creates a concrete object of the same class as this object but parameterized by <code>o</code>.
 	 *
 	 * @param o the instance of the analysis for which this object shall process information.  The actual type of
-	 * 		  <code>o</code> needs to be <code>BFA</code>.
+	 * 		  <code>o</code> needs to be <code>FA</code>.
 	 *
 	 * @return an instance of <code>ClassManager</code> object parameterized by <code>o</code>.
 	 *
@@ -101,7 +101,7 @@ public class ClassManager
 	 * @post result != null
 	 */
 	public Object getClone(final Object o) {
-		return new ClassManager((BFA) o);
+		return new ClassManager((FA) o);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class ClassManager
 
 			if (sc.declaresMethod("<clinit>")) {
 				context.setRootMethod(sc.getMethod("<clinit>"));
-				bfa.getMethodVariant(sc.getMethod("<clinit>"), context);
+				fa.getMethodVariant(sc.getMethod("<clinit>"), context);
 			}
 
 			while (sc.hasSuperclass()) {
@@ -137,7 +137,7 @@ public class ClassManager
 
 				if (temp.declaresMethod("<clinit>")) {
 					context.setRootMethod(temp.getMethod("<clinit>"));
-					bfa.getMethodVariant(temp.getMethod("<clinit>"), context);
+					fa.getMethodVariant(temp.getMethod("<clinit>"), context);
 				}
 			}
 		}
@@ -155,6 +155,9 @@ public class ClassManager
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/16 03:02:42  venku
+   Spruced up documentation and specification.
+
    
    Revision 1.2  2003/08/12 18:39:56  venku
    Ripple effect of moving IPrototype to Indus.

@@ -59,7 +59,7 @@ public class FieldVariantManager
 	 *
 	 * @pre theAnalysis != null and indexManager != null
 	 */
-	public FieldVariantManager(final BFA theAnalysis, final AbstractIndexManager indexManager) {
+	public FieldVariantManager(final FA theAnalysis, final AbstractIndexManager indexManager) {
 		super(theAnalysis, indexManager);
 	}
 
@@ -73,7 +73,7 @@ public class FieldVariantManager
 	 * @pre o != null and o.oclIsKindOf(SootField)
 	 */
 	protected IVariant getNewVariant(final Object o) {
-		return new FieldVariant((SootField) o, bfa.getNewFGNode());
+		return new FieldVariant((SootField) o, fa.getNewFGNode());
 	}
 }
 
@@ -81,6 +81,9 @@ public class FieldVariantManager
    ChangeLog:
 
    $Log$
+   Revision 1.2  2003/08/16 03:01:49  venku
+   Spruced up documentation and specification.
+
 
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

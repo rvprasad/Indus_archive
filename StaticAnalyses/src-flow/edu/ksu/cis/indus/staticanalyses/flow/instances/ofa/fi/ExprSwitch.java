@@ -161,7 +161,7 @@ public class ExprSwitch
 			// run-time.
 			IFGNode base = (IFGNode) getResult();
 			IFGNode cast = method.getASTNode(e);
-			cast.setFilter(new TypeBasedFilter(t, bfa));
+			cast.setFilter(new TypeBasedFilter(t, fa));
 			base.addSucc(cast);
 			setResult(cast);
 		}
@@ -243,7 +243,7 @@ public class ExprSwitch
 		process(e.getSizeBox());
 
 		IFGNode ast = method.getASTNode(e);
-		bfa.getArrayVariant((ArrayType) e.getType(), context);
+		fa.getArrayVariant((ArrayType) e.getType(), context);
 		ast.addValue(e);
 		setResult(ast);
 	}
@@ -277,7 +277,7 @@ public class ExprSwitch
 		for (int i = arrayType.numDimensions; i > 0; i--, sizes--) {
 			arrayType = ArrayType.v(baseType, i);
 
-			ArrayVariant array = bfa.getArrayVariant(arrayType, context);
+			ArrayVariant array = fa.getArrayVariant(arrayType, context);
 
 			if (sizes > 0) {
 				array.getFGNode().addValue(e);
@@ -332,7 +332,7 @@ public class ExprSwitch
 	public void caseStaticFieldRef(final StaticFieldRef e) {
 		SootField field = e.getField();
 		IFGNode ast = method.getASTNode(e);
-		IFGNode nonast = bfa.getFieldVariant(field).getFGNode();
+		IFGNode nonast = fa.getFieldVariant(field).getFGNode();
 		connector.connect(ast, nonast);
 		setResult(ast);
 	}
@@ -349,7 +349,7 @@ public class ExprSwitch
 			LOGGER.debug("BEGIN: processing " + e);
 		}
 
-		MethodVariant callee = bfa.getMethodVariant(e.getMethod(), context);
+		MethodVariant callee = fa.getMethodVariant(e.getMethod(), context);
 
 		for (int i = 0; i < e.getArgCount(); i++) {
 			process(e.getArgBox(i));
@@ -470,6 +470,12 @@ public class ExprSwitch
    ChangeLog:
    
    $Log$
+   Revision 1.2  2003/08/15 02:54:06  venku
+   Spruced up specification and documentation for flow-insensitive classes.
+   Changed names in AbstractExprSwitch.
+   Ripple effect of above change.
+   Formatting changes to IPrototype.
+
    
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:

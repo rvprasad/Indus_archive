@@ -117,12 +117,15 @@ public interface IValueAnalyzer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/12 01:52:00  venku
+   Removed redundant final in parameter declaration in methods of interfaces.
+
    Revision 1.3  2003/08/11 07:11:47  venku
    Changed format of change log accumulation at the end of the file.
    Spruced up Documentation and Specification.
    Formatted source.
    Moved getRoots() into the environment.
-   Added support to inject new roots in BFA.
+   Added support to inject new roots in FA.
 
    Revision 1.2  2003/08/09 23:26:20  venku
    - Added an interface to provide use-def information.

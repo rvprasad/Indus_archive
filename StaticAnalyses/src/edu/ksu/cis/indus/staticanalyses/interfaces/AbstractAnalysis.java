@@ -214,6 +214,10 @@ public abstract class AbstractAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/08/17 10:37:08  venku
+   Fixed holes in documentation.
+   Removed addRooMethods in FA and added the equivalent logic into analyze() methods.
+
    Revision 1.3  2003/08/16 02:41:37  venku
    Renamed AController to AbstractController.
    Renamed AAnalysis to AbstractAnalysis.

@@ -84,7 +84,7 @@ import java.util.Set;
 
 
 /**
- * This class controls the post processing for an analysis.  The analysis as realised by BFA is very low-level.  The
+ * This class controls the post processing for an analysis.  The analysis as realised by FA is very low-level.  The
  * information is raw.  This needs to be massaged via post processing.  Each post processor can registered interest in
  * particular types of AST chunks.  The controller will walk over the analyzed system and call the registered post
  * processors. The post processors then collect information from the analysis in form which is more accessible to the other
@@ -389,7 +389,7 @@ public class ProcessingController {
 	/**
 	 * Sets the analyzer which provides the information to be processed.
 	 *
-	 * @param analyzerParam an instance of the BFA.
+	 * @param analyzerParam an instance of the FA.
 	 */
 	public void setAnalyzer(final IValueAnalyzer analyzerParam) {
 		this.analyzer = analyzerParam;
@@ -548,6 +548,11 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/08/11 06:38:25  venku
+   Changed format of change log accumulation at the end of the file.
+   Spruced up Documentation and Specification.
+   Formatted source.
+
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.

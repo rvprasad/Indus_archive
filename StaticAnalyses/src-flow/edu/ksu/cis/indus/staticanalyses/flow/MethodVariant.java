@@ -87,11 +87,11 @@ public class MethodVariant
 	private static final Logger LOGGER = LogManager.getLogger(MethodVariant.class.getName());
 
 	/**
-	 * The instance of <code>BFA</code> which was responsible for the creation of this variant.
+	 * The instance of <code>FA</code> which was responsible for the creation of this variant.
 	 *
-	 * @invariant _bfa != null
+	 * @invariant _fa != null
 	 */
-	public final BFA _bfa;
+	public final FA _fa;
 
 	/**
 	 * The context which resulted in the creation of this variant.
@@ -165,16 +165,16 @@ public class MethodVariant
 	 * @param sm the method represented by this variant.  This parameter cannot be <code>null</code>.
 	 * @param astVariantManager the manager of flow graph nodes corresponding to the AST nodes of<code>sm</code>.  This
 	 * 		  parameter cannot be <code>null</code>.
-	 * @param bfa the instance of <code>BFA</code> which was responsible for the creation of this variant.  This parameter
+	 * @param fa the instance of <code>FA</code> which was responsible for the creation of this variant.  This parameter
 	 * 		  cannot be <code>null</code>.
 	 *
-	 * @pre sm != null and astvm != null and bfa != null
+	 * @pre sm != null and astvm != null and fa != null
 	 */
-	protected MethodVariant(final SootMethod sm, final AbstractVariantManager astVariantManager, final BFA bfa) {
+	protected MethodVariant(final SootMethod sm, final AbstractVariantManager astVariantManager, final FA fa) {
 		_method = sm;
-		_bfa = bfa;
-		_context = (Context) bfa._analyzer.context.clone();
-		bfa._analyzer.context.callNewMethod(sm);
+		_fa = fa;
+		_context = (Context) fa._analyzer.context.clone();
+		fa._analyzer.context.callNewMethod(sm);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: preprocessing of " + sm);
@@ -187,8 +187,8 @@ public class MethodVariant
 
 			for (int i = 0; i < pCount; i++) {
 				if (sm.getParameterType(i) instanceof RefLikeType) {
-					parameters[i] = bfa.getNewFGNode();
-					bfa.processType(sm.getParameterType(i));
+					parameters[i] = fa.getNewFGNode();
+					fa.processType(sm.getParameterType(i));
 				}
 			}
 		} else {
@@ -198,7 +198,7 @@ public class MethodVariant
 		if (sm.isStatic()) {
 			thisVar = null;
 		} else {
-			thisVar = bfa.getNewFGNode();
+			thisVar = fa.getNewFGNode();
 
 			/*
 			 * NOTE: This is required to filter out values which are descendents of a higher common type but which are
@@ -206,19 +206,19 @@ public class MethodVariant
 			 * is false to assume that all such objects can be considered as receivers for all run() implementations plugged
 			 * into the run() site.
 			 */
-			thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), bfa));
+			thisVar.setFilter(new TypeBasedFilter(sm.getDeclaringClass(), fa));
 		}
-		bfa.processClass(sm.getDeclaringClass());
+		fa.processClass(sm.getDeclaringClass());
 
 		if (sm.getReturnType() instanceof RefLikeType) {
-			returnVar = bfa.getNewFGNode();
-			bfa.processType(sm.getReturnType());
+			returnVar = fa.getNewFGNode();
+			fa.processType(sm.getReturnType());
 		} else {
 			returnVar = null;
 		}
 
 		this.astvm = astVariantManager;
-		bfa._analyzer.context.returnFromCurrentMethod();
+		fa._analyzer.context.returnFromCurrentMethod();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: preprocessed of " + sm);
@@ -264,7 +264,7 @@ public class MethodVariant
 	 * @pre v != null
 	 */
 	public final ValuedVariant getASTVariant(final Value v) {
-		_bfa.processType(v.getType());
+		_fa.processType(v.getType());
 		return (ValuedVariant) astvm.select(v, _context);
 	}
 
@@ -316,7 +316,7 @@ public class MethodVariant
 
 			List list = new ArrayList(_method.retrieveActiveBody().getUnits());
 			defs = new SimpleLocalDefs(new CompleteUnitGraph(_method.retrieveActiveBody()));
-			stmt = _bfa.getStmt(this);
+			stmt = _fa.getStmt(this);
 
 			for (Iterator i = list.iterator(); i.hasNext();) {
 				stmt.process((Stmt) i.next());
@@ -343,7 +343,7 @@ public class MethodVariant
 						ThrowStmt ts = (ThrowStmt) tmp;
 
 						if (!caught.contains(ts)) {
-							SootClass scTemp = _bfa.getClass(((RefType) ts.getOp().getType()).getClassName());
+							SootClass scTemp = _fa.getClass(((RefType) ts.getOp().getType()).getClassName());
 
 							if (Util.isDescendentOf(scTemp, exception)) {
 								_context.setStmt(ts);
@@ -513,6 +513,12 @@ public class MethodVariant
    ChangeLog:
    
    $Log$
+   Revision 1.3  2003/08/16 21:50:51  venku
+   Removed ASTVariant as it did not contain any data that was used.
+   Concretized AbstractValuedVariant and renamed it to ValuedVariant.
+   Ripple effect of the above change in some.
+   Spruced up documentation and specification.
+
    Revision 1.2  2003/08/16 02:50:22  venku
    Spruced up documentation and specification.
    Moved onNewXXX() methods from IFGNode to AbstractFGNode.
