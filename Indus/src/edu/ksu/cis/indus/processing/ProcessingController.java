@@ -851,6 +851,10 @@ public class ProcessingController {
 			LOGGER.info("BEGIN: processing classes");
 		}
 
+		for (Iterator i = processors.iterator(); i.hasNext();) {
+			((IProcessor) i.next()).processingBegins();
+		}
+
 		processStmts = !CollectionUtils.intersection(class2processors.keySet(), STMT_CLASSES).isEmpty();
 		processValues = !CollectionUtils.intersection(class2processors.keySet(), VALUE_CLASSES).isEmpty();
 		processClasses(env.getClasses());
@@ -937,8 +941,8 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Unregisters the processor. It indicates that the processor is not interested in processing the statement types.
-	 * Please refer to <code>STMT_CLASSES</code> for the actual types.
+	 * Unregisters the processor. It indicates that the processor is not interested in processing the statement types. Please
+	 * refer to <code>STMT_CLASSES</code> for the actual types.
 	 *
 	 * @param processor the instance of processor.
 	 */
@@ -1077,6 +1081,8 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/10 02:41:30  venku
+   - added a utility method to register for all statements.
    Revision 1.6  2003/11/07 09:24:42  venku
    - exposed the collection of statement and value classes
      to the public.
