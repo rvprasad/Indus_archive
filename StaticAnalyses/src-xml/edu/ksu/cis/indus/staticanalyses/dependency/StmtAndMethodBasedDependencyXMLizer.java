@@ -235,7 +235,7 @@ final class StmtAndMethodBasedDependencyXMLizer
 		    writer.declaration();
 		    writer.startTag("dependency");
 		    writer.attribute("id", String.valueOf(analysis.getId()));
-		    writer.attribute("class", analysis.getClass().getName().toString());
+		    writer.attribute("class", analysis.getClass().getName());
 		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
@@ -255,6 +255,13 @@ final class StmtAndMethodBasedDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/05/14 09:02:56  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
+
    Revision 1.16  2004/05/14 06:27:23  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
 

@@ -94,7 +94,7 @@ public class FATestSetup
 
 		final SootBasedDriver _driver = new SootBasedDriver();
 		_driver.addToSootClassPath(sootClassPath);
-		_driver.setClassNames(Arrays.asList(classNames.toString().split(" ")));
+		_driver.setClassNames(Arrays.asList(classNames.split(" ")));
 		_driver.initialize();
 		valueAnalyzer.analyze(_driver.getScene(), _driver.getRootMethods());
 
@@ -129,6 +129,10 @@ public class FATestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/06/23 06:16:42  venku
+   - deleted  SootBasedDriver.setClassNames(String[])
+   - ripple effect.
+
    Revision 1.23  2004/05/10 11:28:25  venku
    - Jimple is dumped only for the reachable parts of the system.
    Revision 1.22  2004/05/10 08:12:03  venku

@@ -586,7 +586,7 @@ final class AliasSet
 	 * @post result != null
 	 */
 	private static Object getNewReadyEntity() {
-		return new String("ReadyEntity:" + readyEntityCount++);
+		return "ReadyEntity:" + readyEntityCount++;
 	}
 
 	/**
@@ -597,7 +597,7 @@ final class AliasSet
 	 * @post result != null
 	 */
 	private static Object getNewShareEntity() {
-		return new String("ShareEntity:" + shareEntityCount++);
+		return "ShareEntity:" + shareEntityCount++;
 	}
 
 	/**
@@ -658,6 +658,10 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/08/11 08:24:08  venku
+   - When alias sets are unified, it is sufficient to inject an entity when the entity set is empty.
+     If the entity set is not empty, the alias sets will share entites due to unification.
+
    Revision 1.25  2004/08/05 08:26:29  venku
    - fixed the nagging bug in alias set cloning.
    Revision 1.24  2004/08/04 10:51:11  venku

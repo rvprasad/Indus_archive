@@ -26,10 +26,16 @@
 				</dictionary>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>de.tobject.findbugs.findbugsBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>com.atlassw.tools.eclipse.checkstyle.CheckstyleNature</nature>
 		<nature>SimianUI.simiannature</nature>
+		<nature>de.tobject.findbugs.findbugsNature</nature>
 	</natures>
 </projectDescription>
