@@ -792,7 +792,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn(
 							"There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
-							+ "wait()s that occur in different threads - " + wait + " " + notify);
+							+ "wait()s that occur in different threads - " + _wTemp + "@" + _wSM + " " + _nTemp + "@" +_nSM);
 					}
 				}
 			}
@@ -1242,6 +1242,10 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/01/09 01:00:15  venku
+   - throwStmt() in StmtProcessor() did not check if the processing
+     of the thrown expression could yeild null alias set. FIXED.
+
    Revision 1.39  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
