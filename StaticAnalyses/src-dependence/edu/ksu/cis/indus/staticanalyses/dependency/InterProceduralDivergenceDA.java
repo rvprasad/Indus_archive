@@ -138,9 +138,13 @@ public final class InterProceduralDivergenceDA
 		final List _list = (List) dependent2dependee.get(method);
 
 		if (_list != null) {
-			_result =
-				(Collection) CollectionsUtilities.getAtIndexFromList(_list,
-					getStmtList((SootMethod) method).indexOf(dependentStmt), CollectionsUtilities.EMPTY_LIST_FACTORY);
+			final int _indexOf = getStmtList((SootMethod) method).indexOf(dependentStmt);
+
+			if (_indexOf > -1) {
+				_result =
+					(Collection) CollectionsUtilities.getAtIndexFromList(_list, _indexOf,
+						CollectionsUtilities.EMPTY_LIST_FACTORY);
+			}
 		}
 
 		return _result;

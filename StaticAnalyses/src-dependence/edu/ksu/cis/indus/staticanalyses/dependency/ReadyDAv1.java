@@ -43,7 +43,6 @@ import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,12 +96,6 @@ import soot.jimple.VirtualInvokeExpr;
  * </p>
  * 
  * <p>
- * In case the body of the synchronized method is available, then any dependence involving the entry point of the method will
- * use the first statement of the method as the dependee/dependent statement.  Similarly, the exit points of the method will
- * be provided as the  dependee statements.
- * </p>
- * 
- * <p>
  * In case the body of the synchronized method is unavailable, then any dependence involving entry and exit points of the
  * method will use null as the dependee/dependent statement.
  * </p>
@@ -111,28 +104,28 @@ import soot.jimple.VirtualInvokeExpr;
  * @author $Author$
  * @version $Revision$
  *
- * @invariant dependent2dependee.oclIsKindOf(Map(Stmt, Collection(Pair(Stmt, SootMethod))))
- * @invariant dependee2dependent.oclIsKindOf(Map(Stmt, Collection(Pair(Stmt, SootMethod))))
+ * @invariant dependent2dependee.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(Pair(Stmt, SootMethod)))))
+ * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(Pair(Stmt, SootMethod)))))
  */
 public class ReadyDAv1
   extends AbstractDependencyAnalysis {
 	/** 
-	 * This indicates rule 1 of ready dependency as described in the report.
+	 * This indicates intra-thread intra-procedural monitor aquisition based ready dependence.
 	 */
 	public static final int RULE_1 = 1;
 
 	/** 
-	 * This indicates rule 2 of ready dependency as described in the report.
+	 * This indicates intra-thread intra-procedural <code>Object.wait()</code> based ready dependence.
 	 */
 	public static final int RULE_2 = 2;
 
 	/** 
-	 * This indicates rule 3 of ready dependency as described in the report.
+	 * This indicates inter-thread monitor aquisition based ready dependence.
 	 */
 	public static final int RULE_3 = 4;
 
 	/** 
-	 * This indicates rule 4 of ready dependency as described in the report.
+	 * This indicates inter-thread <code>Object.wait()</code> based ready dependence.
 	 */
 	public static final int RULE_4 = 8;
 
@@ -185,11 +178,6 @@ public class ReadyDAv1
 	 * @invariant wait.oclIsKindOf(Map(SootMethod, Set(VirtualInvokeExpr)))
 	 */
 	final Map waits = new HashMap();
-
-	/** 
-	 * This is a collection of dependeXX in Pair form which result from application of rule 2 to synchronized methods.
-	 */
-	private final Collection specials = new HashSet();
 
 	/** 
 	 * The direction of the analysis.
@@ -373,51 +361,41 @@ public class ReadyDAv1
 
 	/**
 	 * Returns the statements on which the <code>dependentStmt</code> depends on.  Refer to class level documentation for
-	 * important details.
+	 * important details.  A pair of null and method in the result indicates that the dependence is due to the synchronized
+	 * nature of the method in the pair.
 	 *
 	 * @param dependentStmt is the statement for which the dependee info is requested.
-	 * @param context is the method in which the statement occurs.
+	 * @param method in which the statement occurs.
 	 *
 	 * @return a collection of statement.
 	 *
-	 * @pre dependentStmt.isOclKindOf(Stmt) and context.isOclIsKindOf(SootMethod)
-	 * @post result.isOclKindOf(Collection(Pair(Stmt, Method)))
+	 * @pre dependentStmt.isOclKindOf(Stmt) and method.isOclIsKindOf(SootMethod)
+	 * @post result.isOclKindOf(Collection(Pair(Stmt, SootMethod))) or result.isOclKindOf(Collection(Pair(null, SootMethod)))
 	 *
 	 * @see AbstractDependencyAnalysis#getDependees( java.lang.Object, java.lang.Object)
 	 */
-	public Collection getDependees(final Object dependentStmt, final Object context) {
-		final Map _temp = (Map) dependent2dependee.get(context);
-		Collection _result = Collections.EMPTY_LIST;
-
-		if (_temp != null && _temp.containsKey(dependentStmt)) {
-			_result = Collections.unmodifiableCollection((Collection) _temp.get(dependentStmt));
-		}
-		return _result;
+	public Collection getDependees(final Object dependentStmt, final Object method) {
+		return getDependenceHelper(dependentStmt, method, dependent2dependee);
 	}
 
 	/**
 	 * Returns the statements which depend on <code>dependeeStmt</code>. Refer to class level documentation for  important
-	 * details.
+	 * details.  A pair of null and method in the result indicates that the dependence is due to the synchronized  nature of
+	 * the method in the pair.
 	 *
 	 * @param dependeeStmt is the statement for which the dependent info is requested.
-	 * @param context is ignored.
+	 * @param method in which the statement occurs.
 	 *
 	 * @return a collection of statement.
 	 *
-	 * @pre dependeeStmt.isOclKindOf(Stmt)
-	 * @post result.isOclKindOf(Collection(Pair(Stmt, SootMethod)))
+	 * @pre dependeeStmt.isOclKindOf(Stmt) and method.oclIsKindOf(SootMethod)
+	 * @post result.isOclKindOf(Collection(Pair(Stmt, SootMethod))) or result.isOclKindOf(Collection(Pair(null, SootMethod)))
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getDependents( java.lang.Object,
 	 * 		java.lang.Object)
 	 */
-	public Collection getDependents(final Object dependeeStmt, final Object context) {
-		final Map _temp = (Map) dependee2dependent.get(context);
-		Collection _result = Collections.EMPTY_LIST;
-
-		if (_temp != null && _temp.containsKey(dependeeStmt)) {
-			_result = Collections.unmodifiableCollection((Collection) _temp.get(dependeeStmt));
-		}
-		return _result;
+	public Collection getDependents(final Object dependeeStmt, final Object method) {
+		return getDependenceHelper(dependeeStmt, method, dependee2dependent);
 	}
 
 	/**
@@ -467,23 +445,6 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * Retrieves only the entry and exit points of synchronized methods from the given collection of dependence points.
-	 *
-	 * @param dependences which need to be filtered.
-	 *
-	 * @return a collection of entry and exit points that occur in synchronized methods.
-	 *
-	 * @pre dependences != null and dependences.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
-	 * @post result != null and result.oclIsKindOf(Collection(Pair(Stmt, SootMethod)
-	 * @post dependences.conatinsAll(result)
-	 */
-	public Collection getSynchronizedMethodEntryExitPoints(final Collection dependences) {
-		final Collection _result = new HashSet(dependences);
-		_result.retainAll(specials);
-		return _result;
-	}
-
-	/**
 	 * Sets if object flow analysis should be used or not.
 	 *
 	 * @param flag <code>true</code> indicates that object flow analysis should be used; <code>false</code>, otherwise.
@@ -519,22 +480,11 @@ public class ReadyDAv1
 			}
 
 			if (!threadgraph.getCreationSites().isEmpty()) {
-				final boolean _syncedMethodsExist = processMonitorInfo();
-
-				if (_syncedMethodsExist && (rules & (RULE_1 | RULE_3)) != 0) {
-					processRule1And3();
-				}
-
-				if (!waits.isEmpty() && !notifies.isEmpty()) {
-					if ((rules & RULE_2) != 0) {
-						processRule2();
-					}
-
-					if ((rules & RULE_4) != 0) {
-						processRule4();
-					}
-				}
+				processRules();
 			}
+
+			normalizeDependenceInfo(dependent2dependee);
+			normalizeDependenceInfo(dependee2dependent);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("analyze() - " + toString());
@@ -561,7 +511,6 @@ public class ReadyDAv1
 		super.reset();
 		enterMonitors.clear();
 		exitMonitors.clear();
-		specials.clear();
 		waits.clear();
 		notifies.clear();
 	}
@@ -640,7 +589,7 @@ public class ReadyDAv1
 		final Context _context = new AllocationContext();
 
 		final Stmt _wStmt = (Stmt) _waitStmt;
-		final InstanceInvokeExpr _wExpr = ((InstanceInvokeExpr) _wStmt.getInvokeExpr());
+		final InstanceInvokeExpr _wExpr = (InstanceInvokeExpr) _wStmt.getInvokeExpr();
 		_context.setProgramPoint(_wExpr.getBaseBox());
 		_context.setStmt(_wStmt);
 		_context.setRootMethod(_waitMethod);
@@ -648,7 +597,7 @@ public class ReadyDAv1
 		final Collection _col1 = ofa.getValues(_wExpr.getBase(), _context);
 
 		final Stmt _nStmt = (Stmt) _notifyStmt;
-		final InstanceInvokeExpr _nExpr = ((InstanceInvokeExpr) _nStmt.getInvokeExpr());
+		final InstanceInvokeExpr _nExpr = (InstanceInvokeExpr) _nStmt.getInvokeExpr();
 		_context.setProgramPoint(_nExpr.getBaseBox());
 		_context.setStmt(_nStmt);
 		_context.setRootMethod(_notifyMethod);
@@ -827,6 +776,29 @@ public class ReadyDAv1
 	}
 
 	/**
+	 * A helper method to retrieve dependence information.
+	 *
+	 * @param stmt of interest.
+	 * @param method containing <code>stmt</code>.
+	 * @param map containing dependence information.
+	 *
+	 * @return a collection of dependence entities.
+	 *
+	 * @pre stmt != null and method != null and map != null
+	 * @pre map.oclIsKindOf(Map(SootMethod, Map(Stmt, Collection(Pair(Stmt, SootMethod)))))
+	 * @post result != null and result.oclIsKindOf(Colleciton(Pair(Stmt, SootMethod)))
+	 */
+	private Collection getDependenceHelper(final Object stmt, final Object method, final Map map) {
+		final Map _temp = (Map) map.get(method);
+		Collection _result = Collections.EMPTY_LIST;
+
+		if (_temp != null && _temp.containsKey(stmt)) {
+			_result = Collections.unmodifiableCollection((Collection) _temp.get(stmt));
+		}
+		return _result;
+	}
+
+	/**
 	 * Retrieves pairs of exitmonitor statements and the methods that containing the statement.
 	 *
 	 * @return a collection of pairs.
@@ -887,10 +859,10 @@ public class ReadyDAv1
 		final boolean _result;
 
 		if (considerCallSites && stmt.containsInvokeExpr()) {
-            _result = callgraph.areAnyMethodsReachableFrom(readyMethods, stmt, caller);
+			_result = callgraph.areAnyMethodsReachableFrom(readyMethods, stmt, caller);
 		} else {
-		    _result = false;
-        }
+			_result = false;
+		}
 		return _result;
 	}
 
@@ -905,8 +877,6 @@ public class ReadyDAv1
 		final Map _method2dependeeMap = new HashMap();
 
 		if ((rules & RULE_1) != 0) {
-			final Collection _temp = new ArrayList();
-
 			for (final Iterator _i = enterMonitors.keySet().iterator(); _i.hasNext();) {
 				final SootMethod _method = (SootMethod) _i.next();
 
@@ -922,18 +892,7 @@ public class ReadyDAv1
 						final boolean _unsafe = isLockUnsafe(_enter, _method);
 
 						if (_unsafe) {
-							if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
-								_col.remove(SYNC_METHOD_PROXY_STMT);
-								_temp.clear();
-								_temp.add(pairMgr.getPair(SYNC_METHOD_PROXY_STMT, _method));
-								normalizeEntryInformation(_temp);
-
-								for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
-									_col.add(((Pair) _k.next()).getFirst());
-								}
-							} else {
-								_col.add(_enter);
-							}
+							_col.add(_enter);
 						}
 					}
 					_method2dependeeMap.put(_method, _col);
@@ -1033,84 +992,49 @@ public class ReadyDAv1
 	}
 
 	/**
-	 * Normalizes enter monitor information provided in the given set.  This basically converts information pertaining entry
-	 * points into sychronized methods into a form amenable to that catered by the analysis interface.
+	 * Normalizes dependence information by replacing <code>SYNC_METHOD_PROXY_STMT</code> by <code>null</code>.
 	 *
-	 * @param set is the collection of enter monitor information to be normalized.
+	 * @param method2dependence contains method level dependence information to be normalized.
 	 *
-	 * @pre set != null and set.oclIsKindOf(Collection(Pair(Object, SootMethod)))
+	 * @pre method2dependence != null and method2dependence.oclIsKindOf(Map(SootMethod, Map(Object, Collection(Pair(Stmt,
+	 * 		SootMethod)))))
 	 */
-	private void normalizeEntryInformation(final Collection set) {
-		final Collection _result = new HashSet();
-		final Collection _removed = new HashSet();
+	private void normalizeDependenceInfo(final Map method2dependence) {
+		for (final Iterator _i = method2dependence.values().iterator(); _i.hasNext();) {
+			final Map _obj2pairCollection = (Map) _i.next();
 
-		for (final Iterator _i = set.iterator(); _i.hasNext();) {
-			final Pair _pair = (Pair) _i.next();
-			final Object _first = _pair.getFirst();
+			for (final Iterator _j = _obj2pairCollection.values().iterator(); _j.hasNext();) {
+				final Collection _col = (Collection) _j.next();
+				normalizePairs(_col);
+			}
 
-			if (!(_first instanceof Stmt)) {
-				_removed.add(_pair);
-
-				final SootMethod _sm = (SootMethod) _pair.getSecond();
-				final BasicBlock _head = getBasicBlockGraph(_sm).getHead();
-				Object _headStmt = null;
-
-				if (_head != null) {
-					_headStmt = _head.getLeaderStmt();
-				}
-
-				final Pair _special = pairMgr.getPair(_headStmt, _sm);
-				specials.add(_special);
-				_result.add(_special);
+			if (_obj2pairCollection.containsKey(SYNC_METHOD_PROXY_STMT)) {
+				final Collection _col = (Collection) _obj2pairCollection.get(SYNC_METHOD_PROXY_STMT);
+				_obj2pairCollection.remove(SYNC_METHOD_PROXY_STMT);
+				_obj2pairCollection.put(null, _col);
 			}
 		}
-		set.removeAll(_removed);
-		set.addAll(_result);
 	}
 
 	/**
-	 * Normalizes exit monitor information provided in the given set.  This basically converts information pertaining exit
-	 * points into sychronized methods into a form amenable to that catered by the analysis interface.
+	 * Normalizes dependence information by replacing <code>SYNC_METHOD_PROXY_STMT</code> by <code>null</code>.
 	 *
-	 * @param set is the collection of exit monitor information to be normalized.
+	 * @param pairCollection contains stmt level dependence information to be normalized.
 	 *
-	 * @pre set != null and set.oclIsKindOf(Collection(Pair(Object, SootMethod)))
+	 * @pre pairCollection != null and pairCollection.oclIsKindOf(Collection(Pair(Stmt, SootMethod)))
 	 */
-	private void normalizeExitInformation(final Collection set) {
-		final Collection _result = new HashSet();
-		final Collection _removed = new HashSet();
-		final Collection _tails = new HashSet();
+	private void normalizePairs(final Collection pairCollection) {
+		final Collection _t = new HashSet();
 
-		for (final Iterator _i = set.iterator(); _i.hasNext();) {
+		for (final Iterator _i = pairCollection.iterator(); _i.hasNext();) {
 			final Pair _pair = (Pair) _i.next();
-			final Object _first = _pair.getFirst();
 
-			if (!(_first instanceof Stmt)) {
-				_removed.add(_pair);
-
-				final SootMethod _sm = (SootMethod) _pair.getSecond();
-				_tails.clear();
-
-				final BasicBlockGraph _graph = getBasicBlockGraph(_sm);
-				_tails.addAll(_graph.getPseudoTails());
-				_tails.addAll(_graph.getTails());
-
-				for (final Iterator _j = _tails.iterator(); _j.hasNext();) {
-					final BasicBlock _tail = (BasicBlock) _j.next();
-					Object _tailStmt = null;
-
-					if (_tail != null) {
-						_tailStmt = _tail.getTrailerStmt();
-					}
-
-					final Pair _special = pairMgr.getPair(_tailStmt, _sm);
-					specials.add(_special);
-					_result.add(_special);
-				}
+			if (_pair.getFirst() == SYNC_METHOD_PROXY_STMT) {
+				_t.add(pairMgr.getPair(null, _pair.getSecond()));
+				_i.remove();
 			}
 		}
-		set.removeAll(_removed);
-		set.addAll(_result);
+		pairCollection.addAll(_t);
 	}
 
 	/**
@@ -1174,36 +1098,40 @@ public class ReadyDAv1
 			final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _method);
 
 			for (final Iterator _j = _dependees.iterator(); _j.hasNext();) {
-				final Stmt _dependee = (Stmt) _j.next();
-				BasicBlock _bb = _bbGraph.getEnclosingBlock(_dependee);
-				final List _sl = directionSensInfo.getIntraBBDependents(_bb, _dependee);
-				_dependents.clear();
+				final Object _o = _j.next();
 
-				final Pair _pair = pairMgr.getPair(_dependee, _method);
-				boolean _shouldContinue =
-					recordDependent2DependeeInfo(_dependents, _method, _dependees, _dents2dees, _sl, _pair);
+				if (_o instanceof Stmt) {
+					final Stmt _dependee = (Stmt) _o;
+					BasicBlock _bb = _bbGraph.getEnclosingBlock(_dependee);
+					final List _sl = directionSensInfo.getIntraBBDependents(_bb, _dependee);
+					_dependents.clear();
 
-				// Process the successive basic blocks if there was no ready dependence head statement. 
-				if (_shouldContinue) {
-					_workbag.clear();
-					_processed.clear();
-					_workbag.addAllWork(directionSensInfo.getFollowersOfBB(_bb));
+					final Pair _pair = pairMgr.getPair(_dependee, _method);
+					boolean _shouldContinue =
+						recordDependent2DependeeInfo(_dependents, _method, _dependees, _dents2dees, _sl, _pair);
 
-					while (_workbag.hasWork()) {
-						_bb = (BasicBlock) _workbag.getWork();
-						_shouldContinue =
-							recordDependent2DependeeInfo(_dependents, _method, _dependees, _dents2dees, _bb.getStmtsOf(),
-								_pair);
+					// Process the successive basic blocks if there was no ready dependence head statement. 
+					if (_shouldContinue) {
+						_workbag.clear();
+						_processed.clear();
+						_workbag.addAllWork(directionSensInfo.getFollowersOfBB(_bb));
 
-						if (_shouldContinue) {
-							_workbag.addAllWork(directionSensInfo.getFollowersOfBB(_bb));
+						while (_workbag.hasWork()) {
+							_bb = (BasicBlock) _workbag.getWork();
+							_shouldContinue =
+								recordDependent2DependeeInfo(_dependents, _method, _dependees, _dents2dees, _bb.getStmtsOf(),
+									_pair);
+
+							if (_shouldContinue) {
+								_workbag.addAllWork(directionSensInfo.getFollowersOfBB(_bb));
+							}
 						}
 					}
-				}
 
-				//add dependee to dependent direction information.
-				final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _method);
-				CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _dependee, _dependents);
+					//add dependee to dependent direction information.
+					final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _method);
+					CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _dependee, _dependents);
+				}
 			}
 		}
 	}
@@ -1215,7 +1143,6 @@ public class ReadyDAv1
 	private void processRule2() {
 		final Collection _deSet = new HashSet();
 		final Collection _dtSet = new HashSet();
-		final Collection _tails = new HashSet();
 		final Collection _temp = getExitMonitorStmtMethodPairs();
 
 		/*
@@ -1234,58 +1161,22 @@ public class ReadyDAv1
 				// add dependee to dependent information 
 				for (final Iterator _k = _temp.iterator(); _k.hasNext();) {
 					final Pair _exitPair = (Pair) _k.next();
-					_dtSet.clear();
-
-					final Object _exit = _exitPair.getFirst();
 
 					if (ifDependentOnByRule2(_enterPair, _exitPair)) {
 						_dtSet.add(_enterPair);
 						_deSet.add(_exitPair);
 
-						normalizeEntryInformation(_dtSet);
-
+						final Object _exit = _exitPair.getFirst();
 						final SootMethod _exitMethod = (SootMethod) _exitPair.getSecond();
-
-						if (_exit.equals(SYNC_METHOD_PROXY_STMT)) {
-							_tails.clear();
-
-							final BasicBlockGraph _graph = getBasicBlockGraph(_exitMethod);
-							_tails.addAll(_graph.getPseudoTails());
-							_tails.addAll(_graph.getTails());
-
-							for (final Iterator _l = _tails.iterator(); _l.hasNext();) {
-								final BasicBlock _bb = (BasicBlock) _l.next();
-								final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
-								CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _bb.getTrailerStmt(), _dtSet);
-							}
-						} else {
-							final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
-							CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _exit, _dtSet);
-						}
+						final Map _dees2dents = CollectionsUtilities.getMapFromMap(dependee2dependent, _exitMethod);
+						CollectionsUtilities.putAllIntoSetInMap(_dees2dents, _exit, _dtSet);
 					}
 				}
 
 				// add dependent to dependee information
 				if (!_deSet.isEmpty()) {
-					normalizeExitInformation(_deSet);
-
-					Object _key = _enter;
-
-					if (_enter.equals(SYNC_METHOD_PROXY_STMT)) {
-						final BasicBlock _headBB = getBasicBlockGraph(_enterMethod).getHead();
-						_key = null;
-
-						if (_headBB != null) {
-							_key = _headBB.getLeaderStmt();
-						}
-					}
-
-					if (_key != null) {
-						final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
-						CollectionsUtilities.putAllIntoSetInMap(_dents2dees, _key, _deSet);
-					} else {
-						LOGGER.error("How can we record ready dependence for a synchronized method with no head?");
-					}
+					final Map _dents2dees = CollectionsUtilities.getMapFromMap(dependent2dependee, _enterMethod);
+					CollectionsUtilities.putAllIntoSetInMap(_dents2dees, _enter, _deSet);
 				}
 			}
 		}
@@ -1335,6 +1226,27 @@ public class ReadyDAv1
 					CollectionsUtilities.putAllIntoCollectionInMap(_dees2dents, _notify, _dependents,
 						CollectionsUtilities.HASH_SET_FACTORY);
 				}
+			}
+		}
+	}
+
+	/**
+	 * Processes various rules during analysis.
+	 */
+	private void processRules() {
+		final boolean _syncedMethodsExist = processMonitorInfo();
+
+		if (_syncedMethodsExist && (rules & (RULE_1 | RULE_3)) != 0) {
+			processRule1And3();
+		}
+
+		if (!waits.isEmpty() && !notifies.isEmpty()) {
+			if ((rules & RULE_2) != 0) {
+				processRule2();
+			}
+
+			if ((rules & RULE_4) != 0) {
+				processRule4();
 			}
 		}
 	}

@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
+
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -58,17 +60,9 @@ public abstract class AbstractControlDA
 	 * 		java.lang.Object)
 	 */
 	public final Collection getDependees(final Object dependentStmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
 		final List _list = (List) dependent2dependee.get(method);
 
-		if (_list != null) {
-			final int _index = getStmtList((SootMethod) method).indexOf(dependentStmt);
-
-			if (_list.get(_index) != null) {
-				_result = Collections.unmodifiableCollection((Collection) _list.get(_index));
-			}
-		}
-		return _result;
+		return getDependenceHelper(dependentStmt, method, _list);
 	}
 
 	/**
@@ -87,17 +81,8 @@ public abstract class AbstractControlDA
 	 * 		java.lang.Object)
 	 */
 	public final Collection getDependents(final Object dependeeStmt, final Object method) {
-		Collection _result = Collections.EMPTY_LIST;
 		final List _list = (List) dependee2dependent.get(method);
-
-		if (_list != null) {
-			final int _index = getStmtList((SootMethod) method).indexOf(dependeeStmt);
-
-			if (_list.get(_index) != null) {
-				_result = Collections.unmodifiableCollection((Collection) _list.get(_index));
-			}
-		}
-		return _result;
+		return getDependenceHelper(dependeeStmt, method, _list);
 	}
 
 	/**
@@ -180,6 +165,32 @@ public abstract class AbstractControlDA
 		if (callgraph == null) {
 			throw new InitializationException(ICallGraphInfo.ID + " was not provided.");
 		}
+	}
+
+	/**
+	 * A helper method to extract dependence.
+	 *
+	 * @param stmt for which dependence is requested.
+	 * @param method in which <code>stmt</code> occurs.
+	 * @param list from which to extract dependence.
+	 *
+	 * @return the collection of statement on which <code>stmt</code> is control dependent on.
+	 *
+	 * @pre stmt != null and method != null and list.oclIsKindOf(Collection(Stmt))
+	 * @post result != null
+	 */
+	private Collection getDependenceHelper(final Object stmt, final Object method, final List list) {
+		Collection _result = Collections.EMPTY_LIST;
+
+		if (list != null) {
+			final int _index = getStmtList((SootMethod) method).indexOf(stmt);
+
+			if (_index > -1) {
+				_result =
+					(Collection) CollectionsUtilities.getAtIndexFromList(list, _index, CollectionsUtilities.EMPTY_LIST_FACTORY);
+			}
+		}
+		return _result;
 	}
 
 	///CLOVER:ON
