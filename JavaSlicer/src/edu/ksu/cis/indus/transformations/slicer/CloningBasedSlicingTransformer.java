@@ -105,28 +105,28 @@ public class CloningBasedSlicingTransformer
 	private Map unslicedMethod2stmtMap = new HashMap();
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformed(soot.SootClass)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootClass)
 	 */
 	public SootClass getTransformed(final SootClass clazz) {
 		return cloner.getCloneOf(clazz);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformed(soot.SootField)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootField)
 	 */
 	public SootField getTransformed(final SootField field) {
 		return cloner.getCloneOf(field);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformed(soot.SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(soot.SootMethod)
 	 */
 	public SootMethod getTransformed(final SootMethod method) {
 		return cloner.getCloneOf(method);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.ITransformMap#getTransformed(Stmt, SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformed(Stmt, SootMethod)
 	 */
 	public Stmt getTransformed(final Stmt unslicedStmt, final SootMethod unslicedMethod) {
 		Stmt result = null;
@@ -139,35 +139,35 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformedClasses()
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedClasses()
 	 */
 	public Collection getTransformedClasses() {
 		return transformedSystem.getClasses();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformedLocal(java.lang.String, soot.SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedLocal(soot.Local, soot.SootMethod)
 	 */
 	public Local getTransformedLocal(final Local local, final SootMethod method) {
 		return cloner.getLocal(local, method);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getTransformedSootClass(java.lang.String)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedSootClass(java.lang.String)
 	 */
 	public SootClass getTransformedSootClass(final String className) {
 		return transformedSystem.getSootClass(className);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#getUntransformed(soot.SootClass)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getUntransformed(soot.SootClass)
 	 */
 	public SootClass getUntransformed(final SootClass clazz) {
 		return untransformedSystem.getSootClass(clazz.getName());
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.ITransformMap#getUntransformed(Stmt, SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getUntransformed(Stmt, SootMethod)
 	 */
 	public Stmt getUntransformed(final Stmt slicedStmt, final SootMethod slicedMethod) {
 		Stmt result = null;
@@ -220,7 +220,7 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#transform(soot.jimple.Stmt, soot.SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public void transform(final Stmt stmt, final SootMethod method) {
 		Stmt sliced = cloner.cloneASTFragment(stmt, method);
@@ -305,6 +305,9 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/08/19 12:46:07  venku
+   Documentation changes.
+
    Revision 1.14  2003/08/19 12:44:39  venku
    Changed the signature of ITransformer.getLocal()
    Introduced reset() in ITransformer.

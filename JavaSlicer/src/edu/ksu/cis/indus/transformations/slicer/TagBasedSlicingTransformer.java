@@ -169,7 +169,7 @@ public class TagBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedLocal(java.lang.String, soot.SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#getTransformedLocal(soot.Local, soot.SootMethod)
 	 */
 	public Local getTransformedLocal(final Local local, final SootMethod method) {
 		Local result = null;
@@ -231,7 +231,7 @@ public class TagBasedSlicingTransformer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.transformations.common.ITransformMap#transform(soot.jimple.Stmt, soot.SootMethod)
+	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public void transform(final Stmt stmt, final SootMethod method) {
 	}
@@ -259,4 +259,7 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/08/19 12:55:50  venku
+   This is a tag-based non-destructive slicing transformation implementation.
+
  */

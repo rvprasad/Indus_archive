@@ -90,7 +90,7 @@ class SliceExpr
 	 *
 	 * @post result != null and result.oclIsKindOf(ValueBox)
 	 *
-	 * @see edu.ksu.cis.bandera.slicer.AbstractSliceCriterion#getCriterion()
+	 * @see AbstractSliceCriterion#getCriterion()
 	 */
 	public Object getCriterion() {
 		return expr;
@@ -181,6 +181,10 @@ class SliceExpr
    ChangeLog:
    
    $Log$
+   Revision 1.6  2003/08/18 12:14:13  venku
+   Well, to start with the slicer implementation is complete.
+   Although not necessarily bug free, hoping to stabilize it quickly.
+
    
    Revision 1.5  2003/08/18 05:01:45  venku
    Committing package name change in source after they were moved.
