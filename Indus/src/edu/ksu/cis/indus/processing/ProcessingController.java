@@ -713,6 +713,8 @@ public class ProcessingController {
 		 */
 		public void caseNewArrayExpr(final NewArrayExpr v) {
 			defaultCase(NewArrayExpr.class, v);
+			context.setProgramPoint(v.getSizeBox());
+			v.getSize().apply(this);
 		}
 
 		/**
@@ -727,6 +729,11 @@ public class ProcessingController {
 		 */
 		public void caseNewMultiArrayExpr(final NewMultiArrayExpr v) {
 			defaultCase(NewMultiArrayExpr.class, v);
+
+			for (int i = 0; i < v.getSizeCount(); i--) {
+				context.setProgramPoint(v.getSizeBox(i));
+				v.getSize(i).apply(this);
+			}
 		}
 
 		/**
@@ -1139,7 +1146,7 @@ public class ProcessingController {
 			LOGGER.debug("Methods to be processed:\n" + methods);
 		}
 
-		final List _sl = new ArrayList();
+		final boolean _processBody = processStmts || processValues;
 
 		for (final Iterator _j = methods.iterator(); _j.hasNext();) {
 			final SootMethod _sm = (SootMethod) _j.next();
@@ -1149,28 +1156,41 @@ public class ProcessingController {
 				((IProcessor) _k.next()).callback(_sm);
 			}
 
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Processing method " + _sm);
+			if (_processBody) {
+				processMethodBody(_sm);
 			}
+		}
+	}
 
-			if ((processStmts || processValues) && _sm.isConcrete()) {
-				try {
-					_sl.clear();
-					_sl.addAll(_sm.retrieveActiveBody().getUnits());
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param method DOCUMENT ME!
+	 */
+	private void processMethodBody(final SootMethod method) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Processing method " + method);
+		}
 
-					for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
-						final Stmt _stmt = (Stmt) _k.next();
-						context.setStmt(_stmt);
-						_stmt.apply(stmtSwitcher);
-					}
-				} catch (RuntimeException e) {
-					LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
-						+ " recognize the given method or it's parts or method has not stored in jimple "
-						+ "representation. : " + _sm.getSignature(), e);
+		final List _sl = new ArrayList();
+
+		if (method.isConcrete()) {
+			try {
+				_sl.clear();
+				_sl.addAll(method.retrieveActiveBody().getUnits());
+
+				for (final Iterator _k = _sl.iterator(); _k.hasNext();) {
+					final Stmt _stmt = (Stmt) _k.next();
+					context.setStmt(_stmt);
+					_stmt.apply(stmtSwitcher);
 				}
-			} else if (LOGGER.isInfoEnabled()) {
-				LOGGER.info(_sm + " is not a concrete method.  Hence, it's body could not be retrieved.");
+			} catch (RuntimeException e) {
+				LOGGER.warn("Well, exception while processing statements of a method may mean the processor does not"
+					+ " recognize the given method or it's parts or method has not stored in jimple " + "representation. : "
+					+ method.getSignature(), e);
 			}
+		} else if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(method + " is not a concrete method.  Hence, it's body could not be retrieved.");
 		}
 	}
 }
@@ -1178,6 +1198,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/12/02 11:31:57  venku
+   - Added Interfaces for ToolConfiguration and ToolConfigurator.
+   - coding convention and formatting.
    Revision 1.20  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
