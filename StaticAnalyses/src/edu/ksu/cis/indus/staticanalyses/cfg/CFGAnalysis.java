@@ -39,12 +39,12 @@ import soot.jimple.Stmt;
  * @version $Revision$
  */
 public final class CFGAnalysis {
-	/**
+	/** 
 	 * This manages the basic block graphs of the methods being analyzed.
 	 */
 	private final BasicBlockGraphMgr bbm;
 
-	/**
+	/** 
 	 * This provides call-graph information.
 	 */
 	private final ICallGraphInfo cgi;
@@ -73,14 +73,14 @@ public final class CFGAnalysis {
 	 * @pre ne != null and context != null and context.getCurrentMethod() != null
 	 */
 	public boolean checkForLoopEnclosedNewExpr(final Stmt newStmt, final SootMethod method) {
-		boolean result = false;
+		boolean _result = false;
 
-		BasicBlockGraph bbg = bbm.getBasicBlockGraph(method);
+		final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(method);
 
-		if (occursInCycle(bbg, bbg.getEnclosingBlock(newStmt))) {
-			result = true;
+		if (occursInCycle(_bbg, _bbg.getEnclosingBlock(newStmt))) {
+			_result = true;
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -95,48 +95,49 @@ public final class CFGAnalysis {
 	 * @pre stmt != null and caller != null
 	 */
 	public boolean executedMultipleTimes(final Stmt stmt, final SootMethod caller) {
-		BasicBlockGraph bbg = bbm.getBasicBlockGraph(caller);
-		return occursInCycle(bbg, bbg.getEnclosingBlock(stmt)) || executedMultipleTimes(caller);
+		final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(caller);
+		return occursInCycle(_bbg, _bbg.getEnclosingBlock(stmt)) || executedMultipleTimes(caller);
 	}
 
 	/**
 	 * Checks if the given soot method is executed multiple times in the system.  It may be due to loop enclosed call-sites,
 	 * multiple call sites, or call-sites in call graph SCCs (with more than one element).
 	 *
-	 * @param caller is the method.
+	 * @param method is the method.
 	 *
 	 * @return <code>true</code> if the given method or any of it's ancestors in the call tree have multiple or
 	 * 		   multiply-executed call sites; <code>false</code>, otherwise.
 	 *
-	 * @pre caller != null
+	 * @pre method != null
 	 */
-	public boolean executedMultipleTimes(final SootMethod caller) {
-		boolean result = false;
-		Collection callers = cgi.getCallers(caller);
-main_control: 
-		if (callers.size() > 1) {
-			result = true;
-		} else if (callers.size() == 1) {
-			for (Iterator i = cgi.getSCCs(true).iterator(); i.hasNext();) {
-				Collection scc = (Collection) i.next();
+	public boolean executedMultipleTimes(final SootMethod method) {
+		boolean _result = false;
+		final Collection _callers = cgi.getCallers(method);
 
-				if (scc.contains(caller) && scc.size() > 1) {
-					result = true;
-					break main_control;
+		if (_callers.size() > 1) {
+			_result = true;
+		} else if (_callers.size() == 1) {
+			for (final Iterator _i = cgi.getSCCs(true).iterator(); _i.hasNext() && !_result;) {
+				final Collection _scc = (Collection) _i.next();
+
+				if (_scc.contains(method) && _scc.size() > 1) {
+					_result = true;
 				}
 			}
 
-			CallTriple ctrp = (CallTriple) callers.iterator().next();
-			SootMethod caller2 = ctrp.getMethod();
-			BasicBlockGraph bbg = bbm.getBasicBlockGraph(caller2);
+			if (!_result) {
+				final CallTriple _ctrp = (CallTriple) _callers.iterator().next();
+				final SootMethod _caller = _ctrp.getMethod();
+				final BasicBlockGraph _bbg = bbm.getBasicBlockGraph(_caller);
 
-			if (occursInCycle(bbg, bbg.getEnclosingBlock(ctrp.getStmt()))) {
-				result = true;
-			} else {
-				result = executedMultipleTimes(caller2);
+				if (occursInCycle(_bbg, _bbg.getEnclosingBlock(_ctrp.getStmt()))) {
+					_result = true;
+				} else {
+					_result = executedMultipleTimes(_caller);
+				}
 			}
 		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -150,23 +151,16 @@ main_control:
 	 * @pre m != null and p != null
 	 */
 	public boolean notInSameSCC(final SootMethod m, final SootMethod p) {
-		boolean result = true;
-		Collection sccs = cgi.getSCCs(true);
-		Collection scc = null;
+		boolean _result = true;
 
-		for (Iterator i = sccs.iterator(); i.hasNext();) {
-			scc = (Collection) i.next();
+		for (final Iterator _i = cgi.getSCCs(true).iterator(); _i.hasNext() && _result;) {
+			final Collection _scc = (Collection) _i.next();
 
-			if (scc.contains(m)) {
-				break;
+			if (_scc.contains(m)) {
+				_result = !_scc.contains(p);
 			}
-			scc = null;
 		}
-
-		if (scc != null) {
-			result = !scc.contains(p);
-		}
-		return result;
+		return _result;
 	}
 
 	/**
@@ -186,6 +180,9 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2004/05/31 21:38:07  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
    Revision 1.16  2004/01/21 02:36:41  venku
    - coding convention.
    Revision 1.15  2003/12/13 02:29:08  venku
