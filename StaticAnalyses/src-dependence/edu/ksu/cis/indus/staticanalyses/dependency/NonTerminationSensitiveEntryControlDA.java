@@ -29,6 +29,7 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,9 +41,9 @@ import soot.SootMethod;
 
 
 /**
- * This class provides direct intraprocedural non-termination sensitive backward control dependence information.  For more 
- * information about the dependence calculated in this implementation, please refer to 
- * <a href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>.
+ * This class provides direct intraprocedural non-termination sensitive backward control dependence information.  For more
+ * information about the dependence calculated in this implementation, please refer to  <a
+ * href="http://projects.cis.ksu.edu/docman/view.php/12/95/santos-tr2004-8.pdf">Santos-TR2004-8</a>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -218,23 +219,28 @@ public final class NonTerminationSensitiveEntryControlDA
 	 * @param node at which to accumulate tokens.
 	 * @param tokenSets is the collection of token sets of the nodes in the graph.
 	 *
+	 * @return <code>true</code> if any new tokens were accumulated; <code>false</code>, otherwise.
+	 *
 	 * @pre node != null and tokenSets != null
 	 */
-	private void accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
+	private boolean accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
+		boolean _result = false;
 		final int _nodeIndex = nodesCache.indexOf(node);
-        final Iterator _ctrlPoints = nodesWithChildrenCache.iterator();
+		final Iterator _ctrlPoints = nodesWithChildrenCache.iterator();
 
 		for (int _iIndex = nodesWithChildrenCache.size() - 1; _iIndex >= 0; _iIndex--) {
-            final INode _ctrlPointNode = (INode) _ctrlPoints.next();
-            final int _ctrlPointNodeIndex = nodesCache.indexOf(_ctrlPointNode);
+			final INode _ctrlPointNode = (INode) _ctrlPoints.next();
+			final int _ctrlPointNodeIndex = nodesCache.indexOf(_ctrlPointNode);
 			final BitSet _nodesCtrlPointBitSet = tokenSets[_nodeIndex][_ctrlPointNodeIndex];
 
 			if (_nodesCtrlPointBitSet != null
 				  && _nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size()
 				  && _nodeIndex != _ctrlPointNodeIndex) {
 				copyAncestorBitSetsFromTo(_ctrlPointNodeIndex, _nodeIndex, tokenSets);
+				_result = true;
 			}
 		}
+		return _result;
 	}
 
 	/**
@@ -423,12 +429,12 @@ public final class NonTerminationSensitiveEntryControlDA
 			final Collection _succs = _node.getSuccsOf();
 			final Iterator _k = _succs.iterator();
 
-			for (int _j = _succs.size(), _count = 0; _j > 0; _j--) {
+			for (int _j = _succs.size(), _count = 0; _j > 0; _j--, _count++) {
 				final INode _succ = (INode) _k.next();
 				final int _succIndex = nodesCache.indexOf(_succ);
 				final BitSet[] _succBitSets = tokenSets[_succIndex];
 				final BitSet _temp = getBitSetAtLocation(_succBitSets, _nodeIndex);
-				_temp.set(_count++);
+				_temp.set(_count);
 				_wb.addWorkNoDuplicates(_succ);
 			}
 		}
@@ -460,29 +466,34 @@ public final class NonTerminationSensitiveEntryControlDA
 	 */
 	private Collection processNode(final INode node, final BitSet[][] tokenSets) {
 		final Collection _result;
-		accumulateTokensAtNode(node, tokenSets);
 
-		if (!nodesWithChildrenCache.contains(node)) {
-			_result = processNodeWithOneOrLessChildren(node, tokenSets);
-		} else {
-			/*
-			 * Say B and C are control points, A is the control merge point of B, and A and B are dependent on C.
-			 * It is possible that node A accumulated all tokens from control point B when tokens from control point C had
-			 * not reached B.  In such cases, we need to find and add nodes such as A to the workbag for processing.
-			 */
-			_result = new HashSet();
+		if (accumulateTokensAtNode(node, tokenSets)) {
+			if (!nodesWithChildrenCache.contains(node)) {
+				_result = processNodeWithOneOrLessChildren(node, tokenSets);
+			} else {
+				/*
+				 * Say B and C are control points, A is the control merge point of B, and A and B are dependent on C.
+				 * It is possible that node A accumulated all tokens from control point B when tokens from control point C had
+				 * not reached B.  In such cases, we need to find and add nodes such as A to the workbag for processing.
+				 */
+				_result = new HashSet();
 
-			final int _nodeIndex = nodesCache.indexOf(node);
-			final int _succsSize = node.getSuccsOf().size();
-			final int _iEnd = nodesCache.size();
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-				final BitSet _bitSet = tokenSets[_iIndex][_nodeIndex];
+				final int _nodeIndex = nodesCache.indexOf(node);
+				final int _succsSize = node.getSuccsOf().size();
+				final int _iEnd = nodesCache.size();
 
-				if (_bitSet != null && _bitSet.cardinality() == _succsSize && _nodeIndex != _iIndex) {
-					_result.add(nodesCache.get(_iIndex));
+				for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+					final BitSet _bitSet = tokenSets[_iIndex][_nodeIndex];
+
+					if (_bitSet != null && _bitSet.cardinality() == _succsSize && _nodeIndex != _iIndex) {
+						_result.add(nodesCache.get(_iIndex));
+					}
 				}
 			}
+		} else {
+			_result = Collections.EMPTY_SET;
 		}
+
 		return _result;
 	}
 
