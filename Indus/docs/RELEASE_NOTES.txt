@@ -27,12 +27,15 @@ Required software:
     	(junit.jar) [http://junit.org]
     GNU Trove (1.1b3)
     	(trove.jar) [http://trove4j.sourceforge.net/]
+	Bandera [OPTIONAL]
+		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
 Version 0.5
 -----------
 	- Added support to specify scopes that can be used during program analysis and transformation.
 	- Added support to collect simple size metrics.
+	? Requires jars from Bandera to use Bandera related tools.
 
 Version 0.4
 ------------

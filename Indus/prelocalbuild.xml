@@ -31,7 +31,9 @@
         <pathelement location="${jars.dir}/xmlunit.jar"/>
         <pathelement location="${jars.dir}/swt/swt.jar"/>   
         <pathelement location="${jars.dir}/jibx-run.jar"/>
-        <pathelement location="${jars.dir}/xpp3.jar"/>           
+        <pathelement location="${jars.dir}/xpp3.jar"/>    
+        <pathelement location="${banderaCommons.jars.dir}/banderaCommons.jar"/>        
+        <pathelement location="${banderaToolFramework.jars.dir}/banderaToolFramework.jar"/>               
     </path>
 
     <path id="universal.classpath">
