@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,65 +30,69 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.slicer;
+package edu.ksu.cis.indus.slicer;
 
-import ca.mcgill.sable.soot.RefType;
-import ca.mcgill.sable.soot.SootClass;
-import ca.mcgill.sable.soot.SootClassManager;
-import ca.mcgill.sable.soot.SootField;
-import ca.mcgill.sable.soot.SootMethod;
-import ca.mcgill.sable.soot.Type;
+import soot.Body;
+import soot.Local;
+import soot.PatchingChain;
+import soot.RefType;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.Trap;
+import soot.Unit;
+import soot.Value;
+import soot.ValueBox;
 
-import ca.mcgill.sable.soot.jimple.ArrayRef;
-import ca.mcgill.sable.soot.jimple.AssignStmt;
-import ca.mcgill.sable.soot.jimple.FieldRef;
-import ca.mcgill.sable.soot.jimple.GotoStmt;
-import ca.mcgill.sable.soot.jimple.InstanceFieldRef;
-import ca.mcgill.sable.soot.jimple.InvokeExpr;
-import ca.mcgill.sable.soot.jimple.InvokeStmt;
-import ca.mcgill.sable.soot.jimple.Jimple;
-import ca.mcgill.sable.soot.jimple.JimpleBody;
-import ca.mcgill.sable.soot.jimple.Local;
-import ca.mcgill.sable.soot.jimple.NopStmt;
-import ca.mcgill.sable.soot.jimple.Stmt;
-import ca.mcgill.sable.soot.jimple.StmtBody;
-import ca.mcgill.sable.soot.jimple.StmtGraph;
-import ca.mcgill.sable.soot.jimple.StmtList;
-import ca.mcgill.sable.soot.jimple.ThrowStmt;
-import ca.mcgill.sable.soot.jimple.Transformations;
-import ca.mcgill.sable.soot.jimple.Trap;
-import ca.mcgill.sable.soot.jimple.Value;
-import ca.mcgill.sable.soot.jimple.ValueBox;
+import soot.jimple.ArrayRef;
+import soot.jimple.AssignStmt;
+import soot.jimple.FieldRef;
+import soot.jimple.GotoStmt;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
+import soot.jimple.Jimple;
+import soot.jimple.Stmt;
+import soot.jimple.ThrowStmt;
 
-import edu.ksu.cis.bandera.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.bandera.staticanalyses.dependency.controller.Controller;
-import edu.ksu.cis.bandera.staticanalyses.flow.Context;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo;
-import edu.ksu.cis.bandera.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
-import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph;
-import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraph.BasicBlock;
-import edu.ksu.cis.bandera.staticanalyses.support.BasicBlockGraphMgr;
-import edu.ksu.cis.bandera.staticanalyses.support.Pair;
-import edu.ksu.cis.bandera.staticanalyses.support.Util;
-import edu.ksu.cis.bandera.staticanalyses.support.WorkBag;
+import soot.toolkits.graph.UnitGraph;
+
+import soot.util.Chain;
+
+import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.controller.SimpleController;
+import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractController;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraph.BasicBlock;
+import edu.ksu.cis.indus.staticanalyses.support.BasicBlockGraphMgr;
+import edu.ksu.cis.indus.staticanalyses.support.Pair;
+import edu.ksu.cis.indus.staticanalyses.support.Util;
+import edu.ksu.cis.indus.staticanalyses.support.WorkBag;
+import edu.ksu.cis.indus.transformations.common.Cloner;
+import edu.ksu.cis.indus.transformations.common.ITransformMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 
 /**
  * This class accepts slice criterions and generates slices of the given system.
- *
+ * 
  * <p>
- * The term "immediate slice" in the context of this file implies the slice containing only entities on which the given  term
+ * The term "immediate slice" in the context of this file implies the slice containing only entities on which the given term
  * depends on, not the transitive closure.
  * </p>
  *
@@ -96,30 +100,27 @@ import java.util.Set;
  * @author $Author$
  * @version $Revision$
  */
-public class Slicer
-  implements ASTCloner.IASTClonerHelper {
+public class Slicer {
 	/**
-	 * <p>
 	 * The logger used by instances of this class to log messages.
-	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(Slicer.class);
 
 	/**
 	 * Backward slice request.
 	 */
-	public static final String BACKWARD_SLICE = "BACKWARD_SLICE";
+	public static final Object BACKWARD_SLICE = "BACKWARD_SLICE";
 
 	/**
 	 * Complete slice request.
 	 */
-	public static final String COMPLETE_SLICE = "COMPLETE_SLICE";
+	public static final Object COMPLETE_SLICE = "COMPLETE_SLICE";
 
 	/**
 	 * This just a convenience collection of the types of slices supported by this class.
 	 *
 	 * @invariant sliceTypes.contains(FORWARD_SLICE) and sliceTypes.contains(BACKWARD_SLICE) and sliceTypes.contains
-	 *               (COMPLETE_SLICE)
+	 * 			  (COMPLETE_SLICE)
 	 */
 	private static final Collection SLICE_TYPES = new HashSet();
 
@@ -129,216 +130,109 @@ public class Slicer
 	}
 
 	/**
-	 * This instance is used to clone Jimple AST chunks.
+	 * This provides the cloning functionality required while creating the sliced system.
 	 */
-	private final ASTCloner cloner = new ASTCloner(this);
+	private final Cloner cloner = new Cloner();
+
+	/**
+	 * The controller used to access the dependency analysis info during slicing.
+	 *
+	 * @invariant controller != null
+	 */
+	private AbstractController controller;
 
 	/**
 	 * The collection of slice criteria.
 	 *
-	 * @invariant criteria->forall(o | o.oclIsKindOf(SliceCriterion))
+	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
 	 */
 	private Collection criteria = new HashSet();
 
 	/**
-	 * The controller used to access the dependency analysis info during slicing.
-	 */
-	private Controller controller;
-
-	/**
 	 * This is a reference to the jimple body representation.
+	 *
+	 * @invariant jimple != null
 	 */
 	private final Jimple jimple = Jimple.v();
 
 	/**
 	 * The work bag used during slicing.
 	 *
-	 * @invariant workbag.oclIsKindOf(Bag)
-	 * @invariant workbag->forall(o | o.oclIsKindOf(SliceCriterion))
+	 * @invariant workbag != null and workbag.oclIsKindOf(Bag)
+	 * @invariant workbag->forall(o | o.oclIsKindOf(AbstractSliceCriterion))
 	 */
 	private final WorkBag workbag = new WorkBag(WorkBag.FIFO);
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the basic block graph manager which manages the BB graphs corresponding to the system being sliced/cloned.
+	 *
+	 * @invariant clonedGraphMgr != null
 	 */
 	private BasicBlockGraphMgr clonedGraphMgr = new BasicBlockGraphMgr();
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This provides the call graph information in the system being sliced.
 	 */
-	private final ICallGraphInfo cgi;
+	private ICallGraphInfo cgi;
 
 	/**
-	 * This maps sliced entities to slice entities and vice versa.
+	 * This maps unsliced entities to sliced entities and vice versa.
 	 */
-	private SliceMap slicemap = new SliceMap(this);
+	private ITransformMap slicemap;
+
+	/**
+	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
+	 *
+	 * @invariant sliceTypes.contains(sliceType)
+	 */
+	private Object sliceType = BACKWARD_SLICE;
+
+	/**
+	 * The class manager which manages unsliced classes.
+	 */
+	private Scene clazzManager;
 
 	/**
 	 * The class manager which manages sliced classes.
 	 */
-	private SootClassManager clazzManager;
+	private Scene slicedClazzManager;
 
 	/**
-	 * The class manager which manages slice classes.
+	 * Sets the slicing criteria on which the slice should be based on.
+	 *
+	 * @param sliceCriteria are ofcourse the slicing criteria
+	 * @param theSystem that is to be sliced.
+	 * @param slicedSystem is an out parameter that will contain the sliced system after slicing.
+	 * @param dependenceInfoController provides dependency information required for slicing.
+	 * @param callgraph provides call graph information about the system being sliced.
+	 * @param theSlicemap maps the sliced statements to the unsliced statement and vice versa. This is used by the
+	 * 		  transformation may to record this mapping.  The application that uses the slicer should provide an
+	 * 		  implementation of this interface to record this mapping in a sound manner as the slicer uses these mappings
+	 * 		  too.
+	 *
+	 * @throws IllegalStateException when the given criterion are not of type<code>AbstractSliceCriterion</code>.
+	 *
+	 * @pre theSystem != null and callgraph != null and dependenceInfoController != null and sliceCriteria != null and
+	 * 		slicedSystem != null and theSlicemap != null
 	 */
-	private SootClassManager sliceClazzManager;
-
-	/**
-	 * The direction of the slice.  It's default value is <code>FORWARD_SLICE</code>.
-	 *
-	 * @invariant sliceTypes.contains(sliceType)
-	 */
-	private String sliceType = BACKWARD_SLICE;
-
-	/**
-	 * Creates a new Slicer object.
-	 *
-	 * @param cgi DOCUMENT ME!
-	 */
-	public Slicer(ICallGraphInfo cgi) {
-		this.cgi = cgi;
-	}
-
-	/**
-	 * Clones of the given class.
-	 *
-	 * @param clazz to be cloned.
-	 *
-	 * @return the clone of <code>clazz</code>.
-	 */
-	public SootClass getCloneOf(SootClass clazz) {
-		SootClass result = sliceClazzManager.getClass(clazz.getName());
-
-		if (result == null) {
-			result = clone(clazz);
-		}
-		return result;
-	}
-
-	/**
-	 * Clones of the given field.
-	 *
-	 * @param field to be cloned.
-	 *
-	 * @return the cone of <code>field</code>.
-	 */
-	public SootField getCloneOf(SootField field) {
-		SootClass clazz = getCloneOf(field.getDeclaringClass());
-		String name = field.getName();
-		Type type = field.getType();
-
-		if (!clazz.declaresField(name, type)) {
-			clazz.addField(new SootField(name, type, field.getModifiers()));
-		}
-		return clazz.getField(name, type);
-	}
-
-	/**
-	 * Clones the given method.  The statement list of the method body of the clone is equal in length to that of the given
-	 * method but it only contains <code>NopStmt</code>s.
-	 *
-	 * @param slicedMethod is the method to be cloned.
-	 *
-	 * @return the clone of <code>slicedMethod</code>.
-	 */
-	public SootMethod getCloneOf(SootMethod slicedMethod) {
-		SootClass sc = getCloneOf(slicedMethod.getDeclaringClass());
-		SootMethod result =
-			sc.getMethod(slicedMethod.getName(), slicedMethod.getParameterTypes(), slicedMethod.getReturnType());
-
-		if (result == null) {
-			result =
-				new SootMethod(slicedMethod.getName(), slicedMethod.getParameterTypes(), slicedMethod.getReturnType(),
-					slicedMethod.getModifiers());
-
-			for (ca.mcgill.sable.util.Iterator i = slicedMethod.getExceptions().iterator(); i.hasNext();) {
-				SootClass exception = (SootClass) i.next();
-				result.addException(exception);
-			}
-
-			JimpleBody jb = (JimpleBody) jimple.newBody(result);
-			StmtList sl = jb.getStmtList();
-			Stmt nop = jimple.newNopStmt();
-
-			for (int i = controller.getStmtGraph(slicedMethod).getBody().getStmtList().size() - 1; i >= 0; i--) {
-				sl.add(nop);
-			}
-			result.storeBody(jimple, jb);
-		}
-		return result;
-	}
-
-	/**
-	 * Returns the clone of the class named by <code>clazz</code>.  This requires that a class by the name <code>clazz</code>
-	 * exist in the given system.
-	 *
-	 * @param clazz is the name of the class whose clone is requested.
-	 *
-	 * @return the clone of the requested class.
-	 *
-	 * @throws IllegalStateException when a class named <code>clazz</code> does not exist in the system.
-	 */
-	public SootClass getCloneOf(String clazz)
-	  throws IllegalStateException {
-		SootClass sc = clazzManager.getClass(clazz);
-
-		if (sc == null) {
-			LOGGER.error(clazz + " does not exist in the system.");
-			throw new IllegalStateException(clazz + " does not in the system.");
-		}
-		return getCloneOf(sc);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param name DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	public Local getLocal(String name, SootMethod method) {
-		SootMethod sliceMethod = getCloneOf(method);
-		JimpleBody body = (JimpleBody) sliceMethod.getBody(jimple);
-		return body.getLocal(name);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param criteria DOCUMENT ME!
-	 * @param clazzManager DOCUMENT ME!
-	 * @param controller DOCUMENT ME!
-	 *
-	 * @throws IllegalStateException when the given criterion are not of type <code>SliceCriterion</code>.
-	 */
-	public void setSliceCriteria(Collection criteria, SootClassManager clazzManager, Controller controller)
-	  throws IllegalStateException {
-		for (Iterator i = criteria.iterator(); i.hasNext();) {
+	public void setSliceCriteria(final Collection sliceCriteria, final Scene theSystem, final Scene slicedSystem,
+		final AbstractController dependenceInfoController, final ICallGraphInfo callgraph, final ITransformMap theSlicemap) {
+		for (Iterator i = sliceCriteria.iterator(); i.hasNext();) {
 			Object o = i.next();
 
 			if (!(o instanceof SliceStmt || o instanceof SliceExpr)) {
-				LOGGER.error("The work piece is not a subtype of SliceCriterion");
-				throw new IllegalStateException("The work piece is not a subtype of SliceCriterion");
+				LOGGER.error("The work piece is not a subtype of AbstractSliceCriterion");
+				throw new IllegalStateException("The work piece is not a subtype of AbstractSliceCriterion");
 			}
 		}
-		this.criteria.addAll(criteria);
+		criteria.addAll(sliceCriteria);
 
-		if (clazzManager != null) {
-			this.clazzManager = clazzManager;
-		}
-
-		if (controller != null) {
-			this.controller = controller;
-		}
+		clazzManager = theSystem;
+		controller = dependenceInfoController;
+		cgi = callgraph;
+		slicedClazzManager = slicedSystem;
+		slicemap = theSlicemap;
+		cloner.initialize(clazzManager, slicedClazzManager, dependenceInfoController);
 	}
 
 	/**
@@ -346,21 +240,24 @@ public class Slicer
 	 */
 	public void reset() {
 		clazzManager = null;
-		sliceClazzManager = null;
+		slicedClazzManager = null;
+		cloner.reset();
 		criteria.clear();
+		workbag.clear();
 	}
 
 	/**
 	 * Slices the given system for the given criteria in the given <code>direction</code>.
 	 *
-	 * @param sliceType is the type of slice requested.  This has to be one of <code>XXX_SLICE</code> values defined in this
-	 *           class.
+	 * @param slice is the type of slice requested.  This has to be one of<code>XXX_SLICE</code> values defined in this
+	 * 		  class.
 	 *
 	 * @throws IllegalStateException when slice criteria, class manager, or controller is unspecified.
 	 * @throws IllegalArgumentException when direction is not one of the <code>XXX_SLICE</code> values.
+	 *
+	 * @pre slice != null
 	 */
-	public void slice(String sliceType)
-	  throws IllegalArgumentException, IllegalStateException {
+	public void slice(final Object slice) {
 		if (criteria == null || criteria.size() == 0) {
 			LOGGER.warn("Slice criteria is unspecified.");
 			throw new IllegalStateException("Slice criteria is unspecified.");
@@ -369,18 +266,18 @@ public class Slicer
 			throw new IllegalStateException("Class Manager and/or Controller is unspecified.");
 		}
 
-		if (!SLICE_TYPES.contains(sliceType)) {
+		if (!SLICE_TYPES.contains(slice)) {
 			throw new IllegalArgumentException("sliceType is not one of XXX_SLICE values defined in this class.");
 		}
-		this.sliceType = sliceType;
-		workbag.clear();
+		this.sliceType = slice;
+
 		workbag.addAllWorkNoDuplicates(criteria);
 
-		boolean flag = sliceType.equals(COMPLETE_SLICE);
+		boolean flag = slice.equals(COMPLETE_SLICE);
 		Collection processed = new HashSet();
 
-		while (!(workbag.isEmpty())) {
-			SliceCriterion work = (SliceCriterion) workbag.getWork();
+		while (workbag.hasWork()) {
+			AbstractSliceCriterion work = (AbstractSliceCriterion) workbag.getWork();
 
 			if (processed.contains(work)) {
 				continue;
@@ -396,7 +293,7 @@ public class Slicer
 			}
 		}
 		fixupMethods();
-		slicemap.cleanup();
+		slicemap.fixupMappings();
 	}
 
 	/**
@@ -405,82 +302,20 @@ public class Slicer
 	 * @param method is the sliced method.
 	 *
 	 * @return the statement list for the slice version of the given method.
-	 */
-	private StmtList getSliceStmtListFor(SootMethod method) {
-		StmtList result = null;
-		SootMethod sliceMethod = getCloneOf(method);
-		StmtBody body = (StmtBody) sliceMethod.getBody(jimple);
-		result = body.getStmtList();
-		return result;
-	}
-
-	/**
-	 * Clones <code>clazz</code> in terms of inheritence and modifiers only.  The clone class has an empty body.
 	 *
-	 * @param clazz to clone
-	 *
-	 * @return the clone of <code>clazz</code>.
+	 * @pre method != null
+	 * @post result != null
 	 */
-	private SootClass clone(SootClass clazz) {
-		SootClass result = new SootClass(clazz.getName(), clazz.getModifiers());
-
-		if (clazz.hasSuperClass()) {
-			SootClass superClass = getCloneOf(clazz.getSuperClass());
-			result.setSuperClass(superClass);
-		}
-
-		for (ca.mcgill.sable.util.Iterator i = clazz.getInterfaces().iterator(); i.hasNext();) {
-			SootClass interfaceClass = (SootClass) i.next();
-			SootClass slicedInterfaceClass = getCloneOf(interfaceClass);
-			result.addInterface(slicedInterfaceClass);
-		}
+	private PatchingChain getSliceStmtListFor(final SootMethod method) {
+		SootMethod sliceMethod = cloner.getCloneOf(method);
+		Body body = sliceMethod.getActiveBody();
+		PatchingChain result = body.getUnits();
 		return result;
 	}
 
 	/**
 	 * DOCUMENT ME!
-	 *
-	 * <p></p>
-	 *
-	 * @param sm DOCUMENT ME!
-	 * @param sl DOCUMENT ME!
-	 */
-	private void fixupExceptionList(SootMethod sm, StmtList sl) {
-		Set thrownInBody = new HashSet();
-		Set thrownAtInterface = (Set) Util.convert("java.util.HashSet", sm.getExceptions());
-
-		for (ca.mcgill.sable.util.Iterator i = sl.iterator(); i.hasNext();) {
-			Stmt stmt = (Stmt) i.next();
-
-			if (stmt instanceof ThrowStmt) {
-				thrownInBody.add(sliceClazzManager.getClass(((RefType) ((ThrowStmt) stmt).getOp().getType()).className));
-			} else {
-				InvokeExpr expr = null;
-
-				if (stmt instanceof InvokeStmt) {
-					expr = (InvokeExpr) ((InvokeStmt) stmt).getInvokeExpr();
-				} else if (stmt instanceof AssignStmt && ((AssignStmt) stmt).getRightOp() instanceof InvokeExpr) {
-					expr = (InvokeExpr) ((AssignStmt) stmt).getRightOp();
-				}
-
-				if (expr != null) {
-					thrownInBody.addAll(Util.convert("java.util.ArrayList", expr.getMethod().getExceptions()));
-				}
-			}
-		}
-
-		for (Iterator i = thrownAtInterface.iterator(); i.hasNext();) {
-			SootClass exception = (SootClass) i.next();
-
-			if (!thrownInBody.contains(exception)) {
-				sm.removeException(exception);
-			}
-		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 *
+	 * 
 	 * <p></p>
 	 */
 
@@ -488,7 +323,7 @@ public class Slicer
 	   private void fixupGoto(StmtList clonedSl, StmtList cloneSl, SootMethod clonedMethod, SootMethod cloneMethod) {
 	       BasicBlockGraph clonedGraph = clonedGraphMgr.getBasicBlockGraph(controller.getStmtGraph(clonedMethod));
 	       Collection gotos = new ArrayList();
-	       for(ca.mcgill.sable.util.Iterator k = clonedSl.iterator(); k.hasNext();) {
+	       for(util.Iterator k = clonedSl.iterator(); k.hasNext();) {
 	           Stmt stmt = (Stmt) k.next();
 	           int index = clonedSl.indexOf(stmt);
 	           Stmt cloneStmt = (Stmt) cloneSl.get(index);
@@ -535,61 +370,102 @@ public class Slicer
 	 */
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * Fixes up the sliced methods.  This includes adjusting the targets of gotos and traps.  This also involves pruning the
+	 * exception list at the method interfaces and removing any unwanted or unnecessary statements such as <code>nop</code>.
 	 */
 	private void fixupMethods() {
-		for (ca.mcgill.sable.util.Iterator i = sliceClazzManager.getClasses().iterator(); i.hasNext();) {
-			SootClass cloneClass = (SootClass) i.next();
-			SootClass clonedClass = clazzManager.getClass(cloneClass.getName());
+		for (Iterator i = slicedClazzManager.getClasses().iterator(); i.hasNext();) {
+			SootClass slicedClass = (SootClass) i.next();
+			SootClass unslicedClass = clazzManager.getSootClass(slicedClass.getName());
 
-			for (ca.mcgill.sable.util.Iterator j = cloneClass.getMethods().iterator(); j.hasNext();) {
-				SootMethod cloneMethod = (SootMethod) j.next();
-				SootMethod clonedMethod =
-					clonedClass.getMethod(cloneMethod.getName(), cloneMethod.getParameterTypes(), cloneMethod.getReturnType());
-				JimpleBody clonedBody = (JimpleBody) clonedMethod.getBody(jimple);
-				StmtList clonedSl = clonedBody.getStmtList();
-				JimpleBody cloneBody = (JimpleBody) cloneMethod.getBody(jimple);
-				StmtList cloneSl = cloneBody.getStmtList();
+			for (Iterator j = slicedClass.getMethods().iterator(); j.hasNext();) {
+				SootMethod slicedMethod = (SootMethod) j.next();
+				SootMethod unslicedMethod =
+					unslicedClass.getMethod(slicedMethod.getName(), slicedMethod.getParameterTypes(),
+						slicedMethod.getReturnType());
+				Body unslicedBody = unslicedMethod.getActiveBody();
+				List unslicedStmtList = Arrays.asList(unslicedBody.getUnits().toArray());
+				Body slicedBody = slicedMethod.getActiveBody();
+				List slicedStmtList = Arrays.asList(slicedBody.getUnits().toArray());
 
 				//fixup traps
-				for (ca.mcgill.sable.util.Iterator k = clonedBody.getTraps().iterator(); k.hasNext();) {
-					Trap trap = (Trap) k.next();
-					int begin = clonedSl.indexOf(trap.getBeginUnit());
-					int end = clonedSl.indexOf(trap.getEndUnit());
+				Chain slicedTraps = slicedBody.getTraps();
 
-					for (int l = begin; l < end; l++) {
-						if (!(cloneSl.get(l) instanceof NopStmt)) {
-							cloneBody.addTrap(jimple.newTrap(trap.getException(), trap.getBeginUnit(), trap.getEndUnit(),
-									trap.getHandlerUnit()));
-							break;
-						}
-					}
+				for (Iterator k = unslicedBody.getTraps().iterator(); k.hasNext();) {
+					Trap unslicedTrap = (Trap) k.next();
+					Unit unslicedBeginTrap = unslicedTrap.getBeginUnit();
+					Unit slicedBeginTrap = (Unit) slicemap.getTransformedStmt((Stmt) unslicedBeginTrap, unslicedMethod);
+					Unit unslicedEndTrap = unslicedTrap.getEndUnit();
+					Unit slicedEndTrap = (Unit) slicemap.getTransformedStmt((Stmt) unslicedEndTrap, unslicedMethod);
+					Unit unslicedHandler = unslicedTrap.getHandlerUnit();
+					Unit slicedHandler = (Unit) slicemap.getTransformedStmt((Stmt) unslicedHandler, unslicedMethod);
+					slicedTraps.add(jimple.newTrap(cloner.getCloneOf(unslicedTrap.getException()), slicedBeginTrap,
+							slicedEndTrap, slicedHandler));
 				}
 
 				/*
 				 * fixing up the gotos.  We will just copy the control flow from the cloned method and use post slicing
 				 * transformation to prune the code.
 				 */
-				for (ca.mcgill.sable.util.Iterator k = clonedSl.iterator(); k.hasNext();) {
-					Stmt stmt = (Stmt) k.next();
+				for (Iterator k = unslicedStmtList.iterator(); k.hasNext();) {
+					Stmt unslicedStmt = (Stmt) k.next();
 
-					if (stmt instanceof GotoStmt) {
-						int index = clonedSl.indexOf(stmt);
-						cloneSl.remove(index);
+					if (unslicedStmt instanceof GotoStmt) {
+						int index = unslicedStmtList.indexOf(unslicedStmt);
+						slicedStmtList.remove(index);
 
-						Stmt slicedStmt = cloner.cloneASTFragment(stmt, cloneMethod);
-						cloneSl.add(index, slicedStmt);
-						slicemap.put(stmt, slicedStmt, clonedMethod);
+						Stmt slicedStmt = cloner.cloneASTFragment(unslicedStmt, slicedMethod);
+						slicedStmtList.add(index, slicedStmt);
+						slicemap.addMapping(slicedStmt, unslicedStmt, unslicedMethod);
 					}
 				}
 
 				//fixup exception list
-				fixupExceptionList(cloneMethod, cloneSl);
+				pruneExceptionsAtMethodInterface(slicedMethod, slicedBody.getUnits());
 
 				//prune the code to remove unwanted statements.  This will include unnecessary goto and nop statements.
-				Transformations.cleanupCode(cloneBody);
+				//Transformations.cleanupCode(cloneBody);
+			}
+		}
+	}
+
+	/**
+	 * Prunes the list of exception declared as being thrown at the interface of the given method based on the statements in
+	 * the method.
+	 *
+	 * @param sm is the method whose interface should be pruned.
+	 * @param sl is the statement list of the method.
+	 *
+	 * @pre sm != null and sl != null
+	 */
+	private void pruneExceptionsAtMethodInterface(final SootMethod sm, final Chain sl) {
+		Set thrownInBody = new HashSet();
+		Collection thrownAtInterface = sm.getExceptions();
+
+		for (Iterator i = sl.iterator(); i.hasNext();) {
+			Stmt stmt = (Stmt) i.next();
+
+			if (stmt instanceof ThrowStmt) {
+				thrownInBody.add(slicedClazzManager.getSootClass(
+						((RefType) ((ThrowStmt) stmt).getOp().getType()).getClassName()));
+			} else {
+				if (stmt instanceof InvokeStmt) {
+					thrownInBody.addAll(stmt.getInvokeExpr().getMethod().getExceptions());
+				} else if (stmt instanceof ThrowStmt) {
+					SootClass exception = ((RefType) ((ThrowStmt) stmt).getOp().getType()).getSootClass();
+
+					if (!Util.isDescendentOf(exception, "java.lang.RuntimException")) {
+						thrownInBody.add(exception);
+					}
+				}
+			}
+		}
+
+		for (Iterator i = thrownAtInterface.iterator(); i.hasNext();) {
+			SootClass exception = (SootClass) i.next();
+
+			if (!thrownInBody.contains(exception)) {
+				sm.removeException(exception);
 			}
 		}
 	}
@@ -603,7 +479,7 @@ public class Slicer
 	 * @param stmt DOCUMENT ME!
 	 * @param method DOCUMENT ME!
 	 */
-	private void sliceArray(ValueBox vBox, Stmt stmt, SootMethod method) {
+	private void sliceArray(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
 		ArrayRef value = (ArrayRef) vBox.getValue();
 		sliceLocal(value.getBaseBox(), stmt, method);
 
@@ -611,7 +487,7 @@ public class Slicer
 			sliceLocal(value.getIndexBox(), stmt, method);
 		}
 
-		DependencyAnalysis da = controller.getDAnalysis(Controller.INTERFERENCE_DA);
+		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.INTERFERENCE_DA);
 		Collection slices = new HashSet();
 
 		if (sliceType.equals(COMPLETE_SLICE)) {
@@ -628,7 +504,7 @@ public class Slicer
 	 *
 	 * @param sExpr is the expression-level slice criterion.
 	 */
-	private void sliceExpr(SliceExpr sExpr) {
+	private void sliceExpr(final SliceExpr sExpr) {
 		Stmt stmt = sExpr.getOccurringStmt();
 		SootMethod method = sExpr.getOccurringMethod();
 		ValueBox expr = (ValueBox) sExpr.getCriterion();
@@ -643,7 +519,7 @@ public class Slicer
 			} else if (value instanceof ArrayRef) {
 				sliceArray(expr, stmt, method);
 			} else {
-				for (ca.mcgill.sable.util.Iterator i = value.getUseBoxes().iterator(); i.hasNext();) {
+				for (Iterator i = value.getUseBoxes().iterator(); i.hasNext();) {
 					ValueBox vBox = (ValueBox) i.next();
 
 					if (vBox.getValue() instanceof Local) {
@@ -662,14 +538,14 @@ public class Slicer
 	 * @param stmt in which the field occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 */
-	private void sliceField(ValueBox vBox, Stmt stmt, SootMethod method) {
+	private void sliceField(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
 		FieldRef value = (FieldRef) vBox.getValue();
 
 		if (value instanceof InstanceFieldRef) {
 			sliceLocal(((InstanceFieldRef) value).getBaseBox(), stmt, method);
 		}
 
-		DependencyAnalysis da = controller.getDAnalysis(Controller.INTERFERENCE_DA);
+		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.INTERFERENCE_DA);
 		Collection slices = new HashSet();
 
 		if (sliceType.equals(COMPLETE_SLICE)) {
@@ -683,25 +559,27 @@ public class Slicer
 
 	/**
 	 * DOCUMENT ME!
-	 *
+	 * 
 	 * <p></p>
 	 *
 	 * @param slices DOCUMENT ME!
 	 * @param method DOCUMENT ME!
 	 */
-	private void sliceHelper(Collection slices, SootMethod method) {
-		StmtList slicedSL = ((JimpleBody) method.getBody(jimple)).getStmtList();
-		StmtList sliceSL = getSliceStmtListFor(method);
+	private void sliceHelper(final Collection slices, final SootMethod method) {
+		PatchingChain slicedSL = method.getActiveBody().getUnits();
+		PatchingChain sliceSL = getSliceStmtListFor(method);
 
 		for (Iterator i = slices.iterator(); i.hasNext();) {
 			Pair pair = (Pair) i.next();
-			Stmt unsliced = (Stmt) pair.getFirst();
+			Stmt sliced = (Stmt) pair.getFirst();
 
-			if (slicemap.getSliceStmt(unsliced, method) == null) {
-				Stmt slice = cloner.cloneASTFragment(unsliced, method);
-				sliceSL.add(slicedSL.indexOf(unsliced), slice);
-				slicemap.put(unsliced, slice, method);
-				workbag.addWorkNoDuplicates(new SliceStmt((SootMethod) pair.getSecond(), unsliced, true));
+			if (slicemap.getTransformedStmt(sliced, method) == null) {
+				Stmt slice = cloner.cloneASTFragment(sliced, method);
+
+				//sliceSL.add(slicedSL.indexOf(unsliced), slice);
+				writeIntoAt(slice, sliceSL, sliced, slicedSL);
+				slicemap.addMapping(slice, sliced, method);
+				workbag.addWorkNoDuplicates(new SliceStmt((SootMethod) pair.getSecond(), sliced, true));
 			}
 		}
 	}
@@ -713,18 +591,18 @@ public class Slicer
 	 * @param stmt is the statement in which <code>vBox</code> occurs.
 	 * @param method is the method in which <code>stmt</code> occurs.
 	 */
-	private void sliceLocal(ValueBox vBox, Stmt stmt, SootMethod method) {
-		DependencyAnalysis da = controller.getDAnalysis(Controller.METHOD_LOCAL_DATA_DA);
+	private void sliceLocal(final ValueBox vBox, final Stmt stmt, final SootMethod method) {
+		DependencyAnalysis da = (DependencyAnalysis) controller.getAnalysis(SimpleController.METHOD_LOCAL_DATA_DA);
 		Collection slices = new HashSet();
 
 		// add the new local
-		SootMethod sliceMethod = getCloneOf(method);
-		JimpleBody body = (JimpleBody) sliceMethod.getBody(jimple);
+		SootMethod sliceMethod = cloner.getCloneOf(method);
+		Body body = sliceMethod.getActiveBody();
 		Local local = (Local) vBox.getValue();
 		String lName = local.getName();
 
-		if (body.getLocal(lName) == null) {
-			body.addLocal(jimple.newLocal(lName, local.getType()));
+		if (cloner.getLocal(lName, sliceMethod) == null) {
+			body.getLocals().add(jimple.newLocal(lName, local.getType()));
 		}
 
 		// slice
@@ -748,17 +626,17 @@ public class Slicer
 	 * @param stmt is the statement-level slice criterion.
 	 * @param method is the method in which <code>stmt</code> occurs.
 	 * @param inclusive <code>true</code> if all entities in <code>stmt</code> should be included in the slice;
-	 *           <code>false</code>, otherwise.
+	 * 		  <code>false</code>, otherwise.
 	 */
-	private void sliceStmt(Stmt stmt, SootMethod method, boolean inclusive) {
-		StmtList slicedSL = ((JimpleBody) method.getBody(jimple)).getStmtList();
-		StmtList sliceSL = getSliceStmtListFor(method);
+	private void sliceStmt(final Stmt stmt, final SootMethod method, final boolean inclusive) {
+		PatchingChain slicedSL = method.getActiveBody().getUnits();
+		PatchingChain sliceSL = getSliceStmtListFor(method);
 
 		if (inclusive) {
 			InvokeExpr expr = null;
 
 			if (stmt instanceof InvokeStmt) {
-				expr = (InvokeExpr) ((InvokeStmt) stmt).getInvokeExpr();
+				expr = ((InvokeStmt) stmt).getInvokeExpr();
 			} else if (stmt instanceof AssignStmt && ((AssignStmt) stmt).getRightOp() instanceof InvokeExpr) {
 				expr = (InvokeExpr) ((AssignStmt) stmt).getRightOp();
 			}
@@ -774,18 +652,17 @@ public class Slicer
 				for (Iterator i = callees.iterator(); i.hasNext();) {
 					CallTriple ctrp = (CallTriple) i.next();
 					SootMethod callee = ctrp.getMethod();
-					StmtGraph stmtGraph = controller.getStmtGraph(callee);
+					UnitGraph stmtGraph = controller.getStmtGraph(callee);
 					BasicBlockGraph bbg = clonedGraphMgr.getBasicBlockGraph(stmtGraph);
-					StmtList sl = stmtGraph.getBody().getStmtList();
 
 					for (Iterator j = bbg.getTails().iterator(); j.hasNext();) {
 						BasicBlock bb = (BasicBlock) j.next();
-						workbag.addWorkNoDuplicates(new SliceStmt(callee, (Stmt) sl.get(bb._TRAILER), true));
+						workbag.addWorkNoDuplicates(new SliceStmt(callee, bb.getTrailer(), true));
 					}
 				}
 			}
 
-			for (ca.mcgill.sable.util.Iterator i = stmt.getUseAndDefBoxes().iterator(); i.hasNext();) {
+			for (Iterator i = stmt.getUseAndDefBoxes().iterator(); i.hasNext();) {
 				ValueBox vBox = (ValueBox) i.next();
 				Value value = vBox.getValue();
 
@@ -799,18 +676,20 @@ public class Slicer
 			}
 
 			Stmt slice = cloner.cloneASTFragment(stmt, method);
-			int index = slicedSL.indexOf(stmt);
-			sliceSL.remove(index);
-			sliceSL.add(index, slice);
-			slicemap.put(stmt, slice, method);
+
+			//int index = slicedSL.indexOf(stmt);
+			//sliceSL.remove(index);
+			//sliceSL.add(index, slice);
+			writeIntoAt(slice, sliceSL, stmt, slicedSL);
+			slicemap.addMapping(slice, stmt, method);
 		}
 
 		Collection slices = new HashSet();
 
-		DependencyAnalysis da[] = new DependencyAnalysis[3];
-		da[0] = controller.getDAnalysis(Controller.CONTROL_DA);
-		da[1] = controller.getDAnalysis(Controller.SYNCHRONIZATION_DA);
-		da[2] = controller.getDAnalysis(Controller.DIVERGENCE_DA);
+		DependencyAnalysis[] da = new DependencyAnalysis[3];
+		da[0] = (DependencyAnalysis) controller.getAnalysis(SimpleController.CONTROL_DA);
+		da[1] = (DependencyAnalysis) controller.getAnalysis(SimpleController.SYNCHRONIZATION_DA);
+		da[2] = (DependencyAnalysis) controller.getAnalysis(SimpleController.DIVERGENCE_DA);
 
 		//da[3] = controller.getDAnalysis(Controller.READY_DA);
 		if (sliceType.equals(COMPLETE_SLICE)) {
@@ -825,21 +704,38 @@ public class Slicer
 		}
 
 		for (Iterator i = slices.iterator(); i.hasNext();) {
-			Stmt unsliced = (Stmt) i.next();
+			Stmt sliced = (Stmt) i.next();
 
-			if (slicemap.getSliceStmt(unsliced, method) == null) {
-				Stmt slice = cloner.cloneASTFragment(unsliced, method);
-				sliceSL.add(slicedSL.indexOf(unsliced), slice);
-				slicemap.put(unsliced, slice, method);
-				workbag.addWorkNoDuplicates(new SliceStmt(method, unsliced, true));
+			if (slicemap.getTransformedStmt(sliced, method) == null) {
+				Stmt slice = cloner.cloneASTFragment(sliced, method);
+
+				//sliceSL.add(slicedSL.indexOf(sliced), slice);
+				writeIntoAt(slice, sliceSL, sliced, slicedSL);
+				slicemap.addMapping(slice, sliced, method);
+				workbag.addWorkNoDuplicates(new SliceStmt(method, sliced, true));
 			}
 		}
 	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param writeData DOCUMENT ME!
+	 * @param writeChain DOCUMENT ME!
+	 * @param posData DOCUMENT ME!
+	 * @param posChain DOCUMENT ME!
+	 */
+	private void writeIntoAt(final Object writeData, final PatchingChain writeChain, final Object posData,
+		final PatchingChain posChain) {
+	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   Revision 1.6  2003/05/22 22:23:49  venku
+   Changed interface names to start with a "I".
+   Formatting.
+ */

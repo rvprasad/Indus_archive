@@ -1,13 +1,13 @@
 
 /*
- * Bandera, a Java(TM) analysis and transformation toolkit
- * Copyright (C) 2002, 2003, 2004.
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (C) 2003, 2004, 2005
  * Venkatesh Prasad Ranganath (rvprasad@cis.ksu.edu)
  * All rights reserved.
  *
  * This work was done as a project in the SAnToS Laboratory,
  * Department of Computing and Information Sciences, Kansas State
- * University, USA (http://www.cis.ksu.edu/santos/bandera).
+ * University, USA (http://indus.projects.cis.ksu.edu/).
  * It is understood that any modification not identified as such is
  * not covered by the preceding statement.
  *
@@ -30,22 +30,18 @@
  *
  * To submit a bug report, send a comment, or get the latest news on
  * this project and other SAnToS projects, please visit the web-site
- *                http://www.cis.ksu.edu/santos/bandera
+ *                http://indus.projects.cis.ksu.edu/
  */
 
-package edu.ksu.cis.bandera.slicer;
+package edu.ksu.cis.indus.slicer;
 
-import ca.mcgill.sable.soot.SootClassManager;
-import ca.mcgill.sable.soot.SootMethod;
+import soot.Body;
+import soot.Local;
+import soot.SootMethod;
+import soot.Value;
+import soot.ValueBox;
 
-import ca.mcgill.sable.soot.jimple.CaughtExceptionRef;
-import ca.mcgill.sable.soot.jimple.Jimple;
-import ca.mcgill.sable.soot.jimple.JimpleBody;
-import ca.mcgill.sable.soot.jimple.Local;
-import ca.mcgill.sable.soot.jimple.Ref;
-import ca.mcgill.sable.soot.jimple.Stmt;
-import ca.mcgill.sable.soot.jimple.Value;
-import ca.mcgill.sable.soot.jimple.ValueBox;
+import soot.jimple.Stmt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,12 +49,11 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 
 
 /**
- * <p>
  * This class hides the work involved in the creation of slice criteria from the environment.
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -66,63 +61,34 @@ import java.util.HashSet;
  */
 public class SliceCriteriaFactory {
 	/**
-	 * <p>
 	 * The logger used by instances of this class to log messages.
-	 * </p>
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SliceCriteriaFactory.class);
 
 	/**
-	 * <p>
-	 * This provides the classes that will be sliced.
-	 * </p>
-	 */
-	private SootClassManager classManager;
-
-	/**
-	 * <p>
-	 * Creates a new SliceCriteriaFactory object.
-	 * </p>
-	 *
-	 * @param classManager that provides the classes that will be sliced.
-	 *
-	 * @pre classManager != null
-	 */
-	protected SliceCriteriaFactory(SootClassManager classManager) {
-		this.classManager = classManager;
-	}
-
-	/**
-	 * <p>
-	 * Creates <code>SliceCriteria</code> objects from the given value criterion.  Every syntactic constructs related to
-	 * storage in the statement are considered as slice criterion.
-	 * </p>
+	 * Creates slice criteria from the given value.  Every syntactic constructs related to storage at the program point are
+	 * considered as slice criterion.
 	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt in which the criterion occurs.
 	 * @param vBox is the criterion.
 	 * @param inclusive <code>true</code> indicates include the criterion in the slice; <code>false</code> indicates
-	 *           otherwise.
+	 * 		  otherwise.
 	 *
-	 * @return a collection of <code>SliceCriterion</code> objects corresponding to the given criterion.
+	 * @return a collection of slice criterion objects corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null and vBox != null
-	 * @post (result.size() > 1) implies (inclusive = true)
+	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(SootMethod method, Stmt stmt, ValueBox vBox, boolean inclusive) {
+	public Collection getCriterion(final SootMethod method, final Stmt stmt, final ValueBox vBox, final boolean inclusive) {
 		Collection result = new HashSet();
 		Value value = vBox.getValue();
 
-		ca.mcgill.sable.util.Collection temp = value.getUseBoxes();
+		Collection temp = value.getUseBoxes();
 
 		if (temp.size() > 0) {
-			for (ca.mcgill.sable.util.Iterator i = temp.iterator(); i.hasNext();) {
-				ValueBox cBox = (ValueBox) i.next();
-				Value containee = cBox.getValue();
-
-				if (containee instanceof Local || (containee instanceof Ref && !(containee instanceof CaughtExceptionRef))) {
-					result.add(new SliceExpr(method, stmt, cBox, inclusive));
-				}
+			for (Iterator i = temp.iterator(); i.hasNext();) {
+				result.add(new SliceExpr(method, stmt, (ValueBox) i.next(), inclusive));
 			}
 		}
 		result.add(new SliceStmt(method, stmt, inclusive));
@@ -130,33 +96,26 @@ public class SliceCriteriaFactory {
 	}
 
 	/**
-	 * <p>
-	 * Creates <code>SliceCriteria</code> objects from the given statement criterion.  Every syntactic constructs related to
-	 * storage in the statement are considered as slice criterion.
-	 * </p>
+	 * Creates slice criteria from the given statement.  Every syntactic constructs related to storage in the statement are
+	 * considered as slice criterion.
 	 *
 	 * @param method in which the criterion occurs.
 	 * @param stmt is the criterion.
-	 * @param inclusive <code>true</code> indicates include the criterion in the slice; <code>false</code> indicates
-	 *           otherwise.
+	 * @param inclusive <code>true</code> indicates that the criterion should be included in the slice; <code>false</code>
+	 * 		  indicates otherwise.
 	 *
-	 * @return a collection of <code>SliceCriterion</code> objects corresponding to the given criterion.
+	 * @return a collection of slice criterion corresponding to the given criterion.
 	 *
 	 * @pre method != null and stmt != null
-	 * @post (result.size() > 1) implies (inclusive = true)
+	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(SootMethod method, Stmt stmt, boolean inclusive) {
+	public Collection getCriterion(final SootMethod method, final Stmt stmt, final boolean inclusive) {
 		Collection result = new HashSet();
-		ca.mcgill.sable.util.Collection temp = stmt.getUseAndDefBoxes();
+		Collection temp = stmt.getUseAndDefBoxes();
 
 		if (temp.size() > 0) {
-			for (ca.mcgill.sable.util.Iterator i = temp.iterator(); i.hasNext();) {
-				ValueBox cBox = (ValueBox) i.next();
-				Value containee = cBox.getValue();
-
-				if (containee instanceof Local || (containee instanceof Ref && !(containee instanceof CaughtExceptionRef))) {
-					result.add(new SliceExpr(method, stmt, cBox, inclusive));
-				}
+			for (Iterator i = temp.iterator(); i.hasNext();) {
+				result.add(new SliceExpr(method, stmt, (ValueBox) i.next(), inclusive));
 			}
 		}
 		result.add(new SliceStmt(method, stmt, inclusive));
@@ -164,27 +123,27 @@ public class SliceCriteriaFactory {
 	}
 
 	/**
-	 * <p>
 	 * Returns a collection of criteria which include all occurrences of the given local in the given method.
-	 * </p>
 	 *
 	 * @param method in which the <code>local</code> occurs.
 	 * @param local is the local variable whose all occurrences in <code>method</code> should be captured as slice criterion
 	 *
-	 * @return a collection of <code>SliceCriterion</code> objects.
+	 * @return a collection of slice criteria.
+	 *
+	 * @post result.oclIsKindOf(Collection(AbstractSliceCriterion))
 	 */
-	public Collection getCriterion(SootMethod method, Local local) {
+	public Collection getCriterion(final SootMethod method, final Local local) {
 		Collection result = Collections.EMPTY_LIST;
 
-		JimpleBody body = (JimpleBody) method.getBody(Jimple.v());
+		Body body = method.getActiveBody();
 
 		if (body != null) {
 			result = new HashSet();
 
-			for (ca.mcgill.sable.util.Iterator i = body.getStmtList().iterator(); i.hasNext();) {
+			for (Iterator i = body.getUnits().iterator(); i.hasNext();) {
 				Stmt stmt = (Stmt) i.next();
 
-				for (ca.mcgill.sable.util.Iterator j = stmt.getUseAndDefBoxes().iterator(); j.hasNext();) {
+				for (Iterator j = stmt.getUseAndDefBoxes().iterator(); j.hasNext();) {
 					ValueBox vBox = (ValueBox) j.next();
 
 					if (vBox.getValue().equals(local)) {
@@ -200,9 +159,11 @@ public class SliceCriteriaFactory {
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-
-*****/
+/*
+   ChangeLog:
+   $Log$
+   
+   Revision 1.4  2003/05/22 22:23:49  venku
+   Changed interface names to start with a "I".
+   Formatting.
+ */
