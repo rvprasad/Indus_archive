@@ -314,7 +314,6 @@ public class SliceXMLizer
 				"The output directory to dump the generated info.  If unspecified, defaults to current directory.");
 		_o.setArgs(1);
 		_o.setArgName("path");
-		_o.setRequired(true);
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 		_o = new Option("g", "gui-config", false, "Display gui for configuration.");
@@ -554,6 +553,11 @@ public class SliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/01/13 10:59:42  venku
+   - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
+     It was deleted.
+   - ripple effect.
+
    Revision 1.2  2004/01/09 23:13:42  venku
    - formatting
    - coding convention
