@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.common;
 
-import soot.tagkit.AttributeValueException;
 import soot.tagkit.Tag;
 
 
@@ -58,8 +57,7 @@ public class NamedTag
 	/**
 	 * @see soot.tagkit.Tag#getValue()
 	 */
-	public byte[] getValue()
-	  throws AttributeValueException {
+	public byte[] getValue() {
 		return name.getBytes();
 	}
 }
@@ -67,4 +65,8 @@ public class NamedTag
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/30 00:46:58  venku
+   - added a new tag which can be identified by name.
+   - ripple effect.
+
  */

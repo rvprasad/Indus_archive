@@ -75,7 +75,7 @@ public class UniqueJimpleIDGenerator
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getNewClassId()
 	 */
-	public String getIdForClass(SootClass clazz) {
+	public String getIdForClass(final SootClass clazz) {
 		if (!classes.contains(clazz)) {
 			classes.add(clazz);
 		}
@@ -85,7 +85,7 @@ public class UniqueJimpleIDGenerator
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForField(soot.SootField)
 	 */
-	public String getIdForField(SootField field) {
+	public String getIdForField(final SootField field) {
 		List fields = (List) class2fields.get(field.getDeclaringClass());
 		String result;
 
@@ -104,7 +104,7 @@ public class UniqueJimpleIDGenerator
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForLocal(soot.Local)
 	 */
-	public String getIdForLocal(Local v, SootMethod method) {
+	public String getIdForLocal(final Local v, final SootMethod method) {
 		List locals = (List) method2locals.get(method);
 		String result;
 
@@ -125,7 +125,7 @@ public class UniqueJimpleIDGenerator
 	 *
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getNewMethodId()
 	 */
-	public String getIdForMethod(SootMethod method) {
+	public String getIdForMethod(final SootMethod method) {
 		SootClass sc = method.getDeclaringClass();
 		return getIdForClass(sc) + "_m" + sc.getMethods().indexOf(method);
 	}
@@ -133,7 +133,7 @@ public class UniqueJimpleIDGenerator
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForStmt(soot.jimple.Stmt)
 	 */
-	public String getIdForStmt(Stmt stmt, SootMethod method) {
+	public String getIdForStmt(final Stmt stmt, final SootMethod method) {
 		String result = "?";
 
 		if (method.isConcrete()) {
@@ -148,7 +148,7 @@ public class UniqueJimpleIDGenerator
 	/**
 	 * @see edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator#getIdForType(soot.Type)
 	 */
-	public String getIdForType(Type type) {
+	public String getIdForType(final Type type) {
 		String result;
 
 		if (type instanceof RefType) {
@@ -175,7 +175,7 @@ public class UniqueJimpleIDGenerator
 	 *
 	 * @return DOCUMENT ME!
 	 */
-	public String getIdForValueBox(ValueBox box, Stmt stmt, SootMethod method) {
+	public String getIdForValueBox(final ValueBox box, final Stmt stmt, final SootMethod method) {
 		List vBoxes = stmt.getUseAndDefBoxes();
 		return getIdForStmt(stmt, method) + "_v" + vBoxes.indexOf(box);
 	}
@@ -195,12 +195,12 @@ public class UniqueJimpleIDGenerator
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/30 09:44:53  venku
+   - renamed getIdForValue to getIdForValueBox.
    Revision 1.4  2003/11/28 09:40:55  venku
    - id generation for types changed.
-
    Revision 1.3  2003/11/26 18:25:32  venku
    - modified the id returned for types.
-
    Revision 1.2  2003/11/17 15:57:03  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.

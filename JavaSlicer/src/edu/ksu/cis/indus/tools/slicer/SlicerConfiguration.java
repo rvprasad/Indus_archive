@@ -588,7 +588,7 @@ public class SlicerConfiguration
 	 */
 	static final SlicerConfiguration makeToolConfiguration() {
 		SlicerConfiguration result = new SlicerConfiguration();
-		result.NAME = "configuration" + System.currentTimeMillis();
+		result.configName = "configuration" + System.currentTimeMillis();
 		result.initialize();
 		return result;
 	}
@@ -654,6 +654,9 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/28 16:40:26  venku
+   - cosmetic.
+
    Revision 1.20  2003/11/25 17:51:26  venku
    - split control dependence into 2 classes.
      EntryControlDA handled control DA as required for backward slicing.

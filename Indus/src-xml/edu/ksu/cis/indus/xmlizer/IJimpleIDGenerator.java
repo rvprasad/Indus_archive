@@ -40,34 +40,37 @@ public interface IJimpleIDGenerator {
 	 * 
 	 * <p></p>
 	 *
+	 * @param clazz DOCUMENT ME!
+	 *
 	 * @return DOCUMENT ME!
 	 */
 	String getIdForClass(SootClass clazz);
 
 	/**
-	 * DOCUMENT ME!
+	 * DOCUMENT ME! <p></p>
 	 *
-	 * @param field
+	 * @param field DOCUMENT ME!
 	 *
-	 * @return
+	 * @return DOCUMENT ME!
 	 */
 	String getIdForField(SootField field);
 
 	/**
-	 * DOCUMENT ME!
+	 * DOCUMENT ME! <p></p>
 	 *
-	 * @param v
+	 * @param v DOCUMENT ME!
+	 * @param method DOCUMENT ME!
 	 *
-	 * @return
+	 * @return DOCUMENT ME!
 	 */
 	String getIdForLocal(Local v, SootMethod method);
 
 	/**
-	 * DOCUMENT ME!
+	 * DOCUMENT ME! <p></p>
 	 *
-	 * @param method
+	 * @param method DOCUMENT ME!
 	 *
-	 * @return
+	 * @return DOCUMENT ME!
 	 */
 	String getIdForMethod(SootMethod method);
 
@@ -108,10 +111,11 @@ public interface IJimpleIDGenerator {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/30 09:44:53  venku
+   - renamed getIdForValue to getIdForValueBox.
    Revision 1.3  2003/11/17 15:57:03  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
-
    Revision 1.2  2003/11/07 11:14:44  venku
    - Added generator class for xmlizing purpose.
    - XMLizing of Jimple works, but takes long.

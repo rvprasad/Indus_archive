@@ -46,8 +46,6 @@ public class CompleteUnitGraphFactory
 	 * {@inheritDoc}
 	 *
 	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(CompleteUnitGraph)
-	 *
-	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getUnitGraph(soot.SootMethod)
 	 */
 	public UnitGraph getUnitGraph(final SootMethod method) {
 		WeakReference ref = (WeakReference) method2UnitGraph.get(method);
@@ -72,6 +70,8 @@ public class CompleteUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/28 22:00:20  venku
+   - logging.
    Revision 1.6  2003/11/26 06:26:25  venku
    - coding convention.
    Revision 1.5  2003/11/01 23:51:57  venku
@@ -83,7 +83,7 @@ public class CompleteUnitGraphFactory
      have a body.
    Revision 1.2  2003/09/28 06:52:22  venku
  *** empty log message ***
-   Revision 1.1  2003/09/28 06:22:54  venku
-   - Added support to plug unit graphs from the environment when
-     requested by the implementations.
+     Revision 1.1  2003/09/28 06:22:54  venku
+     - Added support to plug unit graphs from the environment when
+       requested by the implementations.
  */

@@ -109,7 +109,7 @@ public final class CompositeToolConfiguration
 		for (Iterator i = configurations.iterator(); i.hasNext();) {
 			AbstractToolConfiguration config = (AbstractToolConfiguration) i.next();
 
-			if (config.NAME.equals(id)) {
+			if (config.configName.equals(id)) {
 				active = config;
 			}
 		}
@@ -123,7 +123,7 @@ public final class CompositeToolConfiguration
 	 * @post result != null
 	 */
 	public String getActiveToolConfigurationID() {
-		return getActiveToolConfiguration().NAME;
+		return getActiveToolConfiguration().configName;
 	}
 
 	/**
@@ -181,7 +181,7 @@ public final class CompositeToolConfiguration
 		for (Iterator i = configurations.iterator(); i.hasNext();) {
 			result = (AbstractToolConfiguration) i.next();
 
-			if (result.NAME.equals(id)) {
+			if (result.configName.equals(id)) {
 				break;
 			}
 			result = null;
@@ -200,6 +200,9 @@ public final class CompositeToolConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/10/19 20:16:23  venku
+   - jibx binding fixes.
+
    Revision 1.9  2003/10/19 19:11:57  venku
    *** empty log message ***
 

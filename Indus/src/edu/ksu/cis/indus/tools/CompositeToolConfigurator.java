@@ -121,11 +121,11 @@ public final class CompositeToolConfigurator
 		gridData.horizontalIndent = ok.getText().length() * 5;
 		ok.setLayoutData(gridData);
 		ok.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(SelectionEvent evt) {
+				public void widgetSelected(final SelectionEvent evt) {
 					parent.dispose();
 				}
 
-				public void widgetDefaultSelected(SelectionEvent evt) {
+				public void widgetDefaultSelected(final SelectionEvent evt) {
 					widgetSelected(evt);
 				}
 			});
@@ -136,15 +136,15 @@ public final class CompositeToolConfigurator
 		gridData.horizontalIndent = newConfig.getText().length() * 5;
 		newConfig.setLayoutData(gridData);
 		newConfig.addSelectionListener(new SelectionListener() {
-				public void widgetSelected(SelectionEvent evt) {
+				public void widgetSelected(final SelectionEvent evt) {
 					AbstractToolConfiguration atc = toolConfigFactory.createToolConfiguration();
-					atc.NAME = "slicer_configuration_" + compositeConfiguration.configurations.size();
+					atc.configName = "slicer_configuration_" + compositeConfiguration.configurations.size();
 					compositeConfiguration.addToolConfiguration(atc);
-					configCombo.add(atc.NAME);
+					configCombo.add(atc.configName);
 					configCombo.select(compositeConfiguration.configurations.indexOf(atc));
 				}
 
-				public void widgetDefaultSelected(SelectionEvent evt) {
+				public void widgetDefaultSelected(final SelectionEvent evt) {
 					widgetSelected(evt);
 				}
 			});
@@ -155,7 +155,7 @@ public final class CompositeToolConfigurator
 
 		for (Iterator i = compositeConfiguration.configurations.iterator(); i.hasNext();) {
 			AbstractToolConfiguration config = (AbstractToolConfiguration) i.next();
-			configCombo.add(config.NAME);
+			configCombo.add(config.configName);
 		}
 
 		AbstractToolConfiguration c = compositeConfiguration.getActiveToolConfiguration();
@@ -188,6 +188,8 @@ public final class CompositeToolConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/11/03 07:59:26  venku
+   - documentation.
    Revision 1.7  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.

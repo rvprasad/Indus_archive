@@ -57,7 +57,7 @@ public abstract class AbstractToolConfiguration {
 	/**
 	 * The name of the configuration.
 	 */
-	protected String NAME;
+	protected String configName;
 
 	/**
 	 * Sets a property of the configurationCollection. The given <code>propertyID</code> should be a valid property id
@@ -123,6 +123,10 @@ public abstract class AbstractToolConfiguration {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/27 01:09:36  venku
+   - changed AbstractToolConfigurator and CompositeToolConfigurator
+     such that the composite to display the interface on is provided by the application.
+   - documentation.
    Revision 1.1  2003/09/26 23:46:59  venku
    - Renamed Tool to AbstractTool
    - Renamed ToolConfiguration to AbstractToolConfiguration

@@ -36,10 +36,10 @@ public interface IProcessor {
 	/**
 	 * This method will be called by the controlling agent upon walking a value in the analyzed system.
 	 *
-	 * @param value to be processed.
+	 * @param vBox to be processed.
 	 * @param context in which to <code>value</code> should be processed.
 	 *
-	 * @pre value != null
+	 * @pre vBox != null
 	 */
 	void callback(ValueBox vBox, Context context);
 
@@ -119,6 +119,9 @@ public interface IProcessor {
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/11/17 15:58:12  venku
+   - coding conventions.
+
    Revision 1.3  2003/11/17 15:42:49  venku
    - changed the signature of callback(Value,..) to callback(ValueBox,..)
    Revision 1.2  2003/11/10 07:53:56  venku

@@ -56,7 +56,7 @@ public class XMLizingProcessingFilter
 		 *
 		 * @pre o1.oclIsKindOf(SootClass) and o2.oclIsKindOf(SootClass)
 		 */
-		public int compare(Object o1, Object o2) {
+		public int compare(final Object o1, final Object o2) {
 			SootClass sc1 = (SootClass) o1;
 			SootClass sc2 = (SootClass) o2;
 			return sc1.getName().compareTo(sc2.getName());
@@ -75,7 +75,7 @@ public class XMLizingProcessingFilter
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
-        public int compare(Object o1, Object o2) {
+        public int compare(final Object o1, final Object o2) {
             String sig1 = ((SootMethod) o1).getSubSignature();
             String sig2 = ((SootMethod) o2).getSubSignature();
             return sig1.substring(sig1.indexOf(' ')).compareTo(sig2.substring(sig2.indexOf(' ')));
@@ -89,7 +89,7 @@ public class XMLizingProcessingFilter
      *
      * @see edu.ksu.cis.indus.processing.ProcessingController#filterMethods(java.util.Collection)
      */
-    public Collection filterMethods(Collection methods) {
+    public Collection filterMethods(final Collection methods) {
         List result = new ArrayList(methods);
         Collections.sort(result, new LexographicalMethodComparator());
         return result;
@@ -112,6 +112,9 @@ public class XMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/30 09:03:58  venku
+   - inner classes are visible when they are not used outside.  FIXED.
+
    Revision 1.1  2003/11/30 01:17:11  venku
    - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
    - renamed XMLizingController to XMLizingProcessingFilter.

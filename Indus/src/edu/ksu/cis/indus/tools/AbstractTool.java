@@ -195,8 +195,10 @@ public abstract class AbstractTool
 	 * This is the template method in which the actual processing of the tool happens.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
+     * 
+     * @throws InterruptedException when the execution of the tool is interrupted.
 	 */
-	protected abstract void execute(Object phase)
+	protected abstract void execute(final Object phase)
 	  throws InterruptedException;
 
 	/**
@@ -217,6 +219,10 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/17 17:56:25  venku
+   - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
+     way to intialize the tool independent of how it's dependent
+     parts (such as configuration) were instantiated and intialized.
    Revision 1.6  2003/11/17 01:46:38  venku
    - documented the support to query stability information.
    Revision 1.5  2003/11/15 21:54:24  venku

@@ -130,7 +130,7 @@ public class JimpleXMLizer
 	 *
 	 * @param s DOCUMENT ME!
 	 */
-	public static void main(String[] s) {
+	public static void main(final String[] s) {
 		JimpleXMLizer xmlizer = new JimpleXMLizer(new UniqueJimpleIDGenerator());
 		ProcessingController pc = new ProcessingController();
 		Scene scene = Scene.v();
@@ -159,7 +159,7 @@ public class JimpleXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
 	 */
-	public final void callback(Stmt stmt, Context context) {
+	public final void callback(final Stmt stmt, final Context context) {
 		stmtXmlizer.setMethod(context.getCurrentMethod());
 		stmtXmlizer.apply(stmt);
 	}
@@ -169,7 +169,7 @@ public class JimpleXMLizer
 	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
 	 */
-	public final void callback(SootMethod method) {
+	public final void callback(final SootMethod method) {
 		try {
 			if (processingMethod) {
 				xmlizedSystem.write("\t\t</method>\n");
@@ -255,7 +255,7 @@ public class JimpleXMLizer
 	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootClass)
 	 */
-	public final void callback(SootClass clazz) {
+	public final void callback(final SootClass clazz) {
 		try {
 			if (processingMethod) {
 				xmlizedSystem.write("\t\t</method>\n");
@@ -313,7 +313,7 @@ public class JimpleXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootField)
 	 */
-	public final void callback(SootField field) {
+	public final void callback(final SootField field) {
 		try {
 			xmlizedSystem.write("\t\t<field name=\"" + field.getName() + "\" id=\"" + idGenerator.getIdForField(field)
 				+ "\" typeId=\"" + idGenerator.getIdForType(field.getType()) + "\"\n");
@@ -360,7 +360,7 @@ public class JimpleXMLizer
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
-	public final void hookup(ProcessingController ppc) {
+	public final void hookup(final ProcessingController ppc) {
 		ppc.registerForAllStmts(this);
 		ppc.register(this);
 	}
@@ -370,7 +370,7 @@ public class JimpleXMLizer
 	 *
 	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(edu.ksu.cis.indus.processing.ProcessingController)
 	 */
-	public final void unhook(ProcessingController ppc) {
+	public final void unhook(final ProcessingController ppc) {
 		ppc.unregisterForAllStmts(this);
 		ppc.unregister(this);
 	}
@@ -393,18 +393,18 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2003/11/30 02:12:41  venku
+   - root element specification of the DOCTYPE changed.
    Revision 1.21  2003/11/30 01:17:11  venku
    - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
    - renamed XMLizingController to XMLizingProcessingFilter.
    - ripple effect.
-
    Revision 1.20  2003/11/30 00:10:17  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
      The filtering of class is another concern with it's own
      branch in the inheritance tree.  So, the user can tune the
      controller with a filter independent of the sort of processors.
-
    Revision 1.19  2003/11/28 09:40:38  venku
    - the way information is captured is changed.
       Revision 1.18  2003/11/26 18:26:08  venku

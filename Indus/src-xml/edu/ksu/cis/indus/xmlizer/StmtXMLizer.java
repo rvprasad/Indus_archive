@@ -99,7 +99,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseAssignStmt(soot.jimple.AssignStmt)
 	 */
-	public final void caseAssignStmt(AssignStmt v) {
+	public final void caseAssignStmt(final AssignStmt v) {
 		try {
 			out.write("\t\t\t<assign_stmt  id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			out.write("\t\t\t\t<lhs>\n");
@@ -116,7 +116,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseBreakpointStmt(soot.jimple.BreakpointStmt)
 	 */
-	public final void caseBreakpointStmt(BreakpointStmt v) {
+	public final void caseBreakpointStmt(final BreakpointStmt v) {
 		try {
 			out.write("\t\t\t<breakpoint_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
 				+ "\"/>\n");
@@ -128,7 +128,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseEnterMonitorStmt(soot.jimple.EnterMonitorStmt)
 	 */
-	public final void caseEnterMonitorStmt(EnterMonitorStmt v) {
+	public final void caseEnterMonitorStmt(final EnterMonitorStmt v) {
 		try {
 			out.write("\t\t\t<entermonitor_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
 				+ "\">\n");
@@ -142,7 +142,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseExitMonitorStmt(soot.jimple.ExitMonitorStmt)
 	 */
-	public final void caseExitMonitorStmt(ExitMonitorStmt v) {
+	public final void caseExitMonitorStmt(final ExitMonitorStmt v) {
 		try {
 			out.write("\t\t\t<exitmonitor_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
 				+ "\">\n");
@@ -156,7 +156,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseGotoStmt(soot.jimple.GotoStmt)
 	 */
-	public final void caseGotoStmt(GotoStmt v) {
+	public final void caseGotoStmt(final GotoStmt v) {
 		try {
 			out.write("\t\t\t<goto_stmt id=\"" + newId + "\" target=\""
 				+ idGenerator.getIdForStmt((Stmt) v.getTarget(), currMethod) + "\" label=\""
@@ -169,7 +169,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseIdentityStmt(soot.jimple.IdentityStmt)
 	 */
-	public final void caseIdentityStmt(IdentityStmt v) {
+	public final void caseIdentityStmt(final IdentityStmt v) {
 		try {
 			out.write("\t\t\t<identity_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
 				+ "\">\n");
@@ -187,7 +187,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseIfStmt(soot.jimple.IfStmt)
 	 */
-	public final void caseIfStmt(IfStmt v) {
+	public final void caseIfStmt(final IfStmt v) {
 		try {
 			out.write("\t\t\t<if_stmt id=\"" + newId + "\" trueTargetId=\""
 				+ idGenerator.getIdForStmt(v.getTarget(), currMethod) + "\" label=\""
@@ -204,7 +204,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseInvokeStmt(soot.jimple.InvokeStmt)
 	 */
-	public final void caseInvokeStmt(InvokeStmt v) {
+	public final void caseInvokeStmt(final InvokeStmt v) {
 		try {
 			out.write("\t\t\t<invoke_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getInvokeExprBox());
@@ -217,7 +217,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseLookupSwitchStmt(soot.jimple.LookupSwitchStmt)
 	 */
-	public final void caseLookupSwitchStmt(LookupSwitchStmt v) {
+	public final void caseLookupSwitchStmt(final LookupSwitchStmt v) {
 		try {
 			out.write("\t\t\t<lookupswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
 				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\" label=\""
@@ -239,7 +239,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseNopStmt(soot.jimple.NopStmt)
 	 */
-	public final void caseNopStmt(NopStmt v) {
+	public final void caseNopStmt(final NopStmt v) {
 		try {
 			out.write("\t\t\t<nop_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\"/>\n");
 		} catch (IOException e) {
@@ -250,7 +250,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseRetStmt(soot.jimple.RetStmt)
 	 */
-	public final void caseRetStmt(RetStmt v) {
+	public final void caseRetStmt(final RetStmt v) {
 		try {
 			out.write("\t\t\t<ret_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getStmtAddressBox());
@@ -263,7 +263,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseReturnStmt(soot.jimple.ReturnStmt)
 	 */
-	public final void caseReturnStmt(ReturnStmt v) {
+	public final void caseReturnStmt(final ReturnStmt v) {
 		try {
 			out.write("\t\t\t<return_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
@@ -276,7 +276,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseReturnVoidStmt(soot.jimple.ReturnVoidStmt)
 	 */
-	public final void caseReturnVoidStmt(ReturnVoidStmt v) {
+	public final void caseReturnVoidStmt(final ReturnVoidStmt v) {
 		try {
 			out.write("\t\t\t<returnvoid_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty())
 				+ "\"/>\n");
@@ -288,7 +288,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseTableSwitchStmt(soot.jimple.TableSwitchStmt)
 	 */
-	public final void caseTableSwitchStmt(TableSwitchStmt v) {
+	public final void caseTableSwitchStmt(final TableSwitchStmt v) {
 		try {
 			out.write("\t\t\t<tableswitch_stmt id=\"" + newId + "\" defaultTargetId=\""
 				+ idGenerator.getIdForStmt((Stmt) v.getDefaultTarget(), currMethod) + "\" label=\""
@@ -310,7 +310,7 @@ public class StmtXMLizer
 	/**
 	 * @see soot.jimple.StmtSwitch#caseThrowStmt(soot.jimple.ThrowStmt)
 	 */
-	public final void caseThrowStmt(ThrowStmt v) {
+	public final void caseThrowStmt(final ThrowStmt v) {
 		try {
 			out.write("\t\t\t<throw_stmt id=\"" + newId + "\" label=\"" + (!v.getBoxesPointingToThis().isEmpty()) + "\">\n");
 			valueXMLizer.apply(v.getOpBox());
@@ -361,6 +361,8 @@ public class StmtXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/28 09:39:22  venku
+   - added support to indicate labels.
    Revision 1.6  2003/11/24 06:45:23  venku
    - corrected xml encoding errors along with tag name emission errors.
    Revision 1.5  2003/11/24 06:27:18  venku

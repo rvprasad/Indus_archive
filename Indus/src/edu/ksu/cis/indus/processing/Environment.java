@@ -57,7 +57,7 @@ public class Environment
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getClass(java.lang.String)
 	 */
-	public SootClass getClass(String className) {
+	public SootClass getClass(final String className) {
 		return system.getSootClass(className);
 	}
 
@@ -91,4 +91,7 @@ public class Environment
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/06 07:06:57  venku
+   - a wrapper to expose Scene as an IEnvironment.
+
  */

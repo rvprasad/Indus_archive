@@ -25,7 +25,7 @@ import java.util.List;
 
 
 /**
- * This class filters out classes and methods that do not have a tag of the given name. 
+ * This class filters out classes and methods that do not have a tag of the given name.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class TagBasedProcessingFilter
   implements IProcessingFilter {
-	/** 
+	/**
 	 * The name of the tag used to filter out classes and methods.
 	 */
 	private final String tagName;
@@ -42,7 +42,8 @@ public class TagBasedProcessingFilter
 	 * Creates a new TagBasedProcessingFilter object.
 	 *
 	 * @param theTagName is the name of the tag used during filtering.
-     * @pre theTagName != null
+	 *
+	 * @pre theTagName != null
 	 */
 	public TagBasedProcessingFilter(final String theTagName) {
 		tagName = theTagName;
@@ -51,7 +52,7 @@ public class TagBasedProcessingFilter
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterClasses(java.util.Collection)
 	 */
-	public Collection filterClasses(Collection classes) {
+	public Collection filterClasses(final Collection classes) {
 		List result = new ArrayList();
 
 		for (Iterator i = classes.iterator(); i.hasNext();) {
@@ -67,7 +68,7 @@ public class TagBasedProcessingFilter
 	/**
 	 * @see edu.ksu.cis.indus.processing.IProcessingFilter#filterMethods(java.util.Collection)
 	 */
-	public Collection filterMethods(Collection methods) {
+	public Collection filterMethods(final Collection methods) {
 		List result = new ArrayList();
 
 		for (Iterator i = methods.iterator(); i.hasNext();) {
@@ -84,4 +85,6 @@ public class TagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/11/30 01:20:37  venku
+   - added a new tag based processing filter.
  */

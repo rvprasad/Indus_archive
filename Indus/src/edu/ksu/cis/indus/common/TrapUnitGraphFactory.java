@@ -43,8 +43,6 @@ public class TrapUnitGraphFactory
 	private static final Log LOGGER = LogFactory.getLog(TrapUnitGraphFactory.class);
 
 	/**
-	 * {@inheritDoc}
-	 *
 	 * @post method.isConcrete() implies result != null and result.oclIsKindOf(TrapUnitGraph)
 	 *
 	 * @see edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory#getUnitGraph(soot.SootMethod)
@@ -72,6 +70,9 @@ public class TrapUnitGraphFactory
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/11/28 22:00:20  venku
+   - logging.
+
    Revision 1.4  2003/11/26 06:26:25  venku
    - coding convention.
    Revision 1.3  2003/11/01 23:51:57  venku
