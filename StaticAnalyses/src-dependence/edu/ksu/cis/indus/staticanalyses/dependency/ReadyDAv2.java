@@ -163,6 +163,14 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/07/23 13:09:44  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
    Revision 1.20  2004/02/25 00:04:02  venku
    - documenation.
    Revision 1.19  2004/01/25 15:32:41  venku

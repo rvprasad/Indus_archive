@@ -282,9 +282,9 @@ public class ReadyDAv1
 
 				Map _method2stmts = null;
 
-				if (SafeLockAnalysis.isWaitMethod(_callee)) {
+				if (Util.isWaitMethod(_callee)) {
 					_method2stmts = waits;
-				} else if (SafeLockAnalysis.isNotifyMethod(_callee)) {
+				} else if (Util.isNotifyMethod(_callee)) {
 					_method2stmts = notifies;
 				}
 
@@ -453,7 +453,10 @@ public class ReadyDAv1
 	public void analyze() {
 		unstable();
 
-		if (monitorInfo.isStable() && callgraph.isStable() && threadgraph.isStable() && (!useSafeLockAnalysis || safelockAnalysis.isStable())) {
+		if (monitorInfo.isStable()
+			  && callgraph.isStable()
+			  && threadgraph.isStable()
+			  && (!useSafeLockAnalysis || safelockAnalysis.isStable())) {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + " processing");
 			}
@@ -558,15 +561,6 @@ public class ReadyDAv1
 	}
 
 	///CLOVER:ON
-
-	/**
-	 * Indicates if OFA is used or not.
-	 *
-	 * @return <code>true</code> indicates OFA is used; <code>false</code>, otherwise.
-	 */
-	protected final boolean getUseOFA() {
-		return useOFA;
-	}
 
 	/**
 	 * Checks if the given wait invocation is dependent on the notify invocation according to rule 4 based of OFA
@@ -707,7 +701,12 @@ public class ReadyDAv1
 		final InvokeStmt _wait = (InvokeStmt) wPair.getFirst();
 		final SootClass _waitClass =
 			env.getClass(((RefType) ((InstanceInvokeExpr) _wait.getInvokeExpr()).getBase().getType()).getClassName());
-		return Util.isHierarchicallyRelated(_notifyClass, _waitClass);
+		boolean _result = Util.isHierarchicallyRelated(_notifyClass, _waitClass);
+
+		if (_result && useOFA) {
+			_result = ifDependentOnBasedOnOFAByRule4(wPair, nPair);
+		}
+		return _result;
 	}
 
 	/**
@@ -718,8 +717,9 @@ public class ReadyDAv1
 	 *
 	 * @pre info.get(IEnvironment.ID) != null and info.get(ICallGraphInfo.ID) != null
 	 * @pre info.get(IThreadGraphInfo.ID) != null and info.get(PairManager.ID) != null
-	 * @pre info.get(IValueAnalyzer.ID) != null and    info.get(IValueAnalyzer.ID).oclIsKindOf(OFAnalyzer)
-	 * @pre info.get(IMonitorInfo.ID) != null and info.get(SafeLockAnalysis.ID) != null
+	 * @pre useOFA implies info.get(IValueAnalyzer.ID) != null and info.get(IValueAnalyzer.ID).oclIsKindOf(OFAnalyzer)
+	 * @pre info.get(IMonitorInfo.ID) != null
+	 * @pre useSafeLockAnalysis implies info.get(SafeLockAnalysis.ID) != null
 	 */
 	protected void setup()
 	  throws InitializationException {
@@ -749,7 +749,7 @@ public class ReadyDAv1
 
 		ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
 
-		if (ofa == null) {
+		if (useOFA && ofa == null) {
 			throw new InitializationException(IValueAnalyzer.ID + " was not provided in the info.");
 		}
 
@@ -763,7 +763,7 @@ public class ReadyDAv1
 
 		safelockAnalysis = (SafeLockAnalysis) info.get(SafeLockAnalysis.ID);
 
-		if (safelockAnalysis == null) {
+		if (useSafeLockAnalysis && safelockAnalysis == null) {
 			final String _msg = "An interface with id, " + SafeLockAnalysis.ID + ", was not provided.";
 			LOGGER.error(_msg);
 			throw new InitializationException(_msg);
@@ -777,6 +777,7 @@ public class ReadyDAv1
 	 * @param method in which <code>monitorStmt</code> occurs.
 	 *
 	 * @return <code>true</code> if the lock is unsafe; <code>false</code>, otherwise.
+	 *
 	 * @pre monitorStmt != null and method != null
 	 */
 	private boolean isLockUnsafe(final Object monitorStmt, final SootMethod method) {
@@ -1310,9 +1311,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.65  2004/07/28 02:46:55  venku
+   - documentation.
    Revision 1.64  2004/07/27 11:07:20  venku
    - updated project to use safe lock analysis.
-
    Revision 1.63  2004/07/24 10:02:46  venku
    - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
      preprocessor hierarchy tree.

@@ -484,7 +484,7 @@ public class InterferenceDAv1
 
 		ofa = (OFAnalyzer) info.get(IValueAnalyzer.ID);
 
-		if (ofa == null) {
+		if (useOFA && ofa == null) {
 			throw new InitializationException(IValueAnalyzer.ID + " was not provided in the info.");
 		}
 
@@ -657,6 +657,10 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.43  2004/07/24 10:02:46  venku
+   - used AbstractProcessor instead of AbstractValueAnalyzerBasedProcessor for
+     preprocessor hierarchy tree.
+
    Revision 1.42  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while
