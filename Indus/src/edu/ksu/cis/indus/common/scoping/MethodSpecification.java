@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.common.scoping;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -123,6 +122,7 @@ final class MethodSpecification {
 	 * @pre spec != null
 	 */
 	void setMethodNameSpec(final String spec) {
+	    namePattern = Pattern.compile(spec);
 	}
 
 	/**
@@ -183,7 +183,7 @@ final class MethodSpecification {
 	 *
 	 * @post result != null
 	 */
-	static Collection createParameterTypeSpecContainer() {
+	static List createParameterTypeSpecContainer() {
 		return new ArrayList();
 	}
 }

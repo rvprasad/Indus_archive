@@ -79,11 +79,11 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * <i>Does nothing</i>
+	 * <i>Does nothing.</i>
 	 *
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setDefaultAccess(boolean)
 	 */
-	public void setDefaultAccess(boolean value) {
+	public void setDefaultAccess(final boolean value) {
 		// Does nothing 
 	}
 
@@ -104,11 +104,11 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * <i>Does nothing</i>
+	 * <i>Does nothing.</i>
 	 *
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPrivateAccess(boolean)
 	 */
-	public void setPrivateAccess(boolean value) {
+	public void setPrivateAccess(final boolean value) {
 		// Does nothing
 	}
 
@@ -129,11 +129,11 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * <i>Does nothing</i>
+	 * <i>Does nothing.</i>
 	 *
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setProtectedAccess(boolean)
 	 */
-	public void setProtectedAccess(boolean value) {
+	public void setProtectedAccess(final boolean value) {
 		// Does nothing
 	}
 
@@ -154,11 +154,11 @@ final class AccessSpecifierWrapper
 	}
 
 	/**
-	 * <i>Does nothing</i>
+	 * <i>Does nothing.</i>
 	 *
 	 * @see edu.ksu.cis.indus.common.scoping.IAccessSpecifiers#setPublicAccess(boolean)
 	 */
-	public void setPublicAccess(boolean value) {
+	public void setPublicAccess(final boolean value) {
 		// Does nothing
 	}
 

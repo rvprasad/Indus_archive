@@ -97,6 +97,7 @@ final class FieldSpecification {
 	 * @pre spec != null
 	 */
 	void setFieldNameSpec(final String spec) {
+	    namePattern = Pattern.compile(spec);
 	}
 
 	/**

@@ -56,10 +56,10 @@ final class ClassSpecification {
 	/**
 	 * Sets the value of <code>typeSpec</code>.
 	 *
-	 * @param typeSpec the new value of <code>typeSpec</code>.
+	 * @param theTypeSpec the new value of <code>typeSpec</code>.
 	 */
-	void setTypeSpec(final TypeSpecification typeSpec) {
-		this.typeSpec = typeSpec;
+	void setTypeSpec(final TypeSpecification theTypeSpec) {
+		typeSpec = theTypeSpec;
 	}
 
 	/**
