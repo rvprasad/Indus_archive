@@ -124,7 +124,7 @@ public class DependencyAnalysisRegressionTestSuite
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
 				final String _classpath = _props.getProperty(_config + ".classpath");
-				final String _str = TestHelper.checkExecutability(_config, _xmlTestDir, _xmlControlDir);
+				final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
@@ -191,6 +191,9 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/04/20 00:40:34  venku
+   - coding conventions.
+
    Revision 1.2  2004/04/18 00:23:38  venku
    - coding conventions.
 

@@ -111,7 +111,7 @@ public final class SlicerRegressionTestSuite
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
 				final String _classpath = _props.getProperty(_config + ".classpath");
-				final String _str = TestHelper.checkExecutability(_config, _xmlTestDir, _xmlControlDir);
+				final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 				Test _test;
 
 				try {
@@ -142,6 +142,9 @@ public final class SlicerRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/18 09:08:18  venku
+   - changed property name.
+
    Revision 1.1  2004/04/18 08:59:00  venku
    - enabled test support for slicer.
 

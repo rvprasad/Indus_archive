@@ -116,7 +116,7 @@ public final class ValueAnalysisRegressionTestSuite
 				final String _xmlTestDir = _props.getProperty(_config + IXMLBasedTest.XML_TEST_DIR_PROP_SUFFIX);
 				final String _xmlControlDir = _props.getProperty(_config + IXMLBasedTest.XML_CONTROL_DIR_PROP_SUFFIX);
 				final String _classpath = _props.getProperty(_config + ".classpath");
-                final String _str = TestHelper.checkExecutability(_config, _xmlTestDir, _xmlControlDir);
+                final String _str = TestHelper.checkXMLBasedTestExecutability(_config, _xmlTestDir, _xmlControlDir);
 
 				try {
 					final TestSuite _temp = new TestSuite(_config);
@@ -151,6 +151,9 @@ public final class ValueAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/04/18 00:17:20  venku
+   - added support to dump jimple.xml while testing. (bug fix)
+
    Revision 1.9  2004/04/17 23:35:42  venku
    - failures due to unavailable resources were not flagged. FIXED
      - added a new class which always errs.

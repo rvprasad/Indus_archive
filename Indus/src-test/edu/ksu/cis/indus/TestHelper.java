@@ -117,15 +117,20 @@ public final class TestHelper {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given xml test based on given test and control directory should be executed.  It should be if the
+	 * directories exists and they are readable/writable suitably.
 	 *
-	 * @param configuration
-	 * @param xmlTestDir
-	 * @param xmlControlDir
+	 * @param configuration is the name of the test configuration.
+	 * @param xmlTestDir is the directory in which to find the test data.
+	 * @param xmlControlDir is the directory in which to find the text control data.
 	 *
-	 * @return
+	 * @return a string of zero length if the test should be executed;  a string of non-zero length, if the test should not
+	 * 		   be executed.  In the latter case, the string contains the message why the test should not be executed.
+	 *
+	 * @pre xmlTestDir != null and xmlControlDir != null
+	 * @post result != null
 	 */
-	public static String checkExecutability(final String configuration, final String xmlTestDir, final String xmlControlDir) {
+	public static String checkXMLBasedTestExecutability(final String configuration, final String xmlTestDir, final String xmlControlDir) {
 		final StringBuffer _sb = new StringBuffer();
 		File _f = new File(xmlControlDir);
 
@@ -144,6 +149,8 @@ public final class TestHelper {
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/04/18 08:59:02  venku
+   - enabled test support for slicer.
    Revision 1.11  2004/04/17 23:35:43  venku
    - failures due to unavailable resources were not flagged. FIXED
      - added a new class which always errs.
