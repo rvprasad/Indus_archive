@@ -18,3 +18,4 @@ slicer-src.jar
 temp
 *.tgz
 localbuild.properties
+.fbwarnings
