@@ -95,7 +95,7 @@ public class ExitControlDA
 			for (final Iterator _i = methods.iterator(); _i.hasNext();) {
 				final SootMethod _sm = (SootMethod) _i.next();
 				final BasicBlockGraph _bbg = getBasicBlockGraph(_sm);
-				final Collection _dependeeBBs = calculateDependeesOfSinksIn(_bbg, _sm);
+				final Collection _dependeeBBs = calculateEntryControlDependeesOfSinksIn(_bbg, _sm);
 
 				if (!_dependeeBBs.isEmpty()) {
 					calculateDependenceForStmts(calculateDependenceForBBs(_bbg, _dependeeBBs), _sm);
@@ -163,13 +163,13 @@ public class ExitControlDA
 	 * @post result.oclIsKindOf(Collection(BasicBlock))
 	 * @post bbg.getNodes().containsAll(result)
 	 */
-	private Collection calculateDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
+	private Collection calculateEntryControlDependeesOfSinksIn(final BasicBlockGraph bbg, final SootMethod method) {
 		final Collection _result;
 		final Collection _sinks = new ArrayList();
 		_sinks.addAll(bbg.getTails());
 		_sinks.addAll(bbg.getPseudoTails());
 
-		if (_sinks.size() == 1) {
+		if (_sinks.size() > 1) {
 			_result = new HashSet();
 
 			for (final Iterator _i = _sinks.iterator(); _i.hasNext();) {
@@ -266,6 +266,9 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/07/20 01:20:08  venku
+   - documentation.
+
    Revision 1.18  2004/07/11 23:02:29  venku
    - documentation.
 
