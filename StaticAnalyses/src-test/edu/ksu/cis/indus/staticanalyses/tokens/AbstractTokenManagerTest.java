@@ -22,7 +22,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import soot.Type;
+import soot.Value;
+
 import soot.jimple.IntConstant;
+import soot.jimple.NullConstant;
 import soot.jimple.StringConstant;
 
 
@@ -61,14 +65,20 @@ public abstract class AbstractTokenManagerTest
 	 */
 	public final void testGetTypeBasedFilter() {
 		final ITypeManager _typeMgr = tokenManager.getTypeManager();
-		final ITokenFilter _filter = tokenManager.getTypeBasedFilter(_typeMgr.getExactType(values.iterator().next()));
+		final Type _type = ((Value) values.iterator().next()).getType();
+		final ITokenFilter _filter = tokenManager.getTypeBasedFilter(_typeMgr.getTokenTypeForRepType(_type));
 		assertNotNull(_filter);
 
 		final ITokens _falseTokens = tokenManager.getTokens(Collections.singleton(IntConstant.v(1)));
+        assertFalse(_falseTokens.isEmpty());
 		assertTrue(_filter.filter(_falseTokens).isEmpty());
 
-		final ITokens _trueTokens = tokenManager.getTokens(Collections.singleton(StringConstant.v("string")));
-		assertFalse(_filter.filter(_trueTokens).isEmpty());
+		values.add(NullConstant.v());
+
+		final ITokens _trueTokens = tokenManager.getTokens(values);
+		final ITokens _filtrate = _filter.filter(_trueTokens);
+		assertFalse(_filtrate.isEmpty());
+		assertTrue(_filtrate.getValues().contains(NullConstant.v()));
 	}
 
 	/**
@@ -80,7 +90,7 @@ public abstract class AbstractTokenManagerTest
 
 		for (final Iterator _i = values.iterator(); _i.hasNext();) {
 			final Object _val = _i.next();
-			assertNotNull(_typeMgr.getExactType(_val));
+			assertNotNull(_typeMgr.getTokenTypeForRepType(((Value) _val).getType()));
 		}
 	}
 
