@@ -21,17 +21,15 @@ package edu.ksu.cis.indus.kaveri.decorator;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.presentation.TagToAnnotationMapper;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
@@ -51,6 +49,8 @@ import org.eclipse.ui.IDecoratorManager;
 public class IndusDecorator
   extends LabelProvider
   implements ILightweightLabelDecorator {
+		
+	
 	/**
 	 * Returns the static instance of the decorator.
 	 *
@@ -86,24 +86,19 @@ public class IndusDecorator
 
 		final List _filelst = KaveriPlugin.getDefault().getIndusConfiguration().getSliceFileList();
 
-		if (_filelst.size() > 0) {
-			boolean _shouldDecorate = false;
-			final Map _map = KaveriPlugin.getDefault().getIndusConfiguration().getLineNumbers();
-
-			if (_map != null && _map.size() > 0) {
-				_shouldDecorate = true;
-			}
-
+		if (_filelst.size() > 0) {			
+			
 			if (_resource != null
 				  && _resource.getType() == IResource.FILE
 				  && _resource.getFileExtension().equalsIgnoreCase("java")
-				  && _shouldDecorate) {
-				if (_filelst.contains(_resource) && isFileOkToDecorate(_resource, _map)) {
+			) {
+				if (_filelst.contains(_resource) && isFileOkToDecorate(_resource)) {
 					decoration.addOverlay(KaveriPlugin.getDefault().getIndusConfiguration().getSliceDecorator());
 				}
 			}
 		}
 	}
+
 
 	/**
 	 * Refresh.
@@ -120,28 +115,38 @@ public class IndusDecorator
 	 * Determines if any of the classes in the Java file have a slice associated so that the file can be annotated.
 	 *
 	 * @param resource The Java file
-	 * @param map The map of classnames to line numbers
+	 * 
 	 *
 	 * @return boolean True if the file should be decorated.
 	 */
-	private boolean isFileOkToDecorate(final IResource resource, final Map map) {
+	private boolean isFileOkToDecorate(final IResource resource) {
 		boolean _isFileOk = false;
-		final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create((IFile) resource);
-
-		try {
-			final IType[] _types = _icunit.getAllTypes();
-
-			for (int _i = 0; _i < _types.length; _i++) {
-				final String _classname = _types[_i].getFullyQualifiedName();
-
-				if (map.containsKey(_classname) 
-						&& ((Map) map.get(_classname)).size() > 0) {
-					_isFileOk = true;
-					break;
+		final IFile _file  = (IFile) resource;
+		final IProject _project = KaveriPlugin.getDefault().getIndusConfiguration()
+		.getSliceProject();
+		final IProject _sliceProject = _file.getProject();
+		if (_project != null && _project == _sliceProject) {
+			final Map decorateMap = KaveriPlugin.getDefault().getCacheMap();
+			final List _lst = SECommons.getClassesInFile(_file);
+			for (int _i = 0; _i < _lst.size(); _i++) {
+				final String _classname = (String) _lst.get(_i);
+				
+				if (decorateMap.get(_classname) != null) {
+					_isFileOk = true; break;
 				}
 			}
-		} catch (JavaModelException _jme) {
-			SECommons.handleException(_jme);
+			final Map _map = TagToAnnotationMapper.getAnnotationLinesForFile(_file);
+			if (_map.size() > 0) {
+				final Iterator _it = _map.keySet().iterator();
+				while (_it.hasNext()) {
+					final Object _key = _it.next();
+					final Map _value = (Map) _map.get(_key);
+					if (_value.size() > 0) {
+						decorateMap.put(_key, _value);
+						_isFileOk = true;
+					}					
+				}				
+			}
 		}
 		return _isFileOk;
 	}

@@ -18,8 +18,7 @@ package edu.ksu.cis.indus.kaveri.views;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.preferencedata.IDeltaListener;
-import edu.ksu.cis.indus.kaveri.preferencedata.PartialStmtData;
+import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 
 import java.util.List;
 
@@ -120,7 +119,7 @@ public class PartialSliceView
 		/**
 		 * The slice statement list has changed. Refresh the view.
 		 *
-		 * @see edu.ksu.cis.indus.kaveri.preferencedata.IDeltaListener#propertyChanged()
+		 * @see edu.ksu.cis.indus.kaveri.views.IDeltaListener#propertyChanged()
 		 */
 		public void propertyChanged() {
 			if (viewer != null) {
@@ -190,7 +189,9 @@ public class PartialSliceView
 		 */
 		private boolean isSliceTagPresent(final Stmt stmt) {
 			boolean _btagpresent = false;
-			final NamedTag _sTag = (NamedTag) stmt.getTag("EclipseIndusTag");
+			final EclipseIndusDriver _driver = KaveriPlugin.getDefault().getIndusConfiguration()
+				.getEclipseIndusDriver();
+			final NamedTag _sTag = (NamedTag) stmt.getTag(_driver.getNameOfSliceTag());
 
 			if (_sTag != null) {
 				_btagpresent = true;

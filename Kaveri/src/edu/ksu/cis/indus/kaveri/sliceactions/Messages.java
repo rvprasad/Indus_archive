@@ -16,7 +16,7 @@
  * Created on Jun 24, 2004
  *
  */
-package edu.ksu.cis.indus.kaveri.execute;
+package edu.ksu.cis.indus.kaveri.sliceactions;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
 	 * Bundle name.
 	 * </p>
 	 */
-	private static final String BUNDLE_NAME = "edu.ksu.cis.indus.kaveri.execute.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "edu.ksu.cis.indus.kaveri.sliceactions.messages"; //$NON-NLS-1$
 
 	/**
 	 * <p>

@@ -19,23 +19,9 @@
  *
  *
  */
-package edu.ksu.cis.indus.kaveri.execute;
+package edu.ksu.cis.indus.kaveri.driver;
 
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
-import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
-import edu.ksu.cis.indus.kaveri.driver.SootConvertor;
-import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
-import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
-import edu.ksu.cis.indus.slicer.ISliceCriterion;
-
-
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-
-import java.net.URL;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -46,29 +32,33 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
-
 import org.eclipse.jface.dialogs.MessageDialog;
-
 import org.eclipse.jface.operation.IRunnableWithProgress;
-
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import soot.SootMethod;
-
 import soot.jimple.Stmt;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
+import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
+import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
+import edu.ksu.cis.indus.kaveri.sliceactions.Messages;
+import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.slicer.ISliceCriterion;
+import edu.ksu.cis.indus.tools.IToolProgressListener;
 
 
 /**
@@ -84,6 +74,8 @@ public class IndusRunner
 	 */
 	CompilationUnitEditor editor;
 
+	private boolean opCancelled;
+	
 	/** 
 	 * <p>
 	 * The eclipse indus driver.
@@ -113,6 +105,7 @@ public class IndusRunner
 		driver = KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver();
 		editor = null;
 		completeFileList = null;
+		opCancelled = false;
 	}
 
 	/**
@@ -138,16 +131,40 @@ public class IndusRunner
 	 * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(final IProgressMonitor monitor)
-	  throws InvocationTargetException, InterruptedException {
-		monitor.beginTask(Messages.getString("IndusRunner.1"), IProgressMonitor.UNKNOWN);  //$NON-NLS-1$
+	  throws InvocationTargetException, InterruptedException {		
+		monitor.beginTask(Messages.getString("IndusRunner.1"), 100);  //$NON-NLS-1$
+		String _stag = "EclipseIndusTag";
+		_stag = _stag + System.currentTimeMillis();
+		driver.setNameOfSliceTag(_stag);
+		driver.getSlicer().addToolProgressListener(
+				new IToolProgressListener() {
+					int _ctr = 1;
+					public void toolProgess(ToolProgressEvent arg0) {
+						_ctr++;
+						if (!monitor.isCanceled()) {
+							monitor.worked(_ctr);	
+						}						
+						else {
+							opCancelled = true;
+							driver.getSlicer().abort();
+						}
+					}
+					
+				}
+				);
+		
 		driver.execute();
-		monitor.done();
-		KaveriPlugin.getDefault().getIndusConfiguration().setLineNumbers(driver.getAnnotationLineNumbers());
-
+		if (opCancelled) {
+			throw new InterruptedException("Slice was stopped");
+		}
+		
+		//KaveriPlugin.getDefault().getIndusConfiguration().setLineNumbers(driver.getAnnotationLineNumbers());
+		
 		final IndusDecorator _decorator = IndusDecorator.getIndusDecorator();
 		if (fileList.size() > 0) {
 			final IFile _file = (IFile) fileList.get(0);
 			final IProject _pr = _file.getProject();
+			KaveriPlugin.getDefault().getIndusConfiguration().setSliceProject(_pr);
 			final IJavaProject _jp = JavaCore.create(_pr);
 			final List _flist = completeFileList;
 			if (_flist != null) {
@@ -156,7 +173,7 @@ public class IndusRunner
 			completeFileList = _flist;
 		}
 		
-		if (_decorator != null) {
+		if (_decorator != null) {			
 			_decorator.refesh();
 		}
 
@@ -164,6 +181,7 @@ public class IndusRunner
 			highlightEditor();
 		}
 		returnCriteriaToPool();
+		monitor.done();
 	}
 
 	/**
@@ -171,22 +189,17 @@ public class IndusRunner
 	 *
 	 * @return boolean True if the slicer is setup correctly.
 	 */
-	protected boolean setUp() {
+	protected boolean setUp() {				
+		final String _currConfig = KaveriPlugin.getDefault().getIndusConfiguration().getCurrentConfiguration();		
+		driver.setSlicer(KaveriPlugin.getDefault().getSlicerTool());
 		driver.reset();
+		
+		driver.getSlicer().setActiveConfiguration(_currConfig);
 		removeAnnotations();
-
-		final String _configString = KaveriPlugin.getDefault().getIndusConfiguration().getCurrentConfiguration();
+		
 		boolean _indusRun = true;
 
-		try {
-			if (_configString == null || _configString.equals("")) {  //$NON-NLS-1$
-
-				final URL _url = KaveriPlugin.getDefault().getBundle().getEntry(Messages.getString("IndusRunner.3"));
-				driver.setConfiguration(_url);
-			} else {
-				driver.setConfiguration(_configString);
-			}
-
+		try {			
 			String _sootClassPath = "";  //$NON-NLS-1$
 			IPath _jreclasspath = JavaCore.getClasspathVariable(Messages.getString("IndusRunner.5"));  //$NON-NLS-1$
 			_jreclasspath = JavaCore.getClasspathVariable(Messages.getString("IndusRunner.6"));  //$NON-NLS-1$		
@@ -200,9 +213,17 @@ public class IndusRunner
 
 				if (fileList.size() > 0) {
 					final IFile _file = (IFile) fileList.get(0);
-					final IPath _path = _file.getProject().getLocation();
-					_sootClassPath += _path.toOSString();
-					_sootClassPath += _fileseparator + _pathseparator;
+					final IJavaProject _jproject = JavaCore.create(_file.getProject());
+					final IClasspathEntry entries[] = _jproject.getRawClasspath();
+					for (int _i = 0; _i < entries.length; _i++) {
+						final IClasspathEntry _entry = entries[_i];
+					
+						if (_entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {							
+							final IPath _path = _entry.getPath();
+							_sootClassPath += _path.toOSString();
+							_sootClassPath += _fileseparator + _pathseparator;
+						}
+					}					
 				}
 
 				driver.addToPath(_sootClassPath);
@@ -233,9 +254,6 @@ public class IndusRunner
 				_indusRun = false;
 				MessageDialog.openError(null, Messages.getString("IndusRunner.9"), Messages.getString("IndusRunner.12"));
 			}
-		} catch (IOException _ie) {
-			SECommons.handleException(_ie);
-			_indusRun = false;
 		} catch (JavaModelException _jme) {
 			SECommons.handleException(_jme);
 			_indusRun = false;
@@ -252,47 +270,21 @@ public class IndusRunner
 			final IFile _file = (IFile) fileList.get(0);
 			final IProject _project = _file.getProject();
 			final IJavaProject _jproject = JavaCore.create(_project);
+			
 			final List _listoffiles = SECommons.processForFiles(_jproject);
 			if (_listoffiles != null && _listoffiles.size() > 0) {
 				completeFileList = _listoffiles;
 				final List _classlist = new LinkedList();
 				for (int _i = 0; _i < _listoffiles.size(); _i++) {
 					final IFile _jfile = (IFile) _listoffiles.get(_i);
-					_classlist.addAll(getClassesInFile(_jfile));
+					_classlist.addAll(SECommons.getClassesInFile(_jfile));
 				}
 				driver.setApplicationClasses(_classlist);
 			}
 		}
 	}
 
-	/**
-	 * Returns a list of class names in the given java file.
-	 * 
-	 * @param jfile
-	 *            The file in which to find the class names.
-	 * @return List The list of classnames in the file.
-	 */
-	private List getClassesInFile(final IFile jfile) {
-		final List _cllist = new LinkedList();
-		final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(jfile);
-		
-
-		try {
-			if (_icunit != null) {
-				IType[] _types = null;
-				_types = _icunit.getAllTypes();
-
-				for (int _nrun = 0; _nrun < _types.length; _nrun++) {
-					final IType _type = _types[_nrun];
-					_cllist.add(_type.getFullyQualifiedName());
-				}
-			}
-		} catch (JavaModelException _jme) {
-			SECommons.handleException(_jme);
-		}		
-
-		return _cllist;
-	}
+	
 
 	/**
 	 * Sets the criteria.
@@ -463,3 +455,6 @@ public class IndusRunner
 		}
 	}
 }
+
+
+

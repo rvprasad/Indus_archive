@@ -20,8 +20,8 @@
  */
 package edu.ksu.cis.indus.kaveri.presentation;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.preferencedata.AnnotationData;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IMember;
@@ -175,7 +176,7 @@ public class AddIndusAnnotation {
 
 		final IFile _file = ((IFileEditorInput) theeditor.getEditorInput()).getFile();
 
-		addAnnotationToLines(_file, lineMap);
+		addAnnotationToLines(_file);
 
 		//setEditor(theeditor, true);
 	}
@@ -210,10 +211,31 @@ public class AddIndusAnnotation {
 	 * Adds the annotations to the given lines.
 	 *
 	 * @param javaFile The input java file.
-	 * @param lineMap The map of classnames to the line numbers.
+	 * 
 	 */
-	private void addAnnotationToLines(final IFile javaFile, final Map lineMap) {
-		if (lineMap != null) {
+	private void addAnnotationToLines(final IFile javaFile) {
+		final IProject _project = javaFile.getProject();
+		if (_project != KaveriPlugin.getDefault().getIndusConfiguration().getSliceProject()) {
+			return;
+		}
+		
+		final List _cllist = SECommons.getClassesInFile(javaFile);
+		final Map _newMap = KaveriPlugin.getDefault().getCacheMap();
+		Map lineMap = new HashMap();
+		boolean _atleastSomePresent = false;
+		for (int _i = 0; _i < _cllist.size(); _i++) {
+			final String _classname = (String) _cllist.get(_i);
+			 if (_newMap.get(_classname) != null) {
+			 	lineMap.put(_classname, _newMap.get(_classname));
+			 	_atleastSomePresent = true;
+			 } 
+			 			 
+		}
+		
+		if (!_atleastSomePresent) {
+			lineMap = TagToAnnotationMapper.getAnnotationLinesForFile(javaFile);
+		}
+		if (lineMap != null && lineMap.size() > 0) {
 			//			IFile file = ((IFileEditorInput) editor.getEditorInput()).getFile();
 			//			ICompilationUnit unit = JavaCore.createCompilationUnitFrom(file);
 			//			if(unit !=null)
@@ -222,7 +244,7 @@ public class AddIndusAnnotation {
 			//				cu.accept(new AnnotationTraverser(lineVector, editor));					
 			//			}
 			final List _lst = new LinkedList();
-			final List _pruneList = filterLines(javaFile, lineMap);
+			final List _pruneList = filterLines(lineMap);
 
 			final List _oldlst = (List) locationMap.get(javaFile);
 
@@ -277,37 +299,24 @@ public class AddIndusAnnotation {
 	/**
 	 * Filters the map of line numbers to the classes present in the currently open file.
 	 *
-	 * @param javaFile The Java file.
+	 *
 	 * @param lineMap The mapping of classnames to line numbers.
 	 *
 	 * @return List The list of filtered line numbers
 	 */
-	private List filterLines(final IFile javaFile, final Map lineMap) {
+	private List filterLines(final Map lineMap) {
 		final List _lst = new LinkedList();
-		final ICompilationUnit _unit = JavaCore.createCompilationUnitFrom(javaFile);
-
-		if (_unit != null) {
-			try {
-				final IType[] _types = _unit.getAllTypes();
-
-				for (int _i = 0; _types != null && _i < _types.length; _i++) {
-					final String _className = _types[_i].getFullyQualifiedName();
-					final Map _methodMap = (Map) lineMap.get(_className);
-					final IMethod[] _methods = _types[_i].getMethods();
-
-					for (int _j = 0; _j < _methods.length; _j++) {
-						final IMethod _method = _methods[_j];
-						final String _methodsig = SECommons.getProperMethodName(_method);
-
-						if (_methodMap.containsKey(_methodsig)) {
-							_lst.addAll((List) _methodMap.get(_methodsig));
-						}
-					}
-				}
-			} catch (JavaModelException _e) {
-				SECommons.handleException(_e);
+		final Iterator _it = lineMap.keySet().iterator();
+		while (_it.hasNext()) {
+			final String _className = (String) _it.next();
+			final Map _methodMap = (Map) lineMap.get(_className);
+			final Map _mMap = (Map) lineMap.get(_className);
+			final Iterator _mIt = _mMap.values().iterator();
+			while (_mIt.hasNext()) {
+				final List _annonList = (List) _mIt.next();
+				_lst.addAll(_annonList);
 			}
-		}
+		}		
 		return _lst;
 	}
 

@@ -20,17 +20,16 @@
  */
 package edu.ksu.cis.indus.kaveri.driver;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.preferencedata.AnnotationData;
+import edu.ksu.cis.indus.kaveri.presentation.AnnotationData;
 
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 
-import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -58,8 +57,9 @@ import org.apache.commons.logging.LogFactory;
 
 import org.eclipse.core.runtime.Path;
 
+
+
 import soot.Body;
-import soot.G;
 import soot.Printer;
 import soot.Scene;
 import soot.SootClass;
@@ -119,16 +119,14 @@ public class EclipseIndusDriver
 	 * The slice tag name.
 	 * </p>
 	 */
-	private final String nameOfSliceTag = Messages.getString("EclipseIndusDriver.1");  //$NON-NLS-1$
-
+	private  String nameOfSliceTag = Messages.getString("EclipseIndusDriver.1");  //$NON-NLS-1$
+	
 	/**
 	 * Creates a new EclipseIndusDriver object.
 	 */
-	public EclipseIndusDriver() {
-		G.reset();
-		slicer = new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
+	public EclipseIndusDriver() {		
 		factory = SliceCriteriaFactory.getFactory();
-		cfgProvider = slicer.getStmtGraphFactory();
+		
 	}
 
 	/** 
@@ -299,7 +297,7 @@ public class EclipseIndusDriver
 		if (SECommons.checkForNull(config)) {
 			throw new NullPointerException("setConfiguration expects non-null parameter");
 		}
-
+		
 		final boolean _isOk = slicer.destringizeConfiguration(config);
 
 		if (!_isOk) {
@@ -331,7 +329,9 @@ public class EclipseIndusDriver
 		if (criteria != Collections.EMPTY_LIST) {
 			_coll.addAll(criteria);
 		}
-		criteria = _coll;
+		criteria = _coll;		
+		
+				
 	}
 
 	/**
@@ -455,7 +455,7 @@ public class EclipseIndusDriver
 	 * Executes the slicer.
 	 * </p>
 	 */
-	public void execute() {
+	public void execute() {		
 		slicer.setTagName(nameOfSliceTag);
 		slicer.setSystem(scene);
 		slicer.setRootMethods(rootMethods);
@@ -478,9 +478,11 @@ public class EclipseIndusDriver
 	 * Resets soot and the slicer.
 	 */
 	public void reset() {
-		G.reset();
-		slicer.reset();
-		cfgProvider = slicer.getStmtGraphFactory();
+		//G.reset();
+		criteria.clear();
+		if (slicer != null) {
+			slicer.reset();
+		}
 	}
 
 	/**
@@ -649,5 +651,26 @@ public class EclipseIndusDriver
 				_tdata.setComplete(_data.isComplete() | _tdata.isComplete());
 			}
 		}
+	}
+
+	/**
+	 * Sets the slicer tool.
+	 * @param sliceTool The slicer tool instance.
+	 */
+	public void setSlicer(SlicerTool sliceTool) {
+		slicer = sliceTool;
+		cfgProvider = slicer.getStmtGraphFactory();
+	}
+	/**
+	 * @return Returns the nameOfSliceTag.
+	 */
+	public String getNameOfSliceTag() {
+		return nameOfSliceTag;
+	}
+	/**
+	 * @param nameOfSliceTag The nameOfSliceTag to set.
+	 */
+	public void setNameOfSliceTag(String nameOfSliceTag) {
+		this.nameOfSliceTag = nameOfSliceTag;
 	}
 }

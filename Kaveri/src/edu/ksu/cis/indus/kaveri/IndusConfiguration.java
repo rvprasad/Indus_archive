@@ -22,8 +22,8 @@ package edu.ksu.cis.indus.kaveri;
 
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
-import edu.ksu.cis.indus.kaveri.preferencedata.PartialStmtData;
 import edu.ksu.cis.indus.kaveri.presentation.AddIndusAnnotation;
+import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,6 +32,7 @@ import java.util.Map;
 
 
 //import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.resource.ImageDescriptor;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -64,6 +65,10 @@ public class IndusConfiguration {
 	 */
 	private ImageDescriptor sliceDecorator;
 
+	/**
+	 * The project which has been recently sliced.
+	 */
+	private IProject sliceProject;
 	/** 
 	 * The set of criteria.
 	 */
@@ -274,15 +279,17 @@ public class IndusConfiguration {
 		//selectedClasses = null;
 		outputDirectory = ".";
 		lineNumbers = null;
-		eclipseIndusDriver = new EclipseIndusDriver();
+		
 
 		if (!additive) {
 		//	System.out.println("Resetting");
 			indusAnnotationManager.reset();
 		}
 		sliceFileList.clear();
+		sliceProject = null;
 		stmtList.setStmtList(null);
-		//criteria.clear();
+		criteria.clear();	
+		KaveriPlugin.getDefault().reset();
 	}
 	/**
 	 * Returns the set of statements.
@@ -297,5 +304,17 @@ public class IndusConfiguration {
 	 */
 	public void setStmtList(final List stmtsList) {
 		this.stmtList.setStmtList(stmtsList);
+	}
+	/**
+	 * @return Returns the sliceProject.
+	 */
+	public IProject getSliceProject() {
+		return sliceProject;
+	}
+	/**
+	 * @param sliceProject The sliceProject to set.
+	 */
+	public void setSliceProject(IProject sliceProject) {
+		this.sliceProject = sliceProject;
 	}
 }

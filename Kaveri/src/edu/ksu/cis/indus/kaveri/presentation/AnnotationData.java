@@ -18,7 +18,7 @@
  *
  *
  */
-package edu.ksu.cis.indus.kaveri.preferencedata;
+package edu.ksu.cis.indus.kaveri.presentation;
 
 import org.eclipse.jface.text.Position;
 

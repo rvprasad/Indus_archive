@@ -18,10 +18,11 @@
  *
  * 
  */
-package edu.ksu.cis.indus.kaveri.preferencedata;
+package edu.ksu.cis.indus.kaveri.views;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * This class maintains the set of partial jimple statements

@@ -18,10 +18,11 @@
  *
  *
  */
-package edu.ksu.cis.indus.kaveri.driver;
+package edu.ksu.cis.indus.kaveri.soot;
 
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.driver.Messages;
 
 import java.io.File;
 

@@ -18,7 +18,7 @@
  *
  *
  */
-package edu.ksu.cis.indus.kaveri.preferencedata;
+package edu.ksu.cis.indus.kaveri.views;
 
 /**
  * This interface is implemented by any viewers which want  to listen to changes in PartialStmtData model.

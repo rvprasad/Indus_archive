@@ -41,6 +41,12 @@ public class Criteria {
 	 */
 	private boolean bConsiderValue;
 
+	/**
+	 * The serialized criteria.
+	 */
+	private String criteriaSpec;
+	
+	
 	/** 
 	 * The index of the Jimple Stmt.
 	 */
@@ -139,5 +145,21 @@ public class Criteria {
 	 */
 	public String getStrMethodName() {
 		return strMethodName;
+	}
+	
+	/**
+	 * Returns the serialized criteria string.
+	 * @return Returns the criteriaSpec.
+	 */
+	public String getCriteriaSpec() {
+		return criteriaSpec;
+	}
+	
+	/**
+	 * Sets the serialized form of the criteria.
+	 * @param criteriaSpec The criteriaSpec to set.
+	 */
+	public void setCriteriaSpec(String criteriaSpec) {
+		this.criteriaSpec = criteriaSpec;
 	}
 }

@@ -15,11 +15,9 @@
 
 package edu.ksu.cis.indus.kaveri.common;
 
-import edu.ksu.cis.indus.kaveri.dialogs.ExceptionDialog;
-
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +25,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -36,13 +34,16 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
 import org.eclipse.jdt.internal.ui.search.PrettySignature;
-
 import org.eclipse.swt.widgets.Display;
 
+import soot.Scene;
 import soot.SootMethod;
 import soot.Type;
+import soot.options.Options;
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.kaveri.dialogs.ExceptionDialog;
+import edu.ksu.cis.indus.kaveri.driver.Messages;
 
 
 /**
@@ -82,6 +83,33 @@ public final class SECommons {
 		return _methodPattern;
 	}
 
+	
+	/**
+	 * Returns the classes in the file.
+	 * @param file The Java file
+	 * @return List The list of classes in the file.
+	 * 
+	 */
+	public static List getClassesInFile(final IFile file)  {
+		final List _lst = new LinkedList();
+		final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(file);
+
+		if (_icunit != null) {
+			IType[] _types = null;
+			try {
+			_types = _icunit.getAllTypes();
+
+			for (int _nrun = 0; _nrun < _types.length; _nrun++) {
+				final String _elemName = _types[_nrun].getFullyQualifiedName();
+				_lst.add(_elemName);
+			}
+			} catch (JavaModelException _jme) {
+				
+			}
+		}
+		return _lst;
+	}
+	
 	/**
 	 * Returns a search pattern for the IMethod corressponding to the given SootMethod.
 	 *
@@ -288,6 +316,54 @@ public final class SECommons {
 			if (isMainPresent(_newfile)) {
 				lst.add(_newfile);
 			}
+		}
+	}
+
+	/**
+	 * Loads the given classes into the scene.
+	 * @param lst
+	 * @param jfile
+	 */
+	public static void loadupClasses(List lst, IFile jfile) {
+		String _sootClassPath = "";
+		IPath _jreclasspath = JavaCore.getClasspathVariable("JRE_LIB");
+		final String _pathseparator = System.getProperty(Messages.getString("SootConvertor.3"));  //$NON-NLS-1$
+		final String _fileseparator = System.getProperty(Messages.getString("SootConvertor.4"));  //$NON-NLS-1$
+		if (_jreclasspath != null) {
+			_sootClassPath = _jreclasspath.toOSString();
+			_sootClassPath += _pathseparator;
+
+			final IPath _path = jfile.getProject().getLocation();
+			_sootClassPath += _path.toOSString();
+			_sootClassPath += _fileseparator + _pathseparator;
+
+			//G.reset();
+			final Scene _scene = Scene.v();
+			Options.v().parse(Util.getSootOptions());
+			Options.v().set_src_prec(Options.src_prec_java);
+			Options.v().set_keep_line_number(true);
+
+			String _cpString = _scene.getSootClassPath();
+
+			if (_cpString != null) {
+				_cpString += File.pathSeparator + _sootClassPath + File.pathSeparator
+				  + System.getProperty("java.class.path"); 
+			} else {
+				_cpString = _sootClassPath;
+			}
+
+			_scene.setSootClassPath(_cpString);
+
+			for (int _i = 0; _i < lst.size(); _i++) {
+				try {
+					final String _classname = (String) lst.get(_i);
+					_scene.loadClassAndSupport(_classname);
+				} catch (RuntimeException _rme) {
+					SECommons.handleException(_rme);
+				}
+	
+			}
+			
 		}
 	}
 }

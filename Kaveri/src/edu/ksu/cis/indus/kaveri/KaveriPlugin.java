@@ -15,7 +15,9 @@
 
 package edu.ksu.cis.indus.kaveri;
 
-import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,9 +25,14 @@ import java.io.InputStreamReader;
 
 import java.net.URL;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 
@@ -46,6 +53,20 @@ public class KaveriPlugin
 	 */
 	private static KaveriPlugin plugin;
 
+	/**
+	 * The slicer tool instance.
+	 */
+	private SlicerTool slicerTool;
+	
+	/**
+	 * The resource change listener.
+	 */
+	private IResourceChangeListener listener;
+	
+	/**
+	 * This is the annotation cache map.
+	 */
+	private Map cacheMap;
 	/** 
 	 * The indusconfiguration instance.
 	 */
@@ -120,88 +141,143 @@ public class KaveriPlugin
 		} catch (MissingResourceException _x) {
 			resourceBundle = null;
 		}
-		loadDefaultConfigurations();
+		slicerTool = new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
+		cacheMap = new HashMap();
+		/*final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
+		listener =  new JavaClassChangeListener();
+		_workspace.addResourceChangeListener(listener);*/
+		
 	}
 
 	/**
-	 * Loads the defaults of the plugin.
+	 * Loads the defaultConfiguration.xml into slicer tool.
+	 * @throws IllegalArgumentException When an valid configuration is used.
 	 */
-	private void loadDefaultConfigurations() {
-		// Load defaultConfiguration
-		final StringBuffer _userConfiguration = new StringBuffer();
-		URL _url =
-			KaveriPlugin.getDefault().getBundle().getEntry("data/default_config/default_slicer_configuration.xml");
+	public void loadDefaultConfigurations() throws IllegalArgumentException {		
 		final IPreferenceStore _store = getPreferenceStore();
+		final StringBuffer _userConfiguration = new StringBuffer();		
+		URL _url =
+			KaveriPlugin.getDefault().getBundle().getEntry("data/default_config/default_slicer_configuration.xml");		
+		
+			try {
+				final BufferedReader _configReader = new BufferedReader(new InputStreamReader(_url.openStream()));
 
-		try {
-			final BufferedReader _configReader = new BufferedReader(new InputStreamReader(_url.openStream()));
-
-			while (_configReader.ready()) {
-				_userConfiguration.append(_configReader.readLine());
+				while (_configReader.ready()) {
+					_userConfiguration.append(_configReader.readLine());
+				}
+			} catch (IOException _ioe) {
+				_ioe.printStackTrace();
 			}
-		} catch (IOException _ioe) {
-			_ioe.printStackTrace();
-		}
-
-		_store.setDefault("defaultConfiguration", _userConfiguration.toString());
-
-		// Load backwardConfiguration
-		_userConfiguration.delete(0, _userConfiguration.length());
-
-		_url = KaveriPlugin.getDefault().getBundle().getEntry("data/default_config/backward.xml");
-
-		try {
-			final BufferedReader _configReader = new BufferedReader(new InputStreamReader(_url.openStream()));
-
-			while (_configReader.ready()) {
-				_userConfiguration.append(_configReader.readLine());
+			final String _configuration = _userConfiguration.toString();			
+			final boolean _result = slicerTool.destringizeConfiguration(_configuration);
+			if (_result) {
+				throw new IllegalArgumentException("Slicer Tool passed illegal configuration");
 			}
-		} catch (IOException _ioe) {
-			SECommons.handleException(_ioe);
+		
+	}
+	
+	/**
+	 * Loads the defaults of the plugin.
+	 * @throws IllegalArgumentException When an valid configuration is used.
+	 */
+	public void loadConfigurations() 
+	 throws IllegalArgumentException {
+		final IPreferenceStore _store = getPreferenceStore();
+		final String _config  = _store.getString("defaultConfiguration");
+		if (_config.equals("")) {
+			loadDefaultConfigurations();
 		}
-		_store.setDefault("backwardConfiguration", _userConfiguration.toString());
-
-		// Load forwardConfiguration
-		_userConfiguration.delete(0, _userConfiguration.length());
-
-		_url = KaveriPlugin.getDefault().getBundle().getEntry("data/default_config/forward.xml");
-
-		try {
-			final BufferedReader _configReader = new BufferedReader(new InputStreamReader(_url.openStream()));
-
-			while (_configReader.ready()) {
-				_userConfiguration.append(_configReader.readLine());
-			}
-		} catch (IOException _ioe) {
-			SECommons.handleException(_ioe);
+		else {
+			slicerTool.destringizeConfiguration(_config);
 		}
-		_store.setDefault("forwardConfiguration", _userConfiguration.toString());
-		setupDefaultColors();
+		
+	}
+	
+	/**
+	 * Resets the annotation cache map.
+	 *
+	 */
+	public void reset() {
+		cacheMap.clear();
 	}
 
 	/**
 	 * Sets up default colors if none present.
 	 */
-	private void setupDefaultColors() {
+	public void setupDefaultColors() {
 		final IPreferenceStore _store = getPreferenceStore();
-		final int _constMaxColor = 255;
-		final int _const1 = 10;
-		final int _const2 = 5;
-		final int _const3 = 16;
-		final int _const4 = 242;
-		final int _const5 = 230;
-		final RGB _redColor = new RGB(_constMaxColor, 0, 0);
-		final RGB _blueColor = new RGB(0, 0, _constMaxColor);
-		final RGB _greenColor = new RGB(_const1, _constMaxColor, _const1);
-		final RGB _yellowColor = new RGB(_constMaxColor, _constMaxColor, _const2);
-		//final RGB _purpleColor = new RGB(252, 58, 239);
-		final RGB _paleBlue = new RGB(_const3, _const4, _const5);
-		//final RGB lightRed = new RGB(214, 164, 180);
+		if (PreferenceConverter.getDefaultColor(_store, "controlColor")
+				== PreferenceConverter.COLOR_DEFAULT_DEFAULT) {
+			final int _constMaxColor = 255;
+			final int _const1 = 10;
+			final int _const2 = 5;
+			final int _const3 = 16;
+			final int _const4 = 242;
+			final int _const5 = 230;
+			final RGB _redColor = new RGB(_constMaxColor, 0, 0);
+			final RGB _blueColor = new RGB(0, 0, _constMaxColor);
+			final RGB _greenColor = new RGB(_const1, _constMaxColor, _const1);
+			final RGB _yellowColor = new RGB(_constMaxColor, _constMaxColor, _const2);
+			//final RGB _purpleColor = new RGB(252, 58, 239);
+			final RGB _paleBlue = new RGB(_const3, _const4, _const5);
+			//final RGB lightRed = new RGB(214, 164, 180);
 
-		PreferenceConverter.setDefault(_store, "controlColor", _redColor);
-		PreferenceConverter.setDefault(_store, "dataColor", _greenColor);
-		PreferenceConverter.setDefault(_store, "readyColor", _blueColor);
-		PreferenceConverter.setDefault(_store, "syncColor", _yellowColor);
-		PreferenceConverter.setDefault(_store, "inteferenceColor", _paleBlue);
+			PreferenceConverter.setDefault(_store, "controlColor", _redColor);
+			PreferenceConverter.setDefault(_store, "dataColor", _greenColor);
+			PreferenceConverter.setDefault(_store, "readyColor", _blueColor);
+			PreferenceConverter.setDefault(_store, "syncColor", _yellowColor);
+			PreferenceConverter.setDefault(_store, "interferenceColor", _paleBlue);
+
+		}
+	}
+	
+	/**
+	 * Returns the slicer tool instance.
+	 * @return Returns the slicerTool.
+	 */
+	public SlicerTool getSlicerTool() {
+		return slicerTool;
+	}
+
+	/**
+	 * Stores the new configurations.
+	 */
+	public void storeConfiguration() {
+	 final String _config = slicerTool.stringizeConfiguration();
+	 getPreferenceStore().setValue("defaultConfiguration", _config);
+	}
+
+	/**
+	 * 
+	 */
+	public void createNewSlicer() {
+		slicerTool = new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
+		loadConfigurations();
+	}
+	
+	/** 
+	 * The plugin has stopped.
+	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+	 */
+	public void stop(BundleContext context) throws Exception {		
+		if (listener != null) {
+			final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
+			_workspace.removeResourceChangeListener(listener);
+		}		
+	}
+	/**
+	 * @return Returns the cacheMap.
+	 */
+	public Map getCacheMap() {
+		return cacheMap;
+	}
+	
+	/**
+	 * Adds the given object to the map.
+	 * @param key The key to the map
+	 * @param value The value to the map
+	 */
+	public void addToCacheMap(final Object key, final Object value) {
+		cacheMap.put(key, value);
 	}
 }

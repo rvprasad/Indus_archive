@@ -21,23 +21,23 @@
  */
 package edu.ksu.cis.indus.kaveri.dialogs;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import com.thoughtworks.xstream.XStream;
 
 import com.thoughtworks.xstream.alias.CannotResolveClassException;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
-
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
 import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
-import edu.ksu.cis.indus.kaveri.preferencedata.SliceConfigurationHolder;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewConfiguration;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewData;
 
-import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
+import edu.ksu.cis.indus.tools.IToolConfiguration;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import org.eclipse.core.resources.IResource;
@@ -164,7 +164,7 @@ public class IndusConfigurationDialog
 		_gdata.grabExcessHorizontalSpace = true;
 		confCombo.setLayoutData(_gdata);
 		initializeConfigs(confCombo);
-		confCombo.select(0);
+		
 
 		final Label _viewLabel = new Label(_composite, SWT.NONE);
 		_viewLabel.setText(Messages.getString("IndusConfigurationDialog.2"));  //$NON-NLS-1$
@@ -239,33 +239,9 @@ public class IndusConfigurationDialog
 	protected void okPressed() {
 		final String _selectedConfiguration = confCombo.getText();
 		String _configString = null;
-
-		if (_selectedConfiguration.equals(Messages.getString("IndusConfigurationDialog.25"))) {  //$NON-NLS-1$
-			_configString =
-				KaveriPlugin.getDefault().getPreferenceStore()
-					.getString(
-							Messages.getString("IndusConfigurationDialog.26")); //$NON-NLS-1$
-		} else {
-			final XStream _xstream = new XStream(new DomDriver());
-			_xstream.alias(Messages.getString("IndusConfigurationDialog.27"),  //$NON-NLS-1$
-				SliceConfigurationHolder.class);
-
-			final String _name = Messages.getString("IndusConfigurationDialog.28");  //$NON-NLS-1$
-			final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-			final String _prefval = _ps.getString(_name);
-
-			if (!_prefval.equals("")) {  //$NON-NLS-1$
-
-				final SliceConfigurationHolder _sch = (SliceConfigurationHolder) _xstream.fromXML(_prefval);
-				int _index = confCombo.getSelectionIndex();
-				_index--;
-				_configString = (String) _sch.getList().get(_index);
-			}
-		}
-		KaveriPlugin.getDefault().getIndusConfiguration().setCurrentConfiguration(_configString);
-		setUpCriteria();
+		KaveriPlugin.getDefault().getIndusConfiguration().setCurrentConfiguration(_selectedConfiguration);
+		setUpCriteria();		
 		KaveriPlugin.getDefault().getIndusConfiguration().setAdditive(additive.getSelection());
-
 		final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
 		final String _additivename = "additiveSliceProperty";
 		_ps.setValue(_additivename, additive.getSelection());
@@ -277,7 +253,7 @@ public class IndusConfigurationDialog
 	 */
 	private void setUpCriteria() {
 		final int[] _currentsels = criteriaTable.getSelectionIndices();
-		KaveriPlugin.getDefault().getIndusConfiguration().getCriteria().clear();
+		//KaveriPlugin.getDefault().getIndusConfiguration().getCriteria().clear();
 
 		if (_currentsels != null && _currentsels.length >= 1) {
 			IResource _resource = project.getResource();
@@ -380,31 +356,14 @@ public class IndusConfigurationDialog
 	 * @param confsCombo The configuration combo
 	 */
 	private void initializeConfigs(final Combo confsCombo) {
-		confsCombo.add(Messages.getString("IndusConfigurationDialog.20"));  //$NON-NLS-1$
-
-		final XStream _xstream = new XStream(new DomDriver());
-		_xstream.alias(Messages.getString("IndusConfigurationDialog.21"),  //$NON-NLS-1$
-			SliceConfigurationHolder.class);
-
-		final String _name = Messages.getString("IndusConfigurationDialog.22");  //$NON-NLS-1$
-		final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-		final String _prefval = _ps.getString(_name);
-
-		if (!_prefval.equals("")) {  //$NON-NLS-1$
-
-			final SliceConfigurationHolder _sch = (SliceConfigurationHolder) _xstream.fromXML(_prefval);
-			final java.util.List _lst = _sch.getList();
-			final SlicerTool _stool =
-				new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
-
-			for (int _i = 0; _i < _lst.size(); _i++) {
-				final String _config = (String) _lst.get(_i);
-				_stool.destringizeConfiguration(_config);
-				//list.add("Configuration" + _i);
-				confsCombo.add(_stool.getActiveConfiguration().getConfigName());
-			}
-			confsCombo.select(confsCombo.getItemCount() - 1);
-		}
+		KaveriPlugin.getDefault().loadConfigurations();
+		final SlicerTool _slicetool = KaveriPlugin.getDefault().getSlicerTool();
+		final Collection _c = _slicetool.getConfigurations();
+		for (final Iterator _t = _c.iterator(); _t.hasNext();) {
+			confsCombo.add(((IToolConfiguration) _t.next()).getConfigName());
+		}		
+		final int _activeIndex = confsCombo.indexOf(_slicetool.getActiveConfiguration().getConfigName());
+		confsCombo.select(_activeIndex);		
 	}
 
 	/**

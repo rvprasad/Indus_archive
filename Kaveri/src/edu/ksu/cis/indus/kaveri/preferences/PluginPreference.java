@@ -18,27 +18,13 @@ package edu.ksu.cis.indus.kaveri.preferences;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+
 
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.dialogs.ConfigurationDialog;
 import edu.ksu.cis.indus.kaveri.dialogs.ViewDialog;
-import edu.ksu.cis.indus.kaveri.preferencedata.SliceConfigurationHolder;
 import edu.ksu.cis.indus.kaveri.preferencedata.ViewConfiguration;
-
-import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
-
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import java.util.ArrayList;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
@@ -60,7 +46,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.TabFolder;
@@ -139,12 +124,7 @@ public class PluginPreference
 	 */
 	private ColorFieldEditor cf5;
 
-	/** 
-	 * <p>
-	 * The swt list to show the configurations.
-	 * </p>
-	 */
-	private List exemptTagsList;
+	
 
 	/**
 	 * Creates a new PluginPreference object.
@@ -155,29 +135,6 @@ public class PluginPreference
 		// Set the preference store for the preference page.
 		final IPreferenceStore _store = KaveriPlugin.getDefault().getPreferenceStore();
 		setPreferenceStore(_store);
-	}
-
-	/**
-	 * Gets the SliceConfigurationHolder from the plugin.
-	 *
-	 * @return SliceConfigurationHolder The configuration holder.
-	 */
-	public SliceConfigurationHolder getSliceConfigurations() {
-		final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-		final String _name = Messages.getString("PluginPreference.27");  //$NON-NLS-1$
-		final String _prefvals = _ps.getString(_name);
-		final XStream _xstream = new XStream(new DomDriver());
-		_xstream.alias(Messages.getString("PluginPreference.28"), SliceConfigurationHolder.class);  //$NON-NLS-1$
-
-		SliceConfigurationHolder _sch = null;
-
-		if (_prefvals.equals("")) {  //$NON-NLS-1$
-			_sch = new SliceConfigurationHolder();
-			_sch.setList(new ArrayList());
-		} else {
-			_sch = (SliceConfigurationHolder) _xstream.fromXML(_prefvals);
-		}
-		return _sch;
 	}
 
 	/**
@@ -194,12 +151,14 @@ public class PluginPreference
 	 * @return boolean Ok can go through.
 	 */
 	public boolean performOk() {
+		KaveriPlugin.getDefault().storeConfiguration();
 		cf1.store();
 		cf2.store();
 		cf3.store();
 		cf4.store();
 		cf5.store();
 		showMarker.store();
+		KaveriPlugin.getDefault().savePluginPreferences();
 		return super.performOk();
 	}
 
@@ -265,7 +224,8 @@ public class PluginPreference
 		cf3.store();
 		cf4.store();
 		cf5.store();
-		showMarker.store();
+		showMarker.store();		
+		KaveriPlugin.getDefault().storeConfiguration();
 		KaveriPlugin.getDefault().savePluginPreferences();
 		super.performApply();
 	}
@@ -288,6 +248,7 @@ public class PluginPreference
 	 * @return Control The created control
 	 */
 	private Control createColor(final TabFolder folder) {
+		KaveriPlugin.getDefault().setupDefaultColors();
 		final Composite _comp = new Composite(folder, SWT.NONE);
 		final GridLayout _layout = new GridLayout();
 		_layout.numColumns = 1;
@@ -341,49 +302,13 @@ public class PluginPreference
 	 * @return Control The control
 	 */
 	private Control createConfig(final TabFolder folder) {
+		KaveriPlugin.getDefault().loadConfigurations();
 		final Composite _comp = new Composite(folder, SWT.NONE);
 		final GridLayout _layout = new GridLayout();
 		_layout.numColumns = 1;
 		_comp.setLayout(_layout);
-		exemptTagsList = new List(_comp, SWT.BORDER);
-
-		//
-		// Create a data that takes up the extra space
-		// in the dialog and spans both columns.
-		final GridData _listData = new GridData(GridData.FILL_HORIZONTAL);
-		_listData.horizontalSpan = 1;
-		_listData.heightHint = convertVerticalDLUsToPixels(LIST_HEIGHT_IN_DLUS);
-		exemptTagsList.setLayoutData(_listData);
-
-		final Composite _comp1 = new Composite(_comp, SWT.NONE);
-		_comp1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		initializeList(exemptTagsList);
-
-		final RowLayout _rl = new RowLayout();
-		final int _spacing = 20;
-		_rl.spacing = _spacing;
-		_comp1.setLayout(_rl);
-
-		final Button _btnCreate = new Button(_comp1, SWT.PUSH);
-		_btnCreate.setText(Messages.getString("PluginPreference.16"));  //$NON-NLS-1$
-		handleCreate(_btnCreate);
-
-		final Button _btnImport = new Button(_comp1, SWT.PUSH);
-		_btnImport.setText(Messages.getString("PluginPreference.17"));  //$NON-NLS-1$
-		handleImport(_btnImport);
-
-		final Button _btnExport = new Button(_comp1, SWT.PUSH);
-		_btnExport.setText(Messages.getString("PluginPreference.18"));  //$NON-NLS-1$
-		handleExport(_btnExport);
-
-		final Button _btnDelete = new Button(_comp1, SWT.PUSH);
-		_btnDelete.setText(Messages.getString("PluginPreference.19"));  //$NON-NLS-1$
-		handleDelete(_btnDelete);
-
-		final Button _btnEdit = new Button(_comp1, SWT.PUSH);
-		_btnEdit.setText("Edit");  //$NON-NLS-1$
-		handleEdit(_btnEdit);
-
+		final SlicerTool _stool = KaveriPlugin.getDefault().getSlicerTool();
+		_stool.getConfigurator().initialize(_comp);
 		return _comp;
 	}
 
@@ -464,153 +389,6 @@ public class PluginPreference
 	}
 
 	/**
-	 * Handles the create button function.
-	 *
-	 * @param btnCreate The create button.
-	 */
-	private void handleCreate(final Button btnCreate) {
-		btnCreate.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(final SelectionEvent e) {
-					final String _defaultConfig =
-						KaveriPlugin.getDefault().getPreferenceStore().
-						getString(Messages.getString("PluginPreference.26"));  //$NON-NLS-1$
-					final SlicerTool _stool =
-						new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
-					_stool.reset();
-					final boolean _result = _stool.destringizeConfiguration(_defaultConfig);
-
-					//String newconfig = driver.showGUI();
-					final String _newconfig = handleDisplay(_stool);
-
-					if (_newconfig != null) {
-						createConfig(_newconfig);
-					}
-				}
-
-				private String handleDisplay(final SlicerTool stool) {
-					final ConfigurationDialog _cd = new ConfigurationDialog(Display.getCurrent().getActiveShell(), stool);
-					String _returnVal = null;
-
-					if (_cd.open() == IDialogConstants.OK_ID) {
-						_returnVal = stool.stringizeConfiguration();
-					}
-					return _returnVal;
-				}
-
-				private void createConfig(final String newconfig) {
-					final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-					final String _name = Messages.getString("PluginPreference.27");  //$NON-NLS-1$
-					String _prefvals = _ps.getString(_name);
-					final XStream _xstream = new XStream(new DomDriver());
-					_xstream.alias(Messages.getString("PluginPreference.28"), SliceConfigurationHolder.class);  //$NON-NLS-1$
-
-					SliceConfigurationHolder _sch = null;
-
-					if (_prefvals.equals("")) {  //$NON-NLS-1$
-						_sch = new SliceConfigurationHolder();
-						_sch.setList(new ArrayList());
-					} else {
-						_sch = (SliceConfigurationHolder) _xstream.fromXML(_prefvals);
-					}
-					_sch.getList().add(newconfig);
-					_prefvals = _xstream.toXML(_sch);
-					_ps.setValue(_name, _prefvals);
-					exemptTagsList.removeAll();
-					initializeList(exemptTagsList);
-				}
-			});
-	}
-
-	/**
-	 * Handles the delete button.
-	 *
-	 * @param btnDelete The delete button
-	 */
-	private void handleDelete(final Button btnDelete) {
-		btnDelete.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(final SelectionEvent e) {
-					if (exemptTagsList.getSelectionCount() == 1) {
-						int _index = exemptTagsList.getSelectionIndex();
-						final String _selectedString = exemptTagsList.getSelection()[0];
-
-						if (_selectedString != null 
-								&& !_selectedString.equals(Messages.getString("PluginPreference.30"))) {  
-							_index--;  // Account for defaultConfiguration
-
-							final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-							final String _name = Messages.getString("PluginPreference.31");  //$NON-NLS-1$
-							String _prefvals = _ps.getString(_name);
-							final XStream _xstream = new XStream(new DomDriver());
-							_xstream.alias(Messages.getString("PluginPreference.32"), SliceConfigurationHolder.class);
-
-							SliceConfigurationHolder _sch = null;
-							_sch = (SliceConfigurationHolder) _xstream.fromXML(_prefvals);
-							_sch.getList().remove(_index);
-							_prefvals = _xstream.toXML(_sch);
-							_ps.setValue(_name, _prefvals);
-							exemptTagsList.removeAll();
-							initializeList(exemptTagsList);
-						}
-					}
-				}
-			});
-	}
-
-	/**
-	 * Handles the edit button.
-	 *
-	 * @param edit The edit button.
-	 */
-	private void handleEdit(final Button edit) {
-		edit.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(final SelectionEvent se) {
-					final int _index = exemptTagsList.getSelectionIndex();
-
-					if (_index != -1 && _index != 0) {
-						editandchange(_index - 1);
-					}
-				}
-
-				private void editandchange(final int index) {
-					final SliceConfigurationHolder _sch = getSliceConfigurations();
-					final java.util.List _lst = _sch.getList();
-
-					if (index < _lst.size()) {
-						final String _configuration = (String) _lst.get(index);
-						final SlicerTool _stool =
-							new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
-						_stool.destringizeConfiguration(_configuration);
-
-						final ConfigurationDialog _cd =
-							new ConfigurationDialog(Display.getDefault().getActiveShell(), _stool);
-
-						if (_cd.open() == IDialogConstants.OK_ID) {
-							_lst.set(index, _stool.stringizeConfiguration());
-							saveConfigurations(_sch);
-						}
-					}
-				}
-
-				/**
-				 * Saves the configuration.
-				 *
-				 * @param sch The configuration holder.
-				 */
-				private void saveConfigurations(final SliceConfigurationHolder sch) {
-					final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-					final String _name = Messages.getString("PluginPreference.27");  //$NON-NLS-1$
-					String _prefvals = _ps.getString(_name);
-					final XStream _xstream = new XStream(new DomDriver());
-					_xstream.alias(Messages.getString("PluginPreference.28"), SliceConfigurationHolder.class);
-					_prefvals = _xstream.toXML(sch);
-					_ps.setValue(_name, _prefvals);
-					exemptTagsList.removeAll();
-					initializeList(exemptTagsList);
-				}
-			});
-	}
-
-	/**
 	 * Handles the view edit action.
 	 *
 	 * @param btnEdit The edit button
@@ -630,154 +408,6 @@ public class PluginPreference
 					}
 				}
 			});
-	}
-
-	/**
-	 * Handles the export button.
-	 *
-	 * @param btnExport The export button
-	 */
-	private void handleExport(final Button btnExport) {
-		btnExport.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(final SelectionEvent e) {
-					if (exemptTagsList.getSelectionIndex() != -1) {
-						final FileDialog _fd = new FileDialog(Display.getCurrent().getActiveShell(), SWT.SAVE);
-						final String _path = _fd.open();
-
-						if (_path != null) {
-							final String _selectedString = exemptTagsList.getSelection()[0];
-							String _val = null;
-
-							if (_selectedString.equals(Messages.getString("PluginPreference.33"))) {  //$NON-NLS-1$
-								_val =
-									KaveriPlugin.getDefault().getPreferenceStore().getString(Messages.getString(
-											"PluginPreference.34"));  //$NON-NLS-1$
-							} else {
-								final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-								final String _name = Messages.getString("PluginPreference.35");  //$NON-NLS-1$
-								final String _prefvals = _ps.getString(_name);
-								final XStream _xstream = new XStream(new DomDriver());
-								_xstream.alias(Messages.getString("PluginPreference.36"), SliceConfigurationHolder.class);
-
-								SliceConfigurationHolder _sch = null;
-
-								try {
-									_sch = (SliceConfigurationHolder) _xstream.fromXML(_prefvals);
-
-									final int _index = exemptTagsList.getSelectionIndex() - 1;  // handle
-
-									// defaultconfig
-									_val = (String) _sch.getList().get(_index);
-
-									final FileWriter _fw = new FileWriter(_path);
-									_fw.write(_val);
-									_fw.close();
-								} catch (IOException _e1) {
-									SECommons.handleException(_e1);
-									return;
-								}
-							}
-						}
-					}
-				}
-			});
-	}
-
-	/**
-	 * Handles the import function.
-	 *
-	 * @param btnImport THe import button
-	 */
-	private void handleImport(final Button btnImport) {
-		btnImport.addSelectionListener(new SelectionAdapter() {
-				private String parseXmlFile(final String path) {
-					final StringBuffer _parsedString = new StringBuffer();
-					String _returnString = null;
-
-					try {
-						final BufferedReader _br = new BufferedReader(new FileReader(new File(path)));
-
-						while (_br.ready()) {
-							_parsedString.append(_br.readLine());
-						}
-						_returnString = _parsedString.toString();
-					} catch (FileNotFoundException _fe) {
-						_fe.printStackTrace();
-						_returnString = null;
-					} catch (IOException _ie) {
-						_ie.printStackTrace();
-						_returnString = null;
-					}
-					return _returnString;
-				}
-
-				public void widgetSelected(final SelectionEvent e) {
-					final FileDialog _dialog =
-						new FileDialog(KaveriPlugin.getDefault().getWorkbench().getDisplay().getActiveShell(), SWT.OPEN);
-					final String[] _strfilter = new String[1];
-					_strfilter[0] = Messages.getString("PluginPreference.37");
-					_dialog.setFilterExtensions(_strfilter);  //$NON-NLS-1$
-
-					final String _path = _dialog.open();
-
-					if (_path != null) {
-						final String _configData = parseXmlFile(_path);
-						final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-						final String _name = Messages.getString("PluginPreference.38");  //$NON-NLS-1$
-						String _prefvals = _ps.getString(_name);
-						final XStream _xstream = new XStream(new DomDriver());
-						_xstream.alias(Messages.getString("PluginPreference.39"), 
-								SliceConfigurationHolder.class);  //$NON-NLS-1$
-
-						SliceConfigurationHolder _sch = null;
-
-						if (_prefvals.equals("")) {  //$NON-NLS-1$
-							_sch = new SliceConfigurationHolder();
-							_sch.setList(new ArrayList());
-						} else {
-							_sch = (SliceConfigurationHolder) _xstream.fromXML(_prefvals);
-						}
-						_sch.getList().add(_configData);
-						_prefvals = _xstream.toXML(_sch);
-						_ps.setValue(_name, _prefvals);
-						exemptTagsList.removeAll();
-						initializeList(exemptTagsList);
-					}
-				}
-			});
-	}
-
-	/**
-	 * Initilizes the configuration list.
-	 *
-	 * @param list The configuration list
-	 */
-	private void initializeList(final List list) {
-		list.add(Messages.getString("PluginPreference.41"));  //$NON-NLS-1$
-
-		final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-		final String _name = Messages.getString("PluginPreference.42");  //$NON-NLS-1$
-
-		//_ps.setValue(_name, "");
-		final String _prefvals = _ps.getString(_name);
-
-		if (!_prefvals.equals("")) {  //$NON-NLS-1$
-
-			final XStream _xstream = new XStream(new DomDriver());
-			_xstream.alias(Messages.getString("PluginPreference.44"), SliceConfigurationHolder.class);  //$NON-NLS-1$
-
-			final SliceConfigurationHolder _sch = (SliceConfigurationHolder) _xstream.fromXML(_prefvals);
-			final java.util.List _lst = _sch.getList();
-			final SlicerTool _stool =
-				new SlicerTool(TokenUtil.getTokenManager(), new ExceptionFlowSensitiveStmtGraphFactory());
-
-			for (int _i = 0; _i < _lst.size(); _i++) {
-				final String _config = (String) _lst.get(_i);
-				_stool.destringizeConfiguration(_config);
-				//list.add("Configuration" + _i);
-				list.add(_stool.getActiveConfiguration().getConfigName());
-			}
-		}
 	}
 
 	/**
@@ -806,5 +436,14 @@ public class PluginPreference
 				viewList.add(Messages.getString("PluginPreference.48") + _i);  //$NON-NLS-1$
 			}
 		}
+	}
+	
+	/** 
+	 * Cancels the effect on any new configuration creation.
+	 * @see org.eclipse.jface.preference.IPreferencePage#performCancel()
+	 */
+	public boolean performCancel() {
+		KaveriPlugin.getDefault().loadConfigurations();
+		return super.performCancel();
 	}
 }
