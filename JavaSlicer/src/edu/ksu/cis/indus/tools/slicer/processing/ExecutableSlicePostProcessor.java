@@ -41,7 +41,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import soot.ArrayType;
-import soot.Body;
 import soot.RefType;
 import soot.SootClass;
 import soot.SootMethod;
@@ -429,32 +428,24 @@ public final class ExecutableSlicePostProcessor
 	}
 
 	/**
-	 * Marks the traps to be included in the slice.
+	 * Marks the traps to be included in the slice.  The statement is assumed to be in the slice.
 	 *
-	 * @param method in which the traps are to be marked.
+	 * @param method in which the statement occurs.
 	 * @param stmt will trigger the traps to include.
 	 * @param bbg is the basic block graph of the method.
 	 *
-	 * @pre method != null and stmt != null and bbg != null
+	 * @pre method != null and stmt != null and bbg != null and collector.hasBeenCollected(stmt)
 	 */
 	private void processHandlers(final SootMethod method, final Stmt stmt, final BasicBlockGraph bbg) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Pruning handlers " + stmt + "@" + method);
 		}
 
-		final Body _body = method.retrieveActiveBody();
-		final Collection _temp = new ArrayList();
-
-		// calculate the relevant traps
-		if (collector.hasBeenCollected(stmt)) {
-			_temp.addAll(TrapManager.getTrapsAt(stmt, _body));
-		}
-
 		/*
 		 * Include the first statement of the handler for all traps found to cover atleast one statement included in the
 		 * slice.
 		 */
-		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
+		for (final Iterator _i = TrapManager.getTrapsAt(stmt, method.retrieveActiveBody()).iterator(); _i.hasNext();) {
 			final Trap _trap = (Trap) _i.next();
 			final IdentityStmt _handlerUnit = (IdentityStmt) _trap.getHandlerUnit();
 
@@ -590,6 +581,10 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/08/16 16:45:26  venku
+   - handler units were sucked in based on TrapManager results.  This lead to incorrect
+     results as the TrapManager did not rely on the StmtGraph.  FIXED.
+
    Revision 1.32  2004/08/15 00:02:13  venku
    - previous changes addressing "classes of types used in cast and instanceof expressions
      were being ignored during residualization" is more of an executability problem.  Hence, this
