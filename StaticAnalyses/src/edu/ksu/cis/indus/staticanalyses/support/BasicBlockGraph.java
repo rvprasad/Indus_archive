@@ -159,7 +159,7 @@ public class BasicBlockGraph
 		// Connect the nodes of the graph.
 		for (Iterator i = blocks.iterator(); i.hasNext();) {
 			BasicBlock block = (BasicBlock) i.next();
-			Stmt stmt = (Stmt) stmtList.get(block._trailer);
+			Stmt stmt = block.getTrailerStmt();
 
 			for (Iterator j = stmtGraph.getSuccsOf(stmt).iterator(); j.hasNext();) {
 				Stmt nStmt = (Stmt) j.next();
@@ -213,10 +213,21 @@ public class BasicBlockGraph
 		 * @pre leader >= 0 && leader &lt; stmtList.size() && trailer >= leader && trailer &lt; stmtList.size();
 		 */
 		BasicBlock(final int leader, final int trailer, final List stmtsParam) {
-            super(new HashSet(), new HashSet());
+			super(new HashSet(), new HashSet());
 			this._leader = leader;
 			this._trailer = trailer;
 			this.stmts = new ArrayList(stmtsParam);
+		}
+
+		/**
+		 * Retrieves the statement at the leader position.
+		 *
+		 * @return the leader statement.
+		 *
+		 * @post result != null
+		 */
+		public final Stmt getLeaderStmt() {
+			return getStmtAt(_leader);
 		}
 
 		/**
@@ -263,14 +274,18 @@ public class BasicBlockGraph
 				}
 				result.add(begStmt);
 
-				for (; i.hasNext();) {
-					Object o = i.next();
+				Stmt stmt = begStmt;
+
+				while (stmtGraph.getSuccsOf(stmt).size() == 1) {
+					Object o = stmtGraph.getSuccsOf(stmt).get(0);
 
 					if (o.equals(endStmt)) {
 						break;
 					}
 					result.add(o);
+					stmt = (Stmt) o;
 				}
+				result.add(endStmt);
 			}
 			return result;
 		}
@@ -293,7 +308,7 @@ public class BasicBlockGraph
 		 *
 		 * @post result != null
 		 */
-		public final Stmt getTrailer() {
+		public final Stmt getTrailerStmt() {
 			return getStmtAt(_trailer);
 		}
 	}
@@ -355,6 +370,13 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/24 08:13:11  venku
+   Major refactoring.
+    - The methods to modify the graphs were exposed.
+    - The above anamoly was fixed by supporting a new class MutableDirectedGraph.
+    - Each Mutable graph extends this graph and exposes itself via
+      suitable interface to restrict access.
+    - Ripple effect of the above changes.
    Revision 1.4  2003/08/15 08:24:19  venku
    Added a convenience method to retrieve trailer statement of a basic block.
    Revision 1.3  2003/08/11 06:40:54  venku
