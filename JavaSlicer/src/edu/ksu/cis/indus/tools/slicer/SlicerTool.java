@@ -649,34 +649,16 @@ public final class SlicerTool
 	}
 
 	/**
-	 * Creates criterion based on synchronization constructs and populates <code>criteria</code>.
+	 * Generates criterion based on synchronization constructs and populates <code>criteria</code>.
 	 *
-	 * @throws IllegalStateException when none of the Synchronization dependency analyses implement <code>IMonitorInfo</code>
-	 * 		   interface.
+	 * @param monitorInfo provides the monitor info in the system.
+	 *
+	 * @pre monitorInfo != null
 	 */
-	private void populateDeadlockCriteria() {
-		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
-		final Collection _das = _slicerConfig.getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
-		IMonitorInfo _im = null;
-
-		for (final Iterator _i = _das.iterator(); _i.hasNext();) {
-			final Object _o = _i.next();
-
-			if (_o instanceof IMonitorInfo) {
-				_im = (IMonitorInfo) _o;
-				break;
-			}
-		}
-
-		if (_im == null) {
-			throw new IllegalStateException(
-				"This implementation requires atleast one Synchronization dependence analysis to "
-				+ "implement IMonitorInfo interface.");
-		}
-
+	private void generateDeadlockCriteria(final IMonitorInfo monitorInfo) {
 		final Collection _temp = new HashSet();
 
-		for (final Iterator _i = _im.getMonitorTriples().iterator(); _i.hasNext();) {
+		for (final Iterator _i = monitorInfo.getMonitorTriples().iterator(); _i.hasNext();) {
 			final Triple _mTriple = (Triple) _i.next();
 			final SootMethod _method = (SootMethod) _mTriple.getThird();
 
@@ -705,6 +687,39 @@ public final class SlicerTool
 			}
 			criteria.addAll(_temp);
 		}
+	}
+
+	/**
+	 * Creates criterion based on synchronization constructs and populates <code>criteria</code>.
+	 *
+	 * @throws IllegalStateException when none of the Synchronization dependency analyses implement <code>IMonitorInfo</code>
+	 * 		   interface.
+	 */
+	private void populateDeadlockCriteria() {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("END: Populating deadlock criteria.");
+		}
+
+		final SlicerConfiguration _slicerConfig = (SlicerConfiguration) getActiveConfiguration();
+		final Collection _das = _slicerConfig.getDependenceAnalysis(DependencyAnalysis.SYNCHRONIZATION_DA);
+		IMonitorInfo _im = null;
+
+		for (final Iterator _i = _das.iterator(); _i.hasNext();) {
+			final Object _o = _i.next();
+
+			if (_o instanceof IMonitorInfo) {
+				_im = (IMonitorInfo) _o;
+				break;
+			}
+		}
+
+		if (_im == null) {
+			throw new IllegalStateException(
+				"This implementation requires atleast one Synchronization dependence analysis to "
+				+ "implement IMonitorInfo interface.");
+		}
+
+		generateDeadlockCriteria(_im);
 
 		for (final Iterator _k = criteria.iterator(); _k.hasNext();) {
 			final ISliceCriterion _criterion = (ISliceCriterion) _k.next();
@@ -716,10 +731,11 @@ public final class SlicerTool
 
 			for (final Iterator _i = criteria.iterator(); _i.hasNext();) {
 				final ISliceCriterion _criterion = (ISliceCriterion) _i.next();
-				_sb.append(_criterion);
-				_sb.append("\n\t");
+                _sb.append("\n\t");
+                _sb.append(_criterion);
 			}
 			LOGGER.debug("Criteria:\n" + _sb.toString());
+			LOGGER.debug("END: Populating deadlock criteria.");
 		}
 	}
 
@@ -753,6 +769,8 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.60  2004/01/19 08:30:55  venku
+   - Log output formatting.
    Revision 1.59  2004/01/19 08:27:03  venku
    - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.58  2004/01/16 21:18:53  venku
