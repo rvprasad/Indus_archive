@@ -430,7 +430,7 @@ public final class SlicerConfigurator
 		_useSLAForReady.setText("use safe lock analysis ");
 		_useSLAForReady.setSelection(((Boolean) _cfg.getProperty(SlicerConfiguration.USE_SLA_FOR_READY_DA)).booleanValue());
 		_useSLAForReady.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.USE_SLA_FOR_READY_DA,
-				_useRDAButton, _cfg));
+				_useSLAForReady, _cfg));
 
 		_gridData = new GridData(GridData.FILL_HORIZONTAL);
 		_gridData.horizontalSpan = 2;
