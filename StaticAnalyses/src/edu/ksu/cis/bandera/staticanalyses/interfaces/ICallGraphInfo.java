@@ -55,7 +55,7 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface CallGraphInfo {
+public interface ICallGraphInfo {
 	/**
 	 * The id of this interface.
 	 */
@@ -111,9 +111,9 @@ public interface CallGraphInfo {
 		}
 
 		/**
-		 * DOCUMENT ME! <p></p>
+		 * Provides a stringized representation of this object.
 		 *
-		 * @return DOCUMENT ME!
+		 * @return stringized representation of this object.
 		 */
 		public String toString() {
 			return getSecond() + "@" + getMethod();
@@ -121,7 +121,7 @@ public interface CallGraphInfo {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Returns a call graph as an instance of a traversable graph.
 	 *
 	 * @return SimpleNodeGraph
 	 *
@@ -145,7 +145,7 @@ public interface CallGraphInfo {
 	 *
 	 * @param expr that is the call.
 	 * @param context in which the expr occurs.  The calling method should occurs in the call string of the context as the
-	 * 		  current method.
+	 *           current method.
 	 *
 	 * @return a collection of <code>SootMethod</code>s.
 	 *
@@ -210,7 +210,7 @@ public interface CallGraphInfo {
 	Collection getRecursionRoots();
 
 	/**
-	 * Returns a collection of collection of nodes which represent the strongly connected components in the given call graph.
+	 * Returns a collection of strongly connected components in the given call graph.
 	 *
 	 * @return a collection of <code>Collection</code> of <code>SootMethod</code>s.
 	 *

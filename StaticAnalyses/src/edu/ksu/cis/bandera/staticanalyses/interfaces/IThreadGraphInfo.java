@@ -54,7 +54,7 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface ThreadGraphInfo {
+public interface IThreadGraphInfo {
 	/**
 	 * The id of this interface.
 	 */
@@ -141,7 +141,7 @@ public interface ThreadGraphInfo {
 	/**
 	 * Returns the sites which start new threads.
 	 *
-	 * @return a collection of <code>CallTriple</code>s which captures the start sites for threads. 
+	 * @return a collection of <code>CallTriple</code>s which captures the start sites for threads.
 	 */
 	Collection getStartSites();
 }

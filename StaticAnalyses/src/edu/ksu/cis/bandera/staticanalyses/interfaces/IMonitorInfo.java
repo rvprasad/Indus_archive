@@ -35,45 +35,35 @@
 
 package edu.ksu.cis.bandera.staticanalyses.interfaces;
 
-import ca.mcgill.sable.soot.SootClass;
-
 import java.util.Collection;
 
 
 /**
- * This interface exposes the information pertaining to the system being analyzed which is essential for higher level
- * analyses to function. However, it does not expose any information pertaining to the actual implementation of the analysis
- * instance.
+ * This interface provides the information pertaining to Java monitors in the analyzed system.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface Environment {
+public interface IMonitorInfo {
 	/**
 	 * The id of this interface.
 	 */
-	String ID = "Environment";
+	String ID = "Synchronization monitor Information";
 
 	/**
-	 * Returns the Jimple representation of the given class.
+	 * Returns a collection of <code>Triple</code>s of <code>EnterMonitorStmt</code>, <code>ExitMonitorStmt</code>, and
+	 * <code>SootMethod</code>. The third element is the method in which the monitor occurs.  In case the first and the
+	 * second element of the triple are <code>null</code> then this means the method is a synchronized.
 	 *
-	 * @param className the name of the class whose Jimple representation is to be returned.
+	 * @return collection of monitors in the analyzed system.
 	 *
-	 * @return the requested class.
-	 *
-	 * @post result.oclType = ca.mcgill.sable.soot.SootClass
+	 * @post result->forall(o | o.oclIsKindOf(edu.ksu.cis.bandera.staticanalyses.support.Triple))
+	 * @post result->forall(o | o.getFirst().oclIsOclKindOf(ca.mcgill.sable.soot.jimple.EnterMonitorStmt))
+	 * @post result->forall(o | o.getSecond().oclIsOclKindOf(ca.mcgill.sable.soot.jimple.ExitMonitorStmt))
+	 * @post result->forall(o | o.getThird().oclIsOclKindOf(ca.mcgill.sable.soot.SootMethod) && o.getThird() != null)
 	 */
-	SootClass getClass(String className);
-
-	/**
-	 * Returns the classes accessed/used by the analyzer.
-	 *
-	 * @return the classes accessed/used by the analyzer.
-	 *
-	 * @post result->forall(o | o.oclType = ca.mcgill.sable.soot.SootClass)
-	 */
-	Collection getClasses();
+	Collection getMonitorTriples();
 }
 
 /*****

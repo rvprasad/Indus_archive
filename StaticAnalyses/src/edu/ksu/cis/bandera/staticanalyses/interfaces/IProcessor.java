@@ -56,7 +56,7 @@ import edu.ksu.cis.bandera.staticanalyses.flow.Context;
  * @author $Author$
  * @version $Revision$
  */
-public interface Processor {
+public interface IProcessor {
 	/**
 	 * Sets the analyzer that provides the low-level information to be processed..
 	 *
@@ -128,7 +128,7 @@ public interface Processor {
 
 	/**
 	 * DOCUMENT ME!
-	 * 
+	 *
 	 * <p></p>
 	 *
 	 * @param ppc DOCUMENT ME!
