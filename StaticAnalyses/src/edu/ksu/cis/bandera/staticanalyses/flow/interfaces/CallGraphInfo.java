@@ -127,7 +127,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a collection of <code>CallTriple</code>s.
 	 *
-	 * @post result->forall(o | o.isOclKindOf(CallTriple))
+	 * @post result != null and result->forall(o | o.isOclKindOf(CallTriple))
 	 */
 	public Collection getCallees(SootMethod caller);
 
@@ -140,7 +140,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a collection of <code>SootMethod</code>s.
 	 *
-	 * @post result->forall(o | o.oclType = SootMethod)
+	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
 	public Collection getCallees(InvokeExpr expr, Context context);
 
@@ -151,7 +151,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a colleciton of <code>CallTriple</code>s.
 	 *
-	 * @post result->forall(o | o.isOclKindOf(CallTriple))
+	 * @post result != null and result->forall(o | o.isOclKindOf(CallTriple))
 	 */
 	public Collection getCallers(SootMethod callee);
 
@@ -169,7 +169,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a colleciton of <code>SootMethod</code>s.
 	 *
-	 * @post result->forall(o | o.oclType = SootMethod)
+	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
 	public Collection getHeads();
 
@@ -187,7 +187,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a collection of <code>SootMethod</code>.
 	 *
-	 * @post result->forall(o | o.oclType = SootMethod)
+	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
 	public Collection getReachableMethods();
 
@@ -196,7 +196,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a collection of <code>SootMethod</code>.
 	 *
-	 * @post result->forall(o | o.oclType = SootMethod)
+	 * @post result != null and result->forall(o | o.oclType = SootMethod)
 	 */
 	public Collection getRecursionRoots();
 
@@ -205,7 +205,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a collection of <code>Collection</code> of <code>SootMethod</code>s.
 	 *
-	 * @post result->forall(o | o.oclType = Collection(ca.mcgill.sable.soot.SootMethod))
+	 * @post result != null and result->forall(o | o.oclType = Collection(ca.mcgill.sable.soot.SootMethod))
 	 */
 	public Collection getSCCs();
 }
@@ -214,6 +214,9 @@ public interface CallGraphInfo {
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/02/21 07:22:22  venku
+Changed \@pre to $pre in the ocl constraints specified in Javadoc.
+
 Revision 1.2  2003/02/19 16:15:16  venku
 Well, things need to be baselined before proceeding to change
 them radically.  That's it.
