@@ -389,8 +389,7 @@ public class DivergenceDA
 		// Pass 1: Calculate pre-divergence points
 		// Pass 1.1: Calculate intraprocedural pre-divergence points
 		for (Iterator i = getMethods().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			final SootMethod METHOD = (SootMethod) entry.getKey();
+			final SootMethod METHOD = (SootMethod) i.next();
 			final BasicBlockGraph BBGRAPH = getBasicBlockGraph(METHOD);
 
 			if (BBGRAPH == null) {
@@ -563,6 +562,9 @@ public class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/09/13 05:56:08  venku
+   - bumped up log levels to error.
+
    Revision 1.13  2003/09/13 05:42:07  venku
    - What if the unit graphs for all methods are unavailable?  Hence,
      added a method to AbstractAnalysis to retrieve the methods to
