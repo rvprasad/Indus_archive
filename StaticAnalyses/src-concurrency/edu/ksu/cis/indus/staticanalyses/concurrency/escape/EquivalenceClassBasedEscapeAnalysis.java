@@ -828,10 +828,8 @@ public final class EquivalenceClassBasedEscapeAnalysis
 		}
 
 		performPhase2();
-		System.out.println("ONE: " + this);
 
 		performPhase3();
-		System.out.println("TWO: " + this);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Equivalence Class-based and Symbol-based Escape Analysis");
@@ -1304,6 +1302,13 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.53  2004/07/17 19:37:18  venku
+   - ECBA was incorrect for the following reasons.
+     - it fails if the start sites are not in the same method.
+     - it fails if the access in the threads occur in methods other than the
+       one in which the new thread is started.
+     - The above issues were addressed.
+
    Revision 1.51  2004/07/17 06:05:47  venku
    - coding conventions.
    Revision 1.50  2004/07/11 14:17:40  venku
