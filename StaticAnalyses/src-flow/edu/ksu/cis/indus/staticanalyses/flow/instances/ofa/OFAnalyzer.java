@@ -35,7 +35,6 @@ import soot.ArrayType;
 import soot.Modifier;
 import soot.RefType;
 import soot.SootField;
-import soot.SootMethod;
 import soot.Type;
 
 
@@ -216,6 +215,9 @@ public final class OFAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/12/05 00:53:09  venku
+   - removed unused method and restricted access to certain methods.
+
    Revision 1.8  2003/12/02 09:42:37  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2

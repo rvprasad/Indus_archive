@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 import edu.ksu.cis.indus.common.graph.IDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph;
-import edu.ksu.cis.indus.common.graph.AbstractMutableDirectedGraph.AbstractMutableNode;
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 
@@ -671,6 +670,10 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.40  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

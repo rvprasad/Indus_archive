@@ -15,7 +15,6 @@
 
 package edu.ksu.cis.indus.staticanalyses;
 
-import edu.ksu.cis.indus.common.soot.AbstractUnitGraphFactory;
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 
 import edu.ksu.cis.indus.processing.ProcessingController;
@@ -230,6 +229,10 @@ public class AnalysesController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.27  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

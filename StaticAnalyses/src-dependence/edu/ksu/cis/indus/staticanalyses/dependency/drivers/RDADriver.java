@@ -19,8 +19,6 @@ import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
 
-import java.util.ArrayList;
-
 
 /**
  * This class drives ready dependency analyses.
@@ -64,6 +62,10 @@ public final class RDADriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.11  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
