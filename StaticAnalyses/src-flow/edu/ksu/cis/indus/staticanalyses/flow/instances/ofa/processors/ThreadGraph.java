@@ -391,7 +391,7 @@ public class ThreadGraph
 			if (thread == null) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("thread cannot be null. This can happen if there are not "
-						+ "threads other than the main thread in the system." + value);
+						+ "threads other than the main thread in the system. [" + value + "]");
 				}
 				continue;
 			}
@@ -679,6 +679,10 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.20  2003/12/09 04:22:10  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
