@@ -199,6 +199,7 @@ public abstract class SootBasedDriver {
 	 */
 	protected final Scene loadupClassesAndCollectMains() {
 		Scene result = Scene.v();
+		String temp = result.getSootClassPath();
 		String[] options = new String[8];
 		options[0] = "-p";
 		options[1] = "jb";
@@ -208,8 +209,6 @@ public abstract class SootBasedDriver {
 		options[5] = "jb.ulp";
 		options[6] = "enabled:false";
 		options[7] = "unsplit-original-locals:false";
-
-		String temp = result.getSootClassPath();
 
 		if (temp != null) {
 			temp += File.pathSeparator + classpathToAdd;
@@ -314,6 +313,8 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/11/20 07:27:41  venku
+   - Explicitly sets options on Soot to use local name splitting.
    Revision 1.9  2003/11/17 03:22:59  venku
    - added junit test support for Slicing.
    - refactored code in test for dependency to make it more
