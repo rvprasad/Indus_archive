@@ -149,7 +149,7 @@ class MethodContext
 		if (paramCount > 0) {
 			argAliasSets = new ArrayList(paramCount);
 
-			for (int i = 0; i < sm.getParameterCount(); i++) {
+			for (int i = 0; i < paramCount; i++) {
 				argAliasSets.add(AliasSet.getASForType(sm.getParameterType(i)));
 			}
 		} else {
@@ -161,7 +161,7 @@ class MethodContext
 		thrown = AliasSet.createAliasSet();
 
 		if (!sm.isStatic()) {
-			thisAS = AliasSet.createAliasSet();  //getASForClass(sm.getDeclaringClass());
+			thisAS = AliasSet.createAliasSet();
 		}
 	}
 
@@ -255,6 +255,55 @@ class MethodContext
 	}
 
 	/**
+	 * Adds all alias sets reachable from this context to col.
+	 *
+	 * @param col is an out parameter to which the alias sets will be added.
+	 *
+	 * @pre col != null
+	 * @post col.contains(col$pre)
+	 */
+	void addReachableAliasSetsTo(final Collection col) {
+		AliasSet temp;
+
+		if (thisAS != null) {
+			temp = (AliasSet) thisAS.find();
+
+			if (!col.contains(temp)) {
+				temp.addReachableAliasSetsTo(col);
+			}
+		}
+
+		if (ret != null) {
+			temp = (AliasSet) ret.find();
+
+			if (!col.contains(temp)) {
+				temp.addReachableAliasSetsTo(col);
+			}
+		}
+		temp = (AliasSet) thrown.find();
+
+		if (!col.contains(temp)) {
+			temp.addReachableAliasSetsTo(col);
+		}
+
+		int paramCount = method.getParameterCount();
+
+		if (paramCount > 0) {
+			for (int i = paramCount - 1; i >= 0; i--) {
+				temp = (AliasSet) argAliasSets.get(i);
+
+				if (temp != null) {
+					temp = (AliasSet) temp.find();
+
+					if (!col.contains(temp)) {
+						temp.addReachableAliasSetsTo(col);
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Propogates the information from this context to the given context.  Please refer to the {@link
 	 * unify(MethodContext,boolean) unify} for important information.
 	 *
@@ -266,7 +315,6 @@ class MethodContext
 
 		AliasSet temp1;
 		AliasSet temp2;
-
 		for (int i = method.getParameterCount() - 1; i >= 0; i--) {
 			if (AliasSet.canHaveAliasSet(method.getParameterType(i))) {
 				temp1 = (AliasSet) rep1.argAliasSets.get(i);
@@ -279,10 +327,9 @@ class MethodContext
 		}
 
 		temp1 = rep1.ret;
-		temp2 = rep2.ret;
 
-		if (temp1 != null && temp2 != null) {
-			temp1.propogateInfoFromTo(temp2);
+		if (temp1 != null) {
+			temp1.propogateInfoFromTo(rep2.ret);
 		}
 		rep1.thrown.propogateInfoFromTo(rep2.thrown);
 
@@ -435,6 +482,13 @@ class MethodContext
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/01 08:01:59  venku
+   Major:
+   - It is possible for call sites to pass null arguments. In such cases,
+     there need not be alias sets corresponding to these arguments.
+     Hence, while unification and propogation it is possible to have null
+     and non-null alias set references.  This has been made safe. FIXED.
+    - Ripple effect in AliasSet.
    Revision 1.1  2003/08/21 01:24:25  venku
     - Renamed src-escape to src-concurrency to as to group all concurrency
       issue related analyses into a package.

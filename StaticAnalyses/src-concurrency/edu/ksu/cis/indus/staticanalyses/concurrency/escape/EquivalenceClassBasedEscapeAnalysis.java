@@ -515,6 +515,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 			Collection callees = new ArrayList();
 			SootMethod caller = context.getCurrentMethod();
 			SootMethod sm = v.getMethod();
+			Collection loopSet = new HashSet();
 
 			// fix up "return" alias set.
 			AliasSet retAS = null;
@@ -562,6 +563,7 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 			for (Iterator i = callees.iterator(); i.hasNext();) {
 				boolean unifyAll = false;
+				boolean loopEnclosed = false;
 				SootMethod callee = (SootMethod) i.next();
 				Triple triple = (Triple) method2Triple.get(callee);
 
@@ -579,6 +581,10 @@ public class EquivalenceClassBasedEscapeAnalysis
 					  && callee.getParameterCount() == 0) {
 					// unify all parts of alias sets if "start" is being invoked.
 					unifyAll = true;
+
+					if (cfgAnalysis.executedMultipleTimes(context.getStmt(), caller)) {
+						loopEnclosed = true;
+					}
 				} else if (callee.getDeclaringClass().getName().equals("java.lang.Object")
 					  && callee.getReturnType() instanceof VoidType
 					  && callee.getParameterCount() == 0) {
@@ -604,12 +610,24 @@ public class EquivalenceClassBasedEscapeAnalysis
 					try {
 						mc = (MethodContext) mc.clone();
 					} catch (CloneNotSupportedException e) {
-						if (LOGGER.isErrorEnabled()) {
-							LOGGER.error("Hell NO!  This should not happen.", e);
-						}
+						LOGGER.error("Hell NO!  This should not happen.", e);
 					}
 				}
 				sc.unify(mc, unifyAll);
+
+				if (loopEnclosed) {
+					loopSet.clear();
+					sc.addReachableAliasSetsTo(loopSet);
+
+					for (Iterator j = loopSet.iterator(); j.hasNext();) {
+						AliasSet as = (AliasSet) j.next();
+						LOGGER.error(context.getStmt() + " " + caller + " " + as.isNotified() + " " + as.isWaitedOn());
+
+						if (as.isNotified() && as.isWaitedOn()) {
+							as.setReadyEntity();
+						}
+					}
+				}
 			}
 			setResult(retAS);
 		}
@@ -666,13 +684,19 @@ public class EquivalenceClassBasedEscapeAnalysis
 				AliasSet as1 = (AliasSet) ((Map) trp1.getSecond()).get(wTemp.getBase());
 				AliasSet as2 = (AliasSet) ((Map) trp2.getSecond()).get(nTemp.getBase());
 
-				if (as1.getEntity() != null && as2.getEntity() != null) {
-					result = as1.getEntity().equals(as2.getEntity());
+				if (as1.getReadyEntity() != null && as2.getReadyEntity() != null) {
+					result = as1.getReadyEntity().equals(as2.getReadyEntity());
 				} else {
+					/*
+					 * This is the case where a start site has wait and notify called on a reference.
+					 * In such cases, wait and notify fields are set on the alias set but there is not alias set
+					 * with set values to trigger the change of Entity field.
+					 * Only if the start site is loop enclosed should these cases flag dependency by setting Entity.
+					 */
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn(
 							"There are wait()s and/or notify()s in this program without corresponding notify()s and/or "
-							+ "wait()s that occur in different threads.");
+							+ "wait()s that occur in different threads - " + wait + " " + notify);
 					}
 				}
 			}
@@ -728,14 +752,17 @@ public class EquivalenceClassBasedEscapeAnalysis
 		try {
 			// check if given value has an alias set and if so, check if the enclosing method executes only in threads created
 			// allocation sites which are executed only once. 
-			if (AliasSet.canHaveAliasSet(v.getType())
-				  && CollectionUtils.intersection(threadAllocSitesMulti, tgi.getExecutionThreads(sm)).isEmpty()) {
-				result = getAliasSetFor(v, sm).isShared();
+			if (AliasSet.canHaveAliasSet(v.getType())) {
+				if (CollectionUtils.intersection(threadAllocSitesMulti, tgi.getExecutionThreads(sm)).isEmpty()) {
+					result = getAliasSetFor(v, sm).isShared();
+				}
+			} else {
+				result = false;
 			}
 		} catch (RuntimeException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("There is no information about " + v + " occurring in " + sm
-					+ ".  So, providing pessimistic info (true).");
+					+ ".  So, providing pessimistic info (true).", e);
 			}
 		}
 		return result;
@@ -1074,6 +1101,11 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/27 12:40:35  venku
+   It is possible that in ill balanced wait/notify lead to a situation
+   where there are no entities to match them, hence, we got a
+   NullPointerException.  FIXED.
+   It now flags a log error indicating the source has anamolies.
    Revision 1.5  2003/08/25 11:58:43  venku
    Deleted a debug statement.
    Revision 1.4  2003/08/24 12:04:32  venku

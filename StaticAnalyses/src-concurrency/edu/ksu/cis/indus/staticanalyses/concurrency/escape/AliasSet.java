@@ -72,9 +72,9 @@ final class AliasSet
 	private static final Log LOGGER = LogFactory.getLog(AliasSet.class);
 
 	/**
-	 * This serves as a counter for each entity elements created in each run.
+	 * This serves as a counter for each ready Entity elements created in each run.
 	 */
-	static long entityCount = 0;
+	static long readyEntityCount = 0;
 
 	/**
 	 * This constant identifies the cells of an array in the field map of it's alias set.
@@ -94,9 +94,9 @@ final class AliasSet
 	private Map fieldMap;
 
 	/**
-	 * This represents the unique entity associated with this alias set.
+	 * This represents the unique ready Entity associated with this alias set.
 	 */
-	private Object entity;
+	private Object readyEntity;
 
 	/**
 	 * This represents if the variable associated with alias set was accessed (read/written).
@@ -139,7 +139,7 @@ final class AliasSet
 		accessed = false;
 		global = false;
 		propogating = false;
-		entity = null;
+		readyEntity = null;
 	}
 
 	/**
@@ -217,53 +217,6 @@ final class AliasSet
 	}
 
 	/**
-	 * Creates a new alias set.
-	 *
-	 * @return a new alias set.
-	 *
-	 * @post result != null
-	 */
-	static AliasSet createAliasSet() {
-		return new AliasSet();
-	}
-
-	/**
-	 * Retrieves the alias set corresponding to the given field of the object represented by this alias set.
-	 *
-	 * @param field is the signature of the field.
-	 *
-	 * @return the alias set associated with <code>field</code>.
-	 *
-	 * @post result == self.find().fieldMap.get(field)
-	 */
-	AliasSet getASForField(final String field) {
-		return (AliasSet) ((AliasSet) find()).fieldMap.get(field);
-	}
-
-	/**
-	 * Records the access information pertaining to the object associated with this alias set.
-	 *
-	 * @param value is the access information.  <code>true</code> indicates that the associated variable  was accessed;
-	 * 		  <code>false</code>, otherwise.
-	 *
-	 * @post self.find().accessed == value
-	 */
-	void setAccessedTo(final boolean value) {
-		((AliasSet) find()).accessed = value;
-	}
-
-	/**
-	 * Retrieves the entity object of this alias set.
-	 *
-	 * @return the associated entity object.
-	 *
-	 * @post result == self.find().entity
-	 */
-	Object getEntity() {
-		return ((AliasSet) find()).entity;
-	}
-
-	/**
 	 * Retrieves an unmodifiable copy of the field map of this alias set.
 	 *
 	 * @return the field map.
@@ -307,12 +260,34 @@ final class AliasSet
 	}
 
 	/**
+	 * Checks if this object is notified.
+	 *
+	 * @return <code>true</code> if this object is notified; <code>false</code>, otherwise.
+	 */
+	boolean isNotified() {
+		return ((AliasSet) find()).notifies;
+	}
+
+	/**
 	 * Marks the object associated with this alias set as appearing in a <code>notify()/notifyAll()</code> call.
 	 *
 	 * @post find().notifies == true
 	 */
 	void setNotifies() {
 		((AliasSet) find()).notifies = true;
+	}
+
+	/**
+	 * Sets the ready entity attribute of this object, if not set.
+	 *
+	 * @post self.readyEntity != null
+	 */
+	void setReadyEntity() {
+		AliasSet a = ((AliasSet) find());
+
+		if (a.readyEntity == null) {
+			a.readyEntity = getNewReadyEntity();
+		}
 	}
 
 	/**
@@ -327,12 +302,88 @@ final class AliasSet
 	}
 
 	/**
+	 * Checks if this object is waited on.
+	 *
+	 * @return <code>true</code> if this object is waited on; <code>false</code>, otherwise.
+	 */
+	boolean isWaitedOn() {
+		return ((AliasSet) find()).waits;
+	}
+
+	/**
 	 * Marks the object associated with this alias set as appearing in a <code>wait()</code> call.
 	 *
 	 * @post find().waits == true
 	 */
 	void setWaits() {
 		((AliasSet) find()).waits = true;
+	}
+
+	/**
+	 * Adds all the alias sets reachable from this object, including this object.
+	 *
+	 * @param col is an out parameter into which the alias sets will be added.
+	 *
+	 * @pre col != null
+	 * @post col.containsAll(col$pre)
+	 */
+	void addReachableAliasSetsTo(final Collection col) {
+		col.add(this);
+
+		for (Iterator i = fieldMap.values().iterator(); i.hasNext();) {
+			AliasSet as = (AliasSet) ((AliasSet) i.next()).find();
+
+			if (!col.contains(as)) {
+				as.addReachableAliasSetsTo(col);
+			}
+		}
+	}
+
+	/**
+	 * Creates a new alias set.
+	 *
+	 * @return a new alias set.
+	 *
+	 * @post result != null
+	 */
+	static AliasSet createAliasSet() {
+		return new AliasSet();
+	}
+
+	/**
+	 * Retrieves the alias set corresponding to the given field of the object represented by this alias set.
+	 *
+	 * @param field is the signature of the field.
+	 *
+	 * @return the alias set associated with <code>field</code>.
+	 *
+	 * @post result == self.find().fieldMap.get(field)
+	 */
+	AliasSet getASForField(final String field) {
+		return (AliasSet) ((AliasSet) find()).fieldMap.get(field);
+	}
+
+	/**
+	 * Records the access information pertaining to the object associated with this alias set.
+	 *
+	 * @param value is the access information.  <code>true</code> indicates that the associated variable  was accessed;
+	 * 		  <code>false</code>, otherwise.
+	 *
+	 * @post self.find().accessed == value
+	 */
+	void setAccessedTo(final boolean value) {
+		((AliasSet) find()).accessed = value;
+	}
+
+	/**
+	 * Retrieves the ready entity object of this alias set.
+	 *
+	 * @return the associated readyentity object.
+	 *
+	 * @post result == self.find().readyEntity
+	 */
+	Object getReadyEntity() {
+		return ((AliasSet) find()).readyEntity;
 	}
 
 	/**
@@ -352,7 +403,16 @@ final class AliasSet
 		AliasSet rep1 = (AliasSet) find();
 		AliasSet rep2 = (AliasSet) as.find();
 		rep2.shared |= rep1.shared;
-		rep2.entity = rep1.entity;
+
+		/*
+		 * This is tricky.  A constructor can be called to construct 2 instances on which one is used in
+		 * wait/notify but not the other.  This means on top-down propogation of alias set in ECBA, the 2 alias
+		 * set of the primary of the <init> method will be rep1 and one may provide a non-null ready entity to rep2
+		 * and the other may come and erase it if the check is not made.
+		 */
+		if (rep1.readyEntity != null) {
+			rep2.readyEntity = rep1.readyEntity;
+		}
 
 		for (Iterator i = rep2.fieldMap.entrySet().iterator(); i.hasNext();) {
 			Map.Entry entry = (Map.Entry) i.next();
@@ -417,8 +477,8 @@ final class AliasSet
 		if (unifyAll) {
 			rep1.shared |= rep1.accessed && rep2.accessed;
 
-			if (rep1.entity == null && ((rep1.waits && rep2.notifies) || (rep1.notifies && rep2.waits))) {
-				rep1.entity = new String("Entity:" + entityCount++);
+			if (rep1.readyEntity == null && ((rep1.waits && rep2.notifies) || (rep1.notifies && rep2.waits))) {
+				rep1.readyEntity = getNewReadyEntity();
 			}
 		} else {
 			rep1.shared |= rep2.shared;
@@ -458,11 +518,28 @@ final class AliasSet
 			rep1.setGlobal();
 		}
 	}
+
+	/**
+	 * Returns a new ready entity object.
+	 *
+	 * @return a new ready entity object.
+	 *
+	 * @post result != null
+	 */
+	private Object getNewReadyEntity() {
+		return new String("Entity:" + readyEntityCount++);
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/01 07:58:13  venku
+   - Only RefType and ArrayType can have AliasSets, not NullType.
+     This was fixed in canHaveAliasSet(). FIXED.
+   - Propogation only occurs if both src and dest sets are non-null.
+     Previous the enclosing context (MethodContext) ensured absence
+     of such mismatch, but now MethodContext was relaxed. FIXED.
    Revision 1.2  2003/08/27 12:10:15  venku
    waits and notifies were not being propogated upon unification.
    This will not cause the wait/notify info to raise to the start site.  FIXED.
