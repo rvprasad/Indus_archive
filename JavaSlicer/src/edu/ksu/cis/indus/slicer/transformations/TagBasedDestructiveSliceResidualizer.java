@@ -601,9 +601,9 @@ public final class TagBasedDestructiveSliceResidualizer
 			stmt2predecessors.clear();
 			oldStmt2newStmt.clear();
 			NopEliminator.v().transform(_body);
-			UnconditionalBranchFolder.v().transform(_body);
-			ConditionalBranchFolder.v().transform(_body);
-			UnreachableCodeEliminator.v().transform(_body);
+            UnreachableCodeEliminator.v().transform(_body);
+            ConditionalBranchFolder.v().transform(_body);
+            UnconditionalBranchFolder.v().transform(_body);			
 
 			_body.validateLocals();
 			_body.validateTraps();
@@ -735,6 +735,10 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/27 09:41:29  venku
+   - added logic to massage the slice while residualizing to avoid
+     idioms such as throw null.
+
    Revision 1.1  2004/02/25 23:33:40  venku
    - well package naming convention was inconsistent. FIXED.
    Revision 1.20  2004/02/23 09:10:54  venku
