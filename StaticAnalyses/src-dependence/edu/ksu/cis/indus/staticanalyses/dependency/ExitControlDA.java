@@ -60,7 +60,8 @@ public class ExitControlDA
 	private IDependencyAnalysis entryControlDA;
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
+	 * {@inheritDoc}
+	 * This implementation will return <code>FORWARD_DIRECTION</code>.
 	 */
 	public Object getDirection() {
 		return FORWARD_DIRECTION;
@@ -265,6 +266,9 @@ public class ExitControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/07/11 23:02:29  venku
+   - documentation.
+
    Revision 1.17  2004/07/11 14:50:59  venku
    - commit more logging.
    Revision 1.16  2004/07/11 14:17:39  venku

@@ -81,7 +81,8 @@ public class EntryControlDA
 	protected List nodesCache;
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
+	 * {@inheritDoc}
+	 * This implementation will return <code>BACKWARD_DIRECTION</code>.
 	 */
 	public Object getDirection() {
 		return BACKWARD_DIRECTION;
@@ -460,6 +461,9 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.32  2004/07/11 11:50:17  venku
+   - node caches need to nullified not clear.  FIXED.
+
    Revision 1.31  2004/07/11 11:26:55  venku
    - compilation error. Duh.
 
