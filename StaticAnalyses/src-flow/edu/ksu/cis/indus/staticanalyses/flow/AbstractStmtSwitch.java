@@ -66,30 +66,22 @@ public abstract class AbstractStmtSwitch
 
 	/**
 	 * The LHS expression visitor used to this object to process LHS expressions.
-	 *
-	 * @invariant lexpr != null
 	 */
 	protected final AbstractExprSwitch lexpr;
 
 	/**
 	 * The RHS expression visitor used to this object to process RHS expressions.
-	 *
-	 * @invariant rexpr != null
 	 */
 	protected final AbstractExprSwitch rexpr;
 
 	/**
 	 * The context in which this object should process statements.  It is possible for this object to alter the context, but
 	 * it should restore it back to it's initial state before returning from it's methods.
-	 *
-	 * @invariant context != null
 	 */
 	protected final Context context;
 
 	/**
 	 * The method variant in which this visitor is used.
-	 *
-	 * @invariant method != null
 	 */
 	protected final MethodVariant method;
 
@@ -102,15 +94,19 @@ public abstract class AbstractStmtSwitch
 	 * Creates a new <code>AbstractStmtSwitch</code> instance.
 	 *
 	 * @param m the method variant in which this visitor is used.
-	 *
-	 * @pre m != null
 	 */
 	protected AbstractStmtSwitch(final MethodVariant m) {
 		method = m;
 
-		context = m._context;
-		lexpr = m._fa.getLHSExpr(this);
-		rexpr = m._fa.getRHSExpr(this);
+		if (m != null) {
+			context = m._context;
+			lexpr = m._fa.getLHSExpr(this);
+			rexpr = m._fa.getRHSExpr(this);
+		} else {
+			context = null;
+			lexpr = null;
+			rexpr = null;
+		}
 	}
 
 	/**
@@ -175,20 +171,22 @@ public abstract class AbstractStmtSwitch
 
 /*
    ChangeLog:
-   
+
    $Log$
+   Revision 1.4  2003/08/17 10:48:33  venku
+   Renamed BFA to FA.  Also renamed bfa variables to fa.
+   Ripple effect was huge.
    Revision 1.3  2003/08/17 09:59:03  venku
    Spruced up documentation and specification.
    Documentation changes to FieldVariant.
 
-   
    Revision 1.2  2003/08/12 18:40:11  venku
    Ripple effect of moving IPrototype to Indus.
-   
+
    Revision 1.1  2003/08/07 06:40:24  venku
    Major:
     - Moved the package under indus umbrella.
-    
+
    Revision 0.10  2003/05/22 22:18:31  venku
    All the interfaces were renamed to start with an "I".
    Optimizing changes related Strings were made.
