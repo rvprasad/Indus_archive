@@ -88,6 +88,8 @@ public abstract class DirectedGraph {
 	 *
 	 * @invariant spanningSuccs.keySet()->forall( o | o.oclIsKindOf(INode))
 	 * @invariant spanningSuccs.values()->forall( o | o.oclIsKindOf(Set) and o->forall( p | p.oclIsKindOf(INode)))
+     * @invariant getNodes().containsAll(spanningSuccs.keySet())
+     * @invariant spanningSuccs.values()->forall( o | getNodes().containsAll(o))
 	 */
 	private Map spanningSuccs;
 
@@ -119,7 +121,7 @@ public abstract class DirectedGraph {
 	 * @post result->size == self.getNodes().size()
 	 * @post result->forall( o | o->size == self.getNodes().size())
 	 */
-	public BitSet[] getAllPredsAsBitSet() {
+	public final BitSet[] getAllPredsAsBitSet() {
 		List nodes = getNodes();
 		BitSet[] result = new BitSet[nodes.size()];
 
@@ -142,9 +144,9 @@ public abstract class DirectedGraph {
 	 * @return the head nodes(<code>INode</code>) of this graph.
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->forall(o | o.getPredsOf().size == 0)
+	 * @post result->forall(o | o.getPredsOf().size == 0) and getNodes().containsAll(result)
 	 */
-	public Collection getHeads() {
+	public final Collection getHeads() {
 		return Collections.unmodifiableCollection(heads);
 	}
 
@@ -169,7 +171,7 @@ public abstract class DirectedGraph {
 	 * @post result->size == self.getNodes().size()
 	 * @post result->forall( o | o->size == self.getNodes().size())
 	 */
-	public BitSet[] getAllSuccsAsBitSet() {
+	public final BitSet[] getAllSuccsAsBitSet() {
 		List nodes = getNodes();
 		BitSet[] result = new BitSet[nodes.size()];
 
@@ -187,6 +189,33 @@ public abstract class DirectedGraph {
 	}
 
 	/**
+	 * Checks if the given nodes have ancestral relationship.  A node is not considered as the ancestor of itself.
+	 *
+	 * @param ancestor in the relationship.
+	 * @param descendent in the relationship.
+	 *
+	 * @return <code>true</code> if <code>ancestor</code> is the ancestor of <code>descendent</code>; <code>false</code>,
+	 * 		   otherwise.
+	 *
+	 * @pre ancestor != null and descendent != null and getNodes().contains(ancestor) and getNodes().contains(descendent)
+	 * @post hasSpanningForest = true
+	 */
+	public final boolean isAncestorOf(final INode ancestor, final INode descendent) {
+		if (!hasSpanningForest) {
+			createSpanningForest();
+		}
+
+		boolean result = false;
+
+		if (ancestor != descendent) {
+			int anc = getNodes().indexOf(ancestor);
+			int desc = getNodes().indexOf(descendent);
+			result = prenums[anc] < prenums[desc] && postnums[anc] > postnums[desc];
+		}
+		return result;
+	}
+
+	/**
 	 * Checks if the given destination node is reachable from the given source node in the given direction via outgoing
 	 * edges.
 	 *
@@ -197,9 +226,9 @@ public abstract class DirectedGraph {
 	 * @return <code>true</code> if <code>dest</code> is reachable from <code>src</code> in the given direction;
 	 * 		   <code>false</code>, otherwise.
 	 *
-	 * @pre src != null and dest != null
+	 * @pre src != null and dest != null and getNodes().contains(src) and getNodes().contains(dest)
 	 */
-	public boolean isReachable(final INode src, final INode dest, final boolean forward) {
+	public final boolean isReachable(final INode src, final INode dest, final boolean forward) {
 		boolean result = false;
 		Collection processed = new HashSet();
 		WorkBag worklist = new WorkBag(WorkBag.LIFO);
@@ -243,9 +272,9 @@ public abstract class DirectedGraph {
 	 * @return the tail nodes(<code>INode</code>) of this graph.
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
-	 * @post result->forall(o | o.getSuccsOf()->size() == 0)
+	 * @post result->forall(o | o.getSuccsOf()->size() == 0) and getNodes().containsAll(result)
 	 */
-	public Collection getTails() {
+	public final Collection getTails() {
 		return Collections.unmodifiableCollection(tails);
 	}
 
@@ -264,7 +293,8 @@ public abstract class DirectedGraph {
 	 * @return a collection of pairs containing the backedge. The source and the destination nodes of the edge are the first
 	 * 		   and the secondelement of the pair, respectively.
 	 *
-	 * @post result != null
+	 * @post result != null and hasSpanningForest = true and result.oclIsKindOf(Pair(INode, INode))
+     * @post getNodes().contains(result.getFirst()) and getNodes().contains(result.getFirst()) 
 	 */
 	public final Collection getBackEdges() {
 		if (!hasSpanningForest) {
@@ -295,6 +325,7 @@ public abstract class DirectedGraph {
 	 * 		   the cycle.
 	 *
 	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
+     * @post result->forall(o | getNodes().containsAll(o)) 
 	 */
 	public final Collection getCycles() {
 		Collection result = new ArrayList();
@@ -361,6 +392,7 @@ public abstract class DirectedGraph {
 	 * @return a collection of <code>List</code> of <code>INode</code>s that form SCCs in this graph.
 	 *
 	 * @post result != null and result.isOclKindOf(Collection(Sequence(INode)))
+     * @post result->forall(o | getNodes().containsAll(o))
 	 */
 	public final Collection getSCCs(final boolean topDown) {
 		Collection result;
@@ -446,7 +478,7 @@ public abstract class DirectedGraph {
 	 *
 	 * @return a list containing the nodes but in the sorted order.
 	 *
-	 * @post result != null and result.oclIsKindOf(Sequence(INode))
+	 * @post result != null and result.oclIsKindOf(Sequence(INode)) and getNodes().containsAll(result)
 	 */
 	public final List performTopologicalSort(final boolean topdown) {
 		List result;
@@ -484,6 +516,7 @@ public abstract class DirectedGraph {
 	 * @param forward is the direction in which finish time should be calculated.
 	 *
 	 * @return the finish time after the given dfs traversal.
+     * @pre getNodes().contains(node)
 	 */
 	private int getFinishTimes(final List nodes, final INode node, final Collection processed, final Map finishTime2node,
 		final int time, final boolean forward) {
@@ -585,6 +618,11 @@ public abstract class DirectedGraph {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/11 01:52:07  venku
+   - prenum, postnum, and back edges support has been added.
+   - added test case to test the above addition.
+   - corrected subtle bugs in test1
+   - refactored test1 so that setup local testing can be added by subclasses.
    Revision 1.6  2003/09/10 07:40:34  venku
    - documentation change.
    Revision 1.5  2003/09/01 20:57:11  venku

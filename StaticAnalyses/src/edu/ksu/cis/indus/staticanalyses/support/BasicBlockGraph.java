@@ -35,6 +35,8 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
+import soot.Trap;
+
 import soot.jimple.Stmt;
 
 import soot.toolkits.graph.UnitGraph;
@@ -59,16 +61,16 @@ import java.util.Map;
 public class BasicBlockGraph
   extends MutableDirectedGraph {
 	/**
+	 * The control flow graph of the method represented by this graph.
+	 */
+	public final UnitGraph _stmtGraph;
+
+	/**
 	 * The list of statements in the method being represented by this graph.
 	 *
 	 * @invariant stmtList.oclIsKindOf(Sequence(Stmt))
 	 */
 	final List stmtList;
-
-	/**
-	 * The control flow graph of the method represented by this graph.
-	 */
-	public final UnitGraph _stmtGraph;
 
 	/**
 	 * The collection of basic block nodes in this graph.
@@ -81,6 +83,13 @@ public class BasicBlockGraph
 	 * An array of <code>BasicBlock</code> objects.
 	 */
 	private final Map stmt2BlockMap;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private Collection handlerBlocks;
 
 	/**
 	 * Creates a new BasicBlockGraph object.
@@ -280,7 +289,7 @@ public class BasicBlockGraph
 					Object o = _stmtGraph.getSuccsOf(stmt).get(0);
 
 					if (o.equals(endStmt)) {
-                        result.add(endStmt);
+						result.add(endStmt);
 						break;
 					}
 					result.add(o);
@@ -327,6 +336,32 @@ public class BasicBlockGraph
 	}
 
 	/**
+	 * Retrieves the basic blocks at which the exception handlers begin.
+	 *
+	 * @return the exception handler basic blocks.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(BasicBlock))
+	 */
+	public Collection getHandlerBlocks() {
+		if (handlerBlocks == null) {
+			handlerBlocks = Collections.EMPTY_LIST;
+
+			Collection traps = _stmtGraph.getBody().getTraps();
+
+			if (!traps.isEmpty()) {
+				handlerBlocks = new HashSet();
+
+				for (Iterator i = traps.iterator(); i.hasNext();) {
+					handlerBlocks.add(getEnclosingBlock((Stmt) ((Trap) i.next()).getHandlerUnit()));
+				}
+			}
+			handlerBlocks = Collections.unmodifiableCollection(handlerBlocks);
+		}
+
+		return handlerBlocks;
+	}
+
+	/**
 	 * Returns the nodes in the graph.
 	 *
 	 * @return an unmodifiable list of <code>BasicBlocks</code> that make up the nodes in the graph.
@@ -370,15 +405,16 @@ public class BasicBlockGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/10 10:51:07  venku
+   - documentation.
+   - removed unnecessary typecast.
    Revision 1.7  2003/09/02 11:50:54  venku
    - start==end in getStmtFromTo() returned a list with 2 instances of the
     statement. FIXED.
-
    Revision 1.6  2003/09/02 07:39:54  venku
    - getStmtFromTo() was off by one at the end.  Also, it relied on Stmt list to calculate this info.
      Now it uses the unit graph to calculate this info.
    - added getLeaderStmt() method.
-
    Revision 1.5  2003/08/24 08:13:11  venku
    Major refactoring.
     - The methods to modify the graphs were exposed.
