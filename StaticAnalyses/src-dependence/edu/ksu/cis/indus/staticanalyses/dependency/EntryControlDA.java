@@ -92,7 +92,7 @@ public final class EntryControlDA
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
-	public final void analyze() {
+	public void analyze() {
 		analyze(callgraph.getReachableMethods());
 	}
 
@@ -577,6 +577,13 @@ public final class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.34  2004/07/28 09:09:27  venku
+   - changed aliased use def analysis to consider thread.
+   - also fixed a bug in the same analysis.
+   - ripple effect.
+   - deleted entry control dependence and renamed direct entry control da as
+     entry control da.
+
    Revision 1.33  2004/07/20 01:20:08  venku
    - documentation.
    Revision 1.32  2004/07/11 11:50:17  venku
