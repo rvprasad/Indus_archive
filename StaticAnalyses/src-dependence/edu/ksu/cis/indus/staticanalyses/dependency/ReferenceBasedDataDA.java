@@ -17,7 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import soot.SootMethod;
 
-import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
@@ -27,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 
 
 /**
@@ -71,7 +73,11 @@ public class ReferenceBasedDataDA
 	 */
 	public Collection getDependees(final Object stmt, final Object method) {
 		contextCache.setRootMethod((SootMethod) method);
-		return aliasedUD.getDefs((AssignStmt) stmt, contextCache);
+        Collection result = Collections.EMPTY_LIST;
+
+        result = aliasedUD.getDefs((Stmt) stmt, contextCache);
+        return result;
+        
 	}
 
 	/**
@@ -82,7 +88,7 @@ public class ReferenceBasedDataDA
 	 *
 	 * @return a collection of statements which are affectted by the data write in <code>stmt</code>.
 	 *
-	 * @pre stmt.isOclKindOf(Stmt) and method.isOclKindOf(SootMethod)
+	 * @pre stmt.isOclKindOf(DefinitionStmt) and method.isOclKindOf(SootMethod)
 	 * @post result.oclIsKindOf(Pair(AssignStmt, SootMethod))
 	 * @post result->forall(o | o.getFirst().getRightOp().oclIsKindOf(FieldRef) or
 	 * 		 o.getFirst().getRightOp().oclIsKindOf(ArrayRef))
@@ -91,7 +97,13 @@ public class ReferenceBasedDataDA
 	 */
 	public Collection getDependents(final Object stmt, final Object method) {
 		contextCache.setRootMethod((SootMethod) method);
-		return aliasedUD.getUses((AssignStmt) stmt, contextCache);
+
+		Collection result = Collections.EMPTY_LIST;
+
+		if (stmt instanceof DefinitionStmt) {
+			result = aliasedUD.getUses((DefinitionStmt) stmt, contextCache);
+		}
+		return result;
 	}
 
 	/**
@@ -146,6 +158,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/11/12 01:04:54  venku
+   - each analysis implementation has to identify itself as
+     belonging to a analysis category via an id.
    Revision 1.12  2003/11/10 02:26:29  venku
    - coding convention.
    Revision 1.11  2003/11/10 02:24:30  venku
