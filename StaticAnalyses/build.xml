@@ -80,8 +80,8 @@
 	<target name="docs" depends="init">
 		<antcall target="javadocs">
 			<param name="access" value="protected" />
-			<param name="sootlink" value="${remote_sootlink}" />
-			<param name="jdklink" value="${remote_jdklink}" />
+			<param name="sootlink" value="${remote.soot.link}" />
+			<param name="jdklink" value="${remote.jdk.link}" />
 			<param name="srcpath" value="${ant.project.name}.docsrcpath" />
 			<param name="exclude" value="yes" />
 		</antcall>
@@ -94,8 +94,8 @@
 	<target name="privatedocs" depends="init">
 		<antcall target="javadocs">
 			<param name="access" value="private" />
-			<param name="sootlink" value="${local_sootlink}" />
-			<param name="jdklink" value="${local_jdklink}" />
+			<param name="sootlink" value="${local.soot.link}" />
+			<param name="jdklink" value="${local.jdk.link}" />
 			<param name="srcpath" value="${ant.project.name}.srcpath" />
 			<param name="exclude" value="no" />
 		</antcall>
@@ -131,10 +131,10 @@
 			<sourcepath refid="${srcpath}" />
 			<link href="${sootlink}" />
 			<link href="${jdklink}" />
-			<link href="../../../Indus/docs/javadocs" />
 			<tag name="pre" description="Precondition:" scope="constructors,methods" />
 			<tag name="post" description="Postcondition:" scope="constructors,methods" />
 			<tag name="invariant" description="Invariant" scope="methods,types,fields" />
+			<arg line="${custom.javadoc.links}"/>
 		</javadoc>
 	</target>
 

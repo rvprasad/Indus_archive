@@ -134,6 +134,7 @@
 			<tag name="pre" description="Precondition:" scope="constructors,methods" />
 			<tag name="post" description="Postcondition:" scope="constructors,methods" />
 			<tag name="invariant" description="Invariant" scope="methods,types,fields" />
+			<arg line="${custom.javadoc.links}"/>
 		</javadoc>
 	</target>
 
