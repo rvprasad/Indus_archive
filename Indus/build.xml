@@ -12,16 +12,18 @@
 </target>
 
 <target name="buildAll" depends="init">
-    <mkdir dir="${build}"/>
-    <javac destdir="${build}" debug="on">
+    <mkdir dir="${build.dir}"/>
+    <javac destdir="${build.dir}" debug="on">
         <src refid="srcpath"/>
         <classpath refid="classpath"/>
     </javac>
 </target>
 
 <target name="build" depends="init">
-    <mkdir dir="${build}"/>
-    <javac destdir="${build}" includes="**/*java">
+    <mkdir dir="${build.dir}"/>
+    <property name="asas" refid="clover.files"/>
+    <echo message="${asas}"/>
+    <javac destdir="${build.dir}" includes="**/*java">
         <src refid="${ant.project.name}.srcpath"/>
         <classpath refid="${ant.project.name}.classpath"/>
     </javac>
@@ -33,8 +35,8 @@
 </target>
 
 <target name="debugBuild" depends="init">
-    <mkdir dir="${build}"/>
-    <javac destdir="${build}" debug="on" includes="**/*java">
+    <mkdir dir="${build.dir}"/>
+    <javac destdir="${build.dir}" debug="on" includes="**/*java">
         <src refid="${ant.project.name}.srcpath"/>
         <classpath refid="${ant.project.name}.classpath"/>
     </javac>
@@ -42,11 +44,11 @@
 </target>
 
 <target name="jar" depends="init">
-	<jar destfile="${jarfile}" basedir="${build}" excludes="**/.*"/>
+	<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*"/>
 </target>
 
 <target name="buildAndJar" depends="build">
-	<jar destfile="${jarfile}" basedir="${build}" excludes="**/.*"/>
+	<jar destfile="${jarfile}" basedir="${build.dir}" excludes="**/.*"/>
 </target>
 
 <target name="docs" depends="init">
@@ -111,7 +113,7 @@
 <target name="backup" depends="init">
     <mkdir dir="${dist}"/>
     <property name="filename" value="${dist}/${ant.project.name}-${DSTAMP}"/>
-    <jar jarfile="${filename}.jar" basedir="${build}" excludes="*.jar, *.tar, *.tgz"/>
+    <jar jarfile="${filename}.jar" basedir="${build.dir}" excludes="*.jar, *.tar, *.tgz"/>
     <tar tarfile="${filename}.tar" basedir="."
          excludes="**/\..*, **/rational/html/**"
          includes="src*/, ${filename}.jar, ${docs}/**, temp/, build.xml"/>
@@ -121,7 +123,7 @@
 
 <target name="clean" depends="init">
     <delete includeEmptyDirs="true" quiet="true">
-	    <fileset dir="${build}" includes="**/*.class"/>
+	    <fileset dir="${build.dir}" includes="**/*.class"/>
     </delete>
     <delete dir="${docs}" quiet="true"/>
 </target>
@@ -132,6 +134,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.20  2004/01/06 14:53:25  venku
+*** empty log message ***
+
 Revision 1.19  2004/01/03 21:33:16  venku
 - prelocalbuild.xml can declare "custombuild" target
   which will be executed in build.xml if a property "custombuild.exists"
