@@ -79,7 +79,7 @@ public class TagBasedProcessingFilter
 		if (LOGGER.isDebugEnabled()) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Filtered out: " + CollectionUtils.subtract(classes, _result));
-				LOGGER.debug("Retained : " + _result);
+				LOGGER.debug("Filtrate : " + _result);
 			}
 		}
 
@@ -103,7 +103,7 @@ public class TagBasedProcessingFilter
 		if (LOGGER.isDebugEnabled()) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Filtered out: " + CollectionUtils.subtract(methods, _result));
-				LOGGER.debug("Retained : " + _result);
+				LOGGER.debug("Filtrate : " + _result);
 			}
 		}
 
@@ -127,7 +127,7 @@ public class TagBasedProcessingFilter
 		if (LOGGER.isDebugEnabled()) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Filtered out: " + CollectionUtils.subtract(fields, _result));
-				LOGGER.debug("Retained : " + _result);
+				LOGGER.debug("Filtrate : " + _result);
 			}
 		}
 
@@ -151,6 +151,9 @@ public class TagBasedProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/12/14 20:36:51  venku
+   - documentation.
+
    Revision 1.9  2003/12/14 20:36:05  venku
    - the filtering methods were incorrect in TagBased... FIXED.
 
