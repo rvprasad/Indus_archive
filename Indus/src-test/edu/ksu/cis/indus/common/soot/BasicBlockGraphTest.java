@@ -17,7 +17,6 @@ package edu.ksu.cis.indus.common.soot;
 
 import edu.ksu.cis.indus.TestHelper;
 
-import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 
@@ -85,7 +84,7 @@ public class BasicBlockGraphTest
 		final Collection _unitsInGraph = new ArrayList();
 		final Collection _unitsInBB = new ArrayList();
 
-		CollectionsUtilities.addAllFromTo(_unitGraph.iterator(), _unitsInGraph);
+		CollectionUtils.addAll(_unitsInGraph, _unitGraph.iterator());
 
 		for (final Iterator _i = bbGraph.getNodes().iterator(); _i.hasNext();) {
 			final BasicBlock _bb = (BasicBlock) _i.next();
@@ -243,6 +242,12 @@ public class BasicBlockGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/06/14 08:39:29  venku
+   - added a property to SootBasedDriver to control the type of statement graph
+     factory to be used.
+   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
+   - ripple effect.
+
    Revision 1.4  2004/06/14 04:55:04  venku
    - documentation.
    - coding conventions.

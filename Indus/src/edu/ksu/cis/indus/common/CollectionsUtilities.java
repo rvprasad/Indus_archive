@@ -17,10 +17,8 @@ package edu.ksu.cis.indus.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -176,34 +174,6 @@ public final class CollectionsUtilities {
 	}
 
 	/**
-	 * Adds the contents of the iterator into the given collection.
-	 *
-	 * @param iterator that will iterate over the elements to be added.
-	 * @param collection into which the elements should be added.
-	 *
-	 * @pre iterator != null and collection != null
-	 */
-	public static void addAllFromTo(final Iterator iterator, final Collection collection) {
-		for (; iterator.hasNext();) {
-			collection.add(iterator.next());
-		}
-	}
-
-	/**
-	 * Adds the contents of the enumeration into the given collection.
-	 *
-	 * @param enumeration that will iterate over the elements to be added.
-	 * @param collection into which the elements should be added.
-	 *
-	 * @pre enumeration != null and collection != null
-	 */
-	public static void addAllFromTo(final Enumeration enumeration, final Collection collection) {
-		for (; enumeration.hasMoreElements();) {
-			collection.add(enumeration.nextElement());
-		}
-	}
-
-	/**
 	 * Ensures that <code>list.size()</code> returns <code>finalSize</code>. This is achieved by appending
 	 * <code>defaultValue</code> appropriate number of times to <code>list</code>.
 	 *
@@ -340,6 +310,9 @@ public final class CollectionsUtilities {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/07/04 11:17:32  venku
+   - added a new method "ensureSize()" to expand a list.
+
    Revision 1.5  2004/06/27 09:10:58  venku
    - added a new method to retrieve values from a list.
    Revision 1.4  2004/06/01 06:29:58  venku
