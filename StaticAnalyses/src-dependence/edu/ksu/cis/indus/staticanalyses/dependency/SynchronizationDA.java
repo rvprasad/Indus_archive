@@ -101,7 +101,7 @@ public final class SynchronizationDA
 			final Stmt _stmt = (Stmt) dependentStmt;
 
 			if (_stmt instanceof ExitMonitorStmt || _stmt instanceof EnterMonitorStmt) {
-				final Collection _monitorTriples = monitorInfo.getMonitorTriplesFor(_stmt, ((SootMethod) method));
+				final Collection _monitorTriples = monitorInfo.getMonitorTriplesFor(_stmt, (SootMethod) method);
 
 				for (final Iterator _i = _monitorTriples.iterator(); _i.hasNext();) {
 					final Triple _triple = (Triple) _i.next();

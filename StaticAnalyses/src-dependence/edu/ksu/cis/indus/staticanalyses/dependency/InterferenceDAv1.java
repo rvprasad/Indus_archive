@@ -382,10 +382,10 @@ public class InterferenceDAv1
 				final Collection _collection = (Collection) _entry2.getValue();
 
 				if (_collection != null) {
-					for (final Iterator _k = (_collection).iterator(); _k.hasNext();) {
+					for (final Iterator _k = _collection.iterator(); _k.hasNext();) {
 						_temp.append("\t\t" + _entry2.getKey() + " --> " + _k.next() + "\n");
 					}
-					_lEdgeCount += (_collection).size();
+					_lEdgeCount += _collection.size();
 				}
 			}
 			_result.append("\tFor " + _entry.getKey() + " there are " + _lEdgeCount + " Interference dependence edges.\n");
@@ -498,8 +498,8 @@ public class InterferenceDAv1
 	 */
 	private boolean isArrayDependentOnByOFA(final Pair dependent, final Pair dependee) {
 		boolean _result;
-		final ArrayRef _ifr1 = ((ArrayRef) ((AssignStmt) dependee.getFirst()).getLeftOp());
-		final ArrayRef _ifr2 = ((ArrayRef) ((AssignStmt) dependent.getFirst()).getRightOp());
+		final ArrayRef _ifr1 = (ArrayRef) ((AssignStmt) dependee.getFirst()).getLeftOp();
+		final ArrayRef _ifr2 = (ArrayRef) ((AssignStmt) dependent.getFirst()).getRightOp();
 
 		final Context _context = new AllocationContext();
 		_context.setProgramPoint(_ifr1.getBaseBox());
@@ -566,8 +566,8 @@ public class InterferenceDAv1
 	 */
 	private boolean isFieldDependentOnByOFA(final Pair dependent, final Pair dependee) {
 		boolean _result;
-		final InstanceFieldRef _ifr1 = ((InstanceFieldRef) ((AssignStmt) dependee.getFirst()).getLeftOp());
-		final InstanceFieldRef _ifr2 = ((InstanceFieldRef) ((AssignStmt) dependent.getFirst()).getRightOp());
+		final InstanceFieldRef _ifr1 = (InstanceFieldRef) ((AssignStmt) dependee.getFirst()).getLeftOp();
+		final InstanceFieldRef _ifr2 = (InstanceFieldRef) ((AssignStmt) dependent.getFirst()).getRightOp();
 
 		final Context _context = new AllocationContext();
 		_context.setProgramPoint(_ifr1.getBaseBox());
