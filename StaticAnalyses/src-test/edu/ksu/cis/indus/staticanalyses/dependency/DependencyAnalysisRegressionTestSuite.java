@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -60,18 +60,18 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DependencyAnalysisRegressionTestSuite
   extends TestCase {
-	/**
+	/** 
 	 * This is the property via which the ofa test accepts input.  Refer to DepedencyAnalysisTest.properties for format.
 	 */
 	public static final String DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE =
 		"indus.staticanalyses.dependency.DependencyAnalysisTest.properties.file";
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(DependencyAnalysisRegressionTestSuite.class);
 
-	/**
+	/** 
 	 * The property that maps a dependency class to the class that should be used to test its output.
 	 */
 	private static final Properties TEST_CLASSES_PROPERTIES = new Properties();
@@ -226,6 +226,18 @@ public class DependencyAnalysisRegressionTestSuite
 							_ignoreDARegex = "^$";
 						}
 
+						for (final Iterator _j = _das.iterator(); _j.hasNext();) {
+							final Object _da = _j.next();
+
+							if (!Pattern.matches(_ignoreDARegex, _da.getClass().getName())) {
+								final Test _test = getDATestFor((IDependencyAnalysis) _da);
+
+								if (_test != null) {
+									_temp.addTest(_test);
+								}
+							}
+						}
+
 						final DependencyXMLizer _xmlizer = new DependencyXMLizer();
 
 						for (final Iterator _j = _das.iterator(); _j.hasNext();) {
@@ -235,12 +247,6 @@ public class DependencyAnalysisRegressionTestSuite
 								final XMLBasedDependencyAnalysisTest _xmlTest =
 									new XMLBasedDependencyAnalysisTest((IDependencyAnalysis) _da, _xmlizer);
 								_temp.addTest(_xmlTest);
-
-								final Test _test = getDATestFor((IDependencyAnalysis) _da);
-
-								if (_test != null) {
-									_temp.addTest(_test);
-								}
 							}
 						}
 						_temp.addTestSuite(XMLBasedCallGraphTest.class);
@@ -268,73 +274,4 @@ public class DependencyAnalysisRegressionTestSuite
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.14  2004/06/14 08:39:28  venku
-   - added a property to SootBasedDriver to control the type of statement graph
-     factory to be used.
-   - removed getDefaultFactory() from ExceptionFlowSensitiveStmtGraphFactory.
-   - ripple effect.
-
-   Revision 1.13  2004/05/28 21:53:19  venku
-   - added a method to ExceptionFlowSensitiveGraphFactory to create
-     default factory objects.
-   Revision 1.12  2004/05/21 22:30:54  venku
-   - documentation.
-   Revision 1.11  2004/05/14 09:02:56  venku
-   - refactored:
-     - The ids are available in IDependencyAnalysis, but their collection is
-       available via a utility class, DependencyAnalysisUtil.
-     - DependencyAnalysis will have a sanity check via Unit Tests.
-   - ripple effect.
-   Revision 1.10  2004/05/14 06:27:26  venku
-   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-   Revision 1.9  2004/04/25 21:18:38  venku
-   - refactoring.
-     - created new classes from previously embedded classes.
-     - xmlized jimple is fragmented at class level to ease comparison.
-     - id generation is embedded into the testing framework.
-     - many more tiny stuff.
-   Revision 1.8  2004/04/22 10:03:59  venku
-   - changed jimpleXMLDumpDirectory property name to jimpleXMLDumpDir.
-   Revision 1.7  2004/04/22 08:00:19  venku
-   - enabled jimple xml dump control via jimpleXMLDumpDirectory property in configuration file.
-   Revision 1.6  2004/04/21 04:13:20  venku
-   - jimple dumping takes time.  Instead, the user can control this
-     per configuration.
-   Revision 1.5  2004/04/20 06:53:17  venku
-   - documentation.
-   Revision 1.4  2004/04/20 05:27:14  venku
-   - renamed checkExecutability() to checkXMLBasedTestExecutability().
-   Revision 1.3  2004/04/20 00:40:34  venku
-   - coding conventions.
-   Revision 1.2  2004/04/18 00:23:38  venku
-   - coding conventions.
-   Revision 1.1  2004/04/18 00:22:37  venku
-   - DependencyAnalysisRegresssionTestSuite was renamed to
-     DependenceAnalysisRegressionTestSuite.  One missing "s".
-   Revision 1.9  2004/04/18 00:17:20  venku
-   - added support to dump jimple.xml while testing. (bug fix)
-   Revision 1.8  2004/04/17 23:35:42  venku
-   - failures due to unavailable resources were not flagged. FIXED
-     - added a new class which always errs.
-     - this new class is used to setup a test case for cases where an error should occur.
-     - ripple effect.
-   Revision 1.7  2004/04/17 22:07:34  venku
-   - changed the names of firstInputDir/secondInputDir to testDir/controlDir.
-   - ripple effect in interfaces, classes, and property files.
-   Revision 1.6  2004/04/05 23:16:33  venku
-   - textui.TestRunner cannot be run via start(). FIXED.
-   Revision 1.5  2004/04/05 22:26:48  venku
-   - used textui.TestRunner instead of swingui.TestRunner.
-   Revision 1.4  2004/04/01 22:33:49  venku
-   - test suite name was incorrect.
-   Revision 1.3  2004/04/01 19:18:29  venku
-   - stmtGraphFactory was not set.
-   Revision 1.2  2004/03/29 09:44:41  venku
-   - finished the xml-based testing framework for dependence.
-   Revision 1.1  2004/03/09 18:40:03  venku
-   - refactoring.
-   - moved methods common to XMLBased Test into AbstractXMLBasedTest.
- */
+// End of File
