@@ -17,8 +17,8 @@ package edu.ksu.cis.indus.staticanalyses.flow;
 
 /**
  * This is data structure class to represent strongly connected component data used by flow analysis framework.  Each node
- * may be associated with 0 or 1 instance of this class.  Please refer to <code>SCCBasedOptimizer</code> to know how this class is
- * used.
+ * may be associated with 0 or 1 instance of this class.  Please refer to <code>SCCBasedOptimizer</code> to know how this
+ * class is used.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
