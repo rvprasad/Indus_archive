@@ -123,7 +123,7 @@ public class MethodVariantManager
 	 */
 	protected IVariant getNewVariant(final Object o) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("STATS: Processing method number: " + auxGetVariantCount() + 1);
+			LOGGER.debug("STATS: Processing method number: " + (auxGetVariantCount() + 1));
 		}
 
 		return new MethodVariant((SootMethod) o, new ASTVariantManager(fa, (AbstractIndexManager) astIMPrototype.getClone()),
@@ -134,6 +134,9 @@ public class MethodVariantManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/30 23:15:17  venku
+   Added support to display statistics in managers.
+
    Revision 1.4  2003/08/30 22:39:20  venku
    Added support to query statistics of the managers.
    Revision 1.3  2003/08/17 10:48:33  venku
