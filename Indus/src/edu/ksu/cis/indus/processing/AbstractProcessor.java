@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.processing;
 
+import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -30,7 +31,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class AbstractProcessor
+public abstract class AbstractProcessor extends AbstractStatus
   implements IProcessor {
 	/**
 	 * Does nothing.
@@ -92,6 +93,9 @@ public abstract class AbstractProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/24 22:25:56  venku
+   - documentation
+
    Revision 1.6  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.

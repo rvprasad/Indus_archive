@@ -18,7 +18,7 @@ package edu.ksu.cis.indus.staticanalyses.interfaces;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
-import edu.ksu.cis.indus.interfaces.IStatus;
+import edu.ksu.cis.indus.interfaces.AbstractStatus;
 
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 
@@ -41,7 +41,7 @@ import soot.toolkits.graph.UnitGraph;
  * @version $Revision$
  */
 public abstract class AbstractAnalysis
-  implements IStatus {
+  extends  AbstractStatus {
 	/**
 	 * The pre-processor for this analysis, if one exists.
 	 */
@@ -129,6 +129,7 @@ public abstract class AbstractAnalysis
 	 * @post info.size() == 0
 	 */
 	public void reset() {
+	    unstable();
 		info.clear();
 	}
 
@@ -193,6 +194,10 @@ public abstract class AbstractAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2004/05/31 21:38:09  venku
+   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
+   - ripple effect.
+
    Revision 1.19  2003/12/09 04:37:26  venku
    - returns an empty list for a method without body.
    Revision 1.18  2003/12/09 04:22:10  venku

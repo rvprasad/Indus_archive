@@ -79,13 +79,6 @@ public class CallGraph
 	private static final Log LOGGER = LogFactory.getLog(CallGraph.class);
 
 	/**
-	 * This indicates if the processor has stabilized.  If so, it is safe to query this object for information. By default,
-	 * this field is initialized to indicate that the processor is in a stable state.  The subclasses will need to toggle it
-	 * suitably.
-	 */
-	protected boolean stable = true;
-
-	/**
 	 * The collection of methods from which the system can be started.  Although an instance of a class can be created and a
 	 * method can be invoked on it from the environment, this method will not be considered as a <i>head method</i>.
 	 * However, our definition of head methods are those methods(excluding those in invoked via <code>invokespecial</code>
@@ -352,13 +345,6 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return stable;
-	}
-
-	/**
 	 * Called by the post process controller when it walks a jimple value AST node.
 	 *
 	 * @param vBox is the AST node to be processed.
@@ -528,7 +514,7 @@ public class CallGraph
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
-		stable = false;
+		unstable();
 		ppc.register(VirtualInvokeExpr.class, this);
 		ppc.register(InterfaceInvokeExpr.class, this);
 		ppc.register(StaticInvokeExpr.class, this);
@@ -540,6 +526,7 @@ public class CallGraph
 	 * Resets all internal data structure and forgets all info from the previous run.
 	 */
 	public void reset() {
+	    unstable();
 		caller2callees.clear();
 		callee2callers.clear();
 		analyzer = null;
@@ -559,7 +546,7 @@ public class CallGraph
 		ppc.unregister(StaticInvokeExpr.class, this);
 		ppc.unregister(SpecialInvokeExpr.class, this);
 		ppc.unregister(this);
-		stable = true;
+		stable();
 	}
 
 	/**
@@ -673,6 +660,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.56  2004/07/08 09:46:02  venku
+   - logging.
+
    Revision 1.55  2004/07/07 10:08:26  venku
    - altered the method to calculate reachability.
    - documented CallGraph

@@ -182,7 +182,7 @@ public final class DivergenceDA
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
-		stable = false;
+		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Divergence Dependence processing");
@@ -207,7 +207,7 @@ public final class DivergenceDA
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Divergence Dependence processing");
 		}
-		stable = true;
+		stable();
 	}
 
 	/**
@@ -611,6 +611,9 @@ public final class DivergenceDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/07/09 09:43:23  venku
+   - added clover tags to control coverage of toSting()
+
    Revision 1.36  2004/07/09 08:54:43  venku
    - documentation.
    Revision 1.35  2004/07/08 11:02:57  venku

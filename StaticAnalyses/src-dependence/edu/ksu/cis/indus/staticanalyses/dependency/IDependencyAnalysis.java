@@ -27,6 +27,16 @@ import java.util.Collection;
  */
 public interface IDependencyAnalysis {
 	/**
+	 * This identifies backward directional analaysis.
+	 */
+	Object BACKWARD_DIRECTIONAL = "BACKWARD_DIRECTION";
+
+	/**
+	 * This identifies bidirectional analaysis.
+	 */
+	Object BI_DIRECTIONAL = "BIDIRECTIONAL";
+
+	/**
 	 * This identifies control dependency analysis.
 	 */
 	Object CONTROL_DA = "CONTROL_DA";
@@ -35,6 +45,11 @@ public interface IDependencyAnalysis {
 	 * This identifies divergence dependency analysis.
 	 */
 	Object DIVERGENCE_DA = "DIVERGENCE_DA";
+
+	/**
+	 * This identifies forward directional analaysis.
+	 */
+	Object FORWARD_DIRECTIONAL = "FORWARD_DIRECTION";
 
 	/**
 	 * This identifies identifier based data dependency analysis.
@@ -88,6 +103,15 @@ public interface IDependencyAnalysis {
 	Collection getDependents(final Object dependee, final Object context);
 
 	/**
+	 * Returns the direction of the analysis.  This has to be one of the XXXX_DIRECTIONAL constants defined in this class.
+	 *
+	 * @return the direction of the implementation.
+	 *
+	 * @post result != null
+	 */
+	Object getDirection();
+
+	/**
 	 * Returns the ID of the analysis implementation.  This has to be one of the XXXX_DA constants defined in this class.
 	 *
 	 * @return the id of the implementation.
@@ -112,11 +136,12 @@ public interface IDependencyAnalysis {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/21 22:30:53  venku
+   - documentation.
    Revision 1.1  2004/05/14 09:02:57  venku
    - refactored:
      - The ids are available in IDependencyAnalysis, but their collection is
        available via a utility class, DependencyAnalysisUtil.
      - DependencyAnalysis will have a sanity check via Unit Tests.
    - ripple effect.
-
  */

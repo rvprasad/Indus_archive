@@ -311,7 +311,7 @@ public class InterferenceDAv1
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
-		stable = false;
+		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Interference Dependence [" + this.getClass() + "] processing");
@@ -319,7 +319,7 @@ public class InterferenceDAv1
 
 		// we return immediately if there are no start sites in the system.
 		if (tgi.getStartSites().size() == 0) {
-			stable = true;
+			stable();
 			return;
 		}
 
@@ -367,7 +367,7 @@ public class InterferenceDAv1
 			LOGGER.info("END: Interference Dependence processing");
 		}
 
-		stable = true;
+		stable();
 	}
 
 	/**
@@ -657,6 +657,9 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/07/09 09:43:23  venku
+   - added clover tags to control coverage of toSting()
+
    Revision 1.40  2004/07/07 08:52:06  venku
    - Dependence verdict in case the methods enclosing the ends of the dependence
      are both class initialization was incorrect. FIXED.

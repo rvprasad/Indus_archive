@@ -15,7 +15,7 @@
 
 package edu.ksu.cis.indus.tools;
 
-import edu.ksu.cis.indus.interfaces.IStatus;
+import edu.ksu.cis.indus.interfaces.AbstractStatus;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,9 +28,8 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$
  */
-public abstract class AbstractTool
-  implements IStatus,
-	  ITool {
+public abstract class AbstractTool extends AbstractStatus
+  implements ITool {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -69,7 +68,7 @@ public abstract class AbstractTool
 	/**
 	 * The thread in which the tools is running or ran previously.
 	 */
-	private Thread thread;
+	Thread thread;
 
 	/**
 	 * Retrieves an object that represents the active configuration of the tool.
@@ -97,16 +96,6 @@ public abstract class AbstractTool
 	 */
 	public final IToolConfigurator getConfigurator() {
 		return configurator;
-	}
-
-	/**
-	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running or after a run in which
-	 * the tool failed. Please refer to <code>run()</code> for more information. {@inheritDoc}
-	 *
-	 * @return <code>true</code> if the tool is not active; <code>false</code>, otherwise.
-	 */
-	public final synchronized boolean isStable() {
-		return isNotAlive() || childException == null;
 	}
 
 	/**
@@ -149,7 +138,7 @@ public abstract class AbstractTool
 		if (!pause || isNotAlive()) {
 			checkConfiguration();
 			childException = null;
-
+			unstable();
 			thread =
 				new Thread() {
 						public final void run() {
@@ -180,10 +169,22 @@ public abstract class AbstractTool
 					if (childException != null) {
 						throw new RuntimeException(childException);
 					}
-				} catch (InterruptedException _e) {
+				} catch (final InterruptedException _e) {
 					LOGGER.error("Interrupted while waiting on the run to complete.", _e);
 					throw new RuntimeException(_e);
 				}
+			} else {
+			    final Thread _temp = new Thread() {
+			        public void run() {
+			            try {
+                            thread.join();
+    			            stable();
+                        } catch (final InterruptedException _e) {
+        					LOGGER.error("Interrupted while waiting on the helper thread.", _e);
+                        }
+			        }
+			    };
+			    _temp.start();
 			}
 		} else {
 			throw new IllegalStateException("run() should be called when the tool is paused or running.");
@@ -234,6 +235,10 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/05/11 19:16:47  venku
+   The logic to spawn a thread and wait on it to finish was incorrect.  It led
+   to race condition.  FIXED.
+
    Revision 1.22  2004/02/27 09:40:45  venku
    - documentation.
 

@@ -133,12 +133,6 @@ public class ReferenceBasedDataDA
 		return IDependencyAnalysis.REFERENCE_BASED_DATA_DA;
 	}
 
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return aliasedUD.isStable();
-	}
 
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
@@ -152,6 +146,11 @@ public class ReferenceBasedDataDA
 			LOGGER.debug("ReferenceBasedDataDA.analyze() - " + toString());
 		}
 
+		if (aliasedUD.isStable())
+		    stable();
+		else 
+		    unstable();
+		
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Reference Based Data Dependence processing");
 		}
@@ -195,6 +194,9 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.25  2004/07/10 07:55:53  venku
+   - logging.
+
    Revision 1.24  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
 

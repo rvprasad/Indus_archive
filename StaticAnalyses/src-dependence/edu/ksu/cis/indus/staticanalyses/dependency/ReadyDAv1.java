@@ -476,7 +476,7 @@ public class ReadyDAv1
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
-		stable = false;
+		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Ready Dependence [" + this.getClass() + " processing");
@@ -506,7 +506,7 @@ public class ReadyDAv1
 			LOGGER.info("END: Ready Dependence processing");
 		}
 
-		stable = true;
+		stable();
 	}
 
 	/**
@@ -1251,6 +1251,9 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.60  2004/07/09 09:43:23  venku
+   - added clover tags to control coverage of toSting()
+
    Revision 1.59  2004/07/07 06:29:19  venku
    - coding convention and documentation.
    Revision 1.58  2004/07/07 06:25:07  venku

@@ -116,11 +116,6 @@ public final class AliasedUseDefInfo
 	private final PairManager pairMgr = new PairManager();
 
 	/**
-	 * This indicates if the analysis has stabilized.  If so, it is safe to query this object for information.
-	 */
-	private boolean stable;
-
-	/**
 	 * Creates a new AliasedUseDefInfo object.
 	 *
 	 * @param iva is the object flow analyzer to be used in the analysis.
@@ -153,12 +148,7 @@ public final class AliasedUseDefInfo
 		return _result;
 	}
 
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return stable;
-	}
+
 
 	/**
 	 * @see edu.ksu.cis.indus.interfaces.IUseDefInfo#getUses(DefinitionStmt, Context)
@@ -285,7 +275,7 @@ public final class AliasedUseDefInfo
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
-		stable = false;
+		unstable();
 		ppc.register(AssignStmt.class, this);
 	}
 
@@ -293,6 +283,7 @@ public final class AliasedUseDefInfo
 	 * Reset internal data structures.
 	 */
 	public void reset() {
+	    unstable();
 		def2usesMap.clear();
 		use2defsMap.clear();
 		pairMgr.reset();
@@ -350,7 +341,7 @@ public final class AliasedUseDefInfo
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(AssignStmt.class, this);
-		stable = true;
+		stable();
 	}
 
 	/**
@@ -464,6 +455,10 @@ public final class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/07/10 07:58:35  venku
+   - used useMethod instead of useStmt when trying to determine
+     ordering of statements in doesDefReachUse(). FIXED.
+
    Revision 1.34  2004/07/08 11:07:46  venku
    - INTERIM COMMIT.
 

@@ -50,27 +50,13 @@ public class SafeLockAnalysis
 	IMonitorInfo monitorInfo;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
-	 */
-	private boolean stable;
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return stable;
-	}
-
-	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
 	 */
 	public void analyze() {
-	    stable = false;
+	    unstable();
 		if (monitorInfo.isStable()) {
 			// process c1, c2, and c3
-			stable = true;
+			stable();
 		}
 	}
 
@@ -100,6 +86,9 @@ public class SafeLockAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/06/16 08:45:46  venku
+   - need to put in the framework for the analysis.
+
    Revision 1.6  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

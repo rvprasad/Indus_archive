@@ -146,6 +146,13 @@ public class EntryControlDA
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis#getDirection()
+	 */
+	public Object getDirection() {
+		return BACKWARD_DIRECTIONAL;
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#getId()
 	 */
 	public final Object getId() {
@@ -170,7 +177,7 @@ public class EntryControlDA
 	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod)) and not method->includes(null)
 	 */
 	public final void analyze(final Collection methods) {
-		stable = false;
+		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Control Dependence processing");
@@ -200,7 +207,7 @@ public class EntryControlDA
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Control Dependence processing");
 		}
-		stable = true;
+		stable();
 	}
 
 	///CLOVER:OFF
@@ -577,6 +584,8 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.27  2004/07/09 09:43:23  venku
+   - added clover tags to control coverage of toSting()
    Revision 1.26  2004/07/08 10:28:48  venku
    - identity cases were not handled in DirectEntryControlDA and EntryControlDA. FIXED.
    Revision 1.25  2004/07/08 07:41:22  venku

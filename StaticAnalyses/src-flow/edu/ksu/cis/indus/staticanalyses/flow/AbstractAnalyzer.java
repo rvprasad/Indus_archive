@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.staticanalyses.flow;
 
+import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -53,7 +54,7 @@ import soot.jimple.ParameterRef;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public abstract class AbstractAnalyzer
+public abstract class AbstractAnalyzer extends AbstractStatus
   implements IValueAnalyzer {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -73,13 +74,6 @@ public abstract class AbstractAnalyzer
 	protected FA fa;
 
 	/**
-	 * This field indicates if the analysis has stablized.  In this implementation we have equated, stability to be
-	 * non-active.  This is consistent with the fact that when non-active, the information returned on different identical
-	 * queries are identical although the information may be wrong.
-	 */
-	private boolean stable;
-
-	/**
 	 * Creates a new <code>AbstractAnalyzer</code> instance.
 	 *
 	 * @param theContext the context to be used by this analysis instance.
@@ -93,7 +87,6 @@ public abstract class AbstractAnalyzer
 	protected AbstractAnalyzer(final Context theContext, final String tagName, final ITokenManager tokenMgr) {
 		this.context = theContext;
 		fa = new FA(this, tagName, tokenMgr);
-		stable = false;
 	}
 
 	/**
@@ -105,13 +98,6 @@ public abstract class AbstractAnalyzer
 	 */
 	public IEnvironment getEnvironment() {
 		return fa;
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return stable;
 	}
 
 	/**
@@ -214,9 +200,9 @@ public abstract class AbstractAnalyzer
 		if (root == null) {
 			throw new IllegalStateException("Root method cannot be null.");
 		}
-		stable = false;
+		unstable();
 		fa.analyze(scm, root);
-		stable = true;
+		stable();
 	}
 
 	/**
@@ -237,13 +223,13 @@ public abstract class AbstractAnalyzer
 			throw new IllegalStateException("There must be at least one root method to analyze.");
 		}
 
-		stable = false;
+		unstable();
 
 		for (final Iterator _i = roots.iterator(); _i.hasNext();) {
 			final SootMethod _root = (SootMethod) _i.next();
 			fa.analyze(scm, _root);
 		}
-		stable = true;
+		stable();
 	}
 
 	/**
@@ -251,6 +237,7 @@ public abstract class AbstractAnalyzer
 	 * reset the analysis.
 	 */
 	public final void reset() {
+	    unstable();
 		resetAnalysis();
 		fa.reset();
 	}
@@ -378,6 +365,12 @@ public abstract class AbstractAnalyzer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/16 20:10:39  venku
+   - refactoring
+    - enabled bit-encoding support in indus.
+    - ripple effect.
+    - moved classes to related packages.
+
    Revision 1.12  2003/12/05 02:27:20  venku
    - unnecessary methods and fields were removed. Like
        getCurrentProgramPoint()

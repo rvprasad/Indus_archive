@@ -87,13 +87,6 @@ public class ThreadGraph
 	private static final Log LOGGER = LogFactory.getLog(ThreadGraph.class);
 
 	/**
-	 * This indicates if the processor has stabilized.  If so, it is safe to query this object for information. By default,
-	 * this field is initialized to indicate that the processor is in a stable state.  The subclasses will need to toggle it
-	 * suitably.
-	 */
-	protected boolean stable = true;
-
-	/**
 	 * This provides inter-procedural control-flow information.
 	 */
 	final CFGAnalysis cfgAnalysis;
@@ -230,13 +223,6 @@ public class ThreadGraph
 	 */
 	public Collection getMultiThreadAllocSites() {
 		return Collections.unmodifiableCollection(threadAllocSitesMulti);
-	}
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return stable;
 	}
 
 	/**
@@ -591,7 +577,7 @@ public class ThreadGraph
 	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
-		stable = false;
+		unstable();
 		ppc.register(NewExpr.class, this);
 		ppc.register(VirtualInvokeExpr.class, this);
 	}
@@ -607,6 +593,7 @@ public class ThreadGraph
 		newThreadExprs.clear();
 		threadAllocSitesMulti.clear();
 		threadAllocSitesSingle.clear();
+		unstable();
 	}
 
 	/**
@@ -615,7 +602,7 @@ public class ThreadGraph
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
 		ppc.unregister(VirtualInvokeExpr.class, this);
-		stable = true;
+		stable();
 	}
 
 	/**
@@ -684,6 +671,12 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.30  2004/05/21 22:11:47  venku
+   - renamed CollectionsModifier as CollectionUtilities.
+   - added new specialized methods along with a method to extract
+     filtered maps.
+   - ripple effect.
+
    Revision 1.29  2004/03/29 01:55:03  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This

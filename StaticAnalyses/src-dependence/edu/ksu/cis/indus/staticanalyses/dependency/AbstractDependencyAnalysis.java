@@ -41,8 +41,8 @@ import java.util.Map;
  * @invariant getPreProcessing() != null implies doesPreProcessing()
  */
 public abstract class AbstractDependencyAnalysis
-  extends AbstractAnalysis implements IDependencyAnalysis {	
-
+  extends AbstractAnalysis
+  implements IDependencyAnalysis {
 	/**
 	 * This is similar to <code>dependent2dependee</code> except the direction is dependee->dependent. Hence, it is
 	 * recommended that the subclass use this store dependence information.
@@ -58,11 +58,6 @@ public abstract class AbstractDependencyAnalysis
 	 * @invariant dependent2dependee != null
 	 */
 	protected final Map dependent2dependee = new HashMap();
-
-	/**
-	 * This indicates if the information provided by this analysis has stablized.
-	 */
-	protected boolean stable;
 
 	/**
 	 * Return the entities on which the <code>dependent</code> depends on in the given <code>context</code>.
@@ -91,6 +86,13 @@ public abstract class AbstractDependencyAnalysis
 	public abstract Collection getDependents(final Object dependee, final Object context);
 
 	/**
+	 * {@inheritDoc} This implementation indicates the analysis is <code>BI_DIRECTIONAL</code>.
+	 */
+	public Object getDirection() {
+		return BI_DIRECTIONAL;
+	}
+
+	/**
 	 * Returns the ID of the analysis implementation.  This has to be one of the XXXX_DA constants defined in this class.
 	 *
 	 * @return the id of the implementation.
@@ -98,13 +100,6 @@ public abstract class AbstractDependencyAnalysis
 	 * @post result != null
 	 */
 	public abstract Object getId();
-
-	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return stable;
-	}
 
 	/**
 	 * Resets all internal data structures.  General protocol is that data acquired via setup is not reset or forgotten.
@@ -121,12 +116,16 @@ public abstract class AbstractDependencyAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/05/14 09:02:57  venku
+   - refactored:
+     - The ids are available in IDependencyAnalysis, but their collection is
+       available via a utility class, DependencyAnalysisUtil.
+     - DependencyAnalysis will have a sanity check via Unit Tests.
+   - ripple effect.
    Revision 1.1  2004/05/14 06:27:24  venku
    - renamed DependencyAnalysis as AbstractDependencyAnalysis.
-
    Revision 1.17  2004/03/03 10:11:40  venku
    - formatting.
-
    Revision 1.16  2004/03/03 10:07:24  venku
    - renamed dependeeMap as dependent2dependee
    - renamed dependentmap as dependee2dependent

@@ -267,20 +267,13 @@ public final class SynchronizationDA
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
-	 */
-	public boolean isStable() {
-		return stable;
-	}
-
-	/**
 	 * Calculates the synchronization dependency information for the methods provided during initialization.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
-		stable = false;
-
+	    unstable();
+	    
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Synchronization Dependence processing");
 		}
@@ -311,7 +304,7 @@ public final class SynchronizationDA
 		}
 
 		method2enterMonitors.clear();
-		stable = true;
+		stable();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
@@ -738,6 +731,9 @@ outerloop:
 /*
    ChangeLog:
    $Log$
+   Revision 1.49  2004/07/09 09:43:23  venku
+   - added clover tags to control coverage of toSting()
+
    Revision 1.48  2004/07/07 06:29:20  venku
    - coding convention and documentation.
    Revision 1.47  2004/07/07 06:25:07  venku

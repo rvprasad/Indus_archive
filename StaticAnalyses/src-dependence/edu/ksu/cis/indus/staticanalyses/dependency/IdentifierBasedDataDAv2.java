@@ -149,7 +149,7 @@ public class IdentifierBasedDataDAv2
 	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyAnalysis#analyze()
 	 */
 	public void analyze() {
-		stable = false;
+		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("BEGIN: Identifier Based Data Dependence processing");
@@ -173,7 +173,7 @@ public class IdentifierBasedDataDAv2
 				}
 			}
 		}
-		stable = true;
+		stable();
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("analyze() - " + toString());
@@ -282,6 +282,9 @@ public class IdentifierBasedDataDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/07/09 09:43:23  venku
+   - added clover tags to control coverage of toSting()
+
    Revision 1.3  2004/07/08 11:04:40  venku
    - formatting.
    Revision 1.2  2004/06/23 04:44:59  venku
