@@ -25,14 +25,18 @@ import java.util.Comparator;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class ToStringBasedComparator
+public final class ToStringBasedComparator
   implements Comparator {
 	/**
 	 * A single of this class.
 	 */
-	public static Comparator SINGLETON = new ToStringBasedComparator();
+	public static final Comparator SINGLETON = new ToStringBasedComparator();
 
 	/// CLOVER:OFF
+
+	/**
+	 * Creates an instance of this class.
+	 */
 	private ToStringBasedComparator() {
 	}
 
@@ -49,6 +53,8 @@ public class ToStringBasedComparator
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/01/21 00:38:52  venku
+   - made this class singleton based.
    Revision 1.1  2004/01/19 23:50:16  venku
    - added a toString() based comparator.
  */

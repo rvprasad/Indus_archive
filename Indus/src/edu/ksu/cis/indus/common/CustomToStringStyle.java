@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public class CustomToStringStyle
+public final class CustomToStringStyle
   extends ToStringStyle {
 	/** 
 	 * This is the singleton object of this class.
@@ -34,6 +34,9 @@ public class CustomToStringStyle
 	public static final ToStringStyle HASHCODE_AT_END_STYLE = new CustomToStringStyle();
 
 	/// CLOVER:OFF
+    /**
+     * Creates an instance of this class.
+     */
 	private CustomToStringStyle() {
 	}
 
@@ -42,7 +45,7 @@ public class CustomToStringStyle
 	/**
 	 * @see org.apache.commons.lang.builder.ToStringStyle#appendEnd(java.lang.StringBuffer, java.lang.Object)
 	 */
-	public void appendEnd(StringBuffer buffer, Object object) {
+	public void appendEnd(final StringBuffer buffer, final Object object) {
 		super.appendEnd(buffer, object);
 		appendIdentityHashCode(buffer, object);
 	}
@@ -50,7 +53,7 @@ public class CustomToStringStyle
 	/**
 	 * @see org.apache.commons.lang.builder.ToStringStyle#appendStart(java.lang.StringBuffer, java.lang.Object)
 	 */
-	public void appendStart(StringBuffer buffer, Object object) {
+	public void appendStart(final StringBuffer buffer, final Object object) {
 		appendClassName(buffer, object);
 		appendContentStart(buffer);
 
@@ -63,4 +66,8 @@ public class CustomToStringStyle
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/20 00:34:24  venku
+   - new ToStringStyle that appends the hashcode at the end
+     rather than at the front in toString().
+
  */

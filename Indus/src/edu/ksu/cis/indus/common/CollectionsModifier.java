@@ -28,6 +28,12 @@ import java.util.Map;
  */
 public final class CollectionsModifier {
 	/**
+	 * Creates a new CollectionsModifier object.
+	 */
+	private CollectionsModifier() {
+	}
+
+	/**
 	 * Puts all values in <code>values</code> into the value of the given key in the given map .  If no collection exists
 	 * against the  given key, the given collection is installed as the value for the given key and the values are loaded
 	 * into it.
@@ -77,4 +83,6 @@ public final class CollectionsModifier {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/01/21 13:41:49  venku
+    - a new class to provide methods with common collection operations.
  */

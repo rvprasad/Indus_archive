@@ -229,6 +229,16 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
+	 * Retrieves the tails and psuedo-tails of the given graph.  Psuedo tails are tails of end loops in which the loop head
+     * does not h 
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public final Collection getTailsAndPseudoTails() {
+		return null;
+	}
+
+	/**
 	 * Retrieves the nodes in the graph.  The order of the nodes should be the same across calls to this method, if no nodes
 	 * are added or removed.  In case of addition and removal, the relative ordering between the old nodes should not change
 	 * across calls.
@@ -639,6 +649,9 @@ public abstract class AbstractDirectedGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/20 21:23:18  venku
+   - the return value of getSCCs needs to be ordered if
+     it accepts a direction parameter.  FIXED.
    Revision 1.6  2004/01/06 00:53:35  venku
    - coding conventions.
    Revision 1.5  2004/01/06 00:17:10  venku

@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.common.graph;
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -121,6 +120,10 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/01/17 00:38:00  venku
+   - Weak references are claimed too quickly.  So, we now
+     use SoftReferences.
+
    Revision 1.6  2004/01/16 21:18:57  venku
    - renamed setUnitGraphProvider() to setUnitGraphFactory()
      in BasicBlockGraphMgr.
