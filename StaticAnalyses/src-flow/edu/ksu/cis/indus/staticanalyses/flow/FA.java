@@ -553,8 +553,14 @@ public class FA
 		_workLists[1] = new WorkList(workBags[1]);
 
 		while (workBags[0].hasWork() || workBags[1].hasWork()) {
+		    if (LOGGER.isInfoEnabled()) {
+			    LOGGER.info("Processing work pieces in workbag 0.");
+    		}
 			currWorkBag = workBags[1];
 			_workLists[0].process();
+		    if (LOGGER.isInfoEnabled()) {
+			    LOGGER.info("Processing work pieces in workbag 1.");
+	    	}
 			currWorkBag = workBags[0];
 			_workLists[1].process();
 		}
@@ -579,6 +585,12 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/05/19 06:50:30  venku
+   - changes to use two-level worklist iteration.  That is, while processing
+     work peice in a worklist, any newly generated work is added to another
+     worklist which is processed next.  The worklist are switched till both are
+     empty.
+
    Revision 1.17  2004/04/16 20:10:39  venku
    - refactoring
     - enabled bit-encoding support in indus.
