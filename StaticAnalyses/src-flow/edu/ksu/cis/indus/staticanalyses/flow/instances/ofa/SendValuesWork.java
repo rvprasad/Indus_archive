@@ -80,7 +80,7 @@ public class SendValuesWork
 	 * Injects the values into the associated node.
 	 */
 	public final void execute() {
-		node.addValues(this.values);
+		node.addValues(values);
 	}
 
 	/**
@@ -148,6 +148,7 @@ public class SendValuesWork
 
 		try {
 			result = (SendValuesWork) POOL.borrowObject();
+            result.values.clear();
 		} catch (Exception e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("How can this happen?", e);
@@ -162,6 +163,9 @@ public class SendValuesWork
    ChangeLog:
 
    $Log$
+   Revision 1.5  2003/08/18 11:07:46  venku
+   Name change for pooling support.
+
    Revision 1.4  2003/08/18 08:34:20  venku
    Well, used the object pool as available from jakarta commons implementation.
 
