@@ -104,6 +104,13 @@ public class SlicerConfiguration
 	public static final Object SLICE_FOR_DEADLOCK = "slice for deadlock";
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	public static final Object EXECUTABLE_SLICE = "executable slice";
+
+	/**
 	 * This identifies the property that indicates the slice type, i.e., forward or complete slice.
 	 */
 	public static final Object SLICE_TYPE = "slice type";
@@ -123,12 +130,17 @@ public class SlicerConfiguration
 	private static boolean uninitialized = true;
 
 	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected boolean executableSlice = true;
+
+	/**
 	 * This indicates if the tool should criteria that ensure the deadlock behavior of the slice is same as that of the
 	 * original program.
 	 */
 	protected boolean sliceForDeadlock = false;
-    
-    protected boolean executableSlice = true;
 
 	/**
 	 * The collection of ids of the dependences to be considered for slicing.
@@ -160,6 +172,7 @@ public class SlicerConfiguration
 			PROPERTY_IDS_CACHE.add(USE_RULE4_IN_READYDA);
 			PROPERTY_IDS_CACHE.add(SLICE_FOR_DEADLOCK);
 			PROPERTY_IDS_CACHE.add(SLICE_TYPE);
+			PROPERTY_IDS_CACHE.add(EXECUTABLE_SLICE);
 			uninitialized = false;
 		}
 		PROPERTY_IDS.addAll(PROPERTY_IDS_CACHE);
@@ -182,7 +195,6 @@ public class SlicerConfiguration
 		setProperty(EQUIVALENCE_CLASS_BASED_READYDA, Boolean.FALSE);
 		setProperty(USE_READYDA, Boolean.FALSE);
 		setProperty(USE_DIVERGENCEDA, Boolean.FALSE);
-		setProperty(SLICE_FOR_DEADLOCK, Boolean.TRUE);
 		setProperty(SLICE_TYPE, SlicingEngine.BACKWARD_SLICE);
 	}
 
@@ -330,14 +342,18 @@ public class SlicerConfiguration
 				Boolean bool = (Boolean) properties.get(USE_DIVERGENCEDA);
 
 				if (bool != null && bool.booleanValue()) {
+					DivergenceDA dda = (DivergenceDA) id2dependencyAnalysis.get(DependencyAnalysis.DIVERGENCE_DA);
+
 					if (val.booleanValue()) {
-						((DivergenceDA) id2dependencyAnalysis.get(DependencyAnalysis.DIVERGENCE_DA)).setConsiderCallSites(true);
+						dda.setConsiderCallSites(true);
 					} else {
-						((DivergenceDA) id2dependencyAnalysis.get(DependencyAnalysis.DIVERGENCE_DA)).setConsiderCallSites(false);
+						dda.setConsiderCallSites(false);
 					}
 				}
 			} else if (propertyID.equals(SLICE_FOR_DEADLOCK)) {
 				sliceForDeadlock = val.booleanValue();
+			} else if (propertyID.equals(EXECUTABLE_SLICE)) {
+				executableSlice = val.booleanValue();
 			} else if (propertyID.equals(USE_RULE1_IN_READYDA)) {
 				Boolean bool = (Boolean) properties.get(USE_READYDA);
 
@@ -503,13 +519,20 @@ public class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/10/21 06:00:19  venku
+   - Split slicing type into 2 sets:
+        b/w, f/w, and complete
+        executable and non-executable.
+   - Extended transformer classes to handle these
+     classification.
+   - Added a new class to house the logic for fixing
+     return statements in case of backward executable slice.
    Revision 1.11  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.
    - The driver manages the shell.
    - Got all the gui parts running EXCEPT for changing
      the name of the configuration.
-
    Revision 1.10  2003/10/19 20:04:05  venku
    - class needs to be public for the purpose of
      marshalling and unmarshalling.  FIXED.

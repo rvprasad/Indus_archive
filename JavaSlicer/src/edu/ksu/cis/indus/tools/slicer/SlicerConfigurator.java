@@ -81,6 +81,16 @@ public final class SlicerConfigurator
 		button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.SLICE_FOR_DEADLOCK, button,
 				SLICER_CONFIG));
 
+         gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+        gridData.horizontalSpan = 1;
+
+        button = new Button(parent, SWT.CHECK);
+        button.setText("Executable slice");
+        button.setLayoutData(gridData);
+        button.setSelection(SLICER_CONFIG.sliceForDeadlock);
+        button.addSelectionListener(new BooleanPropertySelectionListener(SlicerConfiguration.EXECUTABLE_SLICE, button,
+                        SLICER_CONFIG));
+
 		// Interference dependence related group
 		gridData = new GridData(GridData.FILL_HORIZONTAL);
 		gridData.horizontalSpan = 1;
@@ -281,6 +291,15 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/10/21 06:00:19  venku
+   - Split slicing type into 2 sets:
+        b/w, f/w, and complete
+        executable and non-executable.
+   - Extended transformer classes to handle these
+     classification.
+   - Added a new class to house the logic for fixing
+     return statements in case of backward executable slice.
+
    Revision 1.12  2003/10/20 13:55:25  venku
    - Added a factory to create new configurations.
    - Simplified AbstractToolConfigurator methods.
