@@ -15,6 +15,8 @@
 
 package edu.ksu.cis.indus.transformations.slicer;
 
+import edu.ksu.cis.indus.common.soot.Util;
+
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.Environment;
@@ -34,16 +36,7 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import soot.BooleanType;
-import soot.ByteType;
-import soot.CharType;
-import soot.DoubleType;
-import soot.FloatType;
-import soot.IntType;
-import soot.LongType;
-import soot.RefLikeType;
 import soot.Scene;
-import soot.ShortType;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -56,16 +49,11 @@ import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
-import soot.jimple.DoubleConstant;
-import soot.jimple.FloatConstant;
 import soot.jimple.IdentityStmt;
-import soot.jimple.IntConstant;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
-import soot.jimple.LongConstant;
 import soot.jimple.LookupSwitchStmt;
-import soot.jimple.NullConstant;
 import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
@@ -166,8 +154,8 @@ public final class TagBasedDestructiveSliceResidualizer
 		 * containing expressions will be residualized. If so, then we can leave the expression untouched.  Only in the case
 		 * of invocation statement do we need to process the arguments to the call.
 		 *
-		 * TODO: Depending on the relevant branches of the conditional various branches of the conditional can be sliced to 
-         * improve precision.
+		 * TODO: Depending on the relevant branches of the conditional various branches of the conditional can be sliced to
+		 * improve precision.
 		 */
 
 		/**
@@ -208,7 +196,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final ValueBox _vBox = stmt.getKeyBox();
 
 			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				stmt.setKey(getDefaultValueFor(_vBox.getValue().getType()));
+				stmt.setKey(Util.getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -219,7 +207,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final ValueBox _vBox = stmt.getOpBox();
 
 			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				stmt.setOp(getDefaultValueFor(_vBox.getValue().getType()));
+				stmt.setOp(Util.getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -230,7 +218,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final ValueBox _vBox = stmt.getKeyBox();
 
 			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				stmt.setKey(getDefaultValueFor(_vBox.getValue().getType()));
+				stmt.setKey(Util.getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -241,7 +229,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final ValueBox _vBox = stmt.getOpBox();
 
 			if (!((Host) _vBox).hasTag(tagToResidualize)) {
-				stmt.setOp(getDefaultValueFor(_vBox.getValue().getType()));
+				stmt.setOp(Util.getDefaultValueFor(_vBox.getValue().getType()));
 			}
 		}
 
@@ -277,8 +265,9 @@ public final class TagBasedDestructiveSliceResidualizer
 		 *
 		 * @param stmt to be residualized.
 		 *
+		 * @throws IllegalStateException when the rhs is included in the slice and the lhs is not included in the slice.
+		 *
 		 * @pre stmt != null
-         * @throws IllegalStateException when the rhs is included in the slice and the lhs is not included in the slice.
 		 */
 		private void residualizeDefStmt(final DefinitionStmt stmt) {
 			if (!((Host) stmt.getLeftOpBox()).hasTag(tagToResidualize)) {
@@ -287,10 +276,11 @@ public final class TagBasedDestructiveSliceResidualizer
 				 * that is marked.  If rhs is not an invoke expr then the slice is incorrect.
 				 */
 				if (!stmt.containsInvokeExpr()) {
-                    final String _message = "Incorrect slice.  "
-                        + "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt;
+					final String _message =
+						"Incorrect slice.  "
+						+ "How can a def statement and it's non-invoke rhs be marked with the lhs unmarked? ->" + stmt;
 					stmtResidualizerLogger.error(_message);
-                    throw new IllegalStateException(_message);
+					throw new IllegalStateException(_message);
 				}
 
 				final Jimple _jimple = Jimple.v();
@@ -337,7 +327,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final Value _value = vBox.getValue();
 
 			if (!((Host) vBox).hasTag(tagToResidualize)) {
-				vBox.setValue(getDefaultValueFor(_value.getType()));
+				vBox.setValue(Util.getDefaultValueFor(_value.getType()));
 			} else {
 				_value.apply(this);
 			}
@@ -384,8 +374,10 @@ public final class TagBasedDestructiveSliceResidualizer
 					LOGGER.debug("Residualized method " + method);
 				}
 			} else {
-       if (LOGGER.isDebugEnabled()) LOGGER.debug("Deleting method " + method);         
-            }
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Deleting method " + method);
+				}
+			}
 		}
 	}
 
@@ -481,20 +473,23 @@ public final class TagBasedDestructiveSliceResidualizer
 				_body.validateUnitBoxes();
 				_body.validateUses();
 				NopEliminator.v().transform(_body);
-                /*
-                 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
-                 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to executable.
-                 */                
+
+				/*
+				 * It is possible that some methods are marked but none of their statements are marked.  This can happen in
+				 * executable slice with no specialization.  Hence, the body needs to be fixed for the code to executable.
+				 */
 				if (_body.getUnits().isEmpty()) {
-                    final Chain _temp = _body.getUnits();
-                    final Type _retType = currMethod.getReturnType();
-                    if (_retType.equals(VoidType.v()))
-                            _temp.add(_jimple.newReturnVoidStmt());
-                    else {
-                        _temp.add(_jimple.newReturnStmt(getDefaultValueFor(_retType)));
-                    }
-                }
+					final Chain _temp = _body.getUnits();
+					final Type _retType = currMethod.getReturnType();
+
+					if (_retType.equals(VoidType.v())) {
+						_temp.add(_jimple.newReturnVoidStmt());
+					} else {
+						_temp.add(_jimple.newReturnStmt(Util.getDefaultValueFor(_retType)));
+					}
+				}
 			}
+
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("END: Finishing method " + currMethod);
 			}
@@ -559,47 +554,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	}
 
 	/**
-	 * Retrieves the default value for the given type.
-	 *
-	 * @param type for which the default value is requested.
-	 *
-	 * @return the default value
-	 *
-	 * @throws IllegalArgumentException when an invalid type is provided.
-	 *
-	 * @pre type != null
-	 * @post result != null
-	 */
-	Value getDefaultValueFor(final Type type) {
-		Value _result = null;
-
-		if (type instanceof RefLikeType) {
-			_result = NullConstant.v();
-		} else if (type instanceof IntType) {
-			_result = IntConstant.v(0);
-		} else if (type instanceof CharType) {
-			_result = IntConstant.v(0);
-		} else if (type instanceof ByteType) {
-			_result = IntConstant.v(0);
-		} else if (type instanceof BooleanType) {
-			_result = IntConstant.v(0);
-		} else if (type instanceof DoubleType) {
-			_result = DoubleConstant.v(0);
-		} else if (type instanceof FloatType) {
-			_result = FloatConstant.v(0);
-		} else if (type instanceof LongType) {
-			_result = LongConstant.v(0);
-		} else if (type instanceof ShortType) {
-			_result = IntConstant.v(0);
-		} else {
-			LOGGER.error("Illegal type specified.");
-			throw new IllegalArgumentException("Illegal type specified.");
-		}
-
-		return _result;
-	}
-
-	/**
 	 * Consolidate the current class and method.
 	 *
 	 * @post currClass = null and methodsToKill.size() = 0 and fieldsToKill.size() = 0 and currMethod = null
@@ -641,35 +595,31 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/01/22 01:07:00  venku
+   - coding convention.
    Revision 1.12  2004/01/22 01:06:13  venku
    - coding convention.
-
    Revision 1.11  2004/01/17 23:25:20  venku
    - value was being cast into a Host.  FIXED.
-
    Revision 1.10  2004/01/14 12:01:02  venku
    - documentation.
    - error was not flagged when incorrect slice is detected. FIXED.
-
    Revision 1.9  2004/01/13 10:59:42  venku
    - systemTagName is not required by TagBasedDestructiveSliceResidualizer.
      It was deleted.
    - ripple effect.
-
    Revision 1.8  2004/01/11 03:38:03  venku
    - entire method bodies may be deleted or not included in the
      first place (due to inheritance).  If so, a suitable return
      statement is injected.
    - We now only process methods which are tagged with
      tagToResidualize rather than systemTagName.
-
    Revision 1.7  2004/01/09 23:15:37  venku
    - chnaged the method,field, and class kill logic.
    - changed method and class finishing logic.
    - removed unnecessary residualization when some
      properties about statements such as enter monitor
      and invoke expr are known.
-
    Revision 1.6  2004/01/09 07:03:07  venku
    - added annotations for code to be removed.
    Revision 1.5  2003/12/16 12:43:33  venku
