@@ -555,6 +555,10 @@ public final class ExecutableSlicePostProcessor
 			}
 		}
 
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Locals " + _body.getLocals());
+			LOGGER.debug("Retaining:" + _localsToKeep);
+		}
 		_body.getLocals().retainAll(_localsToKeep);
 	}
 }
@@ -562,6 +566,8 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/01/31 01:49:49  venku
+   - control dependence information is incorrectly used. FIXED.
    Revision 1.13  2004/01/30 23:59:00  venku
    - uses entry control DA to pick only the required exit
      points while making the slice executable.
