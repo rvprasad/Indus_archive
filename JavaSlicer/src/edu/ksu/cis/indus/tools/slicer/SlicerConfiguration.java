@@ -39,7 +39,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-class SlicerConfiguration
+public class SlicerConfiguration
   extends AbstractToolConfiguration {
 	/**
 	 * This identifies the property that indicates if interprocedural divergence dependence should be used instead of mere
@@ -442,6 +442,12 @@ class SlicerConfiguration
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/10/13 01:01:45  venku
+   - Split transformations.slicer into 2 packages
+      - transformations.slicer
+      - slicer
+   - Ripple effect of the above changes.
+
    Revision 1.8  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
