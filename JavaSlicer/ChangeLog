@@ -1,3 +1,7 @@
+2005-03-01  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/slicer/SlicingEngine.java: Added logic to track calling contexts.
+
 2005-02-27  venku  <rvprasad@cis.ksu.edu>
 
 	* auxiliary/slicerConfig.xsd, 

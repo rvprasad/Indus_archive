@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
+import edu.ksu.cis.indus.common.collections.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.FIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
@@ -38,6 +39,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -185,6 +187,11 @@ public final class SlicingEngine {
 	 * @invariant criteria != null and criteria->forall(o | o.oclIsKindOf(ISliceCriterion))
 	 */
 	private List criteria = new ArrayList();
+
+	/** 
+	 * This maps methods to call stacks considered at these method sites.
+	 */
+	private final Map method2callStacks = new HashMap();
 
 	/** 
 	 * The direction of the slice.  It's default value is <code>BACKWARD_SLICE</code>.
@@ -493,6 +500,7 @@ public final class SlicingEngine {
 		callStackCache = null;
 		criteria.clear();
 		collectedAllInvocationSites.clear();
+		method2callStacks.clear();
 
 		if (directionSensitiveInfo != null) {
 			directionSensitiveInfo.reset();
@@ -961,13 +969,16 @@ public final class SlicingEngine {
 	 * @pre method != null
 	 */
 	private void generateMethodLevelSliceCriteria(final SootMethod method) {
-		// THINK: Should we react differently based on previous inclusion of the method in the slice?
-		final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
-		setContext(_sliceCriteria);
-		workbag.addAllWorkNoDuplicates(_sliceCriteria);
+		boolean _generateCriteria = shouldMethodLevelCriteriaBeGenerated(method);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Adding " + method.getSignature() + " @ " + callStackCache + " to workbag.");
+		if (_generateCriteria) {
+			final Collection _sliceCriteria = SliceCriteriaFactory.getFactory().getCriteria(method);
+			setContext(_sliceCriteria);
+			workbag.addAllWorkNoDuplicates(_sliceCriteria);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Adding " + method.getSignature() + " @ " + callStackCache + " to workbag.");
+			}
 		}
 	}
 
@@ -1046,6 +1057,84 @@ public final class SlicingEngine {
 				includeInSlice(((RefType) ((ArrayType) _type).baseType).getSootClass());
 			}
 		}
+	}
+
+	/**
+	 * Checks if method level criteria should be generated for the given method.
+	 *
+	 * @param method of interest.
+	 *
+	 * @return <code>true</code> if criteria should be generated; <code>false</code>, otherwise.
+     * 
+     * @pre method != null
+	 */
+	private boolean shouldMethodLevelCriteriaBeGenerated(final SootMethod method) {
+		boolean _result = isNotIncludedInSlice(method);
+
+		if (!_result) {
+			_result = true;
+
+			final Collection _col = CollectionsUtilities.getSetFromMap(method2callStacks, method);
+			final Iterator _i = _col.iterator();
+			final int _iEnd = _col.size();
+			final List _t = callStackCache;
+			final int _tSize = _t.size();
+			final Collection _toBeRemoved = new ArrayList();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final List _c = (List) _i.next();
+				final int _cSize = _c.size();
+				final int _max;
+				final int _min;
+				final List _long;
+				final List _short;
+
+				if (_tSize > _cSize) {
+					_max = _tSize;
+					_min = _tSize - _cSize;
+					_long = _t;
+					_short = _c;
+				} else {
+					_max = _cSize;
+					_min = _cSize - _tSize;
+					_long = _c;
+					_short = _t;
+				}
+
+				boolean _equal = true;
+				int _j = _max - 1;
+
+				for (; _j >= 0 && _equal; _j--) {
+					final Object _longObj = _long.get(_j);
+					final Object _shortObj = _short.get(_j - _min);
+					_equal = _longObj.equals(_shortObj);
+				}
+
+				if (_equal) {
+					/*
+					 *  if the call stacks match then
+					 *    if they are not of equal size and the shorter one does not belong to the collection of
+					 *      call stacks for the method then we need to add remove the call stack from the collection 
+                     *      and replace it with the given call stack.
+					 *    else
+					 *      we don't need to consider the current call stack.
+					 */
+					if (_min != 0 && _short != _c) {
+						_toBeRemoved.add(_c);
+					} else {
+						_result = false;
+						break;
+					}
+				}
+			}
+			_col.remove(_toBeRemoved);
+
+			if (_result || _iEnd == 0) {
+				_col.add(callStackCache.clone());
+			}
+		}
+
+		return _result;
 	}
 
 	/**
