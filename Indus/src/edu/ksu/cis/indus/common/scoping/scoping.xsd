@@ -54,16 +54,31 @@
 		<xsd:attribute name="privateAccess" type="xsd:boolean" use="optional" default="false"/>				
 	</xsd:attributeGroup>
 
+    <xsd:attribute name="name" type="xsd:string"/> 
+
+	<xsd:complexType id="abstractSpec" name="abstractSpec">
+		<xsd:annotation>
+    	    <xsd:documentation>
+        		This captures attributes common to all specification types.
+    		</xsd:documentation>
+	    </xsd:annotation>
+		<xsd:attribute ref="indus:name" use="required"/>
+	    <xsd:attributeGroup ref="indus:accessSpec"/>
+	</xsd:complexType>
+
 	<xsd:complexType id="classSpec" name="classSpec">
 		<xsd:annotation>
     	    <xsd:documentation>
         		This captures class/interface-level scope information.
     		</xsd:documentation>
 	    </xsd:annotation>
-	    <xsd:attributeGroup ref="accessSpec"/>
-		<xsd:sequence>
-			<xsd:element name="typeSpec" type="indus:typeSpec"/>
-		</xsd:sequence>
+	    <xsd:complexContent>
+		    <xsd:extension base="indus:abstractSpec">
+				<xsd:sequence>
+					<xsd:element name="typeSpec" type="indus:typeSpec"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
 	</xsd:complexType>
 	
 	<xsd:complexType id="methodSpec" name="methodSpec">
@@ -72,15 +87,18 @@
         		This captures method-level scope information.
     		</xsd:documentation>
 	    </xsd:annotation>
-	    <xsd:attributeGroup ref="accessSpec"/>	    
-		<xsd:sequence>
-			<xsd:element name="declaringClassSpec" type="indus:typeSpec"/>
-			<xsd:element name="returnTypeSpec" type="indus:typeSpec"/>
-			<xsd:element name="methodNameSpec" type="xsd:normalizedString"/>
-			<xsd:sequence>
-				<xsd:element name="parameterTypeSpec" type="indus:typeSpec"  minOccurs="0" maxOccurs="unbounded"/>
-			</xsd:sequence>
-		</xsd:sequence>
+	    <xsd:complexContent>
+  	    	<xsd:extension base="indus:abstractSpec">
+				<xsd:sequence>
+					<xsd:element name="declaringClassSpec" type="indus:typeSpec"/>
+					<xsd:element name="returnTypeSpec" type="indus:typeSpec"/>
+					<xsd:element name="methodNameSpec" type="xsd:normalizedString"/>
+					<xsd:sequence>
+						<xsd:element name="parameterTypeSpec" type="indus:typeSpec"  minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
 	</xsd:complexType>
 
 	<xsd:complexType id="fieldSpec" name="fieldSpec">
@@ -89,20 +107,25 @@
         		This captures field-level scope information.
     		</xsd:documentation>
 	    </xsd:annotation>
-	    <xsd:attributeGroup ref="accessSpec"/>	    
-		<xsd:sequence>
-			<xsd:element name="declaringClassSpec" type="indus:typeSpec"/>
-			<xsd:element name="fieldTypeSpec" type="indus:typeSpec"/>
-			<xsd:element name="fieldNameSpec" type="xsd:normalizedString"/>
-		</xsd:sequence>
+   	    <xsd:complexContent>
+		    <xsd:extension base="indus:abstractSpec">
+				<xsd:sequence>
+					<xsd:element name="declaringClassSpec" type="indus:typeSpec"/>
+					<xsd:element name="fieldTypeSpec" type="indus:typeSpec"/>
+					<xsd:element name="fieldNameSpec" type="xsd:normalizedString"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
 	</xsd:complexType>
     
     <xsd:element name="scopeSpec">
-    	<xsd:sequence>
-    		<xsd:element name="classSpec" type="indus:classSpec" minOccurs="0" maxOccurs="unbounded"/>
-    		<xsd:element name="methodSpec" type="indus:methodSpec" minOccurs="0" maxOccurs="unbounded"/>
-    		<xsd:element name="fieldSpec" type="indus:fieldSpec" minOccurs="0" maxOccurs="unbounded"/>    		    		
-    	</xsd:sequence>
+    	<xsd:complexType>
+	    	<xsd:sequence>
+    			<xsd:element name="classSpec" type="indus:classSpec" minOccurs="0" maxOccurs="unbounded"/>
+    			<xsd:element name="methodSpec" type="indus:methodSpec" minOccurs="0" maxOccurs="unbounded"/>
+    			<xsd:element name="fieldSpec" type="indus:fieldSpec" minOccurs="0" maxOccurs="unbounded"/>    		    		
+	    	</xsd:sequence>
+    	</xsd:complexType>
     </xsd:element>
     
 </xsd:schema>

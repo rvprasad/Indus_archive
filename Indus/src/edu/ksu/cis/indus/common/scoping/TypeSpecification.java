@@ -91,7 +91,9 @@ final class TypeSpecification {
 	/**
 	 * Creates a new TypeSpecification object.  This is used by xml-java binding.
 	 *
-	 * @param nameSpec is the name specification. nameSpec != null
+	 * @param nameSpec is the name specification.
+	 *
+	 * @pre nameSpec != null
 	 */
 	TypeSpecification(final String nameSpec) {
 		namePattern = Pattern.compile(nameSpec);

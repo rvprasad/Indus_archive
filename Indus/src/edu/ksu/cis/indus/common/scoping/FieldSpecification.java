@@ -29,12 +29,8 @@ import soot.SootField;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class FieldSpecification {
-	/** 
-	 * This is the access control specification.
-	 */
-	private AccessSpecification accessSpec;
-
+final class FieldSpecification
+  extends AbstractSpecification {
 	/** 
 	 * The pattern of the field's name.
 	 */
@@ -62,7 +58,7 @@ final class FieldSpecification {
 	 * @pre field != null and system != null
 	 */
 	public boolean isInScope(final SootField field, final IEnvironment system) {
-		boolean _result = accessSpec.conformant(new AccessSpecifierWrapper(field));
+		boolean _result = accessConformant(new AccessSpecifierWrapper(field));
 		_result &= fieldTypeSpec.conformant(field.getType(), system);
 		_result &= declaringClassSpec.conformant(field.getDeclaringClass().getType(), system);
 		_result &= namePattern.matcher(field.getName()).matches();
@@ -97,7 +93,7 @@ final class FieldSpecification {
 	 * @pre spec != null
 	 */
 	void setFieldNameSpec(final String spec) {
-	    namePattern = Pattern.compile(spec);
+		namePattern = Pattern.compile(spec);
 	}
 
 	/**

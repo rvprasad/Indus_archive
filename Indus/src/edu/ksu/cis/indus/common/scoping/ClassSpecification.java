@@ -27,12 +27,8 @@ import soot.SootClass;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class ClassSpecification {
-	/** 
-	 * This is the access control specification.
-	 */
-	private AccessSpecification accessSpec;
-
+final class ClassSpecification
+  extends AbstractSpecification {
 	/** 
 	 * This is the type specification.
 	 */
@@ -50,7 +46,7 @@ final class ClassSpecification {
 	 * @pre clazz != null and system != null
 	 */
 	public boolean isInScope(final SootClass clazz, final IEnvironment system) {
-		return accessSpec.conformant(new AccessSpecifierWrapper(clazz)) && typeSpec.conformant(clazz.getType(), system);
+		return accessConformant(new AccessSpecifierWrapper(clazz)) && typeSpec.conformant(clazz.getType(), system);
 	}
 
 	/**

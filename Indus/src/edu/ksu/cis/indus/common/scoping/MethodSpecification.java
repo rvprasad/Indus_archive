@@ -34,12 +34,8 @@ import soot.Type;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class MethodSpecification {
-	/** 
-	 * This is the access control specification.
-	 */
-	private AccessSpecification accessSpec;
-
+final class MethodSpecification
+  extends AbstractSpecification {
 	/** 
 	 * This is the specifications of the types of the parameters.
 	 *
@@ -77,7 +73,7 @@ final class MethodSpecification {
 		boolean _result = namePattern.matcher(method.getName()).matches();
 		_result |= !_result && declaringClassSpec.conformant(method.getDeclaringClass().getType(), system);
 		_result |= !_result && returnTypeSpec.conformant(method.getReturnType(), system);
-		_result |= !_result && accessSpec.conformant(new AccessSpecifierWrapper(method));
+		_result |= !_result && accessConformant(new AccessSpecifierWrapper(method));
 
 		final List _parameterTypes = method.getParameterTypes();
 		final Iterator _i = _parameterTypes.iterator();
@@ -88,7 +84,7 @@ final class MethodSpecification {
 			final TypeSpecification _pTypeSpec = (TypeSpecification) parameterTypeSpecs.get(_iIndex);
 
 			if (_pTypeSpec != null) {
-				_result |= (_pTypeSpec).conformant(_type, system);
+				_result |= _pTypeSpec.conformant(_type, system);
 			}
 		}
 		return _result;
@@ -122,7 +118,7 @@ final class MethodSpecification {
 	 * @pre spec != null
 	 */
 	void setMethodNameSpec(final String spec) {
-	    namePattern = Pattern.compile(spec);
+		namePattern = Pattern.compile(spec);
 	}
 
 	/**

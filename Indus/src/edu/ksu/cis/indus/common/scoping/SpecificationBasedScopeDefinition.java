@@ -78,6 +78,11 @@ public final class SpecificationBasedScopeDefinition {
 	 */
 	private Collection methodSpecs;
 
+	/** 
+	 * The name of this specification.
+	 */
+	private String name;
+
 	/**
 	 * Checks if the given class is in the scope in the given system.
 	 *
@@ -279,6 +284,24 @@ public final class SpecificationBasedScopeDefinition {
 	 */
 	static Collection createSpecContainer() {
 		return new ArrayList();
+	}
+
+	/**
+	 * Sets the value of <code>name</code>.
+	 *
+	 * @param nameOfTheSpec the new value of <code>name</code>.
+	 */
+	final void setName(final String nameOfTheSpec) {
+		this.name = nameOfTheSpec;
+	}
+
+	/**
+	 * Retrieves the value in <code>name</code>.
+	 *
+	 * @return the value in <code>name</code>.
+	 */
+	final String getName() {
+		return name;
 	}
 
 	/**
