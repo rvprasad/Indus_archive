@@ -29,7 +29,8 @@ import org.apache.commons.logging.LogFactory;
  * @version $Revision$
  */
 public abstract class AbstractTool
-  implements IStatus, ITool {
+  implements IStatus,
+	  ITool {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -94,29 +95,12 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Executes the tool.
+	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running. {@inheritDoc}
 	 *
-	 * @param phase is the suggestive phase to start execution in.
-	 *
-	 * @throws RuntimeException when this method called on a paused tool.
+	 * @return <code>true</code> if the tool is not active; <code>false</code>, otherwise.
 	 */
-	public final synchronized void run(final Object phase) {
-		if (!pause || isStable()) {
-			thread =
-				new Thread() {
-						public final void run() {
-							try {
-								execute(phase);
-							} catch (InterruptedException e) {
-								LOGGER.error("InterruptedException occurred.  Resetting the execution pipeline.", e);
-								pause = false;
-							}
-						}
-					};
-			thread.start();
-		} else {
-			throw new RuntimeException("run() should be called when the tool is paused or running.");
-		}
+	public final synchronized boolean isStable() {
+		return thread == null || !thread.isAlive();
 	}
 
 	/**
@@ -142,12 +126,43 @@ public abstract class AbstractTool
 	}
 
 	/**
-	 * Checks if the tool is in a stable state.  Tools are in an unstable state when they are running. {@inheritDoc}
+	 * Executes the tool.
 	 *
-	 * @return <code>true</code> if the tool is not active; <code>false</code>, otherwise.
+	 * @param phase is the suggestive phase to start execution in.
+	 * @param synchronous <code>true</code> indicates that this method should behave synchronously and return only after the
+	 * 		  tool's run has completed; <code>false</code> indicates that this method can return once the tool has started
+	 * 		  it's run.
+	 *
+	 * @throws IllegalStateException when this method called on a paused tool.
 	 */
-	public final synchronized boolean isStable() {
-		return thread == null || !thread.isAlive();
+	public final synchronized void run(final Object phase, final boolean synchronous) {
+		if (!pause || isStable()) {
+			thread =
+				new Thread() {
+						public final void run() {
+							try {
+								execute(phase);
+							} catch (InterruptedException e) {
+								LOGGER.error("InterruptedException occurred.  Resetting the execution pipeline.", e);
+								pause = false;
+							}
+						}
+					};
+			thread.start();
+
+			if (synchronous) {
+				while (!isStable()) {
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						LOGGER.error("Interrupted while waiting on the run to complete.", e);
+						pause = false;
+					}
+				}
+			}
+		} else {
+			throw new IllegalStateException("run() should be called when the tool is paused or running.");
+		}
 	}
 
 	/**
@@ -178,10 +193,11 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/12/02 11:47:19  venku
+   - raised the tool to an interface ITool.
    Revision 1.10  2003/12/02 11:31:57  venku
    - Added Interfaces for ToolConfiguration and ToolConfigurator.
    - coding convention and formatting.
-
    Revision 1.9  2003/12/02 09:42:25  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
