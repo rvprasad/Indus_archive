@@ -25,8 +25,8 @@ import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
-import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.interfaces.INewExpr2InitMapper;
 import edu.ksu.cis.indus.interfaces.IPoolable;
 
 import edu.ksu.cis.indus.processing.Context;
@@ -298,8 +298,7 @@ public final class SlicingEngine {
 
 			if (SLICE_CLOSURE_LOGGER.isDebugEnabled()) {
 				final StringBuffer _sb = new StringBuffer();
-				_sb.append("Generating criteria based on :\n[");
-				_sb.append("Criteria from " + _da.getClass());
+				_sb.append("Criteria bases from " + _da.getClass() + " are :\n[");
 
 				for (final Iterator _j = _criteria.iterator(); _j.hasNext();) {
 					_sb.append("\n\t->" + _j.next());
@@ -437,6 +436,17 @@ public final class SlicingEngine {
 	}
 
 	/**
+	 * Sets the basic block graph manager to be used during slicing.
+	 *
+	 * @param basicBlockGraphMgr is the basic block graph manager for the system being sliced.
+	 *
+	 * @pre bbgMgr != null
+	 */
+	public void setBasicBlockGraphManager(final BasicBlockGraphMgr basicBlockGraphMgr) {
+		bbgMgr = basicBlockGraphMgr;
+	}
+
+	/**
 	 * Sets the call graph to be used during slicing.
 	 *
 	 * @param callgraph provides call graph information about the system being sliced.
@@ -540,17 +550,6 @@ public final class SlicingEngine {
 		} else if (sliceType.equals(SlicingEngine.COMPLETE_SLICE)) {
 			criteriaClosure = new CompleteSliceClosure();
 		}
-	}
-
-	/**
-	 * Sets the basic block graph manager to be used during slicing.
-	 *
-	 * @param basicBlockGraphMgr is the basic block graph manager for the system being sliced.
-	 *
-	 * @pre bbgMgr != null
-	 */
-	public void setBasicBlockGraphManager(final BasicBlockGraphMgr basicBlockGraphMgr) {
-		bbgMgr = basicBlockGraphMgr;
 	}
 
 	/**
@@ -789,9 +788,7 @@ public final class SlicingEngine {
 			LOGGER.debug("Generating criteria for method called at " + invocationStmt + " in " + caller);
 		}
 
-		final InvokeExpr _invokeExpr = invocationStmt.getInvokeExpr();
-
-		// check if criteria to consider the exit points of the method should be generated.
+		// check if a criteria to consider the exit points of the method should be generated.
 		if (considerMethodExitForCriteriaGeneration(callee)) {
 			markAsInvoked(callee);
 
@@ -818,6 +815,7 @@ public final class SlicingEngine {
 			 * criteria to consider suitable argument expressions.
 			 */
 			final BitSet _params = (BitSet) method2params.get(callee);
+			final InvokeExpr _invokeExpr = invocationStmt.getInvokeExpr();
 
 			if (_params != null && callee.getParameterCount() > 0) {
 				for (int _j = _params.nextSetBit(0); _j >= 0; _j = _params.nextSetBit(_j + 1)) {
@@ -833,11 +831,12 @@ public final class SlicingEngine {
 	 *
 	 * @param stmt in which the field occurs.
 	 * @param method in which <code>stmt</code> occurs.
+	 * @param considerReturnValue indicates if the return value expression should be considered for the slice.
 	 *
 	 * @pre stmt != null and method != null
 	 * @pre stmt.containsInvokeExpr() == true
 	 */
-	private void generateNewCriteriaForInvocation(final Stmt stmt, final SootMethod method) {
+	private void generateNewCriteriaForInvocation(final Stmt stmt, final SootMethod method, final boolean considerReturnValue) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Generating criteria for invocation expressions (caller-callee)");
 		}
@@ -847,14 +846,14 @@ public final class SlicingEngine {
 		final SootMethod _sm = _expr.getMethod();
 
 		if (_sm.isStatic()) {
-			generateNewCriteriaForReturnPointOfMethods(Collections.singleton(_sm), stmt, method);
+			generateNewCriteriaForReturnPointOfMethods(Collections.singleton(_sm), stmt, method, considerReturnValue);
 		} else {
 			final Context _context = new Context();
 			_context.setRootMethod(method);
 			_context.setStmt(stmt);
 
 			final Collection _callees = cgi.getCallees(_expr, _context);
-			generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method);
+			generateNewCriteriaForReturnPointOfMethods(_callees, stmt, method, considerReturnValue);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -918,18 +917,14 @@ public final class SlicingEngine {
 	 * @param callees are the set of methods being called at <code>invocationStmt</code>.
 	 * @param invocationStmt contains the invocation site.
 	 * @param caller contains <code>invocationStmt</code>.
+	 * @param considerReturnValue indicates if the return value expression should be considered for the slice.
 	 *
 	 * @pre callees != null and invocationStmt != null and caller != null
 	 */
 	private void generateNewCriteriaForReturnPointOfMethods(final Collection callees, final Stmt invocationStmt,
-		final SootMethod caller) {
-		// if the given statement is not an invocation statement the check if the return value is required in the slice.
-		final boolean _considerReturnValue =
-			!(invocationStmt instanceof InvokeStmt)
-			  && collector.hasBeenCollected(((AssignStmt) invocationStmt).getLeftOpBox());
-
+		final SootMethod caller, final boolean considerReturnValue) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Generating criteria for return points " + _considerReturnValue);
+			LOGGER.debug("BEGIN: Generating criteria for return points " + considerReturnValue);
 		}
 
 		// add exit points of callees as the slice criteria
@@ -955,7 +950,7 @@ public final class SlicingEngine {
 				continue;
 			}
 
-			generateNewCriteriaBasedOnMethodExit(invocationStmt, caller, _considerReturnValue, _callee, _bbg);
+			generateNewCriteriaBasedOnMethodExit(invocationStmt, caller, considerReturnValue, _callee, _bbg);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -1036,8 +1031,14 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding expr [" + considerExecution + "] " + valueBox.getValue() + " at " + stmt + " in "
 					+ method.getSignature() + " to workbag.");
 			}
-		} else if (LOGGER.isDebugEnabled()) { 
-        	LOGGER.debug("Already collected expr " + valueBox.getValue() + " at " + stmt + " in " + method.getSignature());
+		} else {
+			if (valueBox.getValue() instanceof InvokeExpr) {
+				generateNewCriteriaForInvocation(stmt, method, considerExecution);
+			}
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Already collected expr " + valueBox.getValue() + " at " + stmt + " in " + method.getSignature());
+			}
 		}
 	}
 
@@ -1071,7 +1072,9 @@ public final class SlicingEngine {
 					final ValueBox _valueBox = (ValueBox) _i.next();
 					generateSliceExprCriterion(_valueBox, stmt, method, considerExecution);
 				}
-			} else if (LOGGER.isDebugEnabled()) {
+			}
+
+			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Already collected stmt " + stmt + " in " + method.getSignature());
 			}
 		}
@@ -1318,8 +1321,11 @@ public final class SlicingEngine {
 		final ValueBox _vBox = (ValueBox) sExpr.getCriterion();
 		final Value _value = _vBox.getValue();
 
+		final boolean _considerExecution = sExpr.isConsiderExecution();
+
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox.getValue() + " at " + _stmt + " in " + _method);
+			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox.getValue() + "[" + _considerExecution + "] at "
+				+ _stmt + " in " + _method);
 		}
 
 		// collect the expresssion
@@ -1332,9 +1338,9 @@ public final class SlicingEngine {
 		transformAndGenerateNewCriteriaForStmt(_stmt, _method, false);
 
 		// generate new slice criteria
-		if (sExpr.isConsiderExecution()) {
+		if (_considerExecution) {
 			if (_value instanceof InvokeExpr) {
-				generateNewCriteriaForInvocation(_stmt, _method);
+				generateNewCriteriaForInvocation(_stmt, _method, _considerExecution);
 			} else if (_value instanceof FieldRef || _value instanceof ArrayRef) {
 				generateNewCriteriaBasedOnDependence(_stmt, _method, DependencyAnalysis.INTERFERENCE_DA);
 				generateNewCriteriaBasedOnDependence(_stmt, _method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
@@ -1374,7 +1380,7 @@ public final class SlicingEngine {
 			processForNewExpr(stmt, method);
 
 			if (stmt.containsInvokeExpr()) {
-				generateNewCriteriaForInvocation(stmt, method);
+				generateNewCriteriaForInvocation(stmt, method, considerExecution);
 			} else if (stmt.containsArrayRef() || stmt.containsFieldRef()) {
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.INTERFERENCE_DA);
 				generateNewCriteriaBasedOnDependence(stmt, method, DependencyAnalysis.REFERENCE_BASED_DATA_DA);
@@ -1397,17 +1403,17 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.68  2004/02/01 23:36:59  venku
+   - used INewExpr2InitMapper instead of NewExpr2InitMapper
+     to improve configrurability.
    Revision 1.67  2004/02/01 22:16:16  venku
    - renamed set/getSlicedBBGMgr to set/getBasicBlockGraphManager
      in SlicingEngine.
    - ripple effect.
-
    Revision 1.66  2004/01/31 01:50:21  venku
    - logging.
-
    Revision 1.65  2004/01/30 18:25:58  venku
    - logging.
-
    Revision 1.64  2004/01/27 01:46:50  venku
    - coding convention.
    Revision 1.63  2004/01/25 08:53:37  venku
