@@ -380,7 +380,7 @@ public class JimpleXMLizer
 	 */
 	public void processingBegins() {
 		try {
-			xmlizedSystem.write("<!DOCTYPE project PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
+			xmlizedSystem.write("<!DOCTYPE jimple PUBLIC \"-//ANT//DTD project//EN\" \"jimple.dtd\">\n");
 			xmlizedSystem.write("<jimple>\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -393,6 +393,11 @@ public class JimpleXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2003/11/30 01:17:11  venku
+   - renamed CGBasedXMLizingFilter to CGBasedXMLizingProcessingFilter.
+   - renamed XMLizingController to XMLizingProcessingFilter.
+   - ripple effect.
+
    Revision 1.20  2003/11/30 00:10:17  venku
    - Major refactoring:
      ProcessingController is more based on the sort it controls.
