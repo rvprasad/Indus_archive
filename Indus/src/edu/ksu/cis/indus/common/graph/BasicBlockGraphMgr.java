@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public final class BasicBlockGraphMgr {
 				+ "calling this method.");
 		}
 
-		final WeakReference _ref = (WeakReference) method2graph.get(sm);
+		final SoftReference _ref = (SoftReference) method2graph.get(sm);
 		BasicBlockGraph _result = null;
 		boolean _flag = false;
 
@@ -80,7 +81,7 @@ public final class BasicBlockGraphMgr {
 		if (_flag) {
 			final UnitGraph _graph = unitGraphProvider.getUnitGraph(sm);
 			_result = new BasicBlockGraph(_graph);
-			method2graph.put(sm, new WeakReference(_result));
+			method2graph.put(sm, new SoftReference(_result));
 		}
 		return _result;
 	}
@@ -120,6 +121,11 @@ public final class BasicBlockGraphMgr {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/16 21:18:57  venku
+   - renamed setUnitGraphProvider() to setUnitGraphFactory()
+     in BasicBlockGraphMgr.
+   - ripple effect.
+
    Revision 1.5  2003/12/13 02:28:53  venku
    - Refactoring, documentation, coding convention, and
      formatting.
