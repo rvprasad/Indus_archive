@@ -34,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -149,9 +150,9 @@ public abstract class AbstractXMLBasedTest
 		try {
 			final Reader _current = new FileReader(new File(_outfileName));
 			final Reader _previous = new FileReader(new File(xmlControlDir + File.separator + getFileName()));
-			final Diff _diff = new Diff(_previous, _current);
+			final Diff _diff = new DetailedDiff(new Diff(_previous, _current));
 			_diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
-            assertTrue(_diff.similar());
+            assertTrue(_diff.toString(),_diff.similar());
 		} catch (IOException _e) {
 			LOGGER.error("Failed to read the xml file " + _outfileName, _e);
 			fail(_e.getMessage());
@@ -247,6 +248,9 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/04/21 08:25:05  venku
+   - used a simple interface to check xml document similarity.
+
    Revision 1.14  2004/04/18 08:59:02  venku
    - enabled test support for slicer.
 
