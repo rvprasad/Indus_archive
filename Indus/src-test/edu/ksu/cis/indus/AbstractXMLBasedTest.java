@@ -34,6 +34,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLTestCase;
 
 import org.xml.sax.SAXException;
@@ -74,8 +76,8 @@ public abstract class AbstractXMLBasedTest
 	 */
 	protected String xmlSecondInputDir;
 
-	/** 
-	 * The statement graph (CFG) factory used during testing. 
+	/**
+	 * The statement graph (CFG) factory used during testing.
 	 */
 	private IStmtGraphFactory stmtGraphFactory;
 
@@ -107,14 +109,7 @@ public abstract class AbstractXMLBasedTest
 	 * @see junit.framework.TestCase#getName()
 	 */
 	public String getName() {
-		final String _result;
-
-		if (!testName.equals("")) {
-			_result = testName;
-		} else {
-			_result = testMethodName;
-		}
-		return _result;
+		return testName;
 	}
 
 	/**
@@ -131,15 +126,6 @@ public abstract class AbstractXMLBasedTest
 	 */
 	public void setStmtGraphFactory(final IStmtGraphFactory cfgFactory) {
 		stmtGraphFactory = cfgFactory;
-	}
-
-	/**
-	 * Returns the name of the method being tested.
-	 *
-	 * @return the name of the method being tested.
-	 */
-	public String getTestMethodName() {
-		return testMethodName;
 	}
 
 	/**
@@ -163,7 +149,9 @@ public abstract class AbstractXMLBasedTest
 		try {
 			final Reader _current = new FileReader(new File(_outfileName));
 			final Reader _previous = new FileReader(new File(xmlFirstInputDir + File.separator + getFileName()));
-			assertXMLEqual(_previous, _current);
+			final Diff _diff = new Diff(_previous, _current);
+			_diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+			assertXMLEqual(_diff, true);
 		} catch (IOException _e) {
 			LOGGER.error("Failed to read/write the xml file " + _outfileName, _e);
 			fail(_e.getMessage());
@@ -219,8 +207,8 @@ public abstract class AbstractXMLBasedTest
 
 	/**
 	 * Local test setup to be provided by subclasses.  Default implementation will add the name obtained via
-	 * <code>getName()</code> into the <code>info</code> map against the key <code>AbstractXMLizer.FILE_NAME_ID</code>
-	 * along with a <code>IStmtGraphFactory.ID</code> to <code>stmtGraphFactory</code> mapping.
+	 * <code>getName()</code> into the <code>info</code> map against the key <code>AbstractXMLizer.FILE_NAME_ID</code> along
+	 * with a <code>IStmtGraphFactory.ID</code> to <code>stmtGraphFactory</code> mapping.
 	 *
 	 * @throws Exception <i>not thrown by this implementation.</i>
 	 */
@@ -244,6 +232,14 @@ public abstract class AbstractXMLBasedTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2004/03/29 01:55:16  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.9  2004/03/09 18:40:06  venku
    - refactoring.
    - moved methods common to XMLBased Test into AbstractXMLBasedTest.
