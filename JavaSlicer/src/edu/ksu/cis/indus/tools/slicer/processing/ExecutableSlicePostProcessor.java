@@ -133,8 +133,7 @@ public final class ExecutableSlicePostProcessor
 		final SliceCollector theCollector) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Post Processing.");
-			LOGGER.debug("SLICE BEFORE: " + ExecutableSlicePostProcessor.class.getClass() + "\n"
-				+ theCollector.toString());
+			LOGGER.debug("SLICE BEFORE: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
 		}
 
 		collector = theCollector;
@@ -168,8 +167,7 @@ public final class ExecutableSlicePostProcessor
 		fixupClassHierarchy();
 
 		if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("SLICE AFTER: " + ExecutableSlicePostProcessor.class.getClass() + "\n"
-                    + theCollector.toString());
+			LOGGER.debug("SLICE AFTER: " + ExecutableSlicePostProcessor.class.getClass() + "\n" + theCollector.toString());
 
 			LOGGER.debug("END: Post Processing.");
 		}
@@ -236,9 +234,7 @@ public final class ExecutableSlicePostProcessor
 			}
 
 			// record the abstract methods
-			if (_methods.isEmpty()) {
-				_class2abstractMethods.put(_sc, Collections.EMPTY_SET);
-			} else {
+			if (!_methods.isEmpty()) {
 				_class2abstractMethods.put(_sc, new ArrayList(_methods));
 			}
 		}
@@ -271,7 +267,10 @@ public final class ExecutableSlicePostProcessor
 
 			if (collector.hasBeenCollected(_interface)) {
 				final Collection _abstractMethods = (Collection) class2abstractMethods.get(_interface);
-				_methods.addAll(_abstractMethods);
+
+				if (_abstractMethods != null) {
+					_methods.addAll(_abstractMethods);
+				}
 			}
 		}
 
@@ -280,7 +279,10 @@ public final class ExecutableSlicePostProcessor
 
 			if (collector.hasBeenCollected(_superClass)) {
 				final Collection _abstractMethods = ((Collection) class2abstractMethods.get(_superClass));
-				_methods.addAll(_abstractMethods);
+
+				if (_abstractMethods != null) {
+					_methods.addAll(_abstractMethods);
+				}
 			}
 		}
 		return _methods;
@@ -497,6 +499,8 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/04/24 07:49:23  venku
+   - enabled logging of pre/post processing slices.
    Revision 1.20  2004/03/29 01:55:08  venku
    - refactoring.
      - history sensitive work list processing is a common pattern.  This
