@@ -20,8 +20,8 @@
         <xsd:element name="divergence" type="slicer:divergence" block=""/>
         <xsd:element name="ready" type="slicer:ready" block=""/>
       </xsd:sequence>
-      <xsd:attribute name="slicetype" type="slicer:slicingType" default="backward slice"/>
-      <xsd:attribute name="analysis" type="xsd:ID" use="required"/>
+      <xsd:attribute name="executableSlice" type="boolean" default="true"/>
+      <xsd:attribute name="slicetype" type="slicer:slicingType" default="BACKWARD_SLICE"/>
       <xsd:attribute name="sliceForDeadlock" type="xsd:boolean" use="required"/>
       <xsd:attribute name="name" type="xsd:ID" use="required"/>
     </xsd:complexType>
@@ -34,6 +34,7 @@
       </xsd:annotation>
       <xsd:restriction base="xsd:token">
         <xsd:enumeration value="BACKWARD_SLICE"/>
+        <xsd:enumeration value="FORWARD_SLICE"/>
         <xsd:enumeration value="COMPLETE_SLICE"/>
       </xsd:restriction>
     </xsd:simpleType>
