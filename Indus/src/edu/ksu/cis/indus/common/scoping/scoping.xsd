@@ -12,7 +12,7 @@
       <xsd:annotation>
         <xsd:documentation>
           This represents the scope across inheritence hierarchy.  EXCLUSIVE_ values indicate the relatives excluding the current type.
-          INCLUSIVE_ values indicate the relatives including the current type.  IDENTIFY indicates that only the current type is considered.
+          INCLUSIVE_ values indicate the relatives including the current type.  IDENTITY indicates that only the current type is considered.
           Note that for all constants except IDENTITY, the pattern should be the FQN of the class.  In case of IDENTITY, it can be a regex 
           pattern or a FQN.
         </xsd:documentation>
