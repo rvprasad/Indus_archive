@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE pgml SYSTEM "pgml.dtd">
+<pgml description="uci.uml.visual.UMLClassDiagram|127-0-0-1-1dddba:ebbda60875:-8000"
+      name="Nodes"
+>
+  <group name="Fig0"
+       description="uci.uml.visual.FigClass[216, 80, 99, 61]"
+       href="127-0-0-1-1dddba:ebbda60875:-7ffa"
+       fill="1"
+       fillcolor="-3604481"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig0.0"
+      x="217"
+      y="81"
+      width="97"
+      height="59"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16711681"
+    />
+    <text name="Fig0.1"
+      x="216"
+      y="80"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractFGNode</text>
+    <text name="Fig0.2"
+      x="216"
+      y="94"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig0.3"
+      x="216"
+      y="117"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig1"
+       description="uci.uml.visual.FigInterface[152, 288, 281, 56]"
+       href="127-0-0-1-1dddba:ebbda60875:-7ff8"
+       fill="1"
+       fillcolor="-56"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig1.0"
+      x="153"
+      y="289"
+      width="279"
+      height="54"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16711681"
+    />
+    <rectangle name="Fig1.1"
+      x="152"
+      y="288"
+      width="281"
+      height="29"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig1.2"
+      x="153"
+      y="289"
+      fill="1"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="Times"
+      textsize="10"
+    >&lt;&lt;Interface&gt;&gt;</text>
+    <text name="Fig1.3"
+      x="153"
+      y="304"
+      fill="1"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >FGNodeConnector</text>
+    <text name="Fig1.4"
+      x="152"
+      y="316"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >void connect(AbstractFGNode ast, AbstractFGNode nonast)</text>
+  </group>
+</pgml>

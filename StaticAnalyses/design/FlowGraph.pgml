@@ -1,0 +1,2361 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE pgml SYSTEM "pgml.dtd">
+<pgml description="org.argouml.uml.diagram.static_structure.ui.UMLClassDiagram|127-0-0-1-458dcb:ebc09b4cae:-7ffc"
+      name="FlowGraph"
+>
+  <group name="Fig0"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[987, 472, 221, 112]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7ff7"
+       fill="1"
+       fillcolor="-3604481"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig0.0"
+      x="987"
+      y="472"
+      width="221"
+      height="111"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig0.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig0.2"
+      x="987"
+      y="472"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractFGNode</text>
+    <rectangle name="Fig0.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-3604481"
+    />
+    <text name="Fig0.4"
+      x="987"
+      y="509"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig0.5"
+      x="987"
+      y="546"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig1"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[360, 391, 469, 331]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7ff6"
+       fill="1"
+       fillcolor="-3604481"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig1.0"
+      x="360"
+      y="391"
+      width="469"
+      height="330"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig1.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig1.2"
+      x="360"
+      y="391"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractExprSwitch</text>
+    <rectangle name="Fig1.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-3604481"
+    />
+    <text name="Fig1.4"
+      x="360"
+      y="461"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig1.5"
+      x="360"
+      y="531"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >#AbstractExprSwitch(stmt: int, connector: int): AbstractExprSwitch
++process(v: ValueBox): void
++prototype(): Object
++static isNonVoid(sm: SootMethod): boolean
++getWorkList(): Worklist
++defaultCase(o: Object): void
++caseChooseExpr(e: ChooseExpr): void
++caseComplementExpr(e: ComplementExpr): void
++caseInExpr(e: InExpr): void
++caseLocalExpr(e: LocalExpr): void
++caseLocationTestExpr(e: LocationTestExpr): void
++caseLogicalOrExpr(e: LogicalOrExpr): void
++caseLogicalAndExpr(e: LogicalAndExpr): void</text>
+  </group>
+  <group name="Fig2"
+       description="org.argouml.uml.diagram.static_structure.ui.FigInterface[56, 336, 91, 43]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7ff5"
+       fill="1"
+       fillcolor="-56"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig2.0"
+      x="57"
+      y="337"
+      width="89"
+      height="41"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <rectangle name="Fig2.1"
+      x="56"
+      y="336"
+      width="91"
+      height="29"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig2.2"
+      x="58"
+      y="337"
+      fill="1"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="Times"
+      textsize="10"
+    >&lt;&lt;Interface&gt;&gt;</text>
+    <text name="Fig2.3"
+      x="57"
+      y="352"
+      fill="0"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >BanderaExprSwitch</text>
+    <text name="Fig2.4"
+      x="56"
+      y="364"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig3"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[56, 240, 128, 43]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7ff3"
+       fill="1"
+       fillcolor="-3604481"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig3.0"
+      x="56"
+      y="240"
+      width="128"
+      height="42"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig3.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig3.2"
+      x="56"
+      y="240"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractJimpleValueSwitch</text>
+    <rectangle name="Fig3.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-3604481"
+    />
+    <text name="Fig3.4"
+      x="56"
+      y="254"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig3.5"
+      x="56"
+      y="268"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig4"
+       description="org.argouml.uml.diagram.static_structure.ui.FigInterface[752, 1152, 143, 64]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7ff1"
+       fill="1"
+       fillcolor="-56"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig4.0"
+      x="753"
+      y="1153"
+      width="141"
+      height="62"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <rectangle name="Fig4.1"
+      x="752"
+      y="1152"
+      width="143"
+      height="29"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig4.2"
+      x="754"
+      y="1153"
+      fill="1"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="Times"
+      textsize="10"
+    >&lt;&lt;Interface&gt;&gt;</text>
+    <text name="Fig4.3"
+      x="753"
+      y="1168"
+      fill="0"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >Prototype</text>
+    <text name="Fig4.4"
+      x="752"
+      y="1180"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >+prototype(): Object
++prototype(o: Object): Object</text>
+  </group>
+  <group name="Fig5"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[232, 1329, 219, 137]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fee"
+       fill="1"
+       fillcolor="-3604481"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig5.0"
+      x="232"
+      y="1329"
+      width="219"
+      height="136"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig5.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig5.2"
+      x="232"
+      y="1329"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractStmtSwitch</text>
+    <rectangle name="Fig5.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-3604481"
+    />
+    <text name="Fig5.4"
+      x="232"
+      y="1361"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >#stmt: Stmt</text>
+    <text name="Fig5.5"
+      x="232"
+      y="1393"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >#AbstractStmtSwitch(m: ): AbstractStmtSwitch
++defaultCase(o: Object): void
++getStmt(): Stmt
+#process(stmt: Stmt): void
++prototype(): Object</text>
+  </group>
+  <group name="Fig6"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[40, 1040, 94, 61]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fed"
+       fill="1"
+       fillcolor="-3604481"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig6.0"
+      x="40"
+      y="1040"
+      width="94"
+      height="60"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig6.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig6.2"
+      x="40"
+      y="1040"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractStmtSwitch</text>
+    <rectangle name="Fig6.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-3604481"
+    />
+    <text name="Fig6.4"
+      x="40"
+      y="1060"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig6.5"
+      x="40"
+      y="1080"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig7"
+       description="org.argouml.uml.diagram.static_structure.ui.FigInterface[8, 400, 298, 43]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fea"
+       fill="1"
+       fillcolor="-56"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig7.0"
+      x="9"
+      y="401"
+      width="296"
+      height="41"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <rectangle name="Fig7.1"
+      x="8"
+      y="400"
+      width="298"
+      height="29"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig7.2"
+      x="10"
+      y="401"
+      fill="1"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="Times"
+      textsize="10"
+    >&lt;&lt;Interface&gt;&gt;</text>
+    <text name="Fig7.3"
+      x="9"
+      y="416"
+      fill="0"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >FGNodeConnector</text>
+    <text name="Fig7.4"
+      x="8"
+      y="428"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >+connect(ast: AbstractFGNode, nonast: AbstractFGNode): void</text>
+  </group>
+  <group name="Fig8"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[856, 794, 314, 188]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe8"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig8.0"
+      x="856"
+      y="794"
+      width="314"
+      height="187"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig8.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig8.2"
+      x="856"
+      y="794"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >MethodVariant</text>
+    <rectangle name="Fig8.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig8.4"
+      x="856"
+      y="833"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >+final m: SootMethod
++static final bodyrep: BodyRepresentation</text>
+    <text name="Fig8.5"
+      x="856"
+      y="882"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >MethodVariant(sm: SootMethod, astvm: , bfa: BFA): MethodVariant
++getASTVariant(v: Value): AbstractFGNode
++getASTVariant(v: Value, c: Context): AbstractFGNode
++getASTNode(v: Value): AbstractFGNode
++getParamterNode(index: int): AbstractFGNode
++getReturnNode(): AbstractFGNode
++getThisNode(): AbstractFGNode</text>
+  </group>
+  <group name="Fig9"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[400, 160, 329, 281]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe3"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig9.0"
+      x="400"
+      y="160"
+      width="329"
+      height="280"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig9.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig9.2"
+      x="400"
+      y="160"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >BFA</text>
+    <rectangle name="Fig9.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig9.4"
+      x="400"
+      y="210"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >-static final instacnes
+-final scm: SootClassManager</text>
+    <text name="Fig9.5"
+      x="400"
+      y="270"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >BFA(name: String, analyzer: AbstractAnalyzer, mf: ModeFactory): BFA
++analyze(scm: SootClassManager, root: SootMethod): void
++getArrayVariant(a: ArrayType, c: Context): ArrayVariant
++static getBFA(name: String): BFA
++getClass(className: String): SootClass
++getFieldVariant(sf: SootField, c: Context): FieldVariant
++getFGNode(): AbstractFGNode
++getLHSExpr(s: AbstractStmtSwitch): AbstractExprSwitch
++getMethodVariant(sm: SootMethod, c: Context): MethodVariant
++getRHSExpr(s: AbstractStmtSwitch): AbstractExprSwitch
++getStmt(e: MethodVariant): AbstractStmtSwitch
++init(): void
++reset(): void</text>
+  </group>
+  <group name="Fig10"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[544, 808, 90, 61]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe1"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig10.0"
+      x="544"
+      y="808"
+      width="90"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig10.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig10.2"
+      x="544"
+      y="808"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >Context</text>
+    <rectangle name="Fig10.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig10.4"
+      x="544"
+      y="828"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig10.5"
+      x="544"
+      y="848"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig11"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[846, 344, 421, 65]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fd7"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig11.0"
+      x="846"
+      y="344"
+      width="421"
+      height="64"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig11.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig11.2"
+      x="846"
+      y="344"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >ASTVariantManager</text>
+    <rectangle name="Fig11.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig11.4"
+      x="846"
+      y="362"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig11.5"
+      x="846"
+      y="380"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >ASTVariantManager(bfa: BFA, indexManager: AbstractIndexManager): ASTVariantManager
+#getNewVariant(o: Object): Variant</text>
+  </group>
+  <group name="Fig12"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[1032, 200, 485, 112]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fc6"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig12.0"
+      x="1032"
+      y="200"
+      width="485"
+      height="111"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig12.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig12.2"
+      x="1032"
+      y="200"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractVariantManager</text>
+    <rectangle name="Fig12.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig12.4"
+      x="1032"
+      y="227"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >+index2Variant</text>
+    <text name="Fig12.5"
+      x="1032"
+      y="254"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >AbstractVariantManager(bfa: BFA, indexManager: AbstractIndexManager): AbstractVariantManager
+#getNewVariant(o: Object): Variant
++select(o: Object, c: Context): Variant
+#reset(): void</text>
+  </group>
+  <group name="Fig13"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[1040, 16, 195, 137]"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fc3"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig13.0"
+      x="1040"
+      y="16"
+      width="195"
+      height="136"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig13.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig13.2"
+      x="1040"
+      y="16"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractIndexManager</text>
+    <rectangle name="Fig13.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig13.4"
+      x="1040"
+      y="48"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >#indices: Map</text>
+    <text name="Fig13.5"
+      x="1040"
+      y="80"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >queryIndex(o: Object, c: Context): Index
+#getIndex(o: Object, c: Context): Index
++prototype(): Object
++prototype(o: Object): Object
+reset(): void</text>
+  </group>
+  <group name="Fig14"
+       description="org.argouml.uml.diagram.static_structure.ui.FigInterface[1230, 709, 67, 43]"
+       href="127-0-0-1-603522:ebc113978b:-7ffc"
+       fill="1"
+       fillcolor="-56"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig14.0"
+      x="1231"
+      y="710"
+      width="65"
+      height="41"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <rectangle name="Fig14.1"
+      x="1230"
+      y="709"
+      width="67"
+      height="29"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig14.2"
+      x="1232"
+      y="710"
+      fill="1"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="Times"
+      textsize="10"
+    >&lt;&lt;Interface&gt;&gt;</text>
+    <text name="Fig14.3"
+      x="1231"
+      y="725"
+      fill="0"
+      fillcolor="-56"
+      stroke="0"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >Variant</text>
+    <text name="Fig14.4"
+      x="1230"
+      y="737"
+      fill="1"
+      fillcolor="-56"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig15"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[80, 16, 329, 190]"
+       href="127-0-0-1-458dcb:ebc119254e:-7ff6"
+       fill="1"
+       fillcolor="-3604481"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig15.0"
+      x="80"
+      y="16"
+      width="329"
+      height="189"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig15.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig15.2"
+      x="80"
+      y="16"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog.italic"
+      textsize="9"
+    >AbstractAnalyzer</text>
+    <rectangle name="Fig15.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-3604481"
+    />
+    <text name="Fig15.4"
+      x="80"
+      y="59"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig15.5"
+      x="80"
+      y="102"
+      fill="1"
+      fillcolor="-3604481"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >#AbstractAnalyzer(name: String, mf: ModeFactory): AbstractAnalyzer
++analyze(scm: SootClassManager, root: SootMethod): void
++getArrayValues(a: , c: Context): Collection
++getASTValues(v: Value, sm: SootMethod, c: Context): Collection
++getFieldValues(sf: SootField, c: Context): Collection
++reset(): void
+#resetAnalysis(): void</text>
+  </group>
+  <group name="Fig16"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[744, 24, 90, 61]"
+       href="127-0-0-1-458dcb:ebc119254e:-7ff5"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig16.0"
+      x="744"
+      y="24"
+      width="90"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig16.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig16.2"
+      x="744"
+      y="24"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >ModeFactory</text>
+    <rectangle name="Fig16.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig16.4"
+      x="744"
+      y="44"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig16.5"
+      x="744"
+      y="64"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig17"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[440, 24, 160, 100]"
+       href="127-0-0-1-458dcb:ebc119254e:-7ff3"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig17.0"
+      x="440"
+      y="24"
+      width="160"
+      height="99"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig17.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig17.2"
+      x="440"
+      y="24"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >Worklist</text>
+    <rectangle name="Fig17.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig17.4"
+      x="440"
+      y="47"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >list: List</text>
+    <text name="Fig17.5"
+      x="440"
+      y="70"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >WorkList(): WorkList
++addWork(w: AbstractWork): void
+clear(): void
+process(): void</text>
+  </group>
+  <group name="Fig18"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[864, 272, 98, 61]"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ffc"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig18.0"
+      x="864"
+      y="272"
+      width="98"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig18.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig18.2"
+      x="864"
+      y="272"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >FieldVariantManager</text>
+    <rectangle name="Fig18.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig18.4"
+      x="864"
+      y="292"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig18.5"
+      x="864"
+      y="312"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig19"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[808, 184, 111, 61]"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ffb"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig19.0"
+      x="808"
+      y="184"
+      width="111"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig19.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig19.2"
+      x="808"
+      y="184"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >MethodVariantManager</text>
+    <rectangle name="Fig19.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig19.4"
+      x="808"
+      y="204"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig19.5"
+      x="808"
+      y="224"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig20"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[936, 104, 100, 61]"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ff8"
+       fill="1"
+       fillcolor="-1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig20.0"
+      x="936"
+      y="104"
+      width="100"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    />
+    <text name="Fig20.1"
+      x="10"
+      y="10"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig20.2"
+      x="936"
+      y="104"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    >ArrayVariantManager</text>
+    <rectangle name="Fig20.3"
+      x="10"
+      y="15"
+      width="2"
+      height="60"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-1"
+    />
+    <text name="Fig20.4"
+      x="936"
+      y="124"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+    <text name="Fig20.5"
+      x="936"
+      y="144"
+      fill="1"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+      font="dialog"
+      textsize="9"
+    ></text>
+  </group>
+  <group name="Fig21"
+       description="org.argouml.uml.diagram.ui.FigRealization"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7ff4"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig1.0"
+      destPortFig="Fig2.0"
+      sourceFigNode="Fig1"
+      destFigNode="Fig2"
+    </private>
+    <path name="Fig21.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="360"
+              y="391" />
+      <lineto x="146"
+              y="378" />
+    </path>
+  </group>
+  <group name="Fig22"
+       description="org.argouml.uml.diagram.ui.FigGeneralization"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7ff2"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig1.0"
+      destPortFig="Fig3.0"
+      sourceFigNode="Fig1"
+      destFigNode="Fig3"
+    </private>
+    <path name="Fig22.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="360"
+              y="391" />
+      <lineto x="184"
+              y="282" />
+    </path>
+  </group>
+  <group name="Fig23"
+       description="org.argouml.uml.diagram.ui.FigRealization"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7ff0"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig1.0"
+      destPortFig="Fig4.0"
+      sourceFigNode="Fig1"
+      destFigNode="Fig4"
+    </private>
+    <path name="Fig23.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="769"
+              y="721" />
+      <lineto x="769"
+              y="1153" />
+    </path>
+  </group>
+  <group name="Fig24"
+       description="org.argouml.uml.diagram.ui.FigGeneralization"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fec"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig5.0"
+      destPortFig="Fig6.0"
+      sourceFigNode="Fig5"
+      destFigNode="Fig6"
+    </private>
+    <path name="Fig24.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="232"
+              y="1329" />
+      <lineto x="134"
+              y="1100" />
+    </path>
+  </group>
+  <group name="Fig25"
+       description="org.argouml.uml.diagram.ui.FigRealization"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7feb"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig5.0"
+      destPortFig="Fig4.0"
+      sourceFigNode="Fig5"
+      destFigNode="Fig4"
+    </private>
+    <path name="Fig25.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="451"
+              y="1329" />
+      <lineto x="753"
+              y="1215" />
+    </path>
+  </group>
+  <group name="Fig26"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe9"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig1.0"
+      destPortFig="Fig7.0"
+      sourceFigNode="Fig1"
+      destFigNode="Fig7"
+    </private>
+    <path name="Fig26.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="360"
+              y="401" />
+      <lineto x="305"
+              y="401" />
+    </path>
+  </group>
+  <group name="Fig27"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe7"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig1.0"
+      destPortFig="Fig8.0"
+      sourceFigNode="Fig1"
+      destFigNode="Fig8"
+    </private>
+    <path name="Fig27.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="829"
+              y="721" />
+      <lineto x="856"
+              y="794" />
+    </path>
+  </group>
+  <group name="Fig28"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe6"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig5.0"
+      destPortFig="Fig1.0"
+      sourceFigNode="Fig5"
+      destFigNode="Fig1"
+    </private>
+    <path name="Fig28.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="443"
+              y="1329" />
+      <lineto x="443"
+              y="721" />
+    </path>
+  </group>
+  <group name="Fig29"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe5"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig5.0"
+      destPortFig="Fig8.0"
+      sourceFigNode="Fig5"
+      destFigNode="Fig8"
+    </private>
+    <path name="Fig29.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="451"
+              y="1329" />
+      <lineto x="856"
+              y="981" />
+    </path>
+  </group>
+  <group name="Fig30"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe2"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig1.0"
+      destPortFig="Fig9.0"
+      sourceFigNode="Fig1"
+      destFigNode="Fig9"
+    </private>
+    <path name="Fig30.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="575"
+              y="391" />
+      <lineto x="575"
+              y="391" />
+    </path>
+  </group>
+  <group name="Fig31"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fe0"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig10.0"
+      destPortFig="Fig5.0"
+      sourceFigNode="Fig10"
+      destFigNode="Fig5"
+    </private>
+    <path name="Fig31.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="544"
+              y="868" />
+      <lineto x="451"
+              y="1329" />
+    </path>
+  </group>
+  <group name="Fig32"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fdd"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig5.0"
+      destPortFig="Fig1.0"
+      sourceFigNode="Fig5"
+      destFigNode="Fig1"
+    </private>
+    <path name="Fig32.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="416"
+              y="1329" />
+      <lineto x="416"
+              y="721" />
+    </path>
+  </group>
+  <group name="Fig33"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fdc"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig10.0"
+      destPortFig="Fig1.0"
+      sourceFigNode="Fig10"
+      destFigNode="Fig1"
+    </private>
+    <path name="Fig33.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="584"
+              y="808" />
+      <lineto x="584"
+              y="721" />
+    </path>
+  </group>
+  <group name="Fig34"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fdb"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig10.0"
+      destPortFig="Fig8.0"
+      sourceFigNode="Fig10"
+      destFigNode="Fig8"
+    </private>
+    <path name="Fig34.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="634"
+              y="826" />
+      <lineto x="856"
+              y="826" />
+    </path>
+  </group>
+  <group name="Fig35"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fda"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig8.0"
+      destPortFig="Fig0.0"
+      sourceFigNode="Fig8"
+      destFigNode="Fig0"
+    </private>
+    <path name="Fig35.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="1043"
+              y="794" />
+      <lineto x="1043"
+              y="583" />
+    </path>
+  </group>
+  <group name="Fig36"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fd9"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig8.0"
+      destPortFig="Fig0.0"
+      sourceFigNode="Fig8"
+      destFigNode="Fig0"
+    </private>
+    <path name="Fig36.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="1096"
+              y="794" />
+      <lineto x="1096"
+              y="583" />
+    </path>
+  </group>
+  <group name="Fig37"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fd8"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig8.0"
+      destPortFig="Fig0.0"
+      sourceFigNode="Fig8"
+      destFigNode="Fig0"
+    </private>
+    <path name="Fig37.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="1000"
+              y="794" />
+      <lineto x="1000"
+              y="583" />
+    </path>
+  </group>
+  <group name="Fig38"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fd6"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig8.0"
+      destPortFig="Fig11.0"
+      sourceFigNode="Fig8"
+      destFigNode="Fig11"
+    </private>
+    <path name="Fig38.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="880"
+              y="794" />
+      <lineto x="880"
+              y="408" />
+    </path>
+  </group>
+  <group name="Fig39"
+       description="org.argouml.uml.diagram.ui.FigGeneralization"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fc5"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig11.0"
+      destPortFig="Fig12.0"
+      sourceFigNode="Fig11"
+      destFigNode="Fig12"
+    </private>
+    <path name="Fig39.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="1161"
+              y="344" />
+      <lineto x="1161"
+              y="311" />
+    </path>
+  </group>
+  <group name="Fig40"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fc4"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig9.0"
+      destPortFig="Fig12.0"
+      sourceFigNode="Fig9"
+      destFigNode="Fig12"
+    </private>
+    <path name="Fig40.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="729"
+              y="264" />
+      <lineto x="1032"
+              y="264" />
+    </path>
+  </group>
+  <group name="Fig41"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fc2"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig12.0"
+      destPortFig="Fig13.0"
+      sourceFigNode="Fig12"
+      destFigNode="Fig13"
+    </private>
+    <path name="Fig41.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="1219"
+              y="200" />
+      <lineto x="1219"
+              y="152" />
+    </path>
+  </group>
+  <group name="Fig42"
+       description="org.argouml.uml.diagram.ui.FigRealization"
+       href="127-0-0-1-458dcb:ebc09b4cae:-7fc1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig13.0"
+      destPortFig="Fig4.0"
+      sourceFigNode="Fig13"
+      destFigNode="Fig4"
+    </private>
+    <path name="Fig42.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="1235"
+              y="24" />
+      <lineto x="1544"
+              y="24" />
+      <lineto x="1544"
+              y="1168" />
+      <lineto x="894"
+              y="1168" />
+    </path>
+  </group>
+  <group name="Fig43"
+       description="org.argouml.uml.diagram.ui.FigRealization"
+       href="127-0-0-1-603522:ebc113978b:-7ffb"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig8.0"
+      destPortFig="Fig14.0"
+      sourceFigNode="Fig8"
+      destFigNode="Fig14"
+    </private>
+    <path name="Fig43.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="1170"
+              y="794" />
+      <lineto x="1231"
+              y="751" />
+    </path>
+  </group>
+  <group name="Fig44"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc119254e:-7ff4"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig15.0"
+      destPortFig="Fig9.0"
+      sourceFigNode="Fig15"
+      destFigNode="Fig9"
+    </private>
+    <path name="Fig44.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="409"
+              y="190" />
+      <lineto x="409"
+              y="190" />
+    </path>
+  </group>
+  <group name="Fig45"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc119254e:-7ff2"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig17.0"
+      destPortFig="Fig9.0"
+      sourceFigNode="Fig17"
+      destFigNode="Fig9"
+    </private>
+    <path name="Fig45.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="552"
+              y="123" />
+      <lineto x="552"
+              y="160" />
+    </path>
+  </group>
+  <group name="Fig46"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc119254e:-7ff1"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig16.0"
+      destPortFig="Fig9.0"
+      sourceFigNode="Fig16"
+      destFigNode="Fig9"
+    </private>
+    <path name="Fig46.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="744"
+              y="84" />
+      <lineto x="729"
+              y="160" />
+    </path>
+  </group>
+  <group name="Fig47"
+       description="org.argouml.uml.diagram.ui.FigGeneralization"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ffa"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig19.0"
+      destPortFig="Fig12.0"
+      sourceFigNode="Fig19"
+      destFigNode="Fig12"
+    </private>
+    <path name="Fig47.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="919"
+              y="208" />
+      <lineto x="1032"
+              y="208" />
+    </path>
+  </group>
+  <group name="Fig48"
+       description="org.argouml.uml.diagram.ui.FigGeneralization"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ff9"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig18.0"
+      destPortFig="Fig12.0"
+      sourceFigNode="Fig18"
+      destFigNode="Fig12"
+    </private>
+    <path name="Fig48.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="962"
+              y="288" />
+      <lineto x="1032"
+              y="288" />
+    </path>
+  </group>
+  <group name="Fig49"
+       description="org.argouml.uml.diagram.ui.FigGeneralization"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ff7"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig20.0"
+      destPortFig="Fig12.0"
+      sourceFigNode="Fig20"
+      destFigNode="Fig12"
+    </private>
+    <path name="Fig49.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="1032"
+              y="164" />
+      <lineto x="1032"
+              y="200" />
+    </path>
+  </group>
+  <group name="Fig50"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ff6"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig9.0"
+      destPortFig="Fig20.0"
+      sourceFigNode="Fig9"
+      destFigNode="Fig20"
+    </private>
+    <path name="Fig50.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="729"
+              y="160" />
+      <lineto x="936"
+              y="160" />
+    </path>
+  </group>
+  <group name="Fig51"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ff5"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig9.0"
+      destPortFig="Fig19.0"
+      sourceFigNode="Fig9"
+      destFigNode="Fig19"
+    </private>
+    <path name="Fig51.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="729"
+              y="244" />
+      <lineto x="808"
+              y="244" />
+    </path>
+  </group>
+  <group name="Fig52"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ff4"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig9.0"
+      destPortFig="Fig18.0"
+      sourceFigNode="Fig9"
+      destFigNode="Fig18"
+    </private>
+    <path name="Fig52.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="729"
+              y="295" />
+      <lineto x="864"
+              y="295" />
+    </path>
+  </group>
+  <group name="Fig53"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="127-0-0-1-458dcb:ebc13d92c3:-7ff3"
+       stroke="1"
+       strokecolor="-16777216"
+  >
+    <private>
+      sourcePortFig="Fig9.0"
+      destPortFig="Fig18.0"
+      sourceFigNode="Fig9"
+      destFigNode="Fig18"
+    </private>
+    <path name="Fig53.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="-1"
+      stroke="1"
+      strokecolor="-16777216"
+    >
+      <moveto x="729"
+              y="325" />
+      <lineto x="864"
+              y="325" />
+    </path>
+  </group>
+</pgml>

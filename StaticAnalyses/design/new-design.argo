@@ -1,0 +1,96 @@
+<?xml version = "1.0" encoding = "ISO-8859-1" ?>
+<!DOCTYPE argo SYSTEM "argo.dtd" >
+<argo>
+  <documentation>
+    <authorname></authorname>
+    <version></version>
+    <description>
+      
+    </description>
+  </documentation>
+  
+  <searchpath href="PROJECT_DIR" />
+  <member
+    type="pgml"
+    name="new-design_classdiagram1.pgml"
+  />
+  <member
+    type="pgml"
+    name="new-design_usecasediagram1.pgml"
+  />
+  <member
+    type="xmi"
+    name="new-design.xmi"
+  />
+  <member
+    type="pgml"
+    name="new-design_classdiagram2.pgml"
+  />
+  <member
+    type="pgml"
+    name="new-design_classdiagram3.pgml"
+  />
+  <member
+    type="pgml"
+    name="new-design_classdiagram4.pgml"
+  />
+  <member
+    type="pgml"
+    name="new-design_classdiagram6.pgml"
+  />
+  <member
+    type="pgml"
+    name="new-design_classdiagram7.pgml"
+  />
+  <member
+    type="pgml"
+    name="new-design_collaborationdiagram1.pgml"
+  />
+  <historyfile name="" />
+  <stats>
+    <stat name="clicksInToDoPane"
+         value="0" />
+    <stat name="dblClicksInToDoPane"
+         value="0" />
+    <stat name="longestToDoList"
+         value="181" />
+    <stat name="longestAdd"
+         value="0" />
+    <stat name="longestHot"
+         value="0" />
+    <stat name="numCriticsFired"
+         value="645467" />
+    <stat name="numNotValid"
+         value="9" />
+    <stat name="numCriticsApplied"
+         value="0" />
+    <stat name="toDoPerspectivesChanged"
+         value="0" />
+    <stat name="navPerspectivesChanged"
+         value="4" />
+    <stat name="clicksInNavPane"
+         value="2" />
+    <stat name="numFinds"
+         value="0" />
+    <stat name="numJumpToRelated"
+         value="0" />
+    <stat name="numDecisionModel"
+         value="0" />
+    <stat name="numGoalsModel"
+         value="0" />
+    <stat name="numCriticBrowser"
+         value="0" />
+    <stat name="numNavConfig"
+         value="0" />
+    <stat name="numHushes"
+         value="0" />
+    <stat name="numChecks"
+         value="0" />
+    <stat name="Num_Button_Clicks"
+         value="0" />
+    <stat name="Drags_To_New"
+         value="0" />
+    <stat name="Drags_To_Existing"
+         value="2" />
+  </stats>
+</argo>

@@ -1,0 +1,14 @@
+;; Object .semantic.cache
+;; SEMANTICDB Tags save file
+(semanticdb-project-database ".semantic.cache"
+  :file ".semantic.cache"
+  :tables (list 
+   (semanticdb-table "ASTIndexManager.java"
+    :file "ASTIndexManager.java"
+    :pointmax 644
+    :major-mode 'jde-mode
+    :tokens '(("edu.ksu.cis.bandera.bfa.modes.flow.sensitive" package nil nil nil [1 54]) ("edu.ksu.cis.bandera.bfa.Context" include nil nil nil [57 96]) ("edu.ksu.cis.bandera.bfa.Index" include nil nil nil [97 134]) ("edu.ksu.cis.bandera.bfa.IndexManager" include nil nil nil [135 179]) ("org.apache.log4j.Category" include nil nil nil [181 214]) ("ASTIndexManager" type "class" (("cat" variable "Category" nil ((typemodifiers "private" "static" "final")) nil ((reparse-symbol . class_body_declarations)) [464 554]) ("getIndex" function "Index" (("o" variable "Object" nil nil nil ((reparse-symbol . formal_parameter_list)) [582 591]) ("c" variable "Context" nil nil nil ((reparse-symbol . formal_parameter_list)) [592 601])) ((typemodifiers "protected")) nil ((reparse-symbol . class_body_declarations)) [557 622])) ("IndexManager") ((typemodifiers "public")) nil nil [410 625]))
+    :unmatched-syntax '((close-paren 612 . 613) (close-paren 589 . 590) (open-paren 569 . 570) (open-paren 448 . 449))
+    )
+   )
+  )

@@ -1,0 +1,14 @@
+;; Object .semantic.cache
+;; SEMANTICDB Tags save file
+(semanticdb-project-database ".semantic.cache"
+  :file ".semantic.cache"
+  :tables (list 
+   (semanticdb-table "ZeroCFAMethodIndexManager.java"
+    :file "ZeroCFAMethodIndexManager.java"
+    :pointmax 1115
+    :major-mode 'jde-mode
+    :tokens '(("edu.ksu.cis.bandera.ofa.modes" package nil nil nil [1 39]) ("ca.mcgill.sable.soot.SootMethod" include nil nil nil [42 81]) ("org.apache.log4j.Category" include nil nil nil [82 115]) ("edu.ksu.cis.bandera.ofa.IndexManager" include nil nil nil [116 160]) ("edu.ksu.cis.bandera.ofa.Index" include nil nil nil [161 198]) ("edu.ksu.cis.bandera.ofa.Context" include nil nil nil [199 238]) ("ZeroCFAMethodIndexManager" type "class" (("cat" variable "Category" nil ((typemodifiers "private" "static" "final")) nil ((reparse-symbol . class_body_declarations)) [501 603]) ("getIndex" function "Index" (("o" variable "Object" nil nil nil ((reparse-symbol . formal_parameter_list)) [628 637]) ("c" variable "Context" nil nil nil ((reparse-symbol . formal_parameter_list)) [638 647])) ((typemodifiers "public")) nil ((reparse-symbol . class_body_declarations)) [606 968]) ("ZeroCFAIndex" type "class" (("sm" variable "SootMethod" nil nil nil ((reparse-symbol . class_body_declarations)) [1012 1026]) ("ZeroCFAIndex" function nil (("sm" variable "SootMethod" nil nil nil ((reparse-symbol . formal_parameter_list)) [1043 1056])) nil nil ((reparse-symbol . class_body_declarations)) [1030 1080])) (nil "Index") nil nil ((reparse-symbol . class_body_declarations)) [971 1083])) ("IndexManager") nil nil nil [444 1086]))
+    :unmatched-syntax '((close-paren 1085 . 1086) (close-paren 1082 . 1083) (close-paren 1056 . 1057) (open-paren 1042 . 1043) (open-paren 1007 . 1008) (close-paren 647 . 648) (open-paren 627 . 628) (open-paren 497 . 498))
+    )
+   )
+  )
