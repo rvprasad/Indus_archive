@@ -41,6 +41,7 @@
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="edu.ksu.cis.indus" version="0.5.0" match="greaterOrEqual"/>
+      <import plugin="org.antlr" optional="true"/>
    </requires>
 
 <!-- The document -->
@@ -327,7 +328,6 @@
          category="edu.ksu.cis.indus.kaveri"
          name="Dependence Tracking View"
          id="edu.ksu.cis.indus.kaveri.dependence.DependenceTrackingView"/>
-         <!--
    <view
          allowMultiple="false"
          icon="data/icons/sample.gif"
@@ -335,7 +335,6 @@
          category="edu.ksu.cis.indus.kaveri"
          name="Peq View"
          id="edu.ksu.cis.indus.kaveri.peq.peqview"/>
-         -->
    <view
          allowMultiple="false"
          icon="data/icons/sample.gif"

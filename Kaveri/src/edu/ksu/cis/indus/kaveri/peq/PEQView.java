@@ -70,6 +70,7 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.ResourceManager;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.views.IDeltaListener;
 import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 import edu.ksu.cis.indus.peq.customengine.IndusExistentialQueryEngine;
 import edu.ksu.cis.indus.peq.customengine.IndusMatcher;
@@ -79,6 +80,7 @@ import edu.ksu.cis.indus.peq.indusinterface.IndusInterface;
 import edu.ksu.cis.indus.peq.queryglue.QueryConvertor;
 import edu.ksu.cis.indus.peq.queryglue.QueryObject;
 import edu.ksu.cis.peq.fsm.interfaces.IFSMToken;
+import edu.ksu.cis.peq.graph.interfaces.INode;
 import edu.ksu.cis.peq.queryengine.IQueryProgressListener;
 
 /**
@@ -87,11 +89,21 @@ import edu.ksu.cis.peq.queryengine.IQueryProgressListener;
  * This is the view that enables PEQ related stuff in Kaveri.
  * 
  */
-public class PEQView extends ViewPart {
+public class PEQView extends ViewPart implements IDeltaListener  {
     /**
      * Shows the statement that is the entry point.
      */
     Text txtStatement;
+    
+    /**
+     * The cached copy of the jimple statements.
+     */
+    private PartialStmtData cachedPSD;
+    
+    /**
+     * Indicates if the view is ready.
+     */
+    private boolean isReady;
     
     /**
      * The text box for entering the query.
@@ -131,7 +143,7 @@ public class PEQView extends ViewPart {
         _gd.grabExcessHorizontalSpace = true;
         _gd.horizontalSpan = 1;        
         txtStatement.setLayoutData(_gd);
-        txtStatement.setForeground(_rm.getColor(new RGB(255,255,255)));
+        txtStatement.setBackground(_rm.getColor(new RGB(255,255,255)));
         
         final Label _lblQuery = new Label(_comp, SWT.NONE);
         _lblQuery.setText("Query:");
@@ -144,6 +156,8 @@ public class PEQView extends ViewPart {
         _gd.horizontalSpan = 1;
         _gd.grabExcessHorizontalSpace = true;
         cmbQuery.setLayoutData(_gd);
+                
+        
         
         final Group _grp = new Group(_comp, SWT.BORDER);
         _grp.setText("Results");
@@ -193,10 +207,18 @@ public class PEQView extends ViewPart {
                             final IStructuredSelection _ss = (IStructuredSelection) event
                                     .getSelection();
                             final Object _selObject = _ss.getFirstElement();
-                            if (_selObject instanceof TreeObject && !(_selObject instanceof TreeParent)) {
-                                final TreeObject _to = (TreeObject) _selObject;
-                                tvRight.setInput(_to.getMapping());
-                            } else {
+                            Map _resultMap = null;
+                            if (_selObject instanceof TreeParent) {
+                                final TreeParent _tp = (TreeParent) _selObject;
+                                _resultMap = _tp.getMapping();
+                            } else if (_selObject instanceof TreeObject) {
+                                final TreeObject _tp = (TreeObject) _selObject;
+                                _resultMap = _tp.getParent().getMapping();
+                            }
+                            if (_resultMap != null) {
+                                tvRight.setInput(_resultMap);
+                            }
+                            else {
                                 tvRight.setInput("");
                             }
                         }
@@ -210,6 +232,7 @@ public class PEQView extends ViewPart {
         final IToolBarManager _manager = getViewSite().getActionBars()
         .getToolBarManager();
         fillToolBar(_manager);
+        KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().addListener(this);
     }
 
     /**
@@ -217,8 +240,39 @@ public class PEQView extends ViewPart {
      * @param manager
      */
     private void fillToolBar(IToolBarManager manager) {
+        final IAction _actSwitch = new Action() {
+          public void run() {
+              if (isReady) {
+                  isReady = false;
+                  final ImageDescriptor _desc = AbstractUIPlugin
+                          .imageDescriptorFromPlugin(
+                                  "edu.ksu.cis.indus.kaveri",
+                                  "data/icons/trackView.gif");
+                  this.setImageDescriptor(_desc);
+                  this.setToolTipText("Tracking Disabled");                  
+              } else {
+                  final ImageDescriptor _desc = AbstractUIPlugin
+                          .imageDescriptorFromPlugin(
+                                  "edu.ksu.cis.indus.kaveri",
+                                  "data/icons/trackViewAct.gif");
+                  this.setImageDescriptor(_desc);
+                  isReady = true;
+                  this.setToolTipText("Tracking Enabled");                  
+              }
+              
+          }
+        };
+        
+        _actSwitch.setToolTipText("Tracking disabled");
+        final ImageDescriptor _swdesc = AbstractUIPlugin
+        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/trackView.gif");
+        _actSwitch.setImageDescriptor(_swdesc);
+        manager.add(_actSwitch);
+        
         final IAction _actQuery = new Action() {            
             public void run() {
+                if (!isReady) return;
                 final Shell _parentShell = getViewSite().getShell();
                 if (cmbQuery.getText().equals("")) {                    
                     MessageDialog.openError(_parentShell, "Query Missing", "Please write a query before running the engine");
@@ -297,11 +351,13 @@ public class PEQView extends ViewPart {
         
         final IAction _actUpdate = new Action() {            
             public void run() {
-                final PartialStmtData _psd = KaveriPlugin.getDefault()
-                	.getIndusConfiguration().getStmtList();
-                if (_psd.getStmtList() != null && _psd.getSelectedStatement() != null
-                        && _psd.getStmtList().size() > 2 ) {
-                    txtStatement.setText(_psd.getSelectedStatement());
+                if (isReady) {
+                    if (cachedPSD == null) {
+                        cachedPSD = KaveriPlugin.getDefault().getIndusConfiguration().getStmtList();
+                    }
+                if (cachedPSD.getStmtList() != null && cachedPSD.getSelectedStatement() != null
+                        && cachedPSD.getStmtList().size() > 2 ) {
+                    txtStatement.setText(cachedPSD.getSelectedStatement());
                     if (cmbQuery.indexOf("") != -1) {
                         cmbQuery.select(cmbQuery.indexOf(""));
                     } else {
@@ -311,6 +367,8 @@ public class PEQView extends ViewPart {
                 }
                 queryResults = Collections.EMPTY_LIST;
                 tvLeft.setInput(queryResults);
+                tvRight.setInput("");
+                }
             }
         };
         final ImageDescriptor _descUpd = AbstractUIPlugin
@@ -319,6 +377,8 @@ public class PEQView extends ViewPart {
         _actUpdate.setImageDescriptor(_descUpd);
         manager.add(_actUpdate);
         _actUpdate.setToolTipText("Update the statement");
+        
+        
         
     }
     
@@ -448,9 +508,18 @@ public class PEQView extends ViewPart {
               final TreeParent _parent = new TreeParent("Result " + _ctr);
               for (Iterator iterator = _oneResult.iterator(); iterator.hasNext();) {
                   final IFSMToken _token = (IFSMToken) iterator.next();
-                  final TreeObject _object = new TreeObject(_token.getGraphEdge().getSrcNode().toString());                  
-                  _object.setMapping(_token.getSubstituitionMap());
-                  _parent.addChild(_object);                
+                  final INode _srcNode = _token.getGraphEdge().getSrcNode();
+                  final INode _dstnNode = _token.getGraphEdge().getDstnNode();
+                  final TreeParent _tpEdge = new TreeParent("Edge");
+                  _tpEdge.setMapping(_token.getSubstituitionMap());
+                  final String _msg1 = "Source: " + _srcNode.toString(); 
+                  final String _msg2 = "Destination: " + _dstnNode.toString();
+                  
+                  final TreeObject _object1 = new TreeObject(_msg1);                  
+                  final TreeObject _object2 = new TreeObject(_msg2);
+                  _tpEdge.addChild(_object1);
+                  _tpEdge.addChild(_object2);
+                  _parent.addChild(_tpEdge);
               }      
               invisibleRoot.addChild(_parent);
               _ctr++;
@@ -464,6 +533,7 @@ public class PEQView extends ViewPart {
          */
         public void dispose() {
             System.gc();
+            
         }
 
         /**
@@ -578,4 +648,28 @@ public class PEQView extends ViewPart {
         }
         
     }
+
+
+    /* (non-Javadoc)
+     * @see org.eclipse.ui.IWorkbenchPart#dispose()
+     */
+    public void dispose() {
+        KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().removeListener(this);
+        super.dispose();
+    }
+
+    /* (non-Javadoc)
+     * @see edu.ksu.cis.indus.kaveri.views.IDeltaListener#propertyChanged()
+     */
+    public void propertyChanged() {
+       cachedPSD = KaveriPlugin.getDefault().getIndusConfiguration().getStmtList();               
+    }
+
+    /* (non-Javadoc)
+     * @see edu.ksu.cis.indus.kaveri.views.IDeltaListener#isReady()
+     */
+    public boolean isReady() {
+        return isReady;
+    }
 }
+

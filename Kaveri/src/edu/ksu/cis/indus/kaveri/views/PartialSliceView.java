@@ -215,6 +215,7 @@ public class PartialSliceView extends ViewPart {
          * Dispose any created resources.
          */
         public void dispose() {
+            KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().removeListener(this);
         }
 
         /**
@@ -800,7 +801,7 @@ public class PartialSliceView extends ViewPart {
      * 
      * @see org.eclipse.ui.IWorkbenchPart#dispose()
      */
-    public void dispose() {
+    public void dispose() {        
         super.dispose();
     }
 }
