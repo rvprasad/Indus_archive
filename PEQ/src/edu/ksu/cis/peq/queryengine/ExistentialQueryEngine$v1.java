@@ -86,7 +86,7 @@ public class ExistentialQueryEngine$v1 extends AbstractQueryEngine {
             final INode _reachNode = _fsmToken.getGraphEdge().getDstnNode();
             final IState _reachState = _fsmToken.getTransitionEdge().getDstnState();
             if (_reachNode != null && _reachState != null) {
-               _workList.addAll(matchAndMergeReach(_reachNode, _reachState, _fsmToken));
+               _workList.addAll(matchAndMergeReach(_reachNode, _reachState, _fsmToken, _reachSet));
             }
             
             final String _msg = "Processed node : " + _reachNode + " State : " + _reachState;
@@ -150,9 +150,10 @@ public class ExistentialQueryEngine$v1 extends AbstractQueryEngine {
     
     /**
      * Matches the labels on the edges from node to the transitions from state for the reach information.
-     * @see edu.ksu.cis.peq.queryengine.AbstractQueryEngine#matchAndmergeReach()             
+     * @see edu.ksu.cis.peq.queryengine.AbstractQueryEngine#matchAndmergeReach()
+     *              
      */
-    protected Set matchAndMergeReach(final INode node, final IState state, final IFSMToken parent) {
+    protected Set matchAndMergeReach(final INode node, final IState state, final IFSMToken parent, final Set reachSet) {
         final Set _matchSet = new LinkedHashSet();
         final Set _edgeSet = node.getExitingEdges();
         final Set _transitionSet = state.getExitingTransitions();
@@ -167,7 +168,7 @@ public class ExistentialQueryEngine$v1 extends AbstractQueryEngine {
                 final IFSMToken _token = matcher.getMatch(_edge, _transition);
                 if (!_token.isEmpty()) {
                     final IFSMToken _mergedToken = matcher.merge(parent, _token);
-                    if (!_mergedToken.isEmpty()) {
+                    if (!_mergedToken.isEmpty() && !reachSet.contains(_mergedToken)) {                        
                         _matchSet.add(_mergedToken);
                     }
                 }

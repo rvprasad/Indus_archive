@@ -81,11 +81,15 @@ public abstract class AbstractQueryEngine {
      * @param node The current node
      * @param state The current FSM state
      * @param IFSMToken The parent token
+     * @param reachSet The reach set
      * @return Set The result of match
-     * @pre node != null and state != null
+     * @pre node != null and state != null and parent != null and reachSet != null
      * @post Result.oclIsKindOf(Set(IFSMToken))
+     * The method assumes that the tokens have an adequately implemented equals() and hashCode() methods;
+     * using the commons-lang builder is recommended.
+     * 
      */
-    protected abstract Set matchAndMergeReach(final INode node, final IState state, final IFSMToken parent);
+    protected abstract Set matchAndMergeReach(final INode node, final IState state, final IFSMToken parent, final Set reachSet);
     
     /** Run the query engine */
     public abstract void execute();
