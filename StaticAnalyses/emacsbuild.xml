@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
+[<!ENTITY include SYSTEM "message.xml">]>
 <!-- $Revision$ -->
 <project name="bfa" default="build" basedir=".">
 

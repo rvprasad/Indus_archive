@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="src"/>
+    <classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
+    <classpathentry kind="var" path="DRISHTI_UTILS"/>
+    <classpathentry kind="var" path="JAVACLASSES/log4j.jar"/>
+    <classpathentry kind="src" path="/bandera"/>
+    <classpathentry kind="output" path="dist"/>
+</classpath>
