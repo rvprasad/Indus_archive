@@ -189,6 +189,11 @@ public final class SlicerTool
 	 */
 	private final SliceCriteriaFactory criteriaFactory;
 
+	/** 
+	 * <p>DOCUMENT ME! </p>
+	 */
+	private AliasedUseDefInfo aliasUD;
+
 	/**
 	 * This is the instance of equivalence class based escape analysis used by this object.
 	 */
@@ -200,8 +205,6 @@ public final class SlicerTool
 	 * </p>
 	 */
 	private Init2NewExprMapper initMapper;
-
-    private AliasedUseDefInfo aliasUD;
 
 	/**
 	 * Creates a new SlicerTool object.
@@ -226,7 +229,7 @@ public final class SlicerTool
 		cgBasedPreProcessCtrl = new CGBasedProcessingController(callGraph);
 		cgBasedPreProcessCtrl.setAnalyzer(ofa);
 
-        unitGraphProvider = new TrapUnitGraphFactory();
+		unitGraphProvider = new TrapUnitGraphFactory();
 		bbgMgr = new BasicBlockGraphMgr();
 		bbgMgr.setUnitGraphProvider(unitGraphProvider);
 		// create the thread graph.
@@ -236,7 +239,7 @@ public final class SlicerTool
 
 		// set up data required for dependency analyses.
 		Map info = new HashMap();
-        aliasUD = new AliasedUseDefInfo(ofa);
+		aliasUD = new AliasedUseDefInfo(ofa);
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
 		info.put(IEnvironment.ID, ofa.getEnvironment());
@@ -356,7 +359,9 @@ public final class SlicerTool
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param tagName DOCUMENT ME!
 	 */
@@ -394,7 +399,7 @@ public final class SlicerTool
 			} catch (JiBXException e) {
 				LOGGER.error("Error while unmarshalling Slicer configurationCollection. Recovering with new clean"
 					+ " configuration.", e);
-                configurationInfo = null;
+				configurationInfo = null;
 			}
 		}
 
@@ -461,9 +466,9 @@ public final class SlicerTool
 
 			// process escape analyses.
 			ecba.hookup(cgBasedPreProcessCtrl);
-            aliasUD.hookup(cgBasedPreProcessCtrl);
+			aliasUD.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
-            aliasUD.unhook(cgBasedPreProcessCtrl);
+			aliasUD.unhook(cgBasedPreProcessCtrl);
 			ecba.unhook(cgBasedPreProcessCtrl);
 			ecba.execute();
 			phase.nextMajorPhase();
@@ -632,12 +637,14 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2003/11/28 16:39:53  venku
+   - uses TrapUnitGraphFactory all through.
+   - removed unnecessary addition of SlicerConfiguration
+     to CompositeConfiguration.
    Revision 1.34  2003/11/26 08:19:10  venku
    - aliasBasedUseDef information analysis was not driven. FIXED.
-
    Revision 1.33  2003/11/24 22:51:09  venku
    - deleted transformer field as it was not used.
-
    Revision 1.32  2003/11/24 10:11:32  venku
    - there are no residualizers now.  There is a very precise
      slice collector which will collect the slice via tags.
