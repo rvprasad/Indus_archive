@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin
    id="edu.ksu.cis.projects.indus"
-   name="Indus_Plugin Plug-in"
+   name="Indus Plug-in"
    version="0.2"
    provider-name="SAnToS laboratory, Kansas State University"
    class="edu.ksu.cis.projects.indus.IndusPlugin">
