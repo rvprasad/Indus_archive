@@ -17,6 +17,8 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
+import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.IUnitGraphFactory;
 import edu.ksu.cis.indus.common.soot.TrapUnitGraphFactory;
@@ -34,7 +36,6 @@ import edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.BackwardSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.CompleteSliceGotoProcessor;
 import edu.ksu.cis.indus.slicer.ForwardSliceGotoProcessor;
-import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.SliceCollector;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.SlicingEngine;
@@ -497,22 +498,22 @@ public final class SlicerTool
 
 			// process flow information into a more meaningful call graph
 			callGraph.reset();
-            cgPreProcessCtrl.reset();
+			cgPreProcessCtrl.reset();
 			callGraph.hookup(cgPreProcessCtrl);
 			cgPreProcessCtrl.process();
 			callGraph.unhook(cgPreProcessCtrl);
 			phase.nextMinorPhase();
-            
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Call Graph:\n" + callGraph.dumpGraph());
-            }
-            
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Call Graph:\n" + callGraph.dumpGraph());
+			}
+
 			movingToNextPhase();
 
 			// process flow information into a more meaningful thread graph. Also, initialize <init> call to new expression 
 			// mapper.
 			threadGraph.reset();
-            cgBasedPreProcessCtrl.reset();
+			cgBasedPreProcessCtrl.reset();
 			initMapper.hookup(cgBasedPreProcessCtrl);
 			threadGraph.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
@@ -527,7 +528,7 @@ public final class SlicerTool
 			movingToNextPhase();
 
 			// process escape analyses.
-            cgBasedPreProcessCtrl.reset();
+			cgBasedPreProcessCtrl.reset();
 			ecba.hookup(cgBasedPreProcessCtrl);
 			aliasUD.hookup(cgBasedPreProcessCtrl);
 			cgBasedPreProcessCtrl.process();
@@ -659,6 +660,21 @@ public final class SlicerTool
 	}
 
 	/**
+	 * Sets execution consideration criteria on all of the given criteria to the given flag.
+	 *
+	 * @param sliceCriteria is the collection of criteria to be changed.
+	 * @param flag is to be set on the criteria.
+	 *
+	 * @pre sliceCriteria != null and sliceCriteria.oclIsKindOf(Collection(AbstractSliceCriterion))
+	 */
+	private void setConsiderExecution(final Collection sliceCriteria, final boolean flag) {
+		for (final Iterator _k = sliceCriteria.iterator(); _k.hasNext();) {
+			final AbstractSliceCriterion _criterion = (AbstractSliceCriterion) _k.next();
+			_criterion.setConsiderExecution(flag);
+		}
+	}
+
+	/**
 	 * Generates criterion based on synchronization constructs and populates <code>criteria</code>.
 	 *
 	 * @param monitorInfo provides the monitor info in the system.
@@ -678,22 +694,34 @@ public final class SlicerTool
 			_temp.clear();
 
 			if (_mTriple.getFirst() == null) {
-				// add all return points (including throws) of the method as the criteria
-				final UnitGraph _graph = unitGraphProvider.getUnitGraph(_method);
+				// add all entry points and return points (including throws) of the method as the criteria
+				final BasicBlockGraph _bbg = bbgMgr.getBasicBlockGraph(_method);
 
-				if (_graph == null) {
+				if (_bbg == null) {
 					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("Could not retrieve the unit graph for " + _method.getSignature() + ".  Moving on.");
+						LOGGER.warn("Could not retrieve the basic block graph for " + _method.getSignature()
+							+ ".  Moving on.");
 					}
 				} else {
-					for (final Iterator _j = _graph.getTails().iterator(); _j.hasNext();) {
-						final Stmt _stmt = (Stmt) _j.next();
-						_temp.addAll(criteriaFactory.getCriterion(_method, _stmt));
+					final BasicBlock _head = _bbg.getHead();
+
+					if (_head != null) {
+						_temp.addAll(criteriaFactory.getCriterion(_method, _head.getLeaderStmt()));
+
+						for (final Iterator _j = _bbg.getTails().iterator(); _j.hasNext();) {
+							final BasicBlock _bb = (BasicBlock) _j.next();
+							final Stmt _stmt = _bb.getTrailerStmt();
+							_temp.addAll(criteriaFactory.getCriterion(_method, _stmt));
+						}
 					}
 				}
 			} else {
-				_temp.addAll(criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst()));
-				_temp.addAll(criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond()));
+				Collection _criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getFirst());
+				setConsiderExecution(_criteria, true);
+				_temp.addAll(_criteria);
+				setConsiderExecution(_criteria, true);
+				_criteria = criteriaFactory.getCriterion(_method, (Stmt) _mTriple.getSecond());
+				_temp.addAll(_criteria);
 			}
 			criteria.addAll(_temp);
 		}
@@ -730,11 +758,6 @@ public final class SlicerTool
 		}
 
 		generateDeadlockCriteria(_im);
-
-		for (final Iterator _k = criteria.iterator(); _k.hasNext();) {
-			final ISliceCriterion _criterion = (ISliceCriterion) _k.next();
-			((AbstractSliceCriterion) _criterion).setConsiderExecution(true);
-		}
 	}
 
 	/**
@@ -767,13 +790,13 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.68  2004/01/22 01:06:13  venku
+   - coding convention.
    Revision 1.67  2004/01/22 01:01:40  venku
    - coding convention.
-
    Revision 1.66  2004/01/21 02:53:43  venku
    - logging
    - call to reset() methods controllers.
-
    Revision 1.65  2004/01/20 22:26:12  venku
    - AnalysisController can now set basic block graph managers
      on the controlled analyses.
