@@ -75,14 +75,19 @@ public final class RDADriver
 	 */
 	protected void initialize() {
 		das = new ArrayList();
-		das.add(new ReadyDAv1());
-		das.add(new ReadyDAv2());
+        ReadyDAv1 rd = new ReadyDAv1();
+		das.add(rd);
+        rd = new ReadyDAv2();
+		das.add(rd);
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/25 11:47:37  venku
+   Fixed minor glitches.
+
    Revision 1.5  2003/08/25 09:15:52  venku
    Initialization of interProcedural was missing in ReadyDAv1.
    Ripple effect of this and previous change in ReadyDAv1/2 in RDADriver.
