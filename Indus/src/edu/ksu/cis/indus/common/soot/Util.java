@@ -355,7 +355,7 @@ public final class Util {
 		final String[] _options =
 			{
 				"-p", "jb", "enabled:true,use-original-names:false", "-p", "jb.ls", "enabled:true", "-p", "jb.a",
-				"enabled:false", "-p", "jb.ule", "enabled:false", "-p", "jb.ulp", "enabled:false"
+				"enabled:false", "-p", "jb.ule", "enabled:false", "-p", "jb.ulp", "enabled:false",
 			};
 
 		return _options;
@@ -548,6 +548,9 @@ public final class Util {
 /*
    ChangeLog:
    $Log$
+   Revision 1.23  2004/04/22 18:50:01  venku
+   - soot options were wrongly set.  FIXED.
+
    Revision 1.22  2004/04/16 17:42:04  venku
    - coding convention
    - enabled the user to pass soot options while initializing the driver.
