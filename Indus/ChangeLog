@@ -1,3 +1,13 @@
+2005-03-14  venku  <rvprasad@cis.ksu.edu>
+
+	* src/edu/ksu/cis/indus/interfaces/IClassHierarchy.java: Added interface to expose class hierarchy information.
+	
+	* src/edu/ksu/cis/indus/processing/ProcessingController.java,
+	  src/edu/ksu/cis/indus/processing/IProcessor.java, 
+	  src/edu/ksu/cis/indus/processing/AbstractProcessor.java: 
+	  	Added the support to process locals in a method's body.
+		
+
 2005-03-10  venku  <rvprasad@cis.ksu.edu>
 
 	* src/edu/ksu/cis/indus/common/soot/ApplicationClassesOnlyPredicate.java: Added facility to filter application classes.

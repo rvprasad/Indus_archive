@@ -41,6 +41,8 @@ import soot.Local;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Value;
+import soot.ValueBox;
 
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
@@ -222,9 +224,17 @@ public class ProcessingController {
 	 * The collection of processors registered with this controller to process interfaces (class/method).   This maintains
 	 * the insertion order.
 	 *
-	 * @invariant interfaceProcessors->forall(o | o.isOclKindOf(IProcessor))
+	 * @invariant interfaceProcessors->forall(o | o.oclIsKindOf(IProcessor))
 	 */
 	protected final Collection interfaceProcessors = new ArrayList();
+
+	/** 
+	 * The collection of processors registered with this controller to process method local variables.  This maintains the
+     * insertion order.
+     * 
+     * @invariant localsProcessors->forall(o | o.oclIsKindOf(IProcessor))
+	 */
+	protected final Collection localsProcessors = new ArrayList();
 
 	/** 
 	 * The context in which the AST chunk is visited during post processing.
@@ -258,6 +268,11 @@ public class ProcessingController {
 	 * The object used to realize the "active" part of this object.
 	 */
 	private final IActivePart.ActivePart activePart = new IActivePart.ActivePart();
+
+	/** 
+	 * This caches the processed locals while processing each method body.
+	 */
+	private final Collection processedLocals = new HashSet();
 
 	/** 
 	 * This defines the environment in which the processing runs.
@@ -1095,6 +1110,18 @@ public class ProcessingController {
 	}
 
 	/**
+	 * Registers the processor for method local variable processing only.  The processors are invoked in the order that they
+	 * register.
+	 *
+	 * @param processor the instance of processor.
+	 */
+	public final void registerForLocals(final IProcessor processor) {
+		if (!localsProcessors.contains(processor)) {
+			localsProcessors.add(processor);
+		}
+	}
+
+	/**
 	 * Clears internal data structures.  It does not reset values set via set methods.
 	 */
 	public final void reset() {
@@ -1158,6 +1185,15 @@ public class ProcessingController {
 		for (final Iterator _i = ProcessingController.VALUE_CLASSES.iterator(); _i.hasNext();) {
 			unregister((Class) _i.next(), processor);
 		}
+	}
+
+	/**
+	 * Registers the processor for method local variable processing only.
+	 *
+	 * @param processor the instance of processor.
+	 */
+	public final void unregisterForLocals(final IProcessor processor) {
+		localsProcessors.remove(processor);
 	}
 
 	/**
@@ -1269,6 +1305,36 @@ public class ProcessingController {
 	/**
 	 * Processes the method body.
 	 *
+	 * @param stmt in which the locals need to be processed.
+	 * @param method in which <code>stmt</code> occurs.
+	 *
+	 * @pre method != null
+	 */
+	private void processLocals(final Stmt stmt, final SootMethod method) {
+		final Iterator _i = stmt.getUseAndDefBoxes().iterator();
+		final int _iEnd = stmt.getUseAndDefBoxes().size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final ValueBox _vb = (ValueBox) _i.next();
+			final Value _value = _vb.getValue();
+
+			if (_value instanceof Local && !processedLocals.contains(_value)) {
+				processedLocals.add(_value);
+
+				final Iterator _j = localsProcessors.iterator();
+				final int _jEnd = localsProcessors.size();
+
+				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+					final IProcessor _processor = (IProcessor) _j.next();
+					_processor.callback((Local) _value, method);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Processes the method body.
+	 *
 	 * @param method whose body needs to be processed.
 	 *
 	 * @pre method != null
@@ -1279,11 +1345,14 @@ public class ProcessingController {
 		}
 
 		try {
+			processedLocals.clear();
+
 			if (stmtGraphFactory == null) {
 				if (method.hasActiveBody()) {
 					for (final Iterator _i = method.getActiveBody().getUnits().iterator();
 						  _i.hasNext() && activePart.canProceed();) {
 						final Stmt _stmt = (Stmt) _i.next();
+						processLocals(_stmt, method);
 						context.setStmt(_stmt);
 						_stmt.apply(stmtSwitcher);
 					}
@@ -1297,6 +1366,7 @@ public class ProcessingController {
 
 				for (final Iterator _i = _stmtGraph.iterator(); _i.hasNext() && activePart.canProceed();) {
 					final Stmt _stmt = (Stmt) _i.next();
+					processLocals(_stmt, method);
 					context.setStmt(_stmt);
 					_stmt.apply(stmtSwitcher);
 				}

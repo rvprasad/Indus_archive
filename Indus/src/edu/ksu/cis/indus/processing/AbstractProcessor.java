@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.processing;
 
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 
+import soot.Local;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -35,6 +36,14 @@ import soot.jimple.Stmt;
 public abstract class AbstractProcessor
   extends AbstractStatus
   implements IProcessor {
+	/**
+	 * Does nothing.
+	 *
+	 * @see IProcessor#callback(Local, SootMethod)
+	 */
+	public void callback(final Local local, final SootMethod method) {
+	}
+
 	/**
 	 * Does nothing.
 	 *

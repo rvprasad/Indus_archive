@@ -15,6 +15,7 @@
 
 package edu.ksu.cis.indus.processing;
 
+import soot.Local;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -41,7 +42,7 @@ public interface IProcessor {
 	 *
 	 * @pre vBox != null
 	 */
-	void callback(final ValueBox vBox, final Context context);
+	void callback(ValueBox vBox, Context context);
 
 	/**
 	 * This method will be called by the controlling agent upon walking a statement in the analyzed system.
@@ -51,38 +52,46 @@ public interface IProcessor {
 	 *
 	 * @pre stmt != null
 	 */
-	void callback(final Stmt stmt, final Context context);
+	void callback(Stmt stmt, Context context);
 
 	/**
-	 * This method will be called by the controlling agent for each method for each class in the analyzed system. This
-	 * callback need not be registered.
+	 * This method will be called by the controlling agent for each method for each class in the analyzed system.
 	 *
 	 * @param method to be processed.
 	 *
 	 * @pre method != null
 	 */
-	void callback(final SootMethod method);
+	void callback(SootMethod method);
 
 	/**
-	 * This method will be called by the controlling agent for each class in the analyzed system. This callback need not be
-	 * registered.
+	 * This method will be called by the controlling agent for each class in the analyzed system.
 	 *
 	 * @param clazz to be processed.
 	 *
 	 * @pre clazz != null
 	 */
-	void callback(final SootClass clazz);
+	void callback(SootClass clazz);
 
 	/**
-	 * This method will be called by the controlling agent for each field in each class in the analyzed system. This callback
-	 * need not be registered.
+	 * This method will be called by the controlling agent for each field in each class in the analyzed system.
 	 *
 	 * @param field to be processed.
 	 *
 	 * @pre field != null
 	 */
-	void callback(final SootField field);
+	void callback(SootField field);
 
+	/**
+	 * This method will be called by the controlling agent for each local in each method in the analyzed system. This
+	 * callback need not be registered.
+	 *
+	 * @param local to be processed.
+	 * @param method to be processed.
+	 *
+	 * @pre method != null and local != null
+	 */
+	void callback(Local local, SootMethod method);
+    
 	/**
 	 * This gives the  processors to consolidate before the information is available to the user.  This <i>should</i> be
 	 * called before the  processors are queried for the results of the processing.
@@ -97,7 +106,7 @@ public interface IProcessor {
 	 *
 	 * @pre ppc != null
 	 */
-	void hookup(final ProcessingController ppc);
+	void hookup(ProcessingController ppc);
 
 	/**
 	 * This method indicates to the processors that the processing will begin.  Implementation can suitably initialize in
@@ -118,7 +127,7 @@ public interface IProcessor {
 	 *
 	 * @pre ppc != null
 	 */
-	void unhook(final ProcessingController ppc);
+	void unhook(ProcessingController ppc);
 }
 
 // End of File
