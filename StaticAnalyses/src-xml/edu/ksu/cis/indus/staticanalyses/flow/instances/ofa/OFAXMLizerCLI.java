@@ -109,7 +109,7 @@ public final class OFAXMLizerCLI
 			_result = (_sm.getDeclaringClass().getJavaStyleName() + "_" + _sm.getSubSignature()).replaceAll(" ", "_");
 			methods.add(_sm);
 		} else {
-			_result = "collective_call_graph" + System.currentTimeMillis();
+			_result = "cumulative_call_graph" + System.currentTimeMillis();
 			methods.addAll((Collection) root);
 		}
 		return _result;
