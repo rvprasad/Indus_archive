@@ -87,7 +87,7 @@ final class TaggingBasedSliceCollector {
 	/**
 	 * Creates a new TaggingBasedSliceCollector object.
 	 *
-	 * @param theEngine DOCUMENT ME!
+	 * @param theEngine is the slicing tool/engine that calculates the slice.
 	 */
 	TaggingBasedSliceCollector(final SlicingEngine theEngine) {
 		engine = theEngine;
@@ -108,7 +108,7 @@ final class TaggingBasedSliceCollector {
 	 *
 	 * @param host to be checked.
 	 *
-	 * @return <code>true</code> 
+	 * @return <code>true</code>
 	 */
 	protected boolean hasBeenCollected(final Host host) {
 		final SlicingTag _temp = (SlicingTag) host.getTag(tagName);
@@ -129,24 +129,25 @@ final class TaggingBasedSliceCollector {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the tag name used by this collector.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return the name of the tag used.
+	 *
+	 * @post result != null
 	 */
 	String getTagName() {
 		return tagName;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Tags the given host with a name tag of the configured name.  This is used to indicate that the host is included in the
+	 * slice.
 	 *
-	 * @param host DOCUMENT ME!
+	 * @param host is a part of the AST to be tagged.
+	 *
+	 * @pre host != null
 	 */
-	void collect(final Host host) {
+	void includeInSlice(final Host host) {
 		tagHost(host);
 	}
 
@@ -158,9 +159,8 @@ final class TaggingBasedSliceCollector {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the slice to make it executable.  This ensures that all methods have sufficient and necessary return points,
+	 * be it returns or throws.
 	 */
 	private void makeBackwardSliceExecutable() {
 		final BasicBlockGraphMgr _bbgMgr = engine.getSlicedBasicBlockGraphMgr();
@@ -176,9 +176,8 @@ final class TaggingBasedSliceCollector {
 				final Stmt _stmt = _bb.getTrailerStmt();
 
 				if (_stmt.getTag(tagName) == null) {
-					//collect(stmt, method);
-					collect(_stmt);
-					collect(_method);
+					includeInSlice(_stmt);
+					includeInSlice(_method);
 				}
 			}
 
@@ -196,7 +195,7 @@ final class TaggingBasedSliceCollector {
 
 					if (hasBeenCollected(_stmt)) {
 						for (final Iterator _k = TrapManager.getTrapsAt(_stmt, _body).iterator(); _k.hasNext();) {
-							collect(((Trap) _k.next()).getHandlerUnit());
+							includeInSlice(((Trap) _k.next()).getHandlerUnit());
 						}
 					}
 				}
@@ -213,9 +212,9 @@ final class TaggingBasedSliceCollector {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the goto statements in the system to ensure that appropriate gotos are included to ensure the control flow
+	 * is not broken.  This is possible when parts of 2 basic blocks are interspersed with gotos stringing these parts
+	 * together into a basic block.
 	 */
 	private void processGotos() {
 		IGotoProcessor _gotoProcessor = null;
@@ -249,11 +248,11 @@ final class TaggingBasedSliceCollector {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Tags the given host.
 	 *
-	 * @param host DOCUMENT ME!
+	 * @param host to be tagged.
+	 *
+	 * @pre host != null
 	 */
 	private void tagHost(final Host host) {
 		final SlicingTag _theTag;
@@ -287,6 +286,9 @@ final class TaggingBasedSliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
    Revision 1.12  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

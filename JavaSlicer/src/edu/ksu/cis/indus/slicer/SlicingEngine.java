@@ -467,12 +467,12 @@ public final class SlicingEngine {
 	 * @param host2 DOCUMENT ME!
 	 */
 	private void collect(final Host host1, final Host host2) {
-		collector.collect(host1);
+		collector.includeInSlice(host1);
 
 		if (host1 instanceof SootMethod && !marked((SootMethod) host1)) {
 			invoked.add(host1);
 		}
-		collector.collect(host2);
+		collector.includeInSlice(host2);
 
 		if (host2 instanceof SootMethod && !marked((SootMethod) host2)) {
 			invoked.add(host2);
@@ -992,7 +992,7 @@ public final class SlicingEngine {
 			final ValueBox _vBox = (ValueBox) _i.next();
 
 			if (!collector.hasBeenCollected(_vBox)) {
-				collector.collect(_vBox);
+				collector.includeInSlice(_vBox);
 
 				final Value _value = _vBox.getValue();
 
@@ -1038,7 +1038,7 @@ public final class SlicingEngine {
 		}
 
 		// collect the expresssion
-		collector.collect(_vBox);
+		collector.includeInSlice(_vBox);
 
 		// include any sub expressions and generate criteria from them
 		transformAndGenerateCriteriaForVBoxes(_value.getUseBoxes(), _stmt, _method);
@@ -1079,7 +1079,7 @@ public final class SlicingEngine {
 		}
 
 		// collect the statement
-		collector.collect(stmt);
+		collector.includeInSlice(stmt);
 
 		// transform the statement
 		if (considerExecution) {
@@ -1102,7 +1102,7 @@ public final class SlicingEngine {
 		generateNewCriteriaForTheCallToEnclosingMethod(method);
 		generateNewCriteria(stmt, method, controlDAs);
 
-		collector.collect(method);
+		collector.includeInSlice(method);
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("END: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
@@ -1113,6 +1113,10 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.32  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

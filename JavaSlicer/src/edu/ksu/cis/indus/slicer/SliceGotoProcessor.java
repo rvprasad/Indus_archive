@@ -108,8 +108,8 @@ public class SliceGotoProcessor
 			if (!CollectionUtils.intersection(taggedBB, _succs).isEmpty()
 				  && _trailer.getTag(_tagName) == null
 				  && _trailer instanceof GotoStmt) {
-				sliceCollector.collect(_trailer);
-				sliceCollector.collect(method);
+				sliceCollector.includeInSlice(_trailer);
+				sliceCollector.includeInSlice(method);
 				process(_bb);
 
 				if (!_processed.contains(_bb)) {
@@ -147,8 +147,8 @@ public class SliceGotoProcessor
 				_tagged = true;
 				taggedBB.add(bb);
 			} else if (_stmt instanceof GotoStmt && _tagged) {
-				sliceCollector.collect(_stmt);
-				sliceCollector.collect(method);
+				sliceCollector.includeInSlice(_stmt);
+				sliceCollector.includeInSlice(method);
 			}
 		}
 		workBag.addWork(bb);
@@ -158,6 +158,10 @@ public class SliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/12/13 02:29:16  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.7  2003/12/09 04:22:14  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.
