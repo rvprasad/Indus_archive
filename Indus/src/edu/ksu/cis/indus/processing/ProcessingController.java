@@ -870,7 +870,7 @@ public class ProcessingController {
 		private void processBinaryExpr(BinopExpr v) {
 			context.setProgramPoint(v.getOp1Box());
 			v.getOp1().apply(this);
-			context.setProgramPoint(v.getOp1Box());
+			context.setProgramPoint(v.getOp2Box());
 			v.getOp2().apply(this);
 		}
 
@@ -1180,6 +1180,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/12/01 02:02:31  venku
+   - coding convention.
+
    Revision 1.16  2003/11/30 13:20:51  venku
    - sub-expressions of complex expressions were not being
      processed.  FIXED.
