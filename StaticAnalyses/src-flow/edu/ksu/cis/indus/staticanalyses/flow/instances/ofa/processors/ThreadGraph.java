@@ -44,9 +44,11 @@ import soot.VoidType;
 
 import soot.jimple.Jimple;
 import soot.jimple.NewExpr;
+import soot.jimple.Stmt;
 import soot.jimple.VirtualInvokeExpr;
 
 import edu.ksu.cis.indus.staticanalyses.Context;
+import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo.CallTriple;
@@ -104,6 +106,11 @@ public class ThreadGraph
 	protected boolean stable = true;
 
 	/**
+	 * This provides inter-procedural control-flow information.
+	 */
+	final CFGAnalysis cfgAnalysis;
+
+	/**
 	 * The collection of thread allocation sites.
 	 *
 	 * @invariant newThreadExprs != null and newThreadExprs.oclIsKindOf(Collection(NewExprTriple))
@@ -116,6 +123,23 @@ public class ThreadGraph
 	 * @invariant startSites.oclIsKindOf(Collection(CallTriple)) and startSites != null
 	 */
 	private final Collection startSites = new HashSet();
+
+	/**
+	 * A collection of thread allocation sites which are executed from within a loop or a SCC in the call graph.  This  also
+	 * includes any allocation sites reachable from a method executed in a loop.
+	 *
+	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
+	 */
+	private final Collection threadAllocSitesMulti;
+
+	/**
+	 * A collection of thread allocation sites which are not executed from within a loop or a SCC in the call graph.  This
+	 * also includes any allocation sites reachable from a method executed in a loop. This is the dual of
+	 * <code>threadAllocSitesMulti.</code>
+	 *
+	 * @invariant threadAllocSitesSingle.oclIsKindOf(Triple(SootMethod, Stmt, NewExpr)))
+	 */
+	private final Collection threadAllocSitesSingle;
 
 	/**
 	 * This provides call graph information pertaining to the system.
@@ -147,9 +171,13 @@ public class ThreadGraph
 	 * Creates a new ThreadGraph object.
 	 *
 	 * @param callGraph provides call graph information.
+	 * @param cfa provides control-flow information.
 	 */
-	public ThreadGraph(final ICallGraphInfo callGraph) {
+	public ThreadGraph(final ICallGraphInfo callGraph, final CFGAnalysis cfa) {
 		this.cgi = callGraph;
+		threadAllocSitesSingle = new HashSet();
+		threadAllocSitesMulti = new HashSet();
+		cfgAnalysis = cfa;
 	}
 
 	/**
@@ -210,6 +238,13 @@ public class ThreadGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IThreadGraphInfo#getMultiThreadAllocSites()
+	 */
+	public Collection getMultiThreadAllocSites() {
+		return Collections.unmodifiableCollection(threadAllocSitesMulti);
+	}
+
+	/**
 	 * @see edu.ksu.cis.indus.interfaces.IStatus#isStable()
 	 */
 	public boolean isStable() {
@@ -246,7 +281,16 @@ public class ThreadGraph
 				SootClass temp = Util.getDeclaringClass(clazz, "start", Collections.EMPTY_LIST, VoidType.v());
 
 				if (temp != null && temp.getName().equals("java.lang.Thread")) {
-					newThreadExprs.add(new NewExprTriple(context.getCurrentMethod(), context.getStmt(), ne));
+                    Stmt stmt = context.getStmt();
+                    SootMethod sm = context.getCurrentMethod();
+					NewExprTriple o = new NewExprTriple(sm, stmt, ne);
+					newThreadExprs.add(o);
+
+					if (cfgAnalysis.checkForLoopEnclosedNewExpr(stmt, sm)) {
+						threadAllocSitesMulti.add(o);
+					} else {
+						threadAllocSitesSingle.add(o);
+					}
 				} else {
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn("How can there be a descendent of java.lang.Thread without access to start() method.");
@@ -412,6 +456,53 @@ public class ThreadGraph
 		}
 		startSites.removeAll(temp);
 
+		// Consolidate information pertaining to execution frequency of thread allocation sites.
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("consolidate thread allocation site execution frequency information.");
+		}
+
+		Collection tassBak = new HashSet(threadAllocSitesSingle);
+
+		// Mark any thread allocation site that will be executed multiple times via a loop or call graph SCC 
+		// as creating multiple threads.  The execution considers entire call chain to the entry method.
+		for (Iterator i = tassBak.iterator(); i.hasNext();) {
+			NewExprTriple trp = (NewExprTriple) i.next();
+			SootMethod encloser = trp.getMethod();
+
+			if (cfgAnalysis.executedMultipleTimes(encloser)) {
+				threadAllocSitesSingle.remove(trp);
+				threadAllocSitesMulti.add(trp);
+			}
+		}
+
+		Collection multiExecMethods = new HashSet();
+
+		// Collect methods executed in threads which are created at sites that create more than one thread.  These methods 
+		// will be executed multiple times.
+		for (Iterator i = threadAllocSitesMulti.iterator(); i.hasNext();) {
+			NewExprTriple ntrp = (NewExprTriple) i.next();
+			ctxt.setRootMethod(ntrp.getMethod());
+			ctxt.setStmt(ntrp.getStmt());
+			multiExecMethods.addAll(getExecutedMethods(ntrp.getExpr(), ctxt));
+		}
+		tassBak.clear();
+		tassBak.addAll(threadAllocSitesSingle);
+
+		// filter the thread allocation site sets based on multiExecMethods.
+		for (Iterator i = tassBak.iterator(); i.hasNext();) {
+			NewExprTriple trp = (NewExprTriple) i.next();
+			SootMethod encloser = trp.getMethod();
+
+			if (multiExecMethods.contains(encloser)) {
+				threadAllocSitesSingle.remove(trp);
+				threadAllocSitesMulti.add(trp);
+			}
+		}
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("END: equivalence class based escape analysis consolidation");
+		}
+
 		long stop = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -472,6 +563,8 @@ public class ThreadGraph
 		analyzer = null;
 		startSites.clear();
 		newThreadExprs.clear();
+		threadAllocSitesMulti.clear();
+		threadAllocSitesSingle.clear();
 	}
 
 	/**
@@ -479,7 +572,7 @@ public class ThreadGraph
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(NewExpr.class, this);
-		ppc.register(VirtualInvokeExpr.class, this);
+		ppc.unregister(VirtualInvokeExpr.class, this);
 		stable = true;
 	}
 
@@ -552,6 +645,11 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/01 07:50:36  venku
+   - getField() required signature and caused the program to crash.
+     getFieldByName() just requires the name and fixed the issue. FIXED.
+   - In OFA, NullConstant objects can flow into primaries of invocation
+     sites.  Hence, iteration on values needs to type check for NewExpr. FIXED.
    Revision 1.5  2003/08/25 09:31:39  venku
    Enabled reset() support for these classes.
    Revision 1.4  2003/08/21 03:43:56  venku

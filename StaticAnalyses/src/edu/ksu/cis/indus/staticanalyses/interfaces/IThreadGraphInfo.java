@@ -55,7 +55,8 @@ import java.util.Collection;
  * @author $Author$
  * @version $Revision$
  */
-public interface IThreadGraphInfo extends IStatus {
+public interface IThreadGraphInfo
+  extends IStatus {
 	/**
 	 * The id of this interface.
 	 */
@@ -149,6 +150,29 @@ public interface IThreadGraphInfo extends IStatus {
 	Collection getExecutionThreads(SootMethod sm);
 
 	/**
+	 * Returns the thread allocations sites which are executed multiple times.  Sites are considered to be executed multiple
+	 * times if they are
+	 * 
+	 * <ul>
+	 * <li>
+	 * loop enclosed,
+	 * </li>
+	 * <li>
+	 * reachable from a method with multiple call-sites, and
+	 * </li>
+	 * <li>
+	 * reachable from a method that occurs in a call graph SCC (recursion loop),
+	 * </li>
+	 * </ul> 
+	 *
+	 * @return a collectio of thread allocation sites.
+	 *
+	 * @post result != null and result.oclIsKindOf(Collection(NewExprTriple))
+	 * @post getAllocationSites().containsAll(result)
+	 */
+	Collection getMultiThreadAllocSites();
+
+	/**
 	 * Returns the sites which start new threads, i.e., <code>java.lang.Thread.start()</code> call-sites.
 	 *
 	 * @return a collection of call-sites which captures the start sites for threads.
@@ -160,26 +184,23 @@ public interface IThreadGraphInfo extends IStatus {
 
 /*
    ChangeLog:
-
    $Log$
+   Revision 1.6  2003/08/21 03:32:37  venku
+   Incorporated IStatus interface into any interface that provides analysis information.
    Revision 1.5  2003/08/13 08:49:10  venku
    Spruced up documentation and specification.
    Tightened preconditions in the interface such that they can be loosed later on in implementaions.
-
    Revision 1.4  2003/08/13 08:29:40  venku
    Spruced up documentation and specification.
-
    Revision 1.3  2003/08/12 01:52:00  venku
    Removed redundant final in parameter declaration in methods of interfaces.
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
-
    Revision 1.1  2003/08/07 06:42:16  venku
    Major:
     - Moved the package under indus umbrella.
     - Renamed isEmpty() to hasWork() in WorkBag.
-
    Revision 1.1  2003/05/22 22:16:45  venku
    All the interfaces were renamed to start with an "I".
  */
