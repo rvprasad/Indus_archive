@@ -61,12 +61,17 @@ public class UtilTest
 	/**
 	 * The scene.
 	 */
-	private Scene scene;
+	private static Scene scene;
 
 	/**
 	 * The soot class.
 	 */
-	private SootClass sc;
+	private static SootClass sc;
+
+	/** 
+	 * Count the number of tests in this suite.  This is used to trigger logic in <code>teardown</code>.
+	 */
+	private static int count = 12;
 
 	/**
 	 * Tests <code>findMethodInSuperClassesAndInterfaces</code>.
@@ -192,7 +197,7 @@ public class UtilTest
 		Collection _t1 = new ArrayList(sc.getMethods());
 		int _preSize = _t1.size();
 		Util.removeMethodsWithSameSignature(_t1, _object.getMethods());
-		assertTrue(_t1.size() == _preSize);
+		assertTrue(_t1.size() == _preSize - 3);  // 3 for <init>, <clinit>, and clone
 		_t1 = new ArrayList(_object.getMethods());
 		_preSize = _t1.size();
 		Util.removeMethodsWithSameSignature(_t1, _object.getMethods());
@@ -210,7 +215,7 @@ public class UtilTest
 		Util.retainMethodsWithSameSignature(_t1, _object.getMethods());
 
 		assertTrue(_t1.size() != _preSize);
-		assertTrue(_t1.isEmpty());
+		assertTrue(_t1.size() == 3);  // 3 for <init>, <clinit>, and clone
 		_t1 = new ArrayList(_object.getMethods());
 		_preSize = _t1.size();
 		Util.retainMethodsWithSameSignature(_t1, _object.getMethods());
@@ -222,8 +227,10 @@ public class UtilTest
 	 */
 	protected void setUp()
 	  throws Exception {
-		scene = Scene.v();
-		sc = scene.loadClassAndSupport("java.util.HashSet");
+		if (scene == null) {
+			scene = Scene.v();
+			sc = scene.loadClassAndSupport("java.util.HashSet");
+		}
 	}
 
 	/**
@@ -231,14 +238,20 @@ public class UtilTest
 	 */
 	protected void tearDown()
 	  throws Exception {
-		G.reset();
-		scene = null;
+		count--;
+
+		if (count == 0) {
+			G.reset();
+			scene = null;
+		}
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/07 16:13:29  venku
+   - coding conventions.
    Revision 1.1  2004/01/28 22:45:07  venku
    - added new test cases for testing classes in soot package.
  */
