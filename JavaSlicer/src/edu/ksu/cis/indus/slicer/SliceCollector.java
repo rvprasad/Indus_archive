@@ -17,16 +17,19 @@ package edu.ksu.cis.indus.slicer;
 
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.collections.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.SootClass;
 import soot.SootMethod;
 import soot.ValueBox;
 
@@ -54,16 +57,9 @@ public final class SliceCollector {
 	private static final Log LOGGER = LogFactory.getLog(SliceCollector.class);
 
 	/**
-	 * The predicate used to filter out tagged hosts and non-hosts from a collection of objects.
-	 *
-	 * @invariant filterOutTaggedHostPredicate != null
-	 */
-	final Predicate filterOutTaggedHostPredicate = new FilterOutTaggedHost();
-
-	/**
 	 * The collection of methods that were tagged.
 	 */
-	private Collection taggedMethods = new HashSet();
+	private final Collection taggedMethods = new HashSet();
 
 	/**
 	 * This is the slicing engine to be used for slicing.
@@ -80,6 +76,8 @@ public final class SliceCollector {
 	 */
 	private String tagName;
 
+    private final Collection taggedClasses = new HashSet();
+
 	/**
 	 * Creates a new SliceCollector object.
 	 *
@@ -90,26 +88,26 @@ public final class SliceCollector {
 	}
 
 	/**
-	 * This class implements <code>Predicate</code> interface to be used to filter out non-hosts and tagged hosts from a
-	 * collection of hosts.
+	 * Retrieves <code>Host</code> objects from hosts which are collected by the tag used by this collector.
 	 *
-	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
-	 * @author $Author$
-	 * @version $Revision$ $Date$
+	 * @param hosts is the collection of hosts
+	 *
+	 * @return a collection of collected hosts.
+	 *
+	 * @pre hosts != null and hosts.oclIsKindOf(Collection(Host))
+	 * @post result != null and result.oclIsKindOf(Collection(Host)) and hosts.containsAll(result)
 	 */
-	private class FilterOutTaggedHost
-	  implements Predicate {
-		/**
-		 * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
-		 */
-		public boolean evaluate(final Object input) {
-			boolean _result = input != null && input instanceof Host;
+	public List getCollected(final Collection hosts) {
+		final List _result = new ArrayList();
 
-			if (_result) {
-				_result = !hasBeenCollected(((Host) input));
+		for (final Iterator _i = hosts.iterator(); _i.hasNext();) {
+			final Host _host = (Host) _i.next();
+
+			if (hasBeenCollected(_host)) {
+				_result.add(_host);
 			}
-			return _result;
 		}
+		return _result;
 	}
 
 	/**
@@ -122,6 +120,17 @@ public final class SliceCollector {
 	public Collection getMethodsInSlice() {
 		return Collections.unmodifiableCollection(taggedMethods);
 	}
+    
+    /**
+     * Retrieves the classes included in the slice.
+     *
+     * @return a collection of classes included in the slice.
+     *
+     * @post result != null and result.oclIsKindOf(Collection(SootClass))
+     */
+    public Collection getClassesInSlice() {
+        return Collections.unmodifiableCollection(taggedClasses);
+    }
 
 	/**
 	 * Retrieves the tag name used by this collector.
@@ -162,7 +171,9 @@ public final class SliceCollector {
 
 			if (host instanceof SootMethod) {
 				taggedMethods.add(host);
-			}
+			} else if (host instanceof SootClass) {
+			    taggedClasses.add(host);
+            }
 
 			if (LOGGER.isDebugEnabled()) {
 				Object _o = host;
@@ -269,10 +280,11 @@ public final class SliceCollector {
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/22 01:01:40  venku
+   - coding convention.
    Revision 1.4  2004/01/19 11:39:11  venku
    - added new batched includeInSlice() method to SliceCollector.
    - used new includeInSlice() method in CompleteSliceGotoProcessor.
-
    Revision 1.3  2004/01/13 09:42:52  venku
    - coding convention.
    Revision 1.2  2004/01/13 07:48:03  venku
