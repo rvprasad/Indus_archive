@@ -15,16 +15,16 @@
 
 package edu.ksu.cis.indus.staticanalyses.support;
 
-import soot.SootMethod;
-
-import soot.toolkits.graph.UnitGraph;
-
 import edu.ksu.cis.indus.interfaces.AbstractUnitGraphFactory;
 
 import java.lang.ref.WeakReference;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import soot.SootMethod;
+
+import soot.toolkits.graph.UnitGraph;
 
 
 /**
@@ -34,7 +34,7 @@ import java.util.Map;
  * @author $Author$
  * @version $Revision$
  */
-public class BasicBlockGraphMgr {
+public final class BasicBlockGraphMgr {
 	/**
 	 * This maps methods to basic block graphs.
 	 *
@@ -46,27 +46,6 @@ public class BasicBlockGraphMgr {
 	 * This provides <code>UnitGraph</code>s required to construct the basic block graphs.
 	 */
 	private AbstractUnitGraphFactory unitGraphProvider;
-
-	/**
-	 * Provides the basic block graph corresponding to the given control flow graph.  It creates one if none exists.
-	 *
-	 * @param stmtGraph is the control flow graph of interest.
-	 *
-	 * @return the basic block graph corresonding to <code>stmtGraph</code>.
-	 *
-	 * @pre stmtGraph != null
-	 * @post result != null
-	 */
-	public BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
-		SootMethod method = stmtGraph.getBody().getMethod();
-		WeakReference ref = (WeakReference) method2graph.get(method);
-
-		if (ref == null || ref.get() == null) {
-			ref = new WeakReference(new BasicBlockGraph(stmtGraph));
-			method2graph.put(method, ref);
-		}
-		return (BasicBlockGraph) ref.get();
-	}
 
 	/**
 	 * Retrieves the basic block graph corresponding to the given method.  This returns <code>null</code> if the method is
@@ -84,11 +63,24 @@ public class BasicBlockGraphMgr {
 				+ "calling this method.");
 		}
 
-		UnitGraph graph = unitGraphProvider.getUnitGraph(sm);
+		final WeakReference _ref = (WeakReference) method2graph.get(sm);
 		BasicBlockGraph result = null;
+		boolean flag = false;
 
-		if (graph != null) {
-			result = getBasicBlockGraph(graph);
+		if (_ref == null) {
+			flag = true;
+		} else {
+			result = (BasicBlockGraph) _ref.get();
+
+			if (result == null) {
+				flag = true;
+			}
+		}
+
+		if (flag) {
+			final UnitGraph _graph = unitGraphProvider.getUnitGraph(sm);
+			result = new BasicBlockGraph(_graph);
+			method2graph.put(sm, new WeakReference(result));
 		}
 		return result;
 	}
@@ -123,15 +115,49 @@ public class BasicBlockGraphMgr {
 	public void reset() {
 		method2graph.clear();
 	}
+
+	/**
+	 * Provides the basic block graph corresponding to the given control flow graph.  It creates one if none exists.
+	 *
+	 * @param stmtGraph is the control flow graph of interest.
+	 *
+	 * @return the basic block graph corresonding to <code>stmtGraph</code>.
+	 *
+	 * @pre stmtGraph != null
+	 * @post result != null
+	 */
+	private BasicBlockGraph getBasicBlockGraph(final UnitGraph stmtGraph) {
+		final SootMethod _method = stmtGraph.getBody().getMethod();
+		final WeakReference _ref = (WeakReference) method2graph.get(_method);
+		BasicBlockGraph result = null;
+		boolean flag = false;
+
+		if (_ref == null) {
+			flag = true;
+		} else {
+			result = (BasicBlockGraph) _ref.get();
+
+			if (result == null) {
+				flag = true;
+			}
+		}
+
+		if (flag) {
+			result = new BasicBlockGraph(stmtGraph);
+			method2graph.put(_method, new WeakReference(result));
+		}
+		return result;
+	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/06 05:04:02  venku
+   - renamed WorkBag to IWorkBag and the ripple effect.
    Revision 1.10  2003/09/28 07:31:28  venku
    - ensured that null graph is returned if the method does not
      have a body.
-
    Revision 1.9  2003/09/28 06:54:17  venku
    - one more small change to the interface.
    Revision 1.8  2003/09/28 06:46:49  venku

@@ -1844,7 +1844,7 @@ main_control:
 
 			CallTriple ctrp = (CallTriple) callers.iterator().next();
 			SootMethod caller2 = ctrp.getMethod();
-			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(caller2.retrieveActiveBody()));
+			BasicBlockGraph bbg = bbm.getBasicBlockGraph(caller2);
 
 			if (cfg.occursInCycle(bbg, bbg.getEnclosingBlock(ctrp.getStmt()))) {
 				result = true;
@@ -1866,7 +1866,7 @@ main_control:
 		SootMethod sm = context.getCurrentMethod();
 
 		if (Util.isDescendentOf(scm.getSootClass(classname), "java.lang.Thread")) {
-			BasicBlockGraph bbg = bbm.getBasicBlockGraph(new CompleteUnitGraph(sm.retrieveActiveBody()));
+			BasicBlockGraph bbg = bbm.getBasicBlockGraph(sm);
 			Stmt stmt = context.getStmt();
 
 			if (bbg.isReachable(bbg.getEnclosingBlock(stmt), bbg.getEnclosingBlock(stmt), true)) {
@@ -1881,6 +1881,11 @@ main_control:
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2003/12/07 08:41:32  venku
+   - deleted getCallGraph() from ICallGraphInfo interface.
+   - made getSCCs() direction sensitive.
+   - ripple effect.
+
    Revision 1.11  2003/12/02 09:42:38  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
