@@ -48,18 +48,21 @@ public class CGBasedProcessingController
 	}
 
 	/**
-	 * Processes only those methods which are reachable in the given system.
+	 * Filters out methods that unreachable in the call graph provided at construction.
 	 *
-	 * @see ProcessingController#processMethods(Collection)
+	 * @see ProcessingController#filterMethods(Collection)
 	 */
-	protected void processMethods(final Collection methods) {
-		super.processMethods(CollectionUtils.intersection(methods, cgi.getReachableMethods()));
+	protected Collection filterMethods(final Collection methods) {
+		return CollectionUtils.intersection(methods, cgi.getReachableMethods());
 	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.3  2003/08/11 08:49:34  venku
    Javadoc documentation errors were fixed.
    Some classes were documented.

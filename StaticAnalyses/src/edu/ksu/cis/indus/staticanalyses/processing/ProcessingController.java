@@ -389,17 +389,6 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Set the environment for this processor.
-	 *
-	 * @param environment in which the processing occurs.
-	 *
-	 * @pre environment != null
-	 */
-	public void setEnnvironment(final IEnvironment environment) {
-		env = environment;
-	}
-
-	/**
 	 * Controls the processing activity.
 	 */
 	public void process() {
@@ -490,13 +479,43 @@ public class ProcessingController {
 	}
 
 	/**
-	 * Controls the processing of class level entities.
+	 * Filter out classes from the given collection of classes.
 	 *
-	 * @param classes to be processed.
+	 * @param classes is the classes to be filtered.
+	 *
+	 * @return a collection containing the classes which were not filtered out.
 	 *
 	 * @pre classes != null and classes.oclIsKindOf(Collection(SootClass))
+	 * @post result != null
 	 */
-	protected void processClasses(final Collection classes) {
+	protected Collection filterClasses(final Collection classes) {
+		return classes;
+	}
+
+	/**
+	 * Filter out methods from the given collection of methods.
+	 *
+	 * @param methods is the methods to be filtered.
+	 *
+	 * @return a collection containing the methods which were not filtered out.
+	 *
+	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod))
+	 * @post result != null
+	 */
+	protected Collection filterMethods(final Collection methods) {
+		return methods;
+	}
+
+	/**
+	 * Controls the processing of class level entities.
+	 *
+	 * @param theClasses to be processed.
+	 *
+	 * @pre theClasses != null and theClasses.oclIsKindOf(Collection(SootClass))
+	 */
+	protected void processClasses(final Collection theClasses) {
+		Collection classes = filterClasses(theClasses);
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Classes to be processed:\n" + classes);
 		}
@@ -524,11 +543,13 @@ public class ProcessingController {
 	/**
 	 * Controls the processing of methods and their bodies.
 	 *
-	 * @param methods to be processed.
+	 * @param theMethods to be processed.
 	 *
-	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod))
+	 * @pre theMethods != null and theMethods.oclIsKindOf(Collection(SootMethod))
 	 */
-	protected void processMethods(final Collection methods) {
+	protected void processMethods(final Collection theMethods) {
+		Collection methods = filterMethods(theMethods);
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Methods to be processed:\n" + methods);
 		}
@@ -574,6 +595,9 @@ public class ProcessingController {
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/09/28 03:16:20  venku
+   - I don't know.  cvs indicates that there are no differences,
+     but yet says it is out of sync.
    Revision 1.6  2003/09/08 02:21:16  venku
    - processors will need to register separately for functional procesing
      and inteface processing.
