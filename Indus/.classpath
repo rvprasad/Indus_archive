@@ -8,5 +8,6 @@
 	<classpathentry exported="true" kind="var" path="LOGGING_COMMONS_LIB"/>
 	<classpathentry kind="var" path="JAVACLASSES/swt/swt.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-collections.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-pool.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
