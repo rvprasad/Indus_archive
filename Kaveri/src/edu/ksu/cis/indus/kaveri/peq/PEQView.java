@@ -93,6 +93,7 @@ import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 import edu.ksu.cis.indus.peq.customengine.IndusExistentialQueryEngine;
 import edu.ksu.cis.indus.peq.customengine.IndusMatcher;
 import edu.ksu.cis.indus.peq.fsm.FSMBuilder;
+import edu.ksu.cis.indus.peq.fsm.FSMBuilder$v1_2;
 import edu.ksu.cis.indus.peq.graph.GraphBuilder;
 import edu.ksu.cis.indus.peq.graph.Node;
 import edu.ksu.cis.indus.peq.indusinterface.IndusInterface;
@@ -236,6 +237,14 @@ public class PEQView extends ViewPart implements IDeltaListener {
                     if (_selObject instanceof TreeParent) {
                         final TreeParent _tp = (TreeParent) _selObject;
                         _resultMap = _tp.getMapping();
+                        if (_resultMap == null) {
+                        	// Root element
+                        	final TreeObject[] _tarr = _tp.getChildren();
+                        	if (_tarr != null && _tarr.length > 0) {
+                        		final TreeObject _tchild = _tarr[_tarr.length - 1];
+                        		_resultMap = _tchild.getMapping();
+                        	}
+                        }
                     } else if (_selObject instanceof TreeObject) {
                         final TreeObject _tp = (TreeObject) _selObject;
                         _resultMap = _tp.getParent().getMapping();
@@ -435,7 +444,7 @@ public class PEQView extends ViewPart implements IDeltaListener {
                                 public void run(final IProgressMonitor monitor) {
                                     monitor.beginTask("Processing Query", 100);
                                     final PartialStmtData _psd = cachedPSD;
-                                    if (_psd.getStmtList() != null
+                                    if (_psd != null && _psd.getStmtList() != null
                                             && _psd.getSelectedStatement() != null
                                             && _psd.getStmtList().size() > 2) {
                                         final List _jimpleList = _psd
@@ -466,7 +475,7 @@ public class PEQView extends ViewPart implements IDeltaListener {
                                                     });
 
                                         } else {
-                                            FSMBuilder _fbuilder = new FSMBuilder(
+                                            FSMBuilder$v1_2 _fbuilder = new FSMBuilder$v1_2(
                                                     _qo);
                                             final Collection _rootCollection = new LinkedList();
                                             final Pair _initPair = new Pair(
