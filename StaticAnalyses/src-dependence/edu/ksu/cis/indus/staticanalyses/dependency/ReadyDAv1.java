@@ -395,7 +395,9 @@ public class ReadyDAv1
 	/**
 	 * Provides the rules that are active at present.
 	 *
-	 * @return the active rules as a logical OR of <i>RULE_XX</i> constants. 
+	 * @return the active rules as a logical OR of <i>RULE_XX</i> constants.
+	 *
+	 * @post result and not (RULE_1 or RULE_2 or RULE_3 or RULE_4) == 0
 	 */
 	public int getRules() {
 		return rules;
@@ -843,6 +845,8 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.17  2003/09/24 15:41:33  venku
+   - provided a getter method for rules.
    Revision 1.16  2003/09/12 22:33:08  venku
    - AbstractAnalysis extends IStatus.  Hence, analysis() does not return a value.
    - Ripple effect of the above changes.
