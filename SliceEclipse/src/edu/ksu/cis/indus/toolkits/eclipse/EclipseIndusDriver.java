@@ -40,7 +40,6 @@ import org.eclipse.core.runtime.Path;
 
 import soot.Body;
 import soot.G;
-import soot.Local;
 import soot.Printer;
 import soot.Scene;
 import soot.SootClass;
@@ -114,7 +113,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
 		G.reset();
 		slicer = new SlicerTool(TokenUtil.getTokenManager(),
 				new ExceptionFlowSensitiveStmtGraphFactory());
-		factory = new SliceCriteriaFactory();
+		factory = SliceCriteriaFactory.getFactory();
 	}
 
 	/** 
@@ -155,21 +154,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
 		}
 	}
 
-	/**
-	 * 
-	 * <i> Have to use it with a java <-> jimple translator.</i>
-	 * <p>Sets the criteria used for slicing</p>
-	 *
-	 * @param sootMethod The soot method inside which the criteria lies
-	 * @param local The local criteria
-	 */
-	public void setCriteria(final SootMethod sootMethod, final Local local) {		
-		final Collection _coll = factory.getCriterion(sootMethod, local);
-		if (criteria != Collections.EMPTY_LIST) {
-			_coll.addAll(criteria);
-		}
-		criteria = _coll;
-	}
+
 
 	/**
 	 * <i> Have to use it with a java <-> jimple translator.</i>
@@ -177,9 +162,10 @@ public class EclipseIndusDriver extends SootBasedDriver {
 	 *
 	 * @param sootMethod The soot method inside which the criteria lies
 	 * @param stmt The jimple statement criteria
+	 * @param considerVal The value at that statement should be considered or not
 	 */
-	public void setCriteria(final SootMethod sootMethod, final Stmt stmt) {		
-		final Collection _coll = factory.getCriterion(sootMethod, stmt, true);
+	public void setCriteria(final SootMethod sootMethod, final Stmt stmt, final boolean considerVal) {		
+		final Collection _coll = factory.getCriterion(sootMethod, stmt, true, considerVal);
 		if (criteria != Collections.EMPTY_LIST) {
 			_coll.addAll(criteria);
 		}
@@ -197,7 +183,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
 	 */
 	public void setCriteria(final SootMethod sootMethod, final Stmt stmt,
 			final ValueBox box) {		
-		final Collection _coll = factory.getCriterion(sootMethod, stmt, box);
+		final Collection _coll = factory.getCriterion(sootMethod, stmt, box, true);
 		if (criteria != Collections.EMPTY_LIST) {
 			_coll.addAll(criteria);
 		}
