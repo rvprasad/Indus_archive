@@ -2,7 +2,7 @@
 <!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "/usr/share/emacs/site-lisp/dtds/ant/project.dtd"
 [<!ENTITY include SYSTEM "message.xml">]>
 <!-- $Revision$ -->
-<project name="staticanalyses" default="build" basedir=".">
+<project name="indus.staticanalyses" default="build" basedir=".">
 
 <taskdef name="doxygen" classname="net.drishti.util.ant.Doxygen"/>
 
@@ -14,14 +14,20 @@
 <property name="docs" value="docs"/>
 <property name="gui" value="GUI"/>
 <property name="package" value="edu.ksu.cis.indus"/>
-<property name="jdklink" value="http://127.0.0.1/docs/java/jdk-1.4.2/api/"/>
-<property name="sootlink" value="http://127.0.0.1/docs/compilers/soot-0.x/"/>
+<property name="remote_jdklink" value="http://java.sun.com/j2se/1.4.2/docs/api/"/>
+<property name="remote_sootlink" value="http://www.sable.mcgill.ca/soot/doc/index.html"/>
+<property name="local_jdklink" value="http://127.0.0.1/docs/1.4.2/docs/api/"/>
+<property name="local_sootlink" value="http://127.0.0.1/docs/compilers/soot/soot-2.0-api"/>
 
-<path id="src">
+<path id="srcpath">
 	<pathelement location="src"/>
 	<pathelement location="src-flow"/>
 	<pathelement location="src-dependence"/>
 	<pathelement location="src-escape"/>
+</path>
+
+<path id="classpath">
+	<pathelement location="../Indus/build/"/>
 </path>
 
 <target name="init">
@@ -30,38 +36,58 @@
 
 <target name="build" depends="init">
     <mkdir dir="${build}"/>
-    <javac srcdir="${src}" destdir="${build}" includes="edu/**/*.java"
-           debug="on"/>
+    <javac destdir="${build}" debug="on">
+        <src refid="srcpath"/>
+        <classpath refid="classpath"/>
+    </javac>
 </target>
 
 <target name="docs">
-	<antcall target="javadocs"/>
-    <antcall target="doxydocs"/>
+	<antcall target="javadocs">
+        <param name="access" value="protected"/>
+        <param name="sootlink" value="remote_sootlink"/>
+        <param name="jdklink" value="remote_jdklink"/>
+    </antcall>
+    <antcall target="doxydocs">
+        <param name="configFile" value="Doxyfile"/>
+    </antcall>
+</target>
+
+<target name="privatedocs">
+	<antcall target="javadocs">
+        <param name="access" value="private"/>
+        <param name="sootlink" value="local_sootlink"/>
+        <param name="jdklink" value="local_jdklink"/>
+    </antcall>
+    <antcall target="doxydocs">
+        <param name="configFile" value="privateDoxyfile"/>
+    </antcall>
 </target>
 
 <target name="doxydocs">
     <mkdir dir="${docs}/doxydocs"/>
-    <doxygen/> <!-- configfile="${basedir}/Doxyfile" workingDirectory="${basedir}"/ -->
+    <doxygen configfile="${configFile}"/>
 </target>
 
 <target name="javadocs">
     <mkdir dir="${docs}/javadocs"/>
-    <javadoc packagenames="${package}.*"
-             destdir="${docs}/javadocs" access="private" use="true"
+    <javadoc packagenames="${package}.*" destdir="${docs}/javadocs" access="${access}" use="true"
              author="true" additionalparam="-breakiterator">
-             <sourcepath refid="src"/>
+             <sourcepath refid="srcpath"/>
              <link href="${sootlink}"/>
              <link href="${jdklink}"/>
              <tag name="pre" description="Precondition:" scope="constructors,methods"/>
              <tag name="post" description="Postcondition:" scope="constructors,methods"/>
              <tag name="invariant" description="Invariant" scope="methods,types,fields"/>
+             <excludepackage name="**Test**"/>
     </javadoc>
 </target>
-
 
 <target name="dist" depends="build, docs">
    <antcall target="backup"/>
 </target>
+
+<target name="privatebuild" depends="build, privatedocs"/>
 
 <target name="backup" depends="init">
     <mkdir dir="${dist}"/>
@@ -85,6 +111,9 @@
 ChangeLog:
 
 $Log$
+Revision 1.8  2003/08/12 19:49:14  venku
+*** empty log message ***
+
 Revision 1.4  2003/08/11 08:51:26  venku
 Javadoc generation uses -breakiterator.
 
