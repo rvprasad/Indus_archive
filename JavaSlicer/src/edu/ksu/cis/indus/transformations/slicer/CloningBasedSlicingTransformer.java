@@ -15,25 +15,43 @@
 
 package edu.ksu.cis.indus.transformations.slicer;
 
+import soot.Body;
 import soot.Local;
 import soot.PatchingChain;
+import soot.RefType;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Trap;
+import soot.Unit;
 import soot.ValueBox;
 
+import soot.jimple.GotoStmt;
+import soot.jimple.IfStmt;
+import soot.jimple.InvokeStmt;
+import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
+import soot.jimple.LookupSwitchStmt;
 import soot.jimple.Stmt;
+import soot.jimple.TableSwitchStmt;
+import soot.jimple.ThrowStmt;
+
+import soot.jimple.toolkits.scalar.NopEliminator;
+
+import soot.util.Chain;
 
 import edu.ksu.cis.indus.slicer.ISlicingBasedTransformer;
+import edu.ksu.cis.indus.staticanalyses.support.Util;
 import edu.ksu.cis.indus.transformations.common.AbstractTransformer;
 import edu.ksu.cis.indus.transformations.common.Cloner;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -188,6 +206,8 @@ public class CloningBasedSlicingTransformer
 	 * slice.  This methods detects such mappings and corrects them.
 	 */
 	public void completeTransformation() {
+		fixupMethods();
+
 		for (Iterator i = unslicedMethod2stmtMap.keySet().iterator(); i.hasNext();) {
 			SootMethod method = (SootMethod) i.next();
 			SootMethod slicedMethod = cloner.getCloneOf(method);
@@ -208,6 +228,88 @@ public class CloningBasedSlicingTransformer
 						unslicedStmt2slicedStmt.remove(stmt);
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Fixes up the sliced methods.  This includes adjusting the targets of gotos and traps.  This also involves pruning the
+	 * exception list at the method interfaces and removing any unwanted or unnecessary statements such as <code>nop</code>.
+	 */
+	public void fixupMethods() {
+		NopEliminator nopTranformation = NopEliminator.v();
+		Jimple jimple = Jimple.v();
+
+		for (Iterator i = getTransformedClasses().iterator(); i.hasNext();) {
+			SootClass slicedClass = (SootClass) i.next();
+			SootClass unslicedClass = getUntransformed(slicedClass);
+
+			for (Iterator j = slicedClass.getMethods().iterator(); j.hasNext();) {
+				SootMethod slicedMethod = (SootMethod) j.next();
+				SootMethod unslicedMethod =
+					unslicedClass.getMethod(slicedMethod.getName(), slicedMethod.getParameterTypes(),
+						slicedMethod.getReturnType());
+				Body unslicedBody = unslicedMethod.getActiveBody();
+				Body slicedBody = slicedMethod.getActiveBody();
+
+				//fixup traps
+				Chain slicedTraps = slicedBody.getTraps();
+
+				for (Iterator k = unslicedBody.getTraps().iterator(); k.hasNext();) {
+					Trap unslicedTrap = (Trap) k.next();
+					Unit unslicedBeginTrap = unslicedTrap.getBeginUnit();
+					Unit slicedBeginTrap = (Unit) getTransformed((Stmt) unslicedBeginTrap, unslicedMethod);
+					Unit unslicedEndTrap = unslicedTrap.getEndUnit();
+					Unit slicedEndTrap = (Unit) getTransformed((Stmt) unslicedEndTrap, unslicedMethod);
+					Unit unslicedHandler = unslicedTrap.getHandlerUnit();
+					Unit slicedHandler = (Unit) getTransformed((Stmt) unslicedHandler, unslicedMethod);
+					slicedTraps.add(jimple.newTrap(getTransformed(unslicedTrap.getException()), slicedBeginTrap,
+							slicedEndTrap, slicedHandler));
+				}
+
+				/*
+				 * fixing up the gotos.  We will just copy the control flow from the sliced method and use post slicing
+				 * transformation to prune the code.
+				 */
+				for (Iterator k = unslicedBody.getUnits().iterator(); k.hasNext();) {
+					Stmt unslicedStmt = (Stmt) k.next();
+
+					if (unslicedStmt.branches()) {
+						if (unslicedStmt instanceof GotoStmt) {
+							GotoStmt slicedStmt = (GotoStmt) getTransformed(unslicedStmt, unslicedMethod);
+							slicedStmt.setTarget(getSlicedStmt((Stmt) slicedStmt.getTarget(), unslicedMethod));
+						} else if (unslicedStmt instanceof IfStmt) {
+							IfStmt slicedStmt = (IfStmt) getTransformed(unslicedStmt, unslicedMethod);
+							slicedStmt.setTarget(getSlicedStmt(slicedStmt.getTarget(), unslicedMethod));
+						} else if (unslicedStmt instanceof LookupSwitchStmt) {
+							LookupSwitchStmt slicedStmt = (LookupSwitchStmt) getTransformed(unslicedStmt, unslicedMethod);
+
+							for (int index = 0; index < slicedStmt.getTargetCount(); index++) {
+								Stmt target = (Stmt) slicedStmt.getTarget(index);
+								slicedStmt.setTarget(index, getSlicedStmt(target, unslicedMethod));
+							}
+
+							Stmt target = (Stmt) slicedStmt.getDefaultTarget();
+							slicedStmt.setDefaultTarget(getSlicedStmt(target, unslicedMethod));
+						} else if (unslicedStmt instanceof TableSwitchStmt) {
+							TableSwitchStmt slicedStmt = (TableSwitchStmt) getTransformed(unslicedStmt, unslicedMethod);
+
+							for (int index = 0; index < slicedStmt.getHighIndex() - slicedStmt.getLowIndex(); index++) {
+								Stmt target = (Stmt) slicedStmt.getTarget(index);
+								slicedStmt.setTarget(index, getSlicedStmt(target, unslicedMethod));
+							}
+
+							Stmt target = (Stmt) slicedStmt.getDefaultTarget();
+							slicedStmt.setDefaultTarget(getSlicedStmt(target, unslicedMethod));
+						}
+					}
+				}
+
+				//fixup exception list
+				pruneExceptionsAtMethodInterface(slicedMethod, slicedBody.getUnits());
+
+				//This will remove unnecessary nop statements, hence, fixing the gotos.
+				nopTranformation.transform(slicedBody);
 			}
 		}
 	}
@@ -261,6 +363,33 @@ public class CloningBasedSlicingTransformer
 	}
 
 	/**
+	 * Retrieves the sliced statement corresponding to the given unsliced statement.
+	 *
+	 * @param unslicedStmt for which the corresponding sliced statement is requested.
+	 * @param unslicedMethod in which <code>unslicedStmt</code> occurs.
+	 *
+	 * @return the sliced statement corresponding to the given unsliced statement
+	 *
+	 * @pre unslicedStmt != null and unslicedMethod != null
+	 * @post result != null
+	 */
+	private Stmt getSlicedStmt(final Stmt unslicedStmt, final SootMethod unslicedMethod) {
+		Stmt result = null;
+		SootMethod slicedMethod = getTransformed(unslicedMethod);
+		Iterator j = slicedMethod.getActiveBody().getUnits().iterator();
+
+		for (Iterator i = unslicedMethod.getActiveBody().getUnits().iterator(); i.hasNext();) {
+			Stmt stmt = (Stmt) i.next();
+			result = (Stmt) j.next();
+
+			if (stmt.equals(unslicedStmt)) {
+				break;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Registers the mapping between statements in the transformed and untransformed versions of a method.
 	 *
 	 * @param slicedStmt in the transformed version of the method.
@@ -281,6 +410,46 @@ public class CloningBasedSlicingTransformer
 
 		if (stmtMap != null) {
 			stmtMap.put(slicedStmt, unslicedStmt);
+		}
+	}
+
+	/**
+	 * Prunes the list of exception declared as being thrown at the interface of the given method based on the statements in
+	 * the method.
+	 *
+	 * @param sm is the method whose interface should be pruned.
+	 * @param sl is the statement list of the method.
+	 *
+	 * @pre sm != null and sl != null
+	 */
+	private void pruneExceptionsAtMethodInterface(final SootMethod sm, final Chain sl) {
+		Set thrownInBody = new HashSet();
+		Collection thrownAtInterface = sm.getExceptions();
+
+		for (Iterator i = sl.iterator(); i.hasNext();) {
+			Stmt stmt = (Stmt) i.next();
+
+			if (stmt instanceof ThrowStmt) {
+				thrownInBody.add(getTransformedSootClass(((RefType) ((ThrowStmt) stmt).getOp().getType()).getClassName()));
+			} else {
+				if (stmt instanceof InvokeStmt) {
+					thrownInBody.addAll(stmt.getInvokeExpr().getMethod().getExceptions());
+				} else if (stmt instanceof ThrowStmt) {
+					SootClass exception = ((RefType) ((ThrowStmt) stmt).getOp().getType()).getSootClass();
+
+					if (!Util.isDescendentOf(exception, "java.lang.RuntimException")) {
+						thrownInBody.add(exception);
+					}
+				}
+			}
+		}
+
+		for (Iterator i = thrownAtInterface.iterator(); i.hasNext();) {
+			SootClass exception = (SootClass) i.next();
+
+			if (!thrownInBody.contains(exception)) {
+				sm.removeException(exception);
+			}
 		}
 	}
 
@@ -319,10 +488,14 @@ public class CloningBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2003/10/13 00:59:57  venku
+   - Split transformations.slicer into 2 packages
+      - transformations.slicer
+      - slicer
+   - Ripple effect of the above changes.
    Revision 1.23  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.22  2003/09/27 01:08:38  venku
    - documentation.
    Revision 1.21  2003/09/26 15:08:35  venku
