@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow;
 
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
+import edu.ksu.cis.indus.interfaces.AbstractPrototype;
 
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokenFilter;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
@@ -39,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @version $Revision$
  */
-public abstract class AbstractFGNode
+public abstract class AbstractFGNode extends AbstractPrototype
   implements IFGNode {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -64,10 +65,10 @@ public abstract class AbstractFGNode
 	 *
 	 * @invariant tokens != null
 	 */
-	protected final ITokens tokens;
+	private ITokens tokens;
 
 	/** 
-	 * The work bag provided associated with the enclosing instance of the framework.  This is required if subclasses will
+	 * The work bag provided associated with the enclosing instance of the framework.  This is required if subclasses 
 	 * want to generate new work depending on the new values or new successors that may occur.
 	 *
 	 * @invariant workbagProvider != null
@@ -94,32 +95,6 @@ public abstract class AbstractFGNode
 	protected AbstractFGNode(final IWorkBagProvider provider, final ITokens tokenSet) {
 		workbagProvider = provider;
 		tokens = tokenSet;
-	}
-
-	/**
-	 * This method will throw <code>UnsupprotedOperationException</code>.
-	 *
-	 * @return (This method raises an exception.)
-	 *
-	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
-	 * 		   subclasses.
-	 */
-	public Object getClone() {
-		throw new UnsupportedOperationException("Parameterless prototype() method is not supported.");
-	}
-
-	/**
-	 * This method will throw <code>UnsupprotedOperationException</code>.
-	 *
-	 * @param param <i>ignored</i>.
-	 *
-	 * @return (This method raises an exception.)
-	 *
-	 * @throws UnsupportedOperationException as this method is not supported by this class but should be implemented by
-	 * 		   subclasses.
-	 */
-	public Object getClone(final Object param) {
-		throw new UnsupportedOperationException("prototype(param1) method is not supported.");
 	}
 
 	/**
@@ -268,11 +243,12 @@ public abstract class AbstractFGNode
 		final IWorkBag _workBag = workbagProvider.getWorkBag();
 
 		if (target instanceof AbstractFGNode) {
-			SendTokensWork _work = ((AbstractFGNode) target).sendTokensWork;
+			final AbstractFGNode _abstractFGNode = (AbstractFGNode) target;
+            SendTokensWork _work = _abstractFGNode.sendTokensWork;
 
 			if (_work == null) {
 				_work = SendTokensWork.getWork(target, tokensToBeSent);
-				((AbstractFGNode) target).sendTokensWork = _work;
+				_abstractFGNode.sendTokensWork = _work;
 				_workBag.addWork(_work);
 			} else {
 				_work.addTokens(tokensToBeSent);
