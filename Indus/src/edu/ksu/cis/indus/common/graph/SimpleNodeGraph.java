@@ -36,26 +36,27 @@ import org.apache.commons.logging.LogFactory;
  * @version $Revision$
  */
 public final class SimpleNodeGraph
-  extends AbstractMutableDirectedGraph {
-	/**
+  extends AbstractMutableDirectedGraph
+  implements IObjectDirectedGraph {
+	/** 
 	 * This transformer can be used with Collection Utils to extract the objects from a collection of SimpleNodes.  If the
 	 * collection has objects of other type then the transformation will insert null into the collection being operated.
 	 */
 	public static final Transformer OBJECT_EXTRACTOR = new ObjectExtractor();
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(SimpleNodeGraph.class);
 
-	/**
+	/** 
 	 * The sequence of nodes in this graph.  They are stored in the order that the nodes are created.
 	 *
 	 * @invariant nodes.oclIsTypeOf(Sequence(SimpleNode))
 	 */
 	private List nodes = new ArrayList();
 
-	/**
+	/** 
 	 * This maps objects to their representative nodes.
 	 *
 	 * @invariant object2nodes.oclIsTypeOf(Map(Object, SimpleNode))
@@ -71,7 +72,7 @@ public final class SimpleNodeGraph
 	 */
 	public final class SimpleNode
 	  extends AbstractMutableDirectedGraph.AbstractMutableNode {
-		/**
+		/** 
 		 * The object being represetned by this node.
 		 */
 		private final Object object;
@@ -137,8 +138,6 @@ public final class SimpleNodeGraph
 	 *
 	 * @return the node representing <code>o</code>.
 	 *
-	 * @throws NullPointerException when the given object is <code>null</code>.
-	 *
 	 * @pre o != null
 	 * @post object2nodes$pre.get(o) == null implies inclusion
 	 * @post inclusion: nodes->includes(result) and heads->includes(result) and tails->includes(result) and
@@ -146,14 +145,7 @@ public final class SimpleNodeGraph
 	 * @post result != null
 	 */
 	public INode getNode(final Object o) {
-		if (o == null) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("object to be represented cannot be null.");
-			}
-			throw new NullPointerException("object to be represented cannot be null.");
-		}
-
-		INode _result = (INode) object2nodes.get(o);
+		INode _result = queryNode(o);
 
 		if (_result == null) {
 			_result = new SimpleNode(o);
@@ -174,6 +166,21 @@ public final class SimpleNodeGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.IObjectDirectedGraph#queryNode(java.lang.Object)
+	 */
+	public INode queryNode(Object o) {
+		if (o == null) {
+			if (LOGGER.isErrorEnabled()) {
+				LOGGER.error("object to be represented cannot be null.");
+			}
+			throw new NullPointerException("object to be represented cannot be null.");
+		}
+
+		final INode _result = (INode) object2nodes.get(o);
+		return _result;
+	}
+
+	/**
 	 * @see AbstractMutableDirectedGraph#containsNodes(edu.ksu.cis.indus.common.graph.INode)
 	 */
 	protected boolean containsNodes(final INode node) {
@@ -184,9 +191,10 @@ public final class SimpleNodeGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/24 22:25:56  venku
+   - documentation
    Revision 1.6  2004/01/25 08:59:52  venku
    - coding convention.
-
    Revision 1.5  2004/01/24 01:41:23  venku
    - added a Commons-Collection transformer to
      extract objects from a given set of SimpleNodes.
