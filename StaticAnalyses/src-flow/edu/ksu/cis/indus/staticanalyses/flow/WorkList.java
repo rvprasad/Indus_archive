@@ -62,7 +62,8 @@ public class WorkList {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Added new work:" + w);
 		}
-		workbag.addWorkNoDuplicates(w);
+		if (!workbag.addWorkNoDuplicates(w))
+            w.finished();
 	}
 
 	/**
@@ -92,6 +93,13 @@ public class WorkList {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/06 05:15:07  venku
+   - Refactoring, Refactoring, Refactoring.
+   - Generalized the processing controller to be available
+     in Indus as it may be useful outside static anlaysis. This
+     meant moving IProcessor, Context, and ProcessingController.
+   - ripple effect of the above changes was large.
+
    Revision 1.8  2003/11/05 09:33:13  venku
    - ripple effect of splitting Workbag.
 
