@@ -74,13 +74,6 @@ public class AnalysesController
 	private static final Log LOGGER = LogFactory.getLog(AnalysesController.class);
 
 	/**
-	 * The collection of analysis which want to preprocess the system.
-	 *
-	 * @invariant preprocessors != null
-	 */
-	protected final Collection preprocessors;
-
-	/**
 	 * A map from methods(<code>SootMethod</code>) to their complete statement graph(<code>CompleteStmtGraph</code>).
 	 *
 	 * @invariant method2cmpltstmtGraph != null
@@ -126,7 +119,6 @@ public class AnalysesController
 	public AnalysesController(final Map infoPrm, final ProcessingController pc) {
 		participatingAnalyses = new HashMap();
 		method2cmpltStmtGraph = new HashMap();
-		preprocessors = new HashSet();
 		this.info = infoPrm;
 		this.preprocessController = pc;
 	}
@@ -144,7 +136,6 @@ public class AnalysesController
 
 		if (analysis.doesPreProcessing()) {
 			IProcessor p = analysis.getPreProcessor();
-			preprocessors.add(p);
 			p.hookup(preprocessController);
 		}
 	}
@@ -251,8 +242,6 @@ public class AnalysesController
 	 * the Object Flow AbstractAnalysis instance.
 	 */
 	public void reset() {
-		preprocessors.clear();
-
 		for (Iterator i = participatingAnalyses.values().iterator(); i.hasNext();) {
 			AbstractAnalysis element = (DependencyAnalysis) i.next();
 			element.reset();
@@ -265,9 +254,10 @@ public class AnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2003/08/25 08:51:45  venku
+   Coding convention and Formatting.
    Revision 1.14  2003/08/25 08:40:47  venku
    Formatting.
-
    Revision 1.13  2003/08/25 08:39:58  venku
    Well, it does not make sense to specify a set of IDs and expect only
    analyses of these IDs to be controlled.  This is more like application
