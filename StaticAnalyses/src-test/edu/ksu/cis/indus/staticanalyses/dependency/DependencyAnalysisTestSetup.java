@@ -181,6 +181,8 @@ public class DependencyAnalysisTestSetup
 		tgiImpl = null;
 		ecba.reset();
 		ecba = null;
+		aliasUD.reset();
+		aliasUD = null;
 		info.clear();
 		info = null;
 
@@ -241,6 +243,9 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/05/14 06:27:25  venku
+   - renamed DependencyAnalysis as AbstractDependencyAnalysis.
+
    Revision 1.12  2004/04/21 04:13:20  venku
    - jimple dumping takes time.  Instead, the user can control this
      per configuration.
