@@ -60,6 +60,15 @@ import soot.jimple.Stmt;
  * <i>Synchronization dependence</i>: All non-monitor statement in a method are synchronization dependent on the immediately
  * enclosing monitor statements in the same method.
  * </p>
+ * 
+ * <p>
+ * In case of synchronized methods, the statements in the method not enclosed by monitor statements are dependent on the
+ * entry and exit into the method which is tied to the call-sites.  Hence, <code>getDependents()</code> and
+ * <code>getDependees()</code> do not include this dependence as it is application specific and can be derived from the
+ * control-flow.  If the return points and  entry point are assumed to comprise the monitor then there may be more than one
+ * monitor pair as there are many return points, hence, not all statements in the method may be dependent on the same
+ * monitor pair.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -389,8 +398,6 @@ nextBasicBlock:
 			_processedMonitors.add(_enterMonitor);
 		}
 
-		processSynchronizedMethods();
-
 		stable = true;
 
 		if (LOGGER.isInfoEnabled()) {
@@ -510,42 +517,6 @@ nextBasicBlock:
 	 * DOCUMENT ME!
 	 * 
 	 * <p></p>
-	 */
-	private void processSynchronizedMethods() {
-		for (final Iterator _i = monitorTriples.iterator(); _i.hasNext();) {
-			final Triple _triple = (Triple) _i.next();
-
-			if (_triple.getFirst() == null && _triple.getSecond() == null) {
-				final SootMethod _sm = (SootMethod) _triple.getThird();
-				final Collection _enterMonitors = (Collection) monitorsInSyncMethods.get(_triple);
-
-				if (enterMonitors == null) {
-					// generate sync dependence info for all statements of the method.
-					final Collection dependexx = new HashSet();
-					final Collection _units = _sm.retrieveActiveBody().getUnits();
-					dependexx.addAll(_units);
-					// TODO:
-				} else {
-					for (final Iterator _j = monitorsInSyncMethods.entrySet().iterator(); _j.hasNext();) {
-						Map.Entry _entry = (Map.Entry) _j.next();
-						//final SootMethod _sm = (SootMethod) _entry.getKey();
-						//final Collection _enterMonitors = (Collection) _entry.getValue();
-
-						// TODO:
-						// foreach i in _enterMontiors
-						//    collect the statements which depend on i into enters
-						// find the statements in the body of the method not occurring enters and update dependence information for these
-						// statements.
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
 	 *
 	 * @param method DOCUMENT ME!
 	 * @param enter DOCUMENT ME!
@@ -570,6 +541,8 @@ nextBasicBlock:
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2004/01/19 08:26:59  venku
+   - enabled logging of criteria when they are created in SlicerTool.
    Revision 1.27  2004/01/06 00:17:00  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
