@@ -151,6 +151,7 @@ public class AddToCriteria implements IEditorActionDelegate {
                 .getDefault().getDialogSettings();
         _settings.put(
                 "edu.ksu.indus.sliceeclipse.stmtindex", -1);
+        _settings.put("edu.ksu.indus.sliceeclipse.considervalue", true);
         final StatementResolver _sr = new StatementResolver(
                 Display.getDefault().getActiveShell(),
                 _stlist);
@@ -163,6 +164,8 @@ public class AddToCriteria implements IEditorActionDelegate {
 			} else {
 				storeLst.add(new Integer(0));
 			}
+			final boolean _valuechoice = _settings.getBoolean("edu.ksu.indus.sliceeclipse.considervalue");
+			storeLst.add(new Boolean(_valuechoice));
 			addToCriteria(file, storeLst);
 		}
 		
@@ -227,7 +230,8 @@ public class AddToCriteria implements IEditorActionDelegate {
 			if (_tlist.get(0).equals(_clist.get(0))
 					&& _tlist.get(1).equals(_clist.get(1))
 					&& _tlist.get(2).equals(_clist.get(2))
-					&& _tlist.get(3).equals(_clist.get(3))) {
+					&& _tlist.get(3).equals(_clist.get(3))
+					&& _tlist.get(4).equals(_clist.get(4))) {
 				_isOk = false;
 				break;
 			}
