@@ -909,13 +909,13 @@ public class EquivalenceClassBasedEscapeAnalysis
 
 		while (wb.hasWork()) {
 			SootMethod caller = (SootMethod) wb.getWork();
-			Collection callees = cgi.getCallees(caller);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Top-down procesing : CALLER : " + caller);
+            }
+
+            Collection callees = cgi.getCallees(caller);
 			Triple triple = (Triple) method2Triple.get(caller);
 			Map ctrp2sc = (Map) triple.getThird();
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Top-down procesing : CALLER : " + caller);
-			}
 
 			for (Iterator i = callees.iterator(); i.hasNext();) {
 				CallTriple ctrp = (CallTriple) i.next();
@@ -1127,6 +1127,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.28  2003/11/16 19:06:50  venku
+   - documentation.
+
    Revision 1.27  2003/11/10 03:17:19  venku
    - renamed AbstractProcessor to AbstractValueAnalyzerBasedProcessor.
    - ripple effect.
