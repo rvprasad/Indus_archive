@@ -18,7 +18,6 @@ package edu.ksu.cis.indus.common;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-
 import java.util.Set;
 
 import org.apache.commons.collections.Predicate;
@@ -27,7 +26,13 @@ import org.apache.commons.collections.map.AbstractMapDecorator;
 
 
 /**
- * This class provides a filtered access to the keys and values in the backed map.
+ * This class provides a filtered access to the keys and values in the decorated map.  Like <code>FilteredCollection</code>,
+ * all operations are filtered.
+ * 
+ * <p>
+ * To be more precise, an entry in the decorated map occurs in the filtered view when  both key and value satisfy
+ * corresponding  predicates.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -52,12 +57,18 @@ final class FilteredMap
 	 * @param keyPredicate to filter the keys in <code>backedMap</code>. <code>null</code> means no check.
 	 * @param valuePredicate to filter the values in <code>backedMap</code>. <code>null</code> means no check.
 	 *
+	 * @throws IllegalArgumentException when <code>keyPredicate</code> and <code>valuePredicate</code> are <code>null</code>.
+	 *
 	 * @pre decoratedMap != null
 	 *
 	 * @see AbstractMapDecorator#AbstractMapDecorator(Map)
 	 */
 	FilteredMap(final Map decoratedMap, final Predicate keyPredicate, final Predicate valuePredicate) {
 		super(decoratedMap);
+
+		if (keyPredicate == null && valuePredicate == null) {
+			throw new IllegalArgumentException("If both predicates are null, please use an unfiltered map.");
+		}
 		keyPred = keyPredicate;
 		valuePred = valuePredicate;
 	}
@@ -108,27 +119,6 @@ final class FilteredMap
 	}
 
 	/**
-	 * Returns a filtered entry set.  All keys in the backed map for which the key predicate evaluates to <code>true</code>
-	 * will occur in a returned entry set.  The value in a returned entry set will be <code>null</code> if the value
-	 * predicate evaluates  to <code>false</code> for that value.  If not, the value in the entry set will be the original
-	 * value corresponding to the key in the backed map.  In cases where the key predicate and/or value predicate is
-	 * unspecified, the keys and/or values from the decorated map is returned asis.
-	 *
-	 * @return the filtered entry set.
-	 *
-	 * @post result != null
-	 * @post result.oclIsKindOf(Set(MapEntry))
-	 * @post result->forall(o | map.keySet().contains(o.getKey()))
-	 * @post result->forall(o | map.get(o.getKey()) = o.getValue() or o.getValue() = null)
-	 * @post keyPredicate != null implies result->forall(o | keyPredicate.evaluate(o.getKey()))
-	 * @post keyPredicate == null implies result->forall(o | map.entrySet()->exists(p | o.getKey() = p.getKey()))
-	 * @post valuePrediate != null implies result->forall(o | valuePredicate.evaluate(o.getValue()) implies o.getValue() =
-	 * 		 map.get(o.getKey()))
-	 * @post valuePrediate != null implies result->forall(o | not valuePredicate.evaluate(o.getValue()) implies o.getValue()
-	 * 		 = null)
-	 * @post valuePredicate == null implies result->forall(o | map.entrySet()->forall(p | o.getKey() = p.getKey()) implies
-	 * 		 o.getValue() = p.getValue())
-	 *
 	 * @see java.util.Map#entrySet()
 	 */
 	public Set entrySet() {
@@ -198,16 +188,6 @@ final class FilteredMap
 	}
 
 	/**
-	 * Retreives the filtered key set of the decorated map.
-	 *
-	 * @return the filtered key set.
-	 *
-	 * @post result != null
-	 * @post result.oclIsKindOf(Set(Object))
-	 * @post map.keySet().containsAll(result)
-	 * @post keyPredicate != null implies result->forall(o | keyPredicate.evaluate(o))
-	 * @post keyPredicate == null implies result->forall(o | map.keySet()->exists(p | o = p))
-	 *
 	 * @see java.util.Map#keySet()
 	 */
 	public Set keySet() {
@@ -290,21 +270,11 @@ final class FilteredMap
 	}
 
 	/**
-	 * Retreives the filtered value set of the decorated map.
-	 *
-	 * @return the filtered value set.
-	 *
-	 * @post result != null
-	 * @post result.oclIsKindOf(Set(Object))
-	 * @post map.values().containsAll(result)
-	 * @post valuePredicate != null implies result->forall(o | valuePredicate.evaluate(o))
-	 * @post valuePredicate == null implies result->forall(o | map.values()->exists(p | o = p))
-	 *
 	 * @see java.util.Map#values()
 	 */
 	public Collection values() {
 		final Map _map = getMap();
-		
+
 		return new FilteredCollection(super.values(),
 			new Predicate() {
 				public boolean evaluate(final Object object) {
@@ -352,6 +322,8 @@ final class FilteredMap
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/06/28 08:08:27  venku
+   - new collections classes for filtered access and update.
    Revision 1.2  2004/06/27 05:02:30  venku
    - documentation.
    Revision 1.1  2004/05/21 22:11:49  venku

@@ -26,11 +26,18 @@ import org.apache.commons.collections.iterators.FilterIterator;
 
 
 /**
- * This class provides a filtered updatable view of a collection.  Only elements that satisfy the predicate are accessible 
- * to the user via this class.  Likewise, only elements that satisfy the predicate are added/removed from the collection.
- * Another way of looking at this class is all elements of the wrapped/decorated class are filtered through the predicate and
- * the requested operation is executed on the result of the filtering operation.  Similarly, all updates are filtered through
- * the predicate and then applied to the decorated class.  
+ * This class provides a filtered updatable view of a collection.
+ * 
+ * <p>
+ * Only elements that satisfy the predicate are accessible  to the user via this class.  Likewise, only elements that satisfy
+ * the predicate are added/removed from the collection. Another way of looking at this class is all elements of the
+ * wrapped/decorated class are filtered through the predicate and the requested operation is executed on the result of the
+ * filtering operation.  Similarly, all updates are filtered through the predicate and then applied to the decorated class.
+ * </p>
+ * 
+ * <p>
+ * All operations via iterators obtained by this class are also filtered.
+ * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -40,6 +47,7 @@ class FilteredCollection
   extends AbstractCollectionDecorator {
 	/**
 	 * The predicate that defines the filtering criterion.
+	 *
 	 * @invariant predicate != null
 	 */
 	protected final Predicate predicate;
@@ -49,6 +57,7 @@ class FilteredCollection
 	 *
 	 * @param col is the collection to be wrapped.
 	 * @param thePredicate that defines the filtering criterion.
+	 *
 	 * @pre col != null and predicate != null
 	 */
 	public FilteredCollection(final Collection col, final Predicate thePredicate) {
@@ -262,9 +271,10 @@ class FilteredCollection
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/06/28 15:38:32  venku
+   - documentation.
    Revision 1.2  2004/06/28 08:08:27  venku
    - new collections classes for filtered access and update.
-
    Revision 1.1  2004/06/27 23:23:11  venku
    - initial commit.
    - This version has update methods as well.

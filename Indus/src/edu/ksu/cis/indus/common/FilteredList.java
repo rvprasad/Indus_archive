@@ -28,9 +28,10 @@ import org.apache.commons.collections.list.AbstractListDecorator;
 
 
 /**
- * DOCUMENT ME!
+ * This class provides a filtered updatable view of a list.  Like <code>FilteredCollection</code>, all operations are
+ * filtered.
  * 
- * <p></p>
+ * @see FilteredCollection
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -39,24 +40,25 @@ import org.apache.commons.collections.list.AbstractListDecorator;
 public final class FilteredList
   extends AbstractListDecorator {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The delegate collection instance that does the filtering.
+	 *
+	 * @invariant filteredCollection != null
 	 */
 	private final FilteredCollection filteredCollection;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The predicate that defines the filtering criterion.
+	 * @invariant predicate != null
 	 */
 	private final Predicate predicate;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of this class.
 	 *
-	 * @param list DOCUMENT ME!
-	 * @param thePredicate DOCUMENT ME!
+	 * @param list to be filtered/decorated.
+	 * @param thePredicate that defines the filtering criterion.
+	 *
+	 * @pre list != null and thePredicate != null
 	 */
 	public FilteredList(final List list, final Predicate thePredicate) {
 		filteredCollection = new FilteredCollection(list, thePredicate);
@@ -227,4 +229,7 @@ public final class FilteredList
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/06/28 08:08:27  venku
+   - new collections classes for filtered access and update.
+
  */
