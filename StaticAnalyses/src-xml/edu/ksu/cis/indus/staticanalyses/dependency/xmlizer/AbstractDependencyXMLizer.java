@@ -108,7 +108,7 @@ public abstract class AbstractDependencyXMLizer
 			} else {
 				processingClass = true;
 			}
-			writer.write("\t<class signature=\"" + clazz.getName() + "\" id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
+			writer.write("\t<class id=\"" + idGenerator.getIdForClass(clazz) + "\">\n");
 			processingMethod = false;
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
@@ -127,9 +127,7 @@ public abstract class AbstractDependencyXMLizer
 			} else {
 				processingMethod = true;
 			}
-			writer.write("\t\t<method signature=\""
-				+ method.getSubSignature().replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;") + "\" id=\""
-				+ idGenerator.getIdForMethod(method) + "\">\n");
+			writer.write("\t\t<method id=\"" + idGenerator.getIdForMethod(method) + "\">\n");
 		} catch (IOException e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", e);
@@ -174,6 +172,8 @@ public abstract class AbstractDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/24 23:58:01  venku
+   - incorrect attribute values were being emitted. FIXED.
    Revision 1.5  2003/11/17 15:56:59  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
