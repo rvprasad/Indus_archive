@@ -39,9 +39,9 @@ abstract class AbstractSliceCriterion {
 	protected ObjectPool pool;
 
 	/**
-	 * This indicates if this criterion is included in the slice or not.
+	 * This indicates if the effect of executing the criterion should be considered for slicing.
 	 */
-	protected boolean inclusive;
+	private boolean considerExecution;
 
 	/**
 	 * Returns the stored criterion object.
@@ -51,15 +51,6 @@ abstract class AbstractSliceCriterion {
 	 * @post result != null
 	 */
 	public abstract Object getCriterion();
-
-	/**
-	 * Indicates if this criterion is included in the slice or not.
-	 *
-	 * @return <code>true</code> if this criterion is included in the slice; <code>false</code>, otherwise.
-	 */
-	public boolean isIncluded() {
-		return inclusive;
-	}
 
 	/**
 	 * Checks if the given object is "equal" to this object.
@@ -72,35 +63,41 @@ abstract class AbstractSliceCriterion {
 		boolean result = false;
 
 		if (o != null && o instanceof AbstractSliceCriterion) {
-			result = ((AbstractSliceCriterion) o).inclusive == inclusive;
+			AbstractSliceCriterion t = (AbstractSliceCriterion) o;
+			result = t.considerExecution == considerExecution;
 		}
 		return result;
 	}
 
 	/**
-	 * Returns the hashcode for this object.
-	 *
-	 * @return the hashcode for this object.
+	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		int result;
+		int hash = 17;
+		hash = hash * 37 + Boolean.valueOf(considerExecution).hashCode();
+		return hash;
+	}
 
-		if (inclusive) {
-			result = Boolean.TRUE.hashCode();
-		} else {
-			result = Boolean.FALSE.hashCode();
-		}
-		return result;
+	/**
+	 * Indicates if the effect of execution of criterion should be considered.
+	 *
+	 * @return <code>true</code> if the effect of execution should be considered; <code>false</code>, otherwise.
+	 */
+	public boolean shouldConsiderExecution() {
+		return considerExecution;
 	}
 
 	/**
 	 * Initializes this object.
 	 *
-	 * @param shouldBeIncluded <code>true</code> indicates this criterion should be included in the slice;
-	 * 		  <code>false</code>, otherwise.
+	 * @param shouldConsiderExecution <code>true</code> indicates that the effect of executing this criterion should be
+	 * 		  considered while slicing.  This means all the subexpressions of the associated expression are also considered
+	 * 		  as slice criteria. <code>false</code> indicates that just the mere effect of the control reaching this
+	 * 		  criterion should be considered while slicing.  This means none of the subexpressions of the associated
+	 * 		  expression are considered as slice criteria.
 	 */
-	protected void initialize(final boolean shouldBeIncluded) {
-		this.inclusive = shouldBeIncluded;
+	protected void initialize(final boolean shouldConsiderExecution) {
+		considerExecution = shouldConsiderExecution;
 	}
 
 	/**
@@ -126,19 +123,20 @@ abstract class AbstractSliceCriterion {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/10/13 00:58:04  venku
+   - empty log message
    Revision 1.4  2003/09/27 22:38:30  venku
    - package documentation.
    - formatting.
-
    Revision 1.3  2003/08/18 12:14:13  venku
-   Well, to start with the slicer implementation is complete.
-   Although not necessarily bug free, hoping to stabilize it quickly.
+   - Well, to start with the slicer implementation is complete.
+     Although not necessarily bug free, hoping to stabilize it quickly.
    Revision 1.2  2003/08/18 05:01:45  venku
-   Committing package name change in source after they were moved.
+   - Committing package name change in source after they were moved.
    Revision 1.1  2003/08/17 11:56:18  venku
-   Renamed SliceCriterion to AbstractSliceCriterion.
-   Formatting, documentation, and specification.
+   - Renamed SliceCriterion to AbstractSliceCriterion.
+     Formatting, documentation, and specification.
    Revision 1.4  2003/05/22 22:23:50  venku
-   Changed interface names to start with a "I".
-   Formatting.
+   - Changed interface names to start with a "I".
+     Formatting.
  */

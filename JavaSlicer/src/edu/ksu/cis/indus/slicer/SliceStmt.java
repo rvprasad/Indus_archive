@@ -109,16 +109,13 @@ class SliceStmt
 	}
 
 	/**
-	 * Returns the hashcode for this object.
-	 *
-	 * @return the hashcode for this object.
+	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		int result = 17;
-		result = 37 * result + stmt.hashCode();
-		result = 37 * result + method.hashCode();
-		result = 37 * result + super.hashCode();
-		return result;
+		int hash = super.hashCode();
+		hash = 37 * hash + stmt.hashCode();
+		hash = 37 * hash + method.hashCode();
+		return hash;
 	}
 
 	/**
@@ -126,13 +123,12 @@ class SliceStmt
 	 *
 	 * @param occurringMethod in which the slice criterion occurs.
 	 * @param criterion is the slice criterion.
-	 * @param shouldInclude <code>true</code> if the slice criterion should be included in the slice; <code>false</code>,
-	 * 		  otherwise.
+	 * @param shouldConsiderExecution refer to {@link AbstractSliceCriterion#initialize}
 	 *
 	 * @pre method != null and stmt != null
 	 */
-	protected void initialize(final SootMethod occurringMethod, final Stmt criterion, final boolean shouldInclude) {
-		super.initialize(shouldInclude);
+	protected void initialize(final SootMethod occurringMethod, final Stmt criterion, final boolean shouldConsiderExecution) {
+		super.initialize(shouldConsiderExecution);
 		this.method = occurringMethod;
 		this.stmt = criterion;
 	}
@@ -164,22 +160,24 @@ class SliceStmt
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/11/03 08:03:25  venku
+   - changed the way 2 instances are compared for equality.
    Revision 1.1  2003/10/13 00:58:03  venku
- *** empty log message ***
-     Revision 1.8  2003/09/27 22:38:30  venku
-     - package documentation.
-     - formatting.
-     Revision 1.7  2003/08/20 18:31:22  venku
-     Documentation errors fixed.
-     Revision 1.6  2003/08/18 12:14:13  venku
-     Well, to start with the slicer implementation is complete.
+   - empty log message
+   Revision 1.8  2003/09/27 22:38:30  venku
+   - package documentation.
+   - formatting.
+   Revision 1.7  2003/08/20 18:31:22  venku
+   - Documentation errors fixed.
+   Revision 1.6  2003/08/18 12:14:13  venku
+   - Well, to start with the slicer implementation is complete.
      Although not necessarily bug free, hoping to stabilize it quickly.
-     Revision 1.5  2003/08/18 05:01:45  venku
-     Committing package name change in source after they were moved.
-     Revision 1.4  2003/08/17 11:56:18  venku
-     Renamed SliceCriterion to AbstractSliceCriterion.
+   Revision 1.5  2003/08/18 05:01:45  venku
+   - Committing package name change in source after they were moved.
+   Revision 1.4  2003/08/17 11:56:18  venku
+   - Renamed SliceCriterion to AbstractSliceCriterion.
      Formatting, documentation, and specification.
-     Revision 1.3  2003/05/22 22:23:49  venku
-     Changed interface names to start with a "I".
+   Revision 1.3  2003/05/22 22:23:49  venku
+   - Changed interface names to start with a "I".
      Formatting.
  */
