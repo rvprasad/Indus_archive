@@ -582,9 +582,9 @@ public class ThreadGraph
 			final String _tid = "T" + _count++;
 
 			if (_element.getMethod() == null) {
-				result.append(_tid + " -> " + _element.getExpr().getType());
+				result.append(_tid + " -> " + _element.getExpr().getType() + "\n");
 			} else {
-				result.append(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod());
+				result.append(_tid + " -> " + _element.getStmt() + "@" + _element.getMethod() + "\n");
 			}
 		}
 
@@ -691,6 +691,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/01/21 01:34:56  venku
+   - logging.
+
    Revision 1.23  2004/01/06 00:17:01  venku
    - Classes pertaining to workbag in package indus.graph were moved
      to indus.structures.
