@@ -189,7 +189,9 @@ public abstract class SootBasedDriver {
 	/**
 	 * Loads up the classes specified via <code>setClassNames()</code> and also collects the possible entry points into the
 	 * system being analyzed.  All <code>public static void main()</code> methods defined in <code>public</code> classes
-	 * that are named via <code>args</code>are considered as entry points.
+	 * that are named via <code>args</code>are considered as entry points.  It uses the classpath set via
+	 * <code>addToSootClassPath</code>. It uses <code>use-original-names:false</code>, <code>jb.ls enabled:false</code>, and
+	 * <code>jb.ulp enabled:false unsplit-original-locals:false</code> options for Soot class loading.
 	 *
 	 * @return a soot scene that provides the classes to be analyzed.
 	 *
@@ -197,6 +199,16 @@ public abstract class SootBasedDriver {
 	 */
 	protected final Scene loadupClassesAndCollectMains() {
 		Scene result = Scene.v();
+		String[] options = new String[8];
+		options[0] = "-p";
+		options[1] = "jb";
+		options[2] = "use-original-names:false";
+		options[3] = "jb.ls";
+		options[4] = "enabled:true";
+		options[5] = "jb.ulp";
+		options[6] = "enabled:false";
+		options[7] = "unsplit-original-locals:false";
+
 		String temp = result.getSootClassPath();
 
 		if (temp != null) {
@@ -302,6 +314,10 @@ public abstract class SootBasedDriver {
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2003/11/17 03:22:59  venku
+   - added junit test support for Slicing.
+   - refactored code in test for dependency to make it more
+     simple.
    Revision 1.8  2003/11/17 02:23:56  venku
    - documentation.
    - xmlizers require streams/writers to be provided to them
