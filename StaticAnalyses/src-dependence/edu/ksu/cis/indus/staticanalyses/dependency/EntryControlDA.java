@@ -40,7 +40,7 @@ import soot.SootMethod;
 
 
 /**
- * This class provides indirect intraprocedural backward control dependence information.
+ * This class provides direct intraprocedural backward control dependence information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -51,9 +51,9 @@ import soot.SootMethod;
  * @invariant dependee2dependent.oclIsKindOf(Map(SootMethod, Sequence(Set(Stmt))))
  * @invariant dependee2dependent.entrySet()->forall(o | o.getValue().size() = o.getKey().getActiveBody().getUnits().size())
  */
-public class EntryControlDA
+public final class EntryControlDA
   extends AbstractControlDA {
-	// TODO: Link to documentation describing direct entry-based intraprocedural control dependence needs to be added.
+	// TODO: Link to documentation describing entry-based intraprocedural control dependence needs to be added.
 
 	/*
 	 * The dependence information is stored as follows: For each method, a list of collection is maintained.  Each location in
@@ -61,19 +61,19 @@ public class EntryControlDA
 	 * statements to which the statement at the location of the collection is related via control dependence.
 	 */
 
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(EntryControlDA.class);
 
-	/**
+	/** 
 	 * This is a cache that contains the nodes with multiple children.
 	 *
 	 * @invariant nodesWithChildrenCache.oclIsKindOf(Collection(INode))
 	 */
 	protected Collection nodesWithChildrenCache;
 
-	/**
+	/** 
 	 * This is a cache that contains the nodes.
 	 *
 	 * @invariant nodesCache.oclIsKindOf(Collection(INode))
@@ -81,8 +81,7 @@ public class EntryControlDA
 	protected List nodesCache;
 
 	/**
-	 * {@inheritDoc}
-	 * This implementation will return <code>BACKWARD_DIRECTION</code>.
+	 * {@inheritDoc} This implementation will return <code>BACKWARD_DIRECTION</code>.
 	 */
 	public Object getDirection() {
 		return BACKWARD_DIRECTION;
@@ -105,7 +104,7 @@ public class EntryControlDA
 	 *
 	 * @pre methods != null and methods.oclIsKindOf(Collection(SootMethod)) and not method->includes(null)
 	 */
-	public final void analyze(final Collection methods) {
+	public void analyze(final Collection methods) {
 		unstable();
 
 		if (LOGGER.isInfoEnabled()) {
@@ -153,7 +152,7 @@ public class EntryControlDA
 	 * @pre bitsets != null and 0 &lt;= location &lt; bitsets.length
 	 * @post result != null
 	 */
-	protected final BitSet getBitSetAtLocation(final BitSet[] bitsets, final int location) {
+	protected BitSet getBitSetAtLocation(final BitSet[] bitsets, final int location) {
 		BitSet _temp = bitsets[location];
 
 		if (_temp == null) {
@@ -163,11 +162,17 @@ public class EntryControlDA
 		return _temp;
 	}
 
+	/*
+	 * In this class, the tokens corresponding to ancestors are blocked at control points. Only when a node accumulates all
+	 * tokens of a control point node, the tokens at the control point corresponding to the ancestor of the control point are
+	 * injected into the token set of the node.
+	 */
+
 	/**
-	 * Processes the given node.  Basically, it propagates the tokens to it's successors and returns the successors whose
-	 * token sets were modified.
+	 * Processes the given node.  Basically, it propagates the tokens to it's successor and returns the successor whose token
+	 * sets were modified.
 	 *
-	 * @param parentNode to be processed.
+	 * @param node to be processed.
 	 * @param tokenSets is the collection of token sets of the nodes in the graph.  The first subscript is the index of the
 	 * 		  dependent  basic block in the sequence of basic blocks.  The second subscript is the index of the control
 	 * 		  point  basic block in the sequence of basic blocks.  The bit set at these subscript indicate the number of
@@ -176,24 +181,34 @@ public class EntryControlDA
 	 *
 	 * @return the collection of nodes whose token sets were modified.
 	 *
-	 * @pre parentNodeode != null and tokenSets != null
+	 * @pre parentNod != null and tokenSets != null and 0 &lt;= parentNode.getSuccsOf().size() &lt;= 1
 	 * @post result != null and result.oclIsKindOf(Collection(INode))
 	 * @post parentNode.getSuccsOf().containsAll(result)
 	 */
-	protected Collection processNode(final INode parentNode, final BitSet[][] tokenSets) {
-		final Collection _result = new HashSet();
-		final int _parentIndex = nodesCache.indexOf(parentNode);
-		final Iterator _i = nodesWithChildrenCache.iterator();
-		final int _iEnd = nodesWithChildrenCache.size();
+	private Collection processNode(final INode node, final BitSet[][] tokenSets) {
+		final Collection _result;
+		accumulateTokensAtNode(node, tokenSets);
 
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final INode _ancestor = (INode) _i.next();
-			final int _ancIndex = nodesCache.indexOf(_ancestor);
-			final BitSet _parentsAncestorTokenSet = tokenSets[_parentIndex][_ancIndex];
+		if (!nodesWithChildrenCache.contains(node)) {
+			_result = processNodeWithOneOrLessChildren(node, tokenSets);
+		} else {
+			/*
+			 * Say B and C are control points, A is the control merge point of B, and A and B are dependent on C.
+			 * It is possible that node A accumulated all tokens from control point B when tokens from control point C had
+			 * not reached B.  In such cases, we need to find and add nodes such as A to the workbag for processing.
+			 */
+			_result = new HashSet();
 
-			if (_parentsAncestorTokenSet != null && _parentIndex != _ancIndex) {
-				_result.addAll(propagateTokensIntoNodes(_parentsAncestorTokenSet, parentNode.getSuccsOf(), _ancIndex,
-						tokenSets));
+			final int _iEnd = nodesCache.size();
+			final int _nodeIndex = nodesCache.indexOf(node);
+			final int _succsSize = node.getSuccsOf().size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final BitSet _bitSet = tokenSets[_iIndex][_nodeIndex];
+
+				if (_bitSet != null && _bitSet.cardinality() == _succsSize && _nodeIndex != _iIndex) {
+					_result.add(nodesCache.get(_iIndex));
+				}
 			}
 		}
 		return _result;
@@ -237,6 +252,31 @@ public class EntryControlDA
 			}
 		}
 		return _result;
+	}
+
+	/**
+	 * Accumulates the tokens of ancestor nodes for the purpose of direct CD calculation.  In this method,  the tokens at
+	 * ancestors of the control points which were dependees for the given node are injected into the token set of the given
+	 * node if the dependees are no longer dependees.
+	 *
+	 * @param node at which to accumulate tokens.
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.
+	 *
+	 * @pre node != null and tokenSets != null
+	 */
+	private void accumulateTokensAtNode(final INode node, final BitSet[][] tokenSets) {
+		final int _nodeIndex = nodesCache.indexOf(node);
+
+		for (int _ctrlPointNodeIndex = nodesCache.size() - 1; _ctrlPointNodeIndex >= 0; _ctrlPointNodeIndex--) {
+			final BitSet _nodesCtrlPointBitSet = tokenSets[_nodeIndex][_ctrlPointNodeIndex];
+			final INode _ctrlPointNode = (INode) nodesCache.get(_ctrlPointNodeIndex);
+
+			if (_nodesCtrlPointBitSet != null
+				  && _nodesCtrlPointBitSet.cardinality() == _ctrlPointNode.getSuccsOf().size()
+				  && _nodeIndex != _ctrlPointNodeIndex) {
+				copyAncestorBitSetsFromTo(_ctrlPointNodeIndex, _nodeIndex, tokenSets);
+			}
+		}
 	}
 
 	/**
@@ -307,6 +347,43 @@ public class EntryControlDA
 		}
 
 		return calculateCDFromTokenInfo(_tokenSets);
+	}
+
+	/**
+	 * Injects the tokens corresponding to the ancestors of the node at <code>src</code> into the token sets corresponding to
+	 * the same  ancestors at the node at <code>dest</code>.
+	 *
+	 * @param src is the index of the node whose ancestor's tokens need to be propagated.
+	 * @param dest is the index of the node into which the tokens will be propagated to.
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.
+	 *
+	 * @pre tokenSets != null
+	 * @pre 0 &lt;= src &lt; tokensSets.length
+	 * @pre 0 &lt;= dest &lt; tokensSets.length
+	 */
+	private void copyAncestorBitSetsFromTo(final int src, final int dest, final BitSet[][] tokenSets) {
+		final BitSet[] _srcBitSets = tokenSets[src];
+		final BitSet[] _destBitSets = tokenSets[dest];
+		final BitSet _temp = new BitSet();
+		final Iterator _i = nodesWithChildrenCache.iterator();
+		final int _iEnd = nodesWithChildrenCache.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final INode _ancestor = (INode) _i.next();
+			final int _ancestorIndex = nodesCache.indexOf(_ancestor);
+			final BitSet _srcsAncestorBitSet = _srcBitSets[_ancestorIndex];
+
+			if (_srcsAncestorBitSet != null) {
+				final BitSet _destAndAncestorBitSet = getBitSetAtLocation(_destBitSets, _ancestorIndex);
+				_temp.clear();
+				_temp.or(_srcsAncestorBitSet);
+				_temp.andNot(_destAndAncestorBitSet);
+
+				if (_temp.cardinality() > 0) {
+					_destAndAncestorBitSet.or(_srcsAncestorBitSet);
+				}
+			}
+		}
 	}
 
 	/**
@@ -408,6 +485,45 @@ public class EntryControlDA
 	}
 
 	/**
+	 * Processes the given node.  Basically, it propagates the tokens to it's successor and returns the successor whose token
+	 * sets were modified.
+	 *
+	 * @param node to be processed.
+	 * @param tokenSets is the collection of token sets of the nodes in the graph.  The first subscript is the index of the
+	 * 		  dependent  basic block in the sequence of basic blocks.  The second subscript is the index of the control
+	 * 		  point  basic block in the sequence of basic blocks.  The bit set at these subscript indicate the number of
+	 * 		  tokens (corresponding to the  successors of the control point) that have been accumulated at the dependent
+	 * 		  basic block.
+	 *
+	 * @return the collection of nodes whose token sets were modified.
+	 *
+	 * @pre node != null and tokenSets != null and 0 &lt;= node.getSuccsOf().size() &lt;= 1
+	 * @post result != null and result.oclIsKindOf(Collection(INode))
+	 * @post node.getSuccsOf().containsAll(result)
+	 */
+	private Collection processNodeWithOneOrLessChildren(final INode node, final BitSet[][] tokenSets) {
+		final Collection _result = new HashSet();
+		final int _nodeIndex = nodesCache.indexOf(node);
+		final Collection _succsOf = node.getSuccsOf();
+
+		if (!_succsOf.isEmpty()) {
+			final Iterator _i = nodesWithChildrenCache.iterator();
+			final int _iEnd = nodesWithChildrenCache.size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final INode _ancestor = (INode) _i.next();
+				final int _ancIndex = nodesCache.indexOf(_ancestor);
+				final BitSet _nodeAncestorTokenSet = tokenSets[_nodeIndex][_ancIndex];
+
+				if (_nodeAncestorTokenSet != null && _nodeIndex != _ancIndex) {
+					_result.addAll(propagateTokensIntoNodes(_nodeAncestorTokenSet, _succsOf, _ancIndex, tokenSets));
+				}
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * Propagates the tokens from <code>parentNodeTokenSet</code> into the token set corresponding to the node at
 	 * <code>nodeIndex</code> at the nodes in <code>succs</code>.
 	 *
@@ -461,15 +577,14 @@ public class EntryControlDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.33  2004/07/20 01:20:08  venku
+   - documentation.
    Revision 1.32  2004/07/11 11:50:17  venku
    - node caches need to nullified not clear.  FIXED.
-
    Revision 1.31  2004/07/11 11:26:55  venku
    - compilation error. Duh.
-
    Revision 1.30  2004/07/11 11:20:50  venku
    - refactored code to simplify control dependence implementation.
-
    Revision 1.29  2004/07/11 11:02:34  venku
    - logging.
    Revision 1.28  2004/07/11 09:42:13  venku

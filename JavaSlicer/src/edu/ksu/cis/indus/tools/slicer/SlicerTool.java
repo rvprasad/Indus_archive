@@ -327,7 +327,7 @@ public final class SlicerTool
 		safelockAnalysis = new SafeLockAnalysis();
 
 		// set up data required for dependency analyses.
-		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, bbgMgr);
+		aliasUD = new AliasedUseDefInfov2(ofa, callGraph, threadGraph, bbgMgr);
 		info.put(ICallGraphInfo.ID, callGraph);
 		info.put(IThreadGraphInfo.ID, threadGraph);
 		info.put(IEnvironment.ID, ofa.getEnvironment());
@@ -911,6 +911,9 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.104  2004/07/27 11:07:21  venku
+   - updated project to use safe lock analysis.
+
    Revision 1.103  2004/07/25 01:34:36  venku
    - if a throw was marked and not the exception value, then the code to create
      a value is injected independent of the fact that the thrown value is in the slice.

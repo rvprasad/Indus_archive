@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
+import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 
@@ -58,6 +59,11 @@ public class AliasedUseDefInfov2
 	protected final ICallGraphInfo cgi;
 
 	/** 
+	 * This provides the thread graph of the system.
+	 */
+	protected final IThreadGraphInfo tgi;
+
+	/** 
 	 * This is a cache of the collection of method invocation statements in methods.
 	 *
 	 * @invariant method2EnclosingInvokingStmtsCache.oclIsKindOf(Map(SootMethod, Collection(Stmt)))
@@ -70,11 +76,13 @@ public class AliasedUseDefInfov2
 	 *
 	 * @param cg is the call graph to use.
 	 *
-	 * @pre cg != null
+	 * @pre iva != null and cg != null tg != null and bbgManager != null
 	 */
-	public AliasedUseDefInfov2(final IValueAnalyzer iva, final ICallGraphInfo cg, final BasicBlockGraphMgr bbgManager) {
+	public AliasedUseDefInfov2(final IValueAnalyzer iva, final ICallGraphInfo cg, final IThreadGraphInfo tg,
+		final BasicBlockGraphMgr bbgManager) {
 		super(iva, bbgManager);
 		cgi = cg;
+		tgi = tg;
 	}
 
 	/**
@@ -95,22 +103,32 @@ public class AliasedUseDefInfov2
 	protected boolean isReachableViaInterProceduralFlow(final SootMethod defMethod, final Stmt defStmt,
 		final SootMethod useMethod, final Stmt useStmt) {
 		boolean _result;
-		_result = false;
 
-		final Collection _methodsInvokedAfterDef = cgi.getMethodsReachableFrom(defMethod, true);
+		if (tgi != null) {
+			_result = CollectionUtils.containsAny(tgi.getExecutionThreads(defMethod), tgi.getExecutionThreads(useMethod));
+		} else {
+			_result = false;
+		}
 
-		if (_methodsInvokedAfterDef.contains(useMethod)) {
+		/*
+		 * Check if the use method is reachable from the def method. If so, check the ordering within the def method.
+		 */
+		if (cgi.getMethodsReachableFrom(defMethod, true).contains(useMethod)) {
 			_result = doesControlFlowPathExistsBetween(defMethod, defStmt, useMethod, true);
 		}
 
-		final Collection _methodsInvokedBeforeUse = cgi.getMethodsReachableFrom(useMethod, true);
-
-		if (!_result && _methodsInvokedBeforeUse.contains(defMethod)) {
+		/*
+		 * Check if the def method is reachable from the use method. If so, check the ordering within the use method.
+		 */
+		if (!_result && cgi.getMethodsReachableFrom(useMethod, true).contains(defMethod)) {
 			_result = doesControlFlowPathExistsBetween(useMethod, useStmt, defMethod, false);
 		}
 
+		/*
+		 * Check if the control can reach from the def method to the use method across common call-graph ancestor.
+		 */
 		if (!_result) {
-			_result = doesControlPathExistsFromTo(defMethod, useMethod, _methodsInvokedAfterDef, _methodsInvokedBeforeUse);
+			_result = doesControlPathExistsFromTo(defMethod, useMethod);
 		}
 		return _result;
 	}
@@ -201,19 +219,16 @@ public class AliasedUseDefInfov2
 	 *
 	 * @param defMethod is the def-site containing method.
 	 * @param useMethod is the use-site containing method.
-	 * @param methodsInvokedAfterDef is a collection of methods invoked after the defining method exits.
-	 * @param methodsInvokedBeforeUse is a collection of methods invoked before the using method is entered.
 	 *
 	 * @return <code>true</code> if there is a control path; <code>false</code>, otherwise.
 	 *
-	 * @pre defMethod != null and useMethod != null and methodsInvokedAfterDef != null and methodsInvokedBeforeUse != null
-	 * @pre methodsInvokedAfterDef.oclIsKindOf(Collection(SootMethod))
-	 * @pre methodsInvokedAfterUse.oclIsKindOf(Collection(SootMethod))
+	 * @pre defMethod != null and useMethod != null
 	 */
-	private boolean doesControlPathExistsFromTo(final SootMethod defMethod, final SootMethod useMethod,
-		final Collection methodsInvokedAfterDef, final Collection methodsInvokedBeforeUse) {
+	private boolean doesControlPathExistsFromTo(final SootMethod defMethod, final SootMethod useMethod) {
 		boolean _result = false;
-		final Collection _commonAncestors = CollectionUtils.intersection(methodsInvokedBeforeUse, methodsInvokedAfterDef);
+		final Collection _commonAncestors =
+			CollectionUtils.intersection(cgi.getMethodsReachableFrom(defMethod, false),
+				cgi.getMethodsReachableFrom(useMethod, false));
 
 		for (final Iterator _i = _commonAncestors.iterator(); _i.hasNext() && !_result;) {
 			final SootMethod _sm = (SootMethod) _i.next();
@@ -235,4 +250,7 @@ public class AliasedUseDefInfov2
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/07/16 06:38:47  venku
+   - added  a more precise implementation of aliased use-def information.
+   - ripple effect.
  */

@@ -146,13 +146,12 @@ public class DependencyXMLizerCLI
 		final DivergenceDA _ipdda = new DivergenceDA();
 		_ipdda.setConsiderCallSites(true);
 
-		final EntryControlDA _incda = new EntryControlDA();
-		final DirectEntryControlDA _dncda = new DirectEntryControlDA();
+		final EntryControlDA _ncda = new EntryControlDA();
 		final Object[][] _dasOptions =
 			{
 				{ "ibdda1", "Identifier based data dependence (Soot)", new IdentifierBasedDataDA() },
 				{ "rbdda", "Reference based data dependence", new ReferenceBasedDataDA() },
-				{ "dncda", "Direct Entry control dependence", _dncda },
+				{ "ncda", "Entry control dependence", _ncda },
 				{ "xcda", "Exit control dependence", new ExitControlDA() },
 				{ "sda", "Synchronization dependence", new SynchronizationDA() },
 				{ "rda1", "Ready dependence v1", new ReadyDAv1() },
@@ -162,7 +161,6 @@ public class DependencyXMLizerCLI
 				{ "ida2", "Interference dependence v2", new InterferenceDAv2() },
 				{ "ida3", "Interference dependence v3", new InterferenceDAv3() },
 				{ "dda", "Divergence dependence", new DivergenceDA() },
-				{ "incda", "Indirect Entry control dependence", _incda },
 				{ "ibdda2", "Identifier based data dependence (Indus)", new IdentifierBasedDataDAv2() },
 				{ "ibdda3", "Identifier based data dependence (Indus Optimized)", new IdentifierBasedDataDAv3() },
 				{ "ipdda", "Interprocedural Divergence dependence", _ipdda },
@@ -228,9 +226,9 @@ public class DependencyXMLizerCLI
 			}
 			_cli.setClassNames(_classNames);
 
-			if (_cl.hasOption(_dasOptions[2][0].toString())) {
-				_cli.das.add(_incda);
-				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _incda.getId(), _incda,
+			if (_cl.hasOption(_dasOptions[3][0].toString())) {
+				_cli.das.add(_ncda);
+				CollectionsUtilities.putIntoCollectionInMap(_cli.info, _ncda.getId(), _ncda,
 					CollectionsUtilities.HASH_SET_FACTORY);
 			}
 
@@ -301,7 +299,7 @@ public class DependencyXMLizerCLI
 		if (useAliasedUseDefv1) {
 			_aliasUD = new AliasedUseDefInfo(aa, bbm);
 		} else {
-			_aliasUD = new AliasedUseDefInfov2(aa, _cgi, bbm);
+			_aliasUD = new AliasedUseDefInfov2(aa, _cgi, _tgi, bbm);
 		}
 		info.put(ICallGraphInfo.ID, _cgi);
 		info.put(IThreadGraphInfo.ID, _tgi);
@@ -395,6 +393,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/07/27 11:38:31  venku
+   - tweaked command line options.
+
    Revision 1.36  2004/07/27 11:31:32  venku
    - tweaked command line options.
 
@@ -665,6 +666,9 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.37  2004/07/27 11:38:31  venku
+   - tweaked command line options.
+
    Revision 1.36  2004/07/27 11:31:32  venku
    - tweaked command line options.
 

@@ -124,7 +124,7 @@ public class DependencyAnalysisTestSetup
 		tgiImpl.hookup(_pc);
 		_pc.process();
 		tgiImpl.unhook(_pc);
-		aliasUD = new AliasedUseDefInfov2(valueAnalyzer, cgiImpl, bbgMgr);
+		aliasUD = new AliasedUseDefInfov2(valueAnalyzer, cgiImpl, tgiImpl, bbgMgr);
 		ecba = new EquivalenceClassBasedEscapeAnalysis(cgiImpl, tgiImpl, bbgMgr);
 		monitorInfo = new MonitorAnalysis();
 
@@ -209,6 +209,15 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.21  2004/07/23 13:09:45  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
+
    Revision 1.20  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
