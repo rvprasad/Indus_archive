@@ -11,13 +11,13 @@ Required software:
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
     JiBX: Binding XML to Java Code (bleeding edge)
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
-    Polyglot 1.0.1	
+    Polyglot 1.1.0	
         (polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]
-    Soot: a Java Optimization Framework (bleeding edge)
+    Soot: a Java Optimization Framework (2.1.0 or bleeding edge)
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
     SWT (3.0 >= M7)
         (swt.jar) [http://www.eclipse.org]
-    xmlenc	(0.41)
+    xmlenc (0.41)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)	
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
