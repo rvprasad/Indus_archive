@@ -245,7 +245,7 @@ public final class OFAXMLizer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.xmlizer.AbstractXMLizer#getFileName(java.lang.String)
+	 * @see edu.ksu.cis.indus.xmlizer.IXMLizer#getFileName(java.lang.String)
 	 */
 	public String getFileName(final String name) {
 		return "ofa_" + xmlizeString(name) + ".xml";
@@ -290,6 +290,12 @@ public final class OFAXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2004/05/13 03:12:33  venku
+   - CustomXMLOutputter defaults to UTF-8 encoding.
+   - Added a new method to AbstractXMLizer to encode strings.
+   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
+   - ripple effect.
+
    Revision 1.13  2004/05/13 01:14:21  venku
    - added declaration and dtd content to all xml documents.
    - removed redundant value element, the child of string constant.

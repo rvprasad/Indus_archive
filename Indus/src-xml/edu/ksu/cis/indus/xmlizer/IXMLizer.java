@@ -27,13 +27,13 @@ import java.util.Map;
  */
 public interface IXMLizer {
 	/**
-	 * Retrieves the name of the file that contains the test data.  The default implementation constructs a name from the
-	 * xmlizer.
+	 * Retrieves the a name based on the given name for the file into which the xml data will be written into.
 	 *
-	 * @param basename is the name upon which the file nam will be based upon.
+	 * @param name to be considered when coming up with the file name.
 	 *
 	 * @return the name of the file.
 	 *
+	 * @pre name != null
 	 * @post result != null
 	 */
 	String getFileName(final String basename);
@@ -85,6 +85,10 @@ public interface IXMLizer {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/05/13 03:30:03  venku
+   - coding convention.
+   - documentation.
+   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
    Revision 1.5  2004/04/22 23:02:49  venku
    - moved writeXML into IXMLizer.
    Revision 1.4  2004/02/09 02:00:11  venku

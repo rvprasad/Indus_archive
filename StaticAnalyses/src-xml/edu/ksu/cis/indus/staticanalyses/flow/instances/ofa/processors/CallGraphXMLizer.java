@@ -56,7 +56,7 @@ final class CallGraphXMLizer
 	private static final Log LOGGER = LogFactory.getLog(CallGraphXMLizer.class);
 
 	/**
-	 * @see AbstractXMLizer#getFileName(String)
+	 * @see IXMLizer#getFileName(String)
 	 */
 	public String getFileName(final String name) {
 		return "callgraph_" + xmlizeString(name) + ".xml";
@@ -135,6 +135,12 @@ final class CallGraphXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/05/13 03:12:33  venku
+   - CustomXMLOutputter defaults to UTF-8 encoding.
+   - Added a new method to AbstractXMLizer to encode strings.
+   - Strings are encoded before writing them as CDATA in JimpleValueXMLizer.
+   - ripple effect.
+
    Revision 1.17  2004/05/13 01:14:20  venku
    - added declaration and dtd content to all xml documents.
    - removed redundant value element, the child of string constant.

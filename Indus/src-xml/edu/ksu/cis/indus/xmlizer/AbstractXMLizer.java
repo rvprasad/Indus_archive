@@ -121,18 +121,6 @@ public abstract class AbstractXMLizer
 	}
 
 	/**
-	 * Retrieves the a name based on the given name for the file into which the xml data will be written into.
-	 *
-	 * @param name to be considered when coming up with the file name.
-	 *
-	 * @return the name of the file.
-	 *
-	 * @pre name != null
-	 * @post result != null
-	 */
-	public abstract String getFileName(final String name);
-
-	/**
 	 * Dumps the jimple into a file.
 	 *
 	 * @param name is the basis of the name of the files into which jimple should be dumped.
@@ -288,6 +276,11 @@ search:
 /*
    ChangeLog:
    $Log$
+   Revision 1.24  2004/05/13 03:30:03  venku
+   - coding convention.
+   - documentation.
+   - refactoring: added a new method getFileName() to IXMLizer instead of AbstractXMLizer.
+
    Revision 1.23  2004/05/13 03:12:33  venku
    - CustomXMLOutputter defaults to UTF-8 encoding.
    - Added a new method to AbstractXMLizer to encode strings.
