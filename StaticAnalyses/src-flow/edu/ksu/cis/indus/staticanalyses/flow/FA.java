@@ -329,6 +329,31 @@ public class FA
 	}
 
 	/**
+	 * Performs type-based processing of the given class.
+	 *
+	 * @param clazz is the class to be processed.
+	 *
+	 * @pre clazz != null
+	 */
+	public void processClass(final SootClass clazz) {
+		classManager.process(clazz);
+	}
+
+	/**
+	 * Resets the framework.  The framework forgets all information allowing for a new session of analysis to executed.
+	 */
+	public void reset() {
+		arrayVariantManager.reset();
+		instanceFieldVariantManager.reset();
+		methodVariantManager.reset();
+		staticFieldVariantManager.reset();
+		worklist.clear();
+		rootMethods.clear();
+		classManager.reset();
+		scm = null;
+	}
+
+	/**
 	 * Returns the variant associated with the given array type in the context captured by <code>analyzer</code>.
 	 *
 	 * @param a the array type whose variant is to be returned.
@@ -425,20 +450,6 @@ public class FA
 	}
 
 	/**
-	 * Resets the framework.  The framework forgets all information allowing for a new session of analysis to executed.
-	 */
-	public void reset() {
-		arrayVariantManager.reset();
-		instanceFieldVariantManager.reset();
-		methodVariantManager.reset();
-		staticFieldVariantManager.reset();
-		worklist.clear();
-		rootMethods.clear();
-        classManager.reset();
-		scm = null;
-	}
-
-	/**
 	 * Sets the mode factory on this framework instance.
 	 *
 	 * @param mf is the factory object which provides the objects that dictate the mode of analysis.
@@ -487,17 +498,6 @@ public class FA
 	}
 
 	/**
-	 * Performs type-based processing of the given class.
-	 *
-	 * @param clazz is the class to be processed.
-	 *
-	 * @pre clazz != null
-	 */
-	void processClass(final SootClass clazz) {
-		classManager.process(clazz);
-	}
-
-	/**
 	 * Performs type-based processing.
 	 *
 	 * @param type to be processed.
@@ -516,13 +516,13 @@ public class FA
 /*
    ChangeLog:
    $Log$
+   Revision 1.14  2003/12/05 15:29:44  venku
+   - class manager was not being reset.  FIXED.
    Revision 1.13  2003/12/05 00:53:09  venku
    - removed unused method and restricted access to certain methods.
-
    Revision 1.12  2003/12/02 09:42:35  venku
    - well well well. coding convention and formatting changed
      as a result of embracing checkstyle 3.2
-
    Revision 1.11  2003/11/30 01:39:34  venku
    - changed access level of getTag.
    Revision 1.10  2003/11/30 01:09:42  venku
