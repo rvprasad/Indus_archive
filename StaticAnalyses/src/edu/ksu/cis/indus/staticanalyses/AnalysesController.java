@@ -73,13 +73,6 @@ public abstract class AbstractAnalysesController
 	private static final Log LOGGER = LogFactory.getLog(AbstractAnalysesController.class);
 
 	/**
-	 * The collection of names used to identify various analyses.  This is just a collection of the above defined constants.
-	 *
-	 * @invariant participatingAnalysesIDs != null
-	 */
-//	protected Collection participatingAnalysesIDs;
-
-	/**
 	 * The collection of analysis which want to preprocess the system.
 	 *
 	 * @invariant preprocessors != null
@@ -142,8 +135,6 @@ public abstract class AbstractAnalysesController
 	 *
 	 * @param id of the analysis.
 	 * @param analysis is the implementation of the named analysis.
-	 *
-	 * @throws IllegalArgumentException when <code>name</code> is not one of the <code>XXXX_DA</code> defined in this class.
 	 *
 	 * @pre id != null and analysis != null
 	 */
@@ -273,6 +264,10 @@ public abstract class AbstractAnalysesController
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2003/08/25 08:39:58  venku
+   Well, it does not make sense to specify a set of IDs and expect only
+   analyses of these IDs to be controlled.  This is more like application
+   logic than framework logic.
    Revision 1.12  2003/08/25 08:06:39  venku
    Renamed participatingAnalysesNames to participatingAnalysesIDs.
    AbstractAnalysesController now has a method to extract the above field.
