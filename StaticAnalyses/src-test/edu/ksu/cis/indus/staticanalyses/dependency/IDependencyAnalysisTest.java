@@ -15,24 +15,35 @@
 
 package edu.ksu.cis.indus.staticanalyses.dependency;
 
+import edu.ksu.cis.indus.interfaces.IEnvironment;
+
+
 /**
- * DOCUMENT ME!
- * <p></p>
- * 
- * @version $Revision$ 
+ * This is the interface of unit tests that test instances of dependency analysis.
+ *
  * @author <a href="$user_web$">$user_name$</a>
  * @author $Author$
+ * @version $Revision$
  */
 public interface IDependencyAnalysisTest {
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the analysis instance being tested.
 	 *
-	 * @return
+	 * @return the instance of the analysis.
 	 */
 	DependencyAnalysis getDA();
+
+	/**
+	 * Retrieves the environment which the analysis analyzed.
+	 *
+	 * @param environment that was analyzed.
+	 */
+	void setEnvironment(IEnvironment environment);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/09 19:10:40  venku
+   - preliminary commit of test setup for dependency analyses.
  */

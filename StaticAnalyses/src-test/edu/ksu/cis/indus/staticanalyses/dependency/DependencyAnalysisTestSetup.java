@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.CollectionsModifier;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
@@ -51,9 +52,10 @@ import junit.framework.TestSuite;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is the setup in which various tests of flow analyses are run.  The classes to be processed during the test can be
+ * configured via the command line or via specifying
+ * <code>DepedencyAnalysisRegressionTestSuite.DEPENDENCYANALYSIS_TEST_PROPERTIES_FILE</code> system property. The syntax for
+ * both these options is a space separated list of class names.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -62,52 +64,44 @@ import junit.framework.TestSuite;
 public class DependencyAnalysisTestSetup
   extends ValueAnalysisTestSetup {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The instance of aliased use-def info to use.
 	 */
 	private AliasedUseDefInfo aliasUD;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The instance of basic block graph manager to use.
 	 */
 	private BasicBlockGraphMgr bbgMgr;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The instance of equivalence class based escape analysis to use.
 	 */
 	private EquivalenceClassBasedEscapeAnalysis ecba;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * A map used to communicate arguments to various analyses.
 	 */
 	private Map info;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The thread graph to be used.
 	 */
 	private ThreadGraph tgiImpl;
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates a new DependencyAnalysisTestSetup object.
 	 *
-	 * @param test
-	 * @param theNameOfClasses
-	 * @param classpath
+	 * @param test is the test to run in this setup.
+	 * @param theNameOfClasses is the list of classes.
+	 * @param classpath to be used to find the classes.
+	 * @param cfgFactory to be used to process method bodies.
+	 *
+	 * @pre test != null and theNameOfClasses != null and cfgFactory != null
 	 */
-	protected DependencyAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath) {
+	protected DependencyAnalysisTestSetup(final TestSuite test, final String theNameOfClasses, final String classpath,
+		final IStmtGraphFactory cfgFactory) {
 		super(test, theNameOfClasses, classpath);
-		setStmtGraphFactory(new ExceptionFlowSensitiveStmtGraphFactory(
-				ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
-				true));
+		setStmtGraphFactory(cfgFactory);
 	}
 
 	/**
@@ -124,6 +118,7 @@ public class DependencyAnalysisTestSetup
 		_pc.setAnalyzer(valueAnalyzer);
 		_pc.setEnvironment(valueAnalyzer.getEnvironment());
 		_pc.setProcessingFilter(new TagBasedProcessingFilter(FATestSetup.TAG_NAME));
+		_pc.setStmtGraphFactory(getStmtGraphFactory());
 		tgiImpl = new ThreadGraph(cgiImpl, new CFGAnalysis(cgiImpl, bbgMgr));
 		tgiImpl.hookup(_pc);
 		_pc.process();
@@ -149,7 +144,15 @@ public class DependencyAnalysisTestSetup
 				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), IDependencyAnalysisTest.class).iterator();
 			  _i.hasNext();) {
 			final IDependencyAnalysisTest _test = (IDependencyAnalysisTest) _i.next();
+			_test.setEnvironment(valueAnalyzer.getEnvironment());
 			_das.add(_test.getDA());
+		}
+
+		for (final Iterator _i =
+				TestHelper.getTestCasesReachableFromSuite((TestSuite) getTest(), XMLBasedDependencyAnalysisTest.class)
+							.iterator(); _i.hasNext();) {
+			final XMLBasedDependencyAnalysisTest _test = (XMLBasedDependencyAnalysisTest) _i.next();
+			_test.setCallGraph(cgiImpl);
 		}
 
 		// drive the analysis.
@@ -184,8 +187,10 @@ public class DependencyAnalysisTestSetup
 	/**
 	 * Sets up the dependence analyses to be driven.
 	 *
-	 * @param cgipc DOCUMENT ME!
-	 * @param das DOCUMENT ME!
+	 * @param cgipc is the controller to be used to setup analyses.
+	 * @param das is the collection of analyses.
+	 *
+	 * @pre cgipc != null and das != null
 	 */
 	private void setupDependencyAnalyses(final ProcessingController cgipc, final Collection das) {
 		final Collection _failed = new ArrayList();
@@ -228,6 +233,14 @@ public class DependencyAnalysisTestSetup
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/03/29 01:55:03  venku
+   - refactoring.
+     - history sensitive work list processing is a common pattern.  This
+       has been captured in HistoryAwareXXXXWorkBag classes.
+   - We rely on views of CFGs to process the body of the method.  Hence, it is
+     required to use a particular view CFG consistently.  This requirement resulted
+     in a large change.
+   - ripple effect of the above changes.
    Revision 1.2  2004/03/26 00:26:40  venku
    - ripple effect of refactoring soot package in Indus.
    Revision 1.1  2004/03/09 19:10:40  venku

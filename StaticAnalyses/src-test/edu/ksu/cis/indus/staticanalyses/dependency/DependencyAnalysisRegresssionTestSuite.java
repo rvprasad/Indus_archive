@@ -40,9 +40,7 @@ import junit.swingui.TestRunner;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is the test suite used to run dependency analyses related tests using JUnit's swing interface to the runner.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -50,7 +48,7 @@ import junit.swingui.TestRunner;
  */
 public class DependencyAnalysisRegresssionTestSuite {
 	/**
-	 * This is the property via which the ofa test accepts input.  Refer to ValueAnalysisTest.properties for format.
+	 * This is the property via which the ofa test accepts input.  Refer to DepedencyAnalysisTest.properties for format.
 	 */
 	public static final String DEPENDENCY_ANALYSIS_TEST_PROPERTIES_FILE =
 		"indus.staticanalyses.dependency.DependencyAnalysisTest.properties.file";
@@ -58,11 +56,9 @@ public class DependencyAnalysisRegresssionTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This is the entry point via command-line.
 	 *
-	 * @param args DOCUMENT ME!
+	 * @param args are ignored.
 	 */
 	public static void main(String[] args) {
 		final TestRunner _runner = new TestRunner();
@@ -155,11 +151,15 @@ public class DependencyAnalysisRegresssionTestSuite {
 						_ignoreDARegex = "^$";
 					}
 
+					final DependencyXMLizer _xmlizer = new DependencyXMLizer();
+
 					for (final Iterator _j = _das.iterator(); _j.hasNext();) {
 						final Object _da = _j.next();
 
 						if (!Pattern.matches(_ignoreDARegex, _da.getClass().getName())) {
-							_temp.addTest(new XMLBasedDependencyAnalysisTest((DependencyAnalysis) _da));
+							final XMLBasedDependencyAnalysisTest _test =
+								new XMLBasedDependencyAnalysisTest((DependencyAnalysis) _da, _xmlizer);
+							_temp.addTest(_test);
 						}
 					}
 					_temp.addTestSuite(XMLBasedCallGraphTest.class);
@@ -185,4 +185,7 @@ public class DependencyAnalysisRegresssionTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/03/09 18:40:03  venku
+   - refactoring.
+   - moved methods common to XMLBased Test into AbstractXMLBasedTest.
  */
