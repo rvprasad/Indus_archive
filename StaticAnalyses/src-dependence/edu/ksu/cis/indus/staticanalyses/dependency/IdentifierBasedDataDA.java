@@ -100,7 +100,7 @@ public class NonAliasedDataDA
 	 * @pre stmtValueBoxPair.oclTypeOf(Pair).getFirst() != null
 	 * @pre stmtValueBoxPair.oclTypeOf(Pair).getSecond() != null
 	 * @pre method.oclIsTypeOf(SootMethod)
-	 * @post result->forall(o | o.isOclKindOf(Stmt))
+	 * @post result->forall(o | o.isOclKindOf(DefinitionStmt))
 	 */
 	public Collection getDependees(final Object stmtValueBoxPair, final Object method) {
 		Pair pair = (Pair) stmtValueBoxPair;
@@ -232,6 +232,9 @@ public class NonAliasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
+
    Revision 1.2  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.1  2003/08/09 23:29:09  venku
