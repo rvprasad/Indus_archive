@@ -35,7 +35,9 @@ Version 0.5
 -----------
 	- Added support to specify scopes that can be used during program analysis and transformation.
 	- Added support to collect simple size metrics.
-	- Added support to create calling context, manage ID-based info.
+	- Added support to create and provide calling contexts
+	- Added support to manage infomation based on IDs of implementation.
+	- Refactored the mechanism to configure property-based application-level constants.
 	- Extended use-def info interface to handle static fields.
 	? Requires jars from Bandera to use Bandera related tools.
 

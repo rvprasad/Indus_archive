@@ -28,12 +28,16 @@ Required software:
 
 Version 0.5
 ------------
+	- Added support to dynamically update relation between types and tokens in the token management framework.
+	- Incorporated SCC-based optimizations into flow analysis framework.
+	- Optimized certain graph algorithms.
 	- Enabled side-effect analysis. 
-	- Support for detecting atomic regions.
+	- Implemented a trivial atomicity analysis.  This supports detection of atomic regions and "independent"/atomic statements.
 	- Support for tracking thread "escape" information across method boundaries.
 	- Fixed bugs in Reference-based DA and OFAXMLizer.
-	- Added analysis to calculate static field based use-def info.
+	- Added analysis to calculate static field-based use-def info.
 	- Added support to generate thread-locality based calling context.
+	- Code refactoring.
 
 Version 0.4
 ------------
