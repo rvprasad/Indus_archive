@@ -328,14 +328,11 @@ public class ExprSwitch
 	 */
 	public void caseStaticFieldRef(final StaticFieldRef e) {
 		SootField field = e.getField();
-		Type t = field.getType();
 
-		if (OFAnalyzer.isReferenceType(t)) {
-			IFGNode ast = method.getASTNode(e);
-			IFGNode nonast = fa.getFieldVariant(field).getFGNode();
-			connector.connect(ast, nonast);
-			setResult(ast);
-		}
+		IFGNode ast = method.getASTNode(e);
+		IFGNode nonast = fa.getFieldVariant(field).getFGNode();
+		connector.connect(ast, nonast);
+		setResult(ast);
 	}
 
 	/**
@@ -472,6 +469,12 @@ public class ExprSwitch
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/26 17:53:55  venku
+   Actually we can use the types to cut down the number of edges
+   between the flow nodes. The current fix uses a method in OFAnalyzer
+   to check for reference types, only if the type matches the given expression
+   is processed.  However, this does not apply for staticfield, instancefield, and
+   array access expressions.
    Revision 1.4  2003/08/20 18:14:38  venku
    Log4j was used instead of logging.  That is fixed.
    Revision 1.3  2003/08/17 10:48:34  venku
