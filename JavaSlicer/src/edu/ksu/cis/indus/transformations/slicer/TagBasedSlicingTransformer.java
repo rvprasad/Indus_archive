@@ -269,30 +269,16 @@ public class TagBasedSlicingTransformer
 	 * @see edu.ksu.cis.indus.transformations.common.ITransformer#transform(soot.jimple.Stmt, soot.SootMethod)
 	 */
 	public void transform(final Stmt stmt, final SootMethod method) {
-		Collection temp = stmt.getUseAndDefBoxes();
-		boolean flag = false;
-
-		for (Iterator i = temp.iterator(); i.hasNext();) {
-			ValueBox vb = (ValueBox) i.next();
-
-			if (vb.getTag(tagName) == null) {
-				vb.addTag(tag);
-				flag = true;
-			}
-		}
-
-		if (flag) {
-			if (stmt.getTag(tagName) == null) {
-				stmt.addTag(tag);
-			}
+		if (stmt.getTag(tagName) == null) {
+			stmt.addTag(tag);
 
 			if (method.getTag(tagName) == null) {
 				method.addTag(tag);
 			}
-		}
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Tagged statement: " + stmt + " | " + method.getSignature());
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Tagged statement: " + stmt + "[" + stmt.hashCode() + "] | " + method.getSignature());
+			}
 		}
 	}
 
@@ -305,15 +291,16 @@ public class TagBasedSlicingTransformer
 
 			if (stmt.getTag(tagName) == null) {
 				stmt.addTag(tag);
+
+				if (method.getTag(tagName) == null) {
+					method.addTag(tag);
+				}
 			}
 
-			if (method.getTag(tagName) == null) {
-				method.addTag(tag);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Tagged value: " + vBox.getValue() + " | " + stmt + "[" + stmt.hashCode() + "] | "
+					+ method.getSignature());
 			}
-		}
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Tagged value: " + vBox.getValue() + " | " + stmt + " | " + method.getSignature());
 		}
 	}
 }
@@ -321,6 +308,10 @@ public class TagBasedSlicingTransformer
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/03 08:02:31  venku
+   - ripple effect of changes to ITransformer.
+   - added logging.
+   - optimization.
    Revision 1.10  2003/10/21 06:00:19  venku
    - Split slicing type into 2 sets:
         b/w, f/w, and complete
