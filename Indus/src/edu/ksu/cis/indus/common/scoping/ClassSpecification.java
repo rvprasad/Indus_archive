@@ -32,7 +32,7 @@ import soot.SootClass;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class ClassSpecification
+public final class ClassSpecification
   extends AbstractSpecification {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -71,18 +71,11 @@ final class ClassSpecification
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		return new ToStringBuilder(this).appendSuper(super.toString()).append("typeSpec", this.typeSpec).toString();
-	}
-
-	/**
 	 * Sets the value of <code>typeSpec</code>.
 	 *
 	 * @param theTypeSpec the new value of <code>typeSpec</code>.
 	 */
-	void setTypeSpec(final TypeSpecification theTypeSpec) {
+	public void setTypeSpec(final TypeSpecification theTypeSpec) {
 		typeSpec = theTypeSpec;
 	}
 
@@ -91,8 +84,15 @@ final class ClassSpecification
 	 *
 	 * @return the value in <code>typeSpec</code>.
 	 */
-	TypeSpecification getTypeSpec() {
+	public TypeSpecification getTypeSpec() {
 		return typeSpec;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("typeSpec", this.typeSpec).toString();
 	}
 }
 

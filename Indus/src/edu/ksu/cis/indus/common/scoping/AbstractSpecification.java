@@ -42,6 +42,33 @@ abstract class AbstractSpecification {
 	private boolean inclusion = true;
 
 	/**
+	 * Sets the value of <code>inclusion</code>.
+	 *
+	 * @param value the new value of <code>inclusion</code>.
+	 */
+	public final void setInclusion(final boolean value) {
+		this.inclusion = value;
+	}
+
+	/**
+	 * Sets the value of <code>name</code>.
+	 *
+	 * @param nameOfTheSpec the new value of <code>name</code>.
+	 */
+	public final void setName(final String nameOfTheSpec) {
+		this.name = nameOfTheSpec;
+	}
+
+	/**
+	 * Retrieves the value in <code>name</code>.
+	 *
+	 * @return the value in <code>name</code>.
+	 */
+	public final String getName() {
+		return name;
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -61,39 +88,12 @@ abstract class AbstractSpecification {
 	}
 
 	/**
-	 * Sets the value of <code>inclusion</code>.
-	 *
-	 * @param value the new value of <code>inclusion</code>.
-	 */
-	void setInclusion(final boolean value) {
-		this.inclusion = value;
-	}
-
-	/**
 	 * Retrieves the value in <code>inclusion</code>.
 	 *
 	 * @return the value in <code>inclusion</code>.
 	 */
 	boolean isInclusion() {
 		return inclusion;
-	}
-
-	/**
-	 * Sets the value of <code>name</code>.
-	 *
-	 * @param nameOfTheSpec the new value of <code>name</code>.
-	 */
-	final void setName(final String nameOfTheSpec) {
-		this.name = nameOfTheSpec;
-	}
-
-	/**
-	 * Retrieves the value in <code>name</code>.
-	 *
-	 * @return the value in <code>name</code>.
-	 */
-	final String getName() {
-		return name;
 	}
 }
 

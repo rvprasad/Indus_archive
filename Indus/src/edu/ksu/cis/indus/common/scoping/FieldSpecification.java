@@ -34,7 +34,7 @@ import soot.SootField;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class FieldSpecification
+public final class FieldSpecification
   extends AbstractSpecification {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -55,6 +55,66 @@ final class FieldSpecification
 	 * This is the specification of the type of the field.
 	 */
 	private TypeSpecification fieldTypeSpec;
+
+	/**
+	 * Sets the specification of the class that declares the field.
+	 *
+	 * @param spec the specification.
+	 *
+	 * @pre spec != null
+	 */
+	public void setDeclaringClassSpec(final TypeSpecification spec) {
+		declaringClassSpec = spec;
+	}
+
+	/**
+	 * Retrieves the specification of the class that declares the field.
+	 *
+	 * @return the specification.
+	 */
+	public TypeSpecification getDeclaringClassSpec() {
+		return declaringClassSpec;
+	}
+
+	/**
+	 * Sets the specification of the field's name.
+	 *
+	 * @param spec is a regular expression.
+	 *
+	 * @pre spec != null
+	 */
+	public void setFieldNameSpec(final String spec) {
+		namePattern = Pattern.compile(spec);
+	}
+
+	/**
+	 * Retrieves the specification of the field's name.
+	 *
+	 * @return the specification.
+	 */
+	public String getFieldNameSpec() {
+		return namePattern.pattern();
+	}
+
+	/**
+	 * Sets the specification of the type of the field.
+	 *
+	 * @param spec the specification.
+	 *
+	 * @pre spec != null
+	 */
+	public void setFieldTypeSpec(final TypeSpecification spec) {
+		fieldTypeSpec = spec;
+	}
+
+	/**
+	 * Retrieves the specification of the type of the field.
+	 *
+	 * @return the specification.
+	 */
+	public TypeSpecification getFieldTypeSpec() {
+		return fieldTypeSpec;
+	}
 
 	/**
 	 * Checks if the given field is in the scope of this specification in the given environment.
@@ -91,66 +151,6 @@ final class FieldSpecification
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
 										  .append("fieldTypeSpec", this.fieldTypeSpec)
 										  .append("declaringClassSpec", this.declaringClassSpec).toString();
-	}
-
-	/**
-	 * Sets the specification of the class that declares the field.
-	 *
-	 * @param spec the specification.
-	 *
-	 * @pre spec != null
-	 */
-	void setDeclaringClassSpec(final TypeSpecification spec) {
-		declaringClassSpec = spec;
-	}
-
-	/**
-	 * Retrieves the specification of the class that declares the field.
-	 *
-	 * @return the specification.
-	 */
-	TypeSpecification getDeclaringClassSpec() {
-		return declaringClassSpec;
-	}
-
-	/**
-	 * Sets the specification of the field's name.
-	 *
-	 * @param spec is a regular expression.
-	 *
-	 * @pre spec != null
-	 */
-	void setFieldNameSpec(final String spec) {
-		namePattern = Pattern.compile(spec);
-	}
-
-	/**
-	 * Retrieves the specification of the field's name.
-	 *
-	 * @return the specification.
-	 */
-	String getFieldNameSpec() {
-		return namePattern.pattern();
-	}
-
-	/**
-	 * Sets the specification of the type of the field.
-	 *
-	 * @param spec the specification.
-	 *
-	 * @pre spec != null
-	 */
-	void setFieldTypeSpec(final TypeSpecification spec) {
-		fieldTypeSpec = spec;
-	}
-
-	/**
-	 * Retrieves the specification of the type of the field.
-	 *
-	 * @return the specification.
-	 */
-	TypeSpecification getFieldTypeSpec() {
-		return fieldTypeSpec;
 	}
 }
 

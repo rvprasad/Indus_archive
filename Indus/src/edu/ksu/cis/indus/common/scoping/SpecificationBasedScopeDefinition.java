@@ -84,6 +84,33 @@ public final class SpecificationBasedScopeDefinition {
 	private String name;
 
 	/**
+	 * Sets the value of <code>classSpecs</code>.
+	 *
+	 * @param theClassSpecs the new value of <code>classSpecs</code>.
+	 */
+	public void setClassSpecs(final Collection theClassSpecs) {
+		this.classSpecs = theClassSpecs;
+	}
+
+	/**
+	 * Sets the value of <code>fieldSpecs</code>.
+	 *
+	 * @param theFieldSpecs the new value of <code>fieldSpecs</code>.
+	 */
+	public void setFieldSpecs(final Collection theFieldSpecs) {
+		this.fieldSpecs = theFieldSpecs;
+	}
+
+	/**
+	 * Retrieves the value in <code>fieldSpecs</code>.
+	 *
+	 * @return the value in <code>fieldSpecs</code>.
+	 */
+	public Collection getFieldSpecs() {
+		return fieldSpecs;
+	}
+
+	/**
 	 * Checks if the given class is in the scope in the given system.
 	 *
 	 * @param clazz to be checked.
@@ -222,39 +249,12 @@ public final class SpecificationBasedScopeDefinition {
 	}
 
 	/**
-	 * Sets the value of <code>classSpecs</code>.
-	 *
-	 * @param theClassSpecs the new value of <code>classSpecs</code>.
-	 */
-	void setClassSpecs(final Collection theClassSpecs) {
-		this.classSpecs = theClassSpecs;
-	}
-
-	/**
 	 * Retrieves the value in <code>classSpecs</code>.
 	 *
 	 * @return the value in <code>classSpecs</code>.
 	 */
-	Collection getClassSpecs() {
+	public Collection getClassSpecs() {
 		return classSpecs;
-	}
-
-	/**
-	 * Sets the value of <code>fieldSpecs</code>.
-	 *
-	 * @param theFieldSpecs the new value of <code>fieldSpecs</code>.
-	 */
-	void setFieldSpecs(final Collection theFieldSpecs) {
-		this.fieldSpecs = theFieldSpecs;
-	}
-
-	/**
-	 * Retrieves the value in <code>fieldSpecs</code>.
-	 *
-	 * @return the value in <code>fieldSpecs</code>.
-	 */
-	Collection getFieldSpecs() {
-		return fieldSpecs;
 	}
 
 	/**
@@ -262,7 +262,7 @@ public final class SpecificationBasedScopeDefinition {
 	 *
 	 * @param theMethodSpecs the new value of <code>methodSpecs</code>.
 	 */
-	void setMethodSpecs(final Collection theMethodSpecs) {
+	public void setMethodSpecs(final Collection theMethodSpecs) {
 		this.methodSpecs = theMethodSpecs;
 	}
 
@@ -271,8 +271,26 @@ public final class SpecificationBasedScopeDefinition {
 	 *
 	 * @return the value in <code>methodSpecs</code>.
 	 */
-	Collection getMethodSpecs() {
+	public Collection getMethodSpecs() {
 		return methodSpecs;
+	}
+
+	/**
+	 * Sets the value of <code>name</code>.
+	 *
+	 * @param nameOfTheSpec the new value of <code>name</code>.
+	 */
+	public void setName(final String nameOfTheSpec) {
+		this.name = nameOfTheSpec;
+	}
+
+	/**
+	 * Retrieves the value in <code>name</code>.
+	 *
+	 * @return the value in <code>name</code>.
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -284,24 +302,6 @@ public final class SpecificationBasedScopeDefinition {
 	 */
 	static Collection createSpecContainer() {
 		return new ArrayList();
-	}
-
-	/**
-	 * Sets the value of <code>name</code>.
-	 *
-	 * @param nameOfTheSpec the new value of <code>name</code>.
-	 */
-	void setName(final String nameOfTheSpec) {
-		this.name = nameOfTheSpec;
-	}
-
-	/**
-	 * Retrieves the value in <code>name</code>.
-	 *
-	 * @return the value in <code>name</code>.
-	 */
-	String getName() {
-		return name;
 	}
 
 	/**

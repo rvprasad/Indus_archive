@@ -38,7 +38,7 @@ import soot.Type;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class TypeSpecification {
+public final class TypeSpecification {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -91,20 +91,49 @@ final class TypeSpecification {
 	private String scopeExtension;
 
 	/**
-	 * Creates a new TypeSpecification object. This is used by xml-java binding.
+	 * Sets the value of <code>namePattern</code>.
+	 *
+	 * @param spec the new value of <code>namePattern</code>.
+	 *
+	 * @pre spec != null
 	 */
-	TypeSpecification() {
+	public void setNamePattern(final String spec) {
+		this.namePattern = spec;
+
+		if (scopeExtension != null && scopeExtension.equals(IDENTITY)) {
+			nameRegex = Pattern.compile(spec);
+		}
 	}
 
 	/**
-	 * Creates a new TypeSpecification object.  This is used by xml-java binding.
+	 * Retrieves the value in <code>namePattern</code>.
 	 *
-	 * @param nameSpec is the name specification.
-	 *
-	 * @pre nameSpec != null
+	 * @return the value in <code>namePattern</code>.
 	 */
-	TypeSpecification(final String nameSpec) {
-		namePattern = nameSpec;
+	public String getNamePattern() {
+		return namePattern;
+	}
+
+	/**
+	 * Sets the value of <code>scopeExtension</code>.
+	 *
+	 * @param theScopeExtension the new value of <code>scopeExtension</code>.
+	 */
+	public void setScopeExtension(final String theScopeExtension) {
+		this.scopeExtension = theScopeExtension;
+
+		if (scopeExtension.equals(IDENTITY) && namePattern != null) {
+			nameRegex = Pattern.compile(namePattern);
+		}
+	}
+
+	/**
+	 * Retrieves the value in <code>scopeExtension</code>.
+	 *
+	 * @return the value in <code>scopeExtension</code>.
+	 */
+	public String getScopeExtension() {
+		return scopeExtension;
 	}
 
 	/**
@@ -156,52 +185,6 @@ final class TypeSpecification {
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern)
 										  .append("nameRegex", this.nameRegex).append("scopeExtension", this.scopeExtension)
 										  .toString();
-	}
-
-	/**
-	 * Sets the value of <code>namePattern</code>.
-	 *
-	 * @param spec the new value of <code>namePattern</code>.
-	 *
-	 * @pre spec != null
-	 */
-	void setNamePattern(final String spec) {
-		this.namePattern = spec;
-
-		if (scopeExtension != null && scopeExtension.equals(IDENTITY)) {
-			nameRegex = Pattern.compile(spec);
-		}
-	}
-
-	/**
-	 * Retrieves the value in <code>namePattern</code>.
-	 *
-	 * @return the value in <code>namePattern</code>.
-	 */
-	String getNamePattern() {
-		return namePattern;
-	}
-
-	/**
-	 * Sets the value of <code>scopeExtension</code>.
-	 *
-	 * @param theScopeExtension the new value of <code>scopeExtension</code>.
-	 */
-	void setScopeExtension(final String theScopeExtension) {
-		this.scopeExtension = theScopeExtension;
-
-		if (scopeExtension.equals(IDENTITY) && namePattern != null) {
-			nameRegex = Pattern.compile(namePattern);
-		}
-	}
-
-	/**
-	 * Retrieves the value in <code>scopeExtension</code>.
-	 *
-	 * @return the value in <code>scopeExtension</code>.
-	 */
-	String getScopeExtension() {
-		return scopeExtension;
 	}
 }
 

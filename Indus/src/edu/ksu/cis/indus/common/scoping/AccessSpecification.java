@@ -42,6 +42,94 @@ final class AccessSpecification {
 	}
 
 	/**
+	 * Sets the default access control (package-private) level.
+	 *
+	 * @param value to be set.
+	 */
+	public void setDefaultAccess(final boolean value) {
+		if (value) {
+			access |= IAccessSpecifiers.DEFAULT_ACCESS;
+		} else {
+			access &= ~IAccessSpecifiers.DEFAULT_ACCESS;
+		}
+	}
+
+	/**
+	 * Retrieves default access control level.
+	 *
+	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isDefaultAccess() {
+		return (access & IAccessSpecifiers.DEFAULT_ACCESS) != 0;
+	}
+
+	/**
+	 * Sets the private access control level.
+	 *
+	 * @param value to be set.
+	 */
+	public void setPrivateAccess(final boolean value) {
+		if (value) {
+			access |= IAccessSpecifiers.PRIVATE_ACCESS;
+		} else {
+			access &= ~IAccessSpecifiers.PRIVATE_ACCESS;
+		}
+	}
+
+	/**
+	 * Retrieves private access control level.
+	 *
+	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isPrivateAccess() {
+		return (access & IAccessSpecifiers.PRIVATE_ACCESS) != 0;
+	}
+
+	/**
+	 * Sets the protected access control level.
+	 *
+	 * @param value to be set.
+	 */
+	public void setProtectedAccess(final boolean value) {
+		if (value) {
+			access |= IAccessSpecifiers.PROTECTED_ACCESS;
+		} else {
+			access &= ~IAccessSpecifiers.PROTECTED_ACCESS;
+		}
+	}
+
+	/**
+	 * Retrieves protected access control level.
+	 *
+	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isProtectedAccess() {
+		return (access & IAccessSpecifiers.PROTECTED_ACCESS) != 0;
+	}
+
+	/**
+	 * Sets the public access control level.
+	 *
+	 * @param value to be set.
+	 */
+	public void setPublicAccess(final boolean value) {
+		if (value) {
+			access |= IAccessSpecifiers.PUBLIC_ACCESS;
+		} else {
+			access &= ~IAccessSpecifiers.PUBLIC_ACCESS;
+		}
+	}
+
+	/**
+	 * Retrieves public access control level.
+	 *
+	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
+	 */
+	public boolean isPublicAccess() {
+		return (access & IAccessSpecifiers.PUBLIC_ACCESS) != 0;
+	}
+
+	/**
 	 * Checks if the given access control specifier confirms to this specification.
 	 *
 	 * @param specifier to be checked for conformance.
@@ -77,94 +165,6 @@ final class AccessSpecification {
 			_access.append("Public | ");
 		}
 		return new ToStringBuilder(this).appendSuper(super.toString()).append("access", _access).toString();
-	}
-
-	/**
-	 * Sets the default access control (package-private) level.
-	 *
-	 * @param value to be set.
-	 */
-	void setDefaultAccess(final boolean value) {
-		if (value) {
-			access |= IAccessSpecifiers.DEFAULT_ACCESS;
-		} else {
-			access &= ~IAccessSpecifiers.DEFAULT_ACCESS;
-		}
-	}
-
-	/**
-	 * Retrieves default access control level.
-	 *
-	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
-	 */
-	boolean isDefaultAccess() {
-		return (access & IAccessSpecifiers.DEFAULT_ACCESS) != 0;
-	}
-
-	/**
-	 * Sets the private access control level.
-	 *
-	 * @param value to be set.
-	 */
-	void setPrivateAccess(final boolean value) {
-		if (value) {
-			access |= IAccessSpecifiers.PRIVATE_ACCESS;
-		} else {
-			access &= ~IAccessSpecifiers.PRIVATE_ACCESS;
-		}
-	}
-
-	/**
-	 * Retrieves private access control level.
-	 *
-	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
-	 */
-	boolean isPrivateAccess() {
-		return (access & IAccessSpecifiers.PRIVATE_ACCESS) != 0;
-	}
-
-	/**
-	 * Sets the protected access control level.
-	 *
-	 * @param value to be set.
-	 */
-	void setProtectedAccess(final boolean value) {
-		if (value) {
-			access |= IAccessSpecifiers.PROTECTED_ACCESS;
-		} else {
-			access &= ~IAccessSpecifiers.PROTECTED_ACCESS;
-		}
-	}
-
-	/**
-	 * Retrieves protected access control level.
-	 *
-	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
-	 */
-	boolean isProtectedAccess() {
-		return (access & IAccessSpecifiers.PROTECTED_ACCESS) != 0;
-	}
-
-	/**
-	 * Sets the public access control level.
-	 *
-	 * @param value to be set.
-	 */
-	void setPublicAccess(final boolean value) {
-		if (value) {
-			access |= IAccessSpecifiers.PUBLIC_ACCESS;
-		} else {
-			access &= ~IAccessSpecifiers.PUBLIC_ACCESS;
-		}
-	}
-
-	/**
-	 * Retrieves public access control level.
-	 *
-	 * @return <code>true</code> if enabled; <code>false</code>, otherwise.
-	 */
-	boolean isPublicAccess() {
-		return (access & IAccessSpecifiers.PUBLIC_ACCESS) != 0;
 	}
 }
 

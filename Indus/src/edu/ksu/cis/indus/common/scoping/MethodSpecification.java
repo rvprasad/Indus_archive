@@ -39,7 +39,7 @@ import soot.Type;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-final class MethodSpecification
+public final class MethodSpecification
   extends AbstractSpecification {
 	/** 
 	 * The logger used by instances of this class to log messages.
@@ -67,6 +67,26 @@ final class MethodSpecification
 	 * This is the specification of the return type of the method.
 	 */
 	private TypeSpecification returnTypeSpec;
+
+	/**
+	 * Sets the specification of the class that declares the method.
+	 *
+	 * @param spec the specification.
+	 *
+	 * @pre spec != null
+	 */
+	public void setDeclaringClassSpec(final TypeSpecification spec) {
+		declaringClassSpec = spec;
+	}
+
+	/**
+	 * Retrieves the specification of the class that declares the method.
+	 *
+	 * @return the specification.
+	 */
+	public TypeSpecification getDeclaringClassSpec() {
+		return declaringClassSpec;
+	}
 
 	/**
 	 * Checks if the given method is in the scope of this specification in the given environment.
@@ -112,43 +132,13 @@ final class MethodSpecification
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
-										  .append("returnTypeSpec", this.returnTypeSpec)
-										  .append("parameterTypeSpecs", this.parameterTypeSpecs)
-										  .append("declaringClassSpec", this.declaringClassSpec).toString();
-	}
-
-	/**
-	 * Sets the specification of the class that declares the method.
-	 *
-	 * @param spec the specification.
-	 *
-	 * @pre spec != null
-	 */
-	void setDeclaringClassSpec(final TypeSpecification spec) {
-		declaringClassSpec = spec;
-	}
-
-	/**
-	 * Retrieves the specification of the class that declares the method.
-	 *
-	 * @return the specification.
-	 */
-	TypeSpecification getDeclaringClassSpec() {
-		return declaringClassSpec;
-	}
-
-	/**
 	 * Sets the specification of the method's name.
 	 *
 	 * @param spec is a regular expression.
 	 *
 	 * @pre spec != null
 	 */
-	void setMethodNameSpec(final String spec) {
+	public void setMethodNameSpec(final String spec) {
 		namePattern = Pattern.compile(spec);
 	}
 
@@ -157,7 +147,7 @@ final class MethodSpecification
 	 *
 	 * @return the specification.
 	 */
-	String getMethodNameSpec() {
+	public String getMethodNameSpec() {
 		return namePattern.pattern();
 	}
 
@@ -168,7 +158,7 @@ final class MethodSpecification
 	 *
 	 * @pre spec != null and specs.oclIsKindOf(Sequence(TypeSpecification))
 	 */
-	void setParameterTypeSpecs(final List specs) {
+	public void setParameterTypeSpecs(final List specs) {
 		parameterTypeSpecs.addAll(specs);
 	}
 
@@ -179,7 +169,7 @@ final class MethodSpecification
 	 *
 	 * @post result.oclIsKindOf(Sequence(TypeSpecification))
 	 */
-	List getParameterTypeSpecs() {
+	public List getParameterTypeSpecs() {
 		return parameterTypeSpecs;
 	}
 
@@ -190,7 +180,7 @@ final class MethodSpecification
 	 *
 	 * @pre spec != null
 	 */
-	void setReturnTypeSpec(final TypeSpecification spec) {
+	public void setReturnTypeSpec(final TypeSpecification spec) {
 		returnTypeSpec = spec;
 	}
 
@@ -199,8 +189,18 @@ final class MethodSpecification
 	 *
 	 * @return the specification.
 	 */
-	TypeSpecification getReturnTypeSpec() {
+	public TypeSpecification getReturnTypeSpec() {
 		return returnTypeSpec;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this).appendSuper(super.toString()).append("namePattern", this.namePattern.pattern())
+										  .append("returnTypeSpec", this.returnTypeSpec)
+										  .append("parameterTypeSpecs", this.parameterTypeSpecs)
+										  .append("declaringClassSpec", this.declaringClassSpec).toString();
 	}
 
 	/**
