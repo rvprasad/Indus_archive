@@ -63,7 +63,7 @@ public final class SlicerTest
 	/**
 	 * The slicer driver.
 	 */
-	SliceXMLizerCLI driver;
+	private SliceXMLizerCLI driver;
 
 	/**
 	 * The properties that define the test configuration.
@@ -126,6 +126,8 @@ public final class SlicerTest
 					new FileReader(new File(xmlInDir + File.separator + _da.getId() + "_" + _das.indexOf(_da) + "_"
 							+ _name.replaceAll("[\\[\\]\\(\\)\\<\\>: ,\\.]", "") + ".xml"));
 				assertXMLEqual(_previous, _current);
+                _current.close();
+                _previous.close();
 			} catch (IOException _e) {
 				LOGGER.error("Failed to write the xml file based on " + _da.getClass() + " for system rooted at method "
 					+ _name, _e);
@@ -141,6 +143,8 @@ public final class SlicerTest
 			final Reader _current = new FileReader(new File(_xmlOutDir + File.separator + _name + "_slice.xml"));
 			final Reader _previous = new FileReader(new File(xmlInDir + File.separator + _name + "_slice.xml"));
 			assertXMLEqual(_previous, _current);
+            _current.close();
+            _previous.close();
 		} catch (IOException _e) {
 			LOGGER.error("Failed to write the xml file based configuration " + _name, _e);
 		} catch (SAXException _e) {
@@ -186,7 +190,9 @@ public final class SlicerTest
 		final IJimpleIDGenerator _idGenerator = new UniqueJimpleIDGenerator();
 
 		try {
-			_props.load(new FileInputStream(new File(propFileName)));
+            final FileInputStream _propFile = new FileInputStream(new File(propFileName)); 
+			_props.load(_propFile);
+            _propFile.close();
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
 
@@ -250,6 +256,9 @@ public final class SlicerTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/03/03 08:06:18  venku
+   - renamed SliceXMLizer to SliceXMLizerCLI.
+
    Revision 1.6  2004/02/09 06:49:27  venku
    *** empty log message ***
 

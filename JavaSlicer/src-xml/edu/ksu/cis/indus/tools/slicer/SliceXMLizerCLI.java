@@ -492,6 +492,7 @@ public class SliceXMLizerCLI
 			if (configFileName != null) {
 				final BufferedWriter _configFile = new BufferedWriter(new FileWriter(configFileName));
 				_configFile.write(slicer.stringizeConfiguration());
+                _configFile.close();
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("Configuration file name is unspecified.  Printing to console.");
@@ -510,6 +511,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/03/04 14:02:09  venku
+   - removed a redundant exception check.
+
    Revision 1.4  2004/03/03 10:09:42  venku
    - refactored code in ExecutableSlicePostProcessor and TagBasedSliceResidualizer.
    Revision 1.3  2004/03/03 08:07:52  venku
