@@ -641,12 +641,12 @@ public class CallGraph
 	public String dumpGraph() {
 		StringBuffer result = new StringBuffer();
 
-		result.append("Root of the system: \n");
+		result.append("Root of the system: ");
 
 		for (Iterator i = getHeads().iterator(); i.hasNext();) {
 			result.append("\t" + ((SootMethod) i.next()).getSignature());
 		}
-		result.append("Reachable methods in the system: " + getReachableMethods().size() + "\n");
+		result.append("\nReachable methods in the system: " + getReachableMethods().size() + "\n");
 		result.append("Strongly Connected components in the system: " + getSCCs().size() + "\n");
 		result.append("top-down\n");
 
@@ -771,6 +771,9 @@ public class CallGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.20  2003/09/29 06:19:34  venku
+   - added more info to the dump.
+
    Revision 1.19  2003/09/29 05:52:44  venku
    - added more info to the dump.
    Revision 1.18  2003/09/28 03:16:33  venku
