@@ -485,12 +485,10 @@ final class AliasSet
 	 * @param a is the alias set to be unified with this alias set.
 	 * @param unifyAll indicates if all elements of the alias set should be unified. <code>true</code>, indicates all
 	 * 		  elements. <code>false</code> indicates all elements except shared and entities.
+	 *
+	 * @pre a != null
 	 */
 	void unify(final AliasSet a, final boolean unifyAll) {
-		if (a == null) {
-			LOGGER.warn("Unification with null requested.");
-		}
-
 		final AliasSet _m = (AliasSet) find();
 		final AliasSet _n = (AliasSet) a.find();
 
@@ -614,9 +612,12 @@ final class AliasSet
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.14  2004/01/03 21:20:06  venku
    - deleted unused methods.
-
    Revision 1.13  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
