@@ -20,7 +20,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.support.SootBasedDriver;
 import edu.ksu.cis.indus.tools.Phase;
-import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer;
+import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
@@ -176,7 +176,7 @@ public class SlicerDriver
 	 * DOCUMENT ME!
 	 */
 	protected void setUpTransformer() {
-		slicer.setTransformer(new TagBasedSlicingTransformer());
+		slicer.setTransformer(new TaggingBasedSliceResidualizer());
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class SlicerDriver
 
 		try {
 			Writer out = new FileWriter(new File(outputDirectory + File.separator + SUFFIX_FOR_XMLIZATION_PURPOSES + ".xml"));
-			result = new TagBasedSliceXMLizer(out, TagBasedSlicingTransformer.SLICING_TAG, idGenerator);
+			result = new TagBasedSliceXMLizer(out, TaggingBasedSliceResidualizer.SLICING_TAG, idGenerator);
 		} catch (IOException e) {
 			LOGGER.error("Exception while opening file to write xml information.", e);
 			throw new RuntimeException(e);
@@ -383,6 +383,10 @@ public class SlicerDriver
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2003/11/20 07:42:07  venku
+   - added command line option "-p" to specify classpath for
+     soot.
+
    Revision 1.6  2003/11/17 17:56:21  venku
    - reinstated initialize() method in AbstractTool and SlicerTool.  It provides a neat
      way to intialize the tool independent of how it's dependent

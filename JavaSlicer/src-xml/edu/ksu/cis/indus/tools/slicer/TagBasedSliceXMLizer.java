@@ -23,7 +23,7 @@ import soot.ValueBox;
 import soot.jimple.Stmt;
 
 import edu.ksu.cis.indus.processing.Context;
-import edu.ksu.cis.indus.transformations.slicer.TagBasedSlicingTransformer.SlicingTag;
+import edu.ksu.cis.indus.transformations.slicer.TaggingBasedSliceResidualizer.SlicingTag;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
 import org.apache.commons.logging.Log;
@@ -238,6 +238,9 @@ class TagBasedSliceXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/11/23 19:41:04  venku
+   - incorrect tags were being emitted.  FIXED.
+
    Revision 1.5  2003/11/17 15:56:56  venku
    - removed support to retrieve new statement ids.
    - added support to retrieve id for value boxes.
