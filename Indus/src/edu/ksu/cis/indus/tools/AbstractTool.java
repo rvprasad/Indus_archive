@@ -160,7 +160,7 @@ public abstract class AbstractTool
 							} catch (InterruptedException _e) {
 								LOGGER.fatal("Interrupted while executing the tool.", _e);
 								_temp = _e;
-							} catch (Throwable _e) {
+							} catch (Exception _e) {
 								LOGGER.fatal("Tool failed.", _e);
 								_temp = _e;
 							} finally {
@@ -239,6 +239,9 @@ public abstract class AbstractTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.19  2004/01/27 15:19:21  venku
+   - coding convention.
+
    Revision 1.18  2004/01/25 09:07:18  venku
    - coding convention.
 
