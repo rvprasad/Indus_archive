@@ -299,8 +299,6 @@ public class ThreadGraph
 			LOGGER.info("BEGIN: thread graph consolidation");
 		}
 
-		final long _start = System.currentTimeMillis();
-
 		calculateThreadCallGraph();
 
 		injectMainThread();
@@ -314,11 +312,8 @@ public class ThreadGraph
 
 		considerMultipleExecutions();
 
-		final long _stop = System.currentTimeMillis();
-
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: thread graph consolidation");
-			LOGGER.info("TIMING: thread graph consolidation took " + (_stop - _start) + "ms.");
 		}
 	}
 
@@ -756,6 +751,9 @@ public class ThreadGraph
 /*
    ChangeLog:
    $Log$
+   Revision 1.40  2004/08/16 14:24:26  venku
+   - logging.
+
    Revision 1.39  2004/08/14 01:24:23  venku
    - removed a stray println.
 
