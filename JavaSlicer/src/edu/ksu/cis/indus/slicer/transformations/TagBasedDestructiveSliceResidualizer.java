@@ -17,14 +17,19 @@ package edu.ksu.cis.indus.slicer.transformations;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.Util;
+
+import edu.ksu.cis.indus.interfaces.IUseDefInfo;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
+
+import edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysisv2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -129,6 +134,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	final Collection trapsToRetain = new HashSet();
 
 	/** 
+	 * This is used to create new AST chunks.
+	 */
+	final Jimple jimple = Jimple.v();
+
+	/** 
 	 * This is a mapping from classes to it's members that should be removed.
 	 *
 	 * @invariant class2membersToKill.oclIsKindOf(Map(SootClass, Pair(Collection(SootMethod), Collection(SootField))))
@@ -150,6 +160,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * @invariant stmt2predecessors.oclIsKindOf(Map(Stmt, Sequence(Stmt)))
 	 */
 	final Map stmt2predecessors = new HashMap();
+
+	/** 
+	 * Local use-def analysis to be used during residualization.
+	 */
+	IUseDefInfo localUseDef;
 
 	/** 
 	 * The tag that identify the parts of the system that shall be residualized.
@@ -184,6 +199,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	private final StmtResidualizer stmtProcessor = new StmtResidualizer();
 
 	/** 
+	 * The basic block graph manager for the system being residualized.
+	 */
+	private BasicBlockGraphMgr bbgMgr;
+
+	/** 
 	 * This is the collection of statements which are to be replaced by NOP statements in the residue.
 	 *
 	 * @invariant stmtsToBeNOPed.oclIsKindOf(Collection(Stmt))
@@ -195,12 +215,6 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	private SootClass currClass;
 
-	/** 
-	 * This is used to create new AST chunks.
-	 */
-	final Jimple jimple = Jimple.v();
-
-	
 	/**
 	 * This class residualizes statements.
 	 *
@@ -223,7 +237,7 @@ public final class TagBasedDestructiveSliceResidualizer
 		/** 
 		 * A factory to create pair to contain members of a class.
 		 */
-		private final Factory VALUE_FACTORY =
+		private final Factory pairValueFactory =
 			new Factory() {
 				public Object create() {
 					return new Pair(new ArrayList(), new ArrayList());
@@ -299,49 +313,61 @@ public final class TagBasedDestructiveSliceResidualizer
 				final RefType _type = (RefType) _val.getType();
 				final Jimple _jimple = Jimple.v();
 
-				// add a new local to the body
-				final LocalCreation _lc = new LocalCreation(currMethod.getActiveBody().getLocals());
-				final Local _local = _lc.newLocal(_type);
-				localsToKeep.add(_local);
+				final Collection _defs = localUseDef.getDefs(stmt, currMethod);
+				boolean _injectNewCode = true;
+				final Iterator _j = _defs.iterator();
+				final int _jEnd = _defs.size();
 
-				// create an exception of the thrown type and assign it to the created local.
-				final NewExpr _newExpr = _jimple.newNewExpr(_type);
-				final AssignStmt _astmt = _jimple.newAssignStmt(_local, _newExpr);
-				final Tag _tag = new NamedTag(theNameOfTagToResidualize);
-				_astmt.addTag(_tag);
-				_astmt.getLeftOpBox().addTag(_tag);
-				_astmt.getRightOpBox().addTag(_tag);
-
-				final SootClass _clazz = _type.getSootClass();
-
-				// retain the class
-				if (!_clazz.hasTag(theNameOfTagToResidualize)) {
-					classesToKill.remove(_clazz);
-					_clazz.addTag(tagToResidualize);
+				for (int _jIndex = 0; _jIndex < _jEnd && _injectNewCode; _jIndex++) {
+					final DefinitionStmt _def = (DefinitionStmt) _j.next();
+					_injectNewCode = !_def.getLeftOpBox().hasTag(theNameOfTagToResidualize);
 				}
 
-				// find an <init> method on the type and prepare the argument list
-				final SootMethod _init = prepareInitIn(_clazz);
-				final List _args = new ArrayList(_init.getParameterCount());
+				if (_injectNewCode) {
+					// add a new local to the body
+					final LocalCreation _lc = new LocalCreation(currMethod.getActiveBody().getLocals());
+					final Local _local = _lc.newLocal(_type);
+					localsToKeep.add(_local);
 
-				for (int _i = _init.getParameterCount() - 1; _i >= 0; _i--) {
-					_args.add(Util.getDefaultValueFor(_init.getParameterType(_i)));
+					// create an exception of the thrown type and assign it to the created local.
+					final NewExpr _newExpr = _jimple.newNewExpr(_type);
+					final AssignStmt _astmt = _jimple.newAssignStmt(_local, _newExpr);
+					final Tag _tag = new NamedTag(theNameOfTagToResidualize);
+					_astmt.addTag(_tag);
+					_astmt.getLeftOpBox().addTag(_tag);
+					_astmt.getRightOpBox().addTag(_tag);
+
+					final SootClass _clazz = _type.getSootClass();
+
+					// retain the class
+					if (!_clazz.hasTag(theNameOfTagToResidualize)) {
+						classesToKill.remove(_clazz);
+						_clazz.addTag(tagToResidualize);
+					}
+
+					// find an <init> method on the type and prepare the argument list
+					final SootMethod _init = prepareInitIn(_clazz);
+					final List _args = new ArrayList(_init.getParameterCount());
+
+					for (int _i = _init.getParameterCount() - 1; _i >= 0; _i--) {
+						_args.add(Util.getDefaultValueFor(_init.getParameterType(_i)));
+					}
+
+					// invoke <init> on the local
+					final InvokeExpr _iexpr = _jimple.newSpecialInvokeExpr(_local, _init, _args);
+					final InvokeStmt _istmt = _jimple.newInvokeStmt(_iexpr);
+					_istmt.addTag(_tag);
+					_istmt.getInvokeExprBox().addTag(_tag);
+					((SpecialInvokeExpr) _iexpr).getBaseBox().addTag(_tag);
+
+					// prepare a new list of statements of predecessors to be inserted before the throw statement in the final
+					// body of the method.
+					final List _stmts = new ArrayList();
+					_stmts.add(_astmt);
+					_stmts.add(_istmt);
+					stmt2predecessors.put(stmt, _stmts);
+					stmt.setOp(_local);
 				}
-
-				// invoke <init> on the local
-				final InvokeExpr _iexpr = _jimple.newSpecialInvokeExpr(_local, _init, _args);
-				final InvokeStmt _istmt = _jimple.newInvokeStmt(_iexpr);
-				_istmt.addTag(_tag);
-				_istmt.getInvokeExprBox().addTag(_tag);
-				((SpecialInvokeExpr) _iexpr).getBaseBox().addTag(_tag);
-
-				// prepare a new list of statements of predecessors to be inserted before the throw statement in the final
-				// body of the method.
-				final List _stmts = new ArrayList();
-				_stmts.add(_astmt);
-				_stmts.add(_istmt);
-				stmt2predecessors.put(stmt, _stmts);
-				stmt.setOp(_local);
 			}
 		}
 
@@ -398,7 +424,7 @@ public final class TagBasedDestructiveSliceResidualizer
 				if (_existsButIsNotIncluded) {
 					clazz.removeMethod(_init);
 
-					final Pair _pair = (Pair) CollectionsUtilities.getFromMap(class2members, clazz, VALUE_FACTORY);
+					final Pair _pair = (Pair) CollectionsUtilities.getFromMap(class2members, clazz, pairValueFactory);
 					final Collection _clazzMethodsToKill = (Collection) _pair.getFirst();
 					_clazzMethodsToKill.remove(_init);
 				}
@@ -490,55 +516,38 @@ public final class TagBasedDestructiveSliceResidualizer
 	 */
 	private final class ValueResidualizer
 	  extends AbstractJimpleValueSwitch {
-        /** 
-         * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
-         */
-        public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
-            residualize(v.getBaseBox());
-            residualizeInvokeExpr(v);
-        }
-        /** 
-         * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
-         */
-        public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
-            residualize(v.getBaseBox());
-            residualizeInvokeExpr(v);
-        }
-        /** 
-         * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
-         */
-        public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
-            residualizeInvokeExpr(v);
-        }
-        /** 
-         * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
-         */
-        public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
-            residualize(v.getBaseBox());
-            residualizeInvokeExpr(v);
-        }
 		/**
-         * Residualizes the invocation expression in manner that is safe to the Jimple implementation.  
-         * 
-         * @param v is the expression to residualize.
-         * 
-         * @pre v != null
-         */
-        private void residualizeInvokeExpr(final InvokeExpr v) {
-            /*
-             * HACK: This is required because in jimple the value boxes are "kinded".  You cannot stick a NullConstant into
-             * a value box that held a local because the LocalBox cannot hold an Immediate unlike a ImmediateBox. Instead you
-             * need to go through the context enclosing containing the box to fix the contents of the box. 
-             */
-            for (int _i = v.getArgCount() - 1; _i >= 0; _i--) {
-                final ValueBox _vb = v.getArgBox(_i);
-                if (!_vb.hasTag(theNameOfTagToResidualize)) {
-                    v.setArg(_i, Util.getDefaultValueFor(_vb.getValue().getType()));
-                }
-            }            
-        }
-        
-        /**
+		 * @see soot.jimple.ExprSwitch#caseInterfaceInvokeExpr(soot.jimple.InterfaceInvokeExpr)
+		 */
+		public void caseInterfaceInvokeExpr(final InterfaceInvokeExpr v) {
+			residualize(v.getBaseBox());
+			residualizeInvokeExpr(v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseSpecialInvokeExpr(soot.jimple.SpecialInvokeExpr)
+		 */
+		public void caseSpecialInvokeExpr(final SpecialInvokeExpr v) {
+			residualize(v.getBaseBox());
+			residualizeInvokeExpr(v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseStaticInvokeExpr(soot.jimple.StaticInvokeExpr)
+		 */
+		public void caseStaticInvokeExpr(final StaticInvokeExpr v) {
+			residualizeInvokeExpr(v);
+		}
+
+		/**
+		 * @see soot.jimple.ExprSwitch#caseVirtualInvokeExpr(soot.jimple.VirtualInvokeExpr)
+		 */
+		public void caseVirtualInvokeExpr(final VirtualInvokeExpr v) {
+			residualize(v.getBaseBox());
+			residualizeInvokeExpr(v);
+		}
+
+		/**
 		 * @see soot.jimple.RefSwitch#defaultCase(java.lang.Object)
 		 */
 		public void defaultCase(final Object v) {
@@ -561,11 +570,44 @@ public final class TagBasedDestructiveSliceResidualizer
 			final Value _value = vBox.getValue();
 
 			if (!((Host) vBox).hasTag(theNameOfTagToResidualize)) {
-					vBox.setValue(Util.getDefaultValueFor(_value.getType()));
+				vBox.setValue(Util.getDefaultValueFor(_value.getType()));
 			} else {
 				_value.apply(this);
 			}
 		}
+
+		/**
+		 * Residualizes the invocation expression in manner that is safe to the Jimple implementation.
+		 *
+		 * @param v is the expression to residualize.
+		 *
+		 * @pre v != null
+		 */
+		private void residualizeInvokeExpr(final InvokeExpr v) {
+			/*
+			 * HACK: This is required because in jimple the value boxes are "kinded".  You cannot stick a NullConstant into
+			 * a value box that held a local because the LocalBox cannot hold an Immediate unlike a ImmediateBox. Instead you
+			 * need to go through the context enclosing containing the box to fix the contents of the box.
+			 */
+			for (int _i = v.getArgCount() - 1; _i >= 0; _i--) {
+				final ValueBox _vb = v.getArgBox(_i);
+
+				if (!_vb.hasTag(theNameOfTagToResidualize)) {
+					v.setArg(_i, Util.getDefaultValueFor(_vb.getValue().getType()));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Sets the basic block graph manager to be used.
+	 *
+	 * @param basicBlockGraphMgr to be used.
+	 *
+	 * @pre basicBlockGraphMgr != null
+	 */
+	public void setBasicBlockGraphMgr(final BasicBlockGraphMgr basicBlockGraphMgr) {
+		bbgMgr = basicBlockGraphMgr;
 	}
 
 	/**
@@ -612,6 +654,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			methodsToKill.remove(method);
 			localsToKeep.clear();
 			trapsToRetain.clear();
+			localUseDef = new LocalUseDefAnalysisv2(bbgMgr.getBasicBlockGraph(method));
 		}
 	}
 
@@ -856,11 +899,11 @@ public final class TagBasedDestructiveSliceResidualizer
 	 * Plugs in a body that satisfies the signature of the current method given by <code>currMethod</code>.
 	 *
 	 * @param body of <code>currMethod</code>.
-	 * @param jimple factory to be used create parts of the body.
+	 * @param jimpleFactory to be used create parts of the body.
 	 *
 	 * @pre body != null and jimple != null
 	 */
-	private void pluginSignatureCorrectBody(final JimpleBody body, final Jimple jimple) {
+	private void pluginSignatureCorrectBody(final JimpleBody body, final Jimple jimpleFactory) {
 		// remove all traps 
 		body.getTraps().clear();
 		// remove all locals
@@ -873,7 +916,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final RefType _type = RefType.v(currMethod.getDeclaringClass());
 			final LocalCreation _lc = new LocalCreation(body.getLocals());
 			final Local _this = _lc.newLocal("_this", _type);
-			final IdentityStmt _astmt = jimple.newIdentityStmt(_this, jimple.newThisRef(_type));
+			final IdentityStmt _astmt = jimpleFactory.newIdentityStmt(_this, jimpleFactory.newThisRef(_type));
 			_astmt.addTag(tagToResidualize);
 			_astmt.getLeftOpBox().addTag(tagToResidualize);
 			_astmt.getRightOpBox().addTag(tagToResidualize);
@@ -889,7 +932,7 @@ public final class TagBasedDestructiveSliceResidualizer
 			final Type _pType = (Type) _i.next();
 			final LocalCreation _lc = new LocalCreation(body.getLocals());
 			final Local _this = _lc.newLocal("_local", _pType);
-			final IdentityStmt _astmt = jimple.newIdentityStmt(_this, jimple.newParameterRef(_pType, _pCount));
+			final IdentityStmt _astmt = jimpleFactory.newIdentityStmt(_this, jimpleFactory.newParameterRef(_pType, _pCount));
 			_astmt.addTag(tagToResidualize);
 			_astmt.getLeftOpBox().addTag(tagToResidualize);
 			_astmt.getRightOpBox().addTag(tagToResidualize);
@@ -900,9 +943,9 @@ public final class TagBasedDestructiveSliceResidualizer
 		final Type _retType = currMethod.getReturnType();
 
 		if (_retType instanceof VoidType) {
-			_temp.add(jimple.newReturnVoidStmt());
+			_temp.add(jimpleFactory.newReturnVoidStmt());
 		} else {
-			_temp.add(jimple.newReturnStmt(Util.getDefaultValueFor(_retType)));
+			_temp.add(jimpleFactory.newReturnStmt(Util.getDefaultValueFor(_retType)));
 		}
 
 		if (LOGGER.isDebugEnabled()) {
@@ -963,10 +1006,11 @@ public final class TagBasedDestructiveSliceResidualizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.18  2004/07/23 11:28:22  venku
+   - jimple specific residualization fixes.
    Revision 1.17  2004/07/21 07:09:26  venku
    - residualization failed when a invoke statement was tagged and none of
      its AST descendents were tagged.  FIXED.
-
    Revision 1.16  2004/07/17 23:32:19  venku
    - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
    - ripple effect.

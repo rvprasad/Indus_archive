@@ -355,6 +355,15 @@ public final class SlicerTool
 	}
 
 	/**
+	 * Retrieves the basic block graph manager used by this tool.
+	 *
+	 * @return the basic block graph manager.
+	 */
+	public BasicBlockGraphMgr getBasicBlockGraphManager() {
+		return bbgMgr;
+	}
+
+	/**
 	 * Returns the call graph used by the slicer.
 	 *
 	 * @return the call graph used by the slicer.
@@ -889,6 +898,14 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.102  2004/07/23 13:10:06  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
    Revision 1.101  2004/07/21 11:36:27  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.

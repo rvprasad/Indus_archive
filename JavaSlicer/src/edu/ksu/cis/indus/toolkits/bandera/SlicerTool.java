@@ -268,6 +268,7 @@ public final class SlicerTool
 
 		final TagBasedDestructiveSliceResidualizer _residualizer = new TagBasedDestructiveSliceResidualizer();
 		_residualizer.setTagToResidualize(TAG_NAME);
+		_residualizer.setBasicBlockGraphMgr(tool.getBasicBlockGraphManager());
 		_residualizer.residualizeSystem(tool.getSystem());
 
 		if (LOGGER.isInfoEnabled()) {
@@ -279,6 +280,10 @@ public final class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.35  2004/07/09 09:38:45  venku
+   - moved sliceCriteria.xsd into the java source tree to enable distribution.
+   - added the option to specify criteria specification in slicer tool exported to Bandera.
+
    Revision 1.34  2004/06/14 08:39:29  venku
    - added a property to SootBasedDriver to control the type of statement graph
      factory to be used.
