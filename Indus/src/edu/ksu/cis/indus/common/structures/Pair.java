@@ -206,18 +206,6 @@ public final class Pair
 	}
 
 	/**
-	 * Clones this pair using shallow-copy semantics.
-	 *
-	 * @return a cloned copy of this pair.
-	 *
-	 * @throws CloneNotSupportedException will not be thrown.
-	 */
-	public Object clone()
-	  throws CloneNotSupportedException {
-		return (Pair) super.clone();
-	}
-
-	/**
 	 * Checks if the given object is equal to this pair.
 	 *
 	 * @param o is the object to be tested for equality with this pair.
@@ -238,8 +226,6 @@ public final class Pair
 			if (_result) {
 				_result = second == _temp.second || _result && second.equals(_temp.second);
 			}
-		} else {
-			_result = super.equals(o);
 		}
 		return _result;
 	}
@@ -376,6 +362,9 @@ public final class Pair
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/12/28 02:58:02  venku
+   - renamed field pair to pairCache.
+
    Revision 1.2  2003/12/13 02:28:54  venku
    - Refactoring, documentation, coding convention, and
      formatting.
