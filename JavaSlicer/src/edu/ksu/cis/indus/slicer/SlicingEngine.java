@@ -1036,8 +1036,8 @@ public final class SlicingEngine {
 				LOGGER.debug("Adding expr [" + considerExecution + "] " + valueBox.getValue() + " at " + stmt + " in "
 					+ method.getSignature() + " to workbag.");
 			}
-		} else if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Already collected expr " + stmt + " in " + method.getSignature());
+		} else if (LOGGER.isDebugEnabled()) { 
+        	LOGGER.debug("Already collected expr " + valueBox.getValue() + " at " + stmt + " in " + method.getSignature());
 		}
 	}
 
@@ -1397,6 +1397,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.65  2004/01/30 18:25:58  venku
+   - logging.
+
    Revision 1.64  2004/01/27 01:46:50  venku
    - coding convention.
    Revision 1.63  2004/01/25 08:53:37  venku
