@@ -28,6 +28,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -35,7 +36,6 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -259,7 +259,7 @@ public class ReadyDAv1
 	 * @version $Revision$
 	 */
 	private class PreProcessor
-	  extends AbstractValueAnalyzerBasedProcessor {
+	  extends AbstractProcessor {
 		/**
 		 * Collects synchronized methods.
 		 *
@@ -1255,6 +1255,10 @@ public class ReadyDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.62  2004/07/17 23:32:18  venku
+   - used Factory() pattern to populate values in maps and lists in CollectionsUtilities methods.
+   - ripple effect.
+
    Revision 1.61  2004/07/11 09:42:13  venku
    - Changed the way status information was handled the library.
      - Added class AbstractStatus to handle status related issues while

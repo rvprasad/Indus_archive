@@ -21,6 +21,7 @@ import edu.ksu.cis.indus.common.soot.Util;
 
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
@@ -28,7 +29,6 @@ import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -121,7 +121,7 @@ public class InterferenceDAv1
 	 * @version $Revision$
 	 */
 	private class PreProcessor
-	  extends AbstractValueAnalyzerBasedProcessor {
+	  extends AbstractProcessor {
 		/**
 		 * Called by the controller when it encounters an assignment statement.  This records array access and field access
 		 * expressions.
@@ -657,6 +657,11 @@ public class InterferenceDAv1
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
+
    Revision 1.41  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
 

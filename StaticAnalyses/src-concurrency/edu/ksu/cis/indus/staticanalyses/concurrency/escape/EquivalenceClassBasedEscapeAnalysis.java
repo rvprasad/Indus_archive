@@ -28,13 +28,13 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.interfaces.IThreadGraphInfo;
 
+import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.WaitNotifyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis;
-import edu.ksu.cis.indus.staticanalyses.processing.AbstractValueAnalyzerBasedProcessor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -754,7 +754,7 @@ public final class EquivalenceClassBasedEscapeAnalysis
 	 * @version $Revision$ $Date$
 	 */
 	private final class PreProcessor
-	  extends AbstractValueAnalyzerBasedProcessor {
+	  extends AbstractProcessor {
 		/**
 		 * Creates an alias set for the static fields.  This is the creation of global alias sets in Ruf's algorithm.
 		 *
@@ -1299,6 +1299,15 @@ public final class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.57  2004/07/23 13:09:44  venku
+   - Refactoring in progress.
+     - Extended IMonitorInfo interface.
+     - Teased apart the logic to calculate monitor info from SynchronizationDA
+       into MonitorAnalysis.
+     - Casted EquivalenceClassBasedEscapeAnalysis as an AbstractAnalysis.
+     - ripple effect.
+     - Implemented safelock analysis to handle intraprocedural processing.
+
    Revision 1.56  2004/07/21 11:36:26  venku
    - Extended IUseDefInfo interface to provide both local and non-local use def info.
    - ripple effect.
