@@ -185,9 +185,9 @@ public class SimpleNodeGraph
 	}
 
 	/**
-	 * @see AbstractMutableDirectedGraph#containsNodes(edu.ksu.cis.indus.common.graph.INode)
+	 * @see AbstractMutableDirectedGraph#containsNode(edu.ksu.cis.indus.common.graph.INode)
 	 */
-	protected boolean containsNodes(final INode node) {
+	protected boolean containsNode(final INode node) {
 		return nodes.contains(node);
 	}
 }

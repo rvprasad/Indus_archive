@@ -171,7 +171,7 @@ public abstract class AbstractMutableDirectedGraph
 	public final boolean addEdgeFromTo(final INode src, final INode dest) {
 		boolean _result = false;
 
-		if (containsNodes(src) && containsNodes(dest)) {
+		if (containsNode(src) && containsNode(dest)) {
 			((AbstractMutableNode) src).addSuccessors(dest);
 			((AbstractMutableNode) dest).addPredecessors(src);
 			tails.remove(src);
@@ -202,7 +202,7 @@ public abstract class AbstractMutableDirectedGraph
 	public final boolean removeEdgeFromTo(final INode src, final INode dest) {
 		boolean _result = false;
 
-		if (containsNodes(src) && containsNodes(dest)) {
+		if (containsNode(src) && containsNode(dest)) {
 			((AbstractMutableNode) src).removeSuccessors(dest);
 			((AbstractMutableNode) dest).removePredecessors(src);
 			tails.remove(src);
@@ -225,7 +225,7 @@ public abstract class AbstractMutableDirectedGraph
 	 *
 	 * @pre node != null
 	 */
-	protected abstract boolean containsNodes(final INode node);
+	protected abstract boolean containsNode(final INode node);
 }
 
 // End of File
