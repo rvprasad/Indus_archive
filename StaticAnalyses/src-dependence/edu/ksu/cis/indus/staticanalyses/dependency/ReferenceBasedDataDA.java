@@ -43,17 +43,17 @@ import soot.jimple.Stmt;
  */
 public class ReferenceBasedDataDA
   extends AbstractDependencyAnalysis {
-	/**
+	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Log LOGGER = LogFactory.getLog(ReferenceBasedDataDA.class);
 
-	/**
+	/** 
 	 * This provides inter-procedural use-def information which considers the effects of aliasing.
 	 */
 	protected IUseDefInfo aliasedUD;
 
-	/**
+	/** 
 	 * A cache context object to be used to retrieve information from <code>interProceduralUD</code>.
 	 */
 	private final Context contextCache = new Context();
@@ -133,7 +133,6 @@ public class ReferenceBasedDataDA
 		return IDependencyAnalysis.REFERENCE_BASED_DATA_DA;
 	}
 
-
 	/**
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.AbstractAnalysis#analyze()
 	 */
@@ -146,11 +145,12 @@ public class ReferenceBasedDataDA
 			LOGGER.debug("ReferenceBasedDataDA.analyze() - " + toString());
 		}
 
-		if (aliasedUD.isStable())
-		    stable();
-		else 
-		    unstable();
-		
+		if (aliasedUD.isStable()) {
+			stable();
+		} else {
+			unstable();
+		}
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("END: Reference Based Data Dependence processing");
 		}
@@ -194,12 +194,14 @@ public class ReferenceBasedDataDA
 /*
    ChangeLog:
    $Log$
+   Revision 1.26  2004/07/11 09:42:13  venku
+   - Changed the way status information was handled the library.
+     - Added class AbstractStatus to handle status related issues while
+       the implementations just announce their status.
    Revision 1.25  2004/07/10 07:55:53  venku
    - logging.
-
    Revision 1.24  2004/07/09 09:43:23  venku
    - added clover tags to control coverage of toSting()
-
    Revision 1.23  2004/07/08 11:03:59  venku
    - coding conventions.
    - rely on AliasedUseDef analysis for toString() output.
