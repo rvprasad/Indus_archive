@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -54,6 +54,40 @@ public class SimpleNodeGraph
 	 * @invariant object2nodes.oclIsTypeOf(Map(Object, SimpleNode))
 	 */
 	private Map object2nodes = new HashMap();
+
+	/**
+	 * This class builds a <code>SimpleNodeGraph</code>.
+	 *
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public static class SimpleNodeGraphBuilder
+	  extends AbstractGraphBuilder {
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IGraphBuilder#createGraph()
+		 */
+		public void createGraph() {
+			graph = new SimpleNodeGraph();
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.IGraphBuilder#createNode(java.lang.Object)
+		 */
+		public void createNode(final Object element) {
+			((SimpleNodeGraph) graph).getNode(element);
+		}
+
+		/**
+		 * @see edu.ksu.cis.indus.common.graph.AbstractGraphBuilder#addEdgeFromTo(INode, INode)
+		 */
+		protected void addEdgeFromTo(final INode src, final INode dest) {
+			final INode _s = ((SimpleNodeGraph) graph).getNode(src);
+			final INode _d = ((SimpleNodeGraph) graph).getNode(dest);
+			((SimpleNodeGraph) graph).addEdgeFromTo(_s, _d);
+		}
+	}
+
 
 	/**
 	 * This is a simple concrete implementation of <code>INode</code> interface.
@@ -158,70 +192,4 @@ public class SimpleNodeGraph
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.10  2004/08/08 11:34:24  venku
-   - moved object extracting tranformer into IObjectDirectedGraph.
-   - ripple effect.
-
-   Revision 1.9  2004/07/25 10:26:06  venku
-   - added a new interface to query values attached to nodes.
-   Revision 1.8  2004/07/24 09:57:05  venku
-   - added a new interface to extract objects associated with nodes of the graph.
-   Revision 1.7  2004/02/24 22:25:56  venku
-   - documentation
-   Revision 1.6  2004/01/25 08:59:52  venku
-   - coding convention.
-   Revision 1.5  2004/01/24 01:41:23  venku
-   - added a Commons-Collection transformer to
-     extract objects from a given set of SimpleNodes.
-   Revision 1.4  2003/12/31 10:01:36  venku
-   - clover directives.
-   Revision 1.3  2003/12/30 09:12:50  venku
-   - added clover source directives.
-   - size() was concretized in AbstractDirectedGraph.  So,
-     got deleted here.
-   Revision 1.2  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.8  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.7  2003/11/06 05:04:02  venku
-   - renamed WorkBag to IWorkBag and the ripple effect.
-   Revision 1.6  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.5  2003/09/11 01:50:05  venku
-   - any change to the graph did not invalidate the spanning tree. FIXED.
-   Revision 1.4  2003/08/24 08:13:11  venku
-   Major refactoring.
-    - The methods to modify the graphs were exposed.
-    - The above anamoly was fixed by supporting a new class AbstractMutableDirectedGraph.
-    - Each Mutable graph extends this graph and exposes itself via
-      suitable interface to restrict access.
-    - Ripple effect of the above changes.
-   Revision 1.3  2003/08/11 06:40:54  venku
-   Changed format of change log accumulation at the end of the file.
-   Spruced up Documentation and Specification.
-   Formatted source.
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
-   Revision 1.5  2003/05/22 22:18:31  venku
-   All the interfaces were renamed to start with an "I".
-   Optimizing changes related Strings were made.
- */
+// End of File

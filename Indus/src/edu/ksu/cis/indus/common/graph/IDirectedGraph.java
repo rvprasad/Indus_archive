@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -66,19 +66,15 @@ public interface IDirectedGraph {
 	Collection getCycles();
 
 	/**
-	 * Retrieves the directed acyclic graph from the given graph.  It removes all the backedges from the given graph.
+	 * Returns the directed-acyclic graph of this graph.  The objects in the nodes in the returned graph are nodes in this
+	 * graph.  For each edge in the returned graph, there will be an edges between the nodes corresponding to the source and
+	 * destination nodes in this graph.
 	 *
-	 * @return a map from nodes in <code>graph</code> to a pairs of collections.  The first element in the pair is the
-	 * 		   collection of predecessors and the second element in the pair is the collection of successors.
+	 * @return a DAG.
 	 *
-	 * @pre graph != null
-	 * @post result.oclIsKindOf(Map(INode, Pair(Collection(INode), Collection(INode)))
-	 * @post result->entrySet()->forall(o | graph.getNodes()->includes(o.getKey()) and
-	 * 		 graph.getNodes()->includesAll(o.getValue().getFirst()) and
-	 * 		 graph.getNodes()->includesAll(o.getValue().getSecond()))
-	 * @post graph.getNodes()->forall(o | result.keySet()->includes(o))
+	 * @post result != null
 	 */
-	Map getDAG();
+	IObjectDirectedGraph getDAG();
 
 	/**
 	 * Retrieves the head nodes of this graph.
@@ -100,6 +96,17 @@ public interface IDirectedGraph {
 	 * @post result != null and result.oclIsKindOf(Sequence(INode))
 	 */
 	List getNodes();
+
+	/**
+	 * Retrieves the nodes that occur on the path between the given nodes.
+	 *
+	 * @param nodes of interest.
+	 *
+	 * @return a collection of nodes that occur on path between the given nodes.
+	 *
+	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
+	 */
+	Collection getNodesInPathBetween(Collection nodes);
 
 	/**
 	 * Retrieves the psuedo-tails of the given graph.  Psuedo tails are tail end of loops in which there is no path from the
@@ -189,21 +196,4 @@ public interface IDirectedGraph {
 	List performTopologicalSort(final boolean topdown);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.4  2004/01/22 08:15:55  venku
-   - added a new method to calculated pseudo tails.
-   - added a new method that can be used to indicate the
-     graph has changed shape, hence, marking any cached
-     data as stale.
-   Revision 1.3  2004/01/20 21:23:18  venku
-   - the return value of getSCCs needs to be ordered if
-     it accepts a direction parameter.  FIXED.
-   Revision 1.2  2003/12/31 10:43:08  venku
-   - size() was unused in IDirectedGraph, hence, removed it.
-     Ripple effect.
-   Revision 1.1  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.common.datastructures.HistoryAwareLIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.graph.AbstractMutableDirectedGraph;
 import edu.ksu.cis.indus.common.graph.INode;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -170,6 +171,21 @@ public final class BasicBlockGraph
 		}
 
 		/**
+		 * Retrieves the statements in this block starting from <code>start</code>.
+		 *
+		 * @param start is the statement starting from which the statements are requested.
+		 *
+		 * @return a modifiable list of <code>Stmt</code>s.
+		 *
+		 * @post result != null
+		 * @post (getStmtGraph().getBody().getUnits().indexOf(start) &lt; leader or
+		 * 		 getStmtGraph().getBody().getUnits().indexOf(start) > trailer) implies (result.size() = 0)
+		 */
+		public List getStmtsFrom(final Stmt start) {
+			return getStmtsFromTo(start, trailerStmt);
+		}
+
+		/**
 		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code>.
 		 *
 		 * @param start is the starting statement of the requested statement list.
@@ -197,21 +213,6 @@ public final class BasicBlockGraph
 				_result = Collections.EMPTY_LIST;
 			}
 			return _result;
-		}
-
-		/**
-		 * Retrieves the statements in this block starting from <code>start</code>.
-		 *
-		 * @param start is the statement starting from which the statements are requested.
-		 *
-		 * @return a modifiable list of <code>Stmt</code>s.
-		 *
-		 * @post result != null
-		 * @post (getStmtGraph().getBody().getUnits().indexOf(start) &lt; leader or
-		 * 		 getStmtGraph().getBody().getUnits().indexOf(start) > trailer) implies (result.size() = 0)
-		 */
-		public List getStmtsFrom(final Stmt start) {
-			return getStmtsFromTo(start, trailerStmt);
 		}
 
 		/**
@@ -243,6 +244,28 @@ public final class BasicBlockGraph
 	}
 
 	/**
+	 * Retreives the statements occurring in the given basic blocks.
+	 *
+	 * @param basicBlocks of interest.
+	 *
+	 * @return a collection of statements
+	 *
+	 * @pre basicBlocks != null and basicBlocks.oclIsKindOf(Collection(BasicBlock))
+	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
+	 */
+	public List getEnclosedStmts(final Collection basicBlocks) {
+		final List _result = new ArrayList();
+		final Iterator _i = basicBlocks.iterator();
+		final int _iEnd = basicBlocks.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final BasicBlock _bb = (BasicBlock) _i.next();
+			_result.addAll(_bb.getStmtsOf());
+		}
+		return _result;
+	}
+
+	/**
 	 * Retreives the basic blocks in which the given statements occur.
 	 *
 	 * @param stmts of interest.
@@ -270,28 +293,6 @@ public final class BasicBlockGraph
 						+ _stmt);
 				}
 			}
-		}
-		return _result;
-	}
-
-	/**
-	 * Retreives the statements occurring in the given basic blocks.
-	 *
-	 * @param basicBlocks of interest.
-	 *
-	 * @return a collection of statements
-	 *
-	 * @pre basicBlocks != null and basicBlocks.oclIsKindOf(Collection(BasicBlock))
-	 * @post result != null and result.oclIsKindOf(Collection(Stmt))
-	 */
-	public List getEnclosedStmts(final Collection basicBlocks) {
-		final List _result = new ArrayList();
-		final Iterator _i = basicBlocks.iterator();
-		final int _iEnd = basicBlocks.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final BasicBlock _bb = (BasicBlock) _i.next();
-			_result.addAll(_bb.getStmtsOf());
 		}
 		return _result;
 	}
@@ -412,6 +413,13 @@ public final class BasicBlockGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraph#setupGraphBuilder()
+	 */
+	protected void setupGraphBuilder() {
+		builder = new SimpleNodeGraphBuilder();
+	}
+
+	/**
 	 * Retrieves the statements of the basic block being processed. <code>stmts</code> is filled with the statements that
 	 * form the current basic block graph.
 	 *
@@ -489,134 +497,4 @@ public final class BasicBlockGraph
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.9  2004/08/09 08:49:41  venku
-   - add() versus addAll() error. FIXED.
-   - renamed getEnclosedBasicBlocks() as getEnclosingBasicBlocks().
-
-   Revision 1.8  2004/08/06 08:40:44  venku
-   - added logging statement for getEnclosingBlock() method.
-
-   Revision 1.7  2004/07/24 09:56:44  venku
-   - added new convenience methods.
-   Revision 1.6  2004/07/20 08:04:32  venku
-   - documentation.
-   Revision 1.5  2004/07/16 05:37:17  venku
-   - changed index based queries to statement based queries.
-   Revision 1.4  2004/07/07 06:25:08  venku
-   - the way statement sub list was constructed in the basic block was incorrect.  FIXED.
-   - ripple effect.
-   Revision 1.3  2004/07/04 11:52:42  venku
-   - renamed getStmtFrom() to getStmtsFrom().
-   Revision 1.2  2004/07/04 11:09:01  venku
-   - headless and multiple headed methods cause issue with statement graphs and basic blocks.  FIXED.
-   Revision 1.1  2004/05/31 21:38:12  venku
-   - moved BasicBlockGraph and BasicBlockGraphMgr from common.graph to common.soot.
-   - ripple effect.
-   Revision 1.16  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.15  2004/02/24 22:25:56  venku
-   - documentation
-   Revision 1.14  2004/02/23 09:09:02  venku
-   - the unit graph may not connect all units occurring in the graph.
-     Hence, care is taken while constructing the graph structure.
-   Revision 1.13  2004/01/25 09:00:58  venku
-   - coding convention.
-   Revision 1.12  2004/01/25 03:20:52  venku
-   - getLeaderStmt()/getTrailerStmt() will return null in case there
-     are not leader/trailter statements.
-   Revision 1.11  2004/01/22 09:00:54  venku
-   - getHead assumed that the basic block graph had some nodes.
-     This is not true for native methods. FIXED.
-   Revision 1.10  2004/01/19 13:30:06  venku
-   - simplified the logic in getStmtsFromTo().
-   Revision 1.9  2004/01/19 13:06:12  venku
-   - in getStmtsFrom() it retrieved the next statement if start == end. FIXED.
-   Revision 1.8  2004/01/17 00:38:13  venku
-   - documentation.
-   Revision 1.7  2004/01/06 00:53:36  venku
-   - coding conventions.
-   Revision 1.6  2004/01/06 00:17:10  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.5  2003/12/31 10:43:08  venku
-   - size() was unused in IDirectedGraph, hence, removed it.
-     Ripple effect.
-   Revision 1.4  2003/12/28 01:02:38  venku
-   - removed field handlerBlocks as it was only used in one method.
-     The blocks are generated on the fly.
-   Revision 1.3  2003/12/15 06:55:06  venku
-   - formatting
-   - error while building basic block graph.  FIXED.
-   Revision 1.2  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.16  2003/12/04 08:35:22  venku
-   - formatting.
-   Revision 1.15  2003/12/04 08:34:52  venku
-   - as methods in language such as Java have one entry point,
-     it makes sense to have a getHead() method in basic block graph.
-   Revision 1.14  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.13  2003/11/06 05:04:02  venku
-   - renamed WorkBag to IWorkBag and the ripple effect.
-   Revision 1.12  2003/11/05 09:28:10  venku
-   - ripple effect of splitting IWorkBag.
-   Revision 1.11  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.10  2003/09/12 08:09:37  venku
-   - documentation.
-   Revision 1.9  2003/09/11 12:18:35  venku
-   - added support to retrieve basic blocks in which
-     exception handlers begin.
-   - added support to detect ancestral relationship between nodes.
-   Revision 1.8  2003/09/10 10:51:07  venku
-   - documentation.
-   - removed unnecessary typecast.
-   Revision 1.7  2003/09/02 11:50:54  venku
-   - start==end in getStmtFromTo() returned a list with 2 instances of the
-    statement. FIXED.
-   Revision 1.6  2003/09/02 07:39:54  venku
-   - getStmtFromTo() was off by one at the end.  Also, it relied on Stmt list to calculate this info.
-     Now it uses the unit graph to calculate this info.
-   - added getLeaderStmt() method.
-   Revision 1.5  2003/08/24 08:13:11  venku
-   Major refactoring.
-    - The methods to modify the graphs were exposed.
-    - The above anamoly was fixed by supporting a new class AbstractMutableDirectedGraph.
-    - Each Mutable graph extends this graph and exposes itself via
-      suitable interface to restrict access.
-    - Ripple effect of the above changes.
-   Revision 1.4  2003/08/15 08:24:19  venku
-   Added a convenience method to retrieve trailer statement of a basic block.
-   Revision 1.3  2003/08/11 06:40:54  venku
-   Changed format of change log accumulation at the end of the file.
-   Spruced up Documentation and Specification.
-   Formatted source.
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
- */
+// End of File

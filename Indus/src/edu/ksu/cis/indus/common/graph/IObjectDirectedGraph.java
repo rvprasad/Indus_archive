@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -75,11 +75,4 @@ public interface IObjectDirectedGraph
 	IObjectNode queryNode(Object o);
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/07/25 10:26:06  venku
-   - added a new interface to query values attached to nodes.
-   Revision 1.1  2004/07/24 09:57:05  venku
-   - added a new interface to extract objects associated with nodes of the graph.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -19,6 +19,7 @@ import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.LIFOWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Marker;
 import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNodeGraphBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,6 +59,11 @@ public abstract class AbstractDirectedGraph
 	 * @invariant heads.oclIsKindOf(Set(INode))
 	 */
 	protected final Set tails = new HashSet();
+
+	/** 
+	 * The graph builder to use to build graphs that represent views of this graph.
+	 */
+	protected IGraphBuilder builder;
 
 	/** 
 	 * This indicates if this graph has a spanning forest.
@@ -111,6 +117,11 @@ public abstract class AbstractDirectedGraph
 	private int[] prenums;
 
 	/** 
+	 * This indicates if dag has been calculated for this graph.
+	 */
+	private boolean dagExists;
+
+	/** 
 	 * This indicates if pseudo tails have been calculated for this graph.
 	 */
 	private boolean pseudoTailsCalculated;
@@ -162,50 +173,30 @@ public abstract class AbstractDirectedGraph
 	/**
 	 * @see IDirectedGraph#getDAG()
 	 */
-	public final Map getDAG() {
-		final Map _result = new HashMap();
-		final Map _srcdestBackEdges = Pair.mapify(getBackEdges(), true);
-		final Map _destsrcBackEdges = Pair.mapify(getBackEdges(), false);
+	public final IObjectDirectedGraph getDAG() {
+		if (!dagExists) {
+			setupGraphBuilder();
 
-		final Collection _succs = new HashSet();
-		final Collection _preds = new HashSet();
+			final List _topoSorted = performTopologicalSort(true);
+			final List _succs = new ArrayList(_topoSorted);
+			final List _preds = new ArrayList();
+			builder.createGraph();
 
-		for (final Iterator _i = getNodes().iterator(); _i.hasNext();) {
-			final INode _node = (INode) _i.next();
-			final Collection _backSuccessors = (Collection) _srcdestBackEdges.get(_node);
-			_succs.clear();
-			_succs.addAll(_node.getSuccsOf());
+			final Iterator _i = _topoSorted.iterator();
+			final int _iEnd = _topoSorted.size();
 
-			if (_backSuccessors != null) {
-				_succs.removeAll(_backSuccessors);
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final INode _node = (INode) _i.next();
+				_succs.remove(_node);
+				builder.createNode(_node);
+				builder.addEdgeFromTo(_node, CollectionUtils.intersection(_node.getSuccsOf(), _succs));
+				builder.addEdgeFromTo(CollectionUtils.intersection(_node.getPredsOf(), _preds), _node);
+				_preds.add(_node);
 			}
-
-			final Collection _backPredecessors = (Collection) _destsrcBackEdges.get(_node);
-			_preds.clear();
-			_preds.addAll(_node.getPredsOf());
-
-			if (_backPredecessors != null) {
-				_preds.removeAll(_backPredecessors);
-			}
-
-			Collection _s;
-			Collection _p;
-
-			if (_succs.isEmpty()) {
-				_s = Collections.EMPTY_LIST;
-			} else {
-				_s = new ArrayList(_succs);
-			}
-
-			if (_preds.isEmpty()) {
-				_p = Collections.EMPTY_LIST;
-			} else {
-				_p = new ArrayList(_preds);
-			}
-
-			_result.put(_node, new Pair(_p, _s));
+			builder.finishBuilding();
+			dagExists = true;
 		}
-		return _result;
+		return builder.getBuiltGraph();
 	}
 
 	/**
@@ -216,22 +207,46 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
+	 * @see edu.ksu.cis.indus.common.graph.IDirectedGraph#getNodesInPathBetween(java.util.Collection)
+	 */
+	public Collection getNodesInPathBetween(final Collection nodes) {
+		final Collection _result = new HashSet();
+		final Iterator _i = nodes.iterator();
+		final int _iEnd = nodes.size();
+
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final INode _node1 = (INode) _i.next();
+			final Collection _descendants = getReachablesFrom(_node1, true);
+			final Collection _intersection = CollectionUtils.intersection(nodes, _descendants);
+            final Iterator _j = _intersection.iterator();
+			final int _jEnd = _intersection.size();
+
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final INode _node2 = (INode) _j.next();
+
+				if (_node2 != _node1) {
+					final Collection _ancestors = getReachablesFrom(_node2, false);
+					_result.addAll(CollectionUtils.intersection(_ancestors, _descendants));
+					_result.add(_node2);
+				}
+			}
+			
+			if (_jEnd > 0) {
+			    _result.add(_node1);
+			}
+		}
+		return _result;
+	}
+
+	/**
 	 * @see IDirectedGraph#getPseudoTails()
 	 */
 	public final Collection getPseudoTails() {
 		if (!pseudoTailsCalculated) {
 			// get the tails of the DAG into dtails
-			final Map _dag = getDAG();
-			final Collection _dtails = new HashSet();
-
-			for (final Iterator _i = _dag.entrySet().iterator(); _i.hasNext();) {
-				final Map.Entry _entry = (Map.Entry) _i.next();
-				final Pair _pair = (Pair) _entry.getValue();
-
-				if (((Collection) _pair.getSecond()).isEmpty()) {
-					_dtails.add(_entry.getKey());
-				}
-			}
+			final IDirectedGraph _graph = getDAG();
+			final Collection _dtails = new HashSet(_graph.getTails());
+			CollectionUtils.transform(_dtails, IObjectDirectedGraph.OBJECT_EXTRACTOR);
 
 			// get the tails of the graph into _tails
 			final Collection _tails = getTails();
@@ -335,11 +350,12 @@ public abstract class AbstractDirectedGraph
 	/**
 	 * Finds strongly-connected components in the given nodes in the requested direction.
 	 *
+	 * @param nodes in which the sccs should be detected.
 	 * @param topDown <code>true</code> indicates returned sccs should be in the top-down order; <code>false</code>,
 	 * 		  indicates bottom-up.
-	 * @param nodes in which the sccs should be detected.
 	 *
 	 * @return the sccs found in the given set of nodes in the requested direction.
+	 *
 	 * @pre nodes != null and nodes.oclIsKindOf(Collection(INode))
 	 * @post result != null and result.oclIsKindOf(Collection(Collection(INode)))
 	 * @post result->forall(o | nodes->containsAll(o))
@@ -435,7 +451,7 @@ public abstract class AbstractDirectedGraph
 		final Collection _result = new ArrayList();
 
 		final List _sccs = findSCCs(nodes, false);
-        final Iterator _j = _sccs.iterator();
+		final Iterator _j = _sccs.iterator();
 		final int _jEnd = _sccs.size();
 
 		for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
@@ -448,7 +464,7 @@ public abstract class AbstractDirectedGraph
 					_result.add(Collections.singleton(_node));
 				}
 			} else {
-				_result.addAll(findCyclesStartingFrom(_scc));
+				_result.addAll(findCyclesOccurringIn(_scc));
 			}
 		}
 		return _result;
@@ -474,12 +490,24 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
+	 * Sets up the graph builder required by this graph.  This method will be called before the builder will be used.  This
+	 * enables us to delay the creation of the builder until it is required.  This implementation will use
+	 * <code>SimpleNodeGraphBuilder</code>.
+	 *
+	 * @post builder != null
+	 */
+	protected void setupGraphBuilder() {
+		builder = new SimpleNodeGraphBuilder();
+	}
+
+	/**
 	 * Changes the state of the graph as it's shape changed.
 	 */
 	protected void shapeChanged() {
 		hasSpanningForest = false;
 		pseudoTailsCalculated = false;
 		reachability = false;
+		dagExists = false;
 	}
 
 	/**
@@ -493,7 +521,7 @@ public abstract class AbstractDirectedGraph
 	 * @post result != null and result.oclIsKindOf(Collection(Sequence(INode)))
 	 * @post result->forall(o | nodes->containsAll(o))
 	 */
-	private static Collection findCyclesStartingFrom(final Collection scc) {
+	private static Collection findCyclesOccurringIn(final Collection scc) {
 		final IWorkBag _wb = new LIFOWorkBag();
 		final Stack _dfsPath = new Stack();
 		final Collection _result = new HashSet();
@@ -809,132 +837,4 @@ public abstract class AbstractDirectedGraph
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.25  2004/08/09 10:13:58  venku
-   - added features to find SCCs and cycles in a given set of nodes.
-
-   Revision 1.24  2004/08/07 04:15:23  venku
-   - deleted a redundant check.
-   Revision 1.23  2004/08/02 07:33:47  venku
-   - small but significant change to the pair manager.
-   - ripple effect.
-   Revision 1.22  2004/07/26 08:27:34  venku
-   - optimization.
-   Revision 1.21  2004/07/25 10:26:35  venku
-   - generalized findCycles() to a given set of nodes (not just a SCC).
-   Revision 1.20  2004/07/11 13:42:05  venku
-   - optimization.
-   Revision 1.19  2004/07/07 10:07:36  venku
-   - added new method to calculate reachables. With test of course.
-   Revision 1.18  2004/07/04 04:56:27  venku
-   - made findCycles() public and static.
-   Revision 1.17  2004/07/03 07:56:56  venku
-   - improved the algorithm to calculate cycles.
-   Revision 1.16  2004/06/04 04:49:50  venku
-   - added toString() method.
-   Revision 1.15  2004/03/29 01:55:16  venku
-   - refactoring.
-     - history sensitive work list processing is a common pattern.  This
-       has been captured in HistoryAwareXXXXWorkBag classes.
-   - We rely on views of CFGs to process the body of the method.  Hence, it is
-     required to use a particular view CFG consistently.  This requirement resulted
-     in a large change.
-   - ripple effect of the above changes.
-   Revision 1.14  2004/02/24 22:25:56  venku
-   - documentation
-   Revision 1.13  2004/02/05 18:17:29  venku
-   - getPseudoTails() is incorrect when the pseudo tails are mutually
-     reachable.  FIXED.
-   Revision 1.12  2004/01/28 00:23:21  venku
-   - dtails are only those that aren't tails.  FIXED.
-   Revision 1.11  2004/01/25 08:58:43  venku
-   - coding convention.
-   Revision 1.10  2004/01/22 12:23:30  venku
-   - subtle boundary condition bug in getPseudoTails. FIXED.
-   Revision 1.9  2004/01/22 08:15:55  venku
-   - added a new method to calculated pseudo tails.
-   - added a new method that can be used to indicate the
-     graph has changed shape, hence, marking any cached
-     data as stale.
-   Revision 1.8  2004/01/22 00:53:32  venku
-   - formatting and coding convention.
-   Revision 1.7  2004/01/20 21:23:18  venku
-   - the return value of getSCCs needs to be ordered if
-     it accepts a direction parameter.  FIXED.
-   Revision 1.6  2004/01/06 00:53:35  venku
-   - coding conventions.
-   Revision 1.5  2004/01/06 00:17:10  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.4  2003/12/31 10:43:08  venku
-   - size() was unused in IDirectedGraph, hence, removed it.
-     Ripple effect.
-   Revision 1.3  2003/12/31 08:47:01  venku
-   - getCycles() was broken. FIXED.
-   Revision 1.2  2003/12/30 09:11:28  venku
-   - formatting
-   - concretized size() based on getNodes().
-   Revision 1.1  2003/12/13 02:28:53  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.14  2003/12/02 09:42:37  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.13  2003/11/06 05:04:02  venku
-   - renamed WorkBag to IWorkBag and the ripple effect.
-   Revision 1.12  2003/11/05 09:27:48  venku
-   - ripple effect of splitting IWorkBag.
-   Revision 1.11  2003/09/28 03:16:20  venku
-   - I don't know.  cvs indicates that there are no differences,
-     but yet says it is out of sync.
-   Revision 1.10  2003/09/14 23:20:48  venku
-   - added support to retrieve a DAG from a graph.
-   - removed support to extract preds/succs as a bitst from the graph.
-   - added/removed tests for the above changes.
-   Revision 1.9  2003/09/11 12:31:00  venku
-   - made ancestral relationship antisymmetric
-   - added testcases to test the relationship.
-   Revision 1.8  2003/09/11 12:18:35  venku
-   - added support to retrieve basic blocks in which
-     exception handlers begin.
-   - added support to detect ancestral relationship between nodes.
-   Revision 1.7  2003/09/11 01:52:07  venku
-   - prenum, postnum, and back edges support has been added.
-   - added test case to test the above addition.
-   - corrected subtle bugs in test1
-   - refactored test1 so that setup local testing can be added by subclasses.
-   Revision 1.6  2003/09/10 07:40:34  venku
-   - documentation change.
-   Revision 1.5  2003/09/01 20:57:11  venku
-   - Deleted getForwardSuccsOf().
-   Revision 1.4  2003/08/24 12:04:32  venku
-   Removed occursInCycle() method from DirectedGraph.
-   Installed occursInCycle() method in CFGAnalysis.
-   Converted performTopologicalsort() and getFinishTimes() into instance methods.
-   Ripple effect of the above changes.
-   Revision 1.3  2003/08/11 07:13:58  venku
-   empty log message
-   Revision 1.2  2003/08/11 04:20:19  venku
-   - Pair and Triple were changed to work in optimized and unoptimized mode.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
-   Revision 1.1  2003/08/07 06:42:16  venku
-   Major:
-    - Moved the package under indus umbrella.
-    - Renamed isEmpty() to hasWork() in IWorkBag.
-   Revision 1.6  2003/05/22 22:18:31  venku
-   - All the interfaces were renamed to start with an "I".
-   - Optimizing changes related Strings were made.
-   - Ripple effect of the previous change.
-   - Documentation and specification of other classes.
- */
+// End of File

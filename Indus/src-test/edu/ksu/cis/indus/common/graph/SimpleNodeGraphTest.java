@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -19,9 +19,12 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
 
 
 /**
@@ -33,14 +36,14 @@ import java.util.Map;
  */
 public class SimpleNodeGraphTest
   extends AbstractDirectedGraphTest {
-	/**
+	/** 
 	 * This maps node names to nodes.
 	 *
 	 * @invariant name2node.oclIsKindOf(Map(String, INode))
 	 */
 	protected final Map name2node = new HashMap();
 
-	/**
+	/** 
 	 * The reference to a simple node graph used for testing.  This should be the same as dg, so set this via
 	 * <code>setSNG</code>.
 	 *
@@ -81,6 +84,19 @@ public class SimpleNodeGraphTest
 
 		// check ordering across calls is same..
 		assertTrue(_nodes1.equals(_nodes2));
+	}
+
+	/**
+	 * Tests <code>getNodesInPathBetween()</code>.
+	 */
+	public void testGetNodesInPathBetween() {
+		final Collection _t = new HashSet();
+		_t.add(sng.getNode("b"));
+		_t.add(sng.getNode("e"));
+
+		final Collection _nodes = dg.getNodesInPathBetween(_t);
+		_t.add(sng.getNode("a"));
+		assertTrue(_nodes + " " + _t, _nodes.containsAll(_t) && _t.containsAll(_nodes));
 	}
 
 	/**
@@ -184,7 +200,12 @@ public class SimpleNodeGraphTest
 		}
 
 		// Adding edges between non-existent nodes
-		assertFalse(sng.addEdgeFromTo(sng.new SimpleNode("t1"), sng.new SimpleNode("t2")));
+		try {
+			assertFalse(sng.addEdgeFromTo(sng.new SimpleNode("t1"), sng.new SimpleNode("t2")));
+			fail("This should not happen!");
+		} catch (final IllegalArgumentException _e) {
+			;
+		}
 
 		// Create Spanning tree, add a new node, and check if the a new spanning tree will be built.
 		final Map _temp = new HashMap(dg.getSpanningSuccs());
@@ -259,48 +280,8 @@ public class SimpleNodeGraphTest
 	  throws Exception {
 		dg = null;
 		sng = null;
-        name2node.clear();
+		name2node.clear();
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.12  2004/04/21 02:24:04  venku
-   - test clean up code was added.
-
-   Revision 1.11  2004/02/08 19:32:13  venku
-   - test refactoring for regression testing.
-
-   Revision 1.10  2004/02/08 01:04:12  venku
-   - renamed TestSuite classes to NoArgTestSuite classes.
-   Revision 1.9  2004/02/05 18:17:29  venku
-   - getPseudoTails() is incorrect when the pseudo tails are mutually
-     reachable.  FIXED.
-   Revision 1.8  2004/02/05 16:12:36  venku
-   - added a new test case for testing pseudoTails.
-   Revision 1.7  2004/01/22 08:18:55  venku
-   - added test methods to handle getPseudoTails().
-   Revision 1.6  2004/01/22 05:19:29  venku
-   - coding convention.
-   Revision 1.5  2004/01/06 01:51:06  venku
-   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
-   Revision 1.4  2004/01/03 19:02:38  venku
-   - formatting and coding conventions.
-   Revision 1.3  2003/12/31 10:43:08  venku
-   - size() was unused in IDirectedGraph, hence, removed it.
-     Ripple effect.
-   Revision 1.2  2003/12/30 10:04:24  venku
-   - sng in SimpleNodeGraphTest should track dg or the otherway
-     round to make the hierarchy of test work.  This has
-     been fixed by adding setSNG().
-   Revision 1.1  2003/12/30 09:24:59  venku
-   - Refactored DirectedAndSimpleNodeGraphTest into
-      - AbstractDirectedGraphTest
-      - SimpleNodeGraphTest
-   - Introduced SimpleNodeGraphNoCycleTest
-   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
-   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     GraphNoArgTestSuite.
-   - added checks to test exceptional behavior as well.
- */
+// End of File

@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -17,6 +17,11 @@ package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.apache.commons.collections.CollectionUtils;
+
 
 /**
  * Tests to tests graphs with no cycle.
@@ -27,6 +32,18 @@ import edu.ksu.cis.indus.common.graph.SimpleNodeGraph.SimpleNode;
  */
 public class SimpleNodeGraphNoCycleTest
   extends SimpleNodeGraphTest {
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.SimpleNodeGraphTest#testGetNodesInPathBetween()
+	 */
+	public void testGetNodesInPathBetween() {
+		final Collection _t = new HashSet();
+		_t.add(sng.getNode("b"));
+		_t.add(sng.getNode("d"));
+
+		final Collection _nodes = dg.getNodesInPathBetween(_t);
+		assertTrue(_nodes.containsAll(_t));
+	}
+
 	/**
 	 * @see SimpleNodeGraphTest#setUp()
 	 */
@@ -102,7 +119,7 @@ public class SimpleNodeGraphNoCycleTest
 	 * @see edu.ksu.cis.indus.common.graph.AbstractDirectedGraphTest#localtestIsReachable()
 	 */
 	protected void localtestIsReachable() {
-	    assertFalse(sng.isReachable((INode) name2node.get("a"), (INode) name2node.get("a"), true));
+		assertFalse(sng.isReachable((INode) name2node.get("a"), (INode) name2node.get("a"), true));
 		assertTrue(sng.isReachable((INode) name2node.get("a"), (INode) name2node.get("e"), true));
 		assertTrue(sng.isReachable((INode) name2node.get("e"), (INode) name2node.get("a"), false));
 		assertTrue(sng.isReachable((INode) name2node.get("b"), (INode) name2node.get("e"), true));
@@ -110,39 +127,4 @@ public class SimpleNodeGraphNoCycleTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.9  2004/06/14 04:55:04  venku
-   - documentation.
-   - coding conventions.
-
-   Revision 1.8  2004/02/08 19:32:13  venku
-   - test refactoring for regression testing.
-
-   Revision 1.7  2004/02/08 01:04:12  venku
-   - renamed TestSuite classes to NoArgTestSuite classes.
-   Revision 1.6  2004/01/22 08:18:55  venku
-   - added test methods to handle getPseudoTails().
-   Revision 1.5  2004/01/06 01:51:06  venku
-   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
-   Revision 1.4  2003/12/31 10:02:02  venku
- *** empty log message ***
-         Revision 1.3  2003/12/31 08:29:58  venku
-         - changed the graph.
-         - added localtestAddEdgeFromTo() to override that
-           defined in the super class.
-         Revision 1.2  2003/12/30 10:04:25  venku
-         - sng in SimpleNodeGraphTest should track dg or the otherway
-           round to make the hierarchy of test work.  This has
-           been fixed by adding setSNG().
-         Revision 1.1  2003/12/30 09:24:59  venku
-         - Refactored DirectedAndSimpleNodeGraphTest into
-            - AbstractDirectedGraphTest
-            - SimpleNodeGraphTest
-         - Introduced SimpleNodeGraphNoCycleTest
-         - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
-         - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-           GraphNoArgTestSuite.
-         - added checks to test exceptional behavior as well.
- */
+// End of File

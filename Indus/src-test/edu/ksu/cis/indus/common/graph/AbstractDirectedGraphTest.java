@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -44,7 +44,7 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public abstract class AbstractDirectedGraphTest
   extends IndusTestCase {
-	/**
+	/** 
 	 * This is the graph that will be tested.
 	 */
 	protected IDirectedGraph dg;
@@ -111,17 +111,16 @@ public abstract class AbstractDirectedGraphTest
 	 * Tests <code>getDAG()</code> method.
 	 */
 	public final void testGetDAG() {
-		final Map _dag = dg.getDAG();
-		final Collection _backedges = dg.getBackEdges();
+		final IDirectedGraph _dag = dg.getDAG();
+		final List _sccTD = _dag.getSCCs(true);
+		final Iterator _i = _sccTD.iterator();
+		final int _iEnd = _sccTD.size();
 
-		for (final Iterator _i = _dag.keySet().iterator(); _i.hasNext();) {
-			final INode _node = (INode) _i.next();
-			final Collection _succs = (Collection) ((Pair) _dag.get(_node)).getSecond();
-
-			for (final Iterator _j = _succs.iterator(); _j.hasNext();) {
-				assertFalse(_backedges.contains(new Pair(_node, _j.next())));
-			}
+		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			final Collection _scc = (Collection) _i.next();
+			assertTrue(_scc.size() == 1);
 		}
+		assertTrue(_dag.getCycles() + " ", _dag.getCycles().isEmpty());
 	}
 
 	/**
@@ -370,100 +369,4 @@ public abstract class AbstractDirectedGraphTest
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.12  2004/06/14 04:55:04  venku
-   - documentation.
-   - coding conventions.
-   Revision 1.11  2004/06/04 04:50:21  venku
-   - check for more constraints for backedges.
-   Revision 1.10  2004/02/09 00:28:33  venku
-   - added a new class, IndusTestCase, that extends TestCase
-     to differentiate between the test method name and the
-     test instance name.
-   - all test cases in indus extends IndusTestCase.
-   - added a new method TestHelper to append container's name
-     to the test cases.
-   Revision 1.9  2004/02/08 19:32:13  venku
-   - test refactoring for regression testing.
-   Revision 1.8  2004/02/08 01:04:12  venku
-   - renamed TestSuite classes to NoArgTestSuite classes.
-   Revision 1.7  2004/01/22 08:18:55  venku
-   - added test methods to handle getPseudoTails().
-   Revision 1.6  2004/01/06 01:51:06  venku
-   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
-   Revision 1.5  2004/01/06 00:17:10  venku
-   - Classes pertaining to workbag in package indus.graph were moved
-     to indus.structures.
-   - indus.structures was renamed to indus.datastructures.
-   Revision 1.4  2003/12/31 10:43:08  venku
-   - size() was unused in IDirectedGraph, hence, removed it.
-     Ripple effect.
-   Revision 1.3  2003/12/31 09:12:19  venku
-   - clover directives.
-   Revision 1.2  2003/12/31 08:45:23  venku
-   - formatting.
-   - minor refactorings.
-   Revision 1.1  2003/12/30 09:24:59  venku
-   - Refactored DirectedAndSimpleNodeGraphTest into
-      - AbstractDirectedGraphTest
-      - SimpleNodeGraphTest
-   - Introduced SimpleNodeGraphNoCycleTest
-   - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
-   - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     GraphNoArgTestSuite.
-   - added checks to test exceptional behavior as well.
-   Revision 1.3  2003/12/14 20:35:26  venku
-   - SCC test was buggy.  FIXED.
-   Revision 1.2  2003/12/13 02:28:54  venku
-   - Refactoring, documentation, coding convention, and
-     formatting.
-   Revision 1.1  2003/12/09 04:22:03  venku
-   - refactoring.  Separated classes into separate packages.
-   - ripple effect.
-   Revision 1.1  2003/12/08 12:15:48  venku
-   - moved support package from StaticAnalyses to Indus project.
-   - ripple effect.
-   - Enabled call graph xmlization.
-   Revision 1.3  2003/12/07 04:49:11  venku
-   - exposed a couple of methods as they needed to be overridden
-     for call graph testing.
-   Revision 1.2  2003/12/02 09:42:34  venku
-   - well well well. coding convention and formatting changed
-     as a result of embracing checkstyle 3.2
-   Revision 1.1  2003/11/10 03:40:50  venku
-   - renamed DirectedAndSimpleNodeGraphTest1 to
-     AbstractDirectedGraphTest.
-   Revision 1.12  2003/09/28 23:19:36  venku
-     empty log message
-   Revision 1.11  2003/09/14 23:20:48  venku
-   - added support to retrieve a DAG from a graph.
-   - removed support to extract preds/succs as a bitst from the graph.
-   - added/removed tests for the above changes.
-   Revision 1.10  2003/09/12 08:07:26  venku
-   - documentation.
-   Revision 1.9  2003/09/11 12:31:00  venku
-   - made ancestral relationship antisymmetric
-   - added testcases to test the relationship.
-   Revision 1.8  2003/09/11 02:37:30  venku
-   - formatting.
-   Revision 1.7  2003/09/11 02:37:12  venku
-   - added a test case for javac compilation of Divergent04 test.
-   - created test suite to test directed and simple node graph.
-   Revision 1.6  2003/09/11 01:52:07  venku
-   - prenum, postnum, and back edges support has been added.
-   - added test case to test the above addition.
-   - corrected subtle bugs in test1
-   - refactored test1 so that setup local testing can be added by subclasses.
-   Revision 1.5  2003/09/09 01:14:29  venku
-   - spruced up getSCCs() test for both true and false arguments.
-   Revision 1.4  2003/09/02 02:46:39  venku
-   - Removed unwanted import.
-   Revision 1.3  2003/09/01 20:57:12  venku
-   - Deleted getForwardSuccsOf().
-   Revision 1.2  2003/08/24 12:35:47  venku
-   - Documentation changes.
-   Revision 1.1  2003/08/24 12:05:34  venku
-   - Well added unit tests based on JUnit to the StaticAnalyses part of Indus.
- */
+// End of File

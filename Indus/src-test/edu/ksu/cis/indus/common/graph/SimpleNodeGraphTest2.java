@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -15,6 +15,10 @@
 
 package edu.ksu.cis.indus.common.graph;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+
 /**
  * This class tests <code>getPseudoTails()</code> for a special case.
  *
@@ -24,6 +28,19 @@ package edu.ksu.cis.indus.common.graph;
  */
 public class SimpleNodeGraphTest2
   extends SimpleNodeGraphTest {
+	/**
+	 * @see edu.ksu.cis.indus.common.graph.SimpleNodeGraphTest#testGetNodesInPathBetween()
+	 */
+	public void testGetNodesInPathBetween() {
+		final Collection _t = new HashSet();
+		_t.add(sng.getNode("b"));
+		_t.add(sng.getNode("d"));
+
+		final Collection _nodes = dg.getNodesInPathBetween(_t);
+		_t.add(sng.getNode("c"));
+		assertTrue(_nodes.containsAll(_t));
+	}
+
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
@@ -90,13 +107,4 @@ public class SimpleNodeGraphTest2
 	}
 }
 
-/*
-   ChangeLog:
-   $Log$
-   Revision 1.2  2004/02/05 18:17:29  venku
-   - getPseudoTails() is incorrect when the pseudo tails are mutually
-     reachable.  FIXED.
-
-   Revision 1.1  2004/02/05 16:12:36  venku
-   - added a new test case for testing pseudoTails.
- */
+// End of File
