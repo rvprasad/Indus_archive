@@ -15,34 +15,109 @@
 
 package edu.ksu.cis.indus.tools;
 
+import org.eclipse.swt.widgets.Composite;
+
+
 /**
- * This is API exposed by the tool for configuration via GUI.
+ * This is the API exposed by the tool for configuring it via GUI.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$
  */
-public interface ToolConfigurator {
+public abstract class ToolConfigurator {
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private boolean disposed;
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	private boolean initialized = false;
+
 	/**
 	 * Displays the editor widget.  The widget can be hidden by calling <code>hide()</code>.
+	 *
+	 * @param composite DOCUMENT ME!
+	 * @param configuration DOCUMENT ME!
+	 *
+	 * @throws RuntimeException DOCUMENT ME!
 	 */
-	public void display();
+	public final void display(Composite composite, ToolConfiguration configuration) {
+		if (!initialized) {
+			initialize(composite);
+			initialized = true;
+		}
+
+		if (!disposed) {
+			displayTemplateMethod(configuration);
+		} else {
+			throw new RuntimeException("Disposed configurators cannot be displayed.");
+		}
+	}
 
 	/**
 	 * Disposes the editor widget. If the widget is displayed, it will be hidden and the widget will not respond to any
 	 * subsequent method calls.
 	 */
-	public void dispose();
+	public final void dispose() {
+		disposed = true;
+		disposeTemplateMethod();
+	}
 
 	/**
 	 * Hides the editor widget.  The widget can be redisplayed by calling <code>display()</code>.
 	 */
-	public void hide();
+	public abstract void hide();
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	protected final boolean isDisposed() {
+		return disposed;
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	protected final boolean isInitialized() {
+		return initialized;
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param configuration DOCUMENT ME!
+	 */
+	protected abstract void displayTemplateMethod(final ToolConfiguration configuration);
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 */
+	protected abstract void disposeTemplateMethod();
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param composite DOCUMENT ME!
+	 */
+	protected abstract void initialize(final Composite composite);
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2003/09/26 05:56:10  venku
+   - a checkpoint commit.
    Revision 1.1  2003/09/24 07:03:02  venku
    - Renamed ToolConfigurationEditor to ToolConfigurator.
    - Added property id creation support, via factory method, to ToolConfiguration.

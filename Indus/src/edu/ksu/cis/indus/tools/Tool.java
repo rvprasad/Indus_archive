@@ -20,9 +20,9 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * This is the facade interface exposed by a tool in Indus.  The tool will expose the configuration via
+ * This is the facade interface exposed by a tool in Indus.  The tool will expose the configurationCollection via
  * <code>ToolConfiguration</code>, hence, this api forces the tool implementation to handle the interaction with the
- * environment for issues such as persistence of the configuration.
+ * environment for issues such as persistence of the configurationCollection.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -40,11 +40,11 @@ public abstract class Tool {
 	protected final Object control = new Object();
 
 	/**
-	 * This is the configuration associated with this tool instance.  Subclasses should provide a valid reference.
+	 * This is the configuration information associated with this tool instance.  Subclasses should provide a valid reference.
 	 *
-	 * @invariant configuration != null
+	 * @invariant configurationInfo != null
 	 */
-	protected ToolConfiguration configuration;
+	protected ToolConfiguration configurationInfo;
 
 	/**
 	 * This is the configurator associated with this tool instance.  Subclasses should provide a valid reference.
@@ -70,30 +70,35 @@ public abstract class Tool {
 	/**
 	 * Returns a stringized from of the information in the object suitable for serialization.
 	 *
-	 * @return a stringized representation of the info in this configuration.
+	 * @return a stringized representation of the infornmation in the collection.
 	 *
 	 * @post result != null
 	 */
 	public abstract String stringizeConfiguration();
 
 	/**
-	 * Retrieves an object that represents the configuration of the tool.
+	 * Retrieves an object that represents the active configuration of the tool.
 	 *
-	 * @return the configuration of the tool.
+	 * @return the active configuration of the tool.
 	 *
 	 * @post result != null
 	 */
-	public final ToolConfiguration getConfiguration() {
-		return configuration;
+	public final ToolConfiguration getActiveConfiguration() {
+        ToolConfiguration result;
+        if (configurationInfo instanceof CompositeToolConfiguration)
+		result = ((CompositeToolConfiguration)configurationInfo).getActiveToolConfiguration();
+        else 
+            result = configurationInfo;
+        return result;
 	}
 
 	/**
 	 * Retrieves an editor which enables the user to edit the configuration of the tool.  This can return <code>null</code>,
-	 * if the tool does not have a configuration to edit which is seldom the case.
+	 * if the tool does not have a configurationCollection to edit which is seldom the case.
 	 *
-	 * @return a configuration editor.
+	 * @return a configurationCollection editor.
 	 */
-	public final ToolConfigurator getConfigurationEditor() {
+	public final ToolConfigurator getConfigurator() {
 		return configurator;
 	}
 
@@ -153,6 +158,11 @@ public abstract class Tool {
 	}
 
 	/**
+	 * DOCUMENT ME! <p></p>
+	 */
+	public abstract void initialize();
+
+	/**
 	 * This is the template method in which the actual processing of the tool happens.
 	 *
 	 * @param phase is the suggestive phase to start execution in.
@@ -178,6 +188,8 @@ public abstract class Tool {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/26 05:56:10  venku
+   - a checkpoint commit.
    Revision 1.2  2003/09/24 07:03:02  venku
    - Renamed ToolConfigurationEditor to ToolConfigurator.
    - Added property id creation support, via factory method, to ToolConfiguration.

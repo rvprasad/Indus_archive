@@ -25,9 +25,9 @@ import java.util.Map;
 
 
 /**
- * This class should be extended by a configuration instance of a tool.  It provides methods to programmatically configure
- * the tool.  It also provides a method to stringize the configuration if required by the toolkits/IDEs.  Some toolkits/IDE
- * may support persistence of only string-based properties.  To this end, we explicitly provide a
+ * This class should be extended by a configurationCollection instance of a tool.  It provides methods to programmatically
+ * configure the tool.  It also provides a method to stringize the configurationCollection if required by the toolkits/IDEs.
+ * Some toolkits/IDE may support persistence of only string-based properties.  To this end, we explicitly provide a
  * <code>stringizeConfiguration</code> and <code>destringizeConfiguration</code> methods in <code>Tool</code> interface that
  * should be used to set and get the information in an instance of this class as a string suitable for serialization.
  *
@@ -42,18 +42,23 @@ public abstract class ToolConfiguration {
 	private static final Log LOGGER = LogFactory.getLog(ToolConfiguration.class);
 
 	/**
-	 * This is set of property ids recognized by this configuration.
+	 * This is set of property ids recognized by this configurationCollection.
 	 */
 	protected final Collection PROPERTY_IDS = new HashSet();
 
-    protected String NAME;
-    
 	/**
-	 * This maps properties of this configuration to their values.
+	 * This maps properties of this configurationCollection to their values.
 	 *
 	 * @invariant properties != null
 	 */
 	protected final Map properties = new HashMap();
+
+	/**
+	 * <p>
+	 * DOCUMENT ME!
+	 * </p>
+	 */
+	protected String NAME;
 
 	/**
 	 * This identifies a property.  It does not represent a property.
@@ -79,8 +84,8 @@ public abstract class ToolConfiguration {
 	}
 
 	/**
-	 * Sets a property of the configuration. The given <code>propertyID</code> should be a valid property id declared in this
-	 * class.  If not, an exception will be raised.
+	 * Sets a property of the configurationCollection. The given <code>propertyID</code> should be a valid property id
+	 * declared in this class.  If not, an exception will be raised.
 	 *
 	 * @param propertyID to be set.
 	 * @param value to be assigned to the property.
@@ -120,8 +125,13 @@ public abstract class ToolConfiguration {
 	}
 
 	/**
-	 * Processes the given property.  This should be overriden by subclasses to handle alter configuration.  Only a return
-	 * value of <code>true</code> will result in the property being added to the configuration.
+	 * DOCUMENT ME! <p></p>
+	 */
+	public abstract void initialize();
+
+	/**
+	 * Processes the given property.  This should be overriden by subclasses to handle alter configurationCollection.  Only a
+	 * return value of <code>true</code> will result in the property being added to the configurationCollection.
 	 *
 	 * @param propertyID is the identifier of the property.
 	 * @param value of the property.
@@ -147,6 +157,8 @@ public abstract class ToolConfiguration {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2003/09/26 05:56:10  venku
+   - a checkpoint commit.
    Revision 1.2  2003/09/24 07:03:02  venku
    - Renamed ToolConfigurationEditor to ToolConfigurator.
    - Added property id creation support, via factory method, to ToolConfiguration.

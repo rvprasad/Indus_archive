@@ -15,13 +15,10 @@
 
 package edu.ksu.cis.indus.tools;
 
-import sun.util.logging.resources.logging;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,18 +32,19 @@ import java.util.List;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public abstract class ToolConfigurationCollection {
+public class CompositeToolConfiguration
+  extends ToolConfiguration {
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
-	private static final Log LOGGER = LogFactory.getLog(ToolConfigurationCollection.class);
+	private static final Log LOGGER = LogFactory.getLog(CompositeToolConfiguration.class);
 
 	/**
 	 * <p>
 	 * DOCUMENT ME!
 	 * </p>
 	 */
-	private final List configurations = new ArrayList();
+	protected final List configurations = new ArrayList();
 
 	/**
 	 * <p>
@@ -56,13 +54,30 @@ public abstract class ToolConfigurationCollection {
 	private ToolConfiguration active;
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public static List createConfigurations() {
+		return new ArrayList();
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param tc DOCUMENT ME!
 	 */
 	public final void setActiveToolConfiguration(final ToolConfiguration tc) {
 		if (configurations.contains(tc)) {
 			active = tc;
+		} else {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("The given configuration is not part of this collection.  It was not activated.");
+			}
 		}
 	}
 
@@ -80,7 +95,7 @@ public abstract class ToolConfigurationCollection {
 			active = (ToolConfiguration) configurations.get(0);
 
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("Selecting the first configuration as active configuration.");
+				LOGGER.info("Selecting the first configurationCollection as active configurationCollection.");
 			}
 
 			if (active == null) {
@@ -91,7 +106,37 @@ public abstract class ToolConfigurationCollection {
 	}
 
 	/**
-	 * DOCUMENT ME! <p></p>
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @param id DOCUMENT ME!
+	 */
+	public final void setActiveToolConfigurationID(final String id) {
+		for (Iterator i = configurations.iterator(); i.hasNext();) {
+			ToolConfiguration config = (ToolConfiguration) i.next();
+
+			if (config.NAME.equals(id)) {
+				active = config;
+			}
+		}
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
+	 *
+	 * @return DOCUMENT ME!
+	 */
+	public final String getActiveToolConfigurationID() {
+		return getActiveToolConfiguration().NAME;
+	}
+
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * <p></p>
 	 *
 	 * @param tc DOCUMENT ME!
 	 */
@@ -103,12 +148,36 @@ public abstract class ToolConfigurationCollection {
 		} else {
 			if (configurations.contains(tc)) {
 				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("The given configuration exists.");
+					LOGGER.warn("The given configurationCollection exists.");
 				}
 			} else {
 				configurations.add(tc);
 			}
 		}
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#initialize()
+	 */
+	public void initialize() {
+	}
+
+	/**
+	 * DOCUMENT ME! <p></p>
+	 *
+	 * @param configs DOCUMENT ME!
+	 */
+	protected void setConfigurations(List configs) {
+		configurations.clear();
+		configurations.addAll(configs);
+	}
+
+	/**
+	 * @see edu.ksu.cis.indus.tools.ToolConfiguration#processProperty(edu.ksu.cis.indus.tools.ToolConfiguration.PropertyIdentifier,
+	 * 		java.lang.Object)
+	 */
+	protected boolean processProperty(PropertyIdentifier propertyID, Object value) {
+		return getActiveToolConfiguration().processProperty(propertyID, value);
 	}
 
 	/**
@@ -138,4 +207,6 @@ public abstract class ToolConfigurationCollection {
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2003/09/26 05:56:10  venku
+   - a checkpoint commit.
  */
