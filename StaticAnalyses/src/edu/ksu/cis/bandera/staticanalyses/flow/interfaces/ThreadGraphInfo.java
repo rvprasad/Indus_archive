@@ -114,7 +114,7 @@ public interface ThreadGraphInfo {
 	 *
 	 * @return a collection of <code>NewExprTriple</code>s.
 	 *
-	 * @post result->forall(o | o.oclType = NewExprTriple)
+	 * @post result->forall(o | o.isOclKindOf(NewExprTriple))
 	 */
 	public Collection getAllocationSites();
 
@@ -143,5 +143,9 @@ public interface ThreadGraphInfo {
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 16:15:16  venku
+Well, things need to be baselined before proceeding to change
+them radically.  That's it.
+
 
 *****/

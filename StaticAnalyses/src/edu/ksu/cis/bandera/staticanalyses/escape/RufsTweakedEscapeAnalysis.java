@@ -213,14 +213,14 @@ public class RufsTweakedEscapeAnalysis
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @invariant threadAllocSitesSingle->forall(o | o.oclType = Triple(SootMethod, Stmt, NewExpr))
+	 * @invariant threadAllocSitesSingle->forall(o | o.isOclKindOf(Triple(SootMethod, Stmt, NewExpr)))
 	 */
 	private final Collection threadAllocSitesMulti;
 
 	/**
 	 * DOCUMENT ME!
 	 *
-	 * @invariant threadAllocSitesSingle->forall(o | o.oclType = Triple(SootMethod, Stmt, NewExpr))
+	 * @invariant threadAllocSitesSingle->forall(o | o.isOclKindOf(Triple(SootMethod, Stmt, NewExpr)))
 	 */
 	private final Collection threadAllocSitesSingle;
 
@@ -1356,7 +1356,7 @@ public class RufsTweakedEscapeAnalysis
 	 *
 	 * @param analyzer DOCUMENT ME!
 	 *
-	 * @pre analyzer.oclType = edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer
+	 * @pre analyzer.isOclKindOf(edu.ksu.cis.bandera.staticanalyses.flow.instances.ofa.OFAnalyzer)
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#setAnalyzer(edu.ksu.cis.bandera.staticanalyses.flow.AbstractAnalyzer)
 	 */
@@ -1391,7 +1391,7 @@ public class RufsTweakedEscapeAnalysis
 	 * @param value DOCUMENT ME!
 	 * @param context DOCUMENT ME!
 	 *
-	 * @pre value.oclType = NewExpr
+	 * @pre value.isOclKindOf(NewExpr)
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.Processor#callback(ca.mcgill.sable.soot.jimple.Value,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
@@ -1881,6 +1881,9 @@ public class RufsTweakedEscapeAnalysis
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/02/20 19:19:09  venku
+Affected by the refactoring processing and controlling logic.
+
 Revision 1.2  2003/02/19 17:31:10  venku
 Things are in flux.  Stabilizing them with CVS.
 

@@ -309,7 +309,7 @@ public abstract class DirectedGraph {
 	 * @return a collection of <code>List</code> of <code>Node</code>s that form SCCs in this graph. NOTE: It is possible to
 	 * 		   reach nodes not in the SCC but in this graph by following edges in reverse direction.
 	 *
-	 * @post result.oclType = Collection(List(Node))
+	 * @post result.isOclKindOf(Collection(List(Node)))
 	 */
 	public final Collection getSCCs(boolean topDown) {
 		Collection result = new ArrayList();
@@ -524,5 +524,8 @@ public abstract class DirectedGraph {
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 17:31:19  venku
+Things are in flux.  Stabilizing them with CVS.
+
 
 *****/

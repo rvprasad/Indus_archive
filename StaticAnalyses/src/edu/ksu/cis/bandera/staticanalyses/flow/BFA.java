@@ -239,9 +239,7 @@ public class BFA
 	 * </p>
 	 *
 	 * @return a collection of classes.
-	 */
-
-	/*!
+	 *
 	 * @post result->forall(o | o.oclType = ca.mcgill.sable.soot.SootClass)
 	 */
 	public Collection getClasses() {
@@ -523,5 +521,9 @@ public class BFA
  ChangeLog:
 
 $Log$
+Revision 0.10  2003/02/19 16:15:16  venku
+Well, things need to be baselined before proceeding to change
+them radically.  That's it.
+
 
 *****/

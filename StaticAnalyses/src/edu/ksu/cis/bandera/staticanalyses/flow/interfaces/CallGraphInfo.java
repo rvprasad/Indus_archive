@@ -127,7 +127,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a collection of <code>CallTriple</code>s.
 	 *
-	 * @post result->forall(o | o.oclType = CallTriple)
+	 * @post result->forall(o | o.isOclKindOf(CallTriple))
 	 */
 	public Collection getCallees(SootMethod caller);
 
@@ -151,7 +151,7 @@ public interface CallGraphInfo {
 	 *
 	 * @return a colleciton of <code>CallTriple</code>s.
 	 *
-	 * @post result->forall(o | o.oclType = CallTriple)
+	 * @post result->forall(o | o.isOclKindOf(CallTriple))
 	 */
 	public Collection getCallers(SootMethod callee);
 
@@ -214,5 +214,9 @@ public interface CallGraphInfo {
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 16:15:16  venku
+Well, things need to be baselined before proceeding to change
+them radically.  That's it.
+
 
 *****/

@@ -106,7 +106,7 @@ public class ProcessingController {
 	/**
 	 * The collection of post processors registered with this controller.  This maintains the insertion order.
 	 *
-	 * @invariant processors->forall(o | o.oclType = Processor)
+	 * @invariant processors->forall(o | o.isOclKindOf(Processor))
 	 */
 	protected final Collection processors = new ArrayList();
 
@@ -121,7 +121,7 @@ public class ProcessingController {
 	 *
 	 * @invariant class2processors.keySet()->forall( o | o.oclType = Class)
 	 * @invariant class2processors.valueSet()->forall( o | o.oclIsKindOf(java.util.Set))
-	 * @invariant class2processors.valueSet()->forall(o | o->forall( p | p.oclType = Processor))
+	 * @invariant class2processors.valueSet()->forall(o | o->forall( p | p.isOclKindOf(Processor)))
 	 */
 	protected final Map class2processors = new HashMap();
 
@@ -484,5 +484,10 @@ public class ProcessingController {
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/02/20 19:19:31  venku
+Processing was the general agenda, not post processing.
+Post processing was a flavor.  So, changed the post processing
+logic to be generic for processing and adaptable when requried.
+
 
 *****/

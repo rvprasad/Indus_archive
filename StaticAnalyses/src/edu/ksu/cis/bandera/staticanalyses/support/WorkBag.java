@@ -75,7 +75,7 @@ public class WorkBag {
 	/**
 	 * This will store work pieces.
 	 *
-	 * @invariant container.oclType = Bag(Object)
+	 * @invariant container.isOclKindOf(Bag(Object))
 	 */
 	private CollectionWrapper container;
 
@@ -178,7 +178,7 @@ public class WorkBag {
 		/**
 		 * The container that will store the objects.
 		 *
-		 * @invariant container.oclType = Bag(Object)
+		 * @invariant container.isOclKindOf(Bag(Object))
 		 */
 		protected Collection container;
 
@@ -212,7 +212,7 @@ public class WorkBag {
 		 *
 		 * @param c is the collection of the elements to be added.
 		 *
-		 * @invariant c.oclType = Bag(Object)
+		 * @invariant c.isOclKindOf(Bag(Object))
 		 * @invariant container.includesAll(container$pre)
 		 * @post container.containsAll(c)
 		 * @post c->forall(o | container->count(o) = 1)
@@ -259,7 +259,7 @@ public class WorkBag {
 		/**
 		 * The container that will store the objects.
 		 *
-		 * @invariant queue.oclType = Sequence(Object)
+		 * @invariant queue.isOclKindOf(Sequence(Object))
 		 */
 		List queue = new ArrayList();
 
@@ -304,7 +304,7 @@ public class WorkBag {
 		/**
 		 * The container that will store the objects.
 		 *
-		 * @invariant stack.oclType = Bag(Object)
+		 * @invariant stack.isOclKindOf(Bag(Object))
 		 */
 		private Stack stack = new Stack();
 
@@ -448,5 +448,8 @@ public class WorkBag {
  ChangeLog:
 
 $Log$
+Revision 1.4  2003/02/19 17:31:19  venku
+Things are in flux.  Stabilizing them with CVS.
+
 
 *****/

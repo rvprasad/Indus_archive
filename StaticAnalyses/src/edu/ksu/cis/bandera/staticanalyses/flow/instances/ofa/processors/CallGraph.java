@@ -195,7 +195,7 @@ public class CallGraph
 	 *
 	 * @return a collection of <code>CallTriple</code>s corresponding to the call sites.
 	 *
-	 * @post result->forall(o | o.oclType = CallTriple)
+	 * @post result->forall(o | o.isOclKindOf(CallTriple))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCallees(ca.mcgill.sable.soot.SootMethod,
 	 * 		edu.ksu.cis.bandera.staticanalyses.flow.Context)
@@ -254,7 +254,7 @@ public class CallGraph
 	 *
 	 * @return a collection of <code>CallTriple</code>s corresponding to the call sites.
 	 *
-	 * @post result->forall(o | o.oclType = CallTriple)
+	 * @post result->forall(o | o.isOclKindOf(CallTriple))
 	 *
 	 * @see edu.ksu.cis.bandera.staticanalyses.flow.interfaces.CallGraphInfo#getCallers(ca.mcgill.sable.soot.SootMethod)
 	 */
@@ -646,6 +646,11 @@ public class CallGraph
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/02/20 19:18:20  venku
+Processing was the general agenda, not post processing.
+Post processing was a flavor.  So, changed the post processing
+logic to be generic for processing and adaptable when requried.
+
 Revision 1.2  2003/02/19 16:15:16  venku
 Well, things need to be baselined before proceeding to change
 them radically.  That's it.

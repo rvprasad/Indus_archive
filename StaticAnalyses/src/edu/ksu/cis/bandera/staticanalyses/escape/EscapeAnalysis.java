@@ -67,8 +67,8 @@ public interface EscapeAnalysis {
 	 *
 	 * @return <code>true</code> if <code>stmt</code> is executed by a single thread; <code>false</code>, otherwise.
 	 *
-	 * @pre stmt.oclType = ca.mcgill.sable.soot.jimple.ExitMonitorStmt or stmt.oclType = ca.mcgill.sable.soot.jimple.
-	 * 		EnterMonitorStmt
+	 * @pre stmt.isOclKindOf(ca.mcgill.sable.soot.jimple.ExitMonitorStmt) or 
+	 * 		stmt.isOclKindOf(ca.mcgill.sable.soot.jimple.EnterMonitorStmt)
 	 */
 	boolean isSingleThreadSynchronized(Stmt stmt);
 
@@ -88,5 +88,8 @@ public interface EscapeAnalysis {
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 17:31:10  venku
+Things are in flux.  Stabilizing them with CVS.
+
 
 *****/

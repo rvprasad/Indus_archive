@@ -170,8 +170,7 @@ public class SimpleNodeGraph
 	 *
 	 * @return the node representing <code>o</code>.
 	 *
-	 * @post object2nodes\
-	 * @pre.get(o) = null implies object2nodes.get(o) = result
+	 * @post object2nodes$pre.get(o) = null implies object2nodes.get(o) = result
 	 */
 	public Node getNode(Object o) {
 		Node result = (Node) object2nodes.get(o);
@@ -230,5 +229,8 @@ public class SimpleNodeGraph
  ChangeLog:
 
 $Log$
+Revision 1.2  2003/02/19 17:31:19  venku
+Things are in flux.  Stabilizing them with CVS.
+
 
 *****/

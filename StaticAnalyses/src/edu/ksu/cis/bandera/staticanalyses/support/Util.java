@@ -227,7 +227,7 @@ public class Util {
 	 *
 	 * @return an instance of type <code>targetType</code> which contains all the values in collection <code>src</code>.
 	 *
-	 * @invariant src.oclType = Bag(Object)
+	 * @invariant src.isOclKindOf(Bag(Object))
 	 * @post result->includesAll(src)
 	 */
 	public static ca.mcgill.sable.util.Collection convert(String targetType, Collection src) {
@@ -265,7 +265,7 @@ public class Util {
 	 *
 	 * @return an instance of type <code>targetType</code> which contains all the values in collection <code>src</code>.
 	 *
-	 * @invariant src.oclType = Bag(Object)
+	 * @invariant src.isOclKindOf(Bag(Object))
 	 * @post result->includesAll(src)
 	 */
 	public static Collection convert(String targetType, ca.mcgill.sable.util.Collection src) {
@@ -297,5 +297,8 @@ public class Util {
  ChangeLog:
 
 $Log$
+Revision 1.3  2003/02/19 17:31:19  venku
+Things are in flux.  Stabilizing them with CVS.
+
 
 *****/

@@ -93,21 +93,21 @@ public class ThreadGraph
 	/**
 	 * The collection of thread allocation sites.
 	 *
-	 * @invariant newThreadExprs.oclType = Collection(NewExprTriple)
+	 * @invariant newThreadExprs.isOclKindOf(Collection(NewExprTriple))
 	 */
 	private final Collection newThreadExprs = new HashSet();
 
 	/**
 	 * This maps methods to thread allocation sites which create threads in which the key method is executed.
 	 *
-	 * @invariant method2threads.oclType = Map(SootMethod, Collection(NewExprTriple))
+	 * @invariant method2threads.isOclKindOf(Map(SootMethod, Collection(NewExprTriple)))
 	 */
 	private final Map method2threads = new HashMap();
 
 	/**
 	 * This maps threads allocation sites to the methods which are executed in the created threads.
 	 *
-	 * @invariant thread2methods.oclType = Map(NewExprTriple, Collection(SootMethod))
+	 * @invariant thread2methods.isOclKindOf(Map(NewExprTriple, Collection(SootMethod)))
 	 */
 	private final Map thread2methods = new HashMap();
 
@@ -356,7 +356,7 @@ public class ThreadGraph
 	 *
 	 * @return a collection of <code>SootMethod</code>s occurring the call closure.
 	 *
-	 * @post result.oclType = Collection(SootMethod)
+	 * @post result.isOclKindOf(Collection(SootMethod))
 	 */
 	private Collection transitiveThreadCallClosure(SootMethod starterMethod) {
 		Collection result = new HashSet();
@@ -394,6 +394,11 @@ public class ThreadGraph
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/02/20 19:18:20  venku
+Processing was the general agenda, not post processing.
+Post processing was a flavor.  So, changed the post processing
+logic to be generic for processing and adaptable when requried.
+
 Revision 1.2  2003/02/19 16:15:16  venku
 Well, things need to be baselined before proceeding to change
 them radically.  That's it.
