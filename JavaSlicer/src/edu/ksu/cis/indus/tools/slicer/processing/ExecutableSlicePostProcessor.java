@@ -185,6 +185,7 @@ public final class ExecutableSlicePostProcessor
 	public void reset() {
 		methodWorkBag.clear();
 		processedMethodCache.clear();
+		processedStmtCache.clear();
 	}
 
 	/**
@@ -564,6 +565,9 @@ public final class ExecutableSlicePostProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.29  2004/08/06 13:29:00  venku
+   - minor changes.
+
    Revision 1.28  2004/08/02 04:45:05  venku
    - logging.
    - pseudo tail were not considered properly in pickRandomReturnPoints(). FIXED.
