@@ -405,8 +405,9 @@ public final class SlicingEngine {
 		callStackCache = null;
 		criteria.clear();
 		collectedAllInvocationSites.clear();
+
 		if (directionSensitiveInfo != null) {
-		    directionSensitiveInfo.reset();
+			directionSensitiveInfo.reset();
 		}
 
 		// clear the work bag of slice criterion
@@ -842,7 +843,7 @@ public final class SlicingEngine {
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("BEGIN: Transforming expr criteria: " + _vBox.getValue() + "[" + _considerExecution + "] at "
-				+ _stmt + " in " + _method);
+				+ _stmt + " in " + _method + "   " + callStackCache);
 		}
 
 		// include the statement to capture control dependency and generate criteria from it. Remember to collect it.
@@ -882,7 +883,8 @@ public final class SlicingEngine {
 	private void transformAndGenerateNewCriteriaForStmt(final Stmt stmt, final SootMethod method,
 		final boolean considerExecution) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("BEGIN: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method);
+			LOGGER.debug("BEGIN: Transforming stmt criteria: " + stmt + "[" + considerExecution + "] in " + method + "   "
+				+ callStackCache);
 		}
 
 		// transform the statement

@@ -228,13 +228,12 @@ public class BackwardSlicingPart
 		}
 
 		final Triple _triple = new Triple(stmt, caller, _stackClone);
-		final Collection _temp = Collections.nCopies(stmt.getInvokeExpr().getArgCount(), _triple);
 		final Iterator _i = callees.iterator();
 		final int _iEnd = callees.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
 			final Object _callee = _i.next();
-			CollectionsUtilities.putAllIntoListInMap(callee2callsites, _callee, _temp);
+			CollectionsUtilities.putIntoSetInMap(callee2callsites, _callee, _triple);
 		}
 	}
 
@@ -470,12 +469,12 @@ public class BackwardSlicingPart
 	}
 
 	/**
-	 * Generates criteria for the argument positions at call-sites that could have been missed due to criteria processing 
+	 * Generates criteria for the argument positions at call-sites that could have been missed due to criteria processing
 	 * order.
 	 *
 	 * @param callee of interest.
 	 * @param argIndex at the call site.
-	 * 
+	 *
 	 * @pre callee != null
 	 */
 	private void generateCriteriaForMissedParameters(final SootMethod callee, final int argIndex) {
@@ -492,7 +491,6 @@ public class BackwardSlicingPart
 			final InvokeExpr _expr = _stmt.getInvokeExpr();
 			engine.setCallStackCache(_stack);
 			engine.generateSliceExprCriterion(_expr.getArgBox(argIndex), _stmt, _caller, true);
-			_i.remove();
 		}
 		engine.setCallStackCache(_oldCallStack);
 	}
