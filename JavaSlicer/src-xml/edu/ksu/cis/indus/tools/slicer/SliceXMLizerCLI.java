@@ -266,6 +266,7 @@ public class SliceXMLizerCLI
 
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Criteria specification before slicing: \n" + _result);
+					LOGGER.debug("Criteria before slicing: \n" + _criteria);
 				}
 			} catch (final IOException _e) {
 				if (LOGGER.isWarnEnabled()) {
@@ -710,6 +711,11 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.42  2004/07/02 09:00:08  venku
+   - added support to serialize/deserialize slice criteria. (feature #397)
+   - used the above support in SliceXMLizerCLI.
+   - used Jakarta Commons IO library.
+
    Revision 1.41  2004/06/26 10:16:35  venku
    - bug #389. FIXED.
    Revision 1.40  2004/06/14 08:39:29  venku
