@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -304,14 +304,11 @@ public abstract class AbstractTool
 									throw new RuntimeException(_e);
 								}
 							}
-						}
 
-						for (final Iterator _iter = _listenersList.iterator(); _iter.hasNext();) {
-							final IToolProgressListener _listener = (IToolProgressListener) _iter.next();
-							_listener.toolProgess(_evt);
-						}
-
-						synchronized (listeners) {
+							for (final Iterator _i = _listenersList.iterator(); _i.hasNext();) {
+								final IToolProgressListener _listener = (IToolProgressListener) _i.next();
+								_listener.toolProgess(_evt);
+							}
 							token++;
 							listeners.notifyAll();
 						}
@@ -347,6 +344,9 @@ public abstract class AbstractTool
 
 /*
  * ChangeLog: $Log$
+ * ChangeLog: Revision 1.30  2004/08/17 02:23:12  venku
+ * ChangeLog: - documentation.
+ * ChangeLog:
  * ChangeLog: Revision 1.29  2004/08/17 02:21:19  venku
  * ChangeLog: - added a new method, getConfigurations(), to retrieve the available configurations in a tool.
  * ChangeLog:
