@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.TestHelper;
 
+import edu.ksu.cis.indus.common.CollectionsUtilities;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
 
@@ -155,7 +156,7 @@ public class DependencyAnalysisTestSetup
 
 			if (_da.getId().equals(IDependencyAnalysis.CONTROL_DA)
 				  && _da.getDirection().equals(IDependencyAnalysis.BACKWARD_DIRECTION)) {
-				info.put(IDependencyAnalysis.CONTROL_DA, _da);
+				CollectionsUtilities.putIntoSetInMap(info, IDependencyAnalysis.CONTROL_DA, _da);
 			}
 		}
 
