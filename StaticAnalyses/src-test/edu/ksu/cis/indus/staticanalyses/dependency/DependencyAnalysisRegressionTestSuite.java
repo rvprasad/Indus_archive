@@ -114,7 +114,7 @@ public class DependencyAnalysisRegressionTestSuite
 
 			final String[] _configs = _props.getProperty("configs").split(" ");
 			final Collection _das = new ArrayList();
-			final IStmtGraphFactory stmtGraphFactory =
+			final IStmtGraphFactory _stmtGraphFactory =
 				new ExceptionFlowSensitiveStmtGraphFactory(ExceptionFlowSensitiveStmtGraphFactory.SYNC_RELATED_EXCEPTIONS,
 					true);
 
@@ -173,7 +173,7 @@ public class DependencyAnalysisRegressionTestSuite
 
 						final DependencyAnalysisTestSetup _test =
 							new DependencyAnalysisTestSetup(_temp, _classNames, _classpath, _xmlTestDir);
-						_test.setStmtGraphFactory(stmtGraphFactory);
+						_test.setStmtGraphFactory(_stmtGraphFactory);
 						_test.setXMLTestDir(_xmlTestDir);
 						_test.setXMLControlDir(_xmlControlDir);
 						suite.addTest(_test);
@@ -191,6 +191,9 @@ public class DependencyAnalysisRegressionTestSuite
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/04/18 00:23:38  venku
+   - coding conventions.
+
    Revision 1.1  2004/04/18 00:22:37  venku
    - DependencyAnalysisRegresssionTestSuite was renamed to
      DependenceAnalysisRegressionTestSuite.  One missing "s".
