@@ -186,7 +186,7 @@ public final class BasicBlockGraph
 		}
 
 		/**
-		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code>.
+		 * Retrieves the statements in this block starting from <code>start</code> till <code>end</code> (inclusive).
 		 *
 		 * @param start is the starting statement of the requested statement list.
 		 * @param end is the ending statement of the requested statement list.
