@@ -29,13 +29,13 @@ import junit.swingui.TestRunner;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class GraphTestSuite {
+public final class GraphNoArgTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new GraphTestSuite object.
+	 * Creates a new GraphNoArgTestSuite object.
 	 */
-	private GraphTestSuite() {
+	private GraphNoArgTestSuite() {
 	}
 
 	/**
@@ -77,8 +77,11 @@ public final class GraphTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/05 16:12:36  venku
+   - added a new test case for testing pseudoTails.
+
    Revision 1.1  2004/01/06 01:51:06  venku
-   - renamed DirectedGraphTestSuite to GraphTestSuite.
+   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
 
    Revision 1.1  2003/12/30 09:24:59  venku
    - Refactored DirectedAndSimpleNodeGraphTest into
@@ -87,7 +90,7 @@ public final class GraphTestSuite {
    - Introduced SimpleNodeGraphNoCycleTest
    - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     GraphTestSuite.
+     GraphNoArgTestSuite.
    - added checks to test exceptional behavior as well.
 
    Revision 1.2  2003/12/13 02:28:54  venku

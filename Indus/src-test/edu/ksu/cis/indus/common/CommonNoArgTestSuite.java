@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.soot;
+package edu.ksu.cis.indus.common;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -22,19 +22,19 @@ import junit.swingui.TestRunner;
 
 
 /**
- * This is the suite of tests to test classes in <code>edu.ksu.cis.indus.common.soot</code>.
+ * test suite to tests classes in <code>common</code> package.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class SootTestSuite {
+public final class CommonNoArgTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new GraphTestSuite object.
+	 * Creates a new DataStructuresNoArgTestSuite object.
 	 */
-	private SootTestSuite() {
+	private CommonNoArgTestSuite() {
 	}
 
 	/**
@@ -51,21 +51,19 @@ public final class SootTestSuite {
 	}
 
 	///CLOVER:ON
-    
-    /**
-     * Creates the test suite.
-     *
-     * @return the created test suite.
-     *
-     * @post result != null
-     */
+
+	/**
+	 * Creates the test suite.
+	 *
+	 * @return the created test suite.
+	 *
+	 * @post result != null
+	 */
 	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common.soot");
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common");
 
 		//$JUnit-BEGIN$
-		_suite.addTestSuite(UtilTest.class);
-		_suite.addTestSuite(UnitGraphFactoryTest.class);
-		_suite.addTestSuite(NamedTagTest.class);
+		_suite.addTestSuite(CollectionsModifierTest.class);
 		//$JUnit-END$
 		return _suite;
 	}
@@ -74,4 +72,13 @@ public final class SootTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/02/05 18:16:21  venku
+   - coding convention.
+
+   Revision 1.2  2004/01/28 23:03:09  venku
+   - added clover source code directives.
+
+   Revision 1.1  2004/01/28 22:55:23  venku
+   - added test suites for classes in common package.
+
  */

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common.datastructures;
+package edu.ksu.cis.indus.common.soot;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -22,19 +22,19 @@ import junit.swingui.TestRunner;
 
 
 /**
- * The test suite to tests classes in datastructures package.
+ * This is the suite of tests to test classes in <code>edu.ksu.cis.indus.common.soot</code>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DataStructuresTestSuite {
+public final class SootNoArgTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new DataStructuresTestSuite object.
+	 * Creates a new GraphNoArgTestSuite object.
 	 */
-	private DataStructuresTestSuite() {
+	private SootNoArgTestSuite() {
 	}
 
 	/**
@@ -51,26 +51,21 @@ public final class DataStructuresTestSuite {
 	}
 
 	///CLOVER:ON
-
-	/**
-	 * Creates the test suite.
-	 *
-	 * @return the created test suite.
-	 *
-	 * @post result != null
-	 */
+    
+    /**
+     * Creates the test suite.
+     *
+     * @return the created test suite.
+     *
+     * @post result != null
+     */
 	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common.datastructures");
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common.soot");
 
 		//$JUnit-BEGIN$
-		_suite.addTestSuite(FastUnionFindElementTest.class);
-		_suite.addTestSuite(LIFOWorkBagTest.class);
-		_suite.addTestSuite(FIFOWorkBagTest.class);
-		_suite.addTestSuite(PoolAwareWorkBagTest.class);
-		_suite.addTestSuite(PairTest.class);
-		_suite.addTestSuite(TripleTest.class);
-		_suite.addTestSuite(QuadrapleTest.class);
-        _suite.addTestSuite(MarkerTest.class);
+		_suite.addTestSuite(UtilTest.class);
+		_suite.addTestSuite(UnitGraphFactoryTest.class);
+		_suite.addTestSuite(NamedTagTest.class);
 		//$JUnit-END$
 		return _suite;
 	}
@@ -79,8 +74,7 @@ public final class DataStructuresTestSuite {
 /*
    ChangeLog:
    $Log$
-   Revision 1.2  2004/01/13 23:26:32  venku
-   - documentation.
-   Revision 1.1  2004/01/06 15:06:23  venku
-   - started to add test case for data structures.
+   Revision 1.1  2004/01/28 22:45:07  venku
+   - added new test cases for testing classes in soot package.
+
  */

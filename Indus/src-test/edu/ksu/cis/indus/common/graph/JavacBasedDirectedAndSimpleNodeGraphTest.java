@@ -89,6 +89,9 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/01/06 01:51:06  venku
+   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
+
    Revision 1.3  2003/12/30 10:04:25  venku
    - sng in SimpleNodeGraphTest should track dg or the otherway
      round to make the hierarchy of test work.  This has
@@ -101,7 +104,7 @@ public class JavacBasedDirectedAndSimpleNodeGraphTest
    - Introduced SimpleNodeGraphNoCycleTest
    - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     GraphTestSuite.
+     GraphNoArgTestSuite.
    - added checks to test exceptional behavior as well.
 
    Revision 1.1  2003/12/09 04:22:03  venku

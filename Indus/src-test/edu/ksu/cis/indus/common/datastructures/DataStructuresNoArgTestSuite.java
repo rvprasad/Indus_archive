@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.common;
+package edu.ksu.cis.indus.common.datastructures;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -22,19 +22,19 @@ import junit.swingui.TestRunner;
 
 
 /**
- * test suite to tests classes in <code>common</code> package.
+ * The test suite to tests classes in datastructures package.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class CommonTestSuite {
+public final class DataStructuresNoArgTestSuite {
 	///CLOVER:OFF
 
 	/**
-	 * Creates a new DataStructuresTestSuite object.
+	 * Creates a new DataStructuresNoArgTestSuite object.
 	 */
-	private CommonTestSuite() {
+	private DataStructuresNoArgTestSuite() {
 	}
 
 	/**
@@ -60,10 +60,17 @@ public final class CommonTestSuite {
 	 * @post result != null
 	 */
 	public static Test suite() {
-		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common");
+		final TestSuite _suite = new TestSuite("Test for edu.ksu.cis.indus.common.datastructures");
 
 		//$JUnit-BEGIN$
-		_suite.addTestSuite(CollectionsModifierTest.class);
+		_suite.addTestSuite(FastUnionFindElementTest.class);
+		_suite.addTestSuite(LIFOWorkBagTest.class);
+		_suite.addTestSuite(FIFOWorkBagTest.class);
+		_suite.addTestSuite(PoolAwareWorkBagTest.class);
+		_suite.addTestSuite(PairTest.class);
+		_suite.addTestSuite(TripleTest.class);
+		_suite.addTestSuite(QuadrapleTest.class);
+        _suite.addTestSuite(MarkerTest.class);
 		//$JUnit-END$
 		return _suite;
 	}
@@ -72,10 +79,11 @@ public final class CommonTestSuite {
 /*
    ChangeLog:
    $Log$
-   Revision 1.2  2004/01/28 23:03:09  venku
-   - added clover source code directives.
+   Revision 1.3  2004/01/28 00:18:45  venku
+   - added unit tests for classes in data structures package.
 
-   Revision 1.1  2004/01/28 22:55:23  venku
-   - added test suites for classes in common package.
-
+   Revision 1.2  2004/01/13 23:26:32  venku
+   - documentation.
+   Revision 1.1  2004/01/06 15:06:23  venku
+   - started to add test case for data structures.
  */

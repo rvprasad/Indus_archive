@@ -112,8 +112,11 @@ public class SimpleNodeGraphNoCycleTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2004/01/22 08:18:55  venku
+   - added test methods to handle getPseudoTails().
+
    Revision 1.5  2004/01/06 01:51:06  venku
-   - renamed DirectedGraphTestSuite to GraphTestSuite.
+   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
    Revision 1.4  2003/12/31 10:02:02  venku
  *** empty log message ***
      Revision 1.3  2003/12/31 08:29:58  venku
@@ -131,6 +134,6 @@ public class SimpleNodeGraphNoCycleTest
      - Introduced SimpleNodeGraphNoCycleTest
      - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
      - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-       GraphTestSuite.
+       GraphNoArgTestSuite.
      - added checks to test exceptional behavior as well.
  */

@@ -248,6 +248,10 @@ public class SimpleNodeGraphTest
 /*
    ChangeLog:
    $Log$
+   Revision 1.9  2004/02/05 18:17:29  venku
+   - getPseudoTails() is incorrect when the pseudo tails are mutually
+     reachable.  FIXED.
+
    Revision 1.8  2004/02/05 16:12:36  venku
    - added a new test case for testing pseudoTails.
 
@@ -257,7 +261,7 @@ public class SimpleNodeGraphTest
    Revision 1.6  2004/01/22 05:19:29  venku
    - coding convention.
    Revision 1.5  2004/01/06 01:51:06  venku
-   - renamed DirectedGraphTestSuite to GraphTestSuite.
+   - renamed DirectedGraphTestSuite to GraphNoArgTestSuite.
    Revision 1.4  2004/01/03 19:02:38  venku
    - formatting and coding conventions.
    Revision 1.3  2003/12/31 10:43:08  venku
@@ -274,6 +278,6 @@ public class SimpleNodeGraphTest
    - Introduced SimpleNodeGraphNoCycleTest
    - Java/Jikes based graph test inherit from SimpleNodeGraphTest.
    - Renamed DirectedAndSiimpleNodeGraphTestSuite to
-     GraphTestSuite.
+     GraphNoArgTestSuite.
    - added checks to test exceptional behavior as well.
  */
