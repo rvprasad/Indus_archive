@@ -121,6 +121,8 @@ public class EquivalenceClassBasedEscapeAnalysis
 	 * any subclasses of this class should  not reply on these variables as they may be removed in the future.
 	 */
 
+	// TODO: Tighten sharing information by using symbols.
+
 	/**
 	 * This is the unique string identifier that can be used to identify an instance of this class.
 	 */
@@ -1001,6 +1003,9 @@ public class EquivalenceClassBasedEscapeAnalysis
 /*
    ChangeLog:
    $Log$
+   Revision 1.8  2003/09/08 02:24:27  venku
+   - uses IThreadGraphInfo to calculate multi executed thread
+     allocation site.
    Revision 1.7  2003/09/01 12:01:30  venku
    Major:
    - Ready dependence info in ECBA was flaky as it did not consider
