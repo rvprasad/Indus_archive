@@ -119,9 +119,8 @@ public class ClassManager
 				LOGGER.debug("considered " + sc.getName());
 			}
 
-			if (sc.declaresMethod("<clinit>")) {
-				context.setRootMethod(sc.getMethod("<clinit>"));
-				fa.getMethodVariant(sc.getMethod("<clinit>"), context);
+			if (sc.declaresMethodByName("<clinit>")) {
+				fa.getMethodVariant(sc.getMethodByName("<clinit>"), context);
 			}
 
 			SootClass temp = sc;
@@ -138,9 +137,8 @@ public class ClassManager
 					LOGGER.debug("considered " + temp.getName());
 				}
 
-				if (temp.declaresMethod("<clinit>")) {
-					context.setRootMethod(temp.getMethod("<clinit>"));
-					fa.getMethodVariant(temp.getMethod("<clinit>"), context);
+				if (temp.declaresMethodByName("<clinit>")) {
+					fa.getMethodVariant(temp.getMethodByName("<clinit>"), context);
 				}
 			}
 
@@ -161,6 +159,10 @@ public class ClassManager
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2003/11/25 22:16:30  venku
+   - logging
+   - super classes were not being added to classes. FIXED.
+
    Revision 1.10  2003/11/06 05:15:07  venku
    - Refactoring, Refactoring, Refactoring.
    - Generalized the processing controller to be available
