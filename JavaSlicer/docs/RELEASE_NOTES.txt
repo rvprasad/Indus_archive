@@ -31,6 +31,9 @@ Required software:
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
 
+Version 0.6
+----------------
+	- Added support for fine grained process control.
 
 Version 0.5
 -----------
