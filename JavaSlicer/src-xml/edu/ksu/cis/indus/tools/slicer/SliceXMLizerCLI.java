@@ -25,9 +25,8 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
 
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
-import edu.ksu.cis.indus.staticanalyses.tokens.BitSetTokenManager;
-import edu.ksu.cis.indus.staticanalyses.tokens.SootValueTypeManager;
 
 import edu.ksu.cis.indus.tools.Phase;
 
@@ -137,7 +136,7 @@ public class SliceXMLizerCLI
 	 * @pre generator != null
 	 */
 	protected SliceXMLizerCLI(final IJimpleIDGenerator generator) {
-		slicer = new SlicerTool(new BitSetTokenManager(new SootValueTypeManager()));
+		slicer = new SlicerTool(OFAXMLizerCLI.getTokenManager());
 		cfgProvider = slicer.getStmtGraphFactory();
 		idGenerator = generator;
 	}
@@ -557,6 +556,9 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.13  2004/04/20 06:53:15  venku
+   - documentation.
+
    Revision 1.12  2004/04/20 00:43:40  venku
    - The processing during residualization was driven by a graph.  This
      caused errors when the graph did not cover all of the statements.
