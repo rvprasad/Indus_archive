@@ -42,7 +42,7 @@ public abstract class AbstractIndexManager
 	 * The name of the property via which index management strategy can be altered. 
 	 */
 	public static final String INDEX_MANAGEMENT_STRATEGY =
-		"edu.ksu.cis.indus.staticanalyses.flow.AbstractIndexManager.indexManagementStrategy";
+		"edu.ksu.cis.indus.staticanalyses.flow.indexManagementStrategy";
 
 	/** 
 	 * <p>DOCUMENT ME! </p>
