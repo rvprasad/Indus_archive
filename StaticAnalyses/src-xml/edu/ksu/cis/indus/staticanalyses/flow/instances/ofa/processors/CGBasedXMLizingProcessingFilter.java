@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.xmlizer;
+package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
@@ -74,6 +74,10 @@ public final class CGBasedXMLizingProcessingFilter
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/12/13 02:29:08  venku
+   - Refactoring, documentation, coding convention, and
+     formatting.
+
    Revision 1.4  2003/12/08 12:20:44  venku
    - moved some classes from staticanalyses interface to indus interface package
    - ripple effect.

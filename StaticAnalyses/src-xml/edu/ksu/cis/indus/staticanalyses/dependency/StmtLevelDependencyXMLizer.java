@@ -13,15 +13,13 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
+package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.processing.ProcessingController;
-
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
 
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
 
@@ -220,7 +218,7 @@ public final class StmtLevelDependencyXMLizer
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.dependency.xmlizer.AbstractDependencyXMLizer#getTotalNumberOfDependences()
+	 * @see edu.ksu.cis.indus.staticanalyses.dependency.AbstractDependencyXMLizer#getTotalNumberOfDependences()
 	 */
 	private int getTotalNumberOfDependences() {
 		return totalDependences;
@@ -230,13 +228,15 @@ public final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.12  2004/01/06 00:17:00  venku
+   - Classes pertaining to workbag in package indus.graph were moved
+     to indus.structures.
+   - indus.structures was renamed to indus.datastructures.
    Revision 1.11  2003/12/16 06:13:02  venku
    - incorrect attribute emitted for class id. FIXED.
-
    Revision 1.10  2003/12/13 02:29:08  venku
    - Refactoring, documentation, coding convention, and
      formatting.
-
    Revision 1.9  2003/12/09 04:22:09  venku
    - refactoring.  Separated classes into separate packages.
    - ripple effect.

@@ -13,7 +13,7 @@
  *     Manhattan, KS 66506, USA
  */
 
-package edu.ksu.cis.indus.staticanalyses.dependency.xmlizer;
+package edu.ksu.cis.indus.staticanalyses.dependency;
 
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 
@@ -29,27 +29,14 @@ import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.InitializationException;
 import edu.ksu.cis.indus.staticanalyses.cfg.CFGAnalysis;
 import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.dependency.DivergenceDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.EntryControlDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.ExitControlDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv1;
-import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv2;
-import edu.ksu.cis.indus.staticanalyses.dependency.InterferenceDAv3;
-import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv1;
-import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv2;
-import edu.ksu.cis.indus.staticanalyses.dependency.ReadyDAv3;
-import edu.ksu.cis.indus.staticanalyses.dependency.ReferenceBasedDataDA;
-import edu.ksu.cis.indus.staticanalyses.dependency.SynchronizationDA;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.AliasedUseDefInfo;
+import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CGBasedXMLizingProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.CallGraph;
 import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors.ThreadGraph;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.processing.CGBasedProcessingFilter;
 import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingController;
-import edu.ksu.cis.indus.staticanalyses.xmlizer.CGBasedXMLizingProcessingFilter;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.JimpleXMLizer;
@@ -661,10 +648,11 @@ public class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/01/21 13:52:12  venku
+   - documentation.
    Revision 1.40  2004/01/21 01:41:43  venku
    - Thread mapping is printed by ThreadGraph.dumpGraph().
       So, deleted duplicate code.
-
    Revision 1.39  2004/01/20 15:52:12  venku
    - enabled soot class path setting option.
    Revision 1.38  2004/01/09 07:27:34  venku
