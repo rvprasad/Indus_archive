@@ -35,7 +35,6 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
-import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.ByteArrayOutputStream;
@@ -147,9 +146,12 @@ public final class CallGraphXMLizerCLI
 			_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			_cli.initialize();
 			_cli.execute(_cl.hasOption('j'));
-		} catch (ParseException _e) {
-			LOGGER.error("Error while parsing command line.", _e);
+		} catch (final ParseException _e) {
+			LOGGER.fatal("Error while parsing command line.", _e);
 			printUsage(_options);
+		} catch (final Throwable _e) {
+			LOGGER.fatal("Beyond our control. May day! May day!", _e);
+			throw new RuntimeException(_e);
 		}
 	}
 
@@ -248,7 +250,7 @@ public final class CallGraphXMLizerCLI
 			_info.put(IStmtGraphFactory.ID, getStmtGraphFactory());
 			xmlizer.writeXML(_info);
 
-			if (dumpJimple && xmlizer instanceof AbstractXMLizer) {
+			if (dumpJimple) {
 				((AbstractXMLizer) xmlizer).dumpJimple(_fileBaseName, xmlizer.getXmlOutputDir(), _xmlcgipc);
 			}
 		}

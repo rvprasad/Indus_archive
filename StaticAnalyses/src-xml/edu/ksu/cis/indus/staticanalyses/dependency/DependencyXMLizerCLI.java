@@ -270,12 +270,11 @@ public class DependencyXMLizerCLI
 			}
 
 			_xmlizerCLI.execute();
-		} catch (ParseException _e) {
-			LOGGER.error("Error while parsing command line.", _e);
+		} catch (final ParseException _e) {
+			LOGGER.fatal("Error while parsing command line.", _e);
 			printUsage(_options);
-			System.exit(1);
 		} catch (final Throwable _e) {
-			LOGGER.error("Beyond our control. May day! May day!", _e);
+			LOGGER.fatal("Beyond our control. May day! May day!", _e);
 			throw new RuntimeException(_e);
 		}
 	}

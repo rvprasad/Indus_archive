@@ -70,6 +70,8 @@ public final class JimpleXMLizerCLI {
 	 *
 	 * @param s is the command-line arguments.
 	 *
+	 * @throws RuntimeException DOCUMENT ME!
+	 *
 	 * @pre s != null
 	 */
 	public static void main(final String[] s) {
@@ -123,11 +125,12 @@ public final class JimpleXMLizerCLI {
 					System.out.println("No classes were specified.");
 				}
 			}
-		} catch (ParseException _e) {
-			LOGGER.error("Error while parsing command line");
-
-			final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + "<options> <class names>";
-			_help.printHelp(_cmdLineSyn.length(), _cmdLineSyn, "", _options, "", true);
+		} catch (final ParseException _e) {
+			LOGGER.fatal("Error while parsing command line.", _e);
+			printUsage(_options);
+		} catch (final Throwable _e) {
+			LOGGER.fatal("Beyond our control. May day! May day!", _e);
+			throw new RuntimeException(_e);
 		}
 	}
 
@@ -160,6 +163,18 @@ public final class JimpleXMLizerCLI {
 		_xmlizer.hookup(_pc);
 		_pc.process();
 		_xmlizer.unhook(_pc);
+	}
+
+	/**
+	 * Prints the help/usage info for this class.
+	 *
+	 * @param options is the command line option.
+	 *
+	 * @pre options != null
+	 */
+	private static void printUsage(final Options options) {
+		final String _cmdLineSyn = "java " + JimpleXMLizerCLI.class.getName() + " <options> <classnames>";
+		(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are: ", options, "");
 	}
 }
 

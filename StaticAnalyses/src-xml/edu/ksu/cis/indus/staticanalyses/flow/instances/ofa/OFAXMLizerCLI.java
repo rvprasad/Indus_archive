@@ -36,7 +36,6 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
-import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 
 import java.io.ByteArrayOutputStream;
@@ -128,7 +127,7 @@ public final class OFAXMLizerCLI
 		_options.addOption(_option);
 		_option =
 			new Option("o", "output", true,
-				"Directory into which xml files will be written into.  Defaults to current directory if omitted");
+				"Directory into which xml files will be written into.");
 		_option.setArgs(1);
 		_options.addOption(_option);
 		_option = new Option("j", "jimple", false, "Dump xmlized jimple.");
@@ -169,15 +168,20 @@ public final class OFAXMLizerCLI
 			_cli.xmlizer.setGenerator(new UniqueJimpleIDGenerator());
 			_cli.setCumulative(_cl.hasOption('c'));
 			_cli.setClassNames(_cl.getArgList());
-			_cli.initialize();
-			_cli.execute(_cl.hasOption('j'));
 
 			if (_cl.hasOption('p')) {
 				_cli.addToSootClassPath(_cl.getOptionValue('p'));
 			}
-		} catch (ParseException _e) {
-			LOGGER.error("Error while parsing command line.", _e);
+
+			_cli.initialize();
+			_cli.execute(_cl.hasOption('j'));
+
+		} catch (final ParseException _e) {
+			LOGGER.fatal("Error while parsing command line.", _e);
 			printUsage(_options);
+		} catch (final Throwable _e) {
+			LOGGER.fatal("Beyond our control. May day! May day!", _e);
+			throw new RuntimeException(_e);
 		}
 	}
 
