@@ -213,11 +213,24 @@ public class BackwardSlicingPart
 	public void processLocalAt(final ValueBox local, final Stmt stmt, final SootMethod method) {
 		engine.generateSliceStmtCriterion(stmt, method, true);
 
-		if (stmt.getDefBoxes().contains(local) && stmt.containsInvokeExpr()) {
-			final Context _ctxt = new Context();
-			_ctxt.setRootMethod(method);
-			_ctxt.setStmt(stmt);
-			processTailsOf(engine.getCgi().getCallees(stmt.getInvokeExpr(), _ctxt), stmt, method, returnValueInclClosure);
+		if (stmt.containsInvokeExpr()) {
+			final Value _localValue = local.getValue();
+			final Iterator _i = stmt.getDefBoxes().iterator();
+			final int _iEnd = stmt.getDefBoxes().size();
+
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final ValueBox _vb = (ValueBox) _i.next();
+				final Value _v = _vb.getValue();
+
+				if (_v.equals(_localValue)) {
+					final Context _ctxt = new Context();
+					_ctxt.setRootMethod(method);
+					_ctxt.setStmt(stmt);
+					processTailsOf(engine.getCgi().getCallees(stmt.getInvokeExpr(), _ctxt), stmt, method,
+						returnValueInclClosure);
+					break;
+				}
+			}
 		}
 	}
 
@@ -506,6 +519,8 @@ public class BackwardSlicingPart
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/08/23 15:04:06  venku
+   - return values were included by default and this led to larger slices.  FIXED.
    Revision 1.3  2004/08/23 03:46:08  venku
    - documentation.
    Revision 1.2  2004/08/20 02:13:05  venku
