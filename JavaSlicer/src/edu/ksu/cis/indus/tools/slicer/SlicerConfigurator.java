@@ -56,7 +56,7 @@ public final class SlicerConfigurator
 	 *
 	 * @throws RuntimeException when <code>toolConfiguration</code> is an unhandled type of exception.
 	 *
-	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(AbstractToolConfiguration)
+	 * @see edu.ksu.cis.indus.tools.AbstractToolConfigurator#checkConfiguration(IToolConfiguration)
 	 */
 	protected void checkConfiguration(final IToolConfiguration toolConfiguration) {
 		if (!(toolConfiguration instanceof SlicerConfiguration)) {
@@ -451,6 +451,9 @@ public final class SlicerConfigurator
 /*
    ChangeLog:
    $Log$
+   Revision 1.22  2004/02/12 21:30:05  venku
+   - cut-and-paste error when handling boolean properity (useOFA). FIXED.
+
    Revision 1.21  2004/01/25 16:19:52  venku
    - enabled configuration support for using object flow information.
    Revision 1.20  2003/12/13 02:29:16  venku

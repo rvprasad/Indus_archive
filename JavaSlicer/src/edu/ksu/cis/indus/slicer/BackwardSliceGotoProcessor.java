@@ -19,9 +19,7 @@ import edu.ksu.cis.indus.common.graph.BasicBlockGraph;
 import edu.ksu.cis.indus.common.graph.BasicBlockGraph.BasicBlock;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -50,7 +48,14 @@ public class BackwardSliceGotoProcessor
 	}
 
 	/**
-	 * @see AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
+	 * Retrieves the statements of the basic block in the order corresponding to the direction of the processors.
+	 *
+	 * @param bb for which the statements are requested.
+	 *
+	 * @return a collection of statements.
+	 *
+	 * @pre bb != null
+	 * @post result != null result.oclIsKindOf(Sequence(Stmt))
 	 */
 	protected List getStmtsOfForProcessing(final BasicBlock bb) {
 		final List _result = new ArrayList(bb.getStmtsOf());
@@ -85,6 +90,8 @@ public class BackwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/23 06:10:10  venku
+   - optimization.
    Revision 1.6  2004/02/23 06:08:43  venku
    - optimization.
    Revision 1.5  2004/01/22 01:01:40  venku

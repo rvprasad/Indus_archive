@@ -41,7 +41,7 @@ public final class ForwardSliceGotoProcessor
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.AbstractSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
+	 * @see edu.ksu.cis.indus.slicer.BackwardSliceGotoProcessor#getStmtsOfForProcessing(BasicBlock)
 	 */
 	protected List getStmtsOfForProcessing(final BasicBlock bb) {
 		return bb.getStmtsOf();
@@ -51,6 +51,9 @@ public final class ForwardSliceGotoProcessor
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/01/22 01:01:40  venku
+   - coding convention.
+
    Revision 1.4  2004/01/13 23:34:54  venku
    - fixed the processing of intra basicblock jumps and
      inter basic block jumps.
