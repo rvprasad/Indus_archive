@@ -73,7 +73,7 @@ public abstract class ToolConfiguration {
 	 *
 	 * @pre property != null and value != null
 	 */
-	public boolean setProperty(final Object propertyID, final Object value) {
+	public final boolean setProperty(final Object propertyID, final Object value) {
 		if (!PROPERTY_IDS.contains(propertyID)) {
 			String message = "Invalid property identifier specified: " + propertyID;
 			LOGGER.error(message);
@@ -97,7 +97,7 @@ public abstract class ToolConfiguration {
 	 *
 	 * @pre key != null
 	 */
-	public Object getProperty(final Object id) {
+	public final Object getProperty(final Object id) {
 		return properties.get(id);
 	}
 
@@ -125,6 +125,11 @@ public abstract class ToolConfiguration {
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/09/26 15:30:39  venku
+   - removed PropertyIdentifier class.
+   - ripple effect of the above change.
+   - formatting
+
    Revision 1.5  2003/09/26 15:00:01  venku
    - The configuration of tools in Indus has been placed in this package.
    - Formatting.
