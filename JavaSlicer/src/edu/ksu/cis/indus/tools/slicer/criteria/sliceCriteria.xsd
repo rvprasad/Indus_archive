@@ -65,9 +65,13 @@
 		<xsd:sequence>
 			<xsd:element name="methodName" type="xsd:string"/>
 			<xsd:element name="returnTypeName" type="xsd:string"/>
-			<xsd:sequence>
-				<xsd:element name="parameterTypeName" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
-			</xsd:sequence>
+			<xsd:element name="parameters">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="parameterTypeName" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
 		</xsd:sequence>
 		<xsd:annotation>
 			<xsd:documentation>
