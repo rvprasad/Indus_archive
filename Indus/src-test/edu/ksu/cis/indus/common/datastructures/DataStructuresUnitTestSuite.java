@@ -44,7 +44,7 @@ public final class DataStructuresUnitTestSuite {
 	 */
 	public static void main(final String[] s) {
         final TestRunner _runner = new TestRunner();
-        final String[] _suiteName = { "edu.ksu.cis.indus.common.DataStructuresUnitTestSuite" };
+        final String[] _suiteName = { "edu.ksu.cis.indus.common.datastructures.DataStructuresUnitTestSuite" };
         _runner.start(_suiteName);
 	}
 
@@ -77,6 +77,10 @@ public final class DataStructuresUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 20:52:22  venku
+   - changed the way unit test suites can be run as applications.
+   - renamed GraphUnitestSuite to GraphUnitTestSuite.
+
    Revision 1.1  2004/02/08 03:34:30  venku
    - renamed NoArgTestSuite to UnitTestSuite
 

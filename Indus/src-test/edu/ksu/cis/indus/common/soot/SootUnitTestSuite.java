@@ -44,7 +44,8 @@ public final class SootUnitTestSuite {
 	 */
 	public static void main(final String[] s) {
         final TestRunner _runner = new TestRunner();
-        final String[] _suiteName = { "edu.ksu.cis.indus.common.SootUnitTestSuite" };
+        final String[] _suiteName = { "edu.ksu.cis.indus.common.soot.SootUnitTestSuite" };
+        _runner.setLoading(false);
         _runner.start(_suiteName);
 	}
 
@@ -72,6 +73,10 @@ public final class SootUnitTestSuite {
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/02/08 20:52:22  venku
+   - changed the way unit test suites can be run as applications.
+   - renamed GraphUnitestSuite to GraphUnitTestSuite.
+
    Revision 1.1  2004/02/08 03:34:30  venku
    - renamed NoArgTestSuite to UnitTestSuite
 
