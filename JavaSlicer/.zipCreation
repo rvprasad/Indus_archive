@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zip-info>
    <target compress="true" in-workspace="true"
-      include-java-output="true" location="/JavaSlicer" manifest="false" name="slicer.jar">
+      include-java-output="false" location="/JavaSlicer"
+      manifest="false" name="slicer-src.jar">
       <source>
          <container path="/JavaSlicer/src"/>
          <container path="/JavaSlicer/auxiliary"/>
+         <container path="/JavaSlicer/src-test"/>
+         <container path="/JavaSlicer/src-xml"/>
       </source>
    </target>
 </zip-info>

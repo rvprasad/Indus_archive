@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zip-info>
    <target compress="true" in-workspace="true"
-      include-java-output="true" location="/Indus" manifest="false" name="indus.jar">
+      include-java-output="false" location="/Indus" manifest="false" name="indus-src.jar">
       <source>
          <container path="/Indus/src"/>
+         <container path="/Indus/src-xml"/>
       </source>
    </target>
 </zip-info>

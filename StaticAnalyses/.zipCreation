@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zip-info>
    <target compress="true" in-workspace="true"
-      include-java-output="true" location="/StaticAnalyses"
-      manifest="false" name="analyses.jar">
+      include-java-output="false" location="/StaticAnalyses"
+      manifest="false" name="staticanalyses-src.jar">
       <source>
          <container path="/StaticAnalyses/src"/>
+         <container path="/StaticAnalyses/src-concurrency"/>
          <container path="/StaticAnalyses/src-dependence"/>
          <container path="/StaticAnalyses/src-flow"/>
-         <container path="/StaticAnalyses/temp"/>
-         <container path="/StaticAnalyses"/>
-         <container path="/StaticAnalyses/src-concurrency"/>
          <container path="/StaticAnalyses/src-test"/>
+         <container path="/StaticAnalyses/src-xml"/>
       </source>
    </target>
 </zip-info>
