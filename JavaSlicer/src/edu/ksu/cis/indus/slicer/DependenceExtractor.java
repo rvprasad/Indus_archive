@@ -188,8 +188,8 @@ public final class DependenceExtractor
 		final IDependencyAnalysis _da = (IDependencyAnalysis) analysis;
 		final Collection _dependences = retriever.getDependences(_da, entity, context);
 		final Collection _ids = _da.getIds();
-        
-        if (_ids.contains(IDependencyAnalysis.READY_DA)) {
+
+		if (_ids.contains(IDependencyAnalysis.READY_DA)) {
 			final Collection _specials = ((ReadyDAv1) _da).getSynchronizedMethodEntryExitPoints(_dependences);
 			falseCriteria.addAll(_specials);
 			_dependences.removeAll(_specials);
@@ -291,9 +291,10 @@ public final class DependenceExtractor
 				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 					final Object _t = _j.next();
 					final boolean _containsKey = criteriabase2contexts.containsKey(_t);
-					final boolean _b = !((Collection) criteriabase2contexts.get(_t)).contains(null);
-                    
-                    if (_t instanceof Pair  && (!_containsKey || (_containsKey && _b))) {
+					final boolean _doesNotContainNull =
+						_containsKey && !((Collection) criteriabase2contexts.get(_t)).contains(null);
+
+					if (_t instanceof Pair && (!_containsKey || _doesNotContainNull)) {
 						final Pair _pair = (Pair) _t;
 						final Stmt _stmt = (Stmt) _pair.getFirst();
 						_context.setStmt(_stmt);
