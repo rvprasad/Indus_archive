@@ -1,7 +1,7 @@
 
 /*
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
+ * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
  *
  * This software is licensed under the KSU Open Academic License.
  * You should have received a copy of the license with the distribution.
@@ -98,7 +98,8 @@ import soot.SootMethod;
  * @version $Revision$ $Date$
  */
 public class SliceXMLizerCLI
-  extends SootBasedDriver {
+  extends SootBasedDriver
+  implements IToolProgressListener {
 	/** 
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -180,7 +181,6 @@ public class SliceXMLizerCLI
 	 */
 	public static void main(final String[] args) {
 		final SliceXMLizerCLI _xmlizer = new SliceXMLizerCLI();
-		_xmlizer.setIDGenerator(new UniqueJimpleIDGenerator());
 
 		// parse command line arguments
 		parseCommandLine(args, _xmlizer);
@@ -196,8 +196,20 @@ public class SliceXMLizerCLI
 			LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
 		}
 
+		_xmlizer.setIDGenerator(new UniqueJimpleIDGenerator());
 		_xmlizer.writeXML();
 		_xmlizer.residualize();
+		_xmlizer.slicer.reset();
+		_xmlizer.reset();
+	}
+
+	/**
+	 * @see IToolProgressListener#toolProgess(IToolProgressListener.ToolProgressEvent)
+	 */
+	public void toolProgess(final ToolProgressEvent evt) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(evt.getMsg() + " - " + evt.getInfo());
+		}
 	}
 
 	/**
@@ -279,13 +291,7 @@ public class SliceXMLizerCLI
 			}
 		}
 		slicer.setCriteria(_criteria);
-		slicer.addToolProgressListener(new IToolProgressListener() {
-				public void toolProgess(final ToolProgressEvent evt) {
-					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info(evt.getMsg() + " - " + evt.getInfo());
-					}
-				}
-			});
+		slicer.addToolProgressListener(this);
 		slicer.run(Phase.STARTING_PHASE, true);
 
 		if (LOGGER.isInfoEnabled()) {
@@ -756,6 +762,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.53  2004/08/16 01:02:40  venku
+   - logging level.
    Revision 1.52  2004/08/13 16:53:57  venku
    - logging and error handling based on erraticness of Soot.
    Revision 1.51  2004/08/12 03:35:52  venku
