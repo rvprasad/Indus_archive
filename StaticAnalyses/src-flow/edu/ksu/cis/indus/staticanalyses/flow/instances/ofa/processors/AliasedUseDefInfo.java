@@ -62,9 +62,7 @@ import java.util.Map;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This is a naive implementation of aliased use-def analysis which calculates pessimistic may-be information.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -74,37 +72,37 @@ public class AliasedUseDefInfo
   extends AbstractProcessor
   implements IUseDefInfo {
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The object flow analyzer to be used to calculate the UD info.
+	 *
+	 * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
 	private final IValueAnalyzer analyzer;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is a map from use-sites to their corresponding to def-sites.
+	 *
+	 * @pre defsMap != null
 	 */
 	private final Map defsMap;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is a map from def-sites to their corresponding to use-sites.
+	 *
+	 * @pre usesMap != null
 	 */
 	private final Map usesMap;
 
 	/**
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This manages <code>Pair</code> objects.
 	 */
 	private final PairManager PairMgr = new PairManager();
 
 	/**
 	 * Creates a new AliasedUseDefInfo object.
 	 *
-	 * @param iva DOCUMENT ME!
+	 * @param iva is the object flow analyzer to be used in the analysis.
+	 *
+	 * @pre analyzer != null
 	 */
 	AliasedUseDefInfo(IValueAnalyzer iva) {
 		defsMap = new HashMap();
@@ -113,8 +111,7 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getDefs(soot.jimple.AssignStmt,
-	 * 		edu.ksu.cis.indus.staticanalyses.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getDefs(AssignStmt,     Context)
 	 */
 	public Collection getDefs(AssignStmt useStmt, Context context) {
 		Map stmt2defs = (Map) usesMap.get(context.getCurrentMethod());
@@ -129,8 +126,7 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getUses(soot.jimple.AssignStmt,
-	 * 		edu.ksu.cis.indus.staticanalyses.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IUseDefInfo#getUses(AssignStmt,     Context)
 	 */
 	public Collection getUses(AssignStmt defStmt, Context context) {
 		Map stmt2uses = (Map) usesMap.get(context.getCurrentMethod());
@@ -145,8 +141,7 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(soot.jimple.Stmt,
-	 * 		edu.ksu.cis.indus.staticanalyses.Context)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#callback(Stmt, Context)
 	 */
 	public void callback(final Stmt stmt, final Context context) {
 		AssignStmt as = (AssignStmt) stmt;
@@ -178,7 +173,8 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * Records naive interprocedural data dependence.  All it does is that
+	 * Records naive interprocedural data dependence.  All it does it records dependence between type conformant writes and
+	 * reads.
 	 *
 	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#consolidate()
 	 */
@@ -270,32 +266,34 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(
-	 * 		edu.ksu.cis.indus.staticanalyses.processing.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#hookup(ProcessingController)
 	 */
 	public void hookup(final ProcessingController ppc) {
 		ppc.register(AssignStmt.class, this);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(
-	 * 		edu.ksu.cis.indus.staticanalyses.processing.ProcessingController)
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IProcessor#unhook(ProcessingController)
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(AssignStmt.class, this);
 	}
 }
 
-/*****
- ChangeLog:
-
-$Log$
-Revision 1.1  2003/08/09 23:26:20  venku
-- Added an interface to provide use-def information.
-- Added an implementation to the above interface.
-- Extended call graph processor to retrieve call tree information rooted at arbitrary node.
-- Modified IValueAnalyzer interface such that only generic queries are possible.
-  If required, this can be extended in the future.
-
-
-*****/
+/*
+   ChangeLog:
+   
+   $Log$
+   
+   Revision 1.2  2003/08/11 04:27:33  venku
+   - Ripple effect of changes to Pair
+   - Ripple effect of changes to _content in Marker
+   - Changes of how thread start sites are tracked in ThreadGraphInfo
+   
+   Revision 1.1  2003/08/09 23:26:20  venku
+   - Added an interface to provide use-def information.
+   - Added an implementation to the above interface.
+   - Extended call graph processor to retrieve call tree information rooted at arbitrary node.
+   - Modified IValueAnalyzer interface such that only generic queries are possible.
+     If required, this can be extended in the future.
+ */

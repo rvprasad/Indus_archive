@@ -62,6 +62,8 @@ public interface IUseDefInfo {
 	 * @param context in which the use-site occurs.
 	 *
 	 * @return a collection of def sites.
+	 *
+	 * @pre usesStmt != null and context != null
 	 */
 	Collection getDefs(AssignStmt useStmt, Context context);
 
@@ -72,19 +74,24 @@ public interface IUseDefInfo {
 	 * @param context in which the def-site occurs.
 	 *
 	 * @return a collection of use sites.
+	 *
+	 * @pre defStmt != null and context != null
 	 */
 	Collection getUses(AssignStmt defStmt, Context context);
 }
 
 /*
    ChangeLog:
-   
+
    $Log$
+   
+   Revision 1.3  2003/08/12 01:52:00  venku
+   Removed redundant final in parameter declaration in methods of interfaces.
+   
    Revision 1.2  2003/08/11 07:46:09  venku
    Finalized the parameters.
    Spruced up Documentation and Specification.
 
-   
    Revision 1.1  2003/08/09 23:26:20  venku
    - Added an interface to provide use-def information.
    - Added an implementation to the above interface.

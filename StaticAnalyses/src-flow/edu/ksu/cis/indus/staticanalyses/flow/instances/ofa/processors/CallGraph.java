@@ -153,8 +153,9 @@ public class CallGraph
 	/**
 	 * The BFA instance which implements object flow analysis.  This instance is used to calculate call graphCache
 	 * information.
+     * @invariant analyzer.oclIsKindOf(OFAnalyzer)
 	 */
-	private OFAnalyzer analyzer;
+	private IValueAnalyzer analyzer;
 
 	/**
 	 * This caches a traversable graphCache representation of the call graphCache.
@@ -702,6 +703,9 @@ public class CallGraph
    ChangeLog:
    
    $Log$
+   Revision 1.5  2003/08/13 08:29:40  venku
+   Spruced up documentation and specification.
+
    
    Revision 1.4  2003/08/12 18:20:43  venku
    Ripple effect of changing the analyzer and the environment.

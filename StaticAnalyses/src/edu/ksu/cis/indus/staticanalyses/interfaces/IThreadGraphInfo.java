@@ -78,7 +78,7 @@ public interface IThreadGraphInfo {
 		 * @param stmt in which the allocation occurs.
 		 * @param expr is the allocation site.
 		 *
-		 * @pre expr != null
+		 * @pre expr != null and stmt != null and method != null
 		 */
 		public NewExprTriple(final SootMethod method, final Stmt stmt, final NewExpr expr) {
 			super(expr, stmt, method);
@@ -161,6 +161,9 @@ public interface IThreadGraphInfo {
    ChangeLog:
 
    $Log$
+   Revision 1.4  2003/08/13 08:29:40  venku
+   Spruced up documentation and specification.
+
    Revision 1.3  2003/08/12 01:52:00  venku
    Removed redundant final in parameter declaration in methods of interfaces.
    Revision 1.2  2003/08/11 07:46:09  venku
