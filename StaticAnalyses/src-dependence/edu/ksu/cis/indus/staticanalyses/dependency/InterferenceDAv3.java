@@ -56,22 +56,9 @@ public class InterferenceDAv3
 		if (_result) {
 			final SootMethod _deMethod = (SootMethod) dependee.getSecond();
 			final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
-			final Value _deeValue;
-
-			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(dependeeArrayRef.getType())) {
-				_deeValue = dependeeArrayRef;
-			} else {
-				_deeValue = dependeeArrayRef.getBase();
-			}
-
-			final Value _dentValue;
-
-			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(dependentArrayRef.getType())) {
-				_dentValue = dependentArrayRef;
-			} else {
-				_dentValue = dependentArrayRef.getBase();
-			}
-			_result = ecba.shared(_deeValue, _deMethod, _dentValue, _dtMethod);
+			final Value _de = dependeeArrayRef.getBase();
+			final Value _dt = dependentArrayRef.getBase();
+			_result = ecba.shared(_de, _deMethod, _dt, _dtMethod);
 		}
 		return _result;
 	}
@@ -86,22 +73,9 @@ public class InterferenceDAv3
 		if (_result) {
 			final SootMethod _deMethod = (SootMethod) dependee.getSecond();
 			final SootMethod _dtMethod = (SootMethod) dependent.getSecond();
-			final Value _deeValue;
-			
-			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(dependeeFieldRef.getType())) {
-				_deeValue = dependeeFieldRef;
-			} else {
-				_deeValue = dependeeFieldRef.getBase();
-			}
-
-			final Value _dentValue;
-
-			if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(dependentFieldRef.getType())) {
-				_dentValue = dependentFieldRef;
-			} else {
-				_dentValue = dependentFieldRef.getBase();
-			}
-			_result = ecba.shared(_deeValue, _deMethod, _dentValue, _dtMethod);
+			final Value _de = dependeeFieldRef.getBase();
+			final Value _dt = dependentFieldRef.getBase();
+			_result = ecba.shared(_de, _deMethod, _dt, _dtMethod);
 		}
 		return _result;
 	}
@@ -131,6 +105,11 @@ public class InterferenceDAv3
 /*
    ChangeLog:
    $Log$
+   Revision 1.11  2004/08/01 23:00:54  venku
+   - when determining the interference for primitive fields/array content, we need to
+     consider the escape information of the primary expression.  However, when
+     determining it for reference type field/array content, we need to consider the
+     escape information for the access expression and not the primary.  FIXED.
    Revision 1.10  2004/07/07 07:19:33  venku
    - coding conventions.
    Revision 1.9  2004/02/12 21:32:21  venku
@@ -163,30 +142,30 @@ public class InterferenceDAv3
    - ripple effect of the above.
    Revision 1.12  2003/09/29 13:37:25  venku
  *** empty log message ***
-               Revision 1.11  2003/09/28 03:16:48  venku
-               - I don't know.  cvs indicates that there are no differences,
-                 but yet says it is out of sync.
-               Revision 1.10  2003/09/08 02:28:02  venku
-               - ifDependentOn() was changed to isDependentOn().
-               Revision 1.9  2003/08/21 03:56:08  venku
-               Formatting.
-               Revision 1.8  2003/08/21 01:25:21  venku
-                - Renamed src-escape to src-concurrency to as to group all concurrency
-                  issue related analyses into a package.
-                - Renamed escape package to concurrency.escape.
-                - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
-               Changes due to the ripple effect of the above changes are being committed.
-               Revision 1.7  2003/08/14 05:10:29  venku
-               Fixed documentation links.
-               Revision 1.6  2003/08/11 06:34:52  venku
-               Changed format of change log accumulation at the end of the file
-               Revision 1.5  2003/08/11 06:31:55  venku
-               Changed format of change log accumulation at the end of the file
-               Revision 1.4  2003/08/09 23:52:54  venku
-               - import reorganization
-               Revision 1.3  2003/08/09 23:46:11  venku
-               Well if the read and write access points are marked as shared, then pessimistically
-               they occur in different threads.  In such situation, sequential path between
-               these points does not bear any effect unless the escape analysis is thread and
-               call-tree sensitive.
+                 Revision 1.11  2003/09/28 03:16:48  venku
+                 - I don't know.  cvs indicates that there are no differences,
+                   but yet says it is out of sync.
+                 Revision 1.10  2003/09/08 02:28:02  venku
+                 - ifDependentOn() was changed to isDependentOn().
+                 Revision 1.9  2003/08/21 03:56:08  venku
+                 Formatting.
+                 Revision 1.8  2003/08/21 01:25:21  venku
+                  - Renamed src-escape to src-concurrency to as to group all concurrency
+                    issue related analyses into a package.
+                  - Renamed escape package to concurrency.escape.
+                  - Renamed EquivalenceClassBasedAnalysis to EquivalenceClassBasedEscapeAnalysis.
+                 Changes due to the ripple effect of the above changes are being committed.
+                 Revision 1.7  2003/08/14 05:10:29  venku
+                 Fixed documentation links.
+                 Revision 1.6  2003/08/11 06:34:52  venku
+                 Changed format of change log accumulation at the end of the file
+                 Revision 1.5  2003/08/11 06:31:55  venku
+                 Changed format of change log accumulation at the end of the file
+                 Revision 1.4  2003/08/09 23:52:54  venku
+                 - import reorganization
+                 Revision 1.3  2003/08/09 23:46:11  venku
+                 Well if the read and write access points are marked as shared, then pessimistically
+                 they occur in different threads.  In such situation, sequential path between
+                 these points does not bear any effect unless the escape analysis is thread and
+                 call-tree sensitive.
  */
