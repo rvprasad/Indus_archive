@@ -519,10 +519,10 @@ public abstract class AbstractDirectedGraph
 	 * @post result->forall(o | nodes->containsAll(o))
 	 */
 	private static Collection findCyclesOccurringIn(final Collection scc) {
-	    final IWorkBag _wb = new LIFOWorkBag();
+		final IWorkBag _wb = new LIFOWorkBag();
 		final Stack _dfsPath = new Stack();
 		final Collection _result = new HashSet();
-		
+
 		_wb.addWork(pickSeedNodeForCycleEnumeration(scc));
 
 		while (_wb.hasWork()) {
@@ -537,7 +537,7 @@ public abstract class AbstractDirectedGraph
 			} else {
 				final INode _node = (INode) _o;
 				final Collection _succsOf = CollectionUtils.intersection(_node.getSuccsOf(), scc);
-                final Collection _cycleCandidates = CollectionUtils.intersection(_succsOf, _dfsPath);
+				final Collection _cycleCandidates = CollectionUtils.intersection(_succsOf, _dfsPath);
 				final Iterator _i = _cycleCandidates.iterator();
 				final int _iEnd = _cycleCandidates.size();
 
@@ -548,16 +548,14 @@ public abstract class AbstractDirectedGraph
 					if (!_result.contains(_cycle)) {
 						final Collection _temp = new ArrayList(_cycle);
 						_temp.add(_node);
-                        _result.add(_temp);
+						_result.add(_temp);
 					}
 				}
 
 				final Collection _nonCycleCandidates = CollectionUtils.subtract(_succsOf, _cycleCandidates);
-				
-				if (!_nonCycleCandidates.isEmpty()) {
-					_dfsPath.push(_node);
 
-					final Marker _marker = new Marker(_node);
+				if (!_nonCycleCandidates.isEmpty()) {
+				    final Marker _marker = new Marker(_node);
 					final Iterator _j = _nonCycleCandidates.iterator();
 					final int _jEnd = _nonCycleCandidates.size();
 
@@ -569,6 +567,7 @@ public abstract class AbstractDirectedGraph
 						}
 						_wb.addWork(_ele);
 					}
+					_dfsPath.push(_node);
 				}
 			}
 		}
@@ -576,41 +575,47 @@ public abstract class AbstractDirectedGraph
 	}
 
 	/**
-     * Picks the node (based on heuristics) to start cycle enumeration.  The heuristics is to pick the node that may
-     * be a loop head. If none exists, then pick the one with single successor and predecessor nodes.  If none exists, 
-     * arbitrarily pick a node.
-     * 
-     * @param scc in which cycle detection is in progress.
-	 * @return the seed node 
+	 * Picks the node (based on heuristics) to start cycle enumeration.  The heuristics is to pick the node that may be a
+	 * loop head. If none exists, then pick the one with single successor and predecessor nodes.  If none exists,
+	 * arbitrarily pick a node.
+	 *
+	 * @param scc in which cycle detection is in progress.
+	 *
+	 * @return the seed node
+	 *
 	 * @pre scc.oclIsKindOf(Collection(INode)) and scc != null
 	 * @post result != null and scc.contains(result)
-     */
-    private static INode pickSeedNodeForCycleEnumeration(final Collection scc) {
-        INode _result = null;
-        for (final Iterator _k = scc.iterator(); _k.hasNext();) {
-            final INode _ele = (INode) _k.next();
-            if (!scc.containsAll(_ele.getPredsOf())) {
-                _result = _ele;
-                break;
-            }
-        }
-		
-		if (_result == null) {
-		    for (final Iterator _k = scc.iterator(); _k.hasNext();) {
-	            final INode _ele = (INode) _k.next();
-	            if (_ele.getSuccsOf().size() == 1 && _ele.getPredsOf().size() == 1) {
-	                _result = _ele;
-	                break;
-	            }
-		    }
-		}
-		
-		if (_result == null)
-		    _result = (INode) scc.iterator().next();
-		return _result;
-    }
+	 */
+	private static INode pickSeedNodeForCycleEnumeration(final Collection scc) {
+		INode _result = null;
 
-    /**
+		for (final Iterator _k = scc.iterator(); _k.hasNext();) {
+			final INode _ele = (INode) _k.next();
+
+			if (_ele.getSuccsOf().size() == 1 && _ele.getPredsOf().size() == 1) {
+				_result = _ele;
+				break;
+			}
+		}
+
+		if (_result == null) {
+			for (final Iterator _k = scc.iterator(); _k.hasNext();) {
+				final INode _ele = (INode) _k.next();
+
+				if (!scc.containsAll(_ele.getPredsOf())) {
+					_result = _ele;
+					break;
+				}
+			}
+		}
+
+		if (_result == null) {
+			_result = (INode) scc.iterator().next();
+		}
+		return _result;
+	}
+
+	/**
 	 * Retrieves the source nodes which cannot reach any of the given destinations.  If there are no destination nodes then
 	 * all source nodes are returned.
 	 *
