@@ -16,6 +16,7 @@
 package edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.processors;
 
 import edu.ksu.cis.indus.common.CollectionsUtilities;
+import edu.ksu.cis.indus.common.ContainmentPredicate;
 import edu.ksu.cis.indus.common.datastructures.Pair.PairManager;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraph.BasicBlock;
@@ -80,6 +81,11 @@ public class AliasedUseDefInfo
 	 * The basic block graph manager to use during analysis.
 	 */
 	protected final BasicBlockGraphMgr bbgMgr;
+
+	/** 
+	 * This is a predicate that checks if the given element exists in the given container.
+	 */
+	private final ContainmentPredicate containmentPredicate = new ContainmentPredicate();
 
 	/** 
 	 * The object flow analyzer to be used to calculate the UD info.
@@ -329,12 +335,12 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * Checks if the definition can reach the use site inter-procedurally.  This implementation assumes that the definition 
-	 * always reaches use site. 
+	 * Checks if the definition can reach the use site inter-procedurally.  This implementation assumes that the definition
+	 * always reaches use site.
 	 *
 	 * @param defMethod is the context of definition. <i>ignored</i>
-	 * @param useMethod is the context of use. <i>ignored</i>.
 	 * @param defStmt is the definition statement. <i>ignored</i>.
+	 * @param useMethod is the context of use. <i>ignored</i>.
 	 * @param useStmt is the use statement. <i>ignored</i>.
 	 *
 	 * @return <code>true</code>
@@ -370,17 +376,10 @@ public class AliasedUseDefInfo
 			final ValueBox _vBox2 = defStmt.getArrayRef().getBaseBox();
 			defContext.setStmt(defStmt);
 			defContext.setProgramPoint(_vBox2);
-
-			final Collection _c2 = analyzer.getValues(_vBox2.getValue(), defContext);
-
+			containmentPredicate.setContainer(analyzer.getValues(_vBox2.getValue(), defContext));
 			// if the primaries of the access expression alias atleast one object
-			_result =
-				CollectionUtils.exists(_c1,
-					new Predicate() {
-						public boolean evaluate(final Object o) {
-							return _c2.contains(o);
-						}
-					});
+			_result = CollectionUtils.exists(_c1, containmentPredicate);
+			containmentPredicate.setContainer(null);
 		} else if (defStmt.containsFieldRef()
 			  && useStmt.containsFieldRef()
 			  && defStmt.getFieldRef().getField().equals(useStmt.getFieldRef().getField())) {
@@ -415,7 +414,7 @@ public class AliasedUseDefInfo
 	}
 
 	/**
-	 * Checks if the def reaches the use site.  If either of the methods are class initializers, <code>true</code> is 
+	 * Checks if the def reaches the use site.  If either of the methods are class initializers, <code>true</code> is
 	 * returned.
 	 *
 	 * @param defMethod in which the def occurs.
@@ -456,6 +455,9 @@ public class AliasedUseDefInfo
 /*
    ChangeLog:
    $Log$
+   Revision 1.38  2004/07/16 06:38:47  venku
+   - added  a more precise implementation of aliased use-def information.
+   - ripple effect.
    Revision 1.37  2004/07/11 14:17:39  venku
    - added a new interface for identification purposes (IIdentification)
    - all classes that have an id implement this interface.
