@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zip-info>
    <target compress="true" in-workspace="true"
-      include-java-output="true" location="/JavaSlicer" manifest="false" name="slice.jar">
+      include-java-output="true" location="/JavaSlicer" manifest="false" name="slicer.jar">
       <source>
          <container path="/JavaSlicer/src"/>
       </source>
