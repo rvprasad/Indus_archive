@@ -331,5 +331,12 @@ public class ControlDA
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:38:05  venku
+Major:
+ - Moved the packages under indus umbrella.
+ - Renamed MethodLocalDataDA to NonAliasedDataDA.
+ - Added class for AliasedDataDA.
+ - Documented and specified the classes.
+
 
 *****/

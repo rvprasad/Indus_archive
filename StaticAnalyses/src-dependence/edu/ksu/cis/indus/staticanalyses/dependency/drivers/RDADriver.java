@@ -75,8 +75,8 @@ public final class RDADriver
 	 */
 	protected void initialize() {
 		das = new ArrayList();
-		das.add(new ReadyDAv1());
-		das.add(new ReadyDAv2());
+		das.add(new ReadyDAv1(false));
+		das.add(new ReadyDAv2(false));
 	}
 }
 
@@ -84,5 +84,12 @@ public final class RDADriver
  ChangeLog:
 
 $Log$
+Revision 1.1  2003/08/07 06:38:05  venku
+Major:
+ - Moved the packages under indus umbrella.
+ - Renamed MethodLocalDataDA to NonAliasedDataDA.
+ - Added class for AliasedDataDA.
+ - Documented and specified the classes.
+
 
 *****/
