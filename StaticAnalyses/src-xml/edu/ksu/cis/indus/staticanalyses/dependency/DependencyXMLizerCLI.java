@@ -41,7 +41,6 @@ import edu.ksu.cis.indus.staticanalyses.processing.ValueAnalyzerBasedProcessingC
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -113,17 +112,6 @@ public class DependencyXMLizerCLI
 	 * This provides call-graph based processing controller.
 	 */
 	private ValueAnalyzerBasedProcessingController cgipc;
-
-	/**
-	 * Retrieves the dependences being xmlized.
-	 *
-	 * @return a collection of dependence analysis.
-	 *
-	 * @post result != null and result.oclIsKindOf(Sequence(DependenceAnalysis))
-	 */
-	public final List getDAs() {
-		return Collections.unmodifiableList(das);
-	}
 
 	/**
 	 * This is the entry point via command-line.
@@ -365,6 +353,13 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/09 17:40:53  venku
+   - dependence and call graph info serialization is done both ways.
+   - refactored the xmlization framework.
+     - Each information type has a xmlizer (XMLizer)
+     - Each information type has a xmlizer driver (XMLizerCLI)
+     - Tests use the XMLizer.
+
    Revision 1.4  2004/02/09 04:39:36  venku
    - refactoring test classes still..
    - need to make xmlizer classes independent of their purpose.
@@ -514,4 +509,11 @@ public class DependencyXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.1  2004/02/09 17:40:53  venku
+   - dependence and call graph info serialization is done both ways.
+   - refactored the xmlization framework.
+     - Each information type has a xmlizer (XMLizer)
+     - Each information type has a xmlizer driver (XMLizerCLI)
+     - Tests use the XMLizer.
+
  */

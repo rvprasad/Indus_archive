@@ -47,7 +47,7 @@ import soot.jimple.Stmt;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class StmtLevelDependencyXMLizer
+final class StmtLevelDependencyXMLizer
   extends AbstractProcessor {
 	/**
 	 * The logger used by instances of this class to log messages.
@@ -247,6 +247,9 @@ public final class StmtLevelDependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.4  2004/02/25 00:04:02  venku
+   - documenation.
+
    Revision 1.3  2004/02/09 17:40:53  venku
    - dependence and call graph info serialization is done both ways.
    - refactored the xmlization framework.

@@ -53,7 +53,7 @@ import org.apache.commons.logging.LogFactory;
  * @author $Author$
  * @version $Revision$ $Date$
  */
-public final class DependencyXMLizer
+final class DependencyXMLizer
   extends AbstractXMLizer {
 	/**
 	 * This is used to identify statement level dependence producing analysis.
@@ -241,6 +241,13 @@ public final class DependencyXMLizer
 /*
    ChangeLog:
    $Log$
+   Revision 1.7  2004/02/09 17:40:53  venku
+   - dependence and call graph info serialization is done both ways.
+   - refactored the xmlization framework.
+     - Each information type has a xmlizer (XMLizer)
+     - Each information type has a xmlizer driver (XMLizerCLI)
+     - Tests use the XMLizer.
+
    Revision 1.6  2004/02/09 07:46:37  venku
    - added new class to xmlize OFA info.
    Revision 1.5  2004/02/09 06:49:02  venku
