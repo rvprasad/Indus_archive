@@ -57,8 +57,8 @@ public interface ITypeManager {
 
 	/**
 	 * Retrieves a type for the given IR type.  The user may use a type system orthogonal to the type system provided by the
-	 * intermediate representation used to represent the system.  In such cases, to decouple the IR type system from the
-	 * user's type system,
+	 * intermediate representation used to represent the system.  In such cases, this decouples the IR type system from the
+	 * user's type system.
 	 *
 	 * @param type is the intermediate representation type.
 	 *
