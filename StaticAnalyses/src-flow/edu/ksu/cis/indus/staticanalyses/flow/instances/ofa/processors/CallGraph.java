@@ -301,7 +301,7 @@ public class CallGraph
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getCallTreeRootedAt(soot.jimple.InvokeStmt,
+	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.ICallGraphInfo#getMethodsReachableFrom(soot.jimple.Stmt,
 	 * 		soot.SootMethod)
 	 */
 	public Collection getMethodsReachableFrom(final Stmt stmt, final SootMethod root) {
@@ -703,6 +703,10 @@ public class CallGraph
    ChangeLog:
    
    $Log$
+   Revision 1.6  2003/08/13 08:49:10  venku
+   Spruced up documentation and specification.
+   Tightened preconditions in the interface such that they can be loosed later on in implementaions.
+
    Revision 1.5  2003/08/13 08:29:40  venku
    Spruced up documentation and specification.
 

@@ -73,7 +73,8 @@ public class ReadyDAv2
 
 	/**
 	 * Checks if the given enter-monitor statement is dependent on the exit-monitor statement according to rule 2. The
-	 * results of a <code>EquivalenceClassbasedAnalysis</code>analysis is used to determine the dependence.
+	 * results of a {@link edu.ksu.cis.indus.staticanalyses.escape.EquivalenceClassBasedAnalysis
+	 * EquivalenceClassBasedAnalysis} analysis is used to determine the dependence.
 	 *
 	 * @param enterPair is the enter monitor statement.
 	 * @param exitPair is the exit monitor statement.
@@ -231,9 +232,11 @@ public class ReadyDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2003/08/11 08:49:34  venku
+   Javadoc documentation errors were fixed.
+   Some classes were documented.
    Revision 1.4  2003/08/11 06:34:52  venku
    Changed format of change log accumulation at the end of the file
-
    Revision 1.3  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.2  2003/08/09 23:33:30  venku

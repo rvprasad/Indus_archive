@@ -46,7 +46,8 @@ import edu.ksu.cis.indus.staticanalyses.support.Pair;
 
 
 /**
- * This class uses escape-analysis information as calculated by <code>EquivalenceClassBasedAnalysis</code> to prune the
+ * This class uses escape-analysis information as calculated by {@link
+ * edu.ksu.cis.indus.staticanalyses.escape.EquivalenceClassBasedAnalysis EquivalenceClassBasedAnalysis} to prune the
  * interference dependence edges as calculated by it's parent class.  This can be further spruced by symbolic-analysis.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
@@ -108,6 +109,8 @@ public class InterferenceDAv2
 /*
    ChangeLog:
    $Log$
+   Revision 1.6  2003/08/11 06:34:52  venku
+   Changed format of change log accumulation at the end of the file
    Revision 1.5  2003/08/11 06:31:55  venku
    Changed format of change log accumulation at the end of the file
    Revision 1.4  2003/08/09 23:52:54  venku
