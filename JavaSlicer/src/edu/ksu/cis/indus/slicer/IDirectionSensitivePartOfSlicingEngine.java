@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.slicer;
 
 import java.util.Collection;
 
+import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
 
@@ -60,13 +61,13 @@ interface IDirectionSensitivePartOfSlicingEngine
 	/**
 	 * Process the local at program point <code>local</code> for inclusion in the slice.
 	 *
-	 * @param local is the program point at which the local occurs.
+	 * @param local obviosly.
 	 * @param stmt in which <code>local</code> occurs.
 	 * @param method in which <code>stmt</code> occurs.
 	 *
 	 * @pre local != null and stmt != null and method != null
 	 */
-	void processLocalAt(ValueBox local, Stmt stmt, SootMethod method);
+	void processLocalAt(Local local, Stmt stmt, SootMethod method);
 
 	/**
 	 * Process the new expression that occurs in the given statement and method for inclusion in the slice.
@@ -120,6 +121,9 @@ interface IDirectionSensitivePartOfSlicingEngine
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/08/23 03:46:08  venku
+   - documentation.
+
    Revision 1.2  2004/08/20 02:13:05  venku
    - refactored slicer based on slicing direction.
    Revision 1.1  2004/08/18 09:54:49  venku

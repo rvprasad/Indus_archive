@@ -721,7 +721,7 @@ public final class SlicingEngine {
 					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 						final Stmt _depStmt = (Stmt) _j.next();
 
-						directionSensitiveInfo.processLocalAt(_vBox, _depStmt, method);
+						directionSensitiveInfo.processLocalAt(_local, _depStmt, method);
 					}
 				}
 			}
@@ -969,6 +969,9 @@ public final class SlicingEngine {
 /*
    ChangeLog:
    $Log$
+   Revision 1.94  2004/08/23 03:46:08  venku
+   - documentation.
+
    Revision 1.93  2004/08/20 02:13:05  venku
    - refactored slicer based on slicing direction.
    Revision 1.92  2004/08/18 09:10:34  venku

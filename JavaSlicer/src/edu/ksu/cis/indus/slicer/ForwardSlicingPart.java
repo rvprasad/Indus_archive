@@ -24,11 +24,13 @@ import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
@@ -162,47 +164,67 @@ public class ForwardSlicingPart
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(ValueBox, Stmt, SootMethod)
+	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(Local, Stmt, SootMethod)
 	 */
-	public void processLocalAt(final ValueBox local, final Stmt stmt, final SootMethod method) {
+	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
 		if (stmt.containsArrayRef()) {
 			final ArrayRef _ref = stmt.getArrayRef();
+			final Collection _useBoxes = _ref.getUseBoxes();
+			final Iterator _i = _useBoxes.iterator();
+			final int _iEnd = _useBoxes.size();
 
-			if (_ref.getUseBoxes().contains(local)) {
-				engine.generateSliceStmtCriterion(stmt, method, false);
-			}
-		} else if (stmt.containsFieldRef()) {
-			final FieldRef _ref = stmt.getFieldRef();
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final ValueBox _vb = (ValueBox) _i.next();
 
-			if (_ref.getUseBoxes().contains(local)) {
-				engine.generateSliceStmtCriterion(stmt, method, false);
-			}
-		} else if (stmt.containsInvokeExpr()) {
-			engine.generateSliceExprCriterion(local, stmt, method, true);
-
-			final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
-			int _index = -1;
-
-			for (int _i = _invokeExpr.getArgCount() - 1; _i >= 0; _i--) {
-				if (_invokeExpr.getArgBox(_i).equals(local)) {
-					_index = _i;
+				if (_vb.getValue().equals(local)) {
+					engine.generateSliceStmtCriterion(stmt, method, false);
 					break;
 				}
 			}
+		} else if (stmt.containsFieldRef()) {
+			final FieldRef _ref = stmt.getFieldRef();
+			final Collection _useBoxes = _ref.getUseBoxes();
+			final Iterator _i = _useBoxes.iterator();
+			final int _iEnd = _useBoxes.size();
 
-			final Context _ctxt = new Context();
-			_ctxt.setRootMethod(method);
-			_ctxt.setStmt(stmt);
+			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+				final ValueBox _vb = (ValueBox) _i.next();
 
-			final Collection _callees = engine.getCgi().getCallees(_invokeExpr, _ctxt);
+				if (_vb.getValue().equals(local)) {
+					engine.generateSliceStmtCriterion(stmt, method, false);
+					break;
+				}
+			}
+		} else if (stmt.containsInvokeExpr()) {
+			final Collection _useBoxes = stmt.getInvokeExpr().getUseBoxes();
+			final Iterator _j = _useBoxes.iterator();
+			final int _jEnd = _useBoxes.size();
 
-			if (_index > -1) {
+			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				final ValueBox _vb = (ValueBox) _j.next();
+
+				if (_vb.getValue().equals(local)) {
+					engine.generateSliceExprCriterion(_vb, stmt, method, true);
+				}
+			}
+
+			final InvokeExpr _invokeExpr = stmt.getInvokeExpr();
+			final List _args = _invokeExpr.getArgs();
+			final int _argIndex = _args.indexOf(local);
+
+			if (_argIndex > -1) {
+				final Context _ctxt = new Context();
+				_ctxt.setRootMethod(method);
+				_ctxt.setStmt(stmt);
+
+				final Collection _callees = engine.getCgi().getCallees(_invokeExpr, _ctxt);
+
 				if (engine.getCallStackCache() == null) {
 					engine.setCallStackCache(new Stack());
 				}
 				engine.getCallStackCache().push(new CallTriple(method, stmt, stmt.getInvokeExpr()));
 
-				generateCriteriaToIncludeArgumentReadStmts(_index, _callees);
+				generateCriteriaToIncludeArgumentReadStmts(_argIndex, _callees);
 				engine.getCallStackCache().pop();
 
 				if (engine.getCallStackCache().isEmpty()) {
@@ -292,6 +314,8 @@ public class ForwardSlicingPart
 /*
    ChangeLog:
    $Log$
+   Revision 1.3  2004/08/23 03:46:08  venku
+   - documentation.
    Revision 1.2  2004/08/20 02:13:05  venku
    - refactored slicer based on slicing direction.
    Revision 1.1  2004/08/18 09:54:49  venku

@@ -20,6 +20,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import java.util.Collection;
 import java.util.HashSet;
 
+import soot.Local;
 import soot.SootMethod;
 import soot.ValueBox;
 
@@ -101,9 +102,9 @@ public class CompleteSlicingPart
 	}
 
 	/**
-	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(ValueBox, Stmt, SootMethod)
+	 * @see IDirectionSensitivePartOfSlicingEngine#processLocalAt(Local, Stmt, SootMethod)
 	 */
-	public void processLocalAt(final ValueBox local, final Stmt stmt, final SootMethod method) {
+	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
 		backwardPart.processLocalAt(local, stmt, method);
 		forwardPart.processLocalAt(local, stmt, method);
 	}
@@ -148,6 +149,9 @@ public class CompleteSlicingPart
 /*
    ChangeLog:
    $Log$
+   Revision 1.2  2004/08/23 03:46:08  venku
+   - documentation.
+
    Revision 1.1  2004/08/20 02:13:05  venku
    - refactored slicer based on slicing direction.
  */

@@ -40,6 +40,7 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import soot.Local;
 import soot.SootMethod;
 import soot.Value;
 import soot.ValueBox;
@@ -207,14 +208,13 @@ public class BackwardSlicingPart
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#processLocalAt(soot.ValueBox, soot.jimple.Stmt,
+	 * @see edu.ksu.cis.indus.slicer.IDirectionSensitivePartOfSlicingEngine#processLocalAt(Local, soot.jimple.Stmt,
 	 * 		soot.SootMethod)
 	 */
-	public void processLocalAt(final ValueBox local, final Stmt stmt, final SootMethod method) {
+	public void processLocalAt(final Local local, final Stmt stmt, final SootMethod method) {
 		engine.generateSliceStmtCriterion(stmt, method, true);
 
 		if (stmt.containsInvokeExpr()) {
-			final Value _localValue = local.getValue();
 			final Iterator _i = stmt.getDefBoxes().iterator();
 			final int _iEnd = stmt.getDefBoxes().size();
 
@@ -222,7 +222,7 @@ public class BackwardSlicingPart
 				final ValueBox _vb = (ValueBox) _i.next();
 				final Value _v = _vb.getValue();
 
-				if (_v.equals(_localValue)) {
+				if (_v.equals(local)) {
 					final Context _ctxt = new Context();
 					_ctxt.setRootMethod(method);
 					_ctxt.setStmt(stmt);
@@ -519,6 +519,9 @@ public class BackwardSlicingPart
 /*
    ChangeLog:
    $Log$
+   Revision 1.5  2004/08/23 17:29:35  venku
+   - incorrect comparison in processLocalsAt() led to incorrect slices.  FIXED.
+
    Revision 1.4  2004/08/23 15:04:06  venku
    - return values were included by default and this led to larger slices.  FIXED.
    Revision 1.3  2004/08/23 03:46:08  venku
