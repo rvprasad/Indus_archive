@@ -64,9 +64,9 @@ import soot.jimple.VirtualInvokeExpr;
 
 
 /**
- * DOCUMENT ME!
- * 
- * <p></p>
+ * This class is an implementation of Safe lock analysis as described in the technical report <a
+ * href="http://www.cis.ksu.edu/santos/papers/technicalReports.html">A Formal  Study of Slicing for Multi-threaded Program
+ * with JVM Concurrency Primitives"</a>.
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -75,107 +75,96 @@ import soot.jimple.VirtualInvokeExpr;
 public class SafeLockAnalysis
   extends AbstractAnalysis {
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the id of safe lock related analysis.
 	 */
-	public static final Object ID = "Lock Analysis";
+	public static final Object ID = "Safe Lock Analysis";
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The logger used to log messages.
 	 */
 	static final Log LOGGER = LogFactory.getLog(SafeLockAnalysis.class);
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of waits in the system.
+	 *
+	 * @invariant waits.oclIsKindOf(Collection(InvokeStmt))
 	 */
 	final Collection waits = new HashSet();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The call graph to be used during analysis.
 	 */
 	ICallGraphInfo callgraphInfo;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The monitor analysis to be used during analysis.
 	 */
 	IMonitorInfo monitorInfo;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The pair manager to be used during analysis.
 	 */
 	PairManager pairMgr;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of triples of unsafe monitors.
 	 */
 	private final Collection unsafeMonitors = new HashSet();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The collection of unsafe waits.
+	 *
+	 * @invariant unsafeWaits.oclIsKindOf(Collection(InvokeStmt))
 	 */
 	private final Collection unsafeWaits = new HashSet();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * The value analyzer to be used.
 	 */
 	private IValueAnalyzer iva;
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps monitor to related monitors.  A monitor is related to other monitors if they may acquire the same lock.
+	 *
+	 * @invariant monitor2relatedMonitors.oclIsKindOf(Map(Triple, Collection(Triple)))
+	 * @invariant monitor2relatedMonitors.keySet()->forall(o | o.oclIsKindOf(EnterMonitorStmt, ExitMonitorStmt, SootMethod))
+	 * 			  or o.oclIsKindOf(null, null, SootMethod))
+	 * @invariant monitor2relatedMonitors.values()->forall(p | p->forall(o | o.oclIsKindOf(EnterMonitorStmt, ExitMonitorStmt,
+	 * 			  SootMethod) or o.oclIsKindOf(null, null, SootMethod))
 	 */
 	private Map monitor2relatedMonitors = new HashMap();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps monitor to related waits.  A monitor is related to waits if the monitor may acquire the lock that  on which
+	 * the wait is dispatched.
+	 *
+	 * @invariant monitor2relatedWaits.oclIsKindOf(Map(Triple, Collection(Pair(InvokeStmt, SootMethod)))
 	 */
 	private Map monitor2relatedWaits = new HashMap();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This maps a monitor to a collection of wait that occur in the monitor.
+	 *
+	 * @invariant monitor2waits.oclIsKindOf(Map(Triple, Collection(InvokeStmt)))
 	 */
 	private final Map monitor2waits = new HashMap();
 
 	/** 
-	 * <p>
-	 * DOCUMENT ME!
-	 * </p>
+	 * This is the inverse of <code>monitor2waits</code>.
+	 *
+	 * @invariant monitor2waits.oclIsKindOf(Map(Pair(InvokeStmt, SootMethod), Collection(Triple)))
 	 */
 	private final Map wait2monitorTriples = new HashMap();
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates an instance of the analysis.
 	 */
 	public SafeLockAnalysis() {
 		preprocessor = new WaitInvocationCollectingProcessor();
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * This processor collects <code>wait</code> invocations.
 	 *
 	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
 	 * @author $Author$
@@ -210,23 +199,30 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the lock associated with the monitor of the given synchronized method is safe.
 	 *
-	 * @param method
+	 * @param method of interest.
 	 *
-	 * @return
+	 * @return <code>true</code> if the lock associated with the monitor of the given synchronized method is safe;
+	 * 		   <code>false</code>, otherwise.
+	 *
+	 * @pre method != null and method.isSynchronized()
 	 */
 	public boolean isLockSafe(final SootMethod method) {
 		return !unsafeMonitors.contains(new Triple(null, null, method));
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the lock associated with the monitor occurring in the given statement in the given method is safe.
 	 *
-	 * @param stmt
-	 * @param method
+	 * @param stmt is a monitor (enter/exit) statement.
+	 * @param method containing <code>stmt</code>.
 	 *
-	 * @return
+	 * @return <code>true</code> if the lock associated with the monitor occurring in the given statement in the given method
+	 * 		   is safe; <code>false</code>, otherwise.
+	 *
+	 * @pre method != null and stmt != null
+	 * @pre stmt.oclIsKindOf(EnterMonitorStmt) || stmt.oclIsKindOf(ExitMonitorStmt)
 	 */
 	public boolean isLockSafe(final Stmt stmt, final SootMethod method) {
 		return !CollectionUtils.containsAny(unsafeMonitors, monitorInfo.getMonitorTriplesFor(stmt, method));
@@ -269,8 +265,8 @@ public class SafeLockAnalysis
 				processMethod(_method);
 			}
 
+			// Check for condition 3 - monitor contains no unsafe monitors 
 			final IObjectDirectedGraph _monitorGraph = monitorInfo.getMonitorGraph(callgraphInfo);
-
 			final IWorkBag _wb = new HistoryAwareFIFOWorkBag(new HashSet());
 			_wb.addAllWork(unsafeMonitors);
 
@@ -314,11 +310,12 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * {@inheritDoc}
 	 *
-	 * @throws InitializationException DOCUMENT ME!
+	 * @throws InitializationException when any of the implementations required in the preconditions are not provided.
+	 *
+	 * @pre info.get(IMonitorInfo.ID) != null and info.get(ICallGraphInfo.ID) != null
+	 * @pre info.get(IValueAnalyzer.ID) != null and info.get(PairManager.ID) != null
 	 */
 	protected void setup()
 	  throws InitializationException {
@@ -357,37 +354,39 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the monitors enclosing the given wait invocation.
 	 *
-	 * @param waitMethodPair DOCUMENT ME!
+	 * @param waitMethodPair is the wait invocation statement.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of monitor triples.
+	 *
+	 * @pre waitMethodPair != null and wiatMethodpair.oclIsKindOf(Pair(InvokeStmt, SootMethod))
+	 * @post result != null and result.oclIsKindOf(Collection(Triple))
 	 */
 	private Collection getMonitorsEnclosingWait(final Pair waitMethodPair) {
-		return CollectionsUtilities.getSetFromMap(wait2monitorTriples, waitMethodPair);
+		return (Collection) MapUtils.getObject(wait2monitorTriples, waitMethodPair, Collections.EMPTY_SET);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Retrieves the wait invocations that occur in the given monitor.
 	 *
-	 * @param monitor DOCUMENT ME!
+	 * @param monitor of interest.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return a collection of wait statement and method pairs.
+	 *
+	 * @pre monitor != null
+	 * @post result != null and result.oclIsKindOf(Collection(Pair(InvokeStmt, SootMethod))
 	 */
 	private Collection getWaitStmtsInMonitor(final Triple monitor) {
-		return (Collection) MapUtils.getObject(monitor2waits, monitor, Collections.EMPTY_LIST);
+		return (Collection) MapUtils.getObject(monitor2waits, monitor, Collections.EMPTY_SET);
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Marks the monitors and wait invocations related to the given monitor as unsafe.
 	 *
-	 * @param monitor DOCUMENT ME!
+	 * @param monitor of interest.
+	 *
+	 * @pre monitor != null
 	 */
 	private void markRelatedMonitorsAndWaitsAsUnsafe(final Triple monitor) {
 		final Collection _monitors = (Collection) monitor2relatedMonitors.get(monitor);
@@ -408,11 +407,11 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the given method for safe lock detection.
 	 *
-	 * @param method DOCUMENT ME!
+	 * @param method to be analyzed.
+	 *
+	 * @pre method != null
 	 */
 	private void processMethod(final SootMethod method) {
 		final Collection _temp = new HashSet();
@@ -427,9 +426,8 @@ public class SafeLockAnalysis
 			if (!_temp.contains(_monitorTriple)) {
 				final List _involvedBBs = _bbg.getEnclosedBasicBlocks(monitorInfo.getEnclosedStmts(_monitorTriple, false));
 
-				if (!(safeByCondition2(_monitorTriple)
-					  && safeByCondition3(_monitorTriple)
-					  && safeByCondition1(_monitorTriple, method, _involvedBBs))) {
+				if (!(safeByCondition2(_monitorTriple) && safeByCondition1(_monitorTriple, method, _involvedBBs))) {
+					// we check for condition3 in analyze()
 					unsafeMonitors.add(_monitorTriple);
 				}
 			}
@@ -437,7 +435,7 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Processes the monitors and the wait invocations in the system to establish lock based relation.
 	 */
 	private void processMonitorAndWaitsForLockBasedRelation() {
 		final Collection _monitorTriples = monitorInfo.getMonitorTriples();
@@ -522,9 +520,7 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Processes the monitors and the wait invocations in the system to establish "semantic" enclosure relation.
 	 */
 	private void processMonitorsAndWaitsForEnclosureBaseRelation() {
 		final Collection _temp = new HashSet();
@@ -554,7 +550,8 @@ public class SafeLockAnalysis
 
 					for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 						final Triple _monitor = (Triple) _j.next();
-						CollectionsUtilities.putIntoListInMap(monitor2waits, _monitor, _waitMethodPair);
+						CollectionsUtilities.putIntoSetInMap(monitor2waits, _monitor, _waitMethodPair);
+						CollectionsUtilities.putIntoSetInMap(wait2monitorTriples, _waitMethodPair, _monitor);
 					}
 				}
 			}
@@ -562,15 +559,16 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the given monitor is safe by condition 1 - there are no wait free loops in the monitor.
 	 *
-	 * @param monitor DOCUMENT ME!
-	 * @param method DOCUMENT ME!
-	 * @param involvedBasicBlock DOCUMENT ME!
+	 * @param monitor to be analyzed.
+	 * @param method in which the monitor occurs.
+	 * @param involvedBasicBlock the basic blocks that are enclosed by the monitor that need to analyzed.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the monitor is safe; <code>false</code>, otherwise.
+	 *
+	 * @pre monitor != null and method != null and involvedBasicBlock != null
+	 * @pre involvedBasicBlock.oclIsKindOf(Collection(BasicBlock))
 	 */
 	private boolean safeByCondition1(final Triple monitor, final SootMethod method, final Collection involvedBasicBlock) {
 		final BasicBlockGraph _bbg = getBasicBlockGraph(method);
@@ -625,13 +623,13 @@ public class SafeLockAnalysis
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
+	 * Checks if the given monitor is safe by condition 2 - no waits for other locks.
 	 *
-	 * @param monitor DOCUMENT ME!
+	 * @param monitor to be analyzed.
 	 *
-	 * @return DOCUMENT ME!
+	 * @return <code>true</code> if the monitor is safe; <code>false</code>, otherwise.
+	 *
+	 * @pre monitor != null
 	 */
 	private boolean safeByCondition2(final Triple monitor) {
 		boolean _safe = true;
@@ -674,72 +672,14 @@ public class SafeLockAnalysis
 
 		return _safe;
 	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * <p></p>
-	 *
-	 * @param monitor DOCUMENT ME!
-	 *
-	 * @return DOCUMENT ME!
-	 */
-	private boolean safeByCondition3(final Triple monitor) {
-		boolean _safe = true;
-		final EnterMonitorStmt _enter1 = (EnterMonitorStmt) monitor.getFirst();
-		final SootMethod _sm1 = (SootMethod) monitor.getThird();
-		final Context _context = new Context();
-		_context.setRootMethod(_sm1);
-		_context.setStmt(_enter1);
-
-		final Collection _c1;
-
-		if (_enter1 != null) {
-			_context.setProgramPoint(_enter1.getOpBox());
-			_c1 = iva.getValues(_enter1.getOp(), _context);
-		} else {
-			if (_sm1.isStatic()) {
-				_c1 = Collections.singleton(_sm1.getDeclaringClass());
-			} else {
-				_c1 = iva.getValuesForThis(_context);
-			}
-		}
-
-		final IObjectDirectedGraph _graph = monitorInfo.getMonitorGraph(callgraphInfo);
-		final Collection _reachables = _graph.getReachablesFrom(_graph.queryNode(monitor), true);
-		final Iterator _j = _reachables.iterator();
-		final int _jEnd = _reachables.size();
-
-		for (int _jIndex = 0; _jIndex < _jEnd && _safe; _jIndex++) {
-			final Triple _mon = (Triple) ((IObjectNode) _j.next()).getObject();
-			final EnterMonitorStmt _enter2 = (EnterMonitorStmt) _mon.getFirst();
-			final SootMethod _sm2 = (SootMethod) _mon.getThird();
-			_context.setRootMethod(_sm2);
-			_context.setStmt(_enter2);
-
-			final Collection _c2;
-
-			if (_enter2 != null) {
-				_context.setProgramPoint(_enter2.getOpBox());
-				_c2 = iva.getValues(_enter2.getOp(), _context);
-			} else {
-				if (_sm2.isStatic()) {
-					_c2 = Collections.singleton(_sm2.getDeclaringClass());
-				} else {
-					_c2 = iva.getValuesForThis(_context);
-				}
-			}
-
-			_safe = _c1.size() == 1 && _c1.equals(_c2);
-		}
-
-		return _safe;
-	}
 }
 
 /*
    ChangeLog:
    $Log$
+   Revision 1.15  2004/08/02 07:33:45  venku
+   - small but significant change to the pair manager.
+   - ripple effect.
    Revision 1.14  2004/07/30 05:17:08  venku
    - moved the methods to check for wait(), notify(), and start() invocations into Util.
    Revision 1.13  2004/07/27 11:07:20  venku
