@@ -109,7 +109,7 @@ public class SlicerTool
 		tool = new edu.ksu.cis.indus.tools.slicer.SlicerTool();
 
 		TagBasedSlicingTransformer tgsbt = new TagBasedSlicingTransformer();
-		tgsbt.setTagName("Bandera");
+		tgsbt.setTagName("Slicer:Bandera");
 		tool.setTransformer(tgsbt);
 
 		configurationView = new SlicerConfigurationView(tool.getConfigurator());
@@ -239,6 +239,12 @@ public class SlicerTool
 /*
    ChangeLog:
    $Log$
+   Revision 1.10  2003/10/13 01:01:45  venku
+   - Split transformations.slicer into 2 packages
+      - transformations.slicer
+      - slicer
+   - Ripple effect of the above changes.
+
    Revision 1.9  2003/10/12 19:45:05  venku
     - Changed valus of input/output args Ids as per the suggestion
       of Todd.
