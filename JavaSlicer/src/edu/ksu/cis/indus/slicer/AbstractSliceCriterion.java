@@ -31,7 +31,7 @@ import soot.SootMethod;
  * @author $Author$
  * @version $Revision$
  */
-abstract class AbstractSliceCriterion
+public abstract class AbstractSliceCriterion
   extends AbstractPoolable
   implements ISliceCriterion {
 	/**
