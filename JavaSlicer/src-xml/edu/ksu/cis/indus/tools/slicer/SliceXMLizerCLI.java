@@ -31,6 +31,7 @@ import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidual
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 
 import edu.ksu.cis.indus.tools.Phase;
+import edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaParser;
 
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
@@ -38,21 +39,19 @@ import edu.ksu.cis.indus.xmlizer.IXMLizer;
 import edu.ksu.cis.indus.xmlizer.UniqueJimpleIDGenerator;
 import edu.ksu.cis.indus.xmlizer.XMLizingProcessingFilter;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 
 import java.net.URL;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +62,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -78,6 +80,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+
+import org.jibx.runtime.JiBXException;
 
 import soot.Printer;
 import soot.SootClass;
@@ -129,14 +133,30 @@ public class SliceXMLizerCLI
 	private final String nameOfSliceTag = "indus.tools.slicer.SliceXMLizerCLI:SLICER";
 
 	/**
-	 * This indicates if jimple representation of the system after residualiztion should be dumped in XML form.
+	 * The name of the criteria specification file.
+	 */
+	private String criteriaSpecFileName;
+
+	/**
+	 * This indicates if jimple representation of the system after residualiztion should be dumped.
 	 */
 	private boolean postResJimpleDump;
 
 	/**
-	 * This indicates if jimple representation of the system before residualiztion should be dumped in XML form.
+	 * This indicates if jimple representation of the system after residualiztion should be dumped in XML form.
+	 */
+	private boolean postResXMLJimpleDump;
+
+	/**
+	 * This indicates if jimple representation of the system after slicing and before residualization should be dumped.
 	 */
 	private boolean preResJimpleDump;
+
+	/**
+	 * This indicates if jimple representation of the system after slicing and before residualiztion should be dumped in XML
+	 * form.
+	 */
+	private boolean preResXMLJimpleDump;
 
 	/**
 	 * Creates an instance of this class.
@@ -152,16 +172,16 @@ public class SliceXMLizerCLI
 	 * @param args contains the command line arguments.
 	 */
 	public static void main(final String[] args) {
-		final SliceXMLizerCLI _driver = new SliceXMLizerCLI();
-		_driver.setIDGenerator(new UniqueJimpleIDGenerator());
+		final SliceXMLizerCLI _xmlizer = new SliceXMLizerCLI();
+		_xmlizer.setIDGenerator(new UniqueJimpleIDGenerator());
 
 		// parse command line arguments
-		parseCommandLine(args, _driver);
+		parseCommandLine(args, _xmlizer);
 
-		_driver.initialize();
+		_xmlizer.initialize();
 
 		final long _startTime = System.currentTimeMillis();
-		_driver.execute();
+		_xmlizer.execute();
 
 		final long _stopTime = System.currentTimeMillis();
 
@@ -169,14 +189,14 @@ public class SliceXMLizerCLI
 			LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
 		}
 
-		if (_driver.preResJimpleDump) {
-			_driver.dumpJimpleAsXML("unsliced");
+		if (_xmlizer.preResXMLJimpleDump) {
+			_xmlizer.dumpJimpleAsXML("unsliced");
 		}
-		_driver.writeXML();
-		_driver.residualize();
+		_xmlizer.writeXML();
+		_xmlizer.residualize();
 
-		if (_driver.postResJimpleDump) {
-			_driver.dumpJimpleAsXML("sliced");
+		if (_xmlizer.postResXMLJimpleDump) {
+			_xmlizer.dumpJimpleAsXML("sliced");
 		}
 	}
 
@@ -232,8 +252,46 @@ public class SliceXMLizerCLI
 		slicer.setTagName(nameOfSliceTag);
 		slicer.setSystem(scene);
 		slicer.setRootMethods(rootMethods);
-		slicer.setCriteria(Collections.EMPTY_LIST);
+
+		final Collection _criteria = new HashSet();
+
+		if (criteriaSpecFileName != null) {
+			try {
+				final InputStream _in = new FileInputStream(criteriaSpecFileName);
+				final String _result = IOUtils.toString(_in);
+				IOUtils.closeQuietly(_in);
+
+				final String _criteriaSpec = _result;
+				_criteria.addAll(SliceCriteriaParser.deserialize(_criteriaSpec, scene));
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Criteria specification before slicing: \n" + _result);
+				}
+			} catch (final IOException _e) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("Error retrieved slicing criteria from " + criteriaSpecFileName, _e);
+				}
+			} catch (final JiBXException _e) {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("JiBX failed during deserialization.", _e);
+				}
+			}
+		}
+		slicer.setCriteria(_criteria);
 		slicer.run(Phase.STARTING_PHASE, true);
+
+		if (LOGGER.isDebugEnabled()) {
+			try {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Criteria specification before slicing: \n"
+						+ SliceCriteriaParser.serialize(slicer.getCriteria()));
+				}
+			} catch (final JiBXException _e) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("JiBX faild during serialization.", _e);
+				}
+			}
+		}
 
 		// We use default slicer configuration in which criteria to preserve deadlock properties are created on behalf the CLI
 		// Hence, the CLI should return these criteria to the pool.
@@ -312,7 +370,7 @@ public class SliceXMLizerCLI
 		_options.addOption(_o);
 
 		_o = new Option("o", "output-dir", true,
-				"The output directory to dump the generated info.  If unspecified, defaults to current directory.");
+				"The output directory to dump the generated info.  If unspecified, picks a temporary directory.");
 		_o.setArgs(1);
 		_o.setArgName("path");
 		_o.setOptionalArg(false);
@@ -328,12 +386,23 @@ public class SliceXMLizerCLI
 		_o = new Option("h", "help", false, "Display message.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("i", "output-jimple-before-res", false,
+		_o = new Option("i", "output-xml-jimple-before-res", false,
 				"Output xml representation of the jimple BEFORE residualization.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
-		_o = new Option("j", "output-jimple-after-res", false,
+		_o = new Option("j", "output-xml-jimple-after-res", false,
 				"Output xml representation of the jimple AFTER residualization.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("I", "output-jimple-before-res", false, "Output jimple BEFORE residualization.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("J", "output-jimple-after-res", false, "Output jimple AFTER residualization.");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("s", "criteria-spec-file", true, "Use the slice criteria specified in this file.");
+		_o.setArgs(1);
+		_o.setArgName("crit-spec-file");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 
@@ -373,15 +442,30 @@ public class SliceXMLizerCLI
 			System.exit(1);
 		}
 
-		if (_cl.hasOption('g')) {
-			xmlizer.showGUI();
-		}
-
 		if (_cl.hasOption('a')) {
 			xmlizer.setConfigName(_cl.getOptionValue('a'));
 		}
 
+		if (_cl.hasOption('g')) {
+			xmlizer.showGUI();
+		}
+
+		if (_cl.hasOption('s')) {
+			xmlizer.setSliceCriteriaSpecFile(_cl.getOptionValue('s'));
+		}
+
 		xmlizer.setClassNames(_cl.getArgList());
+	}
+
+	/**
+	 * Sets the name of the file containing the slice criteria specification.
+	 *
+	 * @param fileName of the slice criteria spec.
+	 *
+	 * @pre fileName != null
+	 */
+	private void setSliceCriteriaSpecFile(final String fileName) {
+		criteriaSpecFileName = fileName;
 	}
 
 	/**
@@ -397,12 +481,12 @@ public class SliceXMLizerCLI
 	 */
 	private static String processCommandLineForConfiguration(final CommandLine cl) {
 		String _config = cl.getOptionValue("c");
-		Reader _reader = null;
+		InputStream _inStream = null;
 		String _result = null;
 
 		if (_config != null) {
 			try {
-				_reader = new FileReader(_config);
+				_inStream = new FileInputStream(_config);
 			} catch (FileNotFoundException _e) {
 				LOGGER.warn("Non-existent configuration file specified.", _e);
 				_config = null;
@@ -420,7 +504,7 @@ public class SliceXMLizerCLI
 				ClassLoader.getSystemResource("edu/ksu/cis/indus/tools/slicer/default_slicer_configuration.xml");
 
 			try {
-				_reader = new InputStreamReader(_defaultConfigFileName.openStream());
+				_inStream = _defaultConfigFileName.openStream();
 			} catch (FileNotFoundException _e1) {
 				LOGGER.fatal("Even default configuration file could not be found.  Aborting", _e1);
 				System.exit(1);
@@ -431,15 +515,10 @@ public class SliceXMLizerCLI
 		}
 
 		try {
-			final BufferedReader _br = new BufferedReader(_reader);
-			final StringBuffer _buffer = new StringBuffer();
-
-			while (_br.ready()) {
-				_buffer.append(_br.readLine());
-			}
-			_result = _buffer.toString();
+			_result = IOUtils.toString(_inStream);
 		} catch (IOException _e) {
 			LOGGER.fatal("IO error while reading configuration file.  Aborting", _e);
+			IOUtils.closeQuietly(_inStream);
 			System.exit(1);
 		}
 		return _result;
@@ -469,10 +548,15 @@ public class SliceXMLizerCLI
 			}
 		}
 
-		xmlizer.preResJimpleDump = cl.hasOption('i');
-		xmlizer.postResJimpleDump = cl.hasOption('j');
+		xmlizer.preResXMLJimpleDump = cl.hasOption('i');
+		xmlizer.postResXMLJimpleDump = cl.hasOption('j');
+		xmlizer.preResJimpleDump = cl.hasOption('I');
+		xmlizer.postResJimpleDump = cl.hasOption('J');
 
-		if (xmlizer.preResJimpleDump || xmlizer.postResJimpleDump) {
+		if (xmlizer.preResXMLJimpleDump
+			  || xmlizer.postResXMLJimpleDump
+			  || xmlizer.preResJimpleDump
+			  || xmlizer.postResJimpleDump) {
 			xmlizer.jimpleXMLDumpDir = _outputDir;
 		}
 
@@ -491,11 +575,12 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Residualize the slice as jimple files in the output directory.
+	 * Dumps jimple for the classes in the scene.  The jimple file names will end with the given suffix.
+	 *
+	 * @param suffix to be appended to the file name.
+	 * @param classFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>, otherwise.
 	 */
-	private void residualize() {
-		destructivelyUpdateJimple();
-
+	private void dumpJimple(final String suffix, final boolean classFile) {
 		final Printer _printer = Printer.v();
 
 		for (final Iterator _i = scene.getClasses().iterator(); _i.hasNext();) {
@@ -516,12 +601,15 @@ public class SliceXMLizerCLI
 			PrintWriter _writer = null;
 
 			try {
-				final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple");
+				final File _file = new File(outputDirectory + File.separator + _sc.getName() + ".jimple" + suffix);
 				_writer = new PrintWriter(new FileWriter(_file));
 				// write .jimple file
 				_printer.printTo(_sc, _writer);
+
 				// write .class file
-				_printer.write(_sc, outputDirectory);
+				if (classFile) {
+					_printer.write(_sc, outputDirectory);
+				}
 			} catch (final IOException _e) {
 				LOGGER.error("Error while writing " + _sc, _e);
 			} finally {
@@ -530,6 +618,21 @@ public class SliceXMLizerCLI
 					_writer.close();
 				}
 			}
+		}
+	}
+
+	/**
+	 * Residualize the slice as jimple files in the output directory.
+	 */
+	private void residualize() {
+		if (preResJimpleDump) {
+			dumpJimple("_preRes", false);
+		}
+
+		destructivelyUpdateJimple();
+
+		if (postResJimpleDump) {
+			dumpJimple("_postRes", true);
 		}
 	}
 
@@ -574,9 +677,7 @@ public class SliceXMLizerCLI
 		// save the configuration
 		try {
 			if (configFileName != null) {
-				final BufferedWriter _configFile = new BufferedWriter(new FileWriter(configFileName));
-				_configFile.write(slicer.stringizeConfiguration());
-				_configFile.close();
+				FileUtils.writeStringToFile(new File(configFileName), slicer.stringizeConfiguration(), "UTF-8");
 			} else {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("Configuration file name is unspecified.  Printing to console.");
@@ -609,6 +710,8 @@ public class SliceXMLizerCLI
 /*
    ChangeLog:
    $Log$
+   Revision 1.41  2004/06/26 10:16:35  venku
+   - bug #389. FIXED.
    Revision 1.40  2004/06/14 08:39:29  venku
    - added a property to SootBasedDriver to control the type of statement graph
      factory to be used.

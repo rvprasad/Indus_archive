@@ -1,0 +1,57 @@
+<xsd:schema id="slicerConfig" version="1.0" xml:lang="en"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:slicer="http://indus.projects.cis.ksu.edu/slicer"
+    targetNamespace="http://indus.projects.cis.ksu.edu/slicer"
+    elementFormDefault="qualified"
+    attributeFormDefault="qualified"
+    blockDefault="restriction"
+    finalDefault="restriction">
+
+	<xsd:element id="criteria" name="criteria">
+		<xsd:annotation>
+        <xsd:appinfo>
+          Collection of Criterion
+        </xsd:appinfo>
+        <xsd:documentation>
+          This is a set of criterion specifications.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="criterion" type="slicer:criterion" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+	</xsd:element>
+
+	<xsd:attribute name="index" type="xsd:nonNegativeInteger"/>			
+
+	<xsd:complexType name="stmt">
+		<xsd:attribute ref="slicer:index" use="required"/>
+		<xsd:attribute name="considerEntireStmt" type="xsd:boolean" use="required"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="expr">
+		<xsd:attribute ref="slicer:index" use="required"/>
+	</xsd:complexType>
+
+	<xsd:complexType id="criterion" name="criterion">
+		<xsd:sequence>
+			<xsd:element name="className" type="xsd:string"/>
+			<xsd:element name="method" type="slicer:method"/>
+			<xsd:element name="stmt" type="slicer:stmt"/>
+			<xsd:element name="expr" type="slicer:expr" minOccurs="0"/>
+		</xsd:sequence>
+		<xsd:attribute name="considerExecution" type="xsd:boolean" use="optional"/>
+	</xsd:complexType>
+
+	<xsd:complexType id="method" name="method">
+		<xsd:sequence>
+			<xsd:element name="methodName" type="xsd:string"/>
+			<xsd:element name="returnTypeName" type="xsd:string"/>
+			<xsd:sequence>
+				<xsd:element name="parameterTypeName" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:sequence>
+	</xsd:complexType>
+
+</xsd:schema>

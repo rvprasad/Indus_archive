@@ -1,0 +1,29 @@
+<binding package="edu.ksu.cis.indus.tools.slicer.criteria">
+    <namespace uri="http://indus.projects.cis.ksu.edu/slicer" prefix="slicer" default="all"/>
+	<mapping name="criteria" class="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaSpec"
+        ns="http://indus.projects.cis.ksu.edu/slicer">
+		<collection field="criteria" item-type="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriterionSpec" 
+			factory="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriteriaSpec.createCriteriaContainer"/>
+	</mapping>
+	<mapping name="criterion" class="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriterionSpec" 
+         ns="http://indus.projects.cis.ksu.edu/slicer">
+		<value style="attribute" name="considerExecution" field="considerExecution" type="boolean"/>
+		<value name="className" field="className" type="java.lang.String"/>
+		<structure name="method">
+			<value name="methodName" field="methodName" type="java.lang.String"/>
+			<value name="returnTypeName" field="returnTypeName" type="java.lang.String"/>
+			<collection field="parameterTypeNames" ordered="true" 
+				factory="edu.ksu.cis.indus.tools.slicer.criteria.SliceCriterionSpec.createParameterTypeNamesContainer">
+				<value name="parameterTypeName" type="java.lang.String"/>
+			</collection>
+		</structure>
+		<structure name="stmt">
+			<value style="attribute" name="index" field="stmtIndex" type="int"/>
+			<value style="attribute" name="considerEntireStmt" field="considerEntireStmt" type="boolean"/>
+		</structure>
+		<structure name="expr" usage="optional">
+			<value style="attribute" name="index" field="exprIndex" type="int" default="-1"/>
+		</structure>
+	</mapping>
+</binding>
+    

@@ -27,6 +27,7 @@
         <pathelement location="${jars.dir}/commons-logging.jar"/>
         <pathelement location="${jars.dir}/commons-pool.jar"/>
         <pathelement location="${jars.dir}/commons-lang.jar"/>
+        <pathelement location="${jars.dir}/commons-io.jar"/>        
         <pathelement location="${jars.dir}/commons-collections.jar"/>
         <pathelement location="${banderaCommons.jars.dir}/banderaCommons.jar"/>        
         <pathelement location="${banderaToolFramework.jars.dir}/banderaToolFramework.jar"/>
@@ -49,10 +50,13 @@
      </taskdef>
   
     <target name="bind">
-        <bind verbose="true" binding="${basedir}/auxiliary/slicerConfig_JiBXBinding.xml">
+        <bind verbose="true">
+        	<bindingfileset dir="${basedir}/auxiliary/">
+        		<include name="**/*_JiBXBinding.xml"/>
+        	</bindingfileset>
         	<classpath>
         		<path refid="bind.classpath"/>
-	        	<pathelement location="../Indus/${build.dir}/"/>
+    	        <pathelement location="../Indus/${build.dir}/"/>
     	        <pathelement location="${build.dir}"/>
         	</classpath>
         </bind>
